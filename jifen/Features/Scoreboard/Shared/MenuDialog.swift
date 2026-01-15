@@ -1,0 +1,171 @@
+//
+//  MenuDialog.swift
+//  jifen
+//
+//  Custom menu dialog - based on HarmonyOS design
+//
+
+import SwiftUI
+
+struct MenuDialog: View {
+    let isVisible: Bool
+    let onClose: () -> Void
+    let onMenuItemClick: (String) -> Void
+    
+    var body: some View {
+        if isVisible {
+            ZStack {
+                // Background overlay
+                Color.black.opacity(0.6)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        onClose()
+                    }
+                
+                // Dialog content
+                VStack(spacing: 0) {
+                    // Title bar
+                    HStack {
+                        Text("操作")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                        
+                        Button(action: onClose) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 16))
+                                .foregroundColor(.white)
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    Circle()
+                                        .fill(Color.white.opacity(0.1))
+                                )
+                        }
+                    }
+                    .padding(.top, 8)
+                    .padding(.horizontal, 20)
+                    .frame(height: 48)
+                    
+                    // Menu grid (3x3)
+                    LazyVGrid(columns: [
+                        GridItem(.flexible(), spacing: 10),
+                        GridItem(.flexible(), spacing: 10),
+                        GridItem(.flexible(), spacing: 10)
+                    ], spacing: 8) {
+                        // Whistle
+                        MenuCard(
+                            title: "哨子",
+                            icon: "bell.fill",
+                            action: { onMenuItemClick("whistle") }
+                        )
+                        
+                        // Font
+                        MenuCard(
+                            title: "字体",
+                            customText: "Aa",
+                            action: { onMenuItemClick("font") }
+                        )
+                        
+                        // Screenshot
+                        MenuCard(
+                            title: "截图",
+                            icon: "camera.fill",
+                            action: { onMenuItemClick("screenshot") }
+                        )
+                        
+                        // Exchange sides
+                        MenuCard(
+                            title: "交换边",
+                            icon: "arrow.left.arrow.right",
+                            keepDialogOpen: true,
+                            action: { onMenuItemClick("exchangeSide") }
+                        )
+                        
+                        // Reset
+                        MenuCard(
+                            title: "重置",
+                            icon: "arrow.counterclockwise",
+                            keepDialogOpen: true,
+                            action: { onMenuItemClick("reset") }
+                        )
+                        
+                        // Undo
+                        MenuCard(
+                            title: "撤销",
+                            icon: "arrow.uturn.backward",
+                            keepDialogOpen: true,
+                            action: { onMenuItemClick("undo") }
+                        )
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                }
+                .frame(width: 320)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color(hex: "1E1E1E").opacity(0.85))
+                )
+                .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: 12)
+            }
+        }
+    }
+}
+
+struct MenuCard: View {
+    let title: String
+    var icon: String? = nil
+    var customText: String? = nil
+    var keepDialogOpen: Bool = false
+    let action: () -> Void
+    
+    @State private var isPressed = false
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            VStack(spacing: 6) {
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 28))
+                        .foregroundColor(.white)
+                } else if let customText = customText {
+                    Text(customText)
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                
+                Text(title)
+                    .font(.system(size: 13))
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 80)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isPressed ? Color.white.opacity(0.15) : Color.white.opacity(0.1))
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    isPressed = true
+                }
+                .onEnded { _ in
+                    isPressed = false
+                }
+        )
+    }
+}
+
+#Preview {
+    MenuDialog(
+        isVisible: true,
+        onClose: {},
+        onMenuItemClick: { action in
+            print("Menu item clicked: \(action)")
+        }
+    )
+}
+

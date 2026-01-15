@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "我们需要访问您的相册以保存计分板截图。";
+

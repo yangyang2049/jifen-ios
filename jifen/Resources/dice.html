@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Dice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: pointer;
+        }
+
+        #wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            perspective: 1200px;
+        }
+
+        #platform {
+            width: 200px;
+            height: 200px;
+            transform-style: preserve-3d;
+        }
+
+        #platform.settling {
+            transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+
+        #dice {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            transform-style: preserve-3d;
+            transform: translateZ(-100px);
+        }
+
+        #dice.settling {
+            transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+
+        .side {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%);
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.1);
+            border-radius: 40px;
+        }
+
+        #dice .inner {
+            background: #f0f0f0;
+            box-shadow: none;
+            border-radius: 38px;
+        }
+
+        #dice .cover {
+            background: #e8e8e8;
+            box-shadow: none;
+            border-radius: 0;
+            transform: translateZ(0px);
+        }
+
+        #dice .cover.x {
+            transform: rotateY(90deg);
+        }
+
+        #dice .cover.z {
+            transform: rotateX(90deg);
+        }
+
+        /* 6个面的位置 */
+        #dice .front {
+            transform: translateZ(100px);
+        }
+
+        #dice .front.inner {
+            transform: translateZ(98px);
+        }
+
+        #dice .back {
+            transform: rotateX(-180deg) translateZ(100px);
+        }
+
+        #dice .back.inner {
+            transform: rotateX(-180deg) translateZ(98px);
+        }
+
+        #dice .right {
+            transform: rotateY(90deg) translateZ(100px);
+        }
+
+        #dice .right.inner {
+            transform: rotateY(90deg) translateZ(98px);
+        }
+
+        #dice .left {
+            transform: rotateY(-90deg) translateZ(100px);
+        }
+
+        #dice .left.inner {
+            transform: rotateY(-90deg) translateZ(98px);
+        }
+
+        #dice .top {
+            transform: rotateX(90deg) translateZ(100px);
+        }
+
+        #dice .top.inner {
+            transform: rotateX(90deg) translateZ(98px);
+        }
+
+        #dice .bottom {
+            transform: rotateX(-90deg) translateZ(100px);
+        }
+
+        #dice .bottom.inner {
+            transform: rotateX(-90deg) translateZ(98px);
+        }
+
+        /* 点数样式 */
+        .dot {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: radial-gradient(circle at 30% 30%, #e53935 0%, #c62828 50%, #b71c1c 100%);
+            box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .dot.center {
+            margin: 80px 0 0 80px;
+        }
+
+        .dot.dtop {
+            margin-top: 25px;
+        }
+
+        .dot.dleft {
+            margin-left: 135px;
+        }
+
+        .dot.dright {
+            margin-left: 25px;
+        }
+
+        .dot.dbottom {
+            margin-top: 135px;
+        }
+
+        .dot.center.dleft {
+            margin: 80px 0 0 25px;
+        }
+
+        .dot.center.dright {
+            margin: 80px 0 0 135px;
+        }
+
+        /* 滚动动画 */
+        @keyframes spin {
+            0% {
+                transform: translateZ(-100px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+            }
+
+            20% {
+                transform: translateZ(-100px) rotateX(135deg) rotateY(135deg) rotateZ(0deg);
+            }
+
+            40% {
+                transform: translateZ(-100px) rotateX(270deg) rotateY(70deg) rotateZ(135deg);
+            }
+
+            60% {
+                transform: translateZ(-100px) rotateX(405deg) rotateY(270deg) rotateZ(270deg);
+            }
+
+            80% {
+                transform: translateZ(-100px) rotateX(135deg) rotateY(405deg) rotateZ(200deg);
+            }
+
+            100% {
+                transform: translateZ(-100px) rotateX(270deg) rotateY(270deg) rotateZ(270deg);
+            }
+        }
+
+        @keyframes roll {
+            0% {
+                transform: translate3d(-75px, -15px, -150px);
+            }
+
+            12.5% {
+                transform: translate3d(0px, 0, -45px);
+            }
+
+            25% {
+                transform: translate3d(75px, -15px, -150px);
+            }
+
+            37.5% {
+                transform: translate3d(0px, -30px, -225px);
+            }
+
+            50% {
+                transform: translate3d(-75px, -15px, -150px);
+            }
+
+            62.5% {
+                transform: translate3d(0px, 0, -45px);
+            }
+
+            75% {
+                transform: translate3d(75px, -15px, -150px);
+            }
+
+            87.5% {
+                transform: translate3d(-45px, -8px, -75px);
+            }
+
+            95% {
+                transform: translate3d(20px, -4px, -35px);
+            }
+
+            100% {
+                transform: translate3d(0px, 0px, 0px);
+            }
+        }
+
+        /* 应用动画 */
+        #dice.rolling {
+            animation: spin 1.4s ease-out forwards;
+        }
+
+        #platform.rolling {
+            animation: roll 1.4s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="platform">
+            <div id="dice">
+                <!-- Face 1 (1 dot) - Front -->
+                <div class="side front">
+                    <div class="dot center"></div>
+                </div>
+                <div class="side front inner"></div>
+
+                <!-- Face 6 (6 dots) - Back -->
+                <div class="side back">
+                    <div class="dot dtop dleft"></div>
+                    <div class="dot dtop dright"></div>
+                    <div class="dot dbottom dleft"></div>
+                    <div class="dot dbottom dright"></div>
+                    <div class="dot center dleft"></div>
+                    <div class="dot center dright"></div>
+                </div>
+                <div class="side back inner"></div>
+
+                <!-- Face 2 (2 dots) - Top -->
+                <div class="side top">
+                    <div class="dot dtop dleft"></div>
+                    <div class="dot dbottom dright"></div>
+                </div>
+                <div class="side top inner"></div>
+
+                <!-- Face 5 (5 dots) - Bottom -->
+                <div class="side bottom">
+                    <div class="dot center"></div>
+                    <div class="dot dtop dleft"></div>
+                    <div class="dot dtop dright"></div>
+                    <div class="dot dbottom dleft"></div>
+                    <div class="dot dbottom dright"></div>
+                </div>
+                <div class="side bottom inner"></div>
+
+                <!-- Face 3 (3 dots) - Right -->
+                <div class="side right">
+                    <div class="dot dtop dleft"></div>
+                    <div class="dot center"></div>
+                    <div class="dot dbottom dright"></div>
+                </div>
+                <div class="side right inner"></div>
+
+                <!-- Face 4 (4 dots) - Left -->
+                <div class="side left">
+                    <div class="dot dtop dleft"></div>
+                    <div class="dot dtop dright"></div>
+                    <div class="dot dbottom dleft"></div>
+                    <div class="dot dbottom dright"></div>
+                </div>
+                <div class="side left inner"></div>
+
+                <!-- 填充边缘 -->
+                <div class="side cover x"></div>
+                <div class="side cover y"></div>
+                <div class="side cover z"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dice = document.getElementById('dice');
+        const platform = document.getElementById('platform');
+        let isRolling = false;
+
+        // 骰子面的最终旋转角度（对面之和为7）
+        const faceRotations = {
+            1: { x: 0, y: 0, z: 0 },           // front
+            2: { x: -90, y: 0, z: 0 },         // top
+            3: { x: 0, y: -90, z: 0 },         // right
+            4: { x: 0, y: 90, z: 0 },          // left
+            5: { x: 90, y: 0, z: 0 },          // bottom
+            6: { x: 180, y: 0, z: 0 }          // back
+        };
+
+        function rollDice() {
+            if (isRolling) return;
+
+            isRolling = true;
+
+            // 调用原生音效
+            try {
+                if (window.nativeInterface && window.nativeInterface.playSound) {
+                    window.nativeInterface.playSound();
+                }
+            } catch (e) {
+                console.log('Native sound not available');
+            }
+
+            // 生成随机结果
+            const finalValue = Math.floor(Math.random() * 6) + 1;
+            const finalRotation = faceRotations[finalValue];
+
+            // 添加滚动动画
+            dice.classList.add('rolling');
+            platform.classList.add('rolling');
+
+            // 1.4秒后停止动画并显示结果
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                platform.classList.remove('rolling');
+
+                // 稍微延迟一下再添加settling，避免跳变
+                setTimeout(() => {
+                    // 添加平滑过渡效果
+                    dice.classList.add('settling');
+                    platform.classList.add('settling');
+
+                    // 设置最终位置（平滑过渡到正中）
+                    dice.style.transform = `translateZ(-100px) rotateX(${finalRotation.x}deg) rotateY(${finalRotation.y}deg) rotateZ(${finalRotation.z}deg)`;
+                    platform.style.transform = 'translate3d(0, 0, 0)';
+
+                    setTimeout(() => {
+                        dice.classList.remove('settling');
+                        platform.classList.remove('settling');
+                        isRolling = false;
+
+                        // 通知原生结果
+                        try {
+                            if (window.nativeInterface && window.nativeInterface.onRollComplete) {
+                                window.nativeInterface.onRollComplete(finalValue);
+                            }
+                        } catch (e) {
+                            console.log('Native callback not available');
+                        }
+                    }, 600);
+                }, 50);
+            }, 1400);
+        }
+
+        // 点击整个屏幕触发
+        document.body.addEventListener('click', rollDice);
+        document.body.addEventListener('touchstart', function (e) {
+            e.preventDefault();
+            rollDice();
+        }, { passive: false });
+
+        // 初始化显示1点
+        dice.style.transform = `translateZ(-100px) rotateX(${faceRotations[1].x}deg) rotateY(${faceRotations[1].y}deg) rotateZ(${faceRotations[1].z}deg)`;
+    </script>
+</body>
+
+</html>
+

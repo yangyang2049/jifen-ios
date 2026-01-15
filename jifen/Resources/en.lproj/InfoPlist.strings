@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "We need access to your photo library to save scoreboard screenshots.";
+
