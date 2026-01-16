@@ -1,0 +1,266 @@
+/* Localizable.strings
+   English localization for jifen app
+*/
+
+/* App Name */
+"app_name" = "Jifen";
+
+/* Tab Bar */
+"tab_home" = "Home";
+"tab_score" = "Score";
+"tab_tools" = "Tools";
+
+/* Home Screen */
+"recent_records" = "Recent Records";
+"home_quick_start" = "Quick Start";
+"home_start_game" = "Start Game";
+"home_new_game_short" = "New Game";
+"home_all_items" = "All Items";
+"home_tools" = "Tools";
+"home_no_records" = "No recent records";
+"home_view_all_records" = "View all records";
+"home_yesterday" = "Yesterday";
+"home_complete_and_save" = "Complete and Save";
+"home_edit_primary_card" = "Customize primary card";
+"home_edit_secondary_card" = "Customize secondary card";
+
+/* Tool Names */
+"home_tool_whistle" = "Whistle";
+"home_tool_rankings" = "Rankings";
+"home_tool_timer" = "Timer";
+"home_tool_coin" = "Flip Coin";
+"home_tool_dice" = "Dice";
+"home_tool_team" = "Random Team";
+
+/* Dialog */
+"dialog_new_game_title" = "New Game";
+
+/* Default Team Names */
+"red_team" = "Red Team";
+"blue_team" = "Blue Team";
+
+/* Timer Settings */
+"timer_settings_for" = "Timer settings for";
+"unknown" = "Unknown";
+
+/* Game Types */
+"game_pingpong" = "Ping Pong";
+"game_badminton" = "Badminton";
+"game_tennis" = "Tennis";
+"game_basketball" = "Basketball";
+"game_football" = "Football";
+"game_volleyball" = "Volleyball";
+"game_go" = "Go";
+"game_xiangqi" = "Chinese Chess";
+"game_chess" = "Chess";
+"game_checkers" = "Checkers";
+"game_boxing" = "Boxing";
+"game_billiards" = "Billiards";
+"game_pickleball" = "Pickleball";
+"game_guandan" = "Guandan";
+"game_doudizhu" = "Doudizhu";
+"game_simple_score" = "Simple Score";
+"game_multi_scoreboard" = "Multi Scoreboard";
+"game_counter" = "Counter";
+
+/* Setup Titles */
+"football_setup_title" = "Football Setup";
+"basketball_setup_title" = "Basketball Setup";
+"volleyball_setup_title" = "Volleyball Setup";
+"pingpong_setup_title" = "Ping Pong Setup";
+"badminton_setup_title" = "Badminton Setup";
+"tennis_setup_title" = "Tennis Setup";
+"setup" = "Setup";
+
+/* Settings Labels */
+"sets_label" = "Sets";
+"points_per_set_label" = "Points per Set";
+"auto_change_sides" = "Auto Change Sides";
+"start_game" = "Start Game";
+
+/* Ping Pong Settings */
+"pingpong_set_count_label" = "Set Count";
+"pingpong_auto_change_sides" = "Auto change sides";
+"best_of_3_sets" = "Best of 3";
+"best_of_5_sets" = "Best of 5";
+"best_of_7_sets" = "Best of 7";
+"points_11" = "11 points";
+"points_21" = "21 points";
+
+/* Tennis Settings */
+"tennis_set_count_label" = "Set Count";
+"tennis_tiebreak_label" = "Tiebreak";
+"tennis_auto_change_sides" = "Auto change sides";
+"sets_1" = "1 set";
+"sets_3_best_of_2" = "Best of 3";
+"sets_5_best_of_3" = "Best of 5";
+
+/* Badminton Settings */
+"badminton_auto_change_sides" = "Auto change sides";
+
+/* Volleyball Settings */
+"volleyball_auto_change_sides" = "Auto change sides";
+
+/* Common */
+"cancel" = "Cancel";
+"confirm" = "Confirm";
+"save" = "Save";
+"reset" = "Reset";
+"back" = "Back";
+"team_or_player_name" = "Team or Player Name";
+"tap_to_quick_use" = "Tap to quick use";
+"game_ended" = "Game Ended";
+"back_to_new_game" = "Back to New Game";
+
+/* Time Formats */
+"minutes_ago" = "%d minutes ago";
+"hours_ago" = "%d hours ago";
+"days_ago" = "%d days ago";
+"today" = "Today";
+"yesterday" = "Yesterday";
+"date_format" = "%d/%d";
+
+/* Duration Format */
+"duration_hms" = "%dh %dm %ds";
+"duration_ms" = "%dm %ds";
+"duration_s" = "%ds";
+
+/* Messages */
+"load_recent_game" = "Loaded recent game";
+"duplicate_names_warning" = "Duplicate names warning";
+"undone" = "Undone";
+"change_sides" = "Change Sides";
+"please_change_sides_manually" = "Please change sides manually";
+"press_again_to_exit" = "Press again to exit";
+"press_again_to_reset" = "Press again to reset";
+"has_been_reset" = "Has been reset";
+"no_undo_available" = "No undo available";
+"screenshot_failed" = "Screenshot failed";
+"screenshot_saved" = "Screenshot saved";
+"unknown_error" = "Unknown error";
+"please_allow_photo_access" = "Please allow photo access in Settings";
+"save_failed" = "Save failed: %@";
+"font_changed" = "Font changed";
+
+/* Set/Game End Messages */
+"set_ended_winner" = "Set %d ended, %@ won, score %d-%d";
+"game_ended_score" = "Game %d ended, score %d-%d";
+"winner_wins" = "%@ Wins";
+
+/* Rest Countdown */
+"set_break" = "Set Break";
+"halftime_break" = "Halftime Break";
+
+/* Scoreboard Tab */
+"scoreboard_title" = "Score";
+"not_implemented" = "(Not implemented)";
+
+/* Tools Tab */
+"tools_title" = "Tools";
+"match_tools" = "Match Tools";
+"other_tools" = "Other Tools";
+
+/* Tool Items */
+"tool_flip_coin" = "Flip Coin";
+"tool_dice" = "Dice";
+"tool_whistle" = "Whistle";
+"tool_random_team" = "Random Team";
+"tool_red_yellow_card" = "Red/Yellow Card";
+"tool_points_table" = "Points Table";
+"tool_time" = "Time Tool";
+"tool_aa_calculator" = "AA Calculator";
+"tool_ten_second" = "10s Challenge";
+
+/* Whistle Tool */
+"whistle_title" = "Whistle";
+"short_whistle" = "Short";
+"long_whistle" = "Long";
+
+/* Random Team Tool */
+"random_team_title" = "Random Team";
+"players_4" = "4 Players";
+"players_6" = "6 Players";
+"players_8" = "8 Players";
+"random_grouping" = "Random Grouping";
+"simulate" = "Simulate";
+"try_again" = "Try Again";
+"place_fingers_on_blocks" = "Place fingers on blocks (%d/%d)";
+"grouping_in_progress" = "Grouping...";
+"grouping_complete" = "Grouping Complete!";
+
+/* Flip Coin Tool */
+"flip_coin_title" = "Flip Coin";
+"tap_to_flip" = "Tap to flip";
+"heads" = "Heads";
+"tails" = "Tails";
+"total" = "Total";
+
+/* Dice Tool */
+"dice_title" = "Dice";
+"tap_to_roll" = "Tap to roll dice";
+
+/* Points Table Tool */
+"points_table_title" = "Points Table";
+"no_players" = "No players";
+"add_player" = "Add Player";
+"player_name" = "Player Name";
+"add" = "Add";
+"add_player_title" = "Add Player";
+
+/* Ten Second Challenge */
+"ten_second_title" = "10s Challenge";
+"tap_to_start_stop" = "Tap to start, try to stop at 10 seconds";
+"target_10_seconds" = "Target is 10.00 seconds";
+"error_label" = "Error";
+"seconds" = "s";
+"start" = "Start";
+"stop" = "Stop";
+"best" = "Best";
+"attempts" = "Attempts";
+"clear" = "Clear";
+
+/* Red Yellow Card Tool */
+"red_yellow_card_title" = "Red/Yellow Card";
+"swipe_to_switch" = "Swipe left/right to switch";
+
+/* Time Tool */
+"time_tool_title" = "Time Tool";
+
+/* AA Calculator Tool */
+"aa_calculator_title" = "AA Calculator";
+"total_amount" = "Total Amount";
+"enter_amount" = "Enter amount";
+"participants" = "Participants";
+"person" = "person";
+"each_pays" = "Each Pays";
+"calculate" = "Calculate";
+"enter_valid_amount" = "Please enter valid amount";
+
+/* Fullscreen Barrage */
+"fullscreen_barrage" = "Fullscreen Barrage";
+"enter_barrage_content" = "Enter barrage content";
+"show" = "Show";
+"barrage_content" = "Barrage Content";
+
+/* Menu Dialog */
+"operations" = "Operations";
+"menu_whistle" = "Whistle";
+"menu_font" = "Font";
+"menu_screenshot" = "Screenshot";
+"menu_swap_sides" = "Swap Sides";
+"menu_reset" = "Reset";
+"menu_undo" = "Undo";
+
+/* Font Selection */
+"select_font" = "Select Font";
+"font_default" = "Default";
+"font_digital" = "Digital";
+"font_harmony_digit" = "HarmonyOS Digit";
+"font_seven_segment" = "Seven Segment";
+
+/* Save Screenshot */
+"save_screenshot" = "Save Screenshot";
+"filename" = "Filename";
+
+/* Rest Countdown Overlay */
+"rest_countdown" = "Rest Countdown";

@@ -11,8 +11,8 @@ import Foundation
 class BaseScoreViewModel: ScoreViewModelProtocol {
     // MARK: - Properties
     
-    var leftTeam: TeamData = TeamData(name: "红队", score: 0)
-    var rightTeam: TeamData = TeamData(name: "蓝队", score: 0)
+    var leftTeam: TeamData = TeamData(name: NSLocalizedString("red_team", comment: "Red Team"), score: 0)
+    var rightTeam: TeamData = TeamData(name: NSLocalizedString("blue_team", comment: "Blue Team"), score: 0)
     var gameFinished: Bool = false
     
     // MARK: - Edit State
@@ -151,9 +151,9 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
         let input = editState.currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
         // Always update, even if empty (to allow clearing)
         if isLeft {
-            leftTeam.name = input.isEmpty ? "红队" : input
+            leftTeam.name = input.isEmpty ? NSLocalizedString("red_team", comment: "Red Team") : input
         } else {
-            rightTeam.name = input.isEmpty ? "蓝队" : input
+            rightTeam.name = input.isEmpty ? NSLocalizedString("blue_team", comment: "Blue Team") : input
         }
         
         // Clear editing state

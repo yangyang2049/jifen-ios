@@ -160,8 +160,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 				"zh-Hans",
+				Base,
 			);
 			mainGroup = 0FA5BAC82F18F3EB00182375;
 			minimizedProjectReferenceProxies = 1;

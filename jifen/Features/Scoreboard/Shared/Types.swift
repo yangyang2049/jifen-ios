@@ -17,18 +17,42 @@ enum GameType: String, Codable, CaseIterable {
     case basketball = "basketball"
     case football = "football"
     case volleyball = "volleyball"
-    
+    case go = "go"
+    case xiangqi = "xiangqi"
+    case chess = "chess"
+    case checkers = "checkers"
+    case boxing = "boxing"
+    case billiards = "billiards"
+    case pickleball = "pickleball"
+    case guandan = "guandan"
+    case doudizhu = "doudizhu"
+    case simpleScore = "simpleScore"
+    case multiScoreboard = "multiScoreboard"
+    case counter = "counter"
+
     var displayName: String {
         switch self {
-        case .pingpong: return "乒乓球"
-        case .badminton: return "羽毛球"
-        case .tennis: return "网球"
-        case .basketball: return "篮球"
-        case .football: return "足球"
-        case .volleyball: return "排球"
+        case .pingpong: return NSLocalizedString("game_pingpong", comment: "Ping Pong")
+        case .badminton: return NSLocalizedString("game_badminton", comment: "Badminton")
+        case .tennis: return NSLocalizedString("game_tennis", comment: "Tennis")
+        case .basketball: return NSLocalizedString("game_basketball", comment: "Basketball")
+        case .football: return NSLocalizedString("game_football", comment: "Football")
+        case .volleyball: return NSLocalizedString("game_volleyball", comment: "Volleyball")
+        case .go: return NSLocalizedString("game_go", comment: "Go")
+        case .xiangqi: return NSLocalizedString("game_xiangqi", comment: "Chinese Chess")
+        case .chess: return NSLocalizedString("game_chess", comment: "Chess")
+        case .checkers: return NSLocalizedString("game_checkers", comment: "Checkers")
+        case .boxing: return NSLocalizedString("game_boxing", comment: "Boxing")
+        case .billiards: return NSLocalizedString("game_billiards", comment: "Billiards")
+        case .pickleball: return NSLocalizedString("game_pickleball", comment: "Pickleball")
+        case .guandan: return NSLocalizedString("game_guandan", comment: "Guandan")
+        case .doudizhu: return NSLocalizedString("game_doudizhu", comment: "Doudizhu")
+        case .simpleScore: return NSLocalizedString("game_simple_score", comment: "Simple Score")
+        case .multiScoreboard: return NSLocalizedString("game_multi_scoreboard", comment: "Multi Scoreboard")
+        case .counter: return NSLocalizedString("game_counter", comment: "Counter")
         }
     }
-    
+
     var icon: String {
         switch self {
         case .pingpong: return "🏓"
@@ -37,6 +61,18 @@ enum GameType: String, Codable, CaseIterable {
         case .basketball: return "🏀"
         case .football: return "⚽"
         case .volleyball: return "🏐"
+        case .go: return "⚪⚫"
+        case .xiangqi: return "象棋"
+        case .chess: return "♔♕"
+        case .checkers: return "🏁"
+        case .boxing: return "🥊"
+        case .billiards: return "🎱"
+        case .pickleball: return "🏓"
+        case .guandan: return "🃏"
+        case .doudizhu: return "🃏"
+        case .simpleScore: return "📝"
+        case .multiScoreboard: return "📊"
+        case .counter: return "➕"
         }
     }
 }
@@ -176,9 +212,9 @@ struct TemplateConfig {
 
 // MARK: - Name Type
 
-enum NameType {
-    case team
-    case player
+enum NameType: String, Codable {
+    case team = "TEAM"
+    case player = "PLAYER"
 }
 
 // MARK: - Set End Callback Data

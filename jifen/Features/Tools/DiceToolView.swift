@@ -34,14 +34,14 @@ struct DiceToolView: View {
             if !hasRolled && showHint {
                 VStack {
                     Spacer()
-                    Text("点击屏幕摇骰子")
+                    Text(NSLocalizedString("tap_to_roll", comment: "Tap to roll dice"))
                         .font(.system(size: 16))
                         .foregroundColor(.white.opacity(0.4))
                         .padding(.bottom, 80)
                 }
             }
         }
-        .navigationTitle("骰子")
+        .navigationTitle(NSLocalizedString("dice_title", comment: "Dice title"))
         .navigationBarTitleDisplayMode(.inline)
         .preferredColorScheme(.dark)
         .onAppear {

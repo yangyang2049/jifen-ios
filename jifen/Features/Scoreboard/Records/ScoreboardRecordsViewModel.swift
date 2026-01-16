@@ -1,20 +1,14 @@
-//
-//  ScoreboardRecordsViewModel.swift
-//  jifen
-//
-//  Scoreboard records view model - manages loading and grouping records
-//
-
 import Foundation
 import SwiftUI
+import Combine // Import Combine for ObservableObject and Published
 
-@Observable
-class ScoreboardRecordsViewModel {
+// Remove @Observable and conform to ObservableObject
+final class ScoreboardRecordsViewModel: ObservableObject { // Add final and ObservableObject
     static let shared = ScoreboardRecordsViewModel()
     
-    var records: [ScoreboardRecordSummary] = []
-    private(set) var groupedRecords: [ScoreboardRecordGroup] = []
-    private(set) var isLoading: Bool = false
+    @Published var records: [ScoreboardRecordSummary] = [] // Add @Published
+    @Published private(set) var groupedRecords: [ScoreboardRecordGroup] = [] // Add @Published
+    @Published private(set) var isLoading: Bool = false // Add @Published
     
     private var listeners: [UUID: () -> Void] = [:]
     private var lastRefreshTime: TimeInterval = 0
@@ -25,7 +19,8 @@ class ScoreboardRecordsViewModel {
     }
     
     // MARK: - Listener Management
-    
+    // With @Published, listeners might not be strictly necessary for SwiftUI views,
+    // but they can be kept for other parts of the app or specific use cases.
     func addListener(_ listener: @escaping () -> Void) -> UUID {
         let id = UUID()
         listeners[id] = listener
@@ -37,6 +32,9 @@ class ScoreboardRecordsViewModel {
     }
     
     private func notifyListeners() {
+        // This will be handled automatically by @Published,
+        // but if there are non-SwiftUI consumers of this ViewModel,
+        // these listeners might still be relevant.
         listeners.values.forEach { $0() }
     }
     
@@ -52,15 +50,16 @@ class ScoreboardRecordsViewModel {
         
         lastRefreshTime = now
         
-        isLoading = true
-        notifyListeners()
+        isLoading = true // Will publish change
+        // notifyListeners() // Not strictly needed for @Published
         
+        // Use DispatchQueue.main.async for UI updates, but ensure data fetching is off main thread if heavy
         DispatchQueue.main.async {
             let summaries = ScoreboardRecordManager.shared.getAllRecordSummaries()
-            self.records = summaries
-            self.groupedRecords = self.groupRecordsByDate(summaries)
-            self.isLoading = false
-            self.notifyListeners()
+            self.records = summaries // Will publish change
+            self.groupedRecords = self.groupRecordsByDate(summaries) // Will publish change
+            self.isLoading = false // Will publish change
+            // self.notifyListeners() // Not strictly needed for @Published
         }
     }
     
@@ -71,7 +70,8 @@ class ScoreboardRecordsViewModel {
     }
     
     // MARK: - Get Records
-    
+    // These getters can be removed if direct access to @Published properties is preferred,
+    // but keeping them doesn't hurt.
     func getRecords() -> [ScoreboardRecordSummary] {
         return records
     }
@@ -123,4 +123,3 @@ class ScoreboardRecordsViewModel {
         return result
     }
 }
-

@@ -18,19 +18,19 @@ struct MainTabView: View {
                 HomeTab()
                     .tag(0)
                     .tabItem {
-                        Label("首页", systemImage: "house.fill")
+                        Label(NSLocalizedString("tab_home", comment: "Home tab"), systemImage: "house.fill")
                     }
                 
                 ScoreboardTab()
                     .tag(1)
                     .tabItem {
-                        Label("计分", systemImage: "sportscourt.fill")
+                        Label(NSLocalizedString("tab_score", comment: "Score tab"), systemImage: "sportscourt.fill")
                     }
                 
                 ToolsTab()
                     .tag(2)
                     .tabItem {
-                        Label("工具", systemImage: "wrench.and.screwdriver.fill")
+                        Label(NSLocalizedString("tab_tools", comment: "Tools tab"), systemImage: "wrench.and.screwdriver.fill")
                     }
             }
             .accentColor(Theme.accentColor)

@@ -89,7 +89,7 @@ struct FlipCoinView: View {
                 
                 // Hint text (only show once across app installation)
                 if !isFlipping && headsCount + tailsCount == 0 && showHint {
-                    Text("点击抛硬币")
+                    Text(NSLocalizedString("tap_to_flip", comment: "Tap to flip coin"))
                         .font(.system(size: 18))
                         .foregroundColor(.white.opacity(0.5))
                         .padding(.bottom, 100)
@@ -100,7 +100,7 @@ struct FlipCoinView: View {
                     HStack(spacing: 40) {
                         // Heads count
                         VStack(spacing: 4) {
-                            Text("正面")
+                            Text(NSLocalizedString("heads", comment: "Heads"))
                                 .font(.system(size: 12))
                                 .foregroundColor(.white.opacity(0.6))
                             Text("\(headsCount)")
@@ -110,7 +110,7 @@ struct FlipCoinView: View {
                         
                         // Tails count
                         VStack(spacing: 4) {
-                            Text("反面")
+                            Text(NSLocalizedString("tails", comment: "Tails"))
                                 .font(.system(size: 12))
                                 .foregroundColor(.white.opacity(0.6))
                             Text("\(tailsCount)")
@@ -120,7 +120,7 @@ struct FlipCoinView: View {
                         
                         // Total count
                         VStack(spacing: 4) {
-                            Text("总计")
+                            Text(NSLocalizedString("total", comment: "Total"))
                                 .font(.system(size: 12))
                                 .foregroundColor(.white.opacity(0.6))
                             Text("\(headsCount + tailsCount)")
@@ -132,7 +132,7 @@ struct FlipCoinView: View {
                 }
             }
         }
-        .navigationTitle("抛硬币")
+        .navigationTitle(NSLocalizedString("flip_coin_title", comment: "Flip Coin title"))
         .navigationBarTitleDisplayMode(.inline)
         .preferredColorScheme(.dark)
         .onAppear {

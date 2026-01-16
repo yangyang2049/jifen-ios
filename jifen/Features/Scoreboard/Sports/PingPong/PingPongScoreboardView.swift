@@ -75,7 +75,7 @@ struct PingPongScoreboardView: View {
                 Spacer()
             }
         }
-        .navigationTitle("乒乓球")
+        .navigationTitle(NSLocalizedString("game_pingpong", comment: "Ping Pong"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true) // ADDED BACK
@@ -319,32 +319,32 @@ private struct PingPongSettingsSheet: View {
         NavigationView {
             VStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("局数")
+                    Text(NSLocalizedString("sets_label", comment: "Sets label"))
                         .font(.headline)
                         .foregroundColor(.white)
                     
-                    Picker("局数", selection: $maxSets) {
-                        Text("3局2胜").tag(3)
-                        Text("5局3胜").tag(5)
-                        Text("7局4胜").tag(7)
+                    Picker(NSLocalizedString("sets_label", comment: "Sets label"), selection: $maxSets) {
+                        Text(NSLocalizedString("best_of_3_sets", comment: "Best of 3")).tag(3)
+                        Text(NSLocalizedString("best_of_5_sets", comment: "Best of 5")).tag(5)
+                        Text(NSLocalizedString("best_of_7_sets", comment: "Best of 7")).tag(7)
                     }
                     .pickerStyle(.segmented)
                 }
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("每局分数")
+                    Text(NSLocalizedString("points_per_set_label", comment: "Points per set label"))
                         .font(.headline)
                         .foregroundColor(.white)
                     
-                    Picker("每局分数", selection: $pointsPerSet) {
-                        Text("11分").tag(11)
-                        Text("21分").tag(21)
+                    Picker(NSLocalizedString("points_per_set_label", comment: "Points per set label"), selection: $pointsPerSet) {
+                        Text(NSLocalizedString("points_11", comment: "11 points")).tag(11)
+                        Text(NSLocalizedString("points_21", comment: "21 points")).tag(21)
                     }
                     .pickerStyle(.segmented)
                 }
                 
                 Toggle(isOn: $autoChangeSides) {
-                    Text("自动换边")
+                    Text(NSLocalizedString("auto_change_sides", comment: "Auto change sides"))
                         .font(.headline)
                         .foregroundColor(.white)
                 }
@@ -356,7 +356,7 @@ private struct PingPongSettingsSheet: View {
                     onApply()
                     dismiss()
                 }) {
-                    Text("开始比赛")
+                    Text(NSLocalizedString("start_game", comment: "Start Game"))
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -369,7 +369,7 @@ private struct PingPongSettingsSheet: View {
             }
             .padding(24)
             .background(Theme.backgroundColor)
-            .navigationTitle("乒乓球设置")
+            .navigationTitle(NSLocalizedString("pingpong_setup_title", comment: "Ping Pong Setup"))
             .navigationBarTitleDisplayMode(.inline)
         }
         .preferredColorScheme(.dark)

@@ -33,7 +33,7 @@ struct ScoreboardTab: View {
                     }
                 }
             }
-            .navigationTitle("计分")
+            .navigationTitle(NSLocalizedString("scoreboard_title", comment: "Scoreboard title"))
             .navigationBarTitleDisplayMode(.large)
             .preferredColorScheme(.dark)
             .navigationDestination(item: $selectedSport) { sport in
@@ -46,12 +46,12 @@ struct ScoreboardTab: View {
     
     private var sports: [SportItem] {
         [
-            SportItem(emoji: "🏓", title: "乒乓球", gameType: .pingpong, view: AnyView(PingPongScoreboardView())),
-            SportItem(emoji: "🏸", title: "羽毛球", gameType: .badminton, view: AnyView(BadmintonScoreboardView())),
-            SportItem(emoji: "🎾", title: "网球", gameType: .tennis, view: AnyView(TennisScoreboardView())),
-            SportItem(emoji: "🏀", title: "篮球", gameType: .basketball, view: AnyView(Text("篮球 (待实现)").foregroundColor(.white))),
-            SportItem(emoji: "⚽", title: "足球", gameType: .football, view: AnyView(Text("足球 (待实现)").foregroundColor(.white))),
-            SportItem(emoji: "🏐", title: "排球", gameType: .volleyball, view: AnyView(Text("排球 (待实现)").foregroundColor(.white)))
+            SportItem(emoji: "🏓", title: GameType.pingpong.displayName, gameType: .pingpong, view: AnyView(PingPongScoreboardView())),
+            SportItem(emoji: "🏸", title: GameType.badminton.displayName, gameType: .badminton, view: AnyView(BadmintonScoreboardView())),
+            SportItem(emoji: "🎾", title: GameType.tennis.displayName, gameType: .tennis, view: AnyView(TennisScoreboardView())),
+            SportItem(emoji: "🏀", title: GameType.basketball.displayName, gameType: .basketball, view: AnyView(Text("\(GameType.basketball.displayName) \(NSLocalizedString("not_implemented", comment: "Not implemented"))").foregroundColor(.white))),
+            SportItem(emoji: "⚽", title: GameType.football.displayName, gameType: .football, view: AnyView(Text("\(GameType.football.displayName) \(NSLocalizedString("not_implemented", comment: "Not implemented"))").foregroundColor(.white))),
+            SportItem(emoji: "🏐", title: GameType.volleyball.displayName, gameType: .volleyball, view: AnyView(Text("\(GameType.volleyball.displayName) \(NSLocalizedString("not_implemented", comment: "Not implemented"))").foregroundColor(.white)))
         ]
     }
 }

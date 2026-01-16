@@ -1,0 +1,266 @@
+/* Localizable.strings
+   Chinese Simplified localization for jifen app
+*/
+
+/* App Name */
+"app_name" = "积分";
+
+/* Tab Bar */
+"tab_home" = "首页";
+"tab_score" = "计分";
+"tab_tools" = "工具";
+
+/* Home Screen */
+"recent_records" = "最近记录";
+"home_quick_start" = "快速开始";
+"home_start_game" = "开始游戏";
+"home_new_game_short" = "新游戏";
+"home_all_items" = "全部项目";
+"home_tools" = "工具";
+"home_no_records" = "暂无最近记录";
+"home_view_all_records" = "查看全部记录";
+"home_yesterday" = "昨天";
+"home_complete_and_save" = "完成并保存";
+"home_edit_primary_card" = "自定义主卡片";
+"home_edit_secondary_card" = "自定义副卡片";
+
+/* Tool Names */
+"home_tool_whistle" = "哨子";
+"home_tool_rankings" = "排行榜";
+"home_tool_timer" = "计时器";
+"home_tool_coin" = "抛硬币";
+"home_tool_dice" = "骰子";
+"home_tool_team" = "随机分组";
+
+/* Dialog */
+"dialog_new_game_title" = "新游戏";
+
+/* Default Team Names */
+"red_team" = "红队";
+"blue_team" = "蓝队";
+
+/* Timer Settings */
+"timer_settings_for" = "计时器设置";
+"unknown" = "未知";
+
+/* Game Types */
+"game_pingpong" = "乒乓球";
+"game_badminton" = "羽毛球";
+"game_tennis" = "网球";
+"game_basketball" = "篮球";
+"game_football" = "足球";
+"game_volleyball" = "排球";
+"game_go" = "围棋";
+"game_xiangqi" = "象棋";
+"game_chess" = "国际象棋";
+"game_checkers" = "跳棋";
+"game_boxing" = "拳击";
+"game_billiards" = "台球";
+"game_pickleball" = "匹克球";
+"game_guandan" = "掼蛋";
+"game_doudizhu" = "斗地主";
+"game_simple_score" = "简易计分";
+"game_multi_scoreboard" = "多人计分";
+"game_counter" = "计数器";
+
+/* Setup Titles */
+"football_setup_title" = "足球设置";
+"basketball_setup_title" = "篮球设置";
+"volleyball_setup_title" = "排球设置";
+"pingpong_setup_title" = "乒乓球设置";
+"badminton_setup_title" = "羽毛球设置";
+"tennis_setup_title" = "网球设置";
+"setup" = "设置";
+
+/* Settings Labels */
+"sets_label" = "局数";
+"points_per_set_label" = "每局分数";
+"auto_change_sides" = "自动换边";
+"start_game" = "开始游戏";
+
+/* Ping Pong Settings */
+"pingpong_set_count_label" = "局数";
+"pingpong_auto_change_sides" = "自动换边";
+"best_of_3_sets" = "3局2胜";
+"best_of_5_sets" = "5局3胜";
+"best_of_7_sets" = "7局4胜";
+"points_11" = "11分";
+"points_21" = "21分";
+
+/* Tennis Settings */
+"tennis_set_count_label" = "盘数";
+"tennis_tiebreak_label" = "抢七";
+"tennis_auto_change_sides" = "自动换边";
+"sets_1" = "1盘";
+"sets_3_best_of_2" = "3盘2胜";
+"sets_5_best_of_3" = "5盘3胜";
+
+/* Badminton Settings */
+"badminton_auto_change_sides" = "自动换边";
+
+/* Volleyball Settings */
+"volleyball_auto_change_sides" = "自动换边";
+
+/* Common */
+"cancel" = "取消";
+"confirm" = "确定";
+"save" = "保存";
+"reset" = "重置";
+"back" = "返回";
+"team_or_player_name" = "队伍或选手名称";
+"tap_to_quick_use" = "点击快速使用";
+"game_ended" = "比赛结束";
+"back_to_new_game" = "返回新游戏";
+
+/* Time Formats */
+"minutes_ago" = "%d分钟前";
+"hours_ago" = "%d小时前";
+"days_ago" = "%d天前";
+"today" = "今天";
+"yesterday" = "昨天";
+"date_format" = "%d月%d日";
+
+/* Duration Format */
+"duration_hms" = "%d时%d分%d秒";
+"duration_ms" = "%d分%d秒";
+"duration_s" = "%d秒";
+
+/* Messages */
+"load_recent_game" = "已加载最近游戏";
+"duplicate_names_warning" = "名称重复警告";
+"undone" = "已撤销";
+"change_sides" = "换边";
+"please_change_sides_manually" = "请手动换边";
+"press_again_to_exit" = "再按一次退出";
+"press_again_to_reset" = "再次点击重置";
+"has_been_reset" = "已重置";
+"no_undo_available" = "没有可撤销的操作";
+"screenshot_failed" = "截图失败";
+"screenshot_saved" = "截图已保存";
+"unknown_error" = "未知错误";
+"please_allow_photo_access" = "请在设置中允许访问相册";
+"save_failed" = "保存失败: %@";
+"font_changed" = "字体已更改";
+
+/* Set/Game End Messages */
+"set_ended_winner" = "第%d局结束，%@获胜，比分 %d-%d";
+"game_ended_score" = "第%d局结束，局分 %d-%d";
+"winner_wins" = "%@ 获胜";
+
+/* Rest Countdown */
+"set_break" = "局间休息";
+"halftime_break" = "中场休息";
+
+/* Scoreboard Tab */
+"scoreboard_title" = "计分";
+"not_implemented" = "(待实现)";
+
+/* Tools Tab */
+"tools_title" = "工具";
+"match_tools" = "比赛工具";
+"other_tools" = "其他工具";
+
+/* Tool Items */
+"tool_flip_coin" = "抛硬币";
+"tool_dice" = "骰子";
+"tool_whistle" = "哨声";
+"tool_random_team" = "随机分组";
+"tool_red_yellow_card" = "红黄牌";
+"tool_points_table" = "积分表";
+"tool_time" = "时间工具";
+"tool_aa_calculator" = "AA计算器";
+"tool_ten_second" = "十秒挑战";
+
+/* Whistle Tool */
+"whistle_title" = "哨声";
+"short_whistle" = "短哨";
+"long_whistle" = "长哨";
+
+/* Random Team Tool */
+"random_team_title" = "随机分组";
+"players_4" = "4人";
+"players_6" = "6人";
+"players_8" = "8人";
+"random_grouping" = "随机分组";
+"simulate" = "模拟";
+"try_again" = "再来一次";
+"place_fingers_on_blocks" = "请将手指放在方块上 (%d/%d)";
+"grouping_in_progress" = "正在分组...";
+"grouping_complete" = "分组完成！";
+
+/* Flip Coin Tool */
+"flip_coin_title" = "抛硬币";
+"tap_to_flip" = "点击抛硬币";
+"heads" = "正面";
+"tails" = "反面";
+"total" = "总计";
+
+/* Dice Tool */
+"dice_title" = "骰子";
+"tap_to_roll" = "点击屏幕摇骰子";
+
+/* Points Table Tool */
+"points_table_title" = "积分表";
+"no_players" = "暂无玩家";
+"add_player" = "添加玩家";
+"player_name" = "玩家名称";
+"add" = "添加";
+"add_player_title" = "添加玩家";
+
+/* Ten Second Challenge */
+"ten_second_title" = "十秒挑战";
+"tap_to_start_stop" = "点击开始，尽量在10秒时停止";
+"target_10_seconds" = "目标是10.00秒";
+"error_label" = "误差";
+"seconds" = "秒";
+"start" = "开始";
+"stop" = "停止";
+"best" = "最佳";
+"attempts" = "尝试";
+"clear" = "清空";
+
+/* Red Yellow Card Tool */
+"red_yellow_card_title" = "红黄牌";
+"swipe_to_switch" = "左右滑动切换";
+
+/* Time Tool */
+"time_tool_title" = "时间工具";
+
+/* AA Calculator Tool */
+"aa_calculator_title" = "AA计算器";
+"total_amount" = "总金额";
+"enter_amount" = "请输入金额";
+"participants" = "参与人数";
+"person" = "人";
+"each_pays" = "每人应付";
+"calculate" = "计算";
+"enter_valid_amount" = "请输入有效金额";
+
+/* Fullscreen Barrage */
+"fullscreen_barrage" = "全屏弹幕";
+"enter_barrage_content" = "输入弹幕内容";
+"show" = "显示";
+"barrage_content" = "弹幕内容";
+
+/* Menu Dialog */
+"operations" = "操作";
+"menu_whistle" = "哨子";
+"menu_font" = "字体";
+"menu_screenshot" = "截图";
+"menu_swap_sides" = "交换边";
+"menu_reset" = "重置";
+"menu_undo" = "撤销";
+
+/* Font Selection */
+"select_font" = "选择字体";
+"font_default" = "默认";
+"font_digital" = "数字";
+"font_harmony_digit" = "鸿蒙数字";
+"font_seven_segment" = "七段数码";
+
+/* Save Screenshot */
+"save_screenshot" = "保存截图";
+"filename" = "文件名";
+
+/* Rest Countdown Overlay */
+"rest_countdown" = "休息倒计时";

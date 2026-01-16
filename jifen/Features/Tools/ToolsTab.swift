@@ -19,14 +19,14 @@ struct ToolsTab: View {
                     LazyVStack(spacing: 24) {
                         // Competition Tools Section
                         ToolSectionView(
-                            title: "比赛工具",
+                            title: NSLocalizedString("match_tools", comment: "Match Tools section"),
                             tools: competitionTools,
                             selectedTool: $selectedTool
                         )
                         
                         // Other Tools Section
                         ToolSectionView(
-                            title: "其他工具",
+                            title: NSLocalizedString("other_tools", comment: "Other Tools section"),
                             tools: otherTools,
                             selectedTool: $selectedTool
                         )
@@ -35,7 +35,7 @@ struct ToolsTab: View {
                     .padding(.vertical, 16)
                 }
             }
-            .navigationTitle("工具")
+            .navigationTitle(NSLocalizedString("tools_title", comment: "Tools title"))
             .navigationBarTitleDisplayMode(.large)
             .preferredColorScheme(.dark)
             .sheet(item: $selectedTool) { tool in
@@ -48,23 +48,23 @@ struct ToolsTab: View {
     
     private var competitionTools: [ToolItem] {
         [
-            ToolItem(emoji: "🪙", title: "抛硬币", view: AnyView(FlipCoinView())),
-            ToolItem(emoji: "🎲", title: "骰子", view: AnyView(DiceToolView())),
-            ToolItem(emoji: "🔔", title: "哨声", view: AnyView(WhistleToolView())),
-            ToolItem(emoji: "👥", title: "随机分组", view: AnyView(RandomTeamView())),
-            ToolItem(emoji: "🟨", title: "红黄牌", view: AnyView(RedYellowCardView())),
-            ToolItem(emoji: "📊", title: "积分表", view: AnyView(PointsTableView()))
+            ToolItem(emoji: "🪙", title: NSLocalizedString("tool_flip_coin", comment: "Flip Coin"), view: AnyView(FlipCoinView())),
+            ToolItem(emoji: "🎲", title: NSLocalizedString("tool_dice", comment: "Dice"), view: AnyView(DiceToolView())),
+            ToolItem(emoji: "🔔", title: NSLocalizedString("tool_whistle", comment: "Whistle"), view: AnyView(WhistleToolView())),
+            ToolItem(emoji: "👥", title: NSLocalizedString("tool_random_team", comment: "Random Team"), view: AnyView(RandomTeamView())),
+            ToolItem(emoji: "🟨", title: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), view: AnyView(RedYellowCardView())),
+            ToolItem(emoji: "📊", title: NSLocalizedString("tool_points_table", comment: "Points Table"), view: AnyView(PointsTableView()))
         ]
     }
     
-            private var otherTools: [ToolItem] {
-                [
-                    // ToolItem(emoji: "💬", title: "全屏弹幕", view: AnyView(FullscreenBarrageView())), // Temporarily hidden
-                    ToolItem(emoji: "🕐", title: "时间工具", view: AnyView(DateTimeToolView())),
-                    ToolItem(emoji: "💰", title: "AA计算器", view: AnyView(AACalculatorView())),
-                    ToolItem(emoji: "⏱️", title: "十秒挑战", view: AnyView(TenSecondChallengeView()))
-                ]
-            }
+    private var otherTools: [ToolItem] {
+        [
+            // ToolItem(emoji: "💬", title: NSLocalizedString("fullscreen_barrage", comment: "Fullscreen Barrage"), view: AnyView(FullscreenBarrageView())), // Temporarily hidden
+            ToolItem(emoji: "🕐", title: NSLocalizedString("tool_time", comment: "Time Tool"), view: AnyView(DateTimeToolView())),
+            ToolItem(emoji: "💰", title: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), view: AnyView(AACalculatorView())),
+            ToolItem(emoji: "⏱️", title: NSLocalizedString("tool_ten_second", comment: "Ten Second Challenge"), view: AnyView(TenSecondChallengeView()))
+        ]
+    }
 }
 
 struct ToolItem: Identifiable {

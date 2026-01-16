@@ -36,7 +36,7 @@ struct WhistleToolView: View {
                 }
             }
         }
-        .navigationTitle("哨声")
+        .navigationTitle(NSLocalizedString("whistle_title", comment: "Whistle title"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -61,7 +61,7 @@ struct WhistleToolView: View {
                     .scaleEffect(isPlayingShort ? 1.2 : 1.0)
                     .animation(.easeInOut(duration: isPlayingShort ? 0.2 : 0.3), value: isPlayingShort)
                 
-                Text("短哨")
+                Text(NSLocalizedString("short_whistle", comment: "Short whistle"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(.white)
             }
@@ -91,7 +91,7 @@ struct WhistleToolView: View {
                     .scaleEffect(isPlayingLong ? 1.2 : 1.0)
                     .animation(.easeInOut(duration: isPlayingLong ? 1.0 : 0.3), value: isPlayingLong)
                 
-                Text("长哨")
+                Text(NSLocalizedString("long_whistle", comment: "Long whistle"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(.white)
             }
