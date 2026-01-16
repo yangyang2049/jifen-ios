@@ -53,7 +53,7 @@ struct HomeTab: View {
     var body: some View {
         NavigationView { // Used for potential navigation stack
             ScrollView(.vertical, showsIndicators: false) { // Scroll()
-                VStack(spacing: Theme.lg) { // Changed from spacing: 0
+                VStack(spacing: 0) { // Changed from spacing: 0
                     // 1. Header
                     buildHeader()
 
@@ -70,13 +70,11 @@ struct HomeTab: View {
                             
                             RecentRecordsSectionView(
                                 records: recentActivities,
-                                isDarkTheme: isDarkTheme,
-                                onSeeAllClick: {
-                                    print("Navigate to RecentActivityPage")
-                                }
+                                isDarkTheme: isDarkTheme
                             )
                             .padding(.horizontal, Theme.lg)
                         }
+                        .padding(.top, Theme.lg) // Added top padding
                         // Removed .padding(.top, Theme.lg) from Recent Records section
                     }
                 }
@@ -266,6 +264,7 @@ struct HomeTab: View {
                 Text(NSLocalizedString("app_name", comment: "App Name"))
                     .font(.system(size: Theme.fontH4, weight: .bold))
                     .foregroundColor(Theme.textPrimary)
+                    .padding(.bottom, 2)
                 
                 Text(headerDate)
                     .font(.system(size: Theme.fontCaption, weight: .medium))
@@ -276,7 +275,7 @@ struct HomeTab: View {
         .frame(maxWidth: .infinity, alignment: .leading) // Explicitly make HStack fill width and align its content to leading
         .padding(.horizontal, Theme.lg)
         .padding(.top, Theme.md)
-        .padding(.bottom, 0)
+        .padding(.bottom, Theme.sm)
     }
 
     @ViewBuilder
@@ -311,6 +310,7 @@ struct HomeTab: View {
                     }
                 )
             } // End Group for ProToolsSectionView
+            .padding(.top, Theme.lg)
         }
         .padding(.horizontal, Theme.lg) // Padding for the whole mobile layout
     }
@@ -356,14 +356,10 @@ struct HomeTab: View {
                             .font(.system(size: Theme.fontH5, weight: .medium))
                             .foregroundColor(Theme.textPrimary)
                         
-                        RecentRecordsSectionView(
-                            records: recentActivities,
-                            isDarkTheme: isDarkTheme,
-                            onSeeAllClick: {
-                                // TODO: Navigate to recent activity page
-                                print("Navigate to RecentActivityPage")
-                            }
-                        )
+                            RecentRecordsSectionView(
+                                records: recentActivities,
+                                isDarkTheme: isDarkTheme
+                            )
                     }
                 } // End Group
                 .gridCellColumns(5)

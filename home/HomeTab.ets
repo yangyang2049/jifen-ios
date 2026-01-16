@@ -683,7 +683,7 @@ export struct HomeTab {
             .fontSize(FontSizes.caption)
             .fontWeight(FontWeight.Medium)
             .fontColor(Colors.textSecondary)
-            .margin({ top: Spacing.xs })
+            .margin({ top: Spacing.sm })
         }
         .alignItems(HorizontalAlign.Start)
         .layoutWeight(1)

@@ -12,24 +12,24 @@ struct WatchHomeTabView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 8) {
-                WatchPillButton(icon: "🏸", title: "羽毛球") {
+                WatchPillButton(icon: "🏸", title: NSLocalizedString("game_badminton", comment: "Badminton")) {
                     navigateToBadminton()
                 }
 
-                WatchPillButton(icon: "🏓", title: "乒乓球") {
+                WatchPillButton(icon: "🏓", title: NSLocalizedString("game_pingpong", comment: "Ping Pong")) {
                     showPingpongPicker = true
                 }
 
-                WatchPillButton(icon: "🎾", title: "网球") {
+                WatchPillButton(icon: "🎾", title: NSLocalizedString("game_tennis", comment: "Tennis")) {
                     showTennisPicker = true
                 }
 
                 NavigationLink(destination: WatchRecordListView()) {
-                    WatchPillRow(icon: "📝", title: "战绩")
+                    WatchPillRow(icon: "📝", title: NSLocalizedString("records", comment: "Records"))
                 }
                 .buttonStyle(.plain)
 
-                WatchPillButton(icon: "ℹ️", title: "使用说明") {
+                WatchPillButton(icon: "ℹ️", title: NSLocalizedString("usage_guide", comment: "Usage Guide")) {
                     showUsagePromptOnce(force: true)
                 }
             }
@@ -37,24 +37,24 @@ struct WatchHomeTabView: View {
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)
-        .navigationTitle("计分")
+        .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
         .navigationBarTitleDisplayMode(.inline)
-        .confirmationDialog("乒乓球局数", isPresented: $showPingpongPicker) {
-            Button("三局两胜") { pingpongSets = 3; navigateToPingpong() }
-            Button("五局三胜") { pingpongSets = 5; navigateToPingpong() }
-            Button("七局四胜") { pingpongSets = 7; navigateToPingpong() }
-            Button("取消", role: .cancel) { }
+        .confirmationDialog(NSLocalizedString("pingpong_sets", comment: "Ping Pong Sets"), isPresented: $showPingpongPicker) {
+            Button(NSLocalizedString("best_of_3_sets", comment: "Best of 3")) { pingpongSets = 3; navigateToPingpong() }
+            Button(NSLocalizedString("best_of_5_sets", comment: "Best of 5")) { pingpongSets = 5; navigateToPingpong() }
+            Button(NSLocalizedString("best_of_7_sets", comment: "Best of 7")) { pingpongSets = 7; navigateToPingpong() }
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
         }
-        .confirmationDialog("网球盘数", isPresented: $showTennisPicker) {
-            Button("一盘") { tennisSets = 1; navigateToTennis() }
-            Button("三盘两胜") { tennisSets = 3; navigateToTennis() }
-            Button("五盘三胜") { tennisSets = 5; navigateToTennis() }
-            Button("取消", role: .cancel) { }
+        .confirmationDialog(NSLocalizedString("tennis_sets", comment: "Tennis Sets"), isPresented: $showTennisPicker) {
+            Button(NSLocalizedString("sets_1", comment: "1 set")) { tennisSets = 1; navigateToTennis() }
+            Button(NSLocalizedString("sets_3_best_of_2", comment: "Best of 3")) { tennisSets = 3; navigateToTennis() }
+            Button(NSLocalizedString("sets_5_best_of_3", comment: "Best of 5")) { tennisSets = 5; navigateToTennis() }
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
         }
-        .alert("使用说明", isPresented: $showUsageAlert) {
-            Button("知道了", role: .cancel) { }
+        .alert(NSLocalizedString("usage_guide", comment: "Usage Guide"), isPresented: $showUsageAlert) {
+            Button(NSLocalizedString("got_it", comment: "Got it"), role: .cancel) { }
         } message: {
-            Text("👆 上下半屏点击加分\n👇 下滑撤销上一分\n上滑打开菜单\n🏁 暂停可保存记录")
+            Text(NSLocalizedString("usage_prompt_message", comment: "Usage prompt message"))
         }
         .onAppear {
             usagePromptShown = WatchPreferences.shared.bool(forKey: "watch_usage_prompt_shown", defaultValue: false)

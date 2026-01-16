@@ -28,7 +28,7 @@ struct ToolItemView: View {
                         .foregroundColor(iconColor) // fontColor(this.iconColor)
                 }
                 .frame(width: 56, height: 56) // width(56), height(56)
-                .background(isDarkTheme ? Theme.homeDialogBackground : Theme.homeCardLight) // backgroundColor
+                .background(.ultraThinMaterial) // Apply glassmorphism effect here
                 .cornerRadius(Theme.cornerRadius) // borderRadius(BorderRadius.xl)
                 .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1) // shadow
                 // .justifyContent(FlexAlign.Center), .alignItems(HorizontalAlign.Center) - handled by ZStack/modifiers
@@ -81,18 +81,7 @@ struct ProToolsSectionView: View {
                     .font(.system(size: Theme.fontH5, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
                 
-                Spacer() // Blank()
-                
-                Button(action: {
-                    // TODO: Navigate to ToolsPage
-                    print("Navigate to ToolsPage")
-                }) {
-                    Image(systemName: "chevron.right") // Image($r('app.media.chevron_forward'))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(Theme.textSecondary) // Assuming some default color
-                }
+                Spacer() // Re-add Spacer to push text to left
             }
             .frame(maxWidth: .infinity) // justifyContent(FlexAlign.SpaceBetween), width('100%')
             .padding(.bottom, Theme.md) // margin({ bottom: Spacing.md })

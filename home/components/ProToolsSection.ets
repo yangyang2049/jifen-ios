@@ -107,15 +107,6 @@ export struct ProToolsSection {
           .fontSize(FontSizes.h5)
           .fontWeight(FontWeight.Medium)
           .fontColor(Colors.textPrimary)
-        
-        Blank()
-        
-        Image($r('app.media.chevron_forward'))
-          .width(20)
-          .height(20)
-          .onClick(() => {
-            router.pushUrl({ url: 'pages/tools/ToolsPage' });
-          })
       }
       .justifyContent(FlexAlign.SpaceBetween)
       .margin({ bottom: Spacing.md })

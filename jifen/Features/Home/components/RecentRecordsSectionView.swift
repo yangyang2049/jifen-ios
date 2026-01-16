@@ -30,10 +30,7 @@ struct RecentRowView: View {
 
     @ViewBuilder
     private func buildTimerItem() -> some View {
-        Button(action: {
-            // TODO: Navigate to TimerRecordDetailPage
-            print("Navigate to TimerRecordDetailPage for ID: \(activity.id)")
-        }) {
+        NavigationLink(destination: TimerRecordDetailPage(recordId: activity.id)) {
             HStack(spacing: 0) { // Row()
                 // Left: Game Icon
                 buildGameIcon(activity.gameType)
@@ -73,17 +70,14 @@ struct RecentRowView: View {
 
     @ViewBuilder
     private func buildScoreboardItem() -> some View {
-        Button(action: {
-            // TODO: Navigate to ScoreboardRecordDetailPage or MultiGroupRecordDetailPage
-            let route = activity.gameType == .multiScoreboard ? "MultiGroupRecordDetailPage" : "ScoreboardRecordDetailPage"
-            print("Navigate to \(route) for ID: \(activity.id)")
-        }) {
+        NavigationLink(destination: ScoreboardRecordDetailPage(recordId: activity.id)) {
             HStack(spacing: 0) { // Row()
                 // Left: Game Emoji Icon
                 Text(activity.gameType.icon) // Text(GameTypeIcons[this.activity.gameType] || '🎮')
                     .font(.system(size: 28))
                     .frame(width: 40, height: 40)
                     .multilineTextAlignment(.center) // textAlign(TextAlign.Center)
+                    .minimumScaleFactor(0.5)
                     .padding(.trailing, Theme.sm) // margin({ left: 12 }) (approximated)
 
                 // Middle Info
@@ -131,44 +125,11 @@ struct RecentRowView: View {
 
     @ViewBuilder
     private func buildGameIcon(_ gameType: GameType) -> some View {
-        // For timer types (Go, Xiangqi, Chess), use Stack to show two icons
-        if [.go, .xiangqi, .chess].contains(gameType) {
-            ZStack(alignment: .center) { // Stack()
-                // Player 2 icon (behind, slightly offset)
-                Image(getPlayerIconResource(gameType, playerId: 2))
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .offset(x: 3, y: 3) // translate({ x: 3, y: 3 })
-                    .opacity(0.8)
-
-                // Player 1 icon (front)
-                Image(getPlayerIconResource(gameType, playerId: 1))
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .offset(x: -3, y: -3) // translate({ x: -3, y: -3 })
-            }
-            .frame(width: 32, height: 32) // width(32), height(32)
-            // .alignContent(Alignment.Center) - managed by ZStack
-        } else {
-            // Other types use emoji icon
-            Text(gameType.icon) // Text(GameTypeIcons[gameType] || '🎮')
-                .font(.system(size: 24))
-                .frame(width: 32, height: 32)
-                .multilineTextAlignment(.center) // textAlign(TextAlign.Center)
-        }
-    }
-
-    private func getPlayerIconResource(_ gameType: GameType, playerId: Int) -> String {
-        switch gameType {
-        case .go:
-            return playerId == 1 ? "go_black" : "go_white" // $r('app.media.go_black') : $r('app.media.go_white')
-        case .xiangqi:
-            return playerId == 1 ? "xiangqi_red" : "xiangqi_black" // $r('app.media.xiangqi_red') : $r('app.media.xiangqi_black')
-        case .chess:
-            return playerId == 1 ? "chess_white" : "chess_black" // $r('app.media.chess_white') : $r('app.media.chess_black')
-        default:
-            return "go_white" // Default placeholder, maybe a generic "game" icon
-        }
+        Text(gameType.icon)
+            .font(.system(size: 24))
+            .frame(width: 32, height: 32)
+            .multilineTextAlignment(.center)
+            .minimumScaleFactor(0.5)
     }
 
     private func formatTime(_ timestamp: TimeInterval) -> String {
@@ -199,7 +160,6 @@ struct RecentRowView: View {
 struct RecentRecordsSectionView: View {
     var records: [RecentActivity] = []
     var isDarkTheme: Bool = false
-    var onSeeAllClick: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) { // Column()
@@ -234,19 +194,13 @@ struct RecentRecordsSectionView: View {
             }
             .frame(maxWidth: .infinity) // width('100%')
             .padding(Theme.md) // padding(20)
-            .background(isDarkTheme ? Theme.homeDialogBackground : Theme.homeCardLight) // backgroundColor
+            .background(.ultraThinMaterial) // Apply glassmorphism effect here
             .cornerRadius(Theme.lg) // borderRadius(24) // Theme.lg is 24
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.lg)
-                    .stroke(isDarkTheme ? Theme.homeOverlayBorder : Theme.homeOverlayBorderLight, lineWidth: 1) // border
-            )
             .shadow(color: isDarkTheme ? .clear : Theme.homeShadowLight, radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1) // shadow
             
             // Footer Button - Plain Text Style
             if !records.isEmpty { // if (this.records.length > 0)
-                Button(action: {
-                    onSeeAllClick?()
-                }) {
+                NavigationLink(destination: RecentActivityPage()) {
                     Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
                         .font(.system(size: Theme.fontBody2, weight: .bold)) // fontSize(14), fontWeight(FontWeight.Bold)
                         .foregroundColor(Theme.primary) // Colors.primary

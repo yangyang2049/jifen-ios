@@ -10,7 +10,7 @@ struct WatchRecordListView: View {
                 // WatchListHeader(title: "战绩") -- REMOVED
 
                 if loading {
-                    Text("加载中")
+                    Text(NSLocalizedString("loading", comment: "Loading"))
                         .font(.system(size: 14))
                         .foregroundColor(WatchTheme.secondaryText)
                         .frame(maxWidth: .infinity, minHeight: 80)
@@ -18,7 +18,7 @@ struct WatchRecordListView: View {
                     VStack(spacing: 8) {
                         Text("📝")
                             .font(.system(size: 32))
-                        Text("暂无记录")
+                        Text(NSLocalizedString("no_records", comment: "No Records"))
                             .font(.system(size: 14))
                             .foregroundColor(WatchTheme.secondaryText)
                     }
@@ -39,7 +39,7 @@ struct WatchRecordListView: View {
             }
             .padding(.bottom, 12)
         }
-        .navigationTitle("战绩") // ADDED
+        .navigationTitle(NSLocalizedString("records", comment: "Records")) // ADDED
         .background(WatchTheme.background)
         .onAppear {
             loadRecords()

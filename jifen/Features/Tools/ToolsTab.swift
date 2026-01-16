@@ -36,7 +36,7 @@ struct ToolsTab: View {
                 }
             }
             .navigationTitle(NSLocalizedString("tools_title", comment: "Tools title"))
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(.dark)
             .sheet(item: $selectedTool) { tool in
                 NavigationStack {
@@ -119,10 +119,8 @@ struct ToolCardView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 120)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.cornerRadius)
-                    .fill(Theme.cardBackground)
-            )
+            .background(.ultraThinMaterial)
+            .cornerRadius(Theme.cornerRadius)
         }
         .buttonStyle(PlainButtonStyle())
     }

@@ -15,7 +15,7 @@ struct WatchPrivacyAgreementView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Text("隐私协议")
+            Text(NSLocalizedString("privacy_policy", comment: "Privacy Policy"))
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(WatchTheme.primaryText)
                 .padding(.top, 8)
@@ -34,7 +34,7 @@ struct WatchPrivacyAgreementView: View {
                     VStack(spacing: 8) {
                         ProgressView()
                             .tint(WatchTheme.primaryText)
-                        Text(isGenerating ? "二维码生成中" : "加载失败")
+                        Text(isGenerating ? NSLocalizedString("generating_qr_code", comment: "Generating QR code") : NSLocalizedString("loading_failed", comment: "Loading failed"))
                             .font(.system(size: 10))
                             .foregroundColor(WatchTheme.secondaryText)
                     }
@@ -42,12 +42,12 @@ struct WatchPrivacyAgreementView: View {
             }
             .frame(width: 120, height: 120)
 
-            Text("扫码查看详情")
+            Text(NSLocalizedString("scan_to_view_details", comment: "Scan to view details"))
                 .font(.system(size: 10))
                 .foregroundColor(WatchTheme.secondaryText)
 
             Button(action: onConfirm) {
-                Text("确认")
+                Text(NSLocalizedString("confirm", comment: "Confirm"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white)
                     .frame(width: 120, height: 28)
@@ -56,7 +56,7 @@ struct WatchPrivacyAgreementView: View {
             }
 
             Button(action: onCancel) {
-                Text("取消")
+                Text(NSLocalizedString("cancel", comment: "Cancel"))
                     .font(.system(size: 12))
                     .foregroundColor(WatchTheme.secondaryText)
                     .frame(width: 120, height: 28)

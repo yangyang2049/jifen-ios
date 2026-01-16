@@ -44,8 +44,8 @@ struct QuickStartGridView: View {
 
             // Grid (using SwiftUI's native Grid for iOS 16+)
             Grid(horizontalSpacing: Theme.md, verticalSpacing: Theme.md) {
-                GridRow { // This is the first logical row of the Grid
-                    BentoCardView( // Primary Card - occupies (0,0) and (0,1)
+                GridRow {
+                    BentoCardView( // Primary Card
                         title: getGameName(type: primarySport),
                         subtitle: startGameText,
                         icon: getGameIcon(type: primarySport),
@@ -53,58 +53,29 @@ struct QuickStartGridView: View {
                         onClickCard: { onPrimaryClick?() }
                     )
 
-                    BentoCardView( // Secondary Card - occupies (1,0)
-                        title: getGameName(type: secondarySport),
-                        icon: getGameIcon(type: secondarySport),
-                        gradientColors: getGameGradient(type: secondarySport),
-                        isDarkText: false,
-                        onClickCard: { onSecondaryClick?() }
-                    )
-                }
+                    VStack(spacing: Theme.md) {
+                        BentoCardView( // Secondary Card
+                            title: getGameName(type: secondarySport),
+                            icon: getGameIcon(type: secondarySport),
+                            gradientColors: getGameGradient(type: secondarySport),
+                            isDarkText: false,
+                            onClickCard: { onSecondaryClick?() }
+                        )
+                        .frame(maxHeight: .infinity) // Added for equal height
 
-                GridRow { // This is the second logical row of the Grid
-                    // The first cell of this row is already occupied by the primary BentoCardView (due to gridCellRows(2)).
-                    // So we need to place an empty view for the first column
-                    Color.clear.gridCellUnsizedAxes([.horizontal, .vertical]) // Empty cell to push the next item to column 1
-
-                    // New Game Button - occupies (1,1)
-                    Button(action: {
-                        onNewGameClick?()
-                    }) {
-                        ZStack(alignment: .bottomTrailing) {
-                            VStack(alignment: .leading) {
-                                Text(newGameShortText)
-                                    .font(.system(size: Theme.fontH5, weight: .bold))
-                                    .foregroundColor(Theme.textPrimary)
-                                Text(allItemsText)
-                                    .font(.system(size: Theme.fontCaption, weight: .regular))
-                                    .foregroundColor(Theme.homeOverlayWhite)
-                                    .padding(.top, Theme.xs)
-                                    .textCase(.uppercase)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                            .padding(Theme.md)
-
-                            Image("ic_fab_add")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                                .background(
-                                    Circle()
-                                        .fill(Theme.homeOverlayDark)
-                                        .frame(width: 32, height: 32)
-                                )
-                                .padding(Theme.md)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Theme.homeCardDark)
-                        .cornerRadius(Theme.xxl)
-                        .shadow(color: Theme.homeButtonShadow, radius: 10, x: 0, y: 5)
+                        BentoCardView(
+                            title: newGameShortText,
+                            subtitle: allItemsText,
+                            icon: "➕",
+                            gradientColors: [Theme.homeSecondaryCardGreen, Theme.homeSecondaryCardGreen],
+                            showDecorativeBars: false, // Added to remove deco lines
+                            onClickCard: { onNewGameClick?() }
+                        )
+                        .frame(maxHeight: .infinity) // Added for equal height
                     }
-                    .buttonStyle(CardButtonStyle())
                 }
             }
             .frame(height: 240)
         }
-        .padding(.top, Theme.lg) // margin({ top: Spacing.lg })
     }
 }

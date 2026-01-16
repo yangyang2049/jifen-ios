@@ -7,14 +7,14 @@ struct WatchSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 8) {
-                settingRow(title: "振动", isOn: $vibrationEnabled)
-                settingRow(title: "声音", isOn: $soundEnabled)
+                settingRow(title: NSLocalizedString("vibration", comment: "Vibration"), isOn: $vibrationEnabled)
+                settingRow(title: NSLocalizedString("sound", comment: "Sound"), isOn: $soundEnabled)
             }
             .padding(.horizontal, 12)
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)
-        .navigationTitle("设置")
+        .navigationTitle(NSLocalizedString("setup", comment: "Settings"))
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: vibrationEnabled) { _, newValue in
             WatchPreferences.shared.vibrationEnabled = newValue

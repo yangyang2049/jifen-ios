@@ -155,40 +155,4 @@ struct AnyCodable: Codable {
     }
 }
 
-// MARK: - Formatting Helpers
-
-func formatScoreboardDuration(_ duration: TimeInterval) -> String {
-    let totalSeconds = Int(duration)
-    let hours = totalSeconds / 3600
-    let minutes = (totalSeconds % 3600) / 60
-    let seconds = totalSeconds % 60
-    
-    if hours > 0 {
-        return "\(hours)时\(minutes)分\(seconds)秒"
-    } else if minutes > 0 {
-        return "\(minutes)分\(seconds)秒"
-    } else {
-        return "\(seconds)秒"
-    }
-}
-
-func formatDisplayDate(_ dateStr: String) -> String {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd"
-    guard let date = dateFormatter.date(from: dateStr) else {
-        return dateStr
-    }
-    
-    let calendar = Calendar.current
-    
-    if calendar.isDateInToday(date) {
-        return "今天"
-    } else if calendar.isDateInYesterday(date) {
-        return "昨天"
-    } else {
-        let month = calendar.component(.month, from: date)
-        let day = calendar.component(.day, from: date)
-        return "\(month)月\(day)日"
-    }
-}
 

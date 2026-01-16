@@ -5,17 +5,17 @@ struct WatchToolsTabView: View {
         ScrollView {
             VStack(spacing: 8) {
                 NavigationLink(destination: WatchFlipCoinView()) {
-                    WatchPillRow(icon: "🪙", title: "抛硬币")
+                    WatchPillRow(icon: "🪙", title: NSLocalizedString("tool_flip_coin", comment: "Flip Coin"))
                 }
                 .buttonStyle(.plain)
 
                 NavigationLink(destination: WatchRandomNumberView()) {
-                    WatchPillRow(icon: "🎲", title: "随机数")
+                    WatchPillRow(icon: "🎲", title: NSLocalizedString("tool_random_number", comment: "Random Number"))
                 }
                 .buttonStyle(.plain)
 
                 NavigationLink(destination: WatchTenSecondChallengeView()) {
-                    WatchPillRow(icon: "⏱️", title: "十秒挑战")
+                    WatchPillRow(icon: "⏱️", title: NSLocalizedString("tool_ten_second", comment: "10s Challenge"))
                 }
                 .buttonStyle(.plain)
             }
@@ -23,7 +23,7 @@ struct WatchToolsTabView: View {
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)
-        .navigationTitle("工具")
+        .navigationTitle(NSLocalizedString("tab_tools", comment: "Tools"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }

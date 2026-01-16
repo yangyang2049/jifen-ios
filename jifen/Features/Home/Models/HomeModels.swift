@@ -15,23 +15,38 @@ enum ActivityType: Int, Codable, Identifiable {
 // MARK: - GameRecordSummary Struct (for timer records)
 // This struct is inferred from HarmonyOS HomeTab.ets logic for timer activities.
 // It will be used to represent a summary of a timer record.
-struct GameRecordSummary: Identifiable, Codable {
+struct GameRecordSummary: Identifiable, Codable, Equatable {
     let id: String
     let gameType: GameType
-    let timestamp: TimeInterval // Unix timestamp
-    var duration: TimeInterval? // Optional duration for timers
+    let timestamp: TimeInterval
+    var duration: TimeInterval?
+    var winner: String?
     
-    // Derived properties to align with HarmonyOS RecentActivity's title/description
     var title: String {
-        return gameType.displayName // Assuming GameType.displayName exists
+        gameType.displayName
     }
     var description: String {
         if let duration = duration {
-            // Reusing formatScoreboardDuration for timer duration
-            return formatScoreboardDuration(duration) // Assuming formatScoreboardDuration is available
+            return "Duration: \(formatDuration(duration))"
         }
-        // Placeholder for game ended text
-        return NSLocalizedString("game_ended", comment: "Game ended text")
+        return ""
+    }
+    var date: String {
+        let date = Date(timeIntervalSince1970: timestamp)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+    var time: String {
+        let date = Date(timeIntervalSince1970: timestamp)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
+    }
+
+    // Equatable conformance
+    static func == (lhs: GameRecordSummary, rhs: GameRecordSummary) -> Bool {
+        lhs.id == rhs.id
     }
 }
 

@@ -25,7 +25,7 @@ struct WatchRecordDetailView: View {
                     VStack(spacing: 8) {
                         Text("❌")
                             .font(.system(size: 32))
-                        Text("记录不存在")
+                        Text(NSLocalizedString("record_not_found", comment: "Record not found"))
                             .font(.system(size: 14))
                             .foregroundColor(WatchTheme.secondaryText)
                     }
@@ -39,18 +39,18 @@ struct WatchRecordDetailView: View {
         .onAppear {
             loadRecord()
         }
-        .alert("确认删除", isPresented: $showDeleteAlert) {
-            Button("取消", role: .cancel) {}
-            Button("删除", role: .destructive) {
+        .alert(NSLocalizedString("confirm_deletion", comment: "Confirm Deletion"), isPresented: $showDeleteAlert) {
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) {}
+            Button(NSLocalizedString("delete", comment: "Delete"), role: .destructive) {
                 deleteRecord()
             }
         } message: {
-            Text("删除后无法恢复")
+            Text(NSLocalizedString("cannot_be_recovered_after_deletion", comment: "Cannot be recovered after deletion"))
         }
     }
 
     private var titleHeader: some View {
-        Text("比赛详情")
+        Text(NSLocalizedString("match_details", comment: "Match Details"))
             .font(.system(size: 16, weight: .medium))
             .foregroundColor(WatchTheme.primaryText)
             .frame(maxWidth: .infinity)
@@ -70,15 +70,15 @@ struct WatchRecordDetailView: View {
             scoreRow(record)
 
             if let winner = record.winner {
-                Text("\(winner) 获胜")
+                Text("\(winner)\(NSLocalizedString("wins_suffix", comment: " Wins suffix"))")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(WatchTheme.accent)
             }
 
             VStack(spacing: 2) {
-                infoRow(label: "日期", value: formatDate(record.startTime))
-                infoRow(label: "时间", value: formatTime(record.startTime))
-                infoRow(label: "时长", value: watchFormatDuration(record.duration))
+                infoRow(label: NSLocalizedString("date", comment: "Date"), value: formatDate(record.startTime))
+                infoRow(label: NSLocalizedString("time", comment: "Time"), value: formatTime(record.startTime))
+                infoRow(label: NSLocalizedString("duration", comment: "Duration"), value: watchFormatDuration(record.duration))
             }
         }
         .padding(10)
@@ -115,7 +115,7 @@ struct WatchRecordDetailView: View {
 
     private func actionsCard(_ record: WatchScoreboardRecord) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("比赛记录")
+            Text(NSLocalizedString("match_record", comment: "Match Record"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(WatchTheme.primaryText)
 
@@ -141,7 +141,7 @@ struct WatchRecordDetailView: View {
 
     private var deleteButton: some View {
         Button(action: { showDeleteAlert = true }) {
-            Text("删除记录")
+            Text(NSLocalizedString("delete_record", comment: "Delete Record"))
                 .font(.system(size: 14))
                 .foregroundColor(WatchTheme.dangerRed)
                 .frame(maxWidth: .infinity)

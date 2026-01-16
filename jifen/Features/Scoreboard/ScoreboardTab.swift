@@ -34,7 +34,7 @@ struct ScoreboardTab: View {
                 }
             }
             .navigationTitle(NSLocalizedString("scoreboard_title", comment: "Scoreboard title"))
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(.dark)
             .navigationDestination(item: $selectedSport) { sport in
                 sport.view
@@ -97,10 +97,8 @@ struct SportCardView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 120)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.cornerRadius)
-                    .fill(Theme.cardBackground)
-            )
+            .background(.ultraThinMaterial)
+            .cornerRadius(Theme.cornerRadius)
         }
         .buttonStyle(PlainButtonStyle())
     }
