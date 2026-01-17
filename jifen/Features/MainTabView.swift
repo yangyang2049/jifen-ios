@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selectedTab = 0
-    @State private var toolToOpen: String? = nil // New state to control tool navigation from HomeTab
+    @State private var presentedTool: ToolItem? = nil // State to present tool modally
     
     var body: some View {
         ZStack {
@@ -13,9 +13,8 @@ struct MainTabView: View {
                     onNavigateToTab: { index in
                         selectedTab = index
                     },
-                    onOpenTool: { toolId in // New callback for HomeTab
-                        toolToOpen = toolId
-                        selectedTab = 2 // Switch to ToolsTab
+                    onOpenTool: { toolItem in // Now accepts ToolItem directly
+                        presentedTool = toolItem
                     }
                 )
                     .tag(0)
@@ -26,16 +25,24 @@ struct MainTabView: View {
                 ScoreboardTab()
                     .tag(1)
                     .tabItem {
-                        Label(NSLocalizedString("tab_score", comment: "Score tab"), systemImage: "sportscourt.fill")
+                        Label(NSLocalizedString("tab_score", comment: "Score tab"), systemName: "sportscourt.fill")
                     }
                 
-                ToolsTab(toolToOpen: $toolToOpen) // Pass binding to ToolsTab
+                ToolsTab(
+                    onOpenTool: { toolItem in // Pass onOpenTool to ToolsTab too
+                        presentedTool = toolItem
+                    }
+                )
                     .tag(2)
                     .tabItem {
-                        Label(NSLocalizedString("tab_tools", comment: "Tools tab"), systemImage: "wrench.and.screwdriver.fill")
+                        Label(NSLocalizedString("tab_tools", comment: "Tools tab"), systemName: "wrench.and.screwdriver.fill")
                     }
             }
             .accentColor(Theme.accentColor)
+            .fullScreenCover(item: $presentedTool) { toolItem in // Present tool modally
+                // The tool view itself can handle dismiss
+                toolItem.view
+            }
         }
     }
 }

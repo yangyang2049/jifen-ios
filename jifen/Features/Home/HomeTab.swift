@@ -12,7 +12,7 @@ import UIKit // For UIDevice and UIApplication
 struct HomeTab: View {
     // MARK: - State & Callbacks
     var onNavigateToTab: ((Int) -> Void)? = nil // Equivalent to onNavigateToTab?: (index: number) => void;
-    var onOpenTool: ((String) -> Void)? = nil // New callback for opening a specific tool
+    var onOpenTool: ((ToolItem) -> Void)? = nil // Now accepts ToolItem directly
     // onViewAllActivities and onActivitySelected handled within RecentRecordsSectionView
 
     // Device & Layout State
@@ -421,7 +421,9 @@ struct HomeTab: View {
     }
     
     private func handleToolClick(toolId: String) {
-        onOpenTool?(toolId)
+        if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
+            onOpenTool?(tool)
+        }
     }
 }
 

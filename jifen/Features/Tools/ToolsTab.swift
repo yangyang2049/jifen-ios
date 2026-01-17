@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ToolsTab: View {
     @State private var path = NavigationPath()
-    @Binding var toolToOpen: String? // New binding to open a specific tool
+    var onOpenTool: ((ToolItem) -> Void)? = nil // Callback for opening a specific tool
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -16,7 +16,7 @@ struct ToolsTab: View {
                             title: NSLocalizedString("match_tools", comment: "Match Tools section"),
                             tools: ToolItem.competitionTools, // Use shared definition
                             onToolClick: { tool in
-                                path.append(tool)
+                                onOpenTool?(tool) // Call the onOpenTool callback
                             }
                         )
                         
@@ -25,7 +25,7 @@ struct ToolsTab: View {
                             title: NSLocalizedString("other_tools", comment: "Other Tools section"),
                             tools: ToolItem.otherTools, // Use shared definition
                             onToolClick: { tool in
-                                path.append(tool)
+                                onOpenTool?(tool) // Call the onOpenTool callback
                             }
                         )
                     }
@@ -36,15 +36,12 @@ struct ToolsTab: View {
             .navigationTitle(NSLocalizedString("tools_title", comment: "Tools title"))
             .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(.dark)
-            .navigationDestination(for: ToolItem.self) { tool in
-                tool.view
-            }
-            .onChange(of: toolToOpen) { oldToolId, newToolId in // Add onChange observer
-                if let newToolId = newToolId, let tool = ToolItem.allTools.first(where: { $0.id == newToolId }) {
-                    path.append(tool)
-                    toolToOpen = nil // Clear the binding after navigation
-                }
-            }
+            // navigationDestination is no longer directly used for opening tool views modally,
+            // but can be kept for other internal navigation if needed.
+            // .navigationDestination(for: ToolItem.self) { tool in
+            //    tool.view
+            // }
+            // Remove onChange(of: toolToOpen) as it's no longer needed
         }
     }
 }
@@ -105,6 +102,6 @@ struct ToolCardView: View {
 }
 
 #Preview {
-    ToolsTab(toolToOpen: .constant(nil)) // Provide a constant binding for preview
+    ToolsTab() // No binding needed for preview anymore
 }
 
