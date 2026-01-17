@@ -50,8 +50,7 @@ struct RandomTeamView: View {
                     buildGridContainer(geometry: geometry)
                 }
                 
-                // Floating status bar
-                buildStatusBar(geometry: geometry)
+
                 
                 // Top right button: Simulate / Try Again
                 if showTestButton || showResetButton {
@@ -131,6 +130,12 @@ struct RandomTeamView: View {
     private func buildGridContainer(geometry: GeometryProxy) -> some View {
         VStack {
             Spacer()
+
+            Text(statusText)
+                .font(.system(size: 20, weight: .medium))
+                .foregroundColor(.white.opacity(0.95))
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 16)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: getGridColumns()), spacing: 16) {
                 ForEach(playerBoxes) { box in
