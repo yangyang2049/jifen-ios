@@ -166,7 +166,7 @@ struct RandomTeamView: View {
                 
                 Spacer()
                 
-                Text(showPlayerSelection ? "随机分组" : statusText)
+                Text(statusText)
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(.white.opacity(0.95))
                     .multilineTextAlignment(.center)
