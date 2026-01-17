@@ -4,260 +4,154 @@ struct RecentActivityPage: View {
     @StateObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
 
-    @State private var currentTab: Int = 0 // 0: All, 1: Scoreboard, 2: Timer
-    @State private var searchText = ""
     @State private var isEditMode = false
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                header
-                
-                if !isEditMode {
-                    searchBar
-                    tabButtons
-                }
+        NavigationStack {
+            ZStack {
+                Theme.backgroundColor.edgesIgnoringSafeArea(.all)
 
-                content
-            }
-            .background(Theme.backgroundColor)
-            .navigationBarHidden(true)
-        }
-    }
-
-    private var header: some View {
-        HStack {
-            if isEditMode {
-                Button(NSLocalizedString("done", comment: "Done")) {
-                    withAnimation { isEditMode = false }
+                VStack(spacing: 0) {
+                    if scoreboardVM.records.isEmpty && timerVM.records.isEmpty {
+                        emptyState
+                    } else {
+                        recordsList
+                    }
                 }
-                .padding(.leading)
-            } else {
-                Spacer().frame(width: 50)
             }
-            
-            Spacer()
-            Text("recent_records").font(.headline)
-            Spacer()
-            
-            if !isEditMode {
-                Button(action: { withAnimation { isEditMode = true } }) {
-                    Text(NSLocalizedString("edit", comment: "Edit"))
+            .navigationTitle(NSLocalizedString("recent_records", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .tabBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { withAnimation { isEditMode.toggle() } }) {
+                        Image(systemName: isEditMode ? "checkmark" : "pencil")
+                    }
                 }
-                .padding(.trailing)
-            } else {
-                 Spacer().frame(width: 50)
             }
         }
-        .padding()
-        .background(Theme.surface)
+
     }
 
-    private var searchBar: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
+    private var emptyState: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            Text("🧘‍♂️")
+                .font(.system(size: 80))
+            Text(NSLocalizedString("no_recent_records", comment: ""))
+                .font(.title2)
                 .foregroundColor(.secondary)
-            TextField(NSLocalizedString("search_team_or_game", comment: "Search team or game"), text: $searchText)
-        }
-        .padding(8)
-        .background(Theme.surface)
-        .cornerRadius(8)
-        .padding()
-    }
-
-    private var tabButtons: some View {
-        HStack(spacing: 8) {
-            TabButton(title: "all", index: 0, currentTab: $currentTab)
-            TabButton(title: "scoreboard", index: 1, currentTab: $currentTab)
-            TabButton(title: "timer", index: 2, currentTab: $currentTab)
-        }
-        .padding(.horizontal)
-        .padding(.bottom)
-    }
-    
-    @ViewBuilder
-    private var content: some View {
-        switch currentTab {
-        case 0:
-            AllRecordsView(scoreboardVM: scoreboardVM, timerVM: timerVM, searchText: searchText, isEditMode: isEditMode)
-        case 1:
-            ScoreboardRecordsListView(viewModel: scoreboardVM, searchText: searchText, isEditMode: isEditMode)
-        case 2:
-            TimerRecordsListView(viewModel: timerVM, searchText: searchText, isEditMode: isEditMode)
-        default:
-            EmptyView()
+            Spacer()
         }
     }
-}
 
-// MARK: - Tab Button
-
-private struct TabButton: View {
-    let title: String
-    let index: Int
-    @Binding var currentTab: Int
-    
-    var body: some View {
-        Button(action: { currentTab = index }) {
-            Text(LocalizedStringKey(title))
-                .fontWeight(currentTab == index ? .semibold : .regular)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity)
-                .background(currentTab == index ? Theme.accentColor : Theme.surface)
-                .foregroundColor(currentTab == index ? .white : Theme.textPrimary)
-                .cornerRadius(8)
-        }
-    }
-}
-
-// MARK: - All Records View
-
-private struct AllRecordsView: View {
-    @ObservedObject var scoreboardVM: ScoreboardRecordsViewModel
-    @ObservedObject var timerVM: TimerRecordsViewModel
-    let searchText: String
-    let isEditMode: Bool
-
-    private var allRecords: [MixedRecordItem] {
-        let scoreboardItems = scoreboardVM.records
-            .filter { searchText.isEmpty || $0.team1Name.localizedCaseInsensitiveContains(searchText) || $0.team2Name.localizedCaseInsensitiveContains(searchText) }
-            .map { MixedRecordItem.scoreboard($0) }
-            
-        let timerItems = timerVM.records
-            .filter { searchText.isEmpty || $0.gameType.displayName.localizedCaseInsensitiveContains(searchText) }
-            .map { MixedRecordItem.timer($0) }
-        
-        return (scoreboardItems + timerItems).sorted { $0.timestamp > $1.timestamp }
-    }
-    
-    private var groupedRecords: [MixedDateGroup] {
-        let dictionary = Dictionary(grouping: allRecords) { $0.date }
-        return dictionary.map { date, items in
-            MixedDateGroup(date: date, displayDate: formatDisplayDate(date), records: items)
-        }.sorted { $0.date > $1.date }
-    }
-
-    var body: some View {
+    private var recordsList: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
-                if groupedRecords.isEmpty {
+                let allRecords = getAllRecords()
+
+                if allRecords.isEmpty {
                     emptyState
                 } else {
-                    ForEach(groupedRecords) { group in
-                        Section(header: DateHeader(title: group.displayDate, count: group.records.count)) {
+                    ForEach(getGroupedRecords(), id: \ActivityRecordGroup.date) { group in
+                        Section(header: sectionHeader(for: group)) {
                             ForEach(group.records) { item in
-                                switch item {
-                                case .scoreboard(let record):
-                                    ScoreboardRecordRow(record: record, isEditMode: isEditMode)
-                                case .timer(let record):
-                                    TimerRecordRow(record: record, isEditMode: isEditMode)
-                                }
+                                recordRow(for: item)
                             }
                         }
                     }
                 }
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.top, 8)
         }
     }
 
-    private var emptyState: some View {
-        VStack {
-            Spacer(minLength: 100)
-            Text("🧘‍♂️").font(.system(size: 72))
-            Text("no_recent_records").font(.headline)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
+    private func getAllRecords() -> [RecordItem] {
+        let scoreboardItems = scoreboardVM.records.map { RecordItem.scoreboard($0) }
+        let timerItems = timerVM.records.map { RecordItem.timer($0) }
 
-
-// MARK: - Scoreboard Records List
-
-private struct ScoreboardRecordsListView: View {
-    @ObservedObject var viewModel: ScoreboardRecordsViewModel
-    let searchText: String
-    let isEditMode: Bool
-    
-    private var filteredRecords: [ScoreboardRecordSummary] {
-        viewModel.records.filter {
-            searchText.isEmpty || $0.team1Name.localizedCaseInsensitiveContains(searchText) || $0.team2Name.localizedCaseInsensitiveContains(searchText)
-        }
+        return (scoreboardItems + timerItems).sorted { $0.timestamp > $1.timestamp }
     }
 
-    var body: some View {
-        List {
-            if filteredRecords.isEmpty {
-                Text("no_records_found")
-            } else {
-                ForEach(filteredRecords) { record in
-                    ScoreboardRecordRow(record: record, isEditMode: isEditMode)
+    private func getGroupedRecords() -> [ActivityRecordGroup] {
+        let records = getAllRecords()
+        let grouped = Dictionary(grouping: records) { $0.dateString }
+        return grouped.map { date, items in
+            ActivityRecordGroup(date: date, displayDate: formatDate(date), records: items)
+        }.sorted { $0.date > $1.date }
+    }
+
+    private func sectionHeader(for group: ActivityRecordGroup) -> some View {
+        HStack {
+            Text(group.displayDate)
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.vertical, 8)
+        .background(Theme.backgroundColor)
+    }
+
+    @ViewBuilder
+    private func recordRow(for item: RecordItem) -> some View {
+        if isEditMode {
+            // Edit mode: Show delete button + content side by side
+            HStack(spacing: 12) {
+                recordContent(for: item)
+                    .background(Theme.surface)
+                    .cornerRadius(12)
+
+                Button(action: { deleteRecord(item) }) {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.red)
+                        .frame(width: 44, height: 44)
                 }
-                .onDelete(perform: delete)
+            }
+        } else {
+            // Normal mode: Show NavigationLink
+            switch item {
+            case .scoreboard(let record):
+                NavigationLink(destination: ScoreboardRecordDetailPage(recordId: record.id)) {
+                    recordContent(for: item)
+                        .background(Theme.surface)
+                        .cornerRadius(12)
+                }
+                .buttonStyle(.plain)
+
+            case .timer(let record):
+                NavigationLink(destination: TimerRecordDetailPage(recordId: record.id)) {
+                    recordContent(for: item)
+                        .background(Theme.surface)
+                        .cornerRadius(12)
+                }
+                .buttonStyle(.plain)
             }
         }
-        .listStyle(.plain)
-        .environment(\.editMode, .constant(isEditMode ? .active : .inactive))
     }
-    
-    private func delete(at offsets: IndexSet) {
-        let idsToDelete = offsets.map { filteredRecords[$0].id }
-        idsToDelete.forEach { viewModel.deleteRecord($0) }
-    }
-}
 
-// MARK: - Timer Records List
-
-private struct TimerRecordsListView: View {
-    @ObservedObject var viewModel: TimerRecordsViewModel
-    let searchText: String
-    let isEditMode: Bool
-
-    private var filteredRecords: [GameRecordSummary] {
-        viewModel.records.filter {
-            searchText.isEmpty || $0.gameType.displayName.localizedCaseInsensitiveContains(searchText)
-        }
-    }
-    
-    var body: some View {
-         List {
-            if filteredRecords.isEmpty {
-                Text("no_records_found")
-            } else {
-                ForEach(filteredRecords) { record in
-                    TimerRecordRow(record: record, isEditMode: isEditMode)
-                }
-                .onDelete(perform: delete)
-            }
-        }
-        .listStyle(.plain)
-        .environment(\.editMode, .constant(isEditMode ? .active : .inactive))
-    }
-    
-    private func delete(at offsets: IndexSet) {
-        let idsToDelete = offsets.map { filteredRecords[$0].id }
-        idsToDelete.forEach { viewModel.deleteRecord($0) }
-    }
-}
-
-
-// MARK: - Row Views
-
-private struct ScoreboardRecordRow: View {
-    let record: ScoreboardRecordSummary
-    let isEditMode: Bool
-    
-    var body: some View {
-        NavigationLink(destination: ScoreboardRecordDetailPage(recordId: record.id)) {
-            HStack {
-                Text(record.gameType.icon).font(.largeTitle)
-                VStack(alignment: .leading) {
-                    Text("\(record.team1Name) vs \(record.team2Name)").font(.headline)
-                    Text(record.time).font(.subheadline).foregroundColor(.secondary)
+    @ViewBuilder
+    private func recordContent(for item: RecordItem) -> some View {
+        switch item {
+        case .scoreboard(let record):
+            HStack(spacing: 12) {
+                Text(record.gameType.icon)
+                    .font(.title)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(record.team1Name) vs \(record.team2Name)")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(record.time)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
                 Spacer()
-                VStack(alignment: .trailing) {
-                    Text("\(record.team1FinalScore) - \(record.team2FinalScore)").font(.headline).foregroundColor(Theme.accentColor)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("\(record.team1FinalScore) - \(record.team2FinalScore)")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Theme.accentColor)
                     if let winner = record.winner {
                         Text("\(winner == "left" ? record.team1Name : record.team2Name) wins")
                             .font(.caption)
@@ -266,59 +160,102 @@ private struct ScoreboardRecordRow: View {
                 }
             }
             .padding()
-            .background(Theme.surface)
-            .cornerRadius(12)
-        }
-        .buttonStyle(.plain)
-    }
-}
 
-private struct TimerRecordRow: View {
-    let record: GameRecordSummary
-    let isEditMode: Bool
-
-    var body: some View {
-        NavigationLink(destination: TimerRecordDetailPage(recordId: record.id)) {
-            HStack {
-                Text(record.gameType.icon).font(.largeTitle)
-                VStack(alignment: .leading) {
-                    Text(record.title).font(.headline)
-                    Text(record.time).font(.subheadline).foregroundColor(.secondary)
+        case .timer(let record):
+            HStack(spacing: 12) {
+                Text(record.gameType.icon)
+                    .font(.title)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(record.title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(record.time)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
                 Spacer()
                 if let winner = record.winner {
-                    Text("\(winner) wins").font(.subheadline).foregroundColor(.green)
+                    Text("\(winner) wins")
+                        .font(.subheadline)
+                        .foregroundColor(.green)
                 }
             }
             .padding()
-            .background(Theme.surface)
-            .cornerRadius(12)
         }
-        .buttonStyle(.plain)
+    }
+
+    private func deleteRecord(_ item: RecordItem) {
+        switch item {
+        case .scoreboard(let record):
+            ScoreboardRecordsViewModel.shared.deleteRecord(record.id)
+        case .timer(let record):
+            TimerRecordsViewModel.shared.deleteRecord(record.id)
+        }
+    }
+
+    private func formatDate(_ dateString: String) -> String {
+        // Simple date formatting - you might want to enhance this
+        if dateString == getTodayString() {
+            return NSLocalizedString("today", comment: "")
+        } else if dateString == getYesterdayString() {
+            return NSLocalizedString("yesterday", comment: "")
+        } else {
+            // Parse the date and check if it's the current year
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+
+            if let date = dateFormatter.date(from: dateString) {
+                let currentYear = Calendar.current.component(.year, from: Date())
+                let recordYear = Calendar.current.component(.year, from: date)
+
+                if recordYear == currentYear {
+                    // Same year, show only month and day
+                    dateFormatter.dateFormat = "MM-dd"
+                    return dateFormatter.string(from: date)
+                } else {
+                    // Different year, show full date
+                    return dateString
+                }
+            }
+            return dateString
+        }
+    }
+
+    private func getTodayString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
+
+    private func getYesterdayString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        return formatter.string(from: yesterday)
     }
 }
 
-// MARK: - Helper Models & Views
+// MARK: - Supporting Types
 
-private enum MixedRecordItem: Identifiable {
+private enum RecordItem: Identifiable {
     case scoreboard(ScoreboardRecordSummary)
     case timer(GameRecordSummary)
-    
+
     var id: String {
         switch self {
         case .scoreboard(let r): return "s-\(r.id)"
         case .timer(let r): return "t-\(r.id)"
         }
     }
-    
+
     var timestamp: TimeInterval {
         switch self {
         case .scoreboard(let r): return r.timestamp
         case .timer(let r): return r.timestamp
         }
     }
-    
-    var date: String {
+
+    var dateString: String {
         switch self {
         case .scoreboard(let r): return r.date
         case .timer(let r): return r.date
@@ -326,29 +263,14 @@ private enum MixedRecordItem: Identifiable {
     }
 }
 
-private struct MixedDateGroup: Identifiable {
+private struct ActivityRecordGroup: Identifiable {
     let id = UUID()
     let date: String
     let displayDate: String
-    let records: [MixedRecordItem]
+    let records: [RecordItem]
 }
 
-private struct DateHeader: View {
-    let title: String
-    let count: Int
-    
-    var body: some View {
-        HStack {
-            Text(title).font(.headline).foregroundColor(.secondary)
-            Spacer()
-            Text("\(count) items")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .padding(.vertical, 4)
-        .background(Theme.backgroundColor)
-    }
-}
+
 
 // MARK: - Preview
 

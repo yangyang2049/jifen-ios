@@ -9,13 +9,14 @@ import SwiftUI
 
 struct WhistleToolView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @State private var isPlayingShort = false
     @State private var isPlayingLong = false
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.black.ignoresSafeArea()
+                (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
                 
                 // Content based on device type
                 if geometry.size.width > 600 {
@@ -26,26 +27,19 @@ struct WhistleToolView: View {
                     }
                     .padding(32)
                 } else {
-                    // Phone: Vertical layout
-                    VStack(spacing: 16) {
+                    // Phone: Vertical layout - centered cards
+                    VStack(spacing: 24) {
+                        Spacer()
                         buildShortWhistleCard()
                         buildLongWhistleCard()
+                        Spacer()
                     }
-                    .padding(.horizontal, 48)
-                    .padding(.vertical, 16)
+                    .padding(.horizontal, 32)
                 }
             }
         }
         .navigationTitle(NSLocalizedString("whistle_title", comment: "Whistle title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .preferredColorScheme(.dark)
     }
     
@@ -59,13 +53,12 @@ struct WhistleToolView: View {
                     .opacity(isPlayingShort ? 0.6 : 1.0)
                     .scaleEffect(isPlayingShort ? 1.2 : 1.0)
                     .animation(.easeInOut(duration: isPlayingShort ? 0.2 : 0.3), value: isPlayingShort)
-                
+
                 Text(NSLocalizedString("short_whistle", comment: "Short whistle"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(.white)
             }
-            .frame(maxWidth: .infinity)
-            .frame(width: 300, height: 300)
+            .frame(width: 200, height: 200)
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 16)
@@ -89,13 +82,12 @@ struct WhistleToolView: View {
                     .opacity(isPlayingLong ? 0.6 : 1.0)
                     .scaleEffect(isPlayingLong ? 1.2 : 1.0)
                     .animation(.easeInOut(duration: isPlayingLong ? 1.0 : 0.3), value: isPlayingLong)
-                
+
                 Text(NSLocalizedString("long_whistle", comment: "Long whistle"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(.white)
             }
-            .frame(maxWidth: .infinity)
-            .aspectRatio(1, contentMode: .fit)
+            .frame(width: 200, height: 200)
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 16)

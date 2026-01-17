@@ -54,7 +54,10 @@ struct HomeTab: View {
     // NavigationPath for programmatic navigation
     @State private var path = NavigationPath()
 
-    // NavigationPath for programmatic navigation
+    // Navigation destinations
+    enum NavigationDestination: Hashable {
+        case tool(ToolItem)
+    }
 
     // MARK: - Body
     var body: some View {
@@ -135,6 +138,18 @@ struct HomeTab: View {
             }
             .sheet(isPresented: $showTimerSettingsSheet) {
                 buildTimerSettingsSheetContent()
+            }
+
+            // Navigation destinations for tools
+            .navigationDestination(for: NavigationDestination.self) { destination in
+                switch destination {
+                case .tool(let toolItem):
+                    toolItem.view
+                        .navigationTitle(toolItem.title)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .background(isDarkTheme ? Theme.backgroundColor : Theme.homeBackgroundLight)
+                        .toolbar(.hidden, for: .tabBar)
+                }
             }
         }
         .onAppear {
@@ -224,10 +239,8 @@ struct HomeTab: View {
             ))
         }
 
-        // Dummy timer records for now if GameRecordsViewModel is not implemented yet
+        // TODO: Add timer records when GameRecordsViewModel is implemented
         // If GameRecordsViewModel implemented, retrieve timer records and convert similarly
-        let dummyTimerRecord = GameRecordSummary(id: UUID().uuidString, gameType: .go, timestamp: Date().timeIntervalSince1970 - 3600, duration: 1200)
-        combinedActivities.append(RecentActivity(id: dummyTimerRecord.id, activityType: .timer, gameType: dummyTimerRecord.gameType, timestamp: dummyTimerRecord.timestamp, title: dummyTimerRecord.title, description: dummyTimerRecord.description))
 
 
         // Sort by timestamp desc, take top 5
@@ -422,7 +435,7 @@ struct HomeTab: View {
     
     private func handleToolClick(toolId: String) {
         if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
-            onOpenTool?(tool)
+            path.append(NavigationDestination.tool(tool))
         } else {
             print("⚠️ Tool not found: \(toolId). Available tools: \(ToolItem.allTools.map { $0.id })")
         }

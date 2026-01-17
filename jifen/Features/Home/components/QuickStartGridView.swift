@@ -49,7 +49,7 @@ struct QuickStartGridView: View {
                         title: getGameName(type: primarySport),
                         subtitle: startGameText,
                         icon: getGameIcon(type: primarySport),
-                        gradientColors: GAME_GRADIENTS[.basketball] ?? [Theme.homePrimaryCardOrange, Theme.homePrimaryCardOrange],
+                        gradientColors: [Theme.homePrimaryCardOrange, Theme.homePrimaryCardOrange],
                         onClickCard: { onPrimaryClick?() }
                     )
 

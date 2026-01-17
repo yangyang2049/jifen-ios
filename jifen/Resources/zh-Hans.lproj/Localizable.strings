@@ -125,6 +125,13 @@
 "duration_ms" = "%d分%d秒";
 "duration_s" = "%d秒";
 
+/* 活动页面 */
+"advanced_filter" = "高级筛选";
+"edit" = "编辑";
+"done" = "完成";
+"no_recent_records" = "暂无最近记录";
+"items" = "项";
+
 /* Messages */
 "load_recent_game" = "已加载最近游戏";
 "duplicate_names_warning" = "名称重复警告";

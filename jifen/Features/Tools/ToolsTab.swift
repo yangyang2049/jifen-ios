@@ -2,10 +2,14 @@ import SwiftUI
 
 struct ToolsTab: View {
     @State private var path = NavigationPath()
-    let onOpenTool: ((ToolItem) -> Void)?
+    @Environment(\.colorScheme) var colorScheme
 
-    init(onOpenTool: ((ToolItem) -> Void)?) {
-        self.onOpenTool = onOpenTool
+    enum NavigationDestination: Hashable {
+        case tool(ToolItem)
+    }
+
+    init() {
+        // Empty init since we removed the callback parameter
     }
 
     var body: some View {
@@ -20,16 +24,16 @@ struct ToolsTab: View {
                             title: NSLocalizedString("match_tools", comment: "Match Tools section"),
                             tools: ToolItem.competitionTools, // Use shared definition
                             onToolClick: { tool in
-                                onOpenTool?(tool) // Call the onOpenTool callback
+                                path.append(NavigationDestination.tool(tool))
                             }
                         )
-                        
+
                         // Other Tools Section
                         ToolSectionView(
                             title: NSLocalizedString("other_tools", comment: "Other Tools section"),
                             tools: ToolItem.otherTools, // Use shared definition
                             onToolClick: { tool in
-                                onOpenTool?(tool) // Call the onOpenTool callback
+                                path.append(NavigationDestination.tool(tool))
                             }
                         )
                     }
@@ -40,12 +44,16 @@ struct ToolsTab: View {
             .navigationTitle(NSLocalizedString("tools_title", comment: "Tools title"))
             .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(.dark)
-            // navigationDestination is no longer directly used for opening tool views modally,
-            // but can be kept for other internal navigation if needed.
-            // .navigationDestination(for: ToolItem.self) { tool in
-            //    tool.view
-            // }
-            // Remove onChange(of: toolToOpen) as it's no longer needed
+            .navigationDestination(for: NavigationDestination.self) { destination in
+                switch destination {
+                case .tool(let toolItem):
+                    toolItem.view
+                        .navigationTitle(toolItem.title)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .background(colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight)
+                        .toolbar(.hidden, for: .tabBar)
+                }
+            }
         }
     }
 }
@@ -106,6 +114,7 @@ struct ToolCardView: View {
 }
 
 #Preview {
-    ToolsTab(onOpenTool: nil) // Provide default nil for preview
+    NavigationStack {
+        ToolsTab()
+    }
 }
-

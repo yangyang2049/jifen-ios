@@ -9,12 +9,13 @@ import SwiftUI
 
 struct DateTimeToolView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @State private var currentDate = Date()
     @State private var timer: Timer?
-    
+
     var body: some View {
         ZStack {
-            Theme.backgroundColor.ignoresSafeArea()
+            (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
             
             VStack(spacing: 40) {
                     // Date Display
@@ -39,14 +40,6 @@ struct DateTimeToolView: View {
         }
         .navigationTitle(NSLocalizedString("time_tool_title", comment: "Time Tool title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .onAppear {
             startTimer()
         }
@@ -78,4 +71,3 @@ struct DateTimeToolView: View {
 #Preview {
     DateTimeToolView()
 }
-

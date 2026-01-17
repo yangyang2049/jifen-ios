@@ -38,14 +38,6 @@ struct RedYellowCardView: View {
         }
         .navigationTitle(NSLocalizedString("red_yellow_card_title", comment: "Red Yellow Card title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .preferredColorScheme(.dark)
     }
 }
@@ -53,4 +45,3 @@ struct RedYellowCardView: View {
 #Preview {
     RedYellowCardView()
 }
-

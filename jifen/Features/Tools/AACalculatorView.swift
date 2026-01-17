@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AACalculatorView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @State private var totalAmount: String = ""
     @State private var participants: Int = 2
     @State private var amountPerPerson: Double = 0
@@ -254,17 +255,9 @@ struct AACalculatorView: View {
             }
             .scrollIndicators(.hidden)
         }
-        .background(Color.black.ignoresSafeArea())
+        .background((colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea())
         .navigationTitle(NSLocalizedString("aa_calculator_title", comment: "AA Calculator title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .preferredColorScheme(.dark)
     }
     

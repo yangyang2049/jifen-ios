@@ -125,6 +125,13 @@
 "duration_ms" = "%dm %ds";
 "duration_s" = "%ds";
 
+/* Activity Page */
+"advanced_filter" = "Advanced Filter";
+"edit" = "Edit";
+"done" = "Done";
+"no_recent_records" = "No recent records";
+"items" = "items";
+
 /* Messages */
 "load_recent_game" = "Loaded recent game";
 "duplicate_names_warning" = "Duplicate names warning";

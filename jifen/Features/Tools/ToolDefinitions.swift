@@ -23,8 +23,7 @@ extension ToolItem {
         ToolItem(id: "dice", emoji: "🎲", title: NSLocalizedString("tool_dice", comment: "Dice"), view: AnyView(DiceToolView())),
         ToolItem(id: "whistle", emoji: "🔔", title: NSLocalizedString("tool_whistle", comment: "Whistle"), view: AnyView(WhistleToolView())),
         ToolItem(id: "random_team", emoji: "👥", title: NSLocalizedString("tool_random_team", comment: "Random Team"), view: AnyView(RandomTeamView())),
-        ToolItem(id: "red_yellow_card", emoji: "🟨", title: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), view: AnyView(RedYellowCardView())),
-        ToolItem(id: "points_table", emoji: "📊", title: NSLocalizedString("tool_points_table", comment: "Points Table"), view: AnyView(PointsTableView()))
+        ToolItem(id: "red_yellow_card", emoji: "🟨", title: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), view: AnyView(RedYellowCardView()))
     ]
     
     static let otherTools: [ToolItem] = [

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RandomTeamView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @State private var numPlayers: Int = 0
     @State private var playerBoxes: [PlayerBox] = []
     @State private var touchedIndices: Set<Int> = Set()
@@ -17,7 +18,7 @@ struct RandomTeamView: View {
     @State private var showTestButton: Bool = false
     @State private var showResetButton: Bool = false
     @State private var showPlayerSelection: Bool = true
-    
+
     @State private var animationTimer: Timer? = nil
     private let animationColors: [Color] = [
         Color(hex: "475569"), // slate-600
@@ -31,17 +32,17 @@ struct RandomTeamView: View {
         "A": Color(hex: "f43f5e"), // rose-500
         "B": Color(hex: "f59e0b")  // amber-500
     ]
-    
+
     struct PlayerBox: Identifiable {
         let id: Int
         var team: String?
         var backgroundColor: Color
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.black.ignoresSafeArea()
+                (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
                 
                 // Main content area
                 if showPlayerSelection {
@@ -60,14 +61,6 @@ struct RandomTeamView: View {
         }
         .navigationTitle(NSLocalizedString("random_team_title", comment: "Random Team title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .preferredColorScheme(.dark)
         .onDisappear {
             stopAnimation()

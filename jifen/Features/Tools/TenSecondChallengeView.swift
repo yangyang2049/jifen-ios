@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TenSecondChallengeView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0 // milliseconds
     @State private var results: [ChallengeResult] = []
@@ -16,22 +17,22 @@ struct TenSecondChallengeView: View {
     @State private var showResult = false
     @State private var lastDifference: TimeInterval = 0
     @State private var showHint = false
-    
+
     @State private var timer: Timer?
     @State private var startTimestamp: Date?
     private let targetTime: TimeInterval = 10.0 // 10 seconds = 10000ms
     private let hintShownKey = "ten_second_hint_shown"
-    
+
     struct ChallengeResult: Identifiable {
         let id = UUID()
         let time: TimeInterval // in milliseconds
         let timestamp: Date
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.black.ignoresSafeArea()
+                (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
                 
                 // Main content area
                 VStack {
@@ -70,14 +71,6 @@ struct TenSecondChallengeView: View {
         }
         .navigationTitle(NSLocalizedString("ten_second_title", comment: "Ten Second Challenge title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()

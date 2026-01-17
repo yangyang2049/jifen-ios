@@ -32,117 +32,146 @@ struct FlipCoinView: View {
         let timestamp: Date
     }
     
+    @Environment(\.colorScheme) var colorScheme
+
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture {
                     flipCoin()
                 }
-            
-            // Main coin display area
-            VStack {
-                Spacer()
-                
-                // Coin display
+
+            // Always centered coin display
+            GeometryReader { geometry in
                 ZStack {
-                    // Coin circle with gradient
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color(hex: "D4AF37"),
-                                    Color(hex: "C5A03C"),
-                                    Color(hex: "E5C158")
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 180, height: 180)
-                        .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
-                        .overlay(
-                            // Inner circle (simulating depression)
-                            Circle()
-                                .fill(Color(hex: "C5A03C"))
-                                .frame(width: 165, height: 165)
-                                .overlay(
-                                    // Center plane
-                                    Circle()
-                                        .fill(Color(hex: "E5C158"))
-                                        .frame(width: 155, height: 155)
-                                        .overlay(
-                                            // Coin face content
-                                            coinFaceContent
-                                        )
+                    // Coin display - always centered
+                    ZStack {
+                        // Coin circle with gradient
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(hex: "D4AF37"),
+                                        Color(hex: "C5A03C"),
+                                        Color(hex: "E5C158")
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
                                 )
-                        )
-                        .rotation3DEffect(
-                            .degrees(rotationAngle),
-                            axis: (x: 1, y: 0, z: 0),
-                            perspective: 0.5
-                        )
-                        .offset(y: coinPositionY)
-                        .scaleEffect(coinScale)
-                }
-                
-                Spacer()
-                
-                // Hint text (only show once across app installation)
-                if !isFlipping && headsCount + tailsCount == 0 && showHint {
-                    Text(NSLocalizedString("tap_to_flip", comment: "Tap to flip coin"))
-                        .font(.system(size: 18))
-                        .foregroundColor(.white.opacity(0.5))
-                        .padding(.bottom, 100)
-                }
-                
-                // Statistics at bottom center (horizontal layout)
-                if headsCount + tailsCount > 0 {
-                    HStack(spacing: 40) {
-                        // Heads count
-                        VStack(spacing: 4) {
-                            Text(NSLocalizedString("heads", comment: "Heads"))
-                                .font(.system(size: 12))
-                                .foregroundColor(.white.opacity(0.6))
-                            Text("\(headsCount)")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color(hex: "FFD700"))
-                        }
-                        
-                        // Tails count
-                        VStack(spacing: 4) {
-                            Text(NSLocalizedString("tails", comment: "Tails"))
-                                .font(.system(size: 12))
-                                .foregroundColor(.white.opacity(0.6))
-                            Text("\(tailsCount)")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color(hex: "E5C158"))
-                        }
-                        
-                        // Total count
-                        VStack(spacing: 4) {
-                            Text(NSLocalizedString("total", comment: "Total"))
-                                .font(.system(size: 12))
-                                .foregroundColor(.white.opacity(0.6))
-                            Text("\(headsCount + tailsCount)")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white)
-                        }
+                            )
+                            .frame(width: 180, height: 180)
+                            .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
+                            .overlay(
+                                // Inner circle (simulating depression)
+                                Circle()
+                                    .fill(Color(hex: "C5A03C"))
+                                    .frame(width: 165, height: 165)
+                                    .overlay(
+                                        // Center plane
+                                        Circle()
+                                            .fill(Color(hex: "E5C158"))
+                                            .frame(width: 155, height: 155)
+                                            .overlay(
+                                                // Coin face content
+                                                coinFaceContent
+                                            )
+                                    )
+                            )
+                            .rotation3DEffect(
+                                .degrees(rotationAngle),
+                                axis: (x: 1, y: 0, z: 0),
+                                perspective: 0.5
+                            )
+                            .offset(y: coinPositionY)
+                            .scaleEffect(coinScale)
                     }
-                    .padding(.bottom, 100)
+                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+
+                    // Floating results overlay
+                    VStack {
+                        Spacer()
+
+                        // Hint text (only show once across app installation)
+                        if !isFlipping && headsCount + tailsCount == 0 && showHint {
+                            Text(NSLocalizedString("tap_to_flip", comment: "Tap to flip coin"))
+                                .font(.system(size: 18))
+                                .foregroundColor(.white.opacity(0.5))
+                                .padding(.bottom, 100)
+                        }
+
+                        // Statistics at bottom center (horizontal layout) - floating
+                        if headsCount + tailsCount > 0 {
+                            HStack(spacing: 40) {
+                                // Heads count
+                                VStack(spacing: 4) {
+                                    Text(NSLocalizedString("heads", comment: "Heads"))
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.white.opacity(0.6))
+                                    Text("\(headsCount)")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(Color(hex: "FFD700"))
+                                }
+
+                                // Tails count
+                                VStack(spacing: 4) {
+                                    Text(NSLocalizedString("tails", comment: "Tails"))
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.white.opacity(0.6))
+                                    Text("\(tailsCount)")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(Color(hex: "E5C158"))
+                                }
+
+                                // Total count
+                                VStack(spacing: 4) {
+                                    Text(NSLocalizedString("total", comment: "Total"))
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.white.opacity(0.6))
+                                    Text("\(headsCount + tailsCount)")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .padding(.bottom, 24)
+                        }
+
+                        // Hidden logs section (takes space but invisible initially)
+                        VStack(spacing: 8) {
+                            // Recent flips display (hidden but maintains space)
+                            if flipHistory.count > 0 {
+                                VStack(spacing: 8) {
+                                    Text("Recent Flips")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white.opacity(0.6))
+
+                                    // Show last 5 flips
+                                    HStack(spacing: 12) {
+                                        ForEach(flipHistory.prefix(5)) { result in
+                                            ZStack {
+                                                Circle()
+                                                    .fill(result.side == .heads ? Color(hex: "FFD700") : Color(hex: "E5C158"))
+                                                    .frame(width: 32, height: 32)
+                                                    .opacity(0.8)
+
+                                                Text(result.side == .heads ? (isEnglish ? "8" : "666") : "❀")
+                                                    .font(.system(size: 16))
+                                                    .foregroundColor(Color(hex: "8B6914"))
+                                            }
+                                        }
+                                    }
+                                }
+                                .opacity(0) // Hidden but maintains layout space
+                                .frame(height: 60) // Fixed height to prevent shifting
+                            }
+                        }
+                        .padding(.bottom, 20)
+                    }
                 }
             }
         }
         .navigationTitle(NSLocalizedString("flip_coin_title", comment: "Flip Coin title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()
