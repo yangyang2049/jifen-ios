@@ -7,10 +7,12 @@
 
 import SwiftUI
 import UIKit // For UIDevice and UIApplication
+import ToolDefinitions // Import ToolDefinitions
 
 struct HomeTab: View {
     // MARK: - State & Callbacks
     var onNavigateToTab: ((Int) -> Void)? = nil // Equivalent to onNavigateToTab?: (index: number) => void;
+    var onOpenTool: ((String) -> Void)? = nil // New callback for opening a specific tool
     // onViewAllActivities and onActivitySelected handled within RecentRecordsSectionView
 
     // Device & Layout State
@@ -49,9 +51,14 @@ struct HomeTab: View {
     @State private var lastRefreshTime: Date = Date()
     private let refreshDebounceTime: TimeInterval = 1.0 // 1000ms
 
+    // NavigationPath for programmatic navigation
+    @State private var path = NavigationPath()
+
+    // NavigationPath for programmatic navigation
+
     // MARK: - Body
     var body: some View {
-        NavigationView { // Used for potential navigation stack
+        NavigationStack(path: $path) { // Changed NavigationView to NavigationStack
             ScrollView(.vertical, showsIndicators: false) { // Scroll()
                 VStack(spacing: 0) { // Changed from spacing: 0
                     // 1. Header
@@ -414,11 +421,7 @@ struct HomeTab: View {
     }
     
     private func handleToolClick(toolId: String) {
-        // TODO: Implement actual navigation to tool pages
-        print("Handle tool click for: \(toolId)")
-        // Example:
-        // if toolId == "whistle" { NavigationLink(destination: WhistleToolView()) }
-        // etc.
+        onOpenTool?(toolId)
     }
 }
 

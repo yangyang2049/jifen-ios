@@ -31,8 +31,8 @@ struct QuickStartGridView: View {
                 Button(action: {
                     onEditClick?()
                 }) {
-                    Image("ic_edit") // $r('app.media.ic_edit')
-                        .resizable()
+                    Image(systemName: "pencil")
+                        .foregroundColor(Theme.textPrimary)
                         .frame(width: 20, height: 20)
                 }
                 .frame(width: 44, height: 44)

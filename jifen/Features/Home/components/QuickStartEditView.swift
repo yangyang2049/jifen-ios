@@ -67,7 +67,7 @@ struct QuickStartEditView: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(Theme.textOnPrimary)
                                 .frame(width: 20, height: 20)
-                                .background(Theme.homeSecondaryCardGreen)
+                                .background(Theme.homeSecondaryCardBlue)
                                 .cornerRadius(10)
                             
                             Text(NSLocalizedString("home_edit_secondary_card", comment: "Customize secondary card title"))
@@ -107,9 +107,9 @@ struct QuickStartEditView: View {
                     onSave?(selectedPrimary, selectedSecondary)
                     dismiss() // Dismiss the sheet after saving
                 }) {
-                    Text(NSLocalizedString("home_complete_and_save", comment: "Complete and Save button"))
+                    Text("保存")
                         .font(.system(size: Theme.fontBody1, weight: .bold)) // fontSize(18), fontWeight(FontWeight.Bold)
-                        .foregroundColor(.black) // Colors.black
+                        .foregroundColor(.white) // Colors.black
                         .frame(maxWidth: .infinity) // width('100%')
                         .frame(height: 56) // height(56)
                         .background(Theme.homeEditButtonGreen) // backgroundColor(Colors.homeEditButtonGreen)

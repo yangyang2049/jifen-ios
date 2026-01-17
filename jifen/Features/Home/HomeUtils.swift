@@ -49,8 +49,5 @@ func getGameStats(type: GameType) -> String {
 // Available sports to choose from for QuickStartEditSheetComponent
 let availableSports: [GameType] = [
     .basketball, .football, .badminton,
-    .pingpong, .tennis, .volleyball,
-    .billiards, .boxing,
-    .go, .xiangqi, .chess,
-    .guandan, .doudizhu
+    .pingpong, .tennis, .volleyball
 ]

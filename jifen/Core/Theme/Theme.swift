@@ -25,6 +25,7 @@ struct Theme {
     static let homeButtonShadow = Color.black.opacity(0.2) // Approximated
     static let homePrimaryCardOrange = Color(hex: "#F97316")
     static let homeSecondaryCardGreen = Color(hex: "#30D158") // Approximated, used in HarmonyOS quickStart config
+    static let homeSecondaryCardBlue = Color(hex: "#007AFF") // Custom blue for secondary card
     static let homeEditButtonGreen = Color(hex: "#30D158") // Used for save button
     static let homeCardDark = Color(hex: "1C1C1E") // Approximated from LiveActivityBanner, QuickStartEditDialog
     static let homeCardLight = Color(hex: "FFFFFF") // Approximated from LiveActivityBanner, QuickStartEditDialog

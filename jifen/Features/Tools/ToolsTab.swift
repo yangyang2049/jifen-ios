@@ -1,17 +1,11 @@
-//
-//  ToolsTab.swift
-//  jifen
-//
-//  Tools tab with liquid design
-//
-
 import SwiftUI
 
 struct ToolsTab: View {
-    @State private var selectedTool: ToolItem?
-    
+    @State private var path = NavigationPath()
+    @Binding var toolToOpen: String? // New binding to open a specific tool
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ZStack {
                 Theme.backgroundColor.ignoresSafeArea()
                 
@@ -20,15 +14,19 @@ struct ToolsTab: View {
                         // Competition Tools Section
                         ToolSectionView(
                             title: NSLocalizedString("match_tools", comment: "Match Tools section"),
-                            tools: competitionTools,
-                            selectedTool: $selectedTool
+                            tools: ToolItem.competitionTools, // Use shared definition
+                            onToolClick: { tool in
+                                path.append(tool)
+                            }
                         )
                         
                         // Other Tools Section
                         ToolSectionView(
                             title: NSLocalizedString("other_tools", comment: "Other Tools section"),
-                            tools: otherTools,
-                            selectedTool: $selectedTool
+                            tools: ToolItem.otherTools, // Use shared definition
+                            onToolClick: { tool in
+                                path.append(tool)
+                            }
                         )
                     }
                     .padding(.horizontal, Theme.padding)
@@ -38,46 +36,26 @@ struct ToolsTab: View {
             .navigationTitle(NSLocalizedString("tools_title", comment: "Tools title"))
             .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(.dark)
-            .sheet(item: $selectedTool) { tool in
-                NavigationStack {
-                    tool.view
+            .navigationDestination(for: ToolItem.self) { tool in
+                tool.view
+            }
+            .onChange(of: toolToOpen) { oldToolId, newToolId in // Add onChange observer
+                if let newToolId = newToolId, let tool = ToolItem.allTools.first(where: { $0.id == newToolId }) {
+                    path.append(tool)
+                    toolToOpen = nil // Clear the binding after navigation
                 }
             }
         }
     }
-    
-    private var competitionTools: [ToolItem] {
-        [
-            ToolItem(emoji: "🪙", title: NSLocalizedString("tool_flip_coin", comment: "Flip Coin"), view: AnyView(FlipCoinView())),
-            ToolItem(emoji: "🎲", title: NSLocalizedString("tool_dice", comment: "Dice"), view: AnyView(DiceToolView())),
-            ToolItem(emoji: "🔔", title: NSLocalizedString("tool_whistle", comment: "Whistle"), view: AnyView(WhistleToolView())),
-            ToolItem(emoji: "👥", title: NSLocalizedString("tool_random_team", comment: "Random Team"), view: AnyView(RandomTeamView())),
-            ToolItem(emoji: "🟨", title: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), view: AnyView(RedYellowCardView())),
-            ToolItem(emoji: "📊", title: NSLocalizedString("tool_points_table", comment: "Points Table"), view: AnyView(PointsTableView()))
-        ]
-    }
-    
-    private var otherTools: [ToolItem] {
-        [
-            // ToolItem(emoji: "💬", title: NSLocalizedString("fullscreen_barrage", comment: "Fullscreen Barrage"), view: AnyView(FullscreenBarrageView())), // Temporarily hidden
-            ToolItem(emoji: "🕐", title: NSLocalizedString("tool_time", comment: "Time Tool"), view: AnyView(DateTimeToolView())),
-            ToolItem(emoji: "💰", title: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), view: AnyView(AACalculatorView())),
-            ToolItem(emoji: "⏱️", title: NSLocalizedString("tool_ten_second", comment: "Ten Second Challenge"), view: AnyView(TenSecondChallengeView()))
-        ]
-    }
 }
 
-struct ToolItem: Identifiable {
-    let id = UUID()
-    let emoji: String
-    let title: String
-    let view: AnyView
-}
+// Remove duplicate ToolItem struct, it's now in ToolDefinitions.swift
+// struct ToolItem: Identifiable, Hashable { ... } 
 
 struct ToolSectionView: View {
     let title: String
     let tools: [ToolItem]
-    @Binding var selectedTool: ToolItem?
+    let onToolClick: (ToolItem) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -90,9 +68,9 @@ struct ToolSectionView: View {
                 GridItem(.flexible(), spacing: Theme.spacing),
                 GridItem(.flexible(), spacing: Theme.spacing)
             ], spacing: Theme.spacing) {
-                ForEach(tools) { tool in
+                ForEach(tools, id: \.self) { tool in
                     ToolCardView(tool: tool) {
-                        selectedTool = tool
+                        onToolClick(tool)
                     }
                 }
             }
@@ -127,6 +105,6 @@ struct ToolCardView: View {
 }
 
 #Preview {
-    ToolsTab()
+    ToolsTab(toolToOpen: .constant(nil)) // Provide a constant binding for preview
 }
 
