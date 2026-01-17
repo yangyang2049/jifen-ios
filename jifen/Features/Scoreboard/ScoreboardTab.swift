@@ -49,9 +49,9 @@ struct ScoreboardTab: View {
             SportItem(emoji: "🏓", title: GameType.pingpong.displayName, gameType: .pingpong, view: AnyView(PingPongScoreboardView())),
             SportItem(emoji: "🏸", title: GameType.badminton.displayName, gameType: .badminton, view: AnyView(BadmintonScoreboardView())),
             SportItem(emoji: "🎾", title: GameType.tennis.displayName, gameType: .tennis, view: AnyView(TennisScoreboardView())),
-            SportItem(emoji: "🏀", title: GameType.basketball.displayName, gameType: .basketball, view: AnyView(Text("\(GameType.basketball.displayName) \(NSLocalizedString("not_implemented", comment: "Not implemented"))").foregroundColor(.white))),
-            SportItem(emoji: "⚽", title: GameType.football.displayName, gameType: .football, view: AnyView(Text("\(GameType.football.displayName) \(NSLocalizedString("not_implemented", comment: "Not implemented"))").foregroundColor(.white))),
-            SportItem(emoji: "🏐", title: GameType.volleyball.displayName, gameType: .volleyball, view: AnyView(Text("\(GameType.volleyball.displayName) \(NSLocalizedString("not_implemented", comment: "Not implemented"))").foregroundColor(.white)))
+            SportItem(emoji: "🏀", title: GameType.basketball.displayName, gameType: .basketball, view: AnyView(BasketballScoreboardView())),
+            SportItem(emoji: "⚽", title: GameType.football.displayName, gameType: .football, view: AnyView(FootballScoreboardView())),
+            SportItem(emoji: "🏐", title: GameType.volleyball.displayName, gameType: .volleyball, view: AnyView(VolleyballScoreboardView()))
         ]
     }
 }

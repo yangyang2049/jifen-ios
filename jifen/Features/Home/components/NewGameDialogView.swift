@@ -80,8 +80,8 @@ struct NewGameDialogView: View {
     private func handleGameItemClick(item: GameItem) {
         let gameType = item.type
 
-        // Only navigate for the 3 supported games (tennis, pingpong, badminton)
-        let supportedGames: [GameType] = [.tennis, .pingpong, .badminton]
+        // Navigate for all supported games (tennis, pingpong, badminton, basketball, football, volleyball)
+        let supportedGames: [GameType] = [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball]
 
         if supportedGames.contains(gameType) {
             // Close modal and navigate to scoreboard
