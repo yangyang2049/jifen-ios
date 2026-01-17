@@ -13,7 +13,7 @@
 /* Home Screen */
 "recent_records" = "Recent Records";
 "home_quick_start" = "Quick Start";
-"home_start_game" = "Start Game";
+"home_start_game" = "Start Match";
 "home_new_game_short" = "New Game";
 "home_all_items" = "All Items";
 "home_tools" = "Tools";
@@ -271,3 +271,22 @@
 
 /* Rest Countdown Overlay */
 "rest_countdown" = "Rest Countdown";
+
+/* Settings */
+"settings" = "Settings";
+"appearance" = "Appearance";
+"theme" = "Theme";
+"dark_mode" = "Dark Mode";
+"light_mode" = "Light Mode";
+"sound_vibration" = "Sound & Vibration";
+"sound_effects" = "Sound Effects";
+"vibration" = "Vibration";
+"language" = "Language";
+"app_language" = "App Language";
+"about" = "About";
+"version" = "Version";
+"developer" = "Developer";
+"accessibility" = "Accessibility";
+"feature_coming_soon" = "Feature coming soon";
+"language_restart_note" = "Language change requires app restart to take effect";
+"vs_separator" = " vs ";

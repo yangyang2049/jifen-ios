@@ -16,13 +16,19 @@ export struct QuickStartGrid {
   onEditClick?: () => void;
 
   @State private startGameText: string = '';
+  @State private newGameText: string = '';
+  @State private allItemsText: string = '';
 
   aboutToAppear() {
     try {
       const context = getContext(this) as common.UIAbilityContext;
       this.startGameText = context.resourceManager.getStringSync($r('app.string.home_start_game').id);
+      this.newGameText = context.resourceManager.getStringSync($r('app.string.home_new_game_short').id);
+      this.allItemsText = context.resourceManager.getStringSync($r('app.string.home_all_items').id);
     } catch (e) {
       this.startGameText = 'Start Game';
+      this.newGameText = 'New Game';
+      this.allItemsText = 'All Items';
     }
   }
 
@@ -100,55 +106,16 @@ export struct QuickStartGrid {
 
         // New Game Button (Right Bottom)
         GridItem() {
-          Stack({ alignContent: Alignment.BottomEnd }) {
-            Column() {
-              Text($r('app.string.home_new_game_short'))
-                .fontSize(FontSizes.h5)
-                .fontWeight(FontWeight.Bold)
-                .fontColor(Colors.textPrimary)
-              Text($r('app.string.home_all_items'))
-                .fontSize(FontSizes.overline)
-                .fontWeight(FontWeight.Normal)
-                .fontColor(Colors.homeOverlayWhite)
-                .margin({ top: Spacing.xs })
-                .textCase(TextCase.UpperCase)
-            }
-            .alignItems(HorizontalAlign.Start)
-            .width('100%')
-            .height('100%')
-            .padding(Spacing.md)
-
-            // Circle Plus Icon
-            Row() {
-               Image($r('app.media.ic_fab_add'))
-                 .width(20)
-                 .height(20)
-            }
-            .width(32)
-            .height(32)
-            .borderRadius(BorderRadius.xl)
-            .backgroundColor(Colors.homeOverlayDark)
-            .justifyContent(FlexAlign.Center)
-            .alignItems(VerticalAlign.Center)
-            .margin(Spacing.md)
-          }
-          .width('100%')
-          .height('100%')
-          .backgroundColor(Colors.homeCardDark)
-          .borderRadius(BorderRadius.xxl)
-          .shadow({ radius: 10, color: Colors.homeButtonShadow, offsetY: 5 })
-          .onClick(() => {
-            if (this.onNewGameClick) this.onNewGameClick();
-          })
-          .stateStyles({
-            pressed: {
-              .scale({ x: 0.96, y: 0.96 })
-            },
-            normal: {
-              .scale({ x: 1, y: 1 })
+          BentoCard({
+            title: this.newGameText,
+            subtitle: this.allItemsText,
+            icon: '➕',
+            gradientColors: [Colors.homeSecondaryCardGreen, Colors.homeSecondaryCardGreen],
+            isDarkText: false,
+            onClickCard: () => {
+              if (this.onNewGameClick) this.onNewGameClick();
             }
           })
-          .animation({ duration: 200 })
         }
         .rowStart(1)
         .rowEnd(1)

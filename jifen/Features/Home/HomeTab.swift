@@ -32,6 +32,8 @@ struct HomeTab: View {
     @State private var setupGameType: GameType? = nil // To pass to setup dialogs
     @State private var showTimerSettingsSheet: Bool = false
     @State private var selectedTimerGameType: GameType? = nil
+    @State private var showSettingsSheet: Bool = false
+    @State private var toastMessage: String? = nil
 
     // Managers/ViewModels
     @StateObject private var scoreboardRecordsViewModel = ScoreboardRecordsViewModel.shared // Existing
@@ -111,7 +113,7 @@ struct HomeTab: View {
                     }
                 )
             }
-            .fullScreenCover(isPresented: $showNewGameDialog) { // Using fullScreenCover for NewGameDialog as it occupies full screen in HarmonyOS
+            .sheet(isPresented: $showNewGameDialog) {
                 NewGameDialogView(
                     onSelect: { activityType, sourcePage in
                         handleNewGameSelection(type: activityType, sourcePage: sourcePage)
@@ -138,6 +140,9 @@ struct HomeTab: View {
             }
             .sheet(isPresented: $showTimerSettingsSheet) {
                 buildTimerSettingsSheetContent()
+            }
+            .sheet(isPresented: $showSettingsSheet) {
+                SettingsView()
             }
 
             // Navigation destinations for tools
@@ -171,19 +176,43 @@ struct HomeTab: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             refreshDataOnVisible() // Refresh data when app becomes active
         }
+        .overlay(
+            toastMessage.map { message in
+                VStack {
+                    Spacer()
+                    Text(message)
+                        .font(.system(size: Theme.fontBody2, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.black.opacity(0.8))
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 50)
+                }
+                .transition(.opacity)
+                .animation(.easeInOut, value: message)
+            },
+            alignment: .bottom
+        )
     }
 
     // MARK: - Private Methods
     
     private func updateHeaderDate() {
         let now = Date()
-        let monthDayFormatter = DateFormatter()
-        monthDayFormatter.dateFormat = "MM月dd日" // Example for "月" and "日"
-        
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.current
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .none
+
         let weekdayFormatter = DateFormatter()
-        weekdayFormatter.dateFormat = "EEEE" // Full weekday name
-        
-        headerDate = "\(monthDayFormatter.string(from: now))  \(weekdayFormatter.string(from: now))"
+        weekdayFormatter.locale = Locale.current
+        weekdayFormatter.dateFormat = DateFormatter.dateFormat(fromTemplate: "EEEE", options: 0, locale: Locale.current)
+
+        headerDate = "\(dateFormatter.string(from: now))  \(weekdayFormatter.string(from: now))"
     }
 
     private func updateLayoutState() {
@@ -234,7 +263,7 @@ struct HomeTab: View {
                 activityType: .scoreboard,
                 gameType: record.gameType,
                 timestamp: record.timestamp,
-                title: "\(record.team1Name) vs \(record.team2Name)",
+                title: "\(record.team1Name)\(NSLocalizedString("vs_separator", comment: "VS separator"))\(record.team2Name)",
                 description: "\(record.team1FinalScore) : \(record.team2FinalScore)"
             ))
         }
@@ -291,8 +320,10 @@ struct HomeTab: View {
                     .foregroundColor(Theme.textSecondary)
             }
             .layoutPriority(1)
+
+            Spacer()
         }
-        .frame(maxWidth: .infinity, alignment: .leading) // Explicitly make HStack fill width and align its content to leading
+        .frame(maxWidth: .infinity) // Explicitly make HStack fill width
         .padding(.horizontal, Theme.lg)
         .padding(.top, Theme.md)
         .padding(.bottom, Theme.sm)
@@ -306,11 +337,11 @@ struct HomeTab: View {
                     primarySport: quickStartConfigManager.quickStartConfig.primarySport,
                     secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
                     isDarkTheme: isDarkTheme,
-                    onPrimaryClick: {
-                        handleGameItemClick(gameType: quickStartConfigManager.quickStartConfig.primarySport)
+                    onPrimaryClick: { gameType in
+                        handleGameItemClick(gameType: gameType)
                     },
-                    onSecondaryClick: {
-                        handleGameItemClick(gameType: quickStartConfigManager.quickStartConfig.secondarySport)
+                    onSecondaryClick: { gameType in
+                        handleGameItemClick(gameType: gameType)
                     },
                     onNewGameClick: {
                         showNewGameDialog = true
@@ -345,11 +376,11 @@ struct HomeTab: View {
                             primarySport: quickStartConfigManager.quickStartConfig.primarySport,
                             secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
                             isDarkTheme: isDarkTheme,
-                            onPrimaryClick: {
-                                handleGameItemClick(gameType: quickStartConfigManager.quickStartConfig.primarySport)
+                            onPrimaryClick: { gameType in
+                                handleGameItemClick(gameType: gameType)
                             },
-                            onSecondaryClick: {
-                                handleGameItemClick(gameType: quickStartConfigManager.quickStartConfig.secondarySport)
+                            onSecondaryClick: { gameType in
+                                handleGameItemClick(gameType: gameType)
                             },
                             onNewGameClick: {
                                 showNewGameDialog = true
@@ -411,26 +442,23 @@ struct HomeTab: View {
 
     // Helper function to handle game item clicks (from QuickStartGrid or NewGameDialog)
     private func handleGameItemClick(gameType: GameType) {
-        let sports: [GameType] = [.football, .basketball, .volleyball, .pingpong, .badminton, .tennis, .billiards, .boxing, .pickleball]
-        if sports.contains(gameType) {
-            setupGameType = gameType
-            showSportsSetupSheet = true
+        // Direct navigation for tennis, pingpong, and badminton (skip setup)
+        let directSports: [GameType] = [.tennis, .pingpong, .badminton]
+        if directSports.contains(gameType) {
+            onNavigateToTab?(1) // Navigate to scoreboard tab
             return
         }
 
+        // Show toast for other sports
+        showToast(message: NSLocalizedString("feature_coming_soon", comment: "Feature coming soon"))
+    }
 
-
-        let timers: [GameType] = [.go, .xiangqi, .chess]
-        if timers.contains(gameType) {
-            selectedTimerGameType = gameType
-            showTimerSettingsSheet = true
-            return
+    private func showToast(message: String) {
+        toastMessage = message
+        // Auto-hide after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            toastMessage = nil
         }
-
-        // Direct Navigation Fallback
-        // TODO: Implement direct navigation for specific routes
-        print("Direct navigation for: \(gameType.displayName)")
-        onNavigateToTab?(1) // Default to scoreboard tab
     }
     
     private func handleToolClick(toolId: String) {
@@ -442,7 +470,6 @@ struct HomeTab: View {
     }
 }
 
-// MARK: - Preview
 #Preview {
     HomeTab()
 }

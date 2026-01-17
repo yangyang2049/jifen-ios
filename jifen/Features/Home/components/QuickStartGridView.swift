@@ -5,8 +5,8 @@ struct QuickStartGridView: View {
     let secondarySport: GameType
     var isDarkTheme: Bool = true // Default to black UI
     
-    var onPrimaryClick: (() -> Void)? = nil
-    var onSecondaryClick: (() -> Void)? = nil
+    var onPrimaryClick: ((GameType) -> Void)? = nil
+    var onSecondaryClick: ((GameType) -> Void)? = nil
     var onNewGameClick: (() -> Void)? = nil
     var onEditClick: (() -> Void)? = nil
 
@@ -50,7 +50,7 @@ struct QuickStartGridView: View {
                         subtitle: startGameText,
                         icon: getGameIcon(type: primarySport),
                         gradientColors: [Theme.homePrimaryCardOrange, Theme.homePrimaryCardOrange],
-                        onClickCard: { onPrimaryClick?() }
+                        onClickCard: { onPrimaryClick?(primarySport) }
                     )
 
                     VStack(spacing: Theme.md) {
@@ -59,18 +59,48 @@ struct QuickStartGridView: View {
                             icon: getGameIcon(type: secondarySport),
                             gradientColors: getGameGradient(type: secondarySport),
                             isDarkText: false,
-                            onClickCard: { onSecondaryClick?() }
+                            onClickCard: { onSecondaryClick?(secondarySport) }
                         )
                         .frame(maxHeight: .infinity) // Added for equal height
 
-                        BentoCardView(
-                            title: newGameShortText,
-                            subtitle: allItemsText,
-                            icon: "➕",
-                            gradientColors: [Theme.homeSecondaryCardGreen, Theme.homeSecondaryCardGreen],
-                            showDecorativeBars: false, // Added to remove deco lines
-                            onClickCard: { onNewGameClick?() }
-                        )
+                        // Custom New Game Card matching small sports cards layout
+                        Button(action: { onNewGameClick?() }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [Theme.homeSecondaryCardGreen, Theme.homeSecondaryCardGreen]),
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
+
+                                VStack(spacing: 8) {
+                                    // Top row: Title left, Icon right
+                                    HStack {
+                                        // Title on the left (matching small card style)
+                                        Text(newGameShortText)
+                                            .font(.system(size: Theme.fontBody2, weight: .medium))
+                                            .foregroundColor(.white)
+                                            .lineLimit(1)
+
+                                        Spacer()
+
+                                        // Smaller plus icon on the right
+                                        Image(systemName: "plus")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 20, height: 20)
+                                            .foregroundColor(.white)
+                                    }
+
+                                    Spacer() // Push content to top
+                                }
+                                .padding(.vertical, 20)
+                                .padding(.horizontal, 12)
+                            }
+                        }
+                        .buttonStyle(.plain)
                         .frame(maxHeight: .infinity) // Added for equal height
                     }
                 }

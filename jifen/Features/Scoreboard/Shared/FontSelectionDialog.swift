@@ -112,13 +112,19 @@ struct FontSelectionDialog: View {
     private func fontPreview(for fontCode: String) -> Font {
         switch fontCode {
         case "default":
-            return .system(size: 18, weight: .medium)
+            return .system(size: 18, weight: .medium, design: .default)
         case "digital":
-            return .system(size: 18, weight: .medium, design: .monospaced)
+            // Try Roboto Mono first, fallback to system monospaced
+            if let customFont = UIFont(name: "RobotoMono-Regular", size: 18) {
+                return Font(customFont)
+            } else {
+                return .system(size: 18, weight: .medium, design: .monospaced)
+            }
         case "harmony_digit":
-            return .system(size: 18, weight: .medium)
+            // Use a clean, modern font
+            return .system(size: 18, weight: .regular, design: .rounded)
         case "seven_segment":
-            // Try to use custom font, fallback to monospaced
+            // Try to use custom seven-segment font, fallback to monospaced
             if let customFont = UIFont(name: "7segment", size: 18) {
                 return Font(customFont)
             } else {
@@ -129,4 +135,3 @@ struct FontSelectionDialog: View {
         }
     }
 }
-

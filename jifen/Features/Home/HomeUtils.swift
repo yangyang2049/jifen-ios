@@ -44,7 +44,12 @@ func getGameGradient(type: GameType) -> [Color] {
 
 func getGameStats(type: GameType) -> String {
     // Placeholder for now, can be connected to real stats later
-    return "开始比赛" // Equivalent to '开始比赛' from HarmonyOS
+    return NSLocalizedString("home_start_game", comment: "Start Game")
+}
+
+func getPlusIcon() -> String {
+    // Use emoji for reliable + icon display
+    return "➕"
 }
 
 // Available sports to choose from for QuickStartEditSheetComponent

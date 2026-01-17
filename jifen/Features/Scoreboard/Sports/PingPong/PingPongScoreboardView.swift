@@ -18,11 +18,6 @@ struct PingPongScoreboardView: View {
     @State private var restMessage: String = ""
     @State private var restRemaining: Int = 0
     @State private var restTimer: Timer? = nil
-    @State private var showSettings: Bool = false
-    @State private var settingsMaxSets: Int = 5
-    @State private var settingsPointsPerSet: Int = 11
-    @State private var settingsAutoChangeSides: Bool = true
-    @State private var settingsApplied = false
     
     var body: some View {
         ZStack {
@@ -51,29 +46,6 @@ struct PingPongScoreboardView: View {
                 ToastView(message: toastMessage)
                     .transition(.opacity.combined(with: .scale))
             }
-            
-            VStack {
-                HStack {
-                    Button(action: {
-                        showSettings = true
-                        controller.performVibration(type: .medium)
-                    }) {
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 18))
-                            .foregroundColor(.white)
-                            .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
-                            .background(
-                                Circle()
-                                    .fill(Color.black.opacity(0.25))
-                            )
-                    }
-                    .padding(.leading, ScoreboardConstants.buttonPadding)
-                    .padding(.top, ScoreboardConstants.buttonPadding)
-                    
-                    Spacer()
-                }
-                Spacer()
-            }
         }
         .navigationTitle(NSLocalizedString("game_pingpong", comment: "Ping Pong"))
         .navigationBarTitleDisplayMode(.inline)
@@ -84,7 +56,6 @@ struct PingPongScoreboardView: View {
         .lockOrientation(.landscape) // Lock to landscape mode
         .onAppear {
             viewModel.controller = controller
-            applySettings()
             // Calculate responsive font size
             responsiveScoreFontSize = calculateResponsiveScoreFontSize()
             
@@ -123,22 +94,6 @@ struct PingPongScoreboardView: View {
             if newValue {
                 showGameFinishedOverlay = true
             }
-        }
-        .sheet(isPresented: $showSettings, onDismiss: {
-            if !settingsApplied {
-                showToastMessage("已撤销")
-            }
-            settingsApplied = false
-        }) {
-            PingPongSettingsSheet(
-                maxSets: $settingsMaxSets,
-                pointsPerSet: $settingsPointsPerSet,
-                autoChangeSides: $settingsAutoChangeSides,
-                onApply: {
-                    settingsApplied = true
-                    applySettings(resetGame: true)
-                }
-            )
         }
     }
     
@@ -209,26 +164,6 @@ struct PingPongScoreboardView: View {
         return baseSize
     }
 
-    // MARK: - Settings
-    
-    private func applySettings(resetGame: Bool = false) {
-        viewModel.setConfig(
-            maxSets: settingsMaxSets,
-            pointsPerSet: settingsPointsPerSet,
-            autoChangeSides: settingsAutoChangeSides
-        )
-        if resetGame {
-            viewModel.reset()
-            showGameFinishedOverlay = false
-            showRestOverlay = false
-            restTimer?.invalidate()
-            restTimer = nil
-            controller.gameStartTime = Date()
-            controller.gameRecordSaved = false
-            controller.gameActions = []
-        }
-    }
-
     // MARK: - Rest Countdown
     
     private func startRestCountdown(seconds: Int, message: String, onComplete: @escaping () -> Void) {
@@ -285,11 +220,7 @@ struct PingPongScoreboardView: View {
             team2SetScore: rightSets,
             winner: winner,
             totalScoreChanges: controller.getGameActions().count,
-            extraData: [
-                "maxSets": viewModel.maxSets,
-                "pointsPerSet": viewModel.pointsPerSet,
-                "autoChangeSides": viewModel.autoChangeSides
-            ]
+            extraData: [:]
         )
     }
     
@@ -304,75 +235,6 @@ struct PingPongScoreboardView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             showToast = false
         }
-    }
-}
-
-private struct PingPongSettingsSheet: View {
-    @Binding var maxSets: Int
-    @Binding var pointsPerSet: Int
-    @Binding var autoChangeSides: Bool
-    let onApply: () -> Void
-    
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 24) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(NSLocalizedString("sets_label", comment: "Sets label"))
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Picker(NSLocalizedString("sets_label", comment: "Sets label"), selection: $maxSets) {
-                        Text(NSLocalizedString("best_of_3_sets", comment: "Best of 3")).tag(3)
-                        Text(NSLocalizedString("best_of_5_sets", comment: "Best of 5")).tag(5)
-                        Text(NSLocalizedString("best_of_7_sets", comment: "Best of 7")).tag(7)
-                    }
-                    .pickerStyle(.segmented)
-                }
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(NSLocalizedString("points_per_set_label", comment: "Points per set label"))
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Picker(NSLocalizedString("points_per_set_label", comment: "Points per set label"), selection: $pointsPerSet) {
-                        Text(NSLocalizedString("points_11", comment: "11 points")).tag(11)
-                        Text(NSLocalizedString("points_21", comment: "21 points")).tag(21)
-                    }
-                    .pickerStyle(.segmented)
-                }
-                
-                Toggle(isOn: $autoChangeSides) {
-                    Text(NSLocalizedString("auto_change_sides", comment: "Auto change sides"))
-                        .font(.headline)
-                        .foregroundColor(.white)
-                }
-                .toggleStyle(SwitchToggleStyle(tint: Theme.accentColor))
-                
-                Spacer()
-                
-                Button(action: {
-                    onApply()
-                    dismiss()
-                }) {
-                    Text(NSLocalizedString("start_game", comment: "Start Game"))
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Theme.accentColor)
-                        )
-                }
-            }
-            .padding(24)
-            .background(Theme.backgroundColor)
-            .navigationTitle(NSLocalizedString("pingpong_setup_title", comment: "Ping Pong Setup"))
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .preferredColorScheme(.dark)
     }
 }
 

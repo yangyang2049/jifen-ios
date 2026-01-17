@@ -13,7 +13,7 @@
 /* Home Screen */
 "recent_records" = "最近记录";
 "home_quick_start" = "快速开始";
-"home_start_game" = "开始游戏";
+"home_start_game" = "开始比赛";
 "home_new_game_short" = "新游戏";
 "home_all_items" = "全部项目";
 "home_tools" = "工具";
@@ -33,7 +33,7 @@
 "home_tool_team" = "随机分组";
 
 /* Dialog */
-"dialog_new_game_title" = "新游戏";
+"dialog_new_game_title" = "新比赛";
 
 /* Default Team Names */
 "red_team" = "红队";
@@ -271,3 +271,22 @@
 
 /* Rest Countdown Overlay */
 "rest_countdown" = "休息倒计时";
+
+/* Settings */
+"settings" = "设置";
+"appearance" = "外观";
+"theme" = "主题";
+"dark_mode" = "深色模式";
+"light_mode" = "浅色模式";
+"sound_vibration" = "声音与振动";
+"sound_effects" = "音效";
+"vibration" = "振动";
+"language" = "语言";
+"app_language" = "应用语言";
+"about" = "关于";
+"version" = "版本";
+"developer" = "开发者";
+"accessibility" = "辅助功能";
+"feature_coming_soon" = "功能即将上线";
+"language_restart_note" = "语言切换需要重启应用后生效";
+"vs_separator" = " vs ";

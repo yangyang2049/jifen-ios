@@ -197,7 +197,7 @@ struct ScoreboardTemplate: View {
                         )
                     }
                 }
-                
+
                 // Edit button (top right) - close to screen edge
                 VStack {
                     HStack {
@@ -231,6 +231,7 @@ struct ScoreboardTemplate: View {
                     Spacer()
                 }
                 .ignoresSafeArea(.all, edges: .top) // Full screen, not in safe area
+
                 
                 // Bottom buttons (back left, menu right) - only show when not in edit mode
                 if !isEditMode {
@@ -241,7 +242,7 @@ struct ScoreboardTemplate: View {
                             if let onBack = onBack {
                                 Button(action: {
                                     config.controller.performVibration(type: .heavy)
-                                    
+
                                     // Handle double tap exit
                                     if config.controller.handleExitClick() {
                                         // Can exit - unlock orientation first
@@ -252,7 +253,7 @@ struct ScoreboardTemplate: View {
                                         }
                                     } else {
                                         // Need to tap again - show toast
-                                        toastMessage = "再按一次退出"
+                                        toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
                                         showToast = true
                                         // Auto hide toast after 2 seconds
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -272,9 +273,25 @@ struct ScoreboardTemplate: View {
                                 .padding(.leading, ScoreboardConstants.buttonPadding)
                                 .padding(.bottom, ScoreboardConstants.buttonPadding)
                             }
-                            
+
                             Spacer()
-                            
+
+                            // Menu button (bottom right)
+                            Button(action: {
+                                showMenu.toggle()
+                                config.controller.performVibration(type: .medium)
+                            }) {
+                                Image(systemName: "line.3.horizontal")
+                                    .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                    .foregroundColor(.white)
+                                    .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.black.opacity(0.25))
+                                    )
+                            }
+                            .padding(.trailing, ScoreboardConstants.buttonPadding)
+                            .padding(.bottom, ScoreboardConstants.buttonPadding)
 
                         }
                     }
@@ -530,19 +547,38 @@ struct ScoreboardTemplate: View {
     }
     
     // MARK: - Font Helper
-    
+
     private func getFont(family: String, size: CGFloat) -> Font {
+        // Map font codes to actual font families
+        let mappedFamily: String
+        switch family {
+        case "digital":
+            mappedFamily = "RobotoMono-Regular"
+        case "seven_segment":
+            mappedFamily = "7segment"
+        case "harmony_digit":
+            mappedFamily = "SF-Pro-Rounded" // Use SF Pro Rounded for harmony digit
+        case "default":
+            mappedFamily = "SF-Pro-Display"
+        default:
+            mappedFamily = family
+        }
+
         // Try to use custom font first
-        if let uiFont = UIFont(name: family, size: size) {
+        if let uiFont = UIFont(name: mappedFamily, size: size) {
             return Font(uiFont)
         }
-        
-        // Fallback to system fonts
+
+        // Fallback to system fonts based on font code
         switch family {
-        case "Menlo":
+        case "digital":
             return .system(size: size, design: .monospaced)
-        case "SF Pro Display", "default":
-            return .system(size: size)
+        case "seven_segment":
+            return .system(size: size, design: .monospaced) // Fallback for seven-segment
+        case "harmony_digit":
+            return .system(size: size, design: .rounded)
+        case "default", "SF Pro Display":
+            return .system(size: size, design: .default)
         default:
             return .system(size: size)
         }
@@ -693,8 +729,8 @@ struct TeamSection: View {
                                 onScoreAdjust(isLeft, -1)
                             }
                         }) {
-                            Text("-")
-                                .font(.system(size: 28, weight: .bold))
+                            Image(systemName: "minus")
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(team.score > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
                                 .frame(width: 50, height: 50)
                                 .background(
@@ -711,8 +747,8 @@ struct TeamSection: View {
                         Button(action: {
                             onScoreAdjust(isLeft, 1)
                         }) {
-                            Text("+")
-                                .font(.system(size: 28, weight: .bold))
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white.opacity(0.75))
                                 .frame(width: 50, height: 50)
                                 .background(
@@ -736,8 +772,8 @@ struct TeamSection: View {
                                     onSetsAdjust(isLeft, -1)
                                 }
                             }) {
-                                Text("-")
-                                    .font(.system(size: 28, weight: .bold))
+                                Image(systemName: "minus")
+                                    .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(sets > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
                                     .frame(width: 50, height: 50)
                                     .background(
@@ -754,8 +790,8 @@ struct TeamSection: View {
                             Button(action: {
                                 onSetsAdjust(isLeft, 1)
                             }) {
-                                Text("+")
-                                    .font(.system(size: 28, weight: .bold))
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(.white.opacity(0.75))
                                     .frame(width: 50, height: 50)
                                     .background(
@@ -780,8 +816,8 @@ struct TeamSection: View {
                                     onGamesAdjust(isLeft, -1)
                                 }
                             }) {
-                                Text("-")
-                                    .font(.system(size: 28, weight: .bold))
+                                Image(systemName: "minus")
+                                    .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(games > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
                                     .frame(width: 50, height: 50)
                                     .background(
@@ -790,16 +826,16 @@ struct TeamSection: View {
                                     )
                             }
                             .disabled(games <= 0)
-                            
+
                             Text("\(games)")
                                 .font(getFont(family: fontFamily, size: 48))
                                 .foregroundColor(.white.opacity(0.9))
-                            
+
                             Button(action: {
                                 onGamesAdjust(isLeft, 1)
                             }) {
-                                Text("+")
-                                    .font(.system(size: 28, weight: .bold))
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(.white.opacity(0.75))
                                     .frame(width: 50, height: 50)
                                     .background(
