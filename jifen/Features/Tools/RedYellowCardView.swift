@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RedYellowCardView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var currentIndex = 0
     
     var body: some View {
@@ -29,14 +30,22 @@ struct RedYellowCardView: View {
                 // Hint
                 VStack {
                     Spacer()
-                    Text("左右滑动切换")
+                    Text(NSLocalizedString("swipe_to_switch", comment: "Swipe to switch"))
                         .font(.subheadline)
                         .foregroundColor(.black.opacity(0.5))
                         .padding(.bottom, 40)
                 }
         }
-        .navigationTitle("红黄牌")
+        .navigationTitle(NSLocalizedString("red_yellow_card_title", comment: "Red Yellow Card title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .preferredColorScheme(.dark)
     }
 }

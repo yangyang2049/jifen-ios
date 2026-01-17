@@ -22,11 +22,11 @@ struct AACalculatorView: View {
                 VStack(spacing: 24) {
                     // Total amount input
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("总金额")
+                        Text(NSLocalizedString("total_amount", comment: "Total Amount"))
                             .font(.system(size: 16))
                             .foregroundColor(.white.opacity(0.9))
                         
-                        TextField("请输入金额", text: $totalAmount)
+                        TextField(NSLocalizedString("enter_amount", comment: "Enter amount"), text: $totalAmount)
                             .keyboardType(.decimalPad)
                             .font(.system(size: 18))
                             .foregroundColor(.white)
@@ -90,7 +90,7 @@ struct AACalculatorView: View {
                     
                     // Participants selection
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("参与人数")
+                        Text(NSLocalizedString("participants", comment: "Participants"))
                             .font(.system(size: 16))
                             .foregroundColor(.white.opacity(0.9))
                         
@@ -118,7 +118,7 @@ struct AACalculatorView: View {
                                     .font(.system(size: 32, weight: .bold))
                                     .foregroundColor(Color(hex: "4CAF50"))
                                 
-                                Text("人")
+                                Text(NSLocalizedString("person", comment: "person"))
                                     .font(.system(size: 14))
                                     .foregroundColor(.white.opacity(0.5))
                             }
@@ -152,7 +152,7 @@ struct AACalculatorView: View {
                                 .background(Color.white.opacity(0.1))
                             
                             VStack(spacing: 8) {
-                                Text("每人应付")
+                                Text(NSLocalizedString("each_pays", comment: "Each Pays"))
                                     .font(.system(size: 14))
                                     .foregroundColor(.white.opacity(0.6))
                                 
@@ -170,7 +170,7 @@ struct AACalculatorView: View {
                             // Detail information
                             VStack(spacing: 8) {
                                 HStack {
-                                    Text("总金额")
+                                    Text(NSLocalizedString("total_amount", comment: "Total Amount"))
                                         .font(.system(size: 14))
                                         .foregroundColor(.white.opacity(0.6))
                                     Spacer()
@@ -182,7 +182,7 @@ struct AACalculatorView: View {
                                 }
                                 
                                 HStack {
-                                    Text("参与人数")
+                                    Text(NSLocalizedString("participants", comment: "Participants"))
                                         .font(.system(size: 14))
                                         .foregroundColor(.white.opacity(0.6))
                                     Spacer()
@@ -190,7 +190,7 @@ struct AACalculatorView: View {
                                         Text("\(participants)")
                                             .font(.system(size: 14))
                                             .foregroundColor(.white.opacity(0.9))
-                                        Text("人")
+                                        Text(NSLocalizedString("person", comment: "person"))
                                             .font(.system(size: 14))
                                             .foregroundColor(.white.opacity(0.6))
                                     }
@@ -201,7 +201,7 @@ struct AACalculatorView: View {
                                     .padding(.vertical, 4)
                                 
                                 HStack {
-                                    Text("每人应付")
+                                    Text(NSLocalizedString("each_pays", comment: "Each Pays"))
                                         .font(.system(size: 14))
                                         .foregroundColor(.white.opacity(0.6))
                                     Spacer()
@@ -222,7 +222,7 @@ struct AACalculatorView: View {
                     // Button group (1:2 ratio)
                     HStack(spacing: 12) {
                         Button(action: reset) {
-                            Text("重置")
+                            Text(NSLocalizedString("reset", comment: "Reset"))
                                 .font(.system(size: 16))
                                 .foregroundColor(Color(hex: "FF6B6B"))
                                 .frame(height: 50)
@@ -234,7 +234,7 @@ struct AACalculatorView: View {
                         }
                         
                         Button(action: calculate) {
-                            Text("计算")
+                            Text(NSLocalizedString("calculate", comment: "Calculate"))
                                 .font(.system(size: 16))
                                 .foregroundColor(.white)
                                 .frame(height: 50)
@@ -255,16 +255,12 @@ struct AACalculatorView: View {
             .scrollIndicators(.hidden)
         }
         .background(Color.black.ignoresSafeArea())
-        .navigationTitle("AA计算器")
+        .navigationTitle(NSLocalizedString("aa_calculator_title", comment: "AA Calculator title"))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white)
                 }
             }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PointsTableView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var players: [Player] = []
     @State private var showAddPlayer = false
     @State private var newPlayerName = ""
@@ -25,12 +26,12 @@ struct PointsTableView: View {
             VStack {
                     if players.isEmpty {
                         VStack(spacing: 20) {
-                            Text("暂无玩家")
+                            Text(NSLocalizedString("no_players", comment: "No players"))
                                 .font(.headline)
                                 .foregroundColor(Theme.textSecondary)
                             
                             Button(action: { showAddPlayer = true }) {
-                                Text("添加玩家")
+                                Text(NSLocalizedString("add_player", comment: "Add Player"))
                                     .font(.headline)
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
@@ -75,12 +76,19 @@ struct PointsTableView: View {
                     }
             }
         }
-        .navigationTitle("积分表")
+        .navigationTitle(NSLocalizedString("points_table_title", comment: "Points Table title"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showAddPlayer = true }) {
                     Image(systemName: "plus")
+                        .foregroundColor(.white)
                 }
             }
         }
@@ -93,12 +101,12 @@ struct PointsTableView: View {
     private var addPlayerSheet: some View {
         NavigationView {
             VStack(spacing: 20) {
-                TextField("玩家名称", text: $newPlayerName)
+                TextField(NSLocalizedString("player_name", comment: "Player Name"), text: $newPlayerName)
                     .textFieldStyle(.roundedBorder)
                     .padding()
                 
                 Button(action: addPlayer) {
-                    Text("添加")
+                    Text(NSLocalizedString("add", comment: "Add"))
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -114,11 +122,11 @@ struct PointsTableView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("添加玩家")
+            .navigationTitle(NSLocalizedString("add_player_title", comment: "Add Player title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("取消") {
+                    Button(NSLocalizedString("cancel", comment: "Cancel")) {
                         showAddPlayer = false
                         newPlayerName = ""
                     }

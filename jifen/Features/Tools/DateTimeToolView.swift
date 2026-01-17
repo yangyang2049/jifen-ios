@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct DateTimeToolView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var currentDate = Date()
     @State private var timer: Timer?
     
@@ -36,8 +37,16 @@ struct DateTimeToolView: View {
                 Spacer()
             }
         }
-        .navigationTitle("时间工具")
+        .navigationTitle(NSLocalizedString("time_tool_title", comment: "Time Tool title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .onAppear {
             startTimer()
         }

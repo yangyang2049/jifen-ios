@@ -38,6 +38,14 @@ struct WhistleToolView: View {
         }
         .navigationTitle(NSLocalizedString("whistle_title", comment: "Whistle title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .preferredColorScheme(.dark)
     }
     

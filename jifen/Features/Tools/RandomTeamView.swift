@@ -58,9 +58,8 @@ struct RandomTeamView: View {
                 }
             }
         }
-        .navigationTitle("随机分组")
+        .navigationTitle(NSLocalizedString("random_team_title", comment: "Random Team title"))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: { dismiss() }) {

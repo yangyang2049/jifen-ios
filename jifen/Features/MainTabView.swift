@@ -25,7 +25,7 @@ struct MainTabView: View {
                 ScoreboardTab()
                     .tag(1)
                     .tabItem {
-                        Label(NSLocalizedString("tab_score", comment: "Score tab"), systemName: "sportscourt.fill")
+                        Label(NSLocalizedString("tab_score", comment: "Score tab"), systemImage: "sportscourt.fill")
                     }
                 
                 ToolsTab(
@@ -35,13 +35,16 @@ struct MainTabView: View {
                 )
                     .tag(2)
                     .tabItem {
-                        Label(NSLocalizedString("tab_tools", comment: "Tools tab"), systemName: "wrench.and.screwdriver.fill")
+                        Label(NSLocalizedString("tab_tools", comment: "Tools tab"), systemImage: "wrench.and.screwdriver.fill")
                     }
             }
             .accentColor(Theme.accentColor)
             .fullScreenCover(item: $presentedTool) { toolItem in // Present tool modally
-                // The tool view itself can handle dismiss
-                toolItem.view
+                NavigationStack {
+                    toolItem.view
+                        .toolbar(.visible, for: .navigationBar)
+                        .toolbarBackground(.visible, for: .navigationBar)
+                }
             }
         }
     }

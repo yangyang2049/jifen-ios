@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FlipCoinView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var isFlipping = false
     @State private var currentSide: CoinSide = .heads
     @State private var flipHistory: [CoinResult] = []
@@ -134,6 +135,14 @@ struct FlipCoinView: View {
         }
         .navigationTitle(NSLocalizedString("flip_coin_title", comment: "Flip Coin title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()

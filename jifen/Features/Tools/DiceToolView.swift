@@ -9,6 +9,7 @@ import SwiftUI
 import WebKit
 
 struct DiceToolView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var hasRolled = false
     @State private var webVisible = false
     @State private var showHint = false
@@ -43,6 +44,14 @@ struct DiceToolView: View {
         }
         .navigationTitle(NSLocalizedString("dice_title", comment: "Dice title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()

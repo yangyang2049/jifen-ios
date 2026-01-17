@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TenSecondChallengeView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0 // milliseconds
     @State private var results: [ChallengeResult] = []
@@ -46,12 +47,12 @@ struct TenSecondChallengeView: View {
                 // Hint text (only show once, at bottom)
                 if !isRunning && currentTime == 0 && results.isEmpty && showHint {
                     VStack(spacing: 12) {
-                        Text("点击开始，尽量在10秒时停止")
+                        Text(NSLocalizedString("tap_to_start_stop", comment: "Tap to start, try to stop at 10 seconds"))
                             .font(.system(size: 18))
                             .foregroundColor(.white.opacity(0.5))
                             .multilineTextAlignment(.center)
                         
-                        Text("目标是10.00秒")
+                        Text(NSLocalizedString("target_10_seconds", comment: "Target is 10.00 seconds"))
                             .font(.system(size: 14))
                             .foregroundColor(.white.opacity(0.4))
                             .multilineTextAlignment(.center)
@@ -67,8 +68,16 @@ struct TenSecondChallengeView: View {
                 }
             }
         }
-        .navigationTitle("十秒挑战")
+        .navigationTitle(NSLocalizedString("ten_second_title", comment: "Ten Second Challenge title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()
