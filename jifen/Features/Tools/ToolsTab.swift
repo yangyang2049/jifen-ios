@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ToolsTab: View {
     @State private var path = NavigationPath()
-    var onOpenTool: ((ToolItem) -> Void)? = nil // Callback for opening a specific tool
+    let onOpenTool: ((ToolItem) -> Void)?
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -102,6 +102,6 @@ struct ToolCardView: View {
 }
 
 #Preview {
-    ToolsTab() // No binding needed for preview anymore
+    ToolsTab(onOpenTool: nil) // Provide default nil for preview
 }
 
