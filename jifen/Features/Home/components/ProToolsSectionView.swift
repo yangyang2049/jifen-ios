@@ -65,11 +65,11 @@ struct ProToolsSectionView: View {
     private static func initialTools() -> [ToolDef] {
         return [
             ToolDef(id: "whistle", name: NSLocalizedString("home_tool_whistle", comment: "Whistle tool name"), icon: "🔊", color: Theme.toolWhistleRed),
-            ToolDef(id: "rankings", name: NSLocalizedString("home_tool_rankings", comment: "Rankings tool name"), icon: "📊", color: Theme.toolRankingsIndigo),
-            ToolDef(id: "timer", name: NSLocalizedString("home_tool_timer", comment: "Timer tool name"), icon: "⏱️", color: Theme.toolGray),
-            ToolDef(id: "coin", name: NSLocalizedString("home_tool_coin", comment: "Flip Coin tool name"), icon: "🪙", color: Theme.toolGray),
+            ToolDef(id: "flip_coin", name: NSLocalizedString("home_tool_coin", comment: "Flip Coin tool name"), icon: "🪙", color: Theme.toolGray),
             ToolDef(id: "dice", name: NSLocalizedString("home_tool_dice", comment: "Dice tool name"), icon: "🎲", color: Theme.toolGray),
-            ToolDef(id: "team", name: NSLocalizedString("home_tool_team", comment: "Random Team tool name"), icon: "🛡️", color: Theme.toolGray),
+            ToolDef(id: "random_team", name: NSLocalizedString("home_tool_team", comment: "Random Team tool name"), icon: "👥", color: Theme.toolGray),
+            ToolDef(id: "red_yellow_card", name: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), icon: "🟨", color: Theme.toolGray),
+            ToolDef(id: "points_table", name: NSLocalizedString("tool_points_table", comment: "Points Table"), icon: "📊", color: Theme.toolGray),
         ]
     }
 

@@ -423,6 +423,8 @@ struct HomeTab: View {
     private func handleToolClick(toolId: String) {
         if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
             onOpenTool?(tool)
+        } else {
+            print("⚠️ Tool not found: \(toolId). Available tools: \(ToolItem.allTools.map { $0.id })")
         }
     }
 }
