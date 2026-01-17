@@ -4,6 +4,10 @@ struct ToolsTab: View {
     @State private var path = NavigationPath()
     let onOpenTool: ((ToolItem) -> Void)?
 
+    init(onOpenTool: ((ToolItem) -> Void)?) {
+        self.onOpenTool = onOpenTool
+    }
+
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
