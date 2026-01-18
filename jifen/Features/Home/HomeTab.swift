@@ -11,7 +11,7 @@ import UIKit // For UIDevice and UIApplication
 
 struct HomeTab: View {
     // MARK: - State & Callbacks
-    var onNavigateToTab: ((Int) -> Void)? = nil // Equivalent to onNavigateToTab?: (index: number) => void;
+    var onNavigateToTab: ((Int, GameType?) -> Void)? = nil // Equivalent to onNavigateToTab?: (index: number) => void;
     var onOpenTool: ((ToolItem) -> Void)? = nil // Now accepts ToolItem directly
     // onViewAllActivities and onActivitySelected handled within RecentRecordsSectionView
 
@@ -288,8 +288,8 @@ struct HomeTab: View {
     }
 
     private func handleNewGameSelection(type: ActivityType, sourcePage: SourcePage) {
-        if type == .scoreboard { onNavigateToTab?(1) } // Assuming tab 1 is scoreboard
-        else if type == .timer { onNavigateToTab?(2) } // Assuming tab 2 is timer
+        if type == .scoreboard { onNavigateToTab?(1, nil) } // Assuming tab 1 is scoreboard
+        else if type == .timer { onNavigateToTab?(2, nil) } // Assuming tab 2 is timer
     }
 
     private func navigateToGame(gameType: GameType) {
@@ -301,7 +301,7 @@ struct HomeTab: View {
     private func navigateToSportsWithConfig(gameType: GameType, config: SportsSetupResult) {
         // TODO: Implement actual navigation to sports scoreboard page
         print("Navigate to sports: \(gameType.displayName) with config: \(config)")
-        onNavigateToTab?(1) // Navigate to scoreboard tab
+        onNavigateToTab?(1, gameType) // Navigate to scoreboard tab
     }
     
     // MARK: - @ViewBuilder Layouts
@@ -445,7 +445,7 @@ struct HomeTab: View {
         // Direct navigation for all supported sports
         let supportedSports: [GameType] = [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball]
         if supportedSports.contains(gameType) {
-            onNavigateToTab?(1) // Navigate to scoreboard tab
+            onNavigateToTab?(1, gameType) // Navigate to scoreboard tab
             return
         }
 

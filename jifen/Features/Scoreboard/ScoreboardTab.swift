@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ScoreboardTab: View {
     @State private var selectedSport: SportItem?
+    @Binding var selectedGame: GameType?
     
     var body: some View {
         NavigationStack {
@@ -39,6 +40,12 @@ struct ScoreboardTab: View {
             .navigationDestination(item: $selectedSport) { sport in
                 sport.view
                     .toolbar(.hidden, for: .tabBar)
+            }
+            .onChange(of: selectedGame) { game in
+                if let game {
+                    selectedSport = sports.first(where: { $0.gameType == game })
+                    selectedGame = nil
+                }
             }
         }
         .accentColor(Theme.accentColor)
@@ -105,5 +112,5 @@ struct SportCardView: View {
 }
 
 #Preview {
-    ScoreboardTab()
+    ScoreboardTab(selectedGame: .constant(nil))
 }
