@@ -338,11 +338,9 @@ struct HomeTab: View {
                     secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
                     isDarkTheme: isDarkTheme,
                     onPrimaryClick: { gameType in
-                        print("Primary sport card tapped in mobile layout: \(gameType)")
                         handleGameItemClick(gameType: gameType)
                     },
                     onSecondaryClick: { gameType in
-                        print("Secondary sport card tapped in mobile layout: \(gameType)")
                         handleGameItemClick(gameType: gameType)
                     },
                     onNewGameClick: {
@@ -379,11 +377,9 @@ struct HomeTab: View {
                             secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
                             isDarkTheme: isDarkTheme,
                             onPrimaryClick: { gameType in
-                                print("Primary sport card tapped in desktop layout: \(gameType)")
                                 handleGameItemClick(gameType: gameType)
                             },
                             onSecondaryClick: { gameType in
-                                print("Secondary sport card tapped in desktop layout: \(gameType)")
                                 handleGameItemClick(gameType: gameType)
                             },
                             onNewGameClick: {
