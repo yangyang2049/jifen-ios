@@ -48,7 +48,7 @@ struct RecentRowView: View {
                             .foregroundColor(Theme.textSecondary)
                             .padding(.leading, Theme.md) // margin({ left: 16 })
                     }
-                    
+
                     Spacer() // Blank()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading) // width('100%'), layoutWeight(1)
@@ -62,6 +62,7 @@ struct RecentRowView: View {
                     .foregroundColor(Theme.textSecondary) // Assuming default color
                     .padding(.leading, Theme.sm) // margin({ left: 12 })
             }
+            .contentShape(Rectangle()) // Make entire area tappable
             .padding(.horizontal, Theme.xs) // padding({ left: 4, right: 4
             .padding(.vertical, Theme.sm) // top: 12, bottom: 12
         }
@@ -117,6 +118,7 @@ struct RecentRowView: View {
                     .foregroundColor(Theme.textSecondary) // Assuming default color
                     .padding(.leading, Theme.sm) // margin({ left: 12 })
             }
+            .contentShape(Rectangle()) // Make entire area tappable
             .padding(.horizontal, 0) // padding({ left: 0, right: 0
             .padding(.vertical, Theme.sm) // top: 12, bottom: 12
         }

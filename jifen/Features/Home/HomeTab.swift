@@ -17,12 +17,20 @@ struct HomeTab: View {
     @State private var showSettingsSheet = false
     @State private var path = NavigationPath()
 
+    // Navigation back handler for scoreboard views
+    private func navigateBack() {
+        if !path.isEmpty {
+            path.removeLast()
+        }
+    }
+
     @State private var headerDate = ""
     @StateObject private var quickStartManager = QuickStartConfigManager.shared
     @ObservedObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
 
     enum NavigationDestination: Hashable {
         case tool(ToolItem)
+        case scoreboard(GameType)
     }
 
     var body: some View {
@@ -52,8 +60,8 @@ struct HomeTab: View {
             .sheet(isPresented: $showNewGameDialog) {
                 NewGameDialogView(
                     onSelect: { type, source, gameType in
-                        if type == .scoreboard {
-                            onNavigateToTab?(1, gameType)
+                        if type == .scoreboard, let gameType = gameType {
+                            path.append(NavigationDestination.scoreboard(gameType))
                         }
                     }
                 )
@@ -65,12 +73,22 @@ struct HomeTab: View {
                 switch destination {
                 case .tool(let tool):
                     tool.view.navigationTitle(tool.title)
+                case .scoreboard(let gameType):
+                    getScoreboardView(for: gameType)
+                }
+            }
+            .onChange(of: path) { oldPath, newPath in
+                // Unlock orientation when navigating away from scoreboard
+                if oldPath.count > newPath.count {
+                    OrientationLock.shared.unlock()
                 }
             }
         }
         .onAppear {
             loadData()
             quickStartManager.loadConfig(isLargeScreen: false, is2in1: false)
+            // Refresh records when view appears
+            updateRecentActivities()
         }
         .onReceive(scoreboardVM.objectWillChange) { _ in
             updateRecentActivities()
@@ -81,44 +99,9 @@ struct HomeTab: View {
 
     private func loadData() {
         updateHeaderDate()
-        updateRecentActivities()
-
-        // TEMP: Add a test record if no records exist (for testing)
-        if scoreboardVM.getRecords().isEmpty {
-            addTestRecord()
-        }
     }
 
-    private func addTestRecord() {
-        let testRecord = ScoreboardRecord(
-            id: "test_record_1",
-            gameType: .basketball,
-            startTime: Date().addingTimeInterval(-3600), // 1 hour ago
-            endTime: Date(),
-            duration: 1800, // 30 minutes
-            team1Name: "Team A",
-            team2Name: "Team B",
-            team1FinalScore: 85,
-            team2FinalScore: 78,
-            team1SetScore: nil,
-            team2SetScore: nil,
-            winner: "left",
-            actions: ["Team A scored", "Team B scored"],
-            totalScoreChanges: 163,
-            extraData: nil
-        )
 
-        do {
-            try ScoreboardRecordManager.shared.saveScoreboardRecord(testRecord)
-            print("✅ Added test record for debugging")
-            // Refresh after adding test record
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.updateRecentActivities()
-            }
-        } catch {
-            print("❌ Failed to add test record: \(error)")
-        }
-    }
 
     private func updateHeaderDate() {
         let now = Date()
@@ -135,16 +118,51 @@ struct HomeTab: View {
     }
 
     private func updateRecentActivities() {
-        let records = scoreboardVM.getRecords()
-        recentActivities = records.prefix(5).map { record in
-            RecentActivity(
+        let records = ScoreboardRecordManager.shared.loadAllRecords()
+        print("[HomeTab] 📊 Loading \(records.count) total records for recent activities")
+
+        // Show up to 3 most recent game records
+        let recentRecords = records.prefix(3)
+        print("[HomeTab] 📋 Showing \(recentRecords.count) recent records")
+
+        recentActivities = recentRecords.map { record in
+            print("[HomeTab] 🎮 Record: \(record.id) - \(record.gameType.rawValue) - \(record.team1FinalScore):\(record.team2FinalScore)")
+            return RecentActivity(
                 id: record.id,
                 activityType: .scoreboard,
                 gameType: record.gameType,
-                timestamp: record.timestamp,
+                timestamp: record.startTime.timeIntervalSince1970,
                 title: "\(record.team1Name) vs \(record.team2Name)",
                 description: "\(record.team1FinalScore) : \(record.team2FinalScore)"
             )
+        }
+    }
+
+    @ViewBuilder
+    private func getScoreboardView(for gameType: GameType) -> some View {
+        switch gameType {
+        case .pingpong:
+            PingPongScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .badminton:
+            BadmintonScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .tennis:
+            TennisScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .basketball:
+            BasketballScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .football:
+            FootballScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .volleyball:
+            VolleyballScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        default:
+            // Unsupported scoreboard games - this shouldn't happen since NewGameDialogView only shows supported games
+            Text("Game not supported")
+                .foregroundColor(.white)
         }
     }
     // MARK: - @ViewBuilder Layouts

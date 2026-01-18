@@ -21,18 +21,18 @@ class TimerRecordsViewModel: ObservableObject {
     @Published var groupedRecords: [RecordGroup] = []
     
     private init() {
-        // Create some dummy data
-        records = [
-            GameRecordSummary(id: UUID().uuidString, gameType: .go, timestamp: Date().timeIntervalSince1970 - 86400 * 2, duration: 1800, winner: "Player 1"),
-            GameRecordSummary(id: UUID().uuidString, gameType: .chess, timestamp: Date().timeIntervalSince1970 - 3600, duration: 950, winner: "Player 2"),
-            GameRecordSummary(id: UUID().uuidString, gameType: .xiangqi, timestamp: Date().timeIntervalSince1970, duration: 2400)
-        ]
+
         groupRecords()
     }
     
-    func deleteRecord(_ id: String) {
+    func deleteRecord(_ id: String) -> Bool {
+        let originalCount = records.count
         records.removeAll { $0.id == id }
-        groupRecords()
+        if records.count < originalCount {
+            groupRecords()
+            return true
+        }
+        return false
     }
     
     private func groupRecords() {

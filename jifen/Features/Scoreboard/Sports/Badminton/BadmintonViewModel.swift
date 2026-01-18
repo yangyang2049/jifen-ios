@@ -241,13 +241,45 @@ class BadmintonViewModel: BaseScoreViewModel {
     ) {
         leftTeam.sets = newLeftSets
         rightTeam.sets = newRightSets
-        
+
+        // Save record in real-time when set ends
+        saveGameRecordInRealTime(isGameFinished: isGameFinished)
+
         if isGameFinished {
             gameFinished = true
             controller?.performVibration(type: .heavy)
         } else {
             startNextSet()
         }
+    }
+
+    func saveGameRecordInRealTime(isGameFinished: Bool) {
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
+
+        var winner: String? = nil
+        if isGameFinished {
+            if (leftTeam.sets ?? 0) > (rightTeam.sets ?? 0) {
+                winner = "left"
+            } else if (rightTeam.sets ?? 0) > (leftTeam.sets ?? 0) {
+                winner = "right"
+            }
+        }
+
+        controller?.saveScoreboardRecord(
+            id: "badminton_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            endTime: endTime,
+            duration: duration,
+            team1Name: leftTeam.name,
+            team2Name: rightTeam.name,
+            team1FinalScore: leftTeam.sets ?? 0,
+            team2FinalScore: rightTeam.sets ?? 0,
+            team1SetScore: leftTeam.sets ?? 0,
+            team2SetScore: rightTeam.sets ?? 0,
+            winner: winner,
+            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            extraData: [:]
+        )
     }
     
     private func startNextSet() {
@@ -279,14 +311,13 @@ class BadmintonViewModel: BaseScoreViewModel {
     
     private func handleDecidingSetSidesChange() {
         guard !decidingSetChangedSides else { return }
-        
+
         let isDecidingSet = currentSet == maxSets
         if isDecidingSet && (leftTeam.score == 11 || rightTeam.score == 11) {
             decidingSetChangedSides = true
+            // Auto side change disabled - only trigger callback for toast
             if let callback = onDecidingSetSidesChangeCallback {
                 callback()
-            } else if autoChangeSides {
-                exchangeSides()
             }
         }
     }

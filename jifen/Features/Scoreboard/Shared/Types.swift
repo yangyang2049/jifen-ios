@@ -17,9 +17,6 @@ enum GameType: String, Codable, CaseIterable {
     case basketball = "basketball"
     case football = "football"
     case volleyball = "volleyball"
-    case go = "go"
-    case xiangqi = "xiangqi"
-    case chess = "chess"
     case checkers = "checkers"
     case boxing = "boxing"
     case billiards = "billiards"
@@ -38,9 +35,6 @@ enum GameType: String, Codable, CaseIterable {
         case .basketball: return NSLocalizedString("game_basketball", comment: "Basketball")
         case .football: return NSLocalizedString("game_football", comment: "Football")
         case .volleyball: return NSLocalizedString("game_volleyball", comment: "Volleyball")
-        case .go: return NSLocalizedString("game_go", comment: "Go")
-        case .xiangqi: return NSLocalizedString("game_xiangqi", comment: "Chinese Chess")
-        case .chess: return NSLocalizedString("game_chess", comment: "Chess")
         case .checkers: return NSLocalizedString("game_checkers", comment: "Checkers")
         case .boxing: return NSLocalizedString("game_boxing", comment: "Boxing")
         case .billiards: return NSLocalizedString("game_billiards", comment: "Billiards")
@@ -61,9 +55,6 @@ enum GameType: String, Codable, CaseIterable {
         case .basketball: return "🏀"
         case .football: return "⚽"
         case .volleyball: return "🏐"
-        case .go: return "⚪⚫"
-        case .xiangqi: return "象棋"
-        case .chess: return "♔♕"
         case .checkers: return "🏁"
         case .boxing: return "🥊"
         case .billiards: return "🎱"
@@ -155,7 +146,6 @@ protocol BaseScoreboardControllerProtocol {
     var hideButtons: Bool { get set }
     var undoEnabled: Bool { get }
     var swipeScreenshotEnabled: Bool { get }
-    var currentFont: String { get set }
     
     func performVibration(type: VibrationType)
     func pushHistory(left: Int, right: Int, leftSets: Int?, rightSets: Int?, leftGames: Int?, rightGames: Int?)
@@ -166,7 +156,6 @@ protocol BaseScoreboardControllerProtocol {
     func captureScreenshot(of view: UIView) -> UIImage?
     func saveScreenshotToPhotoLibrary(_ image: UIImage, completion: @escaping (Bool, Error?) -> Void)
     func generateScreenshotFileName() -> String
-    func getFontFamily() -> String
 }
 
 // MARK: - Score ViewModel Protocol

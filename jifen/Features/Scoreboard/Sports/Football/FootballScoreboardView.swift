@@ -9,6 +9,8 @@ import SwiftUI
 
 struct FootballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
+    var showBackButton: Bool = true
+    var onNavigationBack: (() -> Void)? = nil
     @State private var controller = FootballController()
     @State private var viewModel = FootballViewModel()
 
@@ -21,7 +23,13 @@ struct FootballScoreboardView: View {
                 scoreFontSize: 120,
                 nameType: .team
             ),
-            onBack: { dismiss() }
+            onBack: {
+                if let onNavigationBack = onNavigationBack {
+                    onNavigationBack()
+                } else {
+                    dismiss()
+                }
+            }
         )
         .navigationTitle(NSLocalizedString("game_football", comment: "Football"))
         .navigationBarTitleDisplayMode(.inline)
@@ -41,6 +49,10 @@ struct FootballScoreboardView: View {
             }
         }
         .onDisappear {
+            // Save record when leaving (for incomplete games)
+            print("[FootballScoreboardView] 📤 View disappearing, saving record")
+            viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+
             // Show tab bar when leaving
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first,

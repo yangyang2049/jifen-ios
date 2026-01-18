@@ -21,14 +21,6 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
     var hideButtons: Bool = false
     var undoEnabled: Bool = true
     var swipeScreenshotEnabled: Bool = true
-    var currentFont: String {
-        get {
-            return PreferencesManager.shared.scoreboardFont
-        }
-        set {
-            PreferencesManager.shared.scoreboardFont = newValue
-        }
-    }
     
     // MARK: - History Management
     
@@ -154,7 +146,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         totalScoreChanges: Int,
         extraData: [String: Any]
     ) {
-        guard !gameRecordSaved else { return }
+        // Allow saving/updating records multiple times (e.g., for multi-set games)
+        // ScoreboardRecordManager will handle updating records with the same ID
         
         // Create record
         var record = ScoreboardRecord(
@@ -180,19 +173,25 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             record.extraData = extraData.mapValues { AnyCodable($0) }
         }
         
-        // Save to manager
+        // Save to manager (will update if same ID exists)
+        print("[BaseScoreboardController] 💾 Attempting to save record: \(id) for game: \(config.gameType.rawValue)")
         do {
             try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-            gameRecordSaved = true
             
+            // Mark as saved only if not already saved (to prevent duplicate notifications)
+            if !gameRecordSaved {
+                gameRecordSaved = true
+            }
+
             // Notify ViewModel to refresh
             DispatchQueue.main.async {
                 ScoreboardRecordsViewModel.shared.refreshRecords()
+                print("[BaseScoreboardController] 🔄 ViewModel refreshed after saving record")
             }
-            
-            print("[BaseScoreboardController] ✅ Record saved: \(id)")
+
+            print("[BaseScoreboardController] ✅ Record saved successfully: \(id)")
         } catch {
-            print("[BaseScoreboardController] ❌ Failed to save record: \(error)")
+            print("[BaseScoreboardController] ❌ Failed to save record \(id): \(error)")
         }
     }
     
@@ -294,29 +293,4 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         let gameTypeName = config.gameType.displayName
         return "\(gameTypeName)_\(dateString)"
     }
-    
-    // MARK: - Font Management
-    
-    /// Get font family name for current font
-    /// - Returns: Font family name
-    func getFontFamily() -> String {
-        switch currentFont {
-        case "digital":
-            return "Menlo" // Monospace font for digital display
-        case "harmony_digit":
-            return "SF Pro Display" // System font for digits (closest to HarmonyOS Sans Digit)
-        case "seven_segment":
-            // Use the custom 7segment font if available, fallback to monospaced
-            if UIFont(name: "7segment", size: 17) != nil {
-                return "7segment"
-            } else {
-                return "Menlo" // Fallback to monospaced
-            }
-        case "default":
-            return "SF Pro Display" // Default system font
-        default:
-            return "SF Pro Display" // Default system font
-        }
-    }
 }
-

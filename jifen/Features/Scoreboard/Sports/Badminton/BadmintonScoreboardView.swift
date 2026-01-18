@@ -9,6 +9,8 @@ import SwiftUI
 
 struct BadmintonScoreboardView: View {
     @Environment(\.dismiss) var dismiss
+    var showBackButton: Bool = true
+    var onNavigationBack: (() -> Void)? = nil
     @State private var controller = BadmintonController()
     @State private var viewModel = BadmintonViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
@@ -34,7 +36,13 @@ struct BadmintonScoreboardView: View {
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .team
                 ),
-                onBack: { dismiss() }
+                onBack: {
+                    if let onNavigationBack = onNavigationBack {
+                        onNavigationBack()
+                    } else {
+                        dismiss()
+                    }
+                }
             )
             
             if showGameFinishedOverlay {
@@ -42,7 +50,17 @@ struct BadmintonScoreboardView: View {
             }
             
             if showRestOverlay {
-                RestCountdownOverlay(message: restMessage, remainingSeconds: restRemaining)
+                RestCountdownOverlay(message: restMessage, remainingSeconds: restRemaining) {
+                    // Close button - skip to next set
+                    restTimer?.invalidate()
+                    restTimer = nil
+                    showRestOverlay = false
+                    // Trigger the completion callback immediately
+                    startRestCountdown(seconds: 0, message: restMessage) {
+                        // Skip side change check for close button - just continue
+                        isSetTransitioning = false
+                    }
+                }
             }
             
             if showToast {
@@ -53,8 +71,8 @@ struct BadmintonScoreboardView: View {
         .navigationTitle("羽毛球")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(true) // ADDED BACK
-        .toolbar(.hidden, for: .navigationBar) // ADDED BACK
+        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .preferredColorScheme(.dark)
         .lockOrientation(.landscape)
         .onAppear {
@@ -80,16 +98,18 @@ struct BadmintonScoreboardView: View {
             }
         }
         .onDisappear {
+            // Save record when leaving (for incomplete games)
+            print("[BadmintonScoreboardView] 📤 View disappearing, saving record")
+            viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+
             restTimer?.invalidate()
             restTimer = nil
-            
+
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first,
                let tabBarController = window.rootViewController?.findTabBarController() {
                 tabBarController.tabBar.isHidden = false
             }
-            
-            saveGameRecord()
         }
         .onChange(of: viewModel.gameFinished) { _, newValue in
             if newValue {
@@ -135,14 +155,7 @@ struct BadmintonScoreboardView: View {
     }
     
     private func handleSideChange() {
-        if viewModel.autoChangeSides {
-            showToastMessage("换边")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                viewModel.exchangeSides()
-            }
-        } else {
-            showToastMessage("请手动换边")
-        }
+        showToastMessage("换边")
     }
     
     // MARK: - Rest Countdown
@@ -185,77 +198,7 @@ struct BadmintonScoreboardView: View {
         
             
         
-            // MARK: - Game Record Saving
-        
-            
-        
-            private func saveGameRecord() {
-        
-                if controller.isRecordSaved() || controller.getGameActions().isEmpty {
-        
-                    return
-        
-                }
-        
-                
-        
-                let endTime = Date()
-        
-                let duration = endTime.timeIntervalSince(controller.getGameStartTime())
-        
-                let leftSets = viewModel.leftTeam.sets ?? 0
-        
-                let rightSets = viewModel.rightTeam.sets ?? 0
-        
-                
-        
-                var winner: String? = nil
-        
-                if viewModel.gameFinished {
-        
-                    if leftSets > rightSets {
-        
-                        winner = "left"
-        
-                    } else if rightSets > leftSets {
-        
-                        winner = "right"
-        
-                    }
-        
-                }
-        
-                
-        
-                controller.saveScoreboardRecord(
-        
-                    id: "badminton_\(Int(controller.getGameStartTime().timeIntervalSince1970))_\(Int(endTime.timeIntervalSince1970))",
-        
-                    endTime: endTime,
-        
-                    duration: duration,
-        
-                    team1Name: viewModel.leftTeam.name,
-        
-                    team2Name: viewModel.rightTeam.name,
-        
-                    team1FinalScore: leftSets,
-        
-                    team2FinalScore: rightSets,
-        
-                    team1SetScore: leftSets,
-        
-                    team2SetScore: rightSets,
-        
-                    winner: winner,
-        
-                    totalScoreChanges: controller.getGameActions().count,
-        
-                    extraData: [:]
-        
-                )
-        
-            }
+
         
             
         
@@ -286,5 +229,3 @@ struct BadmintonScoreboardView: View {
             BadmintonScoreboardView()
         
         }
-        
-        

@@ -16,9 +16,6 @@ let GAME_GRADIENTS: [GameType: [Color]] = [
     .pingpong: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],   // Blue
     .tennis: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],    // Blue
     .volleyball: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")], // Blue
-    .go: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],         // Blue
-    .xiangqi: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],    // Blue
-    .chess: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],      // Blue
     .checkers: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],   // Blue
     .boxing: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],     // Blue
     .billiards: [Color(hex: "#3B82F6"), Color(hex: "#1E40AF")],  // Blue

@@ -221,12 +221,7 @@ class TennisViewModel: BaseScoreViewModel {
             isDeuce = false
             advantage = .none
             
-            if autoChangeSides && !gameFinished {
-                let totalGames = leftGames + rightGames
-                if totalGames % 2 == 1 {
-                    onSideChangeCallback?()
-                }
-            }
+            // Auto side change disabled - side changes are handled manually
         }
         
         checkSetWinner()
@@ -363,12 +358,47 @@ class TennisViewModel: BaseScoreViewModel {
         isDeuce = false
         advantage = .none
         tieBreakChangeSidesCount = 0
-        
+
+        // Save record in real-time when set ends
+        saveGameRecordInRealTime(isGameFinished: isGameFinished)
+
         if isGameFinished {
             checkMatchWinner()
         } else {
             resetGames()
         }
+    }
+
+    func saveGameRecordInRealTime(isGameFinished: Bool) {
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
+
+        var winner: String? = nil
+        if isGameFinished {
+            if (leftTeam.sets ?? 0) > (rightTeam.sets ?? 0) {
+                winner = "left"
+            } else if (rightTeam.sets ?? 0) > (leftTeam.sets ?? 0) {
+                winner = "right"
+            }
+        }
+
+        controller?.saveScoreboardRecord(
+            id: "tennis_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            endTime: endTime,
+            duration: duration,
+            team1Name: leftTeam.name,
+            team2Name: rightTeam.name,
+            team1FinalScore: leftTeam.sets ?? 0,
+            team2FinalScore: rightTeam.sets ?? 0,
+            team1SetScore: leftTeam.sets ?? 0,
+            team2SetScore: rightTeam.sets ?? 0,
+            winner: winner,
+            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            extraData: [
+                "finalLeftGames": leftTeam.games ?? 0,
+                "finalRightGames": rightTeam.games ?? 0,
+            ]
+        )
     }
     
     private func resetGames() {

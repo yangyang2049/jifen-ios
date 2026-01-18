@@ -99,7 +99,7 @@ struct RecentActivityPage: View {
             // Edit mode: Show delete button + content side by side
             HStack(spacing: 12) {
                 recordContent(for: item)
-                    .background(Theme.surface)
+                    .background(.ultraThinMaterial)
                     .cornerRadius(12)
 
                 Button(action: { deleteRecord(item) }) {
@@ -115,7 +115,7 @@ struct RecentActivityPage: View {
             case .scoreboard(let record):
                 NavigationLink(destination: ScoreboardRecordDetailPage(recordId: record.id)) {
                     recordContent(for: item)
-                        .background(Theme.surface)
+                        .background(.ultraThinMaterial)
                         .cornerRadius(12)
                 }
                 .buttonStyle(.plain)
@@ -123,7 +123,7 @@ struct RecentActivityPage: View {
             case .timer(let record):
                 NavigationLink(destination: TimerRecordDetailPage(recordId: record.id)) {
                     recordContent(for: item)
-                        .background(Theme.surface)
+                        .background(.ultraThinMaterial)
                         .cornerRadius(12)
                 }
                 .buttonStyle(.plain)

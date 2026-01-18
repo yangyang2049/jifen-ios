@@ -64,4 +64,37 @@ class FootballViewModel: BaseScoreViewModel {
     func getScoringOptions() -> [Int] {
         return [1] // Football: typically just +1 for goals
     }
+
+    // MARK: - Real-time Record Saving
+
+    func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        print("[FootballViewModel] 💾 Saving football record in real-time (isGameFinished: \(isGameFinished))")
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
+
+        var winner: String? = nil
+        if isGameFinished || gameFinished {
+            if leftTeam.score > rightTeam.score {
+                winner = "left"
+            } else if rightTeam.score > leftTeam.score {
+                winner = "right"
+            }
+        }
+
+        controller?.saveScoreboardRecord(
+            id: "football_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            endTime: endTime,
+            duration: duration,
+            team1Name: leftTeam.name,
+            team2Name: rightTeam.name,
+            team1FinalScore: leftTeam.score,
+            team2FinalScore: rightTeam.score,
+            team1SetScore: 1, // Football is typically 1 "set" (half/game)
+            team2SetScore: 1,
+            winner: winner,
+            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            extraData: [:]
+        )
+        print("[FootballViewModel] ✅ Football record saved successfully")
+    }
 }

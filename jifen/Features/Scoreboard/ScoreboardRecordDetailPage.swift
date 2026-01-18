@@ -3,24 +3,16 @@ import SwiftUI
 
 struct ScoreboardRecordDetailPage: View {
     let recordId: String
-    
-    @Environment(\.presentationMode) var presentationMode
+
     @State private var record: ScoreboardRecord?
     @State private var isDeleting = false
     @State private var showingDeleteConfirm = false
-    
+
     var body: some View {
-        ZStack {
-            Theme.backgroundColor.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                DetailViewNavigationBar(
-                    title: "match_detail",
-                    onBack: { presentationMode.wrappedValue.dismiss() }
-                ) {
-                    menu
-                }
-                
+        NavigationStack {
+            ZStack {
+                Theme.backgroundColor.ignoresSafeArea()
+
                 if isDeleting {
                     deletingView
                 } else if let record = record {
@@ -36,34 +28,41 @@ struct ScoreboardRecordDetailPage: View {
                 }
             }
         }
+        .navigationTitle(NSLocalizedString("match_detail", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                menu
+            }
+        }
         .onAppear(perform: loadRecord)
-        .navigationBarHidden(true)
         .alert(isPresented: $showingDeleteConfirm) {
             Alert(
-                title: Text("confirm_delete"),
-                message: Text("confirm_delete_record_message"),
-                primaryButton: .destructive(Text("delete"), action: deleteRecord),
-                secondaryButton: .cancel()
+                title: Text(LocalizedStringKey("confirm_delete")),
+                message: Text(LocalizedStringKey("confirm_delete_record_message")),
+                primaryButton: .destructive(Text(LocalizedStringKey("delete")), action: deleteRecord),
+                secondaryButton: .cancel(Text(LocalizedStringKey("cancel")))
             )
         }
     }
     
     private var menu: some View {
         Menu {
-            Button(action: {
-                // TODO: Implement share
-            }) {
-                Label("share", systemImage: "square.and.arrow.up")
-            }
             Button(role: .destructive, action: {
                 showingDeleteConfirm = true
             }) {
-                Label("delete", systemImage: "trash")
+                Label(NSLocalizedString("delete", comment: ""), systemImage: "trash")
             }
         } label: {
-            Image(systemName: "ellipsis.circle")
-                .font(.title2)
-                .foregroundColor(Theme.textPrimary)
+            ZStack {
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 32, height: 32)
+                Image(systemName: "ellipsis.circle")
+                    .font(.title2)
+                    .foregroundColor(Theme.textPrimary.opacity(0.8))
+            }
         }
     }
     
@@ -156,32 +155,212 @@ struct ScoreboardRecordDetailPage: View {
             Text("match_record")
                 .font(.headline)
                 .padding(.horizontal)
-            
+
             if record.actions.isEmpty {
                 Text("no_actions_recorded")
                     .foregroundColor(.secondary)
                     .padding()
                     .frame(maxWidth: .infinity)
             } else {
-                ForEach(record.actions.indices, id: \.self) { index in
-                    actionRow(action: record.actions[index], index: index)
-                }
+                // Create a timeline view of scoring actions
+                scoringTimelineView(record: record)
             }
         }
         .padding()
-        .background(Theme.surface)
+        .background(.ultraThinMaterial)
         .cornerRadius(12)
     }
-    
-    private func actionRow(action: String, index: Int) -> some View {
-        HStack {
+
+    private func scoringTimelineView(record: ScoreboardRecord) -> some View {
+        // Create array of scoring events first
+        let scoringEvents = createScoringEvents(from: record)
+
+        return VStack(spacing: 8) {
+            ForEach(scoringEvents.indices, id: \.self) { index in
+                let event = scoringEvents[index]
+                scoringActionRow(
+                    timestamp: formatElapsedTime(event.timestamp, from: record.startTime),
+                    action: event.action,
+                    score: event.score,
+                    index: index
+                )
+            }
+        }
+    }
+
+    private func createScoringEvents(from record: ScoreboardRecord) -> [(timestamp: Date, action: String, score: String)] {
+        var events: [(timestamp: Date, action: String, score: String)] = []
+        var leftSets = 0
+        var rightSets = 0
+        var currentSetLeftScore = 0
+        var currentSetRightScore = 0
+
+        // Add game start event
+        events.append((
+            timestamp: record.startTime,
+            action: "比赛开始",
+            score: "0-0"
+        ))
+
+        for action in record.actions {
+            if action.contains("left +") {
+                currentSetLeftScore += 1
+                let actionText = getScoringActionText(for: record.gameType, teamName: record.team1Name, points: 1)
+                let displayScore = formatScore(leftScore: currentSetLeftScore, rightScore: currentSetRightScore, gameType: record.gameType)
+                events.append((
+                    timestamp: record.startTime,
+                    action: actionText,
+                    score: displayScore
+                ))
+
+                // Check for set completion
+                if shouldAddSetEndEvent(leftScore: currentSetLeftScore, rightScore: currentSetRightScore) {
+                    if currentSetLeftScore > currentSetRightScore {
+                        leftSets += 1
+                    }
+                    events.append((
+                        timestamp: record.startTime,
+                        action: getSetEndText(record: record, winner: currentSetLeftScore > currentSetRightScore ? record.team1Name : record.team2Name),
+                        score: "\(leftSets)-\(rightSets)"
+                    ))
+                    // Reset for next set
+                    currentSetLeftScore = 0
+                    currentSetRightScore = 0
+                }
+
+            } else if action.contains("right +") {
+                currentSetRightScore += 1
+                let actionText = getScoringActionText(for: record.gameType, teamName: record.team2Name, points: 1)
+                let displayScore = formatScore(leftScore: currentSetLeftScore, rightScore: currentSetRightScore, gameType: record.gameType)
+                events.append((
+                    timestamp: record.startTime,
+                    action: actionText,
+                    score: displayScore
+                ))
+
+                // Check for set completion
+                if shouldAddSetEndEvent(leftScore: currentSetLeftScore, rightScore: currentSetRightScore) {
+                    if currentSetRightScore > currentSetLeftScore {
+                        rightSets += 1
+                    }
+                    events.append((
+                        timestamp: record.startTime,
+                        action: getSetEndText(record: record, winner: currentSetRightScore > currentSetLeftScore ? record.team2Name : record.team1Name),
+                        score: "\(leftSets)-\(rightSets)"
+                    ))
+                    // Reset for next set
+                    currentSetLeftScore = 0
+                    currentSetRightScore = 0
+                }
+            }
+        }
+
+        // Add game end event if the game finished
+        if record.endTime != nil {
+            events.append((
+                timestamp: record.endTime!,
+                action: "比赛结束",
+                score: "\(record.team1FinalScore)-\(record.team2FinalScore)"
+            ))
+        }
+
+        return events
+    }
+
+    private func getScoringActionText(for gameType: GameType, teamName: String, points: Int) -> String {
+        switch gameType {
+        case .pingpong, .badminton, .tennis:
+            return "\(teamName) 得分"
+        case .basketball:
+            return "\(teamName) +\(points)"
+        case .football:
+            return "\(teamName) 进球"
+        case .volleyball:
+            return "\(teamName) +\(points)"
+        default:
+            return "\(teamName) +\(points)"
+        }
+    }
+
+    private func shouldAddSetEndEvent(leftScore: Int, rightScore: Int) -> Bool {
+        // More accurate badminton set end detection
+        // A set ends when:
+        // 1. One player reaches 21 points (or 30 in deciding set)
+        // 2. Has at least 2 points advantage over opponent
+        // OR
+        // 1. One player reaches 30 points in deciding set
+        // 2. Has at least 1 point advantage
+
+        let maxScore = max(leftScore, rightScore)
+        let minScore = min(leftScore, rightScore)
+        let scoreDiff = maxScore - minScore
+
+        // For deciding set (3rd set in best of 3), max is 30 points
+        if maxScore >= 30 {
+            return scoreDiff >= 1
+        }
+
+        // For normal sets, need 21+ points and 2+ point advantage
+        if maxScore >= 21 {
+            return scoreDiff >= 2
+        }
+
+        return false
+    }
+
+    private func getSetEndText(record: ScoreboardRecord, winner: String) -> String {
+        return "第一局结束，\(winner)胜"
+    }
+
+    private func scoringActionRow(timestamp: String, action: String, score: String, index: Int) -> some View {
+        HStack(spacing: 8) {
+            // Timestamp
+            Text(timestamp)
+                .font(.caption)
+                .foregroundColor(Theme.textSecondary)
+                .frame(width: 50, alignment: .leading)
+
+            // Action
             Text(action)
                 .font(.subheadline)
+                .foregroundColor(Theme.textPrimary)
+                .lineLimit(1)
+
             Spacer()
+
+            // Score
+            Text(score)
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .foregroundColor(Theme.primary)
+                .frame(width: 60, alignment: .trailing)
         }
-        .padding(12)
-        .background(index % 2 == 0 ? Theme.backgroundColor : Color.clear)
-        .cornerRadius(8)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(index % 2 == 0 ? Theme.backgroundColor.opacity(0.3) : Color.clear)
+        .cornerRadius(6)
+    }
+
+    private func formatElapsedTime(_ eventTime: Date, from startTime: Date) -> String {
+        let elapsed = eventTime.timeIntervalSince(startTime)
+        let minutes = Int(elapsed) / 60
+        let seconds = Int(elapsed) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private func formatRelativeTime(_ date: Date) -> String {
+        let now = Date()
+        let components = Calendar.current.dateComponents([.minute, .hour, .day], from: date, to: now)
+
+        if let day = components.day, day > 0 {
+            return "\(day)d ago"
+        } else if let hour = components.hour, hour > 0 {
+            return "\(hour)h ago"
+        } else if let minute = components.minute, minute > 0 {
+            return "\(minute)m ago"
+        } else {
+            return "now"
+        }
     }
     
     private func detailRow(label: String, value: String) -> some View {
@@ -202,7 +381,8 @@ struct ScoreboardRecordDetailPage: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             let success = ScoreboardRecordManager.shared.deleteRecord(recordId)
             if success {
-                presentationMode.wrappedValue.dismiss()
+                // Navigation will automatically dismiss when this view is popped
+                // No need to manually dismiss since we're in a NavigationStack
             } else {
                 isDeleting = false
                 // show error
@@ -225,6 +405,33 @@ struct ScoreboardRecordDetailPage: View {
         formatter.timeStyle = .short
         return formatter.string(from: date)
     }
+
+    private func formatScore(leftScore: Int, rightScore: Int, gameType: GameType) -> String {
+        switch gameType {
+        case .tennis:
+            return formatTennisScore(leftScore: leftScore, rightScore: rightScore)
+        default:
+            // For other sports, just display regular numbers
+            return "\(leftScore)-\(rightScore)"
+        }
+    }
+
+    private func formatTennisScore(leftScore: Int, rightScore: Int) -> String {
+        func tennisScoreDisplay(_ score: Int) -> String {
+            switch score {
+            case 0:
+                return "0"
+            case 1:
+                return "15"
+            case 2:
+                return "30"
+            default:
+                return "40"
+            }
+        }
+
+        return "\(tennisScoreDisplay(leftScore))-\(tennisScoreDisplay(rightScore))"
+    }
 }
 
 // MARK: - Navigation Bar Back Button Handling
@@ -243,23 +450,28 @@ struct DetailViewNavigationBar<TrailingContent: View>: View {
     var body: some View {
         HStack {
             Button(action: onBack) {
-                Image(systemName: "chevron.left")
-                    .font(.title2)
-                    .foregroundColor(Theme.textPrimary)
+                ZStack {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 32, height: 32)
+                    Image(systemName: "chevron.left")
+                        .font(.title2)
+                        .foregroundColor(Theme.textPrimary.opacity(0.8))
+                }
             }
-            
+
             Spacer()
-            
+
             Text(LocalizedStringKey(title))
                 .font(.headline)
                 .foregroundColor(Theme.textPrimary)
-            
+
             Spacer()
-            
+
             trailing
         }
         .padding()
-        .background(Theme.surface)
+        .background(.ultraThinMaterial)
     }
 }
 

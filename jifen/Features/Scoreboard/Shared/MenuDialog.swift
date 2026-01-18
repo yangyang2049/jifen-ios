@@ -46,7 +46,7 @@ struct MenuDialog: View {
                     .padding(.horizontal, 20)
                     .frame(height: 48)
                     
-                    // Menu grid (3x3)
+                    // Menu grid (2x3)
                     LazyVGrid(columns: [
                         GridItem(.flexible(), spacing: 10),
                         GridItem(.flexible(), spacing: 10),
@@ -58,21 +58,14 @@ struct MenuDialog: View {
                             icon: "bell.fill",
                             action: { onMenuItemClick("whistle") }
                         )
-                        
-                        // Font
-                        MenuCard(
-                            title: "字体",
-                            customText: "Aa",
-                            action: { onMenuItemClick("font") }
-                        )
-                        
+
                         // Screenshot
                         MenuCard(
                             title: "截图",
                             icon: "camera.fill",
                             action: { onMenuItemClick("screenshot") }
                         )
-                        
+
                         // Exchange sides
                         MenuCard(
                             title: "交换边",
@@ -80,7 +73,7 @@ struct MenuDialog: View {
                             keepDialogOpen: true,
                             action: { onMenuItemClick("exchangeSide") }
                         )
-                        
+
                         // Reset
                         MenuCard(
                             title: "重置",
@@ -88,7 +81,7 @@ struct MenuDialog: View {
                             keepDialogOpen: true,
                             action: { onMenuItemClick("reset") }
                         )
-                        
+
                         // Undo
                         MenuCard(
                             title: "撤销",
@@ -168,4 +161,3 @@ struct MenuCard: View {
         }
     )
 }
-

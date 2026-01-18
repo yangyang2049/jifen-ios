@@ -93,6 +93,39 @@ class BasketballViewModel: BaseScoreViewModel {
         foulsHistory.removeAll()
     }
 
+    // MARK: - Real-time Record Saving
+
+    func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        print("[BasketballViewModel] 💾 Saving basketball record in real-time (isGameFinished: \(isGameFinished))")
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
+
+        var winner: String? = nil
+        if isGameFinished || gameFinished {
+            if leftTeam.score > rightTeam.score {
+                winner = "left"
+            } else if rightTeam.score > leftTeam.score {
+                winner = "right"
+            }
+        }
+
+        controller?.saveScoreboardRecord(
+            id: "basketball_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            endTime: endTime,
+            duration: duration,
+            team1Name: leftTeam.name,
+            team2Name: rightTeam.name,
+            team1FinalScore: leftTeam.score,
+            team2FinalScore: rightTeam.score,
+            team1SetScore: 1, // Basketball is typically 1 "set" (quarter/game)
+            team2SetScore: 1,
+            winner: winner,
+            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            extraData: [:]
+        )
+        print("[BasketballViewModel] ✅ Basketball record saved successfully")
+    }
+
     func getScoringOptions() -> [Int] {
         return [1, 2, 3] // Basketball: free throw (1), 2-pointer (2), 3-pointer (3)
     }

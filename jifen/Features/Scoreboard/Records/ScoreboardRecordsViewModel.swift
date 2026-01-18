@@ -68,6 +68,16 @@ final class ScoreboardRecordsViewModel: ObservableObject { // Add final and Obse
             self.refreshRecords()
         }
     }
+
+    func refreshRecordsImmediately() {
+        isLoading = true
+        DispatchQueue.main.async {
+            let summaries = ScoreboardRecordManager.shared.getAllRecordSummaries()
+            self.records = summaries
+            self.groupedRecords = self.groupRecordsByDate(summaries)
+            self.isLoading = false
+        }
+    }
     
     // MARK: - Get Records
     // These getters can be removed if direct access to @Published properties is preferred,
@@ -85,11 +95,11 @@ final class ScoreboardRecordsViewModel: ObservableObject { // Add final and Obse
     }
     
     // MARK: - Delete Record
-    
+
     func deleteRecord(_ id: String) -> Bool {
         let success = ScoreboardRecordManager.shared.deleteRecord(id)
         if success {
-            refreshRecords()
+            refreshRecordsImmediately()
         }
         return success
     }

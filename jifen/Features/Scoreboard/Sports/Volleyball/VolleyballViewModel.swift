@@ -42,6 +42,8 @@ class VolleyballViewModel: BaseScoreViewModel {
         let setsToWin = (maxSets + 1) / 2
         if leftSets >= setsToWin || rightSets >= setsToWin {
             gameFinished = true
+            // Save record in real-time when game finishes
+            saveGameRecordInRealTime(isGameFinished: true)
             controller?.performVibration(type: .heavy)
             return
         }
@@ -153,5 +155,38 @@ class VolleyballViewModel: BaseScoreViewModel {
 
     func getScoringOptions() -> [Int] {
         return [1] // Volleyball: typically just +1 for points
+    }
+
+    // MARK: - Real-time Record Saving
+
+    func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        print("[VolleyballViewModel] 💾 Saving volleyball record in real-time (isGameFinished: \(isGameFinished))")
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
+
+        var winner: String? = nil
+        if isGameFinished || gameFinished {
+            if leftSets > rightSets {
+                winner = "left"
+            } else if rightSets > leftSets {
+                winner = "right"
+            }
+        }
+
+        controller?.saveScoreboardRecord(
+            id: "volleyball_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            endTime: endTime,
+            duration: duration,
+            team1Name: leftTeam.name,
+            team2Name: rightTeam.name,
+            team1FinalScore: leftSets,
+            team2FinalScore: rightSets,
+            team1SetScore: leftSets,
+            team2SetScore: rightSets,
+            winner: winner,
+            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            extraData: [:]
+        )
+        print("[VolleyballViewModel] ✅ Volleyball record saved successfully")
     }
 }

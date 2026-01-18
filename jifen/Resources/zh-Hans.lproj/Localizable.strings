@@ -14,7 +14,7 @@
 "recent_records" = "最近记录";
 "home_quick_start" = "快速开始";
 "home_start_game" = "开始比赛";
-"home_new_game_short" = "新游戏";
+"home_new_game_short" = "新比赛";
 "home_all_items" = "全部项目";
 "home_tools" = "工具";
 "home_no_records" = "暂无最近记录";
@@ -50,9 +50,6 @@
 "game_basketball" = "篮球";
 "game_football" = "足球";
 "game_volleyball" = "排球";
-"game_go" = "围棋";
-"game_xiangqi" = "象棋";
-"game_chess" = "国际象棋";
 "game_checkers" = "跳棋";
 "game_boxing" = "拳击";
 "game_billiards" = "台球";
@@ -104,13 +101,14 @@
 /* Common */
 "cancel" = "取消";
 "confirm" = "确定";
+"delete" = "删除";
 "save" = "保存";
 "reset" = "重置";
 "back" = "返回";
 "team_or_player_name" = "队伍或选手名称";
 "tap_to_quick_use" = "点击快速使用";
 "game_ended" = "比赛结束";
-"back_to_new_game" = "返回新游戏";
+"back_to_new_game" = "返回新比赛";
 
 /* Time Formats */
 "minutes_ago" = "%d分钟前";
@@ -295,6 +293,7 @@
 "match_detail" = "比赛详情";
 "confirm_delete" = "确认删除";
 "confirm_delete_record_message" = "确定要删除这条比赛记录吗？此操作无法撤销。";
+"delete_record" = "删除记录";
 "share" = "分享";
 "deleting_record" = "正在删除记录...";
 "record_not_found" = "未找到记录";

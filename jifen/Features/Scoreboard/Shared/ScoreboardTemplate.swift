@@ -21,11 +21,11 @@ struct ScoreboardTemplate: View {
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     @State private var hideButtonsForScreenshot: Bool = false
-    @State private var showFontDialog: Bool = false
     @State private var resetClickCount: Int = 0
-    @State private var fontRefreshTrigger: Int = 0 // Trigger to refresh font display
     @State private var screenshotPreviewImage: UIImage? = nil // Screenshot preview image
     @State private var showScreenshotPreview: Bool = false // Show screenshot preview
+    @State private var lastTapTime: Date = Date.distantPast
+    private let tapDebounceInterval: TimeInterval = 0.15 // 150ms debounce for tap gestures
     
     var body: some View {
         GeometryReader { geometry in
@@ -44,8 +44,8 @@ struct ScoreboardTemplate: View {
                             scoreText: scoreText(for: baseViewModel.leftTeam, isLeft: true),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
-                            fontFamily: config.controller.getFontFamily(),
-                            fontRefreshTrigger: fontRefreshTrigger,
+                            fontFamily: "SF Pro Display",
+                            fontRefreshTrigger: 0,
                             onScoreTap: { points in
                                 config.viewModel.addScore(isLeft: true, points: points)
                             },
@@ -95,9 +95,13 @@ struct ScoreboardTemplate: View {
                         .frame(width: geometry.size.width / 2, alignment: .leading)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            // Tap to add score (only in normal mode)
+                            // Tap to add score (only in normal mode) with debouncing
                             if !isEditMode {
-                                config.viewModel.addScore(isLeft: true, points: 1)
+                                let currentTime = Date()
+                                if currentTime.timeIntervalSince(lastTapTime) >= tapDebounceInterval {
+                                    lastTapTime = currentTime
+                                    config.viewModel.addScore(isLeft: true, points: 1)
+                                }
                             }
                         }
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
@@ -124,8 +128,8 @@ struct ScoreboardTemplate: View {
                             scoreText: scoreText(for: baseViewModel.rightTeam, isLeft: false),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
-                            fontFamily: config.controller.getFontFamily(),
-                            fontRefreshTrigger: fontRefreshTrigger,
+                            fontFamily: "SF Pro Display",
+                            fontRefreshTrigger: 0,
                             onScoreTap: { points in
                                 config.viewModel.addScore(isLeft: false, points: points)
                             },
@@ -175,9 +179,13 @@ struct ScoreboardTemplate: View {
                         .frame(width: geometry.size.width / 2, alignment: .leading)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            // Tap to add score (only in normal mode)
+                            // Tap to add score (only in normal mode) with debouncing
                             if !isEditMode {
-                                config.viewModel.addScore(isLeft: false, points: 1)
+                                let currentTime = Date()
+                                if currentTime.timeIntervalSince(lastTapTime) >= tapDebounceInterval {
+                                    lastTapTime = currentTime
+                                    config.viewModel.addScore(isLeft: false, points: 1)
+                                }
                             }
                         }
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
@@ -340,17 +348,6 @@ struct ScoreboardTemplate: View {
         }
         .preferredColorScheme(.dark)
         // Screenshot dialog removed - iOS auto-saves after permission is granted
-                .sheet(isPresented: $showFontDialog) {
-                    FontSelectionDialog(
-                        currentFont: config.controller.currentFont,
-                        onFontSelected: { fontCode in
-                            handleFontChange(fontCode: fontCode)
-                        },
-                        onCancel: {
-                            showToastMessage("已撤销")
-                        }
-                    )
-                }
     }
     
     // MARK: - Menu Item Handlers
@@ -363,13 +360,7 @@ struct ScoreboardTemplate: View {
             // Play whistle sound
             SoundManager.shared.playSound("whistle")
             // Don't close dialog
-            
-        case "font":
-            showMenu = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                showFontDialog = true
-            }
-            
+
         case "screenshot":
             showMenu = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -528,57 +519,7 @@ struct ScoreboardTemplate: View {
         return "\(team.score)"
     }
     
-    // MARK: - Font Selection
-    
-    private func handleFontChange(fontCode: String) {
-        // Update font in controller (this will also save to preferences)
-        var updatedConfig = config
-        updatedConfig.controller.currentFont = fontCode
-        config = updatedConfig
-        // Trigger UI refresh
-        fontRefreshTrigger += 1
-        showFontDialog = false
-        showToastMessage("字体已更改")
-        config.controller.performVibration(type: .medium)
-    }
-    
-    // MARK: - Font Helper
 
-    private func getFont(family: String, size: CGFloat) -> Font {
-        // Map font codes to actual font families
-        let mappedFamily: String
-        switch family {
-        case "digital":
-            mappedFamily = "RobotoMono-Regular"
-        case "seven_segment":
-            mappedFamily = "7segment"
-        case "harmony_digit":
-            mappedFamily = "SF-Pro-Rounded" // Use SF Pro Rounded for harmony digit
-        case "default":
-            mappedFamily = "SF-Pro-Display"
-        default:
-            mappedFamily = family
-        }
-
-        // Try to use custom font first
-        if let uiFont = UIFont(name: mappedFamily, size: size) {
-            return Font(uiFont)
-        }
-
-        // Fallback to system fonts based on font code
-        switch family {
-        case "digital":
-            return .system(size: size, design: .monospaced)
-        case "seven_segment":
-            return .system(size: size, design: .monospaced) // Fallback for seven-segment
-        case "harmony_digit":
-            return .system(size: size, design: .rounded)
-        case "default", "SF Pro Display":
-            return .system(size: size, design: .default)
-        default:
-            return .system(size: size)
-        }
-    }
 }
 
 // MARK: - Orientation Lock Extension
@@ -846,7 +787,28 @@ struct TeamSection: View {
                             .foregroundColor(.white.opacity(0.9))
                     }
                 }
-                
+
+                // Scoring buttons - only show when there are multiple options and not in edit mode
+                if !isEditMode && scoringOptions.count > 1 {
+                    HStack(spacing: 12) {
+                        ForEach(scoringOptions, id: \.self) { points in
+                            Button(action: {
+                                onScoreTap(points)
+                            }) {
+                                Text("+\(points)")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 60, height: 40)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.white.opacity(0.15))
+                                    )
+                            }
+                        }
+                    }
+                    .padding(.bottom, 20)
+                }
+
                 Spacer()
             }
         }

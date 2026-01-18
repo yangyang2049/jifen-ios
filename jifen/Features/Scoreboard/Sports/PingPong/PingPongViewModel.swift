@@ -10,13 +10,18 @@ import Foundation
 @Observable
 class PingPongViewModel: BaseScoreViewModel {
     // MARK: - Ping Pong Specific Properties
-    
+
     var currentSet: Int = 1
     var maxSets: Int = 5  // Default: best of 5 (first to 3)
     var pointsPerSet: Int = 11  // Default: 11 points per set
     var autoChangeSides: Bool = true
     var sidesSwapped: Bool = false
     private var decidingSetChangedSides: Bool = false
+
+    // MARK: - Debouncing Properties
+
+    private var lastScoreUpdateTime: Date = Date.distantPast
+    private let minScoreUpdateInterval: TimeInterval = 0.1  // 100ms minimum interval between score updates
     
     // MARK: - Callbacks
     
@@ -66,10 +71,17 @@ class PingPongViewModel: BaseScoreViewModel {
     }
     
     // MARK: - Override Score Operations
-    
+
     override func addScore(isLeft: Bool, points: Int) {
         guard !gameFinished else { return }
-        
+
+        // Debouncing: prevent rapid successive score updates
+        let currentTime = Date()
+        guard currentTime.timeIntervalSince(lastScoreUpdateTime) >= minScoreUpdateInterval else {
+            return
+        }
+        lastScoreUpdateTime = currentTime
+
         // Save history before change
         saveFullStateHistory()
         controller?.pushHistory(
@@ -98,17 +110,12 @@ class PingPongViewModel: BaseScoreViewModel {
         // Check deciding set sides change (at 5 points)
         if !decidingSetChangedSides {
             let isDecidingSet = currentSet == maxSets
-            
+
             if isDecidingSet && (leftTeam.score == 5 || rightTeam.score == 5) {
                 decidingSetChangedSides = true
-                if autoChangeSides {
-                    // Trigger callback if exists
-                    if let callback = onDecidingSetSidesChangeCallback {
-                        callback()
-                    } else {
-                        // Fallback: direct exchange
-                        exchangeSides()
-                    }
+                // Auto side change disabled - only trigger callback for toast
+                if let callback = onDecidingSetSidesChangeCallback {
+                    callback()
                 }
             }
         }
@@ -126,6 +133,7 @@ class PingPongViewModel: BaseScoreViewModel {
         sidesSwapped = false
         decidingSetChangedSides = false
         fullStateHistory.removeAll()
+        lastScoreUpdateTime = Date.distantPast  // Reset debouncing timer
     }
     
     override func undo() -> Bool {
@@ -248,10 +256,12 @@ class PingPongViewModel: BaseScoreViewModel {
         newRightSets: Int,
         isGameFinished: Bool
     ) {
-        // Update sets
         leftTeam.sets = newLeftSets
         rightTeam.sets = newRightSets
-        
+
+        // Save record in real-time when set ends
+        saveGameRecordInRealTime(isGameFinished: isGameFinished)
+
         if isGameFinished {
             gameFinished = true
             controller?.performVibration(type: .heavy)
@@ -259,6 +269,35 @@ class PingPongViewModel: BaseScoreViewModel {
             // Start next set
             startNextSet()
         }
+    }
+
+    func saveGameRecordInRealTime(isGameFinished: Bool) {
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
+
+        var winner: String? = nil
+        if isGameFinished {
+            if (leftTeam.sets ?? 0) > (rightTeam.sets ?? 0) {
+                winner = "left"
+            } else if (rightTeam.sets ?? 0) > (leftTeam.sets ?? 0) {
+                winner = "right"
+            }
+        }
+
+        controller?.saveScoreboardRecord(
+            id: "pingpong_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            endTime: endTime,
+            duration: duration,
+            team1Name: leftTeam.name,
+            team2Name: rightTeam.name,
+            team1FinalScore: leftTeam.sets ?? 0,
+            team2FinalScore: rightTeam.sets ?? 0,
+            team1SetScore: leftTeam.sets ?? 0,
+            team2SetScore: rightTeam.sets ?? 0,
+            winner: winner,
+            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            extraData: [:]
+        )
     }
     
     private func startNextSet() {
@@ -271,10 +310,7 @@ class PingPongViewModel: BaseScoreViewModel {
         controller?.clearHistory()
         fullStateHistory.removeAll()
         
-        // Auto change sides between sets
-        if autoChangeSides && currentSet <= maxSets {
-            exchangeSides()
-        }
+        // Auto change sides disabled - only show toast in view controller
         
         controller?.performVibration(type: .medium)
     }

@@ -50,9 +50,6 @@
 "game_basketball" = "Basketball";
 "game_football" = "Football";
 "game_volleyball" = "Volleyball";
-"game_go" = "Go";
-"game_xiangqi" = "Chinese Chess";
-"game_chess" = "Chess";
 "game_checkers" = "Checkers";
 "game_boxing" = "Boxing";
 "game_billiards" = "Billiards";
@@ -104,6 +101,7 @@
 /* Common */
 "cancel" = "Cancel";
 "confirm" = "Confirm";
+"delete" = "Delete";
 "save" = "Save";
 "reset" = "Reset";
 "back" = "Back";
@@ -295,6 +293,7 @@
 "match_detail" = "Match Details";
 "confirm_delete" = "Confirm Delete";
 "confirm_delete_record_message" = "Are you sure you want to delete this match record? This action cannot be undone.";
+"delete_record" = "Delete Record";
 "share" = "Share";
 "deleting_record" = "Deleting record...";
 "record_not_found" = "Record not found";
