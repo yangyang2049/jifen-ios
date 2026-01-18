@@ -311,7 +311,11 @@ struct RandomTeamView: View {
                 return
             }
             for i in playerBoxes.indices {
-                playerBoxes[i].backgroundColor = animationColors.randomElement()!
+                if let randomColor = animationColors.randomElement() {
+                    playerBoxes[i].backgroundColor = randomColor
+                } else {
+                    playerBoxes[i].backgroundColor = Color(hex: "334155") // fallback color
+                }
             }
             flashCount += 1
             if flashCount > 15 {
@@ -337,7 +341,11 @@ struct RandomTeamView: View {
         for i in playerBoxes.indices {
             let team = teams[i]
             playerBoxes[i].team = team
-            playerBoxes[i].backgroundColor = teamColors[team]!
+            if let teamColor = teamColors[team] {
+                playerBoxes[i].backgroundColor = teamColor
+            } else {
+                playerBoxes[i].backgroundColor = Color.gray // fallback color
+            }
         }
         
         statusText = "分组完成！"

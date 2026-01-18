@@ -14,6 +14,8 @@ struct AACalculatorView: View {
     @State private var participants: Int = 2
     @State private var amountPerPerson: Double = 0
     @State private var showResult = false
+    @State private var showToast = false
+    @State private var toastMessage = ""
     @FocusState private var isAmountFocused: Bool
     
     var body: some View {
@@ -259,20 +261,56 @@ struct AACalculatorView: View {
         .navigationTitle(NSLocalizedString("aa_calculator_title", comment: "AA Calculator title"))
         .navigationBarTitleDisplayMode(.inline)
         .preferredColorScheme(.dark)
+        .overlay(
+            toastMessage.isEmpty ? nil :
+                VStack {
+                    Spacer()
+                    Text(toastMessage)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.black.opacity(0.8))
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 50)
+                        .transition(.opacity)
+                        .animation(.easeInOut, value: showToast)
+                }
+        )
     }
     
     private func calculate() {
         // Dismiss keyboard
         isAmountFocused = false
-        
+
         guard let amount = Double(totalAmount), amount > 0 else {
-            // Show toast: "请输入有效金额"
+            showToastMessage("请输入有效金额")
             return
         }
-        
+
         amountPerPerson = amount / Double(participants)
         showResult = true
         VibrationManager.shared.vibrateLight()
+    }
+
+    private func showToastMessage(_ message: String) {
+        toastMessage = message
+        withAnimation {
+            showToast = true
+        }
+        // Auto-hide after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                showToast = false
+            }
+            // Clear message after animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                toastMessage = ""
+            }
+        }
     }
     
     private func reset() {

@@ -230,8 +230,12 @@ struct RecentActivityPage: View {
     private func getYesterdayString() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-        return formatter.string(from: yesterday)
+        if let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date()) {
+            return formatter.string(from: yesterday)
+        } else {
+            // Fallback to today if date calculation fails (shouldn't happen)
+            return formatter.string(from: Date())
+        }
     }
 }
 

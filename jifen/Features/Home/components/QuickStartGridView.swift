@@ -45,22 +45,30 @@ struct QuickStartGridView: View {
             // Grid (using SwiftUI's native Grid for iOS 16+)
             Grid(horizontalSpacing: Theme.md, verticalSpacing: Theme.md) {
                 GridRow {
-                    BentoCardView( // Primary Card
-                        title: getGameName(type: primarySport),
-                        subtitle: startGameText,
-                        icon: getGameIcon(type: primarySport),
-                        gradientColors: [Theme.homePrimaryCardOrange, Theme.homePrimaryCardOrange],
-                        onClickCard: { onPrimaryClick?(primarySport) }
-                    )
+                    Button(action: {
+                        onPrimaryClick?(primarySport)
+                    }) {
+                        BentoCardView( // Primary Card
+                            title: getGameName(type: primarySport),
+                            subtitle: startGameText,
+                            icon: getGameIcon(type: primarySport),
+                            gradientColors: [Theme.homePrimaryCardOrange, Theme.homePrimaryCardOrange]
+                        )
+                    }
+                    .buttonStyle(.plain)
 
                     VStack(spacing: Theme.md) {
-                        BentoCardView( // Secondary Card
-                            title: getGameName(type: secondarySport),
-                            icon: getGameIcon(type: secondarySport),
-                            gradientColors: getGameGradient(type: secondarySport),
-                            isDarkText: false,
-                            onClickCard: { onSecondaryClick?(secondarySport) }
-                        )
+                        Button(action: {
+                            onSecondaryClick?(secondarySport)
+                        }) {
+                            BentoCardView( // Secondary Card
+                                title: getGameName(type: secondarySport),
+                                icon: getGameIcon(type: secondarySport),
+                                gradientColors: getGameGradient(type: secondarySport),
+                                isDarkText: false
+                            )
+                        }
+                        .buttonStyle(.plain)
                         .frame(maxHeight: .infinity) // Added for equal height
 
                         // Custom New Game Card matching small sports cards layout

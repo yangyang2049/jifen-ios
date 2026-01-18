@@ -338,9 +338,11 @@ struct HomeTab: View {
                     secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
                     isDarkTheme: isDarkTheme,
                     onPrimaryClick: { gameType in
+                        print("Primary sport card tapped in mobile layout: \(gameType)")
                         handleGameItemClick(gameType: gameType)
                     },
                     onSecondaryClick: { gameType in
+                        print("Secondary sport card tapped in mobile layout: \(gameType)")
                         handleGameItemClick(gameType: gameType)
                     },
                     onNewGameClick: {
@@ -377,9 +379,11 @@ struct HomeTab: View {
                             secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
                             isDarkTheme: isDarkTheme,
                             onPrimaryClick: { gameType in
+                                print("Primary sport card tapped in desktop layout: \(gameType)")
                                 handleGameItemClick(gameType: gameType)
                             },
                             onSecondaryClick: { gameType in
+                                print("Secondary sport card tapped in desktop layout: \(gameType)")
                                 handleGameItemClick(gameType: gameType)
                             },
                             onNewGameClick: {
@@ -442,9 +446,9 @@ struct HomeTab: View {
 
     // Helper function to handle game item clicks (from QuickStartGrid or NewGameDialog)
     private func handleGameItemClick(gameType: GameType) {
-        // Direct navigation for tennis, pingpong, and badminton (skip setup)
-        let directSports: [GameType] = [.tennis, .pingpong, .badminton]
-        if directSports.contains(gameType) {
+        // Direct navigation for all supported sports
+        let supportedSports: [GameType] = [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball]
+        if supportedSports.contains(gameType) {
             onNavigateToTab?(1) // Navigate to scoreboard tab
             return
         }

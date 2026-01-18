@@ -7,7 +7,6 @@ struct BentoCardView: View {
     var gradientColors: [Color] = [Theme.surface, Theme.surface] // Default to Theme.surface
     var isDarkText: Bool = false
     var showDecorativeBars: Bool = true // New parameter, default to true
-    var onClickCard: (() -> Void)? = nil
     
     var body: some View {
         ZStack { // Overall ZStack for the card

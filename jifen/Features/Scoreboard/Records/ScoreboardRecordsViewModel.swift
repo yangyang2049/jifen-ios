@@ -110,7 +110,9 @@ final class ScoreboardRecordsViewModel: ObservableObject { // Add final and Obse
         let sortedDates = groups.keys.sorted(by: >) // Newest first
         
         for date in sortedDates {
-            let recordsForDate = groups[date]!.sorted { $0.timestamp > $1.timestamp }
+            guard let recordsForDate = groups[date]?.sorted(by: { $0.timestamp > $1.timestamp }) else {
+                continue // Skip if somehow the group doesn't exist
+            }
             let displayDate = formatDisplayDate(date)
             result.append(ScoreboardRecordGroup(
                 id: date,
