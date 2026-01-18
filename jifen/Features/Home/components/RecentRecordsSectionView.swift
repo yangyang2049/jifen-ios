@@ -187,10 +187,21 @@ struct RecentRecordsSectionView: View {
                         ForEach(records) { record in
                             RecentRowView(
                                 activity: record,
-                                isLast: records.last?.id == record.id, // Check if it's the last record
+                                isLast: false, // No longer the last since we have the view all records row
                                 isDarkTheme: isDarkTheme
                             )
                         }
+
+                        // View all records centered text button
+                        NavigationLink(destination: RecentActivityPage()) {
+                            Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
+                                .font(.system(size: Theme.fontBody2, weight: .medium))
+                                .foregroundColor(Theme.primary)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.vertical, Theme.sm)
+                                .padding(.top, 8)
+                        }
+                        .buttonStyle(CardButtonStyle())
                     }
                 }
             }
@@ -199,18 +210,6 @@ struct RecentRecordsSectionView: View {
             .background(.ultraThinMaterial) // Apply glassmorphism effect here
             .cornerRadius(Theme.lg) // borderRadius(24) // Theme.lg is 24
             .shadow(color: isDarkTheme ? .clear : Theme.homeShadowLight, radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1) // shadow
-            
-            // Footer Button - Plain Text Style
-            if !records.isEmpty { // if (this.records.length > 0)
-                NavigationLink(destination: RecentActivityPage()) {
-                    Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
-                        .font(.system(size: Theme.fontBody2, weight: .bold)) // fontSize(14), fontWeight(FontWeight.Bold)
-                        .foregroundColor(Theme.primary) // Colors.primary
-                        .frame(maxWidth: .infinity) // width('100%'), textAlign(TextAlign.Center)
-                        .padding(.vertical, Theme.sm) // padding({ top: 12, bottom: 12 })
-                        .padding(.top, Theme.md) // margin({ top: 20 })
-                }
-            }
         }
     }
 }
