@@ -42,8 +42,8 @@ struct ScoreboardTab: View {
                 sport.view
                     .toolbar(.hidden, for: .tabBar)
             }
-            .onChange(of: selectedGame) { game in
-                if let game {
+            .task(id: selectedGame) {
+                if let game = selectedGame {
                     selectedSport = sports.first(where: { $0.gameType == game })
                     selectedGame = nil
                 }
