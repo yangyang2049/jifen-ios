@@ -3,6 +3,7 @@ import SwiftUI
 struct MainTabView: View {
     @State private var selectedTab = 0
     @State private var selectedGame: GameType? = nil
+    @State private var navigatingFromTab: Int? = nil
 
     var body: some View {
         ZStack {
@@ -11,6 +12,7 @@ struct MainTabView: View {
             TabView(selection: $selectedTab) {
                 NavigationStack {
                     HomeTab(onNavigateToTab: { index, game in
+                        navigatingFromTab = selectedTab
                         selectedTab = index
                         selectedGame = game
                     })
@@ -21,7 +23,12 @@ struct MainTabView: View {
                 }
 
                 NavigationStack {
-                    ScoreboardTab(selectedGame: $selectedGame)
+                    ScoreboardTab(selectedGame: $selectedGame, onDismiss: {
+                        if let sourceTab = navigatingFromTab {
+                            selectedTab = sourceTab
+                            navigatingFromTab = nil
+                        }
+                    })
                 }
                 .tag(1)
                 .tabItem {

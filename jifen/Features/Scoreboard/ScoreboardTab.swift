@@ -10,6 +10,7 @@ import SwiftUI
 struct ScoreboardTab: View {
     @State private var selectedSport: SportItem?
     @Binding var selectedGame: GameType?
+    var onDismiss: () -> Void = {}
     
     var body: some View {
         NavigationStack {
@@ -45,6 +46,11 @@ struct ScoreboardTab: View {
                 if let game {
                     selectedSport = sports.first(where: { $0.gameType == game })
                     selectedGame = nil
+                }
+            }
+            .onChange(of: selectedSport) { sport in
+                if sport == nil {
+                    onDismiss()
                 }
             }
         }
@@ -112,5 +118,5 @@ struct SportCardView: View {
 }
 
 #Preview {
-    ScoreboardTab(selectedGame: .constant(nil))
+    ScoreboardTab(selectedGame: .constant(nil), onDismiss: {})
 }
