@@ -53,6 +53,12 @@ struct ScoreboardTab: View {
                     onDismiss()
                 }
             }
+            .onAppear {
+                // Reset orientation to portrait when ScoreboardTab appears
+                // This ensures that when navigating back from a scoreboard view
+                // accessed from the Scoreboard tab, the orientation returns to portrait
+                OrientationLock.shared.unlock()
+            }
         }
         .accentColor(Theme.accentColor)
     }

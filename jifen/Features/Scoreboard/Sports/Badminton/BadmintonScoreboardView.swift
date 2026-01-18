@@ -90,7 +90,6 @@ struct BadmintonScoreboardView: View {
             }
             
             saveGameRecord()
-            OrientationLock.shared.unlock()
         }
         .onChange(of: viewModel.gameFinished) { _, newValue in
             if newValue {

@@ -25,7 +25,7 @@ struct RecentActivityPage: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { withAnimation { isEditMode.toggle() } }) {
-                        Image(systemName: isEditMode ? "checkmark" : "pencil")
+                        Image(systemName: isEditMode ? "xmark" : "pencil")
                     }
                 }
             }

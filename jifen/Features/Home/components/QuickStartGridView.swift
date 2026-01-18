@@ -40,7 +40,7 @@ struct QuickStartGridView: View {
                 .cornerRadius(22) // borderRadius(22)
             }
             .frame(maxWidth: .infinity) // width('100%')
-            .padding(.bottom, Theme.md) // margin({ bottom: 16 })
+            .padding(.bottom, Theme.sm) // margin({ bottom: 8 })
 
             // Grid (using SwiftUI's native Grid for iOS 16+)
             Grid(horizontalSpacing: Theme.md, verticalSpacing: Theme.md) {
@@ -83,29 +83,26 @@ struct QuickStartGridView: View {
                                         )
                                     )
 
-                                VStack(spacing: 8) {
-                                    // Top row: Title left, Icon right
-                                    HStack {
-                                        // Title on the left (matching small card style)
+                                VStack(alignment: .leading, spacing: 0) {
+                                    HStack(alignment: .top) {
                                         Text(newGameShortText)
-                                            .font(.system(size: Theme.fontBody2, weight: .medium))
+                                            .font(.system(size: Theme.fontH5, weight: .bold))
                                             .foregroundColor(.white)
                                             .lineLimit(1)
+                                            .layoutPriority(1)
 
                                         Spacer()
 
-                                        // Smaller plus icon on the right
                                         Image(systemName: "plus")
                                             .resizable()
                                             .aspectRatio(contentMode: .fit)
-                                            .frame(width: 20, height: 20)
+                                            .frame(width: 24, height: 24)
                                             .foregroundColor(.white)
                                     }
 
-                                    Spacer() // Push content to top
+                                    Spacer()
                                 }
-                                .padding(.vertical, 20)
-                                .padding(.horizontal, 12)
+                                .padding(Theme.md)
                             }
                         }
                         .buttonStyle(.plain)

@@ -56,8 +56,8 @@ struct NewGameDialogView: View {
                     Button(action: {
                         dismiss()
                     }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(Theme.textSecondary)
+                        Image(systemName: "xmark")
+                            .foregroundColor(Theme.textPrimary)
                     }
                 }
             }

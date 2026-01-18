@@ -47,8 +47,6 @@ struct BasketballScoreboardView: View {
                let tabBarController = window.rootViewController?.findTabBarController() {
                 tabBarController.tabBar.isHidden = false
             }
-            // Unlock orientation to return to portrait
-            OrientationLock.shared.unlock()
         }
     }
 }

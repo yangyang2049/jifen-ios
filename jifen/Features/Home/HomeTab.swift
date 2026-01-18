@@ -317,7 +317,7 @@ struct HomeTab: View {
                     .font(.system(size: Theme.fontH4, weight: .bold))
                     .foregroundColor(Theme.textPrimary)
                     .padding(.bottom, 2)
-                
+
                 Text(headerDate)
                     .font(.system(size: Theme.fontCaption, weight: .medium))
                     .foregroundColor(Theme.textSecondary)
@@ -325,6 +325,17 @@ struct HomeTab: View {
             .layoutPriority(1)
 
             Spacer()
+
+            Button(action: {
+                showSettingsSheet = true
+            }) {
+                Image(systemName: "gear")
+                    .foregroundColor(Theme.textPrimary)
+                    .frame(width: 24, height: 24)
+            }
+            .frame(width: 44, height: 44)
+            .background(Color.clear)
+            .cornerRadius(22)
         }
         .frame(maxWidth: .infinity) // Explicitly make HStack fill width
         .padding(.horizontal, Theme.lg)
@@ -364,7 +375,6 @@ struct HomeTab: View {
                     }
                 )
             } // End Group for ProToolsSectionView
-            .padding(.top, Theme.lg)
         }
         .padding(.horizontal, Theme.lg) // Padding for the whole mobile layout
     }
