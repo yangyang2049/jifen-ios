@@ -5,7 +5,7 @@ import SwiftUI
 struct NewGameDialogView: View {
     @Environment(\.dismiss) var dismiss
 
-    var onSelect: ((ActivityType, SourcePage) -> Void)?
+    var onSelect: ((ActivityType, SourcePage, GameType?) -> Void)?
     var onTimerGameSelected: ((GameType) -> Void)?
     var sourcePage: SourcePage = .home
 
@@ -87,7 +87,7 @@ struct NewGameDialogView: View {
             // Close modal and navigate to scoreboard
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                onSelect?(.scoreboard, sourcePage)
+                onSelect?(.scoreboard, sourcePage, gameType)
             }
         } else {
             // For unsupported games, just close modal (no navigation)

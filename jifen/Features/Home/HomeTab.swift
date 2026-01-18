@@ -115,8 +115,8 @@ struct HomeTab: View {
             }
             .sheet(isPresented: $showNewGameDialog) {
                 NewGameDialogView(
-                    onSelect: { activityType, sourcePage in
-                        handleNewGameSelection(type: activityType, sourcePage: sourcePage)
+                    onSelect: { activityType, sourcePage, gameType in
+                        handleNewGameSelection(type: activityType, sourcePage: sourcePage, gameType: gameType)
                     },
                     onTimerGameSelected: { gameType in
                         selectedTimerGameType = gameType
@@ -287,9 +287,12 @@ struct HomeTab: View {
         updateRecentActivities()
     }
 
-    private func handleNewGameSelection(type: ActivityType, sourcePage: SourcePage) {
-        if type == .scoreboard { onNavigateToTab?(1, nil) } // Assuming tab 1 is scoreboard
-        else if type == .timer { onNavigateToTab?(2, nil) } // Assuming tab 2 is timer
+    private func handleNewGameSelection(type: ActivityType, sourcePage: SourcePage, gameType: GameType? = nil) {
+        if type == .scoreboard {
+            onNavigateToTab?(1, gameType)
+        } else if type == .timer {
+            onNavigateToTab?(2, nil)
+        }
     }
 
     private func navigateToGame(gameType: GameType) {
