@@ -17,7 +17,7 @@ class OrientationLock {
     }
     
     func unlock() {
-        lockedOrientation = .all
+        lockedOrientation = .portrait
         // Force return to portrait when unlocking
         DispatchQueue.main.async {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
