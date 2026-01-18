@@ -12,8 +12,6 @@ struct TenSecondChallengeView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0 // milliseconds
-    @State private var results: [ChallengeResult] = []
-    @State private var bestScore: TimeInterval = -1
     @State private var showResult = false
     @State private var lastDifference: TimeInterval = 0
     @State private var showHint = false
@@ -22,12 +20,6 @@ struct TenSecondChallengeView: View {
     @State private var startTimestamp: Date?
     private let targetTime: TimeInterval = 10.0 // 10 seconds = 10000ms
     private let hintShownKey = "ten_second_hint_shown"
-
-    struct ChallengeResult: Identifiable {
-        let id = UUID()
-        let time: TimeInterval // in milliseconds
-        let timestamp: Date
-    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -46,13 +38,13 @@ struct TenSecondChallengeView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 // Hint text (only show once, at bottom)
-                if !isRunning && currentTime == 0 && results.isEmpty && showHint {
+                if !isRunning && currentTime == 0 && showHint {
                     VStack(spacing: 12) {
                         Text(NSLocalizedString("tap_to_start_stop", comment: "Tap to start, try to stop at 10 seconds"))
                             .font(.system(size: 18))
                             .foregroundColor(.white.opacity(0.5))
                             .multilineTextAlignment(.center)
-                        
+
                         Text(NSLocalizedString("target_10_seconds", comment: "Target is 10.00 seconds"))
                             .font(.system(size: 14))
                             .foregroundColor(.white.opacity(0.4))
@@ -61,11 +53,6 @@ struct TenSecondChallengeView: View {
                     .padding(.horizontal, 32)
                     .frame(maxWidth: .infinity)
                     .position(x: geometry.size.width / 2, y: geometry.size.height - 120)
-                }
-                
-                // Floating stats panel (top right)
-                if !results.isEmpty {
-                    buildFloatingStats(geometry: geometry)
                 }
             }
         }
@@ -122,69 +109,7 @@ struct TenSecondChallengeView: View {
         }
     }
     
-    @ViewBuilder
-    private func buildFloatingStats(geometry: GeometryProxy) -> some View {
-        VStack(spacing: 12) {
-            // Best score
-            if bestScore != -1 {
-                VStack(spacing: 4) {
-                    Text("最佳")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white.opacity(0.6))
-                    HStack(spacing: 2) {
-                        Text(formatDifferenceNumber(bestScore))
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color(hex: "FFD700"))
-                        Text("秒")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color(hex: "FFD700"))
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                
-                Divider()
-                    .background(Color.white.opacity(0.1))
-                    .frame(width: 100 * 0.8)
-            }
-            
-            // Attempts count
-            VStack(spacing: 4) {
-                Text("尝试")
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.6))
-                Text("\(results.count)")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-            
-            if !results.isEmpty {
-                Divider()
-                    .background(Color.white.opacity(0.1))
-                    .frame(width: 100 * 0.8)
-                
-                // Clear button
-                Button(action: clearHistory) {
-                    Text("清空")
-                        .font(.system(size: 11))
-                        .foregroundColor(Color(hex: "FF6B6B"))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 30)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(hex: "FF6B6B").opacity(0.15))
-                        )
-                }
-            }
-        }
-        .frame(width: 100)
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.05))
-        )
-        .position(x: geometry.size.width - 112, y: 16 + 50) // 112 = 100 + 12 padding
-    }
+
     
     private func checkAndShowHint() {
         let defaults = UserDefaults.standard
@@ -252,12 +177,12 @@ struct TenSecondChallengeView: View {
         timer = nil
         isRunning = false
         let finalTime = currentTime
-        
+
         // Calculate difference from 10 seconds
         let targetTimeMs: TimeInterval = 10000 // 10 seconds in milliseconds
         let difference = abs(finalTime - targetTimeMs)
         lastDifference = difference
-        
+
         // Vibration feedback based on accuracy
         if difference == 0 {
             VibrationManager.shared.vibrateHeavy() // Perfect!
@@ -266,24 +191,7 @@ struct TenSecondChallengeView: View {
         } else {
             VibrationManager.shared.vibrateLight() // Keep trying
         }
-        
-        // Save result
-        let result = ChallengeResult(
-            time: finalTime,
-            timestamp: Date()
-        )
-        results.insert(result, at: 0)
-        
-        // Limit history
-        if results.count > 20 {
-            results = Array(results.prefix(20))
-        }
-        
-        // Update best score
-        if bestScore == -1 || difference < bestScore {
-            bestScore = difference
-        }
-        
+
         showResult = true
     }
     
@@ -291,12 +199,6 @@ struct TenSecondChallengeView: View {
         timer?.invalidate()
         timer = nil
         isRunning = false
-    }
-    
-    private func clearHistory() {
-        VibrationManager.shared.vibrateLight()
-        results = []
-        bestScore = -1
     }
 }
 

@@ -34,12 +34,8 @@ struct NewGameDialogView: View {
                                 .frame(maxWidth: .infinity, minHeight: 80)
                                 .padding(.vertical, Theme.md)
                                 .padding(.horizontal, Theme.sm)
-                                .background(Color.clear)
+                                .background(Theme.surface.opacity(0.5))
                                 .cornerRadius(Theme.md)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: Theme.md)
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
-                                )
                             }
                             .buttonStyle(.plain)
                         }
@@ -62,6 +58,7 @@ struct NewGameDialogView: View {
                 }
             }
         }
+        .presentationDetents([.medium])
     }
 
     private func getScoreboardItems() -> [GameItem] {

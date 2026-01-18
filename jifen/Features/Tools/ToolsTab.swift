@@ -2,57 +2,36 @@ import SwiftUI
 
 struct ToolsTab: View {
     @State private var path = NavigationPath()
-    @Environment(\.colorScheme) var colorScheme
-
-    enum NavigationDestination: Hashable {
-        case tool(ToolItem)
-    }
-
-    init() {
-        // Empty init since we removed the callback parameter
-    }
 
     var body: some View {
         NavigationStack(path: $path) {
-            ZStack {
-                Theme.backgroundColor.ignoresSafeArea()
-                
-                ScrollView {
-                    LazyVStack(spacing: 24) {
-                        // Competition Tools Section
-                        ToolSectionView(
-                            title: NSLocalizedString("match_tools", comment: "Match Tools section"),
-                            tools: ToolItem.competitionTools, // Use shared definition
-                            onToolClick: { tool in
-                                path.append(NavigationDestination.tool(tool))
-                            }
-                        )
-
-                        // Other Tools Section
-                        ToolSectionView(
-                            title: NSLocalizedString("other_tools", comment: "Other Tools section"),
-                            tools: ToolItem.otherTools, // Use shared definition
-                            onToolClick: { tool in
-                                path.append(NavigationDestination.tool(tool))
-                            }
-                        )
+            ScrollView {
+                LazyVStack(spacing: Theme.lg) {
+                    ToolSectionView(
+                        title: NSLocalizedString("match_tools", comment: "Match Tools"),
+                        tools: ToolItem.competitionTools
+                    ) { tool in
+                        path.append(tool)
                     }
-                    .padding(.horizontal, Theme.padding)
-                    .padding(.vertical, 16)
+
+                    ToolSectionView(
+                        title: NSLocalizedString("other_tools", comment: "Other Tools"),
+                        tools: ToolItem.otherTools
+                    ) { tool in
+                        path.append(tool)
+                    }
                 }
+                .padding(Theme.lg)
             }
-            .navigationTitle(NSLocalizedString("tools_title", comment: "Tools title"))
+            .background(Theme.backgroundColor)
+            .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))
             .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(.dark)
-            .navigationDestination(for: NavigationDestination.self) { destination in
-                switch destination {
-                case .tool(let toolItem):
-                    toolItem.view
-                        .navigationTitle(toolItem.title)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .background(colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight)
-                        .toolbar(.hidden, for: .tabBar)
-                }
+            .navigationDestination(for: ToolItem.self) { tool in
+                tool.view
+                    .navigationTitle(tool.title)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar(.hidden, for: .tabBar)
             }
         }
     }

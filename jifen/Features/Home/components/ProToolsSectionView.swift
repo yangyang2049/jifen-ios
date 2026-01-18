@@ -67,8 +67,8 @@ struct ProToolsSectionView: View {
             ToolDef(id: "whistle", name: NSLocalizedString("home_tool_whistle", comment: "Whistle tool name"), icon: "🔊", color: Theme.toolWhistleRed),
             ToolDef(id: "flip_coin", name: NSLocalizedString("home_tool_coin", comment: "Flip Coin tool name"), icon: "🪙", color: Theme.toolGray),
             ToolDef(id: "dice", name: NSLocalizedString("home_tool_dice", comment: "Dice tool name"), icon: "🎲", color: Theme.toolGray),
-            ToolDef(id: "random_team", name: NSLocalizedString("home_tool_team", comment: "Random Team tool name"), icon: "👥", color: Theme.toolGray),
             ToolDef(id: "red_yellow_card", name: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), icon: "🟨", color: Theme.toolGray),
+            ToolDef(id: "aa_calculator", name: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), icon: "💰", color: Theme.toolGray),
         ]
     }
 

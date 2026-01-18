@@ -2,7 +2,7 @@
 //  ScoreboardTab.swift
 //  jifen
 //
-//  Scoreboard tab - entry point for all sports scoreboards
+//  Simplified scoreboard tab
 //
 
 import SwiftUI
@@ -11,36 +11,28 @@ struct ScoreboardTab: View {
     @State private var selectedSport: SportItem?
     @Binding var selectedGame: GameType?
     var onDismiss: () -> Void = {}
-    
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                Theme.backgroundColor.ignoresSafeArea()
-                
-                ScrollView {
-                    LazyVStack(spacing: 24) {
-                        // Sports grid
-                        LazyVGrid(columns: [
-                            GridItem(.flexible(), spacing: Theme.spacing),
-                            GridItem(.flexible(), spacing: Theme.spacing)
-                        ], spacing: Theme.spacing) {
-                            ForEach(sports) { sport in
-                                SportCardView(sport: sport) {
-                                    selectedSport = sport
-                                }
-                            }
+            ScrollView {
+                LazyVGrid(columns: [
+                    GridItem(.flexible(), spacing: Theme.spacing),
+                    GridItem(.flexible(), spacing: Theme.spacing)
+                ], spacing: Theme.spacing) {
+                    ForEach(sports) { sport in
+                        SportCardView(sport: sport) {
+                            selectedSport = sport
                         }
-                        .padding(.horizontal, Theme.padding)
-                        .padding(.vertical, 16)
                     }
                 }
+                .padding(Theme.lg)
             }
-            .navigationTitle(NSLocalizedString("scoreboard_title", comment: "Scoreboard title"))
+            .background(Theme.backgroundColor)
+            .navigationTitle(NSLocalizedString("scoreboard_title", comment: "Scoreboard"))
             .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(.dark)
             .navigationDestination(item: $selectedSport) { sport in
-                sport.view
-                    .toolbar(.hidden, for: .tabBar)
+                sport.view.toolbar(.hidden, for: .tabBar)
             }
             .task(id: selectedGame) {
                 if let game = selectedGame {
@@ -49,14 +41,9 @@ struct ScoreboardTab: View {
                 }
             }
             .onChange(of: selectedSport) { sport in
-                if sport == nil {
-                    onDismiss()
-                }
+                if sport == nil { onDismiss() }
             }
             .onAppear {
-                // Reset orientation to portrait when ScoreboardTab appears
-                // This ensures that when navigating back from a scoreboard view
-                // accessed from the Scoreboard tab, the orientation returns to portrait
                 OrientationLock.shared.unlock()
             }
         }

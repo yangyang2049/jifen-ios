@@ -22,109 +22,106 @@ struct QuickStartEditView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) { // Column()
-            ScrollView(.vertical, showsIndicators: false) { // Scroll()
-                VStack(spacing: Theme.md) { // Column({ space: 16 })
-                    // Primary Selection
-                    VStack(alignment: .leading, spacing: Theme.sm) { // Column({ space: 8 })
-                        HStack(spacing: Theme.sm) { // Row({ space: 8 })
-                            Text("1")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(Theme.textOnPrimary)
-                                .frame(width: 20, height: 20)
-                                .background(Theme.homePrimaryCardOrange)
-                                .cornerRadius(10)
-                            
-                            Text(NSLocalizedString("home_edit_primary_card", comment: "Customize primary card title"))
-                                .font(.system(size: Theme.fontBody1, weight: .medium))
-                                .foregroundColor(isDarkTheme ? Theme.textPrimary : .black)
-                            
-                            Spacer() // layoutWeight(1)
-                        }
-                        .frame(maxWidth: .infinity) // width('100%')
-                        .padding(.vertical, Theme.sm) // padding({ top: 8, bottom: 8 })
+        NavigationView {
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: Theme.md) {
+                        // Primary Selection
+                        VStack(alignment: .leading, spacing: Theme.sm) {
+                            HStack(spacing: Theme.sm) {
+                                Text("1")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(Theme.textOnPrimary)
+                                    .frame(width: 20, height: 20)
+                                    .background(Theme.homePrimaryCardOrange)
+                                    .cornerRadius(10)
 
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) { // Grid()
-                            ForEach(availableSports, id: \.self) { sport in
-                                SportOptionView(
-                                    sport: sport,
-                                    isSelected: selectedPrimary == sport,
-                                    isDarkTheme: isDarkTheme,
-                                    onClickOption: {
-                                        selectedPrimary = sport
-                                    }
-                                )
+                                Text(NSLocalizedString("home_edit_primary_card", comment: "Customize primary card title"))
+                                    .font(.system(size: Theme.fontBody1, weight: .medium))
+                                    .foregroundColor(Theme.textPrimary)
+
+                                Spacer()
+                            }
+                            .padding(.vertical, Theme.sm)
+
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) {
+                                ForEach(availableSports, id: \.self) { sport in
+                                    SportOptionView(
+                                        sport: sport,
+                                        isSelected: selectedPrimary == sport,
+                                        isDarkTheme: isDarkTheme,
+                                        onClickOption: {
+                                            selectedPrimary = sport
+                                        }
+                                    )
+                                }
                             }
                         }
-                        // .rowsGap(8) .columnsGap(8) handled by LazyVGrid spacing
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading) // alignItems(HorizontalAlign.Start)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // Secondary Selection
-                    VStack(alignment: .leading, spacing: Theme.sm) { // Column({ space: 8 })
-                        HStack(spacing: Theme.sm) { // Row({ space: 8 })
-                            Text("2")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(Theme.textOnPrimary)
-                                .frame(width: 20, height: 20)
-                                .background(Theme.homeSecondaryCardBlue)
-                                .cornerRadius(10)
-                            
-                            Text(NSLocalizedString("home_edit_secondary_card", comment: "Customize secondary card title"))
-                                .font(.system(size: Theme.fontBody1, weight: .medium))
-                                .foregroundColor(isDarkTheme ? Theme.textPrimary : .black)
-                            
-                            Spacer() // layoutWeight(1)
-                        }
-                        .frame(maxWidth: .infinity) // width('100%')
-                        .padding(.vertical, Theme.sm) // padding({ top: 8, bottom: 8 })
+                        // Secondary Selection
+                        VStack(alignment: .leading, spacing: Theme.sm) {
+                            HStack(spacing: Theme.sm) {
+                                Text("2")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(Theme.textOnPrimary)
+                                    .frame(width: 20, height: 20)
+                                    .background(Theme.homeSecondaryCardBlue)
+                                    .cornerRadius(10)
 
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) { // Grid()
-                            ForEach(availableSports, id: \.self) { sport in
-                                SportOptionView(
-                                    sport: sport,
-                                    isSelected: selectedSecondary == sport,
-                                    isDarkTheme: isDarkTheme,
-                                    onClickOption: {
-                                        selectedSecondary = sport
-                                    }
-                                )
+                                Text(NSLocalizedString("home_edit_secondary_card", comment: "Customize secondary card title"))
+                                    .font(.system(size: Theme.fontBody1, weight: .medium))
+                                    .foregroundColor(Theme.textPrimary)
+
+                                Spacer()
+                            }
+                            .padding(.vertical, Theme.sm)
+
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) {
+                                ForEach(availableSports, id: \.self) { sport in
+                                    SportOptionView(
+                                        sport: sport,
+                                        isSelected: selectedSecondary == sport,
+                                        isDarkTheme: isDarkTheme,
+                                        onClickOption: {
+                                            selectedSecondary = sport
+                                        }
+                                    )
+                                }
                             }
                         }
-                        // .rowsGap(8) .columnsGap(8) handled by LazyVGrid spacing
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // Save Button
+                        Button(action: {
+                            onSave?(selectedPrimary, selectedSecondary)
+                            dismiss()
+                        }) {
+                            Text("保存")
+                                .font(.system(size: Theme.fontBody1, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(Theme.homeEditButtonGreen)
+                                .cornerRadius(.infinity)
+                        }
+                        .padding(.top, Theme.sm)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading) // alignItems(HorizontalAlign.Start)
-                }
-                .padding(.horizontal, Theme.lg) // padding({ left: 24, right: 24
-                .padding(.vertical, Theme.md) // top: 16, bottom: 16
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // layoutWeight(1)
-            // .scrollBar(BarState.Auto) -> SwiftUI ScrollView shows indicators by default
-            
-            // Footer Button
-            VStack(spacing: 0) { // Column()
-                Button(action: {
-                    onSave?(selectedPrimary, selectedSecondary)
-                    dismiss() // Dismiss the sheet after saving
-                }) {
-                    Text("保存")
-                        .font(.system(size: Theme.fontBody1, weight: .bold)) // fontSize(18), fontWeight(FontWeight.Bold)
-                        .foregroundColor(.white) // Colors.black
-                        .frame(maxWidth: .infinity) // width('100%')
-                        .frame(height: 56) // height(56)
-                        .background(Theme.homeEditButtonGreen) // backgroundColor(Colors.homeEditButtonGreen)
-                        .cornerRadius(.infinity) // type(ButtonType.Capsule)
+                    .padding(.horizontal, Theme.lg)
+                    .padding(.vertical, Theme.md)
                 }
             }
-            .padding(Theme.lg) // padding(24)
-            .background(isDarkTheme ? Theme.homeCardDark : Theme.homeCardLight) // backgroundColor
-            .overlay( // border
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundColor(isDarkTheme ? Theme.homeOverlayBorder : Theme.homeDividerLight),
-                alignment: .top
-            )
+            .navigationTitle(NSLocalizedString("home_quick_start", comment: "Quick Start"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(Theme.textPrimary)
+                    }
+                }
+            }
         }
-        .background(isDarkTheme ? Theme.homeCardDark : Theme.homeCardLight) // width('100%'), backgroundColor
+        .presentationDetents([.large])
     }
 }

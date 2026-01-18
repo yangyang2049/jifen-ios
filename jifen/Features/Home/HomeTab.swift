@@ -2,205 +2,88 @@
 //  HomeTab.swift
 //  jifen
 //
-//  Home tab with new layout from HarmonyOS
+//  Simplified home tab - clean and focused
 //
 
 import SwiftUI
-import UIKit // For UIDevice and UIApplication
-
+import Combine
 
 struct HomeTab: View {
-    // MARK: - State & Callbacks
-    var onNavigateToTab: ((Int, GameType?) -> Void)? = nil // Equivalent to onNavigateToTab?: (index: number) => void;
-    var onOpenTool: ((ToolItem) -> Void)? = nil // Now accepts ToolItem directly
-    // onViewAllActivities and onActivitySelected handled within RecentRecordsSectionView
+    var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
-    // Device & Layout State
-    @State private var isWide: Bool = false
-    @State private var isDarkTheme: Bool = true // Use black UI theme
-
-    // Data State (These will hold combined records from Scoreboard and Timer)
     @State private var recentActivities: [RecentActivity] = []
-    
-    // Quick Start Config
-    // @State private var quickStartConfig: QuickStartConfig = .defaultPhoneConfig // Removed, now observed via manager
-
-    // Dialog & Sheet Presentation States
-    @State private var showQuickStartEditSheet: Bool = false
-    @State private var showNewGameDialog: Bool = false
-    @State private var showSportsSetupSheet: Bool = false // For SportsSetupDialogView
-    @State private var setupGameType: GameType? = nil // To pass to setup dialogs
-    @State private var showTimerSettingsSheet: Bool = false
-    @State private var selectedTimerGameType: GameType? = nil
-    @State private var showSettingsSheet: Bool = false
-    @State private var toastMessage: String? = nil
-
-    // Managers/ViewModels
-    @StateObject private var scoreboardRecordsViewModel = ScoreboardRecordsViewModel.shared // Existing
-    // @StateObject private var recordsViewModel = RecordsViewModel.getInstance() // Need to create GameRecordsViewModel
-    @StateObject private var quickStartConfigManager = QuickStartConfigManager.shared // New
-    @State private var scoreboardRecordsListenerId: UUID? = nil
-
-    // --- State for Timer Settings Sheets (if implemented) ---
-    // @State private var goSettings: GoTimerSettings? = nil
-    // @State private var xiangqiSettings: XiangqiTimerSettings? = nil
-    // @State private var chessSettings: ChessTimerSettings? = nil
-
-    // Date State
-    @State private var headerDate: String = ""
-
-    // Debounce (not directly translated to UI, but for data refresh)
-    @State private var lastRefreshTime: Date = Date()
-    private let refreshDebounceTime: TimeInterval = 1.0 // 1000ms
-
-    // NavigationPath for programmatic navigation
+    @State private var showNewGameDialog = false
+    @State private var showQuickStartEditSheet = false
+    @State private var showSettingsSheet = false
     @State private var path = NavigationPath()
 
-    // Navigation destinations
+    @State private var headerDate = ""
+    @StateObject private var quickStartManager = QuickStartConfigManager.shared
+    @ObservedObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
+
     enum NavigationDestination: Hashable {
         case tool(ToolItem)
     }
 
-    // MARK: - Body
     var body: some View {
-        NavigationStack(path: $path) { // Changed NavigationView to NavigationStack
-            ScrollView(.vertical, showsIndicators: false) { // Scroll()
-                VStack(spacing: 0) { // Changed from spacing: 0
-                    // 1. Header
+        NavigationStack(path: $path) {
+            ScrollView {
+                VStack(spacing: Theme.lg) {
                     buildHeader()
-
-                    if isWide {
-                        buildDesktopLayout()
-                    } else {
-                        buildMobileLayout()
-                        
-                        VStack(alignment: .leading, spacing: Theme.md) {
-                            Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
-                                .font(.system(size: Theme.fontH5, weight: .medium))
-                                .foregroundColor(Theme.textPrimary)
-                                .padding(.horizontal, Theme.lg)
-                            
-                            RecentRecordsSectionView(
-                                records: recentActivities,
-                                isDarkTheme: isDarkTheme
-                            )
-                            .padding(.horizontal, Theme.lg)
-                        }
-                        .padding(.top, Theme.lg) // Added top padding
-                        // Removed .padding(.top, Theme.lg) from Recent Records section
-                    }
+                    buildContent()
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Theme.lg)
             }
-            .background(isDarkTheme ? Theme.backgroundColor : Theme.homeBackgroundLight) // backgroundColor
-            .navigationBarHidden(true) // Hide default navigation bar
-
-            // Sheets and Dialogs
+            .background(Theme.backgroundColor)
+            .navigationBarHidden(true)
             .sheet(isPresented: $showQuickStartEditSheet) {
                 QuickStartEditView(
-                    isDarkTheme: isDarkTheme,
-                    initialPrimary: quickStartConfigManager.quickStartConfig.primarySport,
-                    initialSecondary: quickStartConfigManager.quickStartConfig.secondarySport,
+                    isDarkTheme: true,
+                    initialPrimary: quickStartManager.quickStartConfig.primarySport,
+                    initialSecondary: quickStartManager.quickStartConfig.secondarySport,
                     onSave: { primary, secondary in
-                        Task { // Use Task for async operation
-                            do {
-                                try await quickStartConfigManager.setPrimarySport(primary)
-                                try await quickStartConfigManager.setSecondarySport(secondary)
-                            } catch {
-                                print("Error saving quick start config: \(error)")
-                            }
+                        Task {
+                            try? await quickStartManager.setPrimarySport(primary)
+                            try? await quickStartManager.setSecondarySport(secondary)
                         }
                     }
                 )
             }
             .sheet(isPresented: $showNewGameDialog) {
                 NewGameDialogView(
-                    onSelect: { activityType, sourcePage, gameType in
-                        handleNewGameSelection(type: activityType, sourcePage: sourcePage, gameType: gameType)
-                    },
-                    onTimerGameSelected: { gameType in
-                        selectedTimerGameType = gameType
-                        showTimerSettingsSheet = true
+                    onSelect: { type, source, gameType in
+                        if type == .scoreboard {
+                            onNavigateToTab?(1, gameType)
+                        }
                     }
                 )
-            }
-            .sheet(isPresented: $showSportsSetupSheet) {
-                SportsSetupDialogView(
-                    gameType: setupGameType ?? .football, // Default if not set
-                    defaultTeam1Name: NSLocalizedString("red_team", comment: "Default Team 1 Name"), // Provide default name
-                    defaultTeam2Name: NSLocalizedString("blue_team", comment: "Default Team 2 Name"), // Provide default name
-                    // initialMaxSets, initialPointsPerSet, initialTieBreakPoints can be passed if needed
-                    onConfirm: { config in
-                        navigateToSportsWithConfig(gameType: setupGameType ?? .football, config: config)
-                    },
-                    onCancel: {
-                        showSportsSetupSheet = false
-                    }
-                )
-            }
-            .sheet(isPresented: $showTimerSettingsSheet) {
-                buildTimerSettingsSheetContent()
             }
             .sheet(isPresented: $showSettingsSheet) {
                 SettingsView()
             }
-
-            // Navigation destinations for tools
             .navigationDestination(for: NavigationDestination.self) { destination in
                 switch destination {
-                case .tool(let toolItem):
-                    toolItem.view
-                        .navigationTitle(toolItem.title)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .background(isDarkTheme ? Theme.backgroundColor : Theme.homeBackgroundLight)
-                        .toolbar(.hidden, for: .tabBar)
+                case .tool(let tool):
+                    tool.view.navigationTitle(tool.title)
                 }
             }
         }
         .onAppear {
-            updateLayoutState()
-            updateHeaderDate()
-            initializeDataManagers()
-            loadQuickStartConfig()
+            loadData()
+            quickStartManager.loadConfig(isLargeScreen: false, is2in1: false)
         }
-        .onDisappear {
-            if let id = scoreboardRecordsListenerId {
-                scoreboardRecordsViewModel.removeListener(id)
-            }
-            // Cleanup listeners if necessary
-            // For SwiftUI @StateObject will handle lifecycle better
+        .onReceive(scoreboardVM.objectWillChange) { _ in
+            updateRecentActivities()
         }
-        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-            updateLayoutState() // Update on orientation change
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-            refreshDataOnVisible() // Refresh data when app becomes active
-        }
-        .overlay(
-            toastMessage.map { message in
-                VStack {
-                    Spacer()
-                    Text(message)
-                        .font(.system(size: Theme.fontBody2, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.black.opacity(0.8))
-                        )
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 50)
-                }
-                .transition(.opacity)
-                .animation(.easeInOut, value: message)
-            },
-            alignment: .bottom
-        )
     }
 
     // MARK: - Private Methods
-    
+
+    private func loadData() {
+        updateHeaderDate()
+        updateRecentActivities()
+    }
+
     private func updateHeaderDate() {
         let now = Date()
         let dateFormatter = DateFormatter()
@@ -215,100 +98,21 @@ struct HomeTab: View {
         headerDate = "\(dateFormatter.string(from: now))  \(weekdayFormatter.string(from: now))"
     }
 
-    private func updateLayoutState() {
-        // This is a simplified check. For accurate tablet/2in1 detection,
-        // you might need UIDevice.current.userInterfaceIdiom and screen size.
-        // For now, if width > 768 is a reasonable proxy for 'wide' on iOS.
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            let width = windowScene.interfaceOrientation.isPortrait ? windowScene.screen.bounds.size.width : windowScene.screen.bounds.size.height
-            isWide = width >= 768
-        }
-        // isDarkTheme can be inferred from @Environment(\.colorScheme)
-        isDarkTheme = UITraitCollection.current.userInterfaceStyle == .dark
-    }
-
-    private func initializeDataManagers() {
-        // Initialize recordsViewModel if it was created
-        // timerRecordManager.init(uiContext) // No direct equivalent in SwiftUI view, managers should be initialized elsewhere
-        // scoreboardRecordManager.init(uiContext)
-
-        // For now, just register listeners and load initial data
-        scoreboardRecordsListenerId = scoreboardRecordsViewModel.addListener {
-            updateRecentActivities()
-        }
-        // If GameRecordsViewModel exists
-        // recordsViewModel.addListener {
-        //    updateRecentActivities()
-        // }
-        // recordsViewModel.loadRecordsInBackground()
-
-        updateRecentActivities()
-    }
-
-    private func loadQuickStartConfig() {
-        quickStartConfigManager.loadConfig(isLargeScreen: isWide, is2in1: false) // is2in1 is not directly mapped
-    }
-
     private func updateRecentActivities() {
-        let currentScoreboardRecords = scoreboardRecordsViewModel.getRecords()
-        // If GameRecordsViewModel exists, combine its records here too
-        // let currentTimerRecords = recordsViewModel.getRecords()
-        
-        var combinedActivities: [RecentActivity] = []
-
-        // Convert ScoreboardRecordSummary to RecentActivity
-        currentScoreboardRecords.forEach { record in
-            combinedActivities.append(RecentActivity(
+        let records = scoreboardVM.getRecords()
+        recentActivities = records.prefix(5).map { record in
+            RecentActivity(
                 id: record.id,
                 activityType: .scoreboard,
                 gameType: record.gameType,
                 timestamp: record.timestamp,
-                title: "\(record.team1Name)\(NSLocalizedString("vs_separator", comment: "VS separator"))\(record.team2Name)",
+                title: "\(record.team1Name) vs \(record.team2Name)",
                 description: "\(record.team1FinalScore) : \(record.team2FinalScore)"
-            ))
-        }
-
-        // TODO: Add timer records when GameRecordsViewModel is implemented
-        // If GameRecordsViewModel implemented, retrieve timer records and convert similarly
-
-
-        // Sort by timestamp desc, take top 5
-        recentActivities = combinedActivities.sorted(by: { $0.timestamp > $1.timestamp }).prefix(5).map { $0 }
-    }
-
-    private func refreshDataOnVisible() {
-        let now = Date()
-        if now.timeIntervalSince(lastRefreshTime) < refreshDebounceTime { return }
-        lastRefreshTime = now
-
-        // Refresh view models
-        scoreboardRecordsViewModel.refreshRecords()
-        // recordsViewModel.refreshRecords() // if exists
-        updateRecentActivities()
-    }
-
-    private func handleNewGameSelection(type: ActivityType, sourcePage: SourcePage, gameType: GameType? = nil) {
-        if type == .scoreboard {
-            onNavigateToTab?(1, gameType)
-        } else if type == .timer {
-            onNavigateToTab?(2, nil)
+            )
         }
     }
-
-    private func navigateToGame(gameType: GameType) {
-        // This will be handled by the NewGameDialogView's internal logic,
-        // which then triggers onSelect or onTimerGameSelected.
-        // This function might not be directly called from HomeTab anymore.
-    }
-
-    private func navigateToSportsWithConfig(gameType: GameType, config: SportsSetupResult) {
-        // TODO: Implement actual navigation to sports scoreboard page
-        print("Navigate to sports: \(gameType.displayName) with config: \(config)")
-        onNavigateToTab?(1, gameType) // Navigate to scoreboard tab
-    }
-    
     // MARK: - @ViewBuilder Layouts
-    
+
     @ViewBuilder
     private func buildHeader() -> some View {
         HStack {
@@ -326,159 +130,55 @@ struct HomeTab: View {
 
             Spacer()
 
-            Button(action: {
-                showSettingsSheet = true
-            }) {
+            Button(action: { showSettingsSheet = true }) {
                 Image(systemName: "gear")
                     .foregroundColor(Theme.textPrimary)
                     .frame(width: 24, height: 24)
             }
             .frame(width: 44, height: 44)
-            .background(Color.clear)
-            .cornerRadius(22)
         }
-        .frame(maxWidth: .infinity) // Explicitly make HStack fill width
-        .padding(.horizontal, Theme.lg)
         .padding(.top, Theme.md)
         .padding(.bottom, Theme.sm)
     }
 
     @ViewBuilder
-    private func buildMobileLayout() -> some View {
+    private func buildContent() -> some View {
         VStack(spacing: Theme.lg) {
-            Group { // Wrap QuickStartGridView
-                QuickStartGridView(
-                    primarySport: quickStartConfigManager.quickStartConfig.primarySport,
-                    secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
-                    isDarkTheme: isDarkTheme,
-                    onPrimaryClick: { gameType in
-                        handleGameItemClick(gameType: gameType)
-                    },
-                    onSecondaryClick: { gameType in
-                        handleGameItemClick(gameType: gameType)
-                    },
-                    onNewGameClick: {
-                        showNewGameDialog = true
-                    },
-                    onEditClick: {
-                        showQuickStartEditSheet = true
+            QuickStartGridView(
+                primarySport: quickStartManager.quickStartConfig.primarySport,
+                secondarySport: quickStartManager.quickStartConfig.secondarySport,
+                isDarkTheme: true,
+                onPrimaryClick: { gameType in
+                    if [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball].contains(gameType) {
+                        onNavigateToTab?(1, gameType)
                     }
-                )
-            } // End Group for QuickStartGridView
+                },
+                onSecondaryClick: { gameType in
+                    if [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball].contains(gameType) {
+                        onNavigateToTab?(1, gameType)
+                    }
+                },
+                onNewGameClick: { showNewGameDialog = true },
+                onEditClick: { showQuickStartEditSheet = true }
+            )
 
-            Group { // Wrap ProToolsSectionView as well
-                ProToolsSectionView(
-                    isWide: false,
-                    isDarkTheme: isDarkTheme,
-                    onToolClick: { toolId in
-                        handleToolClick(toolId: toolId)
+            ProToolsSectionView(
+                isWide: false,
+                isDarkTheme: true,
+                onToolClick: { toolId in
+                    if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
+                        path.append(NavigationDestination.tool(tool))
                     }
-                )
-            } // End Group for ProToolsSectionView
-        }
-        .padding(.horizontal, Theme.lg) // Padding for the whole mobile layout
-    }
-
-    @ViewBuilder
-    private func buildDesktopLayout() -> some View {
-        Grid(horizontalSpacing: Theme.lg, verticalSpacing: 0) { // Using Theme.lg as gutter, no vertical space at row level for main content
-            GridRow {
-                Group { // Wrap the first VStack
-                    VStack(spacing: Theme.lg) {
-                        QuickStartGridView(
-                            primarySport: quickStartConfigManager.quickStartConfig.primarySport,
-                            secondarySport: quickStartConfigManager.quickStartConfig.secondarySport,
-                            isDarkTheme: isDarkTheme,
-                            onPrimaryClick: { gameType in
-                                handleGameItemClick(gameType: gameType)
-                            },
-                            onSecondaryClick: { gameType in
-                                handleGameItemClick(gameType: gameType)
-                            },
-                            onNewGameClick: {
-                                showNewGameDialog = true
-                            },
-                            onEditClick: {
-                                showQuickStartEditSheet = true
-                            }
-                        )
-                        
-                        ProToolsSectionView(
-                            isWide: true,
-                            isDarkTheme: isDarkTheme,
-                            onToolClick: { toolId in
-                                handleToolClick(toolId: toolId)
-                            }
-                        )
-                    }
-                } // End Group
-                .gridCellColumns(7)
-                
-                Group { // Wrap the second VStack
-                    VStack(alignment: .leading, spacing: Theme.md) {
-                        Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
-                            .font(.system(size: Theme.fontH5, weight: .medium))
-                            .foregroundColor(Theme.textPrimary)
-                        
-                            RecentRecordsSectionView(
-                                records: recentActivities,
-                                isDarkTheme: isDarkTheme
-                            )
-                    }
-                } // End Group
-                .gridCellColumns(5)
-                .padding(.leading, Theme.lg)
-                .padding(.top, Theme.lg)
-            }
-        }
-        .padding(.horizontal, Theme.lg)
-    }
-
-    @ViewBuilder
-    private func buildTimerSettingsSheetContent() -> some View {
-        Group { // Wrap content in Group
-            VStack {
-                Text(NSLocalizedString("timer_settings_for", comment: "Timer settings for") + " \(selectedTimerGameType?.displayName ?? NSLocalizedString("unknown", comment: "Unknown"))")
-                Button(NSLocalizedString("start_game", comment: "Start Game")) {
-                    // TODO: Start the timer game
-                    print("Start timer game: \(selectedTimerGameType?.displayName ?? "Unknown")")
-                    showTimerSettingsSheet = false
                 }
-                Button(NSLocalizedString("back_to_new_game", comment: "Back to New Game")) {
-                    showTimerSettingsSheet = false
-                    showNewGameDialog = true // Go back to New Game dialog
-                }
+            )
+
+            VStack(alignment: .leading, spacing: Theme.md) {
+                Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
+                    .font(.system(size: Theme.fontH5, weight: .medium))
+                    .foregroundColor(Theme.textPrimary)
+
+                RecentRecordsSectionView(records: recentActivities, isDarkTheme: true)
             }
-        }
-        .presentationDetents([.medium, .large]) // For iOS 16+ sheets
-    }
-
-    // Helper function to handle game item clicks (from QuickStartGrid or NewGameDialog)
-    private func handleGameItemClick(gameType: GameType) {
-        // Direct navigation for all supported sports
-        let supportedSports: [GameType] = [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball]
-        if supportedSports.contains(gameType) {
-            onNavigateToTab?(1, gameType) // Navigate to scoreboard tab
-            return
-        }
-
-        // Show toast for other sports
-        showToast(message: NSLocalizedString("feature_coming_soon", comment: "Feature coming soon"))
-    }
-
-    private func showToast(message: String) {
-        toastMessage = message
-        // Auto-hide after 2 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            toastMessage = nil
-        }
-    }
-    
-    private func handleToolClick(toolId: String) {
-        if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
-            path.append(NavigationDestination.tool(tool))
-        } else {
-            print("⚠️ Tool not found: \(toolId). Available tools: \(ToolItem.allTools.map { $0.id })")
         }
     }
 }
