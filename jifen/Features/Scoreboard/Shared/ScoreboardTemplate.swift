@@ -245,12 +245,8 @@ struct ScoreboardTemplate: View {
 
                                     // Handle double tap exit
                                     if config.controller.handleExitClick() {
-                                        // Can exit - unlock orientation first
-                                        OrientationLock.shared.unlock()
-                                        // Small delay to ensure orientation change takes effect
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                            onBack()
-                                        }
+                                        // Can exit - unlock is handled by onDisappear
+                                        onBack()
                                     } else {
                                         // Need to tap again - show toast
                                         toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
