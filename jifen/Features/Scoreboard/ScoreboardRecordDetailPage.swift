@@ -147,7 +147,7 @@ struct ScoreboardRecordDetailPage: View {
             .cornerRadius(12)
         }
         .padding()
-        .background(Theme.surface)
+        .background(.ultraThinMaterial)
         .cornerRadius(12)
     }
     
@@ -268,5 +268,3 @@ struct DetailViewNavigationBar<TrailingContent: View>: View {
     // Let's assume we can create one.
     ScoreboardRecordDetailPage(recordId: "dummy-id")
 }
-
-

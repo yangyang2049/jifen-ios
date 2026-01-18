@@ -82,6 +82,42 @@ struct HomeTab: View {
     private func loadData() {
         updateHeaderDate()
         updateRecentActivities()
+
+        // TEMP: Add a test record if no records exist (for testing)
+        if scoreboardVM.getRecords().isEmpty {
+            addTestRecord()
+        }
+    }
+
+    private func addTestRecord() {
+        let testRecord = ScoreboardRecord(
+            id: "test_record_1",
+            gameType: .basketball,
+            startTime: Date().addingTimeInterval(-3600), // 1 hour ago
+            endTime: Date(),
+            duration: 1800, // 30 minutes
+            team1Name: "Team A",
+            team2Name: "Team B",
+            team1FinalScore: 85,
+            team2FinalScore: 78,
+            team1SetScore: nil,
+            team2SetScore: nil,
+            winner: "left",
+            actions: ["Team A scored", "Team B scored"],
+            totalScoreChanges: 163,
+            extraData: nil
+        )
+
+        do {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(testRecord)
+            print("✅ Added test record for debugging")
+            // Refresh after adding test record
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.updateRecentActivities()
+            }
+        } catch {
+            print("❌ Failed to add test record: \(error)")
+        }
     }
 
     private func updateHeaderDate() {

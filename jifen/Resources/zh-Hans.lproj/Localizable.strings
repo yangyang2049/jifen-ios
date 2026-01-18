@@ -290,3 +290,18 @@
 "feature_coming_soon" = "功能即将上线";
 "language_restart_note" = "语言切换需要重启应用后生效";
 "vs_separator" = " vs ";
+
+/* Record Detail Page */
+"match_detail" = "比赛详情";
+"confirm_delete" = "确认删除";
+"confirm_delete_record_message" = "确定要删除这条比赛记录吗？此操作无法撤销。";
+"share" = "分享";
+"deleting_record" = "正在删除记录...";
+"record_not_found" = "未找到记录";
+"record_may_deleted" = "记录可能已被删除";
+"record_start_time" = "开始时间";
+"record_end_time" = "结束时间";
+"record_duration" = "持续时间";
+"match_record" = "比赛记录";
+"no_actions_recorded" = "未记录任何操作";
+"date" = "日期";

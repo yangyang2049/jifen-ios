@@ -6,4 +6,4 @@
 */
 
 "NSPhotoLibraryAddUsageDescription" = "我们需要访问您的相册以保存计分板截图。";
-
+"CFBundleDisplayName" = "全能计分器";
