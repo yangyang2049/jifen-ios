@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WatchRandomNumberView: View {
     @State private var fingerScale: CGFloat = 1
+    @State private var tapHintPulse: CGFloat = 1.0
     @State private var randomNumber: Int = 0
     @State private var showNumber: Bool = false
     @State private var numberScale: CGFloat = 0
@@ -24,7 +25,7 @@ struct WatchRandomNumberView: View {
                 if !showNumber {
                     Text("👆")
                         .font(.system(size: 40))
-                        .scaleEffect(fingerScale)
+                        .scaleEffect(fingerScale * tapHintPulse)
                 } else {
                     Text("\(randomNumber)")
                         .font(.system(size: 84, weight: .bold))
@@ -46,6 +47,23 @@ struct WatchRandomNumberView: View {
         .onTapGesture {
             guard !showHistoryOverlay else { return }
             generateNumber()
+        }
+        .onAppear {
+            startTapHintPulse()
+        }
+        .onChange(of: showNumber) { _, isShowingNumber in
+            if !isShowingNumber {
+                startTapHintPulse()
+            } else {
+                tapHintPulse = 1.0
+            }
+        }
+    }
+
+    private func startTapHintPulse() {
+        tapHintPulse = 1.0
+        withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) {
+            tapHintPulse = 1.15
         }
     }
 

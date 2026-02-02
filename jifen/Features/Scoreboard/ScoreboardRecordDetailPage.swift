@@ -394,8 +394,12 @@ struct ScoreboardRecordDetailPage: View {
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
+        let calendar = Calendar.current
+        if calendar.isDate(date, equalTo: Date(), toGranularity: .year) {
+            formatter.dateFormat = "MM-dd"
+        } else {
+            formatter.dateFormat = "yyyy-MM-dd"
+        }
         return formatter.string(from: date)
     }
     

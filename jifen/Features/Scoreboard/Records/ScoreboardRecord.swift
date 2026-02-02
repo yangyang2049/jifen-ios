@@ -69,9 +69,14 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
         self.gameType = record.gameType
         self.timestamp = record.startTime.timeIntervalSince1970
         
-        // Format date
+        // Format date（同年不显示年份，与 Watch、鸿蒙一致）
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let calendar = Calendar.current
+        if calendar.isDate(record.startTime, equalTo: Date(), toGranularity: .year) {
+            dateFormatter.dateFormat = "MM-dd"
+        } else {
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+        }
         self.date = dateFormatter.string(from: record.startTime)
         
         // Format time

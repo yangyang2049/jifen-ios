@@ -46,17 +46,18 @@ struct PingPongScoreboardView: View {
             }
             
             if showRestOverlay {
-                RestCountdownOverlay(message: restMessage, remainingSeconds: restRemaining) {
-                    // Close button - skip to next set
+                RestCountdownOverlay(message: restMessage, remainingSeconds: restRemaining, onClose: {
                     restTimer?.invalidate()
                     restTimer = nil
                     showRestOverlay = false
-                    // Trigger the completion callback immediately
-                    startRestCountdown(seconds: 0, message: restMessage) {
-                        // Skip side change check for close button - just continue
-                        isSetTransitioning = false
-                    }
-                }
+                    startRestCountdown(seconds: 0, message: restMessage) { isSetTransitioning = false }
+                }, onUndo: {
+                    _ = viewModel.undo()
+                    restTimer?.invalidate()
+                    restTimer = nil
+                    showRestOverlay = false
+                    startRestCountdown(seconds: 0, message: restMessage) { isSetTransitioning = false }
+                })
             }
             
             // Toast message

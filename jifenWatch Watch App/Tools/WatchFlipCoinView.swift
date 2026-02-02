@@ -46,33 +46,68 @@ struct WatchFlipCoinView: View {
         }
     }
 
+    // MARK: - Coin dimensions (proportional to HarmonyOS: 144/132/124)
+    private let coinSize: CGFloat = 120
+    private let coinMiddle: CGFloat = 110
+    private let coinInner: CGFloat = 104
+
     private var coinView: some View {
         ZStack {
+            // Outer ring - base gold with subtle radial gradient for metallic look
             Circle()
                 .fill(
+                    RadialGradient(
+                        colors: [
+                            Color(hex: 0xE8C84A),  // lighter center highlight
+                            Color(hex: 0xD4AF37),  // standard gold
+                            Color(hex: 0xB8962E)   // darker edge
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: coinSize / 2
+                    )
+                )
+                .frame(width: coinSize, height: coinSize)
+                .shadow(color: Color.black.opacity(0.5), radius: 16, x: 0, y: 10)
+
+            // Middle ring - darker gold, gives depth
+            Circle()
+                .fill(Color(hex: 0xC5A03C))
+                .frame(width: coinMiddle, height: coinMiddle)
+
+            // Inner face - bright gold surface
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color(hex: 0xF0D060),  // bright highlight
+                            Color(hex: 0xE5C158)   // standard inner gold
+                        ],
+                        center: UnitPoint(x: 0.35, y: 0.35),
+                        startRadius: 0,
+                        endRadius: coinInner / 2
+                    )
+                )
+                .frame(width: coinInner, height: coinInner)
+
+            // Coin face content (text)
+            coinFaceContent
+
+            // Subtle rim highlight
+            Circle()
+                .strokeBorder(
                     LinearGradient(
                         colors: [
-                            Color(hex: 0xD4AF37),
-                            Color(hex: 0xC5A03C),
-                            Color(hex: 0xE5C158)
+                            Color.white.opacity(0.4),
+                            Color.clear,
+                            Color.black.opacity(0.2)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
-                    )
+                    ),
+                    lineWidth: 2
                 )
-                .frame(width: 140, height: 140)
-                .shadow(color: Color.black.opacity(0.5), radius: 12, x: 0, y: 8)
-                .overlay(
-                    Circle()
-                        .fill(Color(hex: 0xC5A03C))
-                        .frame(width: 128, height: 128)
-                        .overlay(
-                            Circle()
-                                .fill(Color(hex: 0xE5C158))
-                                .frame(width: 120, height: 120)
-                                .overlay(coinFaceContent)
-                        )
-                )
+                .frame(width: coinSize - 2, height: coinSize - 2)
         }
         .rotation3DEffect(
             .degrees(rotationAngle),
@@ -90,14 +125,18 @@ struct WatchFlipCoinView: View {
         let isShowingTails = normalizedAngle > 90 && normalizedAngle < 270
 
         if isShowingTails {
+            // Tails: flower symbol
             Text("❀")
-                .font(.system(size: 60))
+                .font(.system(size: 52))
                 .foregroundColor(Color(hex: 0x8B6914))
+                .shadow(color: Color(hex: 0x6B5210).opacity(0.3), radius: 1, x: 1, y: 1)
                 .rotationEffect(.degrees(180))
         } else {
+            // Heads: lucky number
             Text("666")
-                .font(.system(size: 44, weight: .bold))
+                .font(.system(size: 38, weight: .bold, design: .rounded))
                 .foregroundColor(Color(hex: 0x8B6914))
+                .shadow(color: Color(hex: 0x6B5210).opacity(0.3), radius: 1, x: 1, y: 1)
         }
     }
 
@@ -107,25 +146,29 @@ struct WatchFlipCoinView: View {
         showHint = false
         flipTimer?.invalidate()
         flipTimer = nil
-        WatchSoundManager.shared.playSound(named: "flip_coin")
-        WatchHaptics.shared.play(.medium)
+        WatchSoundManager.shared.playSound(named: "flip_coin", fileExtension: "mp3", fallbackToSystemClick: false)
+        // No haptic here so only flip_coin.mp3 plays (no system tap/click sound)
 
         let finalSide: CoinSide = Bool.random() ? .heads : .tails
         let totalDuration = WatchAnimations.coinFlip
-        let baseRotations = 4.0
-        let extraRotation = Double.random(in: 0...1)
 
+        // Use integer rotations so coin lands flat (0° or 180°)
+        let rotationCount = Int.random(in: 4...6)
+        let finalAngle: Double = finalSide == .heads
+            ? Double(rotationCount) * 360.0        // lands at 0° (heads facing up)
+            : Double(rotationCount) * 360.0 + 180.0 // lands at 180° (tails facing up)
+
+        // Calculate target from current angle, ensuring we always rotate forward
         let startAngle = rotationAngle
-        let normalizedStart = (startAngle.truncatingRemainder(dividingBy: 360) + 360)
-            .truncatingRemainder(dividingBy: 360)
-        let fullRotations = baseRotations + extraRotation
-        let finalAngle = finalSide == .heads ? fullRotations * 360 : fullRotations * 360 + 180
-
-        var targetAngle = finalAngle - normalizedStart
-        while targetAngle < fullRotations * 360 {
-            targetAngle += 360
+        var targetAngle = finalAngle
+        while targetAngle <= startAngle {
+            targetAngle += 360.0
         }
-        targetAngle = normalizedStart + targetAngle
+        // Ensure minimum rotation for visual effect
+        let minRotation = Double(rotationCount) * 360.0
+        while (targetAngle - startAngle) < minRotation {
+            targetAngle += 360.0
+        }
 
         let startTime = Date()
         let maxHeight: CGFloat = -160
@@ -135,7 +178,7 @@ struct WatchFlipCoinView: View {
             let progress = min(elapsed / totalDuration, 1.0)
             let easeProgress = 1.0 - pow(1.0 - progress, 3)
 
-            rotationAngle = normalizedStart + (targetAngle - normalizedStart) * easeProgress
+            rotationAngle = startAngle + (targetAngle - startAngle) * easeProgress
             coinPositionY = -4 * maxHeight * CGFloat(progress) * CGFloat(progress - 1)
             coinScale = 1.0 + 0.25 * sin(progress * .pi)
 
@@ -144,13 +187,8 @@ struct WatchFlipCoinView: View {
                 flipTimer = nil
                 isFlipping = false
 
-                let fullTurns = round(targetAngle / 360)
-                if finalSide == .heads {
-                    rotationAngle = fullTurns * 360
-                } else {
-                    rotationAngle = fullTurns * 360 + 180
-                }
-
+                // Use exact target angle so the face doesn't snap; matches last frame of animation
+                rotationAngle = targetAngle
                 coinPositionY = 0
                 coinScale = 1.0
                 currentSide = finalSide

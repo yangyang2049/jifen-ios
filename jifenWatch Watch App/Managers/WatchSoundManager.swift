@@ -8,7 +8,7 @@ final class WatchSoundManager {
 
     private init() {}
 
-    func playSound(named name: String, fileExtension: String = "wav") {
+    func playSound(named name: String, fileExtension: String = "wav", fallbackToSystemClick: Bool = true) {
         guard WatchPreferences.shared.soundEnabled else { return }
 
         if let url = Bundle.main.url(forResource: name, withExtension: fileExtension) {
@@ -16,9 +16,11 @@ final class WatchSoundManager {
                 player = try AVAudioPlayer(contentsOf: url)
                 player?.play()
             } catch {
-                WKInterfaceDevice.current().play(.click)
+                if fallbackToSystemClick {
+                    WKInterfaceDevice.current().play(.click)
+                }
             }
-        } else {
+        } else if fallbackToSystemClick {
             WKInterfaceDevice.current().play(.click)
         }
     }

@@ -35,6 +35,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
 
     @State private var restTimer: Timer? = nil
     @State private var undoHideTimer: Timer? = nil
+    @State private var showDecidingSetSwapOverlay = false
 
     @State private var toastMessage: String? = nil
 
@@ -62,6 +63,10 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
 
             if isResting {
                 restOverlay
+            }
+
+            if showDecidingSetSwapOverlay {
+                decidingSetSwapOverlay
             }
             
             if isTiebreak && !isStopped && !isResting && !showMenu {
@@ -196,12 +201,21 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                     Text(isFinished ? "比赛结束" : "比赛暂停")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
+                    if isFinished, let w = winner {
+                        Text(winnerResultText(winnerSide: w))
+                            .font(.system(size: 14))
+                            .foregroundColor(WatchTheme.accent)
+                    }
                 }
 
                 VStack(spacing: 8) {
                     if undoButtonVisible && isFinished {
-                        Button("撤销") {
+                        Button {
                             handleUndoFromOverlay()
+                        } label: {
+                            Text("撤销")
+                                .frame(width: 160, height: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .frame(width: 160, height: 44)
@@ -210,8 +224,12 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                         .cornerRadius(22)
                     }
 
-                    Button("退出") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Text("退出")
+                            .frame(width: 140, height: 44)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .frame(width: 140, height: 44)
@@ -241,9 +259,13 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                     .font(.system(size: 16))
                     .foregroundColor(.white)
 
-                Button("撤销") {
+                Button {
                     undoScore()
                     showMenu = false
+                } label: {
+                    Text("撤销")
+                        .frame(width: 160, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .frame(width: 160, height: 44)
@@ -251,9 +273,13 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                 .foregroundColor(.white)
                 .cornerRadius(22)
 
-                Button(isStopped ? "继续" : "暂停") {
+                Button {
                     handleStopToggle()
                     showMenu = false
+                } label: {
+                    Text(isStopped ? "继续" : "暂停")
+                        .frame(width: 160, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .frame(width: 160, height: 44)
@@ -282,8 +308,18 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                     .foregroundColor(WatchTheme.timerAccent)
                     .opacity(restCardOpacity)
 
-                Button(restFinished ? "继续比赛" : "关闭") {
+                if restTitle == "局间休息" {
+                    Text("换边")
+                        .font(.system(size: 14))
+                        .foregroundColor(WatchTheme.accent)
+                }
+
+                Button {
                     finishRestAndResume()
+                } label: {
+                    Text(restFinished ? "继续比赛" : "关闭")
+                        .frame(width: 160, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .frame(width: 160, height: 44)
@@ -292,8 +328,12 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                 .cornerRadius(22)
 
                 if undoButtonVisible {
-                    Button("撤销") {
+                    Button {
                         handleUndoFromOverlay()
+                    } label: {
+                        Text("撤销")
+                            .frame(width: 160, height: 44)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .frame(width: 160, height: 44)
@@ -304,6 +344,37 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
             }
             .padding(.vertical, 20)
             .padding(.horizontal, 20)
+            .background(Color.black.opacity(0.65))
+            .cornerRadius(18)
+        }
+    }
+
+    /// 羽毛球等有局中休息的项目：决胜局换边用 overlay
+    private var decidingSetSwapOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                Text("决胜局换边")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color.white.opacity(0.85))
+
+                Button {
+                    showDecidingSetSwapOverlay = false
+                } label: {
+                    Text("关闭")
+                        .frame(width: 160, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .frame(width: 160, height: 44)
+                .background(WatchTheme.card)
+                .foregroundColor(.white)
+                .cornerRadius(22)
+            }
+            .padding(.vertical, 24)
+            .padding(.horizontal, 24)
             .background(Color.black.opacity(0.65))
             .cornerRadius(18)
         }
@@ -320,8 +391,9 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                 .background(Color(hex: 0x4CAF50).opacity(0.65))
                 .cornerRadius(18)
                 .opacity(swapChipOpacity)
-                .padding(.bottom, 16)
+            Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func addPoint(isRed: Bool) {
@@ -350,6 +422,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         if let mid = rules.midGameRestAt, !midGameRestTaken {
             if redScore == mid || blueScore == mid {
                 midGameRestTaken = true
+                showUndoButton()
                 startRest(title: "局中休息", seconds: rules.restBetweenSets, allowAutoFinish: false)
             }
         }
@@ -365,7 +438,11 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
             let isDecidingSet = (redSets + blueSets + 1) == rules.maxSets
             if isDecidingSet && !decidingSetSwapDone && (redScore == swapAt || blueScore == swapAt) {
                 decidingSetSwapDone = true
-                showSwapReminder("决胜局换边")
+                if rules.midGameRestAt != nil {
+                    showDecidingSetSwapOverlay = true
+                } else {
+                    showSwapReminder("决胜局换边")
+                }
             }
         }
     }
@@ -448,6 +525,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         restFinished = false
         restCardOpacity = 1
         isResting = true
+        undoHideTimer?.invalidate() // keep undo visible on rest overlay
 
         restTimer?.invalidate()
         restTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
@@ -496,7 +574,6 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         currentSetStartTime = Date()
 
         showToast("第\(redSets + blueSets + 1)局开始")
-        showSwapReminder("换边")
     }
 
     private func showSwapReminder(_ text: String) {
@@ -628,6 +705,12 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
     private func handleUndoFromOverlay() {
         undoScore()
         undoButtonVisible = false
+    }
+
+    /// 比赛结束弹窗：若有胜方则显示一行结果，如「红方 2-1 获胜」
+    private func winnerResultText(winnerSide: String) -> String {
+        let name = winnerSide == "red" ? "红方" : "蓝方"
+        return String(format: NSLocalizedString("winner_result_format", comment: "Winner result"), name, redSets, blueSets)
     }
 
     private func showToast(_ text: String) {

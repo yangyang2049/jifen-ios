@@ -12,6 +12,8 @@ struct RestCountdownOverlay: View {
     let message: String
     let remainingSeconds: Int
     var onClose: (() -> Void)? = nil
+    /// 撤销回调；非空时显示「撤销」按钮（局间休息/局中休息等与 Watch、鸿蒙一致）
+    var onUndo: (() -> Void)? = nil
 
     var body: some View {
         ZStack {
@@ -22,9 +24,7 @@ struct RestCountdownOverlay: View {
                 // Close button
                 HStack {
                     Spacer()
-                    Button(action: {
-                        onClose?()
-                    }) {
+                    Button(action: { onClose?() }) {
                         ZStack {
                             Circle()
                                 .fill(.ultraThinMaterial)
@@ -45,6 +45,18 @@ struct RestCountdownOverlay: View {
                 Text(formatTime(remainingSeconds))
                     .font(.system(size: 48, weight: .bold, design: .monospaced))
                     .foregroundColor(Color(hex: "39FF14"))
+
+                if let onUndo = onUndo {
+                    Button(action: onUndo) {
+                        Text("撤销")
+                            .frame(width: 160, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .background(Color.white.opacity(0.2))
+                    .foregroundColor(.white)
+                    .cornerRadius(22)
+                }
             }
             .padding(.horizontal, 32)
             .padding(.vertical, 24)

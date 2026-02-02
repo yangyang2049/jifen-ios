@@ -12,8 +12,11 @@ struct WatchTabView: View {
             WatchHomeTabView(scoreboardRoute: $scoreboardRoute)
                 .tag(1)
 
-            WatchSettingsView()
+            WatchRecordListView()
                 .tag(2)
+
+            WatchSettingsView()
+                .tag(3)
         }
         .tabViewStyle(.page(indexDisplayMode: .automatic))
     }

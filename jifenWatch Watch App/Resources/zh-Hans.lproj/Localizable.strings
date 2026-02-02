@@ -1,0 +1,71 @@
+/* Watch App - 简体中文 */
+
+/* Tab Bar */
+"tab_score" = "计分";
+"tab_tools" = "工具";
+
+/* Game Types */
+"game_badminton" = "羽毛球";
+"game_pingpong" = "乒乓球";
+"game_tennis" = "网球";
+
+/* Tools */
+"tool_flip_coin" = "抛硬币";
+"tool_random_number" = "随机数字";
+"tool_ten_second" = "十秒挑战";
+
+/* Records */
+"records" = "记录";
+"loading" = "加载中";
+"no_records" = "暂无记录";
+"record_not_found" = "未找到记录";
+"match_details" = "比赛详情";
+"match_record" = "比赛记录";
+"delete_record" = "删除记录";
+"confirm_deletion" = "确认删除";
+"cannot_be_recovered_after_deletion" = "删除后无法恢复。";
+"wins_suffix" = " 获胜";
+"winner_result_format" = "%@ %d-%d 获胜";
+"date" = "日期";
+"time" = "时间";
+"duration" = "时长";
+
+/* Common */
+"cancel" = "取消";
+"confirm" = "确定";
+"delete" = "删除";
+"setup" = "设置";
+"vibration" = "振动";
+"sound" = "声音";
+
+/* Ping Pong / Tennis Sets */
+"pingpong_sets" = "乒乓球局数";
+"tennis_sets" = "网球盘数";
+"best_of_3_sets" = "3局2胜";
+"best_of_5_sets" = "5局3胜";
+"best_of_7_sets" = "7局4胜";
+"sets_1" = "1盘";
+"sets_3_best_of_2" = "3盘2胜";
+"sets_5_best_of_3" = "5盘3胜";
+
+/* Usage Guide */
+"usage_guide" = "使用说明";
+"usage_prompt_message" = "1. 点击对应半区加分\n2. 下滑撤销\n3. 上滑打开菜单";
+"got_it" = "知道了";
+
+/* Privacy */
+"privacy_policy" = "隐私政策";
+"generating_qr_code" = "正在生成二维码";
+"loading_failed" = "加载失败";
+"scan_to_view_details" = "扫码查看详情";
+
+/* Settings / About */
+"version" = "版本";
+"company_name" = "重庆豆花科技有限公司";
+
+/* Records */
+"clear_all_records" = "清除全部记录";
+"clear_all_records_message" = "将删除所有记录，此操作无法撤销。";
+"minutes_ago" = "%d分钟前";
+"hours_ago" = "%d小时前";
+"days_ago" = "%d天前";

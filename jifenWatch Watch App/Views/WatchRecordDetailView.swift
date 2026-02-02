@@ -88,7 +88,7 @@ struct WatchRecordDetailView: View {
     }
 
     private func scoreRow(_ record: WatchScoreboardRecord) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 0) {
             VStack(spacing: 2) {
                 Text(record.team1Name)
                     .font(.system(size: 11))
@@ -97,6 +97,7 @@ struct WatchRecordDetailView: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(record.winner == record.team1Name ? WatchTheme.accent : WatchTheme.primaryText)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Text("-")
                 .font(.system(size: 18))
@@ -110,6 +111,7 @@ struct WatchRecordDetailView: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(record.winner == record.team2Name ? WatchTheme.accent : WatchTheme.primaryText)
             }
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 
@@ -120,17 +122,26 @@ struct WatchRecordDetailView: View {
                 .foregroundColor(WatchTheme.primaryText)
 
             ForEach(record.actions) { action in
-                VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 8) {
+                    Text(formatRelativeTimestamp(actionTime: action.timestamp, startTime: record.startTime))
+                        .font(.system(size: 10))
+                        .foregroundColor(WatchTheme.secondaryText)
+                        .frame(width: 42, alignment: .leading)
+
                     Text(action.description)
                         .font(.system(size: 12))
-                        .foregroundColor(WatchTheme.primaryText)
+                        .foregroundColor(isSpecialAction(action) ? WatchTheme.accent : WatchTheme.primaryText)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
                     if let scoreText = actionScoreText(action) {
                         Text(scoreText)
                             .font(.system(size: 11))
                             .foregroundColor(WatchTheme.secondaryText)
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
             }
         }
         .padding(10)
@@ -139,19 +150,42 @@ struct WatchRecordDetailView: View {
         .cornerRadius(12)
     }
 
+    /// Relative timestamp from match start (MM:SS or HH:MM:SS), aligned with HarmonyOS WatchRecordDetail formatRelativeTimestamp.
+    private func formatRelativeTimestamp(actionTime: Date, startTime: Date) -> String {
+        let relativeSeconds = Int(actionTime.timeIntervalSince(startTime))
+        let hours = relativeSeconds / 3600
+        let minutes = (relativeSeconds % 3600) / 60
+        let seconds = relativeSeconds % 60
+
+        if hours > 0 {
+            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        }
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private func isSpecialAction(_ action: WatchScoreAction) -> Bool {
+        switch action.actionType {
+        case .setEnd, .gameEnd: return true
+        default: return false
+        }
+    }
+
     private var deleteButton: some View {
-        Button(action: { showDeleteAlert = true }) {
+        Button {
+            showDeleteAlert = true
+        } label: {
             Text(NSLocalizedString("delete_record", comment: "Delete Record"))
                 .font(.system(size: 14))
                 .foregroundColor(WatchTheme.dangerRed)
-                .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(WatchTheme.dangerRed, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
+        .frame(height: 40)
         .padding(.top, 8)
     }
 
@@ -194,7 +228,12 @@ struct WatchRecordDetailView: View {
 
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
+        let calendar = Calendar.current
+        if calendar.isDate(date, equalTo: Date(), toGranularity: .year) {
+            formatter.dateFormat = "MM-dd"
+        } else {
+            formatter.dateFormat = "yyyy-MM-dd"
+        }
         return formatter.string(from: date)
     }
 

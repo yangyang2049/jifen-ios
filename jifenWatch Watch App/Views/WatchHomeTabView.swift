@@ -16,18 +16,13 @@ struct WatchHomeTabView: View {
                     navigateToBadminton()
                 }
 
-                WatchPillButton(icon: "🏓", title: NSLocalizedString("game_pingpong", comment: "Ping Pong")) {
-                    showPingpongPicker = true
-                }
-
                 WatchPillButton(icon: "🎾", title: NSLocalizedString("game_tennis", comment: "Tennis")) {
                     showTennisPicker = true
                 }
 
-                NavigationLink(destination: WatchRecordListView()) {
-                    WatchPillRow(icon: "📝", title: NSLocalizedString("records", comment: "Records"))
+                WatchPillButton(icon: "🏓", title: NSLocalizedString("game_pingpong", comment: "Ping Pong")) {
+                    showPingpongPicker = true
                 }
-                .buttonStyle(.plain)
 
                 WatchPillButton(icon: "ℹ️", title: NSLocalizedString("usage_guide", comment: "Usage Guide")) {
                     showUsagePromptOnce(force: true)
@@ -38,7 +33,7 @@ struct WatchHomeTabView: View {
         }
         .background(WatchTheme.background)
         .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .confirmationDialog(NSLocalizedString("pingpong_sets", comment: "Ping Pong Sets"), isPresented: $showPingpongPicker) {
             Button(NSLocalizedString("best_of_3_sets", comment: "Best of 3")) { pingpongSets = 3; navigateToPingpong() }
             Button(NSLocalizedString("best_of_5_sets", comment: "Best of 5")) { pingpongSets = 5; navigateToPingpong() }

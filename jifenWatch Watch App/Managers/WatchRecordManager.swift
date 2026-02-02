@@ -66,4 +66,15 @@ final class WatchRecordManager {
             return false
         }
     }
+
+    func clearAllRecords() -> Bool {
+        do {
+            let data = try JSONEncoder().encode([WatchScoreboardRecord]())
+            UserDefaults.standard.set(data, forKey: recordsKey)
+            return true
+        } catch {
+            print("[WatchRecordManager] Failed to clear records: \(error)")
+            return false
+        }
+    }
 }

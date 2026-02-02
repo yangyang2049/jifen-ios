@@ -3,6 +3,7 @@ import SwiftUI
 struct WatchTenSecondChallengeView: View {
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0
+    @State private var tapHintPulse: CGFloat = 1.0
     @State private var history: [TimeInterval] = []
     @State private var showHistoryOverlay = false
     @State private var showUsageAlert = false
@@ -16,9 +17,15 @@ struct WatchTenSecondChallengeView: View {
             WatchTheme.background.ignoresSafeArea()
 
             VStack {
-                Text(formatTime(currentTime))
-                    .font(.system(size: 60, weight: .bold, design: .monospaced))
-                    .foregroundColor(WatchTheme.accent)
+                if isRunning {
+                    Text(formatTime(currentTime))
+                        .font(.system(size: 60, weight: .bold, design: .monospaced))
+                        .foregroundColor(WatchTheme.accent)
+                } else {
+                    Text("👆")
+                        .font(.system(size: 40))
+                        .scaleEffect(tapHintPulse)
+                }
             }
 
             if !showHistoryOverlay, !history.isEmpty {
@@ -68,6 +75,16 @@ struct WatchTenSecondChallengeView: View {
                 WatchPreferences.shared.setBool(true, forKey: "watch_ten_second_usage_prompt_shown")
                 usagePromptShown = true
             }
+            if !isRunning {
+                startTapHintPulse()
+            }
+        }
+        .onChange(of: isRunning) { _, running in
+            if !running {
+                startTapHintPulse()
+            } else {
+                tapHintPulse = 1.0
+            }
         }
         .onDisappear {
             timer?.invalidate()
@@ -83,6 +100,13 @@ struct WatchTenSecondChallengeView: View {
 
     private var recentHistory: [TimeInterval] {
         Array(history.suffix(2))
+    }
+
+    private func startTapHintPulse() {
+        tapHintPulse = 1.0
+        withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) {
+            tapHintPulse = 1.15
+        }
     }
 
     private var historyOverlay: some View {

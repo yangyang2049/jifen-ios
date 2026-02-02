@@ -1,0 +1,71 @@
+/* Watch App - English */
+
+/* Tab Bar */
+"tab_score" = "Score";
+"tab_tools" = "Tools";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Ping Pong";
+"game_tennis" = "Tennis";
+
+/* Tools */
+"tool_flip_coin" = "Flip Coin";
+"tool_random_number" = "Random Number";
+"tool_ten_second" = "10s Challenge";
+
+/* Records */
+"records" = "Records";
+"loading" = "Loading";
+"no_records" = "No Records";
+"record_not_found" = "Record not found";
+"match_details" = "Match Details";
+"match_record" = "Match Record";
+"delete_record" = "Delete Record";
+"confirm_deletion" = "Confirm Deletion";
+"cannot_be_recovered_after_deletion" = "Cannot be recovered after deletion.";
+"wins_suffix" = " Wins";
+"winner_result_format" = "%@ %d-%d wins";
+"date" = "Date";
+"time" = "Time";
+"duration" = "Duration";
+
+/* Common */
+"cancel" = "Cancel";
+"confirm" = "Confirm";
+"delete" = "Delete";
+"setup" = "Setup";
+"vibration" = "Vibration";
+"sound" = "Sound";
+
+/* Ping Pong / Tennis Sets */
+"pingpong_sets" = "Ping Pong Sets";
+"tennis_sets" = "Tennis Sets";
+"best_of_3_sets" = "Best of 3";
+"best_of_5_sets" = "Best of 5";
+"best_of_7_sets" = "Best of 7";
+"sets_1" = "1 set";
+"sets_3_best_of_2" = "Best of 3";
+"sets_5_best_of_3" = "Best of 5";
+
+/* Usage Guide */
+"usage_guide" = "Usage Guide";
+"usage_prompt_message" = "1. Tap the corresponding half to add points\n2. Swipe down to undo\n3. Swipe up to open menu";
+"got_it" = "Got it";
+
+/* Privacy */
+"privacy_policy" = "Privacy Policy";
+"generating_qr_code" = "Generating QR code";
+"loading_failed" = "Loading failed";
+"scan_to_view_details" = "Scan to view details";
+
+/* Settings / About */
+"version" = "Version";
+"company_name" = "Chongqing Douhua Technology";
+
+/* Records */
+"clear_all_records" = "Clear All Records";
+"clear_all_records_message" = "All records will be deleted. This cannot be undone.";
+"minutes_ago" = "%d min ago";
+"hours_ago" = "%d hr ago";
+"days_ago" = "%d days ago";
