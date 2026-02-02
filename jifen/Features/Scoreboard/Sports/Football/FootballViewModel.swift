@@ -65,6 +65,13 @@ class FootballViewModel: BaseScoreViewModel {
         return [1] // Football: typically just +1 for goals
     }
 
+    func getWinnerName() -> String {
+        guard gameFinished else { return "" }
+        if leftTeam.score > rightTeam.score { return leftTeam.name }
+        if rightTeam.score > leftTeam.score { return rightTeam.name }
+        return ""
+    }
+
     // MARK: - Real-time Record Saving
 
     func saveGameRecordInRealTime(isGameFinished: Bool = false) {

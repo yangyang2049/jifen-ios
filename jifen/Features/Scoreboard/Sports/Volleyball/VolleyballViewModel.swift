@@ -157,6 +157,13 @@ class VolleyballViewModel: BaseScoreViewModel {
         return [1] // Volleyball: typically just +1 for points
     }
 
+    func getWinnerName() -> String {
+        guard gameFinished else { return "" }
+        if leftSets > rightSets { return leftTeam.name }
+        if rightSets > leftSets { return rightTeam.name }
+        return ""
+    }
+
     // MARK: - Real-time Record Saving
 
     func saveGameRecordInRealTime(isGameFinished: Bool = false) {

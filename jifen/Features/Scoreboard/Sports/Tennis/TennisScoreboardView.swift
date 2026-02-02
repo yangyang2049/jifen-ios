@@ -76,7 +76,7 @@ struct TennisScoreboardView: View {
                     .transition(.opacity.combined(with: .scale))
             }
         }
-        .navigationTitle("网球")
+        .navigationTitle(NSLocalizedString("game_tennis", comment: "Tennis"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)

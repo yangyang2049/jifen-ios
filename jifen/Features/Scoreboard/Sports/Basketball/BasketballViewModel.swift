@@ -129,7 +129,14 @@ class BasketballViewModel: BaseScoreViewModel {
     func getScoringOptions() -> [Int] {
         return [1, 2, 3] // Basketball: free throw (1), 2-pointer (2), 3-pointer (3)
     }
-    
+
+    func getWinnerName() -> String {
+        guard gameFinished else { return "" }
+        if leftTeam.score > rightTeam.score { return leftTeam.name }
+        if rightTeam.score > leftTeam.score { return rightTeam.name }
+        return ""
+    }
+
     // NOTE: These methods are not overriding because the superclass methods are not open.
     // They are shadowing the base implementations to provide custom behavior.
 

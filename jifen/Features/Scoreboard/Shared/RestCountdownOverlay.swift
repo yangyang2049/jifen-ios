@@ -48,7 +48,7 @@ struct RestCountdownOverlay: View {
 
                 if let onUndo = onUndo {
                     Button(action: onUndo) {
-                        Text("撤销")
+                        Text(NSLocalizedString("menu_undo", comment: "Undo"))
                             .frame(width: 160, height: 44)
                             .contentShape(Rectangle())
                     }

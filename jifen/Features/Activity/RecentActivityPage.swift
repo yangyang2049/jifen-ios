@@ -187,9 +187,9 @@ struct RecentActivityPage: View {
     private func deleteRecord(_ item: RecordItem) {
         switch item {
         case .scoreboard(let record):
-            ScoreboardRecordsViewModel.shared.deleteRecord(record.id)
+            _ = ScoreboardRecordsViewModel.shared.deleteRecord(record.id)
         case .timer(let record):
-            TimerRecordsViewModel.shared.deleteRecord(record.id)
+            _ = TimerRecordsViewModel.shared.deleteRecord(record.id)
         }
     }
 

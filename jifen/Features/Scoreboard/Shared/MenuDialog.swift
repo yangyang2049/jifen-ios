@@ -26,7 +26,7 @@ struct MenuDialog: View {
                 VStack(spacing: 0) {
                     // Title bar
                     HStack {
-                        Text("操作")
+                        Text(NSLocalizedString("operations", comment: "Menu title"))
                             .font(.system(size: 20, weight: .medium))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -54,21 +54,21 @@ struct MenuDialog: View {
                     ], spacing: 8) {
                         // Whistle
                         MenuCard(
-                            title: "哨子",
+                            title: NSLocalizedString("menu_whistle", comment: "Whistle"),
                             icon: "bell.fill",
                             action: { onMenuItemClick("whistle") }
                         )
 
                         // Screenshot
                         MenuCard(
-                            title: "截图",
+                            title: NSLocalizedString("menu_screenshot", comment: "Screenshot"),
                             icon: "camera.fill",
                             action: { onMenuItemClick("screenshot") }
                         )
 
                         // Exchange sides
                         MenuCard(
-                            title: "交换边",
+                            title: NSLocalizedString("menu_swap_sides", comment: "Exchange sides"),
                             icon: "arrow.left.arrow.right",
                             keepDialogOpen: true,
                             action: { onMenuItemClick("exchangeSide") }
@@ -76,7 +76,7 @@ struct MenuDialog: View {
 
                         // Reset
                         MenuCard(
-                            title: "重置",
+                            title: NSLocalizedString("menu_reset", comment: "Reset"),
                             icon: "arrow.counterclockwise",
                             keepDialogOpen: true,
                             action: { onMenuItemClick("reset") }
@@ -84,7 +84,7 @@ struct MenuDialog: View {
 
                         // Undo
                         MenuCard(
-                            title: "撤销",
+                            title: NSLocalizedString("menu_undo", comment: "Undo"),
                             icon: "arrow.uturn.backward",
                             keepDialogOpen: true,
                             action: { onMenuItemClick("undo") }

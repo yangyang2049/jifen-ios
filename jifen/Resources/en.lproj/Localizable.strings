@@ -22,7 +22,7 @@
 "home_view_all_records" = "View all records";
 "home_yesterday" = "Yesterday";
 "loading" = "Loading";
-"home_complete_and_save" = "Complete and Save";
+"home_complete_and_save" = "Save";
 "home_edit_primary_card" = "Customize primary card";
 "home_edit_secondary_card" = "Customize secondary card";
 
@@ -272,6 +272,13 @@
 /* Rest Countdown Overlay */
 "rest_countdown" = "Rest Countdown";
 
+/* Game Finished Overlay */
+"game_winner_format" = "%@ Wins";
+
+/* Records Tab */
+"clear_all_records" = "Clear All Records";
+"clear_all_records_message" = "All records will be deleted. This cannot be undone.";
+
 /* Settings */
 "settings" = "Settings";
 "appearance" = "Appearance";
@@ -297,6 +304,8 @@
 "confirm_delete_record_message" = "Are you sure you want to delete this match record? This action cannot be undone.";
 "delete_record" = "Delete Record";
 "share" = "Share";
+"share_match_record" = "Match record";
+"share_preparing" = "Preparing sharing...";
 "deleting_record" = "Deleting record...";
 "record_not_found" = "Record not found";
 "record_may_deleted" = "Record may have been deleted";

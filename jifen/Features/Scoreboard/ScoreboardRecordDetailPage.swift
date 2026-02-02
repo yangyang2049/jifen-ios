@@ -7,6 +7,10 @@ struct ScoreboardRecordDetailPage: View {
     @State private var record: ScoreboardRecord?
     @State private var isDeleting = false
     @State private var showingDeleteConfirm = false
+    @State private var shareFileURL: URL?
+    @State private var showingShareSheet = false
+    @State private var isPreparingShare = false
+    @State private var sharePrepareStartTime: Date?
 
     var body: some View {
         NavigationStack {
@@ -25,6 +29,9 @@ struct ScoreboardRecordDetailPage: View {
                     }
                 } else {
                     recordNotFoundView
+                }
+                if isPreparingShare {
+                    preparingShareOverlay
                 }
             }
         }
@@ -45,10 +52,24 @@ struct ScoreboardRecordDetailPage: View {
                 secondaryButton: .cancel(Text(LocalizedStringKey("cancel")))
             )
         }
+        .sheet(isPresented: $showingShareSheet) {
+            if let url = shareFileURL {
+                ShareActivityView(activityItems: [url], onDismiss: {
+                    try? FileManager.default.removeItem(at: url)
+                    shareFileURL = nil
+                    showingShareSheet = false
+                })
+            }
+        }
     }
     
     private var menu: some View {
         Menu {
+            if record != nil {
+                Button(action: handleShare) {
+                    Label(NSLocalizedString("share", comment: ""), systemImage: "square.and.arrow.up")
+                }
+            }
             Button(role: .destructive, action: {
                 showingDeleteConfirm = true
             }) {
@@ -85,6 +106,23 @@ struct ScoreboardRecordDetailPage: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var preparingShareOverlay: some View {
+        Color.black.opacity(0.4)
+            .ignoresSafeArea()
+            .overlay {
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .scaleEffect(1.2)
+                        .tint(.white)
+                    Text(NSLocalizedString("share_preparing", comment: "Preparing sharing..."))
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                }
+                .padding(24)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
     }
     
     private func gameInfoView(record: ScoreboardRecord) -> some View {
@@ -390,6 +428,52 @@ struct ScoreboardRecordDetailPage: View {
         }
     }
     
+    private static let sharePreparingMinDuration: TimeInterval = 2.0
+
+    private func handleShare() {
+        guard let record = record else { return }
+        guard #available(iOS 16.0, *) else { return }
+        isPreparingShare = true
+        sharePrepareStartTime = Date()
+        DispatchQueue.main.async {
+            let card = RecordDetailShareCardView(record: record)
+                .frame(width: 600, height: 640)
+            let renderer = ImageRenderer(content: card)
+            renderer.scale = UIScreen.main.scale
+            guard let image = renderer.uiImage,
+                  image.size.width > 0, image.size.height > 0,
+                  let data = image.pngData() else {
+                isPreparingShare = false
+                sharePrepareStartTime = nil
+                return
+            }
+            let fileName = "share_record_\(record.id).png"
+            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            let startedAt = sharePrepareStartTime ?? Date()
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try data.write(to: tmpURL)
+                } catch {
+                    DispatchQueue.main.async {
+                        isPreparingShare = false
+                        sharePrepareStartTime = nil
+                    }
+                    return
+                }
+                DispatchQueue.main.async {
+                    shareFileURL = tmpURL
+                    sharePrepareStartTime = nil
+                    let elapsed = Date().timeIntervalSince(startedAt)
+                    let delay = max(0.25, Self.sharePreparingMinDuration - elapsed)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        isPreparingShare = false
+                        showingShareSheet = true
+                    }
+                }
+            }
+        }
+    }
+    
     // MARK: - Formatting Helpers
     
     private func formatDate(_ date: Date) -> String {
@@ -477,6 +561,118 @@ struct DetailViewNavigationBar<TrailingContent: View>: View {
         .padding()
         .background(.ultraThinMaterial)
     }
+}
+
+// MARK: - Share Card (rendered to image for sharing)
+private struct RecordDetailShareCardView: View {
+    let record: ScoreboardRecord
+
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text(record.gameType.icon)
+                    .font(.system(size: 36))
+                Text(record.gameType.displayName)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(Theme.textPrimary)
+            }
+
+            HStack(alignment: .center, spacing: 16) {
+                VStack {
+                    Text(record.team1Name)
+                        .font(.headline)
+                        .foregroundColor(Theme.textPrimary)
+                    Text("\(record.team1FinalScore)")
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundColor(record.winner == "left" ? .green : Theme.textPrimary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Text("-")
+                    .font(.largeTitle)
+                    .foregroundColor(Theme.textSecondary)
+
+                VStack {
+                    Text(record.team2Name)
+                        .font(.headline)
+                        .foregroundColor(Theme.textPrimary)
+                    Text("\(record.team2FinalScore)")
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundColor(record.winner == "right" ? .green : Theme.textPrimary)
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            if let winner = record.winner {
+                let winnerName = winner == "left" ? record.team1Name : record.team2Name
+                Text("\(winnerName) wins")
+                    .font(.headline)
+                    .foregroundColor(.green)
+            }
+
+            VStack(spacing: 8) {
+                shareDetailRow(label: "date", value: Self.formatDate(record.startTime))
+                shareDetailRow(label: "record_start_time", value: Self.formatTime(record.startTime))
+                if let endTime = record.endTime {
+                    shareDetailRow(label: "record_end_time", value: Self.formatTime(endTime))
+                }
+                if let duration = record.duration {
+                    shareDetailRow(label: "record_duration", value: formatScoreboardDuration(duration))
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.surface)
+            .cornerRadius(12)
+        }
+        .padding(24)
+        .background(Theme.backgroundColor)
+    }
+
+    private func shareDetailRow(label: String, value: String) -> some View {
+        HStack {
+            Text(LocalizedStringKey(label))
+                .foregroundColor(Theme.textSecondary)
+            Spacer()
+            Text(value)
+                .foregroundColor(Theme.textPrimary)
+        }
+    }
+
+    private static func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        let calendar = Calendar.current
+        if calendar.isDate(date, equalTo: Date(), toGranularity: .year) {
+            formatter.dateFormat = "MM-dd"
+        } else {
+            formatter.dateFormat = "yyyy-MM-dd"
+        }
+        return formatter.string(from: date)
+    }
+
+    private static func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+}
+
+// MARK: - Share Sheet
+private struct ShareActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    var onDismiss: (() -> Void)?
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, _, _, _ in
+            DispatchQueue.main.async { onDismiss?() }
+        }
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

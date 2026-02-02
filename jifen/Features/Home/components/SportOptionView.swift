@@ -1,5 +1,4 @@
 import SwiftUI
-import jifen // Import main module to access Theme and other symbols
 
 struct SportOptionView: View {
     let sport: GameType

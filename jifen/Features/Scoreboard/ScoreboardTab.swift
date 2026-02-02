@@ -40,7 +40,7 @@ struct ScoreboardTab: View {
                     selectedGame = nil
                 }
             }
-            .onChange(of: selectedSport) { sport in
+            .onChange(of: selectedSport) { _, sport in
                 if sport == nil { onDismiss() }
             }
             .onAppear {

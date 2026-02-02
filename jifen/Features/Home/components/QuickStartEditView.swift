@@ -91,25 +91,27 @@ struct QuickStartEditView: View {
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-
-                        // Save Button
-                        Button(action: {
-                            onSave?(selectedPrimary, selectedSecondary)
-                            dismiss()
-                        }) {
-                            Text("保存")
-                                .font(.system(size: Theme.fontBody1, weight: .bold))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(Theme.homeEditButtonGreen)
-                                .cornerRadius(.infinity)
-                        }
-                        .padding(.top, Theme.sm)
                     }
                     .padding(.horizontal, Theme.lg)
                     .padding(.vertical, Theme.md)
                 }
+
+                // Save Button - fixed at bottom
+                Button(action: {
+                    onSave?(selectedPrimary, selectedSecondary)
+                    dismiss()
+                }) {
+                    Text(NSLocalizedString("home_complete_and_save", comment: "Save"))
+                        .font(.system(size: Theme.fontBody1, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Theme.homeEditButtonGreen)
+                        .cornerRadius(.infinity)
+                }
+                .padding(.horizontal, Theme.lg)
+                .padding(.top, Theme.sm)
+                .padding(.bottom, Theme.lg)
             }
             .navigationTitle(NSLocalizedString("home_quick_start", comment: "Quick Start"))
             .navigationBarTitleDisplayMode(.inline)

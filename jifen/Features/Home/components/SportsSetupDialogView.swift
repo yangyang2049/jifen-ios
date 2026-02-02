@@ -442,28 +442,23 @@ struct SportsSetupDialogView: View {
     }
 
     private func loadRecentRecords() async {
-        do {
-            let allRecords: [ScoreboardRecordSummary] = await scoreboardRecordManager.getAllRecordSummaries() // Assuming async getAllRecordSummaries
-            recentGames = allRecords
-                .filter { $0.gameType == gameType }
-                .sorted { $0.timestamp > $1.timestamp }
-                .prefix(3)
-                .map { record in
-                    let setsInfo = formatSetsInfo(record)
-                    return RecentGameDisplay(
-                        id: record.id,
-                        team1Name: record.team1Name,
-                        team2Name: record.team2Name,
-                        score: "\(record.team1FinalScore)-\(record.team2FinalScore)",
-                        time: formatTime(timestamp: record.timestamp),
-                        recordId: record.id,
-                        setsInfo: setsInfo
-                    )
-                }
-        } catch {
-            print("Error loading recent records: \(error)")
-            recentGames = []
-        }
+        let allRecords: [ScoreboardRecordSummary] = scoreboardRecordManager.getAllRecordSummaries()
+        recentGames = allRecords
+            .filter { $0.gameType == gameType }
+            .sorted { $0.timestamp > $1.timestamp }
+            .prefix(3)
+            .map { record in
+                let setsInfo = formatSetsInfo(record)
+                return RecentGameDisplay(
+                    id: record.id,
+                    team1Name: record.team1Name,
+                    team2Name: record.team2Name,
+                    score: "\(record.team1FinalScore)-\(record.team2FinalScore)",
+                    time: formatTime(timestamp: record.timestamp),
+                    recordId: record.id,
+                    setsInfo: setsInfo
+                )
+            }
     }
 
     private func formatSetsInfo(_ record: ScoreboardRecordSummary) -> String? {
@@ -507,34 +502,28 @@ struct SportsSetupDialogView: View {
     }
 
     private func loadFromRecord(game: RecentGameDisplay) async {
-        do {
-            team1Name = game.team1Name
-            team2Name = game.team2Name
+        team1Name = game.team1Name
+        team2Name = game.team2Name
 
-            if gameType == .pingpong || gameType == .tennis {
-                let record: ScoreboardRecord? = await scoreboardRecordManager.getRecordById(game.recordId)
-                if let record = record, let extraData = record.extraData {
-                    if gameType == .pingpong {
-                        if let ms = extraData["maxSets"]?.value as? Int, ms > 0 {
-                            selectedMaxSets = ms
-                        }
-                    } else if gameType == .tennis {
-                        if let ms = extraData["maxSets"]?.value as? Int, ms > 0 {
-                            selectedMaxSets = ms
-                        }
-                        if let tbp = extraData["tieBreakPoints"]?.value as? Int, tbp > 0 {
-                            selectedTieBreakPoints = tbp
-                        }
+        if gameType == .pingpong || gameType == .tennis {
+            let record: ScoreboardRecord? = scoreboardRecordManager.getRecordById(game.recordId)
+            if let record = record, let extraData = record.extraData {
+                if gameType == .pingpong {
+                    if let ms = extraData["maxSets"]?.value as? Int, ms > 0 {
+                        selectedMaxSets = ms
+                    }
+                } else if gameType == .tennis {
+                    if let ms = extraData["maxSets"]?.value as? Int, ms > 0 {
+                        selectedMaxSets = ms
+                    }
+                    if let tbp = extraData["tieBreakPoints"]?.value as? Int, tbp > 0 {
+                        selectedTieBreakPoints = tbp
                     }
                 }
             }
-
-            // promptAction.showToast - simulate with print for now
-            print(NSLocalizedString("load_recent_game", comment: "Loaded recent game"))
-        } catch {
-            print("Error loading from record: \(error)")
-            print(NSLocalizedString("load_recent_game", comment: "Loaded recent game (error)"))
         }
+
+        print(NSLocalizedString("load_recent_game", comment: "Loaded recent game"))
     }
     
     private func confirmSetup() async {

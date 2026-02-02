@@ -69,7 +69,7 @@ struct BadmintonScoreboardView: View {
                     .transition(.opacity.combined(with: .scale))
             }
         }
-        .navigationTitle("羽毛球")
+        .navigationTitle(NSLocalizedString("game_badminton", comment: "Badminton"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)

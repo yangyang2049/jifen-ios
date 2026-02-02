@@ -10,8 +10,8 @@ import SwiftUI
 struct FlipCoinView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isFlipping = false
-    @State private var currentSide: CoinSide = .heads
-    @State private var flipHistory: [CoinResult] = []
+    @State private var currentSide: FlipCoinSide = .heads
+    @State private var flipHistory: [FlipCoinResult] = []
     @State private var headsCount = 0
     @State private var tailsCount = 0
     @State private var rotationAngle: Double = 0
@@ -19,19 +19,9 @@ struct FlipCoinView: View {
     @State private var coinScale: CGFloat = 1.0
     @State private var isEnglish = false
     @State private var showHint = false
-    
+
     private let hintShownKey = "flip_coin_hint_shown"
-    
-    enum CoinSide {
-        case heads, tails
-    }
-    
-    struct CoinResult: Identifiable {
-        let id = UUID()
-        let side: CoinSide
-        let timestamp: Date
-    }
-    
+
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
@@ -42,50 +32,73 @@ struct FlipCoinView: View {
                     flipCoin()
                 }
 
-            // Always centered coin display
+            // Always centered coin display (style aligned with Watch: radial gradient, rim, text shadow)
             GeometryReader { geometry in
                 ZStack {
-                    // Coin display - always centered
+                    // Coin display - Watch-style: outer/middle/inner ratio 120/110/104 → 180/165/156
                     ZStack {
-                        // Coin circle with gradient
+                        // Outer ring - radial gradient metallic look
                         Circle()
                             .fill(
-                                LinearGradient(
+                                RadialGradient(
                                     colors: [
+                                        Color(hex: "E8C84A"),
                                         Color(hex: "D4AF37"),
-                                        Color(hex: "C5A03C"),
-                                        Color(hex: "E5C158")
+                                        Color(hex: "B8962E")
                                     ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 90
                                 )
                             )
                             .frame(width: 180, height: 180)
                             .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
-                            .overlay(
-                                // Inner circle (simulating depression)
-                                Circle()
-                                    .fill(Color(hex: "C5A03C"))
-                                    .frame(width: 165, height: 165)
-                                    .overlay(
-                                        // Center plane
-                                        Circle()
-                                            .fill(Color(hex: "E5C158"))
-                                            .frame(width: 155, height: 155)
-                                            .overlay(
-                                                // Coin face content
-                                                coinFaceContent
-                                            )
-                                    )
+
+                        // Middle ring - darker gold depth
+                        Circle()
+                            .fill(Color(hex: "C5A03C"))
+                            .frame(width: 165, height: 165)
+
+                        // Inner face - bright gold surface
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    colors: [
+                                        Color(hex: "F0D060"),
+                                        Color(hex: "E5C158")
+                                    ],
+                                    center: UnitPoint(x: 0.35, y: 0.35),
+                                    startRadius: 0,
+                                    endRadius: 78
+                                )
                             )
-                            .rotation3DEffect(
-                                .degrees(rotationAngle),
-                                axis: (x: 1, y: 0, z: 0),
-                                perspective: 0.5
+                            .frame(width: 156, height: 156)
+
+                        coinFaceContent
+
+                        // Rim highlight
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.4),
+                                        Color.clear,
+                                        Color.black.opacity(0.2)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 2
                             )
-                            .offset(y: coinPositionY)
-                            .scaleEffect(coinScale)
+                            .frame(width: 178, height: 178)
                     }
+                    .rotation3DEffect(
+                        .degrees(rotationAngle),
+                        axis: (x: 1, y: 0, z: 0),
+                        perspective: 0.6
+                    )
+                    .offset(y: coinPositionY)
+                    .scaleEffect(coinScale)
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
                     // Floating results overlay
@@ -190,127 +203,77 @@ struct FlipCoinView: View {
     
     @ViewBuilder
     private var coinFaceContent: some View {
-        // Determine which side is showing based on rotation angle
-        // Normalize angle to 0-360 range
         let normalizedAngle = (rotationAngle.truncatingRemainder(dividingBy: 360) + 360).truncatingRemainder(dividingBy: 360)
-        
-        // Check if showing tails (180° ± 90°)
-        // Tails is at 180°, so we check if angle is between 90° and 270°
         let isShowingTails = normalizedAngle > 90 && normalizedAngle < 270
-        
+
         if isShowingTails {
-            // Tails side - flower
             Text("❀")
-                .font(.system(size: 80))
+                .font(.system(size: 78))
                 .foregroundColor(Color(hex: "8B6914"))
+                .shadow(color: Color(hex: "6B5210").opacity(0.3), radius: 1, x: 1, y: 1)
                 .rotationEffect(.degrees(180))
         } else {
-            // Heads side - number (0° or 360°)
             Text(isEnglish ? "8" : "666")
-                .font(.system(size: isEnglish ? 80 : 56, weight: .bold))
+                .font(.system(size: isEnglish ? 78 : 57, weight: .bold, design: .rounded))
                 .foregroundColor(Color(hex: "8B6914"))
+                .shadow(color: Color(hex: "6B5210").opacity(0.3), radius: 1, x: 1, y: 1)
         }
     }
     
     private func flipCoin() {
         guard !isFlipping else { return }
-        
+
         isFlipping = true
         VibrationManager.shared.vibrateMedium()
         SoundManager.shared.playSound("flip_coin")
-        
-        // Random final result
-        let finalResult: CoinSide = Bool.random() ? .heads : .tails
-        
-        // Animation parameters
-        let totalDuration: TimeInterval = 2.0 // 2 seconds
-        let baseRotations = 4.0
-        let extraRotation = Double.random(in: 0...1)
-        
-        // Calculate target angle to ensure coin ends at perfect front or back face
-        // Start from current angle
+
+        let finalResult: FlipCoinSide = Bool.random() ? .heads : .tails
+        let isHeads: Bool = (finalResult == .heads)
+        let totalDuration: TimeInterval = 2.0
+
+        // Integer rotations so coin lands flat (0° or 180°), aligned with Watch
+        let rotationCount = Int.random(in: 4...6)
+        let finalAngle: Double = isHeads
+            ? Double(rotationCount) * 360.0
+            : Double(rotationCount) * 360.0 + 180.0
+
         let startAngle = rotationAngle
-        // Normalize start angle to 0-360 range
-        let normalizedStart = (startAngle.truncatingRemainder(dividingBy: 360) + 360).truncatingRemainder(dividingBy: 360)
-        
-        // Calculate how many full rotations we need
-        let fullRotations = baseRotations + extraRotation
-        
-        // Determine final angle based on result
-        // Heads = 0° (or 360°), Tails = 180°
-        let finalAngle: Double
-        if finalResult == .heads {
-            // End at 0° (or 360°)
-            // Find the nearest 0° position after full rotations
-            let targetBase = fullRotations * 360
-            finalAngle = targetBase
-        } else {
-            // End at 180°
-            // Find the nearest 180° position after full rotations
-            let targetBase = fullRotations * 360 + 180
-            finalAngle = targetBase
+        var targetAngle = finalAngle
+        while targetAngle <= startAngle {
+            targetAngle += 360.0
         }
-        
-        // Calculate total rotation needed from start
-        var targetAngle = finalAngle - normalizedStart
-        
-        // Ensure we rotate in the positive direction (at least baseRotations)
-        // If targetAngle is negative or too small, add 360° to ensure enough rotation
-        while targetAngle < fullRotations * 360 {
-            targetAngle += 360
+        let minRotation = Double(rotationCount) * 360.0
+        while (targetAngle - startAngle) < minRotation {
+            targetAngle += 360.0
         }
-        
-        // Add the normalized start angle back to get absolute target
-        targetAngle = normalizedStart + targetAngle
-        
+
         let startTime = Date()
         let maxHeight: CGFloat = -200
-        
-        // Animation loop
-        Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { timer in
+
+        Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { timer in
             let elapsed = Date().timeIntervalSince(startTime)
             let progress = min(elapsed / totalDuration, 1.0)
-            
-            // Easing function (ease-out cubic)
             let easeProgress = 1.0 - pow(1.0 - progress, 3)
-            
-            // Rotation animation
-            rotationAngle = normalizedStart + (targetAngle - normalizedStart) * easeProgress
-            
-            // Parabolic motion (up then down)
+
+            rotationAngle = startAngle + (targetAngle - startAngle) * easeProgress
             coinPositionY = -4 * maxHeight * CGFloat(progress) * CGFloat(progress - 1)
-            
-            // Scale effect (depth)
-            coinScale = 1.0 + 0.3 * sin(progress * .pi)
-            
+            coinScale = 1.0 + 0.25 * sin(progress * .pi)
+
             if progress >= 1.0 {
                 timer.invalidate()
                 isFlipping = false
-                
-                // Ensure final angle is exactly 0° for heads or 180° for tails
-                // This ensures the coin ends at perfect front or back face, not in the middle
-                let fullRotations = round(targetAngle / 360)
-                if finalResult == .heads {
-                    // Snap to 0° (or 360° * n) - perfect front face
-                    rotationAngle = fullRotations * 360
-                } else {
-                    // Snap to 180° (or 180° + 360° * n) - perfect back face
-                    rotationAngle = fullRotations * 360 + 180
-                }
-                
+
+                rotationAngle = targetAngle
                 coinPositionY = 0
                 coinScale = 1.0
-                currentSide = finalResult
-                
-                // Update counts
-                if finalResult == .heads {
+                currentSide = isHeads ? .heads : .tails
+
+                if isHeads {
                     headsCount += 1
                 } else {
                     tailsCount += 1
                 }
-                
-                // Add to history
-                flipHistory.insert(CoinResult(side: finalResult, timestamp: Date()), at: 0)
+                flipHistory.insert(FlipCoinResult(side: isHeads ? .heads : .tails, timestamp: Date()), at: 0)
                 if flipHistory.count > 20 {
                     flipHistory = Array(flipHistory.prefix(20))
                 }

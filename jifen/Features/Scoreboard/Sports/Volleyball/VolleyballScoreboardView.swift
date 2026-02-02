@@ -13,8 +13,10 @@ struct VolleyballScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     @State private var controller = VolleyballController()
     @State private var viewModel = VolleyballViewModel()
+    @State private var showGameFinishedOverlay: Bool = false
 
     var body: some View {
+        ZStack {
         ScoreboardTemplate(
             config: TemplateConfig(
                 gameType: .volleyball,
@@ -29,8 +31,13 @@ struct VolleyballScoreboardView: View {
                 } else {
                     dismiss()
                 }
+                }
+            )
+
+            if showGameFinishedOverlay {
+                GameFinishedOverlay(winnerName: viewModel.getWinnerName())
             }
-        )
+        }
         .navigationTitle(NSLocalizedString("game_volleyball", comment: "Volleyball"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -38,6 +45,11 @@ struct VolleyballScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .preferredColorScheme(.dark)
         .lockOrientation(.landscape)
+        .onChange(of: viewModel.gameFinished) { _, newValue in
+            if newValue {
+                showGameFinishedOverlay = true
+            }
+        }
         .onAppear {
             viewModel.controller = controller
             

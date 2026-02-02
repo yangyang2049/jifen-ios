@@ -2,7 +2,7 @@ import SwiftUI
 
 struct WatchFlipCoinView: View {
     @State private var isFlipping = false
-    @State private var currentSide: CoinSide = .heads
+    @State private var currentSide: WatchCoinSide = .heads
     @State private var rotationAngle: Double = 0
     @State private var coinPositionY: CGFloat = 0
     @State private var coinScale: CGFloat = 1
@@ -149,7 +149,7 @@ struct WatchFlipCoinView: View {
         WatchSoundManager.shared.playSound(named: "flip_coin", fileExtension: "mp3", fallbackToSystemClick: false)
         // No haptic here so only flip_coin.mp3 plays (no system tap/click sound)
 
-        let finalSide: CoinSide = Bool.random() ? .heads : .tails
+        let finalSide: WatchCoinSide = Bool.random() ? .heads : .tails
         let totalDuration = WatchAnimations.coinFlip
 
         // Use integer rotations so coin lands flat (0° or 180°)
@@ -194,10 +194,5 @@ struct WatchFlipCoinView: View {
                 currentSide = finalSide
             }
         }
-    }
-
-    private enum CoinSide {
-        case heads
-        case tails
     }
 }

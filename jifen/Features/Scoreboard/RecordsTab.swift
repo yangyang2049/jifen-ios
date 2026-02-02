@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RecordsTab: View {
     @StateObject private var viewModel = ScoreboardRecordsViewModel.shared
+    @State private var showClearConfirm = false
 
     var body: some View {
         NavigationStack {
@@ -24,13 +25,40 @@ struct RecordsTab: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_records", comment: "Records"))
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button(role: .destructive) {
+                            showClearConfirm = true
+                        } label: {
+                            Label(NSLocalizedString("clear_all_records", comment: "Clear all records"), systemImage: "trash")
+                        }
+                        .disabled(viewModel.records.isEmpty)
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
             .preferredColorScheme(.dark)
             .onAppear {
                 viewModel.refreshRecords()
             }
+            .alert(NSLocalizedString("clear_all_records", comment: "Clear all records"), isPresented: $showClearConfirm) {
+                Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
+                Button(NSLocalizedString("clear_all_records", comment: "Clear all records"), role: .destructive) {
+                    clearAllRecords()
+                }
+            } message: {
+                Text(NSLocalizedString("clear_all_records_message", comment: "Clear all records confirmation"))
+            }
         }
         .accentColor(Theme.accentColor)
+    }
+
+    private func clearAllRecords() {
+        ScoreboardRecordManager.shared.clearAllRecords()
+        viewModel.refreshRecordsImmediately()
     }
 
     private var loadingView: some View {
@@ -47,7 +75,7 @@ struct RecordsTab: View {
 
     private var emptyState: some View {
         VStack(spacing: Theme.lg) {
-            Text("📝")
+            Text("🧘🏻")
                 .font(.system(size: 56))
             Text(NSLocalizedString("home_no_records", comment: "No recent records"))
                 .font(.system(size: Theme.fontBody1, weight: .medium))

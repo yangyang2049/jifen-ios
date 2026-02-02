@@ -72,7 +72,9 @@ struct HomeTab: View {
             .navigationDestination(for: NavigationDestination.self) { destination in
                 switch destination {
                 case .tool(let tool):
-                    tool.view.navigationTitle(tool.title)
+                    tool.view
+                        .navigationTitle(tool.title)
+                        .toolbar(.hidden, for: .tabBar)
                 case .scoreboard(let gameType):
                     getScoreboardView(for: gameType)
                 }

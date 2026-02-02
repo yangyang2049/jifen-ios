@@ -136,7 +136,6 @@ struct RecentRowView: View {
 
     private func formatTime(_ timestamp: TimeInterval) -> String {
         let date = Date(timeIntervalSince1970: timestamp)
-        let now = Date()
         let calendar = Calendar.current
         
         let dateFormatter = DateFormatter()
@@ -172,7 +171,7 @@ struct RecentRecordsSectionView: View {
                 if records.isEmpty {
                     // Empty State
                     VStack(spacing: Theme.md) { // Column({ space: 16 })
-                        Text("🧘") // Text('🧘')
+                        Text("🧘🏻")
                             .font(.system(size: 48))
                         
                         Text(NSLocalizedString("home_no_records", comment: "No recent records text"))

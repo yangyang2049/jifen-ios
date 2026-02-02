@@ -35,9 +35,6 @@ func formatDisplayDate(_ dateStr: String) -> String {
     } else if calendar.isDateInYesterday(date) {
         return NSLocalizedString("yesterday", comment: "Yesterday")
     } else {
-        let month = calendar.component(.month, from: date)
-        let day = calendar.component(.day, from: date)
-        
         let monthDayFormatter = DateFormatter()
         monthDayFormatter.dateFormat = "MMMM d"
         return monthDayFormatter.string(from: date)

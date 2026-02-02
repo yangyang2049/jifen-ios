@@ -22,7 +22,7 @@
 "home_view_all_records" = "查看全部记录";
 "home_yesterday" = "昨天";
 "loading" = "加载中";
-"home_complete_and_save" = "完成并保存";
+"home_complete_and_save" = "保存";
 "home_edit_primary_card" = "自定义主卡片";
 "home_edit_secondary_card" = "自定义副卡片";
 
@@ -272,6 +272,13 @@
 /* Rest Countdown Overlay */
 "rest_countdown" = "休息倒计时";
 
+/* Game Finished Overlay */
+"game_winner_format" = "%@ 获胜";
+
+/* Records Tab */
+"clear_all_records" = "删除全部记录";
+"clear_all_records_message" = "将删除所有记录，此操作无法撤销。";
+
 /* Settings */
 "settings" = "设置";
 "appearance" = "外观";
@@ -297,6 +304,8 @@
 "confirm_delete_record_message" = "确定要删除这条比赛记录吗？此操作无法撤销。";
 "delete_record" = "删除记录";
 "share" = "分享";
+"share_match_record" = "比赛记录";
+"share_preparing" = "准备分享...";
 "deleting_record" = "正在删除记录...";
 "record_not_found" = "未找到记录";
 "record_may_deleted" = "记录可能已被删除";

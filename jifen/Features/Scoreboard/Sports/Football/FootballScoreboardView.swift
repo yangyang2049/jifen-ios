@@ -13,8 +13,10 @@ struct FootballScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     @State private var controller = FootballController()
     @State private var viewModel = FootballViewModel()
+    @State private var showGameFinishedOverlay: Bool = false
 
     var body: some View {
+        ZStack {
         ScoreboardTemplate(
             config: TemplateConfig(
                 gameType: .football,
@@ -29,8 +31,13 @@ struct FootballScoreboardView: View {
                 } else {
                     dismiss()
                 }
+                }
+            )
+
+            if showGameFinishedOverlay {
+                GameFinishedOverlay(winnerName: viewModel.getWinnerName())
             }
-        )
+        }
         .navigationTitle(NSLocalizedString("game_football", comment: "Football"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -46,6 +53,11 @@ struct FootballScoreboardView: View {
                let window = windowScene.windows.first,
                let tabBarController = window.rootViewController?.findTabBarController() {
                 tabBarController.tabBar.isHidden = true
+            }
+        }
+        .onChange(of: viewModel.gameFinished) { _, newValue in
+            if newValue {
+                showGameFinishedOverlay = true
             }
         }
         .onDisappear {

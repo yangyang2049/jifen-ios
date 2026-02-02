@@ -12,7 +12,7 @@ struct GameFinishedOverlay: View {
     
     var body: some View {
         VStack {
-            Text("\(winnerName) 获胜")
+            Text(String(format: NSLocalizedString("game_winner_format", comment: "Winner overlay"), winnerName))
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(.yellow)
                 .padding(.horizontal, 20)

@@ -20,3 +20,12 @@
 
 ### Added
 - iOS 主应用：新增「记录」Tab（与 Watch 一致）。Tab 顺序为首页 → 计分 → 记录 → 工具；记录 Tab 展示计分记录列表（按日期分组）、空状态与加载态，点击进入记录详情。首页「最近记录」保留最近 3 条，底部「查看全部记录」改为跳转到记录 Tab（onViewAllTapped），不再进入活动页。
+
+### Fixed / Improved
+- 计分板：羽毛球、网球导航标题改为 NSLocalizedString（game_badminton / game_tennis），与其余运动一致。
+- 计分板：篮球、足球、排球增加比赛结束浮层（GameFinishedOverlay），ViewModel 增加 getWinnerName()，与乒/羽/网一致。
+- 计分板：排球局数已通过 TeamData.sets 与 TeamSection 展示，无需改动。
+- 计分板：菜单（MenuDialog）标题与项（操作、哨子、截图、交换边、重置、撤销）、休息弹窗撤销按钮、比赛结束浮层「X 获胜」改为本地化文案（operations / menu_whistle / menu_screenshot / menu_swap_sides / menu_reset / menu_undo / game_winner_format）。
+- 主应用抛硬币（FlipCoinView）：对齐 Watch 实现——整数圈数（4–6 圈）保证落地 0°/180° 无跳变；硬币外观改为径向渐变（外/中/内 180/165/156）、边缘描边、正反面文字阴影；动画用 ease-out cubic、perspective 0.6、scale 0.25；结束时使用精确 targetAngle 不做二次 snap。
+- 快速开始设置：按钮文案由「完成并保存」改为「保存」（中英文 Localizable.strings）。
+- 记录详情分享：从鸿蒙 jifen MultiGroupRecordDetailPage 移植分享功能。比赛详情页菜单增加「分享」项；将记录摘要（项目、比分、日期时间等）渲染为图片，通过系统分享面板（UIActivityViewController）分享；新增 RecordDetailShareCardView、ShareActivityView 及 share_match_record 本地化。
