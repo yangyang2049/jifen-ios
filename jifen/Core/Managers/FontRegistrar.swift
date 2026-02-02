@@ -22,9 +22,13 @@ enum FontRegistrar {
             var error: Unmanaged<CFError>?
             let registered = CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
             if registered {
+                #if DEBUG
                 print("[FontRegistrar] Successfully registered \(url.lastPathComponent)")
+                #endif
             } else if let error = error?.takeRetainedValue() {
+                #if DEBUG
                 print("[FontRegistrar] Failed to register \(url.lastPathComponent): \(error)")
+                #endif
             }
         }
     }

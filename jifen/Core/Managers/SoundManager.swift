@@ -40,7 +40,9 @@ class SoundManager {
         }
         
         guard let soundUrl = url else {
+            #if DEBUG
             print("Sound file not found: \(soundName).mp3")
+            #endif
             return
         }
         
@@ -48,7 +50,9 @@ class SoundManager {
             audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
             audioPlayer?.play()
         } catch {
+            #if DEBUG
             print("Error playing sound: \(error)")
+            #endif
         }
     }
 }

@@ -97,7 +97,9 @@ struct PingPongScoreboardView: View {
         }
         .onDisappear {
             // Save record when leaving (for incomplete games)
+            #if DEBUG
             print("[PingPongScoreboardView] 📤 View disappearing, saving record")
+            #endif
             viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
 
             restTimer?.invalidate()

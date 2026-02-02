@@ -40,7 +40,9 @@ class ScoreboardRecordManager {
         let data = try encoder.encode(records)
         UserDefaults.standard.set(data, forKey: recordsKey)
         
+        #if DEBUG
         print("[ScoreboardRecordManager] ✅ Saved record: \(record.id)")
+        #endif
     }
     
     // MARK: - Load Records
@@ -56,7 +58,9 @@ class ScoreboardRecordManager {
             let records = try decoder.decode([ScoreboardRecord].self, from: data)
             return records
         } catch {
+            #if DEBUG
             print("[ScoreboardRecordManager] ❌ Failed to load records: \(error)")
+            #endif
             return []
         }
     }
@@ -84,10 +88,14 @@ class ScoreboardRecordManager {
                 encoder.dateEncodingStrategy = .iso8601
                 let data = try encoder.encode(records)
                 UserDefaults.standard.set(data, forKey: recordsKey)
+                #if DEBUG
                 print("[ScoreboardRecordManager] ✅ Deleted record: \(id)")
+                #endif
                 return true
             } catch {
+                #if DEBUG
                 print("[ScoreboardRecordManager] ❌ Failed to delete record: \(error)")
+                #endif
                 return false
             }
         }
@@ -99,7 +107,9 @@ class ScoreboardRecordManager {
     
     func clearAllRecords() {
         UserDefaults.standard.removeObject(forKey: recordsKey)
+        #if DEBUG
         print("[ScoreboardRecordManager] ✅ Cleared all records")
+        #endif
     }
 }
 

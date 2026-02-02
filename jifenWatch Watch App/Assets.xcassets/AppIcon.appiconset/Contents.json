@@ -1,7 +1,8 @@
 {
   "images" : [
     {
-      "idiom" : "watch",
+      "filename" : "icon_background.png",
+      "idiom" : "universal",
       "platform" : "watchos",
       "size" : "1024x1024"
     }

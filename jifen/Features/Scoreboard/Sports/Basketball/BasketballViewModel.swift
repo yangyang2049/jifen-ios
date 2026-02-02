@@ -96,7 +96,9 @@ class BasketballViewModel: BaseScoreViewModel {
     // MARK: - Real-time Record Saving
 
     func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        #if DEBUG
         print("[BasketballViewModel] 💾 Saving basketball record in real-time (isGameFinished: \(isGameFinished))")
+        #endif
         let endTime = Date()
         let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
 
@@ -123,7 +125,9 @@ class BasketballViewModel: BaseScoreViewModel {
             totalScoreChanges: controller?.getGameActions().count ?? 0,
             extraData: [:]
         )
+        #if DEBUG
         print("[BasketballViewModel] ✅ Basketball record saved successfully")
+        #endif
     }
 
     func getScoringOptions() -> [Int] {

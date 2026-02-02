@@ -174,7 +174,9 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         }
         
         // Save to manager (will update if same ID exists)
+        #if DEBUG
         print("[BaseScoreboardController] 💾 Attempting to save record: \(id) for game: \(config.gameType.rawValue)")
+        #endif
         do {
             try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
             
@@ -186,12 +188,18 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             // Notify ViewModel to refresh
             DispatchQueue.main.async {
                 ScoreboardRecordsViewModel.shared.refreshRecords()
+                #if DEBUG
                 print("[BaseScoreboardController] 🔄 ViewModel refreshed after saving record")
+                #endif
             }
 
+            #if DEBUG
             print("[BaseScoreboardController] ✅ Record saved successfully: \(id)")
+            #endif
         } catch {
+            #if DEBUG
             print("[BaseScoreboardController] ❌ Failed to save record \(id): \(error)")
+            #endif
         }
     }
     
@@ -228,7 +236,9 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
     /// - Returns: UIImage if successful, nil otherwise
     func captureScreenshot(of view: UIView) -> UIImage? {
         guard config.enableScreenshot else {
+            #if DEBUG
             print("[BaseScoreboardController] ⚠️ Screenshot feature is disabled")
+            #endif
             return nil
         }
         

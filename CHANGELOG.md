@@ -29,3 +29,5 @@
 - 主应用抛硬币（FlipCoinView）：对齐 Watch 实现——整数圈数（4–6 圈）保证落地 0°/180° 无跳变；硬币外观改为径向渐变（外/中/内 180/165/156）、边缘描边、正反面文字阴影；动画用 ease-out cubic、perspective 0.6、scale 0.25；结束时使用精确 targetAngle 不做二次 snap。
 - 快速开始设置：按钮文案由「完成并保存」改为「保存」（中英文 Localizable.strings）。
 - 记录详情分享：从鸿蒙 jifen MultiGroupRecordDetailPage 移植分享功能。比赛详情页菜单增加「分享」项；将记录摘要（项目、比分、日期时间等）渲染为图片，通过系统分享面板（UIActivityViewController）分享；新增 RecordDetailShareCardView、ShareActivityView 及 share_match_record 本地化。
+- 发布前清理：新增 RELEASE_CHECKLIST.md（除 App Icon、Launch Screen 外的发布检查项）。QuickStartConfigManager.saveConfig 中 fatalError 改为 do/try/throw；所有调试用 print() 包在 #if DEBUG；SportsSetupDialogView 中 CommonNameSelectorDialog 占位按钮移除 print。
+- Watch 显示名：与主应用一致。新增 Watch App Resources 下 en.lproj/InfoPlist.strings、zh-Hans.lproj/InfoPlist.strings，CFBundleDisplayName 分别为「iScore」「全能计分器」；移除 project.pbxproj 中 Watch target 的 INFOPLIST_KEY_CFBundleDisplayName = jifenWatch。

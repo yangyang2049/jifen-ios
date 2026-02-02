@@ -75,7 +75,9 @@ class FootballViewModel: BaseScoreViewModel {
     // MARK: - Real-time Record Saving
 
     func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        #if DEBUG
         print("[FootballViewModel] 💾 Saving football record in real-time (isGameFinished: \(isGameFinished))")
+        #endif
         let endTime = Date()
         let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
 
@@ -102,6 +104,8 @@ class FootballViewModel: BaseScoreViewModel {
             totalScoreChanges: controller?.getGameActions().count ?? 0,
             extraData: [:]
         )
+        #if DEBUG
         print("[FootballViewModel] ✅ Football record saved successfully")
+        #endif
     }
 }

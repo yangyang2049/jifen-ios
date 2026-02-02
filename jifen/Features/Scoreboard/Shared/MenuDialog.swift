@@ -157,7 +157,9 @@ struct MenuCard: View {
         isVisible: true,
         onClose: {},
         onMenuItemClick: { action in
+            #if DEBUG
             print("Menu item clicked: \(action)")
+            #endif
         }
     )
 }

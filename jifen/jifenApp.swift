@@ -23,7 +23,9 @@ class OrientationLock {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 if #available(iOS 16.0, *) {
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait)) { error in
+                        #if DEBUG
                         print("[OrientationLock] Geometry update result: \(error)")
+                        #endif
                     }
                 } else {
                     // Fallback for iOS 15 and earlier

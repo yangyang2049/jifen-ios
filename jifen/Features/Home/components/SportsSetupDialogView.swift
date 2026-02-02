@@ -72,7 +72,6 @@ struct SportsSetupDialogView: View {
 
                                 Button(action: {
                                     // TODO: Open CommonNameSelectorDialog for Team 1
-                                    print("Open CommonNameSelectorDialog for Team 1")
                                 }) {
                                     Image(systemName: "chevron.right")
                                         .resizable()
@@ -105,7 +104,6 @@ struct SportsSetupDialogView: View {
 
                                 Button(action: {
                                     // TODO: Open CommonNameSelectorDialog for Team 2
-                                    print("Open CommonNameSelectorDialog for Team 2")
                                 }) {
                                     Image(systemName: "chevron.right")
                                         .resizable()
@@ -523,7 +521,9 @@ struct SportsSetupDialogView: View {
             }
         }
 
+        #if DEBUG
         print(NSLocalizedString("load_recent_game", comment: "Loaded recent game"))
+        #endif
     }
     
     private func confirmSetup() async {
@@ -534,7 +534,9 @@ struct SportsSetupDialogView: View {
 
         if config.team1Name == config.team2Name && !config.team1Name.isEmpty {
             // promptAction.showToast
+            #if DEBUG
             print(NSLocalizedString("duplicate_names_warning", comment: "Duplicate names warning"))
+            #endif
             return
         }
         

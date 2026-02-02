@@ -443,7 +443,6 @@
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = jifenWatch;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bolo.jifen;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -476,7 +475,6 @@
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = jifenWatch;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.bolo.jifen;
 				LD_RUNPATH_SEARCH_PATHS = (

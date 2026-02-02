@@ -121,14 +121,20 @@ struct HomeTab: View {
 
     private func updateRecentActivities() {
         let records = ScoreboardRecordManager.shared.loadAllRecords()
+        #if DEBUG
         print("[HomeTab] 📊 Loading \(records.count) total records for recent activities")
+        #endif
 
         // Show up to 3 most recent game records
         let recentRecords = records.prefix(3)
+        #if DEBUG
         print("[HomeTab] 📋 Showing \(recentRecords.count) recent records")
+        #endif
 
         recentActivities = recentRecords.map { record in
+            #if DEBUG
             print("[HomeTab] 🎮 Record: \(record.id) - \(record.gameType.rawValue) - \(record.team1FinalScore):\(record.team2FinalScore)")
+            #endif
             return RecentActivity(
                 id: record.id,
                 activityType: .scoreboard,

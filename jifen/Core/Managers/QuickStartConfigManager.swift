@@ -56,10 +56,11 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
     }
 
     private func saveConfig(_ config: QuickStartConfig) async throws {
-        if let data = try? JSONEncoder().encode(config) {
+        do {
+            let data = try JSONEncoder().encode(config)
             userDefaults.set(data, forKey: configKey)
-        } else {
-            fatalError("Failed to encode QuickStartConfig")
+        } catch {
+            throw error
         }
     }
 }
