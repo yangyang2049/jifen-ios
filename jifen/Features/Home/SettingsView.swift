@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum AppSupportURLs {
+    static let support = "https://douhua.fan/jifenqi/contact"
+}
+
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) var colorScheme
@@ -28,6 +32,13 @@ struct SettingsView: View {
                             // About Section
                             SettingsSection(title: NSLocalizedString("about", comment: "About")) {
                                 VStack(spacing: 0) {
+                                    if let url = URL(string: AppSupportURLs.support) {
+                                        LinkRow(
+                                            title: NSLocalizedString("support_contact", comment: "Support & Contact"),
+                                            icon: "envelope.fill",
+                                            url: url
+                                        )
+                                    }
                                     InfoRow(
                                         title: NSLocalizedString("version", comment: "Version"),
                                         value: getAppVersion(),
@@ -132,6 +143,34 @@ struct InfoRow: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+}
+
+struct LinkRow: View {
+    let title: String
+    let icon: String
+    let url: URL
+
+    var body: some View {
+        Link(destination: url) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(Theme.accentColor)
+                    .frame(width: 24, height: 24)
+
+                Text(title)
+                    .foregroundColor(Theme.textPrimary)
+
+                Spacer()
+
+                Image(systemName: "arrow.up.right")
+                    .font(.caption)
+                    .foregroundColor(Theme.textSecondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -973,11 +973,13 @@ struct ScreenshotSaveDialog: View {
 
 struct ToastView: View {
     let message: String
-    
+    /// Bottom offset so toast sits lower on scoreboards (above tab/safe area)
+    private static let bottomPadding: CGFloat = 56
+
     var body: some View {
         VStack {
             Spacer()
-            
+
             Text(message)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.white)
@@ -987,7 +989,7 @@ struct ToastView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color.black.opacity(0.7))
                 )
-                .padding(.bottom, 100)
+                .padding(.bottom, Self.bottomPadding)
         }
         .animation(.easeInOut(duration: 0.2), value: message)
     }

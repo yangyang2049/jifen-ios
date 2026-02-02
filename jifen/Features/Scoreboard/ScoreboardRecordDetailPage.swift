@@ -163,7 +163,7 @@ struct ScoreboardRecordDetailPage: View {
             // Winner
             if let winner = record.winner {
                 let winnerName = winner == "left" ? record.team1Name : record.team2Name
-                Text("\(winnerName) wins")
+                Text(String(format: NSLocalizedString("game_winner_format", comment: ""), winnerName))
                     .font(.headline)
                     .foregroundColor(.green)
             }
@@ -236,7 +236,7 @@ struct ScoreboardRecordDetailPage: View {
         // Add game start event
         events.append((
             timestamp: record.startTime,
-            action: "比赛开始",
+            action: NSLocalizedString("game_started", comment: ""),
             score: "0-0"
         ))
 
@@ -256,9 +256,10 @@ struct ScoreboardRecordDetailPage: View {
                     if currentSetLeftScore > currentSetRightScore {
                         leftSets += 1
                     }
+                    let setNumber = leftSets + rightSets
                     events.append((
                         timestamp: record.startTime,
-                        action: getSetEndText(record: record, winner: currentSetLeftScore > currentSetRightScore ? record.team1Name : record.team2Name),
+                        action: getSetEndText(setNumber: setNumber, winner: currentSetLeftScore > currentSetRightScore ? record.team1Name : record.team2Name),
                         score: "\(leftSets)-\(rightSets)"
                     ))
                     // Reset for next set
@@ -281,9 +282,10 @@ struct ScoreboardRecordDetailPage: View {
                     if currentSetRightScore > currentSetLeftScore {
                         rightSets += 1
                     }
+                    let setNumber = leftSets + rightSets
                     events.append((
                         timestamp: record.startTime,
-                        action: getSetEndText(record: record, winner: currentSetRightScore > currentSetLeftScore ? record.team2Name : record.team1Name),
+                        action: getSetEndText(setNumber: setNumber, winner: currentSetRightScore > currentSetLeftScore ? record.team2Name : record.team1Name),
                         score: "\(leftSets)-\(rightSets)"
                     ))
                     // Reset for next set
@@ -297,7 +299,7 @@ struct ScoreboardRecordDetailPage: View {
         if record.endTime != nil {
             events.append((
                 timestamp: record.endTime!,
-                action: "比赛结束",
+                action: NSLocalizedString("game_ended", comment: ""),
                 score: "\(record.team1FinalScore)-\(record.team2FinalScore)"
             ))
         }
@@ -346,8 +348,8 @@ struct ScoreboardRecordDetailPage: View {
         return false
     }
 
-    private func getSetEndText(record: ScoreboardRecord, winner: String) -> String {
-        return "第一局结束，\(winner)胜"
+    private func getSetEndText(setNumber: Int, winner: String) -> String {
+        return String(format: NSLocalizedString("set_end_winner_format", comment: ""), setNumber, winner)
     }
 
     private func scoringActionRow(timestamp: String, action: String, score: String, index: Int) -> some View {
@@ -606,7 +608,7 @@ private struct RecordDetailShareCardView: View {
 
             if let winner = record.winner {
                 let winnerName = winner == "left" ? record.team1Name : record.team2Name
-                Text("\(winnerName) wins")
+                Text(String(format: NSLocalizedString("game_winner_format", comment: ""), winnerName))
                     .font(.headline)
                     .foregroundColor(.green)
             }
@@ -625,9 +627,26 @@ private struct RecordDetailShareCardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface)
             .cornerRadius(12)
+
+            shareCardAppFooter
         }
         .padding(24)
         .background(Theme.backgroundColor)
+    }
+
+    private var shareCardAppFooter: some View {
+        HStack(spacing: 10) {
+            Image("ShareCardAppIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 36, height: 36)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "iScore")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(Theme.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 16)
     }
 
     private func shareDetailRow(label: String, value: String) -> some View {

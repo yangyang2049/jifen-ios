@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- 计分板（乒乓球/网球/排球）：在 addScore 中加分之前增加「局/盘/抢七已结束则不再加分」的防护，避免快速连点导致分数超出胜局条件（如乒乓球 12:2）。羽毛球此前已在加分前做局胜判断并 return，逻辑正确未改。
 - Watch App: 修复所有界面显示字符串 key（如 tab_score、game_badminton、game_tennis）而非本地化文案的问题。为 Watch 应用添加独立 Resources（en.lproj / zh-Hans.lproj）下的 Localizable.strings，使 NSLocalizedString 从 Watch 自身 bundle 正确加载中英文文案。
 - Watch App 抛硬币：修复动画结束时硬币不正对用户的问题。原因是旋转圈数包含小数导致最终角度不是 0°/180°；改用整数圈数（4-6圈随机），确保硬币落地时正面朝上（0°）或反面朝上（180°）。
 - Watch App 抛硬币：重新设计硬币外观，与鸿蒙版本风格一致。

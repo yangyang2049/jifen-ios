@@ -267,7 +267,7 @@ class BadmintonViewModel: BaseScoreViewModel {
         }
 
         controller?.saveScoreboardRecord(
-            id: "badminton_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            id: "badminton_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))",
             endTime: endTime,
             duration: duration,
             team1Name: leftTeam.name,

@@ -153,7 +153,8 @@ struct RecentActivityPage: View {
                         .fontWeight(.semibold)
                         .foregroundColor(Theme.accentColor)
                     if let winner = record.winner {
-                        Text("\(winner == "left" ? record.team1Name : record.team2Name) wins")
+                        let winnerName = winner == "left" ? record.team1Name : record.team2Name
+                        Text(String(format: NSLocalizedString("game_winner_format", comment: ""), winnerName))
                             .font(.caption)
                             .foregroundColor(.green)
                     }
@@ -175,7 +176,7 @@ struct RecentActivityPage: View {
                 }
                 Spacer()
                 if let winner = record.winner {
-                    Text("\(winner) wins")
+                    Text(String(format: NSLocalizedString("game_winner_format", comment: ""), winner))
                         .font(.subheadline)
                         .foregroundColor(.green)
                 }

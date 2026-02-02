@@ -292,6 +292,8 @@
 "app_language" = "应用语言";
 "about" = "关于";
 "version" = "版本";
+"privacy_policy" = "隐私政策";
+"support_contact" = "联系与支持";
 "developer" = "开发者";
 "accessibility" = "辅助功能";
 "feature_coming_soon" = "功能即将上线";
@@ -315,3 +317,5 @@
 "match_record" = "比赛记录";
 "no_actions_recorded" = "未记录任何操作";
 "date" = "日期";
+"set_end_winner_format" = "第%d局结束，%@胜";
+"game_started" = "比赛开始";

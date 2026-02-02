@@ -97,15 +97,22 @@ class VolleyballViewModel: BaseScoreViewModel {
     // MARK: - Overrides
 
     override func addScore(isLeft: Bool, points: Int) {
+        guard !gameFinished else { return }
+
+        // If set is already won (e.g. by rapid tap), do not add more points
+        let requiredPoints = currentSet == 5 ? 15 : 25 // 5th set is to 15
+        let myScore = isLeft ? leftTeam.score : rightTeam.score
+        let oppScore = isLeft ? rightTeam.score : leftTeam.score
+        if myScore >= requiredPoints && myScore - oppScore >= 2 {
+            return
+        }
+
         super.addScore(isLeft: isLeft, points: points)
 
         // Check for set win (simplified volleyball rules)
-        let requiredPoints = currentSet == 5 ? 15 : 25 // 5th set is to 15
         let score = isLeft ? leftTeam.score : rightTeam.score
         let opponentScore = isLeft ? rightTeam.score : leftTeam.score
-
         if score >= requiredPoints && score - opponentScore >= 2 {
-            // Set win
             addSet(isLeft: isLeft)
         }
 
@@ -183,7 +190,7 @@ class VolleyballViewModel: BaseScoreViewModel {
         }
 
         controller?.saveScoreboardRecord(
-            id: "volleyball_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            id: "volleyball_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))",
             endTime: endTime,
             duration: duration,
             team1Name: leftTeam.name,

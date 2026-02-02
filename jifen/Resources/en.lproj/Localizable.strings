@@ -292,6 +292,8 @@
 "app_language" = "App Language";
 "about" = "About";
 "version" = "Version";
+"privacy_policy" = "Privacy Policy";
+"support_contact" = "Support & Contact";
 "developer" = "Developer";
 "accessibility" = "Accessibility";
 "feature_coming_soon" = "Feature coming soon";
@@ -315,3 +317,5 @@
 "match_record" = "Match Record";
 "no_actions_recorded" = "No actions recorded";
 "date" = "Date";
+"set_end_winner_format" = "Set %d ended, %@ won";
+"game_started" = "Game started";

@@ -91,7 +91,7 @@ class FootballViewModel: BaseScoreViewModel {
         }
 
         controller?.saveScoreboardRecord(
-            id: "football_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            id: "football_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))",
             endTime: endTime,
             duration: duration,
             team1Name: leftTeam.name,

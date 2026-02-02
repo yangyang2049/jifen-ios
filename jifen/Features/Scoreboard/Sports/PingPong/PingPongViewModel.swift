@@ -82,6 +82,11 @@ class PingPongViewModel: BaseScoreViewModel {
         }
         lastScoreUpdateTime = currentTime
 
+        // If set is already won (e.g. by rapid tap), do not add more points
+        if canWinSet(leftScore: leftTeam.score, rightScore: rightTeam.score) {
+            return
+        }
+
         // Save history before change
         saveFullStateHistory()
         controller?.pushHistory(
@@ -285,7 +290,7 @@ class PingPongViewModel: BaseScoreViewModel {
         }
 
         controller?.saveScoreboardRecord(
-            id: "pingpong_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            id: "pingpong_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))",
             endTime: endTime,
             duration: duration,
             team1Name: leftTeam.name,

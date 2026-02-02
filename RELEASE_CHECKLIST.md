@@ -28,8 +28,8 @@
 - [ ] 为主要按钮、标签增加 `accessibilityLabel` / `accessibilityHint`（当前未使用）
 - [ ] 计分、重要操作考虑 VoiceOver 可读性
 
-### 6. 设置与关于
-- [ ] 设置页是否需增加：隐私政策链接、用户协议链接、反馈/联系方式（视商店与合规要求）
+### 6. 设置与关于（已加入口）
+- [x] 设置页「关于」下已增加：**隐私政策**、**联系与支持**（点击在浏览器打开）。发布前请在 **SettingsView.swift** 顶部 `AppSupportURLs` 中替换为你的真实链接（`privacyPolicy`、`support`）；若暂不提供可改为空字符串 `""` 以隐藏对应行。
 
 ### 7. 功能与体验
 - [ ] 截图功能：当前由 `ScoreboardTemplate` 实现；若某计分类型关闭了 `enableScreenshot`，菜单仍显示「截图」时需确认文案或行为是否符合预期
@@ -51,5 +51,5 @@
 | 调试 print     | 已包在 #if DEBUG  |
 | fatalError     | 已改为安全处理     |
 | 占位 print     | 已移除/无副作用    |
-| 隐私政策 URL   | 需在商店填写，应用内可选 |
+| 隐私政策 URL   | 需在商店填写；应用内已加「隐私政策」「联系与支持」入口，发布前替换 AppSupportURLs |
 | 无障碍         | 可选增强           |

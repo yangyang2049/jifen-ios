@@ -107,6 +107,19 @@ class TennisViewModel: BaseScoreViewModel {
     override func addScore(isLeft: Bool, points: Int) {
         guard !gameFinished else { return }
         
+        // If game or tiebreak is already won (e.g. by rapid tap), do not add more points
+        if isTieBreak {
+            let leftScore = leftTeam.score
+            let rightScore = rightTeam.score
+            if max(leftScore, rightScore) >= tieBreakTarget && abs(leftScore - rightScore) >= 2 {
+                return
+            }
+        } else {
+            if canWinGame(leftScore: leftTeam.score, rightScore: rightTeam.score) {
+                return
+            }
+        }
+        
         saveTennisSnapshot()
         
         if isTieBreak {
@@ -383,7 +396,7 @@ class TennisViewModel: BaseScoreViewModel {
         }
 
         controller?.saveScoreboardRecord(
-            id: "tennis_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))_\(Int(endTime.timeIntervalSince1970))",
+            id: "tennis_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))",
             endTime: endTime,
             duration: duration,
             team1Name: leftTeam.name,
