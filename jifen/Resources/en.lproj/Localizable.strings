@@ -8,6 +8,7 @@
 /* Tab Bar */
 "tab_home" = "Home";
 "tab_score" = "Score";
+"tab_records" = "Records";
 "tab_tools" = "Tools";
 
 /* Home Screen */
@@ -20,6 +21,7 @@
 "home_no_records" = "No recent records";
 "home_view_all_records" = "View all records";
 "home_yesterday" = "Yesterday";
+"loading" = "Loading";
 "home_complete_and_save" = "Complete and Save";
 "home_edit_primary_card" = "Customize primary card";
 "home_edit_secondary_card" = "Customize secondary card";

@@ -30,7 +30,7 @@ struct WatchSettingsView: View {
         }
         .background(WatchTheme.background)
         .navigationTitle(NSLocalizedString("setup", comment: "Settings"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: vibrationEnabled) { _, newValue in
             WatchPreferences.shared.vibrationEnabled = newValue
         }

@@ -162,6 +162,8 @@ struct RecentRowView: View {
 struct RecentRecordsSectionView: View {
     var records: [RecentActivity] = []
     var isDarkTheme: Bool = false
+    /// When set, "View all records" switches to Records tab instead of navigating to RecentActivityPage.
+    var onViewAllTapped: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) { // Column()
@@ -192,16 +194,28 @@ struct RecentRecordsSectionView: View {
                             )
                         }
 
-                        // View all records centered text button
-                        NavigationLink(destination: RecentActivityPage()) {
-                            Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
-                                .font(.system(size: Theme.fontBody2, weight: .medium))
-                                .foregroundColor(Theme.primary)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.vertical, Theme.sm)
-                                .padding(.top, 8)
+                        // View all records: switch to Records tab or navigate to RecentActivityPage
+                        if let onViewAllTapped = onViewAllTapped {
+                            Button(action: onViewAllTapped) {
+                                Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
+                                    .font(.system(size: Theme.fontBody2, weight: .medium))
+                                    .foregroundColor(Theme.primary)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.vertical, Theme.sm)
+                                    .padding(.top, 8)
+                            }
+                            .buttonStyle(CardButtonStyle())
+                        } else {
+                            NavigationLink(destination: RecentActivityPage()) {
+                                Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
+                                    .font(.system(size: Theme.fontBody2, weight: .medium))
+                                    .foregroundColor(Theme.primary)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.vertical, Theme.sm)
+                                    .padding(.top, 8)
+                            }
+                            .buttonStyle(CardButtonStyle())
                         }
-                        .buttonStyle(CardButtonStyle())
                     }
                 }
             }

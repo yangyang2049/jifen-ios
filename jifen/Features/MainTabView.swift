@@ -36,9 +36,17 @@ struct MainTabView: View {
                 }
 
                 NavigationStack {
-                    ToolsTab()
+                    RecordsTab()
                 }
                 .tag(2)
+                .tabItem {
+                    Label(NSLocalizedString("tab_records", comment: "Records tab"), systemImage: "list.bullet.clipboard.fill")
+                }
+
+                NavigationStack {
+                    ToolsTab()
+                }
+                .tag(3)
                 .tabItem {
                     Label(NSLocalizedString("tab_tools", comment: "Tools tab"), systemImage: "wrench.and.screwdriver.fill")
                 }

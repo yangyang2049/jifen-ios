@@ -231,7 +231,11 @@ struct HomeTab: View {
                     .font(.system(size: Theme.fontH5, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
 
-                RecentRecordsSectionView(records: recentActivities, isDarkTheme: true)
+                RecentRecordsSectionView(
+                    records: recentActivities,
+                    isDarkTheme: true,
+                    onViewAllTapped: { onNavigateToTab?(2, nil) }
+                )
             }
         }
     }

@@ -8,6 +8,7 @@
 /* Tab Bar */
 "tab_home" = "首页";
 "tab_score" = "计分";
+"tab_records" = "记录";
 "tab_tools" = "工具";
 
 /* Home Screen */
@@ -20,6 +21,7 @@
 "home_no_records" = "暂无最近记录";
 "home_view_all_records" = "查看全部记录";
 "home_yesterday" = "昨天";
+"loading" = "加载中";
 "home_complete_and_save" = "完成并保存";
 "home_edit_primary_card" = "自定义主卡片";
 "home_edit_secondary_card" = "自定义副卡片";

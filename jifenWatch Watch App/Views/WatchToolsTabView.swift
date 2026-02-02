@@ -24,6 +24,6 @@ struct WatchToolsTabView: View {
         }
         .background(WatchTheme.background)
         .navigationTitle(NSLocalizedString("tab_tools", comment: "Tools"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -33,7 +33,7 @@ struct WatchHomeTabView: View {
         }
         .background(WatchTheme.background)
         .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(NSLocalizedString("pingpong_sets", comment: "Ping Pong Sets"), isPresented: $showPingpongPicker) {
             Button(NSLocalizedString("best_of_3_sets", comment: "Best of 3")) { pingpongSets = 3; navigateToPingpong() }
             Button(NSLocalizedString("best_of_5_sets", comment: "Best of 5")) { pingpongSets = 5; navigateToPingpong() }

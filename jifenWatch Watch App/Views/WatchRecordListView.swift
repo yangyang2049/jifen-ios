@@ -44,7 +44,7 @@ struct WatchRecordListView: View {
             .padding(.bottom, 12)
         }
         .navigationTitle(NSLocalizedString("records", comment: "Records"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .background(WatchTheme.background)
         .onAppear {
             loadRecords()
