@@ -11,26 +11,65 @@ import SwiftUI
 class OrientationLock {
     static let shared = OrientationLock()
     private var lockedOrientation: UIInterfaceOrientationMask = .all
+    private var isPortraitUpdateInFlight: Bool = false
+    /// Monotonic token to invalidate stale async orientation requests.
+    private var requestToken: Int = 0
     
     func lock(_ orientation: UIInterfaceOrientationMask) {
+        if lockedOrientation == orientation && !isPortraitUpdateInFlight {
+            return
+        }
+        requestToken += 1
         lockedOrientation = orientation
+        if orientation != .portrait {
+            isPortraitUpdateInFlight = false
+        }
     }
     
     func unlock() {
-        lockedOrientation = .portrait
-        // Force return to portrait when unlocking
+        if lockedOrientation == .portrait && !isPortraitUpdateInFlight {
+            return
+        }
+        requestToken += 1
+        let tokenAtRequest = requestToken
+        guard !isPortraitUpdateInFlight else { return }
+        isPortraitUpdateInFlight = true
+
+        // Apply portrait unlock only if request is still current.
         DispatchQueue.main.async {
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            // If lock state changed after scheduling, cancel this outdated unlock.
+            guard self.requestToken == tokenAtRequest else {
+                self.isPortraitUpdateInFlight = false
+                return
+            }
+            self.lockedOrientation = .portrait
+            let windowScene = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first { $0.activationState == .foregroundActive }
+                ?? UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+
+            if let windowScene {
+                windowScene.windows.first(where: { $0.isKeyWindow })?
+                    .rootViewController?
+                    .setNeedsUpdateOfSupportedInterfaceOrientations()
+
                 if #available(iOS 16.0, *) {
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait)) { error in
                         #if DEBUG
-                        print("[OrientationLock] Geometry update result: \(error)")
+                        print("[OrientationLock] Geometry update fallback due to error: \(error.localizedDescription)")
                         #endif
+                        UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
+                        UIViewController.attemptRotationToDeviceOrientation()
+                        self.isPortraitUpdateInFlight = false
                     }
                 } else {
                     // Fallback for iOS 15 and earlier
                     UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
+                    UIViewController.attemptRotationToDeviceOrientation()
+                    self.isPortraitUpdateInFlight = false
                 }
+            } else {
+                self.isPortraitUpdateInFlight = false
             }
         }
     }

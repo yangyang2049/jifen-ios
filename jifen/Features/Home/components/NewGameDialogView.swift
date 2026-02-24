@@ -12,36 +12,34 @@ struct NewGameDialogView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Game Grid
-                ScrollView {
-                    LazyVGrid(columns: [
-                        GridItem(.flexible(), spacing: Theme.md),
-                        GridItem(.flexible(), spacing: Theme.md)
-                    ], spacing: Theme.md) {
-                        ForEach(getScoreboardItems()) { item in
-                            Button(action: {
-                                handleGameItemClick(item: item)
-                            }) {
-                                VStack(spacing: 8) {
-                                    Text(item.emoji)
-                                        .font(.system(size: 32))
-                                    Text(NSLocalizedString(item.nameKey, comment: ""))
-                                        .font(.system(size: Theme.fontBody2, weight: .medium))
-                                        .foregroundColor(Theme.textPrimary)
-                                        .multilineTextAlignment(.center)
-                                        .lineLimit(1)
+                GeometryReader { geo in
+                    ScrollView {
+                        LazyVGrid(columns: gridColumns(for: geo.size.width), spacing: Theme.md) {
+                            ForEach(GameCatalog.newGameDialogGameTypes, id: \.self) { gameType in
+                                Button(action: {
+                                    handleGameItemClick(gameType: gameType)
+                                }) {
+                                    VStack(spacing: 8) {
+                                        Text(gameType.icon)
+                                            .font(.system(size: 32))
+                                        Text(gameType.displayName)
+                                            .font(.system(size: Theme.fontBody2, weight: .medium))
+                                            .foregroundColor(Theme.textPrimary)
+                                            .multilineTextAlignment(.center)
+                                            .lineLimit(1)
+                                    }
+                                    .frame(maxWidth: .infinity, minHeight: 80)
+                                    .padding(.vertical, Theme.md)
+                                    .padding(.horizontal, Theme.sm)
+                                    .background(Theme.surface.opacity(0.5))
+                                    .cornerRadius(Theme.md)
                                 }
-                                .frame(maxWidth: .infinity, minHeight: 80)
-                                .padding(.vertical, Theme.md)
-                                .padding(.horizontal, Theme.sm)
-                                .background(Theme.surface.opacity(0.5))
-                                .cornerRadius(Theme.md)
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
+                        .padding(.horizontal, Theme.lg)
+                        .padding(.vertical, Theme.md)
                     }
-                    .padding(.horizontal, Theme.lg)
-                    .padding(.vertical, Theme.md)
                 }
             }
             .background(Color.clear)
@@ -58,39 +56,27 @@ struct NewGameDialogView: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
     }
 
-    private func getScoreboardItems() -> [GameItem] {
-        return [
-            GameItem(type: .basketball, nameKey: "game_basketball", emoji: GameType.basketball.icon, route: "BasketballScoreboard"),
-            GameItem(type: .badminton, nameKey: "game_badminton", emoji: GameType.badminton.icon, route: "BadmintonScoreboard"),
-            GameItem(type: .pingpong, nameKey: "game_pingpong", emoji: GameType.pingpong.icon, route: "PingPongScoreboard"),
-            GameItem(type: .tennis, nameKey: "game_tennis", emoji: GameType.tennis.icon, route: "TennisScoreboard"),
-            GameItem(type: .volleyball, nameKey: "game_volleyball", emoji: GameType.volleyball.icon, route: "VolleyballScoreboard"),
-            GameItem(type: .football, nameKey: "game_football", emoji: GameType.football.icon, route: "FootballScoreboard"),
-        ]
+    private func gridColumns(for containerWidth: CGFloat) -> [GridItem] {
+        let horizontalPadding = Theme.lg * 2
+        let spacing = Theme.md
+        let availableWidth = max(1, containerWidth - horizontalPadding)
+        let minItemWidth: CGFloat = 110
+        let estimatedCount = Int((availableWidth + spacing) / (minItemWidth + spacing))
+        let columnCount = max(3, estimatedCount)
+        return Array(repeating: GridItem(.flexible(), spacing: spacing), count: columnCount)
     }
 
-
-
-    private func handleGameItemClick(item: GameItem) {
-        let gameType = item.type
-
-        // Navigate for all supported games (tennis, pingpong, badminton, basketball, football, volleyball)
-        let supportedGames: [GameType] = [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball]
-
-        if supportedGames.contains(gameType) {
-            // Close modal and navigate to scoreboard
-            dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+    private func handleGameItemClick(gameType: GameType) {
+        dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            if Set(GameCatalog.timerSelectableGameTypes).contains(gameType) {
+                onTimerGameSelected?(gameType)
+            } else {
                 onSelect?(.scoreboard, sourcePage, gameType)
             }
-        } else {
-            // For unsupported games, just close modal (no navigation)
-            dismiss()
         }
     }
-
-
 }

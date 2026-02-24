@@ -1,5 +1,97 @@
 import SwiftUI
 
+// MARK: - CommonNameSelectorDialog
+// Sheet to pick a common team/player name (aligned with HarmonyOS common-name picker)
+
+struct CommonNameSelectorDialog: View {
+    @Environment(\.dismiss) var dismiss
+    var nameType: NameType
+    var onSelect: (String) -> Void
+
+    private let commonNamesManager = CommonNamesManager.shared
+
+    private var names: [String] {
+        commonNamesManager.getNames(type: nameType)
+    }
+
+    var body: some View {
+        NavigationView {
+            Group {
+                if names.isEmpty {
+                    VStack(spacing: Theme.sm) {
+                        EmptyStateCourtIcon(size: 44)
+                        Text(NSLocalizedString("common_names_empty", value: "暂无常用名称", comment: ""))
+                            .font(.system(size: 16))
+                            .foregroundColor(Theme.textSecondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List(names, id: \.self) { name in
+                        Button(action: {
+                            onSelect(name)
+                            dismiss()
+                        }) {
+                            HStack {
+                                Text(name)
+                                    .font(.system(size: 16))
+                                    .foregroundColor(Theme.textPrimary)
+                                Spacer()
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .background(Theme.backgroundColor)
+            .navigationTitle(NSLocalizedString("common_names_title", value: "常用名称", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(NSLocalizedString("cancel", comment: "")) {
+                        dismiss()
+                    }
+                    .foregroundColor(Theme.primary)
+                }
+            }
+        }
+    }
+}
+
+struct InlineCommonNameTextField: View {
+    let placeholder: String
+    @Binding var text: String
+    var onChevronTap: () -> Void
+    var font: Font = .system(size: 16)
+    var textColor: Color = Theme.textPrimary
+    var iconColor: Color = Theme.textSecondary
+    var backgroundColor: Color = Theme.homeCardDark
+    var height: CGFloat = 44
+    var cornerRadius: CGFloat = Theme.sm
+
+    var body: some View {
+        HStack(spacing: Theme.xs) {
+            TextField(placeholder, text: $text)
+                .textFieldStyle(.plain)
+                .font(font)
+                .foregroundColor(textColor)
+
+            Button(action: onChevronTap) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(iconColor)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.leading, Theme.sm)
+        .padding(.trailing, Theme.xs)
+        .frame(height: height)
+        .background(backgroundColor)
+        .cornerRadius(cornerRadius)
+    }
+}
 
 // MARK: - SportsSetupDialogView
 
@@ -15,129 +107,75 @@ struct SportsSetupDialogView: View {
     var onConfirm: ((SportsSetupResult) -> Void)?
     var onCancel: (() -> Void)?
 
+    private enum NameInputTarget: String, Identifiable {
+        case team1
+        case team2
+        case team1Player1
+        case team1Player2
+        case team2Player1
+        case team2Player2
+
+        var id: String { rawValue }
+    }
+
     @State private var team1Name: String = ""
     @State private var team2Name: String = ""
+    @State private var activeNameInputTarget: NameInputTarget? = nil
     @State private var recentGames: [RecentGameDisplay] = []
     @State private var selectedMaxSets: Int = 0
     @State private var selectedPointsPerSet: Int = 0
     @State private var selectedTieBreakPoints: Int = 0
     @State private var autoChangeSides: Bool = true // 默认开启自动换边
+    @State private var isSingles: Bool = true // 乒乓球/羽毛球/网球：单打/双打
+    @State private var team1Player1Name: String = ""
+    @State private var team1Player2Name: String = ""
+    @State private var team2Player1Name: String = ""
+    @State private var team2Player2Name: String = ""
 
     // Managers
     private let scoreboardRecordManager = ScoreboardRecordManager.shared
     private let commonNamesManager = CommonNamesManager.shared
 
     var body: some View {
-        ZStack {
-            // Background to dim content behind
-            Color.black.opacity(0.4).ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Header
-                VStack(spacing: 8) { // Row()
-                    HStack(spacing: 4) {
-                        Text(getEmoji())
-                            .font(.system(size: 20))
-                        Text(getTitle())
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(Theme.textPrimary)
+        VStack(spacing: 0) {
+            HStack(spacing: 6) {
+                Text(getEmoji())
+                    .font(.system(size: 20))
+                Text(getTitle())
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(Theme.textPrimary)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, Theme.lg)
+            .padding(.top, Theme.sm)
+            .padding(.vertical, Theme.md)
+
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: Theme.md) {
+                    if shouldShowSinglesDoublesAtTop() {
+                        buildSinglesDoublesSection()
                     }
-                    .frame(maxWidth: .infinity)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(Theme.homeDialogBackground)
-                .cornerRadius(Theme.lg) // Top corners only
-                .padding(.horizontal, Theme.md)
 
-                // Content Area
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: Theme.md) {
-                        // Team 1 Name Input
-                        VStack(alignment: .leading, spacing: Theme.sm) {
-                            Text(getTeamNameLabel(isTeam1: true))
-                                .font(.system(size: 14))
-                                .foregroundColor(Theme.textSecondary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-
-                            HStack {
-                                TextField(defaultTeam1Name, text: $team1Name)
-                                    .textFieldStyle(PlainTextFieldStyle())
-                                    .font(.system(size: 16))
-                                    .foregroundColor(Theme.textPrimary)
-                                    .padding(.horizontal, Theme.sm)
-                                    .frame(height: 44)
-                                    .background(Theme.homeCardDark) // Use a suitable background
-                                    .cornerRadius(Theme.sm)
-
-                                Button(action: {
-                                    // TODO: Open CommonNameSelectorDialog for Team 1
-                                }) {
-                                    Image(systemName: "chevron.right")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 20, height: 20)
-                                        .foregroundColor(Theme.textSecondary)
-                                }
-                                .frame(width: 40, height: 40)
-                                .background(Color.clear)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        // Team 2 Name Input
-                        VStack(alignment: .leading, spacing: Theme.sm) {
-                            Text(getTeamNameLabel(isTeam1: false))
-                                .font(.system(size: 14))
-                                .foregroundColor(Theme.textSecondary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-
-                            HStack {
-                                TextField(defaultTeam2Name, text: $team2Name)
-                                    .textFieldStyle(PlainTextFieldStyle())
-                                    .font(.system(size: 16))
-                                    .foregroundColor(Theme.textPrimary)
-                                    .padding(.horizontal, Theme.sm)
-                                    .frame(height: 44)
-                                    .background(Theme.homeCardDark) // Use a suitable background
-                                    .cornerRadius(Theme.sm)
-
-                                Button(action: {
-                                    // TODO: Open CommonNameSelectorDialog for Team 2
-                                }) {
-                                    Image(systemName: "chevron.right")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 20, height: 20)
-                                        .foregroundColor(Theme.textSecondary)
-                                }
-                                .frame(width: 40, height: 40)
-                                .background(Color.clear)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        // Settings Section
-                        buildSettingsSection()
+                    if shouldUseDoublesPlayerInputs() {
+                        buildDoublesNameInputs()
+                    } else {
+                        buildPrimaryNameInput()
+                        buildSecondaryNameInput()
                     }
-                    .padding(.horizontal, Theme.lg)
-                    .padding(.vertical, Theme.md)
 
-                    // Recent Games Records
+                    buildSettingsSection()
+
                     if !recentGames.isEmpty {
                         VStack(alignment: .leading, spacing: Theme.sm) {
                             HStack {
                                 Text(NSLocalizedString("recent_records", comment: "Recent Records"))
                                     .font(.system(size: 14))
                                     .foregroundColor(Theme.textSecondary)
-
                                 Spacer()
-
                                 Text(NSLocalizedString("tap_to_quick_use", comment: "Tap to quick use"))
                                     .font(.system(size: 11))
                                     .foregroundColor(Theme.textSecondary.opacity(0.6))
                             }
-                            .frame(maxWidth: .infinity)
 
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: Theme.sm) {
@@ -147,47 +185,65 @@ struct SportsSetupDialogView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, Theme.lg)
-                        .padding(.bottom, Theme.md)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-
-                    // Buttons
-                    HStack(spacing: Theme.md) {
-                        Button(action: {
-                            dismiss()
-                            onCancel?()
-                        }) {
-                            Text(NSLocalizedString("cancel", comment: "Cancel button"))
-                                .font(.system(size: 16))
-                                .foregroundColor(Theme.textSecondary)
-                                .frame(width: 100, height: 44)
-                                .background(Theme.homeCardDark)
-                                .cornerRadius(.infinity)
-                        }
-
-                        Button(action: {
-                            Task {
-                                await confirmSetup()
-                            }
-                        }) {
-                            Text(NSLocalizedString("start_game", comment: "Start Game button"))
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                                .background(Theme.primary)
-                                .cornerRadius(.infinity)
-                        }
-                    }
-                    .padding(.horizontal, Theme.lg)
-                    .padding(.vertical, Theme.md)
                 }
-                .background(Theme.homeDialogBackground)
-                .cornerRadius(Theme.lg) // Corner radius for the whole content view
-                .frame(width: 340) // Fixed width for the dialog content
+                .padding(.horizontal, Theme.lg)
+                .padding(.vertical, Theme.md)
             }
-            .onAppear {
-                initializeView()
+
+            HStack(spacing: Theme.md) {
+                Button(action: {
+                    onCancel?()
+                    dismiss()
+                }) {
+                    Text(NSLocalizedString("cancel", comment: "Cancel button"))
+                        .font(.system(size: 16))
+                        .foregroundColor(Theme.textSecondary)
+                        .frame(width: 100, height: 44)
+                        .background(Theme.homeCardDark)
+                        .cornerRadius(.infinity)
+                }
+                .buttonStyle(.plain)
+
+                Button(action: {
+                    Task {
+                        await confirmSetup()
+                    }
+                }) {
+                    Text(NSLocalizedString("start_game", comment: "Start Game button"))
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Theme.primary)
+                        .cornerRadius(.infinity)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, Theme.lg)
+            .padding(.top, Theme.sm)
+            .padding(.bottom, Theme.md)
+        }
+        .background(Theme.homeDialogBackground.ignoresSafeArea())
+        .onAppear {
+            initializeView()
+        }
+        .onChange(of: isSingles) { _, newValue in
+            guard shouldShowSinglesDoublesAtTop() else { return }
+            if newValue {
+                let firstLeft = team1Player1Name.trimmingCharacters(in: .whitespacesAndNewlines)
+                let firstRight = team2Player1Name.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !firstLeft.isEmpty { team1Name = firstLeft }
+                if !firstRight.isEmpty { team2Name = firstRight }
+            } else {
+                syncDoublesPlayerNamesFromTeamNames()
+            }
+        }
+        .sheet(item: $activeNameInputTarget) { target in
+            CommonNameSelectorDialog(nameType: nameType(for: target)) { name in
+                applySelectedName(name, to: target)
+                activeNameInputTarget = nil
             }
         }
     }
@@ -195,6 +251,7 @@ struct SportsSetupDialogView: View {
     private func initializeView() {
         team1Name = defaultTeam1Name
         team2Name = defaultTeam2Name
+        syncDoublesPlayerNamesFromTeamNames()
 
         selectedMaxSets = initialMaxSets ?? getDefaultMaxSets() ?? 0
         selectedPointsPerSet = initialPointsPerSet ?? getDefaultPointsPerSet() ?? 0
@@ -225,13 +282,27 @@ struct SportsSetupDialogView: View {
         return gameType == .tennis ? 7 : nil
     }
 
-    private func getTeamNameLabel(isTeam1: Bool) -> String {
-        // Only for football, volleyball, basketball use "主队名称"/"客队名称"
-        if gameType == .football || gameType == .volleyball || gameType == .basketball {
-            return NSLocalizedString(isTeam1 ? "team1_name" : "team2_name", comment: "")
+    private func getTeamNameLabel(isTeam1 _: Bool) -> String {
+        if shouldShowSinglesDoublesAtTop() {
+            return isSingles
+                ? NSLocalizedString("setup_player_name", value: "选手名称", comment: "Player name in setup")
+                : NSLocalizedString("setup_team_name", value: "队伍名称", comment: "Team name in setup")
         }
-        // Other sports use "队伍/运动员名称"
+        if isConfirmedPlayerSetupGame() {
+            return NSLocalizedString("setup_player_name", value: "选手名称", comment: "Player name in setup")
+        }
+        if isConfirmedTeamSetupGame() {
+            return NSLocalizedString("setup_team_name", value: "队伍名称", comment: "Team name in setup")
+        }
         return NSLocalizedString("team_or_player_name", comment: "")
+    }
+
+    private func isConfirmedPlayerSetupGame() -> Bool {
+        return gameType == .boxing || gameType == .archery
+    }
+
+    private func isConfirmedTeamSetupGame() -> Bool {
+        return gameType == .football || gameType == .volleyball || gameType == .basketball
     }
 
     private func getTitle() -> String {
@@ -242,8 +313,7 @@ struct SportsSetupDialogView: View {
         case .pingpong: return NSLocalizedString("pingpong_setup_title", comment: "")
         case .badminton: return NSLocalizedString("badminton_setup_title", comment: "")
         case .tennis: return NSLocalizedString("tennis_setup_title", comment: "")
-        // Removed billiards, boxing, pickleball
-        default: return NSLocalizedString("setup", comment: "")
+        default: return gameType.displayName + NSLocalizedString("setup_suffix", value: " 设置", comment: "")
         }
     }
 
@@ -264,6 +334,100 @@ struct SportsSetupDialogView: View {
                gameType == .tennis ||
                gameType == .badminton ||
                gameType == .volleyball
+    }
+
+    private func shouldShowSinglesDoublesAtTop() -> Bool {
+        return gameType == .pingpong || gameType == .badminton || gameType == .tennis
+    }
+
+    private func shouldUseDoublesPlayerInputs() -> Bool {
+        shouldShowSinglesDoublesAtTop() && !isSingles
+    }
+
+    @ViewBuilder
+    private func buildPrimaryNameInput() -> some View {
+        VStack(alignment: .leading, spacing: Theme.sm) {
+            Text(getTeamNameLabel(isTeam1: true))
+                .font(.system(size: 14))
+                .foregroundColor(Theme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            InlineCommonNameTextField(
+                placeholder: defaultTeam1Name,
+                text: $team1Name,
+                onChevronTap: { activeNameInputTarget = .team1 }
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func buildSecondaryNameInput() -> some View {
+        VStack(alignment: .leading, spacing: Theme.sm) {
+            Text(getTeamNameLabel(isTeam1: false))
+                .font(.system(size: 14))
+                .foregroundColor(Theme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            InlineCommonNameTextField(
+                placeholder: defaultTeam2Name,
+                text: $team2Name,
+                onChevronTap: { activeNameInputTarget = .team2 }
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func buildDoublesNameInputs() -> some View {
+        VStack(alignment: .leading, spacing: Theme.md) {
+            VStack(alignment: .leading, spacing: Theme.sm) {
+                Text(NSLocalizedString("team1_name", comment: ""))
+                    .font(.system(size: 14))
+                    .foregroundColor(Theme.textSecondary)
+                InlineCommonNameTextField(
+                    placeholder: NSLocalizedString("player1_name", value: "选手1", comment: ""),
+                    text: $team1Player1Name,
+                    onChevronTap: { activeNameInputTarget = .team1Player1 }
+                )
+                InlineCommonNameTextField(
+                    placeholder: NSLocalizedString("player2_name", value: "选手2", comment: ""),
+                    text: $team1Player2Name,
+                    onChevronTap: { activeNameInputTarget = .team1Player2 }
+                )
+            }
+
+            VStack(alignment: .leading, spacing: Theme.sm) {
+                Text(NSLocalizedString("team2_name", comment: ""))
+                    .font(.system(size: 14))
+                    .foregroundColor(Theme.textSecondary)
+                InlineCommonNameTextField(
+                    placeholder: NSLocalizedString("player1_name", value: "选手1", comment: ""),
+                    text: $team2Player1Name,
+                    onChevronTap: { activeNameInputTarget = .team2Player1 }
+                )
+                InlineCommonNameTextField(
+                    placeholder: NSLocalizedString("player2_name", value: "选手2", comment: ""),
+                    text: $team2Player2Name,
+                    onChevronTap: { activeNameInputTarget = .team2Player2 }
+                )
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func buildSinglesDoublesSection() -> some View {
+        Picker("", selection: $isSingles) {
+            Text(NSLocalizedString("singles", value: "单打", comment: ""))
+                .tag(true)
+            Text(NSLocalizedString("doubles", value: "双打", comment: ""))
+                .tag(false)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .tint(Theme.primary)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
@@ -360,6 +524,7 @@ struct SportsSetupDialogView: View {
                     }
                     .tint(Theme.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, Theme.sm)
                 } else if gameType == .volleyball {
                     Toggle(isOn: $autoChangeSides) {
                         Text(NSLocalizedString("volleyball_auto_change_sides", comment: "Auto change sides"))
@@ -503,7 +668,7 @@ struct SportsSetupDialogView: View {
         team1Name = game.team1Name
         team2Name = game.team2Name
 
-        if gameType == .pingpong || gameType == .tennis {
+        if gameType == .pingpong || gameType == .tennis || gameType == .badminton {
             let record: ScoreboardRecord? = scoreboardRecordManager.getRecordById(game.recordId)
             if let record = record, let extraData = record.extraData {
                 if gameType == .pingpong {
@@ -518,18 +683,86 @@ struct SportsSetupDialogView: View {
                         selectedTieBreakPoints = tbp
                     }
                 }
+                if let singles = extraData["isSingles"]?.value as? Bool {
+                    isSingles = singles
+                }
             }
         }
+        syncDoublesPlayerNamesFromTeamNames()
 
         #if DEBUG
         print(NSLocalizedString("load_recent_game", comment: "Loaded recent game"))
         #endif
     }
+
+    private func syncDoublesPlayerNamesFromTeamNames() {
+        let left = splitDoublesTeamName(team1Name)
+        let right = splitDoublesTeamName(team2Name)
+        team1Player1Name = left.first
+        team1Player2Name = left.second
+        team2Player1Name = right.first
+        team2Player2Name = right.second
+    }
+
+    private func splitDoublesTeamName(_ value: String) -> (first: String, second: String) {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return ("", "") }
+        let parts = trimmed
+            .split(separator: "/")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        if parts.count >= 2 {
+            return (parts[0], parts[1])
+        }
+        return (trimmed, "")
+    }
+
+    private func buildDoublesTeamName(_ player1: String, _ player2: String) -> String {
+        let first = player1.trimmingCharacters(in: .whitespacesAndNewlines)
+        let second = player2.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !first.isEmpty && !second.isEmpty {
+            return "\(first) / \(second)"
+        }
+        return first.isEmpty ? second : first
+    }
+
+    private func nameType(for target: NameInputTarget) -> NameType {
+        switch target {
+        case .team1, .team2:
+            return shouldShowSinglesDoublesAtTop() ? .player : .team
+        case .team1Player1, .team1Player2, .team2Player1, .team2Player2:
+            return .player
+        }
+    }
+
+    private func applySelectedName(_ value: String, to target: NameInputTarget) {
+        switch target {
+        case .team1:
+            team1Name = value
+        case .team2:
+            team2Name = value
+        case .team1Player1:
+            team1Player1Name = value
+        case .team1Player2:
+            team1Player2Name = value
+        case .team2Player1:
+            team2Player1Name = value
+        case .team2Player2:
+            team2Player2Name = value
+        }
+    }
     
     private func confirmSetup() async {
+        let resolvedTeam1Name = shouldUseDoublesPlayerInputs()
+            ? buildDoublesTeamName(team1Player1Name, team1Player2Name)
+            : team1Name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedTeam2Name = shouldUseDoublesPlayerInputs()
+            ? buildDoublesTeamName(team2Player1Name, team2Player2Name)
+            : team2Name.trimmingCharacters(in: .whitespacesAndNewlines)
+
         let config = SportsSetupResult(
-            team1Name: team1Name.trimmingCharacters(in: .whitespacesAndNewlines),
-            team2Name: team2Name.trimmingCharacters(in: .whitespacesAndNewlines)
+            team1Name: resolvedTeam1Name,
+            team2Name: resolvedTeam2Name
         )
 
         if config.team1Name == config.team2Name && !config.team1Name.isEmpty {
@@ -546,25 +779,49 @@ struct SportsSetupDialogView: View {
             finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 5
             finalConfig.pointsPerSet = 11 // Fixed for pingpong
             finalConfig.autoChangeSides = autoChangeSides
+            finalConfig.isSingles = isSingles
         } else if gameType == .tennis {
             finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
             finalConfig.tieBreakPoints = selectedTieBreakPoints > 0 ? selectedTieBreakPoints : 7
             finalConfig.autoChangeSides = autoChangeSides
-        } else if gameType == .badminton || gameType == .volleyball {
+            finalConfig.isSingles = isSingles
+        } else if gameType == .badminton {
+            finalConfig.autoChangeSides = autoChangeSides
+            finalConfig.isSingles = isSingles
+        } else if gameType == .volleyball {
             finalConfig.autoChangeSides = autoChangeSides
         }
         
-        // Auto save team names
-        if !finalConfig.team1Name.isEmpty && finalConfig.team1Name != defaultTeam1Name {
-            await commonNamesManager.recordUsage(finalConfig.team1Name, .team)
-        }
-        if !finalConfig.team2Name.isEmpty && finalConfig.team2Name != defaultTeam2Name {
-            await commonNamesManager.recordUsage(finalConfig.team2Name, .team)
+        if shouldUseDoublesPlayerInputs() {
+            let playerNames = [
+                team1Player1Name,
+                team1Player2Name,
+                team2Player1Name,
+                team2Player2Name,
+            ]
+            for name in playerNames {
+                let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    await commonNamesManager.recordUsage(trimmed, .player)
+                }
+            }
+        } else if shouldShowSinglesDoublesAtTop() {
+            if !finalConfig.team1Name.isEmpty && finalConfig.team1Name != defaultTeam1Name {
+                await commonNamesManager.recordUsage(finalConfig.team1Name, .player)
+            }
+            if !finalConfig.team2Name.isEmpty && finalConfig.team2Name != defaultTeam2Name {
+                await commonNamesManager.recordUsage(finalConfig.team2Name, .player)
+            }
+        } else {
+            if !finalConfig.team1Name.isEmpty && finalConfig.team1Name != defaultTeam1Name {
+                await commonNamesManager.recordUsage(finalConfig.team1Name, .team)
+            }
+            if !finalConfig.team2Name.isEmpty && finalConfig.team2Name != defaultTeam2Name {
+                await commonNamesManager.recordUsage(finalConfig.team2Name, .team)
+            }
         }
 
         onConfirm?(finalConfig)
         dismiss()
     }
 }
-
-

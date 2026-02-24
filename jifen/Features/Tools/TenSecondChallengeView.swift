@@ -78,7 +78,7 @@ struct TenSecondChallengeView: View {
             // Result display
             if showResult {
                 VStack(spacing: 8) {
-                    Text("误差")
+                    Text(NSLocalizedString("ten_second_error_label", value: "误差", comment: ""))
                         .font(.system(size: 14))
                         .foregroundColor(.white.opacity(0.6))
                     
@@ -86,7 +86,7 @@ struct TenSecondChallengeView: View {
                         Text(formatDifferenceNumber(lastDifference))
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(lastDifference < 100 ? Color(hex: "4CAF50") : Color(hex: "FF9800"))
-                        Text("秒")
+                        Text(NSLocalizedString("seconds_short", value: "秒", comment: ""))
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(lastDifference < 100 ? Color(hex: "4CAF50") : Color(hex: "FF9800"))
                     }
@@ -96,7 +96,7 @@ struct TenSecondChallengeView: View {
             
             // Control button
             Button(action: startChallenge) {
-                Text(isRunning ? "停止" : "开始")
+                Text(isRunning ? NSLocalizedString("ten_second_stop", value: "停止", comment: "") : NSLocalizedString("ten_second_start", value: "开始", comment: ""))
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 200, height: 60)

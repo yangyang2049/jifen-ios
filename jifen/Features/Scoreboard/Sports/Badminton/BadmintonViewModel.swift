@@ -15,7 +15,9 @@ class BadmintonViewModel: BaseScoreViewModel {
     var maxSets: Int = 3
     var normalSetPoints: Int = 21
     var autoChangeSides: Bool = true
+    var isSingles: Bool = true
     var sidesSwapped: Bool = false
+    var isLeftServing: Bool = true
     
     private var decidingSetChangedSides: Bool = false
     private var midGameRestTriggered: Bool = false
@@ -109,6 +111,8 @@ class BadmintonViewModel: BaseScoreViewModel {
         } else {
             rightTeam.score += points
         }
+        // Rally scoring: scorer gets next serve.
+        isLeftServing = isLeft
         
         // Deciding set cap
         if isDecidingSet {
@@ -130,6 +134,7 @@ class BadmintonViewModel: BaseScoreViewModel {
         leftTeam.sets = 0
         rightTeam.sets = 0
         sidesSwapped = false
+        isLeftServing = true
         decidingSetChangedSides = false
         midGameRestTriggered = false
         fullStateHistory.removeAll()
@@ -148,6 +153,7 @@ class BadmintonViewModel: BaseScoreViewModel {
         rightTeam.sets = state.rightSets
         currentSet = state.currentSet
         sidesSwapped = state.sidesSwapped
+        isLeftServing = state.isLeftServing
         decidingSetChangedSides = state.decidingSetChangedSides
         midGameRestTriggered = state.midGameRestTriggered
         
@@ -173,6 +179,8 @@ class BadmintonViewModel: BaseScoreViewModel {
         rightTeam.sets = tempSets
         
         sidesSwapped.toggle()
+        // Keep serving team unchanged when swapping sides.
+        isLeftServing.toggle()
         controller?.performVibration(type: .medium)
     }
     
@@ -249,7 +257,7 @@ class BadmintonViewModel: BaseScoreViewModel {
             gameFinished = true
             controller?.performVibration(type: .heavy)
         } else {
-            startNextSet()
+            startNextSet(lastSetWinnerIsLeft: setEndLeftScore > setEndRightScore)
         }
     }
 
@@ -278,14 +286,24 @@ class BadmintonViewModel: BaseScoreViewModel {
             team2SetScore: rightTeam.sets ?? 0,
             winner: winner,
             totalScoreChanges: controller?.getGameActions().count ?? 0,
-            extraData: [:]
+            extraData: [
+                "isSingles": isSingles,
+                "autoChangeSides": autoChangeSides,
+                "currentSet": currentSet,
+                "currentLeftScore": leftTeam.score,
+                "currentRightScore": rightTeam.score,
+                "isLeftServing": isLeftServing
+            ],
+            status: isGameFinished ? .finished : .draft
         )
     }
     
-    private func startNextSet() {
+    private func startNextSet(lastSetWinnerIsLeft: Bool) {
         currentSet += 1
         leftTeam.score = 0
         rightTeam.score = 0
+        // New set starts with loser serving first.
+        isLeftServing = !lastSetWinnerIsLeft
         decidingSetChangedSides = false
         midGameRestTriggered = false
         
@@ -388,6 +406,7 @@ class BadmintonViewModel: BaseScoreViewModel {
             rightSets: rightTeam.sets ?? 0,
             currentSet: currentSet,
             sidesSwapped: sidesSwapped,
+            isLeftServing: isLeftServing,
             decidingSetChangedSides: decidingSetChangedSides,
             midGameRestTriggered: midGameRestTriggered
         ))
@@ -405,6 +424,7 @@ private struct BadmintonStateSnapshot {
     let rightSets: Int
     let currentSet: Int
     let sidesSwapped: Bool
+    let isLeftServing: Bool
     let decidingSetChangedSides: Bool
     let midGameRestTriggered: Bool
 }

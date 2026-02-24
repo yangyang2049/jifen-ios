@@ -11,13 +11,15 @@ import Foundation
 class VolleyballViewModel: BaseScoreViewModel {
     var currentSet: Int = 1
     var maxSets: Int = 5  // Best of 5 sets
+    var isLeftServing: Bool = true
 
     private var setHistory: [(leftSets: Int, rightSets: Int, currentSet: Int)] = []
+    private var serveHistory: [Bool] = []
 
     override init(controller: BaseScoreboardController? = nil) {
         super.init(controller: controller)
-        self.leftTeam = TeamData(name: "红队", score: 0, sets: 0)
-        self.rightTeam = TeamData(name: "蓝队", score: 0, sets: 0)
+        self.leftTeam = TeamData(name: NSLocalizedString("red_team", comment: "Red Team"), score: 0, sets: 0)
+        self.rightTeam = TeamData(name: NSLocalizedString("blue_team", comment: "Blue Team"), score: 0, sets: 0)
     }
 
     // MARK: - Volleyball-specific methods
@@ -26,6 +28,7 @@ class VolleyballViewModel: BaseScoreViewModel {
     private var rightSets: Int { rightTeam.sets ?? 0 }
 
     func addSet(isLeft: Bool) {
+        pushServeHistory()
         // Save set history
         setHistory.append((leftSets: leftSets, rightSets: rightSets, currentSet: currentSet))
         if setHistory.count > 50 {
@@ -52,11 +55,14 @@ class VolleyballViewModel: BaseScoreViewModel {
         currentSet += 1
         leftTeam.score = 0
         rightTeam.score = 0
+        // Alternate first server for next set
+        isLeftServing.toggle()
 
         controller?.performVibration(type: .medium)
     }
 
     func removeSet(isLeft: Bool) {
+        pushServeHistory()
         let currentSets = isLeft ? leftSets : rightSets
         if currentSets <= 0 {
             return
@@ -90,6 +96,7 @@ class VolleyballViewModel: BaseScoreViewModel {
         rightTeam.sets = lastSets.rightSets
         currentSet = lastSets.currentSet
         gameFinished = false
+        restoreServeFromHistory()
 
         return true
     }
@@ -98,6 +105,12 @@ class VolleyballViewModel: BaseScoreViewModel {
 
     override func addScore(isLeft: Bool, points: Int) {
         guard !gameFinished else { return }
+        pushServeHistory()
+
+        // In rally-point scoring, serve changes when receiving team wins the rally.
+        if isLeft != isLeftServing {
+            isLeftServing = isLeft
+        }
 
         // If set is already won (e.g. by rapid tap), do not add more points
         let requiredPoints = currentSet == 5 ? 15 : 25 // 5th set is to 15
@@ -120,6 +133,8 @@ class VolleyballViewModel: BaseScoreViewModel {
     }
 
     func adjustScore(isLeft: Bool, delta: Int) {
+        pushServeHistory()
+
         // Save history before change
         controller?.pushHistory(
             left: leftTeam.score,
@@ -148,16 +163,29 @@ class VolleyballViewModel: BaseScoreViewModel {
         }
 
         // Fall back to score undo
-        return super.undo()
+        let undone = super.undo()
+        if undone {
+            restoreServeFromHistory()
+        }
+        return undone
     }
 
     override func reset() {
+        pushServeHistory()
         super.reset()
         leftTeam.sets = 0
         rightTeam.sets = 0
         currentSet = 1
+        isLeftServing = true
         gameFinished = false
         setHistory.removeAll()
+    }
+
+    override func exchangeSides() {
+        pushServeHistory()
+        super.exchangeSides()
+        // Keep service ownership on the same team after side swap.
+        isLeftServing.toggle()
     }
 
     func getScoringOptions() -> [Int] {
@@ -169,6 +197,18 @@ class VolleyballViewModel: BaseScoreViewModel {
         if leftSets > rightSets { return leftTeam.name }
         if rightSets > leftSets { return rightTeam.name }
         return ""
+    }
+
+    private func pushServeHistory() {
+        serveHistory.append(isLeftServing)
+        if serveHistory.count > 100 {
+            serveHistory.removeFirst()
+        }
+    }
+
+    private func restoreServeFromHistory() {
+        guard let previous = serveHistory.popLast() else { return }
+        isLeftServing = previous
     }
 
     // MARK: - Real-time Record Saving
@@ -201,7 +241,12 @@ class VolleyballViewModel: BaseScoreViewModel {
             team2SetScore: rightSets,
             winner: winner,
             totalScoreChanges: controller?.getGameActions().count ?? 0,
-            extraData: [:]
+            extraData: [
+                "currentLeftScore": leftTeam.score,
+                "currentRightScore": rightTeam.score,
+                "isLeftServing": isLeftServing
+            ],
+            status: (isGameFinished || gameFinished) ? .finished : .draft
         )
         #if DEBUG
         print("[VolleyballViewModel] ✅ Volleyball record saved successfully")

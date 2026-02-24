@@ -16,8 +16,12 @@ class BasketballViewModel: BaseScoreViewModel {
 
     override init(controller: BaseScoreboardController? = nil) {
         super.init(controller: controller)
-        self.leftTeam = TeamData(name: "主队", score: 0)
-        self.rightTeam = TeamData(name: "客队", score: 0)
+        self.leftTeam = TeamData(name: NSLocalizedString("team_home", value: "主队", comment: "Home team"), score: 0)
+        self.rightTeam = TeamData(name: NSLocalizedString("team_away", value: "客队", comment: "Away team"), score: 0)
+    }
+
+    override func endGame() {
+        gameFinished = true
     }
 
     // MARK: - Basketball-specific methods
@@ -123,7 +127,11 @@ class BasketballViewModel: BaseScoreViewModel {
             team2SetScore: 1,
             winner: winner,
             totalScoreChanges: controller?.getGameActions().count ?? 0,
-            extraData: [:]
+            extraData: [
+                "leftFouls": leftFouls,
+                "rightFouls": rightFouls
+            ],
+            status: (isGameFinished || gameFinished) ? .finished : .draft
         )
         #if DEBUG
         print("[BasketballViewModel] ✅ Basketball record saved successfully")

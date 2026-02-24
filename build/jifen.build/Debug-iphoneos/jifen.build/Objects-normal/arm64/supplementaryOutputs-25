@@ -1,0 +1,65 @@
+{
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/CommonNamesManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/FontRegistrar.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/PreferencesManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/QuickStartConfigManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/SoundManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/TokenManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/VibrationManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Network/HttpClient.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Network/WebSocketManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.swiftdeps"
+  }
+}

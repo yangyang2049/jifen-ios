@@ -1,0 +1,23 @@
+{
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Timer/WatchTimerDetailView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerDetailView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerDetailView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerDetailView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerDetailView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerDetailView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Timer/WatchTimerPresetsView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerPresetsView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerPresetsView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerPresetsView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerPresetsView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTimerPresetsView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Tools/WatchBasketballTrainingView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchBasketballTrainingView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchBasketballTrainingView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchBasketballTrainingView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchBasketballTrainingView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchBasketballTrainingView.swiftdeps"
+  }
+}

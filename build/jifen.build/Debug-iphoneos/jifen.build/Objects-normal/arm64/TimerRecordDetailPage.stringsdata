@@ -1,0 +1,16 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Activity/TimerRecordDetailPage.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@ %@",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 46
+        }
+      }
+    ]
+  },
+  "version": 1
+}

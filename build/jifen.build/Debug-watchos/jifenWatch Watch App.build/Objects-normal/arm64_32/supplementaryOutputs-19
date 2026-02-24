@@ -1,0 +1,23 @@
+{
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Views/WatchPrivacyAgreementView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPrivacyAgreementView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPrivacyAgreementView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPrivacyAgreementView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPrivacyAgreementView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPrivacyAgreementView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Views/WatchRecordDetailView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordDetailView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordDetailView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordDetailView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordDetailView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordDetailView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Views/WatchRecordListView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordListView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordListView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordListView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordListView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRecordListView.swiftdeps"
+  }
+}

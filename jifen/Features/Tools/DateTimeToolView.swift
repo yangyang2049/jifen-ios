@@ -38,7 +38,7 @@ struct DateTimeToolView: View {
                 Spacer()
             }
         }
-        .navigationTitle(NSLocalizedString("time_tool_title", comment: "Time Tool title"))
+        .navigationTitle(NSLocalizedString("time_tool_title", value: "全屏时间", comment: "Fullscreen Time"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             startTimer()
@@ -51,7 +51,7 @@ struct DateTimeToolView: View {
     
     private var weekdayString: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.locale = Locale.current
         formatter.dateFormat = "EEEE"
         return formatter.string(from: currentDate)
     }

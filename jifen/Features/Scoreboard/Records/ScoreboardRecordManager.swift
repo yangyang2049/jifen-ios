@@ -11,6 +11,7 @@ class ScoreboardRecordManager {
     static let shared = ScoreboardRecordManager()
     
     private let recordsKey = "scoreboard_records"
+    private let unfinishedRecordIdKey = "scoreboard_unfinished_record_id"
     private let maxRecords = 1000 // Maximum number of records to keep
     
     private init() {}
@@ -19,6 +20,15 @@ class ScoreboardRecordManager {
     
     func saveScoreboardRecord(_ record: ScoreboardRecord) throws {
         var records = loadAllRecords()
+
+        if record.status == .draft {
+            if let previousDraftId = getUnfinishedRecordId(), previousDraftId != record.id {
+                records.removeAll { $0.id == previousDraftId }
+            }
+            UserDefaults.standard.set(record.id, forKey: unfinishedRecordIdKey)
+        } else if getUnfinishedRecordId() == record.id {
+            UserDefaults.standard.removeObject(forKey: unfinishedRecordIdKey)
+        }
         
         // Remove old record with same ID if exists
         records.removeAll { $0.id == record.id }
@@ -67,12 +77,42 @@ class ScoreboardRecordManager {
     
     func getAllRecordSummaries() -> [ScoreboardRecordSummary] {
         let records = loadAllRecords()
-        return records.map { ScoreboardRecordSummary(from: $0) }
+        return records
+            .filter { $0.status == .finished }
+            .map { ScoreboardRecordSummary(from: $0) }
     }
     
     func getRecordById(_ id: String) -> ScoreboardRecord? {
         let records = loadAllRecords()
         return records.first { $0.id == id }
+    }
+
+    func getUnfinishedRecordId() -> String? {
+        UserDefaults.standard.string(forKey: unfinishedRecordIdKey)
+    }
+
+    func getUnfinishedRecord() -> ScoreboardRecord? {
+        let records = loadAllRecords()
+        if let id = getUnfinishedRecordId(), let record = records.first(where: { $0.id == id && $0.status == .draft }) {
+            return record
+        }
+
+        if let fallback = records.first(where: { $0.status == .draft }) {
+            UserDefaults.standard.set(fallback.id, forKey: unfinishedRecordIdKey)
+            return fallback
+        }
+
+        return nil
+    }
+
+    @discardableResult
+    func discardUnfinishedRecord() -> Bool {
+        guard let unfinishedId = getUnfinishedRecordId() else {
+            return false
+        }
+        let deleted = deleteRecord(unfinishedId)
+        UserDefaults.standard.removeObject(forKey: unfinishedRecordIdKey)
+        return deleted
     }
     
     // MARK: - Delete Record
@@ -88,6 +128,9 @@ class ScoreboardRecordManager {
                 encoder.dateEncodingStrategy = .iso8601
                 let data = try encoder.encode(records)
                 UserDefaults.standard.set(data, forKey: recordsKey)
+                if getUnfinishedRecordId() == id {
+                    UserDefaults.standard.removeObject(forKey: unfinishedRecordIdKey)
+                }
                 #if DEBUG
                 print("[ScoreboardRecordManager] ✅ Deleted record: \(id)")
                 #endif
@@ -107,9 +150,9 @@ class ScoreboardRecordManager {
     
     func clearAllRecords() {
         UserDefaults.standard.removeObject(forKey: recordsKey)
+        UserDefaults.standard.removeObject(forKey: unfinishedRecordIdKey)
         #if DEBUG
         print("[ScoreboardRecordManager] ✅ Cleared all records")
         #endif
     }
 }
-

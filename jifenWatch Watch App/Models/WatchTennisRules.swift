@@ -4,17 +4,17 @@ struct WatchTennisRules: WatchGameRules {
     let gameType: WatchGameType = .tennis
     let maxSets: Int
     let pointsToWin: Int = 4 // Points to win a game
-    let displayTitle: String = "网球"
+    var displayTitle: String { NSLocalizedString("game_tennis", comment: "Tennis") }
     var setOptionsText: String {
         switch maxSets {
         case 1:
-            return "一盘"
+            return NSLocalizedString("sets_1", comment: "1 set")
         case 3:
-            return "三盘两胜"
+            return NSLocalizedString("sets_3_best_of_2", comment: "Best of 3")
         case 5:
-            return "五盘三胜"
+            return NSLocalizedString("sets_5_best_of_3", comment: "Best of 5")
         default:
-            return "\(maxSets)盘"
+            return String(format: NSLocalizedString("sets_generic_tennis", value: "%d盘", comment: "Generic tennis sets"), maxSets)
         }
     }
     let midGameRestAt: Int? = nil
@@ -58,9 +58,11 @@ struct WatchTennisRules: WatchGameRules {
     }
     
     func onScoreChange(redScore: inout Int, blueScore: inout Int, redGames: inout Int, blueGames: inout Int, redSets: inout Int, blueSets: inout Int, isTiebreak: inout Bool) {
-        if isTiebreak {
-            if (redScore + blueScore) % 2 != 0 {
-                // show swap reminder
+        if !isTiebreak {
+            // Handle deuce: if both scores are >= 3 (40-40) and equal, reset to 3-3 to avoid AD-AD
+            if redScore >= 3 && blueScore >= 3 && redScore == blueScore && redScore > 3 {
+                redScore = 3
+                blueScore = 3
             }
         }
     }

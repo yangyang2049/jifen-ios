@@ -1,0 +1,16 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Doudizhu/DoudizhuScoreboardView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 208
+        }
+      }
+    ]
+  },
+  "version": 1
+}

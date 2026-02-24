@@ -1,0 +1,24 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 184
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 270
+        }
+      }
+    ]
+  },
+  "version": 1
+}

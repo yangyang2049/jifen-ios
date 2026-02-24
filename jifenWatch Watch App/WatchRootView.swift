@@ -27,6 +27,12 @@ struct WatchRootView: View {
                     WatchBadmintonScoreView(maxSets: maxSets)
                 case .tennis(let maxSets):
                     WatchTennisScoreView(maxSets: maxSets)
+                case .pickleball(let maxSets):
+                    WatchPickleballScoreView(maxSets: maxSets)
+                case .archery:
+                    WatchArcheryScoreView()
+                case .basketballTraining:
+                    WatchBasketballTrainingView()
                 }
             }
         }

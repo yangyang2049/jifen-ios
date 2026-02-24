@@ -36,8 +36,7 @@ struct RecentActivityPage: View {
     private var emptyState: some View {
         VStack(spacing: 20) {
             Spacer()
-            Text("🧘‍♂️")
-                .font(.system(size: 80))
+            EmptyStateCourtIcon(size: 64)
             Text(NSLocalizedString("no_recent_records", comment: ""))
                 .font(.title2)
                 .foregroundColor(.secondary)
@@ -69,7 +68,7 @@ struct RecentActivityPage: View {
 
     private func getAllRecords() -> [RecordItem] {
         let scoreboardItems = scoreboardVM.records.map { RecordItem.scoreboard($0) }
-        let timerItems = timerVM.records.map { RecordItem.timer($0) }
+        let timerItems = timerVM.records.filter { $0.gameType != .stopwatch }.map { RecordItem.timer($0) }
 
         return (scoreboardItems + timerItems).sorted { $0.timestamp > $1.timestamp }
     }

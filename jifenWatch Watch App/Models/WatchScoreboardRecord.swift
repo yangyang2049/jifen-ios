@@ -67,33 +67,77 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
 }
 
 func watchFormatDuration(_ duration: TimeInterval) -> String {
+
     let totalSeconds = Int(duration)
+
     let hours = totalSeconds / 3600
+
     let minutes = (totalSeconds % 3600) / 60
+
     let seconds = totalSeconds % 60
+
+    
+
+    let hourUnit = NSLocalizedString("unit_hour", value: "时", comment: "Hour unit")
+
+    let minUnit = NSLocalizedString("unit_minute", value: "分", comment: "Minute unit")
+
+    let secUnit = NSLocalizedString("unit_second", value: "秒", comment: "Second unit")
+
+    
+
     if hours > 0 {
-        return String(format: "%d时%d分%d秒", hours, minutes, seconds)
+
+        return String(format: "%d%@%d%@%d%@", hours, hourUnit, minutes, minUnit, seconds, secUnit)
+
     }
+
     if minutes > 0 {
-        return String(format: "%d分%d秒", minutes, seconds)
+
+        return String(format: "%d%@%d%@", minutes, minUnit, seconds, secUnit)
+
     }
-    return String(format: "%d秒", seconds)
+
+    return String(format: "%d%@", seconds, secUnit)
+
 }
 
+
+
 func watchFormatDisplayDate(_ dateStr: String) -> String {
+
     let formatter = DateFormatter()
+
     formatter.dateFormat = "yyyy-MM-dd"
+
     guard let date = formatter.date(from: dateStr) else {
+
         return dateStr
+
     }
+
     let calendar = Calendar.current
+
     if calendar.isDateInToday(date) {
-        return "今天"
+
+        return NSLocalizedString("today", value: "今天", comment: "Today")
+
     }
+
     if calendar.isDateInYesterday(date) {
-        return "昨天"
+
+        return NSLocalizedString("yesterday", value: "昨天", comment: "Yesterday")
+
     }
+
+    
+
+    let monthFormat = NSLocalizedString("month_day_format", value: "%d月%d日", comment: "Month Day format")
+
     let month = calendar.component(.month, from: date)
+
     let day = calendar.component(.day, from: date)
-    return "\(month)月\(day)日"
+
+    return String(format: monthFormat, month, day)
+
 }

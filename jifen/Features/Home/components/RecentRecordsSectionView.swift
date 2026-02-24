@@ -64,7 +64,7 @@ struct RecentRowView: View {
             }
             .contentShape(Rectangle()) // Make entire area tappable
             .padding(.horizontal, Theme.xs) // padding({ left: 4, right: 4
-            .padding(.vertical, Theme.sm) // top: 12, bottom: 12
+            .padding(.vertical, Theme.md) // 与记录 Tab 一致，加大纵向留白
         }
         .buttonStyle(CardButtonStyle()) // Use custom button style for interaction feedback
     }
@@ -120,7 +120,7 @@ struct RecentRowView: View {
             }
             .contentShape(Rectangle()) // Make entire area tappable
             .padding(.horizontal, 0) // padding({ left: 0, right: 0
-            .padding(.vertical, Theme.sm) // top: 12, bottom: 12
+            .padding(.vertical, Theme.md) // 与记录 Tab 一致，加大纵向留白
         }
         .buttonStyle(CardButtonStyle()) // Use custom button style for interaction feedback
     }
@@ -171,8 +171,7 @@ struct RecentRecordsSectionView: View {
                 if records.isEmpty {
                     // Empty State
                     VStack(spacing: Theme.md) { // Column({ space: 16 })
-                        Text("🧘🏻")
-                            .font(.system(size: 48))
+                        EmptyStateCourtIcon(size: 48)
                         
                         Text(NSLocalizedString("home_no_records", comment: "No recent records text"))
                             .font(.system(size: Theme.fontBody2)) // fontSize(14)

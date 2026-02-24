@@ -4,17 +4,17 @@ struct WatchPingPongRules: WatchGameRules {
     let gameType: WatchGameType = .pingpong
     let maxSets: Int
     let pointsToWin: Int = 11
-    let displayTitle: String = "乒乓球"
+    var displayTitle: String { NSLocalizedString("game_pingpong", comment: "Ping Pong") }
     var setOptionsText: String {
         switch maxSets {
         case 3:
-            return "三局两胜"
+            return NSLocalizedString("best_of_3_sets", comment: "Best of 3")
         case 5:
-            return "五局三胜"
+            return NSLocalizedString("best_of_5_sets", comment: "Best of 5")
         case 7:
-            return "七局四胜"
+            return NSLocalizedString("best_of_7_sets", comment: "Best of 7")
         default:
-            return "\(maxSets)局"
+            return String(format: NSLocalizedString("sets_generic", value: "%d局", comment: "Generic sets"), maxSets)
         }
     }
     let midGameRestAt: Int? = nil

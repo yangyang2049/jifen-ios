@@ -6,73 +6,53 @@ struct BentoCardView: View {
     let icon: String
     var gradientColors: [Color] = [Theme.surface, Theme.surface] // Default to Theme.surface
     var isDarkText: Bool = false
-    var showDecorativeBars: Bool = true // New parameter, default to true
+    var showDecorativeBars: Bool = false
     
     var body: some View {
-        ZStack { // Overall ZStack for the card
-            LinearGradient( // Background gradient
+        ZStack(alignment: .topLeading) {
+            LinearGradient(
                 gradient: Gradient(colors: gradientColors),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             
-            VStack(alignment: .leading) { // Main content VStack
-                HStack(alignment: .top) { // Top row: title/subtitle and emoji
+            VStack(spacing: 0) {
+                HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 0) {
                         Text(title)
                             .font(.system(size: Theme.fontH5, weight: .bold))
                             .foregroundColor(isDarkText ? .black : Theme.textPrimary)
                             .lineLimit(1)
                             .truncationMode(.tail)
-                        
+
                         if !subtitle.isEmpty {
                             Text(subtitle)
                                 .font(.system(size: Theme.fontCaption, weight: .medium))
-                                .foregroundColor(isDarkText ? Theme.textSecondary : Theme.textSecondary)
+                                .foregroundColor(isDarkText ? Color(hex: "999999") : Theme.textSecondary)
                                 .padding(.top, Theme.xs)
                                 .textCase(.uppercase)
                         }
                     }
-                    .layoutPriority(1) // Allows title to take available width
-                    
-                    Spacer() // Pushes the icon to the right
-                    
-                    Text(icon) // Emoji at top right
-                        .font(.system(size: Theme.fontH3))
+                    .layoutPriority(1)
+                    Spacer()
                 }
-                // Removed .padding(.top, Theme.md) from HStack, rely on overall padding
-                
-                // Decorative Bars or Spacer
-                if showDecorativeBars && !subtitle.isEmpty && gradientColors[0] != Theme.surface && gradientColors[0] != .white {
+
+                Spacer()
+
+                HStack {
                     Spacer()
-                    HStack(spacing: 2) {
-                        DecorativeBar(height: 16)
-                        DecorativeBar(height: 28)
-                        DecorativeBar(height: 20)
-                        DecorativeBar(height: 40)
-                        DecorativeBar(height: 24)
-                    }
-                    .frame(height: 48)
-                    .opacity(0.3)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                } else {
-                    Spacer()
+                    Text(icon)
+                        .font(.system(size: Theme.fontH3))
+                        .padding(.trailing, Theme.sm)
+                        .padding(.bottom, Theme.sm)
                 }
             }
-            .padding(Theme.md) // Revert padding to Theme.md
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading) // Align content within card
+            .padding(Theme.md)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .cornerRadius(Theme.xxl)
         .shadow(color: Theme.homeButtonShadow, radius: 10, x: 0, y: 5)
         .buttonStyle(CardButtonStyle())
-    }
-    
-    // Decorative Bar sub-component
-    private func DecorativeBar(height: CGFloat) -> some View {
-        Rectangle()
-            .fill(Theme.textOnPrimary) // backgroundColor(Colors.textOnPrimary)
-            .frame(width: 4, height: height) // width(4), height(height)
-            .cornerRadius(2) // borderRadius(2)
     }
 }
 

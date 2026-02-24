@@ -1,0 +1,23 @@
+{
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Scoreboard/WatchPingPongScoreView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPingPongScoreView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPingPongScoreView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPingPongScoreView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPingPongScoreView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchPingPongScoreView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Scoreboard/WatchSetBasedScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchSetBasedScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchSetBasedScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchSetBasedScoreboardView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchSetBasedScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchSetBasedScoreboardView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Scoreboard/WatchTennisScoreView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTennisScoreView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTennisScoreView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTennisScoreView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTennisScoreView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTennisScoreView.swiftdeps"
+  }
+}

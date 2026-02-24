@@ -1,0 +1,16 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/MultiScore/MultiScoreboardView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 222
+        }
+      }
+    ]
+  },
+  "version": 1
+}

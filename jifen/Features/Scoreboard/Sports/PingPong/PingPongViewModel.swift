@@ -15,6 +15,7 @@ class PingPongViewModel: BaseScoreViewModel {
     var maxSets: Int = 5  // Default: best of 5 (first to 3)
     var pointsPerSet: Int = 11  // Default: 11 points per set
     var autoChangeSides: Bool = true
+    var isSingles: Bool = true
     var sidesSwapped: Bool = false
     private var decidingSetChangedSides: Bool = false
 
@@ -68,6 +69,15 @@ class PingPongViewModel: BaseScoreViewModel {
             return rightTeam.name
         }
         return ""
+    }
+
+    /// Harmony-aligned server rule for table tennis:
+    /// first server alternates by set, then switches every 2 points.
+    func isLeftServing() -> Bool {
+        let firstServerIsLeft = (currentSet % 2 == 1)
+        let totalPoints = leftTeam.score + rightTeam.score
+        let pairsOfPoints = totalPoints / 2
+        return firstServerIsLeft == (pairsOfPoints % 2 == 0)
     }
     
     // MARK: - Override Score Operations
@@ -301,7 +311,16 @@ class PingPongViewModel: BaseScoreViewModel {
             team2SetScore: rightTeam.sets ?? 0,
             winner: winner,
             totalScoreChanges: controller?.getGameActions().count ?? 0,
-            extraData: [:]
+            extraData: [
+                "maxSets": maxSets,
+                "pointsPerSet": pointsPerSet,
+                "autoChangeSides": autoChangeSides,
+                "isSingles": isSingles,
+                "currentSet": currentSet,
+                "currentLeftScore": leftTeam.score,
+                "currentRightScore": rightTeam.score
+            ],
+            status: isGameFinished ? .finished : .draft
         )
     }
     

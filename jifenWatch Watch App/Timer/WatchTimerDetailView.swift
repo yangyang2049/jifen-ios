@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchTimerDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var totalSeconds: Int
     @State private var remainingSeconds: Int
     @State private var isRunning = false
@@ -52,6 +53,16 @@ struct WatchTimerDetailView: View {
         .onDisappear {
             timer?.invalidate()
         }
+        .navigationTitle(NSLocalizedString("tab_timer", comment: "Timer"))
+        .navigationBarTitleDisplayMode(.inline)
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width > 50 && abs(value.translation.height) < 50 {
+                        dismiss()
+                    }
+                }
+        )
     }
 
     private var primaryButtonColor: Color {

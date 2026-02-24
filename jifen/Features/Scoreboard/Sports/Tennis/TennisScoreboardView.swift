@@ -11,6 +11,9 @@ struct TennisScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
+    var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
+    var onSetupConsumed: (() -> Void)? = nil
     @State private var controller = TennisController()
     @State private var viewModel = TennisViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
@@ -34,7 +37,8 @@ struct TennisScoreboardView: View {
                     controller: controller,
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
-                    nameType: .team,
+                    nameType: .player,
+                    isDoublesModeProvider: { !viewModel.isSingles },
                     scoreTextProvider: { isLeft, _ in
                         viewModel.scoreDisplay(isLeft: isLeft)
                     }
@@ -47,6 +51,10 @@ struct TennisScoreboardView: View {
                     }
                 }
             )
+
+            if !viewModel.gameFinished {
+                serveIndicator(isLeftServing: viewModel.isLeftServing())
+            }
             
             if viewModel.isTieBreak {
                 TieBreakBadge()
@@ -63,7 +71,8 @@ struct TennisScoreboardView: View {
                     showRestOverlay = false
                     startRestCountdown(seconds: 0, message: restMessage) { isSetTransitioning = false }
                 }, onUndo: {
-                    _ = viewModel.undo()
+                    let success = viewModel.undo()
+                    if success { showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done")) }
                     restTimer?.invalidate()
                     restTimer = nil
                     showRestOverlay = false
@@ -85,6 +94,21 @@ struct TennisScoreboardView: View {
         .lockOrientation(.landscape)
         .onAppear {
             viewModel.controller = controller
+            if let setup = initialSetup {
+                viewModel.leftTeam.name = setup.team1Name.isEmpty ? NSLocalizedString("red_team", comment: "") : setup.team1Name
+                viewModel.rightTeam.name = setup.team2Name.isEmpty ? NSLocalizedString("blue_team", comment: "") : setup.team2Name
+                if let maxSets = setup.maxSets, let autoChange = setup.autoChangeSides {
+                    viewModel.setConfig(maxSets: maxSets, autoChangeSides: autoChange)
+                }
+                if let tbp = setup.tieBreakPoints {
+                    viewModel.tieBreakTarget = tbp
+                }
+                if let singles = setup.isSingles {
+                    viewModel.isSingles = singles
+                }
+                onSetupConsumed?()
+            }
+            restoreDraftIfNeeded()
             responsiveScoreFontSize = calculateResponsiveScoreFontSize()
             
             viewModel.setOnGameEndCallback { leftGames, rightGames, gameNumber in
@@ -121,7 +145,6 @@ struct TennisScoreboardView: View {
                 tabBarController.tabBar.isHidden = false
             }
 
-            OrientationLock.shared.unlock()
         }
         .onChange(of: viewModel.gameFinished) { _, newValue in
             if newValue {
@@ -129,11 +152,59 @@ struct TennisScoreboardView: View {
             }
         }
     }
+
+    private func restoreDraftIfNeeded() {
+        guard let recordId = initialRecordId,
+              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
+              record.status == .draft else {
+            return
+        }
+
+        controller.gameStartTime = record.startTime
+        controller.gameActions = record.actions
+        controller.gameRecordSaved = false
+
+        viewModel.leftTeam.name = record.team1Name
+        viewModel.rightTeam.name = record.team2Name
+        viewModel.leftTeam.sets = record.team1SetScore ?? record.team1FinalScore
+        viewModel.rightTeam.sets = record.team2SetScore ?? record.team2FinalScore
+
+        if let maxSets = record.extraData?["maxSets"]?.value as? Int {
+            viewModel.maxSets = maxSets
+        }
+        if let tieBreakPoints = record.extraData?["tieBreakPoints"]?.value as? Int {
+            viewModel.tieBreakTarget = tieBreakPoints
+        }
+        if let autoChangeSides = record.extraData?["autoChangeSides"]?.value as? Bool {
+            viewModel.autoChangeSides = autoChangeSides
+        }
+        if let isSingles = record.extraData?["isSingles"]?.value as? Bool {
+            viewModel.isSingles = isSingles
+        }
+        if let currentSet = record.extraData?["currentSet"]?.value as? Int {
+            viewModel.currentSet = currentSet
+        }
+        if let finalLeftGames = record.extraData?["finalLeftGames"]?.value as? Int {
+            viewModel.leftTeam.games = finalLeftGames
+        }
+        if let finalRightGames = record.extraData?["finalRightGames"]?.value as? Int {
+            viewModel.rightTeam.games = finalRightGames
+        }
+        if let currentLeftScore = record.extraData?["currentLeftScore"]?.value as? Int {
+            viewModel.leftTeam.score = currentLeftScore
+        }
+        if let currentRightScore = record.extraData?["currentRightScore"]?.value as? Int {
+            viewModel.rightTeam.score = currentRightScore
+        }
+        if let isTieBreak = record.extraData?["isTieBreak"]?.value as? Bool {
+            viewModel.isTieBreak = isTieBreak
+        }
+    }
     
     // MARK: - Game End Handler
     
     private func handleGameEnd(leftGames: Int, rightGames: Int, gameNumber: Int) {
-        showToastMessage("第\(gameNumber)局结束，局分 \(leftGames)-\(rightGames)")
+        showToastMessage(String(format: NSLocalizedString("tennis_game_end_toast", value: "第%d局结束，局分 %d-%d", comment: ""), gameNumber, leftGames, rightGames))
     }
     
     // MARK: - Set End Handler
@@ -142,7 +213,7 @@ struct TennisScoreboardView: View {
         isSetTransitioning = true
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            showToastMessage("第\(data.setNumber)盘结束，\(data.winnerName)获胜，局分 \(data.finalLeftScore)-\(data.finalRightScore)")
+            showToastMessage(String(format: NSLocalizedString("tennis_set_end_toast", value: "第%d盘结束，%@获胜，局分 %d-%d", comment: ""), data.setNumber, data.winnerName, data.finalLeftScore, data.finalRightScore))
             data.continueUpdate()
             
             if data.isGameFinished {
@@ -151,7 +222,7 @@ struct TennisScoreboardView: View {
                 return
             }
             
-            startRestCountdown(seconds: 120, message: "盘间休息") {
+            startRestCountdown(seconds: 120, message: NSLocalizedString("set_break_tennis", value: "盘间休息", comment: "")) {
                 if data.shouldChangeSides {
                     handleSideChange()
                 }
@@ -161,7 +232,11 @@ struct TennisScoreboardView: View {
     }
     
     private func handleSideChange() {
-        showToastMessage("换边")
+        showToastMessage(NSLocalizedString("change_sides", comment: ""))
+    }
+
+    private func serveIndicator(isLeftServing: Bool) -> some View {
+        CenterLineServeIndicator(isLeftServing: isLeftServing)
     }
     
     // MARK: - Rest Countdown
@@ -236,7 +311,7 @@ struct TennisScoreboardView: View {
         
                 VStack {
         
-                    Text("抢七")
+                    Text(NSLocalizedString("tennis_tiebreak", value: "抢七", comment: ""))
         
                         .font(.system(size: 16, weight: .bold))
         

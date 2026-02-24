@@ -1,0 +1,40 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Tools/WatchRandomNumberView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "👆",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "#%lld",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 136
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 141
+        }
+      }
+    ]
+  },
+  "version": 1
+}

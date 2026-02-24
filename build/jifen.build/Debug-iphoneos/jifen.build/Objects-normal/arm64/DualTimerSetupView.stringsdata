@@ -1,0 +1,16 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/DualTimerSetupView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 52
+        }
+      }
+    ]
+  },
+  "version": 1
+}

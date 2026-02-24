@@ -20,27 +20,26 @@ struct ToolItemView: View {
         Button(action: {
             onClickCallback?()
         }) {
-            VStack(spacing: Theme.sm) { // Column({ space: 8 })
+            VStack(spacing: Theme.sm) {
                 // Icon Container
-                ZStack { // Column()
+                ZStack {
                     Text(icon)
-                        .font(.system(size: 24))
-                        .foregroundColor(iconColor) // fontColor(this.iconColor)
+                        .font(.system(size: 32))
+                        .foregroundColor(iconColor)
                 }
-                .frame(width: 56, height: 56) // width(56), height(56)
-                .background(.ultraThinMaterial) // Apply glassmorphism effect here
-                .cornerRadius(Theme.cornerRadius) // borderRadius(BorderRadius.xl)
-                .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1) // shadow
-                // .justifyContent(FlexAlign.Center), .alignItems(HorizontalAlign.Center) - handled by ZStack/modifiers
+                .frame(width: 64, height: 64)
+                .background(.ultraThinMaterial)
+                .cornerRadius(Theme.cornerRadius)
+                .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1)
 
                 // Label
                 Text(name)
-                    .font(.system(size: Theme.fontCaption, weight: .bold)) // FontSizes.overline, FontWeight.Bold
-                    .foregroundColor(isDarkTheme ? Theme.textSecondary : Theme.textSecondary) // Colors.textTertiary : Colors.textSecondary
+                    .font(.system(size: Theme.fontBody2, weight: .bold))
+                    .foregroundColor(isDarkTheme ? Theme.textSecondary : Theme.textSecondary)
                     .lineLimit(1)
-                    .truncationMode(.tail) // textOverflow({ overflow: TextOverflow.Ellipsis })
+                    .truncationMode(.tail)
             }
-            .frame(width: 72) // width(72) - Fixed width for snap alignment
+            .frame(width: 84)
         }
         .buttonStyle(CardButtonStyle()) // Using the custom button style for animations
     }
@@ -49,41 +48,54 @@ struct ToolItemView: View {
 // MARK: - ProToolsSectionView
 struct ProToolsSectionView: View {
     var isWide: Bool = false
-    var isDarkTheme: Bool = true // Default to black UI
+    var isDarkTheme: Bool = true
     var onToolClick: ((String) -> Void)? = nil
+    var onEnterToolsPage: (() -> Void)? = nil
 
     @State private var tools: [ToolDef] = []
     @State private var homeToolsText: String = NSLocalizedString("home_tools", comment: "Tools section title")
 
-    init(isWide: Bool = false, isDarkTheme: Bool = true, onToolClick: ((String) -> Void)? = nil) {
+    init(isWide: Bool = false, isDarkTheme: Bool = true, onToolClick: ((String) -> Void)? = nil, onEnterToolsPage: (() -> Void)? = nil) {
         self.isWide = isWide
         self.isDarkTheme = isDarkTheme
         self.onToolClick = onToolClick
+        self.onEnterToolsPage = onEnterToolsPage
         _tools = State(initialValue: Self.initialTools())
     }
 
     private static func initialTools() -> [ToolDef] {
         return [
-            ToolDef(id: "whistle", name: NSLocalizedString("home_tool_whistle", comment: "Whistle tool name"), icon: "🔊", color: Theme.toolWhistleRed),
-            ToolDef(id: "flip_coin", name: NSLocalizedString("home_tool_coin", comment: "Flip Coin tool name"), icon: "🪙", color: Theme.toolGray),
-            ToolDef(id: "dice", name: NSLocalizedString("home_tool_dice", comment: "Dice tool name"), icon: "🎲", color: Theme.toolGray),
+            ToolDef(id: "flip_coin", name: NSLocalizedString("tool_flip_coin", comment: "Flip Coin"), icon: "🪙", color: Theme.toolGray),
+            ToolDef(id: "dice", name: NSLocalizedString("tool_dice", comment: "Dice"), icon: "🎲", color: Theme.toolGray),
+            ToolDef(id: "whistle", name: NSLocalizedString("home_tool_whistle", comment: "Whistle"), icon: "🔊", color: Theme.toolWhistleRed),
             ToolDef(id: "red_yellow_card", name: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), icon: "🟨", color: Theme.toolGray),
+            ToolDef(id: "points_table", name: NSLocalizedString("points_table_title", value: "积分表", comment: ""), icon: "📊", color: Theme.toolGray),
+            ToolDef(id: "stopwatch", name: NSLocalizedString("tool_stopwatch", value: "秒表", comment: "Stopwatch"), icon: "⏱️", color: Theme.toolGray),
+            ToolDef(id: "time", name: NSLocalizedString("tool_time", value: "全屏时间", comment: "Fullscreen Time"), icon: "🕐", color: Theme.toolGray),
             ToolDef(id: "aa_calculator", name: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), icon: "💰", color: Theme.toolGray),
+            ToolDef(id: "ten_second", name: NSLocalizedString("tool_ten_second", comment: "Ten Second Challenge"), icon: "⏱️", color: Theme.toolGray),
         ]
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) { // Column()
-            // Header
-            HStack { // Row({ space: Spacing.sm })
+        VStack(alignment: .leading, spacing: 0) {
+            // Header: 标题 + 右侧 > 进入工具页
+            HStack {
                 Text(homeToolsText)
                     .font(.system(size: Theme.fontH5, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
-                
-                Spacer() // Re-add Spacer to push text to left
+                Spacer()
+                if let onEnterToolsPage = onEnterToolsPage {
+                    Button(action: onEnterToolsPage) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Theme.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .frame(maxWidth: .infinity) // justifyContent(FlexAlign.SpaceBetween), width('100%')
-            .padding(.bottom, Theme.md) // margin({ bottom: Spacing.md })
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, Theme.md)
 
             if isWide {
                 // Desktop/Tablet: Grid - 6 columns in one row
@@ -119,7 +131,7 @@ struct ProToolsSectionView: View {
                     }
                     .padding(.leading, 0) // padding({ left: 0 })
                 }
-                .frame(height: 80) // height(80)
+                .frame(height: 100)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading) // alignItems(HorizontalAlign.Start)

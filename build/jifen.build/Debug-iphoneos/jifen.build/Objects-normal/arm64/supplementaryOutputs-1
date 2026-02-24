@@ -1,0 +1,30 @@
+{
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Activity/RecentActivityPage.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Activity/TimerRecordDetailPage.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/SettingsView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/MultiScoreSetupDialogView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.swiftdeps"
+  }
+}

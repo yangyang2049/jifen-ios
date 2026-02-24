@@ -11,6 +11,9 @@ struct BasketballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
+    var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
+    var onSetupConsumed: (() -> Void)? = nil
     @State private var controller = BasketballController()
     @State private var viewModel = BasketballViewModel()
     @State private var showGameFinishedOverlay: Bool = false
@@ -47,7 +50,12 @@ struct BasketballScoreboardView: View {
         .lockOrientation(.landscape)
         .onAppear {
             viewModel.controller = controller
-            
+            if let setup = initialSetup {
+                viewModel.leftTeam.name = setup.team1Name.isEmpty ? NSLocalizedString("team_home", comment: "") : setup.team1Name
+                viewModel.rightTeam.name = setup.team2Name.isEmpty ? NSLocalizedString("team_away", comment: "") : setup.team2Name
+                onSetupConsumed?()
+            }
+            restoreDraftIfNeeded()
             // Hide tab bar
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first,
@@ -73,6 +81,29 @@ struct BasketballScoreboardView: View {
                let tabBarController = window.rootViewController?.findTabBarController() {
                 tabBarController.tabBar.isHidden = false
             }
+        }
+    }
+
+    private func restoreDraftIfNeeded() {
+        guard let recordId = initialRecordId,
+              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
+              record.status == .draft else {
+            return
+        }
+
+        controller.gameStartTime = record.startTime
+        controller.gameActions = record.actions
+        controller.gameRecordSaved = false
+
+        viewModel.leftTeam.name = record.team1Name
+        viewModel.rightTeam.name = record.team2Name
+        viewModel.leftTeam.score = record.team1FinalScore
+        viewModel.rightTeam.score = record.team2FinalScore
+        if let leftFouls = record.extraData?["leftFouls"]?.value as? Int {
+            viewModel.leftFouls = leftFouls
+        }
+        if let rightFouls = record.extraData?["rightFouls"]?.value as? Int {
+            viewModel.rightFouls = rightFouls
         }
     }
 }

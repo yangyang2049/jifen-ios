@@ -9,12 +9,14 @@
 "tab_home" = "首页";
 "tab_score" = "计分";
 "tab_records" = "记录";
+"tab_timer" = "计时";
 "tab_tools" = "工具";
 
 /* Home Screen */
 "recent_records" = "最近记录";
 "home_quick_start" = "快速开始";
 "home_start_game" = "开始比赛";
+"home_start_timer" = "开始计时";
 "home_new_game_short" = "新比赛";
 "home_all_items" = "全部项目";
 "home_tools" = "工具";
@@ -30,6 +32,7 @@
 "home_tool_whistle" = "哨子";
 "home_tool_rankings" = "排行榜";
 "home_tool_timer" = "计时器";
+"tool_stopwatch" = "秒表";
 "home_tool_coin" = "抛硬币";
 "home_tool_dice" = "骰子";
 "home_tool_team" = "随机分组";
@@ -40,10 +43,82 @@
 /* Default Team Names */
 "red_team" = "红队";
 "blue_team" = "蓝队";
+"team_home" = "主队";
+"team_away" = "客队";
+"team1_name" = "主队名称";
+"team2_name" = "客队名称";
+"setup_player_name" = "选手名称";
+"setup_team_name" = "队伍名称";
+"player1_name" = "选手1";
+"player2_name" = "选手2";
+"singles" = "单打";
+"doubles" = "双打";
+"singles_doubles" = "单双打";
+"badminton_singles_doubles" = "单双打";
 
 /* Timer Settings */
 "timer_settings_for" = "计时器设置";
 "unknown" = "未知";
+
+/* Timer Tab */
+"timer_common" = "秒表";
+"timer_count_up" = "正计时";
+"timer_go" = "围棋";
+"timer_xiangqi" = "象棋";
+"timer_chess" = "国际象棋";
+"timer_basketball_24s" = "篮球24秒";
+"timer_basketball_12s" = "篮球12秒";
+"timer_cube" = "魔方";
+"timer_timeout" = "暂停/超时";
+"timer_section_board_games" = "棋类";
+"timer_section_other" = "其他";
+"exit" = "退出";
+"pause" = "暂停";
+"resume" = "继续";
+"wins" = "获胜";
+"dual_timer_player" = "玩家";
+"dual_timer_main_time" = "主时间（分钟）";
+"timer_mode_slow" = "慢棋";
+"timer_mode_fast" = "快棋";
+"timer_mode_custom" = "自定义";
+"timer_increment" = "加时";
+"timer_increment_per_move" = "秒/步";
+"timer_increment_format" = "+%d 秒/步";
+"timer_byoyomi" = "读秒";
+"timer_byoyomi_seconds_per_period" = "秒/次";
+"timer_byoyomi_periods" = "次";
+"timer_byoyomi_periods_format" = "读秒 %d 次";
+"timer_voice_announcement" = "语音播报";
+"timer_vibration_feedback" = "震动反馈";
+"timer_exit_confirm_title" = "确认退出";
+"timer_exit_confirm_message" = "退出后将结束当前计时。";
+"timer_stop_confirm_title" = "确认停止";
+"timer_stop_confirm_message" = "停止后将结束本局。";
+"timer_game_over" = "比赛结束";
+"timer_restart" = "重新开始";
+"timer_black_player" = "黑方";
+"timer_white_player" = "白方";
+"timer_red_player" = "红方";
+"timer_role_red" = "帅";
+"timer_role_black" = "将";
+"timer_action_start" = "开始计时";
+"timer_action_pause" = "暂停计时";
+"timer_action_resume" = "继续计时";
+"timer_action_move_format" = "%@ 行棋";
+"timer_action_timeout_format" = "%@ 超时";
+"timer_action_manual_stop" = "手动停止";
+"timer_action_game_end" = "比赛结束";
+"timer_action_game_end_winner_format" = "比赛结束，%@ 获胜";
+"cube_hold_to_start" = "长按下方按钮 0.5 秒开始";
+"cube_hold" = "长按开始";
+"cube_timer_release_to_start" = "松开双手开始计时";
+"cube_timer_place_hands" = "双手放在屏幕上准备";
+"cube_timer_no_touchscreen_hint" = "💡 没有触摸屏无法工作，可在手机平板上使用";
+"click_again_to_exit" = "再次点击退出";
+"tap_again_to_exit" = "再次轻触退出";
+"seconds_short" = "秒";
+"minute" = "分钟";
+"minutes" = "分钟";
 
 /* Game Types */
 "game_pingpong" = "乒乓球";
@@ -70,12 +145,13 @@
 "badminton_setup_title" = "羽毛球设置";
 "tennis_setup_title" = "网球设置";
 "setup" = "设置";
+"setup_suffix" = "设置";
 
 /* Settings Labels */
 "sets_label" = "局数";
 "points_per_set_label" = "每局分数";
 "auto_change_sides" = "自动换边";
-"start_game" = "开始游戏";
+"start_game" = "开始";
 
 /* Ping Pong Settings */
 "pingpong_set_count_label" = "局数";
@@ -83,6 +159,13 @@
 "best_of_3_sets" = "3局2胜";
 "best_of_5_sets" = "5局3胜";
 "best_of_7_sets" = "7局4胜";
+"pingpong_set_option_best_of_3" = "3局2胜";
+"pingpong_set_option_best_of_5" = "5局3胜";
+"pingpong_set_option_best_of_7" = "7局4胜";
+"tennis_set_option_best_of_3" = "3盘2胜";
+"tennis_set_option_best_of_5" = "5盘3胜";
+"tennis_tiebreak_option_7" = "7分";
+"tennis_tiebreak_option_10" = "10分";
 "points_11" = "11分";
 "points_21" = "21分";
 
@@ -174,7 +257,7 @@
 "tool_random_team" = "随机分组";
 "tool_red_yellow_card" = "红黄牌";
 "tool_points_table" = "积分表";
-"tool_time" = "时间工具";
+"tool_time" = "全屏时间";
 "tool_aa_calculator" = "AA计算器";
 "tool_ten_second" = "十秒挑战";
 
@@ -188,6 +271,7 @@
 "players_4" = "4人";
 "players_6" = "6人";
 "players_8" = "8人";
+"players_count_format" = "%d人";
 "random_grouping" = "随机分组";
 "simulate" = "模拟";
 "try_again" = "再来一次";
@@ -205,6 +289,9 @@
 /* Dice Tool */
 "dice_title" = "骰子";
 "tap_to_roll" = "点击屏幕摇骰子";
+"dice_count_1" = "1颗骰子";
+"dice_count_2" = "2颗骰子";
+"dice_count_3" = "3颗骰子";
 
 /* Points Table Tool */
 "points_table_title" = "积分表";
@@ -231,7 +318,7 @@
 "swipe_to_switch" = "左右滑动切换";
 
 /* Time Tool */
-"time_tool_title" = "时间工具";
+"time_tool_title" = "全屏时间";
 
 /* AA Calculator Tool */
 "aa_calculator_title" = "AA计算器";
@@ -257,6 +344,7 @@
 "menu_swap_sides" = "交换边";
 "menu_reset" = "重置";
 "menu_undo" = "撤销";
+"archery_wait_turn" = "轮到对方射箭";
 
 /* Font Selection */
 "select_font" = "选择字体";
@@ -296,6 +384,29 @@
 "support_contact" = "联系与支持";
 "developer" = "开发者";
 "accessibility" = "辅助功能";
+"common_names_manage" = "常用名称管理";
+"common_names_team" = "队伍名称";
+"common_names_player" = "选手名称";
+"common_names_clear_current" = "清空当前分类";
+"common_names_clear_current_message" = "将清空%@的所有常用名称，此操作无法撤销。";
+"common_names_title" = "常用名称";
+"common_names_empty" = "暂无常用名称";
+"common_names_add" = "添加";
+"common_names_batch_add" = "批量添加";
+"common_names_edit_title" = "编辑名称";
+"common_names_team_placeholder" = "输入队伍名称";
+"common_names_player_placeholder" = "输入选手名称";
+"common_names_batch_hint" = "每行一个名称，或用逗号分隔";
+"common_names_empty_name" = "名称不能为空";
+"common_names_already_exists" = "该名称已存在";
+"common_names_added" = "已添加";
+"common_names_updated" = "已更新";
+"common_names_deleted" = "已删除";
+"common_names_add_failed" = "添加失败";
+"common_names_update_failed" = "更新失败";
+"common_names_batch_empty" = "请输入至少一个有效名称";
+"common_names_batch_result" = "已添加 %d 个，跳过 %d 个";
+"common_names_delete_message" = "确认删除“%@”？";
 "feature_coming_soon" = "功能即将上线";
 "language_restart_note" = "语言切换需要重启应用后生效";
 "vs_separator" = " vs ";
@@ -319,3 +430,42 @@
 "date" = "日期";
 "set_end_winner_format" = "第%d局结束，%@胜";
 "game_started" = "比赛开始";
+"schedule_title" = "我的球局";
+"schedule_new_booking" = "预约新球局";
+"schedule_empty_pending" = "暂无待进行球局";
+"schedule_empty_completed" = "暂无已完成球局";
+"schedule_empty_cancelled" = "暂无已取消球局";
+"schedule_time_status_scheduled" = "待开始";
+"schedule_time_status_starting_soon" = "即将开始";
+"schedule_time_status_ready" = "可开赛";
+"schedule_time_status_overdue" = "已过时间";
+"schedule_entry_hint" = "查看全部日程与预约新球局";
+"schedule_create_title" = "预约新球局";
+"schedule_detail_title" = "球局详情";
+"schedule_sport" = "项目";
+"schedule_sport_other" = "其他";
+"schedule_datetime" = "时间";
+"schedule_duration" = "时长";
+"schedule_duration_minutes" = "时长 %d 分钟";
+"schedule_duration_short" = "%d分钟";
+"schedule_place_and_format" = "地点与赛制";
+"schedule_location" = "地点";
+"schedule_location_placeholder" = "输入地点";
+"schedule_match_format" = "赛制";
+"schedule_match_format_placeholder" = "赛制（可选）";
+"schedule_reminders" = "提醒";
+"schedule_reminder_hours_before" = "%d 小时前";
+"schedule_reminder_minutes_before" = "%d 分钟前";
+"schedule_notes" = "备注";
+"schedule_start_game" = "一键开赛";
+"schedule_edit" = "编辑";
+"schedule_cancel_booking" = "取消预约";
+"schedule_cancel_confirm_message" = "确认取消这场预约吗？";
+"schedule_booking_not_found" = "未找到该预约";
+"schedule_empty_state" = "暂无日程，点击下方按钮预约球局";
+"schedule_status_pending" = "待进行";
+"schedule_status_completed" = "已完成";
+"schedule_status_cancelled" = "已取消";
+"tomorrow" = "明天";
+"unfinished_discard_title" = "放弃未完成比赛";
+"unfinished_discard_message" = "确认放弃当前未完成比赛？";

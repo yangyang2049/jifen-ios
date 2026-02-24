@@ -1,0 +1,1029 @@
+{
+  "" : {
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifen-primary.dia",
+    "emit-module-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifen-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifen-primary-emit-module.dia",
+    "pch" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifen-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifen-primary.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/ContentView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/CommonNamesManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CommonNamesManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/FontRegistrar.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FontRegistrar~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/PreferencesManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PreferencesManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/QuickStartConfigManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartConfigManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/SoundManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SoundManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/TokenManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TokenManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Managers/VibrationManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VibrationManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Network/HttpClient.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HttpClient~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Network/WebSocketManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WebSocketManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Theme/Theme.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Theme~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Core/Utils.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Utils~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Activity/Models/TimerRecord.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecord~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Activity/Models/TimerRecordManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Activity/RecentActivityPage.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentActivityPage~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Activity/TimerRecordDetailPage.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerRecordDetailPage~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/HomeTab.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeTab~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/HomeUtils.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeUtils~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/Models/HomeModels.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/HomeModels~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/SettingsView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/BentoCardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BentoCardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/MultiScoreSetupDialogView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreSetupDialogView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/NewGameDialogView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/NewGameDialogView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/ProToolsSectionView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ProToolsSectionView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/QuickStartEditView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartEditView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/QuickStartGridView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/QuickStartGridView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/RecentRecordsSectionView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecentRecordsSectionView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/SportOptionView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportOptionView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Home/components/SportsSetupDialogView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SportsSetupDialogView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/MainTabView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MainTabView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/ComingSoonPlaceholderView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ComingSoonPlaceholderView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Doudizhu/DoudizhuScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DoudizhuScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Guandan/GuandanScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GuandanScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/MultiScore/MultiScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MultiScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Records/ScoreboardRecord.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecord~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Records/ScoreboardRecordManager.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordManager~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Records/ScoreboardRecordsViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordsViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/RecordsTab.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RecordsTab~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/ScoreboardRecordDetailPage.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardRecordDetailPage~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/ScoreboardTab.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTab~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/BaseScoreViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/BaseScoreboardController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BaseScoreboardController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/GameFinishedOverlay.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/GameFinishedOverlay~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/MenuDialog.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/MenuDialog~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/RestCountdownOverlay.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RestCountdownOverlay~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/ScoreboardConstants.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardConstants~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/ScoreboardTemplate.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ScoreboardTemplate~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/Types.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/Types~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Shared/UIViewControllerExtensions.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/UIViewControllerExtensions~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/SimpleScore/SimpleScoreboardController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/SimpleScore/SimpleScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/SimpleScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Archery/ArcheryScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ArcheryScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Badminton/BadmintonController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Badminton/BadmintonScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Badminton/BadmintonViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BadmintonViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Basketball/BasketballController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Basketball/BasketballScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Basketball/BasketballViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Billiards/BilliardsScoreboardController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Billiards/BilliardsScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BilliardsScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Boxing/BoxingScoreboardController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Boxing/BoxingScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Boxing/BoxingViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BoxingViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Football/FootballController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Football/FootballScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Football/FootballViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FootballViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Pickleball/PickleballScoreboardController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Pickleball/PickleballScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Pickleball/PickleballViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PickleballViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/PingPong/PingPongController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/PingPong/PingPongScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/PingPong/PingPongViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PingPongViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Tennis/TennisController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Tennis/TennisScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Tennis/TennisViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TennisViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Volleyball/VolleyballController.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballController~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Volleyball/VolleyballScoreboardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballScoreboardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Volleyball/VolleyballViewModel.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/VolleyballViewModel~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/BasketballCountdownView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/BasketballCountdownView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/CountUpTimerView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CountUpTimerView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/CubeTimerView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/CubeTimerView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/DualPlayerTimerView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualPlayerTimerView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/DualTimerSetupView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DualTimerSetupView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/TimeoutCountdownView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimeoutCountdownView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Timer/TimerTab.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TimerTab~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/AACalculatorView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/AACalculatorView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/DateTimeToolView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DateTimeToolView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/DiceToolView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/DiceToolView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/FlipCoinTypes.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinTypes~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/FlipCoinView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FlipCoinView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/FullscreenBarrageView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/FullscreenBarrageView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/PointsTable/PointsTableModels.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableModels~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/PointsTable/PointsTableStorage.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableStorage~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/PointsTable/PointsTableView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/PointsTableView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/RedYellowCardView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/RedYellowCardView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/StopwatchView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/StopwatchView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/TenSecondChallengeView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/TenSecondChallengeView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/ToolDefinitions.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolDefinitions~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/ToolsTab.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/ToolsTab~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Tools/WhistleToolView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/WhistleToolView~partial.swiftmodule"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/jifenApp.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp.dia",
+    "index-unit-output-path" : "/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp.o",
+    "llvm-bc" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp.bc",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp.swiftdeps",
+    "swiftmodule" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-iphoneos/jifen.build/Objects-normal/arm64/jifenApp~partial.swiftmodule"
+  }
+}

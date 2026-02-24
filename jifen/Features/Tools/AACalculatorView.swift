@@ -287,7 +287,7 @@ struct AACalculatorView: View {
         isAmountFocused = false
 
         guard let amount = Double(totalAmount), amount > 0 else {
-            showToastMessage("请输入有效金额")
+            showToastMessage(NSLocalizedString("aa_enter_valid_amount", value: "请输入有效金额", comment: ""))
             return
         }
 

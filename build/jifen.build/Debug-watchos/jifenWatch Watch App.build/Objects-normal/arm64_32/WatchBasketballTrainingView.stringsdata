@@ -1,0 +1,24 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Tools/WatchBasketballTrainingView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 91
+        }
+      }
+    ]
+  },
+  "version": 1
+}

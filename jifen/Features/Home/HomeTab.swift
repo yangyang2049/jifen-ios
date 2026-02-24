@@ -12,10 +12,18 @@ struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
     @State private var recentActivities: [RecentActivity] = []
+    @State private var upcomingBookings: [LocalBooking] = []
+    @State private var unfinishedRecord: ScoreboardRecord?
     @State private var showNewGameDialog = false
     @State private var showQuickStartEditSheet = false
     @State private var showSettingsSheet = false
+    @State private var showDiscardUnfinishedAlert = false
+    @State private var showCreateBookingSheet = false
     @State private var path = NavigationPath()
+    /// When user selects a scoreboard game from New Game or Quick Start, show setup first for supported sports.
+    @State private var pendingScoreboardSetupItem: ScoreboardSetupItem? = nil
+    @State private var appliedSetupResult: SportsSetupResult? = nil
+    @State private var appliedSetupGameType: GameType? = nil
 
     // Navigation back handler for scoreboard views
     private func navigateBack() {
@@ -28,14 +36,21 @@ struct HomeTab: View {
     @StateObject private var quickStartManager = QuickStartConfigManager.shared
     @ObservedObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
 
+    struct ScoreboardNavigationTarget: Hashable {
+        let gameType: GameType
+        let recordId: String?
+    }
+
     enum NavigationDestination: Hashable {
         case tool(ToolItem)
-        case scoreboard(GameType)
+        case scoreboard(ScoreboardNavigationTarget)
+        case toolsList
+        case schedule
     }
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: Theme.lg) {
                     buildHeader()
                     buildContent()
@@ -61,13 +76,79 @@ struct HomeTab: View {
                 NewGameDialogView(
                     onSelect: { type, source, gameType in
                         if type == .scoreboard, let gameType = gameType {
-                            path.append(NavigationDestination.scoreboard(gameType))
+                            // 所有计分项目均先展示 setup（至少输入名字）
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                            }
                         }
+                    },
+                    onTimerGameSelected: { gameType in
+                        onNavigateToTab?(3, gameType)
                     }
                 )
             }
+            .sheet(item: $pendingScoreboardSetupItem) { item in
+                if item.gameType == .multiScoreboard || item.gameType == .doudizhu {
+                    let isDoudizhu = item.gameType == .doudizhu
+                    MultiScoreSetupDialogView(
+                        defaultPlayerCount: isDoudizhu ? 3 : 4,
+                        titleEmoji: isDoudizhu ? "🃏" : "👥",
+                        titleKey: isDoudizhu ? "game_doudizhu" : "game_multi_scoreboard",
+                        titleFallback: isDoudizhu ? "斗地主" : "多人计分",
+                        fixedPlayerCount: isDoudizhu ? 3 : nil,
+                        onConfirm: { result in
+                            appliedSetupResult = result
+                            appliedSetupGameType = item.gameType
+                            pendingScoreboardSetupItem = nil
+                            path.append(
+                                NavigationDestination.scoreboard(
+                                    ScoreboardNavigationTarget(gameType: item.gameType, recordId: nil)
+                                )
+                            )
+                        },
+                        onCancel: {
+                            pendingScoreboardSetupItem = nil
+                        }
+                    )
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                } else {
+                    let (t1, t2) = Self.defaultTeamNames(for: item.gameType)
+                    SportsSetupDialogView(
+                        gameType: item.gameType,
+                        defaultTeam1Name: t1,
+                        defaultTeam2Name: t2,
+                        initialMaxSets: nil,
+                        initialPointsPerSet: nil,
+                        initialTieBreakPoints: nil,
+                        onConfirm: { result in
+                            appliedSetupResult = result
+                            appliedSetupGameType = item.gameType
+                            pendingScoreboardSetupItem = nil
+                            path.append(
+                                NavigationDestination.scoreboard(
+                                    ScoreboardNavigationTarget(gameType: item.gameType, recordId: nil)
+                                )
+                            )
+                        },
+                        onCancel: {
+                            pendingScoreboardSetupItem = nil
+                        }
+                    )
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                }
+            }
             .sheet(isPresented: $showSettingsSheet) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showCreateBookingSheet) {
+                CreateBookingPage {
+                    loadUpcomingBookings()
+                    DispatchQueue.main.async {
+                        path.append(NavigationDestination.schedule)
+                    }
+                }
             }
             .navigationDestination(for: NavigationDestination.self) { destination in
                 switch destination {
@@ -75,26 +156,99 @@ struct HomeTab: View {
                     tool.view
                         .navigationTitle(tool.title)
                         .toolbar(.hidden, for: .tabBar)
-                case .scoreboard(let gameType):
-                    getScoreboardView(for: gameType)
+                case .scoreboard(let target):
+                    getScoreboardView(
+                        for: target.gameType,
+                        setupResult: appliedSetupGameType == target.gameType ? appliedSetupResult : nil,
+                        initialRecordId: target.recordId,
+                        onSetupConsumed: {
+                            appliedSetupResult = nil
+                            appliedSetupGameType = nil
+                        }
+                    )
+                case .toolsList:
+                    ToolsListPageView(onToolTap: { path.append($0) })
+                        .toolbar(.hidden, for: .tabBar)
+                case .schedule:
+                    SchedulePage(
+                        onStartGame: { gameType in
+                            pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                        },
+                        onChanged: {
+                            loadUpcomingBookings()
+                        }
+                    )
+                    .toolbar(.hidden, for: .tabBar)
                 }
             }
-            .onChange(of: path) { oldPath, newPath in
-                // Unlock orientation when navigating away from scoreboard
-                if oldPath.count > newPath.count {
-                    OrientationLock.shared.unlock()
-                }
+            .navigationDestination(for: ToolItem.self) { tool in
+                tool.view
+                    .navigationTitle(tool.title)
+                    .toolbar(.hidden, for: .tabBar)
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if let unfinishedRecord {
+                HStack {
+                    Spacer(minLength: 0)
+                    UnfinishedGameBarView(
+                        record: unfinishedRecord,
+                        onContinue: { continueUnfinishedGame() },
+                        onClose: { showDiscardUnfinishedAlert = true }
+                    )
+                    .frame(maxWidth: 400)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, Theme.sm)
+                .padding(.bottom, Theme.sm)
+                .background(Color.clear)
+            }
+        }
+        .alert(
+            NSLocalizedString("unfinished_discard_title", value: "放弃未完成比赛", comment: ""),
+            isPresented: $showDiscardUnfinishedAlert
+        ) {
+            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
+            Button(NSLocalizedString("confirm", comment: ""), role: .destructive) {
+                discardUnfinishedGame()
+            }
+        } message: {
+            Text(NSLocalizedString("unfinished_discard_message", value: "确认放弃当前未完成比赛？", comment: ""))
         }
         .onAppear {
             loadData()
             quickStartManager.loadConfig(isLargeScreen: false, is2in1: false)
             // Refresh records when view appears
             updateRecentActivities()
+            loadUpcomingBookings()
+            loadUnfinishedRecord()
         }
         .onReceive(scoreboardVM.objectWillChange) { _ in
             updateRecentActivities()
+            loadUnfinishedRecord()
         }
+    }
+
+    // MARK: - Setup dialog support (aligned with HarmonyOS)
+
+    /// 所有计分项目均先弹出 setup（至少输入名字）
+    private static let sportsWithSetup: Set<GameType> = [
+        .pingpong, .tennis, .badminton, .football, .basketball, .volleyball,
+        .archery, .boxing, .billiards, .pickleball, .guandan, .doudizhu,
+        .simpleScore, .multiScoreboard, .counter
+    ]
+
+    private static func defaultTeamNames(for gameType: GameType) -> (String, String) {
+        if gameType == .basketball {
+            return (
+                NSLocalizedString("team_home", comment: ""),
+                NSLocalizedString("team_away", comment: "")
+            )
+        }
+        return (
+            NSLocalizedString("red_team", comment: ""),
+            NSLocalizedString("blue_team", comment: "")
+        )
     }
 
     // MARK: - Private Methods
@@ -120,13 +274,14 @@ struct HomeTab: View {
     }
 
     private func updateRecentActivities() {
-        let records = ScoreboardRecordManager.shared.loadAllRecords()
+        let records = ScoreboardRecordManager.shared.getAllRecordSummaries()
         #if DEBUG
         print("[HomeTab] 📊 Loading \(records.count) total records for recent activities")
         #endif
 
-        // Show up to 3 most recent game records
-        let recentRecords = records.prefix(3)
+        let recentRecords = records
+            .sorted { $0.timestamp > $1.timestamp }
+            .prefix(10)
         #if DEBUG
         print("[HomeTab] 📋 Showing \(recentRecords.count) recent records")
         #endif
@@ -139,37 +294,132 @@ struct HomeTab: View {
                 id: record.id,
                 activityType: .scoreboard,
                 gameType: record.gameType,
-                timestamp: record.startTime.timeIntervalSince1970,
+                timestamp: record.timestamp,
                 title: "\(record.team1Name) vs \(record.team2Name)",
                 description: "\(record.team1FinalScore) : \(record.team2FinalScore)"
             )
         }
     }
 
+    private func loadUpcomingBookings() {
+        upcomingBookings = LocalBookingManager.shared.getUpcomingPendingBookings(limit: 2)
+    }
+
+    private func loadUnfinishedRecord() {
+        unfinishedRecord = ScoreboardRecordManager.shared.getUnfinishedRecord()
+    }
+
+    private func continueUnfinishedGame() {
+        guard let unfinishedRecord else { return }
+        appliedSetupResult = nil
+        appliedSetupGameType = nil
+        path.append(
+            NavigationDestination.scoreboard(
+                ScoreboardNavigationTarget(
+                    gameType: unfinishedRecord.gameType,
+                    recordId: unfinishedRecord.id
+                )
+            )
+        )
+    }
+
+    private func discardUnfinishedGame() {
+        _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
+        ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+        loadUnfinishedRecord()
+    }
+
     @ViewBuilder
-    private func getScoreboardView(for gameType: GameType) -> some View {
+    private func getScoreboardView(
+        for gameType: GameType,
+        setupResult: SportsSetupResult? = nil,
+        initialRecordId: String? = nil,
+        onSetupConsumed: @escaping () -> Void = {}
+    ) -> some View {
         switch gameType {
         case .pingpong:
-            PingPongScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+            PingPongScoreboardView(
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .badminton:
-            BadmintonScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+            BadmintonScoreboardView(
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .tennis:
-            TennisScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+            TennisScoreboardView(
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .basketball:
-            BasketballScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+            BasketballScoreboardView(
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .football:
-            FootballScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+            FootballScoreboardView(
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .volleyball:
-            VolleyballScoreboardView(showBackButton: false, onNavigationBack: navigateBack)
+            VolleyballScoreboardView(
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
+                .toolbar(.hidden, for: .tabBar)
+        case .archery:
+            ArcheryScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .boxing:
+            BoxingScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .billiards:
+            BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .pickleball:
+            PickleballScoreboardView(initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .guandan:
+            GuandanScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .doudizhu:
+            DoudizhuScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .simpleScore:
+            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .multiScoreboard:
+            MultiScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .counter:
+            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
                 .toolbar(.hidden, for: .tabBar)
         default:
-            // Unsupported scoreboard games - this shouldn't happen since NewGameDialogView only shows supported games
-            Text("Game not supported")
+            Text(NSLocalizedString("game_not_supported", value: "暂不支持该项目", comment: ""))
                 .foregroundColor(.white)
         }
     }
@@ -211,18 +461,26 @@ struct HomeTab: View {
                 secondarySport: quickStartManager.quickStartConfig.secondarySport,
                 isDarkTheme: true,
                 onPrimaryClick: { gameType in
-                    if [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball].contains(gameType) {
-                        onNavigateToTab?(1, gameType)
+                    if quickStartTimerTypes.contains(gameType) {
+                        onNavigateToTab?(3, gameType)
+                    } else {
+                        // 计分项目均先展示 setup
+                        pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
                     }
                 },
                 onSecondaryClick: { gameType in
-                    if [.tennis, .pingpong, .badminton, .basketball, .football, .volleyball].contains(gameType) {
-                        onNavigateToTab?(1, gameType)
+                    if quickStartTimerTypes.contains(gameType) {
+                        onNavigateToTab?(3, gameType)
+                    } else {
+                        // 计分项目均先展示 setup
+                        pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
                     }
                 },
                 onNewGameClick: { showNewGameDialog = true },
                 onEditClick: { showQuickStartEditSheet = true }
             )
+
+            buildScheduleSection()
 
             ProToolsSectionView(
                 isWide: false,
@@ -231,6 +489,9 @@ struct HomeTab: View {
                     if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
                         path.append(NavigationDestination.tool(tool))
                     }
+                },
+                onEnterToolsPage: {
+                    path.append(NavigationDestination.toolsList)
                 }
             )
 
@@ -242,10 +503,125 @@ struct HomeTab: View {
                 RecentRecordsSectionView(
                     records: recentActivities,
                     isDarkTheme: true,
-                    onViewAllTapped: { onNavigateToTab?(2, nil) }
+                    onViewAllTapped: { onNavigateToTab?(1, nil) }
                 )
             }
         }
+    }
+
+    @ViewBuilder
+    private func buildScheduleSection() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(NSLocalizedString("schedule_title", value: "我的球局", comment: ""))
+                    .font(.system(size: Theme.fontH5, weight: .medium))
+                    .foregroundColor(Theme.textPrimary)
+                Spacer()
+                Button {
+                    path.append(NavigationDestination.schedule)
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Theme.textSecondary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if upcomingBookings.isEmpty {
+                VStack(spacing: 10) {
+                    EmptyStateCourtIcon(size: 40, color: Theme.homeTextDisabledDark)
+
+                    Text(NSLocalizedString("schedule_empty_pending", value: "暂无待进行球局", comment: ""))
+                        .font(.system(size: 13))
+                        .foregroundColor(Theme.homeTextDisabledDark)
+                        .multilineTextAlignment(.center)
+
+                    Button {
+                        showCreateBookingSheet = true
+                    } label: {
+                        Text(NSLocalizedString("schedule_new_booking", value: "预约新球局", comment: ""))
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.white)
+                            .frame(height: 42)
+                            .padding(.horizontal, 20)
+                            .background(Theme.primary)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 26)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+            } else {
+                ForEach(upcomingBookings) { booking in
+                    Button {
+                        path.append(NavigationDestination.schedule)
+                    } label: {
+                        HStack(spacing: 12) {
+                            Text(booking.sportType.icon)
+                                .font(.system(size: 28))
+                                .frame(width: 42, height: 42)
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(booking.sportType.displayName)
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                Text(scheduleMetaText(for: booking))
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.white.opacity(0.72))
+                                    .lineLimit(1)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                            scheduleTimeStatusTag(for: booking.dateTime)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func formatScheduleTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
+    }
+
+    private func scheduleMetaText(for booking: LocalBooking) -> String {
+        let time = formatScheduleTime(booking.dateTime)
+        if booking.location.isEmpty {
+            return time
+        }
+        return "\(time) · \(booking.location)"
+    }
+
+    @ViewBuilder
+    private func scheduleTimeStatusTag(for date: Date) -> some View {
+        let status = getScheduleTimeStatus(scheduledAt: date)
+        let style = status.darkStyle
+
+        Text(status.localizedLabel)
+            .font(.system(size: 12, weight: .medium))
+            .foregroundColor(style.textColor)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .background(style.backgroundColor)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(style.borderColor, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

@@ -1,5 +1,9 @@
 import Foundation
 
+extension Notification.Name {
+    static let watchScoreboardLayoutDidChange = Notification.Name("watch_scoreboard_layout_did_change")
+}
+
 final class WatchPreferences {
     static let shared = WatchPreferences()
 
@@ -20,6 +24,18 @@ final class WatchPreferences {
     var privacyAccepted: Bool {
         get { defaults.object(forKey: "watch_privacy_accepted") as? Bool ?? false }
         set { defaults.set(newValue, forKey: "watch_privacy_accepted") }
+    }
+
+    /// Scoreboard layout: "vertical" (red top, blue bottom) or "horizontal" (red left, blue right)
+    var scoreboardLayout: String {
+        get { defaults.string(forKey: "watch_scoreboard_layout") ?? "vertical" }
+        set {
+            let normalized = (newValue == "horizontal") ? "horizontal" : "vertical"
+            let current = defaults.string(forKey: "watch_scoreboard_layout") ?? "vertical"
+            guard current != normalized else { return }
+            defaults.set(normalized, forKey: "watch_scoreboard_layout")
+            NotificationCenter.default.post(name: .watchScoreboardLayoutDidChange, object: normalized)
+        }
     }
 
     func bool(forKey key: String, defaultValue: Bool = false) -> Bool {

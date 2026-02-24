@@ -11,28 +11,35 @@ struct VolleyballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
+    var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
+    var onSetupConsumed: (() -> Void)? = nil
     @State private var controller = VolleyballController()
     @State private var viewModel = VolleyballViewModel()
     @State private var showGameFinishedOverlay: Bool = false
 
     var body: some View {
         ZStack {
-        ScoreboardTemplate(
-            config: TemplateConfig(
-                gameType: .volleyball,
-                controller: controller,
-                viewModel: viewModel,
-                scoreFontSize: 120,
-                nameType: .team
-            ),
-            onBack: {
-                if let onNavigationBack = onNavigationBack {
-                    onNavigationBack()
-                } else {
-                    dismiss()
-                }
+            ScoreboardTemplate(
+                config: TemplateConfig(
+                    gameType: .volleyball,
+                    controller: controller,
+                    viewModel: viewModel,
+                    scoreFontSize: 120,
+                    nameType: .team
+                ),
+                onBack: {
+                    if let onNavigationBack = onNavigationBack {
+                        onNavigationBack()
+                    } else {
+                        dismiss()
+                    }
                 }
             )
+
+            if !viewModel.gameFinished {
+                serveIndicator
+            }
 
             if showGameFinishedOverlay {
                 GameFinishedOverlay(winnerName: viewModel.getWinnerName())
@@ -52,7 +59,12 @@ struct VolleyballScoreboardView: View {
         }
         .onAppear {
             viewModel.controller = controller
-            
+            if let setup = initialSetup {
+                viewModel.leftTeam.name = setup.team1Name.isEmpty ? NSLocalizedString("red_team", comment: "") : setup.team1Name
+                viewModel.rightTeam.name = setup.team2Name.isEmpty ? NSLocalizedString("blue_team", comment: "") : setup.team2Name
+                onSetupConsumed?()
+            }
+            restoreDraftIfNeeded()
             // Hide tab bar
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first,
@@ -73,8 +85,36 @@ struct VolleyballScoreboardView: View {
                let tabBarController = window.rootViewController?.findTabBarController() {
                 tabBarController.tabBar.isHidden = false
             }
-            // Unlock orientation to return to portrait
-            OrientationLock.shared.unlock()
+        }
+    }
+
+    private var serveIndicator: some View {
+        CenterLineServeIndicator(isLeftServing: viewModel.isLeftServing)
+    }
+
+    private func restoreDraftIfNeeded() {
+        guard let recordId = initialRecordId,
+              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
+              record.status == .draft else {
+            return
+        }
+
+        controller.gameStartTime = record.startTime
+        controller.gameActions = record.actions
+        controller.gameRecordSaved = false
+
+        viewModel.leftTeam.name = record.team1Name
+        viewModel.rightTeam.name = record.team2Name
+        viewModel.leftTeam.sets = record.team1SetScore ?? record.team1FinalScore
+        viewModel.rightTeam.sets = record.team2SetScore ?? record.team2FinalScore
+        if let currentLeftScore = record.extraData?["currentLeftScore"]?.value as? Int {
+            viewModel.leftTeam.score = currentLeftScore
+        }
+        if let currentRightScore = record.extraData?["currentRightScore"]?.value as? Int {
+            viewModel.rightTeam.score = currentRightScore
+        }
+        if let isLeftServing = record.extraData?["isLeftServing"]?.value as? Bool {
+            viewModel.isLeftServing = isLeftServing
         }
     }
 }

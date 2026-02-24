@@ -22,6 +22,7 @@ class TennisViewModel: BaseScoreViewModel {
     var isDeuce: Bool = false
     var advantage: AdvantageState = .none
     var autoChangeSides: Bool = true
+    var isSingles: Bool = true
     var sidesSwapped: Bool = false
     
     private var tieBreakChangeSidesCount: Int = 0
@@ -100,6 +101,14 @@ class TennisViewModel: BaseScoreViewModel {
             return rightTeam.name
         }
         return ""
+    }
+
+    /// Harmony-aligned server rule for tennis:
+    /// first server alternates by set, then alternates each game.
+    func isLeftServing() -> Bool {
+        let firstServerIsLeft = (currentSet % 2 == 1)
+        let totalGames = (leftTeam.games ?? 0) + (rightTeam.games ?? 0)
+        return firstServerIsLeft == (totalGames % 2 == 0)
     }
     
     // MARK: - Override Score Operations
@@ -408,9 +417,18 @@ class TennisViewModel: BaseScoreViewModel {
             winner: winner,
             totalScoreChanges: controller?.getGameActions().count ?? 0,
             extraData: [
+                "maxSets": maxSets,
+                "tieBreakPoints": tieBreakTarget,
+                "autoChangeSides": autoChangeSides,
+                "isSingles": isSingles,
                 "finalLeftGames": leftTeam.games ?? 0,
                 "finalRightGames": rightTeam.games ?? 0,
-            ]
+                "currentSet": currentSet,
+                "currentLeftScore": leftTeam.score,
+                "currentRightScore": rightTeam.score,
+                "isTieBreak": isTieBreak
+            ],
+            status: isGameFinished ? .finished : .draft
         )
     }
     

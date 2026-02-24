@@ -21,18 +21,16 @@ struct RestCountdownOverlay: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
-                // Close button
+                // Continue button
                 HStack {
                     Spacer()
                     Button(action: { onClose?() }) {
-                        ZStack {
-                            Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 32, height: 32)
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white.opacity(0.8))
-                        }
+                        Text(NSLocalizedString("resume", value: "继续", comment: "Continue"))
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.9))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Capsule().fill(.ultraThinMaterial))
                     }
                 }
                 .padding(.horizontal, 8)

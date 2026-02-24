@@ -1,0 +1,23 @@
+{
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Tools/WatchRandomNumberView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRandomNumberView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRandomNumberView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRandomNumberView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRandomNumberView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchRandomNumberView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Tools/WatchTenSecondChallengeView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTenSecondChallengeView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTenSecondChallengeView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTenSecondChallengeView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTenSecondChallengeView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchTenSecondChallengeView.swiftdeps"
+  },
+  "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Views/WatchHomeTabView.swift" : {
+    "const-values" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchHomeTabView.swiftconstvalues",
+    "dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchHomeTabView.d",
+    "diagnostics" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchHomeTabView.dia",
+    "object" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchHomeTabView.o",
+    "swift-dependencies" : "/Users/yangyangshi/Desktop/ios/jifen_ios/build/jifen.build/Debug-watchos/jifenWatch Watch App.build/Objects-normal/arm64_32/WatchHomeTabView.swiftdeps"
+  }
+}

@@ -21,11 +21,16 @@ enum GameType: String, Codable, CaseIterable {
     case boxing = "boxing"
     case billiards = "billiards"
     case pickleball = "pickleball"
+    case archery = "archery"
     case guandan = "guandan"
     case doudizhu = "doudizhu"
     case simpleScore = "simpleScore"
     case multiScoreboard = "multiScoreboard"
     case counter = "counter"
+    case stopwatch = "stopwatch"
+    case go = "go"
+    case xiangqi = "xiangqi"
+    case chess = "chess"
 
     var displayName: String {
         switch self {
@@ -39,11 +44,16 @@ enum GameType: String, Codable, CaseIterable {
         case .boxing: return NSLocalizedString("game_boxing", comment: "Boxing")
         case .billiards: return NSLocalizedString("game_billiards", comment: "Billiards")
         case .pickleball: return NSLocalizedString("game_pickleball", comment: "Pickleball")
+        case .archery: return NSLocalizedString("project_archery", value: "射箭", comment: "Archery")
         case .guandan: return NSLocalizedString("game_guandan", comment: "Guandan")
         case .doudizhu: return NSLocalizedString("game_doudizhu", comment: "Doudizhu")
         case .simpleScore: return NSLocalizedString("game_simple_score", comment: "Simple Score")
         case .multiScoreboard: return NSLocalizedString("game_multi_scoreboard", comment: "Multi Scoreboard")
         case .counter: return NSLocalizedString("game_counter", comment: "Counter")
+        case .stopwatch: return NSLocalizedString("game_stopwatch", comment: "Stopwatch")
+        case .go: return NSLocalizedString("timer_go", comment: "Go")
+        case .xiangqi: return NSLocalizedString("timer_xiangqi", comment: "Xiangqi")
+        case .chess: return NSLocalizedString("timer_chess", comment: "Chess")
         }
     }
 
@@ -59,11 +69,16 @@ enum GameType: String, Codable, CaseIterable {
         case .boxing: return "🥊"
         case .billiards: return "🎱"
         case .pickleball: return "🏓"
+        case .archery: return "🏹"
         case .guandan: return "🃏"
         case .doudizhu: return "🃏"
         case .simpleScore: return "📝"
         case .multiScoreboard: return "📊"
         case .counter: return "➕"
+        case .stopwatch: return "⏱️"
+        case .go: return "⚫"
+        case .xiangqi: return "🐘"
+        case .chess: return "♟️"
         }
     }
 }
@@ -170,6 +185,8 @@ protocol ScoreViewModelProtocol: AnyObject {
     func reset()
     func undo() -> Bool
     func exchangeSides()
+    /// 结束比赛（足球/篮球等无计时终场时，由菜单「结束比赛」调用）
+    func endGame()
 }
 
 // MARK: - Template Config
@@ -180,7 +197,9 @@ struct TemplateConfig {
     let viewModel: ScoreViewModelProtocol
     let scoreFontSize: CGFloat
     let nameType: NameType
+    let isDoublesModeProvider: (() -> Bool)?
     let scoreTextProvider: ((Bool, TeamData) -> String)?
+    let tapToAddEnabled: Bool
     
     init(
         gameType: GameType,
@@ -188,14 +207,18 @@ struct TemplateConfig {
         viewModel: ScoreViewModelProtocol,
         scoreFontSize: CGFloat = 96,
         nameType: NameType = .team,
-        scoreTextProvider: ((Bool, TeamData) -> String)? = nil
+        isDoublesModeProvider: (() -> Bool)? = nil,
+        scoreTextProvider: ((Bool, TeamData) -> String)? = nil,
+        tapToAddEnabled: Bool = true
     ) {
         self.gameType = gameType
         self.controller = controller
         self.viewModel = viewModel
         self.scoreFontSize = scoreFontSize
         self.nameType = nameType
+        self.isDoublesModeProvider = isDoublesModeProvider
         self.scoreTextProvider = scoreTextProvider
+        self.tapToAddEnabled = tapToAddEnabled
     }
 }
 

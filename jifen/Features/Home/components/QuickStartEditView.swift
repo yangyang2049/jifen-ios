@@ -17,8 +17,12 @@ struct QuickStartEditView: View {
         self.initialPrimary = initialPrimary
         self.initialSecondary = initialSecondary
         self.onSave = onSave
-        _selectedPrimary = State(initialValue: initialPrimary)
-        _selectedSecondary = State(initialValue: initialSecondary)
+        let fallbackPrimary = availableSports.first ?? .basketball
+        let fallbackSecondary = availableSports.dropFirst().first ?? fallbackPrimary
+        let resolvedPrimary = availableSports.contains(initialPrimary) ? initialPrimary : fallbackPrimary
+        let resolvedSecondary = availableSports.contains(initialSecondary) ? initialSecondary : fallbackSecondary
+        _selectedPrimary = State(initialValue: resolvedPrimary)
+        _selectedSecondary = State(initialValue: resolvedSecondary)
     }
 
     var body: some View {

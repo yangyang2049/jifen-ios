@@ -1,0 +1,40 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/Sports/Archery/ArcheryScoreboardView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld - %lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "M",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 205
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 62,
+          "startingLine": 205
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld - %lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 244
+        }
+      }
+    ]
+  },
+  "version": 1
+}

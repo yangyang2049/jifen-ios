@@ -3,16 +3,24 @@
 /* Tab Bar */
 "tab_score" = "计分";
 "tab_tools" = "工具";
+"tab_timer" = "计时";
 
 /* Game Types */
 "game_badminton" = "羽毛球";
 "game_pingpong" = "乒乓球";
 "game_tennis" = "网球";
+"game_pickleball" = "匹克球";
+"pickleball_icon_label" = "匹";
+"pickleball_sets" = "匹克球局数";
+"game_archery" = "射箭";
+"tool_basketball_training" = "篮球训练";
 
 /* Tools */
 "tool_flip_coin" = "抛硬币";
 "tool_random_number" = "随机数字";
 "tool_ten_second" = "十秒挑战";
+"game_counter" = "计数器";
+"press_again_to_reset" = "再次点击以确认重置";
 
 /* Records */
 "records" = "记录";
@@ -63,9 +71,54 @@
 "version" = "版本";
 "company_name" = "重庆豆花科技有限公司";
 
+/* Scoreboard menu */
+"menu_undo" = "撤销";
+"menu_reset" = "重置";
+"watch_continue" = "继续";
+"watch_stop" = "暂停";
+"watch_layout_vertical" = "竖屏";
+"watch_layout_horizontal" = "横屏";
+"watch_settings_layout_title" = "计分板布局";
+"watch_reset_toast" = "已重置";
+"watch_undo_toast" = "已撤销";
+"watch_exit" = "退出";
+"exit" = "退出";
+"watch_team_red" = "红方";
+"watch_team_blue" = "蓝方";
+"watch_set_end_format" = "第%d局结束";
+"watch_match_start" = "比赛开始";
+"watch_match_finished" = "比赛结束";
+"watch_bb_shots" = "出手";
+"watch_bb_made" = "命中";
+"watch_bb_hit_rate" = "命中率";
+"watch_bb_end_training" = "结束训练";
+"watch_bb_restart" = "再来一次";
+
 /* Records */
 "clear_all_records" = "清除全部记录";
 "clear_all_records_message" = "将删除所有记录，此操作无法撤销。";
 "minutes_ago" = "%d分钟前";
 "hours_ago" = "%d小时前";
 "days_ago" = "%d天前";
+
+/* Tools extras */
+"watch_flip_coin_hint" = "点击抛硬币";
+"watch_ten_second_challenge" = "十秒挑战";
+"watch_ten_second_usage" = "点击开始计时，再次点击停止，目标是 10.00 秒";
+"watch_score_add_format" = "%@得分";
+"watch_mid_game_rest" = "局中休息";
+"watch_rest_between_sets" = "局间休息";
+"watch_deciding_set_swap" = "决胜局换边";
+"watch_swap_sides" = "换边";
+"watch_tiebreak_start" = "进入抢七";
+"watch_tiebreak_indicator" = "抢七";
+"watch_continue_match" = "继续比赛";
+"watch_set_start_format" = "第%d局开始";
+"watch_sets_generic" = "%d局";
+"watch_sets_generic_tennis" = "%d盘";
+"unit_hour" = "时";
+"unit_minute" = "分";
+"unit_second" = "秒";
+"today" = "今天";
+"yesterday" = "昨天";
+"month_day_format" = "%d月%d日";

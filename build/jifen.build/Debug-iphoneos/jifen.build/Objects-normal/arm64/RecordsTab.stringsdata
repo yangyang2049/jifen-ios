@@ -1,0 +1,40 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifen/Features/Scoreboard/RecordsTab.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld : %lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 271
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ vs %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 261
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 305
+        }
+      },
+      {
+        "comment": "",
+        "key": "🧘🏻",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 381
+        }
+      }
+    ]
+  },
+  "version": 1
+}

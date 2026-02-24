@@ -23,15 +23,12 @@ struct WatchRecordListView: View {
                     }
                     .frame(maxWidth: .infinity, minHeight: 100)
                 } else {
-                    ForEach(records.indices, id: \.self) { index in
-                        NavigationLink(destination: WatchRecordDetailView(recordID: records[index].id)) {
-                            recordRow(records[index])
-                        }
-                        .buttonStyle(.plain)
-                        if index < records.count - 1 {
-                            Rectangle()
-                                .frame(height: 1)
-                                .foregroundColor(Color.white.opacity(0.1))
+                    VStack(spacing: 8) {
+                        ForEach(records) { record in
+                            NavigationLink(destination: WatchRecordDetailView(recordID: record.id)) {
+                                recordRow(record)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -85,38 +82,67 @@ struct WatchRecordListView: View {
     private func loadRecords() {
         loading = true
         let summaries = WatchRecordManager.shared.getSummaries()
-        let filtered = summaries.filter { $0.gameType == .pingpong || $0.gameType == .badminton || $0.gameType == .tennis }
-        records = filtered.sorted { $0.timestamp > $1.timestamp }
+        records = summaries.sorted { $0.timestamp > $1.timestamp }
         loading = false
     }
 
+    /// 圆角胶囊行，与鸿蒙 WatchRecordTab 一致：高 56、圆角 30、背景 #222222
     private func recordRow(_ record: WatchScoreboardRecordSummary) -> some View {
         HStack(spacing: 12) {
-            Text(record.gameType.icon)
-                .font(.system(size: 24))
-                .padding(.leading, 16)
+            if record.gameType == .pickleball {
+                ZStack(alignment: .bottomTrailing) {
+                    Text("🎾")
+                        .font(.system(size: 24))
+                    Text(NSLocalizedString("pickleball_icon_label", value: "匹", comment: "Pickleball badge"))
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(WatchTheme.primaryText)
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 1)
+                        .background(WatchTheme.listItemBackground)
+                        .cornerRadius(2)
+                        .offset(x: 2, y: 2)
+                }
+                .frame(width: 24, height: 24)
+            } else {
+                Text(record.gameType.icon)
+                    .font(.system(size: 24))
+            }
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(recordDisplayText(record))
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(WatchTheme.primaryText)
                     .lineLimit(1)
+                    .multilineTextAlignment(.leading)
 
                 Text(formatRelativeTime(timestamp: record.timestamp))
                     .font(.system(size: 12))
                     .foregroundColor(WatchTheme.secondaryText)
                     .lineLimit(1)
+                    .multilineTextAlignment(.leading)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer(minLength: 0)
         }
-        .frame(height: 80)
+        .padding(.leading, 16)
+        .padding(.trailing, 16)
+        .frame(height: 56)
+        .frame(maxWidth: .infinity)
         .background(WatchTheme.listItemBackground)
+        .cornerRadius(30)
     }
 
     private func recordDisplayText(_ record: WatchScoreboardRecordSummary) -> String {
-        let left = record.team1SetScore
-        let right = record.team2SetScore
+        let left: Int
+        let right: Int
+        if record.gameType == .basketballTraining {
+            left = record.team1FinalScore
+            right = record.team2FinalScore
+        } else {
+            left = record.team1SetScore
+            right = record.team2SetScore
+        }
         return "\(record.team1Name) \(left) - \(right) \(record.team2Name)"
     }
 

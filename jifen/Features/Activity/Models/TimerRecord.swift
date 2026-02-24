@@ -13,28 +13,33 @@ struct RecordGroup: Identifiable {
 }
 
 
-// A dummy view model for timer records
+// View model for timer records，从 TimerRecordManager 持久化读写
 class TimerRecordsViewModel: ObservableObject {
     static let shared = TimerRecordsViewModel()
-    
+
     @Published var records: [GameRecordSummary] = []
     @Published var groupedRecords: [RecordGroup] = []
-    
-    private init() {
 
+    private init() {
+        loadFromStorage()
+    }
+
+    func loadFromStorage() {
+        records = TimerRecordManager.shared.getRecords()
         groupRecords()
     }
-    
-    func deleteRecord(_ id: String) -> Bool {
-        let originalCount = records.count
-        records.removeAll { $0.id == id }
-        if records.count < originalCount {
-            groupRecords()
-            return true
-        }
-        return false
+
+    func addRecord(_ record: GameRecordSummary) {
+        TimerRecordManager.shared.addRecord(record)
+        loadFromStorage()
     }
-    
+
+    func deleteRecord(_ id: String) -> Bool {
+        let ok = TimerRecordManager.shared.deleteRecord(id)
+        if ok { loadFromStorage() }
+        return ok
+    }
+
     private func groupRecords() {
         let groupedByDate = Dictionary(grouping: records) { $0.date }
         

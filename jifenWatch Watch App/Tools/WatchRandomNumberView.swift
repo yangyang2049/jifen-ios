@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchRandomNumberView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var fingerScale: CGFloat = 1
     @State private var tapHintPulse: CGFloat = 1.0
     @State private var randomNumber: Int = 0
@@ -58,6 +59,16 @@ struct WatchRandomNumberView: View {
                 tapHintPulse = 1.0
             }
         }
+        .navigationTitle(NSLocalizedString("tool_random_number", comment: "Random Number"))
+        .navigationBarTitleDisplayMode(.inline)
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width > 50 && abs(value.translation.height) < 50 {
+                        dismiss()
+                    }
+                }
+        )
     }
 
     private func startTapHintPulse() {
@@ -112,7 +123,7 @@ struct WatchRandomNumberView: View {
                 }
 
             VStack(spacing: 8) {
-                Text("记录")
+                Text(NSLocalizedString("records", comment: "Records"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(WatchTheme.primaryText)
                     .padding(.top, 12)

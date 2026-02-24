@@ -97,6 +97,10 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
         return true
     }
     
+    func endGame() {
+        // 默认无操作；足球/篮球 override 并设置 gameFinished = true
+    }
+
     func exchangeSides() {
         saveHistory()
         

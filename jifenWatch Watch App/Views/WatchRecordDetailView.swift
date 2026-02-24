@@ -47,6 +47,16 @@ struct WatchRecordDetailView: View {
         } message: {
             Text(NSLocalizedString("cannot_be_recovered_after_deletion", comment: "Cannot be recovered after deletion"))
         }
+        .navigationTitle(NSLocalizedString("match_details", comment: "Match Details"))
+        .navigationBarTitleDisplayMode(.inline)
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width > 50 && abs(value.translation.height) < 50 {
+                        dismiss()
+                    }
+                }
+        )
     }
 
     private var titleHeader: some View {
@@ -88,31 +98,47 @@ struct WatchRecordDetailView: View {
     }
 
     private func scoreRow(_ record: WatchScoreboardRecord) -> some View {
-        HStack(spacing: 0) {
-            VStack(spacing: 2) {
-                Text(record.team1Name)
-                    .font(.system(size: 11))
+        let isBasketballTraining = record.gameType == .basketballTraining
+        let leftScore = isBasketballTraining ? record.team1FinalScore : record.team1SetScore
+        let rightScore = isBasketballTraining ? record.team2FinalScore : record.team2SetScore
+        return VStack(spacing: 6) {
+            HStack(spacing: 0) {
+                VStack(spacing: 2) {
+                    Text(record.team1Name)
+                        .font(.system(size: 11))
+                        .foregroundColor(WatchTheme.secondaryText)
+                    Text("\(leftScore)")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(record.winner == record.team1Name ? WatchTheme.accent : WatchTheme.primaryText)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Text("-")
+                    .font(.system(size: 18))
                     .foregroundColor(WatchTheme.secondaryText)
-                Text("\(record.team1SetScore)")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(record.winner == record.team1Name ? WatchTheme.accent : WatchTheme.primaryText)
+                VStack(spacing: 2) {
+                    Text(record.team2Name)
+                        .font(.system(size: 11))
+                        .foregroundColor(WatchTheme.secondaryText)
+                    Text("\(rightScore)")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(record.winner == record.team2Name ? WatchTheme.accent : WatchTheme.primaryText)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            Text("-")
-                .font(.system(size: 18))
-                .foregroundColor(WatchTheme.secondaryText)
-
-            VStack(spacing: 2) {
-                Text(record.team2Name)
+            if isBasketballTraining && record.team1FinalScore > 0 {
+                Text("\(NSLocalizedString("watch_bb_hit_rate", comment: "Hit rate")): \(basketballHitRate(record))")
                     .font(.system(size: 11))
-                    .foregroundColor(WatchTheme.secondaryText)
-                Text("\(record.team2SetScore)")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(record.winner == record.team2Name ? WatchTheme.accent : WatchTheme.primaryText)
+                    .foregroundColor(WatchTheme.accent)
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
         }
+    }
+
+    private func basketballHitRate(_ record: WatchScoreboardRecord) -> String {
+        let shots = record.team1FinalScore
+        let made = record.team2FinalScore
+        if shots <= 0 { return "0%" }
+        let pct = Int(round(Double(made) / Double(shots) * 100))
+        return "\(made)/\(shots) = \(pct)%"
     }
 
     private func actionsCard(_ record: WatchScoreboardRecord) -> some View {

@@ -1,0 +1,16 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Tools/WatchCounterView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 20
+        }
+      }
+    ]
+  },
+  "version": 1
+}

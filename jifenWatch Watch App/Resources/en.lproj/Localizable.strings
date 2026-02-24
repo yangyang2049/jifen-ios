@@ -3,16 +3,24 @@
 /* Tab Bar */
 "tab_score" = "Score";
 "tab_tools" = "Tools";
+"tab_timer" = "Timer";
 
 /* Game Types */
 "game_badminton" = "Badminton";
 "game_pingpong" = "Ping Pong";
 "game_tennis" = "Tennis";
+"game_pickleball" = "Pickleball";
+"pickleball_icon_label" = "P";
+"pickleball_sets" = "Pickleball Sets";
+"game_archery" = "Archery";
+"tool_basketball_training" = "Basketball Training";
 
 /* Tools */
 "tool_flip_coin" = "Flip Coin";
 "tool_random_number" = "Random Number";
 "tool_ten_second" = "10s Challenge";
+"game_counter" = "Counter";
+"press_again_to_reset" = "Tap again to confirm reset";
 
 /* Records */
 "records" = "Records";
@@ -63,9 +71,54 @@
 "version" = "Version";
 "company_name" = "Chongqing Douhua Technology";
 
+/* Scoreboard menu */
+"menu_undo" = "Undo";
+"menu_reset" = "Reset";
+"watch_continue" = "Continue";
+"watch_stop" = "Stop";
+"watch_layout_vertical" = "Vertical";
+"watch_layout_horizontal" = "Horizontal";
+"watch_settings_layout_title" = "Scoreboard Layout";
+"watch_reset_toast" = "Reset";
+"watch_undo_toast" = "Undone";
+"watch_exit" = "Exit";
+"exit" = "Exit";
+"watch_team_red" = "Red";
+"watch_team_blue" = "Blue";
+"watch_set_end_format" = "Set %d end";
+"watch_match_start" = "Match start";
+"watch_match_finished" = "Match finished";
+"watch_bb_shots" = "Shots";
+"watch_bb_made" = "Made";
+"watch_bb_hit_rate" = "Hit rate";
+"watch_bb_end_training" = "End training";
+"watch_bb_restart" = "Restart";
+
 /* Records */
 "clear_all_records" = "Clear All Records";
 "clear_all_records_message" = "All records will be deleted. This cannot be undone.";
 "minutes_ago" = "%d min ago";
 "hours_ago" = "%d hr ago";
 "days_ago" = "%d days ago";
+
+/* Tools extras */
+"watch_flip_coin_hint" = "Tap to flip";
+"watch_ten_second_challenge" = "10s Challenge";
+"watch_ten_second_usage" = "Tap to start, tap again to stop. Target is 10.00s.";
+"watch_score_add_format" = "%@ scored";
+"watch_mid_game_rest" = "Mid-game rest";
+"watch_rest_between_sets" = "Rest between sets";
+"watch_deciding_set_swap" = "Deciding set swap";
+"watch_swap_sides" = "Swap sides";
+"watch_tiebreak_start" = "Tiebreak start";
+"watch_tiebreak_indicator" = "Tiebreak";
+"watch_continue_match" = "Continue match";
+"watch_set_start_format" = "Set %d start";
+"watch_sets_generic" = "%d sets";
+"watch_sets_generic_tennis" = "%d sets";
+"unit_hour" = "h";
+"unit_minute" = "m";
+"unit_second" = "s";
+"today" = "Today";
+"yesterday" = "Yesterday";
+"month_day_format" = "%d-%d";

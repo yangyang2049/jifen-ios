@@ -11,7 +11,9 @@ struct MenuDialog: View {
     let isVisible: Bool
     let onClose: () -> Void
     let onMenuItemClick: (String) -> Void
-    
+    /// 是否显示「结束比赛」（足球、篮球等无计时终场时使用）
+    var showEndGame: Bool = false
+
     var body: some View {
         if isVisible {
             ZStack {
@@ -89,6 +91,15 @@ struct MenuDialog: View {
                             keepDialogOpen: true,
                             action: { onMenuItemClick("undo") }
                         )
+
+                        // End game（仅足球、篮球显示）
+                        if showEndGame {
+                            MenuCard(
+                                title: NSLocalizedString("menu_end_game", value: "结束比赛", comment: "End game"),
+                                icon: "flag.checkered",
+                                action: { onMenuItemClick("endGame") }
+                            )
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)

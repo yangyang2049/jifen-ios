@@ -23,7 +23,9 @@ final class WatchRecordManager {
             let data = try encoder.encode(records)
             UserDefaults.standard.set(data, forKey: recordsKey)
         } catch {
+            #if DEBUG
             print("[WatchRecordManager] Failed to save record: \(error)")
+            #endif
         }
     }
 
@@ -36,7 +38,9 @@ final class WatchRecordManager {
             decoder.dateDecodingStrategy = .iso8601
             return try decoder.decode([WatchScoreboardRecord].self, from: data)
         } catch {
+            #if DEBUG
             print("[WatchRecordManager] Failed to load records: \(error)")
+            #endif
             return []
         }
     }
@@ -62,7 +66,9 @@ final class WatchRecordManager {
             UserDefaults.standard.set(data, forKey: recordsKey)
             return true
         } catch {
+            #if DEBUG
             print("[WatchRecordManager] Failed to delete record: \(error)")
+            #endif
             return false
         }
     }
@@ -73,7 +79,9 @@ final class WatchRecordManager {
             UserDefaults.standard.set(data, forKey: recordsKey)
             return true
         } catch {
+            #if DEBUG
             print("[WatchRecordManager] Failed to clear records: \(error)")
+            #endif
             return false
         }
     }

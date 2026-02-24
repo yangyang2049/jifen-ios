@@ -59,6 +59,8 @@ struct ScoreboardTemplate: View {
                                     badmintonViewModel.adjustScore(isLeft: isLeft, delta: delta)
                                 } else if let tennisViewModel = config.viewModel as? TennisViewModel {
                                     tennisViewModel.adjustScore(isLeft: isLeft, delta: delta)
+                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
+                                    pickleballViewModel.adjustScore(isLeft: isLeft, delta: delta)
                                 } else {
                                     if delta > 0 {
                                         config.viewModel.addScore(isLeft: isLeft, points: delta)
@@ -74,6 +76,10 @@ struct ScoreboardTemplate: View {
                                     badmintonViewModel.adjustSets(isLeft: isLeft, delta: delta)
                                 } else if let tennisViewModel = config.viewModel as? TennisViewModel {
                                     tennisViewModel.adjustSets(isLeft: isLeft, delta: delta)
+                                } else if let boxingViewModel = config.viewModel as? BoxingViewModel {
+                                    boxingViewModel.adjustSets(isLeft: isLeft, delta: delta)
+                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
+                                    pickleballViewModel.adjustSets(isLeft: isLeft, delta: delta)
                                 }
                             },
                             onGamesAdjust: { (isLeft, delta) in
@@ -90,13 +96,16 @@ struct ScoreboardTemplate: View {
                             onConfirmEditName: {
                                 baseViewModel.confirmEditName(isLeft: true)
                             },
+                            gameType: config.gameType,
+                            nameType: config.nameType,
+                            isDoublesMode: config.isDoublesModeProvider?() ?? false,
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: geometry.size.width / 2, alignment: .leading)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            // Tap to add score (only in normal mode) with debouncing
-                            if !isEditMode {
+                            // Tap to add score (only in normal mode) with debouncing; 拳击不通过点击加分
+                            if !isEditMode && config.tapToAddEnabled && config.gameType != .boxing {
                                 let currentTime = Date()
                                 if currentTime.timeIntervalSince(lastTapTime) >= tapDebounceInterval {
                                     lastTapTime = currentTime
@@ -114,6 +123,7 @@ struct ScoreboardTemplate: View {
                                             let success = config.viewModel.undo()
                                             if success {
                                                 config.controller.performVibration(type: .light)
+                                                showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
                                             }
                                         }
                                     }
@@ -143,6 +153,8 @@ struct ScoreboardTemplate: View {
                                     badmintonViewModel.adjustScore(isLeft: isLeft, delta: delta)
                                 } else if let tennisViewModel = config.viewModel as? TennisViewModel {
                                     tennisViewModel.adjustScore(isLeft: isLeft, delta: delta)
+                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
+                                    pickleballViewModel.adjustScore(isLeft: isLeft, delta: delta)
                                 } else {
                                     if delta > 0 {
                                         config.viewModel.addScore(isLeft: isLeft, points: delta)
@@ -158,6 +170,10 @@ struct ScoreboardTemplate: View {
                                     badmintonViewModel.adjustSets(isLeft: isLeft, delta: delta)
                                 } else if let tennisViewModel = config.viewModel as? TennisViewModel {
                                     tennisViewModel.adjustSets(isLeft: isLeft, delta: delta)
+                                } else if let boxingViewModel = config.viewModel as? BoxingViewModel {
+                                    boxingViewModel.adjustSets(isLeft: isLeft, delta: delta)
+                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
+                                    pickleballViewModel.adjustSets(isLeft: isLeft, delta: delta)
                                 }
                             },
                             onGamesAdjust: { (isLeft, delta) in
@@ -174,13 +190,16 @@ struct ScoreboardTemplate: View {
                             onConfirmEditName: {
                                 baseViewModel.confirmEditName(isLeft: false)
                             },
+                            gameType: config.gameType,
+                            nameType: config.nameType,
+                            isDoublesMode: config.isDoublesModeProvider?() ?? false,
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: geometry.size.width / 2, alignment: .leading)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            // Tap to add score (only in normal mode) with debouncing
-                            if !isEditMode {
+                            // Tap to add score (only in normal mode) with debouncing; 拳击不通过点击加分
+                            if !isEditMode && config.tapToAddEnabled && config.gameType != .boxing {
                                 let currentTime = Date()
                                 if currentTime.timeIntervalSince(lastTapTime) >= tapDebounceInterval {
                                     lastTapTime = currentTime
@@ -198,6 +217,7 @@ struct ScoreboardTemplate: View {
                                             let success = config.viewModel.undo()
                                             if success {
                                                 config.controller.performVibration(type: .light)
+                                                showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
                                             }
                                         }
                                     }
@@ -205,7 +225,7 @@ struct ScoreboardTemplate: View {
                         )
                     }
                 }
-
+                
                 // Edit button (top right) - close to screen edge
                 VStack {
                     HStack {
@@ -214,6 +234,13 @@ struct ScoreboardTemplate: View {
                             if isEditMode {
                                 // Exit edit mode - confirm any pending edits
                                 if let baseViewModel = config.viewModel as? BaseScoreViewModel {
+                                    let pendingName = baseViewModel.editState.currentInput
+                                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                                    if !pendingName.isEmpty {
+                                        Task {
+                                            await CommonNamesManager.shared.recordUsage(pendingName, config.nameType)
+                                        }
+                                    }
                                     baseViewModel.confirmEditName(isLeft: true)
                                     baseViewModel.confirmEditName(isLeft: false)
                                 }
@@ -253,7 +280,8 @@ struct ScoreboardTemplate: View {
 
                                     // Handle double tap exit
                                     if config.controller.handleExitClick() {
-                                        // Can exit - unlock is handled by onDisappear
+                                        // Can exit
+                                        OrientationLock.shared.unlock()
                                         onBack()
                                     } else {
                                         // Need to tap again - show toast
@@ -310,7 +338,8 @@ struct ScoreboardTemplate: View {
                     },
                     onMenuItemClick: { action in
                         handleMenuItemClick(action)
-                    }
+                    },
+                    showEndGame: config.gameType == .football || config.gameType == .basketball
                 )
                 
                 // Toast message
@@ -375,7 +404,7 @@ struct ScoreboardTemplate: View {
             // Double tap to reset
             resetClickCount += 1
             if resetClickCount == 1 {
-                showToastMessage("再次点击重置")
+                showToastMessage(NSLocalizedString("press_again_to_reset", comment: ""))
                 // Reset count after 3 seconds
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     resetClickCount = 0
@@ -384,15 +413,22 @@ struct ScoreboardTemplate: View {
                 resetClickCount = 0
                 // Don't close dialog - keep it open like other actions
                 config.viewModel.reset()
-                showToastMessage("已重置")
+                showToastMessage(NSLocalizedString("has_been_reset", comment: ""))
             }
             
         case "undo":
             // Undo (keep dialog open)
             let success = config.viewModel.undo()
-            if !success {
-                showToastMessage("没有可撤销的操作")
+            if success {
+                showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
+            } else {
+                showToastMessage(NSLocalizedString("no_undo_available", comment: ""))
             }
+
+        case "endGame":
+            // 结束比赛（足球/篮球）：设置 gameFinished，关闭菜单，overlay 由 onChange(gameFinished) 显示
+            config.viewModel.endGame()
+            showMenu = false
             
         default:
             break
@@ -420,7 +456,7 @@ struct ScoreboardTemplate: View {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
             hideButtonsForScreenshot = false
-            showToastMessage("截图失败")
+            showToastMessage(NSLocalizedString("screenshot_failed", comment: ""))
             return
         }
         
@@ -472,9 +508,9 @@ struct ScoreboardTemplate: View {
                         self.screenshotPreviewImage = nil
                     }
                 }
-                self.showToastMessage("截图已保存")
+                self.showToastMessage(NSLocalizedString("screenshot_saved", comment: ""))
             } else {
-                let errorMessage = error?.localizedDescription ?? "未知错误"
+                let errorMessage = error?.localizedDescription ?? NSLocalizedString("unknown_error", comment: "")
                 if errorMessage.contains("Settings") {
                     // Permission denied - hide preview after showing error
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -485,7 +521,7 @@ struct ScoreboardTemplate: View {
                             self.screenshotPreviewImage = nil
                         }
                     }
-                    self.showToastMessage("请在设置中允许访问相册")
+                    self.showToastMessage(NSLocalizedString("please_allow_photo_access", comment: ""))
                 } else {
                     // Other error - hide preview
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -496,7 +532,7 @@ struct ScoreboardTemplate: View {
                             self.screenshotPreviewImage = nil
                         }
                     }
-                    self.showToastMessage("保存失败: \(errorMessage)")
+                    self.showToastMessage(String(format: NSLocalizedString("save_failed", comment: ""), errorMessage))
                 }
             }
         }
@@ -578,9 +614,14 @@ struct TeamSection: View {
     let onStartEditName: () -> Void
     let onUpdateInput: (String) -> Void
     let onConfirmEditName: () -> Void
+    let gameType: GameType
+    let nameType: NameType
+    let isDoublesMode: Bool
     let scoringOptions: [Int]
     
     @FocusState private var isNameFocused: Bool
+    @State private var showCommonNameSelector = false
+    private let commonNamesManager = CommonNamesManager.shared
     
     var body: some View {
         ZStack {
@@ -594,30 +635,49 @@ struct TeamSection: View {
                 if isEditMode {
                     let isEditing = editState.editingSide == (isLeft ? .left : .right)
                     
-                    TextField("", text: Binding(
-                        get: {
-                            // Always show currentInput when editing this side, otherwise show team name
-                            if isEditing {
-                                return editState.currentInput
-                            } else {
-                                return team.name
+                    HStack(spacing: 8) {
+                        TextField("", text: Binding(
+                            get: {
+                                if isEditing {
+                                    return editState.currentInput
+                                } else {
+                                    return team.name
+                                }
+                            },
+                            set: { newValue in
+                                if isEditing {
+                                    onUpdateInput(newValue)
+                                } else {
+                                    onStartEditName()
+                                    onUpdateInput(newValue)
+                                }
                             }
-                        },
-                        set: { newValue in
-                            // Only update if we're editing this side
-                            if isEditing {
-                                onUpdateInput(newValue)
-                            } else {
-                                // If not editing, start editing when user types
-                                onStartEditName()
-                                onUpdateInput(newValue)
-                            }
+                        ))
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .textFieldStyle(.plain)
+                        .focused($isNameFocused)
+                        .onTapGesture {
+                            onStartEditName()
+                            isNameFocused = true
                         }
-                    ))
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .textFieldStyle(.plain)
+                        .onSubmit {
+                            confirmAndPersistName()
+                        }
+
+                        Button {
+                            onStartEditName()
+                            isNameFocused = false
+                            showCommonNameSelector = true
+                        } label: {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.9))
+                                .frame(width: 30, height: 30)
+                        }
+                        .buttonStyle(.plain)
+                    }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(
@@ -625,35 +685,36 @@ struct TeamSection: View {
                             .fill(Color.white.opacity(0.1))
                     )
                     .padding(.top, 20)
-                    .focused($isNameFocused)
-                    .onTapGesture {
-                        onStartEditName()
-                        isNameFocused = true
-                    }
-                    .onSubmit {
-                        onConfirmEditName()
-                        isNameFocused = false
-                    }
-                    .onChange(of: isEditMode) { oldValue, newValue in
+                    .onChange(of: isEditMode) { _, newValue in
                         if !newValue {
-                            // Exit edit mode - confirm edit
-                            onConfirmEditName()
-                            isNameFocused = false
+                            confirmAndPersistName()
                         }
                     }
-                    .onChange(of: editState.editingSide) { oldValue, newValue in
-                        // When editing side changes, update focus
-                        if newValue == (isLeft ? .left : .right) {
-                            isNameFocused = true
-                        } else {
-                            isNameFocused = false
-                        }
+                    .onChange(of: editState.editingSide) { _, newValue in
+                        isNameFocused = newValue == (isLeft ? .left : .right)
                     }
                 } else {
-                    Text(team.name)
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.top, 20)
+                    if let doublesNames = doublesDisplayNames {
+                        VStack(spacing: 2) {
+                            Text(doublesNames.0)
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                            Text(doublesNames.1)
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                        .padding(.top, 18)
+                        .padding(.horizontal, 8)
+                    } else {
+                        Text(team.name)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.top, 20)
+                    }
                 }
                 
                 Spacer()
@@ -812,6 +873,57 @@ struct TeamSection: View {
                 Spacer()
             }
         }
+        .sheet(isPresented: $showCommonNameSelector) {
+            CommonNameSelectorDialog(nameType: nameType) { selectedName in
+                applyCommonName(selectedName)
+            }
+        }
+    }
+
+    private func confirmAndPersistName() {
+        let side: EditingSide = isLeft ? .left : .right
+        guard editState.editingSide == side else {
+            isNameFocused = false
+            return
+        }
+        let trimmed = editState.currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty {
+            Task {
+                await commonNamesManager.recordUsage(trimmed, nameType)
+            }
+        }
+        onConfirmEditName()
+        isNameFocused = false
+    }
+
+    private func applyCommonName(_ selectedName: String) {
+        onStartEditName()
+        onUpdateInput(selectedName)
+        Task {
+            await commonNamesManager.recordUsage(selectedName, nameType)
+        }
+        onConfirmEditName()
+        isNameFocused = false
+    }
+
+    private var doublesDisplayNames: (String, String)? {
+        guard isDoublesMode else { return nil }
+        guard gameType == .pingpong || gameType == .badminton || gameType == .tennis else { return nil }
+
+        let separators = ["/", "／"]
+        let raw = team.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !raw.isEmpty else { return nil }
+
+        for separator in separators {
+            let parts = raw
+                .components(separatedBy: separator)
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            if parts.count >= 2 {
+                return (parts[0], parts[1])
+            }
+        }
+        return nil
     }
 }
 
@@ -921,7 +1033,7 @@ struct ScreenshotSaveDialog: View {
                 
                 // File name input
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("文件名")
+                    Text(NSLocalizedString("screenshot_filename", value: "文件名", comment: ""))
                         .font(.headline)
                         .foregroundColor(.white)
                     
@@ -935,7 +1047,7 @@ struct ScreenshotSaveDialog: View {
                 
                 // Buttons
                 HStack(spacing: 16) {
-                    Button("取消") {
+                    Button(NSLocalizedString("cancel", comment: "")) {
                         onCancel()
                         dismiss()
                     }
@@ -945,7 +1057,7 @@ struct ScreenshotSaveDialog: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                     
-                    Button("保存") {
+                    Button(NSLocalizedString("save", comment: "")) {
                         let finalFileName = inputFileName.isEmpty ? fileName : inputFileName
                         onSave(finalFileName)
                     }
@@ -959,7 +1071,7 @@ struct ScreenshotSaveDialog: View {
                 .padding(.bottom)
             }
             .background(Color.black)
-            .navigationTitle("保存截图")
+            .navigationTitle(NSLocalizedString("save_screenshot_title", value: "保存截图", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 inputFileName = fileName

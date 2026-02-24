@@ -18,6 +18,11 @@ struct WatchToolsTabView: View {
                     WatchPillRow(icon: "⏱️", title: NSLocalizedString("tool_ten_second", comment: "10s Challenge"))
                 }
                 .buttonStyle(.plain)
+
+                NavigationLink(destination: WatchCounterView()) {
+                    WatchPillRow(icon: "➕", title: NSLocalizedString("game_counter", comment: "Counter"))
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 12)
             .padding(.bottom, 12)

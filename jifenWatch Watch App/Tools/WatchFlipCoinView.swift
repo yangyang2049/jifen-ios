@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchFlipCoinView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var isFlipping = false
     @State private var currentSide: WatchCoinSide = .heads
     @State private var rotationAngle: Double = 0
@@ -22,7 +23,7 @@ struct WatchFlipCoinView: View {
             if showHint {
                 VStack {
                     Spacer()
-                    WatchToastView(message: "点击抛硬币")
+                    WatchToastView(message: NSLocalizedString("watch_flip_coin_hint", comment: "Tap to flip"))
                         .padding(.bottom, 16)
                 }
             }
@@ -44,6 +45,16 @@ struct WatchFlipCoinView: View {
             flipTimer = nil
             isFlipping = false
         }
+        .navigationTitle(NSLocalizedString("tool_flip_coin", comment: "Flip Coin"))
+        .navigationBarTitleDisplayMode(.inline)
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width > 50 && abs(value.translation.height) < 50 {
+                        dismiss()
+                    }
+                }
+        )
     }
 
     // MARK: - Coin dimensions (proportional to HarmonyOS: 144/132/124)

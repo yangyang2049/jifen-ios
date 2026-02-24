@@ -11,8 +11,12 @@ import Foundation
 class FootballViewModel: BaseScoreViewModel {
     override init(controller: BaseScoreboardController? = nil) {
         super.init(controller: controller)
-        self.leftTeam = TeamData(name: "红队", score: 0)
-        self.rightTeam = TeamData(name: "蓝队", score: 0)
+        self.leftTeam = TeamData(name: NSLocalizedString("red_team", comment: "Red Team"), score: 0)
+        self.rightTeam = TeamData(name: NSLocalizedString("blue_team", comment: "Blue Team"), score: 0)
+    }
+
+    override func endGame() {
+        gameFinished = true
     }
 
     override func addScore(isLeft: Bool, points: Int) {
@@ -102,7 +106,8 @@ class FootballViewModel: BaseScoreViewModel {
             team2SetScore: 1,
             winner: winner,
             totalScoreChanges: controller?.getGameActions().count ?? 0,
-            extraData: [:]
+            extraData: [:],
+            status: (isGameFinished || gameFinished) ? .finished : .draft
         )
         #if DEBUG
         print("[FootballViewModel] ✅ Football record saved successfully")

@@ -11,6 +11,9 @@ struct BadmintonScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
+    var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
+    var onSetupConsumed: (() -> Void)? = nil
     @State private var controller = BadmintonController()
     @State private var viewModel = BadmintonViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
@@ -34,7 +37,8 @@ struct BadmintonScoreboardView: View {
                     controller: controller,
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
-                    nameType: .team
+                    nameType: .player,
+                    isDoublesModeProvider: { !viewModel.isSingles }
                 ),
                 onBack: {
                     if let onNavigationBack = onNavigationBack {
@@ -44,6 +48,10 @@ struct BadmintonScoreboardView: View {
                     }
                 }
             )
+
+            if !viewModel.gameFinished {
+                serveIndicator(isLeftServing: viewModel.isLeftServing)
+            }
             
             if showGameFinishedOverlay {
                 GameFinishedOverlay(winnerName: viewModel.getWinnerName())
@@ -56,7 +64,8 @@ struct BadmintonScoreboardView: View {
                     showRestOverlay = false
                     startRestCountdown(seconds: 0, message: restMessage) { isSetTransitioning = false }
                 }, onUndo: {
-                    _ = viewModel.undo()
+                    let success = viewModel.undo()
+                    if success { showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done")) }
                     restTimer?.invalidate()
                     restTimer = nil
                     showRestOverlay = false
@@ -78,6 +87,18 @@ struct BadmintonScoreboardView: View {
         .lockOrientation(.landscape)
         .onAppear {
             viewModel.controller = controller
+            if let setup = initialSetup {
+                viewModel.leftTeam.name = setup.team1Name.isEmpty ? NSLocalizedString("red_team", comment: "") : setup.team1Name
+                viewModel.rightTeam.name = setup.team2Name.isEmpty ? NSLocalizedString("blue_team", comment: "") : setup.team2Name
+                if let autoChange = setup.autoChangeSides {
+                    viewModel.autoChangeSides = autoChange
+                }
+                if let singles = setup.isSingles {
+                    viewModel.isSingles = singles
+                }
+                onSetupConsumed?()
+            }
+            restoreDraftIfNeeded()
             responsiveScoreFontSize = calculateResponsiveScoreFontSize()
             
             viewModel.setOnSetEndCallback { data in
@@ -120,6 +141,42 @@ struct BadmintonScoreboardView: View {
             }
         }
     }
+
+    private func restoreDraftIfNeeded() {
+        guard let recordId = initialRecordId,
+              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
+              record.status == .draft else {
+            return
+        }
+
+        controller.gameStartTime = record.startTime
+        controller.gameActions = record.actions
+        controller.gameRecordSaved = false
+
+        viewModel.leftTeam.name = record.team1Name
+        viewModel.rightTeam.name = record.team2Name
+        viewModel.leftTeam.sets = record.team1SetScore ?? record.team1FinalScore
+        viewModel.rightTeam.sets = record.team2SetScore ?? record.team2FinalScore
+
+        if let isSingles = record.extraData?["isSingles"]?.value as? Bool {
+            viewModel.isSingles = isSingles
+        }
+        if let autoChangeSides = record.extraData?["autoChangeSides"]?.value as? Bool {
+            viewModel.autoChangeSides = autoChangeSides
+        }
+        if let currentSet = record.extraData?["currentSet"]?.value as? Int {
+            viewModel.currentSet = currentSet
+        }
+        if let currentLeftScore = record.extraData?["currentLeftScore"]?.value as? Int {
+            viewModel.leftTeam.score = currentLeftScore
+        }
+        if let currentRightScore = record.extraData?["currentRightScore"]?.value as? Int {
+            viewModel.rightTeam.score = currentRightScore
+        }
+        if let isLeftServing = record.extraData?["isLeftServing"]?.value as? Bool {
+            viewModel.isLeftServing = isLeftServing
+        }
+    }
     
     // MARK: - Set End Handler
     
@@ -127,7 +184,7 @@ struct BadmintonScoreboardView: View {
         isSetTransitioning = true
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            showToastMessage("第\(data.setNumber)局结束，\(data.winnerName)获胜，比分 \(data.finalLeftScore)-\(data.finalRightScore)")
+            showToastMessage(String(format: NSLocalizedString("set_ended_winner", value: "第%d局结束，%@获胜，比分 %d-%d", comment: "Set end toast"), data.setNumber, data.winnerName, data.finalLeftScore, data.finalRightScore))
             data.continueUpdate()
             
             if data.isGameFinished {
@@ -136,7 +193,7 @@ struct BadmintonScoreboardView: View {
                 return
             }
             
-            startRestCountdown(seconds: 120, message: "局间休息") {
+            startRestCountdown(seconds: 120, message: NSLocalizedString("set_break", comment: "")) {
                 if data.shouldChangeSides {
                     handleSideChange()
                 }
@@ -154,11 +211,15 @@ struct BadmintonScoreboardView: View {
     }
     
     private func handleMidGameRest() {
-        startRestCountdown(seconds: 60, message: "中场休息") {}
+        startRestCountdown(seconds: 60, message: NSLocalizedString("halftime_break", comment: "")) {}
     }
     
     private func handleSideChange() {
-        showToastMessage("换边")
+        showToastMessage(NSLocalizedString("change_sides", comment: ""))
+    }
+
+    private func serveIndicator(isLeftServing: Bool) -> some View {
+        CenterLineServeIndicator(isLeftServing: isLeftServing)
     }
     
     // MARK: - Rest Countdown
@@ -187,48 +248,25 @@ struct BadmintonScoreboardView: View {
         let baseSize: CGFloat = 96
         let baseWidth: CGFloat = 360
         let scaleFactor: CGFloat = 0.1
-        
+
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             let screenWidth = window.bounds.width
             let fontSize = baseSize + (screenWidth - baseWidth) * scaleFactor
             return max(baseSize, min(fontSize, 150))
         }
-        
-                return baseSize
-        
-            }
-        
-            
-        
+        return baseSize
+    }
 
-        
-            
-        
-            // MARK: - Toast Message
-        
-            
-        
-            private func showToastMessage(_ message: String) {
-        
-                toastMessage = message
-        
-                showToast = true
-        
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-        
-                    showToast = false
-        
-                }
-        
-            }
-        
+    private func showToastMessage(_ message: String) {
+        toastMessage = message
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showToast = false
         }
-        
-        
-        
-        #Preview {
-        
-            BadmintonScoreboardView()
-        
-        }
+    }
+}
+
+#Preview {
+    BadmintonScoreboardView()
+}

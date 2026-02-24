@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WatchTenSecondChallengeView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0
     @State private var tapHintPulse: CGFloat = 1.0
@@ -91,11 +92,21 @@ struct WatchTenSecondChallengeView: View {
             timer = nil
             isRunning = false
         }
-        .alert("十秒挑战", isPresented: $showUsageAlert) {
-            Button("知道了", role: .cancel) { }
+        .alert(NSLocalizedString("watch_ten_second_challenge", comment: "Ten Second Challenge"), isPresented: $showUsageAlert) {
+            Button(NSLocalizedString("got_it", comment: "Got it"), role: .cancel) { }
         } message: {
-            Text("点击开始计时，再次点击停止，目标是 10.00 秒")
+            Text(NSLocalizedString("watch_ten_second_usage", comment: "Ten second usage message"))
         }
+        .navigationTitle(NSLocalizedString("tool_ten_second", comment: "10s Challenge"))
+        .navigationBarTitleDisplayMode(.inline)
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.width > 50 && abs(value.translation.height) < 50 {
+                        dismiss()
+                    }
+                }
+        )
     }
 
     private var recentHistory: [TimeInterval] {
@@ -116,7 +127,7 @@ struct WatchTenSecondChallengeView: View {
                 .onTapGesture { showHistoryOverlay = false }
 
             VStack(spacing: 8) {
-                Text("记录")
+                Text(NSLocalizedString("records", comment: "Records"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(WatchTheme.primaryText)
                     .padding(.top, 12)

@@ -3,9 +3,11 @@ import SwiftUI
 
 struct ScoreboardRecordDetailPage: View {
     let recordId: String
+    @Environment(\.dismiss) private var dismiss
 
     @State private var record: ScoreboardRecord?
     @State private var isDeleting = false
+    @State private var showDeleteSuccessToast = false
     @State private var showingDeleteConfirm = false
     @State private var shareFileURL: URL?
     @State private var showingShareSheet = false
@@ -32,6 +34,10 @@ struct ScoreboardRecordDetailPage: View {
                 }
                 if isPreparingShare {
                     preparingShareOverlay
+                }
+                if showDeleteSuccessToast {
+                    ToastView(message: NSLocalizedString("record_deleted", value: "已删除", comment: ""))
+                        .transition(.opacity)
                 }
             }
         }
@@ -76,29 +82,25 @@ struct ScoreboardRecordDetailPage: View {
                 Label(NSLocalizedString("delete", comment: ""), systemImage: "trash")
             }
         } label: {
-            ZStack {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 32, height: 32)
-                Image(systemName: "ellipsis.circle")
-                    .font(.title2)
-                    .foregroundColor(Theme.textPrimary.opacity(0.8))
-            }
+            Image(systemName: "ellipsis.circle")
         }
     }
     
     private var deletingView: some View {
         VStack(spacing: 16) {
             ProgressView()
-            Text("deleting_record")
+                .scaleEffect(1.2)
+                .tint(Theme.textPrimary)
+            Text(NSLocalizedString("deleting_record", value: "正在删除记录...", comment: ""))
+                .font(.subheadline)
+                .foregroundColor(Theme.textSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var recordNotFoundView: some View {
         VStack(spacing: 16) {
-            Image(systemName: "xmark.circle")
-                .font(.system(size: 48))
+            EmptyStateCourtIcon(size: 48)
             Text("record_not_found")
                 .font(.headline)
             Text("record_may_deleted")
@@ -195,10 +197,13 @@ struct ScoreboardRecordDetailPage: View {
                 .padding(.horizontal)
 
             if record.actions.isEmpty {
-                Text("no_actions_recorded")
-                    .foregroundColor(.secondary)
-                    .padding()
-                    .frame(maxWidth: .infinity)
+                VStack(spacing: 8) {
+                    EmptyStateCourtIcon(size: 36)
+                    Text("no_actions_recorded")
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
             } else {
                 // Create a timeline view of scoring actions
                 scoringTimelineView(record: record)
@@ -417,15 +422,17 @@ struct ScoreboardRecordDetailPage: View {
     }
     
     private func deleteRecord() {
+        showingDeleteConfirm = false
         isDeleting = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.async {
             let success = ScoreboardRecordManager.shared.deleteRecord(recordId)
+            isDeleting = false
             if success {
-                // Navigation will automatically dismiss when this view is popped
-                // No need to manually dismiss since we're in a NavigationStack
-            } else {
-                isDeleting = false
-                // show error
+                ScoreboardRecordsViewModel.shared.refreshRecords()
+                showDeleteSuccessToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    dismiss()
+                }
             }
         }
     }

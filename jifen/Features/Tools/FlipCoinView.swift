@@ -154,7 +154,7 @@ struct FlipCoinView: View {
                             // Recent flips display (hidden but maintains space)
                             if flipHistory.count > 0 {
                                 VStack(spacing: 8) {
-                                    Text("Recent Flips")
+                                    Text(NSLocalizedString("flip_coin_recent", value: "最近抛掷", comment: ""))
                                         .font(.system(size: 14, weight: .medium))
                                         .foregroundColor(.white.opacity(0.6))
 

@@ -1,0 +1,24 @@
+{
+  "source": "/Users/yangyangshi/Desktop/ios/jifen_ios/jifenWatch Watch App/Tools/WatchFlipCoinView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "❀",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "666",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 147
+        }
+      }
+    ]
+  },
+  "version": 1
+}

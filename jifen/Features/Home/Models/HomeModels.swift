@@ -12,6 +12,25 @@ enum ActivityType: Int, Codable, Identifiable {
     case timer = 1
 }
 
+enum TimerActionType: String, Codable {
+    case start
+    case pause
+    case resume
+    case move
+    case timeout
+    case manualStop
+    case gameEnd
+}
+
+struct TimerActionRecord: Identifiable, Codable, Equatable {
+    let id: String
+    let elapsed: TimeInterval
+    let type: TimerActionType
+    var actor: String?
+    var leftRemaining: Int?
+    var rightRemaining: Int?
+}
+
 // MARK: - GameRecordSummary Struct (for timer records)
 // This struct is inferred from HarmonyOS HomeTab.ets logic for timer activities.
 // It will be used to represent a summary of a timer record.
@@ -21,6 +40,7 @@ struct GameRecordSummary: Identifiable, Codable, Equatable {
     let timestamp: TimeInterval
     var duration: TimeInterval?
     var winner: String?
+    var actions: [TimerActionRecord]? = nil
     
     var title: String {
         gameType.displayName
@@ -87,6 +107,12 @@ struct QuickStartConfig: Codable, Equatable {
     static let defaultPhoneConfig = QuickStartConfig(primarySport: .basketball, secondarySport: .badminton)
 }
 
+// MARK: - ScoreboardSetupItem (for sheet(item:) so content is never empty)
+struct ScoreboardSetupItem: Identifiable {
+    let gameType: GameType
+    var id: String { gameType.rawValue }
+}
+
 // MARK: - SportsSetupResult Struct (refined for 6 supported sports)
 // Based on HarmonyOS SportsSetupDialog.ets, excluding pickleball-specific fields
 struct SportsSetupResult: Codable {
@@ -96,6 +122,9 @@ struct SportsSetupResult: Codable {
     var pointsPerSet: Int? = nil
     var tieBreakPoints: Int? = nil
     var autoChangeSides: Bool? = nil // autoChangeSides (Pingpong, Tennis, Badminton, Volleyball)
+    var isSingles: Bool? = nil // 乒乓球/羽毛球/网球：true=单打，false=双打
+    var playerCount: Int? = nil // 多人计分：3-9
+    var playerNames: [String]? = nil // 多人计分玩家名
 }
 
 // MARK: - RecentGameDisplay Struct (for SportsSetupDialog)
@@ -109,6 +138,3 @@ struct RecentGameDisplay: Identifiable, Codable {
     let recordId: String
     var setsInfo: String?
 }
-
-
-

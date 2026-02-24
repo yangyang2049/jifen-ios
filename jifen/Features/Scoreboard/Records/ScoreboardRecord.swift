@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum ScoreboardRecordStatus: String, Codable {
+    case draft
+    case finished
+}
+
 // MARK: - Scoreboard Record
 
 struct ScoreboardRecord: Codable, Identifiable {
@@ -25,6 +30,7 @@ struct ScoreboardRecord: Codable, Identifiable {
     var actions: [String] // Simplified action strings
     var totalScoreChanges: Int
     var extraData: [String: AnyCodable]?
+    var status: ScoreboardRecordStatus = .finished
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -42,6 +48,63 @@ struct ScoreboardRecord: Codable, Identifiable {
         case actions
         case totalScoreChanges
         case extraData
+        case status
+    }
+
+    init(
+        id: String,
+        gameType: GameType,
+        startTime: Date,
+        endTime: Date? = nil,
+        duration: TimeInterval? = nil,
+        team1Name: String,
+        team2Name: String,
+        team1FinalScore: Int,
+        team2FinalScore: Int,
+        team1SetScore: Int? = nil,
+        team2SetScore: Int? = nil,
+        winner: String? = nil,
+        actions: [String] = [],
+        totalScoreChanges: Int,
+        extraData: [String: AnyCodable]? = nil,
+        status: ScoreboardRecordStatus = .finished
+    ) {
+        self.id = id
+        self.gameType = gameType
+        self.startTime = startTime
+        self.endTime = endTime
+        self.duration = duration
+        self.team1Name = team1Name
+        self.team2Name = team2Name
+        self.team1FinalScore = team1FinalScore
+        self.team2FinalScore = team2FinalScore
+        self.team1SetScore = team1SetScore
+        self.team2SetScore = team2SetScore
+        self.winner = winner
+        self.actions = actions
+        self.totalScoreChanges = totalScoreChanges
+        self.extraData = extraData
+        self.status = status
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        gameType = try container.decode(GameType.self, forKey: .gameType)
+        startTime = try container.decode(Date.self, forKey: .startTime)
+        endTime = try container.decodeIfPresent(Date.self, forKey: .endTime)
+        duration = try container.decodeIfPresent(TimeInterval.self, forKey: .duration)
+        team1Name = try container.decode(String.self, forKey: .team1Name)
+        team2Name = try container.decode(String.self, forKey: .team2Name)
+        team1FinalScore = try container.decode(Int.self, forKey: .team1FinalScore)
+        team2FinalScore = try container.decode(Int.self, forKey: .team2FinalScore)
+        team1SetScore = try container.decodeIfPresent(Int.self, forKey: .team1SetScore)
+        team2SetScore = try container.decodeIfPresent(Int.self, forKey: .team2SetScore)
+        winner = try container.decodeIfPresent(String.self, forKey: .winner)
+        actions = try container.decodeIfPresent([String].self, forKey: .actions) ?? []
+        totalScoreChanges = try container.decode(Int.self, forKey: .totalScoreChanges)
+        extraData = try container.decodeIfPresent([String: AnyCodable].self, forKey: .extraData)
+        status = try container.decodeIfPresent(ScoreboardRecordStatus.self, forKey: .status) ?? .finished
     }
 }
 
@@ -159,5 +222,4 @@ struct AnyCodable: Codable {
         }
     }
 }
-
 

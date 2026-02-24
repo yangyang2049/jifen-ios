@@ -4,8 +4,8 @@ struct WatchBadmintonRules: WatchGameRules {
     let gameType: WatchGameType = .badminton
     let maxSets: Int
     let pointsToWin: Int = 21
-    let displayTitle: String = "羽毛球"
-    let setOptionsText: String = "三局两胜"
+    var displayTitle: String { NSLocalizedString("game_badminton", comment: "Badminton") }
+    var setOptionsText: String { NSLocalizedString("best_of_3_sets", comment: "Best of 3") }
     let midGameRestAt: Int? = 11
     let restBetweenSets: Int = 60
     let decidingSetSwapAt: Int? = 11

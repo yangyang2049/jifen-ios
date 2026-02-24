@@ -5,28 +5,7 @@ struct ToolsTab: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
-                LazyVStack(spacing: Theme.lg) {
-                    ToolSectionView(
-                        title: NSLocalizedString("match_tools", comment: "Match Tools"),
-                        tools: ToolItem.competitionTools
-                    ) { tool in
-                        path.append(tool)
-                    }
-
-                    ToolSectionView(
-                        title: NSLocalizedString("other_tools", comment: "Other Tools"),
-                        tools: ToolItem.otherTools
-                    ) { tool in
-                        path.append(tool)
-                    }
-                }
-                .padding(Theme.lg)
-            }
-            .background(Theme.backgroundColor)
-            .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))
-            .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
+            ToolsListPageView(onToolTap: { path.append($0) })
             .navigationDestination(for: ToolItem.self) { tool in
                 tool.view
                     .navigationTitle(tool.title)
@@ -34,6 +13,35 @@ struct ToolsTab: View {
                     .toolbar(.hidden, for: .tabBar)
             }
         }
+    }
+}
+
+/// 工具列表内容页，无内层 NavigationStack，用于从首页 push 时避免嵌套导致自动退出。
+struct ToolsListPageView: View {
+    var onToolTap: ((ToolItem) -> Void)? = nil
+
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: Theme.lg) {
+                ToolSectionView(
+                    title: NSLocalizedString("match_tools", comment: "Match Tools"),
+                    tools: ToolItem.competitionTools
+                ) { tool in
+                    onToolTap?(tool)
+                }
+                ToolSectionView(
+                    title: NSLocalizedString("other_tools", comment: "Other Tools"),
+                    tools: ToolItem.otherTools
+                ) { tool in
+                    onToolTap?(tool)
+                }
+            }
+            .padding(Theme.lg)
+        }
+        .background(Theme.backgroundColor)
+        .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))
+        .navigationBarTitleDisplayMode(.inline)
+        .preferredColorScheme(.dark)
     }
 }
 
@@ -53,6 +61,7 @@ struct ToolSectionView: View {
                 .padding(.horizontal, 4)
             
             LazyVGrid(columns: [
+                GridItem(.flexible(), spacing: Theme.spacing),
                 GridItem(.flexible(), spacing: Theme.spacing),
                 GridItem(.flexible(), spacing: Theme.spacing)
             ], spacing: Theme.spacing) {

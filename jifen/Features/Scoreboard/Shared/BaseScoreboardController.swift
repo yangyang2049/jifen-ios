@@ -113,7 +113,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         team2FinalScore: Int,
         winner: String?,
         totalScoreChanges: Int,
-        extraData: [String: Any]
+        extraData: [String: Any],
+        status: ScoreboardRecordStatus = .finished
     ) {
         // Allow saving with set scores if provided
         saveScoreboardRecord(
@@ -128,7 +129,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             team2SetScore: nil,
             winner: winner,
             totalScoreChanges: totalScoreChanges,
-            extraData: extraData
+            extraData: extraData,
+            status: status
         )
     }
     
@@ -144,7 +146,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         team2SetScore: Int?,
         winner: String?,
         totalScoreChanges: Int,
-        extraData: [String: Any]
+        extraData: [String: Any],
+        status: ScoreboardRecordStatus = .finished
     ) {
         // Allow saving/updating records multiple times (e.g., for multi-set games)
         // ScoreboardRecordManager will handle updating records with the same ID
@@ -165,7 +168,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             winner: winner,
             actions: gameActions,
             totalScoreChanges: totalScoreChanges,
-            extraData: nil
+            extraData: nil,
+            status: status
         )
         
         // Convert extraData to AnyCodable

@@ -17,6 +17,7 @@ struct Theme {
 
     // Additional colors derived from HarmonyOS UI
     static let primary = accentColor // Map HarmonyOS 'primary' to existing accentColor
+    static let primaryDark = Color(hex: "248A3D")
     static let black = Color.black
     static let textOnPrimary = Color.white // Assuming text on primary is white
     static let transparent = Color.clear
@@ -95,4 +96,3 @@ extension Color {
         }
     }
 }
-

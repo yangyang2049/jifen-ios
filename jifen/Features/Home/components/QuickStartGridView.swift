@@ -11,6 +11,7 @@ struct QuickStartGridView: View {
     var onEditClick: (() -> Void)? = nil
 
     @State private var startGameText: String = NSLocalizedString("home_start_game", comment: "Start Game text for QuickStartGrid")
+    @State private var startTimerText: String = NSLocalizedString("home_start_timer", value: "Start Timer", comment: "Start Timer text for QuickStartGrid")
     @State private var newGameShortText: String = NSLocalizedString("home_new_game_short", comment: "New Game short text for QuickStartGrid")
     @State private var allItemsText: String = NSLocalizedString("home_all_items", comment: "All Items text for QuickStartGrid")
     @State private var quickStartText: String = NSLocalizedString("home_quick_start", comment: "Quick Start section title")
@@ -40,7 +41,7 @@ struct QuickStartGridView: View {
                 .cornerRadius(22) // borderRadius(22)
             }
             .frame(maxWidth: .infinity) // width('100%')
-            .padding(.bottom, Theme.sm) // margin({ bottom: 8 })
+            .padding(.bottom, Theme.md) // margin({ bottom: 16 })
 
             // Grid (using SwiftUI's native Grid for iOS 16+)
             Grid(horizontalSpacing: Theme.md, verticalSpacing: Theme.md) {
@@ -50,9 +51,9 @@ struct QuickStartGridView: View {
                     }) {
                         BentoCardView( // Primary Card
                             title: getGameName(type: primarySport),
-                            subtitle: startGameText,
+                            subtitle: isQuickStartTimerType(primarySport) ? startTimerText : startGameText,
                             icon: getGameIcon(type: primarySport),
-                            gradientColors: [Theme.homePrimaryCardOrange, Theme.homePrimaryCardOrange]
+                            gradientColors: getGameGradient(type: primarySport)
                         )
                     }
                     .buttonStyle(.plain)
@@ -63,6 +64,7 @@ struct QuickStartGridView: View {
                         }) {
                             BentoCardView( // Secondary Card
                                 title: getGameName(type: secondarySport),
+                                subtitle: isQuickStartTimerType(secondarySport) ? startTimerText : startGameText,
                                 icon: getGameIcon(type: secondarySport),
                                 gradientColors: getGameGradient(type: secondarySport),
                                 isDarkText: false
@@ -77,9 +79,9 @@ struct QuickStartGridView: View {
                                 RoundedRectangle(cornerRadius: 16)
                                     .fill(
                                         LinearGradient(
-                                            gradient: Gradient(colors: [Theme.homeSecondaryCardGreen, Theme.homeSecondaryCardGreen]),
-                                            startPoint: .top,
-                                            endPoint: .bottom
+                                            gradient: Gradient(colors: [Theme.primary, Theme.primaryDark]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
                                         )
                                     )
 
@@ -90,17 +92,25 @@ struct QuickStartGridView: View {
                                             .foregroundColor(.white)
                                             .lineLimit(1)
                                             .layoutPriority(1)
-
-                                        Spacer()
-
-                                        Image(systemName: "plus")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 24, height: 24)
-                                            .foregroundColor(.white)
                                     }
 
+                                    Text(allItemsText)
+                                        .font(.system(size: Theme.fontCaption, weight: .regular))
+                                        .foregroundColor(Color.white.opacity(0.85))
+                                        .textCase(.uppercase)
+                                        .padding(.top, Theme.xs)
+
                                     Spacer()
+
+                                    HStack {
+                                        Spacer()
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.white)
+                                            .frame(width: 32, height: 32)
+                                            .background(Color.black.opacity(0.2))
+                                            .clipShape(Circle())
+                                    }
                                 }
                                 .padding(Theme.md)
                             }

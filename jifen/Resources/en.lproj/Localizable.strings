@@ -9,12 +9,14 @@
 "tab_home" = "Home";
 "tab_score" = "Score";
 "tab_records" = "Records";
+"tab_timer" = "Timer";
 "tab_tools" = "Tools";
 
 /* Home Screen */
 "recent_records" = "Recent Records";
 "home_quick_start" = "Quick Start";
 "home_start_game" = "Start Match";
+"home_start_timer" = "Start Timer";
 "home_new_game_short" = "New Game";
 "home_all_items" = "All Items";
 "home_tools" = "Tools";
@@ -30,6 +32,7 @@
 "home_tool_whistle" = "Whistle";
 "home_tool_rankings" = "Rankings";
 "home_tool_timer" = "Timer";
+"tool_stopwatch" = "Stopwatch";
 "home_tool_coin" = "Flip Coin";
 "home_tool_dice" = "Dice";
 "home_tool_team" = "Random Team";
@@ -40,10 +43,82 @@
 /* Default Team Names */
 "red_team" = "Red Team";
 "blue_team" = "Blue Team";
+"team_home" = "Home";
+"team_away" = "Away";
+"team1_name" = "Home team name";
+"team2_name" = "Away team name";
+"setup_player_name" = "Player Name";
+"setup_team_name" = "Team Name";
+"player1_name" = "Player 1";
+"player2_name" = "Player 2";
+"singles" = "Singles";
+"doubles" = "Doubles";
+"singles_doubles" = "Singles / Doubles";
+"badminton_singles_doubles" = "Singles / Doubles";
 
 /* Timer Settings */
 "timer_settings_for" = "Timer settings for";
 "unknown" = "Unknown";
+
+/* Timer Tab */
+"timer_common" = "Stopwatch";
+"timer_count_up" = "Count Up";
+"timer_go" = "Go";
+"timer_xiangqi" = "Xiangqi";
+"timer_chess" = "Chess";
+"timer_basketball_24s" = "Basketball 24s";
+"timer_basketball_12s" = "Basketball 12s";
+"timer_cube" = "Cube";
+"timer_timeout" = "Pause/Timeout";
+"timer_section_board_games" = "Board Games";
+"timer_section_other" = "Other";
+"exit" = "Exit";
+"pause" = "Pause";
+"resume" = "Resume";
+"wins" = "Wins";
+"dual_timer_player" = "Player";
+"dual_timer_main_time" = "Main time (minutes)";
+"timer_mode_slow" = "Slow";
+"timer_mode_fast" = "Fast";
+"timer_mode_custom" = "Custom";
+"timer_increment" = "Increment";
+"timer_increment_per_move" = "sec/move";
+"timer_increment_format" = "+%d sec/move";
+"timer_byoyomi" = "Byoyomi";
+"timer_byoyomi_seconds_per_period" = "sec/period";
+"timer_byoyomi_periods" = "periods";
+"timer_byoyomi_periods_format" = "Byoyomi %d periods";
+"timer_voice_announcement" = "Voice Announcement";
+"timer_vibration_feedback" = "Vibration Feedback";
+"timer_exit_confirm_title" = "Confirm Exit";
+"timer_exit_confirm_message" = "Exiting will end the current timer.";
+"timer_stop_confirm_title" = "Confirm Stop";
+"timer_stop_confirm_message" = "Stopping will end this game.";
+"timer_game_over" = "Game Over";
+"timer_restart" = "Restart";
+"timer_black_player" = "Black";
+"timer_white_player" = "White";
+"timer_red_player" = "Red";
+"timer_role_red" = "Red";
+"timer_role_black" = "Black";
+"timer_action_start" = "Timer started";
+"timer_action_pause" = "Timer paused";
+"timer_action_resume" = "Timer resumed";
+"timer_action_move_format" = "%@ moved";
+"timer_action_timeout_format" = "%@ timed out";
+"timer_action_manual_stop" = "Stopped manually";
+"timer_action_game_end" = "Game ended";
+"timer_action_game_end_winner_format" = "Game ended, %@ wins";
+"cube_hold_to_start" = "Hold 0.5s to start";
+"cube_hold" = "Hold to start";
+"cube_timer_release_to_start" = "Release hands to start timing";
+"cube_timer_place_hands" = "Place both hands on screen to prepare";
+"cube_timer_no_touchscreen_hint" = "💡 No touchscreen available, works on phones and tablets";
+"click_again_to_exit" = "Click again to exit";
+"tap_again_to_exit" = "Tap again to exit";
+"seconds_short" = "s";
+"minute" = "min";
+"minutes" = "min";
 
 /* Game Types */
 "game_pingpong" = "Ping Pong";
@@ -70,12 +145,13 @@
 "badminton_setup_title" = "Badminton Setup";
 "tennis_setup_title" = "Tennis Setup";
 "setup" = "Setup";
+"setup_suffix" = " Setup";
 
 /* Settings Labels */
 "sets_label" = "Sets";
 "points_per_set_label" = "Points per Set";
 "auto_change_sides" = "Auto Change Sides";
-"start_game" = "Start Game";
+"start_game" = "Start";
 
 /* Ping Pong Settings */
 "pingpong_set_count_label" = "Set Count";
@@ -83,6 +159,13 @@
 "best_of_3_sets" = "Best of 3";
 "best_of_5_sets" = "Best of 5";
 "best_of_7_sets" = "Best of 7";
+"pingpong_set_option_best_of_3" = "Best of 3";
+"pingpong_set_option_best_of_5" = "Best of 5";
+"pingpong_set_option_best_of_7" = "Best of 7";
+"tennis_set_option_best_of_3" = "Best of 3";
+"tennis_set_option_best_of_5" = "Best of 5";
+"tennis_tiebreak_option_7" = "7 pts";
+"tennis_tiebreak_option_10" = "10 pts";
 "points_11" = "11 points";
 "points_21" = "21 points";
 
@@ -174,7 +257,7 @@
 "tool_random_team" = "Random Team";
 "tool_red_yellow_card" = "Red/Yellow Card";
 "tool_points_table" = "Points Table";
-"tool_time" = "Time Tool";
+"tool_time" = "Fullscreen Time";
 "tool_aa_calculator" = "AA Calculator";
 "tool_ten_second" = "10s Challenge";
 
@@ -188,6 +271,7 @@
 "players_4" = "4 Players";
 "players_6" = "6 Players";
 "players_8" = "8 Players";
+"players_count_format" = "%d Players";
 "random_grouping" = "Random Grouping";
 "simulate" = "Simulate";
 "try_again" = "Try Again";
@@ -205,6 +289,9 @@
 /* Dice Tool */
 "dice_title" = "Dice";
 "tap_to_roll" = "Tap to roll dice";
+"dice_count_1" = "1 die";
+"dice_count_2" = "2 dice";
+"dice_count_3" = "3 dice";
 
 /* Points Table Tool */
 "points_table_title" = "Points Table";
@@ -231,7 +318,7 @@
 "swipe_to_switch" = "Swipe left/right to switch";
 
 /* Time Tool */
-"time_tool_title" = "Time Tool";
+"time_tool_title" = "Fullscreen Time";
 
 /* AA Calculator Tool */
 "aa_calculator_title" = "AA Calculator";
@@ -257,6 +344,7 @@
 "menu_swap_sides" = "Swap Sides";
 "menu_reset" = "Reset";
 "menu_undo" = "Undo";
+"archery_wait_turn" = "Opponent's turn to shoot";
 
 /* Font Selection */
 "select_font" = "Select Font";
@@ -296,6 +384,29 @@
 "support_contact" = "Support & Contact";
 "developer" = "Developer";
 "accessibility" = "Accessibility";
+"common_names_manage" = "Common Names";
+"common_names_team" = "Team Names";
+"common_names_player" = "Player Names";
+"common_names_clear_current" = "Clear Current Category";
+"common_names_clear_current_message" = "All common names in %@ will be deleted. This cannot be undone.";
+"common_names_title" = "Common Names";
+"common_names_empty" = "No common names";
+"common_names_add" = "Add";
+"common_names_batch_add" = "Batch Add";
+"common_names_edit_title" = "Edit Name";
+"common_names_team_placeholder" = "Enter team name";
+"common_names_player_placeholder" = "Enter player name";
+"common_names_batch_hint" = "One name per line, or separated by commas";
+"common_names_empty_name" = "Name cannot be empty";
+"common_names_already_exists" = "Name already exists";
+"common_names_added" = "Added";
+"common_names_updated" = "Updated";
+"common_names_deleted" = "Deleted";
+"common_names_add_failed" = "Failed to add";
+"common_names_update_failed" = "Failed to update";
+"common_names_batch_empty" = "Please enter at least one valid name";
+"common_names_batch_result" = "Added %d, skipped %d";
+"common_names_delete_message" = "Delete \"%@\"?";
 "feature_coming_soon" = "Feature coming soon";
 "language_restart_note" = "Language change requires app restart to take effect";
 "vs_separator" = " vs ";
@@ -319,3 +430,42 @@
 "date" = "Date";
 "set_end_winner_format" = "Set %d ended, %@ won";
 "game_started" = "Game started";
+"schedule_title" = "My Matches";
+"schedule_new_booking" = "Book New Match";
+"schedule_empty_pending" = "No upcoming matches";
+"schedule_empty_completed" = "No completed matches";
+"schedule_empty_cancelled" = "No cancelled matches";
+"schedule_time_status_scheduled" = "Scheduled";
+"schedule_time_status_starting_soon" = "Starting Soon";
+"schedule_time_status_ready" = "Ready";
+"schedule_time_status_overdue" = "Overdue";
+"schedule_entry_hint" = "View schedule and create bookings";
+"schedule_create_title" = "Book New Match";
+"schedule_detail_title" = "Booking Details";
+"schedule_sport" = "Sport";
+"schedule_sport_other" = "Other";
+"schedule_datetime" = "Date & Time";
+"schedule_duration" = "Duration";
+"schedule_duration_minutes" = "Duration %d min";
+"schedule_duration_short" = "%d min";
+"schedule_place_and_format" = "Location & Format";
+"schedule_location" = "Location";
+"schedule_location_placeholder" = "Enter location";
+"schedule_match_format" = "Format";
+"schedule_match_format_placeholder" = "Format (optional)";
+"schedule_reminders" = "Reminders";
+"schedule_reminder_hours_before" = "%d hours before";
+"schedule_reminder_minutes_before" = "%d minutes before";
+"schedule_notes" = "Notes";
+"schedule_start_game" = "Start Game";
+"schedule_edit" = "Edit";
+"schedule_cancel_booking" = "Cancel Booking";
+"schedule_cancel_confirm_message" = "Cancel this booking?";
+"schedule_booking_not_found" = "Booking not found";
+"schedule_empty_state" = "No schedules yet. Tap below to create one.";
+"schedule_status_pending" = "Pending";
+"schedule_status_completed" = "Completed";
+"schedule_status_cancelled" = "Cancelled";
+"tomorrow" = "Tomorrow";
+"unfinished_discard_title" = "Discard Unfinished Game";
+"unfinished_discard_message" = "Discard the current unfinished game?";
