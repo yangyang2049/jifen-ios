@@ -45,7 +45,15 @@ struct ArcheryScoreboardView: View {
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .team,
                     scoreTextProvider: { _, team in "\(team.score)" },
-                    tapToAddEnabled: false
+                    tapToAddEnabled: false,
+                    contentOverlayProvider: { isEditMode in
+                        AnyView(ArcheryMiddleLayer(
+                            viewModel: viewModel,
+                            showArrowPicker: $showArrowPicker,
+                            controller: controller,
+                            isEditMode: isEditMode
+                        ))
+                    }
                 ),
                 onBack: {
                     saveRecordIfNeeded()
@@ -57,28 +65,6 @@ struct ArcheryScoreboardView: View {
                 archeryTopBadge
                     .padding(.top, ScoreboardConstants.buttonPadding + 2)
                 Spacer()
-            }
-
-            if !viewModel.gameFinished {
-                centerShooterIndicator
-                    .allowsHitTesting(false)
-
-                VStack(spacing: 0) {
-                    Spacer()
-                    Button {
-                        showArrowPicker = true
-                        controller.performVibration(type: .light)
-                    } label: {
-                        Text(NSLocalizedString("archery_record_arrow", value: "记箭", comment: ""))
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(width: 96, height: 48)
-                            .background(Color.black.opacity(0.35))
-                            .clipShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.bottom, 92)
-                }
             }
 
             if showArrowPicker {
@@ -156,24 +142,26 @@ struct ArcheryScoreboardView: View {
                 .onTapGesture { showArrowPicker = false }
 
             VStack(spacing: 0) {
-                HStack {
-                    Spacer()
+                ZStack {
                     Text(currentShooterName)
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundColor(viewModel.currentShooterIsLeft ? Color(hex: "DC143C") : Color(hex: "1E90FF"))
-                    Spacer()
-                    Button {
-                        showArrowPicker = false
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white.opacity(0.9))
-                            .frame(width: 22, height: 22)
+                    HStack {
+                        Spacer()
+                        Button {
+                            showArrowPicker = false
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.9))
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
-                .frame(height: 44)
-                .padding(.horizontal, 12)
+                .frame(height: 56)
+                .padding(.horizontal, 16)
 
                 VStack(spacing: 10) {
                     ForEach(0..<3, id: \.self) { row in
@@ -320,8 +308,9 @@ private struct ArcheryStateSnapshot {
     let gameFinished: Bool
 }
 
+/// 需为 internal 以便 ScoreboardTemplate 通过 ScoreViewModelProtocol 派发调用 adjustSets（private 时协议走默认空实现，局分 +/- 不生效）
 @Observable
-private class ArcheryViewModel: BaseScoreViewModel {
+class ArcheryViewModel: BaseScoreViewModel {
     var currentSet: Int = 1
     var currentShooterIsLeft: Bool = true
     var arrowsLeftThisSet: Int = 0
@@ -358,12 +347,27 @@ private class ArcheryViewModel: BaseScoreViewModel {
     }
 
     func adjustSetPoints(isLeft: Bool, delta: Int) {
+        #if DEBUG
+        let beforeLeft = leftTeam.sets ?? 0
+        let beforeRight = rightTeam.sets ?? 0
+        print("[ArcheryViewModel] adjustSetPoints isLeft=\(isLeft) delta=\(delta) before L=\(beforeLeft) R=\(beforeRight)")
+        #endif
         saveSnapshot()
         if isLeft {
             leftTeam.sets = max(0, (leftTeam.sets ?? 0) + delta)
         } else {
             rightTeam.sets = max(0, (rightTeam.sets ?? 0) + delta)
         }
+        #if DEBUG
+        print("[ArcheryViewModel] adjustSetPoints after L=\(leftTeam.sets ?? 0) R=\(rightTeam.sets ?? 0)")
+        #endif
+    }
+
+    func adjustSets(isLeft: Bool, delta: Int) {
+        #if DEBUG
+        print("[ArcheryViewModel] adjustSets isLeft=\(isLeft) delta=\(delta)")
+        #endif
+        adjustSetPoints(isLeft: isLeft, delta: delta)
     }
 
     func getWinnerDisplayText() -> String {
@@ -565,6 +569,46 @@ private class ArcheryViewModel: BaseScoreViewModel {
         arrowsRightThisSet = snapshot.arrowsRightThisSet
         arrowsPerSet = snapshot.arrowsPerSet
         gameFinished = snapshot.gameFinished
+    }
+}
+
+/// 射箭中间层：发球箭头 + 左右半区点击，仅比左右半区高一层，由 Template 插在按钮与菜单之下；编辑模式下不显示、不响应，与羽毛球等共用模板行为一致
+private struct ArcheryMiddleLayer: View {
+    var viewModel: ArcheryViewModel
+    @Binding var showArrowPicker: Bool
+    var controller: ArcheryScoreboardController
+    var isEditMode: Bool
+
+    var body: some View {
+        Group {
+            if !isEditMode && !viewModel.gameFinished {
+                CenterLineServeIndicator(isLeftServing: viewModel.currentShooterIsLeft, triangleSize: 34)
+                    .allowsHitTesting(false)
+
+                GeometryReader { geo in
+                    HStack(spacing: 0) {
+                        Color.clear
+                            .frame(width: geo.size.width / 2)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                viewModel.currentShooterIsLeft = true
+                                showArrowPicker = true
+                                controller.performVibration(type: .light)
+                            }
+                        Color.clear
+                            .frame(width: geo.size.width / 2)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                viewModel.currentShooterIsLeft = false
+                                showArrowPicker = true
+                                controller.performVibration(type: .light)
+                            }
+                    }
+                }
+                .padding(.top, 80)
+                .padding(.bottom, 88)
+            }
+        }
     }
 }
 

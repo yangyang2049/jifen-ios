@@ -154,19 +154,21 @@ private struct BoxingRoundDialog: View {
                 .onTapGesture { onCancel() }
 
             VStack(spacing: 0) {
-                HStack {
-                    Spacer()
+                ZStack {
                     Text(NSLocalizedString("boxing_end_round", value: "回合结束", comment: ""))
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white)
-                    Spacer()
-                    Button(action: onCancel) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white.opacity(0.9))
-                            .frame(width: 24, height: 24)
+                    HStack {
+                        Spacer()
+                        Button(action: onCancel) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.white.opacity(0.9))
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 12)
                 .frame(height: 48)

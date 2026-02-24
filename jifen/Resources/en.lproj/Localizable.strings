@@ -11,6 +11,14 @@
 "tab_records" = "Records";
 "tab_timer" = "Timer";
 "tab_tools" = "Tools";
+"all" = "All";
+"scoreboard" = "Score";
+"timer" = "Timer";
+"scoreboard_sports" = "Sports";
+"scoreboard_board_games" = "Board Games";
+"scoreboard_cards" = "Scoring";
+"search_team_or_game" = "Search team or game";
+"match_count" = "%d matches";
 
 /* Home Screen */
 "recent_records" = "Recent Records";
@@ -135,6 +143,7 @@
 "game_doudizhu" = "Doudizhu";
 "game_simple_score" = "Simple Score";
 "game_multi_scoreboard" = "Multi Scoreboard";
+"multi_score_player_default" = "Player";
 "game_counter" = "Counter";
 
 /* Setup Titles */
@@ -366,6 +375,7 @@
 /* Records Tab */
 "clear_all_records" = "Clear All Records";
 "clear_all_records_message" = "All records will be deleted. This cannot be undone.";
+"clear_data" = "Clear data";
 
 /* Settings */
 "settings" = "Settings";
@@ -456,6 +466,8 @@
 "schedule_reminders" = "Reminders";
 "schedule_reminder_hours_before" = "%d hours before";
 "schedule_reminder_minutes_before" = "%d minutes before";
+"schedule_reminder_help_title" = "Reminder Notes";
+"schedule_reminder_help_message" = "These reminders are local notifications scheduled on your device.\n- Notification permission must be enabled\n- Reminders may not arrive if the app is uninstalled, notifications are disabled, or background execution is restricted\n- Related reminders are updated or removed when you edit or cancel a booking";
 "schedule_notes" = "Notes";
 "schedule_start_game" = "Start Game";
 "schedule_edit" = "Edit";
@@ -469,3 +481,4 @@
 "tomorrow" = "Tomorrow";
 "unfinished_discard_title" = "Discard Unfinished Game";
 "unfinished_discard_message" = "Discard the current unfinished game?";
+"unfinished_discard_button" = "Discard";

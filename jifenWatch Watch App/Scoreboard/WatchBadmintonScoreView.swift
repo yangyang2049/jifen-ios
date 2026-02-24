@@ -5,6 +5,5 @@ struct WatchBadmintonScoreView: View {
 
     var body: some View {
         WatchScoreboardView(rules: WatchBadmintonRules(maxSets: maxSets))
-            .navigationBarHidden(true)
     }
 }

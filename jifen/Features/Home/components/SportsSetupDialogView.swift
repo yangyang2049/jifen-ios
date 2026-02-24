@@ -121,7 +121,6 @@ struct SportsSetupDialogView: View {
     @State private var team1Name: String = ""
     @State private var team2Name: String = ""
     @State private var activeNameInputTarget: NameInputTarget? = nil
-    @State private var recentGames: [RecentGameDisplay] = []
     @State private var selectedMaxSets: Int = 0
     @State private var selectedPointsPerSet: Int = 0
     @State private var selectedTieBreakPoints: Int = 0
@@ -133,7 +132,6 @@ struct SportsSetupDialogView: View {
     @State private var team2Player2Name: String = ""
 
     // Managers
-    private let scoreboardRecordManager = ScoreboardRecordManager.shared
     private let commonNamesManager = CommonNamesManager.shared
 
     var body: some View {
@@ -164,29 +162,6 @@ struct SportsSetupDialogView: View {
                     }
 
                     buildSettingsSection()
-
-                    if !recentGames.isEmpty {
-                        VStack(alignment: .leading, spacing: Theme.sm) {
-                            HStack {
-                                Text(NSLocalizedString("recent_records", comment: "Recent Records"))
-                                    .font(.system(size: 14))
-                                    .foregroundColor(Theme.textSecondary)
-                                Spacer()
-                                Text(NSLocalizedString("tap_to_quick_use", comment: "Tap to quick use"))
-                                    .font(.system(size: 11))
-                                    .foregroundColor(Theme.textSecondary.opacity(0.6))
-                            }
-
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: Theme.sm) {
-                                    ForEach(recentGames) { game in
-                                        buildRecentGameCard(game: game)
-                                    }
-                                }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
                 }
                 .padding(.horizontal, Theme.lg)
                 .padding(.vertical, Theme.md)
@@ -256,11 +231,6 @@ struct SportsSetupDialogView: View {
         selectedMaxSets = initialMaxSets ?? getDefaultMaxSets() ?? 0
         selectedPointsPerSet = initialPointsPerSet ?? getDefaultPointsPerSet() ?? 0
         selectedTieBreakPoints = initialTieBreakPoints ?? getDefaultTieBreakPoints() ?? 0
-
-        Task {
-            // await scoreboardRecordManager.init() // Managers should be initialized at app launch
-            await loadRecentRecords()
-        }
     }
 
     private func getDefaultMaxSets() -> Int? {
@@ -444,7 +414,7 @@ struct SportsSetupDialogView: View {
                         HStack(spacing: Theme.sm) {
                             ForEach([3, 5, 7], id: \.self) { sets in
                                 Button(action: { selectedMaxSets = sets }) {
-                                    Text(NSLocalizedString("pingpong_set_option_best_of_\(sets)", comment: ""))
+                                    Text(pingpongSetOptionText(sets))
                                         .font(.system(size: 14, weight: selectedMaxSets == sets ? .medium : .regular))
                                         .foregroundColor(getChipTextColor(selected: selectedMaxSets == sets))
                                         .padding(.horizontal, Theme.sm)
@@ -475,7 +445,7 @@ struct SportsSetupDialogView: View {
                         HStack(spacing: Theme.sm) {
                             ForEach([3, 5], id: \.self) { sets in
                                 Button(action: { selectedMaxSets = sets }) {
-                                    Text(NSLocalizedString("tennis_set_option_best_of_\(sets)", comment: ""))
+                                    Text(tennisSetOptionText(sets))
                                         .font(.system(size: 14, weight: selectedMaxSets == sets ? .medium : .regular))
                                         .foregroundColor(getChipTextColor(selected: selectedMaxSets == sets))
                                         .padding(.horizontal, Theme.sm)
@@ -495,7 +465,7 @@ struct SportsSetupDialogView: View {
                         HStack(spacing: Theme.sm) {
                             ForEach([7, 10], id: \.self) { points in
                                 Button(action: { selectedTieBreakPoints = points }) {
-                                    Text(NSLocalizedString("tennis_tiebreak_option_\(points)", comment: ""))
+                                    Text(tennisTiebreakOptionText(points))
                                         .font(.system(size: 14, weight: selectedTieBreakPoints == points ? .medium : .regular))
                                         .foregroundColor(getChipTextColor(selected: selectedTieBreakPoints == points))
                                         .padding(.horizontal, Theme.sm)
@@ -537,162 +507,6 @@ struct SportsSetupDialogView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-    }
-    
-    // MARK: - Recent Game Card
-    @ViewBuilder
-    private func buildRecentGameCard(game: RecentGameDisplay) -> some View {
-        Button(action: {
-            Task {
-                await loadFromRecord(game: game)
-            }
-        }) {
-            HStack(spacing: Theme.xs) {
-                Text(game.team1Name)
-                    .font(.system(size: 13))
-                    .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                
-                Text(game.score)
-                    .font(.system(size: 12))
-                    .foregroundColor(Theme.textSecondary)
-                
-                Text(game.team2Name)
-                    .font(.system(size: 13))
-                    .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-
-                if let setsInfo = game.setsInfo {
-                    Text(setsInfo)
-                        .font(.system(size: 11))
-                        .foregroundColor(Theme.primary)
-                        .padding(.horizontal, Theme.xs)
-                        .padding(.vertical, 2)
-                        .background(Theme.homeCardDark.opacity(0.5)) // getSetsInfoBackgroundColor
-                        .cornerRadius(4)
-                }
-            }
-            .padding(.horizontal, Theme.sm)
-            .padding(.vertical, Theme.xs)
-            .background(Theme.homeCardDark.opacity(0.3)) // getRecordCardBackgroundColor
-            .cornerRadius(6)
-        }
-        .buttonStyle(CardButtonStyle()) // Using existing CardButtonStyle for pressed state
-    }
-
-    private func formatTime(timestamp: TimeInterval) -> String {
-        let now = Date().timeIntervalSince1970
-        let diff = now - timestamp
-        
-        let minutes = Int(diff / 60)
-        let hours = Int(diff / 3600)
-        let days = Int(diff / 86400)
-
-        if minutes < 60 {
-            return String.localizedStringWithFormat(NSLocalizedString("minutes_ago", comment: ""), minutes)
-        } else if hours < 24 {
-            return String.localizedStringWithFormat(NSLocalizedString("hours_ago", comment: ""), hours)
-        } else if days < 7 {
-            return String.localizedStringWithFormat(NSLocalizedString("days_ago", comment: ""), days)
-        }
-
-        let date = Date(timeIntervalSince1970: timestamp)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd"
-        return dateFormatter.string(from: date)
-    }
-
-    private func loadRecentRecords() async {
-        let allRecords: [ScoreboardRecordSummary] = scoreboardRecordManager.getAllRecordSummaries()
-        recentGames = allRecords
-            .filter { $0.gameType == gameType }
-            .sorted { $0.timestamp > $1.timestamp }
-            .prefix(3)
-            .map { record in
-                let setsInfo = formatSetsInfo(record)
-                return RecentGameDisplay(
-                    id: record.id,
-                    team1Name: record.team1Name,
-                    team2Name: record.team2Name,
-                    score: "\(record.team1FinalScore)-\(record.team2FinalScore)",
-                    time: formatTime(timestamp: record.timestamp),
-                    recordId: record.id,
-                    setsInfo: setsInfo
-                )
-            }
-    }
-
-    private func formatSetsInfo(_ record: ScoreboardRecordSummary) -> String? {
-        if gameType == .pingpong {
-            var maxSets: Int? = nil
-            if let extraData = record.extraData, let ms = extraData["maxSets"]?.value as? Int {
-                maxSets = ms
-            }
-            
-            if maxSets == nil {
-                let team1Sets = record.team1SetScore ?? 0
-                let team2Sets = record.team2SetScore ?? 0
-                let completedSets = team1Sets + team2Sets
-
-                if completedSets >= 5 { maxSets = completedSets <= 5 ? 5 : 7 }
-                else if completedSets >= 3 { maxSets = completedSets <= 3 ? 3 : 5 }
-                else if completedSets >= 2 { maxSets = 3 }
-                else { maxSets = 5 } // Default 5 sets
-            }
-
-            return maxSets != nil && maxSets! > 0 ? "\(maxSets!)" : nil
-        } else if gameType == .tennis {
-            var maxSets: Int? = nil
-            var tieBreakPoints: Int? = nil
-
-            if let extraData = record.extraData {
-                if let ms = extraData["maxSets"]?.value as? Int { maxSets = ms }
-                if let tbp = extraData["tieBreakPoints"]?.value as? Int { tieBreakPoints = tbp }
-            }
-
-            if maxSets == nil { maxSets = 3 } // Default 3 sets
-            if tieBreakPoints == nil { tieBreakPoints = 7 } // Default tiebreak 7
-
-            if let tbp = tieBreakPoints, (tbp == 7 || tbp == 10) {
-                return "\(maxSets ?? 0) | \(tbp)"
-            } else {
-                return "\(maxSets ?? 0)"
-            }
-        }
-        return nil
-    }
-
-    private func loadFromRecord(game: RecentGameDisplay) async {
-        team1Name = game.team1Name
-        team2Name = game.team2Name
-
-        if gameType == .pingpong || gameType == .tennis || gameType == .badminton {
-            let record: ScoreboardRecord? = scoreboardRecordManager.getRecordById(game.recordId)
-            if let record = record, let extraData = record.extraData {
-                if gameType == .pingpong {
-                    if let ms = extraData["maxSets"]?.value as? Int, ms > 0 {
-                        selectedMaxSets = ms
-                    }
-                } else if gameType == .tennis {
-                    if let ms = extraData["maxSets"]?.value as? Int, ms > 0 {
-                        selectedMaxSets = ms
-                    }
-                    if let tbp = extraData["tieBreakPoints"]?.value as? Int, tbp > 0 {
-                        selectedTieBreakPoints = tbp
-                    }
-                }
-                if let singles = extraData["isSingles"]?.value as? Bool {
-                    isSingles = singles
-                }
-            }
-        }
-        syncDoublesPlayerNamesFromTeamNames()
-
-        #if DEBUG
-        print(NSLocalizedString("load_recent_game", comment: "Loaded recent game"))
-        #endif
     }
 
     private func syncDoublesPlayerNamesFromTeamNames() {
@@ -749,6 +563,41 @@ struct SportsSetupDialogView: View {
             team2Player1Name = value
         case .team2Player2:
             team2Player2Name = value
+        }
+    }
+
+    private func pingpongSetOptionText(_ sets: Int) -> String {
+        switch sets {
+        case 3:
+            return NSLocalizedString("pingpong_set_option_best_of_3", comment: "")
+        case 5:
+            return NSLocalizedString("pingpong_set_option_best_of_5", comment: "")
+        case 7:
+            return NSLocalizedString("pingpong_set_option_best_of_7", comment: "")
+        default:
+            return "Best of \(sets)"
+        }
+    }
+
+    private func tennisSetOptionText(_ sets: Int) -> String {
+        switch sets {
+        case 3:
+            return NSLocalizedString("tennis_set_option_best_of_3", comment: "")
+        case 5:
+            return NSLocalizedString("tennis_set_option_best_of_5", comment: "")
+        default:
+            return "Best of \(sets)"
+        }
+    }
+
+    private func tennisTiebreakOptionText(_ points: Int) -> String {
+        switch points {
+        case 7:
+            return NSLocalizedString("tennis_tiebreak_option_7", comment: "")
+        case 10:
+            return NSLocalizedString("tennis_tiebreak_option_10", comment: "")
+        default:
+            return "\(points)"
         }
     }
     

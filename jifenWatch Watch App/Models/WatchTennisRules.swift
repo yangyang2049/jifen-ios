@@ -14,7 +14,7 @@ struct WatchTennisRules: WatchGameRules {
         case 5:
             return NSLocalizedString("sets_5_best_of_3", comment: "Best of 5")
         default:
-            return String(format: NSLocalizedString("sets_generic_tennis", value: "%d盘", comment: "Generic tennis sets"), maxSets)
+            return String(format: NSLocalizedString("watch_sets_generic_tennis", value: "%d sets", comment: "Generic tennis sets"), maxSets)
         }
     }
     let midGameRestAt: Int? = nil

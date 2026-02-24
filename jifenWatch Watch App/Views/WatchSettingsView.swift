@@ -76,8 +76,10 @@ struct WatchSettingsView: View {
     }
 
     private func layoutRow() -> some View {
-        NavigationLink {
-            layoutPickerDestination
+        Button {
+            let nextLayout = scoreboardLayout == "horizontal" ? "vertical" : "horizontal"
+            WatchPreferences.shared.scoreboardLayout = nextLayout
+            scoreboardLayout = WatchPreferences.shared.scoreboardLayout
         } label: {
             HStack {
                 Text(NSLocalizedString("watch_settings_layout_title", comment: "Scoreboard layout"))
@@ -96,43 +98,6 @@ struct WatchSettingsView: View {
             .cornerRadius(WatchMetrics.pillRadius)
         }
         .buttonStyle(.plain)
-    }
-
-    private var layoutPickerDestination: some View {
-        List {
-            Button {
-                WatchPreferences.shared.scoreboardLayout = "vertical"
-                scoreboardLayout = WatchPreferences.shared.scoreboardLayout
-            } label: {
-                HStack {
-                    Text(NSLocalizedString("watch_layout_vertical", comment: "Vertical"))
-                        .foregroundColor(WatchTheme.primaryText)
-                    Spacer()
-                    if scoreboardLayout == "vertical" {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(WatchTheme.accent)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-            Button {
-                WatchPreferences.shared.scoreboardLayout = "horizontal"
-                scoreboardLayout = WatchPreferences.shared.scoreboardLayout
-            } label: {
-                HStack {
-                    Text(NSLocalizedString("watch_layout_horizontal", comment: "Horizontal"))
-                        .foregroundColor(WatchTheme.primaryText)
-                    Spacer()
-                    if scoreboardLayout == "horizontal" {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(WatchTheme.accent)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-        }
-        .navigationTitle(NSLocalizedString("watch_settings_layout_title", comment: "Scoreboard layout"))
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func settingRow(title: String, isOn: Binding<Bool>) -> some View {

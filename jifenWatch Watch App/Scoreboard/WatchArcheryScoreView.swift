@@ -40,7 +40,9 @@ struct WatchArcheryScoreView: View {
     @State private var showMenu: Bool = false
     @State private var isStopped: Bool = false
     @State private var winner: Bool? = nil
+    @State private var isManualFinish: Bool = false
     @State private var undoButtonVisible: Bool = false
+    @State private var undoHideTimer: Timer? = nil
     @State private var recordSaved: Bool = false
     @State private var toastMessage: String? = nil
     @State private var history: [(redScore: Int, blueScore: Int, redSets: Int, blueSets: Int, currentShooter: Bool, arrowsRed: Int, arrowsBlue: Int, arrowsPerSet: Int)] = []
@@ -48,7 +50,7 @@ struct WatchArcheryScoreView: View {
     @State private var scoreboardLayout: String = "vertical"
     
     private var isMatchFinished: Bool {
-        winner != nil
+        winner != nil || isManualFinish
     }
 
     var body: some View {
@@ -69,7 +71,6 @@ struct WatchArcheryScoreView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black)
         .ignoresSafeArea()
-        .navigationBarHidden(true)
         .onAppear {
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
             if scoreboardLayout != "horizontal" && scoreboardLayout != "vertical" { scoreboardLayout = "vertical" }
@@ -80,20 +81,27 @@ struct WatchArcheryScoreView: View {
     }
 
     private var mainBoard: some View {
-        Group {
-            if scoreboardLayout == "horizontal" {
-                HStack(spacing: 0) {
-                    side(isRed: true)
-                    side(isRed: false)
-                }
-            } else {
-                VStack(spacing: 0) {
-                    side(isRed: true)
-                    side(isRed: false)
+        GeometryReader { proxy in
+            let boardWidth = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
+            let boardHeight = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+            Group {
+                if scoreboardLayout == "horizontal" {
+                    HStack(spacing: 0) {
+                        side(isRed: true, size: CGSize(width: boardWidth / 2, height: boardHeight))
+                        side(isRed: false, size: CGSize(width: boardWidth / 2, height: boardHeight))
+                    }
+                    .frame(width: boardWidth, height: boardHeight)
+                } else {
+                    VStack(spacing: 0) {
+                        side(isRed: true, size: CGSize(width: boardWidth, height: boardHeight / 2))
+                        side(isRed: false, size: CGSize(width: boardWidth, height: boardHeight / 2))
+                    }
+                    .frame(width: boardWidth, height: boardHeight)
                 }
             }
+            .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
         .gesture(
             DragGesture(minimumDistance: 30, coordinateSpace: .local)
                 .onEnded { value in
@@ -103,17 +111,16 @@ struct WatchArcheryScoreView: View {
                         dismiss()
                         return
                     }
-                    if dy > 40 && !showScorePanel && !showMenu && !setEnding {
+                    if dy > 40 && !showScorePanel && !showMenu && !setEnding && !isStopped {
                         undoScore()
+                    } else if dy < -40 && !showScorePanel && !showMenu && !setEnding && !isStopped {
+                        showMenu = true
                     }
                 }
         )
-        .onLongPressGesture(minimumDuration: 0.5) {
-            if !isStopped && !setEnding { showMenu = true }
-        }
     }
 
-    private func side(isRed: Bool) -> some View {
+    private func side(isRed: Bool, size: CGSize) -> some View {
         let setPts = isRed ? redSets : blueSets
         let ringPts = isRed ? redScore : blueScore
         let mainScoreFontSize: CGFloat = scoreboardLayout == "horizontal" ? 64 : 72
@@ -146,7 +153,7 @@ struct WatchArcheryScoreView: View {
 
             serverIndicatorOverlay(isRed: isRed)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: size.width, height: size.height)
         .background(isRed ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
         .opacity(isStopped && winner != nil && (isRed ? winner != true : winner != false) ? 0.4 : 1)
         .contentShape(Rectangle())
@@ -265,19 +272,33 @@ struct WatchArcheryScoreView: View {
                 }
 
                 VStack(spacing: 8) {
-                    if undoButtonVisible && isMatchFinished {
-                        Button {
-                            undoScore()
-                            undoButtonVisible = false
-                        } label: {
-                            Text(NSLocalizedString("menu_undo", comment: "Undo"))
-                                .frame(width: 160, height: 44)
-                                .contentShape(Rectangle())
+                    if isMatchFinished {
+                        if !isManualFinish && undoButtonVisible {
+                            Button {
+                                undoScore()
+                                undoButtonVisible = false
+                            } label: {
+                                Text(NSLocalizedString("menu_undo", comment: "Undo"))
+                                    .frame(width: 160, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .background(WatchTheme.card)
+                            .foregroundColor(.white)
+                            .cornerRadius(22)
+                        } else {
+                            Button {
+                                resetMatch()
+                            } label: {
+                                Text(NSLocalizedString("watch_play_again", value: "Play Again", comment: "Play again"))
+                                    .frame(width: 160, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .background(WatchTheme.successGreen)
+                            .foregroundColor(.white)
+                            .cornerRadius(22)
                         }
-                        .buttonStyle(.plain)
-                        .background(WatchTheme.card)
-                        .foregroundColor(.white)
-                        .cornerRadius(22)
                     }
 
                     if !isMatchFinished {
@@ -302,7 +323,7 @@ struct WatchArcheryScoreView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .background(isMatchFinished ? WatchTheme.successGreen : WatchTheme.card)
+                    .background(WatchTheme.card)
                     .foregroundColor(.white)
                     .cornerRadius(22)
                 }
@@ -349,13 +370,13 @@ struct WatchArcheryScoreView: View {
                     .cornerRadius(12)
 
                     Button {
-                        handleStopToggle()
+                        endMatchFromMenu()
                         showMenu = false
                     } label: {
                         VStack(spacing: 4) {
-                            Image(systemName: isStopped ? "play.fill" : "stop.fill")
+                            Image(systemName: "flag.checkered")
                                 .font(.system(size: 22, weight: .medium))
-                            Text(isStopped ? NSLocalizedString("watch_continue", comment: "Continue") : NSLocalizedString("watch_stop", comment: "Stop"))
+                            Text(NSLocalizedString("watch_end_match", value: "End", comment: "End match"))
                                 .font(.system(size: 11, weight: .medium))
                                 .lineLimit(1)
                         }
@@ -364,7 +385,7 @@ struct WatchArcheryScoreView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .background(isStopped ? WatchTheme.successGreen : WatchTheme.warningOrange)
+                    .background(WatchTheme.dangerRed)
                     .foregroundColor(.white)
                     .cornerRadius(12)
 
@@ -409,6 +430,16 @@ struct WatchArcheryScoreView: View {
                     .cornerRadius(12)
                 }
                 .padding(12)
+
+                Button {
+                    showMenu = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(WatchTheme.secondaryText)
+                }
+                .buttonStyle(.plain)
+                .frame(width: 44, height: 44)
             }
             .padding(12)
             .background(WatchTheme.overlayCard)
@@ -452,9 +483,10 @@ struct WatchArcheryScoreView: View {
             blueSets += setPointsTie
         }
         if redSets >= setPointsToWin || blueSets >= setPointsToWin {
+            isManualFinish = false
             winner = redSets > blueSets ? true : (blueSets > redSets ? false : nil)
             isStopped = true
-            undoButtonVisible = true
+            showUndoButton()
             saveMatchRecord()
             WatchHaptics.shared.play(.finish)
             setEnding = false
@@ -488,20 +520,36 @@ struct WatchArcheryScoreView: View {
         arrowsBlueThisSet = s.arrowsBlue
         arrowsPerSet = s.arrowsPerSet
         if isStopped { recordSaved = false }
+        isManualFinish = false
         WatchHaptics.shared.play(.undo)
         showToast(NSLocalizedString("watch_undo_toast", value: "已撤销", comment: "Undo toast"))
     }
-    
-    private func handleStopToggle() {
-        guard !isMatchFinished else { return }
-        isStopped.toggle()
-        if isStopped {
-            showScorePanel = false
+
+    private func showUndoButton() {
+        isManualFinish = false
+        undoButtonVisible = true
+        undoHideTimer?.invalidate()
+        undoHideTimer = Timer.scheduledTimer(withTimeInterval: WatchTiming.undoCountdown, repeats: false) { _ in
+            undoButtonVisible = false
         }
-        WatchHaptics.shared.play(.medium)
+    }
+
+    private func endMatchFromMenu() {
+        guard !isMatchFinished else { return }
+        showScorePanel = false
+        isStopped = true
+        isManualFinish = true
+        undoButtonVisible = false
+        undoHideTimer?.invalidate()
+        undoHideTimer = nil
+        winner = redSets > blueSets ? true : (blueSets > redSets ? false : nil)
+        WatchHaptics.shared.play(.finish)
+        saveMatchRecord()
     }
     
     private func resetMatch() {
+        undoHideTimer?.invalidate()
+        undoHideTimer = nil
         redScore = 0
         blueScore = 0
         redSets = 0
@@ -518,6 +566,7 @@ struct WatchArcheryScoreView: View {
         showMenu = false
         isStopped = false
         winner = nil
+        isManualFinish = false
         undoButtonVisible = false
         recordSaved = false
         history.removeAll()

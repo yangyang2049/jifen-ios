@@ -19,7 +19,7 @@ struct WatchPickleballRules: WatchGameRules {
         case 5:
             return NSLocalizedString("best_of_5_sets", comment: "Best of 5")
         default:
-            return String(format: NSLocalizedString("sets_generic", value: "%d局", comment: "Generic sets"), maxSets)
+            return String(format: NSLocalizedString("watch_sets_generic", value: "%d sets", comment: "Generic sets"), maxSets)
         }
     }
     let midGameRestAt: Int? = nil

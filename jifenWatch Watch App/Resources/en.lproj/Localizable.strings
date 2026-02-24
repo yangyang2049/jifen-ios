@@ -76,11 +76,13 @@
 "menu_reset" = "Reset";
 "watch_continue" = "Continue";
 "watch_stop" = "Stop";
+"watch_end_match" = "End";
 "watch_layout_vertical" = "Vertical";
 "watch_layout_horizontal" = "Horizontal";
 "watch_settings_layout_title" = "Scoreboard Layout";
 "watch_reset_toast" = "Reset";
 "watch_undo_toast" = "Undone";
+"watch_play_again" = "Play Again";
 "watch_exit" = "Exit";
 "exit" = "Exit";
 "watch_team_red" = "Red";
@@ -90,6 +92,7 @@
 "watch_match_finished" = "Match finished";
 "watch_bb_shots" = "Shots";
 "watch_bb_made" = "Made";
+"watch_bb_shot_first_toast" = "Record a shot first";
 "watch_bb_hit_rate" = "Hit rate";
 "watch_bb_end_training" = "End training";
 "watch_bb_restart" = "Restart";

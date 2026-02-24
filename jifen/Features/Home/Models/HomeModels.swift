@@ -127,14 +127,3 @@ struct SportsSetupResult: Codable {
     var playerNames: [String]? = nil // 多人计分玩家名
 }
 
-// MARK: - RecentGameDisplay Struct (for SportsSetupDialog)
-// Based on HarmonyOS SportsSetupDialog.ets
-struct RecentGameDisplay: Identifiable, Codable {
-    let id: String // recordId
-    let team1Name: String
-    let team2Name: String
-    let score: String
-    let time: String
-    let recordId: String
-    var setsInfo: String?
-}

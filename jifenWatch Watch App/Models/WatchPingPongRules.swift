@@ -14,7 +14,7 @@ struct WatchPingPongRules: WatchGameRules {
         case 7:
             return NSLocalizedString("best_of_7_sets", comment: "Best of 7")
         default:
-            return String(format: NSLocalizedString("sets_generic", value: "%d局", comment: "Generic sets"), maxSets)
+            return String(format: NSLocalizedString("watch_sets_generic", value: "%d sets", comment: "Generic sets"), maxSets)
         }
     }
     let midGameRestAt: Int? = nil

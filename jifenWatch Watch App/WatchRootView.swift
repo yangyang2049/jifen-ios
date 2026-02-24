@@ -20,23 +20,32 @@ struct WatchRootView: View {
                 }
             }
             .navigationDestination(item: $scoreboardRoute) { route in
-                switch route {
-                case .pingpong(let maxSets):
-                    WatchPingPongScoreView(maxSets: maxSets)
-                case .badminton(let maxSets):
-                    WatchBadmintonScoreView(maxSets: maxSets)
-                case .tennis(let maxSets):
-                    WatchTennisScoreView(maxSets: maxSets)
-                case .pickleball(let maxSets):
-                    WatchPickleballScoreView(maxSets: maxSets)
-                case .archery:
-                    WatchArcheryScoreView()
-                case .basketballTraining:
-                    WatchBasketballTrainingView()
-                }
+                destinationView(for: route)
             }
         }
         .accentColor(WatchTheme.accent)
+    }
+
+    private func destinationView(for route: WatchScoreboardRoute) -> some View {
+        Group {
+            switch route {
+            case .pingpong(let maxSets):
+                WatchPingPongScoreView(maxSets: maxSets)
+            case .badminton(let maxSets):
+                WatchBadmintonScoreView(maxSets: maxSets)
+            case .tennis(let maxSets):
+                WatchTennisScoreView(maxSets: maxSets)
+            case .pickleball(let maxSets):
+                WatchPickleballScoreView(maxSets: maxSets)
+            case .archery:
+                WatchArcheryScoreView()
+            case .basketballTraining:
+                WatchBasketballTrainingView()
+            }
+        }
+        .ignoresSafeArea()
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 

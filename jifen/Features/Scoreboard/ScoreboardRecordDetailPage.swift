@@ -28,6 +28,8 @@ struct ScoreboardRecordDetailPage: View {
                             actionsListView(record: record)
                         }
                         .padding()
+                        .frame(maxWidth: 600)
+                        .frame(maxWidth: .infinity)
                     }
                 } else {
                     recordNotFoundView

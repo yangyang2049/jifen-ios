@@ -14,6 +14,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
     @State private var winner: String? = nil
     @State private var isStopped = false
     @State private var isFinished = false
+    @State private var isManualFinish = false
     @State private var isTiebreak = false
     @State private var showMenu = false
     @State private var showSwapChip = false
@@ -51,22 +52,26 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
     var body: some View {
         ZStack {
             GeometryReader { proxy in
+                let boardWidth = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
+                let boardHeight = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
                 Group {
                     if scoreboardLayout == "horizontal" {
                         HStack(spacing: 0) {
-                            scoreboardSide(isRed: true, size: CGSize(width: proxy.size.width / 2, height: proxy.size.height))
-                            scoreboardSide(isRed: false, size: CGSize(width: proxy.size.width / 2, height: proxy.size.height))
+                            scoreboardSide(isRed: true, size: CGSize(width: boardWidth / 2, height: boardHeight))
+                            scoreboardSide(isRed: false, size: CGSize(width: boardWidth / 2, height: boardHeight))
                         }
-                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .frame(width: boardWidth, height: boardHeight)
                     } else {
                         VStack(spacing: 0) {
-                            scoreboardSide(isRed: true, size: CGSize(width: proxy.size.width, height: proxy.size.height / 2))
-                            scoreboardSide(isRed: false, size: CGSize(width: proxy.size.width, height: proxy.size.height / 2))
+                            scoreboardSide(isRed: true, size: CGSize(width: boardWidth, height: boardHeight / 2))
+                            scoreboardSide(isRed: false, size: CGSize(width: boardWidth, height: boardHeight / 2))
                         }
-                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .frame(width: boardWidth, height: boardHeight)
                     }
                 }
+                .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
             }
+            .ignoresSafeArea()
             .gesture(dragGesture)
 
             if isStopped {
@@ -137,6 +142,9 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
     private var dragGesture: some Gesture {
         DragGesture(minimumDistance: 20, coordinateSpace: .local)
             .onEnded { value in
+                if showMenu || isResting || showDecidingSetSwapOverlay || isStopped {
+                    return
+                }
                 let dx = value.translation.width
                 let dy = value.translation.height
                 // 右滑返回（从左边缘向右）：与系统返回手势一致，优先于上下滑
@@ -336,19 +344,34 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                 }
 
                 VStack(spacing: 8) {
-                    if undoButtonVisible && isFinished {
-                        Button {
-                            handleUndoFromOverlay()
-                        } label: {
-                            Text(NSLocalizedString("menu_undo", comment: "Undo"))
-                                .frame(width: 160, height: 44)
-                                .contentShape(Rectangle())
+                    if isFinished {
+                        if !isManualFinish && undoButtonVisible {
+                            Button {
+                                handleUndoFromOverlay()
+                            } label: {
+                                Text(NSLocalizedString("menu_undo", comment: "Undo"))
+                                    .frame(width: 160, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .frame(width: 160, height: 44)
+                            .background(WatchTheme.card)
+                            .foregroundColor(.white)
+                            .cornerRadius(22)
+                        } else {
+                            Button {
+                                resetMatch()
+                            } label: {
+                                Text(NSLocalizedString("watch_play_again", value: "Play Again", comment: "Play again"))
+                                    .frame(width: 160, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .frame(width: 160, height: 44)
+                            .background(WatchTheme.successGreen)
+                            .foregroundColor(.white)
+                            .cornerRadius(22)
                         }
-                        .buttonStyle(.plain)
-                        .frame(width: 160, height: 44)
-                        .background(WatchTheme.card)
-                        .foregroundColor(.white)
-                        .cornerRadius(22)
                     }
 
                     Button {
@@ -360,7 +383,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                     }
                     .buttonStyle(.plain)
                     .frame(width: 140, height: 44)
-                    .background(WatchTheme.successGreen)
+                    .background(WatchTheme.card)
                     .foregroundColor(.white)
                     .cornerRadius(22)
                 }
@@ -408,13 +431,13 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                     .cornerRadius(12)
 
                     Button {
-                        handleStopToggle()
+                        endMatchFromMenu()
                         showMenu = false
                     } label: {
                         VStack(spacing: 4) {
-                            Image(systemName: isStopped ? "play.fill" : "stop.fill")
+                            Image(systemName: "flag.checkered")
                                 .font(.system(size: 22, weight: .medium))
-                            Text(isStopped ? NSLocalizedString("watch_continue", comment: "Continue") : NSLocalizedString("watch_stop", comment: "Stop"))
+                            Text(NSLocalizedString("watch_end_match", value: "End", comment: "End match"))
                                 .font(.system(size: 11, weight: .medium))
                                 .lineLimit(1)
                         }
@@ -423,7 +446,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .background(isStopped ? WatchTheme.successGreen : WatchTheme.warningOrange)
+                    .background(WatchTheme.dangerRed)
                     .foregroundColor(.white)
                     .cornerRadius(12)
 
@@ -468,6 +491,16 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                     .cornerRadius(12)
                 }
                 .padding(12)
+
+                Button {
+                    showMenu = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(WatchTheme.secondaryText)
+                }
+                .buttonStyle(.plain)
+                .frame(width: 44, height: 44)
             }
             .padding(12)
             .background(WatchTheme.overlayCard)
@@ -700,6 +733,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         let isGameFinished = redSets >= setsToWin || blueSets >= setsToWin
 
         if isGameFinished {
+            isManualFinish = false
             isFinished = true
             isStopped = true
             self.winner = redSets > blueSets ? "red" : "blue"
@@ -761,6 +795,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         blueGames = 0
         isStopped = false
         isFinished = false
+        isManualFinish = false
         winner = nil
         pendingNextSetReset = false
         midGameRestTaken = false
@@ -789,6 +824,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
     private func undoScore() {
         guard let snapshot = history.popLast() else { return }
         restore(snapshot)
+        isManualFinish = false
         WatchHaptics.shared.play(.undo)
         showToast(NSLocalizedString("watch_undo_toast", value: "已撤销", comment: "Undo toast"))
         showUndoButton()
@@ -808,6 +844,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
             blueSets: blueSets,
             isStopped: isStopped,
             isFinished: isFinished,
+            isManualFinish: isManualFinish,
             isResting: isResting,
             isTiebreak: isTiebreak,
             winner: winner,
@@ -829,6 +866,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         blueSets = snapshot.blueSets
         isStopped = snapshot.isStopped
         isFinished = snapshot.isFinished
+        isManualFinish = snapshot.isManualFinish
         isResting = snapshot.isResting
         isTiebreak = snapshot.isTiebreak
         winner = snapshot.winner
@@ -839,24 +877,23 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         servingIsRed = snapshot.servingIsRed
     }
 
-    private func handleStopToggle() {
-        let wasStopped = isStopped
-        isStopped.toggle()
-        isFinished = false
-
-        if !wasStopped && isStopped && !recordSaved {
-            if redSets > blueSets {
-                winner = "red"
-            } else if blueSets > redSets {
-                winner = "blue"
-            } else {
-                winner = nil
-            }
-            isFinished = true
-            WatchHaptics.shared.play(.finish)
-            showUndoButton()
-            saveMatchRecord()
+    private func endMatchFromMenu() {
+        guard !isFinished else { return }
+        isStopped = true
+        isFinished = true
+        isManualFinish = true
+        undoButtonVisible = false
+        undoHideTimer?.invalidate()
+        undoHideTimer = nil
+        if redSets > blueSets {
+            winner = "red"
+        } else if blueSets > redSets {
+            winner = "blue"
+        } else {
+            winner = nil
         }
+        WatchHaptics.shared.play(.finish)
+        saveMatchRecord()
     }
 
     /// Reset match to 0-0, clear history and rest state (aligned with Harmony Watch).
@@ -874,6 +911,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         winner = nil
         isStopped = false
         isFinished = false
+        isManualFinish = false
         isResting = false
         restFinished = false
         restRemaining = 0
@@ -936,6 +974,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
     }
 
     private func showUndoButton() {
+        isManualFinish = false
         undoButtonVisible = true
         undoHideTimer?.invalidate()
         undoHideTimer = Timer.scheduledTimer(withTimeInterval: WatchTiming.undoCountdown, repeats: false) { _ in
@@ -977,6 +1016,7 @@ private struct ScoreSnapshot {
     let blueSets: Int
     let isStopped: Bool
     let isFinished: Bool
+    let isManualFinish: Bool
     let isResting: Bool
     let isTiebreak: Bool
     let winner: String?

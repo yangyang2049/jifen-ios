@@ -76,11 +76,13 @@
 "menu_reset" = "重置";
 "watch_continue" = "继续";
 "watch_stop" = "暂停";
+"watch_end_match" = "结束";
 "watch_layout_vertical" = "竖屏";
 "watch_layout_horizontal" = "横屏";
 "watch_settings_layout_title" = "计分板布局";
 "watch_reset_toast" = "已重置";
 "watch_undo_toast" = "已撤销";
+"watch_play_again" = "再来一场";
 "watch_exit" = "退出";
 "exit" = "退出";
 "watch_team_red" = "红方";
@@ -90,6 +92,7 @@
 "watch_match_finished" = "比赛结束";
 "watch_bb_shots" = "出手";
 "watch_bb_made" = "命中";
+"watch_bb_shot_first_toast" = "请先记录出手";
 "watch_bb_hit_rate" = "命中率";
 "watch_bb_end_training" = "结束训练";
 "watch_bb_restart" = "再来一次";

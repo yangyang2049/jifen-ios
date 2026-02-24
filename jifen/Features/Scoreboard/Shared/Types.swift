@@ -187,6 +187,12 @@ protocol ScoreViewModelProtocol: AnyObject {
     func exchangeSides()
     /// 结束比赛（足球/篮球等无计时终场时，由菜单「结束比赛」调用）
     func endGame()
+    /// 编辑模式下局分 ±（射箭/羽毛球等有局分的项目实现）
+    func adjustSets(isLeft: Bool, delta: Int)
+}
+
+extension ScoreViewModelProtocol {
+    func adjustSets(isLeft: Bool, delta: Int) {}
 }
 
 // MARK: - Template Config
@@ -200,7 +206,9 @@ struct TemplateConfig {
     let isDoublesModeProvider: (() -> Bool)?
     let scoreTextProvider: ((Bool, TeamData) -> String)?
     let tapToAddEnabled: Bool
-    
+    /// 插在左右半区之上、编辑/底部按钮与菜单之下的中间层；参数为 isEditMode，编辑模式下可隐藏或禁用交互（如射箭不发球箭头、不响应半区点击）
+    let contentOverlayProvider: ((Bool) -> AnyView)?
+
     init(
         gameType: GameType,
         controller: BaseScoreboardControllerProtocol,
@@ -209,7 +217,8 @@ struct TemplateConfig {
         nameType: NameType = .team,
         isDoublesModeProvider: (() -> Bool)? = nil,
         scoreTextProvider: ((Bool, TeamData) -> String)? = nil,
-        tapToAddEnabled: Bool = true
+        tapToAddEnabled: Bool = true,
+        contentOverlayProvider: ((Bool) -> AnyView)? = nil
     ) {
         self.gameType = gameType
         self.controller = controller
@@ -219,6 +228,7 @@ struct TemplateConfig {
         self.isDoublesModeProvider = isDoublesModeProvider
         self.scoreTextProvider = scoreTextProvider
         self.tapToAddEnabled = tapToAddEnabled
+        self.contentOverlayProvider = contentOverlayProvider
     }
 }
 

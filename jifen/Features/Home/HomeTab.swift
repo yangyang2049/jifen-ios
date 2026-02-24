@@ -48,14 +48,21 @@ struct HomeTab: View {
         case schedule
     }
 
+    /// 与鸿蒙 HomeTab.ets 一致：屏幕宽度 >= 768 时使用两栏布局
+    private let wideLayoutThreshold: CGFloat = 768
+
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: Theme.lg) {
-                    buildHeader()
-                    buildContent()
+            GeometryReader { geo in
+                let isWide = geo.size.width >= wideLayoutThreshold
+                let contentWidth = geo.size.width - Theme.lg * 2
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: Theme.lg) {
+                        buildHeader()
+                        buildContent(isWide: isWide, contentWidth: contentWidth)
+                    }
+                    .padding(.horizontal, Theme.lg)
                 }
-                .padding(.horizontal, Theme.lg)
             }
             .background(Theme.backgroundColor)
             .navigationBarHidden(true)
@@ -209,7 +216,7 @@ struct HomeTab: View {
             isPresented: $showDiscardUnfinishedAlert
         ) {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-            Button(NSLocalizedString("confirm", comment: ""), role: .destructive) {
+            Button(NSLocalizedString("unfinished_discard_button", value: "放弃", comment: "放弃未完成比赛弹窗的确定按钮"), role: .destructive) {
                 discardUnfinishedGame()
             }
         } message: {
@@ -454,58 +461,102 @@ struct HomeTab: View {
     }
 
     @ViewBuilder
-    private func buildContent() -> some View {
-        VStack(spacing: Theme.lg) {
-            QuickStartGridView(
-                primarySport: quickStartManager.quickStartConfig.primarySport,
-                secondarySport: quickStartManager.quickStartConfig.secondarySport,
-                isDarkTheme: true,
-                onPrimaryClick: { gameType in
-                    if quickStartTimerTypes.contains(gameType) {
-                        onNavigateToTab?(3, gameType)
-                    } else {
-                        // 计分项目均先展示 setup
-                        pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
-                    }
-                },
-                onSecondaryClick: { gameType in
-                    if quickStartTimerTypes.contains(gameType) {
-                        onNavigateToTab?(3, gameType)
-                    } else {
-                        // 计分项目均先展示 setup
-                        pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
-                    }
-                },
-                onNewGameClick: { showNewGameDialog = true },
-                onEditClick: { showQuickStartEditSheet = true }
-            )
-
-            buildScheduleSection()
-
-            ProToolsSectionView(
-                isWide: false,
-                isDarkTheme: true,
-                onToolClick: { toolId in
-                    if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
-                        path.append(NavigationDestination.tool(tool))
-                    }
-                },
-                onEnterToolsPage: {
-                    path.append(NavigationDestination.toolsList)
+    private func buildContent(isWide: Bool, contentWidth: CGFloat = 0) -> some View {
+        if isWide {
+            // 两栏布局：左 2/3、右 1/3 宽（参考鸿蒙 buildDesktopLayout）
+            let spacing = Theme.lg
+            let rightWidth = contentWidth > 0 ? (contentWidth - spacing) / 3 : 0
+            let leftWidth = contentWidth > 0 ? (contentWidth - spacing) * 2 / 3 : 0
+            HStack(alignment: .top, spacing: spacing) {
+                VStack(spacing: Theme.lg) {
+                    buildQuickStartSection()
+                    buildScheduleSection()
+                    ProToolsSectionView(
+                        isWide: true,
+                        isDarkTheme: true,
+                        onToolClick: { toolId in
+                            if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
+                                path.append(NavigationDestination.tool(tool))
+                            }
+                        },
+                        onEnterToolsPage: {
+                            path.append(NavigationDestination.toolsList)
+                        }
+                    )
                 }
-            )
+                .frame(width: leftWidth > 0 ? leftWidth : nil, alignment: .leading)
 
-            VStack(alignment: .leading, spacing: Theme.md) {
-                Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
-                    .font(.system(size: Theme.fontH5, weight: .medium))
-                    .foregroundColor(Theme.textPrimary)
+                VStack(alignment: .leading, spacing: Theme.md) {
+                    Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
+                        .font(.system(size: Theme.fontH5, weight: .medium))
+                        .foregroundColor(Theme.textPrimary)
 
-                RecentRecordsSectionView(
-                    records: recentActivities,
-                    isDarkTheme: true,
-                    onViewAllTapped: { onNavigateToTab?(1, nil) }
-                )
+                    RecentRecordsSectionView(
+                        records: recentActivities,
+                        isDarkTheme: true,
+                        onViewAllTapped: { onNavigateToTab?(1, nil) }
+                    )
+                }
+                .frame(width: rightWidth > 0 ? rightWidth : nil, alignment: .leading)
             }
+        } else {
+            VStack(spacing: Theme.lg) {
+                buildQuickStartSection()
+                buildScheduleSection()
+                ProToolsSectionView(
+                    isWide: false,
+                    isDarkTheme: true,
+                    onToolClick: { toolId in
+                        if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
+                            path.append(NavigationDestination.tool(tool))
+                        }
+                    },
+                    onEnterToolsPage: {
+                        path.append(NavigationDestination.toolsList)
+                    }
+                )
+                buildRecentRecordsSection()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buildQuickStartSection() -> some View {
+        QuickStartGridView(
+            primarySport: quickStartManager.quickStartConfig.primarySport,
+            secondarySport: quickStartManager.quickStartConfig.secondarySport,
+            isDarkTheme: true,
+            onPrimaryClick: { gameType in
+                if quickStartTimerTypes.contains(gameType) {
+                    onNavigateToTab?(3, gameType)
+                } else {
+                    pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                }
+            },
+            onSecondaryClick: { gameType in
+                if quickStartTimerTypes.contains(gameType) {
+                    onNavigateToTab?(3, gameType)
+                } else {
+                    pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                }
+            },
+            onNewGameClick: { showNewGameDialog = true },
+            onEditClick: { showQuickStartEditSheet = true }
+        )
+    }
+
+    @ViewBuilder
+    private func buildRecentRecordsSection() -> some View {
+        VStack(alignment: .leading, spacing: Theme.md) {
+            Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
+                .font(.system(size: Theme.fontH5, weight: .medium))
+                .foregroundColor(Theme.textPrimary)
+
+            RecentRecordsSectionView(
+                records: recentActivities,
+                isDarkTheme: true,
+                onViewAllTapped: { onNavigateToTab?(1, nil) }
+            )
         }
     }
 

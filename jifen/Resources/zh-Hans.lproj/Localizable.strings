@@ -11,6 +11,14 @@
 "tab_records" = "记录";
 "tab_timer" = "计时";
 "tab_tools" = "工具";
+"all" = "全部";
+"scoreboard" = "计分";
+"timer" = "计时";
+"scoreboard_sports" = "运动";
+"scoreboard_board_games" = "棋牌";
+"scoreboard_cards" = "计分";
+"search_team_or_game" = "搜索队伍或项目";
+"match_count" = "%d 场";
 
 /* Home Screen */
 "recent_records" = "最近记录";
@@ -135,6 +143,7 @@
 "game_doudizhu" = "斗地主";
 "game_simple_score" = "简易计分";
 "game_multi_scoreboard" = "多人计分";
+"multi_score_player_default" = "玩家";
 "game_counter" = "计数器";
 
 /* Setup Titles */
@@ -366,6 +375,7 @@
 /* Records Tab */
 "clear_all_records" = "删除全部记录";
 "clear_all_records_message" = "将删除所有记录，此操作无法撤销。";
+"clear_data" = "清除数据";
 
 /* Settings */
 "settings" = "设置";
@@ -456,6 +466,8 @@
 "schedule_reminders" = "提醒";
 "schedule_reminder_hours_before" = "%d 小时前";
 "schedule_reminder_minutes_before" = "%d 分钟前";
+"schedule_reminder_help_title" = "提醒说明";
+"schedule_reminder_help_message" = "这些提醒为本地通知，由设备在预约时间前触发。\n- 需开启系统通知权限\n- 若应用被卸载、通知被关闭或系统限制后台，提醒可能无法送达\n- 修改或取消预约时，相关提醒会同步更新或移除";
 "schedule_notes" = "备注";
 "schedule_start_game" = "一键开赛";
 "schedule_edit" = "编辑";
@@ -469,3 +481,4 @@
 "tomorrow" = "明天";
 "unfinished_discard_title" = "放弃未完成比赛";
 "unfinished_discard_message" = "确认放弃当前未完成比赛？";
+"unfinished_discard_button" = "放弃";

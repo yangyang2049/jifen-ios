@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Removed
+- **设置弹窗最近记录**：SportsSetupDialogView 中移除「最近记录」区块（横向滚动的最近对局卡片及「点击快速使用」提示）；移除相关状态、loadRecentRecords/loadFromRecord/formatTime/formatSetsInfo/buildRecentGameCard 及 ScoreboardRecordManager 依赖；HomeModels 中移除仅用于该功能的 RecentGameDisplay 结构体。
+
 ### Added
 - **所有计分项目均需先走 setup（至少输入名字）**：HomeTab 与 ScoreboardTab 的 sportsWithSetup 扩展为全部计分项目（乒/网/羽/足/篮/排 + 射箭/拳击/台球/匹克球/掼蛋/斗地主/简易计分/多人计分/计数器）。SportsSetupDialogView 的 getTitle 支持上述项目（无单独 key 时用 gameType.displayName +「设置」）。各计分板（Archery/Boxing/Billiards/Pickleball/Guandan/Doudizhu/SimpleScoreboard/MultiScoreboard）增加 initialSetup、onSetupConsumed，在 onAppear 中应用队名/选手名并调用 onSetupConsumed；HomeTab 与 ScoreboardTab 的 getScoreboardView 对上述项目统一传入 initialSetup 与 onSetupConsumed，从设置弹窗确认后进入计分板时名称生效。
 - **计分板常用名称与设置弹窗（对齐鸿蒙）**：SportsSetupDialogView 支持「常用名称」选择：队伍名称输入框右侧 Chevron 打开 CommonNameSelectorDialog，从 CommonNamesManager 的常用队名列表中选择并填入。从「新比赛」或首页快速开始主卡/副卡点击乒乓球/网球/羽毛球/足球/篮球/排球时，先弹出 SportsSetupDialogView 设置队名与选项，确认后再进入计分板；新比赛弹窗关闭后延迟 0.35s 再弹出设置弹窗以避免 sheet 冲突。计分板六项支持 initialSetup/onSetupConsumed，在 onAppear 中应用队名与局数/抢七/换边等配置。新增 common_names_title、common_names_empty 本地化。
@@ -9,6 +12,19 @@
 - **Watch 工具：计数器**：工具 Tab 新增「计数器」（WatchCounterView）。点击屏幕 +1、底部「重置」按钮二次确认清零；移除底部「计数器」副标题，保留导航栏标题。Watch 本地化 game_counter、press_again_to_reset。
 
 ### Changed
+- **放弃未完成比赛弹窗**：确定按钮由「确认」改为「放弃」，避免语义模糊；新增 unfinished_discard_button 本地化（放弃 / Discard）。
+- **比赛详情页内容限制宽度**：ScoreboardRecordDetailPage 内 ScrollView 内容区增加 maxWidth: 600 并居中，宽屏下内容不铺满整屏（参考鸿蒙/项目内 AACalculatorView）。
+- **预约新球局时长**：时长行改为左侧显示「时长」、右侧分钟数包裹在 [−] 与 [+] 按钮中（步长 15，30～360 分钟），替代原 Stepper。
+- **射箭计分板层级**：通过梳理 ZStack 层级实现「箭头只比左右半区高一层、按钮和菜单在最上层」。ScoreboardTemplate 使用 contentOverlayProvider: ((Bool) -> AnyView)?，传入 isEditMode，在编辑/底部按钮与 MenuDialog 之间渲染；射箭将发球箭头与左右半区点击层通过 provider 注入。
+- **射箭编辑模式不触发加分面板**：射箭与羽毛球等共用同一模板，仅计分逻辑单独处理。TemplateConfig 的 contentOverlayProvider 传入 isEditMode；ArcheryMiddleLayer 在 isEditMode 为 true 时不显示箭头与左右半区点击层，编辑模式仅走模板的编辑能力，不再误触加分面板。
+- **射箭编辑模式局分 ± 生效**：ScoreViewModelProtocol 增加 adjustSets(isLeft:delta:)，默认空实现。模板 onSetsAdjust 内对 ArcheryViewModel 做显式 as? 转换后调用 adjustSets，避免协议默认实现被误派发导致局分不变；其余类型仍走 config.viewModel.adjustSets。
+- **对话框标题行统一**：所有带标题 + X 关闭按钮的对话框改为「标题整体居中、X 在右侧」：使用 ZStack 居中标题，HStack { Spacer(); Button(X) } 叠在右侧。涉及 MenuDialog（操作）、射箭加分面板、棋类计时设置（DualTimerSetupView）、拳击回合结束弹窗（BoxingRoundDialog）。
+- **首页宽屏两栏布局**：参考鸿蒙 HomeTab.ets，当屏幕宽度 ≥ 768pt 时采用两栏布局：左侧为快速开始、我的球局、工具区（约 2/3 宽），右侧为最近记录（约 1/3 宽，最小 240pt）；窄屏保持单列自上而下。
+- **射箭计分板**：移除底部「记箭」按钮，改为点击左侧红方区域或右侧蓝方区域直接弹出对应侧的加分面板（记箭选分），点击哪侧即为该侧记一箭。
+- **预约新球局提醒与鸿蒙对齐**：参考鸿蒙 CreateBookingPage.ets：默认提醒改为「2 小时 + 15 分钟」；预约时间早于某档位时该档位不可选并灰显；修改日期/时间时自动去掉已不可选的提醒；提醒区增加「?」按钮，弹窗展示 schedule_reminder_help_title / schedule_reminder_help_message 说明；新增中英文 schedule_reminder_help_title、schedule_reminder_help_message 本地化。提醒选项改为一行 chip 样式（2小时前/30分钟前/15分钟前 三枚可多选芯片），节省空间。
+- **骰子/AA 计算器背景与工具统一**：DiceToolView、AACalculatorView 背景改为 Theme.backgroundColor（#1a1a1a），与秒表/口哨/抛硬币等工具一致；dice.html 的 body 背景由 #000000 改为 #1a1a1a，加载失败时的 fallback HTML 同步为 #1a1a1a。
+- **设置里「删除全部记录」改为「清除数据」**：SettingsView 数据区入口及确认弹窗标题/按钮改用 clear_data 文案（中文「清除数据」、英文「Clear data」）；记录 Tab 仍使用「删除全部记录」/「Clear All Records」。
+- **多人计分多出最后一格显示 🤡**：MultiScoreboardView 网格在玩家数不足整行时，多出的最后一格显示 🤡 emoji，其余多出格为浅色占位。
 - **计分项目无论从首页还是计分 Tab 打开均先展示 setup**：首页「新比赛」选择计分后一律先弹出设置弹窗（移除按 sportsWithSetup 分支直接进入计分板的逻辑）；首页快速开始主卡/副卡点击计分项目时一律在首页弹出 setup，确认后再进入计分板（不再跳转计分 Tab 再进）。计分 Tab 内点击任意计分卡片或由首页带 selectedGame 跳转时，均先弹出 setup，确认后再进入对应计分板。
 - **计分/计时 Tab 卡片背景**：计分 Tab 与计时 Tab 的网格项背景由 `Theme.homeCardDark` 改为 `.ultraThinMaterial`，与首页工具区一致，提升与页面背景的对比度。
 - **计分/计时 Tab 项上下内边距**：计分 Tab 的 SportCardView、计时 Tab 的网格项内容使用 `.padding(.vertical, Theme.md)`（16pt），卡片内纵向留白加大，避免过紧。
@@ -90,7 +106,7 @@
 - 计时记录持久化：新增 TimerRecordManager（UserDefaults），TimerRecordsViewModel 启动与增删时读写；记录 Tab 展示的计时数据重启后保留；计时功能侧需调用 `TimerRecordsViewModel.shared.addRecord(_:)` 写入记录。
 - Watch 记录列表：与鸿蒙 WatchRecordTab 一致，圆角胶囊行（高 56、圆角 30、背景 #222）、行间距 8；展示所有 Watch 类型（含匹克球、射箭、篮球训练）；匹克球行显示🎾+匹/P 角标。新增 FEATURE_CHECKLIST.md 计分/记录/计时/Watch 收尾清单。
 - 计分 / 记录 Tab 对齐鸿蒙（先手机端后手表端）：**手机计分 Tab**：改为分节（体育 / 棋牌 / 计分）+ 网格图标卡片，体育为足球/篮球/排球/乒/羽/网，棋牌为斗地主/掼蛋，计分为简易计分/多人计分；暂仅体育 6 项可进入计分页。**手机记录 Tab**：增加子 Tab「全部 / 计分 / 计时」、搜索框、按日期分组列表，支持编辑模式删除单条；计分数据来自 ScoreboardRecordsViewModel，计时来自 TimerRecordsViewModel。**Watch 计分首页**：最后选择的项目置顶（持久化 watchLastSelectedGame），与鸿蒙 WatchHomeTab 一致。
-- Watch App：参考鸿蒙 Watch，新增匹克球、射箭、篮球训练。计分 Tab 增加入口：匹克球（可选 3 局 2 胜 / 5 局 3 胜）、射箭（局分制，先到 6 分胜，每局 3 箭/方，5:5 时 1 箭/方；点击半区弹出 0–10/M 选分）、篮球训练（左出手/右命中，长按菜单结束训练，下滑撤销）。WatchGameType 与 WatchScoreboardRoute 增加 pickleball、archery、basketballTraining；记录列表与详情支持新类型，篮球训练详情显示命中率。
+- Watch App：参考鸿蒙 Watch，新增匹克球、射箭、篮球训练。计分 Tab 增加入口：匹克球（可选 3 局 2 胜 / 5 局 3 胜）、射箭（局分制，先到 6 分胜，每局 3 箭/方，5:5 时 1 箭/方；点击半区弹出 0–10/M 选分）、篮球训练（左出手/右命中，上滑菜单结束训练，下滑撤销）。WatchGameType 与 WatchScoreboardRoute 增加 pickleball、archery、basketballTraining；记录列表与详情支持新类型，篮球训练详情显示命中率。
 - Watch App 计分板：参考鸿蒙 Watch 计分页，菜单增加「重置」与「切换布局」。重置：清空本场分数/局/盘/休息/历史并回到 0-0。布局：竖屏（红上蓝下）与横屏（红左蓝右）切换，偏好持久化于 WatchPreferences.scoreboardLayout。中英文 Localizable 增加 menu_undo / menu_reset / watch_continue / watch_stop / watch_layout_vertical / watch_layout_horizontal / watch_reset_toast。
 - Watch App 计分板菜单：改为图标 + 文字、2 列网格样式（LazyVGrid），缩短纵向高度。四项：撤销(arrow.uturn.backward)、暂停/继续(stop/play)、重置(arrow.counterclockwise)、切换布局(rectangle.split)。
 - Watch App 设置：参考鸿蒙 Watch 设置页，增加「计分板布局」选项（watch_settings_layout_title），点击进入竖屏/横屏选择页，与 WatchPreferences.scoreboardLayout 同步。

@@ -10,6 +10,5 @@ struct WatchPickleballScoreView: View {
 
     var body: some View {
         WatchScoreboardView(rules: WatchPickleballRules(maxSets: maxSets))
-            .navigationBarHidden(true)
     }
 }

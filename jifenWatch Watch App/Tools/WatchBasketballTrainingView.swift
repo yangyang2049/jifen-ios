@@ -2,7 +2,7 @@
 //  WatchBasketballTrainingView.swift
 //  jifenWatch Watch App
 //
-//  Left = Shots (attempts), Right = Made. Swipe down undo, long-press menu: End training.
+//  Left = Shots (attempts), Right = Made. Swipe down undo, swipe up menu: End training.
 //
 
 import SwiftUI
@@ -17,32 +17,28 @@ struct WatchBasketballTrainingView: View {
     @State private var lastOperation: String? = nil // "shot" | "made"
     @State private var actionHistory: [(shots: Int, made: Int)] = []
     @State private var startTime: Date?
-    @State private var longPressFired: Bool = false
     @State private var toastMessage: String? = nil
     @State private var scoreboardLayout: String = "vertical"
-
-    private let longPressDuration: Double = 0.5
 
     var body: some View {
         ZStack {
             layoutBoard
-            .gesture(
-                DragGesture(minimumDistance: 30, coordinateSpace: .local)
-                    .onEnded { value in
-                        let dx = value.translation.width
-                        let dy = value.translation.height
-                        if dx > 50 && abs(dy) < 50 {
-                            dismiss()
-                            return
+                .gesture(
+                    DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                        .onEnded { value in
+                            let dx = value.translation.width
+                            let dy = value.translation.height
+                            if dx > 50 && abs(dy) < 50 {
+                                dismiss()
+                                return
+                            }
+                            if dy > 40 && !showEndDialog && !showMenu {
+                                undo()
+                            } else if dy < -40 && !showEndDialog && !showMenu {
+                                showMenu = true
+                            }
                         }
-                        if dy > 40 && !showEndDialog && !showMenu {
-                            undo()
-                        }
-                    }
-            )
-            .onLongPressGesture(minimumDuration: longPressDuration) {
-                if !showEndDialog { showMenu = true }
-            }
+                )
 
             if showEndDialog {
                 endOverlay
@@ -58,8 +54,9 @@ struct WatchBasketballTrainingView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black)
-        .navigationBarHidden(true)
+        .ignoresSafeArea()
         .onAppear {
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
         }
@@ -69,23 +66,30 @@ struct WatchBasketballTrainingView: View {
     }
 
     private var layoutBoard: some View {
-        Group {
-            if scoreboardLayout == "horizontal" {
-                HStack(spacing: 0) {
-                    shotsColumn
-                    madeColumn
-                }
-            } else {
-                VStack(spacing: 0) {
-                    shotsColumn
-                    madeColumn
+        GeometryReader { proxy in
+            let boardWidth = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
+            let boardHeight = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+            Group {
+                if scoreboardLayout == "horizontal" {
+                    HStack(spacing: 0) {
+                        shotsColumn(size: CGSize(width: boardWidth / 2, height: boardHeight))
+                        madeColumn(size: CGSize(width: boardWidth / 2, height: boardHeight))
+                    }
+                    .frame(width: boardWidth, height: boardHeight)
+                } else {
+                    VStack(spacing: 0) {
+                        shotsColumn(size: CGSize(width: boardWidth, height: boardHeight / 2))
+                        madeColumn(size: CGSize(width: boardWidth, height: boardHeight / 2))
+                    }
+                    .frame(width: boardWidth, height: boardHeight)
                 }
             }
+            .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
-    private var shotsColumn: some View {
+    private func shotsColumn(size: CGSize) -> some View {
         VStack(spacing: 4) {
             Text(NSLocalizedString("watch_bb_shots", comment: "Shots"))
                 .font(.system(size: 14))
@@ -94,7 +98,7 @@ struct WatchBasketballTrainingView: View {
                 .font(.system(size: 48, weight: .bold))
                 .foregroundColor(.white)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: size.width, height: size.height)
         .background(Color(hex: 0x1E88E5))
         .contentShape(Rectangle())
         .onTapGesture {
@@ -103,7 +107,7 @@ struct WatchBasketballTrainingView: View {
         }
     }
 
-    private var madeColumn: some View {
+    private func madeColumn(size: CGSize) -> some View {
         VStack(spacing: 4) {
             Text(NSLocalizedString("watch_bb_made", comment: "Made"))
                 .font(.system(size: 14))
@@ -112,7 +116,7 @@ struct WatchBasketballTrainingView: View {
                 .font(.system(size: 48, weight: .bold))
                 .foregroundColor(.white)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: size.width, height: size.height)
         .background(Color(hex: 0x4CAF50))
         .contentShape(Rectangle())
         .onTapGesture {
@@ -169,32 +173,38 @@ struct WatchBasketballTrainingView: View {
             Color.black.opacity(0.35)
                 .ignoresSafeArea()
                 .onTapGesture { showMenu = false }
-            VStack(spacing: 12) {
-                Button {
-                    showMenu = false
-                    showEndDialog = true
-                } label: {
-                    Text(NSLocalizedString("watch_bb_end_training", comment: "End training"))
-                        .frame(width: 160, height: 44)
-                        .contentShape(Rectangle())
+
+            VStack {
+                Spacer(minLength: 0)
+                VStack(spacing: 12) {
+                    Button {
+                        showMenu = false
+                        showEndDialog = true
+                    } label: {
+                        Text(NSLocalizedString("watch_bb_end_training", comment: "End training"))
+                            .frame(width: 160, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .background(WatchTheme.warningOrange)
+                    .foregroundColor(.white)
+                    .cornerRadius(22)
+                    Button {
+                        showMenu = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(WatchTheme.secondaryText)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 44, height: 44)
                 }
-                .buttonStyle(.plain)
-                .background(WatchTheme.warningOrange)
-                .foregroundColor(.white)
-                .cornerRadius(22)
-                Button {
-                    showMenu = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(WatchTheme.secondaryText)
-                }
-                .buttonStyle(.plain)
-                .frame(width: 44, height: 44)
+                .padding(24)
+                .background(WatchTheme.overlayCard)
+                .cornerRadius(20)
+                Spacer(minLength: 0)
             }
-            .padding(24)
-            .background(WatchTheme.overlayCard)
-            .cornerRadius(20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -213,7 +223,11 @@ struct WatchBasketballTrainingView: View {
     }
 
     private func addMade() {
-        guard lastOperation == "shot" else { return }
+        guard lastOperation == "shot" else {
+            WatchHaptics.shared.play(.strong)
+            showToast(NSLocalizedString("watch_bb_shot_first_toast", value: "请先记录出手", comment: "Shot first toast"))
+            return
+        }
         if startTime == nil { startTime = Date() }
         actionHistory.append((shots, made))
         made += 1

@@ -7,34 +7,27 @@ struct MainTabView: View {
     @State private var navigatingFromTab: Int? = nil
     @State private var pendingTimerGameType: GameType? = nil
 
-    private var isPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
-
     var body: some View {
         ZStack {
             Theme.backgroundColor.ignoresSafeArea()
-            if isPad {
-                iPadLayout(
-                    selectedTab: $selectedTab,
-                    selectedGame: $selectedGame,
-                    navigatingFromTab: $navigatingFromTab,
-                    pendingTimerGameType: $pendingTimerGameType
-                )
-            } else {
-                phoneLayout(
-                    selectedTab: $selectedTab,
-                    selectedGame: $selectedGame,
-                    navigatingFromTab: $navigatingFromTab,
-                    pendingTimerGameType: $pendingTimerGameType
-                )
-            }
+            mainLayout(
+                selectedTab: $selectedTab,
+                selectedGame: $selectedGame,
+                navigatingFromTab: $navigatingFromTab,
+                pendingTimerGameType: $pendingTimerGameType
+            )
         }
         .accentColor(Theme.accentColor)
+        .onAppear {
+            configureTabBarPresentation()
+        }
+        .onChange(of: selectedTab) { _, _ in
+            configureTabBarPresentation()
+        }
     }
 
     @ViewBuilder
-    private func phoneLayout(
+    private func mainLayout(
         selectedTab: Binding<Int>,
         selectedGame: Binding<GameType?>,
         navigatingFromTab: Binding<Int?>,
@@ -87,90 +80,25 @@ struct MainTabView: View {
         }
     }
 
-    @ViewBuilder
-    private func iPadLayout(
-        selectedTab: Binding<Int>,
-        selectedGame: Binding<GameType?>,
-        navigatingFromTab: Binding<Int?>,
-        pendingTimerGameType: Binding<GameType?>
-    ) -> some View {
-        NavigationSplitView {
-            List {
-                ForEach(0..<4, id: \.self) { index in
-                    Button {
-                        selectedTab.wrappedValue = index
-                    } label: {
-                        tabSidebarLabel(index: index)
-                    }
-                    .listRowBackground(selectedTab.wrappedValue == index ? Color.accentColor.opacity(0.25) : nil)
-                }
+    private func configureTabBarPresentation() {
+        DispatchQueue.main.async {
+            guard let scene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive })
+                    ?? UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first,
+                  let rootViewController = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+                    ?? scene.windows.first?.rootViewController,
+                  let tabBarController = rootViewController.findTabBarController()
+            else {
+                return
             }
-            .listStyle(.sidebar)
-            .navigationTitle(NSLocalizedString("app_name", comment: ""))
-        } detail: {
-            NavigationStack {
-                iPadDetailView(
-                    selectedTab: selectedTab.wrappedValue,
-                    selectedGame: selectedGame,
-                    pendingTimerGameType: pendingTimerGameType,
-                    onTabChange: { selectedTab.wrappedValue = $0 },
-                    onSetSelectedGame: { selectedGame.wrappedValue = $0 },
-                    onSetNavigatingFromTab: { navigatingFromTab.wrappedValue = $0 },
-                    onDismissFromScoreboard: {
-                        if let source = navigatingFromTab.wrappedValue {
-                            selectedTab.wrappedValue = source
-                            navigatingFromTab.wrappedValue = nil
-                        }
-                    }
-                )
+
+            if #available(iOS 18.0, *) {
+                tabBarController.mode = .tabBar
+                tabBarController.setTabBarHidden(false, animated: false)
             }
-        }
-    }
-
-    @ViewBuilder
-    private func tabSidebarLabel(index: Int) -> some View {
-        switch index {
-        case 0: Label(NSLocalizedString("tab_home", comment: ""), systemImage: "house.fill")
-        case 1: Label(NSLocalizedString("tab_records", comment: ""), systemImage: "list.bullet.clipboard.fill")
-        case 2: Label(NSLocalizedString("tab_score", comment: ""), systemImage: "sportscourt.fill")
-        case 3: Label(NSLocalizedString("tab_timer", comment: ""), systemImage: "timer")
-        default: EmptyView()
-        }
-    }
-}
-
-private struct iPadDetailView: View {
-    let selectedTab: Int
-    @Binding var selectedGame: GameType?
-    @Binding var pendingTimerGameType: GameType?
-    var onTabChange: (Int) -> Void
-    var onSetSelectedGame: (GameType?) -> Void
-    var onSetNavigatingFromTab: (Int?) -> Void
-    var onDismissFromScoreboard: () -> Void
-
-    var body: some View {
-        Group {
-            switch selectedTab {
-            case 0:
-                HomeTab(onNavigateToTab: { index, game in
-                    onSetNavigatingFromTab(selectedTab)
-                    onTabChange(index)
-                    if index == 3 {
-                        pendingTimerGameType = game
-                        onSetSelectedGame(nil)
-                    } else {
-                        pendingTimerGameType = nil
-                        onSetSelectedGame(game)
-                    }
-                })
-            case 1:
-                RecordsTab()
-            case 2:
-                ScoreboardTab(selectedGame: $selectedGame, onDismiss: onDismissFromScoreboard)
-            case 3:
-                TimerTab(pendingTimerGameType: $pendingTimerGameType)
-            default:
-                HomeTab(onNavigateToTab: { index, _ in onTabChange(index) })
+            if #available(iOS 26.0, *) {
+                tabBarController.tabBarMinimizeBehavior = .never
             }
         }
     }

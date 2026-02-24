@@ -11,11 +11,11 @@ enum WatchGameType: String, Codable, CaseIterable {
     var displayName: String {
         switch self {
         case .pingpong:
-            return "乒乓球"
+            return NSLocalizedString("game_pingpong", comment: "Ping Pong")
         case .badminton:
-            return "羽毛球"
+            return NSLocalizedString("game_badminton", comment: "Badminton")
         case .tennis:
-            return "网球"
+            return NSLocalizedString("game_tennis", comment: "Tennis")
         case .pickleball:
             return NSLocalizedString("game_pickleball", comment: "Pickleball")
         case .archery:

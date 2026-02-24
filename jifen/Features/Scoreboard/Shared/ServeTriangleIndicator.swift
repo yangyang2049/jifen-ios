@@ -19,7 +19,7 @@ struct ServeTriangleIndicator: View {
     }
 }
 
-/// Draws a single serve indicator whose arrow tip sits exactly on the center line.
+/// 发球指示：箭头整体在发球方一侧，贴中心线。红队发球→箭头在红区右缘贴中线；蓝队发球→箭头在蓝区左缘贴中线。
 struct CenterLineServeIndicator: View {
     let isLeftServing: Bool
     var triangleSize: CGFloat = 36
@@ -31,9 +31,8 @@ struct CenterLineServeIndicator: View {
             triangleSize: triangleSize,
             color: color
         )
-        // Keep arrow tip exactly on center line:
-        // left tip at frame minX, right tip at frame maxX.
-        .offset(x: isLeftServing ? triangleSize / 2 : -triangleSize / 2)
+        // 红队发球：箭头在左半区，右缘贴中线 → 整体左移 half。蓝队发球：箭头在右半区，左缘贴中线 → 整体右移 half。
+        .offset(x: isLeftServing ? -triangleSize / 2 : triangleSize / 2)
         .allowsHitTesting(false)
     }
 }

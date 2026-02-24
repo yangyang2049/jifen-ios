@@ -11,7 +11,7 @@ import Photos // For PHPhotoLibrary
 struct ScoreboardTemplate: View {
     @State private var config: TemplateConfig
     var onBack: (() -> Void)? = nil
-    
+
     init(config: TemplateConfig, onBack: (() -> Void)? = nil) {
         self._config = State(initialValue: config)
         self.onBack = onBack
@@ -70,16 +70,13 @@ struct ScoreboardTemplate: View {
                                 }
                             },
                             onSetsAdjust: { (isLeft, delta) in
-                                if let pingPongViewModel = config.viewModel as? PingPongViewModel {
-                                    pingPongViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let badmintonViewModel = config.viewModel as? BadmintonViewModel {
-                                    badmintonViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let tennisViewModel = config.viewModel as? TennisViewModel {
-                                    tennisViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let boxingViewModel = config.viewModel as? BoxingViewModel {
-                                    boxingViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
-                                    pickleballViewModel.adjustSets(isLeft: isLeft, delta: delta)
+                                #if DEBUG
+                                print("[ScoreboardTemplate] onSetsAdjust isLeft=\(isLeft) delta=\(delta) viewModel=\(type(of: config.viewModel))")
+                                #endif
+                                if let archeryVM = config.viewModel as? ArcheryViewModel {
+                                    archeryVM.adjustSets(isLeft: isLeft, delta: delta)
+                                } else {
+                                    config.viewModel.adjustSets(isLeft: isLeft, delta: delta)
                                 }
                             },
                             onGamesAdjust: { (isLeft, delta) in
@@ -164,16 +161,13 @@ struct ScoreboardTemplate: View {
                                 }
                             },
                             onSetsAdjust: { (isLeft, delta) in
-                                if let pingPongViewModel = config.viewModel as? PingPongViewModel {
-                                    pingPongViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let badmintonViewModel = config.viewModel as? BadmintonViewModel {
-                                    badmintonViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let tennisViewModel = config.viewModel as? TennisViewModel {
-                                    tennisViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let boxingViewModel = config.viewModel as? BoxingViewModel {
-                                    boxingViewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
-                                    pickleballViewModel.adjustSets(isLeft: isLeft, delta: delta)
+                                #if DEBUG
+                                print("[ScoreboardTemplate] onSetsAdjust isLeft=\(isLeft) delta=\(delta) viewModel=\(type(of: config.viewModel))")
+                                #endif
+                                if let archeryVM = config.viewModel as? ArcheryViewModel {
+                                    archeryVM.adjustSets(isLeft: isLeft, delta: delta)
+                                } else {
+                                    config.viewModel.adjustSets(isLeft: isLeft, delta: delta)
                                 }
                             },
                             onGamesAdjust: { (isLeft, delta) in
@@ -326,10 +320,15 @@ struct ScoreboardTemplate: View {
                             .padding(.bottom, ScoreboardConstants.buttonPadding)
 
                         }
-                    }
-                    .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing]) // Full screen, not in safe area
                 }
-                
+                .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing]) // Full screen, not in safe area
+                }
+
+                // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用
+                if let provider = config.contentOverlayProvider {
+                    provider(isEditMode)
+                }
+
                 // Menu dialog
                 MenuDialog(
                     isVisible: showMenu,

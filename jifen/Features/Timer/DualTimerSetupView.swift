@@ -70,7 +70,7 @@ struct DualTimerSetupView: View {
     }
 
     private var header: some View {
-        HStack {
+        ZStack {
             HStack(spacing: 6) {
                 Text(emoji)
                     .font(.system(size: 20))
@@ -78,20 +78,20 @@ struct DualTimerSetupView: View {
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(.white)
             }
-
-            Spacer()
-
-            Button {
-                onCancel?()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.white.opacity(0.9))
-                    .frame(width: 32, height: 32)
-                    .background(Color.white.opacity(0.08))
-                    .clipShape(Circle())
+            HStack {
+                Spacer()
+                Button {
+                    onCancel?()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white.opacity(0.9))
+                        .frame(width: 32, height: 32)
+                        .background(Color.white.opacity(0.08))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(.horizontal, 16)
         .frame(height: 60)

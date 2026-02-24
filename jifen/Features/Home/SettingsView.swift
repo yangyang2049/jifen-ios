@@ -53,7 +53,7 @@ struct SettingsView: View {
                                             Image(systemName: "trash")
                                                 .foregroundColor(Theme.accentColor)
                                                 .frame(width: 24, height: 24)
-                                            Text(NSLocalizedString("clear_all_records", comment: "Clear all records"))
+                                            Text(NSLocalizedString("clear_data", comment: "Clear data"))
                                                 .foregroundColor(Theme.textPrimary)
                                             Spacer()
                                             Image(systemName: "chevron.right")
@@ -122,9 +122,9 @@ struct SettingsView: View {
             .onAppear {
                 vibrationEnabled = PreferencesManager.shared.vibrationEnabled
             }
-            .alert(NSLocalizedString("clear_all_records", comment: ""), isPresented: $showClearConfirm) {
+            .alert(NSLocalizedString("clear_data", comment: ""), isPresented: $showClearConfirm) {
                 Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
-                Button(NSLocalizedString("clear_all_records", comment: ""), role: .destructive) {
+                Button(NSLocalizedString("clear_data", comment: ""), role: .destructive) {
                     ScoreboardRecordManager.shared.clearAllRecords()
                     _ = TimerRecordManager.shared.clearAllRecords()
                     _ = LocalBookingManager.shared.clearAllBookings()

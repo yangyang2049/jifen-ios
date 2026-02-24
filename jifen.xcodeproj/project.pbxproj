@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0FA5BAED2F18F44000182375 /* jifenWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
+		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
+		A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */; };
+		B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D82E75ABD730744578E876 /* ScheduleModelTests.swift */; };
+		D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -17,6 +22,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 0FA5BAE22F18F43E00182375;
 			remoteInfo = "jifenWatch Watch App";
+		};
+		43607C4E36BA1140CEFAD7CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0FA5BAC92F18F3EB00182375 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FA5BAD02F18F3EB00182375;
+			remoteInfo = jifen;
+		};
+		453CA27C47E1B652DDFD34D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0FA5BAC92F18F3EB00182375 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FA5BAD02F18F3EB00182375;
+			remoteInfo = jifen;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -35,9 +54,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		07D82E75ABD730744578E876 /* ScheduleModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleModelTests.swift; sourceTree = "<group>"; };
 		0FA5BAD12F18F3EB00182375 /* jifen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jifen.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "jifenWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FA5BAF02F18F50000182375 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6698F86CD13F72512D8A63C9 /* jifenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6C476D58990954AF104F51A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
+		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
+		D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -68,6 +93,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3F21E360EFF91A6D01ECFB3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4B8F725AF338AEB477A3C5F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +119,9 @@
 				0FA5BAD32F18F3EB00182375 /* jifen */,
 				0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */,
 				0FA5BAD22F18F3EB00182375 /* Products */,
+				8C76EE3CB0FD1BF87723242C /* Frameworks */,
+				4BEAA1146F45CAF74810C41D /* jifenTests */,
+				CB5A5C00CFDC9B30D0B4EDFC /* jifenUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -86,8 +130,43 @@
 			children = (
 				0FA5BAD12F18F3EB00182375 /* jifen.app */,
 				0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */,
+				6698F86CD13F72512D8A63C9 /* jifenTests.xctest */,
+				D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4BEAA1146F45CAF74810C41D /* jifenTests */ = {
+			isa = PBXGroup;
+			children = (
+				07D82E75ABD730744578E876 /* ScheduleModelTests.swift */,
+			);
+			path = jifenTests;
+			sourceTree = "<group>";
+		};
+		8C76EE3CB0FD1BF87723242C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D6B4E5DF943069BCF2718471 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CB5A5C00CFDC9B30D0B4EDFC /* jifenUITests */ = {
+			isa = PBXGroup;
+			children = (
+				BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */,
+				AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */,
+			);
+			path = jifenUITests;
+			sourceTree = "<group>";
+		};
+		D6B4E5DF943069BCF2718471 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A6C476D58990954AF104F51A /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -111,8 +190,6 @@
 				0FA5BAD32F18F3EB00182375 /* jifen */,
 			);
 			name = jifen;
-			packageProductDependencies = (
-			);
 			productName = jifen;
 			productReference = 0FA5BAD12F18F3EB00182375 /* jifen.app */;
 			productType = "com.apple.product-type.application";
@@ -133,11 +210,45 @@
 				0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */,
 			);
 			name = "jifenWatch Watch App";
-			packageProductDependencies = (
-			);
 			productName = "jifenWatch Watch App";
 			productReference = 0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */;
 			productType = "com.apple.product-type.application";
+		};
+		2359CCD2086CD5E81A2F31FA /* jifenUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4BF094371EAAEB82F3DED2C8 /* Build configuration list for PBXNativeTarget "jifenUITests" */;
+			buildPhases = (
+				0D6BA37162DD8C618F99613C /* Sources */,
+				3F21E360EFF91A6D01ECFB3F /* Frameworks */,
+				3FDDF3624AD11899A2A47413 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3E6F8E121C790B3BE956EA17 /* PBXTargetDependency */,
+			);
+			name = jifenUITests;
+			productName = jifenUITests;
+			productReference = D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		BAD76ABED0DB2CDE0A4515E2 /* jifenTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F739E0571A4E22205415C37B /* Build configuration list for PBXNativeTarget "jifenTests" */;
+			buildPhases = (
+				BEB3E77A0BD305D2C5C1DF02 /* Sources */,
+				F4B8F725AF338AEB477A3C5F /* Frameworks */,
+				D081E4FFA434AD3CBEFBDE4B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2818B9F1E71B27CB0CFA528A /* PBXTargetDependency */,
+			);
+			name = jifenTests;
+			productName = jifenTests;
+			productReference = 6698F86CD13F72512D8A63C9 /* jifenTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -154,6 +265,14 @@
 					};
 					0FA5BAE22F18F43E00182375 = {
 						CreatedOnToolsVersion = 26.2;
+					};
+					2359CCD2086CD5E81A2F31FA = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 0FA5BAD02F18F3EB00182375;
+					};
+					BAD76ABED0DB2CDE0A4515E2 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 0FA5BAD02F18F3EB00182375;
 					};
 				};
 			};
@@ -174,6 +293,8 @@
 			targets = (
 				0FA5BAD02F18F3EB00182375 /* jifen */,
 				0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */,
+				BAD76ABED0DB2CDE0A4515E2 /* jifenTests */,
+				2359CCD2086CD5E81A2F31FA /* jifenUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -193,9 +314,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3FDDF3624AD11899A2A47413 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D081E4FFA434AD3CBEFBDE4B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0D6BA37162DD8C618F99613C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */,
+				A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0FA5BACD2F18F3EB00182375 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -210,6 +354,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BEB3E77A0BD305D2C5C1DF02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -218,9 +370,45 @@
 			target = 0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */;
 			targetProxy = 0FA5BAEB2F18F44000182375 /* PBXContainerItemProxy */;
 		};
+		2818B9F1E71B27CB0CFA528A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = jifen;
+			target = 0FA5BAD02F18F3EB00182375 /* jifen */;
+			targetProxy = 453CA27C47E1B652DDFD34D0 /* PBXContainerItemProxy */;
+		};
+		3E6F8E121C790B3BE956EA17 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = jifen;
+			target = 0FA5BAD02F18F3EB00182375 /* jifen */;
+			targetProxy = 43607C4E36BA1140CEFAD7CE /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		060D44424D5D2C882224703D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bolo.jifenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = jifen;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		0FA5BADA2F18F3EC00182375 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -502,6 +690,78 @@
 			};
 			name = Release;
 		};
+		19B86E314B47EBE50892C377 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bolo.jifenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jifen.app/jifen";
+			};
+			name = Debug;
+		};
+		AA7343AB94A683BC48372064 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bolo.jifenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = jifen;
+			};
+			name = Debug;
+		};
+		BDFE4BFF544E6A8EE00D05B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bolo.jifenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jifen.app/jifen";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -528,6 +788,24 @@
 			buildConfigurations = (
 				0FA5BAEF2F18F44000182375 /* Debug */,
 				0FA5BAF02F18F44000182375 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4BF094371EAAEB82F3DED2C8 /* Build configuration list for PBXNativeTarget "jifenUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				060D44424D5D2C882224703D /* Release */,
+				AA7343AB94A683BC48372064 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F739E0571A4E22205415C37B /* Build configuration list for PBXNativeTarget "jifenTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDFE4BFF544E6A8EE00D05B2 /* Release */,
+				19B86E314B47EBE50892C377 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

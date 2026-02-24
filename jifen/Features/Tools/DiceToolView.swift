@@ -9,7 +9,6 @@ import SwiftUI
 import WebKit
 
 struct DiceToolView: View {
-    @Environment(\.colorScheme) private var colorScheme
     @State private var hasRolled = false
     @State private var webVisible = false
     @State private var showHint = false
@@ -21,7 +20,7 @@ struct DiceToolView: View {
 
     var body: some View {
         ZStack {
-            (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight)
+            Theme.backgroundColor
                 .ignoresSafeArea()
 
             DiceWebView(
@@ -212,7 +211,7 @@ struct DiceWebView: UIViewRepresentable {
         if let htmlURL = Bundle.main.url(forResource: "dice", withExtension: "html") {
             webView.loadFileURL(htmlURL, allowingReadAccessTo: htmlURL.deletingLastPathComponent())
         } else {
-            webView.loadHTMLString("<html><body style='margin:0;background:#000;'></body></html>", baseURL: nil)
+            webView.loadHTMLString("<html><body style='margin:0;background:#1a1a1a;'></body></html>", baseURL: nil)
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {

@@ -110,6 +110,8 @@ struct MultiScoreboardView: View {
     private func scoreboardGrid(geo: GeometryProxy) -> some View {
         let columns = columnsForCurrentPlayers()
         let rows = max(2, Int(ceil(Double(players.count) / Double(columns))))
+        let totalCells = rows * columns
+        let extraCellCount = totalCells - players.count
         let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 0), count: columns)
         let cellHeight = geo.size.height / CGFloat(rows)
 
@@ -117,8 +119,26 @@ struct MultiScoreboardView: View {
             ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
                 playerPanel(index: index, player: player, height: cellHeight)
             }
+            ForEach(0..<max(0, extraCellCount - 1), id: \.self) { _ in
+                extraCellPlaceholder(height: cellHeight, showEmoji: false)
+            }
+            if extraCellCount > 0 {
+                extraCellPlaceholder(height: cellHeight, showEmoji: true)
+            }
         }
         .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
+    }
+
+    private func extraCellPlaceholder(height: CGFloat, showEmoji: Bool) -> some View {
+        Group {
+            if showEmoji {
+                Text("🤡")
+                    .font(.system(size: min(48, height * 0.5)))
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: height)
+        .background(Color.white.opacity(0.08))
     }
 
     private var topTrailingEditButton: some View {

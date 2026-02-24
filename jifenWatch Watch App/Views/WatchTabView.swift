@@ -18,6 +18,7 @@ struct WatchTabView: View {
             WatchSettingsView()
                 .tag(3)
         }
-        .tabViewStyle(.page(indexDisplayMode: .automatic))
+        // Keep page indicator hidden to avoid bottom reserved area leaking into pushed scoreboards.
+        .tabViewStyle(.page(indexDisplayMode: .never))
     }
 }

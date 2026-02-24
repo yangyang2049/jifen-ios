@@ -26,22 +26,23 @@ struct MenuDialog: View {
                 
                 // Dialog content
                 VStack(spacing: 0) {
-                    // Title bar
-                    HStack {
+                    // Title bar：标题整体居中，X 按钮在右侧
+                    ZStack {
                         Text(NSLocalizedString("operations", comment: "Menu title"))
                             .font(.system(size: 20, weight: .medium))
                             .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                        
-                        Button(action: onClose) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white)
-                                .frame(width: 36, height: 36)
-                                .background(
-                                    Circle()
-                                        .fill(Color.white.opacity(0.1))
-                                )
+                        HStack {
+                            Spacer()
+                            Button(action: onClose) {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.white)
+                                    .frame(width: 36, height: 36)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.white.opacity(0.1))
+                                    )
+                            }
                         }
                     }
                     .padding(.top, 8)
