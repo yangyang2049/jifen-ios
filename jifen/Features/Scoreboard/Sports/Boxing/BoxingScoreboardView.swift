@@ -81,7 +81,7 @@ struct BoxingScoreboardView: View {
     }
 
     private var roundTitle: some View {
-        Text("第 \(viewModel.currentRound) 回合")
+        Text(String(format: NSLocalizedString("boxing_round_n", comment: ""), viewModel.currentRound))
             .font(.system(size: 24, weight: .bold))
             .foregroundColor(.yellow)
             .padding(.horizontal, 16)

@@ -66,3 +66,20 @@ let quickStartTextTimerTypes: Set<GameType> = quickStartTimerTypes
 func isQuickStartTimerType(_ type: GameType) -> Bool {
     quickStartTextTimerTypes.contains(type)
 }
+
+// MARK: - 新比赛 / 快速开始编辑 共用网格（列数、间距统一）
+
+/// 新比赛与快速开始设置弹窗共用的网格列与间距，保证两处样式一致
+enum GameTypeGridLayout {
+    static let spacing: CGFloat = Theme.md
+    static let horizontalPadding: CGFloat = Theme.lg * 2
+    static let minItemWidth: CGFloat = 110
+    static let minColumnCount: Int = 3
+
+    static func columns(containerWidth: CGFloat) -> [GridItem] {
+        let availableWidth = max(1, containerWidth - horizontalPadding)
+        let estimatedCount = Int((availableWidth + spacing) / (minItemWidth + spacing))
+        let columnCount = max(minColumnCount, estimatedCount)
+        return Array(repeating: GridItem(.flexible(), spacing: spacing), count: columnCount)
+    }
+}

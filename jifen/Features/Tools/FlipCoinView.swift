@@ -19,6 +19,7 @@ struct FlipCoinView: View {
     @State private var coinScale: CGFloat = 1.0
     @State private var isEnglish = false
     @State private var showHint = false
+    @State private var flipTimer: Timer?
 
     private let hintShownKey = "flip_coin_hint_shown"
 
@@ -189,6 +190,10 @@ struct FlipCoinView: View {
         .onAppear {
             checkAndShowHint()
         }
+        .onDisappear {
+            flipTimer?.invalidate()
+            flipTimer = nil
+        }
     }
     
     private func checkAndShowHint() {
@@ -250,7 +255,8 @@ struct FlipCoinView: View {
         let startTime = Date()
         let maxHeight: CGFloat = -200
 
-        Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { timer in
+        flipTimer?.invalidate()
+        flipTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { timer in
             let elapsed = Date().timeIntervalSince(startTime)
             let progress = min(elapsed / totalDuration, 1.0)
             let easeProgress = 1.0 - pow(1.0 - progress, 3)
@@ -261,6 +267,7 @@ struct FlipCoinView: View {
 
             if progress >= 1.0 {
                 timer.invalidate()
+                flipTimer = nil
                 isFlipping = false
 
                 rotationAngle = targetAngle

@@ -21,11 +21,6 @@ final class WatchPreferences {
         set { defaults.set(newValue, forKey: "watch_sound_enabled") }
     }
 
-    var privacyAccepted: Bool {
-        get { defaults.object(forKey: "watch_privacy_accepted") as? Bool ?? false }
-        set { defaults.set(newValue, forKey: "watch_privacy_accepted") }
-    }
-
     /// Scoreboard layout: "vertical" (red top, blue bottom) or "horizontal" (red left, blue right)
     var scoreboardLayout: String {
         get { defaults.string(forKey: "watch_scoreboard_layout") ?? "vertical" }

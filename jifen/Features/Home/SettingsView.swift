@@ -560,6 +560,7 @@ struct CommonNamesManagementView: View {
                 }
             }
             .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
     }
 

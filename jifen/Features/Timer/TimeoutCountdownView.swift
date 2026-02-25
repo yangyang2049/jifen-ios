@@ -155,7 +155,9 @@ struct TimeoutCountdownView: View {
         startTime = now
         gameStartTime = now
         timerSubscription = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in tick() }
-        RunLoop.current.add(timerSubscription!, forMode: .common)
+        if let t = timerSubscription {
+            RunLoop.current.add(t, forMode: .common)
+        }
         isRunning = true
         VibrationManager.shared.vibrateLight()
     }
@@ -169,7 +171,9 @@ struct TimeoutCountdownView: View {
     private func resumeTimer() {
         startTime = Date()
         timerSubscription = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in tick() }
-        RunLoop.current.add(timerSubscription!, forMode: .common)
+        if let t = timerSubscription {
+            RunLoop.current.add(t, forMode: .common)
+        }
         isRunning = true
         VibrationManager.shared.vibrateLight()
     }

@@ -3,9 +3,11 @@
 ## [Unreleased]
 
 ### Removed
+- **Watch 隐私协议与退出流程**：移除 Watch 端独立隐私协议页与「退出」逻辑（原抄自鸿蒙，Apple 未强制要求）。删除 WatchPrivacyAgreementView、WatchAppExit 及 WatchPreferences.privacyAccepted；Watch 启动后直接进入 WatchTabView。
 - **新比赛弹窗中移除秒表**：GameCatalog.newGameDialogGameTypes 过滤掉 .stopwatch，新比赛弹窗不再展示秒表；秒表仍在计时 Tab 与工具中使用。
-- **新比赛对话框计分/计时双 Tab（对齐鸿蒙）**：
-- **新比赛用 dialog 呈现（对齐快速开始设置）**：新比赛不再使用可拖拽的 medium/large 多档位 bottom sheet，改为与快速开始设置一致的 .presentationDetents([.large]) + .presentationDragIndicator(.visible)，以整页 dialog 形式展示。NewGameDialogView 顶部增加分段选择「计分」「计时」；计分 Tab 展示全部计分项目（scoreboardGameTypes），计时 Tab 展示可选计时项目（不含秒表）；沿用 scoreboard_title、tab_timer 本地化。
+- **新比赛对话框计分/计时双 Tab（对齐鸿蒙）**：NewGameDialogView 顶部增加分段选择「计分」「计时」；计分 Tab 展示全部计分项目（scoreboardGameTypes），计时 Tab 展示可选计时项目（不含秒表）；沿用 scoreboard_title、tab_timer 本地化。
+- **新比赛与快速开始设置网格与样式统一**：HomeUtils 新增 GameTypeGridLayout（spacing Theme.md、minItemWidth 110、动态列数），新比赛与快速开始编辑两处共用 columns(containerWidth) 与 spacing；新比赛项改为使用 SportOptionView（与快速开始一致的正方形格、自适应图标/文字），两处内部处理与视觉统一。
+- **新比赛用 dialog 呈现（对齐快速开始设置）**：新比赛不再使用可拖拽的 medium/large 多档位 bottom sheet，改为与快速开始设置一致的 .presentationDetents([.large]) + .presentationDragIndicator(.visible)，以整页 dialog 形式展示。
 - **自定义主卡片对话框移除秒表**：QuickStartEditView 使用 editDialogSports（availableSports 过滤 .stopwatch），主卡片可选列表中不再出现秒表项。
 - **设置弹窗最近记录**：SportsSetupDialogView 中移除「最近记录」区块（横向滚动的最近对局卡片及「点击快速使用」提示）；移除相关状态、loadRecentRecords/loadFromRecord/formatTime/formatSetsInfo/buildRecentGameCard 及 ScoreboardRecordManager 依赖；HomeModels 中移除仅用于该功能的 RecentGameDisplay 结构体。
 
@@ -16,6 +18,7 @@
 - **Watch 工具：计数器**：工具 Tab 新增「计数器」（WatchCounterView）。点击屏幕 +1、底部「重置」按钮二次确认清零；移除底部「计数器」副标题，保留导航栏标题。Watch 本地化 game_counter、press_again_to_reset。
 
 ### Changed
+- **秒表支持中途计时（分段）**：工具内秒表增加「分段」按钮，运行中或暂停时可记录当前时刻为一条分段；列表展示序号、本段时长、总时长，主显示精确到百分之一秒（00:00.00），刷新间隔 10ms。重置时清空分段记录。新增 stopwatch_total、stopwatch_lap、stopwatch_lap_list_title、stopwatch_lap_no、stopwatch_lap_segment、stopwatch_lap_total 本地化。
 - **休息倒计时弹窗**：RestCountdownOverlay 标题改为由调用方传入（羽毛球局间显示「第N局结束」、局中显示「第N局 · 局中间隙」）；右上角小按钮改为「撤销」、底部主按钮改为「继续」。新增 rest_title_set_end、rest_title_mid_game 本地化。
 - **计分项目图标统一**：GameType.icon 中简易计分、多人计分改为与计分 Tab（GameCatalog.scoreboardItems）一致：简易计分 🔢、多人计分 👥；新比赛、设置弹窗、最近记录、记录详情等使用 gameType.icon 处与计分 Tab 图标统一。
 - **计分板数字等宽与外挂字体**：比分/局分/盘分加 .monospacedDigit()；FontRegistrar 注释说明 iOS 外挂字体（UIAppFonts + fontFamily 传 PostScript 名可对齐鸿蒙数字体）。
@@ -82,6 +85,7 @@
 - **Watch 使用说明**：「使用说明」从计分 Tab 移至设置 Tab；计分页不再显示使用说明入口与首次进入提示，设置内新增「使用说明」行，点击弹出说明弹窗。
 
 ### Fixed
+- **BUGS_AND_OPTIMIZATION_REPORT 修复与优化**：FlipCoinView 在 onDisappear 中清理 flipTimer，避免页面消失后定时器仍触发。NewGameDialogView 选项目后先同步执行 onSelect/onTimerGameSelected 再 dismiss，避免 asyncAfter 在 presenter 释放后回调。计分详情/多人计分/计时器/秒表等处 force unwrap 改为 if let 或 guard。计分详情 getScoringActionText、拳击「第 N 回合」改为本地化（record_action_team_*、boxing_round_n）。QuickStartEditView、设置常用名称 sheet 增加 .presentationDragIndicator(.visible)。ScoreboardRecordsViewModel.refreshRecords/refreshRecordsImmediately 将加载与分组放到后台队列，仅主线程更新 @Published。CHANGELOG 将「新比赛对话框计分/计时双 Tab」与「新比赛用 dialog 呈现」拆为两条并补全空条目。
 - **计时 Tab 文案显示 string_key**：为计时 Tab 及子页补充主应用本地化。zh-Hans / en 新增：tab_timer、timer_common、timer_go、timer_xiangqi、timer_chess、timer_basketball_24s、timer_basketball_12s、timer_cube、timer_timeout、timer_section_board_games、timer_section_other、exit、pause、resume、wins、dual_timer_player、dual_timer_main_time、cube_hold_to_start、cube_hold、seconds_short、minute、minutes。
 - **Watch 右滑返回**：计分/射箭/篮球训练页因 `.navigationBarHidden(true)` 导致系统右滑返回失效。在各自拖拽手势中增加「从左向右滑」（dx > 50 且 |dy| < 50）触发 dismiss()，与系统返回手势一致；退出方式仍保留「上滑 → 菜单 → 退出」。
 - **Watch 工具/记录/计时子页导航与返回**：工具子页（抛硬币、随机数字、十秒挑战、计数器）与记录详情、计时详情补全 `.navigationTitle` + `.navigationBarTitleDisplayMode(.inline)`，显示导航栏与系统返回；并统一增加右滑返回手势（同上），保证无导航栏或系统手势不可用时仍可返回。Watch 本地化增加 tab_timer。

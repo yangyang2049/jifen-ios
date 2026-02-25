@@ -32,76 +32,78 @@ struct QuickStartEditView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: Theme.md) {
-                        // Primary Selection
-                        VStack(alignment: .leading, spacing: Theme.sm) {
-                            HStack(spacing: Theme.sm) {
-                                Text("1")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(Theme.textOnPrimary)
-                                    .frame(width: 20, height: 20)
-                                    .background(Theme.homePrimaryCardOrange)
-                                    .cornerRadius(10)
+                GeometryReader { geo in
+                    ScrollView {
+                        VStack(spacing: Theme.md) {
+                            // Primary Selection
+                            VStack(alignment: .leading, spacing: Theme.sm) {
+                                HStack(spacing: Theme.sm) {
+                                    Text("1")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(Theme.textOnPrimary)
+                                        .frame(width: 20, height: 20)
+                                        .background(Theme.homePrimaryCardOrange)
+                                        .cornerRadius(10)
 
-                                Text(NSLocalizedString("home_edit_primary_card", comment: "Customize primary card title"))
-                                    .font(.system(size: Theme.fontBody1, weight: .medium))
-                                    .foregroundColor(Theme.textPrimary)
+                                    Text(NSLocalizedString("home_edit_primary_card", comment: "Customize primary card title"))
+                                        .font(.system(size: Theme.fontBody1, weight: .medium))
+                                        .foregroundColor(Theme.textPrimary)
 
-                                Spacer()
-                            }
-                            .padding(.vertical, Theme.sm)
+                                    Spacer()
+                                }
+                                .padding(.vertical, Theme.sm)
 
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) {
-                                ForEach(Self.editDialogSports, id: \.self) { sport in
-                                    SportOptionView(
-                                        sport: sport,
-                                        isSelected: selectedPrimary == sport,
-                                        isDarkTheme: isDarkTheme,
-                                        onClickOption: {
-                                            selectedPrimary = sport
-                                        }
-                                    )
+                                LazyVGrid(columns: GameTypeGridLayout.columns(containerWidth: geo.size.width), spacing: GameTypeGridLayout.spacing) {
+                                    ForEach(Self.editDialogSports, id: \.self) { sport in
+                                        SportOptionView(
+                                            sport: sport,
+                                            isSelected: selectedPrimary == sport,
+                                            isDarkTheme: isDarkTheme,
+                                            onClickOption: {
+                                                selectedPrimary = sport
+                                            }
+                                        )
+                                    }
                                 }
                             }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                        // Secondary Selection
-                        VStack(alignment: .leading, spacing: Theme.sm) {
-                            HStack(spacing: Theme.sm) {
-                                Text("2")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(Theme.textOnPrimary)
-                                    .frame(width: 20, height: 20)
-                                    .background(Theme.homeSecondaryCardBlue)
-                                    .cornerRadius(10)
+                            // Secondary Selection
+                            VStack(alignment: .leading, spacing: Theme.sm) {
+                                HStack(spacing: Theme.sm) {
+                                    Text("2")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(Theme.textOnPrimary)
+                                        .frame(width: 20, height: 20)
+                                        .background(Theme.homeSecondaryCardBlue)
+                                        .cornerRadius(10)
 
-                                Text(NSLocalizedString("home_edit_secondary_card", comment: "Customize secondary card title"))
-                                    .font(.system(size: Theme.fontBody1, weight: .medium))
-                                    .foregroundColor(Theme.textPrimary)
+                                    Text(NSLocalizedString("home_edit_secondary_card", comment: "Customize secondary card title"))
+                                        .font(.system(size: Theme.fontBody1, weight: .medium))
+                                        .foregroundColor(Theme.textPrimary)
 
-                                Spacer()
-                            }
-                            .padding(.vertical, Theme.sm)
+                                    Spacer()
+                                }
+                                .padding(.vertical, Theme.sm)
 
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) {
-                                ForEach(Self.editDialogSports, id: \.self) { sport in
-                                    SportOptionView(
-                                        sport: sport,
-                                        isSelected: selectedSecondary == sport,
-                                        isDarkTheme: isDarkTheme,
-                                        onClickOption: {
-                                            selectedSecondary = sport
-                                        }
-                                    )
+                                LazyVGrid(columns: GameTypeGridLayout.columns(containerWidth: geo.size.width), spacing: GameTypeGridLayout.spacing) {
+                                    ForEach(Self.editDialogSports, id: \.self) { sport in
+                                        SportOptionView(
+                                            sport: sport,
+                                            isSelected: selectedSecondary == sport,
+                                            isDarkTheme: isDarkTheme,
+                                            onClickOption: {
+                                                selectedSecondary = sport
+                                            }
+                                        )
+                                    }
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Theme.lg)
+                        .padding(.vertical, Theme.md)
                     }
-                    .padding(.horizontal, Theme.lg)
-                    .padding(.vertical, Theme.md)
                 }
 
                 // Save Button - fixed at bottom
@@ -133,5 +135,6 @@ struct QuickStartEditView: View {
             }
         }
         .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
     }
 }

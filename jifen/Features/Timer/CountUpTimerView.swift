@@ -122,7 +122,9 @@ struct CountUpTimerView: View {
         displayTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             updateDisplayFromAccumulated()
         }
-        RunLoop.current.add(displayTimer!, forMode: .common)
+        if let t = displayTimer {
+            RunLoop.current.add(t, forMode: .common)
+        }
     }
 
     private func stopDisplayTimer() {

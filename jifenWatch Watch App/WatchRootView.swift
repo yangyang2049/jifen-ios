@@ -1,23 +1,13 @@
 import SwiftUI
-import WatchKit
 
 struct WatchRootView: View {
-    @AppStorage("watch_privacy_accepted") private var privacyAccepted: Bool = false
     @State private var scoreboardRoute: WatchScoreboardRoute? = nil
 
     var body: some View {
         NavigationStack {
             ZStack {
                 WatchTheme.background.ignoresSafeArea()
-                if privacyAccepted {
-                    WatchTabView(scoreboardRoute: $scoreboardRoute)
-                } else {
-                    WatchPrivacyAgreementView(onConfirm: {
-                        privacyAccepted = true
-                    }, onCancel: {
-                        WatchAppExit.exit()
-                    })
-                }
+                WatchTabView(scoreboardRoute: $scoreboardRoute)
             }
             .navigationDestination(item: $scoreboardRoute) { route in
                 destinationView(for: route)
@@ -46,12 +36,5 @@ struct WatchRootView: View {
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-    }
-}
-
-enum WatchAppExit {
-    static func exit() {
-        // watchOS has no public API to terminate apps; best-effort dismiss if available.
-        WKExtension.shared().rootInterfaceController?.dismiss()
     }
 }

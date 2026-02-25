@@ -484,3 +484,17 @@
 "unfinished_discard_title" = "Discard Unfinished Game";
 "unfinished_discard_message" = "Discard the current unfinished game?";
 "unfinished_discard_button" = "Discard";
+
+/* Record detail / Boxing */
+"record_action_team_scored" = "%@ scored";
+"record_action_team_goal" = "%@ goal";
+"record_action_team_points" = "%@ +%d";
+"boxing_round_n" = "Round %d";
+
+/* Stopwatch */
+"stopwatch_total" = "Total";
+"stopwatch_lap" = "Lap";
+"stopwatch_lap_list_title" = "Lap Times";
+"stopwatch_lap_no" = "No.";
+"stopwatch_lap_segment" = "Lap";
+"stopwatch_lap_total" = "Total";

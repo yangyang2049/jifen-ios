@@ -386,7 +386,12 @@ struct MultiScoreboardView: View {
 
         guard let setup = initialSetup else { return }
 
-        let setupCount = (3...9).contains(setup.playerCount ?? 0) ? setup.playerCount! : 4
+        let setupCount: Int
+        if let count = setup.playerCount, (3...9).contains(count) {
+            setupCount = count
+        } else {
+            setupCount = 4
+        }
         var names = defaultMultiPlayerNames(count: setupCount)
 
         if let playerNames = setup.playerNames, !playerNames.isEmpty {

@@ -49,17 +49,17 @@ final class ScoreboardRecordsViewModel: ObservableObject { // Add final and Obse
         }
         
         lastRefreshTime = now
-        
-        isLoading = true // Will publish change
-        // notifyListeners() // Not strictly needed for @Published
-        
-        // Use DispatchQueue.main.async for UI updates, but ensure data fetching is off main thread if heavy
-        DispatchQueue.main.async {
+        isLoading = true
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
             let summaries = ScoreboardRecordManager.shared.getAllRecordSummaries()
-            self.records = summaries // Will publish change
-            self.groupedRecords = self.groupRecordsByDate(summaries) // Will publish change
-            self.isLoading = false // Will publish change
-            // self.notifyListeners() // Not strictly needed for @Published
+            let grouped = self.groupRecordsByDate(summaries)
+            DispatchQueue.main.async {
+                self.records = summaries
+                self.groupedRecords = grouped
+                self.isLoading = false
+            }
         }
     }
     
@@ -71,11 +71,15 @@ final class ScoreboardRecordsViewModel: ObservableObject { // Add final and Obse
 
     func refreshRecordsImmediately() {
         isLoading = true
-        DispatchQueue.main.async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
             let summaries = ScoreboardRecordManager.shared.getAllRecordSummaries()
-            self.records = summaries
-            self.groupedRecords = self.groupRecordsByDate(summaries)
-            self.isLoading = false
+            let grouped = self.groupRecordsByDate(summaries)
+            DispatchQueue.main.async {
+                self.records = summaries
+                self.groupedRecords = grouped
+                self.isLoading = false
+            }
         }
     }
     

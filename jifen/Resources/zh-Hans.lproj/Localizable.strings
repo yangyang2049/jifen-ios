@@ -484,3 +484,17 @@
 "unfinished_discard_title" = "放弃未完成比赛";
 "unfinished_discard_message" = "确认放弃当前未完成比赛？";
 "unfinished_discard_button" = "放弃";
+
+/* Record detail / Boxing */
+"record_action_team_scored" = "%@ 得分";
+"record_action_team_goal" = "%@ 进球";
+"record_action_team_points" = "%@ +%d";
+"boxing_round_n" = "第 %d 回合";
+
+/* Stopwatch */
+"stopwatch_total" = "总时长";
+"stopwatch_lap" = "分段";
+"stopwatch_lap_list_title" = "分段记录";
+"stopwatch_lap_no" = "序号";
+"stopwatch_lap_segment" = "本段";
+"stopwatch_lap_total" = "总时长";

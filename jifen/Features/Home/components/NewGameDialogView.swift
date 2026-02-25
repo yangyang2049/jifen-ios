@@ -45,7 +45,7 @@ struct NewGameDialogView: View {
 
                 GeometryReader { geo in
                     ScrollView {
-                        LazyVGrid(columns: gridColumns(for: geo.size.width), spacing: Theme.md) {
+                        LazyVGrid(columns: GameTypeGridLayout.columns(containerWidth: geo.size.width), spacing: GameTypeGridLayout.spacing) {
                             if selectedTab == .score {
                                 ForEach(Self.scoreGameTypes, id: \.self) { gameType in
                                     gameItem(gameType: gameType)
@@ -80,45 +80,20 @@ struct NewGameDialogView: View {
     }
 
     private func gameItem(gameType: GameType) -> some View {
-        Button(action: {
-            handleGameItemClick(gameType: gameType)
-        }) {
-            VStack(spacing: 8) {
-                Text(gameType.icon)
-                    .font(.system(size: 32))
-                Text(gameType.displayName)
-                    .font(.system(size: Theme.fontBody2, weight: .medium))
-                    .foregroundColor(Theme.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity, minHeight: 80)
-            .padding(.vertical, Theme.md)
-            .padding(.horizontal, Theme.sm)
-            .background(Theme.surface.opacity(0.5))
-            .cornerRadius(Theme.md)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func gridColumns(for containerWidth: CGFloat) -> [GridItem] {
-        let horizontalPadding = Theme.lg * 2
-        let spacing = Theme.md
-        let availableWidth = max(1, containerWidth - horizontalPadding)
-        let minItemWidth: CGFloat = 110
-        let estimatedCount = Int((availableWidth + spacing) / (minItemWidth + spacing))
-        let columnCount = max(3, estimatedCount)
-        return Array(repeating: GridItem(.flexible(), spacing: spacing), count: columnCount)
+        SportOptionView(
+            sport: gameType,
+            isSelected: false,
+            isDarkTheme: true,
+            onClickOption: { handleGameItemClick(gameType: gameType) }
+        )
     }
 
     private func handleGameItemClick(gameType: GameType) {
-        dismiss()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            if Set(GameCatalog.timerSelectableGameTypes).contains(gameType) {
-                onTimerGameSelected?(gameType)
-            } else {
-                onSelect?(.scoreboard, sourcePage, gameType)
-            }
+        if Set(GameCatalog.timerSelectableGameTypes).contains(gameType) {
+            onTimerGameSelected?(gameType)
+        } else {
+            onSelect?(.scoreboard, sourcePage, gameType)
         }
+        dismiss()
     }
 }

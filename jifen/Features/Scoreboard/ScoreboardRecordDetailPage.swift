@@ -303,9 +303,9 @@ struct ScoreboardRecordDetailPage: View {
         }
 
         // Add game end event if the game finished
-        if record.endTime != nil {
+        if let endTime = record.endTime {
             events.append((
-                timestamp: record.endTime!,
+                timestamp: endTime,
                 action: NSLocalizedString("game_ended", comment: ""),
                 score: "\(record.team1FinalScore)-\(record.team2FinalScore)"
             ))
@@ -317,15 +317,15 @@ struct ScoreboardRecordDetailPage: View {
     private func getScoringActionText(for gameType: GameType, teamName: String, points: Int) -> String {
         switch gameType {
         case .pingpong, .badminton, .tennis:
-            return "\(teamName) 得分"
+            return String(format: NSLocalizedString("record_action_team_scored", comment: ""), teamName)
         case .basketball:
-            return "\(teamName) +\(points)"
+            return String(format: NSLocalizedString("record_action_team_points", comment: ""), teamName, points)
         case .football:
-            return "\(teamName) 进球"
+            return String(format: NSLocalizedString("record_action_team_goal", comment: ""), teamName)
         case .volleyball:
-            return "\(teamName) +\(points)"
+            return String(format: NSLocalizedString("record_action_team_points", comment: ""), teamName, points)
         default:
-            return "\(teamName) +\(points)"
+            return String(format: NSLocalizedString("record_action_team_points", comment: ""), teamName, points)
         }
     }
 
