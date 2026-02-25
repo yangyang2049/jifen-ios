@@ -24,7 +24,7 @@ struct WatchToolsTabView: View {
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, WatchLayout.tabHorizontalPadding)
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)

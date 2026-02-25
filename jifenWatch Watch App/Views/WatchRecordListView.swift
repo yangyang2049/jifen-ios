@@ -38,6 +38,7 @@ struct WatchRecordListView: View {
                         .padding(.top, 16)
                 }
             }
+            .padding(.horizontal, WatchLayout.tabHorizontalPadding)
             .padding(.bottom, 12)
         }
         .navigationTitle(NSLocalizedString("records", comment: "Records"))
@@ -86,15 +87,18 @@ struct WatchRecordListView: View {
         loading = false
     }
 
-    /// 圆角胶囊行，与鸿蒙 WatchRecordTab 一致：高 56、圆角 30、背景 #222222
+    /// 圆角胶囊行，与鸿蒙 WatchRecordTab 一致：高 56、圆角 30、背景 #222222；窄屏（含 44mm）缩小边距与图标，标题可缩放防截断
     private func recordRow(_ record: WatchScoreboardRecordSummary) -> some View {
-        HStack(spacing: 12) {
+        let iconSize = WatchLayout.recordRowIconSize
+        let rowSpacing = WatchLayout.recordRowSpacing
+        let rowPadding = WatchLayout.recordRowHorizontalPadding
+        return HStack(spacing: rowSpacing) {
             if record.gameType == .pickleball {
                 ZStack(alignment: .bottomTrailing) {
                     Text("🎾")
-                        .font(.system(size: 24))
+                        .font(.system(size: iconSize))
                     Text(NSLocalizedString("pickleball_icon_label", value: "匹", comment: "Pickleball badge"))
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: iconSize * 0.42, weight: .bold))
                         .foregroundColor(WatchTheme.primaryText)
                         .padding(.horizontal, 2)
                         .padding(.vertical, 1)
@@ -102,21 +106,22 @@ struct WatchRecordListView: View {
                         .cornerRadius(2)
                         .offset(x: 2, y: 2)
                 }
-                .frame(width: 24, height: 24)
+                .frame(width: iconSize, height: iconSize)
             } else {
                 Text(record.gameType.icon)
-                    .font(.system(size: 24))
+                    .font(.system(size: iconSize))
             }
 
-            VStack(alignment: .leading, spacing: 1) {
+            VStack(alignment: .leading, spacing: WatchLayout.recordRowLineSpacing) {
                 Text(recordDisplayText(record))
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: WatchLayout.recordRowTitleFontSize, weight: .medium))
                     .foregroundColor(WatchTheme.primaryText)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.72)
                     .multilineTextAlignment(.leading)
 
                 Text(formatRelativeTime(timestamp: record.timestamp))
-                    .font(.system(size: 12))
+                    .font(.system(size: WatchLayout.recordRowSubtitleFontSize))
                     .foregroundColor(WatchTheme.secondaryText)
                     .lineLimit(1)
                     .multilineTextAlignment(.leading)
@@ -125,8 +130,8 @@ struct WatchRecordListView: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.leading, 16)
-        .padding(.trailing, 16)
+        .padding(.leading, rowPadding)
+        .padding(.trailing, rowPadding)
         .frame(height: 56)
         .frame(maxWidth: .infinity)
         .background(WatchTheme.listItemBackground)

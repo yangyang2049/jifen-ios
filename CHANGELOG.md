@@ -18,6 +18,11 @@
 - **Watch 工具：计数器**：工具 Tab 新增「计数器」（WatchCounterView）。点击屏幕 +1、底部「重置」按钮二次确认清零；移除底部「计数器」副标题，保留导航栏标题。Watch 本地化 game_counter、press_again_to_reset。
 
 ### Changed
+- **Watch 小屏适配（42mm 及以下）**：屏幕宽度 ≤ 180pt 时视为窄屏（38/40/41/42mm，44mm 及以上为 184+）。各 Tab（计分、工具、记录、设置）左右边距由 12 改为 6，列表行与设置行左右内边距由 16 改为 10。射箭计分：加分面板按钮 44→34、字号与间距缩小、外边距 20→12；菜单 overlay 内边距与按钮高度、图标缩小；暂停/结束 overlay 内边距与按钮宽高缩小。新增 WatchLayout（WatchTheme.swift）集中小屏常量。
+- **Watch 射箭加分面板取消按钮**：取消由文字「取消」改为与暂停菜单一致的图标按钮（xmark.circle.fill），并缩小与分数网格的上间距，避免按钮过靠下。
+- **Watch 射箭加分面板纵向居中**：与紧凑屏无关，所有尺寸下面板均上下左右对称 padding（.padding(panelPadding)），内容在 overlay 内纵向居中，移除仅紧凑屏的底部收口。
+- **Watch 手表端文字取消统一为 x 图标**：计分板「决胜局换边」overlay 的关闭由文字「取消」改为 xmark.circle.fill 图标，与射箭加分面板、暂停菜单一致；系统 alert/confirmationDialog 的取消仍为系统文案。
+- **Watch 记录列表第一行显示不全（含 44mm）**：新增 isNarrowForContent（宽度 ≤ 184pt），记录行在窄屏下使用更小左右内边距（10）、图标（20pt）、图标与文字间距（8）；标题增加 .minimumScaleFactor(0.72)，空间不足时自动缩小以尽量完整显示「红方 0 - 1 蓝方」。窄屏下首行 16→14、第二行 12→10 以协调，两行间距 1→5 避免都变小时挤在一起。
 - **秒表支持中途计时（分段）**：工具内秒表增加「分段」按钮，运行中或暂停时可记录当前时刻为一条分段；列表展示序号、本段时长、总时长，主显示精确到百分之一秒（00:00.00），刷新间隔 10ms。重置时清空分段记录。新增 stopwatch_total、stopwatch_lap、stopwatch_lap_list_title、stopwatch_lap_no、stopwatch_lap_segment、stopwatch_lap_total 本地化。
 - **休息倒计时弹窗**：RestCountdownOverlay 标题改为由调用方传入（羽毛球局间显示「第N局结束」、局中显示「第N局 · 局中间隙」）；右上角小按钮改为「撤销」、底部主按钮改为「继续」。新增 rest_title_set_end、rest_title_mid_game 本地化。
 - **计分项目图标统一**：GameType.icon 中简易计分、多人计分改为与计分 Tab（GameCatalog.scoreboardItems）一致：简易计分 🔢、多人计分 👥；新比赛、设置弹窗、最近记录、记录详情等使用 gameType.icon 处与计分 Tab 图标统一。

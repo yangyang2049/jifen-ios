@@ -105,6 +105,8 @@
 "days_ago" = "%d天前";
 
 /* Tools extras */
+"watch_coin_heads_text" = "666";
+"watch_archery_miss" = "M";
 "watch_flip_coin_hint" = "点击抛硬币";
 "watch_ten_second_challenge" = "十秒挑战";
 "watch_ten_second_usage" = "点击开始计时，再次点击停止，目标是 10.00 秒";

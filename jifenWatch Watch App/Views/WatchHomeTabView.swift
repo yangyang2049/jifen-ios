@@ -26,38 +26,32 @@ struct WatchHomeTabView: View {
                     switch item {
                     case .badminton:
                         WatchPillButton(icon: "🏸", title: NSLocalizedString("game_badminton", comment: "Badminton")) {
-                            saveLastSelected(item)
                             navigateToBadminton()
                         }
                     case .tennis:
                         WatchPillButton(icon: "🎾", title: NSLocalizedString("game_tennis", comment: "Tennis")) {
-                            saveLastSelected(item)
                             showTennisPicker = true
                         }
                     case .pingpong:
                         WatchPillButton(icon: "🏓", title: NSLocalizedString("game_pingpong", comment: "Ping Pong")) {
-                            saveLastSelected(item)
                             showPingpongPicker = true
                         }
                     case .pickleball:
                         WatchPillButton(icon: "🎾", title: NSLocalizedString("game_pickleball", comment: "Pickleball")) {
-                            saveLastSelected(item)
                             showPickleballPicker = true
                         }
                     case .archery:
                         WatchPillButton(icon: "🏹", title: NSLocalizedString("game_archery", comment: "Archery")) {
-                            saveLastSelected(item)
                             navigateToArchery()
                         }
                     case .basketball_training:
                         WatchPillButton(icon: "🏀", title: NSLocalizedString("tool_basketball_training", comment: "Basketball Training")) {
-                            saveLastSelected(item)
                             navigateToBasketballTraining()
                         }
                     }
                 }
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, WatchLayout.tabHorizontalPadding)
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)
@@ -85,9 +79,9 @@ struct WatchHomeTabView: View {
         }
     }
 
+    /// 仅在真正进入项目时写入偏好；列表顺序在返回首页 onAppear 时再更新，避免点击或进入瞬间就移第一位
     private func saveLastSelected(_ item: WatchHomeItem) {
         WatchPreferences.shared.setString(item.rawValue, forKey: "watchLastSelectedGame")
-        updateOrderedItems()
     }
 
     private func updateOrderedItems() {
@@ -106,12 +100,14 @@ struct WatchHomeTabView: View {
 
     private func navigateToPingpong() {
         showPingpongPicker = false
+        saveLastSelected(.pingpong)
         DispatchQueue.main.async {
             scoreboardRoute = .pingpong(maxSets: pingpongSets)
         }
     }
 
     private func navigateToBadminton() {
+        saveLastSelected(.badminton)
         DispatchQueue.main.async {
             scoreboardRoute = .badminton(maxSets: 3)
         }
@@ -119,6 +115,7 @@ struct WatchHomeTabView: View {
 
     private func navigateToTennis() {
         showTennisPicker = false
+        saveLastSelected(.tennis)
         DispatchQueue.main.async {
             scoreboardRoute = .tennis(maxSets: tennisSets)
         }
@@ -126,18 +123,21 @@ struct WatchHomeTabView: View {
 
     private func navigateToPickleball() {
         showPickleballPicker = false
+        saveLastSelected(.pickleball)
         DispatchQueue.main.async {
             scoreboardRoute = .pickleball(maxSets: pickleballSets)
         }
     }
 
     private func navigateToArchery() {
+        saveLastSelected(.archery)
         DispatchQueue.main.async {
             scoreboardRoute = .archery
         }
     }
 
     private func navigateToBasketballTraining() {
+        saveLastSelected(.basketball_training)
         DispatchQueue.main.async {
             scoreboardRoute = .basketballTraining
         }

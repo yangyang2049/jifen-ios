@@ -29,7 +29,7 @@ struct WatchSettingsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, WatchLayout.tabHorizontalPadding)
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)
@@ -67,7 +67,7 @@ struct WatchSettingsView: View {
                     .font(.system(size: 16))
                     .foregroundColor(WatchTheme.secondaryText)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
             .frame(height: WatchMetrics.pillHeight)
             .background(WatchTheme.listItemBackground)
             .cornerRadius(WatchMetrics.pillRadius)
@@ -92,7 +92,7 @@ struct WatchSettingsView: View {
                     .font(.system(size: 14))
                     .foregroundColor(WatchTheme.secondaryText)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
             .frame(height: WatchMetrics.pillHeight)
             .background(WatchTheme.listItemBackground)
             .cornerRadius(WatchMetrics.pillRadius)
@@ -110,7 +110,7 @@ struct WatchSettingsView: View {
                 .labelsHidden()
                 .tint(WatchTheme.accent)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
         .frame(height: WatchMetrics.pillHeight)
         .background(WatchTheme.listItemBackground)
         .cornerRadius(WatchMetrics.pillRadius)

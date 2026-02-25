@@ -12,36 +12,47 @@ struct WatchCounterView: View {
     @State private var count: Int = 0
     @State private var showResetConfirm: Bool = false
 
+    /// 杠铃布局：顶部 48、中间数字、底部 48（重置放在底部 48 里）
+    private let barHeight: CGFloat = 48
+
     var body: some View {
         ZStack {
             WatchTheme.background.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Text("\(count)")
-                    .font(.system(size: 72, weight: .bold, design: .rounded))
-                    .foregroundColor(WatchTheme.primaryText)
-                    .contentTransition(.numericText())
-                    .frame(maxWidth: .infinity)
-                    .frame(maxHeight: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        count += 1
-                        WatchHaptics.shared.play(.light)
-                    }
-            }
-            .overlay(alignment: .bottom) {
-                Button {
-                    showResetConfirm = true
-                } label: {
-                    Text(NSLocalizedString("menu_reset", comment: "Reset"))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(WatchTheme.secondaryText)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
+                Color.clear
+                    .frame(height: barHeight)
+
+                ZStack {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
+                        .onTapGesture {
+                            count += 1
+                            WatchHaptics.shared.play(.light)
+                        }
+                    Text("\(count)")
+                        .font(.system(size: 72, weight: .bold, design: .rounded))
+                        .foregroundColor(WatchTheme.primaryText)
+                        .contentTransition(.numericText())
+                        .allowsHitTesting(false)
                 }
-                .buttonStyle(.plain)
-                .padding(.bottom, 2)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                ZStack {
+                    Button {
+                        showResetConfirm = true
+                    } label: {
+                        Text(NSLocalizedString("menu_reset", comment: "Reset"))
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(WatchTheme.secondaryText)
+                            .padding(.horizontal, 12)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .frame(height: barHeight)
+                .frame(maxWidth: .infinity)
             }
         }
         .navigationTitle(NSLocalizedString("game_counter", comment: "Counter"))

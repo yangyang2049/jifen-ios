@@ -566,7 +566,7 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    /// 羽毛球等有局中休息的项目：决胜局换边用 overlay
+    /// 羽毛球等有局中休息的项目：决胜局换边用 overlay；关闭与射箭加分面板一致为 x 图标
     private var decidingSetSwapOverlay: some View {
         ZStack {
             Color.black.opacity(0.55)
@@ -580,15 +580,12 @@ struct WatchScoreboardView<Rules: WatchGameRules>: View {
                 Button {
                     showDecidingSetSwapOverlay = false
                 } label: {
-                    Text(NSLocalizedString("cancel", comment: "Cancel"))
-                        .frame(width: 160, height: 44)
-                        .contentShape(Rectangle())
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
+                        .foregroundColor(WatchTheme.secondaryText)
                 }
                 .buttonStyle(.plain)
-                .frame(width: 160, height: 44)
-                .background(WatchTheme.card)
-                .foregroundColor(.white)
-                .cornerRadius(22)
+                .frame(width: WatchLayout.isCompactScreen ? 36 : 44, height: WatchLayout.isCompactScreen ? 36 : 44)
             }
             .padding(.vertical, 24)
             .padding(.horizontal, 24)

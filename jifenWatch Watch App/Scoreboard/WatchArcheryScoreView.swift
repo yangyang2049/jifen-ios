@@ -184,44 +184,53 @@ struct WatchArcheryScoreView: View {
     }
 
     private var scorePanelOverlay: some View {
-        ZStack {
+        let btnSize = WatchLayout.archeryScoreButtonSize
+        let fontSize = WatchLayout.archeryScoreButtonFontSize
+        let gridSpacing = WatchLayout.archeryScoreGridSpacing
+        let panelPadding = WatchLayout.archeryScorePanelPadding
+        return ZStack {
             Color.black.opacity(0.55)
                 .ignoresSafeArea()
                 .onTapGesture { showScorePanel = false }
-            VStack(spacing: 12) {
+            VStack(spacing: WatchLayout.archeryScorePanelVStackSpacing) {
                 Text(currentShooter ? NSLocalizedString("watch_team_red", comment: "Red") : NSLocalizedString("watch_team_blue", comment: "Blue"))
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14, weight: .bold))
                     .foregroundColor(currentShooter ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
-                VStack(spacing: 2) {
+                VStack(spacing: gridSpacing) {
                     ForEach(0..<3, id: \.self) { row in
-                        HStack(spacing: 2) {
+                        HStack(spacing: gridSpacing) {
                             ForEach(0..<4, id: \.self) { col in
                                 let val = scoreGrid[row][col]
                                 Button {
                                     addArrow(value: val == -1 ? nil : val)
                                     showScorePanel = false
                                 } label: {
-                                    Text(val == -1 ? "M" : "\(val!)")
-                                        .font(.system(size: 16, weight: .medium))
+                                    Text(val == -1 ? NSLocalizedString("watch_archery_miss", value: "M", comment: "Archery miss") : "\(val!)")
+                                        .font(.system(size: fontSize, weight: .medium))
                                         .foregroundColor(val == -1 ? Color.white : Color.black)
-                                        .frame(width: 44, height: 44)
+                                        .frame(width: btnSize, height: btnSize)
                                         .background(val == -1 ? Color.orange : Color.white.opacity(0.8))
-                                        .cornerRadius(8)
+                                        .cornerRadius(WatchLayout.isCompactScreen ? 6 : 8)
                                 }
                                 .buttonStyle(.plain)
                             }
                         }
                     }
                 }
-                Text(NSLocalizedString("cancel", comment: "Cancel"))
-                    .font(.system(size: 14))
-                    .foregroundColor(WatchTheme.secondaryText)
-                    .padding(.top, 16)
-                    .onTapGesture { showScorePanel = false }
+                Button {
+                    showScorePanel = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
+                        .foregroundColor(WatchTheme.secondaryText)
+                }
+                .buttonStyle(.plain)
+                .frame(width: WatchLayout.isCompactScreen ? 36 : 44, height: WatchLayout.isCompactScreen ? 36 : 44)
+                .padding(.top, WatchLayout.archeryScorePanelCloseTopPadding)
             }
-            .padding(20)
+            .padding(panelPadding)
             .background(Color.black.opacity(0.65))
-            .cornerRadius(18)
+            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -246,9 +255,9 @@ struct WatchArcheryScoreView: View {
                         .foregroundColor(Color(hex: 0x1E88E5))
                 }
             }
-            .padding(20)
+            .padding(WatchLayout.isCompactScreen ? 14 : 20)
             .background(Color.black.opacity(0.65))
-            .cornerRadius(18)
+            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -257,16 +266,16 @@ struct WatchArcheryScoreView: View {
         ZStack {
             Color.black.opacity(0.55)
                 .ignoresSafeArea()
-            VStack(spacing: 16) {
+            VStack(spacing: WatchLayout.isCompactScreen ? 10 : 16) {
                 VStack(spacing: 4) {
                     Text(isMatchFinished ? "🏁" : "⏸")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.system(size: WatchLayout.isCompactScreen ? 22 : 28, weight: .bold))
                     Text(isMatchFinished ? NSLocalizedString("watch_match_finished", comment: "Match finished") : NSLocalizedString("watch_stop", comment: "Stop"))
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.system(size: WatchLayout.isCompactScreen ? 16 : 20, weight: .bold))
                         .foregroundColor(.white)
                     if isMatchFinished {
                         Text("\(NSLocalizedString("watch_team_red", comment: "Red")) \(redSets) - \(blueSets) \(NSLocalizedString("watch_team_blue", comment: "Blue"))")
-                            .font(.system(size: 14))
+                            .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
                             .foregroundColor(WatchTheme.accent)
                     }
                 }
@@ -279,7 +288,7 @@ struct WatchArcheryScoreView: View {
                                 undoButtonVisible = false
                             } label: {
                                 Text(NSLocalizedString("menu_undo", comment: "Undo"))
-                                    .frame(width: 160, height: 44)
+                                    .frame(width: WatchLayout.archeryStoppedButtonWidth, height: WatchLayout.archeryStoppedButtonHeight)
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
@@ -291,7 +300,7 @@ struct WatchArcheryScoreView: View {
                                 resetMatch()
                             } label: {
                                 Text(NSLocalizedString("watch_play_again", value: "Play Again", comment: "Play again"))
-                                    .frame(width: 160, height: 44)
+                                    .frame(width: WatchLayout.archeryStoppedButtonWidth, height: WatchLayout.archeryStoppedButtonHeight)
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
@@ -306,7 +315,7 @@ struct WatchArcheryScoreView: View {
                             isStopped = false
                         } label: {
                             Text(NSLocalizedString("watch_continue", comment: "Continue"))
-                                .frame(width: 140, height: 44)
+                                .frame(width: WatchLayout.archeryStoppedButtonWidthSmall, height: WatchLayout.archeryStoppedButtonHeight)
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -319,7 +328,7 @@ struct WatchArcheryScoreView: View {
                         dismiss()
                     } label: {
                         Text(NSLocalizedString("exit", value: "Exit", comment: "Exit"))
-                            .frame(width: 140, height: 44)
+                            .frame(width: WatchLayout.archeryStoppedButtonWidthSmall, height: WatchLayout.archeryStoppedButtonHeight)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -328,46 +337,49 @@ struct WatchArcheryScoreView: View {
                     .cornerRadius(22)
                 }
             }
-            .padding(24)
+            .padding(WatchLayout.archeryStoppedOverlayPadding)
             .background(Color.black.opacity(0.65))
-            .cornerRadius(18)
+            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var menuOverlay: some View {
-        ZStack {
+        let menuPad = WatchLayout.archeryMenuPadding
+        let btnH = WatchLayout.archeryMenuButtonHeight
+        let iconSz = WatchLayout.archeryMenuIconSize
+        return ZStack {
             Color.black.opacity(0.35)
                 .ignoresSafeArea()
                 .onTapGesture {
                     showMenu = false
                 }
 
-            VStack(spacing: 10) {
+            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 10) {
                 Text(NSLocalizedString("game_archery", comment: "Archery"))
-                    .font(.system(size: 14))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
                     .foregroundColor(.white.opacity(0.9))
 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: WatchLayout.isCompactScreen ? 6 : 8) {
                     Button {
                         undoScore()
                         showMenu = false
                     } label: {
                         VStack(spacing: 4) {
                             Image(systemName: "arrow.uturn.backward")
-                                .font(.system(size: 22, weight: .medium))
+                                .font(.system(size: iconSz, weight: .medium))
                             Text(NSLocalizedString("menu_undo", comment: "Undo"))
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.system(size: WatchLayout.isCompactScreen ? 10 : 11, weight: .medium))
                                 .lineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 52)
+                        .frame(height: btnH)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .background(WatchTheme.card)
                     .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .cornerRadius(WatchLayout.isCompactScreen ? 10 : 12)
 
                     Button {
                         endMatchFromMenu()
@@ -375,19 +387,19 @@ struct WatchArcheryScoreView: View {
                     } label: {
                         VStack(spacing: 4) {
                             Image(systemName: "flag.checkered")
-                                .font(.system(size: 22, weight: .medium))
+                                .font(.system(size: iconSz, weight: .medium))
                             Text(NSLocalizedString("watch_end_match", value: "End", comment: "End match"))
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.system(size: WatchLayout.isCompactScreen ? 10 : 11, weight: .medium))
                                 .lineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 52)
+                        .frame(height: btnH)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .background(WatchTheme.dangerRed)
                     .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .cornerRadius(WatchLayout.isCompactScreen ? 10 : 12)
 
                     Button {
                         resetMatch()
@@ -395,19 +407,19 @@ struct WatchArcheryScoreView: View {
                     } label: {
                         VStack(spacing: 4) {
                             Image(systemName: "arrow.counterclockwise")
-                                .font(.system(size: 22, weight: .medium))
+                                .font(.system(size: iconSz, weight: .medium))
                             Text(NSLocalizedString("menu_reset", comment: "Reset"))
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.system(size: WatchLayout.isCompactScreen ? 10 : 11, weight: .medium))
                                 .lineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 52)
+                        .frame(height: btnH)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .background(WatchTheme.card)
                     .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .cornerRadius(WatchLayout.isCompactScreen ? 10 : 12)
 
                     Button {
                         toggleLayout()
@@ -415,35 +427,35 @@ struct WatchArcheryScoreView: View {
                     } label: {
                         VStack(spacing: 4) {
                             Image(systemName: scoreboardLayout == "vertical" ? "rectangle.split.2x1" : "rectangle.split.1x2")
-                                .font(.system(size: 22, weight: .medium))
+                                .font(.system(size: iconSz, weight: .medium))
                             Text(scoreboardLayout == "vertical" ? NSLocalizedString("watch_layout_horizontal", comment: "Horizontal") : NSLocalizedString("watch_layout_vertical", comment: "Vertical"))
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.system(size: WatchLayout.isCompactScreen ? 10 : 11, weight: .medium))
                                 .lineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 52)
+                        .frame(height: btnH)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .background(WatchTheme.card)
                     .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .cornerRadius(WatchLayout.isCompactScreen ? 10 : 12)
                 }
-                .padding(12)
+                .padding(menuPad)
 
                 Button {
                     showMenu = false
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 24))
+                        .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
                         .foregroundColor(WatchTheme.secondaryText)
                 }
                 .buttonStyle(.plain)
-                .frame(width: 44, height: 44)
+                .frame(width: WatchLayout.isCompactScreen ? 36 : 44, height: WatchLayout.isCompactScreen ? 36 : 44)
             }
-            .padding(12)
+            .padding(menuPad)
             .background(WatchTheme.overlayCard)
-            .cornerRadius(16)
+            .cornerRadius(WatchLayout.isCompactScreen ? 12 : 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

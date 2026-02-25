@@ -144,7 +144,7 @@ struct WatchFlipCoinView: View {
                 .rotationEffect(.degrees(180))
         } else {
             // Heads: lucky number
-            Text("666")
+            Text(NSLocalizedString("watch_coin_heads_text", value: "666", comment: "Coin heads label"))
                 .font(.system(size: 38, weight: .bold, design: .rounded))
                 .foregroundColor(Color(hex: 0x8B6914))
                 .shadow(color: Color(hex: 0x6B5210).opacity(0.3), radius: 1, x: 1, y: 1)

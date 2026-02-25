@@ -38,7 +38,7 @@ struct WatchPillRow: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
         .frame(maxWidth: .infinity)
         .frame(height: WatchMetrics.pillHeight)
         .background(WatchTheme.listItemBackground)
