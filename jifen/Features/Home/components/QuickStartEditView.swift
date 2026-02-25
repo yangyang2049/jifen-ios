@@ -3,6 +3,9 @@ import SwiftUI
 struct QuickStartEditView: View {
     @Environment(\.dismiss) var dismiss // For dismissing the sheet
 
+    /// 自定义主卡片可选项目（不含秒表，与「新比赛」弹窗一致）
+    private static let editDialogSports: [GameType] = availableSports.filter { $0 != .stopwatch }
+
     var isDarkTheme: Bool = true
     var initialPrimary: GameType = .basketball
     var initialSecondary: GameType = .badminton
@@ -17,10 +20,11 @@ struct QuickStartEditView: View {
         self.initialPrimary = initialPrimary
         self.initialSecondary = initialSecondary
         self.onSave = onSave
-        let fallbackPrimary = availableSports.first ?? .basketball
-        let fallbackSecondary = availableSports.dropFirst().first ?? fallbackPrimary
-        let resolvedPrimary = availableSports.contains(initialPrimary) ? initialPrimary : fallbackPrimary
-        let resolvedSecondary = availableSports.contains(initialSecondary) ? initialSecondary : fallbackSecondary
+        let list = Self.editDialogSports
+        let fallbackPrimary = list.first ?? .basketball
+        let fallbackSecondary = list.dropFirst().first ?? fallbackPrimary
+        let resolvedPrimary = list.contains(initialPrimary) ? initialPrimary : fallbackPrimary
+        let resolvedSecondary = list.contains(initialSecondary) ? initialSecondary : fallbackSecondary
         _selectedPrimary = State(initialValue: resolvedPrimary)
         _selectedSecondary = State(initialValue: resolvedSecondary)
     }
@@ -49,7 +53,7 @@ struct QuickStartEditView: View {
                             .padding(.vertical, Theme.sm)
 
                             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) {
-                                ForEach(availableSports, id: \.self) { sport in
+                                ForEach(Self.editDialogSports, id: \.self) { sport in
                                     SportOptionView(
                                         sport: sport,
                                         isSelected: selectedPrimary == sport,
@@ -82,7 +86,7 @@ struct QuickStartEditView: View {
                             .padding(.vertical, Theme.sm)
 
                             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Theme.sm) {
-                                ForEach(availableSports, id: \.self) { sport in
+                                ForEach(Self.editDialogSports, id: \.self) { sport in
                                     SportOptionView(
                                         sport: sport,
                                         isSelected: selectedSecondary == sport,

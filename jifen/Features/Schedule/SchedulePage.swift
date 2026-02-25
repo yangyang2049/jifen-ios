@@ -37,6 +37,8 @@ struct SchedulePage: View {
                 }
             }
         }
+        .frame(maxWidth: scheduleMaxContentWidth)
+        .frame(maxWidth: .infinity)
         .scrollIndicators(.hidden)
         .listStyle(.plain)
         .background(Color.black)
@@ -46,28 +48,32 @@ struct SchedulePage: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .preferredColorScheme(.dark)
         .safeAreaInset(edge: .bottom) {
-            Button {
-                showCreatePage = true
-            } label: {
-                Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Theme.accentColor)
-                    .clipShape(Capsule())
+            scheduleContentWidth {
+                Button {
+                    showCreatePage = true
+                } label: {
+                    Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(Theme.accentColor)
+                        .clipShape(Capsule())
+                }
+                .padding(.horizontal, Theme.lg)
             }
-            .padding(.horizontal, Theme.lg)
             .padding(.top, Theme.sm)
             .padding(.bottom, Theme.sm)
             .background(Color.black.opacity(0.95))
         }
         .safeAreaInset(edge: .top) {
-            statusPicker
-                .padding(.horizontal, Theme.lg)
-                .padding(.top, Theme.sm)
-                .padding(.bottom, Theme.sm)
-                .background(Color.black.opacity(0.95))
+            scheduleContentWidth {
+                statusPicker
+                    .padding(.horizontal, Theme.lg)
+            }
+            .padding(.top, Theme.sm)
+            .padding(.bottom, Theme.sm)
+            .background(Color.black.opacity(0.95))
         }
         .onAppear(perform: reload)
         .sheet(isPresented: $showCreatePage) {
@@ -88,6 +94,15 @@ struct SchedulePage: View {
                 }
             )
         }
+    }
+
+    private let scheduleMaxContentWidth: CGFloat = 600
+
+    @ViewBuilder
+    private func scheduleContentWidth<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .frame(maxWidth: scheduleMaxContentWidth)
+            .frame(maxWidth: .infinity)
     }
 
     private var filteredBookings: [LocalBooking] {

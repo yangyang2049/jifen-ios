@@ -23,7 +23,8 @@ struct PingPongScoreboardView: View {
     @State private var restMessage: String = ""
     @State private var restRemaining: Int = 0
     @State private var restTimer: Timer? = nil
-    
+    @State private var isEditMode: Bool = false
+
     var body: some View {
         ZStack {
             ScoreboardTemplate(
@@ -33,7 +34,8 @@ struct PingPongScoreboardView: View {
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .player,
-                    isDoublesModeProvider: { !viewModel.isSingles }
+                    isDoublesModeProvider: { !viewModel.isSingles },
+                    onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
                     if let onNavigationBack = onNavigationBack {
@@ -44,7 +46,7 @@ struct PingPongScoreboardView: View {
                 }
             )
 
-            if !viewModel.gameFinished {
+            if !viewModel.gameFinished, !isEditMode {
                 serveIndicator(isLeftServing: viewModel.isLeftServing())
             }
             

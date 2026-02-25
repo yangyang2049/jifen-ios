@@ -21,16 +21,19 @@ struct RestCountdownOverlay: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
-                // Continue button
+                // 右上角：撤销（小按钮）
                 HStack {
                     Spacer()
-                    Button(action: { onClose?() }) {
-                        Text(NSLocalizedString("resume", value: "继续", comment: "Continue"))
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.9))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Capsule().fill(.ultraThinMaterial))
+                    if onUndo != nil {
+                        Button(action: { onUndo?() }) {
+                            Text(NSLocalizedString("menu_undo", comment: "Undo"))
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.9))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Capsule().fill(.ultraThinMaterial))
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 8)
@@ -44,17 +47,16 @@ struct RestCountdownOverlay: View {
                     .font(.system(size: 48, weight: .bold, design: .monospaced))
                     .foregroundColor(Color(hex: "39FF14"))
 
-                if let onUndo = onUndo {
-                    Button(action: onUndo) {
-                        Text(NSLocalizedString("menu_undo", comment: "Undo"))
-                            .frame(width: 160, height: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .background(Color.white.opacity(0.2))
-                    .foregroundColor(.white)
-                    .cornerRadius(22)
+                // 底部：继续（主按钮）
+                Button(action: { onClose?() }) {
+                    Text(NSLocalizedString("resume", value: "继续", comment: "Continue"))
+                        .frame(width: 160, height: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .background(Color.white.opacity(0.2))
+                .foregroundColor(.white)
+                .cornerRadius(22)
             }
             .padding(.horizontal, 32)
             .padding(.vertical, 24)
@@ -73,5 +75,5 @@ struct RestCountdownOverlay: View {
 }
 
 #Preview {
-    RestCountdownOverlay(message: "局间休息", remainingSeconds: 90)
+    RestCountdownOverlay(message: String(format: NSLocalizedString("rest_title_set_end", value: "第%d局结束", comment: ""), 1), remainingSeconds: 90, onUndo: {})
 }

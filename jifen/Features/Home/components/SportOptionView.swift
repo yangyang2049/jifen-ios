@@ -10,24 +10,29 @@ struct SportOptionView: View {
         Button(action: {
             onClickOption?()
         }) {
-            VStack(spacing: Theme.sm) { // Column({ space: 8 })
-                Text(getGameIcon(type: sport)) // getGameIcon(this.sport)
-                    .font(.system(size: 24))
-                
-                Text(getGameName(type: sport)) // getGameName(this.sport)
-                    .font(.system(size: 11, weight: .medium)) // fontSize(11), fontWeight(FontWeight.Medium)
-                    .foregroundColor(isDarkTheme ? Theme.textPrimary : .black) // fontColor(this.isDarkTheme ? Colors.textPrimary : Colors.black)
+            GeometryReader { geo in
+                let side = min(geo.size.width, geo.size.height)
+                let iconSize = max(24, min(56, side * 0.4))
+                let fontSize = max(11, min(18, side * 0.12))
+                VStack(spacing: Theme.sm) {
+                    Text(getGameIcon(type: sport))
+                        .font(.system(size: iconSize))
+                    Text(getGameName(type: sport))
+                        .font(.system(size: fontSize, weight: .medium))
+                        .foregroundColor(isDarkTheme ? Theme.textPrimary : .black)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // width('100%'), height('100%')
-            // .justifyContent(FlexAlign.Center) .alignItems(HorizontalAlign.Center)
-            .aspectRatio(1, contentMode: .fit) // aspectRatio(1)
-            .background(isDarkTheme ? Theme.homeOverlayBorder : Theme.homeBackgroundLight) // backgroundColor
-            .cornerRadius(16) // borderRadius(16)
-            .overlay( // border
+            .aspectRatio(1, contentMode: .fit)
+            .background(isDarkTheme ? Theme.homeOverlayBorder : Theme.homeBackgroundLight)
+            .cornerRadius(16)
+            .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(isSelected ? Theme.homeEditButtonGreen : .clear, lineWidth: 2)
             )
         }
-        .buttonStyle(CardButtonStyle()) // Using custom button style for animations
+        .buttonStyle(CardButtonStyle())
     }
 }

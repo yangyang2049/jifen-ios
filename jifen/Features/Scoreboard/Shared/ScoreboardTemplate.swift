@@ -70,14 +70,7 @@ struct ScoreboardTemplate: View {
                                 }
                             },
                             onSetsAdjust: { (isLeft, delta) in
-                                #if DEBUG
-                                print("[ScoreboardTemplate] onSetsAdjust isLeft=\(isLeft) delta=\(delta) viewModel=\(type(of: config.viewModel))")
-                                #endif
-                                if let archeryVM = config.viewModel as? ArcheryViewModel {
-                                    archeryVM.adjustSets(isLeft: isLeft, delta: delta)
-                                } else {
-                                    config.viewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                }
+                                applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
                             onGamesAdjust: { (isLeft, delta) in
                                 if let tennisViewModel = config.viewModel as? TennisViewModel {
@@ -161,14 +154,7 @@ struct ScoreboardTemplate: View {
                                 }
                             },
                             onSetsAdjust: { (isLeft, delta) in
-                                #if DEBUG
-                                print("[ScoreboardTemplate] onSetsAdjust isLeft=\(isLeft) delta=\(delta) viewModel=\(type(of: config.viewModel))")
-                                #endif
-                                if let archeryVM = config.viewModel as? ArcheryViewModel {
-                                    archeryVM.adjustSets(isLeft: isLeft, delta: delta)
-                                } else {
-                                    config.viewModel.adjustSets(isLeft: isLeft, delta: delta)
-                                }
+                                applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
                             onGamesAdjust: { (isLeft, delta) in
                                 if let tennisViewModel = config.viewModel as? TennisViewModel {
@@ -374,6 +360,12 @@ struct ScoreboardTemplate: View {
                     }
             )
         }
+        .onChange(of: isEditMode) { _, newValue in
+            config.onEditModeChange?(newValue)
+        }
+        .onAppear {
+            config.onEditModeChange?(isEditMode)
+        }
         .preferredColorScheme(.dark)
         // Screenshot dialog removed - iOS auto-saves after permission is granted
     }
@@ -553,8 +545,25 @@ struct ScoreboardTemplate: View {
         }
         return "\(team.score)"
     }
-    
 
+    /// 编辑模式下局分 ±：显式按具体 ViewModel 类型调用 adjustSets，避免协议默认实现被误派发导致局分不改（与射箭修复一致）。
+    private func applySetsAdjust(viewModel: ScoreViewModelProtocol, isLeft: Bool, delta: Int) {
+        if let vm = viewModel as? ArcheryViewModel {
+            vm.adjustSets(isLeft: isLeft, delta: delta)
+        } else if let vm = viewModel as? PingPongViewModel {
+            vm.adjustSets(isLeft: isLeft, delta: delta)
+        } else if let vm = viewModel as? BadmintonViewModel {
+            vm.adjustSets(isLeft: isLeft, delta: delta)
+        } else if let vm = viewModel as? TennisViewModel {
+            vm.adjustSets(isLeft: isLeft, delta: delta)
+        } else if let vm = viewModel as? PickleballViewModel {
+            vm.adjustSets(isLeft: isLeft, delta: delta)
+        } else if let vm = viewModel as? BoxingViewModel {
+            vm.adjustSets(isLeft: isLeft, delta: delta)
+        } else {
+            viewModel.adjustSets(isLeft: isLeft, delta: delta)
+        }
+    }
 }
 
 // MARK: - Orientation Lock Extension
@@ -621,6 +630,15 @@ struct TeamSection: View {
     @FocusState private var isNameFocused: Bool
     @State private var showCommonNameSelector = false
     private let commonNamesManager = CommonNamesManager.shared
+
+    private var isTablet: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+    private var nameFontSize: CGFloat { isTablet ? 44 : 32 }
+    private var doublesNameFontSize: CGFloat { isTablet ? 28 : 22 }
+    private var nameTopPadding: CGFloat { isTablet ? 36 : 28 }
+    /// 大分数（主比分）在大屏上放大，更充分利用空间
+    private var effectiveScoreFontSize: CGFloat { isTablet ? min(scoreFontSize * 1.5, 200) : scoreFontSize }
+    /// 局分/盘分数字在大屏上放大
+    private var setsGamesFontSize: CGFloat { isTablet ? 80 : 48 }
     
     var body: some View {
         ZStack {
@@ -652,7 +670,7 @@ struct TeamSection: View {
                                 }
                             }
                         ))
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: nameFontSize, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .textFieldStyle(.plain)
@@ -671,7 +689,7 @@ struct TeamSection: View {
                             showCommonNameSelector = true
                         } label: {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.system(size: isTablet ? 22 : 18, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.9))
                                 .frame(width: 30, height: 30)
                         }
@@ -683,7 +701,7 @@ struct TeamSection: View {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.white.opacity(0.1))
                     )
-                    .padding(.top, 20)
+                    .padding(.top, nameTopPadding)
                     .onChange(of: isEditMode) { _, newValue in
                         if !newValue {
                             confirmAndPersistName()
@@ -696,23 +714,23 @@ struct TeamSection: View {
                     if let doublesNames = doublesDisplayNames {
                         VStack(spacing: 2) {
                             Text(doublesNames.0)
-                                .font(.system(size: 22, weight: .bold))
+                                .font(.system(size: doublesNameFontSize, weight: .bold))
                                 .foregroundColor(.white)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                             Text(doublesNames.1)
-                                .font(.system(size: 22, weight: .bold))
+                                .font(.system(size: doublesNameFontSize, weight: .bold))
                                 .foregroundColor(.white)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                         }
-                        .padding(.top, 18)
+                        .padding(.top, nameTopPadding)
                         .padding(.horizontal, 8)
                     } else {
                         Text(team.name)
-                            .font(.system(size: 32, weight: .bold))
+                            .font(.system(size: nameFontSize, weight: .bold))
                             .foregroundColor(.white)
-                            .padding(.top, 20)
+                            .padding(.top, nameTopPadding)
                     }
                 }
                 
@@ -738,7 +756,8 @@ struct TeamSection: View {
                         .disabled(team.score <= 0)
                         
                         Text(scoreText)
-                            .font(getFont(family: fontFamily, size: scoreFontSize))
+                            .font(getFont(family: fontFamily, size: effectiveScoreFontSize))
+                            .monospacedDigit()
                             .foregroundColor(.white)
                         
                         Button(action: {
@@ -756,7 +775,8 @@ struct TeamSection: View {
                     }
                 } else {
                         Text(scoreText)
-                            .font(getFont(family: fontFamily, size: scoreFontSize))
+                            .font(getFont(family: fontFamily, size: effectiveScoreFontSize))
+                            .monospacedDigit()
                             .foregroundColor(.white)
                 }
                 
@@ -781,7 +801,8 @@ struct TeamSection: View {
                             .disabled(sets <= 0)
                             
                             Text("\(sets)")
-                                .font(getFont(family: fontFamily, size: 48))
+                                .font(getFont(family: fontFamily, size: setsGamesFontSize))
+                                .monospacedDigit()
                                 .foregroundColor(.white.opacity(0.9))
                             
                             Button(action: {
@@ -799,7 +820,8 @@ struct TeamSection: View {
                         }
                     } else {
                         Text("\(sets)")
-                            .font(getFont(family: fontFamily, size: 48))
+                            .font(getFont(family: fontFamily, size: setsGamesFontSize))
+                            .monospacedDigit()
                             .foregroundColor(.white.opacity(0.9))
                     }
                 }
@@ -825,7 +847,8 @@ struct TeamSection: View {
                             .disabled(games <= 0)
 
                             Text("\(games)")
-                                .font(getFont(family: fontFamily, size: 48))
+                                .font(getFont(family: fontFamily, size: setsGamesFontSize))
+                                .monospacedDigit()
                                 .foregroundColor(.white.opacity(0.9))
 
                             Button(action: {
@@ -843,7 +866,8 @@ struct TeamSection: View {
                         }
                     } else {
                         Text("\(games)")
-                            .font(getFont(family: fontFamily, size: 48))
+                            .font(getFont(family: fontFamily, size: setsGamesFontSize))
+                            .monospacedDigit()
                             .foregroundColor(.white.opacity(0.9))
                     }
                 }

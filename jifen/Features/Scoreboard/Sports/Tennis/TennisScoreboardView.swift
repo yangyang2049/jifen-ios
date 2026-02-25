@@ -28,7 +28,8 @@ struct TennisScoreboardView: View {
     @State private var showToast: Bool = false
     
     @State private var toastMessage: String = ""
-    
+    @State private var isEditMode: Bool = false
+
     var body: some View {
         ZStack {
             ScoreboardTemplate(
@@ -41,7 +42,8 @@ struct TennisScoreboardView: View {
                     isDoublesModeProvider: { !viewModel.isSingles },
                     scoreTextProvider: { isLeft, _ in
                         viewModel.scoreDisplay(isLeft: isLeft)
-                    }
+                    },
+                    onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
                     if let onNavigationBack = onNavigationBack {
@@ -52,7 +54,7 @@ struct TennisScoreboardView: View {
                 }
             )
 
-            if !viewModel.gameFinished {
+            if !viewModel.gameFinished, !isEditMode {
                 serveIndicator(isLeftServing: viewModel.isLeftServing())
             }
             

@@ -249,6 +249,8 @@
 /* Rest Countdown */
 "set_break" = "局间休息";
 "halftime_break" = "中场休息";
+"rest_title_set_end" = "第%d局结束";
+"rest_title_mid_game" = "第%d局 · 局中间隙";
 
 /* Scoreboard Tab */
 "scoreboard_title" = "计分";

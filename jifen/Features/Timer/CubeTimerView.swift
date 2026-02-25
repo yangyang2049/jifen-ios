@@ -31,6 +31,8 @@ struct CubeTimerView: View {
 
     @State private var exitClickTime: Date?
     @State private var toastMessage: String?
+    /// 一次性操作提示：进入页面时弹一次，点「确定」后不再显示，避免常驻文案盖住手掌
+    @State private var showInitialHintDialog = true
 
     private let dialogAutoCloseTime: TimeInterval = 5.0
 
@@ -81,22 +83,6 @@ struct CubeTimerView: View {
                     Spacer(minLength: 0)
                 }
 
-                if !isRunning {
-                    VStack {
-                        Spacer()
-                        Text(
-                            isWaitingToStart && canStart
-                            ? NSLocalizedString("cube_timer_release_to_start", value: "松开双手开始计时", comment: "")
-                            : NSLocalizedString("cube_timer_place_hands", value: "双手放在屏幕上准备", comment: "")
-                        )
-                        .font(.system(size: 18))
-                        .foregroundColor(isWaitingToStart && canStart ? Color(hex: "00FF00") : .white.opacity(0.6))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
-                        Spacer()
-                    }
-                }
-
                 if !hideButtons {
                     bottomButtons
                 }
@@ -125,6 +111,37 @@ struct CubeTimerView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             .padding(.bottom, 120)
                     }
+                }
+
+                if showInitialHintDialog {
+                    Color.black.opacity(0.5)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            showInitialHintDialog = false
+                        }
+                    VStack(spacing: 16) {
+                        Text(NSLocalizedString("cube_timer_place_hands", value: "双手放在屏幕上准备", comment: ""))
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                        Text(NSLocalizedString("cube_timer_release_to_start", value: "松开双手开始计时", comment: ""))
+                            .font(.system(size: 15))
+                            .foregroundColor(.white.opacity(0.85))
+                            .multilineTextAlignment(.center)
+                        Button(NSLocalizedString("confirm", comment: "")) {
+                            showInitialHintDialog = false
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 160, height: 44)
+                        .background(Theme.primary)
+                        .clipShape(Capsule())
+                        .padding(.top, 8)
+                    }
+                    .padding(24)
+                    .background(Color.black.opacity(0.75))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .padding(.horizontal, 40)
                 }
 
                 if showSaveDialog {
@@ -225,34 +242,31 @@ struct CubeTimerView: View {
     private var bottomButtons: some View {
         VStack {
             Spacer()
-
             HStack(spacing: 0) {
                 floatingButton(icon: "chevron.left") {
                     handleExitClick()
                 }
-
                 Spacer()
-
                 floatingButton(icon: "camera") {
                     prepareScreenshot()
                 }
                 .padding(.trailing, 12)
-
                 floatingButton(icon: "arrow.counterclockwise") {
                     resetTimer()
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
+            .padding(.horizontal, ScoreboardConstants.buttonPadding)
+            .padding(.bottom, ScoreboardConstants.buttonPadding)
         }
+        .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing])
     }
 
     private func floatingButton(icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: ScoreboardConstants.buttonIconSize, weight: .semibold))
                 .foregroundColor(.white)
-                .frame(width: 48, height: 48)
+                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                 .background(Color.black.opacity(0.25))
                 .clipShape(Circle())
         }

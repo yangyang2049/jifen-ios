@@ -121,7 +121,8 @@ enum GameCatalog {
     static let scoreboardGameTypes: [GameType] = scoreboardItems.map(\.gameType)
     static let timerSelectableGameTypes: [GameType] = timerAllItems.compactMap(\.mappedGameType)
     static let quickStartSelectableGameTypes: [GameType] = unique(scoreboardGameTypes + timerSelectableGameTypes)
-    static let newGameDialogGameTypes: [GameType] = quickStartSelectableGameTypes
+    /// 新比赛弹窗展示的项目（不含秒表，秒表仅在计时/工具中使用）
+    static let newGameDialogGameTypes: [GameType] = quickStartSelectableGameTypes.filter { $0 != .stopwatch }
 
     static func timerDestination(for gameType: GameType) -> TimerDestination? {
         timerAllItems.first { $0.mappedGameType == gameType }

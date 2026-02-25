@@ -54,17 +54,17 @@ struct ToolSectionView: View {
     let onToolClick: (ToolItem) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.md) {
             Text(title)
                 .font(.headline)
                 .foregroundColor(Theme.textPrimary.opacity(0.9))
                 .padding(.horizontal, 4)
             
             LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: Theme.spacing),
-                GridItem(.flexible(), spacing: Theme.spacing),
-                GridItem(.flexible(), spacing: Theme.spacing)
-            ], spacing: Theme.spacing) {
+                GridItem(.flexible(), spacing: Theme.md),
+                GridItem(.flexible(), spacing: Theme.md),
+                GridItem(.flexible(), spacing: Theme.md)
+            ], spacing: Theme.md) {
                 ForEach(tools, id: \.self) { tool in
                     ToolCardView(tool: tool) {
                         onToolClick(tool)

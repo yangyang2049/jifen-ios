@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Removed
+- **新比赛弹窗中移除秒表**：GameCatalog.newGameDialogGameTypes 过滤掉 .stopwatch，新比赛弹窗不再展示秒表；秒表仍在计时 Tab 与工具中使用。
+- **新比赛对话框计分/计时双 Tab（对齐鸿蒙）**：
+- **新比赛用 dialog 呈现（对齐快速开始设置）**：新比赛不再使用可拖拽的 medium/large 多档位 bottom sheet，改为与快速开始设置一致的 .presentationDetents([.large]) + .presentationDragIndicator(.visible)，以整页 dialog 形式展示。NewGameDialogView 顶部增加分段选择「计分」「计时」；计分 Tab 展示全部计分项目（scoreboardGameTypes），计时 Tab 展示可选计时项目（不含秒表）；沿用 scoreboard_title、tab_timer 本地化。
+- **自定义主卡片对话框移除秒表**：QuickStartEditView 使用 editDialogSports（availableSports 过滤 .stopwatch），主卡片可选列表中不再出现秒表项。
 - **设置弹窗最近记录**：SportsSetupDialogView 中移除「最近记录」区块（横向滚动的最近对局卡片及「点击快速使用」提示）；移除相关状态、loadRecentRecords/loadFromRecord/formatTime/formatSetsInfo/buildRecentGameCard 及 ScoreboardRecordManager 依赖；HomeModels 中移除仅用于该功能的 RecentGameDisplay 结构体。
 
 ### Added
@@ -12,12 +16,26 @@
 - **Watch 工具：计数器**：工具 Tab 新增「计数器」（WatchCounterView）。点击屏幕 +1、底部「重置」按钮二次确认清零；移除底部「计数器」副标题，保留导航栏标题。Watch 本地化 game_counter、press_again_to_reset。
 
 ### Changed
+- **休息倒计时弹窗**：RestCountdownOverlay 标题改为由调用方传入（羽毛球局间显示「第N局结束」、局中显示「第N局 · 局中间隙」）；右上角小按钮改为「撤销」、底部主按钮改为「继续」。新增 rest_title_set_end、rest_title_mid_game 本地化。
+- **计分项目图标统一**：GameType.icon 中简易计分、多人计分改为与计分 Tab（GameCatalog.scoreboardItems）一致：简易计分 🔢、多人计分 👥；新比赛、设置弹窗、最近记录、记录详情等使用 gameType.icon 处与计分 Tab 图标统一。
+- **计分板数字等宽与外挂字体**：比分/局分/盘分加 .monospacedDigit()；FontRegistrar 注释说明 iOS 外挂字体（UIAppFonts + fontFamily 传 PostScript 名可对齐鸿蒙数字体）。
+- **工具页横屏**：ToolSectionView 标题与网格、网格行/列间距由 12 改为 Theme.md（16pt），两行工具卡片不再挤在一起。
+- **首页工具区横屏**：ProToolsSectionView 宽屏网格按可用宽度动态列数 6～8（columnCount：单格约 84pt+spacing），当前常见宽度多为 7 列，避免过疏；行/列间距 Theme.md。
+- **首页横屏两栏对齐**：宽屏下「快速开始」与「最近记录」改为同一行绘制（高度 44pt + 下边距），两栏标题顶部对齐；QuickStartGridView 增加 showSectionTitle，宽屏时仅渲染网格，标题由 HomeTab 统一排布。
+- **计分板名字**：TeamSection 名字区上边距与字号按设备区分：手机 nameTopPadding 28、nameFontSize 32；平板 36/44，双打名字平板 28。名字不再贴顶、平板上更大易读。
+- **计分板大分/局分字号**：大分数在平板上 1.5×、上限 200pt；局分/盘分在平板 80pt、手机 48pt，更充分利用大屏空间。
+- **魔方计时**：操作提示改为进入页面时一次性 dialog（双手准备 / 松开开始 + 确定），不再常驻盖住手掌图案；底部退出/拍照/重置按钮对齐计分板，使用 ScoreboardConstants、.ignoresSafeArea(edges: [.bottom, .leading, .trailing]) 贴边。
 - **放弃未完成比赛弹窗**：确定按钮由「确认」改为「放弃」，避免语义模糊；新增 unfinished_discard_button 本地化（放弃 / Discard）。
 - **比赛详情页内容限制宽度**：ScoreboardRecordDetailPage 内 ScrollView 内容区增加 maxWidth: 600 并居中，宽屏下内容不铺满整屏（参考鸿蒙/项目内 AACalculatorView）。
-- **预约新球局时长**：时长行改为左侧显示「时长」、右侧分钟数包裹在 [−] 与 [+] 按钮中（步长 15，30～360 分钟），替代原 Stepper。
+- **我的球局页面限制内容宽度**：SchedulePage 列表及顶部状态选择器、底部「预约新球局」按钮均限制最大宽度 600pt 并居中，宽屏下与比赛详情页一致。
+- **预约新球局时长**：时长行改为左侧显示「时长」、右侧分钟数包裹在 [−] 与 [+] 按钮中（步长 15，30～360 分钟），替代原 Stepper；−/+ 与中间「90分钟」保留间距（HStack spacing: Theme.sm），按钮图标改为白色。
 - **射箭计分板层级**：通过梳理 ZStack 层级实现「箭头只比左右半区高一层、按钮和菜单在最上层」。ScoreboardTemplate 使用 contentOverlayProvider: ((Bool) -> AnyView)?，传入 isEditMode，在编辑/底部按钮与 MenuDialog 之间渲染；射箭将发球箭头与左右半区点击层通过 provider 注入。
 - **射箭编辑模式不触发加分面板**：射箭与羽毛球等共用同一模板，仅计分逻辑单独处理。TemplateConfig 的 contentOverlayProvider 传入 isEditMode；ArcheryMiddleLayer 在 isEditMode 为 true 时不显示箭头与左右半区点击层，编辑模式仅走模板的编辑能力，不再误触加分面板。
+- **自定义主卡片项图标与文字自适应**：SportOptionView 用 GeometryReader 按单元格尺寸计算图标与文字大小（图标 24～56pt、文字 11～18pt 随格子缩放），大屏/平板下每项图标和文字自动变大。
+- **常用名称过滤预制名称**：CommonNamesManager 增加预制名称集合（红队/蓝队、主队/客队、选手1/2、红方/蓝方、左队/右队及英文对应），recordUsage 不写入、addName/addNamesBatch 不接纳，与鸿蒙一致。
+- **编辑模式下隐藏发球指示器**：TemplateConfig 增加 onEditModeChange 回调，模板在 isEditMode 变化时通知父视图；羽毛球/乒乓球/网球/排球计分板在编辑模式下不再显示 serve indicator（第 N 局发球方三角）。
 - **射箭编辑模式局分 ± 生效**：ScoreViewModelProtocol 增加 adjustSets(isLeft:delta:)，默认空实现。模板 onSetsAdjust 内对 ArcheryViewModel 做显式 as? 转换后调用 adjustSets，避免协议默认实现被误派发导致局分不变；其余类型仍走 config.viewModel.adjustSets。
+- **编辑模式局分 ± 统一派发**：模板新增 applySetsAdjust，对 Archery/PingPong/Badminton/Tennis/Pickleball/Boxing 等实现 adjustSets 的 ViewModel 均做显式 as? 后调用，修复乒乓球、羽毛球等编辑模式下局分改不动的问题（与射箭同因：协议默认实现被误派发）。
 - **对话框标题行统一**：所有带标题 + X 关闭按钮的对话框改为「标题整体居中、X 在右侧」：使用 ZStack 居中标题，HStack { Spacer(); Button(X) } 叠在右侧。涉及 MenuDialog（操作）、射箭加分面板、棋类计时设置（DualTimerSetupView）、拳击回合结束弹窗（BoxingRoundDialog）。
 - **首页宽屏两栏布局**：参考鸿蒙 HomeTab.ets，当屏幕宽度 ≥ 768pt 时采用两栏布局：左侧为快速开始、我的球局、工具区（约 2/3 宽），右侧为最近记录（约 1/3 宽，最小 240pt）；窄屏保持单列自上而下。
 - **射箭计分板**：移除底部「记箭」按钮，改为点击左侧红方区域或右侧蓝方区域直接弹出对应侧的加分面板（记箭选分），点击哪侧即为该侧记一箭。

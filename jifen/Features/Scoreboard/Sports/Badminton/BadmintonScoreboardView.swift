@@ -27,8 +27,8 @@ struct BadmintonScoreboardView: View {
     
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
-    
-    
+    @State private var isEditMode: Bool = false
+
     var body: some View {
         ZStack {
             ScoreboardTemplate(
@@ -38,7 +38,8 @@ struct BadmintonScoreboardView: View {
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .player,
-                    isDoublesModeProvider: { !viewModel.isSingles }
+                    isDoublesModeProvider: { !viewModel.isSingles },
+                    onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
                     if let onNavigationBack = onNavigationBack {
@@ -49,7 +50,7 @@ struct BadmintonScoreboardView: View {
                 }
             )
 
-            if !viewModel.gameFinished {
+            if !viewModel.gameFinished, !isEditMode {
                 serveIndicator(isLeftServing: viewModel.isLeftServing)
             }
             
@@ -193,7 +194,7 @@ struct BadmintonScoreboardView: View {
                 return
             }
             
-            startRestCountdown(seconds: 120, message: NSLocalizedString("set_break", comment: "")) {
+            startRestCountdown(seconds: 120, message: String(format: NSLocalizedString("rest_title_set_end", value: "第%d局结束", comment: ""), data.setNumber)) {
                 if data.shouldChangeSides {
                     handleSideChange()
                 }
@@ -211,7 +212,7 @@ struct BadmintonScoreboardView: View {
     }
     
     private func handleMidGameRest() {
-        startRestCountdown(seconds: 60, message: NSLocalizedString("halftime_break", comment: "")) {}
+        startRestCountdown(seconds: 60, message: String(format: NSLocalizedString("rest_title_mid_game", value: "第%d局 · 局中间隙", comment: ""), viewModel.currentSet)) {}
     }
     
     private func handleSideChange() {

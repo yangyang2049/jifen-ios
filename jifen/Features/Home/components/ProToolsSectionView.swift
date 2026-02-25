@@ -63,6 +63,14 @@ struct ProToolsSectionView: View {
         _tools = State(initialValue: Self.initialTools())
     }
 
+    /// 按可用宽度计算列数 6～8，单格约 84pt + spacing，避免过疏或过密
+    private static func columnCount(forWidth width: CGFloat) -> Int {
+        let spacing = Theme.md
+        let minCellWidth: CGFloat = 84
+        let fit = Int((width + spacing) / (minCellWidth + spacing))
+        return min(8, max(6, fit))
+    }
+
     private static func initialTools() -> [ToolDef] {
         return [
             ToolDef(id: "flip_coin", name: NSLocalizedString("tool_flip_coin", comment: "Flip Coin"), icon: "🪙", color: Theme.toolGray),
@@ -98,21 +106,24 @@ struct ProToolsSectionView: View {
             .padding(.bottom, Theme.md)
 
             if isWide {
-                // Desktop/Tablet: Grid - 6 columns in one row
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 0) {
-                    ForEach(tools) { tool in
-                        ToolItemView(
-                            name: tool.name,
-                            icon: tool.icon,
-                            iconColor: tool.color,
-                            isDarkTheme: isDarkTheme,
-                            onClickCallback: {
-                                onToolClick?(tool.id)
-                            }
-                        )
+                // Desktop/Tablet: 按宽度算列数 6～8，避免过疏或过密
+                GeometryReader { geo in
+                    let columns = Self.columnCount(forWidth: geo.size.width)
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Theme.md), count: columns), spacing: Theme.md) {
+                        ForEach(tools) { tool in
+                            ToolItemView(
+                                name: tool.name,
+                                icon: tool.icon,
+                                iconColor: tool.color,
+                                isDarkTheme: isDarkTheme,
+                                onClickCallback: {
+                                    onToolClick?(tool.id)
+                                }
+                            )
+                        }
                     }
                 }
-                .padding(.leading, 0) // padding({ left: 0 })
+                .frame(minHeight: 200)
             } else {
                 // Mobile: Horizontal Scroll List
                 ScrollView(.horizontal, showsIndicators: false) {

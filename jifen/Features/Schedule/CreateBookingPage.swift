@@ -41,7 +41,7 @@ struct CreateBookingPage: View {
                     HStack {
                         Text(NSLocalizedString("schedule_duration", value: "时长", comment: ""))
                         Spacer()
-                        HStack(spacing: 0) {
+                        HStack(spacing: Theme.sm) {
                             Button {
                                 if durationMinutes > 30 {
                                     durationMinutes = max(30, durationMinutes - 15)
@@ -49,7 +49,7 @@ struct CreateBookingPage: View {
                             } label: {
                                 Image(systemName: "minus.circle.fill")
                                     .font(.system(size: 28))
-                                    .foregroundStyle(durationMinutes > 30 ? Theme.primary : Color.gray.opacity(0.5))
+                                    .foregroundStyle(durationMinutes > 30 ? Color.white : Color.gray.opacity(0.5))
                             }
                             .buttonStyle(.plain)
                             .disabled(durationMinutes <= 30)
@@ -57,7 +57,6 @@ struct CreateBookingPage: View {
                             Text(String(format: NSLocalizedString("schedule_duration_short", value: "%d分钟", comment: ""), durationMinutes))
                                 .font(.body)
                                 .foregroundColor(Theme.textPrimary)
-                                .frame(minWidth: 56)
                                 .multilineTextAlignment(.center)
 
                             Button {
@@ -67,7 +66,7 @@ struct CreateBookingPage: View {
                             } label: {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 28))
-                                    .foregroundStyle(durationMinutes < 360 ? Theme.primary : Color.gray.opacity(0.5))
+                                    .foregroundStyle(durationMinutes < 360 ? Color.white : Color.gray.opacity(0.5))
                             }
                             .buttonStyle(.plain)
                             .disabled(durationMinutes >= 360)

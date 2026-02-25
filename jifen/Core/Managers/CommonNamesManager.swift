@@ -16,12 +16,26 @@ class CommonNamesManager {
     // Limits the number of common names stored
     private let maxNames = 50
 
+    /// 预制名称（红队/蓝队、选手1/2、主队/客队、红方/蓝方、左队/右队等），不写入常用名称，与鸿蒙一致。
+    private static let presetNameKeys: Set<String> = {
+        let list = [
+            "红队", "蓝队", "主队", "客队", "选手1", "选手2", "红方", "蓝方", "左队", "右队",
+            "red team", "blue team", "home", "away", "player 1", "player 2"
+        ]
+        return Set(list.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) })
+    }()
+
     private init() {}
+
+    private func isPresetName(_ normalized: String) -> Bool {
+        Self.presetNameKeys.contains(normalized.lowercased())
+    }
 
     // Record usage of a name, moving it to the top of the list.
     func recordUsage(_ name: String, _ type: NameType) async {
         let normalized = normalizeName(name)
         guard !normalized.isEmpty else { return }
+        if isPresetName(normalized) { return }
 
         var names = getNames(type: type)
         let key = normalizedKey(normalized)
@@ -48,6 +62,9 @@ class CommonNamesManager {
         let normalized = normalizeName(name)
         guard !normalized.isEmpty else {
             throw CommonNamesError.emptyName
+        }
+        if isPresetName(normalized) {
+            throw CommonNamesError.duplicateName
         }
 
         var names = getNames(type: type)
@@ -100,6 +117,10 @@ class CommonNamesManager {
         for raw in namesInput {
             let normalized = normalizeName(raw)
             if normalized.isEmpty {
+                skipped += 1
+                continue
+            }
+            if isPresetName(normalized) {
                 skipped += 1
                 continue
             }

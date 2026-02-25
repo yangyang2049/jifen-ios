@@ -72,8 +72,8 @@ enum GameType: String, Codable, CaseIterable {
         case .archery: return "🏹"
         case .guandan: return "🃏"
         case .doudizhu: return "🃏"
-        case .simpleScore: return "📝"
-        case .multiScoreboard: return "📊"
+        case .simpleScore: return "🔢"
+        case .multiScoreboard: return "👥"
         case .counter: return "➕"
         case .stopwatch: return "⏱️"
         case .go: return "⚫"
@@ -208,6 +208,8 @@ struct TemplateConfig {
     let tapToAddEnabled: Bool
     /// 插在左右半区之上、编辑/底部按钮与菜单之下的中间层；参数为 isEditMode，编辑模式下可隐藏或禁用交互（如射箭不发球箭头、不响应半区点击）
     let contentOverlayProvider: ((Bool) -> AnyView)?
+    /// 编辑模式变化时回调，供父视图隐藏发球指示器等（编辑模式下不显示）
+    let onEditModeChange: ((Bool) -> Void)?
 
     init(
         gameType: GameType,
@@ -218,7 +220,8 @@ struct TemplateConfig {
         isDoublesModeProvider: (() -> Bool)? = nil,
         scoreTextProvider: ((Bool, TeamData) -> String)? = nil,
         tapToAddEnabled: Bool = true,
-        contentOverlayProvider: ((Bool) -> AnyView)? = nil
+        contentOverlayProvider: ((Bool) -> AnyView)? = nil,
+        onEditModeChange: ((Bool) -> Void)? = nil
     ) {
         self.gameType = gameType
         self.controller = controller
@@ -229,6 +232,7 @@ struct TemplateConfig {
         self.scoreTextProvider = scoreTextProvider
         self.tapToAddEnabled = tapToAddEnabled
         self.contentOverlayProvider = contentOverlayProvider
+        self.onEditModeChange = onEditModeChange
     }
 }
 

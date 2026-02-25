@@ -463,41 +463,64 @@ struct HomeTab: View {
     @ViewBuilder
     private func buildContent(isWide: Bool, contentWidth: CGFloat = 0) -> some View {
         if isWide {
-            // 两栏布局：左 2/3、右 1/3 宽（参考鸿蒙 buildDesktopLayout）
+            // 两栏布局：左 2/3、右 1/3 宽；快速开始与最近记录标题同一行顶部对齐
             let spacing = Theme.lg
             let rightWidth = contentWidth > 0 ? (contentWidth - spacing) / 3 : 0
             let leftWidth = contentWidth > 0 ? (contentWidth - spacing) * 2 / 3 : 0
-            HStack(alignment: .top, spacing: spacing) {
-                VStack(spacing: Theme.lg) {
-                    buildQuickStartSection()
-                    buildScheduleSection()
-                    ProToolsSectionView(
-                        isWide: true,
-                        isDarkTheme: true,
-                        onToolClick: { toolId in
-                            if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
-                                path.append(NavigationDestination.tool(tool))
-                            }
-                        },
-                        onEnterToolsPage: {
-                            path.append(NavigationDestination.toolsList)
+            VStack(alignment: .leading, spacing: 0) {
+                // 同一行：快速开始 | 最近记录，顶部对齐
+                HStack(alignment: .center, spacing: spacing) {
+                    HStack {
+                        Text(NSLocalizedString("home_quick_start", comment: ""))
+                            .font(.system(size: Theme.fontH5, weight: .medium))
+                            .foregroundColor(Theme.textPrimary)
+                        Spacer()
+                        Button(action: { showQuickStartEditSheet = true }) {
+                            Image(systemName: "pencil")
+                                .foregroundColor(Theme.textPrimary)
+                                .frame(width: 20, height: 20)
                         }
-                    )
-                }
-                .frame(width: leftWidth > 0 ? leftWidth : nil, alignment: .leading)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                    }
+                    .frame(width: leftWidth > 0 ? leftWidth : nil)
 
-                VStack(alignment: .leading, spacing: Theme.md) {
                     Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
                         .font(.system(size: Theme.fontH5, weight: .medium))
                         .foregroundColor(Theme.textPrimary)
-
-                    RecentRecordsSectionView(
-                        records: recentActivities,
-                        isDarkTheme: true,
-                        onViewAllTapped: { onNavigateToTab?(1, nil) }
-                    )
+                        .frame(width: rightWidth > 0 ? rightWidth : nil, alignment: .leading)
                 }
-                .frame(width: rightWidth > 0 ? rightWidth : nil, alignment: .leading)
+                .frame(height: 44)
+                .padding(.bottom, Theme.md)
+
+                HStack(alignment: .top, spacing: spacing) {
+                    VStack(spacing: Theme.lg) {
+                        buildQuickStartSection(showSectionTitle: false)
+                        buildScheduleSection()
+                        ProToolsSectionView(
+                            isWide: true,
+                            isDarkTheme: true,
+                            onToolClick: { toolId in
+                                if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
+                                    path.append(NavigationDestination.tool(tool))
+                                }
+                            },
+                            onEnterToolsPage: {
+                                path.append(NavigationDestination.toolsList)
+                            }
+                        )
+                    }
+                    .frame(width: leftWidth > 0 ? leftWidth : nil, alignment: .leading)
+
+                    VStack(alignment: .leading, spacing: Theme.md) {
+                        RecentRecordsSectionView(
+                            records: recentActivities,
+                            isDarkTheme: true,
+                            onViewAllTapped: { onNavigateToTab?(1, nil) }
+                        )
+                    }
+                    .frame(width: rightWidth > 0 ? rightWidth : nil, alignment: .leading)
+                }
             }
         } else {
             VStack(spacing: Theme.lg) {
@@ -521,11 +544,12 @@ struct HomeTab: View {
     }
 
     @ViewBuilder
-    private func buildQuickStartSection() -> some View {
+    private func buildQuickStartSection(showSectionTitle: Bool = true) -> some View {
         QuickStartGridView(
             primarySport: quickStartManager.quickStartConfig.primarySport,
             secondarySport: quickStartManager.quickStartConfig.secondarySport,
             isDarkTheme: true,
+            showSectionTitle: showSectionTitle,
             onPrimaryClick: { gameType in
                 if quickStartTimerTypes.contains(gameType) {
                     onNavigateToTab?(3, gameType)

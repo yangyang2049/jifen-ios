@@ -17,6 +17,7 @@ struct VolleyballScoreboardView: View {
     @State private var controller = VolleyballController()
     @State private var viewModel = VolleyballViewModel()
     @State private var showGameFinishedOverlay: Bool = false
+    @State private var isEditMode: Bool = false
 
     var body: some View {
         ZStack {
@@ -26,7 +27,8 @@ struct VolleyballScoreboardView: View {
                     controller: controller,
                     viewModel: viewModel,
                     scoreFontSize: 120,
-                    nameType: .team
+                    nameType: .team,
+                    onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
                     if let onNavigationBack = onNavigationBack {
@@ -37,7 +39,7 @@ struct VolleyballScoreboardView: View {
                 }
             )
 
-            if !viewModel.gameFinished {
+            if !viewModel.gameFinished, !isEditMode {
                 serveIndicator
             }
 

@@ -249,6 +249,8 @@
 /* Rest Countdown */
 "set_break" = "Set Break";
 "halftime_break" = "Halftime Break";
+"rest_title_set_end" = "End of Game %d";
+"rest_title_mid_game" = "Game %d · Mid-game break";
 
 /* Scoreboard Tab */
 "scoreboard_title" = "Score";
