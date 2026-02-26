@@ -2,7 +2,7 @@
 //  ComingSoonPlaceholderView.swift
 //  jifen
 //
-//  棋牌 / 简易计分 / 多人计分 占位页，后续接具体功能。
+//  棋牌 / 简单计分 / 多人计分 占位页，后续接具体功能。
 //
 
 import SwiftUI

@@ -39,6 +39,12 @@ struct BadmintonScoreboardView: View {
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .player,
                     isDoublesModeProvider: { !viewModel.isSingles },
+                    contentOverlayProvider: { isEditMode in
+                        if isEditMode || viewModel.gameFinished {
+                            return AnyView(EmptyView())
+                        }
+                        return AnyView(serveIndicator(isLeftServing: viewModel.isLeftServing))
+                    },
                     onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
@@ -50,10 +56,6 @@ struct BadmintonScoreboardView: View {
                 }
             )
 
-            if !viewModel.gameFinished, !isEditMode {
-                serveIndicator(isLeftServing: viewModel.isLeftServing)
-            }
-            
             if showGameFinishedOverlay {
                 GameFinishedOverlay(winnerName: viewModel.getWinnerName())
             }

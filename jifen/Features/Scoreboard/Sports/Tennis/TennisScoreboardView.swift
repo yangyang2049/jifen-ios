@@ -43,6 +43,12 @@ struct TennisScoreboardView: View {
                     scoreTextProvider: { isLeft, _ in
                         viewModel.scoreDisplay(isLeft: isLeft)
                     },
+                    contentOverlayProvider: { isEditMode in
+                        if isEditMode || viewModel.gameFinished {
+                            return AnyView(EmptyView())
+                        }
+                        return AnyView(serveIndicator(isLeftServing: viewModel.isLeftServing()))
+                    },
                     onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
@@ -54,10 +60,6 @@ struct TennisScoreboardView: View {
                 }
             )
 
-            if !viewModel.gameFinished, !isEditMode {
-                serveIndicator(isLeftServing: viewModel.isLeftServing())
-            }
-            
             if viewModel.isTieBreak {
                 TieBreakBadge()
             }

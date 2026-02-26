@@ -47,7 +47,7 @@ enum GameType: String, Codable, CaseIterable {
         case .archery: return NSLocalizedString("project_archery", value: "射箭", comment: "Archery")
         case .guandan: return NSLocalizedString("game_guandan", comment: "Guandan")
         case .doudizhu: return NSLocalizedString("game_doudizhu", comment: "Doudizhu")
-        case .simpleScore: return NSLocalizedString("game_simple_score", comment: "Simple Score")
+        case .simpleScore: return NSLocalizedString("game_simple_score", value: "简单计分", comment: "Simple Score")
         case .multiScoreboard: return NSLocalizedString("game_multi_scoreboard", comment: "Multi Scoreboard")
         case .counter: return NSLocalizedString("game_counter", comment: "Counter")
         case .stopwatch: return NSLocalizedString("game_stopwatch", comment: "Stopwatch")

@@ -98,10 +98,10 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .pingpong, emoji: "🏓", section: .sports),
         ScoreboardCatalogItem(gameType: .badminton, emoji: "🏸", section: .sports),
         ScoreboardCatalogItem(gameType: .tennis, emoji: "🎾", section: .sports),
-        ScoreboardCatalogItem(gameType: .archery, emoji: "🏹", section: .sports),
+        ScoreboardCatalogItem(gameType: .pickleball, emoji: "🏓", section: .sports),
         ScoreboardCatalogItem(gameType: .boxing, emoji: "🥊", section: .sports),
         ScoreboardCatalogItem(gameType: .billiards, emoji: "🎱", section: .sports),
-        ScoreboardCatalogItem(gameType: .pickleball, emoji: "🏓", section: .sports),
+        ScoreboardCatalogItem(gameType: .archery, emoji: "🏹", section: .sports),
 
         ScoreboardCatalogItem(gameType: .doudizhu, emoji: "🃏", section: .boardGames),
         ScoreboardCatalogItem(gameType: .guandan, emoji: "🃏", section: .boardGames),
@@ -115,7 +115,7 @@ enum GameCatalog {
     }
 
     static let timerBoardGameItems: [TimerDestination] = [.go, .xiangqi, .chess]
-    static let timerOtherItems: [TimerDestination] = [.stopwatch, .basketball24, .basketball12, .cube, .timeout]
+    static let timerOtherItems: [TimerDestination] = [.cube, .stopwatch, .timeout, .basketball24, .basketball12]
     static let timerAllItems: [TimerDestination] = timerBoardGameItems + timerOtherItems
 
     static let scoreboardGameTypes: [GameType] = scoreboardItems.map(\.gameType)

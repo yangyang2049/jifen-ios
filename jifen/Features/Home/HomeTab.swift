@@ -46,6 +46,7 @@ struct HomeTab: View {
         case scoreboard(ScoreboardNavigationTarget)
         case toolsList
         case schedule
+        case bookingDetail(bookingId: String)
     }
 
     /// 与鸿蒙 HomeTab.ets 一致：屏幕宽度 >= 768 时使用两栏布局
@@ -178,6 +179,17 @@ struct HomeTab: View {
                         .toolbar(.hidden, for: .tabBar)
                 case .schedule:
                     SchedulePage(
+                        onStartGame: { gameType in
+                            pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                        },
+                        onChanged: {
+                            loadUpcomingBookings()
+                        }
+                    )
+                    .toolbar(.hidden, for: .tabBar)
+                case .bookingDetail(let bookingId):
+                    BookingDetailPage(
+                        bookingId: bookingId,
                         onStartGame: { gameType in
                             pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
                         },
@@ -633,7 +645,7 @@ struct HomeTab: View {
             } else {
                 ForEach(upcomingBookings) { booking in
                     Button {
-                        path.append(NavigationDestination.schedule)
+                        path.append(NavigationDestination.bookingDetail(bookingId: booking.id))
                     } label: {
                         HStack(spacing: 12) {
                             Text(booking.sportType.icon)

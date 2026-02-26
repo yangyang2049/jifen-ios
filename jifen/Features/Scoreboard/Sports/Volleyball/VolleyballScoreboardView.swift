@@ -28,6 +28,12 @@ struct VolleyballScoreboardView: View {
                     viewModel: viewModel,
                     scoreFontSize: 120,
                     nameType: .team,
+                    contentOverlayProvider: { isEditMode in
+                        if isEditMode || viewModel.gameFinished {
+                            return AnyView(EmptyView())
+                        }
+                        return AnyView(serveIndicator)
+                    },
                     onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
@@ -38,10 +44,6 @@ struct VolleyballScoreboardView: View {
                     }
                 }
             )
-
-            if !viewModel.gameFinished, !isEditMode {
-                serveIndicator
-            }
 
             if showGameFinishedOverlay {
                 GameFinishedOverlay(winnerName: viewModel.getWinnerName())

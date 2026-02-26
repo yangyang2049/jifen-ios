@@ -11,6 +11,7 @@ struct BoxingScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
     @State private var controller = BoxingScoreboardController()
     @State private var viewModel = BoxingViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
@@ -31,6 +32,7 @@ struct BoxingScoreboardView: View {
                 ),
                 onBack: {
                     saveRecordIfNeeded()
+                    onNavigationBack?()
                     dismiss()
                 }
             )

@@ -2,7 +2,7 @@
 //  SimpleScoreboardView.swift
 //  jifen
 //
-//  简易计分：左右两队，点击加分，支持撤销、编辑队名、保存记录。与鸿蒙 SimpleScorePage 对齐。
+//  简单计分：左右两队，点击加分，支持撤销、编辑队名、保存记录。与鸿蒙 SimpleScorePage 对齐。
 //
 
 import SwiftUI
@@ -11,13 +11,15 @@ struct SimpleScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
     @State private var controller: SimpleScoreboardController
     @State private var viewModel: BaseScoreViewModel
     @State private var responsiveScoreFontSize: CGFloat = 120
 
-    init(initialSetup: SportsSetupResult? = nil, onSetupConsumed: (() -> Void)? = nil) {
+    init(initialSetup: SportsSetupResult? = nil, onSetupConsumed: (() -> Void)? = nil, onNavigationBack: (() -> Void)? = nil) {
         self.initialSetup = initialSetup
         self.onSetupConsumed = onSetupConsumed
+        self.onNavigationBack = onNavigationBack
         let c = SimpleScoreboardController()
         _controller = State(initialValue: c)
         _viewModel = State(initialValue: BaseScoreViewModel(controller: c))
@@ -36,6 +38,7 @@ struct SimpleScoreboardView: View {
                 ),
                 onBack: {
                     saveRecordIfNeeded()
+                    onNavigationBack?()
                     dismiss()
                 }
             )

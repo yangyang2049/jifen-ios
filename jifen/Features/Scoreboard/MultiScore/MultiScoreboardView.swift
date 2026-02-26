@@ -22,6 +22,7 @@ struct MultiScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
 
     @State private var players: [MultiPlayerItem] = defaultMultiPlayerNames(count: 4).enumerated().map {
         MultiPlayerItem(id: $0.offset, name: $0.element, score: 0)
@@ -78,6 +79,7 @@ struct MultiScoreboardView: View {
                 }
             }
         }
+        .ignoresSafeArea(.all)
         .navigationTitle(NSLocalizedString("game_multi_scoreboard", value: "多人计分", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -465,6 +467,7 @@ struct MultiScoreboardView: View {
             confirmEditIfNeeded()
             saveRecordIfNeeded()
             OrientationLock.shared.unlock()
+            onNavigationBack?()
             dismiss()
             return
         }

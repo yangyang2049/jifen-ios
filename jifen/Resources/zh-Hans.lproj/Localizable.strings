@@ -141,7 +141,7 @@
 "game_pickleball" = "匹克球";
 "game_guandan" = "掼蛋";
 "game_doudizhu" = "斗地主";
-"game_simple_score" = "简易计分";
+"game_simple_score" = "简单计分";
 "game_multi_scoreboard" = "多人计分";
 "multi_score_player_default" = "玩家";
 "game_counter" = "计数器";

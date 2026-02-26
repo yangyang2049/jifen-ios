@@ -35,6 +35,12 @@ struct PingPongScoreboardView: View {
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .player,
                     isDoublesModeProvider: { !viewModel.isSingles },
+                    contentOverlayProvider: { isEditMode in
+                        if isEditMode || viewModel.gameFinished {
+                            return AnyView(EmptyView())
+                        }
+                        return AnyView(serveIndicator(isLeftServing: viewModel.isLeftServing()))
+                    },
                     onEditModeChange: { isEditMode = $0 }
                 ),
                 onBack: {
@@ -46,10 +52,6 @@ struct PingPongScoreboardView: View {
                 }
             )
 
-            if !viewModel.gameFinished, !isEditMode {
-                serveIndicator(isLeftServing: viewModel.isLeftServing())
-            }
-            
             // Game finished overlay
             if showGameFinishedOverlay {
                 GameFinishedOverlay(winnerName: viewModel.getWinnerName())

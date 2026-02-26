@@ -12,6 +12,7 @@ struct PickleballScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
     @State private var controller = PickleballScoreboardController()
     @State private var viewModel = PickleballViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
@@ -30,6 +31,7 @@ struct PickleballScoreboardView: View {
                     nameType: .team
                 ),
                 onBack: {
+                    onNavigationBack?()
                     dismiss()
                 }
             )

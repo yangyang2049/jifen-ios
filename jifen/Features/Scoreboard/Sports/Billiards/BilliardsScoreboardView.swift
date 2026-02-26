@@ -11,6 +11,7 @@ struct BilliardsScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
     @State private var controller = BilliardsScoreboardController()
     @State private var viewModel = BaseScoreViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
@@ -28,6 +29,7 @@ struct BilliardsScoreboardView: View {
                 ),
                 onBack: {
                     saveRecordIfNeeded()
+                    onNavigationBack?()
                     dismiss()
                 }
             )

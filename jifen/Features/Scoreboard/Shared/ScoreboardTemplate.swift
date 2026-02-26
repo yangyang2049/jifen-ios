@@ -571,7 +571,10 @@ struct ScoreboardTemplate: View {
 extension View {
     func lockOrientation(_ orientation: UIInterfaceOrientationMask) -> some View {
         self.onAppear {
-            OrientationLock.shared.lock(orientation)
+            // 延后到下一 run loop 再锁屏，避免从预约一键开赛（先关开始面板再推计分板）时与 sheet 关闭同帧锁屏导致转屏两次
+            DispatchQueue.main.async {
+                OrientationLock.shared.lock(orientation)
+            }
         }
         .onDisappear {
             OrientationLock.shared.unlock()

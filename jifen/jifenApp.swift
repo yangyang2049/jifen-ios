@@ -58,14 +58,10 @@ class OrientationLock {
                         #if DEBUG
                         print("[OrientationLock] Geometry update fallback due to error: \(error.localizedDescription)")
                         #endif
-                        UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
-                        UIViewController.attemptRotationToDeviceOrientation()
+                        // 不再使用 UIDevice.setValue/attemptRotation（UIKit 不支持），仅重置状态，依赖 supportedInterfaceOrientations 更新后系统自动旋转
                         self.isPortraitUpdateInFlight = false
                     }
                 } else {
-                    // Fallback for iOS 15 and earlier
-                    UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
-                    UIViewController.attemptRotationToDeviceOrientation()
                     self.isPortraitUpdateInFlight = false
                 }
             } else {

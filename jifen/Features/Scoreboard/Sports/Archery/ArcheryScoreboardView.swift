@@ -24,6 +24,7 @@ struct ArcheryScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
 
     @State private var controller = ArcheryScoreboardController()
     @State private var viewModel = ArcheryViewModel()
@@ -57,6 +58,7 @@ struct ArcheryScoreboardView: View {
                 ),
                 onBack: {
                     saveRecordIfNeeded()
+                    onNavigationBack?()
                     dismiss()
                 }
             )
@@ -142,26 +144,28 @@ struct ArcheryScoreboardView: View {
                 .onTapGesture { showArrowPicker = false }
 
             VStack(spacing: 0) {
+                // 标题栏与 X 按钮对齐羽毛球菜单（MenuDialog）：标题整体居中，X 在右侧圆底
                 ZStack {
                     Text(currentShooterName)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(viewModel.currentShooterIsLeft ? Color(hex: "DC143C") : Color(hex: "1E90FF"))
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
                     HStack {
                         Spacer()
-                        Button {
-                            showArrowPicker = false
-                        } label: {
+                        Button(action: { showArrowPicker = false }) {
                             Image(systemName: "xmark")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
-                                .frame(width: 44, height: 44)
-                                .contentShape(Rectangle())
+                                .font(.system(size: 16))
+                                .foregroundColor(.white)
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    Circle()
+                                        .fill(Color.white.opacity(0.1))
+                                )
                         }
-                        .buttonStyle(.plain)
                     }
                 }
-                .frame(height: 56)
-                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.horizontal, 20)
+                .frame(height: 48)
 
                 VStack(spacing: 10) {
                     ForEach(0..<3, id: \.self) { row in

@@ -158,23 +158,23 @@ struct ScoreboardTab: View {
         case .volleyball:
             VolleyballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
         case .archery:
-            ArcheryScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            ArcheryScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .boxing:
-            BoxingScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            BoxingScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .billiards:
-            BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .pickleball:
-            PickleballScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            PickleballScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .guandan:
-            GuandanScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            GuandanScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .doudizhu:
-            DoudizhuScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            DoudizhuScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .simpleScore:
-            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .multiScoreboard:
-            MultiScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            MultiScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .counter:
-            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         default:
             Text(NSLocalizedString("not_implemented", comment: ""))
                 .foregroundColor(Theme.textPrimary)

@@ -20,6 +20,7 @@ struct DoudizhuScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
     @State private var players: [DoudizhuPlayerItem] = defaultDoudizhuNames.enumerated().map { DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0) }
     @State private var history: [[Int]] = []
     @State private var gameStartTime = Date()
@@ -64,6 +65,7 @@ struct DoudizhuScoreboardView: View {
                 }
             }
         }
+        .ignoresSafeArea(.all)
         .navigationTitle(NSLocalizedString("game_doudizhu", comment: "Doudizhu"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -337,6 +339,7 @@ struct DoudizhuScoreboardView: View {
             confirmEditIfNeeded()
             saveRecordIfNeeded()
             OrientationLock.shared.unlock()
+            onNavigationBack?()
             dismiss()
             return
         }

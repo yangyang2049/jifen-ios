@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+- **计时 Tab「其他」分组顺序**：改为 魔方、正计时、暂停、篮球 24 秒、篮球 12 秒（GameCatalog.timerOtherItems）。
+- **简易计分名称统一为「简单计分」**：zh-Hans 本地化 `game_simple_score` 及 Types.displayName 回退值、相关注释与占位页注释均改为「简单计分」，与 qa/SimulationStubs 等一致。
+- **计分 Tab 跳转**：射箭、匹克球、斗地主、掼蛋、简易计分（及拳击、台球、多人计分）从计分 Tab 进入后返回时未清除 `selectedSport`，导致导航状态错乱。上述计分板增加可选 `onNavigationBack`，ScoreboardTab 的 `getScoreboardView` 传入 `onBack`，返回时先执行回调再 `dismiss()`，保证 `selectedSport = nil` 与栈一致。
+- **OrientationLock UIKit 警告**：`requestGeometryUpdate` 失败时的 fallback 不再调用 `UIDevice.current.setValue(_, forKey: "orientation")` 与 `attemptRotationToDeviceOrientation()`（系统不支持），仅重置 `isPortraitUpdateInFlight`，依赖 `supportedInterfaceOrientations` 更新后由系统处理旋转，消除 "Setting UIDevice.orientation is not supported" 控制台报错。
+
 ### Removed
 - **Watch 隐私协议与退出流程**：移除 Watch 端独立隐私协议页与「退出」逻辑（原抄自鸿蒙，Apple 未强制要求）。删除 WatchPrivacyAgreementView、WatchAppExit 及 WatchPreferences.privacyAccepted；Watch 启动后直接进入 WatchTabView。
 - **新比赛弹窗中移除秒表**：GameCatalog.newGameDialogGameTypes 过滤掉 .stopwatch，新比赛弹窗不再展示秒表；秒表仍在计时 Tab 与工具中使用。

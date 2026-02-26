@@ -13,45 +13,47 @@ struct BookingDetailPage: View {
 
     var body: some View {
         List {
-            if let booking {
+            if let currentBooking = booking {
                 Section {
                     infoRow(
                         title: NSLocalizedString("schedule_sport", value: "项目", comment: ""),
-                        value: "\(booking.sportType.icon) \(booking.sportType.displayName)"
+                        value: "\(currentBooking.sportType.icon) \(currentBooking.sportType.displayName)"
                     )
                     infoRow(
                         title: NSLocalizedString("schedule_datetime", value: "时间", comment: ""),
-                        value: formatDateTime(booking.dateTime)
+                        value: formatDateTime(currentBooking.dateTime)
                     )
                     infoRow(
                         title: NSLocalizedString("schedule_duration", value: "时长", comment: ""),
-                        value: String(format: NSLocalizedString("schedule_duration_minutes", value: "时长 %d 分钟", comment: ""), booking.durationMinutes)
+                        value: String(format: NSLocalizedString("schedule_duration_minutes", value: "时长 %d 分钟", comment: ""), currentBooking.durationMinutes)
                     )
                     infoRow(
                         title: NSLocalizedString("schedule_location", value: "地点", comment: ""),
-                        value: booking.location
+                        value: currentBooking.location
                     )
-                    if !booking.notes.isEmpty {
+                    if !currentBooking.notes.isEmpty {
                         infoRow(
                             title: NSLocalizedString("schedule_notes", value: "备注", comment: ""),
-                            value: booking.notes
+                            value: currentBooking.notes
                         )
                     }
-                    if !booking.reminderMinutes.isEmpty {
+                    if !currentBooking.reminderMinutes.isEmpty {
                         infoRow(
                             title: NSLocalizedString("schedule_reminders", value: "提醒", comment: ""),
-                            value: reminderText(booking.reminderMinutes)
+                            value: reminderText(currentBooking.reminderMinutes)
                         )
                     }
                 }
 
                 Section {
-                    if booking.status == .pending {
+                    if currentBooking.status == .pending {
                         VStack(spacing: 12) {
                             Button {
-                                if let gameType = booking.sportType.gameType {
+                                if let gameType = currentBooking.sportType.gameType {
+                                    _ = LocalBookingManager.shared.markCompleted(currentBooking.id)
+                                    booking = LocalBookingManager.shared.getBooking(by: bookingId)
+                                    onChanged?()
                                     onStartGame?(gameType)
-                                    dismiss()
                                 }
                             } label: {
                                 Text(NSLocalizedString("schedule_start_game", value: "一键开赛", comment: ""))
@@ -63,8 +65,8 @@ struct BookingDetailPage: View {
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                            .disabled(booking.sportType.gameType == nil || onStartGame == nil)
-                            .opacity((booking.sportType.gameType == nil || onStartGame == nil) ? 0.45 : 1.0)
+                            .disabled(currentBooking.sportType.gameType == nil || onStartGame == nil)
+                            .opacity((currentBooking.sportType.gameType == nil || onStartGame == nil) ? 0.45 : 1.0)
 
                             HStack(spacing: 10) {
                                 Button {

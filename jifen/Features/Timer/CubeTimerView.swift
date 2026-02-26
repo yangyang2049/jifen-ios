@@ -203,12 +203,14 @@ struct CubeTimerView: View {
                     }
                 }
 
-                TwoFingerSwipeDownDetector {
-                    if !hideButtons {
-                        prepareScreenshot()
+                if !showInitialHintDialog && !showSaveDialog {
+                    TwoFingerSwipeDownDetector {
+                        if !hideButtons {
+                            prepareScreenshot()
+                        }
                     }
+                    .ignoresSafeArea()
                 }
-                .ignoresSafeArea()
             }
             .onAppear {
                 if !isTablet && !isTwoInOne {

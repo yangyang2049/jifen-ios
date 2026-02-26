@@ -13,6 +13,7 @@ struct GuandanScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var onNavigationBack: (() -> Void)? = nil
 
     @State private var controller = GuandanScoreboardController()
     @State private var viewModel = GuandanViewModel()
@@ -31,6 +32,7 @@ struct GuandanScoreboardView: View {
                 ),
                 onBack: {
                     saveRecordIfNeeded()
+                    onNavigationBack?()
                     dismiss()
                 }
             )

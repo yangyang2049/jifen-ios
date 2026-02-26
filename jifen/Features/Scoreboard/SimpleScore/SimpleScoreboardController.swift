@@ -2,7 +2,7 @@
 //  SimpleScoreboardController.swift
 //  jifen
 //
-//  简易计分板控制器：仅左右两队、分数加减与撤销，与鸿蒙 SimpleScoreboardController 对齐。
+//  简单计分板控制器：仅左右两队、分数加减与撤销，与鸿蒙 SimpleScoreboardController 对齐。
 //
 
 import Foundation
