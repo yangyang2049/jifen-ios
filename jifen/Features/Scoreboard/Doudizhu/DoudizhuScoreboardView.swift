@@ -170,22 +170,28 @@ struct DoudizhuScoreboardView: View {
         .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing])
     }
 
+    /// 玩家名称与分数字号参考羽毛球计分板（TeamSection nameFontSize 32、大分数约 120）
+    private static let doudizhuNameFontSize: CGFloat = 32
+    private static let doudizhuScoreFontSizeMin: CGFloat = 72
+    private static let doudizhuScoreFontScale: CGFloat = 0.38
+
     private func doudizhuPlayerPanel(index: Int, player: DoudizhuPlayerItem, width: CGFloat, height: CGFloat) -> some View {
         let colors: [Color] = [
             Color(hex: "D32F2F"),
             Color(hex: "1976D2"),
             Color(hex: "388E3C")
         ]
+        let scoreSize = max(Self.doudizhuScoreFontSizeMin, min(width, height) * Self.doudizhuScoreFontScale)
         return Button {
             if !isEditMode {
                 addScore(index: index)
             }
         } label: {
-            VStack(spacing: 8) {
+            VStack(spacing: 12) {
                 if isEditMode && editingIndex == index {
                     HStack(spacing: 6) {
                         TextField(NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""), text: $editName)
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.system(size: Self.doudizhuNameFontSize, weight: .bold))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .textFieldStyle(.plain)
@@ -195,20 +201,21 @@ struct DoudizhuScoreboardView: View {
                             activeCommonNameIndex = index
                         } label: {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.9))
-                                .frame(width: 22, height: 22)
+                                .frame(width: 28, height: 28)
                         }
                         .buttonStyle(.plain)
                     }
-                    .padding(4)
+                    .padding(8)
                     .background(Color.black.opacity(0.12))
                     .cornerRadius(8)
                 } else {
                     Text(player.name)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: Self.doudizhuNameFontSize, weight: .bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .onTapGesture {
                             if isEditMode {
                                 editingIndex = index
@@ -217,7 +224,8 @@ struct DoudizhuScoreboardView: View {
                         }
                 }
                 Text("\(player.score)")
-                    .font(.system(size: min(width, height) * 0.22, weight: .bold))
+                    .font(.system(size: scoreSize, weight: .bold))
+                    .monospacedDigit()
                     .foregroundColor(.white)
             }
             .frame(width: width, height: height)

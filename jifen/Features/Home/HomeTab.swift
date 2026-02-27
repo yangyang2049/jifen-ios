@@ -257,17 +257,30 @@ struct HomeTab: View {
         .simpleScore, .multiScoreboard, .counter
     ]
 
+    /// 设置弹窗默认名称：与鸿蒙一致，选手/单方用红方蓝方，队伍用红队蓝队或主队客队。
     private static func defaultTeamNames(for gameType: GameType) -> (String, String) {
-        if gameType == .basketball {
+        switch gameType {
+        case .basketball:
             return (
                 NSLocalizedString("team_home", comment: ""),
                 NSLocalizedString("team_away", comment: "")
             )
+        case .football, .volleyball:
+            return (
+                NSLocalizedString("red_team", comment: ""),
+                NSLocalizedString("blue_team", comment: "")
+            )
+        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .pickleball:
+            return (
+                NSLocalizedString("watch_team_red", value: "红方", comment: ""),
+                NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+            )
+        default:
+            return (
+                NSLocalizedString("red_team", comment: ""),
+                NSLocalizedString("blue_team", comment: "")
+            )
         }
-        return (
-            NSLocalizedString("red_team", comment: ""),
-            NSLocalizedString("blue_team", comment: "")
-        )
     }
 
     // MARK: - Private Methods

@@ -128,12 +128,16 @@ struct CubeTimerView: View {
                             .font(.system(size: 15))
                             .foregroundColor(.white.opacity(0.85))
                             .multilineTextAlignment(.center)
-                        Button(NSLocalizedString("confirm", comment: "")) {
+                        Button {
                             showInitialHintDialog = false
+                        } label: {
+                            Text(NSLocalizedString("confirm", comment: ""))
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(minWidth: 200, minHeight: 52)
+                                .contentShape(Rectangle())
                         }
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(width: 160, height: 44)
+                        .buttonStyle(.plain)
                         .background(Theme.primary)
                         .clipShape(Capsule())
                         .padding(.top, 8)
@@ -142,6 +146,7 @@ struct CubeTimerView: View {
                     .background(Color.black.opacity(0.75))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal, 40)
+                    .zIndex(1)
                 }
 
                 if showSaveDialog {
@@ -192,9 +197,9 @@ struct CubeTimerView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(alignment: .bottom) {
                             ProgressView(value: dialogProgress, total: 1.0)
-                                .tint(Color(hex: "FF9500"))
+                                .tint(Theme.primary)
                                 .frame(height: 3)
-                                .background(Color(hex: "FF9500").opacity(0.2))
+                                .background(Theme.primary.opacity(0.2))
                                 .padding(.top, 1)
                         }
                     }
@@ -203,14 +208,6 @@ struct CubeTimerView: View {
                     }
                 }
 
-                if !showInitialHintDialog && !showSaveDialog {
-                    TwoFingerSwipeDownDetector {
-                        if !hideButtons {
-                            prepareScreenshot()
-                        }
-                    }
-                    .ignoresSafeArea()
-                }
             }
             .onAppear {
                 if !isTablet && !isTwoInOne {
@@ -563,39 +560,6 @@ struct CubeTimerView: View {
                     showToast(NSLocalizedString("save_screenshot_failed", value: "保存截图失败", comment: ""), duration: 2.0)
                 }
             }
-        }
-    }
-}
-
-private struct TwoFingerSwipeDownDetector: UIViewRepresentable {
-    let onSwipe: () -> Void
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onSwipe: onSwipe)
-    }
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        view.backgroundColor = .clear
-        let recognizer = UISwipeGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleSwipe))
-        recognizer.direction = .down
-        recognizer.numberOfTouchesRequired = 2
-        recognizer.cancelsTouchesInView = false
-        view.addGestureRecognizer(recognizer)
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {}
-
-    final class Coordinator: NSObject {
-        private let onSwipe: () -> Void
-
-        init(onSwipe: @escaping () -> Void) {
-            self.onSwipe = onSwipe
-        }
-
-        @objc func handleSwipe() {
-            onSwipe()
         }
     }
 }

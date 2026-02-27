@@ -51,6 +51,8 @@
 /* Default Team Names */
 "red_team" = "Red Team";
 "blue_team" = "Blue Team";
+"watch_team_red" = "Red";
+"watch_team_blue" = "Blue";
 "team_home" = "Home";
 "team_away" = "Away";
 "team1_name" = "Home team name";
@@ -61,6 +63,10 @@
 "player2_name" = "Player 2";
 "singles" = "Singles";
 "doubles" = "Doubles";
+"doubles_red_a" = "Red A";
+"doubles_red_b" = "Red B";
+"doubles_blue_a" = "Blue A";
+"doubles_blue_b" = "Blue B";
 "singles_doubles" = "Singles / Doubles";
 "badminton_singles_doubles" = "Singles / Doubles";
 

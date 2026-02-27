@@ -571,10 +571,7 @@ struct ScoreboardTemplate: View {
 extension View {
     func lockOrientation(_ orientation: UIInterfaceOrientationMask) -> some View {
         self.onAppear {
-            // 延后到下一 run loop 再锁屏，避免从预约一键开赛（先关开始面板再推计分板）时与 sheet 关闭同帧锁屏导致转屏两次
-            DispatchQueue.main.async {
-                OrientationLock.shared.lock(orientation)
-            }
+            OrientationLock.shared.lock(orientation)
         }
         .onDisappear {
             OrientationLock.shared.unlock()
@@ -642,6 +639,8 @@ struct TeamSection: View {
     private var effectiveScoreFontSize: CGFloat { isTablet ? min(scoreFontSize * 1.5, 200) : scoreFontSize }
     /// 局分/盘分数字在大屏上放大
     private var setsGamesFontSize: CGFloat { isTablet ? 80 : 48 }
+    /// 台球仅总分、无局分/加分按钮，分数需纵向居中
+    private var centerScoreVertically: Bool { gameType == .billiards }
     
     var body: some View {
         ZStack {
@@ -739,49 +738,52 @@ struct TeamSection: View {
                 
                 Spacer()
                 
-                // Score display - with -/+ buttons in edit mode
-                if isEditMode, let onScoreAdjust = onScoreAdjust {
-                    HStack(spacing: 16) {
-                        Button(action: {
-                            if team.score > 0 {
-                                onScoreAdjust(isLeft, -1)
+                // Score display - 台球时用 ZStack 占满剩余高度使分数纵向居中
+                ZStack {
+                    if isEditMode, let onScoreAdjust = onScoreAdjust {
+                        HStack(spacing: 16) {
+                            Button(action: {
+                                if team.score > 0 {
+                                    onScoreAdjust(isLeft, -1)
+                                }
+                            }) {
+                                Image(systemName: "minus")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(team.score > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
+                                    .frame(width: 50, height: 50)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.white.opacity(0.08))
+                                    )
                             }
-                        }) {
-                            Image(systemName: "minus")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(team.score > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
-                                .frame(width: 50, height: 50)
-                                .background(
-                                    Circle()
-                                        .fill(Color.white.opacity(0.08))
-                                )
+                            .disabled(team.score <= 0)
+                            
+                            Text(scoreText)
+                                .font(getFont(family: fontFamily, size: effectiveScoreFontSize))
+                                .monospacedDigit()
+                                .foregroundColor(.white)
+                            
+                            Button(action: {
+                                onScoreAdjust(isLeft, 1)
+                            }) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.75))
+                                    .frame(width: 50, height: 50)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.white.opacity(0.08))
+                                    )
+                            }
                         }
-                        .disabled(team.score <= 0)
-                        
+                    } else {
                         Text(scoreText)
                             .font(getFont(family: fontFamily, size: effectiveScoreFontSize))
                             .monospacedDigit()
                             .foregroundColor(.white)
-                        
-                        Button(action: {
-                            onScoreAdjust(isLeft, 1)
-                        }) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white.opacity(0.75))
-                                .frame(width: 50, height: 50)
-                                .background(
-                                    Circle()
-                                        .fill(Color.white.opacity(0.08))
-                                )
-                        }
                     }
-                } else {
-                        Text(scoreText)
-                            .font(getFont(family: fontFamily, size: effectiveScoreFontSize))
-                            .monospacedDigit()
-                            .foregroundColor(.white)
                 }
+                .frame(maxWidth: .infinity, maxHeight: centerScoreVertically ? .infinity : nil)
                 
                 // Sets display - with -/+ buttons in edit mode
                 if let sets = team.sets {

@@ -25,7 +25,8 @@ struct BilliardsScoreboardView: View {
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .team,
-                    scoreTextProvider: { _, team in "\(team.score)" }
+                    scoreTextProvider: { _, team in "\(team.score)" },
+                    tapToAddEnabled: true
                 ),
                 onBack: {
                     saveRecordIfNeeded()

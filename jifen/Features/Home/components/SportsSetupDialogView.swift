@@ -158,7 +158,6 @@ struct SportsSetupDialogView: View {
                         buildDoublesNameInputs()
                     } else {
                         buildPrimaryNameInput()
-                        buildSecondaryNameInput()
                     }
 
                     buildSettingsSection()
@@ -212,7 +211,7 @@ struct SportsSetupDialogView: View {
                 if !firstLeft.isEmpty { team1Name = firstLeft }
                 if !firstRight.isEmpty { team2Name = firstRight }
             } else {
-                syncDoublesPlayerNamesFromTeamNames()
+                applyDefaultsWhenSwitchingToDoubles()
             }
         }
         .sheet(item: $activeNameInputTarget) { target in
@@ -314,76 +313,65 @@ struct SportsSetupDialogView: View {
         shouldShowSinglesDoublesAtTop() && !isSingles
     }
 
+    /// 名称区域：左右对半、中间 vs 隔开，无队伍/队员标题（对齐鸿蒙）
     @ViewBuilder
     private func buildPrimaryNameInput() -> some View {
-        VStack(alignment: .leading, spacing: Theme.sm) {
-            Text(getTeamNameLabel(isTeam1: true))
-                .font(.system(size: 14))
-                .foregroundColor(Theme.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
+        HStack(spacing: Theme.sm) {
             InlineCommonNameTextField(
                 placeholder: defaultTeam1Name,
                 text: $team1Name,
                 onChevronTap: { activeNameInputTarget = .team1 }
             )
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
+            .frame(maxWidth: .infinity)
 
-    @ViewBuilder
-    private func buildSecondaryNameInput() -> some View {
-        VStack(alignment: .leading, spacing: Theme.sm) {
-            Text(getTeamNameLabel(isTeam1: false))
-                .font(.system(size: 14))
+            Text(NSLocalizedString("vs_separator", value: " vs ", comment: ""))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(Theme.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
 
             InlineCommonNameTextField(
                 placeholder: defaultTeam2Name,
                 text: $team2Name,
                 onChevronTap: { activeNameInputTarget = .team2 }
             )
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
     private func buildDoublesNameInputs() -> some View {
-        VStack(alignment: .leading, spacing: Theme.md) {
-            VStack(alignment: .leading, spacing: Theme.sm) {
-                Text(NSLocalizedString("team1_name", comment: ""))
-                    .font(.system(size: 14))
-                    .foregroundColor(Theme.textSecondary)
+        HStack(spacing: Theme.sm) {
+            VStack(spacing: Theme.sm) {
                 InlineCommonNameTextField(
-                    placeholder: NSLocalizedString("player1_name", value: "选手1", comment: ""),
+                    placeholder: NSLocalizedString("doubles_red_a", value: "红A", comment: ""),
                     text: $team1Player1Name,
                     onChevronTap: { activeNameInputTarget = .team1Player1 }
                 )
                 InlineCommonNameTextField(
-                    placeholder: NSLocalizedString("player2_name", value: "选手2", comment: ""),
+                    placeholder: NSLocalizedString("doubles_red_b", value: "红B", comment: ""),
                     text: $team1Player2Name,
                     onChevronTap: { activeNameInputTarget = .team1Player2 }
                 )
             }
+            .frame(maxWidth: .infinity)
 
-            VStack(alignment: .leading, spacing: Theme.sm) {
-                Text(NSLocalizedString("team2_name", comment: ""))
-                    .font(.system(size: 14))
-                    .foregroundColor(Theme.textSecondary)
+            Text(NSLocalizedString("vs_separator", value: " vs ", comment: ""))
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Theme.textSecondary)
+
+            VStack(spacing: Theme.sm) {
                 InlineCommonNameTextField(
-                    placeholder: NSLocalizedString("player1_name", value: "选手1", comment: ""),
+                    placeholder: NSLocalizedString("doubles_blue_a", value: "蓝A", comment: ""),
                     text: $team2Player1Name,
                     onChevronTap: { activeNameInputTarget = .team2Player1 }
                 )
                 InlineCommonNameTextField(
-                    placeholder: NSLocalizedString("player2_name", value: "选手2", comment: ""),
+                    placeholder: NSLocalizedString("doubles_blue_b", value: "蓝B", comment: ""),
                     text: $team2Player2Name,
                     onChevronTap: { activeNameInputTarget = .team2Player2 }
                 )
             }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
@@ -506,6 +494,20 @@ struct SportsSetupDialogView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    /// 切换到双打时：若两侧名称均不含 "/"，则自动填入 红A、红B、蓝A、蓝B；否则按 "/" 拆分同步。
+    private func applyDefaultsWhenSwitchingToDoubles() {
+        let t1 = team1Name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let t2 = team2Name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !t1.contains("/"), !t2.contains("/") {
+            team1Player1Name = NSLocalizedString("doubles_red_a", value: "红A", comment: "")
+            team1Player2Name = NSLocalizedString("doubles_red_b", value: "红B", comment: "")
+            team2Player1Name = NSLocalizedString("doubles_blue_a", value: "蓝A", comment: "")
+            team2Player2Name = NSLocalizedString("doubles_blue_b", value: "蓝B", comment: "")
+        } else {
+            syncDoublesPlayerNamesFromTeamNames()
         }
     }
 

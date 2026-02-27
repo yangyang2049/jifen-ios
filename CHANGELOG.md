@@ -24,6 +24,14 @@
 - **Watch 工具：计数器**：工具 Tab 新增「计数器」（WatchCounterView）。点击屏幕 +1、底部「重置」按钮二次确认清零；移除底部「计数器」副标题，保留导航栏标题。Watch 本地化 game_counter、press_again_to_reset。
 
 ### Changed
+- **设置弹窗默认名称统一（对齐鸿蒙）**：按项目类型区分选手/单方与队伍。主队/客队：篮球。红队/蓝队：足球、排球、掼蛋、简易计分、计数器等。红方/蓝方：射箭、拳击、乒乓球、羽毛球、网球、台球、匹克球。HomeTab 与 ScoreboardTab 的 defaultTeamNames(for:) 改为 switch 分支；主应用本地化已有 watch_team_red、watch_team_blue。拳击计分板回合结束弹窗空名称回退由 red_team/blue_team 改为 watch_team_red/watch_team_blue。
+- **乒/羽/网双打自动填入**：切换到双打时，若两侧名称均不含 "/"，则自动填入 红A、红B、蓝A、蓝B；若含 "/" 则仍按 "/" 拆分为两人。新增本地化 doubles_red_a、doubles_red_b、doubles_blue_a、doubles_blue_b。
+- **设置弹窗名称区域（对齐鸿蒙）**：名称区域改为左右对半、中间「vs」隔开的样式，移除「选手名称」「队伍名称」「主队名称」「客队名称」等标题。单打/非双打为一行 [左名] vs [右名]；双打为左半两格、vs、右半两格。
+- **斗地主计分板名称与分数字号**：玩家名称由 16pt 改为 32pt（参考羽毛球 TeamSection），分数由 min(w,h)*0.22 改为 max(72, min(w,h)*0.38)，并加 .monospacedDigit()、名称 .minimumScaleFactor(0.7)。
+- **计分 Tab 切换项目栈与旋转**：从当前计分板（如掼蛋）通过设置弹窗进入另一项目时，先清空导航栈再 push 新计分板，避免上一计分板留在底层并继续影响横屏锁定。
+- **魔方计时提示对话框**：双手准备提示弹窗的「确定」按钮扩大点击区域（minWidth 200、minHeight 52）、加 .contentShape(Rectangle()) 与 .buttonStyle(.plain)，提升点击响应。
+- **魔方计时关闭提示后无响应**：TwoFingerSwipeDownDetector 原全屏透明 UIView 拦截所有触摸。改为仅覆盖顶部 120pt（时间区），手掌区与底部按钮不再被遮挡，可正常点击；双指下滑截图仍在顶部区域有效。
+- **魔方计时移除双指下滑截图**：删除 TwoFingerSwipeDownDetector 及相关 overlay，截图仅通过底部相机按钮触发。
 - **Watch 小屏适配（42mm 及以下）**：屏幕宽度 ≤ 180pt 时视为窄屏（38/40/41/42mm，44mm 及以上为 184+）。各 Tab（计分、工具、记录、设置）左右边距由 12 改为 6，列表行与设置行左右内边距由 16 改为 10。射箭计分：加分面板按钮 44→34、字号与间距缩小、外边距 20→12；菜单 overlay 内边距与按钮高度、图标缩小；暂停/结束 overlay 内边距与按钮宽高缩小。新增 WatchLayout（WatchTheme.swift）集中小屏常量。
 - **Watch 射箭加分面板取消按钮**：取消由文字「取消」改为与暂停菜单一致的图标按钮（xmark.circle.fill），并缩小与分数网格的上间距，避免按钮过靠下。
 - **Watch 射箭加分面板纵向居中**：与紧凑屏无关，所有尺寸下面板均上下左右对称 padding（.padding(panelPadding)），内容在 overlay 内纵向居中，移除仅紧凑屏的底部收口。

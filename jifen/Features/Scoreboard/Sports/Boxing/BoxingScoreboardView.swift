@@ -177,13 +177,13 @@ private struct BoxingRoundDialog: View {
 
                 HStack(spacing: 0) {
                     teamScoreSelector(
-                        name: leftTeamName.isEmpty ? NSLocalizedString("red_team", comment: "Red") : leftTeamName,
+                        name: leftTeamName.isEmpty ? NSLocalizedString("watch_team_red", value: "红方", comment: "Red") : leftTeamName,
                         selected: $leftScore
                     )
                     .frame(maxWidth: .infinity)
 
                     teamScoreSelector(
-                        name: rightTeamName.isEmpty ? NSLocalizedString("blue_team", comment: "Blue") : rightTeamName,
+                        name: rightTeamName.isEmpty ? NSLocalizedString("watch_team_blue", value: "蓝方", comment: "Blue") : rightTeamName,
                         selected: $rightScore
                     )
                     .frame(maxWidth: .infinity)

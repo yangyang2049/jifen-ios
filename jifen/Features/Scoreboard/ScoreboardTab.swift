@@ -124,17 +124,30 @@ struct ScoreboardTab: View {
         }
     }
 
+    /// 设置弹窗默认名称：与鸿蒙一致，选手/单方用红方蓝方，队伍用红队蓝队或主队客队。
     private static func defaultTeamNames(for gameType: GameType) -> (String, String) {
-        if gameType == .basketball {
+        switch gameType {
+        case .basketball:
             return (
                 NSLocalizedString("team_home", comment: ""),
                 NSLocalizedString("team_away", comment: "")
             )
+        case .football, .volleyball:
+            return (
+                NSLocalizedString("red_team", comment: ""),
+                NSLocalizedString("blue_team", comment: "")
+            )
+        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .pickleball:
+            return (
+                NSLocalizedString("watch_team_red", value: "红方", comment: ""),
+                NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+            )
+        default:
+            return (
+                NSLocalizedString("red_team", comment: ""),
+                NSLocalizedString("blue_team", comment: "")
+            )
         }
-        return (
-            NSLocalizedString("red_team", comment: ""),
-            NSLocalizedString("blue_team", comment: "")
-        )
     }
 
     @ViewBuilder
@@ -182,11 +195,18 @@ struct ScoreboardTab: View {
     }
 
     private func navigateToSportAfterSheetDismiss(_ sport: ScoreboardCatalogItem) {
-        // Avoid triggering landscape lock while setup sheet is still dismissing,
-        // which can cause a visible double rotation.
+        // Avoid triggering landscape lock while setup sheet is still dismissing.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
             guard pendingSetupSport == nil else { return }
-            selectedSport = sport
+            if selectedSport != nil {
+                // 已在计分板时：先清空栈再 push，避免底层保留上一计分板并影响旋转
+                selectedSport = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    selectedSport = sport
+                }
+            } else {
+                selectedSport = sport
+            }
         }
     }
 

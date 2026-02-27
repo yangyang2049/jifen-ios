@@ -51,6 +51,8 @@
 /* Default Team Names */
 "red_team" = "红队";
 "blue_team" = "蓝队";
+"watch_team_red" = "红方";
+"watch_team_blue" = "蓝方";
 "team_home" = "主队";
 "team_away" = "客队";
 "team1_name" = "主队名称";
@@ -61,6 +63,10 @@
 "player2_name" = "选手2";
 "singles" = "单打";
 "doubles" = "双打";
+"doubles_red_a" = "红A";
+"doubles_red_b" = "红B";
+"doubles_blue_a" = "蓝A";
+"doubles_blue_b" = "蓝B";
 "singles_doubles" = "单双打";
 "badminton_singles_doubles" = "单双打";
 
