@@ -409,6 +409,7 @@
 "common_names_clear_current_message" = "将清空%@的所有常用名称，此操作无法撤销。";
 "common_names_title" = "常用名称";
 "common_names_empty" = "暂无常用名称";
+"common_names_empty_hint" = "在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称，下次即可在此快速选择。";
 "common_names_add" = "添加";
 "common_names_batch_add" = "批量添加";
 "common_names_edit_title" = "编辑名称";

@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Fixed
+- **设置弹窗常用名称空状态说明**：CommonNameSelectorDialog 在无常用名称时增加说明文案，引导用户在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称；新增 common_names_empty_hint 中英文本地化（对齐鸿蒙常用名称选择器体验）。
+- **射箭/简单计分/多人计分英文显示**：主应用英文本地化新增 `project_archery` = "Archery"；Types.displayName 中射箭、简单计分、多人计分的 NSLocalizedString 回退值改为英文（"Archery"、"Simple Score"、"Multi-Score"），ArcheryScoreboardView 导航标题回退值改为 "Archery"，英文环境下显示英文名称。
 - **计时 Tab「其他」分组顺序**：改为 魔方、正计时、暂停、篮球 24 秒、篮球 12 秒（GameCatalog.timerOtherItems）。
 - **简易计分名称统一为「简单计分」**：zh-Hans 本地化 `game_simple_score` 及 Types.displayName 回退值、相关注释与占位页注释均改为「简单计分」，与 qa/SimulationStubs 等一致。
 - **计分 Tab 跳转**：射箭、匹克球、斗地主、掼蛋、简易计分（及拳击、台球、多人计分）从计分 Tab 进入后返回时未清除 `selectedSport`，导致导航状态错乱。上述计分板增加可选 `onNavigationBack`，ScoreboardTab 的 `getScoreboardView` 传入 `onBack`，返回时先执行回调再 `dismiss()`，保证 `selectedSport = nil` 与栈一致。

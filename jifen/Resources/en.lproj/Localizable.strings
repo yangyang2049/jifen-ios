@@ -148,9 +148,10 @@
 "game_guandan" = "Guandan";
 "game_doudizhu" = "Doudizhu";
 "game_simple_score" = "Simple Score";
-"game_multi_scoreboard" = "Multi Scoreboard";
+"game_multi_scoreboard" = "Multi-Score";
 "multi_score_player_default" = "Player";
 "game_counter" = "Counter";
+"project_archery" = "Archery";
 
 /* Setup Titles */
 "football_setup_title" = "Football Setup";
@@ -409,6 +410,7 @@
 "common_names_clear_current_message" = "All common names in %@ will be deleted. This cannot be undone.";
 "common_names_title" = "Common Names";
 "common_names_empty" = "No common names";
+"common_names_empty_hint" = "Add team or player names in Settings > Data > Common Names to pick them here next time.";
 "common_names_add" = "Add";
 "common_names_batch_add" = "Batch Add";
 "common_names_edit_title" = "Edit Name";

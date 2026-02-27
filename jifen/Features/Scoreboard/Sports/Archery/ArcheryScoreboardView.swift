@@ -93,7 +93,7 @@ struct ArcheryScoreboardView: View {
                 .allowsHitTesting(false)
             }
         }
-        .navigationTitle(NSLocalizedString("project_archery", value: "射箭", comment: ""))
+        .navigationTitle(NSLocalizedString("project_archery", value: "Archery", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)

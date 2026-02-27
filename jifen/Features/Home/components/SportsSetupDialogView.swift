@@ -23,6 +23,12 @@ struct CommonNameSelectorDialog: View {
                         Text(NSLocalizedString("common_names_empty", value: "暂无常用名称", comment: ""))
                             .font(.system(size: 16))
                             .foregroundColor(Theme.textSecondary)
+                        Text(NSLocalizedString("common_names_empty_hint", value: "在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称，下次即可在此快速选择。", comment: "Hint when no common names"))
+                            .font(.system(size: 14))
+                            .foregroundColor(Theme.textSecondary.opacity(0.9))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, Theme.md)
+                            .padding(.top, Theme.xs)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
