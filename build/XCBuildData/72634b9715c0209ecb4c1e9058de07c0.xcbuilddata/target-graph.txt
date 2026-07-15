@@ -1,4 +1,0 @@
-Target dependency graph (2 targets)
-Target 'jifen' in project 'jifen'
-➜ Explicit dependency on target 'jifenWatch Watch App' in project 'jifen'
-Target 'jifenWatch Watch App' in project 'jifen' (no dependencies)
