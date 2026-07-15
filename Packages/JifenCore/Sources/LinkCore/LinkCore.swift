@@ -72,6 +72,16 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
             try container.encode(state, forKey: .rally)
         }
     }
+
+    public var basketballState: BasketballMatchState? {
+        guard case .basketball(let state) = self else { return nil }
+        return state
+    }
+
+    public var rallyState: RallyMatchState? {
+        guard case .rally(let state) = self else { return nil }
+        return state
+    }
 }
 
 public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {

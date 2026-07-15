@@ -2,10 +2,22 @@ import Foundation
 import LinkCore
 import Observation
 
+struct LinkedSetupRequest: Equatable {
+    let sessionId: UUID
+    let setup: LinkedScoreboardSetup
+}
+
+struct LinkedSnapshotUpdate: Equatable {
+    let sessionId: UUID
+    let revision: UInt64
+    let snapshot: LinkedScoreboardSnapshot
+}
+
 @MainActor
 @Observable
 final class WatchLinkService {
-    var requestedSetup: LinkedScoreboardSetup?
+    var requestedSetup: LinkedSetupRequest?
+    var latestSnapshot: LinkedSnapshotUpdate?
 
     private let transport = WatchConnectivityTransport()
 
@@ -24,8 +36,23 @@ final class WatchLinkService {
 
     private func receive(_ data: Data) {
         guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: data),
-              envelope.kind == .setupRequest,
               envelope.sender == .phone else { return }
-        requestedSetup = envelope.payload
+        switch envelope.kind {
+        case .setupRequest:
+            requestedSetup = .init(sessionId: envelope.sessionId, setup: envelope.payload)
+        case .stateSnapshot:
+            guard let snapshot = envelope.payload.initialSnapshot else { return }
+            if let latestSnapshot, latestSnapshot.sessionId == envelope.sessionId,
+               latestSnapshot.revision >= envelope.sessionRevision {
+                return
+            }
+            latestSnapshot = .init(
+                sessionId: envelope.sessionId,
+                revision: envelope.sessionRevision,
+                snapshot: snapshot
+            )
+        default:
+            return
+        }
     }
 }

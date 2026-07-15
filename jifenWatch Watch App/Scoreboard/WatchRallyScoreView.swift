@@ -1,4 +1,5 @@
 import Observation
+import LinkCore
 import PersistenceCore
 import RecordCore
 import ScoreCore
@@ -71,6 +72,10 @@ private final class WatchRallySessionStore {
         }
     }
 
+    func replaceDisplayedState(_ state: RallyMatchState) {
+        self.state = state
+    }
+
     private static func snapshotURL(for sessionId: UUID) -> URL {
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("jifen-v2/watch-sessions", isDirectory: true)
@@ -85,15 +90,23 @@ private final class WatchRallySessionStore {
 
 struct WatchRallyScoreView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(WatchLinkService.self) private var linkService
 
     let gameType: GameType
     let rules: RallyRuleSet
+    let linkedSessionId: UUID?
     @State private var store: WatchRallySessionStore
     @State private var showMenu = false
 
-    init(gameType: GameType, rules: RallyRuleSet, initialState: RallyMatchState? = nil) {
+    init(
+        gameType: GameType,
+        rules: RallyRuleSet,
+        initialState: RallyMatchState? = nil,
+        linkedSessionId: UUID? = nil
+    ) {
         self.gameType = gameType
         self.rules = rules
+        self.linkedSessionId = linkedSessionId
         _store = State(initialValue: WatchRallySessionStore(gameType: gameType, rules: rules, initialState: initialState))
     }
 
@@ -128,7 +141,19 @@ struct WatchRallyScoreView: View {
             if showMenu { menuOverlay }
         }
         .ignoresSafeArea()
-        .onDisappear { store.persist() }
+        .disabled(isFollowingPhone)
+        .onChange(of: linkService.latestSnapshot) { _, update in
+            guard let linkedSessionId,
+                  let update,
+                  update.sessionId == linkedSessionId else { return }
+            guard let state = update.snapshot.rallyState else { return }
+            store.replaceDisplayedState(state)
+        }
+        .onDisappear {
+            if !isFollowingPhone {
+                store.persist()
+            }
+        }
     }
 
     private func side(_ screenSide: MatchSide, height: CGFloat) -> some View {
@@ -152,12 +177,16 @@ struct WatchRallyScoreView: View {
         .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
         .background(isLeft ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
         .contentShape(Rectangle())
-        .onTapGesture { store.score(logicalSide) }
+        .onTapGesture {
+            guard !isFollowingPhone else { return }
+            store.score(logicalSide)
+        }
     }
 
     private var boardGesture: some Gesture {
         DragGesture(minimumDistance: 25, coordinateSpace: .local)
             .onEnded { value in
+                guard !isFollowingPhone else { return }
                 let dx = value.translation.width
                 let dy = value.translation.height
                 if dx > 45, abs(dy) < 45 {
@@ -181,5 +210,9 @@ struct WatchRallyScoreView: View {
         .padding()
         .background(Color.black.opacity(0.9))
         .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var isFollowingPhone: Bool {
+        linkedSessionId != nil
     }
 }

@@ -10,6 +10,7 @@ struct RallyScoreboardView: View {
     let onNavigationBack: (() -> Void)?
     let onPresented: () -> Void
     @State private var store: RallySessionStore
+    @State private var watchSessionId: UUID?
 
     init(
         leftName: String,
@@ -51,7 +52,16 @@ struct RallyScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .onAppear(perform: onPresented)
-        .onDisappear { store.persistSnapshot() }
+        .onChange(of: store.state) { _, state in
+            guard let watchSessionId else { return }
+            watchLinkService.syncWatch(sessionId: watchSessionId, gameType: gameType, state: state)
+        }
+        .onDisappear {
+            if let watchSessionId {
+                watchLinkService.endWatchSession(watchSessionId)
+            }
+            store.persistSnapshot()
+        }
     }
 
     private func teamPanel(screenSide: MatchSide, color: Color) -> some View {
@@ -92,7 +102,7 @@ struct RallyScoreboardView: View {
                 Spacer()
                 if supportsWatchLaunch {
                     Button(action: {
-                        watchLinkService.startOnWatch(gameType: gameType, state: store.state)
+                        watchSessionId = watchLinkService.startOnWatch(gameType: gameType, state: store.state)
                     }) {
                         Image(systemName: "applewatch")
                     }

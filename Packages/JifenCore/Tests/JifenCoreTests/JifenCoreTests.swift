@@ -87,6 +87,35 @@ private struct CounterReducer: DomainReducer {
     #expect(restored.servingSide == .right)
 }
 
+@Test func stateSnapshotEnvelopePreservesSessionAndRevision() throws {
+    let sessionId = UUID()
+    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .badminton())
+    state.leftPoints = 18
+    state.rightPoints = 16
+
+    let envelope = LinkEnvelope(
+        sessionId: sessionId,
+        kind: .stateSnapshot,
+        sender: .phone,
+        senderSequence: 9,
+        sessionRevision: 4,
+        sentAtEpochMilliseconds: 456,
+        payload: LinkedScoreboardSetup(
+            gameType: .badminton,
+            maxSets: state.rules.maxSets,
+            initialSnapshot: .rally(state)
+        )
+    )
+    let decoded = try JSONDecoder().decode(
+        LinkEnvelope<LinkedScoreboardSetup>.self,
+        from: JSONEncoder().encode(envelope)
+    )
+
+    #expect(decoded.sessionId == sessionId)
+    #expect(decoded.sessionRevision == 4)
+    #expect(decoded.payload.initialSnapshot?.rallyState == state)
+}
+
 @Test func sessionUndoAndReplayUseOneTimeline() async throws {
     let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
         gameType: .badminton,

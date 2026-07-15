@@ -12,6 +12,7 @@ struct BasketballScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
 
     @State private var store: BasketballSessionStore
+    @State private var watchSessionId: UUID?
 
     init(
         showBackButton: Bool = true,
@@ -63,7 +64,7 @@ struct BasketballScoreboardView: View {
                     onUndo: store.undo,
                     onFinish: { store.send(.finish) },
                     onSwap: { store.send(.exchangeSides) },
-                    onLaunchOnWatch: { watchLinkService.startOnWatch(state: store.state) }
+                    onLaunchOnWatch: { watchSessionId = watchLinkService.startOnWatch(state: store.state) }
                 )
                 .frame(width: proxy.size.width * 0.26)
 
@@ -90,7 +91,14 @@ struct BasketballScoreboardView: View {
             onSetupConsumed?()
             store.startClock()
         }
+        .onChange(of: store.state) { _, state in
+            guard let watchSessionId else { return }
+            watchLinkService.syncWatch(sessionId: watchSessionId, state: state)
+        }
         .onDisappear {
+            if let watchSessionId {
+                watchLinkService.endWatchSession(watchSessionId)
+            }
             store.stopClock()
             store.persistSnapshot()
         }

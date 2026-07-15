@@ -1,4 +1,5 @@
 import Observation
+import LinkCore
 import PersistenceCore
 import RecordCore
 import ScoreCore
@@ -72,9 +73,13 @@ private final class WatchBasketballSessionStore {
         }
     }
 
-    func stopClockAndPersist() {
+    func stopClock() {
         clockTask?.cancel()
         clockTask = nil
+    }
+
+    func stopClockAndPersist() {
+        stopClock()
         Task { [core, snapshotStore, archiveIndex] in
             let session = await core.snapshot()
             try? await snapshotStore.save(session)
@@ -88,6 +93,10 @@ private final class WatchBasketballSessionStore {
                 updatedAtEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
             ))
         }
+    }
+
+    func replaceDisplayedState(_ state: BasketballMatchState) {
+        self.state = state
     }
 
     private static func snapshotURL(for sessionId: UUID) -> URL {
@@ -104,14 +113,21 @@ private final class WatchBasketballSessionStore {
 
 struct WatchBasketballScoreView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(WatchLinkService.self) private var linkService
 
     let gameMode: BasketballGameMode
+    let linkedSessionId: UUID?
     @State private var store: WatchBasketballSessionStore
     @State private var selectedSide: MatchSide?
     @State private var showMenu = false
 
-    init(gameMode: BasketballGameMode, initialState: BasketballMatchState? = nil) {
+    init(
+        gameMode: BasketballGameMode,
+        initialState: BasketballMatchState? = nil,
+        linkedSessionId: UUID? = nil
+    ) {
         self.gameMode = gameMode
+        self.linkedSessionId = linkedSessionId
         _store = State(initialValue: WatchBasketballSessionStore(gameMode: gameMode, initialState: initialState))
     }
 
@@ -169,8 +185,27 @@ struct WatchBasketballScoreView: View {
             }
         }
         .ignoresSafeArea()
-        .onAppear { store.startClock() }
-        .onDisappear { store.stopClockAndPersist() }
+        .disabled(isFollowingPhone)
+        .onAppear {
+            if !isFollowingPhone {
+                store.startClock()
+            }
+        }
+        .onChange(of: linkService.latestSnapshot) { _, update in
+            guard let linkedSessionId,
+                  let update,
+                  update.sessionId == linkedSessionId else { return }
+            guard let state = update.snapshot.basketballState else { return }
+            guard state.gameMode == gameMode else { return }
+            store.replaceDisplayedState(state)
+        }
+        .onDisappear {
+            if isFollowingPhone {
+                store.stopClock()
+            } else {
+                store.stopClockAndPersist()
+            }
+        }
     }
 
     private func side(_ screenSide: MatchSide, height: CGFloat) -> some View {
@@ -196,12 +231,16 @@ struct WatchBasketballScoreView: View {
         .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
         .background(isLeft ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
         .contentShape(Rectangle())
-        .onTapGesture { selectedSide = logicalSide }
+        .onTapGesture {
+            guard !isFollowingPhone else { return }
+            selectedSide = logicalSide
+        }
     }
 
     private var boardGesture: some Gesture {
         DragGesture(minimumDistance: 25, coordinateSpace: .local)
             .onEnded { value in
+                guard !isFollowingPhone else { return }
                 let dx = value.translation.width
                 let dy = value.translation.height
                 if dx > 45, abs(dy) < 45 {
@@ -259,6 +298,10 @@ struct WatchBasketballScoreView: View {
     private var periodTitle: String {
         if store.state.isOvertime { return "加时" }
         return gameMode == .threeXThree ? "3x3" : "第 \(store.state.currentPeriod) 节"
+    }
+
+    private var isFollowingPhone: Bool {
+        linkedSessionId != nil
     }
 
     private var shotClockOptions: [Int] {
