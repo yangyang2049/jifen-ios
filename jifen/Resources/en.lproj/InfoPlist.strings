@@ -6,4 +6,4 @@
 */
 
 "NSPhotoLibraryAddUsageDescription" = "We need access to your photo library to save scoreboard screenshots.";
-"CFBundleDisplayName" = "iScore";
+"CFBundleDisplayName" = "iScoreboard";
