@@ -3,12 +3,13 @@
 //  jifenWatch Watch App
 //
 
+import ScoreCore
 import SwiftUI
 
 struct WatchPickleballScoreView: View {
     let maxSets: Int
 
     var body: some View {
-        WatchScoreboardView(rules: WatchPickleballRules(maxSets: maxSets))
+        WatchRallyScoreView(gameType: .pickleball, rules: .pickleball(maxSets: maxSets))
     }
 }
