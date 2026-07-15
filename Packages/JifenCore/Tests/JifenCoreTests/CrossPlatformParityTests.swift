@@ -2,6 +2,7 @@ import Foundation
 import Testing
 import LinkCore
 import ScoreCore
+import SessionCore
 
 @Test func pingPongCompletesASetAndResetsPointsLikeHarmony() {
     let reducer = RallyMatchReducer()
@@ -164,6 +165,116 @@ import ScoreCore
         team0FirstReceiverSlotIndex: 0,
         team1FirstReceiverSlotIndex: 1
     ) == 2)
+}
+
+@Test func rallyReducerAdvancesPingPongDoublesRotationWithScore() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pingPong(),
+        doubles: .pingPong(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    #expect(state.doubles?.serverSlotIndex == 0)
+    #expect(state.doubles?.receiverSlotIndex == 1)
+
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    #expect(state.doubles?.serverSlotIndex == 1)
+    #expect(state.doubles?.receiverSlotIndex == 2)
+    #expect(state.servingSide == .right)
+}
+
+@Test func pingPongDoublesStartsNextSetWithAlternatingTeamServer() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pingPong(),
+        doubles: .pingPong(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+    )
+
+    for point in 0..<11 {
+        state = reducer.reduce(state: state, intent: .pointWon(.left), at: Int64(point)).state
+    }
+
+    #expect(state.currentSet == 2)
+    #expect(state.servingSide == .right)
+    #expect(state.doubles?.serverSlotIndex == 1)
+    #expect(state.doubles?.receiverSlotIndex == 0)
+}
+
+@Test func rallyReducerAdvancesBadmintonDoublesCourtsAndService() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .badminton(),
+        doubles: .badminton(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    #expect(state.doubles?.serverSlotIndex == 2)
+    #expect(state.doubles?.receiverSlotIndex == 3)
+    #expect(state.doubles?.serverName == "Red B")
+
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    #expect(state.doubles?.serverSlotIndex == 3)
+    #expect(state.doubles?.receiverSlotIndex == 2)
+    #expect(state.servingSide == .right)
+}
+
+@Test func rallyUndoRestoresDoublesRotationAtomically() async {
+    let initial = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pingPong(),
+        doubles: .pingPong(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+    )
+    let seed = ScoreSession<RallyMatchState, RallyMatchEvent>(
+        gameType: .pingpongDoubles,
+        ruleFamily: .s1,
+        reducerType: "rally/v1",
+        state: initial
+    )
+    let session = ScoreSessionCore(seedSession: seed, reducer: RallyMatchReducer())
+
+    _ = await session.dispatch(actorId: "phone", intent: .pointWon(.left), at: 1)
+    _ = await session.dispatch(actorId: "phone", intent: .pointWon(.right), at: 2)
+    #expect(await session.snapshot().state.doubles?.serverSlotIndex == 1)
+
+    #expect(await session.undo(actorId: "phone"))
+    #expect(await session.snapshot().state.doubles?.serverSlotIndex == 0)
+    #expect(await session.snapshot().state.doubles?.receiverSlotIndex == 1)
+}
+
+@Test func linkedRallySnapshotPreservesDoublesNamesAndRotation() throws {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pingPong(),
+        doubles: .pingPong(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+    )
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    let setup = LinkedScoreboardSetup(
+        gameType: .pingpongDoubles,
+        maxSets: 5,
+        initialSnapshot: .rally(state)
+    )
+
+    let restored = try JSONDecoder().decode(
+        LinkedScoreboardSetup.self,
+        from: JSONEncoder().encode(setup)
+    )
+
+    #expect(restored.initialSnapshot?.rallyState?.doubles?.playerNames == [
+        "Red A", "Blue A", "Red B", "Blue B"
+    ])
+    #expect(restored.initialSnapshot?.rallyState?.doubles?.serverSlotIndex == 1)
+    #expect(restored.initialSnapshot?.rallyState?.doubles?.receiverSlotIndex == 2)
 }
 
 @Test func linkRevisionGateRejectsDuplicateOutOfOrderAndWrongSessionSnapshots() {

@@ -133,6 +133,12 @@ struct WatchRallyScoreView: View {
                 Image(systemName: store.state.servingSide == .left ? "arrow.up.left" : "arrow.down.right")
                     .font(.caption2)
                     .foregroundStyle(WatchTheme.accent)
+                if let serverName = store.state.doubles?.serverName {
+                    Label(serverName, systemImage: "arrow.up.circle.fill")
+                        .font(.system(size: 9, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
             }
             .padding(7)
             .background(Color.black.opacity(0.78))

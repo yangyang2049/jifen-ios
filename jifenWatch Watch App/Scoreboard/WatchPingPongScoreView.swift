@@ -14,7 +14,7 @@ struct WatchPingPongScoreView: View {
 
     var body: some View {
         WatchRallyScoreView(
-            gameType: .pingpong,
+            gameType: initialState?.doubles == nil ? .pingpong : .pingpongDoubles,
             rules: .pingPong(maxSets: maxSets),
             initialState: initialState,
             linkedSessionId: linkedSessionId

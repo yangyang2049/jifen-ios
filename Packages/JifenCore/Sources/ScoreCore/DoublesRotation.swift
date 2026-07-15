@@ -53,6 +53,74 @@ public struct BadmintonDoublesRotationState: Codable, Equatable, Sendable {
     }
 }
 
+public enum RallyDoublesRotationState: Codable, Equatable, Sendable {
+    case pingPong(PingPongDoublesRotationState)
+    case badminton(BadmintonDoublesRotationState)
+}
+
+public struct RallyDoublesState: Codable, Equatable, Sendable {
+    public var playerNames: [String]
+    public var rotation: RallyDoublesRotationState
+
+    public init(playerNames: [String], rotation: RallyDoublesRotationState) {
+        let defaults = ["Player 1", "Player 2", "Player 3", "Player 4"]
+        self.playerNames = (0..<4).map { index in
+            guard playerNames.indices.contains(index) else { return defaults[index] }
+            let name = playerNames[index].trimmingCharacters(in: .whitespacesAndNewlines)
+            return name.isEmpty ? defaults[index] : name
+        }
+        self.rotation = rotation
+    }
+
+    public static func pingPong(
+        playerNames: [String],
+        openingServerSlotIndex: DoublesPlayerSlotIndex = 0,
+        openingReceiverSlotIndex: DoublesPlayerSlotIndex = 1
+    ) -> Self {
+        .init(
+            playerNames: playerNames,
+            rotation: .pingPong(createPingPongDoublesRotation(
+                openingServerSlotIndex: openingServerSlotIndex,
+                openingReceiverSlotIndex: openingReceiverSlotIndex
+            ))
+        )
+    }
+
+    public static func badminton(playerNames: [String], servingTeam0: Bool = true) -> Self {
+        .init(
+            playerNames: playerNames,
+            rotation: .badminton(createBadmintonDoublesRotation(servingTeam0: servingTeam0))
+        )
+    }
+
+    public var serverSlotIndex: DoublesPlayerSlotIndex {
+        switch rotation {
+        case .pingPong(let state): state.serverSlotIndex
+        case .badminton(let state): state.serverSlotIndex
+        }
+    }
+
+    public var receiverSlotIndex: DoublesPlayerSlotIndex {
+        switch rotation {
+        case .pingPong(let state): state.receiverSlotIndex
+        case .badminton(let state): state.receiverSlotIndex
+        }
+    }
+
+    public var serverName: String? {
+        playerName(at: serverSlotIndex)
+    }
+
+    public var receiverName: String? {
+        playerName(at: receiverSlotIndex)
+    }
+
+    public func playerName(at slotIndex: DoublesPlayerSlotIndex) -> String? {
+        guard playerNames.indices.contains(slotIndex) else { return nil }
+        return playerNames[slotIndex]
+    }
+}
+
 public func doublesPartnerSlot(_ slot: DoublesPlayerSlotIndex) -> DoublesPlayerSlotIndex {
     switch ((slot % 4) + 4) % 4 {
     case 0: 2

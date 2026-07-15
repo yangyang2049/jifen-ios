@@ -22,8 +22,6 @@ struct HomeTab: View {
     @State private var path = NavigationPath()
     /// When user selects a scoreboard game from New Game or Quick Start, show setup first for supported sports.
     @State private var pendingScoreboardSetupItem: ScoreboardSetupItem? = nil
-    @State private var appliedSetupResult: SportsSetupResult? = nil
-    @State private var appliedSetupGameType: GameType? = nil
 
     // Navigation back handler for scoreboard views
     private func navigateBack() {
@@ -39,6 +37,7 @@ struct HomeTab: View {
     struct ScoreboardNavigationTarget: Hashable {
         let gameType: GameType
         let recordId: String?
+        let setupResult: SportsSetupResult?
     }
 
     enum NavigationDestination: Hashable {
@@ -105,14 +104,8 @@ struct HomeTab: View {
                         titleFallback: isDoudizhu ? "斗地主" : "多人计分",
                         fixedPlayerCount: isDoudizhu ? 3 : nil,
                         onConfirm: { result in
-                            appliedSetupResult = result
-                            appliedSetupGameType = item.gameType
                             pendingScoreboardSetupItem = nil
-                            path.append(
-                                NavigationDestination.scoreboard(
-                                    ScoreboardNavigationTarget(gameType: item.gameType, recordId: nil)
-                                )
-                            )
+                            navigateToScoreboardAfterSheetDismiss(item.gameType, setupResult: result)
                         },
                         onCancel: {
                             pendingScoreboardSetupItem = nil
@@ -130,14 +123,8 @@ struct HomeTab: View {
                         initialPointsPerSet: nil,
                         initialTieBreakPoints: nil,
                         onConfirm: { result in
-                            appliedSetupResult = result
-                            appliedSetupGameType = item.gameType
                             pendingScoreboardSetupItem = nil
-                            path.append(
-                                NavigationDestination.scoreboard(
-                                    ScoreboardNavigationTarget(gameType: item.gameType, recordId: nil)
-                                )
-                            )
+                            navigateToScoreboardAfterSheetDismiss(item.gameType, setupResult: result)
                         },
                         onCancel: {
                             pendingScoreboardSetupItem = nil
@@ -167,12 +154,9 @@ struct HomeTab: View {
                 case .scoreboard(let target):
                     getScoreboardView(
                         for: target.gameType,
-                        setupResult: appliedSetupGameType == target.gameType ? appliedSetupResult : nil,
+                        setupResult: target.setupResult,
                         initialRecordId: target.recordId,
-                        onSetupConsumed: {
-                            appliedSetupResult = nil
-                            appliedSetupGameType = nil
-                        }
+                        onSetupConsumed: {}
                     )
                 case .toolsList:
                     ToolsListPageView(onToolTap: { path.append($0) })
@@ -343,13 +327,12 @@ struct HomeTab: View {
 
     private func continueUnfinishedGame() {
         guard let unfinishedRecord else { return }
-        appliedSetupResult = nil
-        appliedSetupGameType = nil
         path.append(
             NavigationDestination.scoreboard(
                 ScoreboardNavigationTarget(
                     gameType: unfinishedRecord.gameType,
-                    recordId: unfinishedRecord.id
+                    recordId: unfinishedRecord.id,
+                    setupResult: nil
                 )
             )
         )
@@ -359,6 +342,24 @@ struct HomeTab: View {
         _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
         ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
         loadUnfinishedRecord()
+    }
+
+    private func navigateToScoreboardAfterSheetDismiss(
+        _ gameType: GameType,
+        setupResult: SportsSetupResult
+    ) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
+            guard pendingScoreboardSetupItem == nil else { return }
+            path.append(
+                NavigationDestination.scoreboard(
+                    ScoreboardNavigationTarget(
+                        gameType: gameType,
+                        recordId: nil,
+                        setupResult: setupResult
+                    )
+                )
+            )
+        }
     }
 
     @ViewBuilder

@@ -76,6 +76,7 @@ public struct RallyMatchState: Codable, Equatable, Sendable {
     public var firstServerInSet: MatchSide
     public var finished: Bool
     public var sidesSwapped: Bool
+    public var doubles: RallyDoublesState?
 
     public var currentSet: Int { leftSets + rightSets + 1 }
 }
@@ -102,7 +103,8 @@ public enum RallyMatchEngine {
         leftName: String,
         rightName: String,
         rules: RallyRuleSet,
-        openingServer: MatchSide = .left
+        openingServer: MatchSide = .left,
+        doubles: RallyDoublesState? = nil
     ) -> RallyMatchState {
         RallyMatchState(
             rules: rules,
@@ -116,7 +118,8 @@ public enum RallyMatchEngine {
             openingServerSide: openingServer,
             firstServerInSet: openingServer,
             finished: false,
-            sidesSwapped: false
+            sidesSwapped: false,
+            doubles: doubles
         )
     }
 
@@ -148,7 +151,8 @@ public struct RallyMatchReducer: DomainReducer {
                 leftName: state.leftName,
                 rightName: state.rightName,
                 rules: state.rules,
-                openingServer: state.openingServerSide
+                openingServer: state.openingServerSide,
+                doubles: resetDoubles(state.doubles, openingServer: state.openingServerSide)
             )
             return .init(state: reset, events: [.matchReset])
         }
@@ -162,6 +166,7 @@ public struct RallyMatchReducer: DomainReducer {
             next.leftPoints = min(next.leftPoints, cap)
             next.rightPoints = min(next.rightPoints, cap)
         }
+        next.doubles = advanceDoubles(previous: state, next: next, scorer: side)
         next.servingSide = nextServer(after: side, state: next)
         var events: [RallyMatchEvent] = [.pointScored(side: side, leftPoints: next.leftPoints, rightPoints: next.rightPoints)]
 
@@ -187,6 +192,7 @@ public struct RallyMatchReducer: DomainReducer {
             next.rightPoints = 0
             next.firstServerInSet = nextFirstServer(for: next)
             next.servingSide = next.firstServerInSet
+            next.doubles = startNextSetDoubles(next.doubles, servingSide: next.firstServerInSet)
             if next.rules.autoChangeSides {
                 next = exchanged(next)
                 events.append(.sidesExchanged)
@@ -235,6 +241,89 @@ public struct RallyMatchReducer: DomainReducer {
         guard previous.currentSet == previous.rules.maxSets,
               let point = previous.rules.decidingSetSideSwitchPoint else { return false }
         return max(previous.leftPoints, previous.rightPoints) < point && max(next.leftPoints, next.rightPoints) >= point
+    }
+
+    private func advanceDoubles(
+        previous: RallyMatchState,
+        next: RallyMatchState,
+        scorer: MatchSide
+    ) -> RallyDoublesState? {
+        guard var doubles = previous.doubles else { return nil }
+        switch doubles.rotation {
+        case .pingPong(let rotation):
+            let result = advancePingPongDoublesRotation(
+                current: rotation,
+                previousTeam0Score: previous.leftPoints,
+                previousTeam1Score: previous.rightPoints,
+                nextTeam0Score: next.leftPoints,
+                nextTeam1Score: next.rightPoints,
+                pointsToWin: previous.rules.target(for: previous.currentSet),
+                isDecidingSet: previous.currentSet == previous.rules.maxSets
+            )
+            doubles.rotation = .pingPong(result.state)
+        case .badminton(let rotation):
+            doubles.rotation = .badminton(advanceBadmintonDoublesRotation(
+                current: rotation,
+                scoringTeam0: scorer == .left,
+                nextTeam0Score: next.leftPoints,
+                nextTeam1Score: next.rightPoints
+            ))
+        }
+        return doubles
+    }
+
+    private func startNextSetDoubles(
+        _ doubles: RallyDoublesState?,
+        servingSide: MatchSide
+    ) -> RallyDoublesState? {
+        guard var doubles else { return nil }
+        switch doubles.rotation {
+        case .pingPong:
+            let server = servingSide == .left ? 0 : 1
+            doubles.rotation = .pingPong(createPingPongDoublesRotation(
+                openingServerSlotIndex: server,
+                openingReceiverSlotIndex: server == 0 ? 1 : 0
+            ))
+        case .badminton(let rotation):
+            let servingTeam0 = servingSide == .left
+            let server = badmintonPlayerAtServiceCourt(
+                team0: servingTeam0,
+                rightCourt: true,
+                team0CourtOrderSwapped: rotation.team0CourtOrderSwapped,
+                team1CourtOrderSwapped: rotation.team1CourtOrderSwapped
+            )
+            let receiver = badmintonPlayerAtServiceCourt(
+                team0: !servingTeam0,
+                rightCourt: true,
+                team0CourtOrderSwapped: rotation.team0CourtOrderSwapped,
+                team1CourtOrderSwapped: rotation.team1CourtOrderSwapped
+            )
+            doubles.rotation = .badminton(.init(
+                serverSlotIndex: server,
+                receiverSlotIndex: receiver,
+                team0CourtOrderSwapped: rotation.team0CourtOrderSwapped,
+                team1CourtOrderSwapped: rotation.team1CourtOrderSwapped
+            ))
+        }
+        return doubles
+    }
+
+    private func resetDoubles(
+        _ doubles: RallyDoublesState?,
+        openingServer: MatchSide
+    ) -> RallyDoublesState? {
+        guard let doubles else { return nil }
+        switch doubles.rotation {
+        case .pingPong:
+            let server = openingServer == .left ? 0 : 1
+            return .pingPong(
+                playerNames: doubles.playerNames,
+                openingServerSlotIndex: server,
+                openingReceiverSlotIndex: server == 0 ? 1 : 0
+            )
+        case .badminton:
+            return .badminton(playerNames: doubles.playerNames, servingTeam0: openingServer == .left)
+        }
     }
 
     private func withNames(left: String, right: String, state: RallyMatchState) -> RallyMatchState {

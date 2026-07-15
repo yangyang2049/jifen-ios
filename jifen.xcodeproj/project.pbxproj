@@ -12,6 +12,7 @@
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */; };
 		B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D82E75ABD730744578E876 /* ScheduleModelTests.swift */; };
+		E10000000000000000000002 /* RallySessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* RallySessionStoreTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
 		C10000000000000000000003 /* RecordCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000003 /* RecordCore */; };
@@ -75,6 +76,7 @@
 		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E10000000000000000000001 /* RallySessionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RallySessionStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -164,6 +166,7 @@
 			isa = PBXGroup;
 			children = (
 				07D82E75ABD730744578E876 /* ScheduleModelTests.swift */,
+				E10000000000000000000001 /* RallySessionStoreTests.swift */,
 			);
 			path = jifenTests;
 			sourceTree = "<group>";
@@ -424,6 +427,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */,
+				E10000000000000000000002 /* RallySessionStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

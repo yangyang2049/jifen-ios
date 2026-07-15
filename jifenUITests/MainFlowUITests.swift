@@ -56,6 +56,49 @@ final class MainFlowUITests: XCTestCase {
         }
     }
 
+    func testPingPongDoublesSetupShowsAllPlayersOnScoreboard() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN"
+        ]
+        app.launch()
+        defer { app.terminate() }
+
+        let newMatch = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "新比赛")).firstMatch
+        XCTAssertTrue(newMatch.waitForExistence(timeout: 8))
+        newMatch.tap()
+
+        let pingPong = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "乒乓球")).firstMatch
+        XCTAssertTrue(pingPong.waitForExistence(timeout: 5))
+        pingPong.tap()
+
+        let setupTitle = app.staticTexts["乒乓球设置"]
+        XCTAssertTrue(setupTitle.waitForExistence(timeout: 5))
+        let modeControl = app.segmentedControls["singles_doubles_picker"]
+        XCTAssertTrue(modeControl.waitForExistence(timeout: 3))
+        let doublesOption = app.buttons["doubles_option"]
+        if doublesOption.exists {
+            doublesOption.tap()
+        } else {
+            modeControl.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()
+        }
+
+        XCTAssertEqual(modeControl.value as? String, "双打")
+        XCTAssertTrue(app.textFields.element(boundBy: 3).waitForExistence(timeout: 3))
+        app.buttons["开始"].tap()
+        _ = app.buttons["+1"].waitForExistence(timeout: 8)
+
+        for name in ["红A", "红B", "蓝A", "蓝B"] {
+            let player = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS %@", name))
+                .firstMatch
+            XCTAssertTrue(player.waitForExistence(timeout: 8), "Missing doubles player: \(name)")
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["发球员"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["接发球员"].exists)
+    }
+
     @discardableResult
     private func crawlAllVisibleComponents(in app: XCUIApplication, tab: String) -> Int {
         var seenFingerprints = Set<String>()

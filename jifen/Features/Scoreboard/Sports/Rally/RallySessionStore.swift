@@ -21,8 +21,14 @@ final class RallySessionStore {
         rules: RallyRuleSet,
         participants: [SessionParticipant]? = nil
     ) {
-        let initial = RallyMatchEngine.initial(leftName: leftName, rightName: rightName, rules: rules)
-        let sessionParticipants = participants?.filter { !$0.name.isEmpty } ?? [
+        let providedParticipants = participants?.filter { !$0.name.isEmpty }
+        let initial = RallyMatchEngine.initial(
+            leftName: leftName,
+            rightName: rightName,
+            rules: rules,
+            doubles: Self.doublesState(for: gameType, participants: providedParticipants)
+        )
+        let sessionParticipants = providedParticipants ?? [
             .init(id: "left", name: initial.leftName, role: "team"),
             .init(id: "right", name: initial.rightName, role: "team")
         ]
@@ -79,5 +85,28 @@ final class RallySessionStore {
     private static func archiveIndexURL() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("jifen-v2/session-index.json")
+    }
+
+    private static func doublesState(
+        for gameType: ScoreCore.GameType,
+        participants: [SessionParticipant]?
+    ) -> RallyDoublesState? {
+        let namesByID = (participants ?? []).reduce(into: [String: String]()) { names, participant in
+            names[participant.id] = participant.name
+        }
+        let names = [
+            namesByID["left-top"] ?? "红A",
+            namesByID["right-top"] ?? "蓝A",
+            namesByID["left-bottom"] ?? "红B",
+            namesByID["right-bottom"] ?? "蓝B"
+        ]
+        switch gameType {
+        case .pingpongDoubles:
+            return .pingPong(playerNames: names)
+        case .badmintonDoubles:
+            return .badminton(playerNames: names)
+        default:
+            return nil
+        }
     }
 }

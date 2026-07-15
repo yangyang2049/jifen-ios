@@ -115,7 +115,7 @@ struct ScoreboardSetupItem: Identifiable {
 
 // MARK: - SportsSetupResult Struct (refined for 6 supported sports)
 // Based on HarmonyOS SportsSetupDialog.ets, excluding pickleball-specific fields
-struct SportsSetupResult: Codable {
+struct SportsSetupResult: Codable, Hashable {
     var team1Name: String
     var team2Name: String
     var maxSets: Int? = nil

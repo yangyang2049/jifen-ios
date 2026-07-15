@@ -14,7 +14,7 @@ struct WatchBadmintonScoreView: View {
 
     var body: some View {
         WatchRallyScoreView(
-            gameType: .badminton,
+            gameType: initialState?.doubles == nil ? .badminton : .badmintonDoubles,
             rules: .badminton(maxSets: maxSets),
             initialState: initialState,
             linkedSessionId: linkedSessionId

@@ -387,13 +387,19 @@ struct SportsSetupDialogView: View {
         Picker("", selection: $isSingles) {
             Text(NSLocalizedString("singles", value: "单打", comment: ""))
                 .tag(true)
+                .accessibilityIdentifier("singles_option")
             Text(NSLocalizedString("doubles", value: "双打", comment: ""))
                 .tag(false)
+                .accessibilityIdentifier("doubles_option")
         }
         .pickerStyle(.segmented)
         .labelsHidden()
         .tint(Theme.primary)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityIdentifier("singles_doubles_picker")
+        .accessibilityValue(isSingles
+            ? NSLocalizedString("singles", value: "单打", comment: "")
+            : NSLocalizedString("doubles", value: "双打", comment: ""))
     }
 
     @ViewBuilder

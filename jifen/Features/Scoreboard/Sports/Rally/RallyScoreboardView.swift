@@ -70,10 +70,14 @@ struct RallyScoreboardView: View {
         let name = isLeft ? store.state.leftName : store.state.rightName
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         return VStack(spacing: 12) {
-            Text(name)
-                .font(.title3.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
+            if let doubles = store.state.doubles {
+                doublesPlayerRows(for: side, doubles: doubles)
+            } else {
+                Text(name)
+                    .font(.title3.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
             Text("\(score)")
                 .font(.system(size: 128, weight: .bold, design: .rounded))
                 .monospacedDigit()
@@ -120,6 +124,19 @@ struct RallyScoreboardView: View {
             Image(systemName: store.state.servingSide == .left ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
                 .font(.title2)
                 .foregroundStyle(Theme.accentColor)
+            if let doubles = store.state.doubles,
+               let serverName = doubles.serverName,
+               let receiverName = doubles.receiverName {
+                VStack(spacing: 3) {
+                    Label(serverName, systemImage: "arrow.up.circle.fill")
+                        .help("发球员")
+                    Label(receiverName, systemImage: "arrow.down.circle")
+                        .help("接发球员")
+                }
+                .font(.caption.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            }
 
             Spacer(minLength: 0)
             HStack(spacing: 16) {
@@ -138,6 +155,37 @@ struct RallyScoreboardView: View {
 
     private func logicalSide(forScreen side: MatchSide) -> MatchSide {
         store.state.sidesSwapped ? side.opposite : side
+    }
+
+    private func doublesPlayerRows(for side: MatchSide, doubles: RallyDoublesState) -> some View {
+        let slots = side == .left ? [0, 2] : [1, 3]
+        return VStack(spacing: 6) {
+            ForEach(slots, id: \.self) { slot in
+                HStack(spacing: 7) {
+                    playerRoleIcon(slot: slot, doubles: doubles)
+                        .frame(width: 18, height: 18)
+                    Text(doubles.playerName(at: slot) ?? "")
+                        .font(.headline.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func playerRoleIcon(slot: Int, doubles: RallyDoublesState) -> some View {
+        if slot == doubles.serverSlotIndex {
+            Image(systemName: "arrow.up.circle.fill")
+                .accessibilityLabel("发球员")
+                .help("发球员")
+        } else if slot == doubles.receiverSlotIndex {
+            Image(systemName: "arrow.down.circle")
+                .accessibilityLabel("接发球员")
+                .help("接发球员")
+        } else {
+            Color.clear
+        }
     }
 
     private var supportsWatchLaunch: Bool {
