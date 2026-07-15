@@ -1,17 +1,13 @@
-import LinkCore
 import SwiftUI
 
 @main
 struct JifenWatchApp: App {
-    private let phoneLinkTransport = WatchConnectivityTransport()
-
-    init() {
-        phoneLinkTransport.activate()
-    }
+    @State private var linkService = WatchLinkService()
 
     var body: some Scene {
         WindowGroup {
             WatchRootView()
+                .environment(linkService)
         }
     }
 }

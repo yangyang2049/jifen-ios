@@ -3,7 +3,9 @@ import SwiftUI
 
 struct RallyScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
+    let gameType: ScoreCore.GameType
     let showBackButton: Bool
     let onNavigationBack: (() -> Void)?
     let onPresented: () -> Void
@@ -19,6 +21,7 @@ struct RallyScoreboardView: View {
         onNavigationBack: (() -> Void)? = nil,
         onPresented: @escaping () -> Void = {}
     ) {
+        self.gameType = gameType
         self.showBackButton = showBackButton
         self.onNavigationBack = onNavigationBack
         self.onPresented = onPresented
@@ -87,6 +90,14 @@ struct RallyScoreboardView: View {
                     Button(action: back) { Image(systemName: "chevron.left") }
                 }
                 Spacer()
+                if supportsWatchLaunch {
+                    Button(action: {
+                        watchLinkService.startOnWatch(gameType: gameType, maxSets: store.state.rules.maxSets)
+                    }) {
+                        Image(systemName: "applewatch")
+                    }
+                    .help("在手表打开计分板")
+                }
                 Button(action: { store.send(.exchangeSides) }) { Image(systemName: "arrow.left.arrow.right") }
             }
             .buttonStyle(.borderless)
@@ -117,6 +128,15 @@ struct RallyScoreboardView: View {
 
     private func logicalSide(forScreen side: MatchSide) -> MatchSide {
         store.state.sidesSwapped ? side.opposite : side
+    }
+
+    private var supportsWatchLaunch: Bool {
+        switch gameType {
+        case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles, .pickleball, .pickleballDoubles:
+            true
+        default:
+            false
+        }
     }
 
     private func back() {

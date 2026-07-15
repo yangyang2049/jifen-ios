@@ -3,6 +3,7 @@ import ScoreCore
 
 struct BasketballScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
     var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
@@ -61,7 +62,13 @@ struct BasketballScoreboardView: View {
                     onAdvancePeriod: { store.send(.advanceToNextPeriod) },
                     onUndo: store.undo,
                     onFinish: { store.send(.finish) },
-                    onSwap: { store.send(.exchangeSides) }
+                    onSwap: { store.send(.exchangeSides) },
+                    onLaunchOnWatch: {
+                        watchLinkService.startOnWatch(
+                            gameType: store.state.gameMode == .threeXThree ? .threeBasketball : .basketball,
+                            basketballThreeXThree: store.state.gameMode == .threeXThree
+                        )
+                    }
                 )
                 .frame(width: proxy.size.width * 0.26)
 
@@ -178,6 +185,7 @@ private struct BasketballCenterPanel: View {
     let onUndo: () -> Void
     let onFinish: () -> Void
     let onSwap: () -> Void
+    let onLaunchOnWatch: () -> Void
 
     var body: some View {
         VStack(spacing: 10) {
@@ -189,6 +197,10 @@ private struct BasketballCenterPanel: View {
                 Text(periodTitle)
                     .font(.headline.monospacedDigit())
                 Spacer()
+                Button(action: onLaunchOnWatch) {
+                    Image(systemName: "applewatch")
+                }
+                .help("在手表打开计分板")
                 Button(action: onSwap) { Image(systemName: "arrow.left.arrow.right") }
             }
             .buttonStyle(.borderless)

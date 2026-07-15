@@ -2,6 +2,7 @@ import SwiftUI
 import ScoreCore
 
 struct WatchRootView: View {
+    @Environment(WatchLinkService.self) private var linkService
     @State private var scoreboardRoute: WatchScoreboardRoute? = nil
 
     var body: some View {
@@ -15,6 +16,11 @@ struct WatchRootView: View {
             }
         }
         .accentColor(WatchTheme.accent)
+        .onChange(of: linkService.requestedSetup) { _, setup in
+            guard let setup, let route = WatchScoreboardRoute(linkedSetup: setup) else { return }
+            scoreboardRoute = route
+            linkService.clearRequestedSetup()
+        }
     }
 
     private func destinationView(for route: WatchScoreboardRoute) -> some View {

@@ -36,6 +36,18 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case sessionLeft
 }
 
+public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
+    public let gameType: GameType
+    public let maxSets: Int?
+    public let basketballThreeXThree: Bool
+
+    public init(gameType: GameType, maxSets: Int? = nil, basketballThreeXThree: Bool = false) {
+        self.gameType = gameType
+        self.maxSets = maxSets
+        self.basketballThreeXThree = basketballThreeXThree
+    }
+}
+
 public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
     public let protocolVersion: Int
     public let messageId: UUID
