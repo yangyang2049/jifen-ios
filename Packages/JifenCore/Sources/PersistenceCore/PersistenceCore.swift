@@ -1,4 +1,7 @@
 import Foundation
+import RecordCore
+import ScoreCore
+import SessionCore
 
 public actor AtomicJSONFileStore<Value: Codable & Sendable> {
     private let fileURL: URL
@@ -36,5 +39,60 @@ public actor AtomicJSONFileStore<Value: Codable & Sendable> {
             return
         }
         try FileManager.default.removeItem(at: fileURL)
+    }
+}
+
+public struct SessionArchiveEntry: Codable, Equatable, Identifiable, Sendable {
+    public let sessionId: UUID
+    public let gameType: GameType
+    public let source: RecordSource
+    public let snapshotPath: String
+    public let participants: [SessionParticipant]
+    public let status: SessionStatus
+    public let updatedAtEpochMilliseconds: Int64
+
+    public var id: UUID { sessionId }
+
+    public init(
+        sessionId: UUID,
+        gameType: GameType,
+        source: RecordSource,
+        snapshotPath: String,
+        participants: [SessionParticipant],
+        status: SessionStatus,
+        updatedAtEpochMilliseconds: Int64
+    ) {
+        self.sessionId = sessionId
+        self.gameType = gameType
+        self.source = source
+        self.snapshotPath = snapshotPath
+        self.participants = participants
+        self.status = status
+        self.updatedAtEpochMilliseconds = updatedAtEpochMilliseconds
+    }
+}
+
+public actor SessionArchiveIndex {
+    private let store: AtomicJSONFileStore<[SessionArchiveEntry]>
+
+    public init(fileURL: URL) {
+        store = AtomicJSONFileStore(fileURL: fileURL)
+    }
+
+    public func entries() async throws -> [SessionArchiveEntry] {
+        try await store.load()?.sorted { $0.updatedAtEpochMilliseconds > $1.updatedAtEpochMilliseconds } ?? []
+    }
+
+    public func upsert(_ entry: SessionArchiveEntry) async throws {
+        var allEntries = try await store.load() ?? []
+        allEntries.removeAll { $0.sessionId == entry.sessionId }
+        allEntries.append(entry)
+        try await store.save(allEntries)
+    }
+
+    public func remove(sessionId: UUID) async throws {
+        var allEntries = try await store.load() ?? []
+        allEntries.removeAll { $0.sessionId == sessionId }
+        try await store.save(allEntries)
     }
 }

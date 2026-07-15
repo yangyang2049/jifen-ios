@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import PersistenceCore
+import RecordCore
 import ScoreCore
 import SessionCore
 
@@ -9,6 +10,7 @@ import SessionCore
 final class BasketballSessionStore {
     private let core: ScoreSessionCore<BasketballMatchReducer>
     private let snapshotStore: AtomicJSONFileStore<ScoreSession<BasketballMatchState, BasketballMatchEvent>>
+    private let archiveIndex: SessionArchiveIndex
     private var clockTask: Task<Void, Never>?
 
     private(set) var state: BasketballMatchState
@@ -35,6 +37,7 @@ final class BasketballSessionStore {
             shouldFinish: { _, state in state.finished }
         )
         self.snapshotStore = AtomicJSONFileStore(fileURL: Self.snapshotURL(for: session.sessionId))
+        self.archiveIndex = SessionArchiveIndex(fileURL: Self.archiveIndexURL())
         self.state = initial
     }
 
@@ -75,9 +78,18 @@ final class BasketballSessionStore {
     }
 
     func persistSnapshot() {
-        Task { [core, snapshotStore] in
+        Task { [core, snapshotStore, archiveIndex] in
             let session = await core.snapshot()
             try? await snapshotStore.save(session)
+            try? await archiveIndex.upsert(.init(
+                sessionId: session.sessionId,
+                gameType: session.gameType,
+                source: .phoneLocal,
+                snapshotPath: "sessions/\(session.sessionId.uuidString).json",
+                participants: session.participants,
+                status: session.status,
+                updatedAtEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+            ))
         }
     }
 
@@ -85,5 +97,10 @@ final class BasketballSessionStore {
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("jifen-v2/sessions", isDirectory: true)
         return directory.appendingPathComponent("\(sessionId.uuidString).json")
+    }
+
+    private static func archiveIndexURL() -> URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("jifen-v2/session-index.json")
     }
 }

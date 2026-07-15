@@ -221,3 +221,33 @@ private struct CounterReducer: DomainReducer {
     try await store.save(2)
     #expect(try await store.load() == 2)
 }
+
+@Test func sessionArchiveIndexUpsertsAndOrdersEntries() async throws {
+    let directory = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    let index = SessionArchiveIndex(fileURL: directory.appendingPathComponent("index.json"))
+    let firstID = UUID()
+    let secondID = UUID()
+
+    try await index.upsert(.init(
+        sessionId: firstID,
+        gameType: .pingpong,
+        source: .phoneLocal,
+        snapshotPath: "sessions/one.json",
+        participants: [],
+        status: .live,
+        updatedAtEpochMilliseconds: 10
+    ))
+    try await index.upsert(.init(
+        sessionId: secondID,
+        gameType: .basketball,
+        source: .watchLocal,
+        snapshotPath: "watch-sessions/two.json",
+        participants: [],
+        status: .finished,
+        updatedAtEpochMilliseconds: 20
+    ))
+
+    let entries = try await index.entries()
+    #expect(entries.map(\.sessionId) == [secondID, firstID])
+}
