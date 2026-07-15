@@ -5,11 +5,14 @@
 //  记录 Tab：全部/计分/计时子 Tab + 搜索 + 按日期分组，对齐鸿蒙 RecentActivityTab。
 //
 
+import PersistenceCore
+import ScoreCore
 import SwiftUI
 
 struct RecordsTab: View {
     @StateObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
+    @StateObject private var v2RecordsVM = V2SessionRecordsViewModel()
 
     @State private var currentTab: Int = 0 // 0: 全部, 1: 计分, 2: 计时
     @State private var searchText: String = ""
@@ -49,7 +52,7 @@ struct RecordsTab: View {
                             } label: {
                                 Label(NSLocalizedString("clear_all_records", comment: "Clear all"), systemImage: "trash")
                             }
-                            .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty)
+                            .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty && v2RecordsVM.records.isEmpty)
                         } label: {
                             Image(systemName: "ellipsis.circle")
                         }
@@ -59,6 +62,7 @@ struct RecordsTab: View {
             .onAppear {
                 scoreboardVM.refreshRecords()
                 timerVM.loadFromStorage()
+                v2RecordsVM.reload()
             }
             .alert(NSLocalizedString("clear_all_records", comment: ""), isPresented: $showClearConfirm) {
                 Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
@@ -122,7 +126,7 @@ struct RecordsTab: View {
 
     @ViewBuilder
     private var content: some View {
-        if scoreboardVM.isLoading && scoreboardVM.records.isEmpty && timerVM.records.isEmpty {
+        if scoreboardVM.isLoading && scoreboardVM.records.isEmpty && timerVM.records.isEmpty && v2RecordsVM.records.isEmpty {
             loadingView
         } else {
             let filtered = filteredRecords()
@@ -138,6 +142,7 @@ struct RecordsTab: View {
         var items: [RecordsTabRecordItem] = []
         if currentTab == 0 || currentTab == 1 {
             items += scoreboardVM.records.map { RecordsTabRecordItem.scoreboard($0) }
+            items += v2RecordsVM.records.map { RecordsTabRecordItem.v2($0) }
         }
         if currentTab == 0 || currentTab == 2 {
             items += timerVM.records.filter { $0.gameType != .stopwatch }.map { RecordsTabRecordItem.timer($0) }
@@ -153,6 +158,8 @@ struct RecordsTab: View {
                     return r.team1Name.lowercased().contains(q) || r.team2Name.lowercased().contains(q) || r.gameType.displayName.lowercased().contains(q)
                 case .timer(let r):
                     return r.gameType.displayName.lowercased().contains(q)
+                case .v2(let r):
+                    return r.gameName.lowercased().contains(q) || r.teamsText.lowercased().contains(q)
                 }
             }
         }
@@ -247,6 +254,20 @@ struct RecordsTab: View {
                 }
                 .buttonStyle(.plain)
             }
+        case .v2(let record):
+            if isEditMode {
+                HStack(spacing: 0) {
+                    v2RowContent(record)
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 18))
+                            .foregroundColor(.red)
+                            .frame(width: 44, height: 44)
+                    }
+                }
+            } else {
+                v2RowContent(record)
+            }
         }
     }
 
@@ -320,12 +341,50 @@ struct RecordsTab: View {
         .padding(.vertical, Theme.md)
     }
 
+    private func v2RowContent(_ record: V2SessionRecordsViewModel.Record) -> some View {
+        HStack(spacing: 0) {
+            Image(systemName: "sportscourt.fill")
+                .font(.system(size: 22))
+                .foregroundColor(Theme.accentColor)
+                .frame(width: 40, height: 40)
+                .padding(.trailing, Theme.sm)
+
+            VStack(alignment: .leading, spacing: Theme.xs) {
+                Text(record.teamsText.isEmpty ? record.gameName : record.teamsText)
+                    .font(.system(size: Theme.fontBody2, weight: .medium))
+                    .foregroundColor(Theme.textPrimary)
+                    .lineLimit(1)
+                Text("\(record.gameName)  \(record.timeText)")
+                    .font(.system(size: Theme.fontCaption))
+                    .foregroundColor(Theme.textSecondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if let scoreText = record.scoreText {
+                Text(scoreText)
+                    .font(.system(size: Theme.fontBody1, weight: .bold))
+                    .foregroundColor(Theme.accentColor)
+            }
+
+            if record.entry.status == .finished {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(Theme.textSecondary)
+                    .padding(.leading, Theme.sm)
+            }
+        }
+        .contentShape(Rectangle())
+        .padding(.vertical, Theme.md)
+    }
+
     private func deleteRecord(_ item: RecordsTabRecordItem) {
         switch item {
         case .scoreboard(let r):
             _ = ScoreboardRecordsViewModel.shared.deleteRecord(r.id)
         case .timer(let r):
             _ = TimerRecordsViewModel.shared.deleteRecord(r.id)
+        case .v2(let r):
+            v2RecordsVM.delete(r)
         }
     }
 
@@ -364,6 +423,7 @@ struct RecordsTab: View {
         _ = TimerRecordManager.shared.clearAllRecords()
         scoreboardVM.refreshRecordsImmediately()
         timerVM.loadFromStorage()
+        v2RecordsVM.clearAll()
     }
 
     private var loadingView: some View {
@@ -393,11 +453,13 @@ struct RecordsTab: View {
 private enum RecordsTabRecordItem: Identifiable {
     case scoreboard(ScoreboardRecordSummary)
     case timer(GameRecordSummary)
+    case v2(V2SessionRecordsViewModel.Record)
 
     var id: String {
         switch self {
         case .scoreboard(let r): return "s-\(r.id)"
         case .timer(let r): return "t-\(r.id)"
+        case .v2(let r): return "v2-\(r.id)"
         }
     }
 
@@ -405,6 +467,7 @@ private enum RecordsTabRecordItem: Identifiable {
         switch self {
         case .scoreboard(let r): return r.timestamp
         case .timer(let r): return r.timestamp
+        case .v2(let r): return r.timestamp
         }
     }
 
@@ -412,6 +475,7 @@ private enum RecordsTabRecordItem: Identifiable {
         switch self {
         case .scoreboard(let r): return r.date
         case .timer(let r): return r.date
+        case .v2(let r): return r.dateString
         }
     }
 }
