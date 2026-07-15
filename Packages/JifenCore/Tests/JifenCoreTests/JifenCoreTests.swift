@@ -4,6 +4,7 @@ import ScoreCore
 import SessionCore
 import TimerCore
 import PersistenceCore
+import LinkCore
 
 private struct CounterReducer: DomainReducer {
     struct State: Codable, Equatable, Sendable { var value: Int }
@@ -17,6 +18,25 @@ private struct CounterReducer: DomainReducer {
             return .init(state: next, events: [.changed(next.value)])
         }
     }
+}
+
+@Test func linkEnvelopeRoundTripsTheSessionProtocol() throws {
+    let sessionId = UUID()
+    let envelope = LinkEnvelope(
+        sessionId: sessionId,
+        kind: .stateSnapshot,
+        sender: .phone,
+        senderSequence: 4,
+        sessionRevision: 7,
+        sentAtEpochMilliseconds: 123,
+        payload: Data([0x01, 0x02])
+    )
+
+    let decoded = try JSONDecoder().decode(LinkEnvelope<Data>.self, from: JSONEncoder().encode(envelope))
+    #expect(decoded.sessionId == sessionId)
+    #expect(decoded.kind == .stateSnapshot)
+    #expect(decoded.sender == .phone)
+    #expect(decoded.payload == Data([0x01, 0x02]))
 }
 
 @Test func sessionUndoAndReplayUseOneTimeline() async throws {

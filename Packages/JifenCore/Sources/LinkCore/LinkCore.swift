@@ -1,6 +1,10 @@
 import Foundation
 import ScoreCore
 
+#if canImport(WatchConnectivity)
+import WatchConnectivity
+#endif
+
 public enum LinkPeer: String, Codable, Sendable {
     case phone
     case watch
@@ -69,3 +73,61 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
 public protocol LinkTransport: Sendable {
     func send(_ data: Data) async throws
 }
+
+#if canImport(WatchConnectivity)
+public enum WatchConnectivityTransportError: Error, Equatable, Sendable {
+    case sessionNotActivated
+}
+
+/// A binary transport shared by the phone and Watch targets.
+public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, LinkTransport {
+    public typealias ReceiveHandler = @Sendable (Data) -> Void
+
+    private static let userInfoPayloadKey = "jifen.link.payload"
+    private let session: WCSession
+    public var onReceive: ReceiveHandler?
+
+    public init(session: WCSession = .default) {
+        self.session = session
+        super.init()
+    }
+
+    public func activate() {
+        guard WCSession.isSupported() else { return }
+        session.delegate = self
+        session.activate()
+    }
+
+    public func send(_ data: Data) async throws {
+        guard session.activationState == .activated else {
+            throw WatchConnectivityTransportError.sessionNotActivated
+        }
+        if session.isReachable {
+            session.sendMessageData(data, replyHandler: nil, errorHandler: nil)
+        } else {
+            session.transferUserInfo([Self.userInfoPayloadKey: data])
+        }
+    }
+}
+
+extension WatchConnectivityTransport: WCSessionDelegate {
+    public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
+
+    public func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
+        onReceive?(messageData)
+    }
+
+    public func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        guard let data = userInfo[Self.userInfoPayloadKey] as? Data else { return }
+        onReceive?(data)
+    }
+
+#if os(iOS)
+    public func sessionDidBecomeInactive(_ session: WCSession) {}
+
+    public func sessionDidDeactivate(_ session: WCSession) {
+        session.activate()
+    }
+#endif
+}
+#endif
