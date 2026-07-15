@@ -5,6 +5,7 @@
 //  Created by Yangyang Shi on 2025/12/15.
 //
 
+import LinkCore
 import SwiftUI
 
 // Helper class for orientation lock
@@ -79,9 +80,11 @@ class OrientationLock {
 struct jifenApp: App {
     @UIApplicationDelegateAdaptor(ScoreboardAppDelegate.self) var appDelegate
     @State private var appearance = AppAppearanceStore()
+    private let watchLinkTransport = WatchConnectivityTransport()
 
     init() {
         FontRegistrar.registerFonts()
+        watchLinkTransport.activate()
     }
     
     var body: some Scene {
