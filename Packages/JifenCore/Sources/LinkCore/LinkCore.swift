@@ -36,15 +36,60 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case sessionLeft
 }
 
+public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
+    case basketball(BasketballMatchState)
+    case rally(RallyMatchState)
+
+    private enum CodingKeys: String, CodingKey {
+        case kind
+        case basketball
+        case rally
+    }
+
+    private enum Kind: String, Codable {
+        case basketball
+        case rally
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        switch try container.decode(Kind.self, forKey: .kind) {
+        case .basketball:
+            self = .basketball(try container.decode(BasketballMatchState.self, forKey: .basketball))
+        case .rally:
+            self = .rally(try container.decode(RallyMatchState.self, forKey: .rally))
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .basketball(let state):
+            try container.encode(Kind.basketball, forKey: .kind)
+            try container.encode(state, forKey: .basketball)
+        case .rally(let state):
+            try container.encode(Kind.rally, forKey: .kind)
+            try container.encode(state, forKey: .rally)
+        }
+    }
+}
+
 public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
     public let gameType: GameType
     public let maxSets: Int?
     public let basketballThreeXThree: Bool
+    public let initialSnapshot: LinkedScoreboardSnapshot?
 
-    public init(gameType: GameType, maxSets: Int? = nil, basketballThreeXThree: Bool = false) {
+    public init(
+        gameType: GameType,
+        maxSets: Int? = nil,
+        basketballThreeXThree: Bool = false,
+        initialSnapshot: LinkedScoreboardSnapshot? = nil
+    ) {
         self.gameType = gameType
         self.maxSets = maxSets
         self.basketballThreeXThree = basketballThreeXThree
+        self.initialSnapshot = initialSnapshot
     }
 }
 

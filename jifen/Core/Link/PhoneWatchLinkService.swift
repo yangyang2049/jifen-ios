@@ -13,7 +13,28 @@ final class PhoneWatchLinkService {
         transport.activate()
     }
 
-    func startOnWatch(gameType: ScoreCore.GameType, maxSets: Int? = nil, basketballThreeXThree: Bool = false) {
+    func startOnWatch(state: BasketballMatchState) {
+        sendSetup(
+            gameType: state.gameMode == .threeXThree ? .threeBasketball : .basketball,
+            basketballThreeXThree: state.gameMode == .threeXThree,
+            initialSnapshot: .basketball(state)
+        )
+    }
+
+    func startOnWatch(gameType: ScoreCore.GameType, state: RallyMatchState) {
+        sendSetup(
+            gameType: gameType,
+            maxSets: state.rules.maxSets,
+            initialSnapshot: .rally(state)
+        )
+    }
+
+    private func sendSetup(
+        gameType: ScoreCore.GameType,
+        maxSets: Int? = nil,
+        basketballThreeXThree: Bool = false,
+        initialSnapshot: LinkedScoreboardSnapshot
+    ) {
         sequence += 1
         let envelope = LinkEnvelope(
             sessionId: UUID(),
@@ -25,7 +46,8 @@ final class PhoneWatchLinkService {
             payload: LinkedScoreboardSetup(
                 gameType: gameType,
                 maxSets: maxSets,
-                basketballThreeXThree: basketballThreeXThree
+                basketballThreeXThree: basketballThreeXThree,
+                initialSnapshot: initialSnapshot
             )
         )
         Task {

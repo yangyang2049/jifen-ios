@@ -15,8 +15,8 @@ private final class WatchBasketballSessionStore {
 
     private(set) var state: BasketballMatchState
 
-    init(gameMode: BasketballGameMode) {
-        let initial = BasketballMatchEngine.initial(
+    init(gameMode: BasketballGameMode, initialState: BasketballMatchState? = nil) {
+        let initial = initialState ?? BasketballMatchEngine.initial(
             leftName: NSLocalizedString("watch_team_red", value: "红方", comment: "Red"),
             rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "Blue"),
             gameMode: gameMode
@@ -110,9 +110,9 @@ struct WatchBasketballScoreView: View {
     @State private var selectedSide: MatchSide?
     @State private var showMenu = false
 
-    init(gameMode: BasketballGameMode) {
+    init(gameMode: BasketballGameMode, initialState: BasketballMatchState? = nil) {
         self.gameMode = gameMode
-        _store = State(initialValue: WatchBasketballSessionStore(gameMode: gameMode))
+        _store = State(initialValue: WatchBasketballSessionStore(gameMode: gameMode, initialState: initialState))
     }
 
     var body: some View {

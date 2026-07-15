@@ -14,8 +14,8 @@ private final class WatchRallySessionStore {
 
     private(set) var state: RallyMatchState
 
-    init(gameType: GameType, rules: RallyRuleSet) {
-        let initial = RallyMatchEngine.initial(
+    init(gameType: GameType, rules: RallyRuleSet, initialState: RallyMatchState? = nil) {
+        let initial = initialState ?? RallyMatchEngine.initial(
             leftName: NSLocalizedString("watch_team_red", value: "红方", comment: "Red"),
             rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "Blue"),
             rules: rules
@@ -91,10 +91,10 @@ struct WatchRallyScoreView: View {
     @State private var store: WatchRallySessionStore
     @State private var showMenu = false
 
-    init(gameType: GameType, rules: RallyRuleSet) {
+    init(gameType: GameType, rules: RallyRuleSet, initialState: RallyMatchState? = nil) {
         self.gameType = gameType
         self.rules = rules
-        _store = State(initialValue: WatchRallySessionStore(gameType: gameType, rules: rules))
+        _store = State(initialValue: WatchRallySessionStore(gameType: gameType, rules: rules, initialState: initialState))
     }
 
     var body: some View {

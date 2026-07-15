@@ -63,12 +63,7 @@ struct BasketballScoreboardView: View {
                     onUndo: store.undo,
                     onFinish: { store.send(.finish) },
                     onSwap: { store.send(.exchangeSides) },
-                    onLaunchOnWatch: {
-                        watchLinkService.startOnWatch(
-                            gameType: store.state.gameMode == .threeXThree ? .threeBasketball : .basketball,
-                            basketballThreeXThree: store.state.gameMode == .threeXThree
-                        )
-                    }
+                    onLaunchOnWatch: { watchLinkService.startOnWatch(state: store.state) }
                 )
                 .frame(width: proxy.size.width * 0.26)
 

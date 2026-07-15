@@ -39,6 +39,54 @@ private struct CounterReducer: DomainReducer {
     #expect(decoded.payload == Data([0x01, 0x02]))
 }
 
+@Test func linkedScoreboardSetupPreservesTheInitialState() throws {
+    var state = BasketballMatchEngine.initial(leftName: "Home", rightName: "Away", gameMode: .threeXThree)
+    state.leftScore = 14
+    state.rightScore = 12
+    state.gameTimeSeconds = 86
+    state.shotTimeSeconds = 7
+
+    let setup = LinkedScoreboardSetup(
+        gameType: .threeBasketball,
+        basketballThreeXThree: true,
+        initialSnapshot: .basketball(state)
+    )
+    let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
+
+    #expect(decoded == setup)
+    guard case .basketball(let restored)? = decoded.initialSnapshot else {
+        #expect(Bool(false))
+        return
+    }
+    #expect(restored.leftName == "Home")
+    #expect(restored.leftScore == 14)
+    #expect(restored.gameTimeSeconds == 86)
+}
+
+@Test func linkedRallySetupPreservesSetsAndServer() throws {
+    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .pingPong(maxSets: 7))
+    state.leftPoints = 10
+    state.rightPoints = 9
+    state.leftSets = 2
+    state.rightSets = 1
+    state.servingSide = .right
+
+    let setup = LinkedScoreboardSetup(
+        gameType: .pingpongDoubles,
+        maxSets: 7,
+        initialSnapshot: .rally(state)
+    )
+    let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
+
+    guard case .rally(let restored)? = decoded.initialSnapshot else {
+        #expect(Bool(false))
+        return
+    }
+    #expect(restored == state)
+    #expect(restored.rules.maxSets == 7)
+    #expect(restored.servingSide == .right)
+}
+
 @Test func sessionUndoAndReplayUseOneTimeline() async throws {
     let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
         gameType: .badminton,

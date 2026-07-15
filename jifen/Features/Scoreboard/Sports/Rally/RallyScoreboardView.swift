@@ -92,7 +92,7 @@ struct RallyScoreboardView: View {
                 Spacer()
                 if supportsWatchLaunch {
                     Button(action: {
-                        watchLinkService.startOnWatch(gameType: gameType, maxSets: store.state.rules.maxSets)
+                        watchLinkService.startOnWatch(gameType: gameType, state: store.state)
                     }) {
                         Image(systemName: "applewatch")
                     }
