@@ -10,6 +10,7 @@
 "tab_score" = "Score";
 "tab_records" = "Records";
 "tab_timer" = "Timer";
+"tab_me" = "Me";
 "tab_tools" = "Tools";
 "all" = "All";
 "scoreboard" = "Score";
@@ -414,7 +415,7 @@
 "common_names_clear_current_message" = "All common names in %@ will be deleted. This cannot be undone.";
 "common_names_title" = "Common Names";
 "common_names_empty" = "No common names";
-"common_names_empty_hint" = "Add team or player names in Settings > Data > Common Names to pick them here next time.";
+"common_names_empty_hint" = "Add team or player names in Me > Data > Common Names to pick them here next time.";
 "common_names_add" = "Add";
 "common_names_batch_add" = "Batch Add";
 "common_names_edit_title" = "Edit Name";

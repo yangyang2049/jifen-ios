@@ -16,7 +16,6 @@ struct HomeTab: View {
     @State private var unfinishedRecord: ScoreboardRecord?
     @State private var showNewGameDialog = false
     @State private var showQuickStartEditSheet = false
-    @State private var showSettingsSheet = false
     @State private var showDiscardUnfinishedAlert = false
     @State private var showCreateBookingSheet = false
     @State private var path = NavigationPath()
@@ -133,9 +132,6 @@ struct HomeTab: View {
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
                 }
-            }
-            .sheet(isPresented: $showSettingsSheet) {
-                SettingsView()
             }
             .sheet(isPresented: $showCreateBookingSheet) {
                 CreateBookingPage {
@@ -474,13 +470,6 @@ struct HomeTab: View {
             .layoutPriority(1)
 
             Spacer()
-
-            Button(action: { showSettingsSheet = true }) {
-                Image(systemName: "gear")
-                    .foregroundColor(Theme.textPrimary)
-                    .frame(width: 24, height: 24)
-            }
-            .frame(width: 44, height: 44)
         }
         .padding(.top, Theme.md)
         .padding(.bottom, Theme.sm)

@@ -6,7 +6,7 @@ private enum AppSupportURLs {
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppAppearanceStore.self) private var appearance
+    var isTabRoot: Bool = false
     @State private var vibrationEnabled: Bool = PreferencesManager.shared.vibrationEnabled
     @State private var showClearConfirm = false
 
@@ -110,16 +110,18 @@ struct SettingsView: View {
                     }
                 }
             }
-            .navigationTitle(NSLocalizedString("settings", comment: "Settings"))
+            .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar(.hidden, for: .tabBar)
+            .toolbar(isTabRoot ? .visible : .hidden, for: .tabBar)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(Theme.textPrimary)
+                if !isTabRoot {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark")
+                                .foregroundColor(Theme.textPrimary)
+                        }
                     }
                 }
             }
@@ -146,6 +148,12 @@ struct SettingsView: View {
     private func getAppVersion() -> String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         return version
+    }
+}
+
+struct MeTab: View {
+    var body: some View {
+        SettingsView(isTabRoot: true)
     }
 }
 
@@ -191,6 +199,9 @@ struct SettingsSection<Content: View>: View {
                 .padding(.horizontal, 4)
 
             content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.homeCardDark)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
     }
 }

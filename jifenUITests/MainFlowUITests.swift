@@ -1,7 +1,7 @@
 import XCTest
 
 final class MainFlowUITests: XCTestCase {
-    private let tabNames = ["Home", "Records", "Score", "Timer"]
+    private let tabNames = ["Home", "Records", "Score", "Timer", "Me"]
     private let destructiveKeywords = [
         "delete", "clear", "reset", "remove", "erase", "destroy",
         "删除", "清空", "重置", "移除", "抹掉"
@@ -40,6 +40,21 @@ final class MainFlowUITests: XCTestCase {
             button.tap()
             XCTAssertTrue(button.isHittable || button.isSelected, "Failed to select tab: \(tab)")
         }
+    }
+
+    func testMeTabContainsLocalSettings() {
+        let app = launchApp()
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+
+        let meTab = tabButton(named: "Me", in: app)
+        XCTAssertTrue(meTab.exists)
+        meTab.tap()
+
+        XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Common Names"].exists)
+        XCTAssertTrue(app.staticTexts["Clear data"].exists)
+        XCTAssertTrue(app.staticTexts["Vibration"].exists)
+        XCTAssertTrue(app.staticTexts["Support & Contact"].exists)
     }
 
     func testTapVisibleComponentsAcrossAllTabs() {

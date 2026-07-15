@@ -61,6 +61,11 @@ struct MainTabView: View {
             tabItem(tag: 3, titleKey: "tab_timer", systemImage: "timer") {
                 TimerTab(pendingTimerGameType: pendingTimerGameType)
             }
+            MeTab()
+                .tag(4)
+                .tabItem {
+                    Label(NSLocalizedString("tab_me", comment: ""), systemImage: "person.fill")
+                }
         }
     }
 
