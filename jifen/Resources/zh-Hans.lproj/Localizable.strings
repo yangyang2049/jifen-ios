@@ -392,6 +392,7 @@
 "appearance_system" = "系统";
 "appearance_light" = "浅色";
 "appearance_dark" = "深色";
+"basketball_mode" = "赛制";
 "dark_mode" = "深色模式";
 "light_mode" = "浅色模式";
 "sound_vibration" = "声音与振动";

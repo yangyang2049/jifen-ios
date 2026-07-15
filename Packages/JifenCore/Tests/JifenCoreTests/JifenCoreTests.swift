@@ -57,6 +57,76 @@ private struct CounterReducer: DomainReducer {
     #expect(reducer.reduce(state: state, intent: .resetShotClock(seconds: 12), at: 0).accepted)
 }
 
+@Test func basketballThreeByThreeEndsAtTwentyOneAndUsesTwelveSecondShotClock() {
+    let reducer = BasketballMatchReducer()
+    var state = BasketballMatchEngine.initial(leftName: "Home", rightName: "Away", gameMode: .threeXThree)
+
+    #expect(state.shotTimeSeconds == 12)
+    #expect(BasketballMatchEngine.scoringButtons(state) == [1, 2])
+
+    for _ in 0..<10 {
+        state = reducer.reduce(
+            state: state,
+            intent: .addPoints(side: .left, points: 2),
+            at: 0
+        ).state
+    }
+    state = reducer.reduce(state: state, intent: .addPoints(side: .left, points: 1), at: 0).state
+
+    #expect(state.leftScore == 21)
+    #expect(state.finished)
+    #expect(!state.gameRunning)
+}
+
+@Test func basketballFiveByFiveTieAtFinalBuzzerStartsOvertime() {
+    var state = BasketballMatchEngine.initial(leftName: "Home", rightName: "Away", gameMode: .fiveVFive)
+    state.leftScore = 88
+    state.rightScore = 88
+    state.currentPeriod = 4
+    state.gameTimeSeconds = 1
+    state.shotTimeSeconds = 8
+    state.gameRunning = true
+    state.shotRunning = true
+
+    let next = BasketballMatchEngine.tickClock(state)
+    #expect(!next.finished)
+    #expect(next.isOvertime)
+    #expect(next.gameTimeSeconds == BasketballMatchEngine.overtimeSeconds())
+    #expect(next.overtimeStartScore == 88)
+}
+
+@Test func basketballScoreResetsShotClockWithoutStoppingGameClock() {
+    let reducer = BasketballMatchReducer()
+    var state = BasketballMatchEngine.initial(leftName: "Home", rightName: "Away", gameMode: .fiveVFive)
+    state.shotTimeSeconds = 8
+    state.gameRunning = true
+    state.shotRunning = true
+
+    let next = reducer.reduce(state: state, intent: .addPoints(side: .left, points: 2), at: 0).state
+    #expect(next.leftScore == 2)
+    #expect(next.shotTimeSeconds == 24)
+    #expect(next.gameRunning)
+}
+
+@Test func automaticBasketballClockTicksDoNotConsumeScoreUndo() async {
+    let seed = ScoreSession<BasketballMatchState, BasketballMatchEvent>(
+        gameType: .basketball,
+        ruleFamily: .s2,
+        reducerType: "basketball/v1",
+        state: BasketballMatchEngine.initial(leftName: "Home", rightName: "Away", gameMode: .fiveVFive)
+    )
+    let session = ScoreSessionCore(seedSession: seed, reducer: BasketballMatchReducer())
+
+    _ = await session.dispatch(actorId: "phone", intent: .setClockRunning(true), at: 1)
+    _ = await session.dispatch(actorId: "phone", intent: .addPoints(side: .left, points: 2), at: 2)
+    _ = await session.dispatchNonUndoable(actorId: "phone", intent: .tickClock, at: 3)
+
+    #expect(await session.undo(actorId: "phone"))
+    let state = await session.snapshot().state
+    #expect(state.leftScore == 0)
+    #expect(state.gameRunning)
+}
+
 @Test func atomicStoreCreatesAndReplacesItsFirstRecord() async throws {
     let directory = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)

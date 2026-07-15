@@ -102,6 +102,23 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         intent: Intent,
         at epochMilliseconds: Int64
     ) -> DispatchResult<State, Event> {
+        dispatch(actorId: actorId, intent: intent, at: epochMilliseconds, recordsUndo: true)
+    }
+
+    public func dispatchNonUndoable(
+        actorId: String,
+        intent: Intent,
+        at epochMilliseconds: Int64
+    ) -> DispatchResult<State, Event> {
+        dispatch(actorId: actorId, intent: intent, at: epochMilliseconds, recordsUndo: false)
+    }
+
+    private func dispatch(
+        actorId: String,
+        intent: Intent,
+        at epochMilliseconds: Int64,
+        recordsUndo: Bool
+    ) -> DispatchResult<State, Event> {
         guard canDispatch(actorId, intent) else {
             return .rejected(session: currentSession, reason: "Permission denied")
         }
@@ -111,7 +128,9 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
             return .rejected(session: currentSession, reason: result.reason ?? "Rule rejected")
         }
 
-        undoStack.append(UndoFrame(session: currentSession, intentCount: 1))
+        if recordsUndo {
+            undoStack.append(UndoFrame(session: currentSession, intentCount: 1))
+        }
         let status: SessionStatus = shouldFinish(intent, result.state) ? .finished : currentSession.status
         currentSession = ScoreSession(
             sessionId: currentSession.sessionId,

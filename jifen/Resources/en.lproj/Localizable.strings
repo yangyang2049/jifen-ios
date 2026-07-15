@@ -393,6 +393,7 @@
 "appearance_system" = "System";
 "appearance_light" = "Light";
 "appearance_dark" = "Dark";
+"basketball_mode" = "Game mode";
 "dark_mode" = "Dark Mode";
 "light_mode" = "Light Mode";
 "sound_vibration" = "Sound & Vibration";

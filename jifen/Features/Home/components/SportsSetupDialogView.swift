@@ -132,6 +132,7 @@ struct SportsSetupDialogView: View {
     @State private var selectedTieBreakPoints: Int = 0
     @State private var autoChangeSides: Bool = true // 默认开启自动换边
     @State private var isSingles: Bool = true // 乒乓球/羽毛球/网球：单打/双打
+    @State private var basketballMode: String = "five_v_five"
     @State private var team1Player1Name: String = ""
     @State private var team1Player2Name: String = ""
     @State private var team2Player1Name: String = ""
@@ -305,7 +306,8 @@ struct SportsSetupDialogView: View {
     }
     
     private func shouldShowSettings() -> Bool {
-        return gameType == .pingpong ||
+        return gameType == .basketball ||
+               gameType == .pingpong ||
                gameType == .tennis ||
                gameType == .badminton ||
                gameType == .volleyball
@@ -398,7 +400,18 @@ struct SportsSetupDialogView: View {
     private func buildSettingsSection() -> some View {
         if shouldShowSettings() {
             VStack(alignment: .leading, spacing: Theme.sm) {
-                if gameType == .pingpong {
+                if gameType == .basketball {
+                    VStack(alignment: .leading, spacing: Theme.sm) {
+                        Text(NSLocalizedString("basketball_mode", value: "赛制", comment: "Basketball game mode"))
+                            .font(.system(size: 14))
+                            .foregroundColor(Theme.textSecondary)
+                        Picker(NSLocalizedString("basketball_mode", value: "赛制", comment: "Basketball game mode"), selection: $basketballMode) {
+                            Text("5v5").tag("five_v_five")
+                            Text("3x3").tag("three_x_three")
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                } else if gameType == .pingpong {
                     VStack(alignment: .leading, spacing: Theme.sm) {
                         Text(NSLocalizedString("pingpong_set_count_label", comment: "Pingpong set count label"))
                             .font(.system(size: 14))
@@ -632,7 +645,9 @@ struct SportsSetupDialogView: View {
         
         var finalConfig = config
 
-        if gameType == .pingpong {
+        if gameType == .basketball {
+            finalConfig.basketballMode = basketballMode
+        } else if gameType == .pingpong {
             finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 5
             finalConfig.pointsPerSet = 11 // Fixed for pingpong
             finalConfig.autoChangeSides = autoChangeSides
