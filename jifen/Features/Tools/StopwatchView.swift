@@ -98,7 +98,6 @@ struct StopwatchView: View {
         }
         .navigationTitle(NSLocalizedString("tool_stopwatch", value: "秒表", comment: "Stopwatch"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
         .onAppear {
             updateDisplayFromAccumulated()
         }

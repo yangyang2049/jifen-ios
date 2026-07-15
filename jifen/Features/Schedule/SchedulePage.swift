@@ -46,7 +46,6 @@ struct SchedulePage: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.black, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .safeAreaInset(edge: .bottom) {
             scheduleContentWidth {
                 Button {

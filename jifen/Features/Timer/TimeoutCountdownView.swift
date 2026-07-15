@@ -56,7 +56,6 @@ struct TimeoutCountdownView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .onDisappear {
             stopTimer()
             saveRecordIfNeeded()

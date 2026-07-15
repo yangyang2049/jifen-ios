@@ -40,7 +40,6 @@ struct WhistleToolView: View {
         }
         .navigationTitle(NSLocalizedString("whistle_title", comment: "Whistle title"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
     }
     
     @ViewBuilder

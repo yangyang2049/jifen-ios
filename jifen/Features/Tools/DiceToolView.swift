@@ -58,7 +58,6 @@ struct DiceToolView: View {
         }
         .navigationTitle(NSLocalizedString("dice_title", comment: "Dice title"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()
             showEnterToast = true

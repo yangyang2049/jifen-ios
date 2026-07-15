@@ -390,6 +390,9 @@
 "settings" = "Settings";
 "appearance" = "Appearance";
 "theme" = "Theme";
+"appearance_system" = "System";
+"appearance_light" = "Light";
+"appearance_dark" = "Dark";
 "dark_mode" = "Dark Mode";
 "light_mode" = "Light Mode";
 "sound_vibration" = "Sound & Vibration";

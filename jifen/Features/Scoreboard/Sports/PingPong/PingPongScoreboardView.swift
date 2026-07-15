@@ -84,7 +84,6 @@ struct PingPongScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .lockOrientation(.landscape) // Lock to landscape mode
         .onAppear {
             viewModel.controller = controller

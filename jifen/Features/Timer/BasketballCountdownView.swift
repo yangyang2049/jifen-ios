@@ -69,7 +69,6 @@ struct BasketballCountdownView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .onDisappear {
             stopTimer()
             saveRecordIfNeeded()

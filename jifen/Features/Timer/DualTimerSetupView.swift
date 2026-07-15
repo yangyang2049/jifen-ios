@@ -66,7 +66,6 @@ struct DualTimerSetupView: View {
             startButton
         }
         .background(Color(hex: "2C2C2E"))
-        .preferredColorScheme(.dark)
     }
 
     private var header: some View {

@@ -38,7 +38,6 @@ struct RedYellowCardView: View {
         }
         .navigationTitle(NSLocalizedString("red_yellow_card_title", comment: "Red Yellow Card title"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
     }
 }
 

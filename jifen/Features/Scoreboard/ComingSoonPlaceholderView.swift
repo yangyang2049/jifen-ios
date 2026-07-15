@@ -25,7 +25,6 @@ struct ComingSoonPlaceholderView: View {
         .background(Theme.backgroundColor)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
     }
 }
 

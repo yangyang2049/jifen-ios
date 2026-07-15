@@ -124,7 +124,6 @@ struct CreateBookingPage: View {
                     .disabled(location.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
-            .preferredColorScheme(.dark)
             .onAppear {
                 applyInitialBookingIfNeeded()
             }

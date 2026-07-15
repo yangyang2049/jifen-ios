@@ -56,7 +56,6 @@ struct RecordsTab: View {
                     }
                 }
             }
-            .preferredColorScheme(.dark)
             .onAppear {
                 scoreboardVM.refreshRecords()
                 timerVM.loadFromStorage()

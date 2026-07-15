@@ -186,7 +186,6 @@ struct FlipCoinView: View {
         }
         .navigationTitle(NSLocalizedString("flip_coin_title", comment: "Flip Coin title"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()
         }

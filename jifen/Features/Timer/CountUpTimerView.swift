@@ -73,7 +73,6 @@ struct CountUpTimerView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .onAppear {
             updateDisplayFromAccumulated()
         }

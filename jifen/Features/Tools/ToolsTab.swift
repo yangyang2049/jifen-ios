@@ -41,7 +41,6 @@ struct ToolsListPageView: View {
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
     }
 }
 

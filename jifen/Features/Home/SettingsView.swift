@@ -6,19 +6,23 @@ private enum AppSupportURLs {
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(AppAppearanceStore.self) private var appearance
     @State private var vibrationEnabled: Bool = PreferencesManager.shared.vibrationEnabled
     @State private var showClearConfirm = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
+                Theme.backgroundColor.ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: 0) {
                         // Settings sections
                         VStack(spacing: 24) {
+                            SettingsSection(title: NSLocalizedString("appearance", comment: "Appearance")) {
+                                AppearanceModeRow()
+                            }
+
                             // Data Section
                             SettingsSection(title: NSLocalizedString("settings_data", value: "数据", comment: "Data")) {
                                 VStack(spacing: 0) {
@@ -142,6 +146,29 @@ struct SettingsView: View {
     private func getAppVersion() -> String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         return version
+    }
+}
+
+private struct AppearanceModeRow: View {
+    @Environment(AppAppearanceStore.self) private var appearance
+
+    var body: some View {
+        @Bindable var appearance = appearance
+
+        HStack {
+            Image(systemName: "circle.lefthalf.filled")
+                .foregroundColor(Theme.accentColor)
+                .frame(width: 24, height: 24)
+
+            Picker(NSLocalizedString("theme", comment: "Theme"), selection: $appearance.mode) {
+                ForEach(AppAppearanceMode.allCases) { mode in
+                    Text(mode.localizedTitle).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 

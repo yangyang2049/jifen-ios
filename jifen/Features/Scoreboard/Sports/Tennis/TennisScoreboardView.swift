@@ -94,7 +94,6 @@ struct TennisScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .lockOrientation(.landscape)
         .onAppear {
             viewModel.controller = controller

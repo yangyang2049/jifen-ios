@@ -223,7 +223,6 @@ struct CubeTimerView: View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
     }
 
     private var handIconSize: CGFloat {

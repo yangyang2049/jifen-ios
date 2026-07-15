@@ -78,24 +78,17 @@ class OrientationLock {
 @main
 struct jifenApp: App {
     @UIApplicationDelegateAdaptor(ScoreboardAppDelegate.self) var appDelegate
+    @State private var appearance = AppAppearanceStore()
 
     init() {
         FontRegistrar.registerFonts()
-        
-        let coloredAppearance = UINavigationBarAppearance()
-        coloredAppearance.configureWithOpaqueBackground()
-        coloredAppearance.backgroundColor = UIColor(Theme.backgroundColor)
-        coloredAppearance.titleTextAttributes = [.foregroundColor: UIColor(Theme.accentColor)]
-        coloredAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor(Theme.accentColor)]
-        
-        UINavigationBar.appearance().standardAppearance = coloredAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = coloredAppearance
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(.dark)
+                .environment(appearance)
+                .preferredColorScheme(appearance.mode.preferredColorScheme)
         }
     }
 }

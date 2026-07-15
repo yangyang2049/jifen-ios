@@ -85,7 +85,6 @@ struct MultiScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .lockOrientation(.landscape)
         .onAppear {
             applySetupIfNeeded()

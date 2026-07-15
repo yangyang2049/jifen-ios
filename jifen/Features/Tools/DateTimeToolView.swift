@@ -46,7 +46,6 @@ struct DateTimeToolView: View {
         .onDisappear {
             stopTimer()
         }
-        .preferredColorScheme(.dark)
     }
     
     private var weekdayString: String {

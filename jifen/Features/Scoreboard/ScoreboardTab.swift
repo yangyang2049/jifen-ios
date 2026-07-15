@@ -31,7 +31,6 @@ struct ScoreboardTab: View {
             .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .navigationDestination(item: $selectedSport) { sport in
                 getScoreboardView(
                     for: sport.gameType,

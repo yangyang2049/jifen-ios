@@ -110,7 +110,6 @@ struct BookingDetailPage: View {
         .listStyle(.insetGrouped)
         .navigationTitle(NSLocalizedString("schedule_detail_title", value: "球局详情", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
         .onAppear(perform: reload)
         .sheet(isPresented: $showEditPage) {
             if let booking {

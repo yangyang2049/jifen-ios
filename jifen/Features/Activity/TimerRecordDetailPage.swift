@@ -37,7 +37,6 @@ struct TimerRecordDetailPage: View {
         .background(Theme.backgroundColor)
         .navigationTitle(record?.title ?? NSLocalizedString("tab_timer_record", value: "计时记录", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
         .onAppear {
             timerVM.loadFromStorage()
         }

@@ -48,7 +48,6 @@ struct SimpleScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .lockOrientation(.landscape)
         .onAppear {
             if let setup = initialSetup {

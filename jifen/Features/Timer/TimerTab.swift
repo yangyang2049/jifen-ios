@@ -42,7 +42,6 @@ struct TimerTab: View {
             .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_timer", value: "计时", comment: "Timer tab"))
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .navigationDestination(item: $selectedDestination) { dest in
                 timerDestinationView(dest)
                     .toolbar(.hidden, for: .tabBar)
@@ -136,10 +135,6 @@ struct TimerTab: View {
             DualPlayerTimerView(gameType: .xiangqi, config: xiangqiTimerConfig)
         case .chess:
             DualPlayerTimerView(gameType: .chess, config: chessTimerConfig)
-        case .basketball24:
-            BasketballCountdownView(duration: 24)
-        case .basketball12:
-            BasketballCountdownView(duration: 12)
         case .cube:
             CubeTimerView()
         case .timeout:

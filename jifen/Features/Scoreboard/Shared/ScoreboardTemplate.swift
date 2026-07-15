@@ -366,7 +366,6 @@ struct ScoreboardTemplate: View {
         .onAppear {
             config.onEditModeChange?(isEditMode)
         }
-        .preferredColorScheme(.dark)
         // Screenshot dialog removed - iOS auto-saves after permission is granted
     }
     
@@ -1105,7 +1104,6 @@ struct ScreenshotSaveDialog: View {
                 inputFileName = fileName
             }
         }
-        .preferredColorScheme(.dark)
     }
 }
 

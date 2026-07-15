@@ -58,7 +58,6 @@ struct TenSecondChallengeView: View {
         }
         .navigationTitle(NSLocalizedString("ten_second_title", comment: "Ten Second Challenge title"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
         .onAppear {
             checkAndShowHint()
         }

@@ -259,7 +259,6 @@ struct AACalculatorView: View {
         .background(Theme.backgroundColor.ignoresSafeArea())
         .navigationTitle(NSLocalizedString("aa_calculator_title", comment: "AA Calculator title"))
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark)
         .overlay(
             toastMessage.isEmpty ? nil :
                 VStack {

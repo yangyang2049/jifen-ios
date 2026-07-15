@@ -32,7 +32,6 @@ struct FullscreenBarrageView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
     }
     
     private var inputView: some View {

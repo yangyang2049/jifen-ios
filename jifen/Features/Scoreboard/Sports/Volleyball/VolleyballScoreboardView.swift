@@ -54,7 +54,6 @@ struct VolleyballScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .lockOrientation(.landscape)
         .onChange(of: viewModel.gameFinished) { _, newValue in
             if newValue {

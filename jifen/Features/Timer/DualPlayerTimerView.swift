@@ -84,7 +84,6 @@ struct DualPlayerTimerView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .preferredColorScheme(.dark)
         .onAppear {
             guard !hasLockedOrientation else { return }
             OrientationLock.shared.lock(.landscape)
