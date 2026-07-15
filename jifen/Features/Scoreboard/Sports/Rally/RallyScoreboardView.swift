@@ -14,6 +14,7 @@ struct RallyScoreboardView: View {
         rightName: String,
         gameType: ScoreCore.GameType,
         rules: RallyRuleSet,
+        participants: [SessionParticipant]? = nil,
         showBackButton: Bool = true,
         onNavigationBack: (() -> Void)? = nil,
         onPresented: @escaping () -> Void = {}
@@ -25,7 +26,8 @@ struct RallyScoreboardView: View {
             leftName: leftName,
             rightName: rightName,
             gameType: gameType,
-            rules: rules
+            rules: rules,
+            participants: participants
         ))
     }
 

@@ -14,17 +14,24 @@ final class RallySessionStore {
 
     private(set) var state: RallyMatchState
 
-    init(leftName: String, rightName: String, gameType: ScoreCore.GameType, rules: RallyRuleSet) {
+    init(
+        leftName: String,
+        rightName: String,
+        gameType: ScoreCore.GameType,
+        rules: RallyRuleSet,
+        participants: [SessionParticipant]? = nil
+    ) {
         let initial = RallyMatchEngine.initial(leftName: leftName, rightName: rightName, rules: rules)
+        let sessionParticipants = participants?.filter { !$0.name.isEmpty } ?? [
+            .init(id: "left", name: initial.leftName, role: "team"),
+            .init(id: "right", name: initial.rightName, role: "team")
+        ]
         let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
             gameType: gameType,
             ruleFamily: .s1,
             reducerType: "rally/v1",
             state: initial,
-            participants: [
-                .init(id: "left", name: initial.leftName, role: "team"),
-                .init(id: "right", name: initial.rightName, role: "team")
-            ]
+            participants: sessionParticipants
         )
         core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
         snapshotStore = AtomicJSONFileStore(fileURL: Self.snapshotURL(for: session.sessionId))

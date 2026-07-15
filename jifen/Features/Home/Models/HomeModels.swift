@@ -123,6 +123,10 @@ struct SportsSetupResult: Codable {
     var tieBreakPoints: Int? = nil
     var autoChangeSides: Bool? = nil // autoChangeSides (Pingpong, Tennis, Badminton, Volleyball)
     var isSingles: Bool? = nil // 乒乓球/羽毛球/网球：true=单打，false=双打
+    var team1Player1Name: String? = nil
+    var team1Player2Name: String? = nil
+    var team2Player1Name: String? = nil
+    var team2Player2Name: String? = nil
     var basketballMode: String? = nil // "five_v_five" or "three_x_three"
     var playerCount: Int? = nil // 多人计分：3-9
     var playerNames: [String]? = nil // 多人计分玩家名

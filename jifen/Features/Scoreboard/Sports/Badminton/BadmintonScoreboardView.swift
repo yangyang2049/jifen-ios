@@ -9,11 +9,13 @@ struct BadmintonScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
 
     var body: some View {
+        let isDoubles = initialSetup?.isSingles == false
         RallyScoreboardView(
             leftName: initialSetup?.team1Name.isEmpty == false ? initialSetup!.team1Name : NSLocalizedString("red_team", value: "红方", comment: "Red team"),
             rightName: initialSetup?.team2Name.isEmpty == false ? initialSetup!.team2Name : NSLocalizedString("blue_team", value: "蓝方", comment: "Blue team"),
-            gameType: .badminton,
+            gameType: isDoubles ? .badmintonDoubles : .badminton,
             rules: rules,
+            participants: rallyParticipants,
             showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
@@ -24,5 +26,9 @@ struct BadmintonScoreboardView: View {
         var rules = RallyRuleSet.badminton(maxSets: initialSetup?.maxSets ?? 3)
         rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
         return rules
+    }
+
+    private var rallyParticipants: [SessionParticipant]? {
+        initialSetup?.isSingles == false ? doublesParticipants(initialSetup) : nil
     }
 }

@@ -632,7 +632,11 @@ struct SportsSetupDialogView: View {
 
         let config = SportsSetupResult(
             team1Name: resolvedTeam1Name,
-            team2Name: resolvedTeam2Name
+            team2Name: resolvedTeam2Name,
+            team1Player1Name: shouldUseDoublesPlayerInputs() ? team1Player1Name.trimmingCharacters(in: .whitespacesAndNewlines) : nil,
+            team1Player2Name: shouldUseDoublesPlayerInputs() ? team1Player2Name.trimmingCharacters(in: .whitespacesAndNewlines) : nil,
+            team2Player1Name: shouldUseDoublesPlayerInputs() ? team2Player1Name.trimmingCharacters(in: .whitespacesAndNewlines) : nil,
+            team2Player2Name: shouldUseDoublesPlayerInputs() ? team2Player2Name.trimmingCharacters(in: .whitespacesAndNewlines) : nil
         )
 
         if config.team1Name == config.team2Name && !config.team1Name.isEmpty {
