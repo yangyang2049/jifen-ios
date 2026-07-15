@@ -65,7 +65,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         let intentCount: Int
     }
 
-    private let seedSession: ScoreSession<State, Event>
+    private let replaySeed: ScoreSession<State, Event>
     private let reducer: Reducer
     private let canDispatch: @Sendable (String, Intent) -> Bool
     private let canUndo: @Sendable (String) -> Bool
@@ -81,7 +81,18 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         canUndo: @escaping @Sendable (String) -> Bool = { _ in true },
         shouldFinish: @escaping @Sendable (Intent, State) -> Bool = { _, _ in false }
     ) {
-        self.seedSession = seedSession
+        self.replaySeed = ScoreSession(
+            sessionId: seedSession.sessionId,
+            gameType: seedSession.gameType,
+            ruleFamily: seedSession.ruleFamily,
+            reducerType: seedSession.reducerType,
+            version: 0,
+            state: seedSession.state,
+            events: [],
+            status: .live,
+            participants: seedSession.participants,
+            metadata: seedSession.metadata
+        )
         self.reducer = reducer
         self.canDispatch = canDispatch
         self.canUndo = canUndo
@@ -144,7 +155,9 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
             participants: currentSession.participants,
             metadata: currentSession.metadata
         )
-        timeline.append(.init(actorId: actorId, intent: intent, epochMilliseconds: epochMilliseconds))
+        if recordsUndo {
+            timeline.append(.init(actorId: actorId, intent: intent, epochMilliseconds: epochMilliseconds))
+        }
         return .accepted(session: currentSession, events: result.events)
     }
 
@@ -160,7 +173,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
     }
 
     public func replay() throws -> ScoreSession<State, Event> {
-        var session = seedSession
+        var session = replaySeed
         for record in timeline {
             let result = reducer.reduce(
                 state: session.state,

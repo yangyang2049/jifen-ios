@@ -1,6 +1,7 @@
 import XCTest
 @testable import jifen
 
+@MainActor
 final class ScheduleModelTests: XCTestCase {
     private let bookingsKey = "local_bookings_v1"
 

@@ -5,6 +5,10 @@ import ScoreCore
 import WatchConnectivity
 #endif
 
+public enum LinkProtocol {
+    public static let currentVersion = 1
+}
+
 public enum LinkPeer: String, Codable, Sendable {
     case phone
     case watch
@@ -115,7 +119,7 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
     public let payload: Payload
 
     public init(
-        protocolVersion: Int = 1,
+        protocolVersion: Int = LinkProtocol.currentVersion,
         messageId: UUID = UUID(),
         sessionId: UUID,
         kind: LinkMessageKind,
@@ -134,6 +138,35 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
         self.sessionRevision = sessionRevision
         self.sentAtEpochMilliseconds = sentAtEpochMilliseconds
         self.payload = payload
+    }
+}
+
+public struct LinkRevisionGate: Equatable, Sendable {
+    public private(set) var activeSessionId: UUID?
+    public private(set) var latestRevision: UInt64?
+
+    public init() {}
+
+    @discardableResult
+    public mutating func beginSession(_ sessionId: UUID, initialRevision: UInt64 = 0) -> Bool {
+        guard activeSessionId != sessionId else { return false }
+        activeSessionId = sessionId
+        latestRevision = initialRevision
+        return true
+    }
+
+    @discardableResult
+    public mutating func accept(sessionId: UUID, revision: UInt64) -> Bool {
+        guard activeSessionId == sessionId,
+              revision > (latestRevision ?? 0) else { return false }
+        latestRevision = revision
+        return true
+    }
+
+    public mutating func endSession(_ sessionId: UUID) {
+        guard activeSessionId == sessionId else { return }
+        activeSessionId = nil
+        latestRevision = nil
     }
 }
 

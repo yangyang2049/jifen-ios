@@ -304,6 +304,31 @@ private struct CounterReducer: DomainReducer {
     let state = await session.snapshot().state
     #expect(state.leftScore == 0)
     #expect(state.gameRunning)
+    #expect(await session.intentTimeline().count == 1)
+    let replayed = try? await session.replay()
+    #expect(replayed?.state.leftScore == 0)
+    #expect(replayed?.state.gameTimeSeconds == 600)
+}
+
+@Test func sessionReplayNormalizesRestoredSeedVersionAndEvents() async throws {
+    let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
+        gameType: .badminton,
+        ruleFamily: .s1,
+        reducerType: "test/counter",
+        version: 12,
+        state: CounterReducer.State(value: 40),
+        events: [.changed(40)],
+        status: .finished
+    )
+    let session = ScoreSessionCore(seedSession: seed, reducer: CounterReducer())
+
+    _ = await session.dispatch(actorId: "phone", intent: .add(2), at: 1)
+    let replayed = try await session.replay()
+
+    #expect(replayed.version == 1)
+    #expect(replayed.state.value == 42)
+    #expect(replayed.events == [.changed(42)])
+    #expect(replayed.status == .live)
 }
 
 @Test func atomicStoreCreatesAndReplacesItsFirstRecord() async throws {

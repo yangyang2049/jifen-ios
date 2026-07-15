@@ -105,13 +105,9 @@ struct WatchRootView: View {
     }
 
     private func linkedSessionId(for route: WatchScoreboardRoute) -> UUID? {
-        switch route {
-        case .basketball where basketballInitialState(for: route) != nil:
-            return linkedSessionId
-        case .pingpong, .badminton, .pickleball where rallyInitialState(for: route) != nil:
-            return linkedSessionId
-        default:
+        guard basketballInitialState(for: route) != nil || rallyInitialState(for: route) != nil else {
             return nil
         }
+        return linkedSessionId
     }
 }

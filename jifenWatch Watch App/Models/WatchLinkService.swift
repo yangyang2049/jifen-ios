@@ -20,6 +20,7 @@ final class WatchLinkService {
     var latestSnapshot: LinkedSnapshotUpdate?
 
     private let transport = WatchConnectivityTransport()
+    private var revisionGate = LinkRevisionGate()
 
     init() {
         transport.onReceive = { [weak self] data in
@@ -36,16 +37,16 @@ final class WatchLinkService {
 
     private func receive(_ data: Data) {
         guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: data),
+              envelope.protocolVersion == LinkProtocol.currentVersion,
               envelope.sender == .phone else { return }
         switch envelope.kind {
         case .setupRequest:
+            guard revisionGate.beginSession(envelope.sessionId, initialRevision: envelope.sessionRevision) else { return }
+            latestSnapshot = nil
             requestedSetup = .init(sessionId: envelope.sessionId, setup: envelope.payload)
         case .stateSnapshot:
-            guard let snapshot = envelope.payload.initialSnapshot else { return }
-            if let latestSnapshot, latestSnapshot.sessionId == envelope.sessionId,
-               latestSnapshot.revision >= envelope.sessionRevision {
-                return
-            }
+            guard let snapshot = envelope.payload.initialSnapshot,
+                  revisionGate.accept(sessionId: envelope.sessionId, revision: envelope.sessionRevision) else { return }
             latestSnapshot = .init(
                 sessionId: envelope.sessionId,
                 revision: envelope.sessionRevision,
