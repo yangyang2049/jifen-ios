@@ -6,6 +6,7 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
     case tennis(maxSets: Int)
     case pickleball(maxSets: Int)
     case archery
+    case basketball(threeXThree: Bool)
     case basketballTraining
 
     var id: String {
@@ -20,6 +21,8 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
             return "pickleball-\(maxSets)"
         case .archery:
             return "archery"
+        case .basketball(let threeXThree):
+            return threeXThree ? "basketball-3x3" : "basketball-5x5"
         case .basketballTraining:
             return "basketballTraining"
         }

@@ -1,4 +1,5 @@
 import SwiftUI
+import ScoreCore
 
 struct WatchRootView: View {
     @State private var scoreboardRoute: WatchScoreboardRoute? = nil
@@ -29,6 +30,8 @@ struct WatchRootView: View {
                 WatchPickleballScoreView(maxSets: maxSets)
             case .archery:
                 WatchArcheryScoreView()
+            case .basketball(let threeXThree):
+                WatchBasketballScoreView(gameMode: threeXThree ? .threeXThree : .fiveVFive)
             case .basketballTraining:
                 WatchBasketballTrainingView()
             }

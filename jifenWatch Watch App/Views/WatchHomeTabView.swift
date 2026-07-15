@@ -6,6 +6,7 @@ private enum WatchHomeItem: String, CaseIterable {
     case pingpong
     case pickleball
     case archery
+    case basketball
     case basketball_training
 }
 
@@ -16,6 +17,7 @@ struct WatchHomeTabView: View {
     @State private var showPingpongPicker: Bool = false
     @State private var showTennisPicker: Bool = false
     @State private var showPickleballPicker: Bool = false
+    @State private var showBasketballPicker: Bool = false
     @State private var pickleballSets: Int = 3
     @State private var orderedItems: [WatchHomeItem] = WatchHomeItem.allCases
 
@@ -43,6 +45,10 @@ struct WatchHomeTabView: View {
                     case .archery:
                         WatchPillButton(icon: "🏹", title: NSLocalizedString("game_archery", comment: "Archery")) {
                             navigateToArchery()
+                        }
+                    case .basketball:
+                        WatchPillButton(icon: "🏀", title: NSLocalizedString("game_basketball", comment: "Basketball")) {
+                            showBasketballPicker = true
                         }
                     case .basketball_training:
                         WatchPillButton(icon: "🏀", title: NSLocalizedString("tool_basketball_training", comment: "Basketball Training")) {
@@ -72,6 +78,11 @@ struct WatchHomeTabView: View {
         .confirmationDialog(NSLocalizedString("pickleball_sets", comment: "Pickleball Sets"), isPresented: $showPickleballPicker) {
             Button(NSLocalizedString("best_of_3_sets", comment: "Best of 3")) { pickleballSets = 3; navigateToPickleball() }
             Button(NSLocalizedString("best_of_5_sets", comment: "Best of 5")) { pickleballSets = 5; navigateToPickleball() }
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
+        }
+        .confirmationDialog(NSLocalizedString("basketball_mode", value: "赛制", comment: "Basketball game mode"), isPresented: $showBasketballPicker) {
+            Button("5v5") { navigateToBasketball(threeXThree: false) }
+            Button("3x3") { navigateToBasketball(threeXThree: true) }
             Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
         }
         .onAppear {
@@ -140,6 +151,14 @@ struct WatchHomeTabView: View {
         saveLastSelected(.basketball_training)
         DispatchQueue.main.async {
             scoreboardRoute = .basketballTraining
+        }
+    }
+
+    private func navigateToBasketball(threeXThree: Bool) {
+        showBasketballPicker = false
+        saveLastSelected(.basketball)
+        DispatchQueue.main.async {
+            scoreboardRoute = .basketball(threeXThree: threeXThree)
         }
     }
 }
