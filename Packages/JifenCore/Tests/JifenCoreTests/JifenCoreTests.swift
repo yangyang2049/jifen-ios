@@ -152,6 +152,27 @@ private struct CounterReducer: DomainReducer {
     )))
 }
 
+@Test func volleyballUsesFifteenPointsInTheDecidingSet() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .volleyball())
+    state.leftSets = 2
+    state.rightSets = 2
+    state.leftPoints = 14
+    state.rightPoints = 13
+
+    let result = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+    #expect(result.state.leftSets == 3)
+    #expect(result.state.finished)
+    #expect(result.events.contains(.setCompleted(
+        winner: .left,
+        setNumber: 5,
+        leftPoints: 15,
+        rightPoints: 13,
+        leftSets: 3,
+        rightSets: 2
+    )))
+}
+
 @Test func rallyMatchUndoRestoresThePreviousPoint() async {
     let seed = ScoreSession<RallyMatchState, RallyMatchEvent>(
         gameType: .pingpong,
