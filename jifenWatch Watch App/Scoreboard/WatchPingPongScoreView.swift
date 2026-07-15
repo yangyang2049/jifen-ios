@@ -1,9 +1,10 @@
+import ScoreCore
 import SwiftUI
 
 struct WatchPingPongScoreView: View {
     let maxSets: Int
 
     var body: some View {
-        WatchScoreboardView(rules: WatchPingPongRules(maxSets: maxSets))
+        WatchRallyScoreView(gameType: .pingpong, rules: .pingPong(maxSets: maxSets))
     }
 }

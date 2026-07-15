@@ -108,6 +108,67 @@ private struct CounterReducer: DomainReducer {
     #expect(next.gameRunning)
 }
 
+@Test func pingPongUsesTwoServeTurnsThenOneServeAtDeuce() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pingPong(maxSets: 5),
+        openingServer: .left
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    #expect(state.servingSide == .left)
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    #expect(state.servingSide == .right)
+
+    state.leftPoints = 10
+    state.rightPoints = 9
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 3).state
+    #expect(state.leftPoints == 10)
+    #expect(state.rightPoints == 10)
+    #expect(state.servingSide == .left)
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 4).state
+    #expect(state.servingSide == .right)
+}
+
+@Test func badmintonCapsAtThirtyAndCompletesTheSet() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .badminton())
+    state.leftPoints = 29
+    state.rightPoints = 29
+
+    let result = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+    #expect(result.state.leftPoints == 0)
+    #expect(result.state.rightPoints == 0)
+    #expect(result.state.leftSets == 1)
+    #expect(result.events.contains(.setCompleted(
+        winner: .left,
+        setNumber: 1,
+        leftPoints: 30,
+        rightPoints: 29,
+        leftSets: 1,
+        rightSets: 0
+    )))
+}
+
+@Test func rallyMatchUndoRestoresThePreviousPoint() async {
+    let seed = ScoreSession<RallyMatchState, RallyMatchEvent>(
+        gameType: .pingpong,
+        ruleFamily: .s1,
+        reducerType: "rally/v1",
+        state: RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .pingPong())
+    )
+    let session = ScoreSessionCore(seedSession: seed, reducer: RallyMatchReducer())
+
+    _ = await session.dispatch(actorId: "phone", intent: .pointWon(.left), at: 1)
+    _ = await session.dispatch(actorId: "phone", intent: .pointWon(.right), at: 2)
+    #expect(await session.undo(actorId: "phone"))
+    let state = await session.snapshot().state
+    #expect(state.leftPoints == 1)
+    #expect(state.rightPoints == 0)
+}
+
 @Test func automaticBasketballClockTicksDoNotConsumeScoreUndo() async {
     let seed = ScoreSession<BasketballMatchState, BasketballMatchEvent>(
         gameType: .basketball,
