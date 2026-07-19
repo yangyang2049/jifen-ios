@@ -50,6 +50,34 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertNil(store.state.doubles)
     }
 
+    func testPingPongDecidingSwitchPointIsHalfTarget() {
+        var rules = RallyRuleSet.pingPong()
+        let target = 11
+        rules.pointsToWinSet = target
+        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(for: .pingpong, pointsPerSet: target)
+        XCTAssertEqual(rules.decidingSetSideSwitchPoint, 5)
+    }
+
+    func testRallyMatchStateRoundTripsThroughJSONSnapshot() throws {
+        var rules = RallyRuleSet.pingPong(maxSets: 5)
+        rules.autoChangeSides = true
+        rules.decidingSetSideSwitchPoint = 5
+        var state = RallyMatchEngine.initial(leftName: "红方", rightName: "蓝方", rules: rules)
+        state.leftPoints = 7
+        state.rightPoints = 5
+        state.leftSets = 1
+        state.sidesSwapped = true
+
+        let data = try JSONEncoder().encode(state)
+        let restored = try JSONDecoder().decode(RallyMatchState.self, from: data)
+
+        XCTAssertEqual(restored.leftPoints, 7)
+        XCTAssertEqual(restored.rightPoints, 5)
+        XCTAssertEqual(restored.leftSets, 1)
+        XCTAssertTrue(restored.sidesSwapped)
+        XCTAssertEqual(restored.rules.decidingSetSideSwitchPoint, 5)
+    }
+
     func testTennisPlayAllAcceptsEvenSetsAndFinishesInDraw() {
         let viewModel = TennisViewModel()
         viewModel.setConfig(maxSets: 4, matchCompletionMode: .playAll)
@@ -75,6 +103,35 @@ final class RallySessionStoreTests: XCTestCase {
         viewModel.adjustSets(isLeft: true, delta: 1)
 
         XCTAssertTrue(viewModel.gameFinished)
+    }
+
+    func testTennisTieBreakServeUsesOneThenTwoPointBlocks() {
+        let viewModel = TennisViewModel()
+        viewModel.setConfig(maxSets: 3, openingServerSide: .left)
+        viewModel.leftTeam.games = 6
+        viewModel.rightTeam.games = 6
+        viewModel.isTieBreak = true
+        viewModel.tieBreakFirstServer = .left
+        viewModel.leftTeam.score = 0
+        viewModel.rightTeam.score = 0
+
+        XCTAssertTrue(viewModel.isLeftServing()) // point 0 → block 0 → left
+        viewModel.leftTeam.score = 1
+        XCTAssertFalse(viewModel.isLeftServing()) // point 1 → block 1 → right
+        viewModel.rightTeam.score = 1 // total 2
+        XCTAssertFalse(viewModel.isLeftServing()) // block 1 still
+        viewModel.leftTeam.score = 2 // total 3
+        XCTAssertTrue(viewModel.isLeftServing()) // block 2 → left
+    }
+
+    func testTennisDoublesServerSlotAdvancesEachGame() {
+        let viewModel = TennisViewModel()
+        viewModel.setConfig(maxSets: 3, openingServerSide: .left, isSingles: false)
+        XCTAssertEqual(viewModel.currentServerSlot(), 0)
+        viewModel.leftTeam.games = 1
+        XCTAssertEqual(viewModel.currentServerSlot(), 1)
+        viewModel.rightTeam.games = 1 // total 2
+        XCTAssertEqual(viewModel.currentServerSlot(), 2)
     }
 
     func testSportsSetupResultDefaultsMissingCompletionMode() throws {

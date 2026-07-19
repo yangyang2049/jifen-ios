@@ -235,15 +235,25 @@ struct HomeTab: View {
                 NSLocalizedString("team_home", comment: ""),
                 NSLocalizedString("team_away", comment: "")
             )
-        case .football, .volleyball:
+        case .football:
+            return (
+                NSLocalizedString("team_home", comment: ""),
+                NSLocalizedString("team_away", comment: "")
+            )
+        case .volleyball:
             return (
                 NSLocalizedString("red_team", comment: ""),
                 NSLocalizedString("blue_team", comment: "")
             )
-        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .pickleball:
+        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .eightBall, .snooker, .pickleball, .simpleScore:
             return (
                 NSLocalizedString("watch_team_red", value: "红方", comment: ""),
                 NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+            )
+        case .foosball:
+            return (
+                NSLocalizedString("player_a", value: "选手A", comment: ""),
+                NSLocalizedString("player_b", value: "选手B", comment: "")
             )
         default:
             return (
@@ -297,8 +307,8 @@ struct HomeTab: View {
                 activityType: .scoreboard,
                 gameType: record.gameType,
                 timestamp: record.timestamp,
-                title: "\(record.team1Name) vs \(record.team2Name)",
-                description: "\(record.team1FinalScore) : \(record.team2FinalScore)"
+                title: record.displayMatchTitle,
+                description: record.displayScore()
             )
         }
     }
@@ -365,9 +375,10 @@ struct HomeTab: View {
             let (t1, t2) = Self.defaultTeamNames(for: gameType)
             MultiScoreSetupDialogView(
                 gameType: gameType,
-                defaultPlayerCount: gameType == .doudizhu ? 3 : 4,
+                defaultPlayerCount: Self.casualDefaultPlayerCount(for: gameType),
                 defaultTeam1Name: t1,
                 defaultTeam2Name: t2,
+                initialTargetScore: PreferencesManager.shared.unoTargetScore,
                 titleEmoji: gameType.icon,
                 titleKey: Self.localizationKey(for: gameType),
                 titleFallback: gameType.displayName,
@@ -393,6 +404,15 @@ struct HomeTab: View {
 
     private static func isCasualSetupGame(_ gameType: GameType) -> Bool {
         [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(gameType)
+    }
+
+    private static func casualDefaultPlayerCount(for gameType: GameType) -> Int {
+        switch gameType {
+        case .doudizhu: return 3
+        case .uno: return PreferencesManager.shared.unoPlayerCount
+        case .multiScoreboard: return PreferencesManager.shared.multiScoreboardPlayerCount
+        default: return 4
+        }
     }
 
     @ViewBuilder
@@ -473,62 +493,115 @@ struct HomeTab: View {
             VolleyballScoreboardView(variant: .airVolleyball, showBackButton: false, onNavigationBack: navigateBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
                 .toolbar(.hidden, for: .tabBar)
         case .archery:
-            ArcheryScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            ArcheryScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .boxing:
-            BoxingScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            BoxingScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .billiards:
-            BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            BilliardsScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .eightBall:
-            EightBallScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+            EightBallScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .nineBall:
-            NineBallChaseScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+            NineBallChaseScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .snooker:
-            SnookerReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+            SnookerReducerScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .pickleball:
             PickleballScoreboardView(initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
                 .toolbar(.hidden, for: .tabBar)
         case .guandan:
-            GuandanScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            GuandanScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .doudizhu:
-            DoudizhuScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            DoudizhuScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .shengji:
-            ShengjiReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+            ShengjiReducerScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .uno:
             MultiScoreboardView(
                 gameType: .uno,
-                defaultPlayerCount: setupResult?.playerCount ?? 4,
-                targetScore: setupResult?.targetScore ?? 500,
+                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.unoPlayerCount,
+                targetScore: setupResult?.targetScore ?? PreferencesManager.shared.unoTargetScore,
                 initialSetup: setupResult,
+                initialRecordId: initialRecordId,
                 onSetupConsumed: onSetupConsumed,
                 onNavigationBack: navigateBack
             )
                 .toolbar(.hidden, for: .tabBar)
         case .foosball:
-            RallyScoreboardView(
-                leftName: setupResult?.team1Name ?? NSLocalizedString("red_team", value: "红方", comment: ""),
-                rightName: setupResult?.team2Name ?? NSLocalizedString("blue_team", value: "蓝方", comment: ""),
-                gameType: setupResult?.isSingles == false ? .foosballDoubles : .foosball,
-                rules: (setupResult ?? SportsSetupResult(team1Name: "", team2Name: "")).foosballRules,
-                voiceAnnouncementEnabled: setupResult?.voiceAnnouncement ?? false,
+            FoosballScoreboardView(
                 showBackButton: false,
                 onNavigationBack: navigateBack,
-                onPresented: onSetupConsumed
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
             )
                 .toolbar(.hidden, for: .tabBar)
         case .simpleScore:
-            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            SimpleScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .multiScoreboard:
-            MultiScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+            MultiScoreboardView(
+                gameType: .multiScoreboard,
+                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.multiScoreboardPlayerCount,
+                initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .counter:
             SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)

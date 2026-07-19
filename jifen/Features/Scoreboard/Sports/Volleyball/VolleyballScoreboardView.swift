@@ -16,6 +16,7 @@ struct VolleyballScoreboardView: View {
             gameType: variant,
             rules: rules,
             openingServer: openingServer,
+            initialRecordId: initialRecordId,
             showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }

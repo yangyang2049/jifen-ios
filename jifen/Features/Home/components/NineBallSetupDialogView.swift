@@ -32,7 +32,7 @@ struct NineBallSetupDialogView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
 
-            ScrollView(showsIndicators: false) {
+            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(spacing: 18) {
                     Picker("", selection: $playerCount) {
                         ForEach(2...4, id: \.self) { count in
@@ -69,8 +69,6 @@ struct NineBallSetupDialogView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 16)
             }
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxHeight: maxContentHeight)
 
             HStack(spacing: 16) {
                 Button(action: cancel) {

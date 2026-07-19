@@ -155,7 +155,7 @@ struct RecordsTab: View {
             items = items.filter { item in
                 switch item {
                 case .scoreboard(let r):
-                    return r.team1Name.lowercased().contains(q) || r.team2Name.lowercased().contains(q) || r.gameType.displayName.lowercased().contains(q)
+                    return r.displayMatchTitle.lowercased().contains(q) || r.gameType.displayName.lowercased().contains(q)
                 case .timer(let r):
                     return r.gameType.displayName.lowercased().contains(q)
                 case .v2(let r):
@@ -281,7 +281,7 @@ struct RecordsTab: View {
                 .padding(.trailing, Theme.sm)
 
             VStack(alignment: .leading, spacing: Theme.xs) {
-                Text("\(record.team1Name) vs \(record.team2Name)")
+                Text(record.displayMatchTitle)
                     .font(.system(size: Theme.fontBody2, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
                     .lineLimit(1)
@@ -291,7 +291,7 @@ struct RecordsTab: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text("\(record.team1FinalScore) : \(record.team2FinalScore)")
+            Text(record.displayScore())
                 .font(.system(size: Theme.fontBody1, weight: .bold))
                 .foregroundColor(Theme.accentColor)
 

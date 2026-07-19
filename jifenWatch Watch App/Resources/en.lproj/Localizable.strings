@@ -87,6 +87,8 @@
 "exit" = "Exit";
 "watch_team_red" = "Red";
 "watch_team_blue" = "Blue";
+"archery_closest_title" = "Shoot-off · Closest";
+"archery_closest_message" = "Tied at %d — pick closer";
 "watch_set_end_format" = "Set %d end";
 "watch_match_start" = "Match start";
 "watch_match_finished" = "Match finished";

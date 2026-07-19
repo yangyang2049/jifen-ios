@@ -10,12 +10,14 @@ import SwiftUI
 struct BoxingScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
     @State private var controller = BoxingScoreboardController()
     @State private var viewModel = BoxingViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
     @State private var showRoundDialog: Bool = false
+    @State private var showGameFinishedOverlay = false
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
 
@@ -28,14 +30,19 @@ struct BoxingScoreboardView: View {
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .team,
-                    scoreTextProvider: { _, team in "\(team.score)" }
+                    scoreTextProvider: { _, team in "\(team.score)" },
+                    showEndGame: true
                 ),
                 onBack: {
-                    saveRecordIfNeeded()
+                    viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
                     onNavigationBack?()
                     dismiss()
                 }
             )
+
+            if showGameFinishedOverlay {
+                GameFinishedOverlay(winnerName: viewModel.getWinnerName())
+            }
 
             VStack(spacing: 0) {
                 roundTitle
@@ -75,15 +82,26 @@ struct BoxingScoreboardView: View {
                 viewModel.setMaxRounds(setup.maxRounds ?? 3)
                 onSetupConsumed?()
             }
+            restoreDraftIfNeeded()
             responsiveScoreFontSize = calculateResponsiveScoreFontSize()
         }
+        .onChange(of: viewModel.gameFinished) { _, finished in
+            if finished {
+                showGameFinishedOverlay = true
+                viewModel.saveGameRecordInRealTime(isGameFinished: true)
+            }
+        }
         .onDisappear {
-            saveRecordIfNeeded()
+            viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
         }
     }
 
     private var roundTitle: some View {
-        Text(String(format: NSLocalizedString("boxing_round_n", comment: ""), viewModel.currentRound))
+        Text(String(
+            format: NSLocalizedString("boxing_round_progress", value: "%d / %d", comment: "Round N of max"),
+            viewModel.currentRound,
+            viewModel.maxRounds
+        ))
             .font(.system(size: 24, weight: .bold))
             .foregroundColor(.yellow)
             .padding(.horizontal, 16)
@@ -118,25 +136,38 @@ struct BoxingScoreboardView: View {
         return min(240, max(base, base + (CGFloat(w) - 400) * 0.15))
     }
 
-    private func saveRecordIfNeeded() {
-        guard !controller.isRecordSaved(), !controller.getGameActions().isEmpty else { return }
-        let winner: String? = (viewModel.leftTeam.sets ?? 0) > (viewModel.rightTeam.sets ?? 0) ? "left" : ((viewModel.rightTeam.sets ?? 0) > (viewModel.leftTeam.sets ?? 0) ? "right" : nil)
-        let start = controller.getGameStartTime()
-        let end = Date()
-        controller.saveScoreboardRecord(
-            id: "boxing_\(Int(start.timeIntervalSince1970))_\(Int(end.timeIntervalSince1970))",
-            endTime: end,
-            duration: end.timeIntervalSince(start),
-            team1Name: viewModel.leftTeam.name,
-            team2Name: viewModel.rightTeam.name,
-            team1FinalScore: viewModel.leftTeam.score,
-            team2FinalScore: viewModel.rightTeam.score,
-            team1SetScore: viewModel.leftTeam.sets,
-            team2SetScore: viewModel.rightTeam.sets,
-            winner: winner,
-            totalScoreChanges: controller.getGameActions().count,
-            extraData: ["rounds": max(0, viewModel.currentRound - 1)]
-        )
+    private func restoreDraftIfNeeded() {
+        guard let recordId = initialRecordId,
+              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
+              record.status == .draft else {
+            return
+        }
+
+        controller.gameStartTime = record.startTime
+        controller.gameActions = record.actions
+        controller.gameRecordSaved = false
+
+        viewModel.leftTeam.name = record.team1Name
+        viewModel.rightTeam.name = record.team2Name
+        viewModel.leftTeam.score = record.team1FinalScore
+        viewModel.rightTeam.score = record.team2FinalScore
+
+        if let leftSets = record.extraData?["leftSets"]?.value as? Int {
+            viewModel.leftTeam.sets = leftSets
+        } else if let team1SetScore = record.team1SetScore {
+            viewModel.leftTeam.sets = team1SetScore
+        }
+        if let rightSets = record.extraData?["rightSets"]?.value as? Int {
+            viewModel.rightTeam.sets = rightSets
+        } else if let team2SetScore = record.team2SetScore {
+            viewModel.rightTeam.sets = team2SetScore
+        }
+        if let currentRound = record.extraData?["currentRound"]?.value as? Int {
+            viewModel.currentRound = currentRound
+        }
+        if let maxRounds = record.extraData?["maxRounds"]?.value as? Int {
+            viewModel.setMaxRounds(maxRounds)
+        }
     }
 }
 

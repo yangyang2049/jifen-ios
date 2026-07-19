@@ -55,6 +55,62 @@ class BoxingViewModel: BaseScoreViewModel {
         maxRounds = max(1, min(rounds, 99))
     }
 
+    func getWinnerName() -> String {
+        guard gameFinished else { return "" }
+        let leftSets = leftTeam.sets ?? 0
+        let rightSets = rightTeam.sets ?? 0
+        if leftSets > rightSets { return leftTeam.name }
+        if rightSets > leftSets { return rightTeam.name }
+        return ""
+    }
+
+    func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        let hasProgress = !(controller?.getGameActions().isEmpty ?? true)
+            || leftTeam.score != 0
+            || rightTeam.score != 0
+            || (leftTeam.sets ?? 0) != 0
+            || (rightTeam.sets ?? 0) != 0
+            || isGameFinished
+            || gameFinished
+        guard hasProgress else { return }
+
+        let finished = isGameFinished || gameFinished
+        let start = controller?.getGameStartTime() ?? Date()
+        let end = Date()
+
+        var winner: String?
+        if finished {
+            let leftSets = leftTeam.sets ?? 0
+            let rightSets = rightTeam.sets ?? 0
+            if leftSets > rightSets {
+                winner = "left"
+            } else if rightSets > leftSets {
+                winner = "right"
+            }
+        }
+
+        controller?.saveScoreboardRecord(
+            id: "boxing_\(Int(start.timeIntervalSince1970))",
+            endTime: end,
+            duration: end.timeIntervalSince(start),
+            team1Name: leftTeam.name,
+            team2Name: rightTeam.name,
+            team1FinalScore: leftTeam.score,
+            team2FinalScore: rightTeam.score,
+            team1SetScore: leftTeam.sets,
+            team2SetScore: rightTeam.sets,
+            winner: winner,
+            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            extraData: [
+                "currentRound": currentRound,
+                "maxRounds": maxRounds,
+                "leftSets": leftTeam.sets ?? 0,
+                "rightSets": rightTeam.sets ?? 0
+            ],
+            status: finished ? .finished : .draft
+        )
+    }
+
     func adjustSets(isLeft: Bool, delta: Int) {
         saveFullStateToHistory()
         if isLeft {

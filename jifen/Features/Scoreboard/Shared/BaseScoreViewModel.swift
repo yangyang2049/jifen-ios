@@ -75,6 +75,20 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
         // Vibration feedback
         controller?.performVibration(type: .light)
     }
+
+    /// Applies a signed delta while clamping to `scoreRange` (used by custom ±N panel).
+    func adjustScore(isLeft: Bool, delta: Int) {
+        guard !gameFinished, delta != 0 else { return }
+        saveHistory()
+        if isLeft {
+            leftTeam.score = min(scoreRange.upperBound, max(scoreRange.lowerBound, leftTeam.score + delta))
+        } else {
+            rightTeam.score = min(scoreRange.upperBound, max(scoreRange.lowerBound, rightTeam.score + delta))
+        }
+        let sign = delta > 0 ? "+" : ""
+        controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") \(sign)\(delta)")
+        controller?.performVibration(type: .medium)
+    }
     
     func reset() {
         saveHistory()
@@ -105,7 +119,7 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
     }
     
     func endGame() {
-        // 默认无操作；足球/篮球 override 并设置 gameFinished = true
+        gameFinished = true
     }
 
     func exchangeSides() {

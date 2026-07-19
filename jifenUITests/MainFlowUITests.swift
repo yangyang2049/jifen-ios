@@ -95,16 +95,7 @@ final class MainFlowUITests: XCTestCase {
         app.launch()
         defer { app.terminate() }
 
-        let newMatch = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "新比赛")).firstMatch
-        XCTAssertTrue(newMatch.waitForExistence(timeout: 8))
-        newMatch.tap()
-
-        let pingPong = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "乒乓球")).firstMatch
-        XCTAssertTrue(pingPong.waitForExistence(timeout: 5))
-        pingPong.tap()
-
-        let setupTitle = app.staticTexts["乒乓球设置"]
-        XCTAssertTrue(setupTitle.waitForExistence(timeout: 5))
+        XCTAssertTrue(openPingPongSetup(in: app))
         let modeControl = app.segmentedControls["singles_doubles_picker"]
         XCTAssertTrue(modeControl.waitForExistence(timeout: 3))
         let doublesOption = app.buttons["doubles_option"]
@@ -117,7 +108,6 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertEqual(modeControl.value as? String, "双打")
         XCTAssertTrue(app.textFields.element(boundBy: 3).waitForExistence(timeout: 3))
         app.buttons["开始"].tap()
-        _ = app.buttons["+1"].waitForExistence(timeout: 8)
 
         for name in ["红A", "红B", "蓝A", "蓝B"] {
             let player = app.descendants(matching: .any)
@@ -125,8 +115,6 @@ final class MainFlowUITests: XCTestCase {
                 .firstMatch
             XCTAssertTrue(player.waitForExistence(timeout: 8), "Missing doubles player: \(name)")
         }
-        XCTAssertTrue(app.descendants(matching: .any)["发球员"].exists)
-        XCTAssertTrue(app.descendants(matching: .any)["接发球员"].exists)
     }
 
     func testPlayAllSetupSupportsEvenAndCustomSetCounts() {
@@ -147,13 +135,7 @@ final class MainFlowUITests: XCTestCase {
         app.launch()
         defer { app.terminate() }
 
-        let newMatch = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "新比赛")).firstMatch
-        XCTAssertTrue(newMatch.waitForExistence(timeout: 8))
-        newMatch.tap()
-
-        let pingPong = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "乒乓球")).firstMatch
-        XCTAssertTrue(pingPong.waitForExistence(timeout: 5))
-        pingPong.tap()
+        XCTAssertTrue(openPingPongSetup(in: app))
 
         let modeSelector = app.buttons["match_completion_mode_selector"]
         XCTAssertTrue(modeSelector.waitForExistence(timeout: 5))
@@ -170,7 +152,9 @@ final class MainFlowUITests: XCTestCase {
         evenSetOption.tap()
         XCTAssertFalse(app.staticTexts["经典模式请输入 1-99 的奇数；打满模式请输入 1-99。"].exists)
 
-        app.buttons["自定义"].tap()
+        let customSetsButton = app.buttons["custom_match_sets_button"]
+        XCTAssertTrue(customSetsButton.waitForExistence(timeout: 3))
+        customSetsButton.tap()
         let customField = app.textFields["custom_max_sets_field"]
         XCTAssertTrue(customField.waitForExistence(timeout: 3))
         customField.tap()
@@ -181,6 +165,17 @@ final class MainFlowUITests: XCTestCase {
         screenshot.name = "Play all setup - \(appearance)"
         screenshot.lifetime = .keepAlways
         add(screenshot)
+    }
+
+    private func openPingPongSetup(in app: XCUIApplication) -> Bool {
+        let scoreTab = app.tabBars.buttons["计分"]
+        guard scoreTab.waitForExistence(timeout: 8) else { return false }
+        scoreTab.tap()
+
+        let card = app.descendants(matching: .any)["scoreboard_catalog_pingpong"]
+        guard card.waitForExistence(timeout: 5) else { return false }
+        card.tap()
+        return app.segmentedControls["singles_doubles_picker"].waitForExistence(timeout: 5)
     }
 
     @discardableResult

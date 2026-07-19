@@ -19,6 +19,7 @@ struct BadmintonScoreboardView: View {
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
+            initialRecordId: initialRecordId,
             showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
@@ -32,9 +33,10 @@ struct BadmintonScoreboardView: View {
         )
         rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
         let target = max(1, initialSetup?.pointsPerSet ?? 21)
+        let coreType: ScoreCore.GameType = initialSetup?.isSingles == false ? .badmintonDoubles : .badminton
         rules.pointsToWinSet = target
-        rules.pointCap = target == 21 ? 30 : nil
-        rules.decidingSetSideSwitchPoint = max(1, (target + 1) / 2)
+        rules.pointCap = RallyRuleSet.badmintonPointCap(for: target)
+        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(for: coreType, pointsPerSet: target)
         return rules
     }
 

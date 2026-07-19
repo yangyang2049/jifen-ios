@@ -398,6 +398,7 @@ private struct BasketballCenterPanel: View {
 
     @State private var showPeriodPicker = false
     @State private var shotClockBlinkPhase = false
+    @State private var showUsageHint = false
 
     private let centerBG = Color(hex: "111827")
     private let actionBlue = Color(hex: "2563EB")
@@ -423,6 +424,7 @@ private struct BasketballCenterPanel: View {
                 periodPickerOverlay
             }
         }
+        .sheet(isPresented: $showUsageHint) { ScoreboardUsageHintView() }
     }
 
     private var upperZone: some View {
@@ -444,6 +446,9 @@ private struct BasketballCenterPanel: View {
                     }
                     Button(action: onDisplaySettings) {
                         Text("Aa").font(.headline).foregroundStyle(.white)
+                    }
+                    Button { showUsageHint = true } label: {
+                        Text("?").font(.headline).foregroundStyle(.white)
                     }
                     Button(action: onLocalSync) {
                         Image(systemName: "rectangle.connected.to.line.below").foregroundStyle(.white)

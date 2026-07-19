@@ -10,10 +10,11 @@ struct RallyScoreboardView: View {
     let showBackButton: Bool
     let onNavigationBack: (() -> Void)?
     let onPresented: () -> Void
-    let voiceAnnouncementEnabled: Bool
+    @State private var voiceAnnouncementEnabled: Bool
     @State private var store: RallySessionStore
     @State private var watchSessionId: UUID?
     @State private var finishConfirmationDeadline: Date?
+    @State private var settleConfirmationDeadline: Date?
     @State private var toastMessage: String?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var showDisplaySettings = false
@@ -31,6 +32,11 @@ struct RallyScoreboardView: View {
     @State private var flashSlots: Set<Int> = []
     @State private var flashActive = false
     @State private var flashTask: Task<Void, Never>?
+    @State private var showGameFinishedOverlay = false
+    @State private var recordId: String
+    @State private var gameStartTime: Date
+    @State private var draftSaveGeneration = 0
+    @State private var actions: [String]
 
     init(
         leftName: String,
@@ -41,28 +47,56 @@ struct RallyScoreboardView: View {
         openingServer: MatchSide = .left,
         voiceAnnouncementEnabled: Bool = false,
         initialWatchSessionId: UUID? = nil,
+        initialRecordId: String? = nil,
         showBackButton: Bool = true,
         onNavigationBack: (() -> Void)? = nil,
         onPresented: @escaping () -> Void = {}
     ) {
-        self.gameType = gameType
         self.showBackButton = showBackButton
         self.onNavigationBack = onNavigationBack
         self.onPresented = onPresented
-        self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
         _watchSessionId = State(initialValue: initialWatchSessionId)
-        _store = State(initialValue: RallySessionStore(
-            leftName: leftName,
-            rightName: rightName,
-            gameType: gameType,
-            rules: rules,
-            participants: participants,
-            openingServer: openingServer
-        ))
+
+        if let initialRecordId,
+           let draft = Self.loadDraft(recordId: initialRecordId) {
+            self.gameType = draft.coreGameType ?? gameType
+            _store = State(initialValue: RallySessionStore(
+                gameType: draft.coreGameType ?? gameType,
+                state: draft.state,
+                participants: participants
+            ))
+            _recordId = State(initialValue: initialRecordId)
+            _gameStartTime = State(initialValue: draft.startTime)
+            _actions = State(initialValue: draft.actions)
+            _voiceAnnouncementEnabled = State(initialValue: draft.voiceAnnouncementEnabled)
+            _showGameFinishedOverlay = State(initialValue: draft.state.finished)
+        } else {
+            self.gameType = gameType
+            _store = State(initialValue: RallySessionStore(
+                leftName: leftName,
+                rightName: rightName,
+                gameType: gameType,
+                rules: rules,
+                participants: participants,
+                openingServer: openingServer
+            ))
+            _recordId = State(initialValue: initialRecordId ?? "rally_\(UUID().uuidString)")
+            _gameStartTime = State(initialValue: Date())
+            _actions = State(initialValue: [])
+            _voiceAnnouncementEnabled = State(initialValue: voiceAnnouncementEnabled)
+        }
     }
 
     private var isDoubles: Bool { store.state.doubles != nil }
     private var palette: ScoreboardPalette { appearance.theme.palette }
+
+    /// 桌上足球无发球模型（对齐鸿蒙/安卓）。
+    private var showsServeIndicator: Bool {
+        switch gameType {
+        case .foosball, .foosballDoubles: return false
+        default: return true
+        }
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -80,7 +114,7 @@ struct RallyScoreboardView: View {
                     }
                 }
 
-                if !isEditMode {
+                if !isEditMode && showsServeIndicator {
                     serveIndicatorOverlay(size: proxy.size)
                 }
 
@@ -99,6 +133,10 @@ struct RallyScoreboardView: View {
                     showEndGame: true,
                     items: menuItems
                 )
+
+                if showGameFinishedOverlay {
+                    GameFinishedOverlay(winnerName: finishedWinnerName)
+                }
 
                 if let toastMessage {
                     VStack {
@@ -132,6 +170,9 @@ struct RallyScoreboardView: View {
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
             revealImmersiveChrome()
+            if store.state.finished {
+                showGameFinishedOverlay = true
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
             appearance = .current()
@@ -151,6 +192,10 @@ struct RallyScoreboardView: View {
             if let watchSessionId {
                 watchLinkService.syncWatch(sessionId: watchSessionId, gameType: gameType, state: state)
             }
+            if state.finished {
+                showGameFinishedOverlay = true
+            }
+            scheduleDraftPersist(finished: state.finished)
         }
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
@@ -171,6 +216,7 @@ struct RallyScoreboardView: View {
                 watchLinkService.endWatchSession(watchSessionId)
             }
             store.persistSnapshot()
+            persistRecord(finished: store.state.finished)
         }
         .sheet(isPresented: $showDisplaySettings) {
             ScoreboardDisplaySettingsView(gameType: appGameType)
@@ -208,8 +254,15 @@ struct RallyScoreboardView: View {
                 .onEnded { value in
                     guard !isEditMode else { return }
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
-                        store.undo()
+                        store.undo {
+                            scheduleDraftPersist(finished: store.state.finished)
+                        }
                         showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
+                    } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
+                        guard !store.state.finished else { return }
+                        let points = side == .left ? store.state.leftPoints : store.state.rightPoints
+                        guard points > 0 else { return }
+                        dispatch(.adjustPoints(side: side, delta: -1))
                     }
                 }
         )
@@ -344,8 +397,15 @@ struct RallyScoreboardView: View {
                 .onEnded { value in
                     guard !isEditMode else { return }
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
-                        store.undo()
+                        store.undo {
+                            scheduleDraftPersist(finished: store.state.finished)
+                        }
                         showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
+                    } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
+                        guard !store.state.finished else { return }
+                        let points = side == .left ? store.state.leftPoints : store.state.rightPoints
+                        guard points > 0 else { return }
+                        dispatch(.adjustPoints(side: side, delta: -1))
                     }
                 }
         )
@@ -481,8 +541,15 @@ struct RallyScoreboardView: View {
 
     private func doublesCornerNames(screenSide: MatchSide) -> (String, String) {
         guard let doubles = store.state.doubles else { return ("", "") }
-        let top = doubles.playerName(at: doublesTopSlot(screenSide: screenSide)) ?? ""
-        let bottom = doubles.playerName(at: doublesBottomSlot(screenSide: screenSide)) ?? ""
+        var top = doubles.playerName(at: doublesTopSlot(screenSide: screenSide)) ?? ""
+        var bottom = doubles.playerName(at: doublesBottomSlot(screenSide: screenSide)) ?? ""
+        if !isEditMode, let swapped = doubles.pickleballPartnersSwapped {
+            let logical = logicalSide(forScreen: screenSide)
+            let partnersSwapped = logical == .left ? swapped.team0 : swapped.team1
+            if partnersSwapped {
+                swap(&top, &bottom)
+            }
+        }
         return (top, bottom)
     }
 
@@ -551,7 +618,7 @@ struct RallyScoreboardView: View {
                 prevServingSide: store.state.servingSide
             )
         }
-        store.send(.pointWon(side))
+        dispatch(.pointWon(side))
         revealImmersiveChrome()
     }
 
@@ -603,9 +670,20 @@ struct RallyScoreboardView: View {
             let serverSlot = doubles.serverSlotIndex
             let isTopRow = serverSlot == 0 || serverSlot == 1
             let yFrac: CGFloat = isTopRow ? (1.0 / 6.0) : (5.0 / 6.0)
-            CenterLineServeIndicator(isLeftServing: servingIsLeftScreen, triangleSize: 36)
-                .position(x: size.width / 2, y: size.height * yFrac)
-                .allowsHitTesting(false)
+            ZStack {
+                CenterLineServeIndicator(isLeftServing: servingIsLeftScreen, triangleSize: 36)
+                if let serverNumber = doubles.pickleballServerNumber {
+                    Text("\(serverNumber)")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundStyle(palette.foreground)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(Color.black.opacity(0.35)))
+                        .offset(y: isTopRow ? 28 : -28)
+                }
+            }
+            .position(x: size.width / 2, y: size.height * yFrac)
+            .allowsHitTesting(false)
         } else {
             CenterLineServeIndicator(isLeftServing: servingIsLeftScreen, triangleSize: 36)
                 .position(x: size.width / 2, y: size.height / 2)
@@ -691,13 +769,26 @@ struct RallyScoreboardView: View {
                 )
             )
         }
+        extras.append(
+            ScoreboardMenuItem(
+                title: voiceAnnouncementEnabled
+                    ? NSLocalizedString("voice_announcement_on", value: "语音：开", comment: "")
+                    : NSLocalizedString("voice_announcement_off", value: "语音：关", comment: ""),
+                action: "voiceAnnouncement",
+                group: .tools,
+                icon: voiceAnnouncementEnabled ? "speaker.wave.2" : "speaker.slash",
+                keepDialogOpen: true
+            )
+        )
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: true,
             showLocalSync: true,
-            showWhistle: false,
-            showScreenshot: false,
+            showWhistle: true,
+            showScreenshot: true,
             showDisplaySettings: true,
+            showSettleMatch: gameType == .foosball || gameType == .foosballDoubles,
+            settleConfirming: settleConfirmationDeadline.map { Date() <= $0 } == true,
             extraItems: extras
         )
     }
@@ -705,20 +796,28 @@ struct RallyScoreboardView: View {
     private func handleMenuAction(_ action: String) {
         switch action {
         case "undo":
-            store.undo()
+            store.undo {
+                scheduleDraftPersist(finished: store.state.finished)
+            }
             showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
         case "exchangeSide":
-            store.send(.exchangeSides)
+            dispatch(.exchangeSides)
         case "reset":
-            store.send(.reset)
+            showGameFinishedOverlay = false
+            dispatch(.reset)
         case "endGame":
             finishMatch()
+        case "settleMatch":
+            settleMatch()
         case "displaySettings":
             showDisplaySettings = true
         case "localSync":
             showLocalSync = true
         case "watch":
             watchSessionId = watchLinkService.startOnWatch(gameType: gameType, state: store.state)
+        case "voiceAnnouncement":
+            voiceAnnouncementEnabled.toggle()
+            scheduleDraftPersist(finished: store.state.finished)
         default:
             break
         }
@@ -803,11 +902,21 @@ struct RallyScoreboardView: View {
             },
             handleIntent: { intent in
                 switch intent {
-                case .addLeft: store.send(.pointWon(logicalSide(forScreen: .left)))
-                case .addRight: store.send(.pointWon(logicalSide(forScreen: .right)))
-                case .subtractLeft, .subtractRight: store.undo()
-                case .undo: store.undo()
-                case .exchangeSides: store.send(.exchangeSides)
+                case .addLeft: dispatch(.pointWon(logicalSide(forScreen: .left)))
+                case .addRight: dispatch(.pointWon(logicalSide(forScreen: .right)))
+                case .subtractLeft:
+                    let side = logicalSide(forScreen: .left)
+                    guard store.state.leftPoints > 0, !store.state.finished else { return }
+                    dispatch(.adjustPoints(side: side, delta: -1))
+                case .subtractRight:
+                    let side = logicalSide(forScreen: .right)
+                    guard store.state.rightPoints > 0, !store.state.finished else { return }
+                    dispatch(.adjustPoints(side: side, delta: -1))
+                case .undo:
+                    store.undo {
+                        scheduleDraftPersist(finished: store.state.finished)
+                    }
+                case .exchangeSides: dispatch(.exchangeSides)
                 case .requestSnapshot: break
                 }
             }
@@ -862,7 +971,204 @@ struct RallyScoreboardView: View {
             return
         }
         finishConfirmationDeadline = nil
-        store.send(.finish)
+        dispatch(.finish)
+    }
+
+    private func settleMatch() {
+        let now = Date()
+        guard settleConfirmationDeadline.map({ now <= $0 }) == true else {
+            settleConfirmationDeadline = now.addingTimeInterval(2)
+            showToast(NSLocalizedString("click_again_to_settle_match", value: "再按一次结算", comment: ""))
+            return
+        }
+        settleConfirmationDeadline = nil
+        finishMatch()
+        showMenu = false
+    }
+
+    private func dispatch(_ intent: RallyMatchIntent) {
+        store.send(intent) { events in
+            handleEvents(events)
+        }
+    }
+
+    private func handleEvents(_ events: [RallyMatchEvent]) {
+        var setToast: String?
+        var sideToast: String?
+        var matchFinished = false
+
+        for event in events {
+            let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+            switch event {
+            case .setCompleted(let winner, let setNumber, let leftPoints, let rightPoints, let leftSets, let rightSets):
+                actions.append("\(timestamp)|set|\(winner.rawValue)|\(setNumber)|\(leftPoints):\(rightPoints)|\(leftSets):\(rightSets)")
+                let winnerName = winner == .left ? store.state.leftName : store.state.rightName
+                setToast = String(
+                    format: NSLocalizedString("set_ended_winner", value: "第%d局结束，%@获胜，比分 %d-%d", comment: ""),
+                    setNumber,
+                    winnerName,
+                    leftPoints,
+                    rightPoints
+                )
+            case .sidesExchanged:
+                actions.append("\(timestamp)|exchangeSides")
+                sideToast = NSLocalizedString("change_sides", value: "换边", comment: "")
+            case .sidesExchangeReminder:
+                actions.append("\(timestamp)|sideChangeReminder")
+                sideToast = NSLocalizedString("please_change_sides_manually", value: "请手动换边", comment: "")
+            case .matchFinished(let winner):
+                actions.append("\(timestamp)|finish|\(winner?.rawValue ?? "draw")")
+                matchFinished = true
+            case .pointScored(let side, let leftPoints, let rightPoints):
+                actions.append("\(timestamp)|point|\(side.rawValue)|\(leftPoints):\(rightPoints)")
+            case .matchReset:
+                actions.append("\(timestamp)|reset")
+            }
+        }
+
+        if let setToast {
+            showToast(setToast)
+            if let sideToast {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.1) {
+                    showToast(sideToast)
+                }
+            }
+        } else if let sideToast {
+            showToast(sideToast)
+        }
+
+        if matchFinished {
+            showGameFinishedOverlay = true
+            persistRecord(finished: true)
+        }
+    }
+
+    private var finishedWinnerName: String {
+        if store.state.leftSets == store.state.rightSets { return "" }
+        return store.state.leftSets > store.state.rightSets ? store.state.leftName : store.state.rightName
+    }
+
+    private var hasMatchProgress: Bool {
+        store.state.leftPoints > 0
+            || store.state.rightPoints > 0
+            || store.state.leftSets > 0
+            || store.state.rightSets > 0
+            || store.state.finished
+    }
+
+    private func scheduleDraftPersist(finished: Bool) {
+        guard finished || hasMatchProgress else { return }
+        draftSaveGeneration += 1
+        let generation = draftSaveGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            guard generation == draftSaveGeneration else { return }
+            persistRecord(finished: finished)
+        }
+    }
+
+    private func persistRecord(finished: Bool) {
+        guard finished || hasMatchProgress else { return }
+        guard let snapshot = try? JSONEncoder().encode(store.state) else { return }
+        let endTime = Date()
+        let winner: String?
+        if finished {
+            if store.state.leftSets > store.state.rightSets {
+                winner = "left"
+            } else if store.state.rightSets > store.state.leftSets {
+                winner = "right"
+            } else {
+                winner = nil
+            }
+        } else {
+            winner = nil
+        }
+
+        let record = ScoreboardRecord(
+            id: recordId,
+            gameType: appGameType,
+            startTime: gameStartTime,
+            endTime: finished ? endTime : nil,
+            duration: endTime.timeIntervalSince(gameStartTime),
+            team1Name: store.state.leftName,
+            team2Name: store.state.rightName,
+            team1FinalScore: store.state.leftSets,
+            team2FinalScore: store.state.rightSets,
+            team1SetScore: store.state.leftSets,
+            team2SetScore: store.state.rightSets,
+            winner: winner,
+            actions: actions,
+            totalScoreChanges: store.state.leftPoints + store.state.rightPoints + store.state.leftSets + store.state.rightSets,
+            extraData: {
+                var data: [String: AnyCodable] = [
+                    "coreGameType": AnyCodable(gameType.rawValue),
+                    "maxSets": AnyCodable(store.state.rules.maxSets),
+                    "pointsPerSet": AnyCodable(store.state.rules.pointsToWinSet),
+                    "matchCompletionMode": AnyCodable(store.state.rules.matchCompletionMode.rawValue),
+                    "autoChangeSides": AnyCodable(store.state.rules.autoChangeSides),
+                    "servingSide": AnyCodable(store.state.openingServerSide.rawValue),
+                    "voiceAnnouncement": AnyCodable(voiceAnnouncementEnabled),
+                    "currentSet": AnyCodable(store.state.currentSet),
+                    "currentLeftScore": AnyCodable(store.state.leftPoints),
+                    "currentRightScore": AnyCodable(store.state.rightPoints),
+                    "sidesSwapped": AnyCodable(store.state.sidesSwapped),
+                    "winByTwo": AnyCodable(store.state.rules.finalSetWinByTwo ?? store.state.rules.winByTwo)
+                ]
+                if let scoreCap = store.state.rules.finalSetPointCap {
+                    data["scoreCap"] = AnyCodable(scoreCap)
+                }
+                data["isSingles"] = AnyCodable(store.state.doubles == nil)
+                if let doubles = store.state.doubles {
+                    let names = doubles.playerNames
+                    data["playerNames"] = AnyCodable(names)
+                    data["players"] = AnyCodable(names.map { ["name": $0] })
+                    if names.indices.contains(3) {
+                        data["team1Player1Name"] = AnyCodable(names[0])
+                        data["team2Player1Name"] = AnyCodable(names[1])
+                        data["team1Player2Name"] = AnyCodable(names[2])
+                        data["team2Player2Name"] = AnyCodable(names[3])
+                    }
+                }
+                return data
+            }(),
+            stateSnapshot: snapshot,
+            status: finished ? .finished : .draft
+        )
+
+        do {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+            ScoreboardRecordsViewModel.shared.refreshRecords()
+        } catch {
+            #if DEBUG
+            print("[RallyScoreboardView] Failed to save record: \(error)")
+            #endif
+        }
+    }
+
+    private struct DraftLoad {
+        let state: RallyMatchState
+        let startTime: Date
+        let coreGameType: ScoreCore.GameType?
+        let actions: [String]
+        let voiceAnnouncementEnabled: Bool
+    }
+
+    private static func loadDraft(recordId: String) -> DraftLoad? {
+        guard let record = ScoreboardRecordManager.shared.getRecordById(recordId),
+              record.status == .draft,
+              let data = record.stateSnapshot,
+              let state = try? JSONDecoder().decode(RallyMatchState.self, from: data) else {
+            return nil
+        }
+        let coreRaw = record.extraData?["coreGameType"]?.value as? String
+        let coreGameType = coreRaw.flatMap { ScoreCore.GameType(rawValue: $0) }
+        let voiceAnnouncementEnabled = record.extraData?["voiceAnnouncement"]?.value as? Bool ?? false
+        return DraftLoad(
+            state: state,
+            startTime: record.startTime,
+            coreGameType: coreGameType,
+            actions: record.actions,
+            voiceAnnouncementEnabled: voiceAnnouncementEnabled
+        )
     }
 
     private func showToast(_ message: String) {

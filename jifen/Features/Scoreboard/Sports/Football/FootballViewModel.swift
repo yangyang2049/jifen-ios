@@ -9,10 +9,12 @@ import Foundation
 
 @Observable
 class FootballViewModel: BaseScoreViewModel {
+    private static let scoreRange = 0 ... 9999
+
     override init(controller: BaseScoreboardController? = nil) {
-        super.init(controller: controller)
-        self.leftTeam = TeamData(name: NSLocalizedString("red_team", comment: "Red Team"), score: 0)
-        self.rightTeam = TeamData(name: NSLocalizedString("blue_team", comment: "Blue Team"), score: 0)
+        super.init(controller: controller, scoreRange: Self.scoreRange)
+        self.leftTeam = TeamData(name: NSLocalizedString("team_home", comment: "Home Team"), score: 0)
+        self.rightTeam = TeamData(name: NSLocalizedString("team_away", comment: "Away Team"), score: 0)
     }
 
     override func endGame() {
@@ -33,9 +35,9 @@ class FootballViewModel: BaseScoreViewModel {
         )
 
         if isLeft {
-            leftTeam.score += points
+            leftTeam.score = min(Self.scoreRange.upperBound, leftTeam.score + points)
         } else {
-            rightTeam.score += points
+            rightTeam.score = min(Self.scoreRange.upperBound, rightTeam.score + points)
         }
 
         // Record football-specific action
@@ -44,7 +46,8 @@ class FootballViewModel: BaseScoreViewModel {
         controller?.performVibration(type: .light)
     }
 
-    func adjustScore(isLeft: Bool, delta: Int) {
+    override func adjustScore(isLeft: Bool, delta: Int) {
+        guard delta != 0 else { return }
         // Save history before change
         controller?.pushHistory(
             left: leftTeam.score,
@@ -57,9 +60,9 @@ class FootballViewModel: BaseScoreViewModel {
 
         // Adjust score
         if isLeft {
-            leftTeam.score = max(0, leftTeam.score + delta)
+            leftTeam.score = min(Self.scoreRange.upperBound, max(Self.scoreRange.lowerBound, leftTeam.score + delta))
         } else {
-            rightTeam.score = max(0, rightTeam.score + delta)
+            rightTeam.score = min(Self.scoreRange.upperBound, max(Self.scoreRange.lowerBound, rightTeam.score + delta))
         }
 
         controller?.performVibration(type: .light)

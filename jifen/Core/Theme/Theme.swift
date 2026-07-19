@@ -47,13 +47,12 @@ struct Theme {
     static let homeCardTextPrimary = Color.white
     static let homeCardTextSecondary = Color.white.opacity(0.78)
     static let homeCardTextTertiary = Color.white.opacity(0.62)
-    /// 首页中性卡片：浅色接近工具入口（抛硬币/骰子等）的灰底，深色保持原深灰。
+    /// 首页中性卡片：浅色用纯白，与分组灰页面背景拉开层次；深色保持原深灰。
     static let homeNeutralCardBackground = Color(uiColor: UIColor { traits in
         if traits.userInterfaceStyle == .dark {
             return UIColor(red: 28 / 255, green: 28 / 255, blue: 30 / 255, alpha: 1) // #1C1C1E
         }
-        // systemGray5 ≈ 工具区 ultraThinMaterial 在浅色下的固态观感
-        return .systemGray5
+        return .white
     })
     static let homeNeutralCardTextPrimary = Color(uiColor: .label)
     static let homeNeutralCardTextSecondary = Color(uiColor: .secondaryLabel)

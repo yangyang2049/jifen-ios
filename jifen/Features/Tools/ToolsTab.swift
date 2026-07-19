@@ -101,6 +101,8 @@ struct ToolCardView: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier("tool_card_\(tool.id)")
+        .accessibilityLabel(tool.title)
     }
 }
 

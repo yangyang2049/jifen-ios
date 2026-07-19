@@ -49,7 +49,12 @@ struct TennisScoreboardView: View {
                         if isEditMode || viewModel.gameFinished {
                             return AnyView(EmptyView())
                         }
-                        return AnyView(serveIndicator(isLeftServing: viewModel.isLeftServing()))
+                        return AnyView(
+                            serveIndicator(
+                                isLeftServing: viewModel.isLeftServing(),
+                                doublesTopRow: viewModel.isSingles ? nil : viewModel.isDoublesServerTopRow()
+                            )
+                        )
                     },
                     onEditModeChange: { isEditMode = $0 },
                     showEndGame: true,
@@ -111,7 +116,8 @@ struct TennisScoreboardView: View {
                         matchCompletionMode: setup.matchCompletionMode ?? .bestOf,
                         usesNoAdScoring: setup.tennisDeuceMode == "no_ad",
                         openingServerSide: setup.servingSide == MatchSide.right.rawValue ? .right : .left,
-                        voiceAnnouncement: setup.voiceAnnouncement == true
+                        voiceAnnouncement: setup.voiceAnnouncement == true,
+                        isSingles: setup.isSingles ?? true
                     )
                 }
                 if let tbp = setup.tieBreakPoints {
@@ -133,8 +139,8 @@ struct TennisScoreboardView: View {
                 handleSetEnd(data: data)
             }
             
-            viewModel.setOnSideChangeCallback {
-                handleSideChange()
+            viewModel.setOnSideChangeCallback { didExchange in
+                handleSideChange(didAutoExchange: didExchange)
             }
             
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -215,6 +221,42 @@ struct TennisScoreboardView: View {
         if let isTieBreak = record.extraData?["isTieBreak"]?.value as? Bool {
             viewModel.isTieBreak = isTieBreak
         }
+        if let deuceMode = record.extraData?["tennisDeuceMode"]?.value as? String {
+            viewModel.usesNoAdScoring = deuceMode == "no_ad"
+        }
+        if let servingSide = record.extraData?["servingSide"]?.value as? String {
+            viewModel.openingServerSide = servingSide == MatchSide.right.rawValue ? .right : .left
+        }
+        if let voice = record.extraData?["voiceAnnouncement"]?.value as? Bool {
+            viewModel.voiceAnnouncement = voice
+        }
+        if let swapped = record.extraData?["sidesSwapped"]?.value as? Bool {
+            viewModel.sidesSwapped = swapped
+        }
+        if let firstServer = record.extraData?["firstServerInSet"]?.value as? String {
+            viewModel.firstServerInSet = firstServer == MatchSide.right.rawValue ? .right : .left
+        } else {
+            viewModel.firstServerInSet = viewModel.openingServerSide
+        }
+        if let firstSlot = record.extraData?["firstServerSlotInSet"]?.value as? Int {
+            viewModel.firstServerSlotInSet = firstSlot
+        } else {
+            viewModel.firstServerSlotInSet = viewModel.openingServerSide == .left ? 0 : 1
+        }
+        if let tbServer = record.extraData?["tieBreakFirstServer"]?.value as? String {
+            viewModel.tieBreakFirstServer = tbServer == MatchSide.right.rawValue ? .right : .left
+        }
+        if let tbSlot = record.extraData?["tieBreakFirstServerSlot"]?.value as? Int {
+            viewModel.tieBreakFirstServerSlot = tbSlot
+        }
+        if let advantage = record.extraData?["advantage"]?.value as? String {
+            switch advantage {
+            case "left": viewModel.advantage = .left
+            case "right": viewModel.advantage = .right
+            default: viewModel.advantage = .none
+            }
+        }
+        viewModel.rebuildDeuceStateFromScores()
     }
     
     // MARK: - Game End Handler
@@ -263,19 +305,41 @@ struct TennisScoreboardView: View {
             
             startRestCountdown(seconds: 120, message: NSLocalizedString("set_break_tennis", value: "盘间休息", comment: "")) {
                 if data.shouldChangeSides {
-                    handleSideChange()
+                    handleSideChange(didAutoExchange: false, forceApply: true)
                 }
                 isSetTransitioning = false
             }
         }
     }
     
-    private func handleSideChange() {
-        showToastMessage(NSLocalizedString("change_sides", comment: ""))
+    private func handleSideChange(didAutoExchange: Bool, forceApply: Bool = false) {
+        if forceApply {
+            if viewModel.autoChangeSides {
+                viewModel.exchangeSides()
+                showToastMessage(NSLocalizedString("change_sides", comment: ""))
+            } else {
+                showToastMessage(NSLocalizedString("please_change_sides_manually", value: "请手动换边", comment: ""))
+            }
+            return
+        }
+        if didAutoExchange {
+            showToastMessage(NSLocalizedString("change_sides", comment: ""))
+        } else {
+            showToastMessage(NSLocalizedString("please_change_sides_manually", value: "请手动换边", comment: ""))
+        }
     }
 
-    private func serveIndicator(isLeftServing: Bool) -> some View {
-        CenterLineServeIndicator(isLeftServing: isLeftServing)
+    private func serveIndicator(isLeftServing: Bool, doublesTopRow: Bool?) -> some View {
+        GeometryReader { proxy in
+            let midX = proxy.size.width / 2
+            let y: CGFloat = {
+                guard let doublesTopRow else { return proxy.size.height / 2 }
+                return doublesTopRow ? proxy.size.height / 6 : proxy.size.height * 5 / 6
+            }()
+            CenterLineServeIndicator(isLeftServing: isLeftServing)
+                .position(x: midX, y: y)
+        }
+        .allowsHitTesting(false)
     }
     
     // MARK: - Rest Countdown

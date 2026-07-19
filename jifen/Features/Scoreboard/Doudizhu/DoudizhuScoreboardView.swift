@@ -8,7 +8,11 @@
 import ScoreCore
 import SwiftUI
 
-private let defaultDoudizhuNames = ["地主", "农民1", "农民2"]
+private let defaultDoudizhuNames = [
+    NSLocalizedString("doudizhu_player_adam", value: "刘备", comment: ""),
+    NSLocalizedString("doudizhu_player_bob", value: "关羽", comment: ""),
+    NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: "")
+]
 private let doudizhuTitle = "斗地主"
 
 struct DoudizhuPlayerItem: Identifiable {
@@ -20,28 +24,89 @@ struct DoudizhuPlayerItem: Identifiable {
 struct DoudizhuScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
-    @State private var players: [DoudizhuPlayerItem] = defaultDoudizhuNames.enumerated().map { DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0) }
+    @State private var players: [DoudizhuPlayerItem]
     @State private var history: [[Int]] = []
-    @State private var gameStartTime = Date()
-    @State private var recordSaved = false
+    @State private var gameStartTime: Date
+    @State private var recordID: String
     @State private var showMenu = false
     @State private var isEditMode = false
     @State private var editingIndex: Int? = nil
     @State private var editName = ""
     @State private var activeCommonNameIndex: Int? = nil
     @State private var exitClickTime: TimeInterval = 0
+    @State private var resetClickTime: TimeInterval = 0
+    @State private var settleClickTime: TimeInterval = 0
     @State private var toastMessage: String? = nil
     @State private var showScorePanel = false
     @State private var selectedBaseScore = 1
     @State private var selectedMultiplierPower = 0 // 0番=1倍 … 5番=32倍
     @State private var selectedWinners = [false, false, false]
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var gameFinished = false
+    @State private var showGameFinishedOverlay = false
+    @State private var showDisplaySettings = false
+    @State private var showLocalSync = false
+    @State private var actions: [String]
 
     private let commonNamesManager = CommonNamesManager.shared
     private let baseScoreOptions = [1, 2, 3]
     private let multiplierPowers = [0, 1, 2, 3, 4, 5]
+
+    init(
+        initialSetup: SportsSetupResult? = nil,
+        initialRecordId: String? = nil,
+        onSetupConsumed: (() -> Void)? = nil,
+        onNavigationBack: (() -> Void)? = nil
+    ) {
+        self.initialSetup = initialSetup
+        self.initialRecordId = initialRecordId
+        self.onSetupConsumed = onSetupConsumed
+        self.onNavigationBack = onNavigationBack
+
+        var start = Date()
+        var id = "doudizhu_\(Int(start.timeIntervalSince1970))"
+        var initialPlayers = defaultDoudizhuNames.enumerated().map {
+            DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0)
+        }
+        var finished = false
+        var restoredActions: [String] = []
+
+        if let initialRecordId,
+           let record = ScoreboardRecordManager.shared.getRecordById(initialRecordId),
+           record.status == .draft {
+            start = record.startTime
+            id = record.id
+            restoredActions = record.actions
+            if let data = record.stateSnapshot,
+               let draft = try? JSONDecoder().decode(DoudizhuDraftSnapshot.self, from: data) {
+                for (index, name) in draft.names.prefix(3).enumerated() where !name.isEmpty {
+                    initialPlayers[index].name = name
+                }
+                for (index, score) in draft.scores.prefix(3).enumerated() {
+                    initialPlayers[index].score = score
+                }
+                finished = draft.finished
+            } else if let names = record.extraData?["playerNames"]?.value as? [String] {
+                for (index, name) in names.prefix(3).enumerated() where !name.isEmpty {
+                    initialPlayers[index].name = name
+                }
+                initialPlayers[0].score = record.team1FinalScore
+                if initialPlayers.count > 1 {
+                    initialPlayers[1].score = record.team2FinalScore
+                }
+            }
+        }
+
+        _players = State(initialValue: initialPlayers)
+        _gameStartTime = State(initialValue: start)
+        _recordID = State(initialValue: id)
+        _gameFinished = State(initialValue: finished)
+        _showGameFinishedOverlay = State(initialValue: finished)
+        _actions = State(initialValue: restoredActions)
+    }
 
     /// HOS: left red / center success green (black in retro) / right blue
     private var panelColors: [Color] {
@@ -101,6 +166,10 @@ struct DoudizhuScoreboardView: View {
                         .zIndex(20)
                 }
 
+                if showGameFinishedOverlay {
+                    GameFinishedOverlay(winnerName: finishedWinnerName)
+                }
+
                 if let message = toastMessage {
                     VStack {
                         Spacer()
@@ -135,7 +204,7 @@ struct DoudizhuScoreboardView: View {
             }
         }
         .onDisappear {
-            saveRecordIfNeeded()
+            saveRecord(finished: gameFinished)
         }
         .sheet(isPresented: Binding(
             get: { activeCommonNameIndex != nil },
@@ -151,6 +220,10 @@ struct DoudizhuScoreboardView: View {
                 activeCommonNameIndex = nil
             }
         }
+        .sheet(isPresented: $showDisplaySettings) {
+            ScoreboardDisplaySettingsView(gameType: .doudizhu)
+        }
+        .sheet(isPresented: $showLocalSync) { LocalSyncView() }
         .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
             appearance = .current()
         }
@@ -443,6 +516,7 @@ struct DoudizhuScoreboardView: View {
 
     /// 1 winner → +2x/−x/−x; 2 winners → +x/+x/−2x (x = base × 2^multiplier).
     private func applyDoudizhuRound() {
+        guard !gameFinished else { return }
         guard let deltas = DoudizhuSettlement.deltas(
             winners: selectedWinners,
             baseScore: selectedBaseScore,
@@ -453,41 +527,119 @@ struct DoudizhuScoreboardView: View {
         for i in players.indices where i < deltas.count {
             players[i].score += deltas[i]
         }
+        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|settleRound|\(deltas.map { String($0) }.joined(separator: ","))")
         VibrationManager.shared.vibrateMedium()
+    }
+
+    private var finishedWinnerName: String {
+        guard gameFinished else { return "" }
+        let scores = players.map(\.score)
+        guard let best = scores.max(), scores.filter({ $0 == best }).count == 1,
+              let index = scores.firstIndex(of: best) else { return "" }
+        return players[index].name
     }
 
     private var doudizhuMenuItems: [ScoreboardMenuItem] {
         let exitConfirming = exitClickTime > 0 &&
             Date().timeIntervalSince1970 * 1000 - exitClickTime < 2000
-        return [
-            ScoreboardMenuItem(
-                title: NSLocalizedString("menu_undo", comment: "Undo"),
-                action: "undo",
-                group: .match,
-                icon: "arrow.uturn.backward",
-                keepDialogOpen: true,
-                enabled: !history.isEmpty
-            ),
-            ScoreboardMenuItem(
-                title: NSLocalizedString("exit", value: "退出", comment: "Exit"),
-                action: "exit",
-                group: .match,
-                icon: "rectangle.portrait.and.arrow.right",
-                keepDialogOpen: true,
-                confirming: exitConfirming
-            )
-        ]
+        let resetConfirming = resetClickTime > 0 &&
+            Date().timeIntervalSince1970 * 1000 - resetClickTime < 2000
+        let settleConfirming = settleClickTime > 0 &&
+            Date().timeIntervalSince1970 * 1000 - settleClickTime < 2000
+        return ScoreboardMenuItemBuilder.defaultItems(
+            showEndGame: true,
+            showExchangeSide: false,
+            showWhistle: true,
+            showScreenshot: true,
+            showSettleMatch: true,
+            resetConfirming: resetConfirming,
+            finishConfirming: false,
+            settleConfirming: settleConfirming,
+            extraItems: [
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("exit", value: "退出", comment: "Exit"),
+                    action: "exit",
+                    group: .match,
+                    icon: "rectangle.portrait.and.arrow.right",
+                    keepDialogOpen: true,
+                    confirming: exitConfirming
+                )
+            ]
+        ).map { item in
+            if item.action == "undo" {
+                return ScoreboardMenuItem(
+                    title: item.title,
+                    action: item.action,
+                    group: item.group,
+                    icon: item.icon,
+                    customText: item.customText,
+                    keepDialogOpen: item.keepDialogOpen,
+                    confirming: item.confirming,
+                    enabled: !history.isEmpty && !gameFinished
+                )
+            }
+            return item
+        }
     }
 
     private func handleDoudizhuMenuAction(_ action: String) {
         switch action {
         case "undo":
             undoLast()
+        case "endGame":
+            markFinished()
+        case "settleMatch":
+            confirmSettle()
+        case "reset":
+            confirmReset()
         case "exit":
             handleExitAttempt(fromMenu: true)
+        case "displaySettings":
+            showDisplaySettings = true
+        case "localSync":
+            showLocalSync = true
         default:
             break
         }
+    }
+
+    private func markFinished() {
+        guard !gameFinished else { return }
+        gameFinished = true
+        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|finish")
+        showGameFinishedOverlay = true
+        showScorePanel = false
+        saveRecord(finished: true)
+        VibrationManager.shared.vibrateMedium()
+    }
+
+    private func confirmReset() {
+        let now = Date().timeIntervalSince1970 * 1000
+        guard now - resetClickTime < 2000, resetClickTime > 0 else {
+            resetClickTime = now
+            toastMessage = NSLocalizedString("press_again_to_reset", value: "再按一次重置", comment: "")
+            return
+        }
+        resetClickTime = 0
+        history.append(players.map(\.score))
+        for index in players.indices { players[index].score = 0 }
+        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|reset")
+        gameFinished = false
+        showGameFinishedOverlay = false
+        showScorePanel = false
+        saveRecord()
+    }
+
+    private func confirmSettle() {
+        let now = Date().timeIntervalSince1970 * 1000
+        guard now - settleClickTime < 2000, settleClickTime > 0 else {
+            settleClickTime = now
+            toastMessage = NSLocalizedString("click_again_to_settle_match", value: "再按一次结算", comment: "")
+            return
+        }
+        settleClickTime = 0
+        markFinished()
+        showMenu = false
     }
 
     private func undoLast() {
@@ -495,6 +647,7 @@ struct DoudizhuScoreboardView: View {
         for i in players.indices where i < last.count {
             players[i].score = last[i]
         }
+        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|undo")
         VibrationManager.shared.vibrateLight()
     }
 
@@ -516,40 +669,54 @@ struct DoudizhuScoreboardView: View {
         }
     }
 
-    private func saveRecordIfNeeded() {
-        guard !recordSaved else { return }
+    private func saveRecord(finished: Bool = false) {
         let totalChanges = history.count
-        if totalChanges == 0 { return }
+        let hasProgress = totalChanges > 0 || players.contains(where: { $0.score != 0 }) || finished || gameFinished
+        guard hasProgress else { return }
         let end = Date()
-        let playersEnc: [AnyCodable] = players.map { p in
-            AnyCodable(["name": AnyCodable(p.name), "finalScore": AnyCodable(p.score)])
+        let isFinished = finished || gameFinished
+        let playersEnc: [[String: Any]] = players.map { p in
+            ["name": p.name, "finalScore": p.score]
         }
-        let extraData: [String: AnyCodable] = [
-            "players": AnyCodable(playersEnc),
-            "playerCount": AnyCodable(3)
-        ]
+        let draft = DoudizhuDraftSnapshot(
+            names: players.map(\.name),
+            scores: players.map(\.score),
+            finished: isFinished
+        )
+        let snapshotData = try? JSONEncoder().encode(draft)
+        var winner: String?
+        if isFinished {
+            let scores = players.map(\.score)
+            if let best = scores.max(), scores.filter({ $0 == best }).count == 1,
+               let index = scores.firstIndex(of: best) {
+                winner = players[index].name
+            }
+        }
         let record = ScoreboardRecord(
-            id: "doudizhu_\(Int(gameStartTime.timeIntervalSince1970))_\(Int(end.timeIntervalSince1970))",
+            id: recordID,
             gameType: .doudizhu,
             startTime: gameStartTime,
             endTime: end,
             duration: end.timeIntervalSince(gameStartTime),
-            team1Name: doudizhuTitle,
-            team2Name: "",
+            team1Name: players.first?.name ?? doudizhuTitle,
+            team2Name: players.count > 1 ? players[1].name : "",
             team1FinalScore: players.first?.score ?? 0,
             team2FinalScore: players.count > 1 ? players[1].score : 0,
             team1SetScore: nil,
             team2SetScore: nil,
-            winner: nil,
-            actions: [],
-            totalScoreChanges: totalChanges,
-            extraData: extraData
+            winner: winner,
+            actions: actions,
+            totalScoreChanges: max(totalChanges, 1),
+            extraData: [
+                "players": AnyCodable(playersEnc),
+                "playerNames": AnyCodable(players.map(\.name)),
+                "playerCount": AnyCodable(3)
+            ],
+            stateSnapshot: snapshotData,
+            status: isFinished ? .finished : .draft
         )
-        do {
-            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-            recordSaved = true
-            ScoreboardRecordsViewModel.shared.refreshRecords()
-        } catch { }
+        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        ScoreboardRecordsViewModel.shared.refreshRecords()
     }
 
     private func handleExitAttempt(fromMenu: Bool) {
@@ -559,7 +726,7 @@ struct DoudizhuScoreboardView: View {
             toastMessage = nil
             showMenu = false
             confirmEditIfNeeded()
-            saveRecordIfNeeded()
+            saveRecord(finished: gameFinished)
             OrientationLock.shared.unlock()
             onNavigationBack?()
             dismiss()
@@ -567,7 +734,6 @@ struct DoudizhuScoreboardView: View {
         }
 
         exitClickTime = currentTime
-        // Keep menu open so the second tap can confirm exit.
         toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if Date().timeIntervalSince1970 * 1000 - exitClickTime >= 2000 {
@@ -576,6 +742,12 @@ struct DoudizhuScoreboardView: View {
             }
         }
     }
+}
+
+private struct DoudizhuDraftSnapshot: Codable {
+    var names: [String]
+    var scores: [Int]
+    var finished: Bool
 }
 
 #Preview {

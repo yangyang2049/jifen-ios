@@ -341,7 +341,7 @@ class PingPongViewModel: BaseScoreViewModel {
     
     // MARK: - Edit Mode Adjustments
     
-    func adjustScore(isLeft: Bool, delta: Int) {
+    override func adjustScore(isLeft: Bool, delta: Int) {
         saveFullStateHistory()
         controller?.pushHistory(
             left: leftTeam.score,

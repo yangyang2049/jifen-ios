@@ -17,6 +17,7 @@ struct PickleballScoreboardView: View {
             participants: initialSetup?.isSingles == false ? doublesParticipants(initialSetup) : nil,
             openingServer: openingServer,
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
+            initialRecordId: initialRecordId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )
@@ -32,7 +33,12 @@ struct PickleballScoreboardView: View {
         rules.winByTwo = initialSetup?.winByTwo ?? true
         rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
         rules.useRallyScoring = initialSetup?.useRallyScoring ?? false
+        rules.nextSetServerModel = isDoubles ? .alternateFromOpening : .opening
         return rules
+    }
+
+    private var isDoubles: Bool {
+        initialSetup?.isSingles == false
     }
 
     private var openingServer: MatchSide {

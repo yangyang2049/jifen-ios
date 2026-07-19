@@ -19,6 +19,7 @@ struct PingPongScoreboardView: View {
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
+            initialRecordId: initialRecordId,
             showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
@@ -31,8 +32,9 @@ struct PingPongScoreboardView: View {
             matchCompletionMode: initialSetup?.matchCompletionMode ?? .bestOf
         )
         let target = max(1, initialSetup?.pointsPerSet ?? 11)
+        let coreType: ScoreCore.GameType = initialSetup?.isSingles == false ? .pingpongDoubles : .pingpong
         rules.pointsToWinSet = target
-        rules.decidingSetSideSwitchPoint = max(1, (target + 1) / 2)
+        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(for: coreType, pointsPerSet: target)
         rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
         return rules
     }

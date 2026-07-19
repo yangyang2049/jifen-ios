@@ -3,14 +3,17 @@
 //  jifenWatch Watch App
 //
 //  Set points: first to 6. Each set: 3 arrows each (1 at 5-5). Tap side to open score grid (0-10, M).
+//  Shoot-off: win +1; same rings → closest-to-centre; next set first shooter via ArcheryShooterRules.
 //
 
+import ScoreCore
 import SwiftUI
 
 private let arrowsPerSetNormal = 3
 private let arrowsPerSetShootoff = 1
 private let setPointsToWin = 6
 private let setPointsWin = 2
+private let setPointsShootOffWin = 1
 private let setPointsTie = 1
 private let setEndDelay: TimeInterval = 3.5
 
@@ -28,7 +31,9 @@ struct WatchArcheryScoreView: View {
     @State private var blueScore: Int = 0
     @State private var redSets: Int = 0
     @State private var blueSets: Int = 0
+    /// `true` = red (left) currently shooting.
     @State private var currentShooter: Bool = true
+    @State private var openingShooterIsRed: Bool = true
     @State private var arrowsRedThisSet: Int = 0
     @State private var arrowsBlueThisSet: Int = 0
     @State private var arrowsPerSet: Int = arrowsPerSetNormal
@@ -37,6 +42,7 @@ struct WatchArcheryScoreView: View {
     @State private var pendingSetNumber: Int = 0
     @State private var pendingSetWinner: Bool? = nil
     @State private var showScorePanel: Bool = false
+    @State private var showClosestToCenter: Bool = false
     @State private var showMenu: Bool = false
     @State private var isStopped: Bool = false
     @State private var winner: Bool? = nil
@@ -48,9 +54,13 @@ struct WatchArcheryScoreView: View {
     @State private var history: [(redScore: Int, blueScore: Int, redSets: Int, blueSets: Int, currentShooter: Bool, arrowsRed: Int, arrowsBlue: Int, arrowsPerSet: Int)] = []
     @State private var matchStartTime: Date = Date()
     @State private var scoreboardLayout: String = "vertical"
-    
+
     private var isMatchFinished: Bool {
         winner != nil || isManualFinish
+    }
+
+    private var isShootOffSet: Bool {
+        arrowsPerSet == arrowsPerSetShootoff
     }
 
     var body: some View {
@@ -58,6 +68,7 @@ struct WatchArcheryScoreView: View {
             mainBoard
             if showScorePanel { scorePanelOverlay }
             if setEnding { setEndOverlay }
+            if showClosestToCenter { closestToCenterOverlay }
             if isStopped { stoppedOverlay }
             if showMenu { menuOverlay }
             if let toastMessage = toastMessage {
@@ -111,9 +122,9 @@ struct WatchArcheryScoreView: View {
                         dismiss()
                         return
                     }
-                    if dy > 40 && !showScorePanel && !showMenu && !setEnding && !isStopped {
+                    if dy > 40 && !showScorePanel && !showMenu && !setEnding && !showClosestToCenter && !isStopped {
                         undoScore()
-                    } else if dy < -40 && !showScorePanel && !showMenu && !setEnding && !isStopped {
+                    } else if dy < -40 && !showScorePanel && !showMenu && !setEnding && !showClosestToCenter && !isStopped {
                         showMenu = true
                     }
                 }
@@ -158,7 +169,7 @@ struct WatchArcheryScoreView: View {
         .opacity(isStopped && winner != nil && (isRed ? winner != true : winner != false) ? 0.4 : 1)
         .contentShape(Rectangle())
         .onTapGesture {
-            if isStopped || setEnding || showMenu { return }
+            if isStopped || setEnding || showClosestToCenter || showMenu { return }
             showScorePanel = true
         }
     }
@@ -258,6 +269,59 @@ struct WatchArcheryScoreView: View {
             .padding(WatchLayout.isCompactScreen ? 14 : 20)
             .background(Color.black.opacity(0.65))
             .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var closestToCenterOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+            VStack(spacing: WatchLayout.isCompactScreen ? 8 : 12) {
+                Text(NSLocalizedString("archery_closest_title", value: "一箭决胜 · 近心", comment: ""))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 13 : 15, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                Text(String(
+                    format: NSLocalizedString("archery_closest_message", value: "双方同环 %d，请选择更近心的一方", comment: ""),
+                    redScore
+                ))
+                .font(.system(size: WatchLayout.isCompactScreen ? 11 : 12))
+                .foregroundColor(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+
+                HStack(spacing: 8) {
+                    Button {
+                        applyClosestToCenter(redWins: true)
+                    } label: {
+                        Text(NSLocalizedString("watch_team_red", comment: "Red"))
+                            .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: WatchLayout.isCompactScreen ? 36 : 40)
+                            .background(Color(hex: 0xE53935))
+                            .cornerRadius(10)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        applyClosestToCenter(redWins: false)
+                    } label: {
+                        Text(NSLocalizedString("watch_team_blue", comment: "Blue"))
+                            .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: WatchLayout.isCompactScreen ? 36 : 40)
+                            .background(Color(hex: 0x1E88E5))
+                            .cornerRadius(10)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(WatchLayout.isCompactScreen ? 12 : 16)
+            .background(Color.black.opacity(0.7))
+            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
+            .padding(.horizontal, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -488,12 +552,34 @@ struct WatchArcheryScoreView: View {
     }
 
     private func applySetEnd() {
+        // Shoot-off same rings → closest-to-centre (do not award yet).
+        if isShootOffSet && pendingSetWinner == nil {
+            setEnding = false
+            showClosestToCenter = true
+            return
+        }
+
+        let winPoints = isShootOffSet ? setPointsShootOffWin : setPointsWin
         if let w = pendingSetWinner {
-            if w { redSets += setPointsWin } else { blueSets += setPointsWin }
+            if w { redSets += winPoints } else { blueSets += winPoints }
         } else {
             redSets += setPointsTie
             blueSets += setPointsTie
         }
+        finishAfterSetPointsAwarded()
+    }
+
+    private func applyClosestToCenter(redWins: Bool) {
+        showClosestToCenter = false
+        if redWins {
+            redSets += setPointsShootOffWin
+        } else {
+            blueSets += setPointsShootOffWin
+        }
+        finishAfterSetPointsAwarded()
+    }
+
+    private func finishAfterSetPointsAwarded() {
         if redSets >= setPointsToWin || blueSets >= setPointsToWin {
             isManualFinish = false
             winner = redSets > blueSets ? true : (blueSets > redSets ? false : nil)
@@ -502,6 +588,8 @@ struct WatchArcheryScoreView: View {
             saveMatchRecord()
             WatchHaptics.shared.play(.finish)
             setEnding = false
+            pendingSetNumber = 0
+            pendingSetWinner = nil
             return
         }
         arrowsPerSet = (redSets == 5 && blueSets == 5) ? arrowsPerSetShootoff : arrowsPerSetNormal
@@ -509,7 +597,11 @@ struct WatchArcheryScoreView: View {
         blueScore = 0
         arrowsRedThisSet = 0
         arrowsBlueThisSet = 0
-        currentShooter = true
+        currentShooter = ArcheryShooterRules.nextStartingIsLeft(
+            leftSetPoints: redSets,
+            rightSetPoints: blueSets,
+            openingIsLeft: openingShooterIsRed
+        )
         setNumber += 1
         setEnding = false
         pendingSetNumber = 0
@@ -531,6 +623,7 @@ struct WatchArcheryScoreView: View {
         arrowsRedThisSet = s.arrowsRed
         arrowsBlueThisSet = s.arrowsBlue
         arrowsPerSet = s.arrowsPerSet
+        showClosestToCenter = false
         if isStopped { recordSaved = false }
         isManualFinish = false
         WatchHaptics.shared.play(.undo)
@@ -549,6 +642,7 @@ struct WatchArcheryScoreView: View {
     private func endMatchFromMenu() {
         guard !isMatchFinished else { return }
         showScorePanel = false
+        showClosestToCenter = false
         isStopped = true
         isManualFinish = true
         undoButtonVisible = false
@@ -558,7 +652,7 @@ struct WatchArcheryScoreView: View {
         WatchHaptics.shared.play(.finish)
         saveMatchRecord()
     }
-    
+
     private func resetMatch() {
         undoHideTimer?.invalidate()
         undoHideTimer = nil
@@ -566,7 +660,7 @@ struct WatchArcheryScoreView: View {
         blueScore = 0
         redSets = 0
         blueSets = 0
-        currentShooter = true
+        currentShooter = openingShooterIsRed
         arrowsRedThisSet = 0
         arrowsBlueThisSet = 0
         arrowsPerSet = arrowsPerSetNormal
@@ -575,6 +669,7 @@ struct WatchArcheryScoreView: View {
         pendingSetNumber = 0
         pendingSetWinner = nil
         showScorePanel = false
+        showClosestToCenter = false
         showMenu = false
         isStopped = false
         winner = nil
@@ -586,7 +681,7 @@ struct WatchArcheryScoreView: View {
         WatchHaptics.shared.play(.light)
         showToast(NSLocalizedString("watch_reset_toast", comment: "Match reset"))
     }
-    
+
     private func toggleLayout() {
         let next = scoreboardLayout == "vertical" ? "horizontal" : "vertical"
         scoreboardLayout = next

@@ -42,6 +42,13 @@ public enum RallyServingModel: String, Codable, Sendable {
     case pingPongTwoServes
 }
 
+/// Aligns with Android `PickleballNextSetServingModel`.
+public enum RallyNextSetServerModel: String, Codable, Sendable {
+    case scorerContinues
+    case opening
+    case alternateFromOpening
+}
+
 public struct RallyRuleSet: Codable, Equatable, Sendable {
     public var maxSets: Int
     public var pointsToWinSet: Int
@@ -59,6 +66,8 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
     public var servingModel: RallyServingModel
     public var useRallyScoring: Bool
     public var matchCompletionMode: MatchCompletionMode
+    /// Pickleball: singles `.opening`, doubles `.alternateFromOpening`.
+    public var nextSetServerModel: RallyNextSetServerModel
 
     public init(
         maxSets: Int,
@@ -74,7 +83,8 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         autoChangeSides: Bool = false,
         servingModel: RallyServingModel = .scorerServes,
         useRallyScoring: Bool = true,
-        matchCompletionMode: MatchCompletionMode = .bestOf
+        matchCompletionMode: MatchCompletionMode = .bestOf,
+        nextSetServerModel: RallyNextSetServerModel = .scorerContinues
     ) {
         self.maxSets = max(1, maxSets)
         self.pointsToWinSet = max(1, pointsToWinSet)
@@ -90,6 +100,7 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         self.servingModel = servingModel
         self.useRallyScoring = useRallyScoring
         self.matchCompletionMode = matchCompletionMode
+        self.nextSetServerModel = nextSetServerModel
     }
 
     public var setsToWin: Int { (maxSets + 1) / 2 }
@@ -113,6 +124,7 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         case servingModel
         case useRallyScoring
         case matchCompletionMode
+        case nextSetServerModel
     }
 
     public init(from decoder: Decoder) throws {
@@ -131,42 +143,85 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         servingModel = try container.decode(RallyServingModel.self, forKey: .servingModel)
         useRallyScoring = try container.decodeIfPresent(Bool.self, forKey: .useRallyScoring) ?? true
         matchCompletionMode = try container.decodeIfPresent(MatchCompletionMode.self, forKey: .matchCompletionMode) ?? .bestOf
+        nextSetServerModel = try container.decodeIfPresent(RallyNextSetServerModel.self, forKey: .nextSetServerModel) ?? .scorerContinues
     }
 
     public func target(for setNumber: Int) -> Int {
         setNumber == maxSets ? finalSetPointsToWin ?? pointsToWinSet : pointsToWinSet
     }
 
+    /// Aligns with Android `resolveRallyDecidingSetSideSwitchPoint`:
+    /// ping-pong uses `points/2` (11→5); badminton uses `(points+1)/2` (21→11).
+    public static func decidingSetSideSwitchPoint(for gameType: GameType, pointsPerSet: Int) -> Int? {
+        let points = max(1, pointsPerSet)
+        switch gameType {
+        case .pingpong, .pingpongDoubles:
+            return max(1, points / 2)
+        case .badminton, .badmintonDoubles:
+            return max(1, (points + 1) / 2)
+        default:
+            return nil
+        }
+    }
+
+    /// Aligns with Android/Harmony `resolveBadmintonPointCap`:
+    /// target < 21 → cap 21; target == 21 → cap 30; target > 21 → no cap.
+    public static func badmintonPointCap(for pointsPerSet: Int) -> Int? {
+        let points = max(1, pointsPerSet)
+        if points > 21 { return nil }
+        if points < 21 { return 21 }
+        return 30
+    }
+
     public static func pingPong(maxSets: Int = 5, matchCompletionMode: MatchCompletionMode = .bestOf) -> Self {
         .init(
             maxSets: maxSets,
             pointsToWinSet: 11,
-            decidingSetSideSwitchPoint: 5,
+            decidingSetSideSwitchPoint: decidingSetSideSwitchPoint(for: .pingpong, pointsPerSet: 11),
             servingModel: .pingPongTwoServes,
             matchCompletionMode: matchCompletionMode
         )
     }
 
     public static func badminton(maxSets: Int = 3, matchCompletionMode: MatchCompletionMode = .bestOf) -> Self {
-        .init(maxSets: maxSets, pointsToWinSet: 21, pointCap: 30, decidingSetSideSwitchPoint: 11, matchCompletionMode: matchCompletionMode)
+        .init(
+            maxSets: maxSets,
+            pointsToWinSet: 21,
+            pointCap: badmintonPointCap(for: 21),
+            decidingSetSideSwitchPoint: decidingSetSideSwitchPoint(for: .badminton, pointsPerSet: 21),
+            matchCompletionMode: matchCompletionMode
+        )
     }
 
     public static func pickleball(maxSets: Int = 3, matchCompletionMode: MatchCompletionMode = .bestOf) -> Self {
         .init(
             maxSets: maxSets,
             pointsToWinSet: 11,
-            pointCap: 15,
+            pointCap: nil,
             useRallyScoring: false,
-            matchCompletionMode: matchCompletionMode
+            matchCompletionMode: matchCompletionMode,
+            nextSetServerModel: .opening
         )
     }
 
     public static func volleyball(maxSets: Int = 5) -> Self {
-        .init(maxSets: maxSets, pointsToWinSet: 25, finalSetPointsToWin: 15, decidingSetSideSwitchPoint: 8)
+        .init(
+            maxSets: maxSets,
+            pointsToWinSet: 25,
+            finalSetPointsToWin: 15,
+            decidingSetSideSwitchPoint: 8,
+            nextSetServerModel: .alternateFromOpening
+        )
     }
 
     public static func airVolleyball(maxSets: Int = 3) -> Self {
-        .init(maxSets: maxSets, pointsToWinSet: 21, finalSetPointsToWin: 15, decidingSetSideSwitchPoint: 8)
+        .init(
+            maxSets: maxSets,
+            pointsToWinSet: 21,
+            finalSetPointsToWin: 15,
+            decidingSetSideSwitchPoint: 8,
+            nextSetServerModel: .alternateFromOpening
+        )
     }
 
     public static func beachVolleyball(maxSets: Int = 3) -> Self {
@@ -175,7 +230,8 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
             pointsToWinSet: 21,
             finalSetPointsToWin: 15,
             sideSwitchEveryTotalPoints: 7,
-            finalSetSideSwitchEveryTotalPoints: 5
+            finalSetSideSwitchEveryTotalPoints: 5,
+            nextSetServerModel: .alternateFromOpening
         )
     }
 
@@ -290,6 +346,11 @@ public struct RallyMatchReducer: DomainReducer {
 
     private func pointWon(_ side: MatchSide, state: RallyMatchState) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
         guard !state.finished else { return .rejected(state: state, reason: "Match is already finished") }
+
+        if usesPickleballServeRules(state) {
+            return pickleballPointWon(side, state: state)
+        }
+
         if !state.rules.useRallyScoring,
            state.rules.servingModel == .scorerServes,
            side != state.servingSide {
@@ -305,9 +366,113 @@ public struct RallyMatchReducer: DomainReducer {
         }
         next.doubles = advanceDoubles(previous: state, next: next, scorer: side)
         next.servingSide = nextServer(after: side, state: next)
-        var events: [RallyMatchEvent] = [.pointScored(side: side, leftPoints: next.leftPoints, rightPoints: next.rightPoints)]
+        return finalizePointResult(previous: state, next: next, scoredSide: side)
+    }
 
-        let setNumber = state.currentSet
+    private func usesPickleballServeRules(_ state: RallyMatchState) -> Bool {
+        if case .pickleball = state.doubles?.rotation { return true }
+        return state.rules.nextSetServerModel != .scorerContinues
+    }
+
+    /// Aligns with Android `PickleballMatchEngine.recordRally`.
+    private func pickleballPointWon(
+        _ side: MatchSide,
+        state: RallyMatchState
+    ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+        if state.rules.useRallyScoring {
+            return pickleballRallyPointWon(side, state: state)
+        }
+        return pickleballTraditionalPointWon(side, state: state)
+    }
+
+    private func pickleballTraditionalPointWon(
+        _ side: MatchSide,
+        state: RallyMatchState
+    ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+        if side != state.servingSide {
+            var next = state
+            applyPickleballSideOut(&next)
+            return .init(state: next)
+        }
+
+        var next = state
+        if side == .left { next.leftPoints += 1 } else { next.rightPoints += 1 }
+        if let cap = effectivePointCap(in: state, setNumber: state.currentSet) {
+            next.leftPoints = min(next.leftPoints, cap)
+            next.rightPoints = min(next.rightPoints, cap)
+        }
+        if case .pickleball(var rotation) = next.doubles?.rotation {
+            togglePickleballPartnerSwap(&rotation, servingTeam0: state.servingSide == .left)
+            if rotation.isFirstServeOfGame {
+                rotation.isFirstServeOfGame = false
+            }
+            refreshPickleballDoublesSlots(&rotation, servingTeam0: next.servingSide == .left)
+            next.doubles?.rotation = .pickleball(rotation)
+        }
+        next.servingSide = side
+        return finalizePointResult(previous: state, next: next, scoredSide: side)
+    }
+
+    private func pickleballRallyPointWon(
+        _ side: MatchSide,
+        state: RallyMatchState
+    ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+        var next = state
+        if side == .left { next.leftPoints += 1 } else { next.rightPoints += 1 }
+        if let cap = effectivePointCap(in: state, setNumber: state.currentSet) {
+            next.leftPoints = min(next.leftPoints, cap)
+            next.rightPoints = min(next.rightPoints, cap)
+        }
+
+        if case .pickleball(var rotation) = next.doubles?.rotation {
+            if side == state.servingSide {
+                togglePickleballPartnerSwap(&rotation, servingTeam0: state.servingSide == .left)
+            }
+            if rotation.serverNumber == 1 {
+                rotation.serverNumber = 2
+            } else {
+                next.servingSide = state.servingSide.opposite
+                rotation.serverNumber = 1
+            }
+            refreshPickleballDoublesSlots(&rotation, servingTeam0: next.servingSide == .left)
+            next.doubles?.rotation = .pickleball(rotation)
+        } else {
+            next.servingSide = state.servingSide.opposite
+        }
+
+        return finalizePointResult(previous: state, next: next, scoredSide: side)
+    }
+
+    private func applyPickleballSideOut(_ state: inout RallyMatchState) {
+        if case .pickleball(var rotation) = state.doubles?.rotation {
+            if rotation.isFirstServeOfGame {
+                state.servingSide = state.servingSide.opposite
+                rotation.serverNumber = 1
+                rotation.isFirstServeOfGame = false
+            } else if rotation.serverNumber == 1 {
+                rotation.serverNumber = 2
+            } else {
+                state.servingSide = state.servingSide.opposite
+                rotation.serverNumber = 1
+            }
+            refreshPickleballDoublesSlots(&rotation, servingTeam0: state.servingSide == .left)
+            state.doubles?.rotation = .pickleball(rotation)
+        } else {
+            state.servingSide = state.servingSide.opposite
+        }
+    }
+
+    private func finalizePointResult(
+        previous: RallyMatchState,
+        next initialNext: RallyMatchState,
+        scoredSide: MatchSide
+    ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+        var next = initialNext
+        var events: [RallyMatchEvent] = [
+            .pointScored(side: scoredSide, leftPoints: next.leftPoints, rightPoints: next.rightPoints)
+        ]
+
+        let setNumber = previous.currentSet
         if let setWinner = setWinner(in: next, setNumber: setNumber) {
             let finalLeftPoints = next.leftPoints
             let finalRightPoints = next.rightPoints
@@ -337,7 +502,7 @@ public struct RallyMatchReducer: DomainReducer {
             return .init(state: next, events: events)
         }
 
-        if shouldRemindSideChange(previous: state, next: next) {
+        if shouldRemindSideChange(previous: previous, next: next) {
             if next.rules.autoChangeSides {
                 next = exchanged(next)
                 events.append(.sidesExchanged)
@@ -384,6 +549,16 @@ public struct RallyMatchReducer: DomainReducer {
     }
 
     private func nextFirstServer(for state: RallyMatchState) -> MatchSide {
+        switch state.rules.nextSetServerModel {
+        case .opening:
+            return state.openingServerSide
+        case .alternateFromOpening:
+            return state.currentSet.isMultiple(of: 2)
+                ? state.openingServerSide.opposite
+                : state.openingServerSide
+        case .scorerContinues:
+            break
+        }
         guard state.rules.servingModel == .pingPongTwoServes else { return state.servingSide }
         return state.currentSet.isMultiple(of: 2) ? state.openingServerSide.opposite : state.openingServerSide
     }
@@ -430,6 +605,10 @@ public struct RallyMatchReducer: DomainReducer {
                 nextTeam0Score: next.leftPoints,
                 nextTeam1Score: next.rightPoints
             ))
+        case .pickleball:
+            break
+        case .foosball:
+            break
         }
         return doubles
     }
@@ -466,6 +645,10 @@ public struct RallyMatchReducer: DomainReducer {
                 team0CourtOrderSwapped: rotation.team0CourtOrderSwapped,
                 team1CourtOrderSwapped: rotation.team1CourtOrderSwapped
             ))
+        case .pickleball:
+            doubles.rotation = .pickleball(createPickleballDoublesRotation(servingTeam0: servingSide == .left))
+        case .foosball:
+            break
         }
         return doubles
     }
@@ -485,6 +668,10 @@ public struct RallyMatchReducer: DomainReducer {
             )
         case .badminton:
             return .badminton(playerNames: doubles.playerNames, servingTeam0: openingServer == .left)
+        case .pickleball:
+            return .pickleball(playerNames: doubles.playerNames, servingTeam0: openingServer == .left)
+        case .foosball:
+            return .foosball(playerNames: doubles.playerNames)
         }
     }
 

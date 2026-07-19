@@ -138,7 +138,7 @@ struct RecentActivityPage: View {
                 Text(record.gameType.icon)
                     .font(.title)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(record.team1Name) vs \(record.team2Name)")
+                    Text(record.displayMatchTitle)
                         .font(.headline)
                         .foregroundColor(.primary)
                     Text(record.time)
@@ -147,7 +147,7 @@ struct RecentActivityPage: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("\(record.team1FinalScore) - \(record.team2FinalScore)")
+                    Text(record.displayScore(separator: " - "))
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(Theme.accentColor)

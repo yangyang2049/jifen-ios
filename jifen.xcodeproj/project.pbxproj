@@ -11,6 +11,9 @@
 		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */; };
+		F10000000000000000000002 /* FullAppScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* FullAppScreenshotUITests.swift */; };
+		F10000000000000000000004 /* UITestScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000003 /* UITestScreenshotStore.swift */; };
+		F10000000000000000000006 /* SupplementalScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000005 /* SupplementalScreenshotUITests.swift */; };
 		B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D82E75ABD730744578E876 /* ScheduleModelTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
@@ -27,6 +30,7 @@
 		D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */; };
 		E10000000000000000000002 /* RallySessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* RallySessionStoreTests.swift */; };
 		E10000000000000000000004 /* BoardTimerConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* BoardTimerConfigTests.swift */; };
+		F20000000000000000000002 /* ScoreboardCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* ScoreboardCatalogTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,9 +80,13 @@
 		A6C476D58990954AF104F51A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
+		F10000000000000000000001 /* FullAppScreenshotUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FullAppScreenshotUITests.swift; sourceTree = "<group>"; };
+		F10000000000000000000003 /* UITestScreenshotStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestScreenshotStore.swift; sourceTree = "<group>"; };
+		F10000000000000000000005 /* SupplementalScreenshotUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SupplementalScreenshotUITests.swift; sourceTree = "<group>"; };
 		D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E10000000000000000000001 /* RallySessionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RallySessionStoreTests.swift; sourceTree = "<group>"; };
 		E10000000000000000000003 /* BoardTimerConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardTimerConfigTests.swift; sourceTree = "<group>"; };
+		F20000000000000000000001 /* ScoreboardCatalogTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardCatalogTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -170,6 +178,7 @@
 				07D82E75ABD730744578E876 /* ScheduleModelTests.swift */,
 				E10000000000000000000001 /* RallySessionStoreTests.swift */,
 				E10000000000000000000003 /* BoardTimerConfigTests.swift */,
+				F20000000000000000000001 /* ScoreboardCatalogTests.swift */,
 			);
 			path = jifenTests;
 			sourceTree = "<group>";
@@ -187,6 +196,9 @@
 			children = (
 				BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */,
 				AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */,
+				F10000000000000000000001 /* FullAppScreenshotUITests.swift */,
+				F10000000000000000000003 /* UITestScreenshotStore.swift */,
+				F10000000000000000000005 /* SupplementalScreenshotUITests.swift */,
 			);
 			path = jifenUITests;
 			sourceTree = "<group>";
@@ -386,6 +398,9 @@
 			files = (
 				D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */,
 				A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */,
+				F10000000000000000000002 /* FullAppScreenshotUITests.swift in Sources */,
+				F10000000000000000000004 /* UITestScreenshotStore.swift in Sources */,
+				F10000000000000000000006 /* SupplementalScreenshotUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +425,7 @@
 				B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */,
 				E10000000000000000000002 /* RallySessionStoreTests.swift in Sources */,
 				E10000000000000000000004 /* BoardTimerConfigTests.swift in Sources */,
+				F20000000000000000000002 /* ScoreboardCatalogTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

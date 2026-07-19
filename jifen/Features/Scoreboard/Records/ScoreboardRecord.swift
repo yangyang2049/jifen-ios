@@ -191,6 +191,82 @@ struct ScoreboardRecordGroup: Identifiable {
     var records: [ScoreboardRecordSummary]
 }
 
+// MARK: - Multi-participant record display
+
+struct ScoreboardRecordParticipant: Equatable {
+    let name: String
+    let score: Int
+}
+
+extension ScoreboardRecord {
+    var displayParticipants: [ScoreboardRecordParticipant] {
+        scoreboardRecordParticipants(gameType: gameType, from: extraData)
+    }
+
+    var displayMatchTitle: String {
+        let names = displayParticipants.map(\.name)
+        return names.isEmpty ? "\(team1Name) vs \(team2Name)" : names.joined(separator: " vs ")
+    }
+
+    func displayScore(separator: String = " : ") -> String {
+        let scores = displayParticipants.map { String($0.score) }
+        return scores.isEmpty ? "\(team1FinalScore)\(separator)\(team2FinalScore)" : scores.joined(separator: separator)
+    }
+}
+
+extension ScoreboardRecordSummary {
+    var displayParticipants: [ScoreboardRecordParticipant] {
+        scoreboardRecordParticipants(gameType: gameType, from: extraData)
+    }
+
+    var displayMatchTitle: String {
+        let names = displayParticipants.map(\.name)
+        return names.isEmpty ? "\(team1Name) vs \(team2Name)" : names.joined(separator: " vs ")
+    }
+
+    func displayScore(separator: String = " : ") -> String {
+        let scores = displayParticipants.map { String($0.score) }
+        return scores.isEmpty ? "\(team1FinalScore)\(separator)\(team2FinalScore)" : scores.joined(separator: separator)
+    }
+}
+
+private func scoreboardRecordParticipants(gameType: GameType, from extraData: [String: AnyCodable]?) -> [ScoreboardRecordParticipant] {
+    guard gameType == .multiScoreboard || gameType == .uno || gameType == .doudizhu || gameType == .nineBall else {
+        return []
+    }
+    guard let rawPlayers = extraData?["players"]?.value else { return [] }
+    let values: [Any]
+    if let array = rawPlayers as? [Any] {
+        values = array
+    } else if let array = rawPlayers as? [AnyCodable] {
+        values = array.map(\.value)
+    } else {
+        return []
+    }
+
+    return values.compactMap { raw in
+        let value = (raw as? AnyCodable)?.value ?? raw
+        let dictionary: [String: Any]
+        if let decoded = value as? [String: Any] {
+            dictionary = decoded
+        } else if let wrapped = value as? [String: AnyCodable] {
+            dictionary = wrapped.mapValues(\.value)
+        } else {
+            return nil
+        }
+        guard let name = dictionary["name"] as? String,
+              !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        let rawScore = dictionary["finalScore"] ?? dictionary["score"] ?? 0
+        let score: Int
+        if let int = rawScore as? Int { score = int }
+        else if let double = rawScore as? Double { score = Int(double) }
+        else if let string = rawScore as? String { score = Int(string) ?? 0 }
+        else if let wrapped = rawScore as? AnyCodable, let int = wrapped.value as? Int { score = int }
+        else { score = 0 }
+        return ScoreboardRecordParticipant(name: name, score: score)
+    }
+}
+
 // MARK: - AnyCodable Helper
 
 struct AnyCodable: Codable {

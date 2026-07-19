@@ -87,6 +87,8 @@
 "exit" = "退出";
 "watch_team_red" = "红方";
 "watch_team_blue" = "蓝方";
+"archery_closest_title" = "一箭决胜 · 近心";
+"archery_closest_message" = "双方同环 %d，请选择更近心的一方";
 "watch_set_end_format" = "第%d局结束";
 "watch_match_start" = "比赛开始";
 "watch_match_finished" = "比赛结束";

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ScoreCore
 
 extension Notification.Name {
     static let scoreboardPreferencesDidChange = Notification.Name("scoreboardPreferencesDidChange")
@@ -108,6 +109,64 @@ class PreferencesManager {
             defaults.set(newValue, forKey: "scoreboard_double_tap_subtract")
             notifyScoreboardPreferencesChanged()
         }
+    }
+
+    /// Aligns with Android/HOS `simpleScoreCustomAdjustEnabled`.
+    var simpleScoreCustomAdjustEnabled: Bool {
+        get { defaults.bool(forKey: "simpleScoreCustomAdjustEnabled", defaultValue: false) }
+        set { defaults.set(newValue, forKey: "simpleScoreCustomAdjustEnabled") }
+    }
+
+    /// Aligns with Android/HOS `multiScoreboardCustomAdjustEnabled`.
+    var multiScoreboardCustomAdjustEnabled: Bool {
+        get { defaults.bool(forKey: "multiScoreboardCustomAdjustEnabled", defaultValue: false) }
+        set { defaults.set(newValue, forKey: "multiScoreboardCustomAdjustEnabled") }
+    }
+
+    var multiScoreboardPlayerCount: Int {
+        get {
+            let value = defaults.integer(forKey: "multiScoreboardPlayerCount")
+            return (3...9).contains(value) ? value : 4
+        }
+        set { defaults.set(min(9, max(3, newValue)), forKey: "multiScoreboardPlayerCount") }
+    }
+
+    var unoPlayerCount: Int {
+        get {
+            let value = defaults.integer(forKey: "unoPlayerCount")
+            return (2...10).contains(value) ? value : 4
+        }
+        set { defaults.set(min(10, max(2, newValue)), forKey: "unoPlayerCount") }
+    }
+
+    var unoTargetScore: Int {
+        get {
+            let value = defaults.integer(forKey: "unoTargetScore")
+            return [300, 500, 700, 1000].contains(value) ? value : 500
+        }
+        set { defaults.set(newValue, forKey: "unoTargetScore") }
+    }
+
+    /// 掼蛋开局偏好（对齐 HOS guandanSetup*）
+    var guandanSetupTripleA: Bool {
+        get { defaults.bool(forKey: "guandanSetupTripleA", defaultValue: false) }
+        set { defaults.set(newValue, forKey: "guandanSetupTripleA") }
+    }
+
+    var guandanSetupPassACondition: String {
+        get {
+            let value = defaults.string(forKey: "guandanSetupPassACondition") ?? "not_last"
+            return (value == "double_up" || value == "not_last") ? value : "not_last"
+        }
+        set { defaults.set(newValue, forKey: "guandanSetupPassACondition") }
+    }
+
+    var guandanSetupTripleAFallbackRank: String {
+        get {
+            let value = defaults.string(forKey: "guandanSetupTripleAFallbackRank") ?? "2"
+            return guandanRankOrder.contains(value) && value != "A" ? value : "2"
+        }
+        set { defaults.set(newValue, forKey: "guandanSetupTripleAFallbackRank") }
     }
 
     func fontSizeMultipliers(for gameType: GameType) -> [String: Double] {

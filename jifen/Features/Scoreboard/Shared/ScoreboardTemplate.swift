@@ -25,6 +25,7 @@ struct ScoreboardTemplate: View {
     @State private var resetClickCount: Int = 0
     @State private var screenshotPreviewImage: UIImage? = nil // Screenshot preview image
     @State private var showScreenshotPreview: Bool = false // Show screenshot preview
+    @State private var settleClickCount: Int = 0
     @State private var pendingTapSide: Bool?
     @State private var pendingTapAt: Date = .distantPast
     @State private var tapGeneration = 0
@@ -337,8 +338,21 @@ struct ScoreboardTemplate: View {
                     onMenuItemClick: { action in
                         handleMenuItemClick(action)
                     },
-                    showEndGame: config.showEndGame || config.gameType == .football || config.gameType == .basketball,
-                    resetConfirming: resetClickCount >= 1
+                    showEndGame: config.showEndGame
+                        || config.gameType == .football
+                        || config.gameType == .basketball
+                        || config.gameType == .simpleScore,
+                    resetConfirming: resetClickCount >= 1,
+                    items: ScoreboardMenuItemBuilder.defaultItems(
+                        showEndGame: config.showEndGame
+                            || config.gameType == .football
+                            || config.gameType == .basketball
+                            || config.gameType == .simpleScore,
+                        showExchangeSide: true,
+                        showSettleMatch: config.showSettleMatch,
+                        resetConfirming: resetClickCount >= 1,
+                        settleConfirming: settleClickCount >= 1
+                    )
                 )
                 
                 // Toast message
@@ -426,6 +440,9 @@ struct ScoreboardTemplate: View {
         if action != "reset" {
             resetClickCount = 0
         }
+        if action != "settleMatch" {
+            settleClickCount = 0
+        }
 
         switch action {
         case "whistle":
@@ -486,6 +503,20 @@ struct ScoreboardTemplate: View {
                 config.viewModel.endGame()
             }
             showMenu = false
+
+        case "settleMatch":
+            settleClickCount += 1
+            if settleClickCount == 1 {
+                showToastMessage(NSLocalizedString("click_again_to_settle_match", value: "再按一次结算", comment: ""))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    settleClickCount = 0
+                }
+            } else {
+                settleClickCount = 0
+                if let onEndGame = config.onEndGame { onEndGame() }
+                else { config.viewModel.endGame() }
+                showMenu = false
+            }
             
         default:
             break
@@ -633,6 +664,13 @@ struct ScoreboardTemplate: View {
             .onEnded { value in
                 guard !isEditMode, config.tapToAddEnabled, config.gameType != .boxing else { return }
                 guard isScoreTouchAllowed(location: value.location, panelSize: panelSize) else { return }
+                if let onScorePanelTap = config.onScorePanelTap {
+                    pendingTapSide = nil
+                    tapGeneration += 1
+                    onScorePanelTap(isLeft)
+                    revealImmersiveChrome()
+                    return
+                }
                 let now = Date()
                 if pendingTapSide == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
                     pendingTapSide = nil

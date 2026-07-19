@@ -105,7 +105,7 @@ struct QuickStartConfig: Codable, Equatable {
     var secondarySport: GameType
 
     // A default configuration for phone, similar to DEFAULT_QUICK_START_CONFIG_PHONE
-    static let defaultPhoneConfig = QuickStartConfig(primarySport: .basketball, secondarySport: .badminton)
+    static let defaultPhoneConfig = QuickStartConfig(primarySport: .badminton, secondarySport: .pingpong)
 }
 
 // MARK: - ScoreboardSetupItem (for sheet(item:) so content is never empty)
@@ -153,6 +153,12 @@ struct SportsSetupResult: Codable, Hashable {
     var linkedWatchSessionId: UUID? = nil
     var playerCount: Int? = nil // 多人计分：3-9
     var playerNames: [String]? = nil // 多人计分玩家名
+    /// Simple score: tap opens ±N panel instead of +1. Aligns with Android/HOS.
+    var multiScoreCustomAdjustEnabled: Bool? = nil
+    /// 掼蛋：三 A / 过 A / 回退级牌（对齐 CardGameSetupResult）
+    var guandanTripleA: Bool? = nil
+    var guandanPassACondition: String? = nil // "not_last" | "double_up"
+    var guandanTripleAFallbackRank: String? = nil
 }
 
 extension SportsSetupResult {

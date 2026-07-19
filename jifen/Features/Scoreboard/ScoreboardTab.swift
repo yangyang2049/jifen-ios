@@ -123,15 +123,25 @@ struct ScoreboardTab: View {
                 NSLocalizedString("team_home", comment: ""),
                 NSLocalizedString("team_away", comment: "")
             )
-        case .football, .volleyball:
+        case .football:
+            return (
+                NSLocalizedString("team_home", comment: ""),
+                NSLocalizedString("team_away", comment: "")
+            )
+        case .volleyball:
             return (
                 NSLocalizedString("red_team", comment: ""),
                 NSLocalizedString("blue_team", comment: "")
             )
-        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .pickleball:
+        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .pickleball, .simpleScore:
             return (
                 NSLocalizedString("watch_team_red", value: "红方", comment: ""),
                 NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+            )
+        case .foosball:
+            return (
+                NSLocalizedString("player_a", value: "选手A", comment: ""),
+                NSLocalizedString("player_b", value: "选手B", comment: "")
             )
         default:
             return (
@@ -168,9 +178,19 @@ struct ScoreboardTab: View {
         case .airVolleyball:
             VolleyballScoreboardView(variant: .airVolleyball, showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
         case .archery:
-            ArcheryScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+            ArcheryScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: nil,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: onBack
+            )
         case .boxing:
-            BoxingScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+            BoxingScoreboardView(
+                initialSetup: setupResult,
+                initialRecordId: nil,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: onBack
+            )
         case .billiards:
             BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .eightBall:
@@ -182,35 +202,40 @@ struct ScoreboardTab: View {
         case .pickleball:
             PickleballScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .guandan:
-            GuandanScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+            GuandanScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .doudizhu:
-            DoudizhuScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+            DoudizhuScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .shengji:
-            ShengjiReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+            ShengjiReducerScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .uno:
             MultiScoreboardView(
                 gameType: .uno,
-                defaultPlayerCount: setupResult?.playerCount ?? 4,
-                targetScore: setupResult?.targetScore ?? 500,
+                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.unoPlayerCount,
+                targetScore: setupResult?.targetScore ?? PreferencesManager.shared.unoTargetScore,
                 initialSetup: setupResult,
+                initialRecordId: nil,
                 onSetupConsumed: onSetupConsumed,
                 onNavigationBack: onBack
             )
         case .foosball:
-            RallyScoreboardView(
-                leftName: setupResult?.team1Name ?? NSLocalizedString("red_team", value: "红方", comment: ""),
-                rightName: setupResult?.team2Name ?? NSLocalizedString("blue_team", value: "蓝方", comment: ""),
-                gameType: setupResult?.isSingles == false ? .foosballDoubles : .foosball,
-                rules: (setupResult ?? SportsSetupResult(team1Name: "", team2Name: "")).foosballRules,
-                voiceAnnouncementEnabled: setupResult?.voiceAnnouncement ?? false,
+            FoosballScoreboardView(
                 showBackButton: false,
                 onNavigationBack: onBack,
-                onPresented: onSetupConsumed
+                initialSetup: setupResult,
+                initialRecordId: nil,
+                onSetupConsumed: onSetupConsumed
             )
         case .simpleScore:
             SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .multiScoreboard:
-            MultiScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+            MultiScoreboardView(
+                gameType: .multiScoreboard,
+                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.multiScoreboardPlayerCount,
+                initialSetup: setupResult,
+                initialRecordId: nil,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: onBack
+            )
         case .counter:
             SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         default:
@@ -250,9 +275,10 @@ struct ScoreboardTab: View {
             let (t1, t2) = Self.defaultTeamNames(for: sport.gameType)
             MultiScoreSetupDialogView(
                 gameType: sport.gameType,
-                defaultPlayerCount: sport.gameType == .doudizhu ? 3 : 4,
+                defaultPlayerCount: Self.casualDefaultPlayerCount(for: sport.gameType),
                 defaultTeam1Name: t1,
                 defaultTeam2Name: t2,
+                initialTargetScore: PreferencesManager.shared.unoTargetScore,
                 titleEmoji: sport.emoji,
                 titleKey: localizationKey(for: sport.gameType),
                 titleFallback: sport.title,
@@ -278,6 +304,15 @@ struct ScoreboardTab: View {
 
     private static func isCasualSetupGame(_ gameType: GameType) -> Bool {
         [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(gameType)
+    }
+
+    private static func casualDefaultPlayerCount(for gameType: GameType) -> Int {
+        switch gameType {
+        case .doudizhu: return 3
+        case .uno: return PreferencesManager.shared.unoPlayerCount
+        case .multiScoreboard: return PreferencesManager.shared.multiScoreboardPlayerCount
+        default: return 4
+        }
     }
 
     private func threeBasketballSetup(from setup: SportsSetupResult?) -> SportsSetupResult {
@@ -326,6 +361,8 @@ struct SportCardView: View {
             .cornerRadius(Theme.cornerRadius)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier("scoreboard_catalog_\(sport.gameType.rawValue)")
+        .accessibilityLabel(sport.title)
     }
 }
 

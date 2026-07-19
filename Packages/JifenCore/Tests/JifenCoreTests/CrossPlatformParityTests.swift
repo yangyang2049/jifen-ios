@@ -131,6 +131,24 @@ import SessionCore
     #expect(ArcheryShooterRules.nextStartingIsLeft(leftSetPoints: 3, rightSetPoints: 3, openingIsLeft: false) == false)
 }
 
+@Test func guandanTripleADisplayRankShowsAttemptNumber() {
+    var state = GuandanMatchState.initial(
+        redName: "红",
+        blueName: "蓝",
+        aStageMode: .tripleA,
+        passACondition: .notLast,
+        tripleAFallbackRank: "10"
+    )
+    state.phase = .playing
+    state.redTeam.currentRank = "A"
+    state.blueTeam.currentRank = "A"
+    state.redAFailCount = 1
+    state.blueAFailCount = 0
+    state.lastRoundWinner = .red
+    #expect(state.displayRank(for: .red) == "A2")
+    #expect(state.displayRank(for: .blue) == "A1")
+}
+
 @Test func snookerPotAndFoulMatchAndroidSemantics() {
     let reducer = SnookerReducer()
     var state = SnookerState.initial()
@@ -267,9 +285,71 @@ import SessionCore
 
     let crossing = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
     #expect(crossing.events.contains(.sidesExchangeReminder))
+    #expect(crossing.state.leftPoints == 5)
 
     let following = reducer.reduce(state: crossing.state, intent: .pointWon(.right), at: 2)
     #expect(!following.events.contains(.sidesExchangeReminder))
+}
+
+@Test func decidingSetSideSwitchPointHelperMatchesAndroidFormulas() {
+    #expect(RallyRuleSet.decidingSetSideSwitchPoint(for: .pingpong, pointsPerSet: 11) == 5)
+    #expect(RallyRuleSet.decidingSetSideSwitchPoint(for: .pingpongDoubles, pointsPerSet: 11) == 5)
+    #expect(RallyRuleSet.decidingSetSideSwitchPoint(for: .pingpong, pointsPerSet: 21) == 10)
+    #expect(RallyRuleSet.decidingSetSideSwitchPoint(for: .badminton, pointsPerSet: 21) == 11)
+    #expect(RallyRuleSet.decidingSetSideSwitchPoint(for: .badmintonDoubles, pointsPerSet: 15) == 8)
+    #expect(RallyRuleSet.decidingSetSideSwitchPoint(for: .volleyball, pointsPerSet: 25) == nil)
+}
+
+@Test func badmintonPointCapHelperMatchesAndroidMatrix() {
+    #expect(RallyRuleSet.badmintonPointCap(for: 11) == 21)
+    #expect(RallyRuleSet.badmintonPointCap(for: 15) == 21)
+    #expect(RallyRuleSet.badmintonPointCap(for: 21) == 30)
+    #expect(RallyRuleSet.badmintonPointCap(for: 25) == nil)
+    #expect(RallyRuleSet.badmintonPointCap(for: 999) == nil)
+}
+
+@Test func badmintonFifteenPointSetCapsAtTwentyOne() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.badminton()
+    rules.pointsToWinSet = 15
+    rules.pointCap = RallyRuleSet.badmintonPointCap(for: 15)
+    var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+    state.leftPoints = 20
+    state.rightPoints = 19
+
+    let result = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+    #expect(result.state.leftSets == 1)
+    #expect(result.state.leftPoints == 0)
+    #expect(result.events.contains(.setCompleted(
+        winner: .left,
+        setNumber: 1,
+        leftPoints: 21,
+        rightPoints: 19,
+        leftSets: 1,
+        rightSets: 0
+    )))
+}
+
+@Test func pingPongDecidingSetAutoExchangesAtFiveNotSix() {
+    var rules = RallyRuleSet.pingPong(maxSets: 5)
+    rules.autoChangeSides = true
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+    state.leftSets = 2
+    state.rightSets = 2
+    state.leftPoints = 4
+    state.rightPoints = 3
+    let beforeSwapped = state.sidesSwapped
+
+    let atFive = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+    #expect(atFive.events.contains(.sidesExchanged))
+    #expect(atFive.state.sidesSwapped != beforeSwapped)
+    #expect(atFive.state.leftPoints == 5)
+
+    // Crossing 6 must not exchange again.
+    let atSix = reducer.reduce(state: atFive.state, intent: .pointWon(.left), at: 2)
+    #expect(!atSix.events.contains(.sidesExchanged))
+    #expect(atSix.state.sidesSwapped == atFive.state.sidesSwapped)
 }
 
 @Test func pingPongDoublesRotatesServerAndReceiverAfterTwoPoints() {

@@ -53,9 +53,38 @@ public struct BadmintonDoublesRotationState: Codable, Equatable, Sendable {
     }
 }
 
+/// USA pickleball doubles: server #1/#2, first-serve-of-game (0-0-2), partner swap on serve score.
+public struct PickleballDoublesRotationState: Codable, Equatable, Sendable {
+    public var serverNumber: Int
+    public var isFirstServeOfGame: Bool
+    public var team0PartnersSwapped: Bool
+    public var team1PartnersSwapped: Bool
+    public var serverSlotIndex: DoublesPlayerSlotIndex
+    public var receiverSlotIndex: DoublesPlayerSlotIndex
+
+    public init(
+        serverNumber: Int = 2,
+        isFirstServeOfGame: Bool = true,
+        team0PartnersSwapped: Bool = false,
+        team1PartnersSwapped: Bool = false,
+        serverSlotIndex: DoublesPlayerSlotIndex = 2,
+        receiverSlotIndex: DoublesPlayerSlotIndex = 3
+    ) {
+        self.serverNumber = serverNumber == 2 ? 2 : 1
+        self.isFirstServeOfGame = isFirstServeOfGame
+        self.team0PartnersSwapped = team0PartnersSwapped
+        self.team1PartnersSwapped = team1PartnersSwapped
+        self.serverSlotIndex = serverSlotIndex
+        self.receiverSlotIndex = receiverSlotIndex
+    }
+}
+
 public enum RallyDoublesRotationState: Codable, Equatable, Sendable {
     case pingPong(PingPongDoublesRotationState)
     case badminton(BadmintonDoublesRotationState)
+    case pickleball(PickleballDoublesRotationState)
+    /// Foosball 2V2 has four fixed corner participants and no serving rotation.
+    case foosball
 }
 
 public struct RallyDoublesState: Codable, Equatable, Sendable {
@@ -93,10 +122,23 @@ public struct RallyDoublesState: Codable, Equatable, Sendable {
         )
     }
 
+    public static func pickleball(playerNames: [String], servingTeam0: Bool = true) -> Self {
+        .init(
+            playerNames: playerNames,
+            rotation: .pickleball(createPickleballDoublesRotation(servingTeam0: servingTeam0))
+        )
+    }
+
+    public static func foosball(playerNames: [String]) -> Self {
+        .init(playerNames: playerNames, rotation: .foosball)
+    }
+
     public var serverSlotIndex: DoublesPlayerSlotIndex {
         switch rotation {
         case .pingPong(let state): state.serverSlotIndex
         case .badminton(let state): state.serverSlotIndex
+        case .pickleball(let state): state.serverSlotIndex
+        case .foosball: 0
         }
     }
 
@@ -104,7 +146,21 @@ public struct RallyDoublesState: Codable, Equatable, Sendable {
         switch rotation {
         case .pingPong(let state): state.receiverSlotIndex
         case .badminton(let state): state.receiverSlotIndex
+        case .pickleball(let state): state.receiverSlotIndex
+        case .foosball: 1
         }
+    }
+
+    public var pickleballServerNumber: Int? {
+        if case .pickleball(let state) = rotation { return state.serverNumber }
+        return nil
+    }
+
+    public var pickleballPartnersSwapped: (team0: Bool, team1: Bool)? {
+        if case .pickleball(let state) = rotation {
+            return (state.team0PartnersSwapped, state.team1PartnersSwapped)
+        }
+        return nil
     }
 
     public var serverName: String? {
@@ -262,4 +318,44 @@ public func resolveTennisDoublesReceiverSlot(
     return max(0, pointIndexInGame).isMultiple(of: 2)
         ? firstReceiver
         : doublesPartnerSlot(firstReceiver)
+}
+
+/// Aligns with Android `resolvePickleballDoublesServingTop` + initial `serverNumber = 2`.
+public func createPickleballDoublesRotation(servingTeam0: Bool = true) -> PickleballDoublesRotationState {
+    var state = PickleballDoublesRotationState(
+        serverNumber: 2,
+        isFirstServeOfGame: true,
+        team0PartnersSwapped: false,
+        team1PartnersSwapped: false
+    )
+    refreshPickleballDoublesSlots(&state, servingTeam0: servingTeam0)
+    return state
+}
+
+public func refreshPickleballDoublesSlots(
+    _ state: inout PickleballDoublesRotationState,
+    servingTeam0: Bool
+) {
+    let swapped = servingTeam0 ? state.team0PartnersSwapped : state.team1PartnersSwapped
+    let logicalServerOnTop = state.serverNumber == 2
+    let displayLogicalTop = logicalServerOnTop != swapped
+    if servingTeam0 {
+        state.serverSlotIndex = displayLogicalTop ? 0 : 2
+        // Right team visual flip mirrors Android servingTeamOnRight path.
+        state.receiverSlotIndex = displayLogicalTop ? 3 : 1
+    } else {
+        state.serverSlotIndex = displayLogicalTop ? 3 : 1
+        state.receiverSlotIndex = displayLogicalTop ? 0 : 2
+    }
+}
+
+public func togglePickleballPartnerSwap(
+    _ state: inout PickleballDoublesRotationState,
+    servingTeam0: Bool
+) {
+    if servingTeam0 {
+        state.team0PartnersSwapped.toggle()
+    } else {
+        state.team1PartnersSwapped.toggle()
+    }
 }

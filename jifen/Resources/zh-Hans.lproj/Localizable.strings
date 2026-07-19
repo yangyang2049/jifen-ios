@@ -139,6 +139,7 @@
 "minutes" = "分钟";
 
 /* Game Types */
+"project_archery" = "射箭";
 "game_pingpong" = "乒乓球";
 "game_badminton" = "羽毛球";
 "game_tennis" = "网球";
@@ -154,11 +155,29 @@
 "guandan_a_stage" = "闯A中";
 "guandan_a_fail_format" = "闯A失败 %d/3";
 "guandan_a_stage_team_format" = "%@ 闯A";
+"guandan_pass_a_condition_section" = "过 A 条件";
+"guandan_pass_a_not_last" = "不能末游（+2/3）";
+"guandan_pass_a_double_up" = "双上（+3）";
+"guandan_triple_a_toggle_label" = "三 A";
+"guandan_triple_a_fallback_section" = "三 A 不过回退到";
+"doudizhu_player_adam" = "刘备";
+"doudizhu_player_bob" = "关羽";
+"doudizhu_player_chris" = "张飞";
+"shengji_claim_dealer_left" = "红方抢庄";
+"shengji_claim_dealer_right" = "蓝方抢庄";
+"shengji_take_dealer" = "上台";
 "guandan_select_upgrade" = "选择升几级";
 "guandan_upgrade_step_format" = "升%d";
 "guandan_tap_winner" = "点击胜方半区结算本局";
 "game_doudizhu" = "斗地主";
 "game_simple_score" = "简单计分";
+"score_custom_adjust_label" = "自定义加减分";
+"score_custom_adjust_setup_desc" = "点按队伍或玩家时打开加减分面板。";
+"score_custom_adjust_increment" = "加分";
+"score_custom_adjust_decrement" = "减分";
+"score_custom_adjust_custom_value_placeholder" = "自定义分值";
+"score_custom_adjust_invalid_value" = "请输入有效分值";
+"score_custom_adjust_apply" = "应用";
 "game_multi_scoreboard" = "多人计分";
 "multi_score_player_default" = "玩家";
 "game_counter" = "计数器";
@@ -586,6 +605,7 @@
 "record_action_team_goal" = "%@ 进球";
 "record_action_team_points" = "%@ +%d";
 "boxing_round_n" = "第 %d 回合";
+"boxing_round_progress" = "第 %d / %d 回合";
 
 /* Stopwatch */
 "stopwatch_total" = "总时长";
@@ -692,6 +712,10 @@
 "foosball_final_score_cap" = "决胜局最高分上限";
 "foosball_mode_1v1" = "1V1";
 "foosball_mode_2v2" = "2V2";
+"foosball_default_red_doubles" = "红方A/红方B";
+"foosball_default_blue_doubles" = "蓝方A/蓝方B";
+"player_a" = "选手A";
+"player_b" = "选手B";
 "snooker_frames" = "局数";
 "snooker_frames_more" = "更多";
 "eight_ball_race_to" = "抢局";
@@ -708,8 +732,23 @@
 "uno_target_score" = "目标分";
 "uno_number_points" = "数字分";
 "uno_card_bonuses" = "功能牌";
-"uno_round_total_format" = "本回合合计 %d";
+"uno_round_total_format" = "本局 %d 分";
 "uno_round_settle_title" = "UNO 回合计分";
+"uno_target_badge" = "目标 %d";
+"uno_round_sheet_title" = "UNO 结算";
+"uno_round_winner" = "本局赢家";
+"uno_number_total" = "数字牌合计";
+"uno_action_20_count" = "20 分功能牌张数";
+"uno_wild_40_count" = "40 分万能牌张数";
+"uno_wild_50_count" = "50 分万能牌张数";
+"uno_action_20_hint" = "+2 / 跳过 / 反转 x20";
+"uno_wild_40_hint" = "洗手牌 / 自定义万能牌 x40";
+"uno_wild_50_hint" = "万能牌 / +4 x50";
+"uno_confirm_round" = "确认记分";
+"uno_select_winner_toast" = "请选择本局赢家";
+"uno_zero_score_toast" = "本局分数不能为 0，请输入赢家手中剩余牌的分值";
+"uno_gap_format" = "差 %d";
+"press_again_to_end" = "再按一次结束比赛";
 "doudizhu_settle_preview_one" = "结算：赢家 +%d，另两人各 −%d";
 "doudizhu_settle_preview_two" = "结算：两赢家各 +%d，输家 −%d";
 "doudizhu_select_one_or_two_winners" = "请选择 1 或 2 位赢家";
@@ -730,6 +769,8 @@
 "multi_score_player_default_format" = "玩家 %d";
 "snooker_handover" = "交杆";
 "snooker_next_frame" = "下一局";
+"snooker_settle_frame" = "结算本局";
+"snooker_settle_frame_title" = "选择本局胜方";
 "shengji_select_dealer" = "先选庄家，再记升级";
 "snooker_frame_break_format" = "%d 局 · 单杆 %d";
 "snooker_current_frame_format" = "第 %d / %d 局";
@@ -773,3 +814,16 @@
 "timer_custom_seconds" = "秒";
 "timer_countdown_notification_title" = "倒计时结束";
 "timer_countdown_notification_content" = "倒计时已结束，点按返回查看。";
+"scoreboard_usage_hint_menu" = "使用说明";
+"scoreboard_usage_hint_title" = "计分板使用说明";
+"scoreboard_usage_tap" = "点击计分区加分；部分项目点击后会打开回合或结算面板。";
+"scoreboard_usage_undo" = "误操作后可在菜单中撤销。";
+"scoreboard_usage_edit" = "点击铅笔可编辑名称和比分，点击对勾保存。";
+"scoreboard_usage_reset" = "重置需要在短时间内再次点击确认。";
+"scoreboard_usage_finish" = "结束比赛后会保存为已完成记录。";
+"scoreboard_usage_display" = "显示设置可调整主题、字体和沉浸模式。";
+"scoreboard_rotate_orientation" = "切换布局";
+"settle_match" = "结算";
+"click_again_to_settle_match" = "再按一次结算";
+"voice_announcement_on" = "语音：开";
+"voice_announcement_off" = "语音：关";

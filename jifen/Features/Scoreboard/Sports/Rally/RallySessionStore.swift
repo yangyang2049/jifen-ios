@@ -13,8 +13,9 @@ final class RallySessionStore {
     private let archiveIndex: SessionArchiveIndex
 
     private(set) var state: RallyMatchState
+    let gameType: ScoreCore.GameType
 
-    init(
+    convenience init(
         leftName: String,
         rightName: String,
         gameType: ScoreCore.GameType,
@@ -34,35 +35,47 @@ final class RallySessionStore {
                 openingServer: openingServer
             )
         )
-        let sessionParticipants = providedParticipants ?? [
-            .init(id: "left", name: initial.leftName, role: "team"),
-            .init(id: "right", name: initial.rightName, role: "team")
+        self.init(gameType: gameType, state: initial, participants: providedParticipants)
+    }
+
+    init(
+        gameType: ScoreCore.GameType,
+        state: RallyMatchState,
+        participants: [SessionParticipant]? = nil
+    ) {
+        self.gameType = gameType
+        let sessionParticipants = participants ?? [
+            .init(id: "left", name: state.leftName, role: "team"),
+            .init(id: "right", name: state.rightName, role: "team")
         ]
         let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
             gameType: gameType,
             ruleFamily: .s1,
             reducerType: "rally/v1",
-            state: initial,
+            state: state,
             participants: sessionParticipants
         )
         core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
         snapshotStore = AtomicJSONFileStore(fileURL: Self.snapshotURL(for: session.sessionId))
         archiveIndex = SessionArchiveIndex(fileURL: Self.archiveIndexURL())
-        state = initial
+        self.state = state
     }
 
-    func send(_ intent: RallyMatchIntent) {
+    func send(_ intent: RallyMatchIntent, onEvents: (([RallyMatchEvent]) -> Void)? = nil) {
         Task { [weak self, core] in
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard case .accepted(let session, _) = await core.dispatch(actorId: "phone", intent: intent, at: now), let self else { return }
+            guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now),
+                  let self else { return }
             self.state = session.state
+            onEvents?(events)
         }
     }
 
-    func undo() {
+    func undo(onRestored: (() -> Void)? = nil) {
         Task { [weak self, core] in
             guard await core.undo(actorId: "phone"), let self else { return }
             self.state = await core.snapshot().state
+            onRestored?()
         }
     }
 
@@ -116,6 +129,10 @@ final class RallySessionStore {
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)
+        case .pickleballDoubles:
+            return .pickleball(playerNames: names, servingTeam0: openingServer == .left)
+        case .foosballDoubles:
+            return .foosball(playerNames: names)
         default:
             return nil
         }

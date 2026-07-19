@@ -119,6 +119,8 @@ struct TimerTab: View {
                         .cornerRadius(Theme.cornerRadius)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityIdentifier("timer_dest_\(dest.rawValue)")
+                    .accessibilityLabel(dest.title)
                 }
             }
         }

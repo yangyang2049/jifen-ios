@@ -107,6 +107,23 @@ public struct GuandanMatchState: Codable, Equatable, Sendable {
         max(0, side == .red ? redAFailCount : blueAFailCount)
     }
 
+    /// Android/HOS `guandanDisplayRank`: triple-A shows A1/A2/A3 while at A.
+    public func displayRank(for side: GuandanSide) -> String {
+        let rank = side == .red ? redTeam.currentRank : blueTeam.currentRank
+        if phase == .finished, finalWinner == side, rank == "A" {
+            return "A"
+        }
+        guard aStageMode == .tripleA, rank == "A" else { return rank }
+        let failCount = aFailCount(for: side)
+        let attemptStep: Int
+        if lastRoundWinner == side {
+            attemptStep = min(3, max(1, failCount + 1))
+        } else {
+            attemptStep = min(3, max(1, failCount))
+        }
+        return "A\(attemptStep)"
+    }
+
     public static func rankDisplayScore(_ rank: String) -> Int {
         max(0, guandanRankOrder.firstIndex(of: rank) ?? 0) + 2
     }

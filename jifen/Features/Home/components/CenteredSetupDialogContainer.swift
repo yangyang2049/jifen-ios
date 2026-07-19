@@ -1,5 +1,52 @@
 import SwiftUI
 
+private struct SetupDialogContentHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+/// 内容较少时按实际高度收紧，内容较多时限制到可用高度并保持滚动。
+struct AdaptiveSetupDialogScrollView<Content: View>: View {
+    let maxHeight: CGFloat
+    private let content: Content
+
+    @State private var measuredContentHeight: CGFloat = 0
+
+    init(maxHeight: CGFloat, @ViewBuilder content: () -> Content) {
+        self.maxHeight = maxHeight
+        self.content = content()
+    }
+
+    private var resolvedHeight: CGFloat? {
+        guard measuredContentHeight > 0 else { return nil }
+        return min(measuredContentHeight, maxHeight)
+    }
+
+    var body: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            content
+                .background {
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: SetupDialogContentHeightPreferenceKey.self,
+                            value: proxy.size.height
+                        )
+                    }
+                }
+        }
+        .frame(height: resolvedHeight)
+        .frame(maxHeight: maxHeight)
+        .onPreferenceChange(SetupDialogContentHeightPreferenceKey.self) { height in
+            let roundedHeight = ceil(height)
+            guard abs(measuredContentHeight - roundedHeight) > 0.5 else { return }
+            measuredContentHeight = roundedHeight
+        }
+    }
+}
+
 /// 居中 Setup Dialog 壳：遮罩独立淡入，卡片 scale-up。
 /// 用 overlay 展示，避免 fullScreenCover 自下而上的系统动画。
 struct CenteredSetupDialogContainer<Content: View>: View {

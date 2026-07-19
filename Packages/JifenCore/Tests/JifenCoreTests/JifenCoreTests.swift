@@ -269,6 +269,126 @@ private struct CounterReducer: DomainReducer {
     #expect(state.servingSide == .right)
 }
 
+@Test func pickleballFactoryHasNoDefaultPointCap() {
+    #expect(RallyRuleSet.pickleball().pointCap == nil)
+    #expect(RallyRuleSet.pickleball().nextSetServerModel == .opening)
+}
+
+@Test func pickleballSinglesNextSetUsesOpeningServer() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.pickleball(maxSets: 3)
+    rules.pointsToWinSet = 2
+    rules.winByTwo = false
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: rules,
+        openingServer: .left
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
+    #expect(state.leftSets == 1)
+    #expect(state.leftPoints == 0)
+    #expect(state.servingSide == .left)
+    #expect(state.firstServerInSet == .left)
+}
+
+@Test func pickleballDoublesStartsAtServerTwoAndRotates() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.pickleball(maxSets: 3)
+    rules.nextSetServerModel = .alternateFromOpening
+    let doubles = RallyDoublesState.pickleball(
+        playerNames: ["A", "C", "B", "D"],
+        servingTeam0: true
+    )
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: rules,
+        openingServer: .left,
+        doubles: doubles
+    )
+
+    guard case .pickleball(let opening) = state.doubles?.rotation else {
+        Issue.record("Expected pickleball doubles rotation")
+        return
+    }
+    #expect(opening.serverNumber == 2)
+    #expect(opening.isFirstServeOfGame)
+    #expect(opening.team0PartnersSwapped == false)
+
+    // First rally lost while still on opening second server → side-out to other team as server 1.
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 1).state
+    #expect(state.leftPoints == 0)
+    #expect(state.rightPoints == 0)
+    #expect(state.servingSide == .right)
+    guard case .pickleball(let afterFirstSideOut) = state.doubles?.rotation else {
+        Issue.record("Expected pickleball doubles rotation")
+        return
+    }
+    #expect(afterFirstSideOut.serverNumber == 1)
+    #expect(afterFirstSideOut.isFirstServeOfGame == false)
+
+    // Server 1 loses → server 2, same team.
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
+    #expect(state.servingSide == .right)
+    guard case .pickleball(let serverTwo) = state.doubles?.rotation else {
+        Issue.record("Expected pickleball doubles rotation")
+        return
+    }
+    #expect(serverTwo.serverNumber == 2)
+
+    // Server 2 scores → point + partner swap.
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 3).state
+    #expect(state.rightPoints == 1)
+    #expect(state.servingSide == .right)
+    guard case .pickleball(let afterScore) = state.doubles?.rotation else {
+        Issue.record("Expected pickleball doubles rotation")
+        return
+    }
+    #expect(afterScore.team1PartnersSwapped)
+    #expect(afterScore.serverNumber == 2)
+
+    // Server 2 loses → side-out back to left as server 1.
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 4).state
+    #expect(state.servingSide == .left)
+    guard case .pickleball(let backToLeft) = state.doubles?.rotation else {
+        Issue.record("Expected pickleball doubles rotation")
+        return
+    }
+    #expect(backToLeft.serverNumber == 1)
+    #expect(backToLeft.team1PartnersSwapped)
+}
+
+@Test func pickleballDoublesNextSetAlternatesFromOpening() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.pickleball(maxSets: 3)
+    rules.pointsToWinSet = 2
+    rules.winByTwo = false
+    rules.nextSetServerModel = .alternateFromOpening
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: rules,
+        openingServer: .left,
+        doubles: .pickleball(playerNames: ["A", "C", "B", "D"], servingTeam0: true)
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
+    #expect(state.leftSets == 1)
+    #expect(state.servingSide == .right)
+    guard case .pickleball(let nextSet) = state.doubles?.rotation else {
+        Issue.record("Expected pickleball doubles rotation")
+        return
+    }
+    #expect(nextSet.serverNumber == 2)
+    #expect(nextSet.isFirstServeOfGame)
+    #expect(nextSet.team0PartnersSwapped == false)
+    #expect(nextSet.team1PartnersSwapped == false)
+}
+
 @Test func volleyballUsesFifteenPointsInTheDecidingSet() {
     let reducer = RallyMatchReducer()
     var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .volleyball())
@@ -288,6 +408,64 @@ private struct CounterReducer: DomainReducer {
         leftSets: 3,
         rightSets: 2
     )))
+}
+
+@Test func volleyballVariantsUseAlternateFromOpeningNextSetServer() {
+    #expect(RallyRuleSet.volleyball().nextSetServerModel == .alternateFromOpening)
+    #expect(RallyRuleSet.airVolleyball().nextSetServerModel == .alternateFromOpening)
+    #expect(RallyRuleSet.beachVolleyball().nextSetServerModel == .alternateFromOpening)
+}
+
+@Test func volleyballNextSetAlternatesFromOpeningServer() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.volleyball(maxSets: 5)
+    rules.pointsToWinSet = 2
+    rules.winByTwo = false
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: rules,
+        openingServer: .left
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
+    #expect(state.leftSets == 1)
+    #expect(state.servingSide == .right)
+    #expect(state.firstServerInSet == .right)
+}
+
+@Test func beachVolleyballSwitchesSidesEverySevenTotalPoints() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.beachVolleyball()
+    rules.autoChangeSides = true
+    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: rules)
+
+    // 3-3 → total 6; next point makes total 7 → sides exchanged
+    state.leftPoints = 3
+    state.rightPoints = 3
+    let before = state.sidesSwapped
+    let result = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+    #expect(result.state.leftPoints + result.state.rightPoints == 7)
+    #expect(result.state.sidesSwapped != before)
+    #expect(result.events.contains(.sidesExchanged))
+}
+
+@Test func indoorVolleyballSwitchesSidesAtEightInDecidingSet() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.volleyball()
+    rules.autoChangeSides = true
+    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: rules)
+    state.leftSets = 2
+    state.rightSets = 2
+    state.leftPoints = 7
+    state.rightPoints = 5
+    let before = state.sidesSwapped
+
+    let result = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+    #expect(result.state.leftPoints == 8)
+    #expect(result.state.sidesSwapped != before)
+    #expect(result.events.contains(.sidesExchanged))
 }
 
 @Test func rallyMatchUndoRestoresThePreviousPoint() async {
@@ -482,4 +660,24 @@ private struct CounterReducer: DomainReducer {
     cappedSet = reducer.reduce(state: cappedSet, intent: .pointWon(.right), at: 4).state
     #expect(cappedSet.finished)
     #expect(cappedSet.rightSets == 2)
+}
+
+@Test func foosballDoublesKeepsFourFixedCornerNames() {
+    let names = ["红A", "蓝A", "红B", "蓝B"]
+    let doubles = RallyDoublesState.foosball(playerNames: names)
+    var state = RallyMatchEngine.initial(
+        leftName: "红队",
+        rightName: "蓝队",
+        rules: .foosball(),
+        doubles: doubles
+    )
+    let reducer = RallyMatchReducer()
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    #expect(state.doubles?.playerNames == names)
+    let retainsFoosballIdentity: Bool
+    if case .some(.foosball) = state.doubles?.rotation { retainsFoosballIdentity = true }
+    else { retainsFoosballIdentity = false }
+    #expect(retainsFoosballIdentity)
+    state = reducer.reduce(state: state, intent: .reset, at: 2).state
+    #expect(state.doubles?.playerNames == names)
 }

@@ -3,32 +3,70 @@ import SwiftUI
 
 struct GuandanScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @State private var state: GuandanMatchState
     @State private var history: [GuandanMatchState] = []
-    @State private var recordSaved = false
-    @State private var gameStartAt: Date?
+    @State private var actionCount = 0
+    @State private var gameStartAt: Date
+    @State private var recordID: String
+    @State private var showGameFinishedOverlay = false
 
     private let reducer = GuandanSessionReducer()
 
     init(
         initialSetup: SportsSetupResult? = nil,
+        initialRecordId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
+        self.initialRecordId = initialRecordId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
-        let red = initialSetup?.team1Name.isEmpty == false
-            ? initialSetup!.team1Name
-            : NSLocalizedString("red_team", value: "红队", comment: "")
-        let blue = initialSetup?.team2Name.isEmpty == false
-            ? initialSetup!.team2Name
-            : NSLocalizedString("blue_team", value: "蓝队", comment: "")
-        _state = State(initialValue: GuandanMatchState.initial(redName: red, blueName: blue))
+
+        let red = initialSetup?.team1Name.nonEmpty
+            ?? NSLocalizedString("watch_team_red", value: "红方", comment: "")
+        let blue = initialSetup?.team2Name.nonEmpty
+            ?? NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+        let tripleA = initialSetup?.guandanTripleA ?? PreferencesManager.shared.guandanSetupTripleA
+        let passRaw = initialSetup?.guandanPassACondition ?? PreferencesManager.shared.guandanSetupPassACondition
+        let pass: GuandanPassACondition = passRaw == "double_up" ? .doubleUp : .notLast
+        let fallback = initialSetup?.guandanTripleAFallbackRank
+            ?? PreferencesManager.shared.guandanSetupTripleAFallbackRank
+
+        var initial = GuandanMatchState.initial(
+            redName: red,
+            blueName: blue,
+            aStageMode: tripleA ? .tripleA : .singleA,
+            passACondition: pass,
+            tripleAFallbackRank: fallback
+        )
+        var start = Date()
+        var id = "guandan_\(Int(start.timeIntervalSince1970))"
+        var actions = 0
+        var showFinished = false
+
+        if let initialRecordId,
+           let record = ScoreboardRecordManager.shared.getRecordById(initialRecordId),
+           record.status == .draft,
+           let data = record.stateSnapshot,
+           let restored = try? JSONDecoder().decode(GuandanMatchState.self, from: data) {
+            initial = restored
+            start = record.startTime
+            id = record.id
+            actions = max(record.totalScoreChanges, 1)
+            showFinished = restored.phase == .finished
+        }
+
+        _state = State(initialValue: initial)
+        _gameStartAt = State(initialValue: start)
+        _recordID = State(initialValue: id)
+        _actionCount = State(initialValue: actions)
+        _showGameFinishedOverlay = State(initialValue: showFinished)
     }
 
     var body: some View {
@@ -37,20 +75,24 @@ struct GuandanScoreboardView: View {
                 gameType: .guandan,
                 leftName: state.redTeam.name,
                 rightName: state.blueTeam.name,
-                leftScore: state.redTeam.currentRank,
-                rightScore: state.blueTeam.currentRank,
+                leftScore: state.displayRank(for: .red),
+                rightScore: state.displayRank(for: .blue),
                 leftDetail: leftDetail,
                 rightDetail: rightDetail,
                 finished: state.phase == .finished,
                 onLeftTap: { handleSideTap(.red) },
                 onRightTap: { handleSideTap(.blue) },
                 onUndo: undo,
+                onReset: resetMatch,
                 onExchange: nil,
                 onBack: {
-                    saveRecordIfNeeded()
+                    saveRecord()
                     onNavigationBack?()
                     dismiss()
                 },
+                showEndGame: true,
+                onEndGame: finishMatch,
+                onEditCommit: applyEdit,
                 bottomBar: state.phase == .roundResult ? { AnyView(stepButtonsBar) } : nil,
                 topCenter: {
                     AnyView(statusPill)
@@ -60,36 +102,38 @@ struct GuandanScoreboardView: View {
                 }
             )
 
-            if state.phase == .finished, let winner = state.finalWinner {
+            if showGameFinishedOverlay, let winner = state.finalWinner {
                 GameFinishedOverlay(winnerName: winner == .red ? state.redTeam.name : state.blueTeam.name)
             }
         }
         .onAppear {
             if state.phase == .notStarted {
                 send(.startMatch)
-                gameStartAt = Date()
             }
             onSetupConsumed?()
         }
+        .onChange(of: state.phase) { _, phase in
+            if phase == .finished {
+                showGameFinishedOverlay = true
+            }
+        }
         .onDisappear {
-            saveRecordIfNeeded()
+            saveRecord()
         }
     }
 
     private var leftDetail: String? {
         guard state.isInAStage, state.aStageTeam == .red else { return nil }
-        let fails = state.redAFailCount
-        if state.aStageMode == .tripleA, fails > 0 {
-            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), fails)
+        if state.aStageMode == .tripleA {
+            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), state.redAFailCount)
         }
         return NSLocalizedString("guandan_a_stage", value: "闯A中", comment: "")
     }
 
     private var rightDetail: String? {
         guard state.isInAStage, state.aStageTeam == .blue else { return nil }
-        let fails = state.blueAFailCount
-        if state.aStageMode == .tripleA, fails > 0 {
-            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), fails)
+        if state.aStageMode == .tripleA {
+            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), state.blueAFailCount)
         }
         return NSLocalizedString("guandan_a_stage", value: "闯A中", comment: "")
     }
@@ -161,39 +205,101 @@ struct GuandanScoreboardView: View {
         history.append(state)
         if history.count > 80 { history.removeFirst() }
         state = result.state
+        actionCount += 1
         VibrationManager.shared.vibrateMedium()
+        if state.phase == .finished {
+            showGameFinishedOverlay = true
+        }
     }
 
     private func undo() {
         guard let previous = history.popLast() else { return }
         state = previous
+        actionCount = max(0, actionCount - 1)
+        showGameFinishedOverlay = state.phase == .finished
     }
 
-    private func saveRecordIfNeeded() {
-        guard !recordSaved, let start = gameStartAt else { return }
+    private func resetMatch() {
+        history.append(state)
+        state = .initial(
+            redName: state.redTeam.name,
+            blueName: state.blueTeam.name,
+            aStageMode: state.aStageMode,
+            passACondition: state.passACondition,
+            tripleAFallbackRank: state.tripleAFallbackRank
+        )
+        state.phase = .playing
+        actionCount += 1
+        showGameFinishedOverlay = false
+    }
+
+    private func finishMatch() {
+        guard state.phase != .finished else { return }
+        history.append(state)
+        let redScore = GuandanMatchState.rankDisplayScore(state.redTeam.currentRank)
+        let blueScore = GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank)
+        state.finalWinner = redScore == blueScore ? nil : (redScore > blueScore ? .red : .blue)
+        state.phase = .finished
+        actionCount += 1
+        showGameFinishedOverlay = true
+    }
+
+    private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
+        history.append(state)
+        if !left.isEmpty { state.redTeam.name = left }
+        if !right.isEmpty { state.blueTeam.name = right }
+        let redRank = leftScore.uppercased().replacingOccurrences(of: "A1", with: "A")
+            .replacingOccurrences(of: "A2", with: "A")
+            .replacingOccurrences(of: "A3", with: "A")
+        let blueRank = rightScore.uppercased().replacingOccurrences(of: "A1", with: "A")
+            .replacingOccurrences(of: "A2", with: "A")
+            .replacingOccurrences(of: "A3", with: "A")
+        if guandanRankOrder.contains(redRank) { state.redTeam.currentRank = redRank }
+        if guandanRankOrder.contains(blueRank) { state.blueTeam.currentRank = blueRank }
+        state.phase = .playing
+        state.finalWinner = nil
+        actionCount += 1
+        showGameFinishedOverlay = false
+    }
+
+    private func saveRecord() {
+        guard actionCount > 0 || state.phase != .notStarted else { return }
         let end = Date()
-        let duration = end.timeIntervalSince(start)
-        guard duration > 0 else { return }
         let winnerName: String? = {
             guard let winner = state.finalWinner else { return nil }
             return winner == .red ? state.redTeam.name : state.blueTeam.name
         }()
+        let snapshotData = try? JSONEncoder().encode(state)
+        let finished = state.phase == .finished
         let record = ScoreboardRecord(
-            id: "guandan_\(Int(start.timeIntervalSince1970))_\(Int(end.timeIntervalSince1970))",
+            id: recordID,
             gameType: .guandan,
-            startTime: start,
+            startTime: gameStartAt,
             endTime: end,
-            duration: duration,
+            duration: end.timeIntervalSince(gameStartAt),
             team1Name: state.redTeam.name,
             team2Name: state.blueTeam.name,
             team1FinalScore: GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
             team2FinalScore: GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank),
             winner: winnerName,
-            totalScoreChanges: history.count,
-            status: state.phase == .finished ? .finished : .draft
+            totalScoreChanges: max(actionCount, history.count),
+            extraData: [
+                "schemaVersion": AnyCodable(3),
+                "guandanTripleA": AnyCodable(state.aStageMode == .tripleA),
+                "guandanPassACondition": AnyCodable(state.passACondition.rawValue),
+                "guandanTripleAFallbackRank": AnyCodable(state.tripleAFallbackRank)
+            ],
+            stateSnapshot: snapshotData,
+            status: finished ? .finished : .draft
         )
         try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        recordSaved = true
+    }
+}
+
+private extension String {
+    var nonEmpty: String? {
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }
 

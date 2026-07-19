@@ -264,7 +264,10 @@ struct TemplateConfig {
     /// 编辑模式变化时回调，供父视图隐藏发球指示器等（编辑模式下不显示）
     let onEditModeChange: ((Bool) -> Void)?
     let showEndGame: Bool
+    let showSettleMatch: Bool
     let onEndGame: (() -> Void)?
+    /// When set, replaces default tap-to-+1 / double-tap scoring for that panel side.
+    let onScorePanelTap: ((Bool) -> Void)?
 
     init(
         gameType: GameType,
@@ -278,7 +281,9 @@ struct TemplateConfig {
         contentOverlayProvider: ((Bool) -> AnyView)? = nil,
         onEditModeChange: ((Bool) -> Void)? = nil,
         showEndGame: Bool = false,
-        onEndGame: (() -> Void)? = nil
+        showSettleMatch: Bool = false,
+        onEndGame: (() -> Void)? = nil,
+        onScorePanelTap: ((Bool) -> Void)? = nil
     ) {
         self.gameType = gameType
         self.controller = controller
@@ -291,7 +296,9 @@ struct TemplateConfig {
         self.contentOverlayProvider = contentOverlayProvider
         self.onEditModeChange = onEditModeChange
         self.showEndGame = showEndGame
+        self.showSettleMatch = showSettleMatch
         self.onEndGame = onEndGame
+        self.onScorePanelTap = onScorePanelTap
     }
 }
 

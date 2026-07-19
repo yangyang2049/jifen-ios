@@ -30,7 +30,7 @@ struct UnfinishedGameBarView: View {
                         .foregroundColor(Theme.homeNeutralCardTextPrimary)
                         .lineLimit(1)
 
-                    Text("\(record.team1Name)\(NSLocalizedString("vs_separator", value: " vs ", comment: ""))\(record.team2Name)")
+                    Text(record.displayMatchTitle)
                         .font(.system(size: 12))
                         .foregroundColor(Theme.homeNeutralCardTextSecondary)
                         .lineLimit(1)
@@ -86,6 +86,9 @@ struct UnfinishedGameBarView: View {
     }
 
     private var displayScore: String {
+        if !record.displayParticipants.isEmpty {
+            return record.displayScore()
+        }
         let t1 = record.team1FinalScore
         let t2 = record.team2FinalScore
         let s1 = record.team1SetScore

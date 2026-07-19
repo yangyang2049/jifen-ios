@@ -198,7 +198,7 @@ class PickleballViewModel: BaseScoreViewModel {
         return scoreDiff >= 2
     }
 
-    func adjustScore(isLeft: Bool, delta: Int) {
+    override func adjustScore(isLeft: Bool, delta: Int) {
         saveFullStateHistory()
         controller?.pushHistory(left: leftTeam.score, right: rightTeam.score, leftSets: leftTeam.sets, rightSets: rightTeam.sets)
         let cap = normalSetPoints + 10

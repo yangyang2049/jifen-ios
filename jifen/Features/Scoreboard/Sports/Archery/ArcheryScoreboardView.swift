@@ -24,12 +24,14 @@ private let archeryScoreGrid: [[Int?]] = [
 struct ArcheryScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     var initialSetup: SportsSetupResult? = nil
+    var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
     @State private var controller = ArcheryScoreboardController()
     @State private var viewModel = ArcheryViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
+    @State private var showGameFinishedOverlay = false
 
     @State private var showArrowPicker = false
     @State private var showSetEndOverlay = false
@@ -58,10 +60,11 @@ struct ArcheryScoreboardView: View {
                             controller: controller,
                             isEditMode: isEditMode
                         ))
-                    }
+                    },
+                    showEndGame: true
                 ),
                 onBack: {
-                    saveRecordIfNeeded()
+                    saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
                     onNavigationBack?()
                     dismiss()
                 }
@@ -85,20 +88,8 @@ struct ArcheryScoreboardView: View {
                 closestToCenterOverlay
             }
 
-            if viewModel.gameFinished {
-                VStack(spacing: 8) {
-                    Text(NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""))
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.white)
-                    Text(viewModel.getWinnerDisplayText())
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(Theme.accentColor)
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(Color.black.opacity(0.5))
-                .cornerRadius(14)
-                .allowsHitTesting(false)
+            if showGameFinishedOverlay {
+                GameFinishedOverlay(winnerName: viewModel.getWinnerName())
             }
         }
         .navigationTitle(NSLocalizedString("project_archery", value: "Archery", comment: ""))
@@ -116,14 +107,21 @@ struct ArcheryScoreboardView: View {
                 viewModel.currentShooterIsLeft = viewModel.openingShooterIsLeft
                 onSetupConsumed?()
             }
+            restoreDraftIfNeeded()
             responsiveScoreFontSize = calculateResponsiveScoreFontSize()
 
             viewModel.setOnSetEndCallback { data in
                 handleSetEnd(data: data)
             }
         }
+        .onChange(of: viewModel.gameFinished) { _, finished in
+            if finished {
+                showGameFinishedOverlay = true
+                saveGameRecordInRealTime(isGameFinished: true)
+            }
+        }
         .onDisappear {
-            saveRecordIfNeeded()
+            saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
         }
     }
 
@@ -325,17 +323,79 @@ struct ArcheryScoreboardView: View {
         return min(240, max(base, base + (CGFloat(width) - 400) * 0.15))
     }
 
-    private func saveRecordIfNeeded() {
-        guard !controller.isRecordSaved(), !controller.getGameActions().isEmpty else { return }
+    private func restoreDraftIfNeeded() {
+        guard let recordId = initialRecordId,
+              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
+              record.status == .draft else {
+            return
+        }
 
-        let winner: String? = (viewModel.leftTeam.sets ?? 0) > (viewModel.rightTeam.sets ?? 0)
-            ? "left"
-            : ((viewModel.rightTeam.sets ?? 0) > (viewModel.leftTeam.sets ?? 0) ? "right" : nil)
+        controller.gameStartTime = record.startTime
+        controller.gameActions = record.actions
+        controller.gameRecordSaved = false
 
+        viewModel.leftTeam.name = record.team1Name
+        viewModel.rightTeam.name = record.team2Name
+
+        if let leftRingScore = record.extraData?["leftRingScore"]?.value as? Int {
+            viewModel.leftTeam.score = leftRingScore
+        }
+        if let rightRingScore = record.extraData?["rightRingScore"]?.value as? Int {
+            viewModel.rightTeam.score = rightRingScore
+        }
+        if let leftSets = record.extraData?["leftSets"]?.value as? Int {
+            viewModel.leftTeam.sets = leftSets
+        }
+        if let rightSets = record.extraData?["rightSets"]?.value as? Int {
+            viewModel.rightTeam.sets = rightSets
+        }
+        if let currentSet = record.extraData?["currentSet"]?.value as? Int {
+            viewModel.currentSet = currentSet
+        }
+        if let arrowsPerSet = record.extraData?["arrowsPerSet"]?.value as? Int {
+            viewModel.arrowsPerSet = arrowsPerSet
+        }
+        if let arrowsLeftThisSet = record.extraData?["arrowsLeftThisSet"]?.value as? Int {
+            viewModel.arrowsLeftThisSet = arrowsLeftThisSet
+        }
+        if let arrowsRightThisSet = record.extraData?["arrowsRightThisSet"]?.value as? Int {
+            viewModel.arrowsRightThisSet = arrowsRightThisSet
+        }
+        if let currentShooterIsLeft = record.extraData?["currentShooterIsLeft"]?.value as? Bool {
+            viewModel.currentShooterIsLeft = currentShooterIsLeft
+        }
+        if let openingShooterIsLeft = record.extraData?["openingShooterIsLeft"]?.value as? Bool {
+            viewModel.openingShooterIsLeft = openingShooterIsLeft
+        }
+    }
+
+    private func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        let hasProgress = !controller.getGameActions().isEmpty
+            || viewModel.leftTeam.score != 0
+            || viewModel.rightTeam.score != 0
+            || (viewModel.leftTeam.sets ?? 0) != 0
+            || (viewModel.rightTeam.sets ?? 0) != 0
+            || isGameFinished
+            || viewModel.gameFinished
+        guard hasProgress else { return }
+
+        let finished = isGameFinished || viewModel.gameFinished
         let start = controller.getGameStartTime()
         let end = Date()
+
+        var winner: String?
+        if finished {
+            let leftSets = viewModel.leftTeam.sets ?? 0
+            let rightSets = viewModel.rightTeam.sets ?? 0
+            if leftSets > rightSets {
+                winner = "left"
+            } else if rightSets > leftSets {
+                winner = "right"
+            }
+        }
+
         controller.saveScoreboardRecord(
-            id: "archery_\(Int(start.timeIntervalSince1970))_\(Int(end.timeIntervalSince1970))",
+            id: "archery_\(Int(start.timeIntervalSince1970))",
             endTime: end,
             duration: end.timeIntervalSince(start),
             team1Name: viewModel.leftTeam.name,
@@ -348,8 +408,17 @@ struct ArcheryScoreboardView: View {
             totalScoreChanges: controller.getGameActions().count,
             extraData: [
                 "currentSet": viewModel.currentSet,
-                "arrowsPerSet": viewModel.arrowsPerSet
-            ]
+                "arrowsPerSet": viewModel.arrowsPerSet,
+                "arrowsLeftThisSet": viewModel.arrowsLeftThisSet,
+                "arrowsRightThisSet": viewModel.arrowsRightThisSet,
+                "currentShooterIsLeft": viewModel.currentShooterIsLeft,
+                "openingShooterIsLeft": viewModel.openingShooterIsLeft,
+                "leftRingScore": viewModel.leftTeam.score,
+                "rightRingScore": viewModel.rightTeam.score,
+                "leftSets": viewModel.leftTeam.sets ?? 0,
+                "rightSets": viewModel.rightTeam.sets ?? 0
+            ],
+            status: finished ? .finished : .draft
         )
     }
 }
@@ -415,7 +484,7 @@ class ArcheryViewModel: BaseScoreViewModel {
         addScore(isLeft: currentShooterIsLeft, points: points)
     }
 
-    func adjustScore(isLeft: Bool, delta: Int) {
+    override func adjustScore(isLeft: Bool, delta: Int) {
         saveSnapshot()
         if isLeft {
             leftTeam.score = max(0, leftTeam.score + delta)
@@ -449,15 +518,20 @@ class ArcheryViewModel: BaseScoreViewModel {
     }
 
     func getWinnerDisplayText() -> String {
+        let name = getWinnerName()
+        if name.isEmpty {
+            return NSLocalizedString("draw_result", value: "平局", comment: "")
+        }
+        return String(format: NSLocalizedString("winner_named_format", value: "%@ 获胜", comment: ""), name)
+    }
+
+    func getWinnerName() -> String {
+        guard gameFinished else { return "" }
         let leftSetPoints = leftTeam.sets ?? 0
         let rightSetPoints = rightTeam.sets ?? 0
-        if leftSetPoints > rightSetPoints {
-            return String(format: NSLocalizedString("winner_named_format", value: "%@ 获胜", comment: ""), leftTeam.name)
-        }
-        if rightSetPoints > leftSetPoints {
-            return String(format: NSLocalizedString("winner_named_format", value: "%@ 获胜", comment: ""), rightTeam.name)
-        }
-        return NSLocalizedString("draw_result", value: "平局", comment: "")
+        if leftSetPoints > rightSetPoints { return leftTeam.name }
+        if rightSetPoints > leftSetPoints { return rightTeam.name }
+        return ""
     }
 
     override func addScore(isLeft: Bool, points: Int) {

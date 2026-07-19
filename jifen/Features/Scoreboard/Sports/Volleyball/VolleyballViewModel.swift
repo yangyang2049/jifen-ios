@@ -132,7 +132,7 @@ class VolleyballViewModel: BaseScoreViewModel {
         controller?.performVibration(type: .light)
     }
 
-    func adjustScore(isLeft: Bool, delta: Int) {
+    override func adjustScore(isLeft: Bool, delta: Int) {
         pushServeHistory()
 
         // Save history before change

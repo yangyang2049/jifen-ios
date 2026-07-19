@@ -22,6 +22,10 @@ struct MultiScoreSetupDialogView: View {
     @State private var team1Name: String
     @State private var team2Name: String
     @State private var unoTargetScore: Int
+    @State private var customAdjustEnabled: Bool
+    @State private var guandanTripleA: Bool
+    @State private var guandanPassACondition: String
+    @State private var guandanFallbackRank: String
     @State private var activeCommonNameIndex: Int? = nil
     @State private var activeTeamNameTarget: TeamNameTarget? = nil
 
@@ -101,15 +105,58 @@ struct MultiScoreSetupDialogView: View {
         }()
 
         _selectedPlayerCount = State(initialValue: safeCount)
-        _playerNames = State(initialValue: Self.normalizePlayerNames(initialPlayerNames, capacity: 10))
+        let resolvedNames: [String] = {
+            if mode == .doudizhu && initialPlayerNames.isEmpty {
+                return Self.defaultDoudizhuNames()
+            }
+            return Self.normalizePlayerNames(initialPlayerNames, capacity: 10)
+        }()
+        _playerNames = State(initialValue: resolvedNames)
         _team1Name = State(initialValue: defaultTeam1Name.isEmpty
-            ? NSLocalizedString("red_team", value: "红方", comment: "")
+            ? Self.defaultTwoTeamName(isTeam1: true, gameType: gameType)
             : defaultTeam1Name)
         _team2Name = State(initialValue: defaultTeam2Name.isEmpty
-            ? NSLocalizedString("blue_team", value: "蓝方", comment: "")
+            ? Self.defaultTwoTeamName(isTeam1: false, gameType: gameType)
             : defaultTeam2Name)
         let validTargets = [300, 500, 700, 1000]
         _unoTargetScore = State(initialValue: validTargets.contains(initialTargetScore) ? initialTargetScore : 500)
+        let initialCustomAdjust: Bool = {
+            switch mode {
+            case .multiScore:
+                return PreferencesManager.shared.multiScoreboardCustomAdjustEnabled
+            case .twoTeam where gameType == .simpleScore:
+                return PreferencesManager.shared.simpleScoreCustomAdjustEnabled
+            default:
+                return false
+            }
+        }()
+        _customAdjustEnabled = State(initialValue: initialCustomAdjust)
+        _guandanTripleA = State(initialValue: PreferencesManager.shared.guandanSetupTripleA)
+        _guandanPassACondition = State(initialValue: PreferencesManager.shared.guandanSetupPassACondition)
+        _guandanFallbackRank = State(initialValue: PreferencesManager.shared.guandanSetupTripleAFallbackRank)
+    }
+
+    private static func defaultDoudizhuNames() -> [String] {
+        [
+            NSLocalizedString("doudizhu_player_adam", value: "刘备", comment: ""),
+            NSLocalizedString("doudizhu_player_bob", value: "关羽", comment: ""),
+            NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: "")
+        ]
+    }
+
+    private static func defaultTwoTeamName(isTeam1: Bool, gameType: GameType) -> String {
+        if gameType == .simpleScore || gameType == .guandan || gameType == .shengji {
+            return NSLocalizedString(
+                isTeam1 ? "watch_team_red" : "watch_team_blue",
+                value: isTeam1 ? "红方" : "蓝方",
+                comment: ""
+            )
+        }
+        return NSLocalizedString(
+            isTeam1 ? "red_team" : "blue_team",
+            value: isTeam1 ? "红方" : "蓝方",
+            comment: ""
+        )
     }
 
     var body: some View {
@@ -127,16 +174,25 @@ struct MultiScoreSetupDialogView: View {
             .padding(.top, Theme.sm)
             .padding(.vertical, Theme.md)
 
-            ScrollView(.vertical, showsIndicators: false) {
+            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(alignment: .leading, spacing: Theme.md) {
                     switch layoutMode {
                     case .twoTeam:
                         twoTeamNameInputs
+                        if gameType == .simpleScore {
+                            customAdjustToggle
+                        }
+                        if gameType == .guandan {
+                            guandanSettingsSection
+                        }
                     case .multiScore, .uno, .doudizhu:
                         if layoutMode != .doudizhu {
                             playerCountChips
                         }
                         playerNameFields
+                        if layoutMode == .multiScore {
+                            customAdjustToggle
+                        }
                         if layoutMode == .uno {
                             unoTargetScoreSection
                         }
@@ -145,8 +201,6 @@ struct MultiScoreSetupDialogView: View {
                 .padding(.horizontal, Theme.lg)
                 .padding(.vertical, Theme.md)
             }
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxHeight: maxContentHeight)
 
             HStack(spacing: Theme.md) {
                 Button(action: { onCancel?() }) {
@@ -230,7 +284,7 @@ struct MultiScoreSetupDialogView: View {
     private var twoTeamNameInputs: some View {
         HStack(spacing: Theme.sm) {
             InlineCommonNameTextField(
-                placeholder: NSLocalizedString("red_team", value: "红方", comment: ""),
+                placeholder: Self.defaultTwoTeamName(isTeam1: true, gameType: gameType),
                 text: $team1Name,
                 onChevronTap: { activeTeamNameTarget = .team1 }
             )
@@ -241,12 +295,92 @@ struct MultiScoreSetupDialogView: View {
                 .foregroundColor(Theme.textSecondary)
 
             InlineCommonNameTextField(
-                placeholder: NSLocalizedString("blue_team", value: "蓝方", comment: ""),
+                placeholder: Self.defaultTwoTeamName(isTeam1: false, gameType: gameType),
                 text: $team2Name,
                 onChevronTap: { activeTeamNameTarget = .team2 }
             )
             .frame(maxWidth: .infinity)
         }
+    }
+
+    private var customAdjustToggle: some View {
+        Toggle(isOn: $customAdjustEnabled) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(NSLocalizedString("score_custom_adjust_label", value: "自定义加减分", comment: ""))
+                    .font(.system(size: 14))
+                    .foregroundStyle(Theme.textPrimary)
+            Text(NSLocalizedString(
+                    "score_custom_adjust_setup_desc",
+                    value: "点按队伍或玩家时打开加减分面板。",
+                    comment: ""
+                ))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+            }
+        }
+        .tint(Theme.primary)
+    }
+
+    private var guandanSettingsSection: some View {
+        VStack(alignment: .leading, spacing: Theme.sm) {
+            Text(NSLocalizedString("guandan_pass_a_condition_section", value: "过 A 条件", comment: ""))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+
+            HStack(spacing: 8) {
+                guandanPassChip(
+                    id: "not_last",
+                    title: NSLocalizedString("guandan_pass_a_not_last", value: "不能末游（+2/3）", comment: "")
+                )
+                guandanPassChip(
+                    id: "double_up",
+                    title: NSLocalizedString("guandan_pass_a_double_up", value: "双上（+3）", comment: "")
+                )
+            }
+
+            Toggle(isOn: $guandanTripleA) {
+                Text(NSLocalizedString("guandan_triple_a_toggle_label", value: "三 A", comment: ""))
+                    .font(.system(size: 14))
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .tint(Theme.primary)
+
+            if guandanTripleA {
+                Text(NSLocalizedString("guandan_triple_a_fallback_section", value: "三 A 不过回退到", comment: ""))
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.textSecondary)
+                HStack(spacing: 8) {
+                    ForEach(["2", "J", "10", "K"], id: \.self) { rank in
+                        Button {
+                            guandanFallbackRank = rank
+                        } label: {
+                            Text(rank)
+                                .font(.system(size: 14, weight: guandanFallbackRank == rank ? .medium : .regular))
+                                .foregroundStyle(guandanFallbackRank == rank ? Color.white : Theme.textPrimary)
+                                .frame(width: 44, height: 36)
+                                .background(guandanFallbackRank == rank ? Theme.primary : Theme.homeCardDark)
+                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+
+    private func guandanPassChip(id: String, title: String) -> some View {
+        Button {
+            guandanPassACondition = id
+        } label: {
+            Text(title)
+                .font(.system(size: 13, weight: guandanPassACondition == id ? .medium : .regular))
+                .foregroundStyle(guandanPassACondition == id ? Color.white : Theme.textPrimary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .background(guandanPassACondition == id ? Theme.primary : Theme.homeCardDark)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     private var unoTargetScoreSection: some View {
@@ -313,20 +447,40 @@ struct MultiScoreSetupDialogView: View {
     private func confirmSetup() {
         switch layoutMode {
         case .twoTeam:
+            let fallback1 = Self.defaultTwoTeamName(isTeam1: true, gameType: gameType)
+            let fallback2 = Self.defaultTwoTeamName(isTeam1: false, gameType: gameType)
             let t1 = team1Name.trimmingCharacters(in: .whitespacesAndNewlines)
             let t2 = team2Name.trimmingCharacters(in: .whitespacesAndNewlines)
-            let final1 = t1.isEmpty ? NSLocalizedString("red_team", value: "红方", comment: "") : t1
-            let final2 = t2.isEmpty ? NSLocalizedString("blue_team", value: "蓝方", comment: "") : t2
+            let final1 = t1.isEmpty ? fallback1 : t1
+            let final2 = t2.isEmpty ? fallback2 : t2
             Task {
                 await commonNamesManager.recordUsage(final1, .team)
                 await commonNamesManager.recordUsage(final2, .team)
             }
-            onConfirm?(SportsSetupResult(team1Name: final1, team2Name: final2))
+            var result = SportsSetupResult(team1Name: final1, team2Name: final2)
+            if gameType == .simpleScore {
+                PreferencesManager.shared.simpleScoreCustomAdjustEnabled = customAdjustEnabled
+                result.multiScoreCustomAdjustEnabled = customAdjustEnabled
+            }
+            if gameType == .guandan {
+                PreferencesManager.shared.guandanSetupTripleA = guandanTripleA
+                PreferencesManager.shared.guandanSetupPassACondition = guandanPassACondition
+                PreferencesManager.shared.guandanSetupTripleAFallbackRank = guandanFallbackRank
+                result.guandanTripleA = guandanTripleA
+                result.guandanPassACondition = guandanPassACondition
+                result.guandanTripleAFallbackRank = guandanTripleA ? guandanFallbackRank : "2"
+            }
+            onConfirm?(result)
         case .multiScore, .doudizhu, .uno:
             let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
+            let doudizhuDefaults = Self.defaultDoudizhuNames()
             let finalNames = Array(playerNames.prefix(selectedPlayerCount)).enumerated().map { idx, raw in
                 let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-                return value.isEmpty ? "\(base) \(idx + 1)" : value
+                if !value.isEmpty { return value }
+                if layoutMode == .doudizhu, idx < doudizhuDefaults.count {
+                    return doudizhuDefaults[idx]
+                }
+                return "\(base) \(idx + 1)"
             }
             let team1 = finalNames.first ?? "\(base) 1"
             let team2 = finalNames.count > 1 ? finalNames[1] : ""
@@ -336,7 +490,14 @@ struct MultiScoreSetupDialogView: View {
                 playerCount: selectedPlayerCount,
                 playerNames: finalNames
             )
+            if layoutMode == .multiScore {
+                PreferencesManager.shared.multiScoreboardPlayerCount = selectedPlayerCount
+                PreferencesManager.shared.multiScoreboardCustomAdjustEnabled = customAdjustEnabled
+                result.multiScoreCustomAdjustEnabled = customAdjustEnabled
+            }
             if layoutMode == .uno {
+                PreferencesManager.shared.unoPlayerCount = selectedPlayerCount
+                PreferencesManager.shared.unoTargetScore = unoTargetScore
                 result.targetScore = unoTargetScore
             }
             Task {

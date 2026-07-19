@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Model
 
@@ -44,9 +45,11 @@ enum ScoreboardMenuItemBuilder {
         showWhistle: Bool = true,
         showScreenshot: Bool = true,
         showDisplaySettings: Bool = true,
+        showSettleMatch: Bool = false,
         resetConfirming: Bool = false,
         exchangeConfirming: Bool = false,
         finishConfirming: Bool = false,
+        settleConfirming: Bool = false,
         extraItems: [ScoreboardMenuItem] = []
     ) -> [ScoreboardMenuItem] {
         var items: [ScoreboardMenuItem] = []
@@ -99,6 +102,19 @@ enum ScoreboardMenuItemBuilder {
             )
         )
 
+        if showSettleMatch {
+            items.append(
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("settle_match", value: "结算", comment: ""),
+                    action: "settleMatch",
+                    group: .match,
+                    icon: "checkmark.seal",
+                    keepDialogOpen: true,
+                    confirming: settleConfirming
+                )
+            )
+        }
+
         if showEndGame {
             items.append(
                 ScoreboardMenuItem(
@@ -145,6 +161,16 @@ enum ScoreboardMenuItemBuilder {
             )
         }
 
+        items.append(
+            ScoreboardMenuItem(
+                title: NSLocalizedString("scoreboard_usage_hint_menu", value: "使用说明", comment: ""),
+                action: "usageHint",
+                group: .tools,
+                customText: "?",
+                keepDialogOpen: true
+            )
+        )
+
         items.append(contentsOf: extraItems.filter { $0.group == .sync })
         items.append(contentsOf: extraItems.filter { $0.group == .tools })
 
@@ -180,6 +206,7 @@ struct MenuDialog: View {
     var showExchangeSide: Bool = true
     var resetConfirming: Bool = false
     var items: [ScoreboardMenuItem]? = nil
+    @State private var showUsageHint = false
 
     private let dialogBackground = Color(hex: "2C2C2E")
     private let cardBackground = Color(hex: "3A3A3C")
@@ -252,6 +279,9 @@ struct MenuDialog: View {
                 .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: 12)
                 .contentShape(Rectangle())
                 .onTapGesture { }
+            }
+            .sheet(isPresented: $showUsageHint) {
+                ScoreboardUsageHintView()
             }
         }
     }
@@ -354,6 +384,21 @@ struct MenuDialog: View {
     private func menuCard(item: ScoreboardMenuItem, size: ScoreboardMenuCardSize, stripItem: Bool) -> some View {
         Button {
             guard item.enabled else { return }
+            if item.action == "usageHint" {
+                showUsageHint = true
+                return
+            }
+            if item.action == "whistle" {
+                SoundManager.shared.playSound("whistle")
+                return
+            }
+            if item.action == "screenshot" {
+                onClose()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    captureScoreboardScreenshot()
+                }
+                return
+            }
             onMenuItemClick(item.action)
             if !item.keepDialogOpen {
                 onClose()
@@ -417,6 +462,46 @@ struct MenuDialog: View {
         case .small: return 14
         }
     }
+}
+
+struct ScoreboardUsageHintView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                usageRow("hand.tap", "scoreboard_usage_tap", "点击计分区加分；部分项目点击后会打开回合或结算面板。")
+                usageRow("arrow.uturn.backward", "scoreboard_usage_undo", "误操作后可在菜单中撤销。")
+                usageRow("pencil", "scoreboard_usage_edit", "点击铅笔可编辑名称和比分，点击对勾保存。")
+                usageRow("arrow.counterclockwise", "scoreboard_usage_reset", "重置需要在短时间内再次点击确认。")
+                usageRow("flag.checkered", "scoreboard_usage_finish", "结束比赛后会保存为已完成记录。")
+                usageRow("textformat.size", "scoreboard_usage_display", "显示设置可调整主题、字体和沉浸模式。")
+            }
+            .navigationTitle(NSLocalizedString("scoreboard_usage_hint_title", value: "计分板使用说明", comment: ""))
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(NSLocalizedString("done", value: "完成", comment: "")) { dismiss() }
+                }
+            }
+        }
+    }
+
+    private func usageRow(_ icon: String, _ key: String, _ fallback: String) -> some View {
+        Label(NSLocalizedString(key, value: fallback, comment: ""), systemImage: icon)
+            .padding(.vertical, 4)
+    }
+}
+
+private func captureScoreboardScreenshot() {
+    guard let scene = UIApplication.shared.connectedScenes
+        .compactMap({ $0 as? UIWindowScene })
+        .first(where: { $0.activationState == .foregroundActive }),
+          let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return }
+    let renderer = UIGraphicsImageRenderer(bounds: window.bounds)
+    let image = renderer.image { _ in
+        window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+    }
+    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
 }
 
 #Preview {

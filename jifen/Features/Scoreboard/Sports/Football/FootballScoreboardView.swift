@@ -26,7 +26,8 @@ struct FootballScoreboardView: View {
                 controller: controller,
                 viewModel: viewModel,
                 scoreFontSize: 120,
-                nameType: .team
+                nameType: .team,
+                showSettleMatch: true
             ),
             onBack: {
                 if let onNavigationBack = onNavigationBack {
@@ -50,8 +51,12 @@ struct FootballScoreboardView: View {
         .onAppear {
             viewModel.controller = controller
             if let setup = initialSetup {
-                viewModel.leftTeam.name = setup.team1Name.isEmpty ? NSLocalizedString("red_team", comment: "") : setup.team1Name
-                viewModel.rightTeam.name = setup.team2Name.isEmpty ? NSLocalizedString("blue_team", comment: "") : setup.team2Name
+                viewModel.leftTeam.name = setup.team1Name.isEmpty
+                    ? NSLocalizedString("team_home", comment: "")
+                    : setup.team1Name
+                viewModel.rightTeam.name = setup.team2Name.isEmpty
+                    ? NSLocalizedString("team_away", comment: "")
+                    : setup.team2Name
                 onSetupConsumed?()
             }
             restoreDraftIfNeeded()

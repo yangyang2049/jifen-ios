@@ -184,7 +184,7 @@ struct SportsSetupDialogView: View {
             .frame(height: 56)
             .padding(.horizontal, Theme.md)
 
-            ScrollView(.vertical, showsIndicators: false) {
+            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(spacing: 20) {
                     if shouldShowSinglesDoublesAtTop() {
                         buildSinglesDoublesSection()
@@ -205,8 +205,6 @@ struct SportsSetupDialogView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, Theme.md)
             }
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxHeight: maxContentHeight)
 
             buildDialogActions()
         }
@@ -368,6 +366,9 @@ struct SportsSetupDialogView: View {
         customEightBallHandicapText = ""
         snookerShowMoreFrames = false
         isSingles = gameType != .foosball
+        if gameType == .foosball && !isSingles {
+            applyDefaultsWhenSwitchingToDoubles()
+        }
         setupSendErrorText = ""
         syncPickleballTargetForSets()
     }
@@ -1115,7 +1116,6 @@ struct SportsSetupDialogView: View {
                          : NSLocalizedString("match_completion_sets", value: "局数", comment: ""))
                     Text("·")
                     Text(matchCompletionModeTitle(matchCompletionMode))
-                    Spacer()
                     Image(systemName: completionModeExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(Theme.textSecondary)
@@ -1182,6 +1182,7 @@ struct SportsSetupDialogView: View {
                         .cornerRadius(Theme.sm)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("custom_match_sets_button")
             }
 
             if !matchCompletionPresets.contains(selectedMaxSets) {
@@ -1229,15 +1230,29 @@ struct SportsSetupDialogView: View {
         }
     }
 
-    /// 切换到双打时：若两侧名称均不含 "/"，则自动填入 红A、红B、蓝A、蓝B；否则按 "/" 拆分同步。
+    /// 切换到双打时：若两侧名称均不含 "/"，则自动填入默认双打名；否则按 "/" 拆分同步。
     private func applyDefaultsWhenSwitchingToDoubles() {
         let t1 = team1Name.trimmingCharacters(in: .whitespacesAndNewlines)
         let t2 = team2Name.trimmingCharacters(in: .whitespacesAndNewlines)
         if !t1.contains("/"), !t2.contains("/") {
-            team1Player1Name = NSLocalizedString("doubles_red_a", value: "红A", comment: "")
-            team1Player2Name = NSLocalizedString("doubles_red_b", value: "红B", comment: "")
-            team2Player1Name = NSLocalizedString("doubles_blue_a", value: "蓝A", comment: "")
-            team2Player2Name = NSLocalizedString("doubles_blue_b", value: "蓝B", comment: "")
+            if gameType == .foosball {
+                // 对齐鸿蒙/安卓：红方A/红方B、蓝方A/蓝方B
+                let red = splitDoublesTeamName(
+                    NSLocalizedString("foosball_default_red_doubles", value: "红方A/红方B", comment: "")
+                )
+                let blue = splitDoublesTeamName(
+                    NSLocalizedString("foosball_default_blue_doubles", value: "蓝方A/蓝方B", comment: "")
+                )
+                team1Player1Name = red.first
+                team1Player2Name = red.second
+                team2Player1Name = blue.first
+                team2Player2Name = blue.second
+            } else {
+                team1Player1Name = NSLocalizedString("doubles_red_a", value: "红A", comment: "")
+                team1Player2Name = NSLocalizedString("doubles_red_b", value: "红B", comment: "")
+                team2Player1Name = NSLocalizedString("doubles_blue_a", value: "蓝A", comment: "")
+                team2Player2Name = NSLocalizedString("doubles_blue_b", value: "蓝B", comment: "")
+            }
         } else {
             syncDoublesPlayerNamesFromTeamNames()
         }
@@ -1269,6 +1284,10 @@ struct SportsSetupDialogView: View {
         let first = player1.trimmingCharacters(in: .whitespacesAndNewlines)
         let second = player2.trimmingCharacters(in: .whitespacesAndNewlines)
         if !first.isEmpty && !second.isEmpty {
+            // 桌上足球对齐鸿蒙/安卓：`A/B`（无空格）；其他双打仍用 `A / B`
+            if gameType == .foosball {
+                return "\(first)/\(second)"
+            }
             return "\(first) / \(second)"
         }
         return first.isEmpty ? second : first
@@ -1520,7 +1539,10 @@ struct SportsSetupDialogView: View {
             )
             let target = max(1, config.pointsPerSet ?? 11)
             configured.pointsToWinSet = target
-            configured.decidingSetSideSwitchPoint = max(1, (target + 1) / 2)
+            configured.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(
+                for: coreGameType,
+                pointsPerSet: target
+            )
             configured.autoChangeSides = config.autoChangeSides ?? true
             rules = configured
         case .badminton:
@@ -1531,8 +1553,11 @@ struct SportsSetupDialogView: View {
             )
             let target = max(1, config.pointsPerSet ?? 21)
             configured.pointsToWinSet = target
-            configured.pointCap = target == 21 ? 30 : nil
-            configured.decidingSetSideSwitchPoint = max(1, (target + 1) / 2)
+            configured.pointCap = RallyRuleSet.badmintonPointCap(for: target)
+            configured.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(
+                for: coreGameType,
+                pointsPerSet: target
+            )
             configured.autoChangeSides = config.autoChangeSides ?? true
             rules = configured
         case .pickleball:
@@ -1546,6 +1571,7 @@ struct SportsSetupDialogView: View {
             configured.winByTwo = config.winByTwo ?? true
             configured.autoChangeSides = config.autoChangeSides ?? true
             configured.useRallyScoring = config.useRallyScoring ?? false
+            configured.nextSetServerModel = config.isSingles == false ? .alternateFromOpening : .opening
             rules = configured
         default:
             throw PhoneWatchLinkService.InteractiveStartError.watchUnavailable
@@ -1583,6 +1609,8 @@ struct SportsSetupDialogView: View {
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)
+        case .pickleballDoubles:
+            return .pickleball(playerNames: names, servingTeam0: openingServer == .left)
         default:
             return nil
         }
