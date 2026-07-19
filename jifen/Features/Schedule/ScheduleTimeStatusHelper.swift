@@ -41,31 +41,31 @@ extension ScheduleTimeStatus {
         }
     }
 
-    var darkStyle: ScheduleTimeStatusStyle {
+    var style: ScheduleTimeStatusStyle {
         switch self {
         case .scheduled:
             return ScheduleTimeStatusStyle(
-                textColor: .white,
-                backgroundColor: Color.white.opacity(0.12),
-                borderColor: Color.white.opacity(0.26)
+                textColor: Theme.textSecondary,
+                backgroundColor: Theme.controlBackground,
+                borderColor: Theme.divider
             )
         case .startingSoon:
             return ScheduleTimeStatusStyle(
-                textColor: Color(hex: "FFB74D"),
-                backgroundColor: Color(hex: "FF9500").opacity(0.16),
-                borderColor: Color(hex: "FF9500").opacity(0.42)
+                textColor: Color(uiColor: .systemOrange),
+                backgroundColor: Color(uiColor: .systemOrange).opacity(0.14),
+                borderColor: Color(uiColor: .systemOrange).opacity(0.4)
             )
         case .ready:
             return ScheduleTimeStatusStyle(
-                textColor: Color(hex: "FF9F0A"),
-                backgroundColor: Color(hex: "FF9F0A").opacity(0.18),
-                borderColor: Color(hex: "FF9F0A").opacity(0.44)
+                textColor: Color(uiColor: .systemGreen),
+                backgroundColor: Color(uiColor: .systemGreen).opacity(0.14),
+                borderColor: Color(uiColor: .systemGreen).opacity(0.4)
             )
         case .overdue:
             return ScheduleTimeStatusStyle(
-                textColor: Color(hex: "FF6B6B"),
-                backgroundColor: Color(hex: "FF6B6B").opacity(0.16),
-                borderColor: Color(hex: "FF6B6B").opacity(0.42)
+                textColor: Color(uiColor: .systemRed),
+                backgroundColor: Color(uiColor: .systemRed).opacity(0.14),
+                borderColor: Color(uiColor: .systemRed).opacity(0.4)
             )
         }
     }

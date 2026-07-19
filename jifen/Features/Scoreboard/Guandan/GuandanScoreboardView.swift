@@ -1,295 +1,202 @@
-//
-//  GuandanScoreboardView.swift
-//  jifen
-//
-//  掼蛋计分板：使用标准 PVP 模板布局，保留左右队伍分数与等级展示。
-//
-
+import ScoreCore
 import SwiftUI
 
-private let guandanLevels = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "王"]
-
 struct GuandanScoreboardView: View {
-    @Environment(\.dismiss) private var dismiss
     var initialSetup: SportsSetupResult? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
-    @State private var controller = GuandanScoreboardController()
-    @State private var viewModel = GuandanViewModel()
-    @State private var responsiveScoreFontSize: CGFloat = 120
+    @Environment(\.dismiss) private var dismiss
+    @State private var state: GuandanMatchState
+    @State private var history: [GuandanMatchState] = []
+    @State private var recordSaved = false
+    @State private var gameStartAt: Date?
+
+    private let reducer = GuandanSessionReducer()
+
+    init(
+        initialSetup: SportsSetupResult? = nil,
+        onSetupConsumed: (() -> Void)? = nil,
+        onNavigationBack: (() -> Void)? = nil
+    ) {
+        self.initialSetup = initialSetup
+        self.onSetupConsumed = onSetupConsumed
+        self.onNavigationBack = onNavigationBack
+        let red = initialSetup?.team1Name.isEmpty == false
+            ? initialSetup!.team1Name
+            : NSLocalizedString("red_team", value: "红队", comment: "")
+        let blue = initialSetup?.team2Name.isEmpty == false
+            ? initialSetup!.team2Name
+            : NSLocalizedString("blue_team", value: "蓝队", comment: "")
+        _state = State(initialValue: GuandanMatchState.initial(redName: red, blueName: blue))
+    }
 
     var body: some View {
         ZStack {
-            ScoreboardTemplate(
-                config: TemplateConfig(
-                    gameType: .guandan,
-                    controller: controller,
-                    viewModel: viewModel,
-                    scoreFontSize: responsiveScoreFontSize,
-                    nameType: .team,
-                    scoreTextProvider: { _, team in "\(team.score)" }
-                ),
+            SpecializedScoreboardScaffold(
+                gameType: .guandan,
+                leftName: state.redTeam.name,
+                rightName: state.blueTeam.name,
+                leftScore: state.redTeam.currentRank,
+                rightScore: state.blueTeam.currentRank,
+                leftDetail: leftDetail,
+                rightDetail: rightDetail,
+                finished: state.phase == .finished,
+                onLeftTap: { handleSideTap(.red) },
+                onRightTap: { handleSideTap(.blue) },
+                onUndo: undo,
+                onExchange: nil,
                 onBack: {
                     saveRecordIfNeeded()
                     onNavigationBack?()
                     dismiss()
+                },
+                bottomBar: state.phase == .roundResult ? { AnyView(stepButtonsBar) } : nil,
+                topCenter: {
+                    AnyView(statusPill)
+                },
+                center: {
+                    EmptyView()
                 }
             )
 
-            VStack(spacing: 0) {
-                levelControlBar
-                    .padding(.top, ScoreboardConstants.buttonPadding + 2)
-                Spacer()
+            if state.phase == .finished, let winner = state.finalWinner {
+                GameFinishedOverlay(winnerName: winner == .red ? state.redTeam.name : state.blueTeam.name)
             }
         }
-        .navigationTitle(NSLocalizedString("game_guandan", comment: "Guandan"))
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
-        .lockOrientation(.landscape)
         .onAppear {
-            viewModel.controller = controller
-            if let setup = initialSetup {
-                if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
-                if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
-                onSetupConsumed?()
+            if state.phase == .notStarted {
+                send(.startMatch)
+                gameStartAt = Date()
             }
-            responsiveScoreFontSize = calculateResponsiveScoreFontSize()
+            onSetupConsumed?()
         }
         .onDisappear {
             saveRecordIfNeeded()
         }
     }
 
-    private var levelControlBar: some View {
-        HStack(spacing: 14) {
-            Button {
-                viewModel.levelDown()
-            } label: {
-                Image(systemName: "minus")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(viewModel.canLevelDown ? .white : .white.opacity(0.35))
-                    .frame(width: 40, height: 40)
-                    .background(Color.black.opacity(0.25))
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .disabled(!viewModel.canLevelDown)
-
-            VStack(spacing: 0) {
-                Text(NSLocalizedString("guandan_level", value: "等级", comment: ""))
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white.opacity(0.85))
-                Text(viewModel.levelDisplay)
-                    .font(.system(size: 26, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .frame(minWidth: 84)
-
-            Button {
-                viewModel.levelUp()
-            } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(viewModel.canLevelUp ? .white : .white.opacity(0.35))
-                    .frame(width: 40, height: 40)
-                    .background(Color.black.opacity(0.25))
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .disabled(!viewModel.canLevelUp)
+    private var leftDetail: String? {
+        guard state.isInAStage, state.aStageTeam == .red else { return nil }
+        let fails = state.redAFailCount
+        if state.aStageMode == .tripleA, fails > 0 {
+            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), fails)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background(Color.black.opacity(0.35))
-        .cornerRadius(14)
+        return NSLocalizedString("guandan_a_stage", value: "闯A中", comment: "")
     }
 
-    private func calculateResponsiveScoreFontSize() -> CGFloat {
-        let base: CGFloat = 120
-        let width = UIScreen.main.bounds.width
-        if width <= 0 { return base }
-        return min(240, max(base, base + (CGFloat(width) - 400) * 0.15))
+    private var rightDetail: String? {
+        guard state.isInAStage, state.aStageTeam == .blue else { return nil }
+        let fails = state.blueAFailCount
+        if state.aStageMode == .tripleA, fails > 0 {
+            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), fails)
+        }
+        return NSLocalizedString("guandan_a_stage", value: "闯A中", comment: "")
+    }
+
+    private var statusPill: some View {
+        Group {
+            if state.phase == .roundResult {
+                Text(NSLocalizedString("guandan_select_upgrade", value: "选择升几级", comment: ""))
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.black.opacity(0.45))
+                    .clipShape(Capsule())
+            } else if state.isInAStage, let side = state.aStageTeam {
+                Text(String(
+                    format: NSLocalizedString("guandan_a_stage_team_format", value: "%@ 闯A", comment: ""),
+                    side == .red ? state.redTeam.name : state.blueTeam.name
+                ))
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.orange.opacity(0.85))
+                .clipShape(Capsule())
+            }
+        }
+    }
+
+    private var stepButtonsBar: some View {
+        HStack(spacing: 10) {
+            ForEach([1, 2, 3], id: \.self) { step in
+                Button {
+                    send(.applyRoundSettlement(step: step))
+                } label: {
+                    Text(String(format: NSLocalizedString("guandan_upgrade_step_format", value: "升%d", comment: ""), step))
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 72, height: 44)
+                        .background(Theme.primary)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+            Button {
+                send(.cancelRoundResult)
+            } label: {
+                Text(NSLocalizedString("cancel", value: "取消", comment: ""))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(.horizontal, 14)
+                    .frame(height: 44)
+                    .background(Color.black.opacity(0.45))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.bottom, 18)
+    }
+
+    private func handleSideTap(_ side: GuandanSide) {
+        guard state.phase == .playing else { return }
+        send(.beginRoundResult(winner: side))
+    }
+
+    private func send(_ intent: GuandanSessionIntent) {
+        let result = reducer.reduce(state: state, intent: intent, at: Int64(Date().timeIntervalSince1970 * 1000))
+        guard result.accepted else { return }
+        history.append(state)
+        if history.count > 80 { history.removeFirst() }
+        state = result.state
+        VibrationManager.shared.vibrateMedium()
+    }
+
+    private func undo() {
+        guard let previous = history.popLast() else { return }
+        state = previous
     }
 
     private func saveRecordIfNeeded() {
-        guard !controller.isRecordSaved(), !controller.getGameActions().isEmpty else { return }
-
-        let winner: String? = viewModel.leftTeam.score > viewModel.rightTeam.score
-            ? "left"
-            : (viewModel.rightTeam.score > viewModel.leftTeam.score ? "right" : nil)
-
-        let start = controller.getGameStartTime()
+        guard !recordSaved, let start = gameStartAt else { return }
         let end = Date()
-
-        controller.saveScoreboardRecord(
+        let duration = end.timeIntervalSince(start)
+        guard duration > 0 else { return }
+        let winnerName: String? = {
+            guard let winner = state.finalWinner else { return nil }
+            return winner == .red ? state.redTeam.name : state.blueTeam.name
+        }()
+        let record = ScoreboardRecord(
             id: "guandan_\(Int(start.timeIntervalSince1970))_\(Int(end.timeIntervalSince1970))",
-            endTime: end,
-            duration: end.timeIntervalSince(start),
-            team1Name: viewModel.leftTeam.name,
-            team2Name: viewModel.rightTeam.name,
-            team1FinalScore: viewModel.leftTeam.score,
-            team2FinalScore: viewModel.rightTeam.score,
-            winner: winner,
-            totalScoreChanges: controller.getGameActions().count,
-            extraData: [
-                "level": viewModel.levelIndex,
-                "levelLabel": viewModel.levelDisplay
-            ]
-        )
-    }
-}
-
-private class GuandanScoreboardController: BaseScoreboardController {
-    init() {
-        super.init(config: ScoreboardControllerConfig(
             gameType: .guandan,
-            enableRecording: true,
-            enableScreenshot: true,
-            enableUndo: true,
-            maxHistorySize: 80
-        ))
-    }
-
-    override func getScoringOptions() -> [Int] {
-        [1]
-    }
-}
-
-private struct GuandanSnapshot {
-    let leftName: String
-    let rightName: String
-    let leftScore: Int
-    let rightScore: Int
-    let levelIndex: Int
-}
-
-@Observable
-private class GuandanViewModel: BaseScoreViewModel {
-    var levelIndex: Int = 0
-
-    private var snapshots: [GuandanSnapshot] = []
-
-    var canLevelUp: Bool {
-        levelIndex < guandanLevels.count - 1
-    }
-
-    var canLevelDown: Bool {
-        levelIndex > 0
-    }
-
-    var levelDisplay: String {
-        guard guandanLevels.indices.contains(levelIndex) else {
-            return guandanLevels.first ?? "2"
-        }
-        return guandanLevels[levelIndex]
-    }
-
-    override init(controller: BaseScoreboardController? = nil) {
-        super.init(controller: controller)
-        leftTeam.name = NSLocalizedString("left_team", value: "左队", comment: "")
-        rightTeam.name = NSLocalizedString("right_team", value: "右队", comment: "")
-    }
-
-    func levelUp() {
-        guard canLevelUp else { return }
-        saveSnapshot()
-        levelIndex += 1
-        controller?.recordScoreAction(action: "level +1")
-        controller?.performVibration(type: .light)
-    }
-
-    func levelDown() {
-        guard canLevelDown else { return }
-        saveSnapshot()
-        levelIndex -= 1
-        controller?.recordScoreAction(action: "level -1")
-        controller?.performVibration(type: .light)
-    }
-
-    override func addScore(isLeft: Bool, points: Int) {
-        guard !gameFinished else { return }
-
-        saveSnapshot()
-
-        if isLeft {
-            leftTeam.score += max(0, points)
-        } else {
-            rightTeam.score += max(0, points)
-        }
-
-        controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") +\(max(0, points))")
-        controller?.performVibration(type: .light)
-    }
-
-    override func subtractScore(isLeft: Bool, points: Int) {
-        guard !gameFinished else { return }
-
-        saveSnapshot()
-
-        if isLeft {
-            leftTeam.score = max(0, leftTeam.score - max(0, points))
-        } else {
-            rightTeam.score = max(0, rightTeam.score - max(0, points))
-        }
-
-        controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") -\(max(0, points))")
-        controller?.performVibration(type: .light)
-    }
-
-    override func undo() -> Bool {
-        guard let snapshot = snapshots.popLast() else { return false }
-
-        leftTeam.name = snapshot.leftName
-        rightTeam.name = snapshot.rightName
-        leftTeam.score = snapshot.leftScore
-        rightTeam.score = snapshot.rightScore
-        levelIndex = snapshot.levelIndex
-
-        controller?.performVibration(type: .light)
-        return true
-    }
-
-    override func exchangeSides() {
-        saveSnapshot()
-
-        let tempName = leftTeam.name
-        let tempScore = leftTeam.score
-
-        leftTeam.name = rightTeam.name
-        leftTeam.score = rightTeam.score
-
-        rightTeam.name = tempName
-        rightTeam.score = tempScore
-
-        controller?.performVibration(type: .medium)
-    }
-
-    override func reset() {
-        super.reset()
-        levelIndex = 0
-        snapshots.removeAll()
-    }
-
-    private func saveSnapshot() {
-        snapshots.append(GuandanSnapshot(
-            leftName: leftTeam.name,
-            rightName: rightTeam.name,
-            leftScore: leftTeam.score,
-            rightScore: rightTeam.score,
-            levelIndex: levelIndex
-        ))
-
-        if snapshots.count > 100 {
-            snapshots.removeFirst()
-        }
+            startTime: start,
+            endTime: end,
+            duration: duration,
+            team1Name: state.redTeam.name,
+            team2Name: state.blueTeam.name,
+            team1FinalScore: GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
+            team2FinalScore: GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank),
+            winner: winnerName,
+            totalScoreChanges: history.count,
+            status: state.phase == .finished ? .finished : .draft
+        )
+        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        recordSaved = true
     }
 }
 
 #Preview {
-    NavigationStack {
-        GuandanScoreboardView()
-    }
+    GuandanScoreboardView()
 }

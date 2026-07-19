@@ -19,14 +19,20 @@ final class RallySessionStore {
         rightName: String,
         gameType: ScoreCore.GameType,
         rules: RallyRuleSet,
-        participants: [SessionParticipant]? = nil
+        participants: [SessionParticipant]? = nil,
+        openingServer: MatchSide = .left
     ) {
         let providedParticipants = participants?.filter { !$0.name.isEmpty }
         let initial = RallyMatchEngine.initial(
             leftName: leftName,
             rightName: rightName,
             rules: rules,
-            doubles: Self.doublesState(for: gameType, participants: providedParticipants)
+            openingServer: openingServer,
+            doubles: Self.doublesState(
+                for: gameType,
+                participants: providedParticipants,
+                openingServer: openingServer
+            )
         )
         let sessionParticipants = providedParticipants ?? [
             .init(id: "left", name: initial.leftName, role: "team"),
@@ -89,7 +95,8 @@ final class RallySessionStore {
 
     private static func doublesState(
         for gameType: ScoreCore.GameType,
-        participants: [SessionParticipant]?
+        participants: [SessionParticipant]?,
+        openingServer: MatchSide
     ) -> RallyDoublesState? {
         let namesByID = (participants ?? []).reduce(into: [String: String]()) { names, participant in
             names[participant.id] = participant.name
@@ -102,9 +109,13 @@ final class RallySessionStore {
         ]
         switch gameType {
         case .pingpongDoubles:
-            return .pingPong(playerNames: names)
+            return .pingPong(
+                playerNames: names,
+                openingServerSlotIndex: openingServer == .left ? 0 : 1,
+                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
+            )
         case .badmintonDoubles:
-            return .badminton(playerNames: names)
+            return .badminton(playerNames: names, servingTeam0: openingServer == .left)
         default:
             return nil
         }

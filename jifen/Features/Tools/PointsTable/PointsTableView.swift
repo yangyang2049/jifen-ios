@@ -37,7 +37,7 @@ struct PointsTableView: View {
                                     .foregroundColor(Theme.textSecondary)
                             }
                         }
-                        .listRowBackground(Theme.homeCardDark)
+                        .listRowBackground(Theme.cardBackground)
                         .listRowSeparatorTint(Theme.textSecondary.opacity(0.3))
                     }
                     .onDelete(perform: deleteRecords)
@@ -145,7 +145,7 @@ struct PointsTableDetailView: View {
             } header: {
                 Text(NSLocalizedString("points_table_name", value: "名称", comment: ""))
             }
-            .listRowBackground(Theme.homeCardDark)
+            .listRowBackground(Theme.cardBackground)
 
             Section {
                 ForEach(record.standings(), id: \.team.id) { item in
@@ -176,7 +176,7 @@ struct PointsTableDetailView: View {
                         }
                         .font(.subheadline)
                     }
-                    .listRowBackground(Theme.homeCardDark)
+                    .listRowBackground(Theme.cardBackground)
                 }
                 .onDelete(perform: deleteTeamsByStandingsOffsets)
                 Button {
@@ -186,7 +186,7 @@ struct PointsTableDetailView: View {
                     Label(NSLocalizedString("points_table_add_team", value: "添加队伍", comment: ""), systemImage: "plus.circle")
                         .foregroundColor(Theme.accentColor)
                 }
-                .listRowBackground(Theme.homeCardDark)
+                .listRowBackground(Theme.cardBackground)
             } header: {
                 HStack(spacing: 0) {
                     Text(NSLocalizedString("points_table_rank", value: "排名", comment: ""))
@@ -207,7 +207,7 @@ struct PointsTableDetailView: View {
                 .font(.caption)
                 .foregroundColor(Theme.textSecondary)
             }
-            .listRowBackground(Theme.homeCardDark)
+            .listRowBackground(Theme.cardBackground)
 
             Section {
                 Button(role: .destructive, action: {
@@ -215,7 +215,7 @@ struct PointsTableDetailView: View {
                 }) {
                     Text(NSLocalizedString("points_table_delete", value: "删除此积分表", comment: ""))
                 }
-                .listRowBackground(Theme.homeCardDark)
+                .listRowBackground(Theme.cardBackground)
             }
         }
         .listStyle(.insetGrouped)

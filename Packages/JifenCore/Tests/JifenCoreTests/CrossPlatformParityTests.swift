@@ -4,6 +4,148 @@ import LinkCore
 import ScoreCore
 import SessionCore
 
+@Test func eightBallRaceToMatchesAndroidFixture() {
+    let reducer = EightBallReducer()
+    var state = EightBallState.initial(targetPoints: 3)
+    state = reducer.reduce(state: state, intent: .addRack(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .addRack(.left), at: 2).state
+    state = reducer.reduce(state: state, intent: .addRack(.right), at: 3).state
+    #expect(state.leftPoints == 2)
+    #expect(state.rightPoints == 1)
+    #expect(!state.finished)
+}
+
+@Test func nineBallChaseFoulMatchesTwoAndFourPlayerRules() {
+    let reducer = NineBallChaseReducer()
+    var two = NineBallChaseState.initial(playerCount: 2)
+    two = reducer.reduce(state: two, intent: .chaseEvent(player: 0, kind: .foul), at: 1).state
+    #expect(two.playerPoints[0] == 0)
+    #expect(two.playerPoints[1] == 1)
+
+    var four = NineBallChaseState.initial(playerCount: 4)
+    four = reducer.reduce(state: four, intent: .chaseEvent(player: 2, kind: .foul), at: 1).state
+    #expect(four.playerPoints[2] == -1)
+    #expect(four.playerCounts[2][5] == 1)
+}
+
+@Test func shengjiTierReducerMatchesAndroidFixture() {
+    let result = ShengjiTierReducer().reduce(
+        state: ShengjiTierState(),
+        intent: .addLevels(side: .left, delta: 3),
+        at: 1
+    )
+    #expect(result.state.leftIndex == 3)
+    #expect(result.state.rightIndex == 0)
+    #expect(!result.state.finished)
+}
+
+@Test func shengjiResolveRoundTransfersDealerAndUpgrades() {
+    let reducer = ShengjiTierReducer()
+    var state = ShengjiTierState()
+    state = reducer.reduce(state: state, intent: .claimDealer(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .resolveRound(winner: .right, delta: 2), at: 2).state
+    #expect(state.rightIndex == 2)
+    #expect(state.dealer == .right)
+    state = reducer.reduce(state: state, intent: .resolveRound(winner: .left, delta: 0), at: 3).state
+    #expect(state.leftIndex == 0)
+    #expect(state.dealer == .left)
+}
+
+@Test func guandanUpgradeAndPassAFinishMatch() {
+    let reducer = GuandanSessionReducer()
+    var state = GuandanMatchState.initial(redName: "红", blueName: "蓝")
+    state = reducer.reduce(state: state, intent: .startMatch, at: 1).state
+    #expect(!guandanRankOrder.contains("王"))
+
+    // Climb red to A via repeated step-3 upgrades from 2.
+    for stepTick in 0..<4 {
+        state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .red), at: Int64(10 + stepTick * 2)).state
+        state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 3), at: Int64(11 + stepTick * 2)).state
+    }
+    #expect(state.redTeam.currentRank == "A")
+    #expect(state.isInAStage)
+    #expect(state.aStageTeam == .red)
+
+    // Pass A with step 2 (not_last).
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .red), at: 100).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 2), at: 101).state
+    #expect(state.phase == .finished)
+    #expect(state.finalWinner == .red)
+}
+
+@Test func guandanTripleAFailsFallbackToConfiguredRank() {
+    let reducer = GuandanSessionReducer()
+    var state = GuandanMatchState(
+        phase: .playing,
+        redTeam: GuandanTeamState(name: "红", currentRank: "A"),
+        blueTeam: GuandanTeamState(name: "蓝", currentRank: "2"),
+        lastRoundWinner: .red,
+        isInAStage: true,
+        aStageTeam: .red,
+        aStageMode: .tripleA,
+        passACondition: .notLast,
+        tripleAFallbackRank: "10"
+    )
+
+    // Fail 1: A-side loses banker.
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .blue), at: 20).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 1), at: 21).state
+    #expect(state.redTeam.currentRank == "A")
+    #expect(state.redAFailCount == 1)
+    #expect(state.aStageTeam == nil)
+
+    // Reclaim A stage without resetting fail count.
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .red), at: 22).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 1), at: 23).state
+    #expect(state.aStageTeam == .red)
+    #expect(state.redAFailCount == 1)
+
+    // Fail 2: A-side wins but step 1 is not enough to pass A.
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .red), at: 24).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 1), at: 25).state
+    #expect(state.redAFailCount == 2)
+    #expect(state.aStageTeam == .red)
+
+    // Fail 3: lose again → fallback.
+    state = reducer.reduce(state: state, intent: .beginRoundResult(winner: .blue), at: 26).state
+    state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 1), at: 27).state
+    #expect(state.redTeam.currentRank == "10")
+    #expect(state.redAFailCount == 0)
+    #expect(state.phase == .playing)
+}
+
+@Test func unoRoundScoreMatchesAndroidFormula() {
+    #expect(UnoRoundScore.total(number: 15, action20: 1, wild40: 1, wild50: 1) == 15 + 20 + 40 + 50)
+    #expect(UnoRoundScore.total(number: 0, action20: 0, wild40: 0, wild50: 0) == 0)
+}
+
+@Test func doudizhuSettlementMatchesOneAndTwoWinnerSplits() {
+    #expect(DoudizhuSettlement.deltas(winners: [true, false, false], baseScore: 5, multiplierPower: 1) == [20, -10, -10])
+    #expect(DoudizhuSettlement.deltas(winners: [false, true, true], baseScore: 5, multiplierPower: 0) == [-10, 5, 5])
+    #expect(DoudizhuSettlement.deltas(winners: [true, true, true], baseScore: 1, multiplierPower: 0) == nil)
+}
+
+@Test func archeryNextShooterPrefersTrailingSetPoints() {
+    #expect(ArcheryShooterRules.nextStartingIsLeft(leftSetPoints: 2, rightSetPoints: 4, openingIsLeft: true) == true)
+    #expect(ArcheryShooterRules.nextStartingIsLeft(leftSetPoints: 4, rightSetPoints: 2, openingIsLeft: true) == false)
+    #expect(ArcheryShooterRules.nextStartingIsLeft(leftSetPoints: 3, rightSetPoints: 3, openingIsLeft: false) == false)
+}
+
+@Test func snookerPotAndFoulMatchAndroidSemantics() {
+    let reducer = SnookerReducer()
+    var state = SnookerState.initial()
+    state = reducer.reduce(state: state, intent: .potBall(points: 5), at: 1).state
+    state = reducer.reduce(state: state, intent: .potBall(points: 3), at: 2).state
+    #expect(state.leftScore == 8)
+    #expect(state.leftBreak == 8)
+    #expect(state.striker == .left)
+
+    state = reducer.reduce(state: state, intent: .foul(pointsToOpponent: 2, switchTurn: true), at: 3).state
+    #expect(state.rightScore == 4)
+    #expect(state.striker == .right)
+    #expect(state.leftBreak == 0)
+}
+
 @Test func pingPongCompletesASetAndResetsPointsLikeHarmony() {
     let reducer = RallyMatchReducer()
     var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
@@ -35,6 +177,69 @@ import SessionCore
 
     #expect(state.leftSets == 1)
     #expect(state.finished)
+}
+
+@Test func matchCompletionModesFollowAndroidAndHarmonyRules() {
+    #expect(MatchCompletionMode.bestOf.isMatchFinished(maxSets: 5, leftSets: 3, rightSets: 0))
+    #expect(!MatchCompletionMode.playAll.isMatchFinished(maxSets: 5, leftSets: 3, rightSets: 0))
+    #expect(!MatchCompletionMode.playAll.isMatchFinished(maxSets: 5, leftSets: 3, rightSets: 1))
+    #expect(MatchCompletionMode.playAll.isMatchFinished(maxSets: 5, leftSets: 3, rightSets: 2))
+
+    #expect(!MatchCompletionMode.bestOf.allowsSetScore(maxSets: 4, leftSets: 2, rightSets: 2))
+    #expect(MatchCompletionMode.playAll.allowsSetScore(maxSets: 4, leftSets: 2, rightSets: 2))
+}
+
+@Test func playAllRallyCanFinishInADraw() {
+    let reducer = RallyMatchReducer()
+    let rules = RallyRuleSet(
+        maxSets: 4,
+        pointsToWinSet: 1,
+        winByTwo: false,
+        matchCompletionMode: .playAll
+    )
+    var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+    var lastEvents: [RallyMatchEvent] = []
+
+    for (index, side) in [MatchSide.left, .left, .right, .right].enumerated() {
+        let result = reducer.reduce(state: state, intent: .pointWon(side), at: Int64(index))
+        state = result.state
+        lastEvents = result.events
+    }
+
+    #expect(state.leftSets == 2)
+    #expect(state.rightSets == 2)
+    #expect(state.finished)
+    #expect(lastEvents.contains(.matchFinished(winner: nil)))
+}
+
+@Test func rallyRulesDecodeOldAndUnknownCompletionModesAsClassic() throws {
+    let rules = RallyRuleSet.pingPong(maxSets: 5, matchCompletionMode: .playAll)
+    let encoded = try JSONEncoder().encode(rules)
+    var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+
+    object.removeValue(forKey: "matchCompletionMode")
+    let oldData = try JSONSerialization.data(withJSONObject: object)
+    #expect(try JSONDecoder().decode(RallyRuleSet.self, from: oldData).matchCompletionMode == .bestOf)
+
+    object["matchCompletionMode"] = "future_mode"
+    let unknownData = try JSONSerialization.data(withJSONObject: object)
+    #expect(try JSONDecoder().decode(RallyRuleSet.self, from: unknownData).matchCompletionMode == .bestOf)
+}
+
+@Test func linkedRallySnapshotPreservesPlayAllMode() throws {
+    let state = RallyMatchEngine.initial(
+        leftName: "A",
+        rightName: "B",
+        rules: .badminton(maxSets: 4, matchCompletionMode: .playAll)
+    )
+    let snapshot = LinkedScoreboardSnapshot.rally(state)
+    let restored = try JSONDecoder().decode(
+        LinkedScoreboardSnapshot.self,
+        from: JSONEncoder().encode(snapshot)
+    )
+
+    #expect(restored.rallyState?.rules.matchCompletionMode == .playAll)
+    #expect(restored.rallyState?.rules.maxSets == 4)
 }
 
 @Test func badmintonDeuceRequiresTwoPointLeadBeforeCapLikeHarmony() {

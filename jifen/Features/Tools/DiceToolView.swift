@@ -20,7 +20,7 @@ struct DiceToolView: View {
 
     var body: some View {
         ZStack {
-            Theme.backgroundColor
+            Color.black
                 .ignoresSafeArea()
 
             DiceWebView(
@@ -30,6 +30,7 @@ struct DiceToolView: View {
                     playDiceSound()
                 }
             )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .opacity(webVisible ? 1 : 0)
             .animation(.easeInOut(duration: 0.3), value: webVisible)
 
@@ -38,7 +39,7 @@ struct DiceToolView: View {
                     Spacer()
                     Text(NSLocalizedString("tap_to_roll", value: "Tap to roll", comment: "Tap to roll dice"))
                         .font(.system(size: 16))
-                        .foregroundColor(.white.opacity(0.4))
+                        .foregroundColor(.white.opacity(0.45))
                         .padding(.bottom, 80)
                 }
             }
@@ -58,6 +59,10 @@ struct DiceToolView: View {
         }
         .navigationTitle(NSLocalizedString("dice_title", comment: "Dice title"))
         .navigationBarTitleDisplayMode(.inline)
+        .preferredColorScheme(.dark)
+        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear {
             checkAndShowHint()
             showEnterToast = true
@@ -111,7 +116,7 @@ struct DiceToolView: View {
                 diceCountOptionButton(3)
             }
             .frame(width: 220)
-            .background(Color(red: 28.0 / 255.0, green: 28.0 / 255.0, blue: 30.0 / 255.0))
+            .background(Color(hex: "1C1C1E"))
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -139,8 +144,8 @@ struct DiceToolView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
                 .font(.system(size: 18, weight: isSelected ? .medium : .regular))
-                .foregroundColor(isSelected ? Color(red: 48.0 / 255.0, green: 209.0 / 255.0, blue: 88.0 / 255.0) : .white)
-                .background(Color.white.opacity(0.08))
+                .foregroundColor(isSelected ? Theme.accentColor : .white)
+                .background(isSelected ? Color.white.opacity(0.08) : Color.clear)
         }
         .buttonStyle(.plain)
     }
@@ -202,19 +207,16 @@ struct DiceWebView: UIViewRepresentable {
         userController.add(context.coordinator, name: "playSound")
 
         let webView = WKWebView(frame: .zero, configuration: config)
-        webView.backgroundColor = .clear
-        webView.isOpaque = false
+        webView.navigationDelegate = context.coordinator
+        webView.backgroundColor = .black
+        webView.isOpaque = true
         webView.scrollView.isScrollEnabled = false
         webView.scrollView.bounces = false
 
         if let htmlURL = Bundle.main.url(forResource: "dice", withExtension: "html") {
-            webView.loadFileURL(htmlURL, allowingReadAccessTo: htmlURL.deletingLastPathComponent())
+            context.coordinator.load(htmlURL, in: webView)
         } else {
-            webView.loadHTMLString("<html><body style='margin:0;background:#1a1a1a;'></body></html>", baseURL: nil)
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            webVisible = true
+            context.coordinator.loadFallback(in: webView)
         }
 
         context.coordinator.syncDiceCount(on: webView, diceCount: diceCount)
@@ -226,14 +228,47 @@ struct DiceWebView: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onSoundRequest: onSoundRequest)
+        Coordinator(webVisible: $webVisible, onSoundRequest: onSoundRequest)
     }
 
-    class Coordinator: NSObject, WKScriptMessageHandler {
-        private let onSoundRequest: () -> Void
+    static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
+        webView.stopLoading()
+        webView.navigationDelegate = nil
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "playSound")
+    }
 
-        init(onSoundRequest: @escaping () -> Void) {
+    final class Coordinator: NSObject, WKScriptMessageHandler, WKNavigationDelegate {
+        private let webVisible: Binding<Bool>
+        private let onSoundRequest: () -> Void
+        private var pendingDiceCount = 1
+        private var didRetryWithFileURL = false
+        private var htmlURL: URL?
+
+        init(webVisible: Binding<Bool>, onSoundRequest: @escaping () -> Void) {
+            self.webVisible = webVisible
             self.onSoundRequest = onSoundRequest
+        }
+
+        func load(_ htmlURL: URL, in webView: WKWebView) {
+            self.htmlURL = htmlURL
+
+            do {
+                let html = try String(contentsOf: htmlURL, encoding: .utf8)
+                webView.loadHTMLString(html, baseURL: htmlURL.deletingLastPathComponent())
+            } catch {
+                retryWithFileURL(in: webView)
+            }
+        }
+
+        func loadFallback(in webView: WKWebView) {
+            webView.loadHTMLString(
+                """
+                <html><head><style>
+                body { margin: 0; background: #000000; }
+                </style></head><body></body></html>
+                """,
+                baseURL: nil
+            )
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -244,8 +279,48 @@ struct DiceWebView: UIViewRepresentable {
 
         func syncDiceCount(on webView: WKWebView, diceCount: Int) {
             let safeCount = min(3, max(1, diceCount))
+            pendingDiceCount = safeCount
             let js = "window.__nativeDiceCount = \(safeCount); if (window.setDiceCount) { window.setDiceCount(\(safeCount)); }"
             webView.evaluateJavaScript(js, completionHandler: nil)
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            let validationScript = "document.querySelectorAll('.dice-unit .dice').length"
+            webView.evaluateJavaScript(validationScript) { [weak self, weak webView] value, error in
+                guard let self, let webView else { return }
+
+                if error == nil, (value as? NSNumber)?.intValue == 3 {
+                    self.syncDiceCount(on: webView, diceCount: self.pendingDiceCount)
+                    self.webVisible.wrappedValue = true
+                } else {
+                    self.retryWithFileURL(in: webView)
+                }
+            }
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            retryWithFileURL(in: webView)
+        }
+
+        func webView(
+            _ webView: WKWebView,
+            didFailProvisionalNavigation navigation: WKNavigation!,
+            withError error: Error
+        ) {
+            retryWithFileURL(in: webView)
+        }
+
+        private func retryWithFileURL(in webView: WKWebView) {
+            guard !didRetryWithFileURL, let htmlURL else {
+                webVisible.wrappedValue = true
+                return
+            }
+
+            didRetryWithFileURL = true
+            webView.loadFileURL(
+                htmlURL,
+                allowingReadAccessTo: htmlURL.deletingLastPathComponent()
+            )
         }
     }
 }

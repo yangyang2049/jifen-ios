@@ -15,6 +15,7 @@ enum ScoreboardRecordStatus: String, Codable {
 // MARK: - Scoreboard Record
 
 struct ScoreboardRecord: Codable, Identifiable {
+    var schemaVersion: Int = 3
     let id: String
     let gameType: GameType
     let startTime: Date
@@ -30,10 +31,14 @@ struct ScoreboardRecord: Codable, Identifiable {
     var actions: [String] // Simplified action strings
     var totalScoreChanges: Int
     var extraData: [String: AnyCodable]?
+    var projectConfiguration: [String: AnyCodable]?
+    var stateSnapshot: Data?
+    var syncMetadata: [String: String]?
     var status: ScoreboardRecordStatus = .finished
     
     enum CodingKeys: String, CodingKey {
         case id
+        case schemaVersion
         case gameType
         case startTime
         case endTime
@@ -48,6 +53,9 @@ struct ScoreboardRecord: Codable, Identifiable {
         case actions
         case totalScoreChanges
         case extraData
+        case projectConfiguration
+        case stateSnapshot
+        case syncMetadata
         case status
     }
 
@@ -67,8 +75,12 @@ struct ScoreboardRecord: Codable, Identifiable {
         actions: [String] = [],
         totalScoreChanges: Int,
         extraData: [String: AnyCodable]? = nil,
+        projectConfiguration: [String: AnyCodable]? = nil,
+        stateSnapshot: Data? = nil,
+        syncMetadata: [String: String]? = nil,
         status: ScoreboardRecordStatus = .finished
     ) {
+        self.schemaVersion = 3
         self.id = id
         self.gameType = gameType
         self.startTime = startTime
@@ -84,11 +96,15 @@ struct ScoreboardRecord: Codable, Identifiable {
         self.actions = actions
         self.totalScoreChanges = totalScoreChanges
         self.extraData = extraData
+        self.projectConfiguration = projectConfiguration
+        self.stateSnapshot = stateSnapshot
+        self.syncMetadata = syncMetadata
         self.status = status
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
         id = try container.decode(String.self, forKey: .id)
         gameType = try container.decode(GameType.self, forKey: .gameType)
         startTime = try container.decode(Date.self, forKey: .startTime)
@@ -104,6 +120,9 @@ struct ScoreboardRecord: Codable, Identifiable {
         actions = try container.decodeIfPresent([String].self, forKey: .actions) ?? []
         totalScoreChanges = try container.decode(Int.self, forKey: .totalScoreChanges)
         extraData = try container.decodeIfPresent([String: AnyCodable].self, forKey: .extraData)
+        projectConfiguration = try container.decodeIfPresent([String: AnyCodable].self, forKey: .projectConfiguration)
+        stateSnapshot = try container.decodeIfPresent(Data.self, forKey: .stateSnapshot)
+        syncMetadata = try container.decodeIfPresent([String: String].self, forKey: .syncMetadata)
         status = try container.decodeIfPresent(ScoreboardRecordStatus.self, forKey: .status) ?? .finished
     }
 }
@@ -222,4 +241,3 @@ struct AnyCodable: Codable {
         }
     }
 }
-

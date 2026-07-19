@@ -2,200 +2,223 @@
 //  BoardTimerConfig.swift
 //  jifen
 //
-//  Shared configuration model for Go/Xiangqi/Chess timers.
+//  Board-game timer config aligned with Harmony boardTimerConfigHelper.
 //
 
 import Foundation
 
-enum BoardTimerPresetMode: String, CaseIterable, Identifiable {
-    case slow
-    case fast
-    case custom
+enum BoardTimeMode: String, CaseIterable, Identifiable, Equatable {
+    case countdown
+    case increment
+    case byoyomi
+    case delay
 
     var id: String { rawValue }
 
     var localizedTitle: String {
         switch self {
-        case .slow:
-            return NSLocalizedString("timer_mode_slow", value: "慢棋", comment: "Slow mode")
-        case .fast:
-            return NSLocalizedString("timer_mode_fast", value: "快棋", comment: "Fast mode")
-        case .custom:
-            return NSLocalizedString("timer_mode_custom", value: "自定义", comment: "Custom mode")
+        case .countdown:
+            return NSLocalizedString("timer_mode_countdown", value: "包干", comment: "Absolute / sudden death")
+        case .increment:
+            return NSLocalizedString("timer_increment", value: "加秒", comment: "Increment")
+        case .byoyomi:
+            return NSLocalizedString("timer_byoyomi", value: "读秒", comment: "Byoyomi")
+        case .delay:
+            return NSLocalizedString("timer_mode_delay", value: "延迟", comment: "Delay")
         }
     }
 }
 
 struct BoardTimerConfig: Equatable {
     var gameType: GameType
-    var presetMode: BoardTimerPresetMode
+    var timeMode: BoardTimeMode
 
     var mainMinutes: Int
     var mainSeconds: Int
 
-    // Go only
-    var byoyomiEnabled: Bool
+    var incrementSeconds: Int
     var byoyomiSeconds: Int
     var byoyomiPeriods: Int
+    var delaySeconds: Int
 
-    // Xiangqi / Chess
-    var incrementEnabled: Bool
-    var incrementSeconds: Int
-
-    // Mirrors Harmony settings switches.
     var voiceEnabled: Bool
     var vibrationEnabled: Bool
 
-    static func `default`(for gameType: GameType) -> BoardTimerConfig {
+    static let minMainTimeSeconds = 30
+
+    static func availableModes(for gameType: GameType) -> [BoardTimeMode] {
         switch gameType {
         case .go:
-            return BoardTimerConfig(
-                gameType: .go,
-                presetMode: .fast,
-                mainMinutes: 10,
-                mainSeconds: 0,
-                byoyomiEnabled: true,
-                byoyomiSeconds: 30,
-                byoyomiPeriods: 3,
-                incrementEnabled: false,
-                incrementSeconds: 0,
-                voiceEnabled: true,
-                vibrationEnabled: true
-            )
-        case .xiangqi:
-            return BoardTimerConfig(
-                gameType: .xiangqi,
-                presetMode: .fast,
-                mainMinutes: 10,
-                mainSeconds: 0,
-                byoyomiEnabled: false,
-                byoyomiSeconds: 0,
-                byoyomiPeriods: 0,
-                incrementEnabled: true,
-                incrementSeconds: 10,
-                voiceEnabled: true,
-                vibrationEnabled: true
-            )
+            return [.countdown, .byoyomi]
         case .chess:
-            return BoardTimerConfig(
-                gameType: .chess,
-                presetMode: .fast,
-                mainMinutes: 15,
-                mainSeconds: 0,
-                byoyomiEnabled: false,
-                byoyomiSeconds: 0,
-                byoyomiPeriods: 0,
-                incrementEnabled: true,
-                incrementSeconds: 10,
-                voiceEnabled: true,
-                vibrationEnabled: true
-            )
+            return [.countdown, .increment, .delay]
+        case .xiangqi, .checkers:
+            return [.countdown, .increment]
         default:
-            return BoardTimerConfig(
-                gameType: gameType,
-                presetMode: .fast,
-                mainMinutes: 10,
-                mainSeconds: 0,
-                byoyomiEnabled: false,
-                byoyomiSeconds: 0,
-                byoyomiPeriods: 0,
-                incrementEnabled: false,
-                incrementSeconds: 0,
-                voiceEnabled: true,
-                vibrationEnabled: true
-            )
+            return [.countdown, .increment]
         }
+    }
+
+    static func defaultMode(for gameType: GameType) -> BoardTimeMode {
+        gameType == .go ? .byoyomi : .increment
+    }
+
+    static func `default`(for gameType: GameType) -> BoardTimerConfig {
+        modeDefaults(for: gameType, mode: defaultMode(for: gameType))
+    }
+
+    /// Defaults when switching to a mode (Harmony `getBoardTimerModeDefaults`).
+    static func modeDefaults(for gameType: GameType, mode: BoardTimeMode) -> BoardTimerConfig {
+        let resolved = availableModes(for: gameType).contains(mode) ? mode : defaultMode(for: gameType)
+        let values = defaultValues(for: gameType, mode: resolved)
+        return BoardTimerConfig(
+            gameType: gameType,
+            timeMode: resolved,
+            mainMinutes: values.mainMinutes,
+            mainSeconds: values.mainSeconds,
+            incrementSeconds: values.incrementSeconds,
+            byoyomiSeconds: values.byoyomiSeconds,
+            byoyomiPeriods: values.byoyomiPeriods,
+            delaySeconds: values.delaySeconds,
+            voiceEnabled: true,
+            vibrationEnabled: true
+        )
     }
 
     var totalMainSeconds: Double {
         Double(max(0, mainMinutes) * 60 + max(0, min(59, mainSeconds)))
     }
 
-    mutating func applyPreset(_ mode: BoardTimerPresetMode) {
-        presetMode = mode
-        guard mode != .custom else { return }
-
-        switch gameType {
-        case .go:
-            if mode == .slow {
-                mainMinutes = 120
-                mainSeconds = 0
-                byoyomiEnabled = true
-                byoyomiSeconds = 60
-                byoyomiPeriods = 5
-            } else {
-                mainMinutes = 10
-                mainSeconds = 0
-                byoyomiEnabled = true
-                byoyomiSeconds = 30
-                byoyomiPeriods = 3
+    /// Apply mode switch fill rules (Harmony `onTimeModeChange`).
+    mutating func applyTimeMode(_ mode: BoardTimeMode) {
+        guard BoardTimerConfig.availableModes(for: gameType).contains(mode) else { return }
+        timeMode = mode
+        let defaults = BoardTimerConfig.modeDefaults(for: gameType, mode: mode)
+        switch mode {
+        case .increment:
+            if incrementSeconds <= 0 {
+                incrementSeconds = max(1, defaults.incrementSeconds)
             }
-            incrementEnabled = false
-            incrementSeconds = 0
-
-        case .xiangqi:
-            if mode == .slow {
-                mainMinutes = 120
-                mainSeconds = 0
-                incrementEnabled = true
-                incrementSeconds = 30
-            } else {
-                mainMinutes = 10
-                mainSeconds = 0
-                incrementEnabled = true
-                incrementSeconds = 10
+        case .byoyomi:
+            if byoyomiSeconds <= 0 {
+                byoyomiSeconds = max(1, defaults.byoyomiSeconds)
             }
-            byoyomiEnabled = false
-            byoyomiSeconds = 0
-            byoyomiPeriods = 0
-
-        case .chess:
-            if mode == .slow {
-                mainMinutes = 120
-                mainSeconds = 0
-                incrementEnabled = true
-                incrementSeconds = 30
-            } else {
-                mainMinutes = 15
-                mainSeconds = 0
-                incrementEnabled = true
-                incrementSeconds = 10
+            if byoyomiPeriods <= 0 {
+                byoyomiPeriods = max(1, defaults.byoyomiPeriods)
             }
-            byoyomiEnabled = false
-            byoyomiSeconds = 0
-            byoyomiPeriods = 0
-
-        default:
+        case .delay:
+            if delaySeconds <= 0 {
+                delaySeconds = max(1, defaults.delaySeconds)
+            }
+        case .countdown:
             break
+        }
+        normalize()
+    }
+
+    /// Harmony `normalizeBoardTimerSettings` + `resolveTimeMode`.
+    mutating func normalize() {
+        timeMode = resolvedTimeMode()
+
+        mainMinutes = max(0, mainMinutes)
+        mainSeconds = max(0, min(59, mainSeconds))
+        if mainMinutes == 0 && mainSeconds < Self.minMainTimeSeconds {
+            mainSeconds = Self.minMainTimeSeconds
+        }
+
+        delaySeconds = max(0, delaySeconds)
+
+        switch timeMode {
+        case .byoyomi:
+            incrementSeconds = 0
+            byoyomiSeconds = max(0, byoyomiSeconds)
+            byoyomiPeriods = max(0, byoyomiPeriods)
+            delaySeconds = 0
+        case .increment:
+            incrementSeconds = max(0, incrementSeconds)
+            byoyomiSeconds = 0
+            byoyomiPeriods = 0
+            delaySeconds = 0
+        case .delay:
+            incrementSeconds = 0
+            byoyomiSeconds = 0
+            byoyomiPeriods = 0
+            delaySeconds = max(0, delaySeconds)
+        case .countdown:
+            incrementSeconds = 0
+            byoyomiSeconds = 0
+            byoyomiPeriods = 0
+            delaySeconds = 0
         }
     }
 
-    mutating func normalizeInput() {
-        mainMinutes = max(0, mainMinutes)
-        mainSeconds = max(0, min(59, mainSeconds))
-
-        if mainMinutes == 0 && mainSeconds < 30 {
-            mainSeconds = 30
+    private func resolvedTimeMode() -> BoardTimeMode {
+        guard BoardTimerConfig.availableModes(for: gameType).contains(timeMode) else {
+            return BoardTimerConfig.defaultMode(for: gameType)
         }
 
-        byoyomiSeconds = max(0, byoyomiSeconds)
-        byoyomiPeriods = max(0, byoyomiPeriods)
-        incrementSeconds = max(0, incrementSeconds)
+        switch gameType {
+        case .go:
+            if timeMode == .byoyomi && byoyomiSeconds > 0 && byoyomiPeriods > 0 {
+                return .byoyomi
+            }
+            return .countdown
+        case .chess:
+            if timeMode == .delay && delaySeconds > 0 {
+                return .delay
+            }
+            if timeMode == .increment && incrementSeconds > 0 {
+                return .increment
+            }
+            return .countdown
+        default:
+            if timeMode == .increment && incrementSeconds > 0 {
+                return .increment
+            }
+            return .countdown
+        }
+    }
 
-        if gameType == .go {
-            if !byoyomiEnabled {
-                byoyomiSeconds = 0
-                byoyomiPeriods = 0
-            } else {
-                if byoyomiSeconds == 0 { byoyomiSeconds = 30 }
-                if byoyomiPeriods == 0 { byoyomiPeriods = 3 }
+    private struct ValueFields {
+        var mainMinutes: Int
+        var mainSeconds: Int
+        var incrementSeconds: Int
+        var byoyomiSeconds: Int
+        var byoyomiPeriods: Int
+        var delaySeconds: Int
+    }
+
+    private static func defaultValues(for gameType: GameType, mode: BoardTimeMode) -> ValueFields {
+        switch gameType {
+        case .go:
+            if mode == .byoyomi {
+                return ValueFields(mainMinutes: 60, mainSeconds: 0, incrementSeconds: 0, byoyomiSeconds: 30, byoyomiPeriods: 3, delaySeconds: 0)
             }
-        } else {
-            if !incrementEnabled {
-                incrementSeconds = 0
-            } else if incrementSeconds == 0 {
-                incrementSeconds = 10
+            return ValueFields(mainMinutes: 60, mainSeconds: 0, incrementSeconds: 0, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
+
+        case .xiangqi:
+            if mode == .increment {
+                return ValueFields(mainMinutes: 10, mainSeconds: 0, incrementSeconds: 10, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
             }
+            return ValueFields(mainMinutes: 10, mainSeconds: 0, incrementSeconds: 0, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
+
+        case .chess:
+            if mode == .delay {
+                return ValueFields(mainMinutes: 15, mainSeconds: 0, incrementSeconds: 0, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 5)
+            }
+            if mode == .increment {
+                return ValueFields(mainMinutes: 15, mainSeconds: 0, incrementSeconds: 10, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
+            }
+            return ValueFields(mainMinutes: 15, mainSeconds: 0, incrementSeconds: 0, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
+
+        case .checkers:
+            if mode == .increment {
+                return ValueFields(mainMinutes: 15, mainSeconds: 0, incrementSeconds: 10, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
+            }
+            return ValueFields(mainMinutes: 15, mainSeconds: 0, incrementSeconds: 0, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
+
+        default:
+            return ValueFields(mainMinutes: 10, mainSeconds: 0, incrementSeconds: 0, byoyomiSeconds: 0, byoyomiPeriods: 0, delaySeconds: 0)
         }
     }
 }

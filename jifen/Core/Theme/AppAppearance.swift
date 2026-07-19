@@ -39,6 +39,6 @@ final class AppAppearanceStore {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        self.mode = AppAppearanceMode(rawValue: defaults.string(forKey: AppAppearanceMode.storageKey) ?? "") ?? .light
+        self.mode = AppAppearanceMode(rawValue: defaults.string(forKey: AppAppearanceMode.storageKey) ?? "") ?? .system
     }
 }

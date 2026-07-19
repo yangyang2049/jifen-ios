@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 
 // MARK: - CommonNameSelectorDialog
@@ -65,6 +66,14 @@ struct CommonNameSelectorDialog: View {
     }
 }
 
+private extension View {
+    func settingsLabelStyle() -> some View {
+        font(.system(size: 12))
+            .foregroundStyle(Theme.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .center)
+    }
+}
+
 struct InlineCommonNameTextField: View {
     let placeholder: String
     @Binding var text: String
@@ -102,7 +111,7 @@ struct InlineCommonNameTextField: View {
 // MARK: - SportsSetupDialogView
 
 struct SportsSetupDialogView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
     var gameType: GameType
     var defaultTeam1Name: String
@@ -110,6 +119,8 @@ struct SportsSetupDialogView: View {
     var initialMaxSets: Int?
     var initialPointsPerSet: Int?
     var initialTieBreakPoints: Int?
+    /// 由居中容器传入；内容超出时滚动，不设最小高度以免留白。
+    var maxContentHeight: CGFloat = 520
     var onConfirm: ((SportsSetupResult) -> Void)?
     var onCancel: (() -> Void)?
 
@@ -130,9 +141,28 @@ struct SportsSetupDialogView: View {
     @State private var selectedMaxSets: Int = 0
     @State private var selectedPointsPerSet: Int = 0
     @State private var selectedTieBreakPoints: Int = 0
+    @State private var matchCompletionMode: MatchCompletionMode = .bestOf
+    @State private var customMaxSetsText: String = ""
+    @State private var customPointsText: String = ""
+    @State private var completionModeExpanded = false
     @State private var autoChangeSides: Bool = true // 默认开启自动换边
-    @State private var isSingles: Bool = true // 乒乓球/羽毛球/网球：单打/双打
-    @State private var basketballMode: String = "five_v_five"
+    @State private var isSingles: Bool = true // 乒乓球/羽毛球/网球：单打/双打；足球机默认 2V2
+    @State private var basketballRuleSet: String = "fiba"
+    @State private var snookerShowMoreFrames = false
+    @State private var customFoosballScoreCapText = ""
+    @State private var customEightBallHandicapText = ""
+    @State private var tennisDeuceMode: String = "advantage"
+    @State private var servingSide: MatchSide = .left
+    @State private var voiceAnnouncement = false
+    @State private var pickleballTargetScore = 11
+    @State private var pickleballScoreCap: Int? = nil
+    @State private var pickleballUseRallyScoring = false
+    @State private var foosballWinByTwo = false
+    @State private var foosballScoreCap: Int? = nil
+    @State private var eightBallHandicapMode = "none"
+    @State private var eightBallHandicapRacks = 0
+    @State private var isSendingSetupToWatch = false
+    @State private var setupSendErrorText = ""
     @State private var team1Player1Name: String = ""
     @State private var team1Player2Name: String = ""
     @State private var team2Player1Name: String = ""
@@ -146,17 +176,16 @@ struct SportsSetupDialogView: View {
             HStack(spacing: 6) {
                 Text(getEmoji())
                     .font(.system(size: 20))
-                Text(getTitle())
+                Text(getProjectTitle())
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
-                Spacer(minLength: 0)
             }
-            .padding(.horizontal, Theme.lg)
-            .padding(.top, Theme.sm)
-            .padding(.vertical, Theme.md)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .padding(.horizontal, Theme.md)
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: Theme.md) {
+                VStack(spacing: 20) {
                     if shouldShowSinglesDoublesAtTop() {
                         buildSinglesDoublesSection()
                     }
@@ -167,46 +196,20 @@ struct SportsSetupDialogView: View {
                         buildPrimaryNameInput()
                     }
 
+                    if shouldShowServingSideSelector() {
+                        buildServingSideSection()
+                    }
+
                     buildSettingsSection()
                 }
-                .padding(.horizontal, Theme.lg)
+                .padding(.horizontal, 20)
                 .padding(.vertical, Theme.md)
             }
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxHeight: maxContentHeight)
 
-            HStack(spacing: Theme.md) {
-                Button(action: {
-                    onCancel?()
-                    dismiss()
-                }) {
-                    Text(NSLocalizedString("cancel", comment: "Cancel button"))
-                        .font(.system(size: 16))
-                        .foregroundColor(Theme.textSecondary)
-                        .frame(width: 100, height: 44)
-                        .background(Theme.homeCardDark)
-                        .cornerRadius(.infinity)
-                }
-                .buttonStyle(.plain)
-
-                Button(action: {
-                    Task {
-                        await confirmSetup()
-                    }
-                }) {
-                    Text(NSLocalizedString("start_game", comment: "Start Game button"))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(Theme.primary)
-                        .cornerRadius(.infinity)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(.horizontal, Theme.lg)
-            .padding(.top, Theme.sm)
-            .padding(.bottom, Theme.md)
+            buildDialogActions()
         }
-        .background(Theme.homeDialogBackground.ignoresSafeArea())
         .onAppear {
             initializeView()
         }
@@ -221,6 +224,21 @@ struct SportsSetupDialogView: View {
                 applyDefaultsWhenSwitchingToDoubles()
             }
         }
+        .onChange(of: matchCompletionMode) { _, newMode in
+            if newMode == .bestOf, selectedMaxSets.isMultiple(of: 2) {
+                selectedMaxSets = min(99, selectedMaxSets + 1)
+            }
+            customMaxSetsText = matchCompletionPresets.contains(selectedMaxSets) ? "" : String(selectedMaxSets)
+            syncPickleballTargetForSets()
+        }
+        .onChange(of: selectedMaxSets) { _, _ in
+            syncPickleballTargetForSets()
+            if gameType == .eightBall, selectedMaxSets <= 1 {
+                eightBallHandicapMode = "none"
+                eightBallHandicapRacks = 0
+                customEightBallHandicapText = ""
+            }
+        }
         .sheet(item: $activeNameInputTarget) { target in
             CommonNameSelectorDialog(nameType: nameType(for: target)) { name in
                 applySelectedName(name, to: target)
@@ -229,20 +247,147 @@ struct SportsSetupDialogView: View {
         }
     }
 
+    @ViewBuilder
+    private func buildDialogActions() -> some View {
+        VStack(spacing: 10) {
+            if !setupSendErrorText.isEmpty {
+                Text(setupSendErrorText)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.destructiveText)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+            }
+
+            HStack(spacing: 12) {
+                Button(action: cancelDialog) {
+                    Text(NSLocalizedString("cancel", comment: "Cancel button"))
+                        .font(.system(size: 16))
+                        .foregroundColor(Theme.textSecondary)
+                        .frame(width: 100, height: 44)
+                        .background(Theme.controlBackground)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isSendingSetupToWatch)
+
+                if canStartOnWatch {
+                    HStack(spacing: 0) {
+                        startButton(startOnWatch: false)
+                            .clipShape(UnevenRoundedRectangle(
+                                topLeadingRadius: 22,
+                                bottomLeadingRadius: 22,
+                                bottomTrailingRadius: 0,
+                                topTrailingRadius: 0
+                            ))
+
+                        Button {
+                            Task { await confirmSetup(startOnWatch: true) }
+                        } label: {
+                            Group {
+                                if isSendingSetupToWatch {
+                                    ProgressView()
+                                        .tint(.white)
+                                } else {
+                                    Image(systemName: "applewatch")
+                                        .font(.system(size: 20, weight: .semibold))
+                                }
+                            }
+                            .frame(width: 50, height: 44)
+                            .foregroundStyle(.white)
+                            .background(Theme.primary.opacity(0.78))
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isSendingSetupToWatch)
+                        .clipShape(UnevenRoundedRectangle(
+                            topLeadingRadius: 0,
+                            bottomLeadingRadius: 0,
+                            bottomTrailingRadius: 22,
+                            topTrailingRadius: 22
+                        ))
+                        .accessibilityLabel(NSLocalizedString(
+                            "linked_score_start_on_watch",
+                            value: "在手表开始",
+                            comment: "Start scoreboard on watch"
+                        ))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .clipShape(Capsule())
+                } else {
+                    startButton(startOnWatch: false)
+                        .clipShape(Capsule())
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+        .padding(.bottom, 24)
+    }
+
+    private func startButton(startOnWatch: Bool) -> some View {
+        Button {
+            Task { await confirmSetup(startOnWatch: startOnWatch) }
+        } label: {
+            Text(NSLocalizedString("start_game", comment: "Start Game button"))
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .background(Theme.primary)
+        }
+        .buttonStyle(.plain)
+        .disabled(isSendingSetupToWatch)
+        .opacity(isSendingSetupToWatch ? 0.7 : 1)
+    }
+
+    private func cancelDialog() {
+        onCancel?()
+    }
+
     private func initializeView() {
         team1Name = defaultTeam1Name
         team2Name = defaultTeam2Name
         syncDoublesPlayerNamesFromTeamNames()
 
         selectedMaxSets = initialMaxSets ?? getDefaultMaxSets() ?? 0
+        customMaxSetsText = matchCompletionPresets.contains(selectedMaxSets) ? "" : String(selectedMaxSets)
         selectedPointsPerSet = initialPointsPerSet ?? getDefaultPointsPerSet() ?? 0
+        customPointsText = pointPresets.contains(selectedPointsPerSet) ? "" : String(selectedPointsPerSet)
         selectedTieBreakPoints = initialTieBreakPoints ?? getDefaultTieBreakPoints() ?? 0
+        basketballRuleSet = "fiba"
+        tennisDeuceMode = "advantage"
+        servingSide = .left
+        voiceAnnouncement = false
+        pickleballTargetScore = 11
+        pickleballScoreCap = nil
+        pickleballUseRallyScoring = false
+        foosballWinByTwo = false
+        foosballScoreCap = nil
+        customFoosballScoreCapText = ""
+        eightBallHandicapMode = "none"
+        eightBallHandicapRacks = 0
+        customEightBallHandicapText = ""
+        snookerShowMoreFrames = false
+        isSingles = gameType != .foosball
+        setupSendErrorText = ""
+        syncPickleballTargetForSets()
+    }
+
+    private func syncPickleballTargetForSets() {
+        guard gameType == .pickleball else { return }
+        let next = selectedMaxSets == 1 ? 15 : 11
+        pickleballTargetScore = next
+        if next != 11 {
+            pickleballScoreCap = nil
+        }
     }
 
     private func getDefaultMaxSets() -> Int? {
         switch gameType {
         case .pingpong: return 5
+        case .badminton, .pickleball, .boxing, .foosball: return 3
         case .tennis: return 3
+        case .snooker: return 1
+        case .eightBall: return 9
         default: return nil
         }
     }
@@ -250,6 +395,8 @@ struct SportsSetupDialogView: View {
     private func getDefaultPointsPerSet() -> Int? {
         switch gameType {
         case .pingpong: return 11
+        case .badminton: return 21
+        case .foosball: return 5
         default: return nil
         }
     }
@@ -278,7 +425,8 @@ struct SportsSetupDialogView: View {
     }
 
     private func isConfirmedTeamSetupGame() -> Bool {
-        return gameType == .football || gameType == .volleyball || gameType == .basketball
+        return gameType == .football || gameType == .volleyball || gameType == .beachVolleyball ||
+            gameType == .airVolleyball || gameType == .basketball || gameType == .threeBasketball
     }
 
     private func getTitle() -> String {
@@ -291,6 +439,10 @@ struct SportsSetupDialogView: View {
         case .tennis: return NSLocalizedString("tennis_setup_title", comment: "")
         default: return gameType.displayName + NSLocalizedString("setup_suffix", value: " 设置", comment: "")
         }
+    }
+
+    private func getProjectTitle() -> String {
+        gameType.displayName
     }
 
     private func getEmoji() -> String {
@@ -307,18 +459,87 @@ struct SportsSetupDialogView: View {
     
     private func shouldShowSettings() -> Bool {
         return gameType == .basketball ||
+               gameType == .boxing ||
                gameType == .pingpong ||
                gameType == .tennis ||
                gameType == .badminton ||
-               gameType == .volleyball
+               gameType == .volleyball ||
+               gameType == .beachVolleyball ||
+               gameType == .airVolleyball ||
+               gameType == .pickleball ||
+               gameType == .foosball ||
+               gameType == .eightBall ||
+               gameType == .snooker
     }
 
     private func shouldShowSinglesDoublesAtTop() -> Bool {
-        return gameType == .pingpong || gameType == .badminton || gameType == .tennis
+        return gameType == .pingpong || gameType == .badminton || gameType == .tennis || gameType == .pickleball || gameType == .foosball
     }
 
     private func shouldUseDoublesPlayerInputs() -> Bool {
         shouldShowSinglesDoublesAtTop() && !isSingles
+    }
+
+    private func shouldShowServingSideSelector() -> Bool {
+        gameType == .pingpong ||
+        gameType == .badminton ||
+        gameType == .tennis ||
+        gameType == .pickleball ||
+        gameType == .volleyball ||
+        gameType == .beachVolleyball ||
+        gameType == .airVolleyball ||
+        gameType == .snooker ||
+        gameType == .archery
+    }
+
+    private var supportsWatchProject: Bool {
+        gameType == .basketball || gameType == .pingpong || gameType == .badminton || gameType == .pickleball
+    }
+
+    private var canStartOnWatch: Bool {
+        #if DEBUG
+        supportsWatchProject && watchLinkService.canStartInteractiveSession
+        #else
+        false
+        #endif
+    }
+
+    @ViewBuilder
+    private func buildServingSideSection() -> some View {
+        HStack {
+            servingSideButton(.left)
+            Text(gameType == .snooker
+                 ? NSLocalizedString("setup_opening_break_side", value: "首局开球方", comment: "First-frame breaker")
+                 : (gameType == .archery
+                    ? NSLocalizedString("setup_first_shooter", value: "首发选手", comment: "First archer")
+                    : NSLocalizedString("setup_serving_side", value: "发球方", comment: "Opening serving side")))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity)
+            servingSideButton(.right)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func servingSideButton(_ side: MatchSide) -> some View {
+        Button {
+            servingSide = side
+        } label: {
+            Text(getEmoji())
+                .font(.system(size: 20))
+                .frame(width: 34, height: 34)
+                .background(side == servingSide ? Theme.primary.opacity(0.18) : Color.clear)
+                .clipShape(Circle())
+                .overlay {
+                    if side == servingSide {
+                        Circle().stroke(Theme.primary, lineWidth: 1.5)
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(side == .left
+            ? NSLocalizedString("setup_serving_left", value: "左侧发球", comment: "")
+            : NSLocalizedString("setup_serving_right", value: "右侧发球", comment: ""))
     }
 
     /// 名称区域：左右对半、中间 vs 隔开，无队伍/队员标题（对齐鸿蒙）
@@ -385,10 +606,10 @@ struct SportsSetupDialogView: View {
     @ViewBuilder
     private func buildSinglesDoublesSection() -> some View {
         Picker("", selection: $isSingles) {
-            Text(NSLocalizedString("singles", value: "单打", comment: ""))
+            Text(singlesModeLabel)
                 .tag(true)
                 .accessibilityIdentifier("singles_option")
-            Text(NSLocalizedString("doubles", value: "双打", comment: ""))
+            Text(doublesModeLabel)
                 .tag(false)
                 .accessibilityIdentifier("doubles_option")
         }
@@ -397,128 +618,614 @@ struct SportsSetupDialogView: View {
         .tint(Theme.primary)
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityIdentifier("singles_doubles_picker")
-        .accessibilityValue(isSingles
-            ? NSLocalizedString("singles", value: "单打", comment: "")
-            : NSLocalizedString("doubles", value: "双打", comment: ""))
+        .accessibilityValue(isSingles ? singlesModeLabel : doublesModeLabel)
+    }
+
+    private var singlesModeLabel: String {
+        gameType == .foosball
+            ? NSLocalizedString("foosball_mode_1v1", value: "1V1", comment: "")
+            : NSLocalizedString("singles", value: "单打", comment: "")
+    }
+
+    private var doublesModeLabel: String {
+        gameType == .foosball
+            ? NSLocalizedString("foosball_mode_2v2", value: "2V2", comment: "")
+            : NSLocalizedString("doubles", value: "双打", comment: "")
     }
 
     @ViewBuilder
     private func buildSettingsSection() -> some View {
         if shouldShowSettings() {
-            VStack(alignment: .leading, spacing: Theme.sm) {
+            VStack(alignment: .leading, spacing: 16) {
                 if gameType == .basketball {
-                    VStack(alignment: .leading, spacing: Theme.sm) {
-                        Text(NSLocalizedString("basketball_mode", value: "赛制", comment: "Basketball game mode"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textSecondary)
-                        Picker(NSLocalizedString("basketball_mode", value: "赛制", comment: "Basketball game mode"), selection: $basketballMode) {
-                            Text("5v5").tag("five_v_five")
-                            Text("3x3").tag("three_x_three")
-                        }
-                        .pickerStyle(.segmented)
-                    }
+                    buildBasketballSettings()
+                } else if gameType == .boxing {
+                    buildBoxingSettings()
                 } else if gameType == .pingpong {
-                    VStack(alignment: .leading, spacing: Theme.sm) {
-                        Text(NSLocalizedString("pingpong_set_count_label", comment: "Pingpong set count label"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        HStack(spacing: Theme.sm) {
-                            ForEach([3, 5, 7], id: \.self) { sets in
-                                Button(action: { selectedMaxSets = sets }) {
-                                    Text(pingpongSetOptionText(sets))
-                                        .font(.system(size: 14, weight: selectedMaxSets == sets ? .medium : .regular))
-                                        .foregroundColor(getChipTextColor(selected: selectedMaxSets == sets))
-                                        .padding(.horizontal, Theme.sm)
-                                        .padding(.vertical, Theme.xs)
-                                        .background(getChipBackgroundColor(selected: selectedMaxSets == sets))
-                                        .cornerRadius(Theme.sm) // Adjust for 16
-                                }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Toggle(isOn: $autoChangeSides) {
-                            Text(NSLocalizedString("pingpong_auto_change_sides", comment: "Auto change sides"))
-                                .font(.system(size: 14))
-                                .foregroundColor(Theme.textPrimary)
-                        }
-                        .tint(Theme.primary) // selectedColor
-                        .padding(.top, Theme.sm)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    buildMatchCompletionSection(useTennisWording: false)
+                    buildPointsPerSetSection()
+                    settingsToggle("pingpong_auto_change_sides", fallback: "自动换边", value: $autoChangeSides)
+                    settingsToggle("voice_announcement", fallback: "语音播报", value: $voiceAnnouncement)
                 } else if gameType == .tennis {
-                    VStack(alignment: .leading, spacing: Theme.sm) {
-                        Text(NSLocalizedString("tennis_set_count_label", comment: "Tennis set count label"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        HStack(spacing: Theme.sm) {
-                            ForEach([3, 5], id: \.self) { sets in
-                                Button(action: { selectedMaxSets = sets }) {
-                                    Text(tennisSetOptionText(sets))
-                                        .font(.system(size: 14, weight: selectedMaxSets == sets ? .medium : .regular))
-                                        .foregroundColor(getChipTextColor(selected: selectedMaxSets == sets))
-                                        .padding(.horizontal, Theme.sm)
-                                        .padding(.vertical, Theme.xs)
-                                        .background(getChipBackgroundColor(selected: selectedMaxSets == sets))
-                                        .cornerRadius(Theme.sm)
-                                }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Text(NSLocalizedString("tennis_tiebreak_label", comment: "Tennis tiebreak label"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        HStack(spacing: Theme.sm) {
-                            ForEach([7, 10], id: \.self) { points in
-                                Button(action: { selectedTieBreakPoints = points }) {
-                                    Text(tennisTiebreakOptionText(points))
-                                        .font(.system(size: 14, weight: selectedTieBreakPoints == points ? .medium : .regular))
-                                        .foregroundColor(getChipTextColor(selected: selectedTieBreakPoints == points))
-                                        .padding(.horizontal, Theme.sm)
-                                        .padding(.vertical, Theme.xs)
-                                        .background(getChipBackgroundColor(selected: selectedTieBreakPoints == points))
-                                        .cornerRadius(Theme.sm)
-                                }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Toggle(isOn: $autoChangeSides) {
-                            Text(NSLocalizedString("tennis_auto_change_sides", comment: "Auto change sides"))
-                                .font(.system(size: 14))
-                                .foregroundColor(Theme.textPrimary)
-                        }
-                        .tint(Theme.primary)
-                        .padding(.top, Theme.sm)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    buildTennisSettings()
                 } else if gameType == .badminton {
-                    Toggle(isOn: $autoChangeSides) {
-                        Text(NSLocalizedString("badminton_auto_change_sides", comment: "Auto change sides"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textPrimary)
-                    }
-                    .tint(Theme.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, Theme.sm)
-                } else if gameType == .volleyball {
-                    Toggle(isOn: $autoChangeSides) {
-                        Text(NSLocalizedString("volleyball_auto_change_sides", comment: "Auto change sides"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textPrimary)
-                    }
-                    .tint(Theme.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    buildMatchCompletionSection(useTennisWording: false)
+                    buildPointsPerSetSection()
+                    settingsToggle("badminton_auto_change_sides", fallback: "自动换边", value: $autoChangeSides)
+                    settingsToggle("voice_announcement", fallback: "语音播报", value: $voiceAnnouncement)
+                } else if gameType == .pickleball {
+                    buildPickleballSettings()
+                } else if gameType == .volleyball || gameType == .beachVolleyball || gameType == .airVolleyball {
+                    settingsToggle("volleyball_auto_change_sides", fallback: "自动换边", value: $autoChangeSides)
+                } else if gameType == .foosball {
+                    buildFoosballSettings()
+                } else if gameType == .snooker {
+                    buildSnookerSettings()
+                } else if gameType == .eightBall {
+                    buildEightBallSettings()
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    @ViewBuilder
+    private func buildBasketballSettings() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(NSLocalizedString("basketball_rule_set_label", value: "规则", comment: "Basketball rules"))
+                .settingsLabelStyle()
+            chipRow(options: ["fiba", "nba"], selection: $basketballRuleSet) { value in
+                value.uppercased()
+            }
+            Text(basketballRuleSet == "nba"
+                 ? NSLocalizedString("basketball_rule_nba_summary", value: "NBA：每节 12 分钟，常规赛 7 次暂停。", comment: "")
+                 : NSLocalizedString("basketball_rule_fiba_summary", value: "FIBA：每节 10 分钟，上下半场分别计算暂停。", comment: ""))
+                .font(.system(size: 13))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    @ViewBuilder
+    private func buildBoxingSettings() -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(NSLocalizedString("boxing_rounds", value: "回合数", comment: "Boxing rounds"))
+                .settingsLabelStyle()
+            HStack(spacing: 8) {
+                ForEach([3, 8, 10, 12], id: \.self) { rounds in
+                    numberChip(rounds, selection: $selectedMaxSets) {
+                        customMaxSetsText = ""
+                    }
+                }
+                customNumberChip(selection: $selectedMaxSets, text: $customMaxSetsText, maxValue: 99)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buildTennisSettings() -> some View {
+        buildMatchCompletionSection(useTennisWording: true)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("tennis_deuce_mode", value: "40:40 规则", comment: "Tennis deuce mode"))
+                .settingsLabelStyle()
+            chipRow(options: ["advantage", "no_ad"], selection: $tennisDeuceMode) { value in
+                value == "no_ad"
+                    ? NSLocalizedString("tennis_deuce_option_no_ad", value: "金球", comment: "")
+                    : NSLocalizedString("tennis_deuce_option_advantage", value: "占先", comment: "")
+            }
+        }
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("tennis_tiebreak_label", comment: "Tennis tiebreak label"))
+                .settingsLabelStyle()
+            HStack(spacing: 8) {
+                ForEach([7, 10], id: \.self) { points in
+                    Button {
+                        selectedTieBreakPoints = points
+                    } label: {
+                        Text(tennisTiebreakOptionText(points))
+                            .font(.system(size: 14, weight: selectedTieBreakPoints == points ? .medium : .regular))
+                            .foregroundStyle(getChipTextColor(selected: selectedTieBreakPoints == points))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 40)
+                            .background(getChipBackgroundColor(selected: selectedTieBreakPoints == points))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        settingsToggle("tennis_auto_change_sides", fallback: "自动换边", value: $autoChangeSides)
+        settingsToggle("voice_announcement", fallback: "语音播报", value: $voiceAnnouncement)
+    }
+
+    @ViewBuilder
+    private func buildPointsPerSetSection() -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("points_per_set", value: "每局分数", comment: "Points per set"))
+                .settingsLabelStyle()
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
+                ForEach(pointPresets, id: \.self) { points in
+                    numberChip(points, selection: $selectedPointsPerSet) {
+                        customPointsText = ""
+                    }
+                }
+                customNumberChip(selection: $selectedPointsPerSet, text: $customPointsText, maxValue: 999)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buildPickleballSettings() -> some View {
+        buildMatchCompletionSection(useTennisWording: false)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("pickleball_target_score", value: "目标分", comment: ""))
+                .settingsLabelStyle()
+            HStack(spacing: 8) {
+                ForEach([11, 15, 21], id: \.self) { points in
+                    numberChip(points, selection: $pickleballTargetScore) {
+                        if points != 11 { pickleballScoreCap = nil }
+                    }
+                }
+            }
+        }
+        if pickleballTargetScore == 11 {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(NSLocalizedString("pickleball_score_cap", value: "最高分上限", comment: ""))
+                    .settingsLabelStyle()
+                HStack(spacing: 8) {
+                    optionalNumberChip(nil, label: NSLocalizedString("pickleball_no_cap", value: "无", comment: ""), selection: $pickleballScoreCap)
+                    optionalNumberChip(13, label: "13", selection: $pickleballScoreCap)
+                    optionalNumberChip(15, label: "15", selection: $pickleballScoreCap)
+                }
+            }
+        }
+        settingsToggle("pickleball_rally_scoring", fallback: "每球得分", value: $pickleballUseRallyScoring)
+        settingsToggle("pickleball_auto_change_sides", fallback: "自动换边", value: $autoChangeSides)
+    }
+
+    @ViewBuilder
+    private func buildFoosballSettings() -> some View {
+        buildMatchCompletionSection(useTennisWording: false)
+        buildPointsPerSetSection()
+        settingsToggle("foosball_final_win_by_two", fallback: "决胜局净胜 2 分", value: $foosballWinByTwo)
+        if foosballWinByTwo {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(NSLocalizedString("foosball_final_score_cap", value: "决胜局最高分上限", comment: ""))
+                    .settingsLabelStyle()
+                HStack(spacing: 8) {
+                    Button {
+                        foosballScoreCap = nil
+                        customFoosballScoreCapText = ""
+                    } label: {
+                        Text(NSLocalizedString("pickleball_no_cap", value: "无", comment: ""))
+                            .font(.system(size: 14, weight: foosballScoreCap == nil && customFoosballScoreCapText.isEmpty ? .medium : .regular))
+                            .foregroundStyle(getChipTextColor(selected: foosballScoreCap == nil && customFoosballScoreCapText.isEmpty))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 36)
+                            .background(getChipBackgroundColor(selected: foosballScoreCap == nil && customFoosballScoreCapText.isEmpty))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    ForEach([8, 10], id: \.self) { value in
+                        Button {
+                            foosballScoreCap = value
+                            customFoosballScoreCapText = ""
+                        } label: {
+                            Text("\(value)")
+                                .font(.system(size: 14, weight: foosballScoreCap == value && customFoosballScoreCapText.isEmpty ? .medium : .regular))
+                                .foregroundStyle(getChipTextColor(selected: foosballScoreCap == value && customFoosballScoreCapText.isEmpty))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 36)
+                                .background(getChipBackgroundColor(selected: foosballScoreCap == value && customFoosballScoreCapText.isEmpty))
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    customOptionalNumberChip(
+                        selection: $foosballScoreCap,
+                        text: $customFoosballScoreCapText,
+                        maxValue: 99
+                    )
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buildEightBallSettings() -> some View {
+        buildSetCountSettings(
+            title: NSLocalizedString("eight_ball_frames", value: "局数", comment: ""),
+            presets: [1, 3, 5, 7, 9, 11]
+        )
+        if selectedMaxSets > 1 {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(NSLocalizedString("eight_ball_handicap", value: "让局", comment: ""))
+                    .settingsLabelStyle()
+                chipRow(options: ["none", "team2", "team1"], selection: $eightBallHandicapMode) { value in
+                    switch value {
+                    case "team2":
+                        return NSLocalizedString("eight_ball_left_lets_right", value: "左让右", comment: "")
+                    case "team1":
+                        return NSLocalizedString("eight_ball_right_lets_left", value: "右让左", comment: "")
+                    default:
+                        return NSLocalizedString("pickleball_no_cap", value: "无", comment: "")
+                    }
+                }
+                if eightBallHandicapMode != "none" {
+                    HStack(spacing: 8) {
+                        ForEach([1, 2, 3], id: \.self) { racks in
+                            numberChip(racks, selection: $eightBallHandicapRacks) {
+                                customEightBallHandicapText = ""
+                            }
+                        }
+                        customNumberChip(
+                            selection: $eightBallHandicapRacks,
+                            text: $customEightBallHandicapText,
+                            maxValue: max(1, selectedMaxSets - 1)
+                        )
+                    }
+                    .onAppear {
+                        if eightBallHandicapRacks < 1 {
+                            eightBallHandicapRacks = 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buildSnookerSettings() -> some View {
+        let primaryPresets = [1, 3, 5, 7]
+        let morePresets = [9, 11, 15, 17, 19, 25, 33, 35]
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("snooker_frames", value: "局数", comment: "")).settingsLabelStyle()
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
+                ForEach(primaryPresets, id: \.self) { count in
+                    numberChip(count, selection: $selectedMaxSets) {
+                        customMaxSetsText = ""
+                        snookerShowMoreFrames = false
+                    }
+                }
+                Button {
+                    snookerShowMoreFrames.toggle()
+                } label: {
+                    Text(NSLocalizedString("snooker_frames_more", value: "更多", comment: ""))
+                        .font(.system(size: 14, weight: snookerShowMoreFrames ? .medium : .regular))
+                        .foregroundStyle(getChipTextColor(selected: snookerShowMoreFrames))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .background(getChipBackgroundColor(selected: snookerShowMoreFrames))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                if snookerShowMoreFrames || morePresets.contains(selectedMaxSets) {
+                    ForEach(morePresets, id: \.self) { count in
+                        numberChip(count, selection: $selectedMaxSets) {
+                            customMaxSetsText = ""
+                            snookerShowMoreFrames = true
+                        }
+                    }
+                }
+                customNumberChip(selection: $selectedMaxSets, text: $customMaxSetsText, maxValue: 99)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buildSetCountSettings(title: String, presets: [Int]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).settingsLabelStyle()
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
+                ForEach(presets, id: \.self) { count in
+                    numberChip(count, selection: $selectedMaxSets) { customMaxSetsText = "" }
+                }
+                customNumberChip(selection: $selectedMaxSets, text: $customMaxSetsText, maxValue: 99)
+            }
+        }
+    }
+
+    private var pointPresets: [Int] {
+        if gameType == .pingpong { return [5, 7, 9, 11, 15, 21] }
+        if gameType == .foosball { return [5, 7, 8] }
+        return [21, 15, 11]
+    }
+
+    private var hasValidPointsPerSet: Bool {
+        guard gameType == .pingpong || gameType == .badminton || gameType == .foosball else { return true }
+        let maximum = gameType == .foosball ? 99 : 999
+        return (1...maximum).contains(selectedPointsPerSet)
+    }
+
+    private func chipRow(
+        options: [String],
+        selection: Binding<String>,
+        label: @escaping (String) -> String
+    ) -> some View {
+        HStack(spacing: 8) {
+            ForEach(options, id: \.self) { option in
+                Button {
+                    selection.wrappedValue = option
+                } label: {
+                    Text(label(option))
+                        .font(.system(size: 14, weight: selection.wrappedValue == option ? .medium : .regular))
+                        .foregroundStyle(getChipTextColor(selected: selection.wrappedValue == option))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .background(getChipBackgroundColor(selected: selection.wrappedValue == option))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private func numberChip(
+        _ value: Int,
+        selection: Binding<Int>,
+        onSelect: @escaping () -> Void = {}
+    ) -> some View {
+        Button {
+            selection.wrappedValue = value
+            onSelect()
+        } label: {
+            Text("\(value)")
+                .font(.system(size: 14, weight: selection.wrappedValue == value ? .medium : .regular))
+                .foregroundStyle(getChipTextColor(selected: selection.wrappedValue == value))
+                .frame(maxWidth: .infinity)
+                .frame(minWidth: 38, minHeight: 36)
+                .background(getChipBackgroundColor(selected: selection.wrappedValue == value))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func customNumberChip(
+        selection: Binding<Int>,
+        text: Binding<String>,
+        maxValue: Int
+    ) -> some View {
+        if !text.wrappedValue.isEmpty {
+            TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
+                get: { text.wrappedValue },
+                set: { rawValue in
+                    let limit = String(maxValue).count
+                    let sanitized = String(rawValue.filter(\.isNumber).prefix(limit))
+                    text.wrappedValue = sanitized
+                    selection.wrappedValue = min(maxValue, Int(sanitized) ?? 0)
+                }
+            ))
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.center)
+            .font(.system(size: 14))
+            .frame(maxWidth: .infinity)
+            .frame(minWidth: 58, minHeight: 36)
+            .background(Theme.controlBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        } else {
+            Button {
+                text.wrappedValue = selection.wrappedValue > 0 ? String(selection.wrappedValue) : "1"
+            } label: {
+                Text(NSLocalizedString("custom", value: "自定义", comment: ""))
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: 58, minHeight: 36)
+                    .background(Theme.controlBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func optionalNumberChip(
+        _ value: Int?,
+        label: String,
+        selection: Binding<Int?>
+    ) -> some View {
+        Button {
+            selection.wrappedValue = value
+        } label: {
+            Text(label)
+                .font(.system(size: 14, weight: selection.wrappedValue == value ? .medium : .regular))
+                .foregroundStyle(getChipTextColor(selected: selection.wrappedValue == value))
+                .frame(maxWidth: .infinity)
+                .frame(height: 36)
+                .background(getChipBackgroundColor(selected: selection.wrappedValue == value))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func customOptionalNumberChip(
+        selection: Binding<Int?>,
+        text: Binding<String>,
+        maxValue: Int
+    ) -> some View {
+        let isCustomActive = !text.wrappedValue.isEmpty
+            || (selection.wrappedValue != nil && selection.wrappedValue != 8 && selection.wrappedValue != 10)
+        if isCustomActive {
+            TextField(NSLocalizedString("custom", value: "自定义", comment: ""), text: Binding(
+                get: { text.wrappedValue },
+                set: { rawValue in
+                    let limit = String(maxValue).count
+                    let sanitized = String(rawValue.filter(\.isNumber).prefix(limit))
+                    text.wrappedValue = sanitized
+                    if let value = Int(sanitized), value >= 1 {
+                        selection.wrappedValue = min(maxValue, value)
+                    } else {
+                        selection.wrappedValue = nil
+                    }
+                }
+            ))
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.center)
+            .font(.system(size: 14))
+            .frame(maxWidth: .infinity)
+            .frame(minWidth: 58, minHeight: 36)
+            .background(Theme.controlBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        } else {
+            Button {
+                let seed = selection.wrappedValue ?? 12
+                text.wrappedValue = String(seed)
+                selection.wrappedValue = seed
+            } label: {
+                Text(NSLocalizedString("custom", value: "自定义", comment: ""))
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: 58, minHeight: 36)
+                    .background(Theme.controlBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func settingsToggle(_ key: String, fallback: String, value: Binding<Bool>) -> some View {
+        Toggle(isOn: value) {
+            Text(NSLocalizedString(key, value: fallback, comment: ""))
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.textPrimary)
+        }
+        .tint(Theme.primary)
+    }
+
+    private var matchCompletionPresets: [Int] {
+        matchCompletionMode == .playAll ? [1, 2, 3, 4, 5] : [1, 3, 5, 7]
+    }
+
+    private var hasValidMatchCompletionSets: Bool {
+        guard selectedMaxSets >= 1, selectedMaxSets <= 99 else { return false }
+        return matchCompletionMode == .playAll || !selectedMaxSets.isMultiple(of: 2)
+    }
+
+    @ViewBuilder
+    private func buildMatchCompletionSection(useTennisWording: Bool) -> some View {
+        VStack(alignment: .leading, spacing: Theme.sm) {
+            Button(action: { completionModeExpanded.toggle() }) {
+                HStack(spacing: Theme.xs) {
+                    Text(useTennisWording
+                         ? NSLocalizedString("match_completion_sets_tennis", value: "盘数", comment: "")
+                         : NSLocalizedString("match_completion_sets", value: "局数", comment: ""))
+                    Text("·")
+                    Text(matchCompletionModeTitle(matchCompletionMode))
+                    Spacer()
+                    Image(systemName: completionModeExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Theme.textSecondary)
+                }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Theme.textPrimary)
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("match_completion_mode_selector")
+
+            if completionModeExpanded {
+                ForEach(MatchCompletionMode.allCases, id: \.self) { mode in
+                    Button(action: {
+                        matchCompletionMode = mode
+                        completionModeExpanded = false
+                    }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(matchCompletionModeTitle(mode))
+                                .font(.system(size: 16, weight: .medium))
+                            Text(matchCompletionModeDescription(mode, useTennisWording: useTennisWording))
+                                .font(.system(size: 12))
+                                .foregroundColor(Theme.textSecondary)
+                        }
+                        .foregroundColor(Theme.textPrimary)
+                        .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                        .padding(.horizontal, Theme.md)
+                        .background(mode == matchCompletionMode ? Theme.primary.opacity(0.18) : Theme.homeCardDark)
+                        .cornerRadius(Theme.sm)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            HStack(spacing: Theme.sm) {
+                ForEach(matchCompletionPresets, id: \.self) { sets in
+                    Button(action: {
+                        selectedMaxSets = sets
+                        customMaxSetsText = ""
+                    }) {
+                        Text("\(sets)")
+                            .font(.system(size: 14, weight: selectedMaxSets == sets ? .medium : .regular))
+                            .foregroundColor(getChipTextColor(selected: selectedMaxSets == sets))
+                            .frame(minWidth: 30, minHeight: 30)
+                            .background(getChipBackgroundColor(selected: selectedMaxSets == sets))
+                            .cornerRadius(Theme.sm)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Button(action: {
+                    if matchCompletionPresets.contains(selectedMaxSets) {
+                        selectedMaxSets = 0
+                        customMaxSetsText = ""
+                    }
+                }) {
+                    Text(NSLocalizedString("custom", value: "自定义", comment: ""))
+                        .font(.system(size: 14))
+                        .foregroundColor(getChipTextColor(selected: !matchCompletionPresets.contains(selectedMaxSets)))
+                        .padding(.horizontal, Theme.sm)
+                        .frame(minHeight: 30)
+                        .background(getChipBackgroundColor(selected: !matchCompletionPresets.contains(selectedMaxSets)))
+                        .cornerRadius(Theme.sm)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !matchCompletionPresets.contains(selectedMaxSets) {
+                TextField(NSLocalizedString("match_completion_custom_placeholder", value: "输入 1-99", comment: ""), text: Binding(
+                    get: { customMaxSetsText },
+                    set: { rawValue in
+                        let sanitized = String(rawValue.filter(\.isNumber).prefix(2))
+                        customMaxSetsText = sanitized
+                        selectedMaxSets = Int(sanitized) ?? 0
+                    }
+                ))
+                .keyboardType(.numberPad)
+                .textFieldStyle(.roundedBorder)
+                .accessibilityIdentifier("custom_max_sets_field")
+            }
+
+            if !hasValidMatchCompletionSets {
+                Text(NSLocalizedString(
+                    "match_completion_invalid_sets",
+                    value: "经典模式请输入 1-99 的奇数；打满模式请输入 1-99。",
+                    comment: ""
+                ))
+                .font(.system(size: 12))
+                .foregroundColor(.red)
+            }
+        }
+    }
+
+    private func matchCompletionModeTitle(_ mode: MatchCompletionMode) -> String {
+        mode == .playAll
+            ? NSLocalizedString("match_completion_play_all", value: "打满", comment: "")
+            : NSLocalizedString("match_completion_classic", value: "经典", comment: "")
+    }
+
+    private func matchCompletionModeDescription(_ mode: MatchCompletionMode, useTennisWording: Bool) -> String {
+        switch (mode, useTennisWording) {
+        case (.bestOf, false):
+            return NSLocalizedString("match_completion_classic_description", value: "如五局三胜，提前决出胜负", comment: "")
+        case (.playAll, false):
+            return NSLocalizedString("match_completion_play_all_description", value: "如五局全部打完，可能出现平局", comment: "")
+        case (.bestOf, true):
+            return NSLocalizedString("match_completion_classic_tennis_description", value: "如五盘三胜，提前决出胜负", comment: "")
+        case (.playAll, true):
+            return NSLocalizedString("match_completion_play_all_tennis_description", value: "如五盘全部打完，可能出现平局", comment: "")
         }
     }
 
@@ -570,9 +1277,21 @@ struct SportsSetupDialogView: View {
     private func nameType(for target: NameInputTarget) -> NameType {
         switch target {
         case .team1, .team2:
-            return shouldShowSinglesDoublesAtTop() ? .player : .team
+            if shouldShowSinglesDoublesAtTop() || usesPlayerCommonNames {
+                return .player
+            }
+            return .team
         case .team1Player1, .team1Player2, .team2Player1, .team2Player2:
             return .player
+        }
+    }
+
+    private var usesPlayerCommonNames: Bool {
+        switch gameType {
+        case .archery, .boxing, .billiards, .eightBall, .snooker:
+            true
+        default:
+            false
         }
     }
 
@@ -620,15 +1339,21 @@ struct SportsSetupDialogView: View {
     private func tennisTiebreakOptionText(_ points: Int) -> String {
         switch points {
         case 7:
-            return NSLocalizedString("tennis_tiebreak_option_7", comment: "")
+            return NSLocalizedString("tennis_tiebreak_option_7", value: "抢七", comment: "")
         case 10:
-            return NSLocalizedString("tennis_tiebreak_option_10", comment: "")
+            return NSLocalizedString("tennis_tiebreak_option_10", value: "抢十", comment: "")
         default:
             return "\(points)"
         }
     }
     
-    private func confirmSetup() async {
+    private func confirmSetup(startOnWatch: Bool = false) async {
+        if supportsMatchCompletionMode, !hasValidMatchCompletionSets {
+            return
+        }
+        if !hasValidPointsPerSet {
+            return
+        }
         let resolvedTeam1Name = shouldUseDoublesPlayerInputs()
             ? buildDoublesTeamName(team1Player1Name, team1Player2Name)
             : team1Name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -646,32 +1371,96 @@ struct SportsSetupDialogView: View {
         )
 
         if config.team1Name == config.team2Name && !config.team1Name.isEmpty {
-            // promptAction.showToast
-            #if DEBUG
-            print(NSLocalizedString("duplicate_names_warning", comment: "Duplicate names warning"))
-            #endif
+            setupSendErrorText = NSLocalizedString(
+                "duplicate_names_warning",
+                value: "双方名称不能相同",
+                comment: "Duplicate names warning"
+            )
             return
         }
         
         var finalConfig = config
 
         if gameType == .basketball {
-            finalConfig.basketballMode = basketballMode
+            finalConfig.basketballMode = "five_v_five"
+            finalConfig.basketballRuleSet = basketballRuleSet
+        } else if gameType == .boxing {
+            finalConfig.maxRounds = selectedMaxSets > 0 ? selectedMaxSets : 3
         } else if gameType == .pingpong {
             finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 5
-            finalConfig.pointsPerSet = 11 // Fixed for pingpong
+            finalConfig.matchCompletionMode = matchCompletionMode
+            finalConfig.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 11
             finalConfig.autoChangeSides = autoChangeSides
             finalConfig.isSingles = isSingles
+            finalConfig.servingSide = servingSide.rawValue
+            finalConfig.voiceAnnouncement = voiceAnnouncement
         } else if gameType == .tennis {
             finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            finalConfig.matchCompletionMode = matchCompletionMode
             finalConfig.tieBreakPoints = selectedTieBreakPoints > 0 ? selectedTieBreakPoints : 7
             finalConfig.autoChangeSides = autoChangeSides
             finalConfig.isSingles = isSingles
+            finalConfig.tennisDeuceMode = tennisDeuceMode
+            finalConfig.servingSide = servingSide.rawValue
+            finalConfig.voiceAnnouncement = voiceAnnouncement
         } else if gameType == .badminton {
+            finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            finalConfig.matchCompletionMode = matchCompletionMode
             finalConfig.autoChangeSides = autoChangeSides
             finalConfig.isSingles = isSingles
-        } else if gameType == .volleyball {
+            finalConfig.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 21
+            finalConfig.servingSide = servingSide.rawValue
+            finalConfig.voiceAnnouncement = voiceAnnouncement
+        } else if gameType == .pickleball {
+            finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            finalConfig.matchCompletionMode = matchCompletionMode
+            finalConfig.isSingles = isSingles
+            finalConfig.targetScore = pickleballTargetScore
+            finalConfig.winByTwo = true
+            finalConfig.scoreCap = pickleballTargetScore == 11 ? pickleballScoreCap : nil
+            finalConfig.useRallyScoring = pickleballUseRallyScoring
             finalConfig.autoChangeSides = autoChangeSides
+            finalConfig.servingSide = servingSide.rawValue
+        } else if gameType == .foosball {
+            finalConfig.isSingles = isSingles
+            finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            finalConfig.matchCompletionMode = matchCompletionMode
+            finalConfig.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 5
+            finalConfig.targetScore = finalConfig.pointsPerSet
+            finalConfig.winByTwo = foosballWinByTwo
+            finalConfig.scoreCap = foosballWinByTwo ? foosballScoreCap : nil
+        } else if gameType == .volleyball || gameType == .beachVolleyball || gameType == .airVolleyball {
+            finalConfig.autoChangeSides = autoChangeSides
+            finalConfig.servingSide = servingSide.rawValue
+        } else if gameType == .snooker {
+            finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 1
+            finalConfig.servingSide = servingSide.rawValue
+        } else if gameType == .eightBall {
+            let target = selectedMaxSets > 0 ? selectedMaxSets : 9
+            finalConfig.maxSets = target
+            let handicap = eightBallHandicapMode == "none" ? 0 : min(eightBallHandicapRacks, max(0, target - 1))
+            finalConfig.eightBallHandicapRacks = handicap
+            finalConfig.eightBallHandicapBeneficiary = handicap > 0 ? eightBallHandicapMode : "none"
+        } else if gameType == .archery {
+            finalConfig.servingSide = servingSide.rawValue
+        }
+
+        if startOnWatch {
+            guard canStartOnWatch else {
+                setupSendErrorText = PhoneWatchLinkService.InteractiveStartError.watchUnavailable.localizedDescription
+                return
+            }
+            isSendingSetupToWatch = true
+            setupSendErrorText = ""
+            do {
+                finalConfig.linkedWatchSessionId = try await startLinkedWatchSession(for: finalConfig)
+                finalConfig.startOnWatch = true
+            } catch {
+                isSendingSetupToWatch = false
+                setupSendErrorText = error.localizedDescription
+                return
+            }
+            isSendingSetupToWatch = false
         }
         
         if shouldUseDoublesPlayerInputs() {
@@ -695,15 +1484,112 @@ struct SportsSetupDialogView: View {
                 await commonNamesManager.recordUsage(finalConfig.team2Name, .player)
             }
         } else {
+            let nameKind: NameType = usesPlayerCommonNames ? .player : .team
             if !finalConfig.team1Name.isEmpty && finalConfig.team1Name != defaultTeam1Name {
-                await commonNamesManager.recordUsage(finalConfig.team1Name, .team)
+                await commonNamesManager.recordUsage(finalConfig.team1Name, nameKind)
             }
             if !finalConfig.team2Name.isEmpty && finalConfig.team2Name != defaultTeam2Name {
-                await commonNamesManager.recordUsage(finalConfig.team2Name, .team)
+                await commonNamesManager.recordUsage(finalConfig.team2Name, nameKind)
             }
         }
 
         onConfirm?(finalConfig)
-        dismiss()
+    }
+
+    private func startLinkedWatchSession(for config: SportsSetupResult) async throws -> UUID {
+        if gameType == .basketball {
+            let mode: BasketballGameMode = config.basketballMode == "three_x_three" ? .threeXThree : .fiveVFive
+            let ruleSet: BasketballRuleSet = config.basketballRuleSet == "nba" ? .nba : .fiba
+            let state = BasketballMatchEngine.initial(
+                leftName: config.team1Name,
+                rightName: config.team2Name,
+                gameMode: mode,
+                ruleSet: ruleSet
+            )
+            return try await watchLinkService.startInteractiveOnWatch(state: state)
+        }
+
+        let coreGameType: ScoreCore.GameType
+        let rules: RallyRuleSet
+        switch gameType {
+        case .pingpong:
+            coreGameType = config.isSingles == false ? .pingpongDoubles : .pingpong
+            var configured = RallyRuleSet.pingPong(
+                maxSets: config.maxSets ?? 5,
+                matchCompletionMode: config.matchCompletionMode ?? .bestOf
+            )
+            let target = max(1, config.pointsPerSet ?? 11)
+            configured.pointsToWinSet = target
+            configured.decidingSetSideSwitchPoint = max(1, (target + 1) / 2)
+            configured.autoChangeSides = config.autoChangeSides ?? true
+            rules = configured
+        case .badminton:
+            coreGameType = config.isSingles == false ? .badmintonDoubles : .badminton
+            var configured = RallyRuleSet.badminton(
+                maxSets: config.maxSets ?? 3,
+                matchCompletionMode: config.matchCompletionMode ?? .bestOf
+            )
+            let target = max(1, config.pointsPerSet ?? 21)
+            configured.pointsToWinSet = target
+            configured.pointCap = target == 21 ? 30 : nil
+            configured.decidingSetSideSwitchPoint = max(1, (target + 1) / 2)
+            configured.autoChangeSides = config.autoChangeSides ?? true
+            rules = configured
+        case .pickleball:
+            coreGameType = config.isSingles == false ? .pickleballDoubles : .pickleball
+            var configured = RallyRuleSet.pickleball(
+                maxSets: config.maxSets ?? 3,
+                matchCompletionMode: config.matchCompletionMode ?? .bestOf
+            )
+            configured.pointsToWinSet = max(1, config.targetScore ?? 11)
+            configured.pointCap = config.scoreCap
+            configured.winByTwo = config.winByTwo ?? true
+            configured.autoChangeSides = config.autoChangeSides ?? true
+            configured.useRallyScoring = config.useRallyScoring ?? false
+            rules = configured
+        default:
+            throw PhoneWatchLinkService.InteractiveStartError.watchUnavailable
+        }
+
+        let openingServer: MatchSide = config.servingSide == MatchSide.right.rawValue ? .right : .left
+        let state = RallyMatchEngine.initial(
+            leftName: config.team1Name,
+            rightName: config.team2Name,
+            rules: rules,
+            openingServer: openingServer,
+            doubles: linkedDoublesState(for: coreGameType, config: config, openingServer: openingServer)
+        )
+        return try await watchLinkService.startInteractiveOnWatch(gameType: coreGameType, state: state)
+    }
+
+    private func linkedDoublesState(
+        for gameType: ScoreCore.GameType,
+        config: SportsSetupResult,
+        openingServer: MatchSide
+    ) -> RallyDoublesState? {
+        guard config.isSingles == false else { return nil }
+        let names = [
+            config.team1Player1Name ?? "红A",
+            config.team2Player1Name ?? "蓝A",
+            config.team1Player2Name ?? "红B",
+            config.team2Player2Name ?? "蓝B"
+        ]
+        switch gameType {
+        case .pingpongDoubles:
+            return .pingPong(
+                playerNames: names,
+                openingServerSlotIndex: openingServer == .left ? 0 : 1,
+                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
+            )
+        case .badmintonDoubles:
+            return .badminton(playerNames: names, servingTeam0: openingServer == .left)
+        default:
+            return nil
+        }
+    }
+
+    private var supportsMatchCompletionMode: Bool {
+        gameType == .pingpong || gameType == .badminton || gameType == .tennis ||
+            gameType == .pickleball || gameType == .foosball
     }
 }

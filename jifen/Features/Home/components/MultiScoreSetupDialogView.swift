@@ -1,44 +1,115 @@
 import SwiftUI
 
+/// 多人 / 卡牌 / 简单计分开局设置，对齐鸿蒙 CasualGameSetupDialog。
 struct MultiScoreSetupDialogView: View {
-    @Environment(\.dismiss) private var dismiss
+    enum LayoutMode {
+        case multiScore
+        case doudizhu
+        case uno
+        case twoTeam
+    }
 
+    var gameType: GameType = .multiScoreboard
     var titleEmoji: String
     var titleKey: String
     var titleFallback: String
-    var fixedPlayerCount: Int?
+    var maxContentHeight: CGFloat = 520
     var onConfirm: ((SportsSetupResult) -> Void)?
     var onCancel: (() -> Void)?
 
     @State private var selectedPlayerCount: Int
     @State private var playerNames: [String]
+    @State private var team1Name: String
+    @State private var team2Name: String
+    @State private var unoTargetScore: Int
     @State private var activeCommonNameIndex: Int? = nil
+    @State private var activeTeamNameTarget: TeamNameTarget? = nil
+
+    private enum TeamNameTarget: String, Identifiable {
+        case team1
+        case team2
+        var id: String { rawValue }
+    }
 
     private let commonNamesManager = CommonNamesManager.shared
 
+    private var layoutMode: LayoutMode {
+        switch gameType {
+        case .doudizhu: return .doudizhu
+        case .uno: return .uno
+        case .guandan, .shengji, .simpleScore: return .twoTeam
+        default: return .multiScore
+        }
+    }
+
+    private var playerCountRange: ClosedRange<Int> {
+        switch layoutMode {
+        case .uno: return 2...10
+        case .multiScore: return 3...9
+        case .doudizhu: return 3...3
+        case .twoTeam: return 2...2
+        }
+    }
+
     init(
+        gameType: GameType = .multiScoreboard,
         defaultPlayerCount: Int = 4,
         initialPlayerNames: [String] = [],
+        defaultTeam1Name: String = "",
+        defaultTeam2Name: String = "",
+        initialTargetScore: Int = 500,
         titleEmoji: String = "👥",
         titleKey: String = "game_multi_scoreboard",
         titleFallback: String = "多人计分",
-        fixedPlayerCount: Int? = nil,
+        maxContentHeight: CGFloat = 520,
         onConfirm: ((SportsSetupResult) -> Void)? = nil,
         onCancel: (() -> Void)? = nil
     ) {
+        self.gameType = gameType
         self.titleEmoji = titleEmoji
         self.titleKey = titleKey
         self.titleFallback = titleFallback
-        self.fixedPlayerCount = {
-            guard let fixedPlayerCount else { return nil }
-            return (3...9).contains(fixedPlayerCount) ? fixedPlayerCount : nil
-        }()
+        self.maxContentHeight = maxContentHeight
         self.onConfirm = onConfirm
         self.onCancel = onCancel
 
-        let safeCount = (3...9).contains(defaultPlayerCount) ? defaultPlayerCount : 4
-        _selectedPlayerCount = State(initialValue: self.fixedPlayerCount ?? safeCount)
-        _playerNames = State(initialValue: Self.normalizePlayerNames(initialPlayerNames))
+        let mode: LayoutMode = {
+            switch gameType {
+            case .doudizhu: return .doudizhu
+            case .uno: return .uno
+            case .guandan, .shengji, .simpleScore: return .twoTeam
+            default: return .multiScore
+            }
+        }()
+        let range: ClosedRange<Int> = {
+            switch mode {
+            case .uno: return 2...10
+            case .multiScore: return 3...9
+            case .doudizhu: return 3...3
+            case .twoTeam: return 2...2
+            }
+        }()
+        let safeCount: Int = {
+            switch mode {
+            case .doudizhu: return 3
+            case .twoTeam: return 2
+            case .uno:
+                return range.contains(defaultPlayerCount) ? defaultPlayerCount : 4
+            case .multiScore:
+                return range.contains(defaultPlayerCount) ? defaultPlayerCount : 4
+            }
+        }()
+
+        _selectedPlayerCount = State(initialValue: safeCount)
+        _playerNames = State(initialValue: Self.normalizePlayerNames(initialPlayerNames, capacity: 10))
+        _team1Name = State(initialValue: defaultTeam1Name.isEmpty
+            ? NSLocalizedString("red_team", value: "红方", comment: "")
+            : defaultTeam1Name)
+        _team2Name = State(initialValue: defaultTeam2Name.isEmpty
+            ? NSLocalizedString("blue_team", value: "蓝方", comment: "")
+            : defaultTeam2Name)
+        let validTargets = [300, 500, 700, 1000]
+        _unoTargetScore = State(initialValue: validTargets.contains(initialTargetScore) ? initialTargetScore : 500)
     }
 
     var body: some View {
@@ -46,7 +117,8 @@ struct MultiScoreSetupDialogView: View {
             HStack(spacing: 6) {
                 Text(titleEmoji)
                     .font(.system(size: 20))
-                Text(NSLocalizedString(titleKey, value: titleFallback, comment: "") + NSLocalizedString("setup_suffix", value: " 设置", comment: ""))
+                Text(NSLocalizedString(titleKey, value: titleFallback, comment: "")
+                    + NSLocalizedString("setup_suffix", value: " 设置", comment: ""))
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
                 Spacer(minLength: 0)
@@ -57,46 +129,27 @@ struct MultiScoreSetupDialogView: View {
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: Theme.md) {
-                    if fixedPlayerCount == nil {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: Theme.sm) {
-                                ForEach(Array(3...9), id: \.self) { count in
-                                    Button(action: {
-                                        selectedPlayerCount = count
-                                    }) {
-                                        Text(playerCountText(count))
-                                            .font(.system(size: 14, weight: selectedPlayerCount == count ? .medium : .regular))
-                                            .foregroundColor(selectedPlayerCount == count ? .white : Theme.textPrimary)
-                                            .padding(.horizontal, Theme.sm)
-                                            .padding(.vertical, Theme.xs)
-                                            .background(selectedPlayerCount == count ? Theme.primary : Theme.homeCardDark)
-                                            .cornerRadius(Theme.sm)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
+                    switch layoutMode {
+                    case .twoTeam:
+                        twoTeamNameInputs
+                    case .multiScore, .uno, .doudizhu:
+                        if layoutMode != .doudizhu {
+                            playerCountChips
                         }
-                    }
-
-                    VStack(spacing: Theme.sm) {
-                        ForEach(0..<selectedPlayerCount, id: \.self) { index in
-                            InlineCommonNameTextField(
-                                placeholder: playerLabel(index),
-                                text: bindingForPlayerName(index),
-                                onChevronTap: { activeCommonNameIndex = index }
-                            )
+                        playerNameFields
+                        if layoutMode == .uno {
+                            unoTargetScoreSection
                         }
                     }
                 }
                 .padding(.horizontal, Theme.lg)
                 .padding(.vertical, Theme.md)
             }
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxHeight: maxContentHeight)
 
             HStack(spacing: Theme.md) {
-                Button(action: {
-                    onCancel?()
-                    dismiss()
-                }) {
+                Button(action: { onCancel?() }) {
                     Text(NSLocalizedString("cancel", comment: "Cancel button"))
                         .font(.system(size: 16))
                         .foregroundColor(Theme.textSecondary)
@@ -106,9 +159,7 @@ struct MultiScoreSetupDialogView: View {
                 }
                 .buttonStyle(.plain)
 
-                Button(action: {
-                    confirmSetup()
-                }) {
+                Button(action: confirmSetup) {
                     Text(NSLocalizedString("start_game", comment: "Start Game button"))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white)
@@ -123,12 +174,6 @@ struct MultiScoreSetupDialogView: View {
             .padding(.top, Theme.sm)
             .padding(.bottom, Theme.md)
         }
-        .background(Theme.homeDialogBackground.ignoresSafeArea())
-        .onAppear {
-            if let fixedPlayerCount {
-                selectedPlayerCount = fixedPlayerCount
-            }
-        }
         .sheet(isPresented: Binding(
             get: { activeCommonNameIndex != nil },
             set: { if !$0 { activeCommonNameIndex = nil } }
@@ -140,33 +185,111 @@ struct MultiScoreSetupDialogView: View {
                 activeCommonNameIndex = nil
             }
         }
+        .sheet(item: $activeTeamNameTarget) { target in
+            CommonNameSelectorDialog(nameType: .team) { name in
+                switch target {
+                case .team1: team1Name = name
+                case .team2: team2Name = name
+                }
+                activeTeamNameTarget = nil
+            }
+        }
     }
 
-    private static func normalizePlayerNames(_ names: [String]) -> [String] {
+    private var playerCountChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Theme.sm) {
+                ForEach(Array(playerCountRange), id: \.self) { count in
+                    Button(action: { selectedPlayerCount = count }) {
+                        Text(playerCountText(count))
+                            .font(.system(size: 14, weight: selectedPlayerCount == count ? .medium : .regular))
+                            .foregroundColor(selectedPlayerCount == count ? .white : Theme.textPrimary)
+                            .padding(.horizontal, Theme.sm)
+                            .padding(.vertical, Theme.xs)
+                            .background(selectedPlayerCount == count ? Theme.primary : Theme.homeCardDark)
+                            .cornerRadius(Theme.sm)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var playerNameFields: some View {
+        VStack(spacing: Theme.sm) {
+            ForEach(0..<selectedPlayerCount, id: \.self) { index in
+                InlineCommonNameTextField(
+                    placeholder: playerLabel(index),
+                    text: bindingForPlayerName(index),
+                    onChevronTap: { activeCommonNameIndex = index }
+                )
+            }
+        }
+    }
+
+    private var twoTeamNameInputs: some View {
+        HStack(spacing: Theme.sm) {
+            InlineCommonNameTextField(
+                placeholder: NSLocalizedString("red_team", value: "红方", comment: ""),
+                text: $team1Name,
+                onChevronTap: { activeTeamNameTarget = .team1 }
+            )
+            .frame(maxWidth: .infinity)
+
+            Text(NSLocalizedString("vs_separator", value: " vs ", comment: ""))
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Theme.textSecondary)
+
+            InlineCommonNameTextField(
+                placeholder: NSLocalizedString("blue_team", value: "蓝方", comment: ""),
+                text: $team2Name,
+                onChevronTap: { activeTeamNameTarget = .team2 }
+            )
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private var unoTargetScoreSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("uno_target_score", value: "目标分", comment: ""))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+            HStack(spacing: 8) {
+                ForEach([300, 500, 700, 1000], id: \.self) { score in
+                    Button {
+                        unoTargetScore = score
+                    } label: {
+                        Text("\(score)")
+                            .font(.system(size: 14, weight: unoTargetScore == score ? .medium : .regular))
+                            .foregroundStyle(unoTargetScore == score ? Color.white : Theme.textPrimary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 40)
+                            .background(unoTargetScore == score ? Theme.primary : Theme.homeCardDark)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private static func normalizePlayerNames(_ names: [String], capacity: Int) -> [String] {
         let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
         var result = names
-        if result.count < 9 {
-            for i in result.count..<9 {
+        if result.count < capacity {
+            for i in result.count..<capacity {
                 result.append("\(base) \(i + 1)")
             }
         }
-        if result.count > 9 {
-            result = Array(result.prefix(9))
+        if result.count > capacity {
+            result = Array(result.prefix(capacity))
         }
         return result
     }
 
     private func playerCountText(_ count: Int) -> String {
-        if count == 4 {
-            return NSLocalizedString("players_4", value: "4人", comment: "")
-        }
-        if count == 6 {
-            return NSLocalizedString("players_6", value: "6人", comment: "")
-        }
-        if count == 8 {
-            return NSLocalizedString("players_8", value: "8人", comment: "")
-        }
-        return String.localizedStringWithFormat(
+        String.localizedStringWithFormat(
             NSLocalizedString("players_count_format", value: "%d人", comment: "Player count format"),
             count
         )
@@ -188,26 +311,41 @@ struct MultiScoreSetupDialogView: View {
     }
 
     private func confirmSetup() {
-        let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
-        let finalNames = Array(playerNames.prefix(selectedPlayerCount)).enumerated().map { idx, raw in
-            let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? "\(base) \(idx + 1)" : value
-        }
-        let team1 = finalNames.first ?? "\(base) 1"
-        let team2 = finalNames.count > 1 ? finalNames[1] : ""
-        let result = SportsSetupResult(
-            team1Name: team1,
-            team2Name: team2,
-            playerCount: selectedPlayerCount,
-            playerNames: finalNames
-        )
-        Task {
-            for name in finalNames {
-                await commonNamesManager.recordUsage(name, .player)
+        switch layoutMode {
+        case .twoTeam:
+            let t1 = team1Name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let t2 = team2Name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let final1 = t1.isEmpty ? NSLocalizedString("red_team", value: "红方", comment: "") : t1
+            let final2 = t2.isEmpty ? NSLocalizedString("blue_team", value: "蓝方", comment: "") : t2
+            Task {
+                await commonNamesManager.recordUsage(final1, .team)
+                await commonNamesManager.recordUsage(final2, .team)
             }
+            onConfirm?(SportsSetupResult(team1Name: final1, team2Name: final2))
+        case .multiScore, .doudizhu, .uno:
+            let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
+            let finalNames = Array(playerNames.prefix(selectedPlayerCount)).enumerated().map { idx, raw in
+                let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+                return value.isEmpty ? "\(base) \(idx + 1)" : value
+            }
+            let team1 = finalNames.first ?? "\(base) 1"
+            let team2 = finalNames.count > 1 ? finalNames[1] : ""
+            var result = SportsSetupResult(
+                team1Name: team1,
+                team2Name: team2,
+                playerCount: selectedPlayerCount,
+                playerNames: finalNames
+            )
+            if layoutMode == .uno {
+                result.targetScore = unoTargetScore
+            }
+            Task {
+                for name in finalNames {
+                    await commonNamesManager.recordUsage(name, .player)
+                }
+            }
+            onConfirm?(result)
         }
-        onConfirm?(result)
-        dismiss()
     }
 }
 

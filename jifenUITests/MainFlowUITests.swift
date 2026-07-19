@@ -50,11 +50,26 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(meTab.exists)
         meTab.tap()
 
-        XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Common Names"].exists)
+        XCTAssertTrue(app.staticTexts["Scoreboard Settings"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Appearance"].exists)
         XCTAssertTrue(app.staticTexts["Clear data"].exists)
-        XCTAssertTrue(app.staticTexts["Vibration"].exists)
-        XCTAssertTrue(app.staticTexts["Support & Contact"].exists)
+        XCTAssertTrue(app.staticTexts["Rate App"].exists)
+        XCTAssertTrue(app.staticTexts["Share with Friends"].exists)
+        XCTAssertTrue(app.staticTexts["FAQ"].exists)
+        XCTAssertTrue(app.staticTexts["About Us"].exists)
+        XCTAssertFalse(app.staticTexts["Common Names"].exists)
+    }
+
+    func testHomeContainsCommonNamesAndPlaces() {
+        let app = launchApp()
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+
+        let names = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Common Names")).firstMatch
+        let places = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Common Places")).firstMatch
+        XCTAssertTrue(names.waitForExistence(timeout: 5))
+        XCTAssertTrue(names.label.contains("Teams and players"))
+        XCTAssertTrue(places.exists)
+        XCTAssertTrue(places.label.contains("Venues, courts, places"))
     }
 
     func testTapVisibleComponentsAcrossAllTabs() {
@@ -112,6 +127,60 @@ final class MainFlowUITests: XCTestCase {
         }
         XCTAssertTrue(app.descendants(matching: .any)["发球员"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["接发球员"].exists)
+    }
+
+    func testPlayAllSetupSupportsEvenAndCustomSetCounts() {
+        runPlayAllSetup(appearance: "light")
+    }
+
+    func testPlayAllSetupInDarkMode() {
+        runPlayAllSetup(appearance: "dark")
+    }
+
+    private func runPlayAllSetup(appearance: String) {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-jifen-v2.appAppearanceMode", appearance
+        ]
+        app.launch()
+        defer { app.terminate() }
+
+        let newMatch = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "新比赛")).firstMatch
+        XCTAssertTrue(newMatch.waitForExistence(timeout: 8))
+        newMatch.tap()
+
+        let pingPong = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "乒乓球")).firstMatch
+        XCTAssertTrue(pingPong.waitForExistence(timeout: 5))
+        pingPong.tap()
+
+        let modeSelector = app.buttons["match_completion_mode_selector"]
+        XCTAssertTrue(modeSelector.waitForExistence(timeout: 5))
+        XCTAssertTrue(modeSelector.label.contains("经典"))
+        modeSelector.tap()
+
+        let playAll = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "打满")).firstMatch
+        XCTAssertTrue(playAll.waitForExistence(timeout: 3))
+        playAll.tap()
+        XCTAssertTrue(modeSelector.label.contains("打满"))
+
+        let evenSetOption = app.buttons["2"]
+        XCTAssertTrue(evenSetOption.waitForExistence(timeout: 3))
+        evenSetOption.tap()
+        XCTAssertFalse(app.staticTexts["经典模式请输入 1-99 的奇数；打满模式请输入 1-99。"].exists)
+
+        app.buttons["自定义"].tap()
+        let customField = app.textFields["custom_max_sets_field"]
+        XCTAssertTrue(customField.waitForExistence(timeout: 3))
+        customField.tap()
+        customField.typeText("8")
+        XCTAssertEqual(customField.value as? String, "8")
+
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "Play all setup - \(appearance)"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
     }
 
     @discardableResult

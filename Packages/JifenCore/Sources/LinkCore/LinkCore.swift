@@ -179,6 +179,32 @@ public enum WatchConnectivityTransportError: Error, Equatable, Sendable {
     case sessionNotActivated
 }
 
+public struct WatchConnectivityStatus: Equatable, Sendable {
+    public let isSupported: Bool
+    public let isActivated: Bool
+    public let isPaired: Bool
+    public let isWatchAppInstalled: Bool
+    public let isReachable: Bool
+
+    public init(
+        isSupported: Bool,
+        isActivated: Bool,
+        isPaired: Bool,
+        isWatchAppInstalled: Bool,
+        isReachable: Bool
+    ) {
+        self.isSupported = isSupported
+        self.isActivated = isActivated
+        self.isPaired = isPaired
+        self.isWatchAppInstalled = isWatchAppInstalled
+        self.isReachable = isReachable
+    }
+
+    public var canStartInteractiveSession: Bool {
+        isSupported && isActivated && isPaired && isWatchAppInstalled && isReachable
+    }
+}
+
 /// A binary transport shared by the phone and Watch targets.
 public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, LinkTransport {
     public typealias ReceiveHandler = @Sendable (Data) -> Void
@@ -186,6 +212,7 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
     private static let userInfoPayloadKey = "jifen.link.payload"
     private let session: WCSession
     public var onReceive: ReceiveHandler?
+    public var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
 
     public init(session: WCSession = .default) {
         self.session = session
@@ -193,9 +220,29 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
     }
 
     public func activate() {
-        guard WCSession.isSupported() else { return }
+        guard WCSession.isSupported() else {
+            reportStatus()
+            return
+        }
         session.delegate = self
         session.activate()
+    }
+
+    public var status: WatchConnectivityStatus {
+        #if os(iOS)
+        let isPaired = session.isPaired
+        let isWatchAppInstalled = session.isWatchAppInstalled
+        #else
+        let isPaired = true
+        let isWatchAppInstalled = true
+        #endif
+        return WatchConnectivityStatus(
+            isSupported: WCSession.isSupported(),
+            isActivated: session.activationState == .activated,
+            isPaired: isPaired,
+            isWatchAppInstalled: isWatchAppInstalled,
+            isReachable: session.isReachable
+        )
     }
 
     public func send(_ data: Data) async throws {
@@ -208,10 +255,20 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
             session.transferUserInfo([Self.userInfoPayloadKey: data])
         }
     }
+
+    private func reportStatus() {
+        onStatusChange?(status)
+    }
 }
 
 extension WatchConnectivityTransport: WCSessionDelegate {
-    public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
+    public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        reportStatus()
+    }
+
+    public func sessionReachabilityDidChange(_ session: WCSession) {
+        reportStatus()
+    }
 
     public func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
         onReceive?(messageData)
@@ -223,6 +280,10 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     }
 
 #if os(iOS)
+    public func sessionWatchStateDidChange(_ session: WCSession) {
+        reportStatus()
+    }
+
     public func sessionDidBecomeInactive(_ session: WCSession) {}
 
     public func sessionDidDeactivate(_ session: WCSession) {

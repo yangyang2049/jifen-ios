@@ -15,6 +15,7 @@ struct CreateBookingPage: View {
     @State private var reminders: Set<Int> = [120, 15]
     @State private var didLoadInitial: Bool = false
     @State private var showReminderHelp = false
+    @State private var showCommonPlaces = false
 
     private let reminderOptions = [120, 30, 15]
 
@@ -49,7 +50,7 @@ struct CreateBookingPage: View {
                             } label: {
                                 Image(systemName: "minus.circle.fill")
                                     .font(.system(size: 28))
-                                    .foregroundStyle(durationMinutes > 30 ? Color.white : Color.gray.opacity(0.5))
+                                    .foregroundStyle(durationMinutes > 30 ? Theme.primaryDark : Theme.textSecondary.opacity(0.5))
                             }
                             .buttonStyle(.plain)
                             .disabled(durationMinutes <= 30)
@@ -66,7 +67,7 @@ struct CreateBookingPage: View {
                             } label: {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 28))
-                                    .foregroundStyle(durationMinutes < 360 ? Color.white : Color.gray.opacity(0.5))
+                                    .foregroundStyle(durationMinutes < 360 ? Theme.primaryDark : Theme.textSecondary.opacity(0.5))
                             }
                             .buttonStyle(.plain)
                             .disabled(durationMinutes >= 360)
@@ -75,7 +76,17 @@ struct CreateBookingPage: View {
                 }
 
                 Section(NSLocalizedString("schedule_location", value: "地点", comment: "")) {
-                    TextField(NSLocalizedString("schedule_location_placeholder", value: "输入地点", comment: ""), text: $location)
+                    HStack {
+                        TextField(NSLocalizedString("schedule_location_placeholder", value: "输入地点", comment: ""), text: $location)
+                        Button {
+                            showCommonPlaces = true
+                        } label: {
+                            Image(systemName: "location.circle")
+                                .foregroundColor(Theme.primaryDark)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(NSLocalizedString("schedule_pick_common_place", value: "选择常用地点", comment: ""))
+                    }
                 }
 
                 Section {
@@ -132,6 +143,12 @@ struct CreateBookingPage: View {
             } message: {
                 Text(NSLocalizedString("schedule_reminder_help_message", value: "这些提醒为本地通知，由设备在预约时间前触发。\n- 需开启系统通知权限\n- 若应用被卸载、通知被关闭或系统限制后台，提醒可能无法送达\n- 修改或取消预约时，相关提醒会同步更新或移除", comment: ""))
             }
+            .sheet(isPresented: $showCommonPlaces) {
+                CommonPlacePickerView { place in
+                    location = place.name
+                    showCommonPlaces = false
+                }
+            }
         }
     }
 
@@ -167,11 +184,11 @@ struct CreateBookingPage: View {
                 .frame(height: 44)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(enabled ? (selected ? Theme.primary.opacity(0.9) : Color.white.opacity(0.06)) : Color.white.opacity(0.03))
+                        .fill(enabled ? (selected ? Theme.primaryDark : Theme.controlBackground) : Theme.controlBackground.opacity(0.55))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(enabled ? (selected ? Theme.primary : Color.white.opacity(0.12)) : Color.white.opacity(0.08), lineWidth: 1)
+                        .stroke(enabled ? (selected ? Theme.primaryDark : Theme.divider) : Theme.divider.opacity(0.6), lineWidth: 1)
                 )
                 .opacity(enabled ? 1 : 0.72)
         }
@@ -205,6 +222,7 @@ struct CreateBookingPage: View {
             updatedAt: Date()
         )
         _ = LocalBookingManager.shared.upsertBooking(booking)
+        CommonPlacesManager.shared.recordUsage(trimmedLocation)
         onCreated?()
         dismiss()
     }

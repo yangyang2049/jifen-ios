@@ -3,7 +3,6 @@ import SwiftUI
 struct QuickStartGridView: View {
     let primarySport: GameType
     let secondarySport: GameType
-    var isDarkTheme: Bool = true // Default to black UI
     /// 横屏两栏时由 HomeTab 绘制统一标题行，此处仅显示网格
     var showSectionTitle: Bool = true
 
@@ -70,8 +69,7 @@ struct QuickStartGridView: View {
                                 title: getGameName(type: secondarySport),
                                 subtitle: isQuickStartTimerType(secondarySport) ? startTimerText : startGameText,
                                 icon: getGameIcon(type: secondarySport),
-                                gradientColors: getGameGradient(type: secondarySport),
-                                isDarkText: false
+                                gradientColors: getGameGradient(type: secondarySport)
                             )
                         }
                         .buttonStyle(.plain)

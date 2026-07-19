@@ -7,10 +7,12 @@
 
 import SwiftUI
 import Combine
+import ScoreCore
 
 struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
     @State private var unfinishedRecord: ScoreboardRecord?
@@ -18,6 +20,7 @@ struct HomeTab: View {
     @State private var showQuickStartEditSheet = false
     @State private var showDiscardUnfinishedAlert = false
     @State private var showCreateBookingSheet = false
+    @State private var showLocalSync = false
     @State private var path = NavigationPath()
     /// When user selects a scoreboard game from New Game or Quick Start, show setup first for supported sports.
     @State private var pendingScoreboardSetupItem: ScoreboardSetupItem? = nil
@@ -44,11 +47,17 @@ struct HomeTab: View {
         case scoreboard(ScoreboardNavigationTarget)
         case toolsList
         case schedule
+        case commonNames
+        case commonPlaces
         case bookingDetail(bookingId: String)
     }
 
     /// 与鸿蒙 HomeTab.ets 一致：屏幕宽度 >= 768 时使用两栏布局
     private let wideLayoutThreshold: CGFloat = 768
+
+    private var isDarkTheme: Bool {
+        colorScheme == .dark
+    }
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -67,7 +76,6 @@ struct HomeTab: View {
             .navigationBarHidden(true)
             .sheet(isPresented: $showQuickStartEditSheet) {
                 QuickStartEditView(
-                    isDarkTheme: true,
                     initialPrimary: quickStartManager.quickStartConfig.primarySport,
                     initialSecondary: quickStartManager.quickStartConfig.secondarySport,
                     onSave: { primary, secondary in
@@ -93,44 +101,17 @@ struct HomeTab: View {
                     }
                 )
             }
-            .sheet(item: $pendingScoreboardSetupItem) { item in
-                if item.gameType == .multiScoreboard || item.gameType == .doudizhu {
-                    let isDoudizhu = item.gameType == .doudizhu
-                    MultiScoreSetupDialogView(
-                        defaultPlayerCount: isDoudizhu ? 3 : 4,
-                        titleEmoji: isDoudizhu ? "🃏" : "👥",
-                        titleKey: isDoudizhu ? "game_doudizhu" : "game_multi_scoreboard",
-                        titleFallback: isDoudizhu ? "斗地主" : "多人计分",
-                        fixedPlayerCount: isDoudizhu ? 3 : nil,
+            .overlay {
+                CenteredSetupDialogPresenter(item: $pendingScoreboardSetupItem) { item, dismiss, maxContentHeight in
+                    scoreboardSetupDialog(
+                        for: item.gameType,
+                        maxContentHeight: maxContentHeight,
                         onConfirm: { result in
                             pendingScoreboardSetupItem = nil
-                            navigateToScoreboardAfterSheetDismiss(item.gameType, setupResult: result)
+                            navigateToScoreboardAfterSetupDismiss(item.gameType, setupResult: result)
                         },
-                        onCancel: {
-                            pendingScoreboardSetupItem = nil
-                        }
+                        onCancel: dismiss
                     )
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
-                } else {
-                    let (t1, t2) = Self.defaultTeamNames(for: item.gameType)
-                    SportsSetupDialogView(
-                        gameType: item.gameType,
-                        defaultTeam1Name: t1,
-                        defaultTeam2Name: t2,
-                        initialMaxSets: nil,
-                        initialPointsPerSet: nil,
-                        initialTieBreakPoints: nil,
-                        onConfirm: { result in
-                            pendingScoreboardSetupItem = nil
-                            navigateToScoreboardAfterSheetDismiss(item.gameType, setupResult: result)
-                        },
-                        onCancel: {
-                            pendingScoreboardSetupItem = nil
-                        }
-                    )
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
                 }
             }
             .sheet(isPresented: $showCreateBookingSheet) {
@@ -140,6 +121,9 @@ struct HomeTab: View {
                         path.append(NavigationDestination.schedule)
                     }
                 }
+            }
+            .sheet(isPresented: $showLocalSync) {
+                LocalSyncView()
             }
             .navigationDestination(for: NavigationDestination.self) { destination in
                 switch destination {
@@ -167,6 +151,12 @@ struct HomeTab: View {
                         }
                     )
                     .toolbar(.hidden, for: .tabBar)
+                case .commonNames:
+                    CommonNamesManagementView()
+                        .toolbar(.hidden, for: .tabBar)
+                case .commonPlaces:
+                    CommonPlacesManagementView()
+                        .toolbar(.hidden, for: .tabBar)
                 case .bookingDetail(let bookingId):
                     BookingDetailPage(
                         bookingId: bookingId,
@@ -340,11 +330,11 @@ struct HomeTab: View {
         loadUnfinishedRecord()
     }
 
-    private func navigateToScoreboardAfterSheetDismiss(
+    private func navigateToScoreboardAfterSetupDismiss(
         _ gameType: GameType,
         setupResult: SportsSetupResult
     ) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             guard pendingScoreboardSetupItem == nil else { return }
             path.append(
                 NavigationDestination.scoreboard(
@@ -356,6 +346,53 @@ struct HomeTab: View {
                 )
             )
         }
+    }
+
+    @ViewBuilder
+    private func scoreboardSetupDialog(
+        for gameType: GameType,
+        maxContentHeight: CGFloat,
+        onConfirm: @escaping (SportsSetupResult) -> Void,
+        onCancel: @escaping () -> Void
+    ) -> some View {
+        if gameType == .nineBall {
+            NineBallSetupDialogView(
+                maxContentHeight: maxContentHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+        } else if Self.isCasualSetupGame(gameType) {
+            let (t1, t2) = Self.defaultTeamNames(for: gameType)
+            MultiScoreSetupDialogView(
+                gameType: gameType,
+                defaultPlayerCount: gameType == .doudizhu ? 3 : 4,
+                defaultTeam1Name: t1,
+                defaultTeam2Name: t2,
+                titleEmoji: gameType.icon,
+                titleKey: Self.localizationKey(for: gameType),
+                titleFallback: gameType.displayName,
+                maxContentHeight: maxContentHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+        } else {
+            let (t1, t2) = Self.defaultTeamNames(for: gameType)
+            SportsSetupDialogView(
+                gameType: gameType,
+                defaultTeam1Name: t1,
+                defaultTeam2Name: t2,
+                initialMaxSets: nil,
+                initialPointsPerSet: nil,
+                initialTieBreakPoints: nil,
+                maxContentHeight: maxContentHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+        }
+    }
+
+    private static func isCasualSetupGame(_ gameType: GameType) -> Bool {
+        [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(gameType)
     }
 
     @ViewBuilder
@@ -371,6 +408,15 @@ struct HomeTab: View {
                 showBackButton: false,
                 onNavigationBack: navigateBack,
                 initialSetup: setupResult,
+                initialRecordId: initialRecordId,
+                onSetupConsumed: onSetupConsumed
+            )
+                .toolbar(.hidden, for: .tabBar)
+        case .threeBasketball:
+            BasketballScoreboardView(
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                initialSetup: Self.threeBasketballSetup(from: setupResult),
                 initialRecordId: initialRecordId,
                 onSetupConsumed: onSetupConsumed
             )
@@ -420,6 +466,12 @@ struct HomeTab: View {
                 onSetupConsumed: onSetupConsumed
             )
                 .toolbar(.hidden, for: .tabBar)
+        case .beachVolleyball:
+            VolleyballScoreboardView(variant: .beachVolleyball, showBackButton: false, onNavigationBack: navigateBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .airVolleyball:
+            VolleyballScoreboardView(variant: .airVolleyball, showBackButton: false, onNavigationBack: navigateBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
         case .archery:
             ArcheryScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
                 .toolbar(.hidden, for: .tabBar)
@@ -429,6 +481,15 @@ struct HomeTab: View {
         case .billiards:
             BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
                 .toolbar(.hidden, for: .tabBar)
+        case .eightBall:
+            EightBallScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .nineBall:
+            NineBallChaseScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .snooker:
+            SnookerReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
         case .pickleball:
             PickleballScoreboardView(initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
                 .toolbar(.hidden, for: .tabBar)
@@ -437,6 +498,31 @@ struct HomeTab: View {
                 .toolbar(.hidden, for: .tabBar)
         case .doudizhu:
             DoudizhuScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+                .toolbar(.hidden, for: .tabBar)
+        case .shengji:
+            ShengjiReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: navigateBack)
+                .toolbar(.hidden, for: .tabBar)
+        case .uno:
+            MultiScoreboardView(
+                gameType: .uno,
+                defaultPlayerCount: setupResult?.playerCount ?? 4,
+                targetScore: setupResult?.targetScore ?? 500,
+                initialSetup: setupResult,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: navigateBack
+            )
+                .toolbar(.hidden, for: .tabBar)
+        case .foosball:
+            RallyScoreboardView(
+                leftName: setupResult?.team1Name ?? NSLocalizedString("red_team", value: "红方", comment: ""),
+                rightName: setupResult?.team2Name ?? NSLocalizedString("blue_team", value: "蓝方", comment: ""),
+                gameType: setupResult?.isSingles == false ? .foosballDoubles : .foosball,
+                rules: (setupResult ?? SportsSetupResult(team1Name: "", team2Name: "")).foosballRules,
+                voiceAnnouncementEnabled: setupResult?.voiceAnnouncement ?? false,
+                showBackButton: false,
+                onNavigationBack: navigateBack,
+                onPresented: onSetupConsumed
+            )
                 .toolbar(.hidden, for: .tabBar)
         case .simpleScore:
             SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
@@ -450,6 +536,24 @@ struct HomeTab: View {
         default:
             Text(NSLocalizedString("game_not_supported", value: "暂不支持该项目", comment: ""))
                 .foregroundColor(.white)
+        }
+    }
+
+    private static func threeBasketballSetup(from setup: SportsSetupResult?) -> SportsSetupResult {
+        var result = setup ?? SportsSetupResult(team1Name: "", team2Name: "")
+        result.basketballMode = "three_x_three"
+        return result
+    }
+
+    private static func localizationKey(for gameType: GameType) -> String {
+        switch gameType {
+        case .doudizhu: return "game_doudizhu"
+        case .nineBall: return "game_nine_ball"
+        case .uno: return "game_uno"
+        case .guandan: return "game_guandan"
+        case .shengji: return "game_shengji"
+        case .simpleScore: return "game_simple_score"
+        default: return "game_multi_scoreboard"
         }
     }
     // MARK: - @ViewBuilder Layouts
@@ -470,6 +574,18 @@ struct HomeTab: View {
             .layoutPriority(1)
 
             Spacer()
+
+            Button {
+                showLocalSync = true
+            } label: {
+                Image(systemName: "rectangle.connected.to.line.below")
+                    .font(.system(size: 19, weight: .medium))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 44, height: 44)
+                    .background(.thinMaterial)
+                    .clipShape(Circle())
+            }
+            .accessibilityLabel(NSLocalizedString("sync_title", value: "局域网同步", comment: ""))
         }
         .padding(.top, Theme.md)
         .padding(.bottom, Theme.sm)
@@ -512,9 +628,10 @@ struct HomeTab: View {
                     VStack(spacing: Theme.lg) {
                         buildQuickStartSection(showSectionTitle: false)
                         buildScheduleSection()
+                        buildCommonDataSection()
                         ProToolsSectionView(
                             isWide: true,
-                            isDarkTheme: true,
+                            isDarkTheme: isDarkTheme,
                             onToolClick: { toolId in
                                 if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
                                     path.append(NavigationDestination.tool(tool))
@@ -530,7 +647,7 @@ struct HomeTab: View {
                     VStack(alignment: .leading, spacing: Theme.md) {
                         RecentRecordsSectionView(
                             records: recentActivities,
-                            isDarkTheme: true,
+                            isDarkTheme: isDarkTheme,
                             onViewAllTapped: { onNavigateToTab?(1, nil) }
                         )
                     }
@@ -541,9 +658,10 @@ struct HomeTab: View {
             VStack(spacing: Theme.lg) {
                 buildQuickStartSection()
                 buildScheduleSection()
+                buildCommonDataSection()
                 ProToolsSectionView(
                     isWide: false,
-                    isDarkTheme: true,
+                    isDarkTheme: isDarkTheme,
                     onToolClick: { toolId in
                         if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
                             path.append(NavigationDestination.tool(tool))
@@ -559,11 +677,18 @@ struct HomeTab: View {
     }
 
     @ViewBuilder
+    private func buildCommonDataSection() -> some View {
+        CommonDataSectionView(
+            onNamesTapped: { path.append(NavigationDestination.commonNames) },
+            onPlacesTapped: { path.append(NavigationDestination.commonPlaces) }
+        )
+    }
+
+    @ViewBuilder
     private func buildQuickStartSection(showSectionTitle: Bool = true) -> some View {
         QuickStartGridView(
             primarySport: quickStartManager.quickStartConfig.primarySport,
             secondarySport: quickStartManager.quickStartConfig.secondarySport,
-            isDarkTheme: true,
             showSectionTitle: showSectionTitle,
             onPrimaryClick: { gameType in
                 if quickStartTimerTypes.contains(gameType) {
@@ -593,7 +718,7 @@ struct HomeTab: View {
 
             RecentRecordsSectionView(
                 records: recentActivities,
-                isDarkTheme: true,
+                isDarkTheme: isDarkTheme,
                 onViewAllTapped: { onNavigateToTab?(1, nil) }
             )
         }
@@ -619,11 +744,11 @@ struct HomeTab: View {
 
             if upcomingBookings.isEmpty {
                 VStack(spacing: 10) {
-                    EmptyStateCourtIcon(size: 40, color: Theme.homeTextDisabledDark)
+                    EmptyStateCourtIcon(size: 40, color: Theme.homeNeutralCardTextTertiary)
 
                     Text(NSLocalizedString("schedule_empty_pending", value: "暂无待进行球局", comment: ""))
                         .font(.system(size: 13))
-                        .foregroundColor(Theme.homeTextDisabledDark)
+                        .foregroundColor(Theme.homeNeutralCardTextSecondary)
                         .multilineTextAlignment(.center)
 
                     Button {
@@ -643,7 +768,7 @@ struct HomeTab: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 26)
-                .background(.ultraThinMaterial)
+                .background(Theme.homeNeutralCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
             } else {
                 ForEach(upcomingBookings) { booking in
@@ -658,11 +783,11 @@ struct HomeTab: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(booking.sportType.displayName)
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Theme.homeNeutralCardTextPrimary)
                                     .lineLimit(1)
                                 Text(scheduleMetaText(for: booking))
                                     .font(.system(size: 13))
-                                    .foregroundColor(.white.opacity(0.72))
+                                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
                                     .lineLimit(1)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -672,7 +797,7 @@ struct HomeTab: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 12)
                         .frame(maxWidth: .infinity)
-                        .background(.ultraThinMaterial)
+                        .background(Theme.homeNeutralCardBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
                     .buttonStyle(.plain)
@@ -699,19 +824,34 @@ struct HomeTab: View {
     @ViewBuilder
     private func scheduleTimeStatusTag(for date: Date) -> some View {
         let status = getScheduleTimeStatus(scheduledAt: date)
-        let style = status.darkStyle
+        let style = status.style
 
         Text(status.localizedLabel)
             .font(.system(size: 12, weight: .medium))
-            .foregroundColor(style.textColor)
+            .foregroundColor(isDarkTheme ? Theme.homeCardTextPrimary : style.textColor)
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
-            .background(style.backgroundColor)
+            .background(scheduleStatusBackground(status, style: style))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(style.borderColor, lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func scheduleStatusBackground(
+        _ status: ScheduleTimeStatus,
+        style: ScheduleTimeStatusStyle
+    ) -> Color {
+        if !isDarkTheme {
+            return style.backgroundColor
+        }
+        switch status {
+        case .scheduled:
+            return Color.white.opacity(0.12)
+        case .startingSoon, .ready, .overdue:
+            return style.borderColor.opacity(0.42)
+        }
     }
 }
 

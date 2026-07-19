@@ -28,7 +28,7 @@ struct FullscreenBarrageView: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
+                        .foregroundColor(Theme.textPrimary)
                 }
             }
         }
@@ -67,7 +67,7 @@ struct FullscreenBarrageView: View {
             
             Text(message.isEmpty ? NSLocalizedString("barrage_content", comment: "Barrage Content") : message)
                 .font(.system(size: 60, weight: .bold))
-                .foregroundColor(.white)
+                .foregroundColor(Theme.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding()
                 .onTapGesture {
@@ -80,4 +80,3 @@ struct FullscreenBarrageView: View {
 #Preview {
     FullscreenBarrageView()
 }
-

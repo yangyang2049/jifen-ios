@@ -5,6 +5,7 @@
 //  Tennis scoreboard view
 //
 
+import ScoreCore
 import SwiftUI
 
 struct TennisScoreboardView: View {
@@ -29,6 +30,7 @@ struct TennisScoreboardView: View {
     
     @State private var toastMessage: String = ""
     @State private var isEditMode: Bool = false
+    @State private var finishConfirmationDeadline: Date?
 
     var body: some View {
         ZStack {
@@ -49,7 +51,9 @@ struct TennisScoreboardView: View {
                         }
                         return AnyView(serveIndicator(isLeftServing: viewModel.isLeftServing()))
                     },
-                    onEditModeChange: { isEditMode = $0 }
+                    onEditModeChange: { isEditMode = $0 },
+                    showEndGame: true,
+                    onEndGame: { finishMatchManually() }
                 ),
                 onBack: {
                     if let onNavigationBack = onNavigationBack {
@@ -101,7 +105,14 @@ struct TennisScoreboardView: View {
                 viewModel.leftTeam.name = setup.team1Name.isEmpty ? NSLocalizedString("red_team", comment: "") : setup.team1Name
                 viewModel.rightTeam.name = setup.team2Name.isEmpty ? NSLocalizedString("blue_team", comment: "") : setup.team2Name
                 if let maxSets = setup.maxSets, let autoChange = setup.autoChangeSides {
-                    viewModel.setConfig(maxSets: maxSets, autoChangeSides: autoChange)
+                    viewModel.setConfig(
+                        maxSets: maxSets,
+                        autoChangeSides: autoChange,
+                        matchCompletionMode: setup.matchCompletionMode ?? .bestOf,
+                        usesNoAdScoring: setup.tennisDeuceMode == "no_ad",
+                        openingServerSide: setup.servingSide == MatchSide.right.rawValue ? .right : .left,
+                        voiceAnnouncement: setup.voiceAnnouncement == true
+                    )
                 }
                 if let tbp = setup.tieBreakPoints {
                     viewModel.tieBreakTarget = tbp
@@ -175,6 +186,8 @@ struct TennisScoreboardView: View {
         if let maxSets = record.extraData?["maxSets"]?.value as? Int {
             viewModel.maxSets = maxSets
         }
+        let storedCompletionMode = record.extraData?["matchCompletionMode"]?.value as? String
+        viewModel.matchCompletionMode = MatchCompletionMode(rawValue: storedCompletionMode ?? "") ?? .bestOf
         if let tieBreakPoints = record.extraData?["tieBreakPoints"]?.value as? Int {
             viewModel.tieBreakTarget = tieBreakPoints
         }
@@ -208,6 +221,29 @@ struct TennisScoreboardView: View {
     
     private func handleGameEnd(leftGames: Int, rightGames: Int, gameNumber: Int) {
         showToastMessage(String(format: NSLocalizedString("tennis_game_end_toast", value: "第%d局结束，局分 %d-%d", comment: ""), gameNumber, leftGames, rightGames))
+    }
+
+    private func finishMatchManually() {
+        let now = Date()
+        let leftSets = viewModel.leftTeam.sets ?? 0
+        let rightSets = viewModel.rightTeam.sets ?? 0
+        let requiresConfirmation = viewModel.matchCompletionMode == .playAll
+            && !viewModel.matchCompletionMode.isMatchFinished(
+                maxSets: viewModel.maxSets,
+                leftSets: leftSets,
+                rightSets: rightSets
+            )
+        if requiresConfirmation, finishConfirmationDeadline.map({ now <= $0 }) != true {
+            finishConfirmationDeadline = now.addingTimeInterval(2)
+            showToastMessage(NSLocalizedString(
+                "match_completion_finish_confirmation",
+                value: "尚未打满，2 秒内再次点击结束比赛。",
+                comment: ""
+            ))
+            return
+        }
+        finishConfirmationDeadline = nil
+        viewModel.endGame()
     }
     
     // MARK: - Set End Handler

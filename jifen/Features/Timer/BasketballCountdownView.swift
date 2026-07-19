@@ -46,7 +46,7 @@ struct BasketballCountdownView: View {
                     } label: {
                         Text(NSLocalizedString("menu_reset", value: "重置", comment: ""))
                             .frame(width: 100, height: 44)
-                            .background(Theme.homeCardDark)
+                            .background(Color.white.opacity(0.12))
                             .foregroundColor(.white)
                             .cornerRadius(22)
                     }
@@ -65,10 +65,13 @@ struct BasketballCountdownView: View {
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 17, weight: .regular))
-                        .foregroundColor(Theme.textPrimary)
+                        .foregroundColor(.white)
                 }
             }
         }
+        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .onDisappear {
             stopTimer()
             saveRecordIfNeeded()

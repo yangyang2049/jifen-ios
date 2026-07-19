@@ -22,11 +22,18 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
     // MARK: - Controller Reference
 
     var controller: BaseScoreboardController?
+    private let scoreRange: ClosedRange<Int>
     
     // MARK: - Initialization
     
     init(controller: BaseScoreboardController? = nil) {
         self.controller = controller
+        self.scoreRange = 0 ... Int.max
+    }
+
+    init(controller: BaseScoreboardController? = nil, scoreRange: ClosedRange<Int>) {
+        self.controller = controller
+        self.scoreRange = scoreRange
     }
     
     // MARK: - Score Operations
@@ -38,9 +45,9 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
         saveHistory()
         
         if isLeft {
-            leftTeam.score += points
+            leftTeam.score = min(scoreRange.upperBound, leftTeam.score + points)
         } else {
-            rightTeam.score += points
+            rightTeam.score = min(scoreRange.upperBound, rightTeam.score + points)
         }
         
         // Record action
@@ -57,9 +64,9 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
         saveHistory()
         
         if isLeft {
-            leftTeam.score = max(0, leftTeam.score - points)
+            leftTeam.score = max(scoreRange.lowerBound, leftTeam.score - points)
         } else {
-            rightTeam.score = max(0, rightTeam.score - points)
+            rightTeam.score = max(scoreRange.lowerBound, rightTeam.score - points)
         }
         
         // Record action
@@ -192,4 +199,3 @@ enum EditingSide {
     case left
     case right
 }
-

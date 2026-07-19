@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ScoreCore
 
 struct ScoreboardTab: View {
     @State private var selectedSport: ScoreboardCatalogItem?
@@ -18,17 +19,23 @@ struct ScoreboardTab: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: Theme.lg) {
-                    sectionGroup(title: ScoreboardCatalogSection.sports.title, items: GameCatalog.scoreboardItems(in: .sports))
-                    sectionGroup(title: ScoreboardCatalogSection.boardGames.title, items: GameCatalog.scoreboardItems(in: .boardGames))
-                    sectionGroup(title: ScoreboardCatalogSection.scoring.title, items: GameCatalog.scoreboardItems(in: .scoring))
+            GeometryReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: Theme.lg) {
+                        ForEach(ScoreboardCatalogSection.allCases) { section in
+                            sectionGroup(
+                                title: section.title,
+                                items: GameCatalog.scoreboardItems(in: section),
+                                availableWidth: max(0, proxy.size.width - Theme.padding * 2)
+                            )
+                        }
+                    }
+                    .padding(.horizontal, Theme.padding)
+                    .padding(.top, Theme.md)
+                    .padding(.bottom, Theme.lg)
                 }
-                .padding(.horizontal, Theme.padding)
-                .padding(.top, Theme.md)
-                .padding(.bottom, Theme.lg)
+                .background(Theme.backgroundColor)
             }
-            .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $selectedSport) { sport in
@@ -43,48 +50,23 @@ struct ScoreboardTab: View {
                 )
                 .toolbar(.hidden, for: .tabBar)
             }
-            .sheet(item: $pendingSetupSport) { sport in
-                if sport.gameType == .multiScoreboard || sport.gameType == .doudizhu {
-                    let isDoudizhu = sport.gameType == .doudizhu
-                    MultiScoreSetupDialogView(
-                        defaultPlayerCount: isDoudizhu ? 3 : 4,
-                        titleEmoji: isDoudizhu ? "🃏" : "👥",
-                        titleKey: isDoudizhu ? "game_doudizhu" : "game_multi_scoreboard",
-                        titleFallback: isDoudizhu ? "斗地主" : "多人计分",
-                        fixedPlayerCount: isDoudizhu ? 3 : nil,
+            .overlay {
+                CenteredSetupDialogPresenter(item: $pendingSetupSport) { sport, dismiss, maxContentHeight in
+                    scoreboardSetupDialog(
+                        for: sport,
+                        maxContentHeight: maxContentHeight,
                         onConfirm: { result in
                             appliedSetupResult = result
                             appliedSetupGameType = sport.gameType
                             pendingSetupSport = nil
-                            navigateToSportAfterSheetDismiss(sport)
+                            if sport.gameType == .nineBall {
+                                selectedSport = sport
+                            } else {
+                                navigateToSportAfterSetupDismiss(sport)
+                            }
                         },
-                        onCancel: {
-                            pendingSetupSport = nil
-                        }
+                        onCancel: dismiss
                     )
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
-                } else {
-                    let (t1, t2) = Self.defaultTeamNames(for: sport.gameType)
-                    SportsSetupDialogView(
-                        gameType: sport.gameType,
-                        defaultTeam1Name: t1,
-                        defaultTeam2Name: t2,
-                        initialMaxSets: nil,
-                        initialPointsPerSet: nil,
-                        initialTieBreakPoints: nil,
-                        onConfirm: { result in
-                            appliedSetupResult = result
-                            appliedSetupGameType = sport.gameType
-                            pendingSetupSport = nil
-                            navigateToSportAfterSheetDismiss(sport)
-                        },
-                        onCancel: {
-                            pendingSetupSport = nil
-                        }
-                    )
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
                 }
             }
             .task(id: selectedGame) {
@@ -100,20 +82,16 @@ struct ScoreboardTab: View {
                 if sport == nil { onDismiss() }
             }
         }
-        .accentColor(Theme.accentColor)
+        .tint(Theme.accentColor)
     }
 
-    private func sectionGroup(title: String, items: [ScoreboardCatalogItem]) -> some View {
+    private func sectionGroup(title: String, items: [ScoreboardCatalogItem], availableWidth: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: Theme.spacing) {
             Text(title)
                 .font(.system(size: Theme.fontH5, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
 
-            LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: Theme.spacing),
-                GridItem(.flexible(), spacing: Theme.spacing),
-                GridItem(.flexible(), spacing: Theme.spacing)
-            ], spacing: Theme.spacing) {
+            LazyVGrid(columns: gridColumns(availableWidth: availableWidth), spacing: gridSpacing) {
                 ForEach(items) { sport in
                     SportCardView(sport: sport) {
                         pendingSetupSport = sport
@@ -121,6 +99,20 @@ struct ScoreboardTab: View {
                 }
             }
         }
+    }
+
+    private var gridSpacing: CGFloat {
+        UIDevice.current.userInterfaceIdiom == .pad ? 8 : 6
+    }
+
+    private func gridColumns(availableWidth: CGFloat) -> [GridItem] {
+        let count: Int
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            count = min(6, max(1, Int((availableWidth + gridSpacing) / (150 + gridSpacing))))
+        } else {
+            count = availableWidth + Theme.padding * 2 < 360 ? 2 : 3
+        }
+        return Array(repeating: GridItem(.flexible(), spacing: gridSpacing), count: count)
     }
 
     /// 设置弹窗默认名称：与鸿蒙一致，选手/单方用红方蓝方，队伍用红队蓝队或主队客队。
@@ -165,22 +157,56 @@ struct ScoreboardTab: View {
             TennisScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
         case .basketball:
             BasketballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+        case .threeBasketball:
+            BasketballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: threeBasketballSetup(from: setupResult), onSetupConsumed: onSetupConsumed)
         case .football:
             FootballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
         case .volleyball:
             VolleyballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+        case .beachVolleyball:
+            VolleyballScoreboardView(variant: .beachVolleyball, showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
+        case .airVolleyball:
+            VolleyballScoreboardView(variant: .airVolleyball, showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
         case .archery:
             ArcheryScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .boxing:
             BoxingScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .billiards:
             BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+        case .eightBall:
+            EightBallScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+        case .nineBall:
+            NineBallChaseScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+        case .snooker:
+            SnookerReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .pickleball:
             PickleballScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .guandan:
             GuandanScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .doudizhu:
             DoudizhuScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+        case .shengji:
+            ShengjiReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+        case .uno:
+            MultiScoreboardView(
+                gameType: .uno,
+                defaultPlayerCount: setupResult?.playerCount ?? 4,
+                targetScore: setupResult?.targetScore ?? 500,
+                initialSetup: setupResult,
+                onSetupConsumed: onSetupConsumed,
+                onNavigationBack: onBack
+            )
+        case .foosball:
+            RallyScoreboardView(
+                leftName: setupResult?.team1Name ?? NSLocalizedString("red_team", value: "红方", comment: ""),
+                rightName: setupResult?.team2Name ?? NSLocalizedString("blue_team", value: "蓝方", comment: ""),
+                gameType: setupResult?.isSingles == false ? .foosballDoubles : .foosball,
+                rules: (setupResult ?? SportsSetupResult(team1Name: "", team2Name: "")).foosballRules,
+                voiceAnnouncementEnabled: setupResult?.voiceAnnouncement ?? false,
+                showBackButton: false,
+                onNavigationBack: onBack,
+                onPresented: onSetupConsumed
+            )
         case .simpleScore:
             SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .multiScoreboard:
@@ -193,12 +219,10 @@ struct ScoreboardTab: View {
         }
     }
 
-    private func navigateToSportAfterSheetDismiss(_ sport: ScoreboardCatalogItem) {
-        // Avoid triggering landscape lock while setup sheet is still dismissing.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
+    private func navigateToSportAfterSetupDismiss(_ sport: ScoreboardCatalogItem) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             guard pendingSetupSport == nil else { return }
             if selectedSport != nil {
-                // 已在计分板时：先清空栈再 push，避免底层保留上一计分板并影响旋转
                 selectedSport = nil
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                     selectedSport = sport
@@ -206,6 +230,71 @@ struct ScoreboardTab: View {
             } else {
                 selectedSport = sport
             }
+        }
+    }
+
+    @ViewBuilder
+    private func scoreboardSetupDialog(
+        for sport: ScoreboardCatalogItem,
+        maxContentHeight: CGFloat,
+        onConfirm: @escaping (SportsSetupResult) -> Void,
+        onCancel: @escaping () -> Void
+    ) -> some View {
+        if sport.gameType == .nineBall {
+            NineBallSetupDialogView(
+                maxContentHeight: maxContentHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+        } else if Self.isCasualSetupGame(sport.gameType) {
+            let (t1, t2) = Self.defaultTeamNames(for: sport.gameType)
+            MultiScoreSetupDialogView(
+                gameType: sport.gameType,
+                defaultPlayerCount: sport.gameType == .doudizhu ? 3 : 4,
+                defaultTeam1Name: t1,
+                defaultTeam2Name: t2,
+                titleEmoji: sport.emoji,
+                titleKey: localizationKey(for: sport.gameType),
+                titleFallback: sport.title,
+                maxContentHeight: maxContentHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+        } else {
+            let (t1, t2) = Self.defaultTeamNames(for: sport.gameType)
+            SportsSetupDialogView(
+                gameType: sport.gameType,
+                defaultTeam1Name: t1,
+                defaultTeam2Name: t2,
+                initialMaxSets: nil,
+                initialPointsPerSet: nil,
+                initialTieBreakPoints: nil,
+                maxContentHeight: maxContentHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+        }
+    }
+
+    private static func isCasualSetupGame(_ gameType: GameType) -> Bool {
+        [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(gameType)
+    }
+
+    private func threeBasketballSetup(from setup: SportsSetupResult?) -> SportsSetupResult {
+        var result = setup ?? SportsSetupResult(team1Name: "", team2Name: "")
+        result.basketballMode = "three_x_three"
+        return result
+    }
+
+    private func localizationKey(for gameType: GameType) -> String {
+        switch gameType {
+        case .doudizhu: return "game_doudizhu"
+        case .nineBall: return "game_nine_ball"
+        case .uno: return "game_uno"
+        case .guandan: return "game_guandan"
+        case .shengji: return "game_shengji"
+        case .simpleScore: return "game_simple_score"
+        default: return "game_multi_scoreboard"
         }
     }
 

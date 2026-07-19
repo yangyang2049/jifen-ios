@@ -74,10 +74,10 @@ struct BookingDetailPage: View {
                                 } label: {
                                     Text(NSLocalizedString("schedule_edit", value: "编辑", comment: ""))
                                         .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Theme.textPrimary)
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 46)
-                                        .background(Color.white.opacity(0.12))
+                                        .background(Theme.controlBackground)
                                         .clipShape(Capsule())
                                 }
                                 .buttonStyle(.plain)
@@ -87,10 +87,10 @@ struct BookingDetailPage: View {
                                 } label: {
                                     Text(NSLocalizedString("schedule_cancel_booking", value: "取消预约", comment: ""))
                                         .font(.system(size: 15, weight: .medium))
-                                        .foregroundColor(Color(hex: "FF6B6B"))
+                                        .foregroundColor(Color(uiColor: .systemRed))
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 46)
-                                        .background(Color.white.opacity(0.08))
+                                        .background(Color(uiColor: .systemRed).opacity(0.1))
                                         .clipShape(Capsule())
                                 }
                                 .buttonStyle(.plain)
@@ -108,6 +108,8 @@ struct BookingDetailPage: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("schedule_detail_title", value: "球局详情", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: reload)

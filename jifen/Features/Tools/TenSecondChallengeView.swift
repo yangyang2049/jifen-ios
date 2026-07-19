@@ -9,7 +9,6 @@ import SwiftUI
 
 struct TenSecondChallengeView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) var colorScheme
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0 // milliseconds
     @State private var showResult = false
@@ -24,7 +23,7 @@ struct TenSecondChallengeView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
+                Theme.backgroundColor.ignoresSafeArea()
                 
                 // Main content area
                 VStack {
@@ -42,12 +41,12 @@ struct TenSecondChallengeView: View {
                     VStack(spacing: 12) {
                         Text(NSLocalizedString("tap_to_start_stop", comment: "Tap to start, try to stop at 10 seconds"))
                             .font(.system(size: 18))
-                            .foregroundColor(.white.opacity(0.5))
+                            .foregroundColor(Theme.textSecondary)
                             .multilineTextAlignment(.center)
 
                         Text(NSLocalizedString("target_10_seconds", comment: "Target is 10.00 seconds"))
                             .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.4))
+                            .foregroundColor(Theme.textSecondary.opacity(0.8))
                             .multilineTextAlignment(.center)
                     }
                     .padding(.horizontal, 32)
@@ -72,22 +71,22 @@ struct TenSecondChallengeView: View {
             // Main timer display
             Text(formatTime(currentTime))
                 .font(.system(size: 100, weight: .bold, design: .monospaced))
-                .foregroundColor(Color(hex: "FFD700"))
+                .foregroundColor(Theme.goldText)
             
             // Result display
             if showResult {
                 VStack(spacing: 8) {
                     Text(NSLocalizedString("ten_second_error_label", value: "误差", comment: ""))
                         .font(.system(size: 14))
-                        .foregroundColor(.white.opacity(0.6))
+                        .foregroundColor(Theme.textSecondary)
                     
                     HStack(spacing: 2) {
                         Text(formatDifferenceNumber(lastDifference))
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(lastDifference < 100 ? Color(hex: "4CAF50") : Color(hex: "FF9800"))
+                            .foregroundColor(resultColor)
                         Text(NSLocalizedString("seconds_short", value: "秒", comment: ""))
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(lastDifference < 100 ? Color(hex: "4CAF50") : Color(hex: "FF9800"))
+                            .foregroundColor(resultColor)
                     }
                 }
                 .padding(.top, 8)
@@ -106,6 +105,10 @@ struct TenSecondChallengeView: View {
             }
             .padding(.top, 32)
         }
+    }
+
+    private var resultColor: Color {
+        lastDifference < 100 ? Theme.positiveText : Theme.warningText
     }
     
 

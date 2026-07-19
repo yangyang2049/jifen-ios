@@ -2,8 +2,9 @@ import Foundation
 
 enum ScoreboardCatalogSection: String, CaseIterable, Identifiable {
     case sports
-    case boardGames
-    case scoring
+    case billiards
+    case cardGames
+    case other
 
     var id: String { rawValue }
 
@@ -11,10 +12,12 @@ enum ScoreboardCatalogSection: String, CaseIterable, Identifiable {
         switch self {
         case .sports:
             return NSLocalizedString("scoreboard_sports", value: "运动", comment: "Sports section")
-        case .boardGames:
+        case .billiards:
+            return NSLocalizedString("scoreboard_billiards", value: "台球", comment: "Billiards section")
+        case .cardGames:
             return NSLocalizedString("scoreboard_board_games", value: "棋牌", comment: "Board/card games section")
-        case .scoring:
-            return NSLocalizedString("scoreboard_cards", value: "计分", comment: "Scoring tools section")
+        case .other:
+            return NSLocalizedString("scoreboard_other", value: "其他计分", comment: "Other scoring section")
         }
     }
 }
@@ -51,7 +54,7 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
 
     var titleKey: String {
         switch self {
-        case .stopwatch: return "timer_count_up"
+        case .stopwatch: return "tool_stopwatch"
         case .go: return "timer_go"
         case .xiangqi: return "timer_xiangqi"
         case .chess: return "timer_chess"
@@ -86,22 +89,32 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
 
 enum GameCatalog {
     static let scoreboardItems: [ScoreboardCatalogItem] = [
-        ScoreboardCatalogItem(gameType: .football, emoji: "⚽", section: .sports),
-        ScoreboardCatalogItem(gameType: .basketball, emoji: "🏀", section: .sports),
-        ScoreboardCatalogItem(gameType: .volleyball, emoji: "🏐", section: .sports),
         ScoreboardCatalogItem(gameType: .pingpong, emoji: "🏓", section: .sports),
         ScoreboardCatalogItem(gameType: .badminton, emoji: "🏸", section: .sports),
         ScoreboardCatalogItem(gameType: .tennis, emoji: "🎾", section: .sports),
-        ScoreboardCatalogItem(gameType: .pickleball, emoji: "🏓", section: .sports),
-        ScoreboardCatalogItem(gameType: .boxing, emoji: "🥊", section: .sports),
-        ScoreboardCatalogItem(gameType: .billiards, emoji: "🎱", section: .sports),
+        ScoreboardCatalogItem(gameType: .pickleball, emoji: "🎾", section: .sports),
+        ScoreboardCatalogItem(gameType: .football, emoji: "⚽", section: .sports),
+        ScoreboardCatalogItem(gameType: .basketball, emoji: "🏀", section: .sports),
+        ScoreboardCatalogItem(gameType: .threeBasketball, emoji: "🏀", section: .sports),
+        ScoreboardCatalogItem(gameType: .volleyball, emoji: "🏐", section: .sports),
+        ScoreboardCatalogItem(gameType: .beachVolleyball, emoji: "🏐", section: .sports),
+        ScoreboardCatalogItem(gameType: .airVolleyball, emoji: "🏐", section: .sports),
         ScoreboardCatalogItem(gameType: .archery, emoji: "🏹", section: .sports),
+        ScoreboardCatalogItem(gameType: .boxing, emoji: "🥊", section: .sports),
 
-        ScoreboardCatalogItem(gameType: .doudizhu, emoji: "🃏", section: .boardGames),
-        ScoreboardCatalogItem(gameType: .guandan, emoji: "🃏", section: .boardGames),
+        ScoreboardCatalogItem(gameType: .billiards, emoji: "🎱", section: .billiards),
+        ScoreboardCatalogItem(gameType: .eightBall, emoji: "🎱", section: .billiards),
+        ScoreboardCatalogItem(gameType: .nineBall, emoji: "🎱", section: .billiards),
+        ScoreboardCatalogItem(gameType: .snooker, emoji: "🎱", section: .billiards),
 
-        ScoreboardCatalogItem(gameType: .simpleScore, emoji: "🔢", section: .scoring),
-        ScoreboardCatalogItem(gameType: .multiScoreboard, emoji: "👥", section: .scoring)
+        ScoreboardCatalogItem(gameType: .doudizhu, emoji: "🃏", section: .cardGames),
+        ScoreboardCatalogItem(gameType: .guandan, emoji: "🃏", section: .cardGames),
+        ScoreboardCatalogItem(gameType: .shengji, emoji: "🃏", section: .cardGames),
+        ScoreboardCatalogItem(gameType: .uno, emoji: "🎴", section: .cardGames),
+
+        ScoreboardCatalogItem(gameType: .foosball, emoji: "⚽", section: .other),
+        ScoreboardCatalogItem(gameType: .simpleScore, emoji: "🔢", section: .other),
+        ScoreboardCatalogItem(gameType: .multiScoreboard, emoji: "👥", section: .other)
     ]
 
     static func scoreboardItems(in section: ScoreboardCatalogSection) -> [ScoreboardCatalogItem] {
@@ -115,7 +128,7 @@ enum GameCatalog {
     static let scoreboardGameTypes: [GameType] = scoreboardItems.map(\.gameType)
     static let timerSelectableGameTypes: [GameType] = timerAllItems.compactMap(\.mappedGameType)
     static let quickStartSelectableGameTypes: [GameType] = unique(scoreboardGameTypes + timerSelectableGameTypes)
-    /// 新比赛弹窗展示的项目（不含秒表，秒表仅在计时/工具中使用）
+    /// 新比赛弹窗展示的项目（不含秒表，秒表仅在计时 Tab 中使用）
     static let newGameDialogGameTypes: [GameType] = quickStartSelectableGameTypes.filter { $0 != .stopwatch }
 
     static func timerDestination(for gameType: GameType) -> TimerDestination? {

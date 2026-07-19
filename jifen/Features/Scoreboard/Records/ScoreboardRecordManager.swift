@@ -49,6 +49,7 @@ class ScoreboardRecordManager {
         encoder.dateEncodingStrategy = .iso8601
         let data = try encoder.encode(records)
         UserDefaults.standard.set(data, forKey: recordsKey)
+        RecordSyncOutbox.shared.enqueueUpsert(record)
         
         #if DEBUG
         print("[ScoreboardRecordManager] ✅ Saved record: \(record.id)")
@@ -65,7 +66,15 @@ class ScoreboardRecordManager {
         do {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
-            let records = try decoder.decode([ScoreboardRecord].self, from: data)
+            var records = try decoder.decode([ScoreboardRecord].self, from: data)
+            if records.contains(where: { $0.schemaVersion < 3 }) {
+                for index in records.indices { records[index].schemaVersion = 3 }
+                let encoder = JSONEncoder()
+                encoder.dateEncodingStrategy = .iso8601
+                if let migrated = try? encoder.encode(records) {
+                    UserDefaults.standard.set(migrated, forKey: recordsKey)
+                }
+            }
             return records
         } catch {
             #if DEBUG
@@ -128,6 +137,7 @@ class ScoreboardRecordManager {
                 encoder.dateEncodingStrategy = .iso8601
                 let data = try encoder.encode(records)
                 UserDefaults.standard.set(data, forKey: recordsKey)
+                RecordSyncOutbox.shared.enqueueDelete(recordID: id)
                 if getUnfinishedRecordId() == id {
                     UserDefaults.standard.removeObject(forKey: unfinishedRecordIdKey)
                 }
@@ -149,6 +159,7 @@ class ScoreboardRecordManager {
     // MARK: - Clear All
     
     func clearAllRecords() {
+        loadAllRecords().forEach { RecordSyncOutbox.shared.enqueueDelete(recordID: $0.id) }
         UserDefaults.standard.removeObject(forKey: recordsKey)
         UserDefaults.standard.removeObject(forKey: unfinishedRecordIdKey)
         #if DEBUG

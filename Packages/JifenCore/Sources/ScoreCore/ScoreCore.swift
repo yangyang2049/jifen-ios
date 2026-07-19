@@ -25,8 +25,30 @@ public enum GameType: String, Codable, CaseIterable, Sendable {
     case shengji
     case uno
     case doudizhu
+    case foosball
+    case foosballDoubles = "foosball_doubles"
     case simpleScore = "simple_score"
     case multiScoreboard = "multi_scoreboard"
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        switch value {
+        case "archery": self = .archeryDual
+        case "simpleScore": self = .simpleScore
+        case "multiScoreboard": self = .multiScoreboard
+        default:
+            guard let gameType = Self(rawValue: value) else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown game type: \(value)")
+            }
+            self = gameType
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
 }
 
 public enum RuleFamily: String, Codable, Sendable {

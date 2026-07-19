@@ -5,6 +5,7 @@ import SessionCore
 import TimerCore
 import PersistenceCore
 import LinkCore
+import RecordCore
 
 private struct CounterReducer: DomainReducer {
     struct State: Codable, Equatable, Sendable { var value: Int }
@@ -249,6 +250,25 @@ private struct CounterReducer: DomainReducer {
     )))
 }
 
+@Test func pickleballSideOutChangesServerWithoutAddingAPoint() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pickleball(),
+        openingServer: .left
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 1).state
+    #expect(state.leftPoints == 0)
+    #expect(state.rightPoints == 0)
+    #expect(state.servingSide == .right)
+
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    #expect(state.rightPoints == 1)
+    #expect(state.servingSide == .right)
+}
+
 @Test func volleyballUsesFifteenPointsInTheDecidingSet() {
     let reducer = RallyMatchReducer()
     var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .volleyball())
@@ -372,4 +392,94 @@ private struct CounterReducer: DomainReducer {
 
     let entries = try await index.entries()
     #expect(entries.map(\.sessionId) == [secondID, firstID])
+}
+
+@Test func canonicalGameTypeDecoderMigratesLegacyIdentifiers() throws {
+    let decoder = JSONDecoder()
+    #expect(try decoder.decode(GameType.self, from: Data("\"archery\"".utf8)) == .archeryDual)
+    #expect(try decoder.decode(GameType.self, from: Data("\"simpleScore\"".utf8)) == .simpleScore)
+    #expect(try decoder.decode(GameType.self, from: Data("\"multiScoreboard\"".utf8)) == .multiScoreboard)
+    #expect(String(data: try JSONEncoder().encode(GameType.archeryDual), encoding: .utf8) == "\"archery_dual\"")
+}
+
+@Test func versionedRecordPreservesSnapshotAndTombstoneMetadata() throws {
+    let sessionID = UUID()
+    let actorID = UUID()
+    let record = ScoreRecordV2(
+        sessionId: sessionID,
+        gameType: .simpleScore,
+        source: .phoneLocal,
+        startedAtEpochMilliseconds: 100,
+        payload: .twoSide(.init(leftName: "A", rightName: "B", leftScore: -2, rightScore: 4)),
+        actions: [.init(kind: .scoreChanged, epochMilliseconds: 120, summary: "A -1")],
+        configuration: Data("{\"allowNegative\":true}".utf8),
+        stateSnapshot: Data("{\"leftScore\":-2}".utf8),
+        syncMetadata: .init(actorID: actorID, revision: 3, updatedAtEpochMilliseconds: 130),
+        deletedAtEpochMilliseconds: 150
+    )
+    let decoded = try JSONDecoder().decode(ScoreRecordV2.self, from: JSONEncoder().encode(record))
+    #expect(decoded.schemaVersion == 3)
+    #expect(decoded.sessionId == sessionID)
+    #expect(decoded.stateSnapshot == record.stateSnapshot)
+    #expect(decoded.syncMetadata?.actorID == actorID)
+    #expect(decoded.deletedAtEpochMilliseconds == 150)
+}
+
+@Test func localRecordSyncStorePersistsQueueAndCursor() async throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+    let url = directory.appendingPathComponent("record-sync.json")
+    let store = LocalRecordSyncStore(fileURL: url)
+    let mutation = RecordSyncMutation(
+        recordID: UUID(),
+        actorID: UUID(),
+        revision: 1,
+        updatedAtEpochMilliseconds: 200,
+        kind: .delete,
+        payload: nil
+    )
+    try await store.enqueue(mutation)
+    #expect(try await store.pendingMutations(limit: 10) == [mutation])
+    try await store.acknowledge(ids: Set([mutation.id]), cursor: "cursor-1")
+    #expect(try await store.pendingMutations(limit: 10).isEmpty)
+    #expect(try await store.syncCursor() == "cursor-1")
+}
+
+@Test func foosballUsesFivePointSetsByDefault() {
+    let rules = RallyRuleSet.foosball()
+    #expect(rules.pointsToWinSet == 5)
+    #expect(rules.maxSets == 3)
+    #expect(!rules.winByTwo)
+}
+
+@Test func foosballDecidingSetWinByTwoAndCapOnlyApplyToFinalSet() {
+    var rules = RallyRuleSet.foosball(maxSets: 3)
+    rules.finalSetWinByTwo = true
+    rules.finalSetPointCap = 8
+    let reducer = RallyMatchReducer()
+
+    var openingSet = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+    openingSet.leftPoints = 4
+    openingSet.rightPoints = 4
+    openingSet = reducer.reduce(state: openingSet, intent: .pointWon(.left), at: 1).state
+    #expect(openingSet.leftSets == 1)
+
+    var decidingSet = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+    decidingSet.leftSets = 1
+    decidingSet.rightSets = 1
+    decidingSet.leftPoints = 4
+    decidingSet.rightPoints = 4
+    decidingSet = reducer.reduce(state: decidingSet, intent: .pointWon(.left), at: 2).state
+    #expect(decidingSet.leftSets == 1)
+    #expect(decidingSet.leftPoints == 5)
+    decidingSet = reducer.reduce(state: decidingSet, intent: .pointWon(.left), at: 3).state
+    #expect(decidingSet.finished)
+
+    var cappedSet = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+    cappedSet.leftSets = 1
+    cappedSet.rightSets = 1
+    cappedSet.leftPoints = 7
+    cappedSet.rightPoints = 7
+    cappedSet = reducer.reduce(state: cappedSet, intent: .pointWon(.right), at: 4).state
+    #expect(cappedSet.finished)
+    #expect(cappedSet.rightSets == 2)
 }

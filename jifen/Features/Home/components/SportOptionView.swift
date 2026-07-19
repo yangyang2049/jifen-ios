@@ -3,7 +3,6 @@ import SwiftUI
 struct SportOptionView: View {
     let sport: GameType
     let isSelected: Bool
-    var isDarkTheme: Bool
     var onClickOption: (() -> Void)? = nil
 
     var body: some View {
@@ -19,14 +18,14 @@ struct SportOptionView: View {
                         .font(.system(size: iconSize))
                     Text(getGameName(type: sport))
                         .font(.system(size: fontSize, weight: .medium))
-                        .foregroundColor(isDarkTheme ? Theme.textPrimary : .black)
+                        .foregroundColor(Theme.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .aspectRatio(1, contentMode: .fit)
-            .background(isDarkTheme ? Theme.homeOverlayBorder : Theme.homeBackgroundLight)
+            .background(Theme.controlBackground)
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)

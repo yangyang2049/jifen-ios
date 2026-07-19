@@ -23,11 +23,10 @@ struct FlipCoinView: View {
 
     private let hintShownKey = "flip_coin_hint_shown"
 
-    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         ZStack {
-            (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
+            Theme.backgroundColor.ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture {
                     flipCoin()
@@ -53,7 +52,7 @@ struct FlipCoinView: View {
                                 )
                             )
                             .frame(width: 180, height: 180)
-                            .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
+                            .shadow(color: .black.opacity(0.28), radius: 8, x: 0, y: 4)
 
                         // Middle ring - darker gold depth
                         Circle()
@@ -110,7 +109,7 @@ struct FlipCoinView: View {
                         if !isFlipping && headsCount + tailsCount == 0 && showHint {
                             Text(NSLocalizedString("tap_to_flip", comment: "Tap to flip coin"))
                                 .font(.system(size: 18))
-                                .foregroundColor(.white.opacity(0.5))
+                                .foregroundColor(Theme.textSecondary)
                                 .padding(.bottom, 100)
                         }
 
@@ -121,32 +120,42 @@ struct FlipCoinView: View {
                                 VStack(spacing: 4) {
                                     Text(NSLocalizedString("heads", comment: "Heads"))
                                         .font(.system(size: 12))
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .foregroundColor(Theme.textSecondary)
                                     Text("\(headsCount)")
                                         .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(Color(hex: "FFD700"))
+                                        .foregroundColor(Theme.goldText)
                                 }
 
                                 // Tails count
                                 VStack(spacing: 4) {
                                     Text(NSLocalizedString("tails", comment: "Tails"))
                                         .font(.system(size: 12))
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .foregroundColor(Theme.textSecondary)
                                     Text("\(tailsCount)")
                                         .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(Color(hex: "E5C158"))
+                                        .foregroundColor(Theme.goldText)
                                 }
 
                                 // Total count
                                 VStack(spacing: 4) {
                                     Text(NSLocalizedString("total", comment: "Total"))
                                         .font(.system(size: 12))
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .foregroundColor(Theme.textSecondary)
                                     Text("\(headsCount + tailsCount)")
                                         .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Theme.textPrimary)
                                 }
                             }
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(Theme.cardBackground)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(Theme.divider.opacity(0.6), lineWidth: 1)
+                            )
                             .padding(.bottom, 24)
                         }
 
@@ -157,7 +166,7 @@ struct FlipCoinView: View {
                                 VStack(spacing: 8) {
                                     Text(NSLocalizedString("flip_coin_recent", value: "最近抛掷", comment: ""))
                                         .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .foregroundColor(Theme.textSecondary)
 
                                     // Show last 5 flips
                                     HStack(spacing: 12) {

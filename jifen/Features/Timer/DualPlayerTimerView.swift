@@ -24,6 +24,7 @@ private struct PlayerClockState {
     var inByoyomi: Bool
     var byoyomiRemaining: Double
     var byoyomiPeriodsRemaining: Int
+    var delayRemaining: Double
 }
 
 struct DualPlayerTimerView: View {
@@ -53,9 +54,12 @@ struct DualPlayerTimerView: View {
 
     init(gameType: GameType, config: BoardTimerConfig) {
         self.gameType = gameType
-        self.config = config
+        var normalized = config
+        normalized.gameType = gameType
+        normalized.normalize()
+        self.config = normalized
 
-        let initial = DualPlayerTimerView.makeInitialClock(config: config)
+        let initial = DualPlayerTimerView.makeInitialClock(config: normalized)
         _player1Clock = State(initialValue: initial)
         _player2Clock = State(initialValue: initial)
     }
@@ -158,23 +162,7 @@ struct DualPlayerTimerView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
 
-                    if gameType == .go {
-                        if clock.inByoyomi {
-                            Text(String(
-                                format: NSLocalizedString("timer_byoyomi_periods_format", value: "读秒 %d 次", comment: ""),
-                                max(0, clock.byoyomiPeriodsRemaining)
-                            ))
-                            .font(.system(size: 42, weight: .medium))
-                            .foregroundColor(Color(hex: "FF3B30"))
-                        }
-                    } else if config.incrementEnabled && config.incrementSeconds > 0 {
-                        Text(String(
-                            format: NSLocalizedString("timer_increment_format", value: "+%d 秒/步", comment: ""),
-                            config.incrementSeconds
-                        ))
-                        .font(.system(size: 42, weight: .medium))
-                        .foregroundColor(fgColor.opacity(0.6))
-                    }
+                    modeSubtitle(for: clock, fgColor: fgColor)
 
                     Spacer(minLength: 0)
                 }
@@ -256,7 +244,7 @@ struct DualPlayerTimerView: View {
 
                     circleIconButton(icon: "arrow.left.arrow.right", size: 56, background: Color.black.opacity(0.8)) {
                         isPlayerPositionSwapped.toggle()
-                        VibrationManager.shared.vibrateMedium()
+                        vibrateIfEnabled(heavy: false)
                     }
                 }
 
@@ -353,8 +341,44 @@ struct DualPlayerTimerView: View {
             mainRemaining: config.totalMainSeconds,
             inByoyomi: false,
             byoyomiRemaining: Double(max(0, config.byoyomiSeconds)),
-            byoyomiPeriodsRemaining: max(0, config.byoyomiPeriods)
+            byoyomiPeriodsRemaining: max(0, config.byoyomiPeriods),
+            delayRemaining: Double(max(0, config.delaySeconds))
         )
+    }
+
+    @ViewBuilder
+    private func modeSubtitle(for clock: PlayerClockState, fgColor: Color) -> some View {
+        switch config.timeMode {
+        case .byoyomi:
+            if clock.inByoyomi {
+                Text(String(
+                    format: NSLocalizedString("timer_byoyomi_periods_format", value: "读秒 %d 次", comment: ""),
+                    max(0, clock.byoyomiPeriodsRemaining)
+                ))
+                .font(.system(size: 42, weight: .medium))
+                .foregroundColor(Color(hex: "FF3B30"))
+            }
+        case .increment:
+            if config.incrementSeconds > 0 {
+                Text(String(
+                    format: NSLocalizedString("timer_increment_format", value: "+%d 秒/步", comment: ""),
+                    config.incrementSeconds
+                ))
+                .font(.system(size: 42, weight: .medium))
+                .foregroundColor(fgColor.opacity(0.6))
+            }
+        case .delay:
+            if config.delaySeconds > 0 {
+                Text(String(
+                    format: NSLocalizedString("timer_delay_format", value: "%d 秒延迟", comment: ""),
+                    config.delaySeconds
+                ))
+                .font(.system(size: 42, weight: .medium))
+                .foregroundColor(fgColor.opacity(0.6))
+            }
+        case .countdown:
+            EmptyView()
+        }
     }
 
     private func startGame() {
@@ -368,7 +392,7 @@ struct DualPlayerTimerView: View {
         lastTickAt = Date()
         startTicker()
         appendAction(.start)
-        VibrationManager.shared.vibrateMedium()
+        vibrateIfEnabled(heavy: false)
     }
 
     private func pauseGame(logAction: Bool = true) {
@@ -378,7 +402,7 @@ struct DualPlayerTimerView: View {
         if logAction {
             appendAction(.pause)
         }
-        VibrationManager.shared.vibrateMedium()
+        vibrateIfEnabled(heavy: false)
     }
 
     private func resumeGame(logAction: Bool = true) {
@@ -389,7 +413,7 @@ struct DualPlayerTimerView: View {
         if logAction {
             appendAction(.resume)
         }
-        VibrationManager.shared.vibrateMedium()
+        vibrateIfEnabled(heavy: false)
     }
 
     private func stopCurrentGame() {
@@ -421,7 +445,7 @@ struct DualPlayerTimerView: View {
         appendAction(.gameEnd, actor: winner.flatMap { playerName(for: $0) })
         gameState = .finished
         saveRecordIfNeeded(winnerLabel: winnerPlayerName)
-        VibrationManager.shared.vibrateHeavy()
+        vibrateIfEnabled(heavy: true)
     }
 
     private func restartGame() {
@@ -496,53 +520,67 @@ struct DualPlayerTimerView: View {
     private func applyDelta(_ delta: Double, to player: Int) {
         guard delta > 0 else { return }
 
+        var updated = clockFor(player)
+        let timedOut = reduceTime(clock: &updated, delta: delta)
         if player == 1 {
-            var updated = player1Clock
-            if config.gameType == .go {
-                reduceGoTime(clock: &updated, delta: delta, loser: 1)
-            } else {
-                updated.mainRemaining -= delta
-                if updated.mainRemaining <= 0 {
-                    updated.mainRemaining = 0
-                    player1Clock = updated
-                    finishGame(winner: 2, reason: .timeout(loser: 1))
-                    return
-                }
-            }
             player1Clock = updated
         } else {
-            var updated = player2Clock
-            if config.gameType == .go {
-                reduceGoTime(clock: &updated, delta: delta, loser: 2)
-            } else {
-                updated.mainRemaining -= delta
-                if updated.mainRemaining <= 0 {
-                    updated.mainRemaining = 0
-                    player2Clock = updated
-                    finishGame(winner: 1, reason: .timeout(loser: 2))
-                    return
-                }
-            }
             player2Clock = updated
+        }
+
+        if timedOut {
+            finishGame(winner: player == 1 ? 2 : 1, reason: .timeout(loser: player))
         }
     }
 
-    private func reduceGoTime(clock: inout PlayerClockState, delta: Double, loser: Int) {
-        guard config.byoyomiEnabled else {
-            clock.mainRemaining -= delta
-            if clock.mainRemaining <= 0 {
-                clock.mainRemaining = 0
-                finishGame(winner: loser == 1 ? 2 : 1, reason: .timeout(loser: loser))
-            }
-            return
+    /// Returns true when this player has timed out.
+    @discardableResult
+    private func reduceTime(clock: inout PlayerClockState, delta: Double) -> Bool {
+        switch config.timeMode {
+        case .byoyomi:
+            return reduceByoyomiTime(clock: &clock, delta: delta)
+        case .delay:
+            return reduceDelayTime(clock: &clock, delta: delta)
+        case .countdown, .increment:
+            return reduceMainOnly(clock: &clock, delta: delta)
+        }
+    }
+
+    private func reduceMainOnly(clock: inout PlayerClockState, delta: Double) -> Bool {
+        clock.mainRemaining -= delta
+        if clock.mainRemaining <= 0 {
+            clock.mainRemaining = 0
+            return true
+        }
+        return false
+    }
+
+    private func reduceDelayTime(clock: inout PlayerClockState, delta: Double) -> Bool {
+        let configuredDelay = Double(max(0, config.delaySeconds))
+        guard configuredDelay > 0 else {
+            return reduceMainOnly(clock: &clock, delta: delta)
         }
 
+        if clock.delayRemaining > 0 {
+            if delta < clock.delayRemaining {
+                clock.delayRemaining -= delta
+                return false
+            }
+            let remainingDelta = delta - clock.delayRemaining
+            clock.delayRemaining = 0
+            return reduceMainOnly(clock: &clock, delta: remainingDelta)
+        }
+
+        return reduceMainOnly(clock: &clock, delta: delta)
+    }
+
+    private func reduceByoyomiTime(clock: inout PlayerClockState, delta: Double) -> Bool {
         var remaining = delta
 
         if !clock.inByoyomi {
             if clock.mainRemaining > remaining {
                 clock.mainRemaining -= remaining
-                return
+                return false
             }
 
             remaining -= clock.mainRemaining
@@ -557,7 +595,7 @@ struct DualPlayerTimerView: View {
         while remaining > 0 && clock.inByoyomi {
             if clock.byoyomiRemaining > remaining {
                 clock.byoyomiRemaining -= remaining
-                return
+                return false
             }
 
             remaining -= clock.byoyomiRemaining
@@ -566,12 +604,13 @@ struct DualPlayerTimerView: View {
             if clock.byoyomiPeriodsRemaining <= 0 {
                 clock.byoyomiPeriodsRemaining = 0
                 clock.byoyomiRemaining = 0
-                finishGame(winner: loser == 1 ? 2 : 1, reason: .timeout(loser: loser))
-                return
+                return true
             }
 
             clock.byoyomiRemaining = Double(max(1, config.byoyomiSeconds))
         }
+
+        return false
     }
 
     private func onPlayerAreaTapped(_ playerID: Int) {
@@ -581,7 +620,16 @@ struct DualPlayerTimerView: View {
         consumeElapsedTime()
         guard gameState == .running else { return }
 
-        if config.gameType == .go {
+        switch config.timeMode {
+        case .increment:
+            if config.incrementSeconds > 0 {
+                if playerID == 1 {
+                    player1Clock.mainRemaining += Double(config.incrementSeconds)
+                } else {
+                    player2Clock.mainRemaining += Double(config.incrementSeconds)
+                }
+            }
+        case .byoyomi:
             if playerID == 1 {
                 if player1Clock.inByoyomi && player1Clock.byoyomiPeriodsRemaining > 0 {
                     player1Clock.byoyomiRemaining = Double(max(1, config.byoyomiSeconds))
@@ -591,22 +639,36 @@ struct DualPlayerTimerView: View {
                     player2Clock.byoyomiRemaining = Double(max(1, config.byoyomiSeconds))
                 }
             }
-        } else if config.incrementEnabled && config.incrementSeconds > 0 {
-            if playerID == 1 {
-                player1Clock.mainRemaining += Double(config.incrementSeconds)
+        case .delay, .countdown:
+            break
+        }
+
+        let nextPlayer = (playerID == 1) ? 2 : 1
+        if config.timeMode == .delay && config.delaySeconds > 0 {
+            if nextPlayer == 1 {
+                player1Clock.delayRemaining = Double(config.delaySeconds)
             } else {
-                player2Clock.mainRemaining += Double(config.incrementSeconds)
+                player2Clock.delayRemaining = Double(config.delaySeconds)
             }
         }
 
-        activePlayer = (playerID == 1) ? 2 : 1
+        activePlayer = nextPlayer
         totalMoves += 1
         lastTickAt = Date()
         appendAction(.move, actor: playerName(for: playerID))
-        VibrationManager.shared.vibrateMedium()
+        vibrateIfEnabled(heavy: false)
     }
 
     // MARK: - Helpers
+
+    private func vibrateIfEnabled(heavy: Bool) {
+        guard config.vibrationEnabled else { return }
+        if heavy {
+            VibrationManager.shared.vibrateHeavy()
+        } else {
+            VibrationManager.shared.vibrateMedium()
+        }
+    }
 
     private func clockFor(_ playerID: Int) -> PlayerClockState {
         playerID == 1 ? player1Clock : player2Clock

@@ -10,6 +10,7 @@ import Foundation
 @Observable
 class BoxingViewModel: BaseScoreViewModel {
     var currentRound: Int = 1
+    var maxRounds: Int = 3
     private var fullStateHistory: [BoxingState] = []
 
     private struct BoxingState {
@@ -28,7 +29,7 @@ class BoxingViewModel: BaseScoreViewModel {
 
     /// 结束一回合：累加双方本回合分数，胜方回合数 +1
     func addRoundScore(leftPoints: Int, rightPoints: Int) {
-        guard !gameFinished else { return }
+        guard !gameFinished, currentRound <= maxRounds else { return }
         saveFullStateToHistory()
 
         let left = max(0, leftPoints)
@@ -42,9 +43,16 @@ class BoxingViewModel: BaseScoreViewModel {
             rightTeam.sets = (rightTeam.sets ?? 0) + 1
         }
         currentRound += 1
+        if currentRound > maxRounds {
+            gameFinished = true
+        }
 
         controller?.recordScoreAction(action: "round \(left)-\(right)")
         controller?.performVibration(type: .medium)
+    }
+
+    func setMaxRounds(_ rounds: Int) {
+        maxRounds = max(1, min(rounds, 99))
     }
 
     func adjustSets(isLeft: Bool, delta: Int) {

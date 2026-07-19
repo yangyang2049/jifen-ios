@@ -17,6 +17,8 @@ enum FontRegistrar {
         let candidates: [URL?] = [
             Bundle.main.url(forResource: "7segment", withExtension: "ttf"),
             Bundle.main.url(forResource: "7segment", withExtension: "ttf", subdirectory: "Resources"),
+            Bundle.main.url(forResource: "teko", withExtension: "ttf"),
+            Bundle.main.url(forResource: "teko", withExtension: "ttf", subdirectory: "Resources"),
             Bundle.main.url(forResource: "roboto-mono", withExtension: "ttf"),
             Bundle.main.url(forResource: "roboto-mono", withExtension: "ttf", subdirectory: "Resources")
         ]

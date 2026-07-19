@@ -73,7 +73,7 @@ struct RecordsTab: View {
                 Text(NSLocalizedString("clear_all_records_message", comment: ""))
             }
         }
-        .accentColor(Theme.accentColor)
+        .tint(Theme.accentColor)
     }
 
     private var searchBar: some View {

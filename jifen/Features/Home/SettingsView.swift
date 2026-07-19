@@ -1,14 +1,20 @@
+import StoreKit
 import SwiftUI
 
 private enum AppSupportURLs {
-    static let support = "https://douhua.fan/jifenqi/contact"
+    static let website = URL(string: "https://jifenqi.com")!
+    static let support = URL(string: "https://jifenqi.com/contact")!
+    static let terms = URL(string: "https://jifenqi.com/terms")!
+    static let privacy = URL(string: "https://jifenqi.com/privacy")!
 }
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
+    @Environment(AppAppearanceStore.self) private var appearance
     var isTabRoot: Bool = false
-    @State private var vibrationEnabled: Bool = PreferencesManager.shared.vibrationEnabled
     @State private var showClearConfirm = false
+    @State private var showAppearancePicker = false
 
     var body: some View {
         NavigationStack {
@@ -16,98 +22,52 @@ struct SettingsView: View {
                 Theme.backgroundColor.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: 0) {
-                        // Settings sections
-                        VStack(spacing: 24) {
-                            SettingsSection(title: NSLocalizedString("appearance", comment: "Appearance")) {
-                                AppearanceModeRow()
-                            }
-
-                            // Data Section
-                            SettingsSection(title: NSLocalizedString("settings_data", value: "数据", comment: "Data")) {
-                                VStack(spacing: 0) {
-                                    NavigationLink {
-                                        CommonNamesManagementView()
-                                    } label: {
-                                        HStack {
-                                            Image(systemName: "person.2.fill")
-                                                .foregroundColor(Theme.accentColor)
-                                                .frame(width: 24, height: 24)
-                                            Text(NSLocalizedString("common_names_manage", value: "常用名称管理", comment: "Manage common names"))
-                                                .foregroundColor(Theme.textPrimary)
-                                            Spacer()
-                                            Image(systemName: "chevron.right")
-                                                .font(.caption)
-                                                .foregroundColor(Theme.textSecondary)
-                                        }
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .contentShape(Rectangle())
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
-                                    }
-                                    .buttonStyle(.plain)
-
-                                    Divider()
-                                        .padding(.leading, 56)
-
-                                    Button {
-                                        showClearConfirm = true
-                                    } label: {
-                                        HStack {
-                                            Image(systemName: "trash")
-                                                .foregroundColor(Theme.accentColor)
-                                                .frame(width: 24, height: 24)
-                                            Text(NSLocalizedString("clear_data", comment: "Clear data"))
-                                                .foregroundColor(Theme.textPrimary)
-                                            Spacer()
-                                            Image(systemName: "chevron.right")
-                                                .font(.caption)
-                                                .foregroundColor(Theme.textSecondary)
-                                        }
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .contentShape(Rectangle())
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
-                                    }
-                                    .buttonStyle(.plain)
+                    VStack(spacing: Theme.lg) {
+                        SettingsSection(title: NSLocalizedString("settings_features", value: "功能设置", comment: "")) {
+                            VStack(spacing: 0) {
+                                NavigationLink { ScoreboardSettingsView() } label: {
+                                    SettingsNavigationRow(title: NSLocalizedString("scoreboard_settings_title", value: "计分器设置", comment: ""))
                                 }
-                            }
-
-                            // Accessibility Section
-                            SettingsSection(title: NSLocalizedString("accessibility", comment: "Accessibility")) {
-                                VStack(spacing: 0) {
-                                    ToggleRow(
-                                        title: NSLocalizedString("vibration", comment: "Vibration"),
-                                        isOn: $vibrationEnabled,
-                                        icon: "waveform"
+                                Divider().overlay(Theme.divider)
+                                Button { showAppearancePicker = true } label: {
+                                    SettingsNavigationRow(
+                                        title: NSLocalizedString("appearance", comment: ""),
+                                        value: appearance.mode.localizedTitle
                                     )
-                                    .onChange(of: vibrationEnabled) { _, new in
-                                        PreferencesManager.shared.vibrationEnabled = new
-                                    }
                                 }
+                                .buttonStyle(.plain)
+                                Divider().overlay(Theme.divider)
+                                Button { showClearConfirm = true } label: {
+                                    SettingsNavigationRow(title: NSLocalizedString("clear_data", comment: ""))
+                                }
+                                .buttonStyle(.plain)
                             }
+                        }
 
-                            // About Section
-                            SettingsSection(title: NSLocalizedString("about", comment: "About")) {
-                                VStack(spacing: 0) {
-                                    if let url = URL(string: AppSupportURLs.support) {
-                                        LinkRow(
-                                            title: NSLocalizedString("support_contact", comment: "Support & Contact"),
-                                            icon: "envelope.fill",
-                                            url: url
-                                        )
-                                    }
-                                    InfoRow(
-                                        title: NSLocalizedString("version", comment: "Version"),
-                                        value: getAppVersion(),
-                                        icon: "info.circle.fill"
-                                    )
+                        SettingsSection(title: NSLocalizedString("settings_help_support", value: "帮助与支持", comment: "")) {
+                            VStack(spacing: 0) {
+                                Button { requestReview() } label: {
+                                    SettingsNavigationRow(title: NSLocalizedString("settings_rate_app", value: "给个好评", comment: ""))
+                                }
+                                .buttonStyle(.plain)
+                                Divider().overlay(Theme.divider)
+                                ShareLink(item: AppSupportURLs.website) {
+                                    SettingsNavigationRow(title: NSLocalizedString("settings_share_app", value: "分享给朋友", comment: ""))
+                                }
+                                .buttonStyle(.plain)
+                                Divider().overlay(Theme.divider)
+                                NavigationLink { FAQView() } label: {
+                                    SettingsNavigationRow(title: NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
+                                }
+                                Divider().overlay(Theme.divider)
+                                NavigationLink { AboutUsView() } label: {
+                                    SettingsNavigationRow(title: NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
                                 }
                             }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 24)
                     }
+                    .padding(.horizontal, Theme.md)
+                    .padding(.vertical, Theme.lg)
                 }
             }
             .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
@@ -125,8 +85,10 @@ struct SettingsView: View {
                     }
                 }
             }
-            .onAppear {
-                vibrationEnabled = PreferencesManager.shared.vibrationEnabled
+            .confirmationDialog(NSLocalizedString("appearance", comment: ""), isPresented: $showAppearancePicker) {
+                ForEach(AppAppearanceMode.allCases) { mode in
+                    Button(mode.localizedTitle) { appearance.mode = mode }
+                }
             }
             .alert(NSLocalizedString("clear_data", comment: ""), isPresented: $showClearConfirm) {
                 Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
@@ -136,6 +98,7 @@ struct SettingsView: View {
                     _ = LocalBookingManager.shared.clearAllBookings()
                     CommonNamesManager.shared.clearNames(type: .team)
                     CommonNamesManager.shared.clearNames(type: .player)
+                    CommonPlacesManager.shared.clearAll()
                     ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
                     TimerRecordsViewModel.shared.loadFromStorage()
                 }
@@ -145,38 +108,11 @@ struct SettingsView: View {
         }
     }
 
-    private func getAppVersion() -> String {
-        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-        return version
-    }
 }
 
 struct MeTab: View {
     var body: some View {
         SettingsView(isTabRoot: true)
-    }
-}
-
-private struct AppearanceModeRow: View {
-    @Environment(AppAppearanceStore.self) private var appearance
-
-    var body: some View {
-        @Bindable var appearance = appearance
-
-        HStack {
-            Image(systemName: "circle.lefthalf.filled")
-                .foregroundColor(Theme.accentColor)
-                .frame(width: 24, height: 24)
-
-            Picker(NSLocalizedString("theme", comment: "Theme"), selection: $appearance.mode) {
-                ForEach(AppAppearanceMode.allCases) { mode in
-                    Text(mode.localizedTitle).tag(mode)
-                }
-            }
-            .pickerStyle(.segmented)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
 }
 
@@ -194,15 +130,358 @@ struct SettingsSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.system(size: Theme.fontH5, weight: .medium))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundColor(Theme.textSecondary)
                 .padding(.horizontal, 4)
 
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Theme.homeCardDark)
+                .background(Theme.cardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(Theme.divider.opacity(0.7), lineWidth: 0.5)
+                }
         }
+    }
+}
+
+private struct SettingsNavigationRow: View {
+    let title: String
+    var value: String? = nil
+
+    var body: some View {
+        HStack(spacing: Theme.sm) {
+            Text(title)
+                .font(.system(size: 16))
+                .foregroundColor(Theme.textPrimary)
+            Spacer()
+            if let value {
+                Text(value)
+                    .font(.system(size: 14))
+                    .foregroundColor(Theme.textSecondary)
+            }
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(Theme.textSecondary)
+        }
+        .padding(.horizontal, Theme.md)
+        .frame(minHeight: 56)
+        .contentShape(Rectangle())
+    }
+}
+
+private struct ScoreboardSettingsView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var selectedTheme = ScoreboardTheme(rawValue: PreferencesManager.shared.scoreboardTheme) ?? .defaultTheme
+    @State private var selectedFont = ScoreboardFont(rawValue: PreferencesManager.shared.scoreboardFont) ?? .default
+    @State private var forceIPadLandscape = PreferencesManager.shared.forceIPadLandscape
+    @State private var keepScreenOn = PreferencesManager.shared.keepScoreboardScreenOn
+    @State private var soundEnabled = PreferencesManager.shared.soundEnabled
+    @State private var vibrationEnabled = PreferencesManager.shared.vibrationEnabled
+    @State private var immersiveMode = PreferencesManager.shared.scoreboardImmersiveModeEnabled
+    @State private var touchGuard = PreferencesManager.shared.scoreboardTouchGuardEnabled
+    @State private var doubleTapSubtract = PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled
+    @State private var helpTopic: ScoreboardSettingHelp?
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.lg) {
+                SettingsSection(title: NSLocalizedString("scoreboard_settings_appearance", value: "外观", comment: "")) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ScoreboardThemeSelector(selection: $selectedTheme)
+                            .padding(Theme.md)
+                        Divider().overlay(Theme.divider)
+                        ScoreboardFontSelector(selection: $selectedFont)
+                            .padding(Theme.md)
+                    }
+                }
+
+                SettingsSection(title: NSLocalizedString("scoreboard_settings_experience", value: "计分体验", comment: "")) {
+                    VStack(spacing: 0) {
+                        if UIDevice.current.userInterfaceIdiom == .pad {
+                            ScoreboardToggleSettingRow(
+                                title: NSLocalizedString("scoreboard_force_ipad_landscape", value: "iPad 强制横屏", comment: ""),
+                                isOn: $forceIPadLandscape
+                            )
+                            Divider().overlay(Theme.divider)
+                        }
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("scoreboard_keep_screen_on", value: "屏幕常亮", comment: ""),
+                            isOn: $keepScreenOn
+                        )
+                        Divider().overlay(Theme.divider)
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("sound", value: "声音", comment: ""),
+                            isOn: $soundEnabled
+                        )
+                        Divider().overlay(Theme.divider)
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("vibration", value: "振动", comment: ""),
+                            isOn: $vibrationEnabled
+                        )
+                        Divider().overlay(Theme.divider)
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("scoreboard_immersive_mode", value: "沉浸模式", comment: ""),
+                            isOn: $immersiveMode,
+                            helpAction: { helpTopic = .immersive }
+                        )
+                        Divider().overlay(Theme.divider)
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("scoreboard_touch_guard", value: "触摸防误触", comment: ""),
+                            isOn: $touchGuard,
+                            helpAction: { helpTopic = .touchGuard }
+                        )
+                        Divider().overlay(Theme.divider)
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("scoreboard_double_tap_subtract", value: "双击减分", comment: ""),
+                            isOn: $doubleTapSubtract,
+                            helpAction: { helpTopic = .doubleTapSubtract }
+                        )
+                    }
+                }
+            }
+            .frame(maxWidth: horizontalSizeClass == .regular ? 680 : .infinity)
+            .padding(.horizontal, Theme.md)
+            .padding(.vertical, Theme.lg)
+        }
+        .background(Theme.backgroundColor)
+        .navigationTitle(NSLocalizedString("scoreboard_settings_title", value: "计分器设置", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: selectedTheme) { _, value in PreferencesManager.shared.scoreboardTheme = value.rawValue }
+        .onChange(of: selectedFont) { _, value in PreferencesManager.shared.scoreboardFont = value.rawValue }
+        .onChange(of: forceIPadLandscape) { _, value in PreferencesManager.shared.forceIPadLandscape = value }
+        .onChange(of: keepScreenOn) { _, value in PreferencesManager.shared.keepScoreboardScreenOn = value }
+        .onChange(of: soundEnabled) { _, value in PreferencesManager.shared.soundEnabled = value }
+        .onChange(of: vibrationEnabled) { _, value in PreferencesManager.shared.vibrationEnabled = value }
+        .onChange(of: immersiveMode) { _, value in PreferencesManager.shared.scoreboardImmersiveModeEnabled = value }
+        .onChange(of: touchGuard) { _, value in PreferencesManager.shared.scoreboardTouchGuardEnabled = value }
+        .onChange(of: doubleTapSubtract) { _, value in PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled = value }
+        .alert(item: $helpTopic) { topic in
+            Alert(title: Text(topic.title), message: Text(topic.message), dismissButton: .default(Text(NSLocalizedString("got_it", value: "知道了", comment: ""))))
+        }
+    }
+}
+
+private enum ScoreboardSettingHelp: String, Identifiable {
+    case immersive
+    case touchGuard
+    case doubleTapSubtract
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .immersive: return NSLocalizedString("scoreboard_immersive_help_title", value: "沉浸模式", comment: "")
+        case .touchGuard: return NSLocalizedString("scoreboard_touch_guard_help_title", value: "触摸防误触", comment: "")
+        case .doubleTapSubtract: return NSLocalizedString("scoreboard_double_tap_help_title", value: "双击减分", comment: "")
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .immersive:
+            return NSLocalizedString("scoreboard_immersive_help_message", value: "进入计分板后，角落操作按钮会自动隐藏。点击角落可再次显示。", comment: "")
+        case .touchGuard:
+            return NSLocalizedString("scoreboard_touch_guard_help_message", value: "仅点击比分数字附近时才会计分，减少握持和擦拭屏幕时的误触。", comment: "")
+        case .doubleTapSubtract:
+            return NSLocalizedString("scoreboard_double_tap_help_message", value: "开启后，快速双击某一方的比分区域会减 1 分。", comment: "")
+        }
+    }
+}
+
+private struct ScoreboardThemeSelector: View {
+    @Binding var selection: ScoreboardTheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(NSLocalizedString("scoreboard_theme", value: "计分板主题", comment: ""))
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Theme.textPrimary)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                ForEach(ScoreboardTheme.allCases) { theme in
+                    Button { selection = theme } label: {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 0) {
+                                theme.palette.left
+                                theme.palette.right
+                            }
+                            .frame(height: 42)
+                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            HStack {
+                                Text(theme.localizedTitle)
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(Theme.textPrimary)
+                                Spacer()
+                                if selection == theme {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(Theme.accentColor)
+                                }
+                            }
+                        }
+                        .padding(9)
+                        .background(Theme.controlBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(selection == theme ? Theme.accentColor : Theme.divider.opacity(0.5), lineWidth: selection == theme ? 2 : 0.5)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
+private struct ScoreboardFontSelector: View {
+    @Binding var selection: ScoreboardFont
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(NSLocalizedString("scoreboard_font", value: "比分字体", comment: ""))
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Theme.textPrimary)
+            ForEach(ScoreboardFont.allCases) { font in
+                Button { selection = font } label: {
+                    HStack(spacing: 12) {
+                        Text("88:88")
+                            .font(font.swiftUIFont(size: 24))
+                            .foregroundColor(Theme.textPrimary)
+                            .frame(width: 92, alignment: .leading)
+                        Text(font.localizedTitle)
+                            .font(.system(size: 15))
+                            .foregroundColor(Theme.textPrimary)
+                        Spacer()
+                        Image(systemName: selection == font ? "checkmark.circle.fill" : "circle")
+                            .foregroundColor(selection == font ? Theme.accentColor : Theme.textSecondary)
+                    }
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+private struct ScoreboardToggleSettingRow: View {
+    let title: String
+    @Binding var isOn: Bool
+    var helpAction: (() -> Void)? = nil
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Text(title)
+                .font(.system(size: 16))
+                .foregroundColor(Theme.textPrimary)
+            if let helpAction {
+                Button(action: helpAction) {
+                    Image(systemName: "questionmark.circle")
+                        .foregroundColor(Theme.textSecondary)
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+        }
+        .padding(.horizontal, Theme.md)
+        .frame(minHeight: 56)
+    }
+}
+
+private struct FAQItem: Identifiable {
+    let id: Int
+    let question: String
+    let answer: String
+}
+
+private struct FAQView: View {
+    @State private var expandedID: Int?
+
+    private var items: [FAQItem] {
+        (1...8).map { index in
+            FAQItem(
+                id: index,
+                question: NSLocalizedString("faq_question_\(index)", value: "", comment: ""),
+                answer: NSLocalizedString("faq_answer_\(index)", value: "", comment: "")
+            )
+        }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: Theme.sm) {
+                ForEach(items) { item in
+                    Button { expandedID = expandedID == item.id ? nil : item.id } label: {
+                        VStack(alignment: .leading, spacing: Theme.sm) {
+                            HStack {
+                                Text(item.question)
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(Theme.textPrimary)
+                                    .multilineTextAlignment(.leading)
+                                Spacer()
+                                Image(systemName: expandedID == item.id ? "chevron.up" : "chevron.down")
+                                    .foregroundColor(Theme.textSecondary)
+                            }
+                            if expandedID == item.id {
+                                Text(item.answer)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(Theme.textSecondary)
+                                    .multilineTextAlignment(.leading)
+                            }
+                        }
+                        .padding(Theme.md)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Theme.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(Theme.md)
+        }
+        .background(Theme.backgroundColor)
+        .navigationTitle(NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct AboutUsView: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: Theme.lg) {
+                VStack(spacing: Theme.sm) {
+                    Image(systemName: "sportscourt")
+                        .font(.system(size: 52))
+                        .foregroundColor(Theme.primaryDark)
+                    Text(NSLocalizedString("app_name", value: "全能计分器", comment: ""))
+                        .font(.title2.weight(.semibold))
+                        .foregroundColor(Theme.textPrimary)
+                    Text(String(format: NSLocalizedString("about_version_format", value: "版本 %@", comment: ""), appVersion))
+                        .font(.subheadline)
+                        .foregroundColor(Theme.textSecondary)
+                }
+                SettingsSection(title: NSLocalizedString("about_legal", value: "相关信息", comment: "")) {
+                    VStack(spacing: 0) {
+                        Link(destination: AppSupportURLs.terms) { SettingsNavigationRow(title: NSLocalizedString("terms_of_service", value: "用户协议", comment: "")) }
+                        Divider().overlay(Theme.divider)
+                        Link(destination: AppSupportURLs.privacy) { SettingsNavigationRow(title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: "")) }
+                        Divider().overlay(Theme.divider)
+                        Link(destination: AppSupportURLs.support) { SettingsNavigationRow(title: NSLocalizedString("support_contact", value: "联系我们", comment: "")) }
+                    }
+                }
+            }
+            .padding(Theme.md)
+        }
+        .background(Theme.backgroundColor)
+        .navigationTitle(NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     }
 }
 
@@ -282,439 +561,6 @@ struct LinkRow: View {
         .buttonStyle(.plain)
     }
 }
-
-struct CommonNamesManagementView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
-    @FocusState private var isNameEditorFocused: Bool
-    @State private var selectedType: NameType = .team
-    @State private var teamNames: [String] = []
-    @State private var playerNames: [String] = []
-    @State private var showClearTypeConfirm = false
-    @State private var showDeleteConfirm = false
-    @State private var showNameEditorSheet = false
-    @State private var showBatchAddSheet = false
-    @State private var pendingDeleteName: String?
-    @State private var editingOriginalName: String?
-    @State private var nameEditorInput: String = ""
-    @State private var batchAddInput: String = ""
-    @State private var batchAddType: NameType = .team
-    @State private var toastMessage: String = ""
-    @State private var showToast = false
-
-    private let commonNamesManager = CommonNamesManager.shared
-
-    private var currentNames: [String] {
-        selectedType == .team ? teamNames : playerNames
-    }
-
-    private var currentTypeTitle: String {
-        selectedType == .team
-            ? NSLocalizedString("common_names_team", value: "队伍名称", comment: "Team names category")
-            : NSLocalizedString("common_names_player", value: "选手名称", comment: "Player names category")
-    }
-
-    private var nameEditorTitle: String {
-        editingOriginalName == nil
-            ? NSLocalizedString("common_names_add", value: "添加", comment: "Add")
-            : NSLocalizedString("common_names_edit_title", value: "编辑名称", comment: "Edit name")
-    }
-
-    private var namePlaceholder: String {
-        selectedType == .team
-            ? NSLocalizedString("common_names_team_placeholder", value: "输入队伍名称", comment: "Team name placeholder")
-            : NSLocalizedString("common_names_player_placeholder", value: "输入选手名称", comment: "Player name placeholder")
-    }
-
-    var body: some View {
-        ZStack {
-            (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
-
-            VStack(spacing: 16) {
-                Picker("", selection: $selectedType) {
-                    Text(NSLocalizedString("common_names_team", value: "队伍名称", comment: "Team names category"))
-                        .tag(NameType.team)
-                    Text(NSLocalizedString("common_names_player", value: "选手名称", comment: "Player names category"))
-                        .tag(NameType.player)
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal, 16)
-
-                HStack(spacing: 12) {
-                    Button {
-                        openAddNameSheet()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "plus")
-                            Text(NSLocalizedString("common_names_add", value: "添加", comment: "Add"))
-                        }
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.textPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Theme.homeCardDark)
-                        .cornerRadius(10)
-                    }
-                    .buttonStyle(.plain)
-
-                    Button {
-                        openBatchAddSheet()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "text.badge.plus")
-                            Text(NSLocalizedString("common_names_batch_add", value: "批量添加", comment: "Batch add"))
-                        }
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.textPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Theme.homeCardDark)
-                        .cornerRadius(10)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.horizontal, 16)
-
-                if !currentNames.isEmpty {
-                    Button {
-                        showClearTypeConfirm = true
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "trash")
-                                .foregroundColor(Theme.accentColor)
-                            Text(NSLocalizedString("common_names_clear_current", value: "清空当前分类", comment: "Clear current name category"))
-                                .foregroundColor(Theme.textPrimary)
-                            Spacer()
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(Theme.homeCardDark)
-                        .cornerRadius(10)
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, 16)
-                }
-
-                if currentNames.isEmpty {
-                    VStack {
-                        Spacer()
-                        VStack(spacing: Theme.sm) {
-                            EmptyStateCourtIcon(size: 44)
-                            Text(NSLocalizedString("common_names_empty", value: "暂无常用名称", comment: ""))
-                                .font(.system(size: 16))
-                                .foregroundColor(Theme.textSecondary)
-                        }
-                        Spacer()
-                    }
-                } else {
-                    ScrollView {
-                        VStack(spacing: 8) {
-                            ForEach(currentNames, id: \.self) { name in
-                                HStack(spacing: 12) {
-                                    Text(name)
-                                        .foregroundColor(Theme.textPrimary)
-                                        .lineLimit(1)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                                    Button {
-                                        openEditNameSheet(name: name)
-                                    } label: {
-                                        Image(systemName: "pencil")
-                                            .foregroundColor(Theme.accentColor)
-                                            .frame(width: 24, height: 24)
-                                    }
-                                    .buttonStyle(.plain)
-
-                                    Button {
-                                        pendingDeleteName = name
-                                        showDeleteConfirm = true
-                                    } label: {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                            .frame(width: 24, height: 24)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(Theme.homeCardDark)
-                                .cornerRadius(12)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-                    }
-                }
-
-                Spacer(minLength: 0)
-            }
-            .padding(.top, 16)
-
-            if showToast {
-                VStack {
-                    Spacer()
-                    ToastView(message: toastMessage)
-                        .transition(.opacity)
-                        .padding(.bottom, 28)
-                }
-            }
-        }
-        .navigationTitle(NSLocalizedString("common_names_manage", value: "常用名称管理", comment: "Manage common names"))
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            reloadNames()
-        }
-        .alert(
-            NSLocalizedString("common_names_clear_current", value: "清空当前分类", comment: "Clear current name category"),
-            isPresented: $showClearTypeConfirm
-        ) {
-            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
-            Button(NSLocalizedString("clear", value: "清空", comment: "Clear"), role: .destructive) {
-                commonNamesManager.clearNames(type: selectedType)
-                reloadNames()
-            }
-        } message: {
-            Text(String(format: NSLocalizedString(
-                "common_names_clear_current_message",
-                value: "将清空%@的所有常用名称，此操作无法撤销。",
-                comment: "Clear current category message"
-            ), currentTypeTitle))
-        }
-        .alert(
-            NSLocalizedString("delete", value: "删除", comment: "Delete"),
-            isPresented: $showDeleteConfirm,
-            presenting: pendingDeleteName
-        ) { name in
-            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
-            Button(NSLocalizedString("delete", value: "删除", comment: "Delete"), role: .destructive) {
-                removeName(name)
-            }
-        } message: { name in
-            Text(String(format: NSLocalizedString(
-                "common_names_delete_message",
-                value: "确认删除“%@”？",
-                comment: "Confirm delete name message"
-            ), name))
-        }
-        .sheet(isPresented: $showNameEditorSheet) {
-            NavigationStack {
-                ZStack {
-                    Theme.backgroundColor.ignoresSafeArea()
-                    VStack(spacing: 16) {
-                        TextField(namePlaceholder, text: $nameEditorInput)
-                            .font(.system(size: 16))
-                            .foregroundColor(Theme.textPrimary)
-                            .focused($isNameEditorFocused)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 12)
-                            .background(Theme.homeCardDark)
-                            .cornerRadius(10)
-
-                        Spacer()
-                    }
-                    .padding(16)
-                }
-                .navigationTitle(nameEditorTitle)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button(NSLocalizedString("cancel", comment: "Cancel")) {
-                            closeNameEditor()
-                        }
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(editingOriginalName == nil
-                               ? NSLocalizedString("add", value: "添加", comment: "Add")
-                               : NSLocalizedString("save", value: "保存", comment: "Save")) {
-                            submitNameEditor()
-                        }
-                    }
-                }
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-                        isNameEditorFocused = true
-                    }
-                }
-            }
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
-        }
-        .sheet(isPresented: $showBatchAddSheet) {
-            NavigationStack {
-                ZStack {
-                    Theme.backgroundColor.ignoresSafeArea()
-                    VStack(spacing: 12) {
-                        Picker("", selection: $batchAddType) {
-                            Text(NSLocalizedString("common_names_team", value: "队伍名称", comment: "Team names category"))
-                                .tag(NameType.team)
-                            Text(NSLocalizedString("common_names_player", value: "选手名称", comment: "Player names category"))
-                                .tag(NameType.player)
-                        }
-                        .pickerStyle(.segmented)
-
-                        ZStack(alignment: .topLeading) {
-                            TextEditor(text: $batchAddInput)
-                                .font(.system(size: 16))
-                                .foregroundColor(Theme.textPrimary)
-                                .padding(8)
-                                .frame(minHeight: 220)
-                                .scrollContentBackground(.hidden)
-                                .background(Theme.homeCardDark)
-                                .cornerRadius(10)
-
-                            if batchAddInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                Text(NSLocalizedString(
-                                    "common_names_batch_hint",
-                                    value: "每行一个名称，或用逗号分隔",
-                                    comment: "Batch input hint"
-                                ))
-                                .font(.system(size: 14))
-                                .foregroundColor(Theme.textSecondary)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 16)
-                            }
-                        }
-                        Spacer()
-                    }
-                    .padding(16)
-                }
-                .navigationTitle(NSLocalizedString("common_names_batch_add", value: "批量添加", comment: "Batch add"))
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button(NSLocalizedString("cancel", comment: "Cancel")) {
-                            closeBatchAddSheet()
-                        }
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(NSLocalizedString("add", value: "添加", comment: "Add")) {
-                            submitBatchAdd()
-                        }
-                    }
-                }
-            }
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-        }
-    }
-
-    private func reloadNames() {
-        teamNames = commonNamesManager.getNames(type: .team)
-        playerNames = commonNamesManager.getNames(type: .player)
-    }
-
-    private func removeName(_ name: String) {
-        commonNamesManager.removeName(name, type: selectedType)
-        reloadNames()
-        showMessage(NSLocalizedString("common_names_deleted", value: "已删除", comment: "Deleted common name"))
-    }
-
-    private func openAddNameSheet() {
-        editingOriginalName = nil
-        nameEditorInput = ""
-        showNameEditorSheet = true
-    }
-
-    private func openEditNameSheet(name: String) {
-        editingOriginalName = name
-        nameEditorInput = name
-        showNameEditorSheet = true
-    }
-
-    private func closeNameEditor() {
-        isNameEditorFocused = false
-        showNameEditorSheet = false
-        editingOriginalName = nil
-        nameEditorInput = ""
-    }
-
-    private func submitNameEditor() {
-        do {
-            if let oldName = editingOriginalName {
-                try commonNamesManager.updateName(oldName: oldName, newName: nameEditorInput, type: selectedType)
-                showMessage(NSLocalizedString("common_names_updated", value: "已更新", comment: "Updated common name"))
-            } else {
-                _ = try commonNamesManager.addName(nameEditorInput, type: selectedType)
-                showMessage(NSLocalizedString("common_names_added", value: "已添加", comment: "Added common name"))
-            }
-            reloadNames()
-            closeNameEditor()
-        } catch {
-            let fallback = editingOriginalName == nil
-                ? NSLocalizedString("common_names_add_failed", value: "添加失败", comment: "Add common name failed")
-                : NSLocalizedString("common_names_update_failed", value: "更新失败", comment: "Update common name failed")
-            handleCommonNameError(error, fallback: fallback)
-        }
-    }
-
-    private func openBatchAddSheet() {
-        batchAddType = selectedType
-        batchAddInput = ""
-        showBatchAddSheet = true
-    }
-
-    private func closeBatchAddSheet() {
-        showBatchAddSheet = false
-        batchAddInput = ""
-    }
-
-    private func submitBatchAdd() {
-        let names = parseBatchInput(batchAddInput)
-        guard !names.isEmpty else {
-            showMessage(NSLocalizedString("common_names_batch_empty", value: "请输入至少一个有效名称", comment: "Batch add empty input"))
-            return
-        }
-
-        let result = commonNamesManager.addNamesBatch(names, type: batchAddType)
-        reloadNames()
-        closeBatchAddSheet()
-        let format = NSLocalizedString(
-            "common_names_batch_result",
-            value: "已添加 %d 个，跳过 %d 个",
-            comment: "Batch add result"
-        )
-        showMessage(String(format: format, result.added, result.skipped))
-    }
-
-    private func parseBatchInput(_ text: String) -> [String] {
-        CommonNamesBatchParser.parse(text)
-    }
-
-    private func handleCommonNameError(_ error: Error, fallback: String) {
-        if let commonError = error as? CommonNamesError {
-            switch commonError {
-            case .emptyName:
-                showMessage(NSLocalizedString("common_names_empty_name", value: "名称不能为空", comment: "Common name is empty"))
-                return
-            case .duplicateName:
-                showMessage(NSLocalizedString("common_names_already_exists", value: "该名称已存在", comment: "Common name already exists"))
-                return
-            case .nameNotFound:
-                showMessage(fallback)
-                return
-            }
-        }
-        showMessage(fallback)
-    }
-
-    private func showMessage(_ message: String) {
-        toastMessage = message
-        withAnimation(.easeInOut(duration: 0.2)) {
-            showToast = true
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showToast = false
-            }
-        }
-    }
-}
-
-
 
 #Preview {
     SettingsView()

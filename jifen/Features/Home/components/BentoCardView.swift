@@ -5,7 +5,6 @@ struct BentoCardView: View {
     var subtitle: String = ""
     let icon: String
     var gradientColors: [Color] = [Theme.surface, Theme.surface] // Default to Theme.surface
-    var isDarkText: Bool = false
     var showDecorativeBars: Bool = false
     
     var body: some View {
@@ -21,14 +20,14 @@ struct BentoCardView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text(title)
                             .font(.system(size: Theme.fontH5, weight: .bold))
-                            .foregroundColor(isDarkText ? .black : Theme.textPrimary)
+                            .foregroundColor(Theme.homeCardTextPrimary)
                             .lineLimit(1)
                             .truncationMode(.tail)
 
                         if !subtitle.isEmpty {
                             Text(subtitle)
                                 .font(.system(size: Theme.fontCaption, weight: .medium))
-                                .foregroundColor(isDarkText ? Color(hex: "999999") : Theme.textSecondary)
+                                .foregroundColor(Theme.homeCardTextSecondary)
                                 .padding(.top, Theme.xs)
                                 .textCase(.uppercase)
                         }

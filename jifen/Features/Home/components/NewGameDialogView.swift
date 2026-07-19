@@ -83,7 +83,6 @@ struct NewGameDialogView: View {
         SportOptionView(
             sport: gameType,
             isSelected: false,
-            isDarkTheme: true,
             onClickOption: { handleGameItemClick(gameType: gameType) }
         )
     }

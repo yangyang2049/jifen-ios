@@ -14,7 +14,7 @@ struct SimpleScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     @State private var controller: SimpleScoreboardController
     @State private var viewModel: BaseScoreViewModel
-    @State private var responsiveScoreFontSize: CGFloat = 120
+    @State private var responsiveScoreFontSize: CGFloat = ScoreboardConstants.baseMainScoreFontSize
 
     init(initialSetup: SportsSetupResult? = nil, onSetupConsumed: (() -> Void)? = nil, onNavigationBack: (() -> Void)? = nil) {
         self.initialSetup = initialSetup
@@ -22,7 +22,7 @@ struct SimpleScoreboardView: View {
         self.onNavigationBack = onNavigationBack
         let c = SimpleScoreboardController()
         _controller = State(initialValue: c)
-        _viewModel = State(initialValue: BaseScoreViewModel(controller: c))
+        _viewModel = State(initialValue: BaseScoreViewModel(controller: c, scoreRange: Int.min ... Int.max))
     }
 
     var body: some View {
@@ -63,11 +63,8 @@ struct SimpleScoreboardView: View {
     }
 
     private func calculateResponsiveScoreFontSize() -> CGFloat {
-        let base: CGFloat = 120
-        let w = UIScreen.main.bounds.width
-        if w <= 0 { return base }
-        let scale = 0.15
-        return min(240, max(base, base + (CGFloat(w) - 400) * scale))
+        let halfH = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        return ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: halfH)
     }
 
     private func saveRecordIfNeeded() {

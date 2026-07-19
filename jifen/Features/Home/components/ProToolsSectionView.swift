@@ -78,8 +78,7 @@ struct ProToolsSectionView: View {
             ToolDef(id: "whistle", name: NSLocalizedString("home_tool_whistle", comment: "Whistle"), icon: "🔊", color: Theme.toolWhistleRed),
             ToolDef(id: "red_yellow_card", name: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), icon: "🟨", color: Theme.toolGray),
             ToolDef(id: "points_table", name: NSLocalizedString("points_table_title", value: "积分表", comment: ""), icon: "📊", color: Theme.toolGray),
-            ToolDef(id: "stopwatch", name: NSLocalizedString("tool_stopwatch", value: "秒表", comment: "Stopwatch"), icon: "⏱️", color: Theme.toolGray),
-            ToolDef(id: "time", name: NSLocalizedString("tool_time", value: "全屏时间", comment: "Fullscreen Time"), icon: "🕐", color: Theme.toolGray),
+            ToolDef(id: "time", name: NSLocalizedString("tool_time", value: "翻页时钟", comment: "Flip Clock"), icon: "🕐", color: Theme.toolGray),
             ToolDef(id: "aa_calculator", name: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), icon: "💰", color: Theme.toolGray),
             ToolDef(id: "ten_second", name: NSLocalizedString("tool_ten_second", comment: "Ten Second Challenge"), icon: "⏱️", color: Theme.toolGray),
         ]

@@ -6,7 +6,6 @@ struct QuickStartEditView: View {
     /// 自定义主卡片可选项目（不含秒表，与「新比赛」弹窗一致）
     private static let editDialogSports: [GameType] = availableSports.filter { $0 != .stopwatch }
 
-    var isDarkTheme: Bool = true
     var initialPrimary: GameType = .basketball
     var initialSecondary: GameType = .badminton
 
@@ -15,8 +14,7 @@ struct QuickStartEditView: View {
 
     var onSave: ((GameType, GameType) -> Void)?
 
-    init(isDarkTheme: Bool = true, initialPrimary: GameType = .basketball, initialSecondary: GameType = .badminton, onSave: ((GameType, GameType) -> Void)? = nil) {
-        self.isDarkTheme = isDarkTheme
+    init(initialPrimary: GameType = .basketball, initialSecondary: GameType = .badminton, onSave: ((GameType, GameType) -> Void)? = nil) {
         self.initialPrimary = initialPrimary
         self.initialSecondary = initialSecondary
         self.onSave = onSave
@@ -58,7 +56,6 @@ struct QuickStartEditView: View {
                                         SportOptionView(
                                             sport: sport,
                                             isSelected: selectedPrimary == sport,
-                                            isDarkTheme: isDarkTheme,
                                             onClickOption: {
                                                 selectedPrimary = sport
                                             }
@@ -91,7 +88,6 @@ struct QuickStartEditView: View {
                                         SportOptionView(
                                             sport: sport,
                                             isSelected: selectedSecondary == sport,
-                                            isDarkTheme: isDarkTheme,
                                             onClickOption: {
                                                 selectedSecondary = sport
                                             }

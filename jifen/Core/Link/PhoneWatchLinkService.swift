@@ -15,13 +15,36 @@ final class PhoneWatchLinkService {
     private let transport = WatchConnectivityTransport()
     private var sequence: UInt64 = 0
     private var activeSession: ActiveSession?
+    private(set) var connectivityStatus: WatchConnectivityStatus
+
+    enum InteractiveStartError: LocalizedError {
+        case watchUnavailable
+
+        var errorDescription: String? {
+            NSLocalizedString(
+                "linked_score_watch_unavailable",
+                value: "Apple Watch 未连接，请打开手表端全能计分器后重试。",
+                comment: "Watch unavailable when starting linked scoreboard"
+            )
+        }
+    }
 
     init() {
+        connectivityStatus = transport.status
+        transport.onStatusChange = { [weak self] status in
+            DispatchQueue.main.async {
+                self?.connectivityStatus = status
+            }
+        }
         transport.activate()
     }
 
+    var canStartInteractiveSession: Bool {
+        connectivityStatus.canStartInteractiveSession
+    }
+
     func startOnWatch(state: BasketballMatchState) -> UUID {
-        startSession(
+        startSessionInBackground(
             gameType: state.gameMode == .threeXThree ? .threeBasketball : .basketball,
             basketballThreeXThree: state.gameMode == .threeXThree,
             initialSnapshot: .basketball(state)
@@ -29,7 +52,23 @@ final class PhoneWatchLinkService {
     }
 
     func startOnWatch(gameType: ScoreCore.GameType, state: RallyMatchState) -> UUID {
-        startSession(
+        startSessionInBackground(
+            gameType: gameType,
+            maxSets: state.rules.maxSets,
+            initialSnapshot: .rally(state)
+        )
+    }
+
+    func startInteractiveOnWatch(state: BasketballMatchState) async throws -> UUID {
+        try await startInteractiveSession(
+            gameType: state.gameMode == .threeXThree ? .threeBasketball : .basketball,
+            basketballThreeXThree: state.gameMode == .threeXThree,
+            initialSnapshot: .basketball(state)
+        )
+    }
+
+    func startInteractiveOnWatch(gameType: ScoreCore.GameType, state: RallyMatchState) async throws -> UUID {
+        try await startInteractiveSession(
             gameType: gameType,
             maxSets: state.rules.maxSets,
             initialSnapshot: .rally(state)
@@ -50,12 +89,56 @@ final class PhoneWatchLinkService {
         activeSession = nil
     }
 
-    private func startSession(
+    private func startSessionInBackground(
         gameType: ScoreCore.GameType,
         maxSets: Int? = nil,
         basketballThreeXThree: Bool = false,
         initialSnapshot: LinkedScoreboardSnapshot
     ) -> UUID {
+        let request = makeSessionRequest(
+            gameType: gameType,
+            maxSets: maxSets,
+            basketballThreeXThree: basketballThreeXThree,
+            initialSnapshot: initialSnapshot
+        )
+        Task {
+            try? await transport.send(request.data)
+        }
+        return request.sessionId
+    }
+
+    private func startInteractiveSession(
+        gameType: ScoreCore.GameType,
+        maxSets: Int? = nil,
+        basketballThreeXThree: Bool = false,
+        initialSnapshot: LinkedScoreboardSnapshot
+    ) async throws -> UUID {
+        guard canStartInteractiveSession else {
+            throw InteractiveStartError.watchUnavailable
+        }
+        let request = makeSessionRequest(
+            gameType: gameType,
+            maxSets: maxSets,
+            basketballThreeXThree: basketballThreeXThree,
+            initialSnapshot: initialSnapshot
+        )
+        do {
+            try await transport.send(request.data)
+            return request.sessionId
+        } catch {
+            if activeSession?.sessionId == request.sessionId {
+                activeSession = nil
+            }
+            throw error
+        }
+    }
+
+    private func makeSessionRequest(
+        gameType: ScoreCore.GameType,
+        maxSets: Int?,
+        basketballThreeXThree: Bool,
+        initialSnapshot: LinkedScoreboardSnapshot
+    ) -> (sessionId: UUID, data: Data) {
         let sessionId = UUID()
         activeSession = ActiveSession(sessionId: sessionId, gameType: gameType, revision: 0)
         sequence += 1
@@ -73,11 +156,8 @@ final class PhoneWatchLinkService {
                 initialSnapshot: initialSnapshot
             )
         )
-        Task {
-            guard let data = try? JSONEncoder().encode(envelope) else { return }
-            try? await transport.send(data)
-        }
-        return sessionId
+        let data = (try? JSONEncoder().encode(envelope)) ?? Data()
+        return (sessionId, data)
     }
 
     private func sendSnapshot(

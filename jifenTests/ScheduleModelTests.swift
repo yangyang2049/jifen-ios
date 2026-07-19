@@ -4,14 +4,17 @@ import XCTest
 @MainActor
 final class ScheduleModelTests: XCTestCase {
     private let bookingsKey = "local_bookings_v1"
+    private let commonPlacesKey = "jifen-v2.commonPlaces"
 
     override func setUp() {
         super.setUp()
         UserDefaults.standard.removeObject(forKey: bookingsKey)
+        UserDefaults.standard.removeObject(forKey: commonPlacesKey)
     }
 
     override func tearDown() {
         UserDefaults.standard.removeObject(forKey: bookingsKey)
+        UserDefaults.standard.removeObject(forKey: commonPlacesKey)
         super.tearDown()
     }
 
@@ -75,5 +78,37 @@ final class ScheduleModelTests: XCTestCase {
 
         XCTAssertEqual(results.count, 2)
         XCTAssertEqual(results.map(\.id), ["b", "d"])
+    }
+
+    func testCommonPlacesNormalizeDeduplicateAndTrackUsage() throws {
+        let manager = CommonPlacesManager.shared
+        try manager.addPlace("  Center   Court  ")
+
+        XCTAssertThrowsError(try manager.addPlace("center court")) { error in
+            guard case CommonPlacesError.duplicateName = error else {
+                return XCTFail("Expected duplicateName, got \(error)")
+            }
+        }
+
+        manager.recordUsage("Center Court")
+        manager.recordUsage("West Gym")
+        manager.recordUsage("West Gym")
+
+        let places = manager.getAllPlaces()
+        XCTAssertEqual(places.map(\.name), ["West Gym", "Center Court"])
+        XCTAssertEqual(places.map(\.useCount), [2, 1])
+    }
+
+    func testCommonPlacesKeepNewestUsedPlaceAtCapacity() throws {
+        let manager = CommonPlacesManager.shared
+        for index in 0..<50 {
+            try manager.addPlace("Court \(index)")
+        }
+
+        manager.recordUsage("New Court")
+
+        let places = manager.getAllPlaces()
+        XCTAssertEqual(places.count, 50)
+        XCTAssertEqual(places.first?.name, "New Court")
     }
 }

@@ -100,4 +100,15 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return OrientationLock.shared.currentOrientation
     }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        Task { @MainActor in LocalPeerRoomManager.shared.setPaused(true) }
+    }
+
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        Task { @MainActor in
+            LocalPeerRoomManager.shared.setPaused(false)
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
+    }
 }

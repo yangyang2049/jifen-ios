@@ -28,8 +28,7 @@ extension ToolItem {
     static let otherTools: [ToolItem] = [
         // ToolItem(id: "fullscreen_barrage", emoji: "💬", title: NSLocalizedString("fullscreen_barrage", comment: "Fullscreen Barrage"), view: AnyView(FullscreenBarrageView())), // Temporarily hidden
         ToolItem(id: "points_table", emoji: "📊", title: NSLocalizedString("points_table_title", value: "积分表", comment: ""), view: AnyView(PointsTableView())),
-        ToolItem(id: "stopwatch", emoji: "⏱️", title: NSLocalizedString("tool_stopwatch", value: "秒表", comment: "Stopwatch"), view: AnyView(StopwatchView())),
-        ToolItem(id: "time", emoji: "🕐", title: NSLocalizedString("tool_time", value: "全屏时间", comment: "Fullscreen Time"), view: AnyView(DateTimeToolView())),
+        ToolItem(id: "time", emoji: "🕐", title: NSLocalizedString("tool_time", value: "翻页时钟", comment: "Flip Clock"), view: AnyView(DateTimeToolView())),
         ToolItem(id: "aa_calculator", emoji: "💰", title: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), view: AnyView(AACalculatorView())),
         ToolItem(id: "ten_second", emoji: "⏱️", title: NSLocalizedString("tool_ten_second", comment: "Ten Second Challenge"), view: AnyView(TenSecondChallengeView()))
     ]

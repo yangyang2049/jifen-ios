@@ -93,8 +93,12 @@ struct ToolCardView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 120)
-            .background(.ultraThinMaterial)
-            .cornerRadius(Theme.cornerRadius)
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous)
+                    .stroke(Theme.divider.opacity(0.6), lineWidth: 1)
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }

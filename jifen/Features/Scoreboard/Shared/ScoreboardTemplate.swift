@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Photos // For PHPhotoLibrary
+import UIKit
 
 struct ScoreboardTemplate: View {
     @State private var config: TemplateConfig
@@ -24,17 +25,33 @@ struct ScoreboardTemplate: View {
     @State private var resetClickCount: Int = 0
     @State private var screenshotPreviewImage: UIImage? = nil // Screenshot preview image
     @State private var showScreenshotPreview: Bool = false // Show screenshot preview
-    @State private var lastTapTime: Date = Date.distantPast
-    private let tapDebounceInterval: TimeInterval = 0.15 // 150ms debounce for tap gestures
+    @State private var pendingTapSide: Bool?
+    @State private var pendingTapAt: Date = .distantPast
+    @State private var tapGeneration = 0
+    @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var chromeButtonsVisible = true
+    @State private var immersiveGeneration = 0
+    @State private var previousIdleTimerDisabled: Bool?
+    @State private var showDisplaySettings = false
+    @State private var showLocalSync = false
+    private let doubleTapWindow: TimeInterval = 0.24
     
     var body: some View {
         GeometryReader { geometry in
+            let isLandscape = geometry.size.width >= geometry.size.height
+            let panelSize = CGSize(
+                width: isLandscape ? geometry.size.width / 2 : geometry.size.width,
+                height: isLandscape ? geometry.size.height : geometry.size.height / 2
+            )
             ZStack {
                 // Background
-                Color.black.ignoresSafeArea(.all)
+                appearance.theme.palette.background.ignoresSafeArea(.all)
                 
-                // Main content - Landscape layout (horizontal)
-                HStack(spacing: 0) {
+                // Main content adapts to landscape and portrait.
+                let contentLayout = isLandscape
+                    ? AnyLayout(HStackLayout(spacing: 0))
+                    : AnyLayout(VStackLayout(spacing: 0))
+                contentLayout {
                     // Left team
                     if let baseViewModel = config.viewModel as? BaseScoreViewModel {
                         TeamSection(
@@ -44,7 +61,11 @@ struct ScoreboardTemplate: View {
                             scoreText: scoreText(for: baseViewModel.leftTeam, isLeft: true),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
-                            fontFamily: "SF Pro Display",
+                            scoreboardFont: appearance.font,
+                            palette: appearance.theme.palette,
+                            scoreMultiplier: scoreMultiplier,
+                            nameMultiplier: nameMultiplier,
+                            secondaryMultiplier: secondaryMultiplier,
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
                                 config.viewModel.addScore(isLeft: true, points: points)
@@ -91,20 +112,11 @@ struct ScoreboardTemplate: View {
                             isDoublesMode: config.isDoublesModeProvider?() ?? false,
                             scoringOptions: config.controller.getScoringOptions()
                         )
-                        .frame(width: geometry.size.width / 2, alignment: .leading)
+                        .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
                         .contentShape(Rectangle())
-                        .onTapGesture {
-                            // Tap to add score (only in normal mode) with debouncing; 拳击不通过点击加分
-                            if !isEditMode && config.tapToAddEnabled && config.gameType != .boxing {
-                                let currentTime = Date()
-                                if currentTime.timeIntervalSince(lastTapTime) >= tapDebounceInterval {
-                                    lastTapTime = currentTime
-                                    config.viewModel.addScore(isLeft: true, points: 1)
-                                }
-                            }
-                        }
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
-                        .gesture(
+                        .gesture(scoreTapGesture(isLeft: true, panelSize: panelSize))
+                        .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
@@ -128,7 +140,11 @@ struct ScoreboardTemplate: View {
                             scoreText: scoreText(for: baseViewModel.rightTeam, isLeft: false),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
-                            fontFamily: "SF Pro Display",
+                            scoreboardFont: appearance.font,
+                            palette: appearance.theme.palette,
+                            scoreMultiplier: scoreMultiplier,
+                            nameMultiplier: nameMultiplier,
+                            secondaryMultiplier: secondaryMultiplier,
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
                                 config.viewModel.addScore(isLeft: false, points: points)
@@ -175,20 +191,11 @@ struct ScoreboardTemplate: View {
                             isDoublesMode: config.isDoublesModeProvider?() ?? false,
                             scoringOptions: config.controller.getScoringOptions()
                         )
-                        .frame(width: geometry.size.width / 2, alignment: .leading)
+                        .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
                         .contentShape(Rectangle())
-                        .onTapGesture {
-                            // Tap to add score (only in normal mode) with debouncing; 拳击不通过点击加分
-                            if !isEditMode && config.tapToAddEnabled && config.gameType != .boxing {
-                                let currentTime = Date()
-                                if currentTime.timeIntervalSince(lastTapTime) >= tapDebounceInterval {
-                                    lastTapTime = currentTime
-                                    config.viewModel.addScore(isLeft: false, points: 1)
-                                }
-                            }
-                        }
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
-                        .gesture(
+                        .gesture(scoreTapGesture(isLeft: false, panelSize: panelSize))
+                        .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
@@ -207,10 +214,11 @@ struct ScoreboardTemplate: View {
                 }
                 
                 // Edit button (top right) - close to screen edge
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: {
+                if shouldShowChromeButtons {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button(action: {
                             if isEditMode {
                                 // Exit edit mode - confirm any pending edits
                                 if let baseViewModel = config.viewModel as? BaseScoreViewModel {
@@ -230,8 +238,8 @@ struct ScoreboardTemplate: View {
                                 baseViewModel.toggleEditMode()
                             }
                             config.controller.performVibration(type: .medium)
-                        }) {
-                            Image(systemName: isEditMode ? "checkmark" : "pencil")
+                            }) {
+                                Image(systemName: isEditMode ? "checkmark" : "pencil")
                                 .font(.system(size: ScoreboardConstants.buttonIconSize))
                                 .foregroundColor(.white)
                                 .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
@@ -239,17 +247,18 @@ struct ScoreboardTemplate: View {
                                     Circle()
                                         .fill(isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.25))
                                 )
+                            }
+                            .padding(.trailing, ScoreboardConstants.buttonPadding)
+                            .padding(.top, ScoreboardConstants.buttonPadding)
                         }
-                        .padding(.trailing, ScoreboardConstants.buttonPadding)
-                        .padding(.top, ScoreboardConstants.buttonPadding)
+                        Spacer()
                     }
-                    Spacer()
+                    .ignoresSafeArea(.all, edges: .top)
                 }
-                .ignoresSafeArea(.all, edges: .top) // Full screen, not in safe area
 
                 
                 // Bottom buttons (back left, menu right) - only show when not in edit mode
-                if !isEditMode {
+                if !isEditMode && shouldShowChromeButtons {
                     VStack {
                         Spacer()
                         HStack {
@@ -315,6 +324,10 @@ struct ScoreboardTemplate: View {
                     provider(isEditMode)
                 }
 
+                if shouldShowImmersiveRevealZones {
+                    ImmersiveCornerRevealZones(onReveal: revealImmersiveChrome)
+                }
+
                 // Menu dialog
                 MenuDialog(
                     isVisible: showMenu,
@@ -324,7 +337,8 @@ struct ScoreboardTemplate: View {
                     onMenuItemClick: { action in
                         handleMenuItemClick(action)
                     },
-                    showEndGame: config.gameType == .football || config.gameType == .basketball
+                    showEndGame: config.showEndGame || config.gameType == .football || config.gameType == .basketball,
+                    resetConfirming: resetClickCount >= 1
                 )
                 
                 // Toast message
@@ -362,9 +376,45 @@ struct ScoreboardTemplate: View {
         }
         .onChange(of: isEditMode) { _, newValue in
             config.onEditModeChange?(newValue)
+            updateImmersiveChromeForBlockingState()
+        }
+        .onChange(of: showMenu) { _, isOpen in
+            if !isOpen {
+                resetClickCount = 0
+            }
+            updateImmersiveChromeForBlockingState()
+        }
+        .onChange(of: showDisplaySettings) { _, _ in updateImmersiveChromeForBlockingState() }
+        .onChange(of: showLocalSync) { _, _ in updateImmersiveChromeForBlockingState() }
+        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
+            appearance = .current()
+            applyScreenAwakePreference()
+            updateImmersiveChromeForBlockingState()
         }
         .onAppear {
             config.onEditModeChange?(isEditMode)
+            appearance = .current()
+            previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
+            applyScreenAwakePreference()
+            revealImmersiveChrome()
+            registerScoreboardSync()
+        }
+        .onDisappear {
+            immersiveGeneration += 1
+            LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            if let previousIdleTimerDisabled {
+                UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
+            }
+        }
+        .sheet(isPresented: $showDisplaySettings) {
+            ScoreboardDisplaySettingsView(gameType: config.gameType)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showLocalSync, onDismiss: registerScoreboardSync) {
+            LocalSyncView()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         // Screenshot dialog removed - iOS auto-saves after permission is granted
     }
@@ -373,7 +423,10 @@ struct ScoreboardTemplate: View {
     
     private func handleMenuItemClick(_ action: String) {
         config.controller.performVibration(type: .medium)
-        
+        if action != "reset" {
+            resetClickCount = 0
+        }
+
         switch action {
         case "whistle":
             // Play whistle sound
@@ -385,10 +438,19 @@ struct ScoreboardTemplate: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 handleScreenshotGesture()
             }
+
+        case "displaySettings":
+            showMenu = false
+            showDisplaySettings = true
+
+        case "localSync":
+            showMenu = false
+            showLocalSync = true
             
         case "exchangeSide":
             // Exchange sides (keep dialog open)
             config.viewModel.exchangeSides()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             
         case "reset":
             // Double tap to reset
@@ -403,6 +465,7 @@ struct ScoreboardTemplate: View {
                 resetClickCount = 0
                 // Don't close dialog - keep it open like other actions
                 config.viewModel.reset()
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 showToastMessage(NSLocalizedString("has_been_reset", comment: ""))
             }
             
@@ -410,14 +473,18 @@ struct ScoreboardTemplate: View {
             // Undo (keep dialog open)
             let success = config.viewModel.undo()
             if success {
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
             } else {
                 showToastMessage(NSLocalizedString("no_undo_available", comment: ""))
             }
 
         case "endGame":
-            // 结束比赛（足球/篮球）：设置 gameFinished，关闭菜单，overlay 由 onChange(gameFinished) 显示
-            config.viewModel.endGame()
+            if let onEndGame = config.onEndGame {
+                onEndGame()
+            } else {
+                config.viewModel.endGame()
+            }
             showMenu = false
             
         default:
@@ -545,6 +612,143 @@ struct ScoreboardTemplate: View {
         return "\(team.score)"
     }
 
+    private var shouldShowChromeButtons: Bool {
+        !hideButtonsForScreenshot && (!appearance.immersiveMode || isEditMode || chromeButtonsVisible)
+    }
+
+    private var shouldShowImmersiveRevealZones: Bool {
+        appearance.immersiveMode && !isEditMode && !showMenu && !showDisplaySettings && !showLocalSync && !chromeButtonsVisible
+    }
+
+    private var savedFontMultipliers: [String: Double] {
+        PreferencesManager.shared.fontSizeMultipliers(for: config.gameType)
+    }
+
+    private var scoreMultiplier: Double { savedFontMultipliers[ScoreboardFontMetric.score.rawValue] ?? 1 }
+    private var nameMultiplier: Double { savedFontMultipliers[ScoreboardFontMetric.name.rawValue] ?? 1 }
+    private var secondaryMultiplier: Double { savedFontMultipliers[ScoreboardFontMetric.secondary.rawValue] ?? 1 }
+
+    private func scoreTapGesture(isLeft: Bool, panelSize: CGSize) -> some Gesture {
+        SpatialTapGesture(count: 1)
+            .onEnded { value in
+                guard !isEditMode, config.tapToAddEnabled, config.gameType != .boxing else { return }
+                guard isScoreTouchAllowed(location: value.location, panelSize: panelSize) else { return }
+                let now = Date()
+                if pendingTapSide == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
+                    pendingTapSide = nil
+                    tapGeneration += 1
+                    if appearance.doubleTapSubtract {
+                        config.viewModel.subtractScore(isLeft: isLeft, points: 1)
+                    } else {
+                        config.viewModel.addScore(isLeft: isLeft, points: 2)
+                    }
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                    revealImmersiveChrome()
+                    return
+                }
+
+                if let previousSide = pendingTapSide, previousSide != isLeft {
+                    config.viewModel.addScore(isLeft: previousSide, points: 1)
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                }
+
+                pendingTapSide = isLeft
+                pendingTapAt = now
+                tapGeneration += 1
+                let generation = tapGeneration
+                revealImmersiveChrome()
+                DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
+                    guard generation == tapGeneration, pendingTapSide == isLeft else { return }
+                    pendingTapSide = nil
+                    config.viewModel.addScore(isLeft: isLeft, points: 1)
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                }
+            }
+    }
+
+    private func registerScoreboardSync() {
+        LocalScoreboardSyncCoordinator.shared.registerHost(
+            snapshot: { makeSyncDisplayState() },
+            handleIntent: { intent in
+                switch intent {
+                case .addLeft: config.viewModel.addScore(isLeft: true, points: 1)
+                case .addRight: config.viewModel.addScore(isLeft: false, points: 1)
+                case .subtractLeft: config.viewModel.subtractScore(isLeft: true, points: 1)
+                case .subtractRight: config.viewModel.subtractScore(isLeft: false, points: 1)
+                case .undo: _ = config.viewModel.undo()
+                case .exchangeSides: config.viewModel.exchangeSides()
+                case .requestSnapshot: break
+                }
+            }
+        )
+    }
+
+    private func makeSyncDisplayState() -> LocalScoreboardDisplayState {
+        let left = config.viewModel.leftTeam
+        let right = config.viewModel.rightTeam
+        return LocalScoreboardDisplayState(
+            gameID: config.gameType.canonicalScoreboardIdentifier,
+            title: config.gameType.displayName,
+            leftName: left.name,
+            rightName: right.name,
+            leftScore: scoreText(for: left, isLeft: true),
+            rightScore: scoreText(for: right, isLeft: false),
+            leftDetail: syncDetail(for: left),
+            rightDetail: syncDetail(for: right),
+            themeID: appearance.theme.rawValue,
+            fontID: appearance.font.rawValue,
+            finished: config.viewModel.gameFinished,
+            revision: 0
+        )
+    }
+
+    private func syncDetail(for team: TeamData) -> String? {
+        let pieces = [
+            team.sets.map { String(format: NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), $0) },
+            team.games.map { String(format: NSLocalizedString("sync_games_format", value: "%d 盘", comment: ""), $0) }
+        ].compactMap { $0 }
+        return pieces.isEmpty ? nil : pieces.joined(separator: " · ")
+    }
+
+    private func isScoreTouchAllowed(location: CGPoint, panelSize: CGSize) -> Bool {
+        guard appearance.touchGuard else { return true }
+        return CGRect(
+            x: panelSize.width * 0.2,
+            y: panelSize.height * 0.2,
+            width: panelSize.width * 0.6,
+            height: panelSize.height * 0.6
+        ).contains(location)
+    }
+
+    private func applyScreenAwakePreference() {
+        UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+    }
+
+    private func updateImmersiveChromeForBlockingState() {
+        if isEditMode || showMenu || showDisplaySettings || showLocalSync || !appearance.immersiveMode {
+            immersiveGeneration += 1
+            chromeButtonsVisible = true
+        } else {
+            revealImmersiveChrome()
+        }
+    }
+
+    private func revealImmersiveChrome() {
+        chromeButtonsVisible = true
+        immersiveGeneration += 1
+        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showLocalSync else { return }
+        let generation = immersiveGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            guard generation == immersiveGeneration,
+                  appearance.immersiveMode,
+                  !isEditMode,
+                  !showMenu,
+                  !showDisplaySettings,
+                  !showLocalSync else { return }
+            chromeButtonsVisible = false
+        }
+    }
+
     /// 编辑模式下局分 ±：显式按具体 ViewModel 类型调用 adjustSets，避免协议默认实现被误派发导致局分不改（与射箭修复一致）。
     private func applySetsAdjust(viewModel: ScoreViewModelProtocol, isLeft: Bool, delta: Int) {
         if let vm = viewModel as? ArcheryViewModel {
@@ -570,7 +774,12 @@ struct ScoreboardTemplate: View {
 extension View {
     func lockOrientation(_ orientation: UIInterfaceOrientationMask) -> some View {
         self.onAppear {
-            OrientationLock.shared.lock(orientation)
+            if UIDevice.current.userInterfaceIdiom == .pad,
+               !PreferencesManager.shared.forceIPadLandscape {
+                OrientationLock.shared.unlock()
+            } else {
+                OrientationLock.shared.lock(orientation)
+            }
         }
         .onDisappear {
             OrientationLock.shared.unlock()
@@ -587,31 +796,16 @@ struct TeamSection: View {
     let scoreText: String
     let isEditMode: Bool
     var editState: EditState
-    let fontFamily: String
+    let scoreboardFont: ScoreboardFont
+    let palette: ScoreboardPalette
+    let scoreMultiplier: Double
+    let nameMultiplier: Double
+    let secondaryMultiplier: Double
     let fontRefreshTrigger: Int // Used to trigger font refresh
     
     // Helper to get Font from font family name with bold weight
-    private func getFont(family: String, size: CGFloat) -> Font {
-        // Try to use custom font first with bold weight
-        if let uiFont = UIFont(name: family, size: size) {
-            // Try to get bold variant
-            if let boldDescriptor = uiFont.fontDescriptor.withSymbolicTraits(.traitBold) {
-                let boldFont = UIFont(descriptor: boldDescriptor, size: size)
-                return Font(boldFont)
-            }
-            // If bold variant not available, use regular with bold weight modifier
-            return Font(uiFont).weight(.bold)
-        }
-        
-        // Fallback to system fonts with bold weight
-        switch family {
-        case "Menlo":
-            return .system(size: size, weight: .bold, design: .monospaced)
-        case "SF Pro Display", "default":
-            return .system(size: size, weight: .bold)
-        default:
-            return .system(size: size, weight: .bold)
-        }
+    private func getFont(size: CGFloat) -> Font {
+        scoreboardFont.swiftUIFont(size: size)
     }
     let onScoreTap: (Int) -> Void
     let onScoreSubtract: (Int) -> Void
@@ -631,280 +825,228 @@ struct TeamSection: View {
     private let commonNamesManager = CommonNamesManager.shared
 
     private var isTablet: Bool { UIDevice.current.userInterfaceIdiom == .pad }
-    private var nameFontSize: CGFloat { isTablet ? 44 : 32 }
-    private var doublesNameFontSize: CGFloat { isTablet ? 28 : 22 }
-    private var nameTopPadding: CGFloat { isTablet ? 36 : 28 }
-    /// 大分数（主比分）在大屏上放大，更充分利用空间
-    private var effectiveScoreFontSize: CGFloat { isTablet ? min(scoreFontSize * 1.5, 200) : scoreFontSize }
-    /// 局分/盘分数字在大屏上放大
-    private var setsGamesFontSize: CGFloat { isTablet ? 80 : 48 }
-    /// 台球仅总分、无局分/加分按钮，分数需纵向居中
-    private var centerScoreVertically: Bool { gameType == .billiards }
-    
+    /// 编辑态队名输入框：缩短宽度并左右留白居中
+    private var nameEditMaxWidth: CGFloat { isTablet ? 240 : 148 }
+    private var nameEditSideInset: CGFloat { isTablet ? 40 : 28 }
+
     var body: some View {
-        ZStack {
-            // Background color (red for left, blue for right)
-            (isLeft ? Color(hex: "DC143C") : Color(hex: "1E90FF"))
+        GeometryReader { geo in
+            let halfH = geo.size.height
+            let nameSize = ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: halfH) * nameMultiplier
+            let doublesNameSize = (isTablet ? 28 : 22) * nameMultiplier
+            let mainScoreSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: halfH) * scoreMultiplier
+            // Prefer HOS curve; fall back to config size floor when caller passes a larger custom size.
+            let effectiveScoreSize = max(mainScoreSize, scoreFontSize * scoreMultiplier * (isTablet ? min(1.5, 200 / max(scoreFontSize, 1)) : 1))
+            let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: halfH) * secondaryMultiplier
+            let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: halfH)
+            let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: halfH, isEditMode: isEditMode)
+
+            ZStack {
+                (isLeft ? palette.left : palette.right)
+                    .ignoresSafeArea()
+
+                // Centered main score + sets/games under it (HOS ScoreboardPageTemplate).
+                VStack(spacing: mainToSet) {
+                    scoreBlock(fontSize: effectiveScoreSize)
+                    secondaryScoresBlock(fontSize: setSize)
+                }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 16) {
-                // Team name - editable in edit mode
-                if isEditMode {
-                    let isEditing = editState.editingSide == (isLeft ? .left : .right)
-                    
-                    HStack(spacing: 8) {
-                        TextField("", text: Binding(
-                            get: {
-                                if isEditing {
-                                    return editState.currentInput
-                                } else {
-                                    return team.name
-                                }
-                            },
-                            set: { newValue in
-                                if isEditing {
-                                    onUpdateInput(newValue)
-                                } else {
-                                    onStartEditName()
-                                    onUpdateInput(newValue)
-                                }
-                            }
-                        ))
-                        .font(.system(size: nameFontSize, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .textFieldStyle(.plain)
-                        .focused($isNameFocused)
-                        .onTapGesture {
-                            onStartEditName()
-                            isNameFocused = true
-                        }
-                        .onSubmit {
-                            confirmAndPersistName()
-                        }
 
-                        Button {
-                            onStartEditName()
-                            isNameFocused = false
-                            showCommonNameSelector = true
-                        } label: {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: isTablet ? 22 : 18, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
-                                .frame(width: 30, height: 30)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.1))
-                    )
-                    .padding(.top, nameTopPadding)
-                    .onChange(of: isEditMode) { _, newValue in
-                        if !newValue {
-                            confirmAndPersistName()
-                        }
-                    }
-                    .onChange(of: editState.editingSide) { _, newValue in
-                        isNameFocused = newValue == (isLeft ? .left : .right)
-                    }
-                } else {
-                    if let doublesNames = doublesDisplayNames {
-                        VStack(spacing: 2) {
-                            Text(doublesNames.0)
-                                .font(.system(size: doublesNameFontSize, weight: .bold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                            Text(doublesNames.1)
-                                .font(.system(size: doublesNameFontSize, weight: .bold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                        }
-                        .padding(.top, nameTopPadding)
-                        .padding(.horizontal, 8)
-                    } else {
-                        Text(team.name)
-                            .font(.system(size: nameFontSize, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.top, nameTopPadding)
-                    }
-                }
-                
-                Spacer()
-                
-                // Score display - 台球时用 ZStack 占满剩余高度使分数纵向居中
-                ZStack {
-                    if isEditMode, let onScoreAdjust = onScoreAdjust {
-                        HStack(spacing: 16) {
-                            Button(action: {
-                                if team.score > 0 {
-                                    onScoreAdjust(isLeft, -1)
-                                }
-                            }) {
-                                Image(systemName: "minus")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(team.score > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
-                                    .frame(width: 50, height: 50)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.08))
-                                    )
-                            }
-                            .disabled(team.score <= 0)
-                            
-                            Text(scoreText)
-                                .font(getFont(family: fontFamily, size: effectiveScoreFontSize))
-                                .monospacedDigit()
-                                .foregroundColor(.white)
-                            
-                            Button(action: {
-                                onScoreAdjust(isLeft, 1)
-                            }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white.opacity(0.75))
-                                    .frame(width: 50, height: 50)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.08))
-                                    )
-                            }
-                        }
-                    } else {
-                        Text(scoreText)
-                            .font(getFont(family: fontFamily, size: effectiveScoreFontSize))
-                            .monospacedDigit()
-                            .foregroundColor(.white)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: centerScoreVertically ? .infinity : nil)
-                
-                // Sets display - with -/+ buttons in edit mode
-                if let sets = team.sets {
-                    if isEditMode, let onSetsAdjust = onSetsAdjust {
-                        HStack(spacing: 16) {
-                            Button(action: {
-                                if sets > 0 {
-                                    onSetsAdjust(isLeft, -1)
-                                }
-                            }) {
-                                Image(systemName: "minus")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(sets > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
-                                    .frame(width: 50, height: 50)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.08))
-                                    )
-                            }
-                            .disabled(sets <= 0)
-                            
-                            Text("\(sets)")
-                                .font(getFont(family: fontFamily, size: setsGamesFontSize))
-                                .monospacedDigit()
-                                .foregroundColor(.white.opacity(0.9))
-                            
-                            Button(action: {
-                                onSetsAdjust(isLeft, 1)
-                            }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white.opacity(0.75))
-                                    .frame(width: 50, height: 50)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.08))
-                                    )
-                            }
-                        }
-                    } else {
-                        Text("\(sets)")
-                            .font(getFont(family: fontFamily, size: setsGamesFontSize))
-                            .monospacedDigit()
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                }
-                
-                // Games display (if available, for tennis) - just number, larger
-                if let games = team.games {
-                    if isEditMode, let onGamesAdjust = onGamesAdjust {
-                        HStack(spacing: 16) {
-                            Button(action: {
-                                if games > 0 {
-                                    onGamesAdjust(isLeft, -1)
-                                }
-                            }) {
-                                Image(systemName: "minus")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(games > 0 ? .white.opacity(0.75) : .white.opacity(0.3))
-                                    .frame(width: 50, height: 50)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.08))
-                                    )
-                            }
-                            .disabled(games <= 0)
-
-                            Text("\(games)")
-                                .font(getFont(family: fontFamily, size: setsGamesFontSize))
-                                .monospacedDigit()
-                                .foregroundColor(.white.opacity(0.9))
-
-                            Button(action: {
-                                onGamesAdjust(isLeft, 1)
-                            }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white.opacity(0.75))
-                                    .frame(width: 50, height: 50)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.08))
-                                    )
-                            }
-                        }
-                    } else {
-                        Text("\(games)")
-                            .font(getFont(family: fontFamily, size: setsGamesFontSize))
-                            .monospacedDigit()
-                            .foregroundColor(.white.opacity(0.9))
-                    }
+                // Name pinned to top.
+                VStack(spacing: 0) {
+                    nameBlock(nameSize: nameSize, doublesNameSize: doublesNameSize)
+                        .padding(.top, topPad)
+                    Spacer(minLength: 0)
                 }
 
-                // Scoring buttons - only show when there are multiple options and not in edit mode
-                if !isEditMode && scoringOptions.count > 1 {
-                    HStack(spacing: 12) {
-                        ForEach(scoringOptions, id: \.self) { points in
-                            Button(action: {
-                                onScoreTap(points)
-                            }) {
-                                Text("+\(points)")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 60, height: 40)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.white.opacity(0.15))
-                                    )
+                // Side controls pinned near bottom (HOS translateY: -72).
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    if !isEditMode && scoringOptions.count > 1 {
+                        HStack(spacing: 12) {
+                            ForEach(scoringOptions, id: \.self) { points in
+                                Button(action: { onScoreTap(points) }) {
+                                    Text("+\(points)")
+                                        .font(.system(size: 18, weight: .bold))
+                                        .foregroundColor(palette.foreground)
+                                        .frame(width: 60, height: 40)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(ScoreboardTheme.auxiliaryButtonBackground)
+                                        )
+                                }
                             }
                         }
+                        .padding(.bottom, ScoreboardConstants.sideControlsBottomOffset)
                     }
-                    .padding(.bottom, 20)
                 }
-
-                Spacer()
             }
+            .foregroundStyle(palette.foreground)
         }
         .sheet(isPresented: $showCommonNameSelector) {
             CommonNameSelectorDialog(nameType: nameType) { selectedName in
                 applyCommonName(selectedName)
             }
         }
+    }
+
+    @ViewBuilder
+    private func nameBlock(nameSize: CGFloat, doublesNameSize: CGFloat) -> some View {
+        if isEditMode {
+            let isEditing = editState.editingSide == (isLeft ? .left : .right)
+            HStack(spacing: 6) {
+                TextField("", text: Binding(
+                    get: {
+                        if isEditing { return editState.currentInput }
+                        return team.name
+                    },
+                    set: { newValue in
+                        if isEditing {
+                            onUpdateInput(newValue)
+                        } else {
+                            onStartEditName()
+                            onUpdateInput(newValue)
+                        }
+                    }
+                ))
+                .font(.system(size: nameSize, weight: .bold))
+                .foregroundColor(palette.foreground)
+                .multilineTextAlignment(.center)
+                .textFieldStyle(.plain)
+                .focused($isNameFocused)
+                .onTapGesture {
+                    onStartEditName()
+                    isNameFocused = true
+                }
+                .onSubmit { confirmAndPersistName() }
+
+                Button {
+                    onStartEditName()
+                    isNameFocused = false
+                    showCommonNameSelector = true
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: isTablet ? 20 : 16, weight: .semibold))
+                        .foregroundColor(palette.foreground.opacity(0.9))
+                        .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: nameEditMaxWidth)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, nameEditSideInset)
+            .onChange(of: isEditMode) { _, newValue in
+                if !newValue { confirmAndPersistName() }
+            }
+            .onChange(of: editState.editingSide) { _, newValue in
+                isNameFocused = newValue == (isLeft ? .left : .right)
+            }
+        } else if let doublesNames = doublesDisplayNames {
+            VStack(spacing: 2) {
+                Text(doublesNames.0)
+                    .font(.system(size: doublesNameSize, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(doublesNames.1)
+                    .font(.system(size: doublesNameSize, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .foregroundColor(palette.foreground)
+            .padding(.horizontal, 8)
+        } else {
+            Text(team.name)
+                .font(.system(size: nameSize, weight: .bold))
+                .foregroundColor(palette.foreground)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, 8)
+        }
+    }
+
+    @ViewBuilder
+    private func scoreBlock(fontSize: CGFloat) -> some View {
+        if isEditMode, let onScoreAdjust {
+            HStack(spacing: 16) {
+                adjustCircleButton(enabled: team.score > 0, systemName: "minus") {
+                    if team.score > 0 { onScoreAdjust(isLeft, -1) }
+                }
+                Text(scoreText)
+                    .font(getFont(size: fontSize))
+                    .monospacedDigit()
+                    .foregroundColor(palette.foreground)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                adjustCircleButton(enabled: true, systemName: "plus") {
+                    onScoreAdjust(isLeft, 1)
+                }
+            }
+        } else {
+            Text(scoreText)
+                .font(getFont(size: fontSize))
+                .monospacedDigit()
+                .foregroundColor(palette.foreground)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private func secondaryScoresBlock(fontSize: CGFloat) -> some View {
+        VStack(spacing: 4) {
+            if let sets = team.sets {
+                secondaryValueRow(
+                    value: sets,
+                    fontSize: fontSize,
+                    onAdjust: onSetsAdjust.map { adjust in { delta in adjust(isLeft, delta) } }
+                )
+            }
+            if let games = team.games {
+                secondaryValueRow(
+                    value: games,
+                    fontSize: fontSize,
+                    onAdjust: onGamesAdjust.map { adjust in { delta in adjust(isLeft, delta) } }
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func secondaryValueRow(value: Int, fontSize: CGFloat, onAdjust: ((Int) -> Void)?) -> some View {
+        if isEditMode, let onAdjust {
+            HStack(spacing: 16) {
+                adjustCircleButton(enabled: value > 0, systemName: "minus") {
+                    if value > 0 { onAdjust(-1) }
+                }
+                Text("\(value)")
+                    .font(getFont(size: fontSize))
+                    .monospacedDigit()
+                    .foregroundColor(palette.secondary)
+                adjustCircleButton(enabled: true, systemName: "plus") {
+                    onAdjust(1)
+                }
+            }
+        } else {
+            Text("\(value)")
+                .font(getFont(size: fontSize))
+                .monospacedDigit()
+                .foregroundColor(palette.secondary)
+        }
+    }
+
+    private func adjustCircleButton(enabled: Bool, systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(enabled ? palette.foreground.opacity(0.75) : palette.foreground.opacity(0.3))
+                .frame(width: 50, height: 50)
+                .background(Circle().fill(ScoreboardTheme.auxiliaryButtonBackgroundSubtle))
+        }
+        .disabled(!enabled)
+        .buttonStyle(.plain)
     }
 
     private func confirmAndPersistName() {

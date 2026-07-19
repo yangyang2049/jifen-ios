@@ -9,14 +9,13 @@ import SwiftUI
 
 struct WhistleToolView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) var colorScheme
     @State private var isPlayingShort = false
     @State private var isPlayingLong = false
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                (colorScheme == .dark ? Theme.backgroundColor : Theme.homeBackgroundLight).ignoresSafeArea()
+                Theme.backgroundColor.ignoresSafeArea()
                 
                 // Content based on device type
                 if geometry.size.width > 600 {
@@ -55,13 +54,17 @@ struct WhistleToolView: View {
 
                 Text(NSLocalizedString("short_whistle", comment: "Short whistle"))
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.textPrimary)
             }
             .frame(width: 200, height: 200)
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(isPlayingShort ? Color(hex: "4CAF50").opacity(0.3) : Color(hex: "4CAF50").opacity(0.1))
+                    .fill(
+                        isPlayingShort
+                            ? Color(uiColor: .systemGreen).opacity(0.18)
+                            : Theme.cardBackground
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(isPlayingShort ? Color(hex: "4CAF50") : Color(hex: "4CAF50").opacity(0.3), lineWidth: isPlayingShort ? 3 : 1)
@@ -84,13 +87,17 @@ struct WhistleToolView: View {
 
                 Text(NSLocalizedString("long_whistle", comment: "Long whistle"))
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.textPrimary)
             }
             .frame(width: 200, height: 200)
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(isPlayingLong ? Color(hex: "F44336").opacity(0.3) : Color(hex: "F44336").opacity(0.1))
+                    .fill(
+                        isPlayingLong
+                            ? Color(uiColor: .systemRed).opacity(0.18)
+                            : Theme.cardBackground
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(isPlayingLong ? Color(hex: "F44336") : Color(hex: "F44336").opacity(0.3), lineWidth: isPlayingLong ? 3 : 1)

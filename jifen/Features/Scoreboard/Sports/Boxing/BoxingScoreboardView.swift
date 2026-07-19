@@ -72,6 +72,7 @@ struct BoxingScoreboardView: View {
             if let setup = initialSetup {
                 if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
                 if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
+                viewModel.setMaxRounds(setup.maxRounds ?? 3)
                 onSetupConsumed?()
             }
             responsiveScoreFontSize = calculateResponsiveScoreFontSize()
@@ -106,6 +107,8 @@ struct BoxingScoreboardView: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .disabled(viewModel.gameFinished)
+        .opacity(viewModel.gameFinished ? 0.45 : 1)
     }
 
     private func calculateResponsiveScoreFontSize() -> CGFloat {

@@ -17,7 +17,7 @@ struct MainTabView: View {
                 pendingTimerGameType: $pendingTimerGameType
             )
         }
-        .accentColor(Theme.accentColor)
+        .tint(Theme.accentColor)
         .onAppear {
             configureTabBarPresentation()
         }

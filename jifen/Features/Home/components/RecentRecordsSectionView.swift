@@ -21,7 +21,7 @@ struct RecentRowView: View {
             // Divider
             if !isLast {
                 Divider()
-                    .overlay(isDarkTheme ? Theme.homeOverlayBorder : Theme.homeDividerLight) // color(this.isDarkTheme ? Colors.homeOverlayBorder : Colors.homeDividerLight)
+                    .overlay(Theme.homeNeutralCardDivider)
                     .padding(.horizontal, 0)
             }
         }
@@ -40,12 +40,12 @@ struct RecentRowView: View {
                 HStack(spacing: 0) { // Row()
                     Text(formatTime(activity.timestamp))
                         .font(.system(size: Theme.fontBody2)) // fontSize(14)
-                        .foregroundColor(Theme.textPrimary)
+                        .foregroundColor(Theme.homeNeutralCardTextPrimary)
 
                     if !activity.description.isEmpty {
                         Text(activity.description)
                             .font(.system(size: Theme.fontCaption)) // fontSize(12)
-                            .foregroundColor(Theme.textSecondary)
+                            .foregroundColor(Theme.homeNeutralCardTextSecondary)
                             .padding(.leading, Theme.md) // margin({ left: 16 })
                     }
 
@@ -59,7 +59,7 @@ struct RecentRowView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 16, height: 16)
-                    .foregroundColor(Theme.textSecondary) // Assuming default color
+                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
                     .padding(.leading, Theme.sm) // margin({ left: 12 })
             }
             .contentShape(Rectangle()) // Make entire area tappable
@@ -87,12 +87,12 @@ struct RecentRowView: View {
                         // Game Name
                         Text(activity.title) // Text(this.activity.title || getGameName(this.activity.gameType))
                             .font(.system(size: Theme.fontBody2, weight: .medium)) // fontSize(14), fontWeight(FontWeight.Medium)
-                            .foregroundColor(Theme.textPrimary)
+                            .foregroundColor(Theme.homeNeutralCardTextPrimary)
 
                         HStack(spacing: Theme.sm) { // Row({ space: 8 })
                             Text(formatTime(activity.timestamp))
                                 .font(.system(size: Theme.fontCaption)) // fontSize(12)
-                                .foregroundColor(Theme.textSecondary)
+                                .foregroundColor(Theme.homeNeutralCardTextSecondary)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading) // alignItems(HorizontalAlign.Start), width('100%'), layoutWeight(1)
@@ -102,7 +102,7 @@ struct RecentRowView: View {
                         if !activity.description.isEmpty {
                             Text(activity.description)
                                 .font(.system(size: Theme.fontBody1, weight: .bold)) // fontSize(16), fontWeight(FontWeight.Bold)
-                                .foregroundColor(Theme.primary) // Colors.primary
+                                .foregroundColor(Theme.homeNeutralCardTextPrimary)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing) // alignItems(HorizontalAlign.End)
@@ -115,7 +115,7 @@ struct RecentRowView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 16, height: 16)
-                    .foregroundColor(Theme.textSecondary) // Assuming default color
+                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
                     .padding(.leading, Theme.sm) // margin({ left: 12 })
             }
             .contentShape(Rectangle()) // Make entire area tappable
@@ -171,11 +171,11 @@ struct RecentRecordsSectionView: View {
                 if records.isEmpty {
                     // Empty State
                     VStack(spacing: Theme.md) { // Column({ space: 16 })
-                        EmptyStateCourtIcon(size: 48)
+                        EmptyStateCourtIcon(size: 48, color: Theme.homeNeutralCardTextTertiary)
                         
                         Text(NSLocalizedString("home_no_records", comment: "No recent records text"))
                             .font(.system(size: Theme.fontBody2)) // fontSize(14)
-                            .foregroundColor(isDarkTheme ? Theme.homeTextDisabledDark : Theme.homeTextDisabledLight)
+                            .foregroundColor(Theme.homeNeutralCardTextSecondary)
                             // .margin({ top: 16 }) -> handled by VStack spacing
                     }
                     .frame(maxWidth: .infinity) // width('100%')
@@ -197,7 +197,7 @@ struct RecentRecordsSectionView: View {
                             Button(action: onViewAllTapped) {
                                 Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
                                     .font(.system(size: Theme.fontBody2, weight: .medium))
-                                    .foregroundColor(Theme.primary)
+                                    .foregroundColor(Theme.homeNeutralCardTextPrimary)
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding(.vertical, Theme.sm)
                                     .padding(.top, 8)
@@ -207,7 +207,7 @@ struct RecentRecordsSectionView: View {
                             NavigationLink(destination: RecentActivityPage()) {
                                 Text(NSLocalizedString("home_view_all_records", comment: "View all records button"))
                                     .font(.system(size: Theme.fontBody2, weight: .medium))
-                                    .foregroundColor(Theme.primary)
+                                    .foregroundColor(Theme.homeNeutralCardTextPrimary)
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding(.vertical, Theme.sm)
                                     .padding(.top, 8)
@@ -219,7 +219,7 @@ struct RecentRecordsSectionView: View {
             }
             .frame(maxWidth: .infinity) // width('100%')
             .padding(Theme.md) // padding(20)
-            .background(.ultraThinMaterial) // Apply glassmorphism effect here
+            .background(Theme.homeNeutralCardBackground)
             .cornerRadius(Theme.lg) // borderRadius(24) // Theme.lg is 24
             .shadow(color: isDarkTheme ? .clear : Theme.homeShadowLight, radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1) // shadow
         }

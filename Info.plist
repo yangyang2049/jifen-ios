@@ -2,6 +2,25 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.douhua.jifen.sync</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>jifen</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_jifen-score-v1._tcp</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>用于扫描计分板局域网同步二维码。</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>用于发现并连接同一局域网中的计分控制端和展示端。</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

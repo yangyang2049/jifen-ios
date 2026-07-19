@@ -55,7 +55,22 @@ public enum RecordPayload: Codable, Equatable, Sendable {
     case cardGame(teamNames: [String], summary: String)
 }
 
+public struct RecordSyncMetadata: Codable, Equatable, Sendable {
+    public let actorID: UUID
+    public let revision: UInt64
+    public let updatedAtEpochMilliseconds: Int64
+    public let serverCursor: String?
+
+    public init(actorID: UUID, revision: UInt64, updatedAtEpochMilliseconds: Int64, serverCursor: String? = nil) {
+        self.actorID = actorID
+        self.revision = revision
+        self.updatedAtEpochMilliseconds = updatedAtEpochMilliseconds
+        self.serverCursor = serverCursor
+    }
+}
+
 public struct ScoreRecordV2: Codable, Equatable, Identifiable, Sendable {
+    public let schemaVersion: Int?
     public let id: UUID
     public let sessionId: UUID
     public let gameType: GameType
@@ -64,6 +79,13 @@ public struct ScoreRecordV2: Codable, Equatable, Identifiable, Sendable {
     public let finishedAtEpochMilliseconds: Int64?
     public let payload: RecordPayload
     public let actions: [ScoreAction]
+    /// JSON-encoded project setup. Kept opaque so new project rules do not require a record migration.
+    public let configuration: Data?
+    /// Full versioned reducer/session snapshot used for exact resume and replay.
+    public let stateSnapshot: Data?
+    public let syncMetadata: RecordSyncMetadata?
+    /// A non-nil value is a deletion tombstone and must win over an older upsert.
+    public let deletedAtEpochMilliseconds: Int64?
 
     public init(
         id: UUID = UUID(),
@@ -73,8 +95,14 @@ public struct ScoreRecordV2: Codable, Equatable, Identifiable, Sendable {
         startedAtEpochMilliseconds: Int64,
         finishedAtEpochMilliseconds: Int? = nil,
         payload: RecordPayload,
-        actions: [ScoreAction]
+        actions: [ScoreAction],
+        schemaVersion: Int? = 3,
+        configuration: Data? = nil,
+        stateSnapshot: Data? = nil,
+        syncMetadata: RecordSyncMetadata? = nil,
+        deletedAtEpochMilliseconds: Int64? = nil
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.sessionId = sessionId
         self.gameType = gameType
@@ -83,5 +111,9 @@ public struct ScoreRecordV2: Codable, Equatable, Identifiable, Sendable {
         self.finishedAtEpochMilliseconds = finishedAtEpochMilliseconds.map(Int64.init)
         self.payload = payload
         self.actions = actions
+        self.configuration = configuration
+        self.stateSnapshot = stateSnapshot
+        self.syncMetadata = syncMetadata
+        self.deletedAtEpochMilliseconds = deletedAtEpochMilliseconds
     }
 }

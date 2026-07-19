@@ -5,7 +5,8 @@ let package = Package(
     name: "JifenCore",
     platforms: [
         .iOS(.v17),
-        .watchOS(.v10)
+        .watchOS(.v10),
+        .macOS(.v13)
     ],
     products: [
         .library(name: "ScoreCore", targets: ["ScoreCore"]),

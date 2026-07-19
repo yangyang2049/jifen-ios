@@ -5,6 +5,7 @@
 //  射箭计分板：使用标准 PVP 模板布局，保留射箭局分规则（先到 6 分胜、5:5 一箭决胜）。
 //
 
+import ScoreCore
 import SwiftUI
 
 private let archeryArrowsPerSetNormal = 3
@@ -32,9 +33,12 @@ struct ArcheryScoreboardView: View {
 
     @State private var showArrowPicker = false
     @State private var showSetEndOverlay = false
+    @State private var showClosestToCenter = false
     @State private var pendingSetNumber = 0
     @State private var pendingSetLeftScore = 0
     @State private var pendingSetRightScore = 0
+    @State private var pendingContinueUpdate: (() -> Void)? = nil
+    @State private var pendingClosestContinue: ((Bool) -> Void)? = nil
 
     var body: some View {
         ZStack {
@@ -77,6 +81,10 @@ struct ArcheryScoreboardView: View {
                 setEndOverlay
             }
 
+            if showClosestToCenter {
+                closestToCenterOverlay
+            }
+
             if viewModel.gameFinished {
                 VStack(spacing: 8) {
                     Text(NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""))
@@ -104,6 +112,8 @@ struct ArcheryScoreboardView: View {
             if let setup = initialSetup {
                 if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
                 if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
+                viewModel.openingShooterIsLeft = setup.servingSide != MatchSide.right.rawValue
+                viewModel.currentShooterIsLeft = viewModel.openingShooterIsLeft
                 onSetupConsumed?()
             }
             responsiveScoreFontSize = calculateResponsiveScoreFontSize()
@@ -228,6 +238,57 @@ struct ArcheryScoreboardView: View {
         }
     }
 
+    private var closestToCenterOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+            VStack(spacing: 16) {
+                Text(NSLocalizedString("archery_closest_title", value: "一箭决胜 · 近心", comment: ""))
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+                Text(String(
+                    format: NSLocalizedString("archery_closest_message", value: "双方同环 %d，请选择更近心的一方", comment: ""),
+                    pendingSetLeftScore
+                ))
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+                HStack(spacing: 12) {
+                    Button {
+                        showClosestToCenter = false
+                        pendingClosestContinue?(true)
+                        pendingClosestContinue = nil
+                    } label: {
+                        Text(viewModel.leftTeam.name)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .background(Color(hex: "DC143C"))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .buttonStyle(.plain)
+                    Button {
+                        showClosestToCenter = false
+                        pendingClosestContinue?(false)
+                        pendingClosestContinue = nil
+                    } label: {
+                        Text(viewModel.rightTeam.name)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .background(Color(hex: "1E90FF"))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(24)
+            .background(Color.black.opacity(0.85))
+            .cornerRadius(16)
+            .padding(.horizontal, 40)
+        }
+    }
+
     private var currentShooterName: String {
         viewModel.currentShooterIsLeft ? viewModel.leftTeam.name : viewModel.rightTeam.name
     }
@@ -236,11 +297,24 @@ struct ArcheryScoreboardView: View {
         pendingSetNumber = data.setNumber
         pendingSetLeftScore = data.finalLeftScore
         pendingSetRightScore = data.finalRightScore
-        showSetEndOverlay = true
 
+        if viewModel.needsClosestToCenterDecision(
+            leftArrowScore: data.finalLeftScore,
+            rightArrowScore: data.finalRightScore
+        ) {
+            pendingClosestContinue = { leftWins in
+                self.viewModel.applyClosestToCenter(leftWins: leftWins)
+            }
+            showClosestToCenter = true
+            return
+        }
+
+        showSetEndOverlay = true
+        pendingContinueUpdate = data.continueUpdate
         DispatchQueue.main.asyncAfter(deadline: .now() + archerySetEndOverlayDelay) {
             showSetEndOverlay = false
-            data.continueUpdate()
+            pendingContinueUpdate?()
+            pendingContinueUpdate = nil
         }
     }
 
@@ -316,6 +390,7 @@ private struct ArcheryStateSnapshot {
 class ArcheryViewModel: BaseScoreViewModel {
     var currentSet: Int = 1
     var currentShooterIsLeft: Bool = true
+    var openingShooterIsLeft: Bool = true
     var arrowsLeftThisSet: Int = 0
     var arrowsRightThisSet: Int = 0
     var arrowsPerSet: Int = archeryArrowsPerSetNormal
@@ -448,13 +523,14 @@ class ArcheryViewModel: BaseScoreViewModel {
         rightTeam.sets = tempSets
 
         currentShooterIsLeft.toggle()
+        openingShooterIsLeft.toggle()
         controller?.performVibration(type: .medium)
     }
 
     override func reset() {
         super.reset()
         currentSet = 1
-        currentShooterIsLeft = true
+        currentShooterIsLeft = openingShooterIsLeft
         arrowsLeftThisSet = 0
         arrowsRightThisSet = 0
         arrowsPerSet = archeryArrowsPerSetNormal
@@ -467,18 +543,46 @@ class ArcheryViewModel: BaseScoreViewModel {
         let finalLeftScore = leftTeam.score
         let finalRightScore = rightTeam.score
         let setNumber = currentSet
+        let isShootoff = arrowsPerSet == archeryArrowsPerSetShootoff
+            && (leftTeam.sets ?? 0) == 5
+            && (rightTeam.sets ?? 0) == 5
 
+        // 5–5 shootoff same rings → ask closest-to-center before awarding set point.
+        if isShootoff && finalLeftScore == finalRightScore {
+            if let callback = onSetEndCallback {
+                let data = SetEndCallbackData(
+                    finalLeftScore: finalLeftScore,
+                    finalRightScore: finalRightScore,
+                    winnerName: NSLocalizedString("draw_result", value: "平局", comment: ""),
+                    setNumber: setNumber,
+                    leftSets: leftTeam.sets ?? 0,
+                    rightSets: rightTeam.sets ?? 0,
+                    leftGames: nil,
+                    rightGames: nil,
+                    shouldChangeSides: false,
+                    isGameFinished: false,
+                    continueUpdate: { [weak self] in
+                        self?.applyClosestToCenter(leftWins: true)
+                    }
+                )
+                // Flag via equal scores + shootoff set points still 5–5 for UI CTC path.
+                callback(data)
+            }
+            return
+        }
+
+        let setWinPoints = isShootoff ? 1 : archerySetPointsWin
         let newLeftSetPoints: Int
         let newRightSetPoints: Int
         let winnerName: String
 
         if finalLeftScore > finalRightScore {
-            newLeftSetPoints = (leftTeam.sets ?? 0) + archerySetPointsWin
+            newLeftSetPoints = (leftTeam.sets ?? 0) + setWinPoints
             newRightSetPoints = rightTeam.sets ?? 0
             winnerName = leftTeam.name
         } else if finalRightScore > finalLeftScore {
             newLeftSetPoints = leftTeam.sets ?? 0
-            newRightSetPoints = (rightTeam.sets ?? 0) + archerySetPointsWin
+            newRightSetPoints = (rightTeam.sets ?? 0) + setWinPoints
             winnerName = rightTeam.name
         } else {
             newLeftSetPoints = (leftTeam.sets ?? 0) + archerySetPointsTie
@@ -518,6 +622,20 @@ class ArcheryViewModel: BaseScoreViewModel {
         }
     }
 
+    func needsClosestToCenterDecision(leftArrowScore: Int, rightArrowScore: Int) -> Bool {
+        arrowsPerSet == archeryArrowsPerSetShootoff
+            && (leftTeam.sets ?? 0) == 5
+            && (rightTeam.sets ?? 0) == 5
+            && leftArrowScore == rightArrowScore
+            && !gameFinished
+    }
+
+    func applyClosestToCenter(leftWins: Bool) {
+        let newLeft = (leftTeam.sets ?? 0) + (leftWins ? 1 : 0)
+        let newRight = (rightTeam.sets ?? 0) + (leftWins ? 0 : 1)
+        applySetEnd(newLeftSetPoints: newLeft, newRightSetPoints: newRight, isMatchFinished: true)
+    }
+
     private func applySetEnd(newLeftSetPoints: Int, newRightSetPoints: Int, isMatchFinished: Bool) {
         leftTeam.sets = newLeftSetPoints
         rightTeam.sets = newRightSetPoints
@@ -536,7 +654,11 @@ class ArcheryViewModel: BaseScoreViewModel {
         arrowsPerSet = (newLeftSetPoints == 5 && newRightSetPoints == 5)
             ? archeryArrowsPerSetShootoff
             : archeryArrowsPerSetNormal
-        currentShooterIsLeft = true
+        currentShooterIsLeft = ArcheryShooterRules.nextStartingIsLeft(
+            leftSetPoints: newLeftSetPoints,
+            rightSetPoints: newRightSetPoints,
+            openingIsLeft: openingShooterIsLeft
+        )
     }
 
     private func saveSnapshot() {

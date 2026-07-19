@@ -4,7 +4,6 @@ struct UnfinishedGameBarView: View {
     let record: ScoreboardRecord
     var onContinue: () -> Void
     var onClose: () -> Void
-    @Environment(\.colorScheme) private var colorScheme
 
     private let barPadding: CGFloat = 8
     private let closeButtonGap: CGFloat = 12
@@ -12,10 +11,6 @@ struct UnfinishedGameBarView: View {
 
     private var barHeight: CGFloat {
         barPadding + iconSize + barPadding
-    }
-
-    private var isDarkTheme: Bool {
-        colorScheme != .light
     }
 
     var body: some View {
@@ -32,12 +27,12 @@ struct UnfinishedGameBarView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(displayScore)
                         .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(Theme.textPrimary)
+                        .foregroundColor(Theme.homeNeutralCardTextPrimary)
                         .lineLimit(1)
 
                     Text("\(record.team1Name)\(NSLocalizedString("vs_separator", value: " vs ", comment: ""))\(record.team2Name)")
                         .font(.system(size: 12))
-                        .foregroundColor(Theme.textSecondary)
+                        .foregroundColor(Theme.homeNeutralCardTextSecondary)
                         .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -48,7 +43,7 @@ struct UnfinishedGameBarView: View {
             Button(action: onClose) {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Theme.textSecondary)
+                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
                     .frame(width: 36, height: 36)
                     .background(closeButtonBackgroundColor)
                     .clipShape(Circle())
@@ -68,7 +63,7 @@ struct UnfinishedGameBarView: View {
         }
         .padding(barPadding)
         .frame(height: barHeight)
-        .background(barBackgroundColor)
+        .background(Theme.homeNeutralCardBackground)
         .clipShape(Capsule())
         .overlay(
             Capsule()
@@ -77,12 +72,13 @@ struct UnfinishedGameBarView: View {
         .shadow(color: Color(red: 34 / 255, green: 197 / 255, blue: 94 / 255).opacity(0.22), radius: 8, x: 0, y: 0)
     }
 
-    private var barBackgroundColor: Color {
-        isDarkTheme ? Theme.homeCardDark : Theme.homeCardLight
-    }
-
     private var closeButtonBackgroundColor: Color {
-        isDarkTheme ? Color.white.opacity(0.08) : Color.black.opacity(0.06)
+        Color(uiColor: UIColor { traits in
+            if traits.userInterfaceStyle == .dark {
+                return UIColor.white.withAlphaComponent(0.12)
+            }
+            return .tertiarySystemFill
+        })
     }
 
     private var iconBackgroundColor: Color {

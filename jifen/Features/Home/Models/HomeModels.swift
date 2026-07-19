@@ -1,4 +1,5 @@
 import Foundation
+import ScoreCore
 import SwiftUI // For Color (though not directly used here, good practice if views are nearby)
 // Assuming GameType is part of the main 'jifen' module
 // and formatScoreboardDuration is globally available or imported from the same module
@@ -118,7 +119,10 @@ struct ScoreboardSetupItem: Identifiable {
 struct SportsSetupResult: Codable, Hashable {
     var team1Name: String
     var team2Name: String
+    var team3Name: String? = nil
+    var team4Name: String? = nil
     var maxSets: Int? = nil
+    var matchCompletionMode: MatchCompletionMode? = nil
     var pointsPerSet: Int? = nil
     var tieBreakPoints: Int? = nil
     var autoChangeSides: Bool? = nil // autoChangeSides (Pingpong, Tennis, Badminton, Volleyball)
@@ -128,6 +132,36 @@ struct SportsSetupResult: Codable, Hashable {
     var team2Player1Name: String? = nil
     var team2Player2Name: String? = nil
     var basketballMode: String? = nil // "five_v_five" or "three_x_three"
+    var basketballRuleSet: String? = nil // "fiba" or "nba"
+    var tennisDeuceMode: String? = nil // "advantage" or "no_ad"
+    var servingSide: String? = nil // "left" or "right"
+    var voiceAnnouncement: Bool? = nil
+    var targetScore: Int? = nil
+    var winByTwo: Bool? = nil
+    var scoreCap: Int? = nil
+    var useRallyScoring: Bool? = nil
+    var maxRounds: Int? = nil
+    var eightBallHandicapRacks: Int? = nil
+    var eightBallHandicapBeneficiary: String? = nil // "team1", "team2", or "none"
+    var nineBallBigGold: Int? = nil
+    var nineBallSmallGold: Int? = nil
+    var nineBallGoldenNine: Int? = nil
+    var nineBallNormalWin: Int? = nil
+    var nineBallBallInHand: Int? = nil
+    var nineBallFoul: Int? = nil
+    var startOnWatch: Bool? = nil
+    var linkedWatchSessionId: UUID? = nil
     var playerCount: Int? = nil // 多人计分：3-9
     var playerNames: [String]? = nil // 多人计分玩家名
+}
+
+extension SportsSetupResult {
+    var foosballRules: RallyRuleSet {
+        var rules = RallyRuleSet.foosball(maxSets: maxSets ?? 3)
+        rules.matchCompletionMode = matchCompletionMode ?? .bestOf
+        rules.pointsToWinSet = max(1, pointsPerSet ?? targetScore ?? 5)
+        rules.finalSetWinByTwo = winByTwo ?? false
+        rules.finalSetPointCap = winByTwo == true ? scoreCap : nil
+        return rules
+    }
 }

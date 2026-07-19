@@ -57,3 +57,19 @@ class SoundManager {
     }
 }
 
+@MainActor
+final class ScoreVoiceAnnouncer {
+    static let shared = ScoreVoiceAnnouncer()
+
+    private let synthesizer = AVSpeechSynthesizer()
+
+    private init() {}
+
+    func announce(left: Int, right: Int) {
+        synthesizer.stopSpeaking(at: .immediate)
+        let utterance = AVSpeechUtterance(string: "\(left) 比 \(right)")
+        utterance.voice = AVSpeechSynthesisVoice(language: Locale.current.language.languageCode?.identifier == "zh" ? "zh-CN" : "en-US")
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+        synthesizer.speak(utterance)
+    }
+}

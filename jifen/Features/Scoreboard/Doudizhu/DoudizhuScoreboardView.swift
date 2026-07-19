@@ -5,6 +5,7 @@
 //  斗地主计分：3 人，3 列布局，点击加分、撤销、编辑名称、保存记录。
 //
 
+import ScoreCore
 import SwiftUI
 
 private let defaultDoudizhuNames = ["地主", "农民1", "农民2"]
@@ -32,8 +33,25 @@ struct DoudizhuScoreboardView: View {
     @State private var activeCommonNameIndex: Int? = nil
     @State private var exitClickTime: TimeInterval = 0
     @State private var toastMessage: String? = nil
+    @State private var showScorePanel = false
+    @State private var selectedBaseScore = 1
+    @State private var selectedMultiplierPower = 0 // 0番=1倍 … 5番=32倍
+    @State private var selectedWinners = [false, false, false]
+    @State private var appearance = ScoreboardAppearanceSnapshot.current()
 
     private let commonNamesManager = CommonNamesManager.shared
+    private let baseScoreOptions = [1, 2, 3]
+    private let multiplierPowers = [0, 1, 2, 3, 4, 5]
+
+    /// HOS: left red / center success green (black in retro) / right blue
+    private var panelColors: [Color] {
+        let center: Color = appearance.theme == .retro ? .black : Color(hex: "4CAF50")
+        return [
+            appearance.theme.palette.left,
+            center,
+            appearance.theme.palette.right
+        ]
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -49,13 +67,40 @@ struct DoudizhuScoreboardView: View {
 
                 topTrailingEditButton
 
-                if !isEditMode {
+                if !isEditMode && !showScorePanel {
                     bottomControls
+                    // Center + button opens HOS-style settle panel
+                    VStack {
+                        Spacer()
+                        Button {
+                            showScorePanel = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 60, height: 60)
+                                .background(Circle().fill(Color.black.opacity(0.35)))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.bottom, 100)
+                    }
                 }
 
                 if showMenu {
-                    doudizhuMenuOverlay(geo: geo)
+                    MenuDialog(
+                        isVisible: true,
+                        onClose: { showMenu = false },
+                        onMenuItemClick: handleDoudizhuMenuAction,
+                        items: doudizhuMenuItems
+                    )
                 }
+
+                if showScorePanel {
+                    doudizhuBottomSettleOverlay
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(20)
+                }
+
                 if let message = toastMessage {
                     VStack {
                         Spacer()
@@ -64,6 +109,7 @@ struct DoudizhuScoreboardView: View {
                     }
                 }
             }
+            .animation(.easeOut(duration: 0.3), value: showScorePanel)
         }
         .ignoresSafeArea(.all)
         .navigationTitle(NSLocalizedString("game_doudizhu", comment: "Doudizhu"))
@@ -104,6 +150,9 @@ struct DoudizhuScoreboardView: View {
                 }
                 activeCommonNameIndex = nil
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
+            appearance = .current()
         }
     }
 
@@ -169,36 +218,31 @@ struct DoudizhuScoreboardView: View {
         .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing])
     }
 
-    /// 玩家名称与分数字号参考羽毛球计分板（TeamSection nameFontSize 32、大分数约 120）
-    private static let doudizhuNameFontSize: CGFloat = 32
-    private static let doudizhuScoreFontSizeMin: CGFloat = 72
-    private static let doudizhuScoreFontScale: CGFloat = 0.38
-
     private func doudizhuPlayerPanel(index: Int, player: DoudizhuPlayerItem, width: CGFloat, height: CGFloat) -> some View {
-        let colors: [Color] = [
-            Color(hex: "D32F2F"),
-            Color(hex: "1976D2"),
-            Color(hex: "388E3C")
-        ]
-        let scoreSize = max(Self.doudizhuScoreFontSizeMin, min(width, height) * Self.doudizhuScoreFontScale)
-        return Button {
-            if !isEditMode {
-                addScore(index: index)
+        let scoreSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: height) * 0.85
+        let nameSize = ScoreboardLayoutMetrics.defaultTeamNameFontSize
+        return ZStack {
+            panelColors[index % 3]
+            VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: height)) {
+                Text("\(player.score)")
+                    .font(.system(size: scoreSize, weight: .bold))
+                    .monospacedDigit()
+                    .foregroundColor(.white)
+                    .minimumScaleFactor(0.4)
+                    .lineLimit(1)
             }
-        } label: {
-            VStack(spacing: 12) {
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            VStack {
                 if isEditMode && editingIndex == index {
                     HStack(spacing: 6) {
                         TextField(NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""), text: $editName)
-                            .font(.system(size: Self.doudizhuNameFontSize, weight: .bold))
+                            .font(.system(size: nameSize, weight: .bold))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .textFieldStyle(.plain)
                             .onSubmit { confirmEdit(index: index) }
-
-                        Button {
-                            activeCommonNameIndex = index
-                        } label: {
+                        Button { activeCommonNameIndex = index } label: {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.9))
@@ -209,12 +253,14 @@ struct DoudizhuScoreboardView: View {
                     .padding(8)
                     .background(Color.black.opacity(0.12))
                     .cornerRadius(8)
+                    .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: height, isEditMode: true))
                 } else {
                     Text(player.name)
-                        .font(.system(size: Self.doudizhuNameFontSize, weight: .bold))
+                        .font(.system(size: nameSize, weight: .bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
+                        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: height))
                         .onTapGesture {
                             if isEditMode {
                                 editingIndex = index
@@ -222,57 +268,226 @@ struct DoudizhuScoreboardView: View {
                             }
                         }
                 }
-                Text("\(player.score)")
-                    .font(.system(size: scoreSize, weight: .bold))
-                    .monospacedDigit()
-                    .foregroundColor(.white)
+                Spacer()
             }
-            .frame(width: width, height: height)
-            .background(colors[index % 3])
+        }
+        .frame(width: width, height: height)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isEditMode {
+                editingIndex = index
+                editName = player.name
+            }
+        }
+    }
+
+    /// HOS-style 320pt bottom settle overlay (not a system sheet).
+    private var doudizhuBottomSettleOverlay: some View {
+        ZStack(alignment: .bottom) {
+            Color.black.opacity(0.35)
+                .ignoresSafeArea()
+                .onTapGesture { showScorePanel = false }
+
+            VStack(spacing: 0) {
+                HStack(alignment: .top, spacing: 10) {
+                    settleColumn(title: NSLocalizedString("doudizhu_base_score", value: "底分", comment: "")) {
+                        HStack(spacing: 8) {
+                            ForEach(baseScoreOptions, id: \.self) { score in
+                                settleChip("\(score)", selected: selectedBaseScore == score) {
+                                    selectedBaseScore = score
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+
+                    settleColumn(title: NSLocalizedString("doudizhu_multiplier", value: "番数", comment: "")) {
+                        VStack(spacing: 8) {
+                            HStack(spacing: 8) {
+                                ForEach([0, 1, 2], id: \.self) { power in
+                                    settleChip("\(power)番", selected: selectedMultiplierPower == power) {
+                                        selectedMultiplierPower = power
+                                    }
+                                }
+                            }
+                            HStack(spacing: 8) {
+                                ForEach([3, 4, 5], id: \.self) { power in
+                                    settleChip("\(power)番", selected: selectedMultiplierPower == power) {
+                                        selectedMultiplierPower = power
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+
+                    settleColumn(title: NSLocalizedString("doudizhu_winner", value: "获胜者", comment: "")) {
+                        VStack(spacing: 8) {
+                            ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
+                                Button {
+                                    selectedWinners[index].toggle()
+                                    if selectedWinners.filter(\.self).count > 2 {
+                                        selectedWinners[index] = false
+                                    }
+                                } label: {
+                                    Text(player.name)
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .frame(maxWidth: .infinity, minHeight: 46)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(selectedWinners[index] ? Color(hex: "007AFF") : Color.white.opacity(0.2))
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 20)
+
+                Spacer(minLength: 8)
+
+                Text(doudizhuSettlePreviewText)
+                    .font(.system(size: 14))
+                    .foregroundStyle(.white.opacity(0.8))
+                    .padding(.horizontal, 16)
+
+                Button {
+                    applyDoudizhuRound()
+                    showScorePanel = false
+                } label: {
+                    Text(String(format: NSLocalizedString("doudizhu_confirm_with_score", value: "确认 (底分: %d)", comment: ""), selectedBaseScore * (1 << selectedMultiplierPower)))
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: UIScreen.main.bounds.width * 0.45, height: 50)
+                        .background(Capsule().fill(doudizhuWinnerSelectionValid ? Color(hex: "007AFF") : Color.white.opacity(0.2)))
+                }
+                .buttonStyle(.plain)
+                .disabled(!doudizhuWinnerSelectionValid)
+                .padding(.vertical, 16)
+
+                HStack {
+                    Button { showScorePanel = false } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 48, height: 48)
+                            .background(Circle().fill(Color.black.opacity(0.35)))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, 20)
+                    .padding(.bottom, 16)
+                    Spacer()
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 320)
+            .background(Color.black.opacity(0.8))
+            .onAppear {
+                if selectedWinners.allSatisfy({ !$0 }) {
+                    selectedWinners = [true, false, false]
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+
+    private func settleColumn<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+            content()
+        }
+    }
+
+    private func settleChip(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 60, height: 45)
+                .background(RoundedRectangle(cornerRadius: 12).fill(selected ? Color(hex: "007AFF") : Color.white.opacity(0.2)))
         }
         .buttonStyle(.plain)
     }
 
-    private func doudizhuMenuOverlay(geo: GeometryProxy) -> some View {
-        ZStack {
-            Color.black.opacity(0.5)
-                .ignoresSafeArea()
-                .onTapGesture { showMenu = false }
-            VStack(spacing: 16) {
-                Button {
-                    undoLast()
-                    showMenu = false
-                } label: {
-                    Text(NSLocalizedString("menu_undo", comment: "Undo"))
-                        .frame(width: 200, height: 44)
-                        .background(Theme.homeCardDark)
-                        .foregroundColor(.white)
-                        .cornerRadius(22)
-                }
-                .buttonStyle(.plain)
-                .disabled(history.isEmpty)
-                Button {
-                    handleExitAttempt(fromMenu: true)
-                } label: {
-                    Text(NSLocalizedString("exit", value: "退出", comment: "Exit"))
-                        .frame(width: 200, height: 44)
-                        .background(Theme.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(22)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(24)
-            .background(Theme.homeCardDark)
-            .cornerRadius(16)
+    private var doudizhuWinnerSelectionValid: Bool {
+        let count = selectedWinners.filter(\.self).count
+        return count == 1 || count == 2
+    }
+
+    private var doudizhuSettlePreviewText: String {
+        let unit = selectedBaseScore * (1 << selectedMultiplierPower)
+        let count = selectedWinners.filter(\.self).count
+        switch count {
+        case 1:
+            return String(
+                format: NSLocalizedString("doudizhu_settle_preview_one", value: "结算：赢家 +%d，另两人各 −%d", comment: ""),
+                unit * 2,
+                unit
+            )
+        case 2:
+            return String(
+                format: NSLocalizedString("doudizhu_settle_preview_two", value: "结算：两赢家各 +%d，输家 −%d", comment: ""),
+                unit,
+                unit * 2
+            )
+        default:
+            return NSLocalizedString("doudizhu_select_one_or_two_winners", value: "请选择 1 或 2 位赢家", comment: "")
         }
     }
 
-    private func addScore(index: Int) {
-        history.append(players.map { $0.score })
+    /// 1 winner → +2x/−x/−x; 2 winners → +x/+x/−2x (x = base × 2^multiplier).
+    private func applyDoudizhuRound() {
+        guard let deltas = DoudizhuSettlement.deltas(
+            winners: selectedWinners,
+            baseScore: selectedBaseScore,
+            multiplierPower: selectedMultiplierPower
+        ) else { return }
+        history.append(players.map(\.score))
         if history.count > 50 { history.removeFirst() }
-        players[index].score += 1
-        VibrationManager.shared.vibrateLight()
+        for i in players.indices where i < deltas.count {
+            players[i].score += deltas[i]
+        }
+        VibrationManager.shared.vibrateMedium()
+    }
+
+    private var doudizhuMenuItems: [ScoreboardMenuItem] {
+        let exitConfirming = exitClickTime > 0 &&
+            Date().timeIntervalSince1970 * 1000 - exitClickTime < 2000
+        return [
+            ScoreboardMenuItem(
+                title: NSLocalizedString("menu_undo", comment: "Undo"),
+                action: "undo",
+                group: .match,
+                icon: "arrow.uturn.backward",
+                keepDialogOpen: true,
+                enabled: !history.isEmpty
+            ),
+            ScoreboardMenuItem(
+                title: NSLocalizedString("exit", value: "退出", comment: "Exit"),
+                action: "exit",
+                group: .match,
+                icon: "rectangle.portrait.and.arrow.right",
+                keepDialogOpen: true,
+                confirming: exitConfirming
+            )
+        ]
+    }
+
+    private func handleDoudizhuMenuAction(_ action: String) {
+        switch action {
+        case "undo":
+            undoLast()
+        case "exit":
+            handleExitAttempt(fromMenu: true)
+        default:
+            break
+        }
     }
 
     private func undoLast() {
@@ -342,7 +557,7 @@ struct DoudizhuScoreboardView: View {
         if currentTime - exitClickTime < 2000 && exitClickTime > 0 {
             exitClickTime = 0
             toastMessage = nil
-            if fromMenu { showMenu = false }
+            showMenu = false
             confirmEditIfNeeded()
             saveRecordIfNeeded()
             OrientationLock.shared.unlock()
@@ -352,11 +567,12 @@ struct DoudizhuScoreboardView: View {
         }
 
         exitClickTime = currentTime
-        if fromMenu { showMenu = false }
+        // Keep menu open so the second tap can confirm exit.
         toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if Date().timeIntervalSince1970 * 1000 - exitClickTime >= 2000 {
                 toastMessage = nil
+                exitClickTime = 0
             }
         }
     }

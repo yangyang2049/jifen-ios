@@ -15,15 +15,24 @@ enum GameType: String, Codable, CaseIterable {
     case badminton = "badminton"
     case tennis = "tennis"
     case basketball = "basketball"
+    case threeBasketball = "three_basketball"
     case football = "football"
     case volleyball = "volleyball"
+    case beachVolleyball = "beach_volleyball"
+    case airVolleyball = "air_volleyball"
     case checkers = "checkers"
     case boxing = "boxing"
     case billiards = "billiards"
+    case eightBall = "eight_ball"
+    case nineBall = "nine_ball"
+    case snooker = "snooker"
     case pickleball = "pickleball"
     case archery = "archery"
     case guandan = "guandan"
     case doudizhu = "doudizhu"
+    case shengji = "shengji"
+    case uno = "uno"
+    case foosball = "foosball"
     case simpleScore = "simpleScore"
     case multiScoreboard = "multiScoreboard"
     case counter = "counter"
@@ -32,21 +41,50 @@ enum GameType: String, Codable, CaseIterable {
     case xiangqi = "xiangqi"
     case chess = "chess"
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        switch value {
+        case "archery_dual": self = .archery
+        case "simple_score": self = .simpleScore
+        case "multi_scoreboard": self = .multiScoreboard
+        default:
+            guard let gameType = Self(rawValue: value) else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown game type: \(value)")
+            }
+            self = gameType
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(canonicalScoreboardIdentifier)
+    }
+
     var displayName: String {
         switch self {
         case .pingpong: return NSLocalizedString("game_pingpong", comment: "Ping Pong")
         case .badminton: return NSLocalizedString("game_badminton", comment: "Badminton")
         case .tennis: return NSLocalizedString("game_tennis", comment: "Tennis")
         case .basketball: return NSLocalizedString("game_basketball", comment: "Basketball")
+        case .threeBasketball: return NSLocalizedString("game_three_basketball", value: "三人篮球", comment: "3x3 Basketball")
         case .football: return NSLocalizedString("game_football", comment: "Football")
         case .volleyball: return NSLocalizedString("game_volleyball", comment: "Volleyball")
+        case .beachVolleyball: return NSLocalizedString("game_beach_volleyball", value: "沙滩排球", comment: "Beach Volleyball")
+        case .airVolleyball: return NSLocalizedString("game_air_volleyball", value: "气排球", comment: "Air Volleyball")
         case .checkers: return NSLocalizedString("game_checkers", comment: "Checkers")
         case .boxing: return NSLocalizedString("game_boxing", comment: "Boxing")
         case .billiards: return NSLocalizedString("game_billiards", comment: "Billiards")
+        case .eightBall: return NSLocalizedString("game_eight_ball", value: "黑八", comment: "Eight Ball")
+        case .nineBall: return NSLocalizedString("game_nine_ball", value: "追分", comment: "Chase Points")
+        case .snooker: return NSLocalizedString("game_snooker", value: "斯诺克", comment: "Snooker")
         case .pickleball: return NSLocalizedString("game_pickleball", comment: "Pickleball")
         case .archery: return NSLocalizedString("project_archery", value: "Archery", comment: "Archery")
         case .guandan: return NSLocalizedString("game_guandan", comment: "Guandan")
         case .doudizhu: return NSLocalizedString("game_doudizhu", comment: "Doudizhu")
+        case .shengji: return NSLocalizedString("game_shengji", value: "升级", comment: "Shengji")
+        case .uno: return NSLocalizedString("game_uno", value: "UNO", comment: "UNO")
+        case .foosball: return NSLocalizedString("game_foosball", value: "桌上足球", comment: "Foosball")
         case .simpleScore: return NSLocalizedString("game_simple_score", value: "Simple Score", comment: "Simple Score")
         case .multiScoreboard: return NSLocalizedString("game_multi_scoreboard", value: "Multi-Score", comment: "Multi Scoreboard")
         case .counter: return NSLocalizedString("game_counter", comment: "Counter")
@@ -63,15 +101,21 @@ enum GameType: String, Codable, CaseIterable {
         case .badminton: return "🏸"
         case .tennis: return "🎾"
         case .basketball: return "🏀"
+        case .threeBasketball: return "🏀"
         case .football: return "⚽"
         case .volleyball: return "🏐"
+        case .beachVolleyball, .airVolleyball: return "🏐"
         case .checkers: return "🏁"
         case .boxing: return "🥊"
         case .billiards: return "🎱"
+        case .eightBall, .nineBall, .snooker: return "🎱"
         case .pickleball: return "🏓"
         case .archery: return "🏹"
         case .guandan: return "🃏"
         case .doudizhu: return "🃏"
+        case .shengji: return "🃏"
+        case .uno: return "🎴"
+        case .foosball: return "⚽"
         case .simpleScore: return "🔢"
         case .multiScoreboard: return "👥"
         case .counter: return "➕"
@@ -79,6 +123,15 @@ enum GameType: String, Codable, CaseIterable {
         case .go: return "⚫"
         case .xiangqi: return "🐘"
         case .chess: return "♟️"
+        }
+    }
+
+    var canonicalScoreboardIdentifier: String {
+        switch self {
+        case .archery: return "archery_dual"
+        case .simpleScore: return "simple_score"
+        case .multiScoreboard: return "multi_scoreboard"
+        default: return rawValue
         }
     }
 }
@@ -210,6 +263,8 @@ struct TemplateConfig {
     let contentOverlayProvider: ((Bool) -> AnyView)?
     /// 编辑模式变化时回调，供父视图隐藏发球指示器等（编辑模式下不显示）
     let onEditModeChange: ((Bool) -> Void)?
+    let showEndGame: Bool
+    let onEndGame: (() -> Void)?
 
     init(
         gameType: GameType,
@@ -221,7 +276,9 @@ struct TemplateConfig {
         scoreTextProvider: ((Bool, TeamData) -> String)? = nil,
         tapToAddEnabled: Bool = true,
         contentOverlayProvider: ((Bool) -> AnyView)? = nil,
-        onEditModeChange: ((Bool) -> Void)? = nil
+        onEditModeChange: ((Bool) -> Void)? = nil,
+        showEndGame: Bool = false,
+        onEndGame: (() -> Void)? = nil
     ) {
         self.gameType = gameType
         self.controller = controller
@@ -233,6 +290,8 @@ struct TemplateConfig {
         self.tapToAddEnabled = tapToAddEnabled
         self.contentOverlayProvider = contentOverlayProvider
         self.onEditModeChange = onEditModeChange
+        self.showEndGame = showEndGame
+        self.onEndGame = onEndGame
     }
 }
 

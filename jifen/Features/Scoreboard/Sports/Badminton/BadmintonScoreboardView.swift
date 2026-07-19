@@ -16,6 +16,9 @@ struct BadmintonScoreboardView: View {
             gameType: isDoubles ? .badmintonDoubles : .badminton,
             rules: rules,
             participants: rallyParticipants,
+            openingServer: openingServer,
+            voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
+            initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
@@ -23,9 +26,20 @@ struct BadmintonScoreboardView: View {
     }
 
     private var rules: RallyRuleSet {
-        var rules = RallyRuleSet.badminton(maxSets: initialSetup?.maxSets ?? 3)
+        var rules = RallyRuleSet.badminton(
+            maxSets: initialSetup?.maxSets ?? 3,
+            matchCompletionMode: initialSetup?.matchCompletionMode ?? .bestOf
+        )
         rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
+        let target = max(1, initialSetup?.pointsPerSet ?? 21)
+        rules.pointsToWinSet = target
+        rules.pointCap = target == 21 ? 30 : nil
+        rules.decidingSetSideSwitchPoint = max(1, (target + 1) / 2)
         return rules
+    }
+
+    private var openingServer: MatchSide {
+        initialSetup?.servingSide == MatchSide.right.rawValue ? .right : .left
     }
 
     private var rallyParticipants: [SessionParticipant]? {

@@ -15,11 +15,17 @@ final class BasketballSessionStore {
 
     private(set) var state: BasketballMatchState
 
-    init(leftName: String, rightName: String, gameMode: BasketballGameMode = .fiveVFive) {
+    init(
+        leftName: String,
+        rightName: String,
+        gameMode: BasketballGameMode = .fiveVFive,
+        ruleSet: BasketballRuleSet = .fiba
+    ) {
         let initial = BasketballMatchEngine.initial(
             leftName: leftName,
             rightName: rightName,
-            gameMode: gameMode
+            gameMode: gameMode,
+            ruleSet: ruleSet
         )
         let session = ScoreSession<BasketballMatchState, BasketballMatchEvent>(
             gameType: gameMode == .threeXThree ? .threeBasketball : .basketball,

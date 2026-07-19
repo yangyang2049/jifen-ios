@@ -2,7 +2,7 @@
 //  TimerTab.swift
 //  jifen
 //
-//  计时 Tab：围棋/象棋/国际象棋/通用/篮球/魔方/超时等入口，对齐鸿蒙 TimerTab。
+//  计时 Tab：围棋/象棋/国际象棋/魔方/秒表/超时等入口。
 //
 
 import SwiftUI
@@ -84,7 +84,7 @@ struct TimerTab: View {
                 .presentationDragIndicator(.visible)
             }
         }
-        .accentColor(Theme.accentColor)
+        .tint(Theme.accentColor)
     }
 
     private func timerSectionGroup(title: String, items: [TimerDestination]) -> some View {
@@ -128,7 +128,7 @@ struct TimerTab: View {
     private func timerDestinationView(_ dest: TimerDestination) -> some View {
         switch dest {
         case .stopwatch:
-            CountUpTimerView()
+            StopwatchView()
         case .go:
             DualPlayerTimerView(gameType: .go, config: goTimerConfig)
         case .xiangqi:

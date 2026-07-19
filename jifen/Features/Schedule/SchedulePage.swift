@@ -13,10 +13,10 @@ struct SchedulePage: View {
         List {
             if filteredBookings.isEmpty {
                 VStack(spacing: 16) {
-                    EmptyStateCourtIcon(size: 48, color: Theme.homeTextDisabledDark)
+                    EmptyStateCourtIcon(size: 48, color: Theme.textSecondary)
                     Text(emptyStateText)
                         .font(.system(size: 14))
-                        .foregroundColor(Theme.homeTextDisabledDark)
+                        .foregroundColor(Theme.textSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
@@ -41,10 +41,11 @@ struct SchedulePage: View {
         .frame(maxWidth: .infinity)
         .scrollIndicators(.hidden)
         .listStyle(.plain)
-        .background(Color.black)
+        .scrollContentBackground(.hidden)
+        .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("schedule_title", value: "我的球局", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.black, for: .navigationBar)
+        .toolbarBackground(Theme.backgroundColor, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .safeAreaInset(edge: .bottom) {
             scheduleContentWidth {
@@ -63,7 +64,7 @@ struct SchedulePage: View {
             }
             .padding(.top, Theme.sm)
             .padding(.bottom, Theme.sm)
-            .background(Color.black.opacity(0.95))
+            .background(Theme.backgroundColor)
         }
         .safeAreaInset(edge: .top) {
             scheduleContentWidth {
@@ -72,7 +73,7 @@ struct SchedulePage: View {
             }
             .padding(.top, Theme.sm)
             .padding(.bottom, Theme.sm)
-            .background(Color.black.opacity(0.95))
+            .background(Theme.backgroundColor)
         }
         .onAppear(perform: reload)
         .sheet(isPresented: $showCreatePage) {
@@ -143,12 +144,12 @@ struct SchedulePage: View {
                 HStack(spacing: 8) {
                     Text(formatDateTime(booking.dateTime))
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Theme.textPrimary)
                         .lineLimit(1)
 
                     Text(booking.sportType.displayName)
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(.white.opacity(0.86))
+                        .foregroundColor(Theme.textPrimary.opacity(0.86))
                         .lineLimit(1)
 
                     Spacer(minLength: 0)
@@ -161,7 +162,7 @@ struct SchedulePage: View {
                             .opacity(0.72)
                         Text(booking.location)
                             .font(.system(size: 13))
-                            .foregroundColor(.white.opacity(0.62))
+                            .foregroundColor(Theme.textSecondary)
                             .lineLimit(1)
                     }
                 }
@@ -174,12 +175,12 @@ struct SchedulePage: View {
                 }
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.72))
+                    .foregroundColor(Theme.textSecondary)
             }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 13)
-        .background(Theme.homeCardDark)
+        .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -206,7 +207,7 @@ struct SchedulePage: View {
     @ViewBuilder
     private func scheduleTimeStatusTag(for date: Date) -> some View {
         let status = getScheduleTimeStatus(scheduledAt: date)
-        let style = status.darkStyle
+        let style = status.style
 
         Text(status.localizedLabel)
             .font(.system(size: 12, weight: .medium))

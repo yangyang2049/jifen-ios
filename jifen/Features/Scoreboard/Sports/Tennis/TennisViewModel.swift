@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ScoreCore
 
 @Observable
 class TennisViewModel: BaseScoreViewModel {
@@ -24,6 +25,10 @@ class TennisViewModel: BaseScoreViewModel {
     var autoChangeSides: Bool = true
     var isSingles: Bool = true
     var sidesSwapped: Bool = false
+    var matchCompletionMode: MatchCompletionMode = .bestOf
+    var usesNoAdScoring: Bool = false
+    var openingServerSide: MatchSide = .left
+    var voiceAnnouncement: Bool = false
     
     private var tieBreakChangeSidesCount: Int = 0
     private var currentGameInSet: Int = 0
@@ -44,9 +49,20 @@ class TennisViewModel: BaseScoreViewModel {
     
     // MARK: - Configuration
     
-    func setConfig(maxSets: Int, autoChangeSides: Bool = true) {
+    func setConfig(
+        maxSets: Int,
+        autoChangeSides: Bool = true,
+        matchCompletionMode: MatchCompletionMode = .bestOf,
+        usesNoAdScoring: Bool = false,
+        openingServerSide: MatchSide = .left,
+        voiceAnnouncement: Bool = false
+    ) {
         self.maxSets = maxSets
         self.autoChangeSides = autoChangeSides
+        self.matchCompletionMode = matchCompletionMode
+        self.usesNoAdScoring = usesNoAdScoring
+        self.openingServerSide = openingServerSide
+        self.voiceAnnouncement = voiceAnnouncement
     }
     
     func setOnGameEndCallback(_ callback: @escaping (Int, Int, Int) -> Void) {
@@ -103,10 +119,18 @@ class TennisViewModel: BaseScoreViewModel {
         return ""
     }
 
+    override func endGame() {
+        guard !gameFinished else { return }
+        saveTennisSnapshot()
+        gameFinished = true
+        saveGameRecordInRealTime(isGameFinished: true)
+    }
+
     /// Harmony-aligned server rule for tennis:
     /// first server alternates by set, then alternates each game.
     func isLeftServing() -> Bool {
-        let firstServerIsLeft = (currentSet % 2 == 1)
+        let opensFromLeft = openingServerSide == .left
+        let firstServerIsLeft = (currentSet % 2 == 1) ? opensFromLeft : !opensFromLeft
         let totalGames = (leftTeam.games ?? 0) + (rightTeam.games ?? 0)
         return firstServerIsLeft == (totalGames % 2 == 0)
     }
@@ -137,6 +161,7 @@ class TennisViewModel: BaseScoreViewModel {
             } else {
                 rightTeam.score += points
             }
+            announceScoreIfNeeded()
             
             let totalScore = leftTeam.score + rightTeam.score
             let expectedChangeCount = totalScore / 6
@@ -152,6 +177,7 @@ class TennisViewModel: BaseScoreViewModel {
             } else {
                 rightTeam.score += points
             }
+            announceScoreIfNeeded()
             checkGameWinner()
         }
         
@@ -250,6 +276,9 @@ class TennisViewModel: BaseScoreViewModel {
     }
     
     private func canWinGame(leftScore: Int, rightScore: Int) -> Bool {
+        if usesNoAdScoring, leftScore >= 3, rightScore >= 3 {
+            return leftScore != rightScore
+        }
         if max(leftScore, rightScore) >= 4 {
             return abs(leftScore - rightScore) >= 2
         }
@@ -259,7 +288,7 @@ class TennisViewModel: BaseScoreViewModel {
     private func updateDeuceState(leftScore: Int, rightScore: Int) {
         if leftScore >= 3 && rightScore >= 3 {
             isDeuce = true
-            if leftScore == rightScore {
+            if usesNoAdScoring || leftScore == rightScore {
                 advantage = .none
             } else if leftScore > rightScore {
                 advantage = .left
@@ -270,6 +299,11 @@ class TennisViewModel: BaseScoreViewModel {
             isDeuce = false
             advantage = .none
         }
+    }
+
+    private func announceScoreIfNeeded() {
+        guard voiceAnnouncement else { return }
+        ScoreVoiceAnnouncer.shared.announce(left: leftTeam.score, right: rightTeam.score)
     }
     
     private func shouldStartTieBreak(leftGames: Int, rightGames: Int) -> Bool {
@@ -326,8 +360,11 @@ class TennisViewModel: BaseScoreViewModel {
         let winnerName = winnerIsLeft ? leftTeam.name : rightTeam.name
         let newLeftSets = winnerIsLeft ? (leftTeam.sets ?? 0) + 1 : (leftTeam.sets ?? 0)
         let newRightSets = !winnerIsLeft ? (rightTeam.sets ?? 0) + 1 : (rightTeam.sets ?? 0)
-        let setsToWin = (maxSets + 1) / 2
-        let isGameFinished = newLeftSets >= setsToWin || newRightSets >= setsToWin
+        let isGameFinished = matchCompletionMode.isMatchFinished(
+            maxSets: maxSets,
+            leftSets: newLeftSets,
+            rightSets: newRightSets
+        )
         let shouldChangeSides = !isGameFinished && setNumber % 2 == 1
         
         if let callback = onSetEndCallback {
@@ -418,8 +455,12 @@ class TennisViewModel: BaseScoreViewModel {
             totalScoreChanges: controller?.getGameActions().count ?? 0,
             extraData: [
                 "maxSets": maxSets,
+                "matchCompletionMode": matchCompletionMode.rawValue,
                 "tieBreakPoints": tieBreakTarget,
                 "autoChangeSides": autoChangeSides,
+                "tennisDeuceMode": usesNoAdScoring ? "no_ad" : "advantage",
+                "servingSide": openingServerSide.rawValue,
+                "voiceAnnouncement": voiceAnnouncement,
                 "isSingles": isSingles,
                 "finalLeftGames": leftTeam.games ?? 0,
                 "finalRightGames": rightTeam.games ?? 0,
@@ -440,10 +481,11 @@ class TennisViewModel: BaseScoreViewModel {
     }
     
     private func checkMatchWinner() {
-        let setsToWin = (maxSets + 1) / 2
-        if (leftTeam.sets ?? 0) >= setsToWin || (rightTeam.sets ?? 0) >= setsToWin {
-            gameFinished = true
-        }
+        gameFinished = matchCompletionMode.isMatchFinished(
+            maxSets: maxSets,
+            leftSets: leftTeam.sets ?? 0,
+            rightSets: rightTeam.sets ?? 0
+        )
     }
     
     // MARK: - Edit Mode Adjustments
@@ -477,16 +519,21 @@ class TennisViewModel: BaseScoreViewModel {
     }
     
     func adjustSets(isLeft: Bool, delta: Int) {
+        let leftSets = (leftTeam.sets ?? 0) + (isLeft ? delta : 0)
+        let rightSets = (rightTeam.sets ?? 0) + (isLeft ? 0 : delta)
+        guard matchCompletionMode.allowsSetScore(
+            maxSets: maxSets,
+            leftSets: leftSets,
+            rightSets: rightSets
+        ) else { return }
         saveTennisSnapshot()
-        
-        let maxSetsValue = maxSets
-        if isLeft {
-            let newSets = (leftTeam.sets ?? 0) + delta
-            leftTeam.sets = max(0, min(newSets, maxSetsValue))
-        } else {
-            let newSets = (rightTeam.sets ?? 0) + delta
-            rightTeam.sets = max(0, min(newSets, maxSetsValue))
-        }
+        leftTeam.sets = leftSets
+        rightTeam.sets = rightSets
+        gameFinished = matchCompletionMode.isMatchFinished(
+            maxSets: maxSets,
+            leftSets: leftSets,
+            rightSets: rightSets
+        )
         
         controller?.performVibration(type: .light)
     }
@@ -507,6 +554,7 @@ class TennisViewModel: BaseScoreViewModel {
             advantage: advantage,
             gameFinished: gameFinished,
             sidesSwapped: sidesSwapped,
+            matchCompletionMode: matchCompletionMode,
             tieBreakChangeSidesCount: tieBreakChangeSidesCount,
             currentGameInSet: currentGameInSet
         ))
@@ -529,6 +577,7 @@ class TennisViewModel: BaseScoreViewModel {
         advantage = snapshot.advantage
         gameFinished = snapshot.gameFinished
         sidesSwapped = snapshot.sidesSwapped
+        matchCompletionMode = snapshot.matchCompletionMode
         tieBreakChangeSidesCount = snapshot.tieBreakChangeSidesCount
         currentGameInSet = snapshot.currentGameInSet
     }
@@ -547,6 +596,7 @@ private struct TennisStateSnapshot {
     let advantage: TennisViewModel.AdvantageState
     let gameFinished: Bool
     let sidesSwapped: Bool
+    let matchCompletionMode: MatchCompletionMode
     let tieBreakChangeSidesCount: Int
     let currentGameInSet: Int
 }
