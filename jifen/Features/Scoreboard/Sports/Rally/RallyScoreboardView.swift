@@ -118,6 +118,15 @@ struct RallyScoreboardView: View {
                     serveIndicatorOverlay(size: proxy.size)
                 }
 
+                if !isEditMode && !store.state.finished {
+                    ScoreboardKeyPointBadgeLayer(
+                        status: KeyPointResolver.rally(state: store.state),
+                        gameType: gameType,
+                        sidesSwapped: store.state.sidesSwapped,
+                        doublesTopRow: keyPointDoublesTopRow
+                    )
+                }
+
                 if shouldShowChrome {
                     chromeOverlay
                 }
@@ -657,6 +666,11 @@ struct RallyScoreboardView: View {
     }
 
     // MARK: - Serve indicator
+
+    private var keyPointDoublesTopRow: Bool? {
+        guard showsServeIndicator, let serverSlot = store.state.doubles?.serverSlotIndex else { return nil }
+        return serverSlot == 0 || serverSlot == 1
+    }
 
     @ViewBuilder
     private func serveIndicatorOverlay(size: CGSize) -> some View {

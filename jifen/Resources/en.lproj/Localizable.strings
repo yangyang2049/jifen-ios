@@ -827,3 +827,7 @@
 "click_again_to_settle_match" = "Tap again to settle";
 "voice_announcement_on" = "Voice: On";
 "voice_announcement_off" = "Voice: Off";
+"scoreboard_key_point_game" = "GP";
+"scoreboard_key_point_volleyball_set" = "SP";
+"scoreboard_key_point_set" = "SP";
+"scoreboard_key_point_match" = "MP";

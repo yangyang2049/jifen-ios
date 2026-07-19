@@ -827,3 +827,7 @@
 "click_again_to_settle_match" = "再按一次结算";
 "voice_announcement_on" = "语音：开";
 "voice_announcement_off" = "语音：关";
+"scoreboard_key_point_game" = "局点";
+"scoreboard_key_point_volleyball_set" = "局点";
+"scoreboard_key_point_set" = "盘点";
+"scoreboard_key_point_match" = "赛点";

@@ -50,10 +50,20 @@ struct TennisScoreboardView: View {
                             return AnyView(EmptyView())
                         }
                         return AnyView(
-                            serveIndicator(
-                                isLeftServing: viewModel.isLeftServing(),
-                                doublesTopRow: viewModel.isSingles ? nil : viewModel.isDoublesServerTopRow()
-                            )
+                            ZStack {
+                                serveIndicator(
+                                    isLeftServing: viewModel.isLeftServing(),
+                                    doublesTopRow: viewModel.isSingles ? nil : viewModel.isDoublesServerTopRow()
+                                )
+                                ScoreboardKeyPointBadgeLayer(
+                                    status: tennisKeyPointStatus,
+                                    gameType: viewModel.isSingles ? .tennis : .tennisDoubles,
+                                    // TennisViewModel physically swaps the displayed teams and scores.
+                                    // The resolved side is therefore already a screen side.
+                                    sidesSwapped: false,
+                                    doublesTopRow: viewModel.isSingles ? nil : viewModel.isDoublesServerTopRow()
+                                )
+                            }
                         )
                     },
                     onEditModeChange: { isEditMode = $0 },
@@ -340,6 +350,23 @@ struct TennisScoreboardView: View {
                 .position(x: midX, y: y)
         }
         .allowsHitTesting(false)
+    }
+
+    private var tennisKeyPointStatus: KeyPointStatus? {
+        KeyPointResolver.tennis(snapshot: TennisKeyPointSnapshot(
+            leftPoints: viewModel.leftTeam.score,
+            rightPoints: viewModel.rightTeam.score,
+            leftGames: viewModel.leftTeam.games ?? 0,
+            rightGames: viewModel.rightTeam.games ?? 0,
+            leftSets: viewModel.leftTeam.sets ?? 0,
+            rightSets: viewModel.rightTeam.sets ?? 0,
+            maxSets: viewModel.maxSets,
+            matchCompletionMode: viewModel.matchCompletionMode,
+            isTieBreak: viewModel.isTieBreak,
+            tieBreakTarget: viewModel.tieBreakTarget,
+            usesNoAdScoring: viewModel.usesNoAdScoring,
+            finished: viewModel.gameFinished
+        ))
     }
     
     // MARK: - Rest Countdown
