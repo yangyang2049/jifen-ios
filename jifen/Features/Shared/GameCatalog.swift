@@ -36,6 +36,7 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
     case go
     case xiangqi
     case chess
+    case checkers
     case cube
     case timeout
 
@@ -47,6 +48,7 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
         case .go: return "⚫"
         case .xiangqi: return "🐘"
         case .chess: return "♟️"
+        case .checkers: return "⚪"
         case .cube: return "🧩"
         case .timeout: return "⏸️"
         }
@@ -58,6 +60,7 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
         case .go: return "timer_go"
         case .xiangqi: return "timer_xiangqi"
         case .chess: return "timer_chess"
+        case .checkers: return "timer_checkers"
         case .cube: return "timer_cube"
         case .timeout: return "timer_timeout"
         }
@@ -73,13 +76,14 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
         case .go: return .go
         case .xiangqi: return .xiangqi
         case .chess: return .chess
+        case .checkers: return .checkers
         default: return nil
         }
     }
 
     var requiresDualSetup: Bool {
         switch self {
-        case .go, .xiangqi, .chess:
+        case .go, .xiangqi, .chess, .checkers:
             return true
         default:
             return false
@@ -121,7 +125,7 @@ enum GameCatalog {
         scoreboardItems.filter { $0.section == section }
     }
 
-    static let timerBoardGameItems: [TimerDestination] = [.go, .xiangqi, .chess]
+    static let timerBoardGameItems: [TimerDestination] = [.go, .xiangqi, .chess, .checkers]
     static let timerOtherItems: [TimerDestination] = [.cube, .stopwatch, .timeout]
     static let timerAllItems: [TimerDestination] = timerBoardGameItems + timerOtherItems
 

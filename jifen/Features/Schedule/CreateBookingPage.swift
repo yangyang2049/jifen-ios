@@ -179,21 +179,23 @@ struct CreateBookingPage: View {
         } label: {
             Text(reminderLabel(minute))
                 .font(.system(size: Theme.fontBody2, weight: selected ? .medium : .regular))
-                .foregroundColor(enabled ? (selected ? .white : Theme.textPrimary) : Theme.textSecondary.opacity(0.6))
+                .foregroundColor(enabled ? (selected ? .white : Theme.textPrimary) : Theme.textSecondary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(enabled ? (selected ? Theme.primaryDark : Theme.controlBackground) : Theme.controlBackground.opacity(0.55))
+                        .fill(enabled ? (selected ? Theme.primaryDark : Theme.controlBackground) : Theme.controlBackground)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(enabled ? (selected ? Theme.primaryDark : Theme.divider) : Theme.divider.opacity(0.6), lineWidth: 1)
+                        .stroke(enabled ? (selected ? Theme.primaryDark : Theme.divider) : Theme.divider, lineWidth: 1)
                 )
-                .opacity(enabled ? 1 : 0.72)
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
+        .accessibilityLabel(reminderLabel(minute))
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .opacity(enabled ? 1 : 0.85)
     }
 
     private func reminderLabel(_ minute: Int) -> String {

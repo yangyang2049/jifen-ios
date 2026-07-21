@@ -5,6 +5,7 @@
 //  简单计分：左右两队；对齐鸿蒙/安卓 SimpleScore（草稿、结束比赛、自定义加减分）。
 //
 
+import ScoreCore
 import SwiftUI
 
 struct SimpleScoreboardView: View {
@@ -15,13 +16,11 @@ struct SimpleScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
 
     @State private var controller: SimpleScoreboardController
-    @State private var viewModel: BaseScoreViewModel
+    @State private var viewModel: LineScoreViewModel
     @State private var responsiveScoreFontSize: CGFloat = ScoreboardConstants.baseMainScoreFontSize
     @State private var customAdjustEnabled: Bool
     @State private var adjustTargetIsLeft: Bool?
     @State private var showGameFinishedOverlay = false
-
-    private static let scoreRange = -9999 ... 9999
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -35,10 +34,7 @@ struct SimpleScoreboardView: View {
         self.onNavigationBack = onNavigationBack
         let c = SimpleScoreboardController()
         _controller = State(initialValue: c)
-        _viewModel = State(initialValue: BaseScoreViewModel(
-            controller: c,
-            scoreRange: Self.scoreRange
-        ))
+        _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .freeCounter))
         let enabled = initialSetup?.multiScoreCustomAdjustEnabled
             ?? PreferencesManager.shared.simpleScoreCustomAdjustEnabled
         _customAdjustEnabled = State(initialValue: enabled)

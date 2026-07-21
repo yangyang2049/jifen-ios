@@ -13,7 +13,7 @@ struct MultiScoreSetupDialogView: View {
     var titleEmoji: String
     var titleKey: String
     var titleFallback: String
-    var maxContentHeight: CGFloat = 520
+    var maxDialogHeight: CGFloat = 680
     var onConfirm: ((SportsSetupResult) -> Void)?
     var onCancel: (() -> Void)?
 
@@ -65,7 +65,7 @@ struct MultiScoreSetupDialogView: View {
         titleEmoji: String = "👥",
         titleKey: String = "game_multi_scoreboard",
         titleFallback: String = "多人计分",
-        maxContentHeight: CGFloat = 520,
+        maxDialogHeight: CGFloat = 680,
         onConfirm: ((SportsSetupResult) -> Void)? = nil,
         onCancel: (() -> Void)? = nil
     ) {
@@ -73,7 +73,7 @@ struct MultiScoreSetupDialogView: View {
         self.titleEmoji = titleEmoji
         self.titleKey = titleKey
         self.titleFallback = titleFallback
-        self.maxContentHeight = maxContentHeight
+        self.maxDialogHeight = maxDialogHeight
         self.onConfirm = onConfirm
         self.onCancel = onCancel
 
@@ -160,7 +160,7 @@ struct MultiScoreSetupDialogView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 6) {
                 Text(titleEmoji)
                     .font(.system(size: 20))
@@ -173,7 +173,7 @@ struct MultiScoreSetupDialogView: View {
             .padding(.horizontal, Theme.lg)
             .padding(.top, Theme.sm)
             .padding(.vertical, Theme.md)
-
+        } content: { maxContentHeight in
             AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(alignment: .leading, spacing: Theme.md) {
                     switch layoutMode {
@@ -201,7 +201,7 @@ struct MultiScoreSetupDialogView: View {
                 .padding(.horizontal, Theme.lg)
                 .padding(.vertical, Theme.md)
             }
-
+        } actions: {
             HStack(spacing: Theme.md) {
                 Button(action: { onCancel?() }) {
                     Text(NSLocalizedString("cancel", comment: "Cancel button"))

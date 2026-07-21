@@ -15,8 +15,11 @@ struct BasketballScoreboardView: View {
     @State private var store: BasketballSessionStore
     @State private var watchSessionId: UUID?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var showLocalSync = false
+    @State private var showMenu = false
+    @State private var resetConfirming = false
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
@@ -34,20 +37,26 @@ struct BasketballScoreboardView: View {
         self.initialRecordId = initialRecordId
         self.onSetupConsumed = onSetupConsumed
 
-        let leftName = initialSetup?.team1Name.isEmpty == false
-            ? initialSetup!.team1Name
-            : NSLocalizedString("team_home", value: "主队", comment: "Home team")
-        let rightName = initialSetup?.team2Name.isEmpty == false
-            ? initialSetup!.team2Name
-            : NSLocalizedString("team_away", value: "客队", comment: "Away team")
-        let gameMode: BasketballGameMode = initialSetup?.basketballMode == "three_x_three" ? .threeXThree : .fiveVFive
-        let ruleSet: BasketballRuleSet = initialSetup?.basketballRuleSet == "nba" ? .nba : .fiba
-        _store = State(initialValue: BasketballSessionStore(
-            leftName: leftName,
-            rightName: rightName,
-            gameMode: gameMode,
-            ruleSet: ruleSet
-        ))
+        if let initialRecordId,
+           let sessionId = UUID(uuidString: initialRecordId),
+           let restoredStore = BasketballSessionStore(restoring: sessionId) {
+            _store = State(initialValue: restoredStore)
+        } else {
+            let leftName = initialSetup?.team1Name.isEmpty == false
+                ? initialSetup!.team1Name
+                : NSLocalizedString("team_home", value: "主队", comment: "Home team")
+            let rightName = initialSetup?.team2Name.isEmpty == false
+                ? initialSetup!.team2Name
+                : NSLocalizedString("team_away", value: "客队", comment: "Away team")
+            let gameMode: BasketballGameMode = initialSetup?.basketballMode == "three_x_three" ? .threeXThree : .fiveVFive
+            let ruleSet: BasketballRuleSet = initialSetup?.basketballRuleSet == "nba" ? .nba : .fiba
+            _store = State(initialValue: BasketballSessionStore(
+                leftName: leftName,
+                rightName: rightName,
+                gameMode: gameMode,
+                ruleSet: ruleSet
+            ))
+        }
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
@@ -87,12 +96,7 @@ struct BasketballScoreboardView: View {
                     onAdvancePeriod: { store.send(.advanceToNextPeriod) },
                     onEnterOvertime: { store.send(.enterOvertime) },
                     onSelectPeriod: { store.send(.selectPeriod($0)) },
-                    onUndo: store.undo,
-                    onFinish: { store.send(.finish) },
-                    onSwap: { store.send(.exchangeSides) },
-                    onLaunchOnWatch: { watchSessionId = watchLinkService.startOnWatch(state: store.state) },
-                    onDisplaySettings: { showDisplaySettings = true },
-                    onLocalSync: { showLocalSync = true },
+                    onOpenMenu: { showMenu = true },
                     showsChrome: shouldShowChrome
                 )
                 .frame(width: centerW)
@@ -138,7 +142,7 @@ struct BasketballScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             if let watchSessionId { watchLinkService.syncWatch(sessionId: watchSessionId, state: state) }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
+        .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
@@ -157,6 +161,21 @@ struct BasketballScoreboardView: View {
                 .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showLocalSync, onDismiss: registerScoreboardSync) { LocalSyncView() }
+        .overlay {
+            MenuDialog(
+                isVisible: showMenu,
+                onClose: { showMenu = false },
+                onMenuItemClick: handleMenuAction,
+                showEndGame: true,
+                resetConfirming: resetConfirming,
+                items: ScoreboardMenuItemBuilder.defaultItems(
+                    showEndGame: true,
+                    showExchangeSide: true,
+                    showScreenshot: false,
+                    resetConfirming: resetConfirming
+                )
+            )
+        }
     }
 
     private func displayName(for side: MatchSide) -> String {
@@ -188,20 +207,50 @@ struct BasketballScoreboardView: View {
     }
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showLocalSync
+        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showLocalSync || showMenu
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync else { return }
+        guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync, !showMenu else { return }
         let generation = immersiveGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !showDisplaySettings,
-                  !showLocalSync else { return }
+                  !showLocalSync,
+                  !showMenu else { return }
             chromeVisible = false
+        }
+    }
+
+    private func handleMenuAction(_ action: String) {
+        switch action {
+        case "undo":
+            store.undo()
+        case "exchangeSide":
+            store.send(.exchangeSides)
+        case "reset":
+            if resetConfirming {
+                resetConfirming = false
+                store.send(.reset)
+            } else {
+                resetConfirming = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    resetConfirming = false
+                }
+            }
+        case "endGame":
+            store.send(.finish)
+        case "displaySettings":
+            showDisplaySettings = true
+        case "localSync":
+            showLocalSync = true
+        case "whistle":
+            SoundManager.shared.playSound("whistle")
+        default:
+            break
         }
     }
 
@@ -388,17 +437,11 @@ private struct BasketballCenterPanel: View {
     let onAdvancePeriod: () -> Void
     let onEnterOvertime: () -> Void
     let onSelectPeriod: (Int) -> Void
-    let onUndo: () -> Void
-    let onFinish: () -> Void
-    let onSwap: () -> Void
-    let onLaunchOnWatch: () -> Void
-    let onDisplaySettings: () -> Void
-    let onLocalSync: () -> Void
+    let onOpenMenu: () -> Void
     let showsChrome: Bool
 
     @State private var showPeriodPicker = false
     @State private var shotClockBlinkPhase = false
-    @State private var showUsageHint = false
 
     private let centerBG = Color(hex: "111827")
     private let actionBlue = Color(hex: "2563EB")
@@ -424,7 +467,6 @@ private struct BasketballCenterPanel: View {
                 periodPickerOverlay
             }
         }
-        .sheet(isPresented: $showUsageHint) { ScoreboardUsageHintView() }
     }
 
     private var upperZone: some View {
@@ -438,20 +480,8 @@ private struct BasketballCenterPanel: View {
                         }
                     }
                     Spacer()
-                    Button(action: onLaunchOnWatch) {
-                        Image(systemName: "applewatch").foregroundStyle(.white)
-                    }
-                    Button(action: onSwap) {
-                        Image(systemName: "arrow.left.arrow.right").foregroundStyle(.white)
-                    }
-                    Button(action: onDisplaySettings) {
-                        Text("Aa").font(.headline).foregroundStyle(.white)
-                    }
-                    Button { showUsageHint = true } label: {
-                        Text("?").font(.headline).foregroundStyle(.white)
-                    }
-                    Button(action: onLocalSync) {
-                        Image(systemName: "rectangle.connected.to.line.below").foregroundStyle(.white)
+                    Button(action: onOpenMenu) {
+                        Image(systemName: "line.3.horizontal").foregroundStyle(.white)
                     }
                 }
                 .buttonStyle(.plain)
@@ -533,20 +563,6 @@ private struct BasketballCenterPanel: View {
                         .background(RoundedRectangle(cornerRadius: 6).fill(Color.white.opacity(0.12)))
                         .buttonStyle(.plain)
                 }
-            }
-
-            if showsChrome {
-                HStack(spacing: 16) {
-                    Button(action: onUndo) {
-                        Image(systemName: "arrow.uturn.backward").foregroundStyle(.white)
-                    }
-                    Button(action: onFinish) {
-                        Image(systemName: "flag.checkered").foregroundStyle(.white)
-                    }
-                }
-                .buttonStyle(.plain)
-                .font(.title3)
-                .padding(.bottom, 10)
             }
         }
     }

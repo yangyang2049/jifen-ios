@@ -54,7 +54,6 @@ struct FoosballScoreboardView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .landscapeLeft) {
     FoosballScoreboardView()
-        .previewInterfaceOrientation(.landscapeLeft)
 }

@@ -146,6 +146,7 @@
 "game_football" = "Football";
 "game_volleyball" = "Volleyball";
 "game_checkers" = "Checkers";
+"timer_checkers" = "International Checkers";
 "game_boxing" = "Boxing";
 "game_billiards" = "Billiards";
 "game_pickleball" = "Pickleball";
@@ -211,6 +212,17 @@
 "tennis_set_option_best_of_5" = "Best of 5";
 "tennis_tiebreak_option_7" = "Tiebreak 7";
 "tennis_tiebreak_option_10" = "Tiebreak 10";
+"tennis_format_label" = "Format";
+"tennis_scoring_mode_regular" = "Traditional";
+"tennis_scoring_mode_tiebreak_7" = "One-set 7-point tiebreak";
+"tennis_scoring_mode_tiebreak_10" = "One-set 10-point tiebreak";
+"tennis_games_per_set_label" = "Games per set";
+"tennis_games_per_set_4" = "4-game set";
+"tennis_games_per_set_6" = "6-game set";
+"tennis_set_tiebreak_label" = "In-set tiebreak";
+"tennis_format_tiebreak_7" = "In-set 7-point tiebreak";
+"tennis_format_tiebreak_10" = "In-set 10-point tiebreak";
+"tennis_short_set_help" = "First to 4 games by 2; play a tiebreak at 4-4";
 "points_11" = "11 points";
 "points_21" = "21 points";
 
@@ -337,6 +349,9 @@
 "place_fingers_on_blocks" = "Place fingers on blocks (%d/%d)";
 "grouping_in_progress" = "Grouping...";
 "grouping_complete" = "Grouping Complete!";
+"random_team_select_team_count" = "Choose Number of Teams";
+"random_team_team_count_format" = "%d Teams";
+"random_team_reselect" = "Choose Players Again";
 
 /* Flip Coin Tool */
 "flip_coin_title" = "Flip Coin";
@@ -395,6 +410,16 @@
 "enter_barrage_content" = "Enter barrage content";
 "show" = "Show";
 "barrage_content" = "Barrage Content";
+"barrage_text_label" = "Message";
+"barrage_input_placeholder" = "Enter text to display";
+"barrage_font_size" = "Font Size";
+"barrage_scroll_speed" = "Scroll Speed";
+"barrage_text_color" = "Text Color";
+"barrage_bg_color" = "Background Color";
+"barrage_scroll_display" = "Scroll";
+"barrage_static_display" = "Static";
+"barrage_scroll_mode" = "Scroll";
+"barrage_static_mode" = "Static";
 
 /* Menu Dialog */
 "operations" = "Operations";
@@ -831,3 +856,28 @@
 "scoreboard_key_point_volleyball_set" = "SP";
 "scoreboard_key_point_set" = "SP";
 "scoreboard_key_point_match" = "MP";
+"record_recap_set_format" = "Game %d";
+"record_recap_tennis_set_format" = "Set %d";
+"record_recap_period_format" = "Period %d";
+"record_recap_round_format" = "Round %d";
+"record_recap_frame_format" = "Frame %d";
+"record_recap_full_match" = "Match Events";
+"record_recap_adjustments" = "Score Adjustments";
+"record_final_ranking" = "Final Ranking";
+"score_trend" = "Score Trend";
+"record_recap" = "Recap";
+"record_details" = "Details";
+"record_detail_legacy_unavailable" = "This legacy record has no reliable game or time data. Showing the match overview instead.";
+"record_unavailable" = "Unable to Continue";
+"record_draft_cannot_restore" = "This legacy draft has no restorable state snapshot.";
+"record_set_score_format" = "Games %d : %d";
+"record_score_changed" = "Score changed";
+"record_set_finished" = "Game finished";
+"record_round_finished" = "Round finished";
+"record_period_finished" = "Period finished";
+"record_serve_changed" = "Serve changed";
+"record_state_changed" = "State changed";
+"continue_game" = "Continue Match";
+"play_again" = "Play Again";
+"unfinished" = "Unfinished";
+"finished" = "Finished";

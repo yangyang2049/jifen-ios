@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RecordCore
 
 enum ScoreboardRecordStatus: String, Codable {
     case draft
@@ -15,7 +16,7 @@ enum ScoreboardRecordStatus: String, Codable {
 // MARK: - Scoreboard Record
 
 struct ScoreboardRecord: Codable, Identifiable {
-    var schemaVersion: Int = 3
+    var schemaVersion: Int = 4
     let id: String
     let gameType: GameType
     let startTime: Date
@@ -29,6 +30,9 @@ struct ScoreboardRecord: Codable, Identifiable {
     var team2SetScore: Int?
     var winner: String? // "left", "right", or nil
     var actions: [String] // Simplified action strings
+    /// Schema v4 actions. `actions` is retained for old clients and recovery.
+    var detailedActions: [DetailedScoreAction]?
+    var setResults: [RecordSetResult]?
     var totalScoreChanges: Int
     var extraData: [String: AnyCodable]?
     var projectConfiguration: [String: AnyCodable]?
@@ -51,6 +55,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         case team2SetScore
         case winner
         case actions
+        case detailedActions
+        case setResults
         case totalScoreChanges
         case extraData
         case projectConfiguration
@@ -73,6 +79,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         team2SetScore: Int? = nil,
         winner: String? = nil,
         actions: [String] = [],
+        detailedActions: [DetailedScoreAction]? = nil,
+        setResults: [RecordSetResult]? = nil,
         totalScoreChanges: Int,
         extraData: [String: AnyCodable]? = nil,
         projectConfiguration: [String: AnyCodable]? = nil,
@@ -80,7 +88,7 @@ struct ScoreboardRecord: Codable, Identifiable {
         syncMetadata: [String: String]? = nil,
         status: ScoreboardRecordStatus = .finished
     ) {
-        self.schemaVersion = 3
+        self.schemaVersion = 4
         self.id = id
         self.gameType = gameType
         self.startTime = startTime
@@ -94,6 +102,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         self.team2SetScore = team2SetScore
         self.winner = winner
         self.actions = actions
+        self.detailedActions = detailedActions
+        self.setResults = setResults
         self.totalScoreChanges = totalScoreChanges
         self.extraData = extraData
         self.projectConfiguration = projectConfiguration
@@ -118,6 +128,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         team2SetScore = try container.decodeIfPresent(Int.self, forKey: .team2SetScore)
         winner = try container.decodeIfPresent(String.self, forKey: .winner)
         actions = try container.decodeIfPresent([String].self, forKey: .actions) ?? []
+        detailedActions = try container.decodeIfPresent([DetailedScoreAction].self, forKey: .detailedActions)
+        setResults = try container.decodeIfPresent([RecordSetResult].self, forKey: .setResults)
         totalScoreChanges = try container.decode(Int.self, forKey: .totalScoreChanges)
         extraData = try container.decodeIfPresent([String: AnyCodable].self, forKey: .extraData)
         projectConfiguration = try container.decodeIfPresent([String: AnyCodable].self, forKey: .projectConfiguration)

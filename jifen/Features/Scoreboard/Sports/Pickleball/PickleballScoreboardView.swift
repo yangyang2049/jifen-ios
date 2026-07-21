@@ -46,7 +46,6 @@ struct PickleballScoreboardView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .landscapeLeft) {
     PickleballScoreboardView()
-        .previewInterfaceOrientation(.landscapeLeft)
 }

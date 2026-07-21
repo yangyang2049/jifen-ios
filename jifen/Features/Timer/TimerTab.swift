@@ -9,12 +9,14 @@ import SwiftUI
 
 struct TimerTab: View {
     @Binding var pendingTimerGameType: GameType?
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedDestination: TimerDestination?
     @State private var pendingDualTimerDest: TimerDestination?
     @State private var queuedDualTimerDest: TimerDestination?
     @State private var goTimerConfig = BoardTimerConfig.default(for: .go)
     @State private var xiangqiTimerConfig = BoardTimerConfig.default(for: .xiangqi)
     @State private var chessTimerConfig = BoardTimerConfig.default(for: .chess)
+    @State private var checkersTimerConfig = BoardTimerConfig.default(for: .checkers)
 
     init(pendingTimerGameType: Binding<GameType?> = .constant(nil)) {
         _pendingTimerGameType = pendingTimerGameType
@@ -37,7 +39,7 @@ struct TimerTab: View {
                 }
                 .padding(.horizontal, Theme.padding)
                 .padding(.top, Theme.md)
-                .padding(.bottom, Theme.lg)
+                .padding(.bottom, Theme.lg + 56)
             }
             .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_timer", value: "计时", comment: "Timer tab"))
@@ -80,7 +82,7 @@ struct TimerTab: View {
                         pendingDualTimerDest = nil
                     }
                 )
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.height(560), .large])
                 .presentationDragIndicator(.visible)
             }
         }
@@ -115,7 +117,13 @@ struct TimerTab: View {
                         .padding(.vertical, Theme.md)
                         .frame(maxWidth: .infinity)
                         .frame(minHeight: 92)
-                        .background(.ultraThinMaterial)
+                        .background {
+                            if colorScheme == .light {
+                                Color.white
+                            } else {
+                                Rectangle().fill(.ultraThinMaterial)
+                            }
+                        }
                         .cornerRadius(Theme.cornerRadius)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -137,6 +145,8 @@ struct TimerTab: View {
             DualPlayerTimerView(gameType: .xiangqi, config: xiangqiTimerConfig)
         case .chess:
             DualPlayerTimerView(gameType: .chess, config: chessTimerConfig)
+        case .checkers:
+            DualPlayerTimerView(gameType: .checkers, config: checkersTimerConfig)
         case .cube:
             CubeTimerView()
         case .timeout:
@@ -152,6 +162,8 @@ struct TimerTab: View {
             return .xiangqi
         case .chess:
             return .chess
+        case .checkers:
+            return .checkers
         default:
             return .stopwatch
         }
@@ -165,6 +177,8 @@ struct TimerTab: View {
             return xiangqiTimerConfig
         case .chess:
             return chessTimerConfig
+        case .checkers:
+            return checkersTimerConfig
         default:
             return BoardTimerConfig.default(for: .go)
         }
@@ -178,6 +192,8 @@ struct TimerTab: View {
             xiangqiTimerConfig = config
         case .chess:
             chessTimerConfig = config
+        case .checkers:
+            checkersTimerConfig = config
         default:
             break
         }

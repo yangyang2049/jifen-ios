@@ -31,6 +31,138 @@ public struct ScoreAction: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+/// Cross-project action vocabulary used by record schema v4.  The legacy
+/// `ScoreAction` remains intentionally small for transport compatibility;
+/// this model carries the information needed to rebuild a trustworthy recap.
+public enum DetailedScoreActionType: String, Codable, Sendable {
+    case matchStarted
+    case scoreChanged
+    case setFinished
+    case roundFinished
+    case periodFinished
+    case matchFinished
+    case undo
+    case reset
+    case sideChanged
+    case serveChanged
+    case foul
+    case timeout
+    case stateChanged
+}
+
+public enum RecordTeam: String, Codable, CaseIterable, Sendable {
+    case team1
+    case team2
+    case team3
+    case team4
+}
+
+public struct ParticipantScoreSnapshot: Codable, Equatable, Sendable {
+    public let id: String
+    public let name: String
+    public let score: Int
+    public let rank: Int?
+    public let role: String?
+
+    public init(id: String, name: String, score: Int, rank: Int? = nil, role: String? = nil) {
+        self.id = id
+        self.name = name
+        self.score = score
+        self.rank = rank
+        self.role = role
+    }
+}
+
+public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
+    public let id: UUID
+    public let type: DetailedScoreActionType
+    /// Nil for imported actions whose original record did not contain time.
+    public let epochMilliseconds: Int64?
+    public let team: RecordTeam?
+    /// Up to four side scores after the accepted operation.
+    public let scores: [Int]
+    /// Up to four set/game scores after the accepted operation.
+    public let setScores: [Int]
+    public let setNumber: Int?
+    public let gameNumber: Int?
+    public let roundNumber: Int?
+    public let periodNumber: Int?
+    public let scoreChange: Int?
+    public let winner: RecordTeam?
+    public let loser: RecordTeam?
+    public let landlord: RecordTeam?
+    public let participants: [ParticipantScoreSnapshot]
+    /// Stable project-specific operation code such as `snooker_foul_4`.
+    public let operationCode: String?
+    public let summary: String?
+
+    public init(
+        id: UUID = UUID(),
+        type: DetailedScoreActionType,
+        epochMilliseconds: Int64? = nil,
+        team: RecordTeam? = nil,
+        scores: [Int] = [],
+        setScores: [Int] = [],
+        setNumber: Int? = nil,
+        gameNumber: Int? = nil,
+        roundNumber: Int? = nil,
+        periodNumber: Int? = nil,
+        scoreChange: Int? = nil,
+        winner: RecordTeam? = nil,
+        loser: RecordTeam? = nil,
+        landlord: RecordTeam? = nil,
+        participants: [ParticipantScoreSnapshot] = [],
+        operationCode: String? = nil,
+        summary: String? = nil
+    ) {
+        self.id = id
+        self.type = type
+        self.epochMilliseconds = epochMilliseconds
+        self.team = team
+        self.scores = Array(scores.prefix(4))
+        self.setScores = Array(setScores.prefix(4))
+        self.setNumber = setNumber
+        self.gameNumber = gameNumber
+        self.roundNumber = roundNumber
+        self.periodNumber = periodNumber
+        self.scoreChange = scoreChange
+        self.winner = winner
+        self.loser = loser
+        self.landlord = landlord
+        self.participants = participants
+        self.operationCode = operationCode
+        self.summary = summary
+    }
+}
+
+public struct RecordSetResult: Codable, Equatable, Identifiable, Sendable {
+    public let id: UUID
+    public let number: Int
+    public let titleCode: String?
+    public let scores: [Int]
+    public let winner: RecordTeam?
+    public let startedAtEpochMilliseconds: Int64?
+    public let finishedAtEpochMilliseconds: Int64?
+
+    public init(
+        id: UUID = UUID(),
+        number: Int,
+        titleCode: String? = nil,
+        scores: [Int],
+        winner: RecordTeam? = nil,
+        startedAtEpochMilliseconds: Int64? = nil,
+        finishedAtEpochMilliseconds: Int64? = nil
+    ) {
+        self.id = id
+        self.number = number
+        self.titleCode = titleCode
+        self.scores = Array(scores.prefix(4))
+        self.winner = winner
+        self.startedAtEpochMilliseconds = startedAtEpochMilliseconds
+        self.finishedAtEpochMilliseconds = finishedAtEpochMilliseconds
+    }
+}
+
 public struct TwoSideRecordPayload: Codable, Equatable, Sendable {
     public let leftName: String
     public let rightName: String

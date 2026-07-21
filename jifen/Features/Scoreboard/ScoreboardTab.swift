@@ -32,7 +32,7 @@ struct ScoreboardTab: View {
                     }
                     .padding(.horizontal, Theme.padding)
                     .padding(.top, Theme.md)
-                    .padding(.bottom, Theme.lg)
+                    .padding(.bottom, Theme.lg + 56)
                 }
                 .background(Theme.backgroundColor)
             }
@@ -51,10 +51,10 @@ struct ScoreboardTab: View {
                 .toolbar(.hidden, for: .tabBar)
             }
             .overlay {
-                CenteredSetupDialogPresenter(item: $pendingSetupSport) { sport, dismiss, maxContentHeight in
+                CenteredSetupDialogPresenter(item: $pendingSetupSport) { sport, dismiss, maxDialogHeight in
                     scoreboardSetupDialog(
                         for: sport,
-                        maxContentHeight: maxContentHeight,
+                        maxDialogHeight: maxDialogHeight,
                         onConfirm: { result in
                             appliedSetupResult = result
                             appliedSetupGameType = sport.gameType
@@ -158,90 +158,12 @@ struct ScoreboardTab: View {
         onSetupConsumed: @escaping () -> Void = {},
         onBack: @escaping () -> Void = {}
     ) -> some View {
-        switch gameType {
-        case .pingpong:
-            PingPongScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .badminton:
-            BadmintonScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .tennis:
-            TennisScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .basketball:
-            BasketballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .threeBasketball:
-            BasketballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: threeBasketballSetup(from: setupResult), onSetupConsumed: onSetupConsumed)
-        case .football:
-            FootballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .volleyball:
-            VolleyballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .beachVolleyball:
-            VolleyballScoreboardView(variant: .beachVolleyball, showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .airVolleyball:
-            VolleyballScoreboardView(variant: .airVolleyball, showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-        case .archery:
-            ArcheryScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: nil,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: onBack
-            )
-        case .boxing:
-            BoxingScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: nil,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: onBack
-            )
-        case .billiards:
-            BilliardsScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .eightBall:
-            EightBallScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .nineBall:
-            NineBallChaseScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .snooker:
-            SnookerReducerScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .pickleball:
-            PickleballScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .guandan:
-            GuandanScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .doudizhu:
-            DoudizhuScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .shengji:
-            ShengjiReducerScoreboardView(initialSetup: setupResult, initialRecordId: nil, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .uno:
-            MultiScoreboardView(
-                gameType: .uno,
-                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.unoPlayerCount,
-                targetScore: setupResult?.targetScore ?? PreferencesManager.shared.unoTargetScore,
-                initialSetup: setupResult,
-                initialRecordId: nil,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: onBack
-            )
-        case .foosball:
-            FoosballScoreboardView(
-                showBackButton: false,
-                onNavigationBack: onBack,
-                initialSetup: setupResult,
-                initialRecordId: nil,
-                onSetupConsumed: onSetupConsumed
-            )
-        case .simpleScore:
-            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        case .multiScoreboard:
-            MultiScoreboardView(
-                gameType: .multiScoreboard,
-                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.multiScoreboardPlayerCount,
-                initialSetup: setupResult,
-                initialRecordId: nil,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: onBack
-            )
-        case .counter:
-            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
-        default:
-            Text(NSLocalizedString("not_implemented", comment: ""))
-                .foregroundColor(Theme.textPrimary)
-        }
+        ScoreboardLaunchView(
+            gameType: gameType,
+            setupResult: setupResult,
+            onSetupConsumed: onSetupConsumed,
+            onBack: onBack
+        )
     }
 
     private func navigateToSportAfterSetupDismiss(_ sport: ScoreboardCatalogItem) {
@@ -261,13 +183,13 @@ struct ScoreboardTab: View {
     @ViewBuilder
     private func scoreboardSetupDialog(
         for sport: ScoreboardCatalogItem,
-        maxContentHeight: CGFloat,
+        maxDialogHeight: CGFloat,
         onConfirm: @escaping (SportsSetupResult) -> Void,
         onCancel: @escaping () -> Void
     ) -> some View {
         if sport.gameType == .nineBall {
             NineBallSetupDialogView(
-                maxContentHeight: maxContentHeight,
+                maxDialogHeight: maxDialogHeight,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )
@@ -282,7 +204,7 @@ struct ScoreboardTab: View {
                 titleEmoji: sport.emoji,
                 titleKey: localizationKey(for: sport.gameType),
                 titleFallback: sport.title,
-                maxContentHeight: maxContentHeight,
+                maxDialogHeight: maxDialogHeight,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )
@@ -295,7 +217,7 @@ struct ScoreboardTab: View {
                 initialMaxSets: nil,
                 initialPointsPerSet: nil,
                 initialTieBreakPoints: nil,
-                maxContentHeight: maxContentHeight,
+                maxDialogHeight: maxDialogHeight,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )
@@ -313,12 +235,6 @@ struct ScoreboardTab: View {
         case .multiScoreboard: return PreferencesManager.shared.multiScoreboardPlayerCount
         default: return 4
         }
-    }
-
-    private func threeBasketballSetup(from setup: SportsSetupResult?) -> SportsSetupResult {
-        var result = setup ?? SportsSetupResult(team1Name: "", team2Name: "")
-        result.basketballMode = "three_x_three"
-        return result
     }
 
     private func localizationKey(for gameType: GameType) -> String {
@@ -339,6 +255,8 @@ struct SportCardView: View {
     let sport: ScoreboardCatalogItem
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: {
             VibrationManager.shared.vibrateLight()
@@ -357,7 +275,13 @@ struct SportCardView: View {
             .padding(.vertical, Theme.md)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 92)
-            .background(.ultraThinMaterial)
+            .background {
+                if colorScheme == .light {
+                    Color.white
+                } else {
+                    Rectangle().fill(.ultraThinMaterial)
+                }
+            }
             .cornerRadius(Theme.cornerRadius)
         }
         .buttonStyle(PlainButtonStyle())

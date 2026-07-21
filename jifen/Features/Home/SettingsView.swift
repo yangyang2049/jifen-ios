@@ -1,3 +1,4 @@
+import PersistenceCore
 import StoreKit
 import SwiftUI
 
@@ -90,10 +91,12 @@ struct SettingsView: View {
                     Button(mode.localizedTitle) { appearance.mode = mode }
                 }
             }
+            .tint(showAppearancePicker ? Color.primary : Theme.accentColor)
             .alert(NSLocalizedString("clear_data", comment: ""), isPresented: $showClearConfirm) {
                 Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
                 Button(NSLocalizedString("clear_data", comment: ""), role: .destructive) {
                     ScoreboardRecordManager.shared.clearAllRecords()
+                    Task { try? await SessionArchiveRepository().clear() }
                     _ = TimerRecordManager.shared.clearAllRecords()
                     _ = LocalBookingManager.shared.clearAllBookings()
                     CommonNamesManager.shared.clearNames(type: .team)

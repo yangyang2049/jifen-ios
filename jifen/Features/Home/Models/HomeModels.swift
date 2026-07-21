@@ -125,6 +125,8 @@ struct SportsSetupResult: Codable, Hashable {
     var matchCompletionMode: MatchCompletionMode? = nil
     var pointsPerSet: Int? = nil
     var tieBreakPoints: Int? = nil
+    var gamesPerSet: Int? = nil // Tennis traditional format: 4 or 6
+    var setScoringMode: String? = nil // "regular" or "tiebreak_only"
     var autoChangeSides: Bool? = nil // autoChangeSides (Pingpong, Tennis, Badminton, Volleyball)
     var isSingles: Bool? = nil // 乒乓球/羽毛球/网球：true=单打，false=双打
     var team1Player1Name: String? = nil

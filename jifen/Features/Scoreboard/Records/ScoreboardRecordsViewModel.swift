@@ -1,41 +1,20 @@
 import Foundation
 import SwiftUI
-import Combine // Import Combine for ObservableObject and Published
+import Observation
 
-// Remove @Observable and conform to ObservableObject
-final class ScoreboardRecordsViewModel: ObservableObject { // Add final and ObservableObject
+@Observable
+final class ScoreboardRecordsViewModel {
     static let shared = ScoreboardRecordsViewModel()
     
-    @Published var records: [ScoreboardRecordSummary] = [] // Add @Published
-    @Published private(set) var groupedRecords: [ScoreboardRecordGroup] = [] // Add @Published
-    @Published private(set) var isLoading: Bool = false // Add @Published
+    var records: [ScoreboardRecordSummary] = []
+    private(set) var groupedRecords: [ScoreboardRecordGroup] = []
+    private(set) var isLoading: Bool = false
     
-    private var listeners: [UUID: () -> Void] = [:]
     private var lastRefreshTime: TimeInterval = 0
     private let refreshDebounceTime: TimeInterval = 1.0 // 1秒防抖
     
     private init() {
         loadRecordsInBackground()
-    }
-    
-    // MARK: - Listener Management
-    // With @Published, listeners might not be strictly necessary for SwiftUI views,
-    // but they can be kept for other parts of the app or specific use cases.
-    func addListener(_ listener: @escaping () -> Void) -> UUID {
-        let id = UUID()
-        listeners[id] = listener
-        return id
-    }
-    
-    func removeListener(_ id: UUID) {
-        listeners.removeValue(forKey: id)
-    }
-    
-    private func notifyListeners() {
-        // This will be handled automatically by @Published,
-        // but if there are non-SwiftUI consumers of this ViewModel,
-        // these listeners might still be relevant.
-        listeners.values.forEach { $0() }
     }
     
     // MARK: - Refresh Records

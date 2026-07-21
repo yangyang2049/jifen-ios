@@ -28,81 +28,32 @@ struct QuickStartEditView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                GeometryReader { geo in
-                    ScrollView {
-                        VStack(spacing: Theme.md) {
-                            // Primary Selection
-                            VStack(alignment: .leading, spacing: Theme.sm) {
-                                HStack(spacing: Theme.sm) {
-                                    Text("1")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Theme.textOnPrimary)
-                                        .frame(width: 20, height: 20)
-                                        .background(Theme.homePrimaryCardOrange)
-                                        .cornerRadius(10)
+        NavigationStack {
+            GeometryReader { geo in
+                ScrollView {
+                    VStack(spacing: Theme.md) {
+                        sportSection(
+                            badge: "1",
+                            badgeColor: Theme.homePrimaryCardOrange,
+                            title: NSLocalizedString("home_edit_primary_card", comment: "Customize primary card title"),
+                            selection: $selectedPrimary,
+                            containerWidth: geo.size.width - Theme.lg * 2
+                        )
 
-                                    Text(NSLocalizedString("home_edit_primary_card", comment: "Customize primary card title"))
-                                        .font(.system(size: Theme.fontBody1, weight: .medium))
-                                        .foregroundColor(Theme.textPrimary)
-
-                                    Spacer()
-                                }
-                                .padding(.vertical, Theme.sm)
-
-                                LazyVGrid(columns: GameTypeGridLayout.columns(containerWidth: geo.size.width), spacing: GameTypeGridLayout.spacing) {
-                                    ForEach(Self.editDialogSports, id: \.self) { sport in
-                                        SportOptionView(
-                                            sport: sport,
-                                            isSelected: selectedPrimary == sport,
-                                            onClickOption: {
-                                                selectedPrimary = sport
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                            // Secondary Selection
-                            VStack(alignment: .leading, spacing: Theme.sm) {
-                                HStack(spacing: Theme.sm) {
-                                    Text("2")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Theme.textOnPrimary)
-                                        .frame(width: 20, height: 20)
-                                        .background(Theme.homeSecondaryCardBlue)
-                                        .cornerRadius(10)
-
-                                    Text(NSLocalizedString("home_edit_secondary_card", comment: "Customize secondary card title"))
-                                        .font(.system(size: Theme.fontBody1, weight: .medium))
-                                        .foregroundColor(Theme.textPrimary)
-
-                                    Spacer()
-                                }
-                                .padding(.vertical, Theme.sm)
-
-                                LazyVGrid(columns: GameTypeGridLayout.columns(containerWidth: geo.size.width), spacing: GameTypeGridLayout.spacing) {
-                                    ForEach(Self.editDialogSports, id: \.self) { sport in
-                                        SportOptionView(
-                                            sport: sport,
-                                            isSelected: selectedSecondary == sport,
-                                            onClickOption: {
-                                                selectedSecondary = sport
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding(.horizontal, Theme.lg)
-                        .padding(.vertical, Theme.md)
+                        sportSection(
+                            badge: "2",
+                            badgeColor: Theme.homeSecondaryCardBlue,
+                            title: NSLocalizedString("home_edit_secondary_card", comment: "Customize secondary card title"),
+                            selection: $selectedSecondary,
+                            containerWidth: geo.size.width - Theme.lg * 2
+                        )
                     }
+                    .padding(.horizontal, Theme.lg)
+                    .padding(.vertical, Theme.md)
                 }
-
-                // Save Button - fixed at bottom
+            }
+            .background(Theme.backgroundColor)
+            .safeAreaInset(edge: .bottom) {
                 Button(action: {
                     onSave?(selectedPrimary, selectedSecondary)
                     dismiss()
@@ -118,9 +69,12 @@ struct QuickStartEditView: View {
                 .padding(.horizontal, Theme.lg)
                 .padding(.top, Theme.sm)
                 .padding(.bottom, Theme.lg)
+                .background(Theme.backgroundColor)
             }
             .navigationTitle(NSLocalizedString("home_quick_start", comment: "Quick Start"))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Theme.backgroundColor, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { dismiss() }) {
@@ -132,5 +86,45 @@ struct QuickStartEditView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.backgroundColor)
+    }
+
+    private func sportSection(
+        badge: String,
+        badgeColor: Color,
+        title: String,
+        selection: Binding<GameType>,
+        containerWidth: CGFloat
+    ) -> some View {
+        VStack(alignment: .leading, spacing: Theme.sm) {
+            HStack(spacing: Theme.sm) {
+                Text(badge)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(Theme.textOnPrimary)
+                    .frame(width: 20, height: 20)
+                    .background(badgeColor)
+                    .cornerRadius(10)
+
+                Text(title)
+                    .font(.system(size: Theme.fontBody1, weight: .medium))
+                    .foregroundColor(Theme.textPrimary)
+
+                Spacer()
+            }
+            .padding(.vertical, Theme.sm)
+
+            LazyVGrid(columns: GameTypeGridLayout.columns(containerWidth: containerWidth), spacing: GameTypeGridLayout.spacing) {
+                ForEach(Self.editDialogSports, id: \.self) { sport in
+                    SportOptionView(
+                        sport: sport,
+                        isSelected: selection.wrappedValue == sport,
+                        onClickOption: {
+                            selection.wrappedValue = sport
+                        }
+                    )
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

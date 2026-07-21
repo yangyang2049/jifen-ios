@@ -8,6 +8,22 @@ private struct SetupDialogContentHeightPreferenceKey: PreferenceKey {
     }
 }
 
+private struct SetupDialogHeaderHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct SetupDialogActionsHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 /// 内容较少时按实际高度收紧，内容较多时限制到可用高度并保持滚动。
 struct AdaptiveSetupDialogScrollView<Content: View>: View {
     let maxHeight: CGFloat
@@ -26,8 +42,9 @@ struct AdaptiveSetupDialogScrollView<Content: View>: View {
     }
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
+        ScrollView(.vertical, showsIndicators: measuredContentHeight > maxHeight + 1) {
             content
+                .fixedSize(horizontal: false, vertical: true)
                 .background {
                     GeometryReader { proxy in
                         Color.clear.preference(
@@ -47,22 +64,93 @@ struct AdaptiveSetupDialogScrollView<Content: View>: View {
     }
 }
 
+/// 分别测量标题和操作区，剩余高度才交给可滚动内容，避免用固定预留值猜测高度。
+struct AdaptiveSetupDialogLayout<Header: View, DialogContent: View, Actions: View>: View {
+    let maxHeight: CGFloat
+    private let header: Header
+    private let dialogContent: (CGFloat) -> DialogContent
+    private let actions: Actions
+
+    @State private var measuredHeaderHeight: CGFloat = 56
+    @State private var measuredActionsHeight: CGFloat = 88
+
+    init(
+        maxHeight: CGFloat,
+        @ViewBuilder header: () -> Header,
+        @ViewBuilder content: @escaping (CGFloat) -> DialogContent,
+        @ViewBuilder actions: () -> Actions
+    ) {
+        self.maxHeight = maxHeight
+        self.header = header()
+        self.dialogContent = content
+        self.actions = actions()
+    }
+
+    private var maxScrollableContentHeight: CGFloat {
+        max(80, maxHeight - measuredHeaderHeight - measuredActionsHeight)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            header
+                .background {
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: SetupDialogHeaderHeightPreferenceKey.self,
+                            value: proxy.size.height
+                        )
+                    }
+                }
+
+            dialogContent(maxScrollableContentHeight)
+
+            actions
+                .background {
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: SetupDialogActionsHeightPreferenceKey.self,
+                            value: proxy.size.height
+                        )
+                    }
+                }
+        }
+        .onPreferenceChange(SetupDialogHeaderHeightPreferenceKey.self) { height in
+            updateMeasuredHeight(height, current: measuredHeaderHeight) {
+                measuredHeaderHeight = $0
+            }
+        }
+        .onPreferenceChange(SetupDialogActionsHeightPreferenceKey.self) { height in
+            updateMeasuredHeight(height, current: measuredActionsHeight) {
+                measuredActionsHeight = $0
+            }
+        }
+    }
+
+    private func updateMeasuredHeight(
+        _ height: CGFloat,
+        current: CGFloat,
+        update: (CGFloat) -> Void
+    ) {
+        guard height > 0 else { return }
+        let roundedHeight = ceil(height)
+        guard abs(current - roundedHeight) > 0.5 else { return }
+        update(roundedHeight)
+    }
+}
+
 /// 居中 Setup Dialog 壳：遮罩独立淡入，卡片 scale-up。
 /// 用 overlay 展示，避免 fullScreenCover 自下而上的系统动画。
 struct CenteredSetupDialogContainer<Content: View>: View {
     var allowsBackdropDismiss: Bool = true
     var onBackdropTap: () -> Void
-    @ViewBuilder var content: (_ maxContentHeight: CGFloat) -> Content
+    @ViewBuilder var content: (_ maxDialogHeight: CGFloat) -> Content
 
     @State private var appeared = false
 
     private let animation = Animation.easeOut(duration: 0.2)
-    private let headerAndActionsReserve: CGFloat = 160
-
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
-            let maxContentHeight = max(120, cardMaxHeight - headerAndActionsReserve)
 
             ZStack {
                 Color.black.opacity(0.48)
@@ -74,9 +162,9 @@ struct CenteredSetupDialogContainer<Content: View>: View {
                         onBackdropTap()
                     }
 
-                content(maxContentHeight)
+                content(cardMaxHeight)
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(width: min(340, proxy.size.width - 32))
-                    .frame(maxHeight: cardMaxHeight)
                     .background(Theme.homeDialogBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .shadow(color: .black.opacity(0.28), radius: 28, y: 12)
@@ -99,19 +187,16 @@ struct CenteredSetupDialogContainer<Content: View>: View {
 struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
     @Binding var item: Item?
     var allowsBackdropDismiss: Bool = true
-    @ViewBuilder var content: (_ item: Item, _ dismiss: @escaping () -> Void, _ maxContentHeight: CGFloat) -> Content
+    @ViewBuilder var content: (_ item: Item, _ dismiss: @escaping () -> Void, _ maxDialogHeight: CGFloat) -> Content
 
     @State private var visibleItem: Item?
     @State private var appeared = false
 
     private let animation = Animation.easeOut(duration: 0.2)
     private let dismissDuration: TimeInterval = 0.18
-    private let headerAndActionsReserve: CGFloat = 160
-
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
-            let maxContentHeight = max(120, cardMaxHeight - headerAndActionsReserve)
 
             ZStack {
                 if let visibleItem {
@@ -124,9 +209,9 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
                             requestDismiss()
                         }
 
-                    content(visibleItem, requestDismiss, maxContentHeight)
+                    content(visibleItem, requestDismiss, cardMaxHeight)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(width: min(340, proxy.size.width - 32))
-                        .frame(maxHeight: cardMaxHeight)
                         .background(Theme.homeDialogBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                         .shadow(color: .black.opacity(0.28), radius: 28, y: 12)

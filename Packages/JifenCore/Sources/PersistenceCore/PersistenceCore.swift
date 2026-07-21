@@ -96,3 +96,79 @@ public actor SessionArchiveIndex {
         try await store.save(allEntries)
     }
 }
+
+/// Single persistence gateway for v2 score sessions. New sessions write only
+/// through this repository; legacy v1 records remain a read-only migration source.
+public actor SessionArchiveRepository {
+    public let rootURL: URL
+    private let index: SessionArchiveIndex
+
+    public init(rootURL: URL = SessionArchiveRepository.defaultRootURL()) {
+        self.rootURL = rootURL
+        index = SessionArchiveIndex(fileURL: rootURL.appendingPathComponent("session-index.json"))
+    }
+
+    public static func defaultRootURL() -> URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("jifen-v2", isDirectory: true)
+    }
+
+    public static func snapshotURL(sessionId: UUID, rootURL: URL = defaultRootURL()) -> URL {
+        rootURL
+            .appendingPathComponent("sessions", isDirectory: true)
+            .appendingPathComponent("\(sessionId.uuidString).json")
+    }
+
+    public func save<State: Codable & Sendable, Event: Codable & Sendable>(
+        _ session: ScoreSession<State, Event>,
+        source: RecordSource = .phoneLocal,
+        updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1_000)
+    ) async throws {
+        let snapshotPath = "sessions/\(session.sessionId.uuidString).json"
+        let store = AtomicJSONFileStore<ScoreSession<State, Event>>(
+            fileURL: rootURL.appendingPathComponent(snapshotPath)
+        )
+        try await store.save(session)
+        try await index.upsert(.init(
+            sessionId: session.sessionId,
+            gameType: session.gameType,
+            source: source,
+            snapshotPath: snapshotPath,
+            participants: session.participants,
+            status: session.status,
+            updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
+        ))
+    }
+
+    public func load<State: Codable & Sendable, Event: Codable & Sendable>(
+        sessionId: UUID,
+        as type: ScoreSession<State, Event>.Type = ScoreSession<State, Event>.self
+    ) async throws -> ScoreSession<State, Event>? {
+        try await AtomicJSONFileStore<ScoreSession<State, Event>>(
+            fileURL: Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
+        ).load()
+    }
+
+    public func entries() async throws -> [SessionArchiveEntry] {
+        try await index.entries()
+    }
+
+    public func liveEntries() async throws -> [SessionArchiveEntry] {
+        try await entries().filter { $0.status == .live }
+    }
+
+    public func remove(sessionId: UUID) async throws {
+        let url = Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
+        if FileManager.default.fileExists(atPath: url.path) {
+            try FileManager.default.removeItem(at: url)
+        }
+        try await index.remove(sessionId: sessionId)
+    }
+
+    public func clear() async throws {
+        let allEntries = try await entries()
+        for entry in allEntries {
+            try await remove(sessionId: entry.sessionId)
+        }
+    }
+}

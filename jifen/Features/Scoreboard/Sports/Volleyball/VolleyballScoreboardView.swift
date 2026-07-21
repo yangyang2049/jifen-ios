@@ -42,7 +42,6 @@ struct VolleyballScoreboardView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .landscapeLeft) {
     VolleyballScoreboardView()
-        .previewInterfaceOrientation(.landscapeLeft)
 }

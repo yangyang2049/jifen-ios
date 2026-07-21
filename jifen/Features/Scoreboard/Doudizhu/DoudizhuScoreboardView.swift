@@ -45,6 +45,7 @@ struct DoudizhuScoreboardView: View {
     @State private var selectedMultiplierPower = 0 // 0番=1倍 … 5番=32倍
     @State private var selectedWinners = [false, false, false]
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var preferences = PreferencesManager.shared
     @State private var gameFinished = false
     @State private var showGameFinishedOverlay = false
     @State private var showDisplaySettings = false
@@ -224,7 +225,7 @@ struct DoudizhuScoreboardView: View {
             ScoreboardDisplaySettingsView(gameType: .doudizhu)
         }
         .sheet(isPresented: $showLocalSync) { LocalSyncView() }
-        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
+        .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
         }
     }

@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import ScoreCore
 
 @Observable
 class BoxingViewModel: BaseScoreViewModel {
+    private let reducer = BoxingMatchReducer()
     var currentRound: Int = 1
     var maxRounds: Int = 3
     private var fullStateHistory: [BoxingState] = []
@@ -31,23 +33,11 @@ class BoxingViewModel: BaseScoreViewModel {
     func addRoundScore(leftPoints: Int, rightPoints: Int) {
         guard !gameFinished, currentRound <= maxRounds else { return }
         saveFullStateToHistory()
+        let result = reduce(.submitRound(left: leftPoints, right: rightPoints))
+        guard result.accepted else { _ = fullStateHistory.popLast(); return }
+        apply(result.state)
 
-        let left = max(0, leftPoints)
-        let right = max(0, rightPoints)
-
-        leftTeam.score += left
-        rightTeam.score += right
-        if left > right {
-            leftTeam.sets = (leftTeam.sets ?? 0) + 1
-        } else if right > left {
-            rightTeam.sets = (rightTeam.sets ?? 0) + 1
-        }
-        currentRound += 1
-        if currentRound > maxRounds {
-            gameFinished = true
-        }
-
-        controller?.recordScoreAction(action: "round \(left)-\(right)")
+        controller?.recordScoreAction(action: "round \(max(0, leftPoints))-\(max(0, rightPoints))")
         controller?.performVibration(type: .medium)
     }
 
@@ -113,25 +103,22 @@ class BoxingViewModel: BaseScoreViewModel {
 
     func adjustSets(isLeft: Bool, delta: Int) {
         saveFullStateToHistory()
-        if isLeft {
-            let v = (leftTeam.sets ?? 0) + delta
-            leftTeam.sets = max(0, v)
-        } else {
-            let v = (rightTeam.sets ?? 0) + delta
-            rightTeam.sets = max(0, v)
-        }
+        apply(reduce(.adjust(
+            leftTotal: leftTeam.score,
+            rightTotal: rightTeam.score,
+            currentRound: currentRound,
+            leftRoundsWon: max(0, (leftTeam.sets ?? 0) + (isLeft ? delta : 0)),
+            rightRoundsWon: max(0, (rightTeam.sets ?? 0) + (isLeft ? 0 : delta))
+        )).state)
         controller?.recordScoreAction(action: (isLeft ? "left" : "right") + " sets \(delta > 0 ? "+" : "")\(delta)")
     }
 
     override func addScore(isLeft: Bool, points: Int) {
         guard !gameFinished else { return }
         saveFullStateToHistory()
-
-        if isLeft {
-            leftTeam.score += points
-        } else {
-            rightTeam.score += points
-        }
+        let result = reduce(.addPoints(side: isLeft ? .left : .right, points: points))
+        guard result.accepted else { _ = fullStateHistory.popLast(); return }
+        apply(result.state)
         controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") +\(points)")
         controller?.performVibration(type: .medium)
     }
@@ -139,31 +126,21 @@ class BoxingViewModel: BaseScoreViewModel {
     override func subtractScore(isLeft: Bool, points: Int) {
         guard !gameFinished else { return }
         saveFullStateToHistory()
-
-        if isLeft {
-            leftTeam.score = max(0, leftTeam.score - points)
-        } else {
-            rightTeam.score = max(0, rightTeam.score - points)
-        }
+        let result = reduce(.adjust(
+            leftTotal: max(0, leftTeam.score - (isLeft ? points : 0)),
+            rightTotal: max(0, rightTeam.score - (isLeft ? 0 : points)),
+            currentRound: currentRound,
+            leftRoundsWon: leftTeam.sets ?? 0,
+            rightRoundsWon: rightTeam.sets ?? 0
+        ))
+        apply(result.state)
         controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") -\(points)")
         controller?.performVibration(type: .light)
     }
 
     override func exchangeSides() {
         saveFullStateToHistory()
-
-        let tempName = leftTeam.name
-        let tempScore = leftTeam.score
-        let tempSets = leftTeam.sets
-
-        leftTeam.name = rightTeam.name
-        leftTeam.score = rightTeam.score
-        leftTeam.sets = rightTeam.sets
-
-        rightTeam.name = tempName
-        rightTeam.score = tempScore
-        rightTeam.sets = tempSets
-
+        apply(reduce(.exchangeSides).state)
         controller?.performVibration(type: .medium)
     }
 
@@ -184,14 +161,13 @@ class BoxingViewModel: BaseScoreViewModel {
 
     override func reset() {
         saveFullStateToHistory()
-        leftTeam.score = 0
-        rightTeam.score = 0
-        leftTeam.sets = 0
-        rightTeam.sets = 0
-        currentRound = 1
-        gameFinished = false
+        apply(reduce(.reset).state)
         controller?.clearHistory()
         fullStateHistory.removeAll()
+    }
+
+    override func endGame() {
+        apply(reduce(.finish).state)
     }
 
     private func saveFullStateToHistory() {
@@ -214,5 +190,35 @@ class BoxingViewModel: BaseScoreViewModel {
             leftSets: leftTeam.sets,
             rightSets: rightTeam.sets
         )
+    }
+
+    private func reduce(_ intent: BoxingMatchIntent) -> ReduceResult<BoxingMatchState, BoxingMatchEvent> {
+        reducer.reduce(state: coreState, intent: intent, at: Int64(Date().timeIntervalSince1970 * 1_000))
+    }
+
+    private var coreState: BoxingMatchState {
+        .init(
+            leftName: leftTeam.name,
+            rightName: rightTeam.name,
+            maxRounds: maxRounds,
+            leftTotal: leftTeam.score,
+            rightTotal: rightTeam.score,
+            leftRoundsWon: leftTeam.sets ?? 0,
+            rightRoundsWon: rightTeam.sets ?? 0,
+            currentRound: currentRound,
+            finished: gameFinished
+        )
+    }
+
+    private func apply(_ state: BoxingMatchState) {
+        leftTeam.name = state.leftName
+        rightTeam.name = state.rightName
+        leftTeam.score = state.leftTotal
+        rightTeam.score = state.rightTotal
+        leftTeam.sets = state.leftRoundsWon
+        rightTeam.sets = state.rightRoundsWon
+        currentRound = state.currentRound
+        maxRounds = state.maxRounds
+        gameFinished = state.finished
     }
 }

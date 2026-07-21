@@ -147,6 +147,7 @@
 "game_football" = "足球";
 "game_volleyball" = "排球";
 "game_checkers" = "跳棋";
+"timer_checkers" = "国际跳棋";
 "game_boxing" = "拳击";
 "game_billiards" = "台球";
 "game_pickleball" = "匹克球";
@@ -211,6 +212,17 @@
 "tennis_set_option_best_of_5" = "5盘3胜";
 "tennis_tiebreak_option_7" = "抢七";
 "tennis_tiebreak_option_10" = "抢十";
+"tennis_format_label" = "赛制";
+"tennis_scoring_mode_regular" = "传统赛制";
+"tennis_scoring_mode_tiebreak_7" = "一盘抢七";
+"tennis_scoring_mode_tiebreak_10" = "一盘抢十";
+"tennis_games_per_set_label" = "每盘局数";
+"tennis_games_per_set_4" = "四局制";
+"tennis_games_per_set_6" = "六局制";
+"tennis_set_tiebreak_label" = "盘内抢分";
+"tennis_format_tiebreak_7" = "盘内抢七";
+"tennis_format_tiebreak_10" = "盘内抢十";
+"tennis_short_set_help" = "先到 4 局且领先 2 局，4-4 进入抢七";
 "points_11" = "11分";
 "points_21" = "21分";
 
@@ -337,6 +349,9 @@
 "place_fingers_on_blocks" = "请将手指放在方块上 (%d/%d)";
 "grouping_in_progress" = "正在分组...";
 "grouping_complete" = "分组完成！";
+"random_team_select_team_count" = "选择分组数量";
+"random_team_team_count_format" = "%d队";
+"random_team_reselect" = "重新选人数";
 
 /* Flip Coin Tool */
 "flip_coin_title" = "抛硬币";
@@ -395,6 +410,16 @@
 "enter_barrage_content" = "输入弹幕内容";
 "show" = "显示";
 "barrage_content" = "弹幕内容";
+"barrage_text_label" = "弹幕文字";
+"barrage_input_placeholder" = "输入要展示的内容";
+"barrage_font_size" = "字体大小";
+"barrage_scroll_speed" = "滚动速度";
+"barrage_text_color" = "文字颜色";
+"barrage_bg_color" = "背景颜色";
+"barrage_scroll_display" = "滚动显示";
+"barrage_static_display" = "静态显示";
+"barrage_scroll_mode" = "滚动";
+"barrage_static_mode" = "静态";
 
 /* Menu Dialog */
 "operations" = "操作";
@@ -831,3 +856,28 @@
 "scoreboard_key_point_volleyball_set" = "局点";
 "scoreboard_key_point_set" = "盘点";
 "scoreboard_key_point_match" = "赛点";
+"record_recap_set_format" = "第 %d 局";
+"record_recap_tennis_set_format" = "第 %d 盘";
+"record_recap_period_format" = "第 %d 节";
+"record_recap_round_format" = "第 %d 回合";
+"record_recap_frame_format" = "第 %d 局";
+"record_recap_full_match" = "全场事件";
+"record_recap_adjustments" = "调整明细";
+"record_final_ranking" = "最终排名";
+"score_trend" = "比分趋势";
+"record_recap" = "复盘";
+"record_details" = "明细";
+"record_detail_legacy_unavailable" = "旧记录缺少可靠的分局或时间信息，已降级显示比赛总览。";
+"record_unavailable" = "无法继续";
+"record_draft_cannot_restore" = "这条旧草稿没有可恢复的状态快照。";
+"record_set_score_format" = "局分 %d : %d";
+"record_score_changed" = "比分变化";
+"record_set_finished" = "本局结束";
+"record_round_finished" = "本回合结束";
+"record_period_finished" = "本节结束";
+"record_serve_changed" = "交换发球";
+"record_state_changed" = "状态变化";
+"continue_game" = "继续比赛";
+"play_again" = "再来一局";
+"unfinished" = "未结束";
+"finished" = "已结束";

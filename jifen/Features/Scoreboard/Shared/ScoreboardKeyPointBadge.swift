@@ -13,10 +13,9 @@ struct ScoreboardKeyPointBadgeLayer: View {
             if let status {
                 let screenSide = sidesSwapped ? status.side.opposite : status.side
                 let midX = proxy.size.width / 2
-                let anchorY: CGFloat = {
-                    guard let doublesTopRow else { return proxy.size.height / 2 }
-                    return doublesTopRow ? proxy.size.height / 6 : proxy.size.height * 5 / 6
-                }()
+                let largeWindow = min(proxy.size.width, proxy.size.height) >= 600
+                let innerGap: CGFloat = 12
+                let badgeHalfWidth: CGFloat = 28
                 Text(label(for: status.kind))
                     .font(.system(size: 12, weight: .heavy, design: .rounded))
                     .tracking(0.8)
@@ -24,8 +23,12 @@ struct ScoreboardKeyPointBadgeLayer: View {
                     .frame(width: 56, height: 28)
                     .background(background(for: status.kind), in: RoundedRectangle(cornerRadius: 7))
                     .position(
-                        x: screenSide == .left ? midX - 40 : midX + 40,
-                        y: anchorY - 42
+                        x: midX + (screenSide == .left ? -(innerGap + badgeHalfWidth) : innerGap + badgeHalfWidth),
+                        y: ScoreboardServeGeometry.keyPointBadgeCenterY(
+                            height: proxy.size.height,
+                            doublesTopRow: doublesTopRow,
+                            largeWindow: largeWindow
+                        )
                     )
             }
         }

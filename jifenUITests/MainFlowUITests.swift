@@ -125,6 +125,156 @@ final class MainFlowUITests: XCTestCase {
         runPlayAllSetup(appearance: "dark")
     }
 
+    func testNewTimerAndToolsParityFlow() {
+        var app = launchChineseApp()
+        defer { app.terminate() }
+
+        XCTAssertTrue(app.tabBars.buttons["计时"].waitForExistence(timeout: 8))
+        app.tabBars.buttons["计时"].tap()
+        let checkers = app.descendants(matching: .any)["timer_dest_checkers"]
+        XCTAssertTrue(checkers.waitForExistence(timeout: 5))
+        checkers.tap()
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "国际跳棋")).firstMatch.waitForExistence(timeout: 5))
+        addScreenshot("International checkers setup")
+
+        app.terminate()
+        app = launchChineseApp(arguments: ["-UITestOpenTools"])
+        XCTAssertTrue(openToolsList(in: app))
+        let randomTeam = app.descendants(matching: .any)["tool_card_random_team"]
+        XCTAssertTrue(randomTeam.waitForExistence(timeout: 5))
+        randomTeam.tap()
+        XCTAssertTrue(app.buttons["random_team_players_4"].waitForExistence(timeout: 5))
+        app.buttons["random_team_players_4"].tap()
+        XCTAssertTrue(app.buttons["模拟"].waitForExistence(timeout: 5))
+        addScreenshot("Random team - 4 players")
+
+        app.terminate()
+        app = launchChineseApp(arguments: ["-UITestOpenTools"])
+        XCTAssertTrue(openToolsList(in: app))
+        let barrage = app.descendants(matching: .any)["tool_card_fullscreen_barrage"]
+        XCTAssertTrue(barrage.waitForExistence(timeout: 5))
+        barrage.tap()
+        let message = app.textFields["barrage_message_field"]
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        message.tap()
+        message.typeText("加油！")
+        app.buttons["barrage_start_static"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["barrage_running"].waitForExistence(timeout: 5))
+        addScreenshot("Fullscreen barrage - static")
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(app.descendants(matching: .any)["barrage_running"].waitForExistence(timeout: 5))
+        addScreenshot("Fullscreen barrage - landscape")
+        XCUIDevice.shared.orientation = .portrait
+
+        app.terminate()
+        app = launchLocalizedApp(language: "en", locale: "en_US", appearance: "dark")
+        XCTAssertTrue(app.tabBars.buttons["Timer"].waitForExistence(timeout: 8))
+        app.tabBars.buttons["Timer"].tap()
+        let englishCheckers = app.descendants(matching: .any)["timer_dest_checkers"]
+        XCTAssertTrue(englishCheckers.waitForExistence(timeout: 5))
+        englishCheckers.tap()
+        addScreenshot("International checkers setup - English dark")
+
+        app.terminate()
+        app = launchLocalizedApp(language: "en", locale: "en_US", appearance: "dark", arguments: ["-UITestOpenTools"])
+        XCTAssertTrue(openToolsList(in: app))
+        app.descendants(matching: .any)["tool_card_random_team"].tap()
+        let fourPlayers = app.buttons["random_team_players_4"]
+        XCTAssertTrue(fourPlayers.waitForExistence(timeout: 5))
+        fourPlayers.tap()
+        XCTAssertTrue(app.buttons["Simulate"].waitForExistence(timeout: 5))
+        addScreenshot("Random team - English dark")
+
+        app.terminate()
+        app = launchLocalizedApp(language: "en", locale: "en_US", appearance: "dark", arguments: ["-UITestOpenTools"])
+        XCTAssertTrue(openToolsList(in: app))
+        app.descendants(matching: .any)["tool_card_fullscreen_barrage"].tap()
+        XCTAssertTrue(app.textFields["barrage_message_field"].waitForExistence(timeout: 5))
+        addScreenshot("Fullscreen barrage editor - English dark")
+    }
+
+    func testAll23RecordDetailFixturesUseProjectMatrix() {
+        defer { clearRecordFixtures() }
+        let trendProjects: Set<String> = [
+            "pingpong", "badminton", "pickleball", "basketball", "three_basketball",
+            "volleyball", "beach_volleyball", "air_volleyball", "archery_dual",
+            "billiards", "nine_ball", "snooker", "foosball", "simple_score"
+        ]
+        let allProjects = [
+            "pingpong", "badminton", "tennis", "pickleball", "football", "basketball",
+            "three_basketball", "volleyball", "beach_volleyball", "air_volleyball",
+            "archery_dual", "boxing", "billiards", "eight_ball", "nine_ball", "snooker",
+            "doudizhu", "guandan", "shengji", "uno", "foosball", "simple_score", "multi_scoreboard"
+        ]
+
+        for project in allProjects {
+            let app = XCUIApplication()
+            app.launchArguments += [
+                "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+                "-UITestRecordFixtures", "-UITestRecordDetail", project
+            ]
+            app.launch()
+            XCTAssertTrue(app.buttons["再来一局"].waitForExistence(timeout: 5), "Missing replay for \(project)")
+            XCTAssertTrue(app.buttons["复盘"].exists || app.staticTexts["复盘"].exists, "Missing recap for \(project)")
+            XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "fixture")).firstMatch.exists, "Internal fixture text leaked for \(project)")
+            let hasTrend = app.staticTexts["比分趋势"].exists
+            XCTAssertEqual(hasTrend, trendProjects.contains(project), "Trend policy mismatch for \(project)")
+            app.terminate()
+        }
+    }
+
+    private func clearRecordFixtures() {
+        let cleanup = XCUIApplication()
+        cleanup.launchArguments += ["-UITestClearRecordFixtures"]
+        cleanup.launch()
+        cleanup.terminate()
+    }
+
+    private func launchChineseApp(arguments: [String] = []) -> XCUIApplication {
+        launchLocalizedApp(language: "zh-Hans", locale: "zh_CN", arguments: arguments)
+    }
+
+    private func launchLocalizedApp(
+        language: String,
+        locale: String,
+        appearance: String? = nil,
+        arguments: [String] = []
+    ) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments += ["-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+        if let appearance {
+            app.launchArguments += ["-jifen-v2.appAppearanceMode", appearance]
+        }
+        app.launchArguments += arguments
+        app.launch()
+        return app
+    }
+
+    private func openToolsList(in app: XCUIApplication) -> Bool {
+        if app.descendants(matching: .any)["tool_card_random_team"].waitForExistence(timeout: 5) {
+            return true
+        }
+        guard app.tabBars.buttons["首页"].waitForExistence(timeout: 8) else { return false }
+        app.tabBars.buttons["首页"].tap()
+        let allTools = app.buttons["home_all_tools_button"]
+        for _ in 0..<8 {
+            if allTools.exists && allTools.isHittable {
+                allTools.tap()
+                return app.descendants(matching: .any)["tool_card_random_team"].waitForExistence(timeout: 5)
+            }
+            app.swipeUp(velocity: .fast)
+        }
+        return false
+    }
+
+    private func addScreenshot(_ name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     private func runPlayAllSetup(appearance: String) {
         let app = XCUIApplication()
         app.launchArguments += [

@@ -19,6 +19,8 @@ class TennisViewModel: BaseScoreViewModel {
     var currentSet: Int = 1
     var maxSets: Int = 3
     var tieBreakTarget: Int = 7
+    var gamesPerSet: Int = 6
+    var setScoringMode: String = "regular"
     var isTieBreak: Bool = false
     var isDeuce: Bool = false
     var advantage: AdvantageState = .none
@@ -65,11 +67,15 @@ class TennisViewModel: BaseScoreViewModel {
         usesNoAdScoring: Bool = false,
         openingServerSide: MatchSide = .left,
         voiceAnnouncement: Bool = false,
-        isSingles: Bool = true
+        isSingles: Bool = true,
+        gamesPerSet: Int = 6,
+        setScoringMode: String = "regular"
     ) {
-        self.maxSets = maxSets
+        self.setScoringMode = setScoringMode == "tiebreak_only" ? "tiebreak_only" : "regular"
+        self.gamesPerSet = gamesPerSet == 4 ? 4 : 6
+        self.maxSets = self.setScoringMode == "tiebreak_only" ? 1 : maxSets
         self.autoChangeSides = autoChangeSides
-        self.matchCompletionMode = matchCompletionMode
+        self.matchCompletionMode = self.setScoringMode == "tiebreak_only" ? .bestOf : matchCompletionMode
         self.usesNoAdScoring = usesNoAdScoring
         self.openingServerSide = openingServerSide
         self.voiceAnnouncement = voiceAnnouncement
@@ -78,6 +84,9 @@ class TennisViewModel: BaseScoreViewModel {
         self.firstServerSlotInSet = openingServerSide == .left ? 0 : 1
         self.team0FirstReceiverSlot = 1
         self.team1FirstReceiverSlot = 0
+        self.isTieBreak = self.setScoringMode == "tiebreak_only"
+        self.tieBreakFirstServer = openingServerSide
+        self.tieBreakFirstServerSlot = self.firstServerSlotInSet
     }
 
     func setOnGameEndCallback(_ callback: @escaping (Int, Int, Int) -> Void) {
@@ -243,7 +252,7 @@ class TennisViewModel: BaseScoreViewModel {
         rightTeam.sets = 0
         leftTeam.games = 0
         rightTeam.games = 0
-        isTieBreak = false
+        isTieBreak = setScoringMode == "tiebreak_only"
         isDeuce = false
         advantage = .none
         sidesSwapped = false
@@ -346,9 +355,11 @@ class TennisViewModel: BaseScoreViewModel {
     }
 
     private func setWinnerIsDecided(leftGames: Int, rightGames: Int) -> Bool {
-        if leftGames >= 6 && leftGames - rightGames >= 2 { return true }
-        if rightGames >= 6 && rightGames - leftGames >= 2 { return true }
-        if (leftGames == 7 && rightGames == 6) || (rightGames == 7 && leftGames == 6) { return true }
+        if setScoringMode == "tiebreak_only" { return leftGames == 1 || rightGames == 1 }
+        if leftGames >= gamesPerSet && leftGames - rightGames >= 2 { return true }
+        if rightGames >= gamesPerSet && rightGames - leftGames >= 2 { return true }
+        if (leftGames == gamesPerSet + 1 && rightGames == gamesPerSet) ||
+            (rightGames == gamesPerSet + 1 && leftGames == gamesPerSet) { return true }
         return false
     }
     
@@ -384,7 +395,8 @@ class TennisViewModel: BaseScoreViewModel {
     }
     
     private func shouldStartTieBreak(leftGames: Int, rightGames: Int) -> Bool {
-        return leftGames == 6 && rightGames == 6
+        return setScoringMode == "tiebreak_only" ||
+            (leftGames == gamesPerSet && rightGames == gamesPerSet)
     }
     
     private func startTieBreak() {
@@ -427,11 +439,16 @@ class TennisViewModel: BaseScoreViewModel {
         
         var winnerLeft: Bool? = nil
         
-        if leftGames >= 6 && leftGames - rightGames >= 2 {
+        if setScoringMode == "tiebreak_only", leftGames == 1 {
             winnerLeft = true
-        } else if rightGames >= 6 && rightGames - leftGames >= 2 {
+        } else if setScoringMode == "tiebreak_only", rightGames == 1 {
             winnerLeft = false
-        } else if (leftGames == 7 && rightGames == 6) || (rightGames == 7 && leftGames == 6) {
+        } else if leftGames >= gamesPerSet && leftGames - rightGames >= 2 {
+            winnerLeft = true
+        } else if rightGames >= gamesPerSet && rightGames - leftGames >= 2 {
+            winnerLeft = false
+        } else if (leftGames == gamesPerSet + 1 && rightGames == gamesPerSet) ||
+                    (rightGames == gamesPerSet + 1 && leftGames == gamesPerSet) {
             winnerLeft = leftGames > rightGames
         }
         
@@ -543,6 +560,8 @@ class TennisViewModel: BaseScoreViewModel {
                 "maxSets": maxSets,
                 "matchCompletionMode": matchCompletionMode.rawValue,
                 "tieBreakPoints": tieBreakTarget,
+                "gamesPerSet": gamesPerSet,
+                "setScoringMode": setScoringMode,
                 "autoChangeSides": autoChangeSides,
                 "tennisDeuceMode": usesNoAdScoring ? "no_ad" : "advantage",
                 "servingSide": openingServerSide.rawValue,
@@ -570,6 +589,7 @@ class TennisViewModel: BaseScoreViewModel {
         rightTeam.games = 0
         currentSet += 1
         currentGameInSet = 0
+        isTieBreak = setScoringMode == "tiebreak_only"
     }
     
     private func checkMatchWinner() {
@@ -604,7 +624,12 @@ class TennisViewModel: BaseScoreViewModel {
     }
 
     func rebuildDeuceStateFromScores() {
-        updateDeuceState(leftScore: leftTeam.score, rightScore: rightTeam.score)
+        if isTieBreak {
+            isDeuce = false
+            advantage = .none
+        } else {
+            updateDeuceState(leftScore: leftTeam.score, rightScore: rightTeam.score)
+        }
     }
 
     // MARK: - Edit Mode Adjustments
@@ -623,9 +648,10 @@ class TennisViewModel: BaseScoreViewModel {
     }
     
     func adjustGames(isLeft: Bool, delta: Int) {
+        guard setScoringMode != "tiebreak_only" else { return }
         saveTennisSnapshot()
         
-        let maxGames = 7
+        let maxGames = gamesPerSet + 1
         if isLeft {
             let newGames = (leftTeam.games ?? 0) + delta
             leftTeam.games = max(0, min(newGames, maxGames))

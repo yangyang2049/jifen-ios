@@ -30,6 +30,7 @@ struct ScoreboardTemplate: View {
     @State private var pendingTapAt: Date = .distantPast
     @State private var tapGeneration = 0
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var preferences = PreferencesManager.shared
     @State private var chromeButtonsVisible = true
     @State private var immersiveGeneration = 0
     @State private var previousIdleTimerDisabled: Bool?
@@ -75,14 +76,8 @@ struct ScoreboardTemplate: View {
                                 config.viewModel.subtractScore(isLeft: true, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
-                                if let pingPongViewModel = config.viewModel as? PingPongViewModel {
-                                    pingPongViewModel.adjustScore(isLeft: isLeft, delta: delta)
-                                } else if let badmintonViewModel = config.viewModel as? BadmintonViewModel {
-                                    badmintonViewModel.adjustScore(isLeft: isLeft, delta: delta)
-                                } else if let tennisViewModel = config.viewModel as? TennisViewModel {
+                                if let tennisViewModel = config.viewModel as? TennisViewModel {
                                     tennisViewModel.adjustScore(isLeft: isLeft, delta: delta)
-                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
-                                    pickleballViewModel.adjustScore(isLeft: isLeft, delta: delta)
                                 } else {
                                     if delta > 0 {
                                         config.viewModel.addScore(isLeft: isLeft, points: delta)
@@ -94,10 +89,8 @@ struct ScoreboardTemplate: View {
                             onSetsAdjust: { (isLeft, delta) in
                                 applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
-                            onGamesAdjust: { (isLeft, delta) in
-                                if let tennisViewModel = config.viewModel as? TennisViewModel {
-                                    tennisViewModel.adjustGames(isLeft: isLeft, delta: delta)
-                                }
+                            onGamesAdjust: (config.viewModel as? TennisViewModel)?.setScoringMode == "tiebreak_only" ? nil : { (isLeft, delta) in
+                                (config.viewModel as? TennisViewModel)?.adjustGames(isLeft: isLeft, delta: delta)
                             },
                             onStartEditName: {
                                 baseViewModel.startEditName(isLeft: true)
@@ -154,14 +147,8 @@ struct ScoreboardTemplate: View {
                                 config.viewModel.subtractScore(isLeft: false, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
-                                if let pingPongViewModel = config.viewModel as? PingPongViewModel {
-                                    pingPongViewModel.adjustScore(isLeft: isLeft, delta: delta)
-                                } else if let badmintonViewModel = config.viewModel as? BadmintonViewModel {
-                                    badmintonViewModel.adjustScore(isLeft: isLeft, delta: delta)
-                                } else if let tennisViewModel = config.viewModel as? TennisViewModel {
+                                if let tennisViewModel = config.viewModel as? TennisViewModel {
                                     tennisViewModel.adjustScore(isLeft: isLeft, delta: delta)
-                                } else if let pickleballViewModel = config.viewModel as? PickleballViewModel {
-                                    pickleballViewModel.adjustScore(isLeft: isLeft, delta: delta)
                                 } else {
                                     if delta > 0 {
                                         config.viewModel.addScore(isLeft: isLeft, points: delta)
@@ -173,10 +160,8 @@ struct ScoreboardTemplate: View {
                             onSetsAdjust: { (isLeft, delta) in
                                 applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
-                            onGamesAdjust: { (isLeft, delta) in
-                                if let tennisViewModel = config.viewModel as? TennisViewModel {
-                                    tennisViewModel.adjustGames(isLeft: isLeft, delta: delta)
-                                }
+                            onGamesAdjust: (config.viewModel as? TennisViewModel)?.setScoringMode == "tiebreak_only" ? nil : { (isLeft, delta) in
+                                (config.viewModel as? TennisViewModel)?.adjustGames(isLeft: isLeft, delta: delta)
                             },
                             onStartEditName: {
                                 baseViewModel.startEditName(isLeft: false)
@@ -351,7 +336,8 @@ struct ScoreboardTemplate: View {
                         showExchangeSide: true,
                         showSettleMatch: config.showSettleMatch,
                         resetConfirming: resetClickCount >= 1,
-                        settleConfirming: settleClickCount >= 1
+                        settleConfirming: settleClickCount >= 1,
+                        extraItems: config.extraMenuItemsProvider?() ?? []
                     )
                 )
                 
@@ -391,6 +377,7 @@ struct ScoreboardTemplate: View {
         .onChange(of: isEditMode) { _, newValue in
             config.onEditModeChange?(newValue)
             updateImmersiveChromeForBlockingState()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: showMenu) { _, isOpen in
             if !isOpen {
@@ -400,7 +387,7 @@ struct ScoreboardTemplate: View {
         }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveChromeForBlockingState() }
         .onChange(of: showLocalSync) { _, _ in updateImmersiveChromeForBlockingState() }
-        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
+        .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
             applyScreenAwakePreference()
             updateImmersiveChromeForBlockingState()
@@ -467,6 +454,7 @@ struct ScoreboardTemplate: View {
         case "exchangeSide":
             // Exchange sides (keep dialog open)
             config.viewModel.exchangeSides()
+            config.controller.recordScoreAction(action: "exchangeSide")
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             
         case "reset":
@@ -482,6 +470,7 @@ struct ScoreboardTemplate: View {
                 resetClickCount = 0
                 // Don't close dialog - keep it open like other actions
                 config.viewModel.reset()
+                config.controller.recordScoreAction(action: "reset")
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 showToastMessage(NSLocalizedString("has_been_reset", comment: ""))
             }
@@ -490,6 +479,7 @@ struct ScoreboardTemplate: View {
             // Undo (keep dialog open)
             let success = config.viewModel.undo()
             if success {
+                config.controller.recordScoreAction(action: "undo")
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
             } else {
@@ -519,7 +509,7 @@ struct ScoreboardTemplate: View {
             }
             
         default:
-            break
+            config.onMenuAction?(action)
         }
     }
     
@@ -736,6 +726,11 @@ struct ScoreboardTemplate: View {
             themeID: appearance.theme.rawValue,
             fontID: appearance.font.rawValue,
             finished: config.viewModel.gameFinished,
+            keyPoint: LocalScoreboardKeyPoint.syncValue(
+                config.syncKeyPointProvider?(),
+                finished: config.viewModel.gameFinished,
+                isEditing: isEditMode
+            ),
             revision: 0
         )
     }
@@ -791,13 +786,7 @@ struct ScoreboardTemplate: View {
     private func applySetsAdjust(viewModel: ScoreViewModelProtocol, isLeft: Bool, delta: Int) {
         if let vm = viewModel as? ArcheryViewModel {
             vm.adjustSets(isLeft: isLeft, delta: delta)
-        } else if let vm = viewModel as? PingPongViewModel {
-            vm.adjustSets(isLeft: isLeft, delta: delta)
-        } else if let vm = viewModel as? BadmintonViewModel {
-            vm.adjustSets(isLeft: isLeft, delta: delta)
         } else if let vm = viewModel as? TennisViewModel {
-            vm.adjustSets(isLeft: isLeft, delta: delta)
-        } else if let vm = viewModel as? PickleballViewModel {
             vm.adjustSets(isLeft: isLeft, delta: delta)
         } else if let vm = viewModel as? BoxingViewModel {
             vm.adjustSets(isLeft: isLeft, delta: delta)

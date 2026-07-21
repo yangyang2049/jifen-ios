@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import PersistenceCore
 import ScoreCore
 
 struct HomeTab: View {
@@ -15,13 +16,14 @@ struct HomeTab: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
-    @State private var unfinishedRecord: ScoreboardRecord?
+    @State private var unfinishedRecord: UnfinishedGameSummary?
     @State private var showNewGameDialog = false
     @State private var showQuickStartEditSheet = false
     @State private var showDiscardUnfinishedAlert = false
     @State private var showCreateBookingSheet = false
     @State private var showLocalSync = false
     @State private var path = NavigationPath()
+    @State private var didHandleUITestRoute = false
     /// When user selects a scoreboard game from New Game or Quick Start, show setup first for supported sports.
     @State private var pendingScoreboardSetupItem: ScoreboardSetupItem? = nil
 
@@ -34,7 +36,7 @@ struct HomeTab: View {
 
     @State private var headerDate = ""
     @StateObject private var quickStartManager = QuickStartConfigManager.shared
-    @ObservedObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
+    @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
 
     struct ScoreboardNavigationTarget: Hashable {
         let gameType: GameType
@@ -85,6 +87,7 @@ struct HomeTab: View {
                         }
                     }
                 )
+                .presentationBackground(Theme.backgroundColor)
             }
             .sheet(isPresented: $showNewGameDialog) {
                 NewGameDialogView(
@@ -102,10 +105,10 @@ struct HomeTab: View {
                 )
             }
             .overlay {
-                CenteredSetupDialogPresenter(item: $pendingScoreboardSetupItem) { item, dismiss, maxContentHeight in
+                CenteredSetupDialogPresenter(item: $pendingScoreboardSetupItem) { item, dismiss, maxDialogHeight in
                     scoreboardSetupDialog(
                         for: item.gameType,
-                        maxContentHeight: maxContentHeight,
+                        maxDialogHeight: maxDialogHeight,
                         onConfirm: { result in
                             pendingScoreboardSetupItem = nil
                             navigateToScoreboardAfterSetupDismiss(item.gameType, setupResult: result)
@@ -211,8 +214,15 @@ struct HomeTab: View {
             updateRecentActivities()
             loadUpcomingBookings()
             loadUnfinishedRecord()
+            #if DEBUG
+            if !didHandleUITestRoute,
+               ProcessInfo.processInfo.arguments.contains("-UITestOpenTools") {
+                didHandleUITestRoute = true
+                path.append(NavigationDestination.toolsList)
+            }
+            #endif
         }
-        .onReceive(scoreboardVM.objectWillChange) { _ in
+        .onChange(of: scoreboardVM.records) { _, _ in
             updateRecentActivities()
             loadUnfinishedRecord()
         }
@@ -318,7 +328,15 @@ struct HomeTab: View {
     }
 
     private func loadUnfinishedRecord() {
-        unfinishedRecord = ScoreboardRecordManager.shared.getUnfinishedRecord()
+        Task {
+            let repository = SessionArchiveRepository()
+            if let entry = try? await repository.liveEntries().first,
+               let summary = UnfinishedGameSummary(session: entry) {
+                unfinishedRecord = summary
+                return
+            }
+            unfinishedRecord = ScoreboardRecordManager.shared.getUnfinishedRecord().map(UnfinishedGameSummary.init(legacy:))
+        }
     }
 
     private func continueUnfinishedGame() {
@@ -327,7 +345,7 @@ struct HomeTab: View {
             NavigationDestination.scoreboard(
                 ScoreboardNavigationTarget(
                     gameType: unfinishedRecord.gameType,
-                    recordId: unfinishedRecord.id,
+                    recordId: unfinishedRecord.recordIdentifier,
                     setupResult: nil
                 )
             )
@@ -335,9 +353,18 @@ struct HomeTab: View {
     }
 
     private func discardUnfinishedGame() {
-        _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
-        ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
-        loadUnfinishedRecord()
+        guard let unfinishedRecord else { return }
+        switch unfinishedRecord.source {
+        case .legacy:
+            _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
+            ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+            loadUnfinishedRecord()
+        case .session(let sessionId):
+            Task {
+                try? await SessionArchiveRepository().remove(sessionId: sessionId)
+                loadUnfinishedRecord()
+            }
+        }
     }
 
     private func navigateToScoreboardAfterSetupDismiss(
@@ -361,13 +388,13 @@ struct HomeTab: View {
     @ViewBuilder
     private func scoreboardSetupDialog(
         for gameType: GameType,
-        maxContentHeight: CGFloat,
+        maxDialogHeight: CGFloat,
         onConfirm: @escaping (SportsSetupResult) -> Void,
         onCancel: @escaping () -> Void
     ) -> some View {
         if gameType == .nineBall {
             NineBallSetupDialogView(
-                maxContentHeight: maxContentHeight,
+                maxDialogHeight: maxDialogHeight,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )
@@ -382,7 +409,7 @@ struct HomeTab: View {
                 titleEmoji: gameType.icon,
                 titleKey: Self.localizationKey(for: gameType),
                 titleFallback: gameType.displayName,
-                maxContentHeight: maxContentHeight,
+                maxDialogHeight: maxDialogHeight,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )
@@ -395,7 +422,7 @@ struct HomeTab: View {
                 initialMaxSets: nil,
                 initialPointsPerSet: nil,
                 initialTieBreakPoints: nil,
-                maxContentHeight: maxContentHeight,
+                maxDialogHeight: maxDialogHeight,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )
@@ -422,200 +449,14 @@ struct HomeTab: View {
         initialRecordId: String? = nil,
         onSetupConsumed: @escaping () -> Void = {}
     ) -> some View {
-        switch gameType {
-        case .pingpong:
-            PingPongScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .threeBasketball:
-            BasketballScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: Self.threeBasketballSetup(from: setupResult),
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .badminton:
-            BadmintonScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .tennis:
-            TennisScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .basketball:
-            BasketballScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .football:
-            FootballScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .volleyball:
-            VolleyballScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .beachVolleyball:
-            VolleyballScoreboardView(variant: .beachVolleyball, showBackButton: false, onNavigationBack: navigateBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
-                .toolbar(.hidden, for: .tabBar)
-        case .airVolleyball:
-            VolleyballScoreboardView(variant: .airVolleyball, showBackButton: false, onNavigationBack: navigateBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
-                .toolbar(.hidden, for: .tabBar)
-        case .archery:
-            ArcheryScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .boxing:
-            BoxingScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .billiards:
-            BilliardsScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .eightBall:
-            EightBallScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .nineBall:
-            NineBallChaseScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .snooker:
-            SnookerReducerScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .pickleball:
-            PickleballScoreboardView(initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
-                .toolbar(.hidden, for: .tabBar)
-        case .guandan:
-            GuandanScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .doudizhu:
-            DoudizhuScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .shengji:
-            ShengjiReducerScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .uno:
-            MultiScoreboardView(
-                gameType: .uno,
-                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.unoPlayerCount,
-                targetScore: setupResult?.targetScore ?? PreferencesManager.shared.unoTargetScore,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .foosball:
-            FoosballScoreboardView(
-                showBackButton: false,
-                onNavigationBack: navigateBack,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .simpleScore:
-            SimpleScoreboardView(
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .multiScoreboard:
-            MultiScoreboardView(
-                gameType: .multiScoreboard,
-                defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.multiScoreboardPlayerCount,
-                initialSetup: setupResult,
-                initialRecordId: initialRecordId,
-                onSetupConsumed: onSetupConsumed,
-                onNavigationBack: navigateBack
-            )
-                .toolbar(.hidden, for: .tabBar)
-        case .counter:
-            SimpleScoreboardView(initialSetup: setupResult, onSetupConsumed: onSetupConsumed)
-                .toolbar(.hidden, for: .tabBar)
-        default:
-            Text(NSLocalizedString("game_not_supported", value: "暂不支持该项目", comment: ""))
-                .foregroundColor(.white)
-        }
-    }
-
-    private static func threeBasketballSetup(from setup: SportsSetupResult?) -> SportsSetupResult {
-        var result = setup ?? SportsSetupResult(team1Name: "", team2Name: "")
-        result.basketballMode = "three_x_three"
-        return result
+        ScoreboardLaunchView(
+            gameType: gameType,
+            setupResult: setupResult,
+            initialRecordId: initialRecordId,
+            onSetupConsumed: onSetupConsumed,
+            onBack: navigateBack
+        )
+        .toolbar(.hidden, for: .tabBar)
     }
 
     private static func localizationKey(for gameType: GameType) -> String {
@@ -813,6 +654,8 @@ struct HomeTab: View {
                         .foregroundColor(Theme.textSecondary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("home_schedule_all_button")
+                .accessibilityLabel(NSLocalizedString("schedule_title", value: "我的球局", comment: ""))
             }
 
             if upcomingBookings.isEmpty {

@@ -4,6 +4,134 @@ import LinkCore
 import ScoreCore
 import SessionCore
 
+@Test func lineScoreReducerClampsFootballAndAllowsNegativeSimpleScore() {
+    let reducer = LineScoreReducer()
+    var football = LineScoreState(leftName: "主队", rightName: "客队")
+    football = reducer.reduce(state: football, intent: .adjust(side: .left, delta: -1), at: 1).state
+    #expect(football.leftScore == 0)
+    football = reducer.reduce(state: football, intent: .pointWon(.left), at: 2).state
+    #expect(football.leftScore == 1)
+
+    var simple = LineScoreState(leftName: "红方", rightName: "蓝方", rules: .freeCounter)
+    simple = reducer.reduce(state: simple, intent: .adjust(side: .right, delta: -3), at: 3).state
+    #expect(simple.rightScore == -3)
+}
+
+@Test func boxingReducerCompletesConfiguredRoundsLikeAndroid() {
+    let reducer = BoxingMatchReducer()
+    var state = BoxingMatchState(leftName: "红方", rightName: "蓝方", maxRounds: 2)
+    state = reducer.reduce(state: state, intent: .submitRound(left: 10, right: 9), at: 1).state
+    #expect(state.currentRound == 2)
+    #expect(state.leftRoundsWon == 1)
+    #expect(!state.finished)
+    state = reducer.reduce(state: state, intent: .submitRound(left: 9, right: 10), at: 2).state
+    #expect(state.leftTotal == 19)
+    #expect(state.rightTotal == 19)
+    #expect(state.rightRoundsWon == 1)
+    #expect(state.finished)
+}
+
+@Test func tennisReducerHandlesAdvantageNoAdAndTieBreak() {
+    let reducer = TennisMatchReducer()
+    let rules = TennisRuleSet(autoChangeSides: false)
+    var advantage = TennisMatchState(leftName: "A", rightName: "B", rules: rules)
+    advantage.leftPoints = 3
+    advantage.rightPoints = 3
+    advantage = reducer.reduce(state: advantage, intent: .pointWon(.left), at: 1).state
+    #expect(advantage.scoreDisplay(for: .left) == "AD")
+    advantage = reducer.reduce(state: advantage, intent: .pointWon(.right), at: 2).state
+    #expect(advantage.scoreDisplay(for: .left) == "40")
+    #expect(advantage.scoreDisplay(for: .right) == "40")
+
+    var noAd = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        rules: .init(usesNoAdScoring: true, autoChangeSides: false)
+    )
+    noAd.leftPoints = 3
+    noAd.rightPoints = 3
+    noAd = reducer.reduce(state: noAd, intent: .pointWon(.right), at: 3).state
+    #expect(noAd.rightGames == 1)
+    #expect(noAd.leftPoints == 0)
+    #expect(noAd.rightPoints == 0)
+
+    var tieBreak = TennisMatchState(leftName: "A", rightName: "B", rules: rules)
+    tieBreak.leftGames = 6
+    tieBreak.rightGames = 6
+    tieBreak.isTieBreak = true
+    tieBreak.leftPoints = 6
+    tieBreak.rightPoints = 5
+    tieBreak = reducer.reduce(state: tieBreak, intent: .pointWon(.left), at: 4).state
+    #expect(tieBreak.leftSets == 1)
+    #expect(tieBreak.leftGames == 0)
+    #expect(tieBreak.rightGames == 0)
+}
+
+@Test func tennisFourGameAndTiebreakOnlyFormatsMatchMobileRules() throws {
+    let reducer = TennisMatchReducer()
+    var shortSet = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        rules: .init(maxSets: 1, gamesPerSet: 4, autoChangeSides: false)
+    )
+    shortSet.leftGames = 4
+    shortSet.rightGames = 4
+    shortSet.isTieBreak = true
+    shortSet.leftPoints = 6
+    shortSet.rightPoints = 5
+    shortSet = reducer.reduce(state: shortSet, intent: .pointWon(.left), at: 1).state
+    #expect(shortSet.leftGames == 5)
+    #expect(shortSet.rightGames == 4)
+    #expect(shortSet.finished)
+
+    let matchRules = TennisRuleSet(
+        maxSets: 5,
+        tieBreakPoints: 10,
+        setScoringMode: .tiebreakOnly,
+        matchCompletionMode: .playAll,
+        autoChangeSides: false
+    )
+    #expect(matchRules.maxSets == 1)
+    #expect(matchRules.matchCompletionMode == .bestOf)
+    var matchTieBreak = TennisMatchState(leftName: "A", rightName: "B", rules: matchRules)
+    #expect(matchTieBreak.isTieBreak)
+    matchTieBreak.leftPoints = 9
+    matchTieBreak.rightPoints = 9
+    matchTieBreak = reducer.reduce(state: matchTieBreak, intent: .pointWon(.left), at: 2).state
+    #expect(!matchTieBreak.finished)
+    matchTieBreak = reducer.reduce(state: matchTieBreak, intent: .pointWon(.left), at: 3).state
+    #expect(matchTieBreak.leftSets == 1)
+    #expect(matchTieBreak.leftGames == 1)
+    #expect(matchTieBreak.finished)
+
+    let edit = reducer.reduce(state: TennisMatchState(leftName: "A", rightName: "B", rules: matchRules), intent: .adjustGames(side: .left, delta: 1), at: 4)
+    #expect(!edit.accepted)
+
+    let legacy = Data(#"{"maxSets":3,"tieBreakPoints":7,"matchCompletionMode":"bestOf","usesNoAdScoring":false,"autoChangeSides":true}"#.utf8)
+    let restored = try JSONDecoder().decode(TennisRuleSet.self, from: legacy)
+    #expect(restored.gamesPerSet == 6)
+    #expect(restored.setScoringMode == .regular)
+}
+
+@Test func kernelRegistryRoutesEveryGameTypeAndFactoriesRejectWrongFamilies() async {
+    for gameType in GameType.allCases {
+        #expect(ScoreboardKernelRegistry.descriptor(for: gameType).gameType == gameType)
+    }
+    #expect(ScoreboardKernelRegistry.descriptor(for: .tennis).kind == .tennis)
+    #expect(ScoreboardKernelRegistry.descriptor(for: .football).kind == .line)
+    #expect(ScoreboardKernelRegistry.descriptor(for: .boxing).ruleFamily == .s2)
+    #expect(ScoreboardSessionFactory.line(gameType: .tennis, leftName: "A", rightName: "B") == nil)
+
+    let core = ScoreboardSessionFactory.line(gameType: .simpleScore, leftName: "A", rightName: "B")
+    let result = await core?.dispatch(actorId: "test", intent: .adjust(side: .left, delta: -2), at: 1)
+    guard case .accepted(let session, _) = result else {
+        Issue.record("Expected line session factory to create a working session")
+        return
+    }
+    #expect(session.state.leftScore == -2)
+    #expect(session.ruleFamily == .s1)
+}
+
 @Test func eightBallRaceToMatchesAndroidFixture() {
     let reducer = EightBallReducer()
     var state = EightBallState.initial(targetPoints: 3)

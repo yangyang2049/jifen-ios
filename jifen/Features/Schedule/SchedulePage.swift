@@ -81,6 +81,8 @@ struct SchedulePage: View {
                 reload()
                 onChanged?()
             }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
         .navigationDestination(item: $selectedBooking) { booking in
             BookingDetailPage(

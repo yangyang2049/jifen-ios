@@ -60,6 +60,7 @@ struct MultiScoreboardView: View {
     @State private var customAdjustIndex: Int? = nil
     @State private var resolvedTargetScore: Int?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var showLocalSync = false
     @State private var previousIdleTimerDisabled: Bool?
@@ -196,7 +197,7 @@ struct MultiScoreboardView: View {
             registerScoreboardSync()
             revealImmersiveChrome()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
+        .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
@@ -628,7 +629,7 @@ struct MultiScoreboardView: View {
         useLandscapeLayout.toggle()
         let key = gameType == .uno ? "uno_use_landscape_layout" : "multi_scoreboard_use_landscape_layout"
         UserDefaults.standard.set(useLandscapeLayout, forKey: key)
-        actions.append("layout:\(useLandscapeLayout ? "landscape" : "portrait")")
+        appendRecordAction("layout:\(useLandscapeLayout ? "landscape" : "portrait")")
         showMenu = false
     }
 
@@ -867,7 +868,7 @@ struct MultiScoreboardView: View {
             players[unoSelectedWinnerIndex].score + delta
         )
         unoRoundCount += 1
-        actions.append("uno_round:\(unoSelectedWinnerIndex):+\(delta)")
+        appendRecordAction("uno_round:\(unoSelectedWinnerIndex):+\(delta)")
         VibrationManager.shared.vibrateLight()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         showUnoRoundPanel = false
@@ -882,7 +883,7 @@ struct MultiScoreboardView: View {
         history.append(players.map(\.score))
         if history.count > 50 { history.removeFirst() }
         players[index].score = Self.scoreRange.clamp(players[index].score + delta)
-        actions.append("adjust:\(index):\(delta > 0 ? "+" : "")\(delta)")
+        appendRecordAction("adjust:\(index):\(delta > 0 ? "+" : "")\(delta)")
         checkTargetReached(for: index)
         VibrationManager.shared.vibrateLight()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -925,7 +926,7 @@ struct MultiScoreboardView: View {
         for i in players.indices {
             players[i].score = 0
         }
-        actions.append("reset")
+        appendRecordAction("reset")
         gameFinished = false
         finishedWinnerName = ""
         unoRoundCount = 0
@@ -1090,6 +1091,11 @@ struct MultiScoreboardView: View {
             guard generation == draftSaveGeneration else { return }
             persistRecord(finished: false)
         }
+    }
+
+    private func appendRecordAction(_ action: String) {
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+        actions.append("\(timestamp)|\(action)")
     }
 
     private func persistRecord(finished: Bool) {

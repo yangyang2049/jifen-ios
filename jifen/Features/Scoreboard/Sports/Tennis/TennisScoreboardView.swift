@@ -68,7 +68,29 @@ struct TennisScoreboardView: View {
                     },
                     onEditModeChange: { isEditMode = $0 },
                     showEndGame: true,
-                    onEndGame: { finishMatchManually() }
+                    onEndGame: { finishMatchManually() },
+                    extraMenuItemsProvider: {
+                        [
+                            ScoreboardMenuItem(
+                                title: viewModel.voiceAnnouncement
+                                    ? NSLocalizedString("voice_announcement_on", value: "语音：开", comment: "")
+                                    : NSLocalizedString("voice_announcement_off", value: "语音：关", comment: ""),
+                                action: "voiceAnnouncement",
+                                group: .sync,
+                                icon: viewModel.voiceAnnouncement ? "speaker.wave.2" : "speaker.slash",
+                                keepDialogOpen: true
+                            )
+                        ]
+                    },
+                    onMenuAction: { action in
+                        if action == "voiceAnnouncement" {
+                            viewModel.voiceAnnouncement.toggle()
+                            viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        }
+                    },
+                    syncKeyPointProvider: {
+                        LocalScoreboardKeyPoint(status: tennisKeyPointStatus, sidesSwapped: false)
+                    }
                 ),
                 onBack: {
                     if let onNavigationBack = onNavigationBack {
@@ -119,20 +141,18 @@ struct TennisScoreboardView: View {
             if let setup = initialSetup {
                 viewModel.leftTeam.name = setup.team1Name.isEmpty ? NSLocalizedString("red_team", comment: "") : setup.team1Name
                 viewModel.rightTeam.name = setup.team2Name.isEmpty ? NSLocalizedString("blue_team", comment: "") : setup.team2Name
-                if let maxSets = setup.maxSets, let autoChange = setup.autoChangeSides {
-                    viewModel.setConfig(
-                        maxSets: maxSets,
-                        autoChangeSides: autoChange,
-                        matchCompletionMode: setup.matchCompletionMode ?? .bestOf,
-                        usesNoAdScoring: setup.tennisDeuceMode == "no_ad",
-                        openingServerSide: setup.servingSide == MatchSide.right.rawValue ? .right : .left,
-                        voiceAnnouncement: setup.voiceAnnouncement == true,
-                        isSingles: setup.isSingles ?? true
-                    )
-                }
-                if let tbp = setup.tieBreakPoints {
-                    viewModel.tieBreakTarget = tbp
-                }
+                viewModel.setConfig(
+                    maxSets: setup.maxSets ?? 3,
+                    autoChangeSides: setup.autoChangeSides ?? true,
+                    matchCompletionMode: setup.matchCompletionMode ?? .bestOf,
+                    usesNoAdScoring: setup.tennisDeuceMode == "no_ad",
+                    openingServerSide: setup.servingSide == MatchSide.right.rawValue ? .right : .left,
+                    voiceAnnouncement: setup.voiceAnnouncement == true,
+                    isSingles: setup.isSingles ?? true,
+                    gamesPerSet: setup.gamesPerSet ?? 6,
+                    setScoringMode: setup.setScoringMode ?? "regular"
+                )
+                viewModel.tieBreakTarget = setup.tieBreakPoints == 10 ? 10 : 7
                 if let singles = setup.isSingles {
                     viewModel.isSingles = singles
                 }
@@ -207,6 +227,14 @@ struct TennisScoreboardView: View {
         if let tieBreakPoints = record.extraData?["tieBreakPoints"]?.value as? Int {
             viewModel.tieBreakTarget = tieBreakPoints
         }
+        viewModel.gamesPerSet = (record.extraData?["gamesPerSet"]?.value as? Int) == 4 ? 4 : 6
+        viewModel.setScoringMode = (record.extraData?["setScoringMode"]?.value as? String) == "tiebreak_only"
+            ? "tiebreak_only"
+            : "regular"
+        if viewModel.setScoringMode == "tiebreak_only" {
+            viewModel.maxSets = 1
+            viewModel.matchCompletionMode = .bestOf
+        }
         if let autoChangeSides = record.extraData?["autoChangeSides"]?.value as? Bool {
             viewModel.autoChangeSides = autoChangeSides
         }
@@ -230,6 +258,8 @@ struct TennisScoreboardView: View {
         }
         if let isTieBreak = record.extraData?["isTieBreak"]?.value as? Bool {
             viewModel.isTieBreak = isTieBreak
+        } else if viewModel.setScoringMode == "tiebreak_only" {
+            viewModel.isTieBreak = true
         }
         if let deuceMode = record.extraData?["tennisDeuceMode"]?.value as? String {
             viewModel.usesNoAdScoring = deuceMode == "no_ad"
@@ -344,7 +374,10 @@ struct TennisScoreboardView: View {
             let midX = proxy.size.width / 2
             let y: CGFloat = {
                 guard let doublesTopRow else { return proxy.size.height / 2 }
-                return doublesTopRow ? proxy.size.height / 6 : proxy.size.height * 5 / 6
+                return ScoreboardServeGeometry.doublesAnchorY(
+                    height: proxy.size.height,
+                    topRow: doublesTopRow
+                )
             }()
             CenterLineServeIndicator(isLeftServing: isLeftServing)
                 .position(x: midX, y: y)
@@ -365,7 +398,9 @@ struct TennisScoreboardView: View {
             isTieBreak: viewModel.isTieBreak,
             tieBreakTarget: viewModel.tieBreakTarget,
             usesNoAdScoring: viewModel.usesNoAdScoring,
-            finished: viewModel.gameFinished
+            finished: viewModel.gameFinished,
+            gamesPerSet: viewModel.gamesPerSet,
+            setScoringMode: viewModel.setScoringMode
         ))
     }
     

@@ -99,7 +99,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
     
     func recordScoreAction(action: String) {
         if config.enableRecording {
-            gameActions.append(action)
+            let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+            gameActions.append("\(timestamp)|\(action)")
         }
     }
     

@@ -10,6 +10,7 @@ struct GuandanScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var state: GuandanMatchState
     @State private var history: [GuandanMatchState] = []
+    @State private var actionLog: [String] = []
     @State private var actionCount = 0
     @State private var gameStartAt: Date
     @State private var recordID: String
@@ -49,6 +50,7 @@ struct GuandanScoreboardView: View {
         var id = "guandan_\(Int(start.timeIntervalSince1970))"
         var actions = 0
         var showFinished = false
+        var restoredActions: [String] = []
 
         if let initialRecordId,
            let record = ScoreboardRecordManager.shared.getRecordById(initialRecordId),
@@ -59,6 +61,7 @@ struct GuandanScoreboardView: View {
             start = record.startTime
             id = record.id
             actions = max(record.totalScoreChanges, 1)
+            restoredActions = record.actions
             showFinished = restored.phase == .finished
         }
 
@@ -67,6 +70,7 @@ struct GuandanScoreboardView: View {
         _recordID = State(initialValue: id)
         _actionCount = State(initialValue: actions)
         _showGameFinishedOverlay = State(initialValue: showFinished)
+        _actionLog = State(initialValue: restoredActions)
     }
 
     var body: some View {
@@ -206,6 +210,7 @@ struct GuandanScoreboardView: View {
         if history.count > 80 { history.removeFirst() }
         state = result.state
         actionCount += 1
+        appendSnapshot(String(describing: intent))
         VibrationManager.shared.vibrateMedium()
         if state.phase == .finished {
             showGameFinishedOverlay = true
@@ -216,6 +221,7 @@ struct GuandanScoreboardView: View {
         guard let previous = history.popLast() else { return }
         state = previous
         actionCount = max(0, actionCount - 1)
+        appendSnapshot("undo")
         showGameFinishedOverlay = state.phase == .finished
     }
 
@@ -230,6 +236,7 @@ struct GuandanScoreboardView: View {
         )
         state.phase = .playing
         actionCount += 1
+        appendSnapshot("reset")
         showGameFinishedOverlay = false
     }
 
@@ -241,6 +248,7 @@ struct GuandanScoreboardView: View {
         state.finalWinner = redScore == blueScore ? nil : (redScore > blueScore ? .red : .blue)
         state.phase = .finished
         actionCount += 1
+        appendSnapshot("finish")
         showGameFinishedOverlay = true
     }
 
@@ -282,6 +290,7 @@ struct GuandanScoreboardView: View {
             team1FinalScore: GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
             team2FinalScore: GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank),
             winner: winnerName,
+            actions: actionLog,
             totalScoreChanges: max(actionCount, history.count),
             extraData: [
                 "schemaVersion": AnyCodable(3),
@@ -293,6 +302,16 @@ struct GuandanScoreboardView: View {
             status: finished ? .finished : .draft
         )
         try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+    }
+
+    private func appendSnapshot(_ code: String) {
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+        let scores = [
+            GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
+            GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank)
+        ]
+        let safeCode = code.replacingOccurrences(of: "|", with: "_").replacingOccurrences(of: " ", with: "_")
+        actionLog.append("\(timestamp)|snapshot|\(safeCode)|\(scores.map(String.init).joined(separator: ","))|")
     }
 }
 

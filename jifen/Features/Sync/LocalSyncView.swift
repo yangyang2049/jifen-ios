@@ -133,9 +133,14 @@ struct LocalSyncView: View {
                         }
                     } label: {
                         Text(NSLocalizedString("sync_join_room", value: "加入房间", comment: ""))
+                            .font(.headline)
+                            .foregroundStyle(joinCode.count == 6 ? Color.white : Theme.textSecondary)
                             .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .background(joinCode.count == 6 ? Theme.primary : Theme.controlBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.plain)
                     .disabled(joinCode.count != 6)
                 }
 
@@ -358,11 +363,54 @@ private struct LocalScoreboardDisplayView: View {
                     .font(.headline)
                     .foregroundStyle(.white.opacity(0.75))
                     .padding(.top, 8)
+                if let keyPoint = state.keyPoint, keyPoint.isRenderable {
+                    keyPointBadge(keyPoint, size: proxy.size)
+                }
             }
         }
     }
 
     private enum Side { case left, right }
+
+    private func keyPointBadge(_ keyPoint: LocalScoreboardKeyPoint, size: CGSize) -> some View {
+        let midX = size.width / 2
+        let innerGap: CGFloat = 12
+        let badgeHalfWidth: CGFloat = 28
+        let largeWindow = min(size.width, size.height) >= 600
+        return Text(keyPointLabel(keyPoint.kind))
+            .font(.system(size: 12, weight: .heavy, design: .rounded))
+            .tracking(0.8)
+            .foregroundStyle(Color(hex: "111111"))
+            .frame(width: 56, height: 28)
+            .background(keyPointBackground(keyPoint.kind), in: RoundedRectangle(cornerRadius: 7))
+            .position(
+                x: midX + (keyPoint.side == .left ? -(innerGap + badgeHalfWidth) : innerGap + badgeHalfWidth),
+                y: ScoreboardServeGeometry.keyPointBadgeCenterY(
+                    height: size.height,
+                    doublesTopRow: nil,
+                    largeWindow: largeWindow
+                )
+            )
+            .allowsHitTesting(false)
+            .accessibilityIdentifier("local_scoreboard_key_point_badge")
+    }
+
+    private func keyPointLabel(_ kind: LocalScoreboardKeyPoint.Kind) -> String {
+        if kind == .match {
+            return NSLocalizedString("scoreboard_key_point_match", value: "MP", comment: "Match point")
+        }
+        if state.gameID.hasPrefix("tennis") {
+            return NSLocalizedString("scoreboard_key_point_set", value: "SP", comment: "Set point")
+        }
+        if state.gameID == "volleyball" || state.gameID == "air_volleyball" || state.gameID == "beach_volleyball" {
+            return NSLocalizedString("scoreboard_key_point_volleyball_set", value: "SP", comment: "Volleyball set point")
+        }
+        return NSLocalizedString("scoreboard_key_point_game", value: "GP", comment: "Game point")
+    }
+
+    private func keyPointBackground(_ kind: LocalScoreboardKeyPoint.Kind) -> Color {
+        kind == .set && state.gameID.hasPrefix("tennis") ? Color(hex: "FFB340") : Color(hex: "FFD60A")
+    }
 
     private func team(name: String, score: String, detail: String?, color: Color, side: Side) -> some View {
         VStack(spacing: 12) {

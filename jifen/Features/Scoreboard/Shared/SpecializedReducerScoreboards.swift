@@ -32,6 +32,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     let center: () -> Center
 
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var showLocalSync = false
     @State private var showMenu = false
@@ -127,7 +128,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in
+        .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
@@ -213,7 +214,6 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                     if onEditCommit != nil {
                         chromeButton(isEditMode ? "checkmark" : "pencil") { toggleEditMode() }
                     }
-                    chromeButton("textformat.size") { showDisplaySettings = true }
                 }
                 Spacer()
             }
@@ -345,6 +345,7 @@ struct EightBallScoreboardView: View {
 
     @State private var state: EightBallState
     @State private var history: [EightBallState] = []
+    @State private var actionLog: [String] = []
     @State private var actionCount = 0
     @State private var startedAt: Date
     @State private var recordID: String
@@ -459,6 +460,7 @@ struct EightBallScoreboardView: View {
         let result = reducer.reduce(state: state, intent: intent, at: nowMilliseconds())
         guard result.accepted else { return }
         history.append(state); state = result.state; actionCount += 1
+        actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftPoints, state.rightPoints]))
     }
     private func markFinished() {
         guard !state.finished else { return }
@@ -467,6 +469,7 @@ struct EightBallScoreboardView: View {
         next.finished = true
         state = next
         actionCount += 1
+        actionLog.append(recordSnapshot(code: "finish", scores: [state.leftPoints, state.rightPoints]))
         showGameFinishedOverlay = true
     }
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
@@ -477,7 +480,7 @@ struct EightBallScoreboardView: View {
             showGameFinishedOverlay = false
         }
     }
-    private func undo() { guard let previous = history.popLast() else { return }; state = previous; actionCount = max(0, actionCount - 1); showGameFinishedOverlay = state.finished }
+    private func undo() { guard let previous = history.popLast() else { return }; state = previous; actionCount = max(0, actionCount - 1); actionLog.append(recordSnapshot(code: "undo", scores: [state.leftPoints, state.rightPoints])); showGameFinishedOverlay = state.finished }
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
     private func registerSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { intent in
@@ -503,7 +506,7 @@ struct EightBallScoreboardView: View {
             id: recordID, gameType: .eightBall, startedAt: startedAt,
             leftName: leftName, rightName: rightName,
             left: state.leftPoints, right: state.rightPoints,
-            actionCount: actionCount, finished: state.finished, snapshot: state
+            actionCount: actionCount, actions: actionLog, finished: state.finished, snapshot: state
         )
     }
 }
@@ -516,7 +519,9 @@ struct NineBallChaseScoreboardView: View {
     var onNavigationBack: (() -> Void)?
     @State private var state: NineBallChaseState
     @State private var history: [NineBallChaseState] = []
+    @State private var actionLog: [String] = []
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var preferences = PreferencesManager.shared
     @State private var actionCount = 0
     @State private var startedAt: Date
     @State private var recordID: String
@@ -659,7 +664,7 @@ struct NineBallChaseScoreboardView: View {
         }
         .navigationBarBackButtonHidden(true).toolbar(.hidden, for: .navigationBar).lockOrientation(.landscape)
         .onAppear { onSetupConsumed?(); registerSync() }
-        .onReceive(NotificationCenter.default.publisher(for: .scoreboardPreferencesDidChange)) { _ in appearance = .current() }
+        .onChange(of: preferences.scoreboardRevision) { _, _ in appearance = .current() }
         .onChange(of: state.finished) { _, finished in if finished { showGameFinishedOverlay = true } }
         .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
         .onDisappear { LocalScoreboardSyncCoordinator.shared.unregisterHost(); saveRecord() }
@@ -756,6 +761,7 @@ struct NineBallChaseScoreboardView: View {
         let result = reducer.reduce(state: state, intent: intent, at: nowMilliseconds())
         guard result.accepted else { return }
         history.append(state); state = result.state; actionCount += 1
+        actionLog.append(recordSnapshot(code: String(describing: intent), scores: state.playerPoints))
     }
     private func markFinished() {
         guard !state.finished else { return }
@@ -764,6 +770,7 @@ struct NineBallChaseScoreboardView: View {
         next.finished = true
         state = next
         actionCount += 1
+        actionLog.append(recordSnapshot(code: "finish", scores: state.playerPoints))
         showGameFinishedOverlay = true
     }
     private func confirmReset() {
@@ -794,6 +801,7 @@ struct NineBallChaseScoreboardView: View {
         guard let previous = history.popLast() else { return }
         state = previous
         actionCount = max(0, actionCount - 1)
+        actionLog.append(recordSnapshot(code: "undo", scores: state.playerPoints))
         showGameFinishedOverlay = state.finished
     }
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
@@ -828,7 +836,7 @@ struct NineBallChaseScoreboardView: View {
             id: recordID, gameType: .nineBall, startedAt: startedAt,
             leftName: playerName(0), rightName: playerName(1),
             left: state.playerPoints[0], right: state.playerPoints[1],
-            actionCount: actionCount, finished: state.finished, snapshot: state,
+            actionCount: actionCount, actions: actionLog, finished: state.finished, snapshot: state,
             extra: ["playerNames": Array(playerNames.prefix(state.playerCount))]
         )
     }
@@ -842,6 +850,7 @@ struct SnookerReducerScoreboardView: View {
     var onNavigationBack: (() -> Void)?
     @State private var state: SnookerState
     @State private var history: [SnookerState] = []
+    @State private var actionLog: [String] = []
     @State private var actionCount = 0
     @State private var startedAt: Date
     @State private var recordID: String
@@ -1153,12 +1162,14 @@ struct SnookerReducerScoreboardView: View {
         history.append(state)
         state = result.state
         actionCount += 1
+        actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
         if state.finished { showGameFinishedOverlay = true }
     }
     private func undo() {
         guard let previous = history.popLast() else { return }
         state = previous
         actionCount = max(0, actionCount - 1)
+        actionLog.append(recordSnapshot(code: "undo", scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
         showGameFinishedOverlay = state.finished
     }
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
@@ -1192,6 +1203,7 @@ struct SnookerReducerScoreboardView: View {
         history.append(state)
         state = .initial(striker: state.firstBreaker, maxFrames: state.maxFrames)
         actionCount += 1
+        actionLog.append(recordSnapshot(code: "reset", scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
         foulSwitchTurn = true
         showSettlePanel = false
         showFoulPanel = false
@@ -1211,7 +1223,7 @@ struct SnookerReducerScoreboardView: View {
             leftName: leftName, rightName: rightName,
             left: state.leftScore, right: state.rightScore,
             leftSets: state.leftFrames, rightSets: state.rightFrames,
-            actionCount: actionCount, finished: state.finished, snapshot: state
+            actionCount: actionCount, actions: actionLog, finished: state.finished, snapshot: state
         )
     }
 }
@@ -1224,6 +1236,7 @@ struct ShengjiReducerScoreboardView: View {
     var onNavigationBack: (() -> Void)?
     @State private var state: ShengjiTierState
     @State private var history: [ShengjiTierState] = []
+    @State private var actionLog: [String] = []
     @State private var actionCount = 0
     @State private var startedAt: Date
     @State private var recordID: String
@@ -1380,22 +1393,26 @@ struct ShengjiReducerScoreboardView: View {
         history.append(state)
         state = result.state
         actionCount += 1
+        actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftIndex, state.rightIndex]))
     }
     private func undo() {
         guard let previous = history.popLast() else { return }
         state = previous
         actionCount = max(0, actionCount - 1)
+        actionLog.append(recordSnapshot(code: "undo", scores: [state.leftIndex, state.rightIndex]))
     }
     private func resetMatch() {
         history.append(state)
         state = ShengjiTierState(maxTierIndex: state.maxTierIndex)
         actionCount += 1
+        actionLog.append(recordSnapshot(code: "reset", scores: [state.leftIndex, state.rightIndex]))
     }
     private func finishMatch() {
         guard !state.finished else { return }
         history.append(state)
         state.finished = true
         actionCount += 1
+        actionLog.append(recordSnapshot(code: "finish", scores: [state.leftIndex, state.rightIndex]))
     }
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
         history.append(state)
@@ -1444,12 +1461,19 @@ struct ShengjiReducerScoreboardView: View {
             id: recordID, gameType: .shengji, startedAt: startedAt,
             leftName: leftName, rightName: rightName,
             left: state.leftIndex, right: state.rightIndex,
-            actionCount: actionCount, finished: state.finished, snapshot: state
+            actionCount: actionCount, actions: actionLog, finished: state.finished, snapshot: state
         )
     }
 }
 
 private func nowMilliseconds() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
+
+private func recordSnapshot(code: String, scores: [Int], setScores: [Int] = []) -> String {
+    let normalizedCode = code
+        .replacingOccurrences(of: "|", with: "_")
+        .replacingOccurrences(of: " ", with: "_")
+    return "\(nowMilliseconds())|snapshot|\(normalizedCode)|\(scores.map(String.init).joined(separator: ","))|\(setScores.map(String.init).joined(separator: ","))"
+}
 
 private func localizedSideRedName() -> String {
     NSLocalizedString("watch_team_red", value: "红方", comment: "")
@@ -1486,6 +1510,7 @@ private func saveSpecializedRecord<State: Encodable>(
     leftSets: Int? = nil,
     rightSets: Int? = nil,
     actionCount: Int,
+    actions: [String] = [],
     finished: Bool,
     snapshot: State,
     extra: [String: Any] = [:]
@@ -1514,6 +1539,7 @@ private func saveSpecializedRecord<State: Encodable>(
         team1SetScore: leftSets,
         team2SetScore: rightSets,
         winner: winner,
+        actions: actions,
         totalScoreChanges: actionCount,
         extraData: extraData,
         stateSnapshot: snapshotData,

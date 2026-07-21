@@ -1,6 +1,57 @@
 import Combine
 import Foundation
 import LinkCore
+import ScoreCore
+
+struct LocalScoreboardKeyPoint: Codable, Equatable {
+    enum Kind: String, Codable {
+        case game
+        case set
+        case match
+        case unknown
+
+        init(from decoder: Decoder) throws {
+            let value = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: value) ?? .unknown
+        }
+    }
+
+    enum Side: String, Codable {
+        case left
+        case right
+        case unknown
+
+        init(from decoder: Decoder) throws {
+            let value = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: value) ?? .unknown
+        }
+    }
+
+    var kind: Kind
+    var side: Side
+
+    var isRenderable: Bool { kind != .unknown && side != .unknown }
+
+    init?(status: KeyPointStatus?, sidesSwapped: Bool) {
+        guard let status else { return nil }
+        switch status.kind {
+        case .game: kind = .game
+        case .set: kind = .set
+        case .match: kind = .match
+        }
+        let screenSide = sidesSwapped ? status.side.opposite : status.side
+        side = screenSide == .left ? .left : .right
+    }
+
+    static func syncValue(
+        _ keyPoint: LocalScoreboardKeyPoint?,
+        finished: Bool,
+        isEditing: Bool
+    ) -> LocalScoreboardKeyPoint? {
+        guard !finished, !isEditing else { return nil }
+        return keyPoint
+    }
+}
 
 struct LocalScoreboardDisplayState: Codable, Equatable {
     var gameID: String
@@ -14,6 +65,7 @@ struct LocalScoreboardDisplayState: Codable, Equatable {
     var themeID: String
     var fontID: String
     var finished: Bool
+    var keyPoint: LocalScoreboardKeyPoint? = nil
     var revision: UInt64
 }
 

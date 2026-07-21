@@ -28,7 +28,11 @@ struct ToolItemView: View {
                         .foregroundColor(iconColor)
                 }
                 .frame(width: 64, height: 64)
-                .background(.ultraThinMaterial)
+                .background(
+                    isDarkTheme
+                        ? AnyShapeStyle(.ultraThinMaterial)
+                        : AnyShapeStyle(Theme.homeNeutralCardBackground)
+                )
                 .cornerRadius(Theme.cornerRadius)
                 .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1)
 
@@ -99,6 +103,7 @@ struct ProToolsSectionView: View {
                             .foregroundColor(Theme.textSecondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("home_all_tools_button")
                 }
             }
             .frame(maxWidth: .infinity)

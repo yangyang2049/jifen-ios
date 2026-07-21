@@ -46,7 +46,7 @@ struct DualTimerSetupView: View {
         VStack(spacing: 0) {
             header
 
-            ScrollView(showsIndicators: false) {
+            ScrollView(showsIndicators: true) {
                 VStack(spacing: 14) {
                     modeSegment
                     mainTimeSection
@@ -66,8 +66,9 @@ struct DualTimerSetupView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 14)
-                .padding(.bottom, 18)
+                .padding(.bottom, 28)
             }
+            .frame(maxHeight: .infinity)
 
             startButton
         }

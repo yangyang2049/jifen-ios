@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct RecentActivityPage: View {
-    @StateObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
+    @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
 
     @State private var isEditMode = false

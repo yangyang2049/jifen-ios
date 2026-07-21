@@ -134,6 +134,43 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(viewModel.currentServerSlot(), 2)
     }
 
+    func testTennisNewFormatsNormalizeAndFinishCorrectly() {
+        let shortSet = TennisViewModel()
+        shortSet.setConfig(maxSets: 1, autoChangeSides: false, gamesPerSet: 4)
+        shortSet.leftTeam.games = 4
+        shortSet.rightTeam.games = 4
+        shortSet.isTieBreak = true
+        shortSet.tieBreakTarget = 7
+        shortSet.leftTeam.score = 6
+        shortSet.rightTeam.score = 5
+        shortSet.addScore(isLeft: true, points: 1)
+        XCTAssertEqual(shortSet.leftTeam.games, 5)
+        XCTAssertTrue(shortSet.gameFinished)
+
+        let matchTieBreak = TennisViewModel()
+        matchTieBreak.setConfig(
+            maxSets: 5,
+            autoChangeSides: false,
+            matchCompletionMode: .playAll,
+            gamesPerSet: 6,
+            setScoringMode: "tiebreak_only"
+        )
+        matchTieBreak.tieBreakTarget = 10
+        XCTAssertEqual(matchTieBreak.maxSets, 1)
+        XCTAssertEqual(matchTieBreak.matchCompletionMode, .bestOf)
+        XCTAssertTrue(matchTieBreak.isTieBreak)
+        matchTieBreak.leftTeam.score = 9
+        matchTieBreak.rightTeam.score = 9
+        matchTieBreak.addScore(isLeft: true, points: 1)
+        XCTAssertFalse(matchTieBreak.gameFinished)
+        matchTieBreak.addScore(isLeft: true, points: 1)
+        XCTAssertEqual(matchTieBreak.leftTeam.sets, 1)
+        XCTAssertTrue(matchTieBreak.gameFinished)
+
+        matchTieBreak.adjustGames(isLeft: true, delta: 1)
+        XCTAssertEqual(matchTieBreak.leftTeam.games, 1)
+    }
+
     func testSportsSetupResultDefaultsMissingCompletionMode() throws {
         let oldJSON = Data(#"{"team1Name":"A","team2Name":"B","maxSets":5}"#.utf8)
         let restored = try JSONDecoder().decode(SportsSetupResult.self, from: oldJSON)

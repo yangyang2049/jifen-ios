@@ -10,9 +10,9 @@ import ScoreCore
 import SwiftUI
 
 struct RecordsTab: View {
-    @StateObject private var scoreboardVM = ScoreboardRecordsViewModel.shared
+    @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
-    @StateObject private var v2RecordsVM = V2SessionRecordsViewModel()
+    @State private var v2RecordsVM = V2SessionRecordsViewModel()
 
     @State private var currentTab: Int = 0 // 0: 全部, 1: 计分, 2: 计时
     @State private var searchText: String = ""
@@ -142,7 +142,10 @@ struct RecordsTab: View {
         var items: [RecordsTabRecordItem] = []
         if currentTab == 0 || currentTab == 1 {
             items += scoreboardVM.records.map { RecordsTabRecordItem.scoreboard($0) }
-            items += v2RecordsVM.records.map { RecordsTabRecordItem.v2($0) }
+            let mirroredIDs = Set(scoreboardVM.records.map(\.id))
+            items += v2RecordsVM.records
+                .filter { !mirroredIDs.contains($0.id.uuidString) }
+                .map { RecordsTabRecordItem.v2($0) }
         }
         if currentTab == 0 || currentTab == 2 {
             items += timerVM.records.filter { $0.gameType != .stopwatch }.map { RecordsTabRecordItem.timer($0) }
@@ -235,6 +238,7 @@ struct RecordsTab: View {
                     scoreboardRowContent(record)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
             }
         case .timer(let record):
             let dest = TimerRecordDetailPage(recordId: record.id)
@@ -304,6 +308,7 @@ struct RecordsTab: View {
         }
         .contentShape(Rectangle())
         .padding(.vertical, Theme.md)
+        .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
     }
 
     private func timerRowContent(_ record: GameRecordSummary) -> some View {

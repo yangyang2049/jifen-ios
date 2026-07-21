@@ -1,7 +1,60 @@
+import PersistenceCore
+import ScoreCore
+import SessionCore
 import SwiftUI
 
+struct UnfinishedGameSummary {
+    enum Source {
+        case legacy(String)
+        case session(UUID)
+    }
+
+    let source: Source
+    let gameType: GameType
+    let scoreText: String
+    let matchTitle: String
+
+    var recordIdentifier: String {
+        switch source {
+        case .legacy(let id): id
+        case .session(let id): id.uuidString
+        }
+    }
+
+    init(legacy record: ScoreboardRecord) {
+        source = .legacy(record.id)
+        gameType = record.gameType
+        scoreText = record.displayScore()
+        matchTitle = record.displayMatchTitle
+    }
+
+    init?(session entry: SessionArchiveEntry) {
+        guard let appGameType = GameType(scoreCoreGameType: entry.gameType) else { return nil }
+        let names = entry.participants.map(\.name).filter { !$0.isEmpty }
+        source = .session(entry.sessionId)
+        gameType = appGameType
+        matchTitle = names.count >= 2 ? "\(names[0]) vs \(names[1])" : names.joined(separator: " vs ")
+
+        let url = SessionArchiveRepository.defaultRootURL().appendingPathComponent(entry.snapshotPath)
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        switch entry.gameType {
+        case .basketball, .threeBasketball:
+            guard let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: data) else { return nil }
+            scoreText = "\(session.state.leftScore) : \(session.state.rightScore)"
+        case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles, .pickleball, .pickleballDoubles,
+             .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
+            guard let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data) else { return nil }
+            scoreText = session.state.leftSets > 0 || session.state.rightSets > 0
+                ? "\(session.state.leftSets) : \(session.state.rightSets)"
+                : "\(session.state.leftPoints) : \(session.state.rightPoints)"
+        default:
+            return nil
+        }
+    }
+}
+
 struct UnfinishedGameBarView: View {
-    let record: ScoreboardRecord
+    let record: UnfinishedGameSummary
     var onContinue: () -> Void
     var onClose: () -> Void
 
@@ -30,7 +83,7 @@ struct UnfinishedGameBarView: View {
                         .foregroundColor(Theme.homeNeutralCardTextPrimary)
                         .lineLimit(1)
 
-                    Text(record.displayMatchTitle)
+                    Text(record.matchTitle)
                         .font(.system(size: 12))
                         .foregroundColor(Theme.homeNeutralCardTextSecondary)
                         .lineLimit(1)
@@ -86,59 +139,6 @@ struct UnfinishedGameBarView: View {
     }
 
     private var displayScore: String {
-        if !record.displayParticipants.isEmpty {
-            return record.displayScore()
-        }
-        let t1 = record.team1FinalScore
-        let t2 = record.team2FinalScore
-        let s1 = record.team1SetScore
-        let s2 = record.team2SetScore
-        let g1 = intFromExtra("leftGames") ?? intFromExtra("finalLeftGames")
-        let g2 = intFromExtra("rightGames") ?? intFromExtra("finalRightGames")
-        let p1 = intFromExtra("leftPoints") ?? intFromExtra("currentLeftScore")
-        let p2 = intFromExtra("rightPoints") ?? intFromExtra("currentRightScore")
-        let hasSetScore = (s1 != nil && s2 != nil)
-        let hasGames = (g1 != nil && g2 != nil)
-        let isTennis = record.gameType == .tennis
-
-        if let s1, let s2, hasSetScore, (s1 != 0 || s2 != 0) {
-            return "\(s1) : \(s2)"
-        }
-        if let g1, let g2, hasGames, (g1 != 0 || g2 != 0) {
-            return "\(g1) : \(g2)"
-        }
-        if let p1, let p2 {
-            if isTennis {
-                return formatTennisPointScore(left: p1, right: p2)
-            }
-            return "\(p1) : \(p2)"
-        }
-        if isTennis, hasSetScore, (s1 ?? 0) == 0, (s2 ?? 0) == 0, hasGames, (g1 ?? 0) == 0, (g2 ?? 0) == 0 {
-            return formatTennisPointScore(left: t1, right: t2)
-        }
-        return "\(t1) : \(t2)"
-    }
-
-    private func formatTennisPointScore(left: Int, right: Int) -> String {
-        if left >= 4 && right == 3 { return "Ad : 40" }
-        if right >= 4 && left == 3 { return "40 : Ad" }
-        return "\(tennisPointString(left)) : \(tennisPointString(right))"
-    }
-
-    private func tennisPointString(_ point: Int) -> String {
-        switch point {
-        case 0: return "0"
-        case 1: return "15"
-        case 2: return "30"
-        default: return "40"
-        }
-    }
-
-    private func intFromExtra(_ key: String) -> Int? {
-        guard let value = record.extraData?[key]?.value else { return nil }
-        if let intValue = value as? Int { return intValue }
-        if let doubleValue = value as? Double { return Int(doubleValue) }
-        if let stringValue = value as? String { return Int(stringValue) }
-        return nil
+        record.scoreText
     }
 }

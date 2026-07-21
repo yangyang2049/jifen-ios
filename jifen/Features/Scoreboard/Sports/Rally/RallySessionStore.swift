@@ -9,11 +9,13 @@ import SessionCore
 @Observable
 final class RallySessionStore {
     private let core: ScoreSessionCore<RallyMatchReducer>
-    private let snapshotStore: AtomicJSONFileStore<ScoreSession<RallyMatchState, RallyMatchEvent>>
-    private let archiveIndex: SessionArchiveIndex
+    private let archiveRepository: SessionArchiveRepository
+    private var detailedActions: [DetailedScoreAction]
 
     private(set) var state: RallyMatchState
     let gameType: ScoreCore.GameType
+    let sessionId: UUID
+    let startedAt: Date
 
     convenience init(
         leftName: String,
@@ -38,12 +40,11 @@ final class RallySessionStore {
         self.init(gameType: gameType, state: initial, participants: providedParticipants)
     }
 
-    init(
+    convenience init(
         gameType: ScoreCore.GameType,
         state: RallyMatchState,
         participants: [SessionParticipant]? = nil
     ) {
-        self.gameType = gameType
         let sessionParticipants = participants ?? [
             .init(id: "left", name: state.leftName, role: "team"),
             .init(id: "right", name: state.rightName, role: "team")
@@ -51,14 +52,33 @@ final class RallySessionStore {
         let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
             gameType: gameType,
             ruleFamily: .s1,
-            reducerType: "rally/v1",
+            reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
             state: state,
-            participants: sessionParticipants
+            participants: sessionParticipants,
+            metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
         )
+        self.init(session: session)
+    }
+
+    private init(session: ScoreSession<RallyMatchState, RallyMatchEvent>) {
+        gameType = session.gameType
+        sessionId = session.sessionId
+        let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
+        startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
         core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
-        snapshotStore = AtomicJSONFileStore(fileURL: Self.snapshotURL(for: session.sessionId))
-        archiveIndex = SessionArchiveIndex(fileURL: Self.archiveIndexURL())
-        self.state = state
+        archiveRepository = SessionArchiveRepository()
+        state = session.state
+        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+    }
+
+    convenience init?(restoring sessionId: UUID) {
+        let url = SessionArchiveRepository.snapshotURL(sessionId: sessionId)
+        guard let data = try? Data(contentsOf: url),
+              let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data),
+              session.status == .live else {
+            return nil
+        }
+        self.init(session: session)
     }
 
     func send(_ intent: RallyMatchIntent, onEvents: (([RallyMatchEvent]) -> Void)? = nil) {
@@ -68,42 +88,86 @@ final class RallySessionStore {
                   let self else { return }
             self.state = session.state
             onEvents?(events)
+            try? await self.archiveRepository.save(session)
+            self.append(events: events, at: now, state: session.state)
+            self.persistRecord(session)
         }
     }
 
     func undo(onRestored: (() -> Void)? = nil) {
         Task { [weak self, core] in
             guard await core.undo(actorId: "phone"), let self else { return }
-            self.state = await core.snapshot().state
-            onRestored?()
-        }
-    }
-
-    func persistSnapshot() {
-        Task { [core, snapshotStore, archiveIndex] in
             let session = await core.snapshot()
-            try? await snapshotStore.save(session)
-            try? await archiveIndex.upsert(.init(
-                sessionId: session.sessionId,
-                gameType: session.gameType,
-                source: .phoneLocal,
-                snapshotPath: "sessions/\(session.sessionId.uuidString).json",
-                participants: session.participants,
-                status: session.status,
-                updatedAtEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
-            ))
+            self.state = session.state
+            onRestored?()
+            try? await self.archiveRepository.save(session)
+            self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftPoints, session.state.rightPoints], setScores: [session.state.leftSets, session.state.rightSets], setNumber: session.state.currentSet, operationCode: "undo"))
+            self.persistRecord(session)
         }
     }
 
-    private static func snapshotURL(for sessionId: UUID) -> URL {
-        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("jifen-v2/sessions", isDirectory: true)
-        return directory.appendingPathComponent("\(sessionId.uuidString).json")
+    func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
+        Task { [core, archiveRepository] in
+            let session = await core.snapshot()
+            do {
+                try await archiveRepository.save(session)
+                self.persistRecord(session)
+                completion?(true)
+            } catch {
+                completion?(false)
+            }
+        }
     }
 
-    private static func archiveIndexURL() -> URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("jifen-v2/session-index.json")
+    private func append(events: [RallyMatchEvent], at milliseconds: Int64, state: RallyMatchState) {
+        for event in events {
+            switch event {
+            case .pointScored(let side, let left, let right):
+                detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, scoreChange: 1, operationCode: "point"))
+            case .setCompleted(let winner, let number, let left, let right, let leftSets, let rightSets):
+                detailedActions.append(.init(type: .setFinished, epochMilliseconds: milliseconds, team: winner == .left ? .team1 : .team2, scores: [left, right], setScores: [leftSets, rightSets], setNumber: number, winner: winner == .left ? .team1 : .team2, operationCode: "set_completed"))
+            case .sidesExchanged:
+                detailedActions.append(.init(type: .sideChanged, epochMilliseconds: milliseconds, scores: [state.leftPoints, state.rightPoints], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, operationCode: "exchange_sides"))
+            case .sidesExchangeReminder:
+                detailedActions.append(.init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [state.leftPoints, state.rightPoints], setNumber: state.currentSet, operationCode: "side_change_reminder"))
+            case .matchReset:
+                detailedActions.append(.init(type: .reset, epochMilliseconds: milliseconds, scores: [0, 0], setScores: [0, 0], operationCode: "reset"))
+            case .matchFinished(let winner):
+                detailedActions.append(.init(type: .matchFinished, epochMilliseconds: milliseconds, scores: [state.leftPoints, state.rightPoints], setScores: [state.leftSets, state.rightSets], winner: winner == .left ? .team1 : (winner == .right ? .team2 : nil), operationCode: "finish"))
+            }
+        }
+    }
+
+    private func persistRecord(_ session: ScoreSession<RallyMatchState, RallyMatchEvent>) {
+        guard let appGameType = GameType(scoreCoreGameType: gameType) else { return }
+        let snapshot = try? JSONEncoder().encode(session)
+        let winner: String? = state.finished && state.leftSets != state.rightSets ? (state.leftSets > state.rightSets ? "left" : "right") : nil
+        let record = ScoreboardRecord(
+            id: sessionId.uuidString,
+            gameType: appGameType,
+            startTime: startedAt,
+            endTime: state.finished ? Date() : nil,
+            duration: Date().timeIntervalSince(startedAt),
+            team1Name: state.leftName,
+            team2Name: state.rightName,
+            team1FinalScore: state.leftPoints,
+            team2FinalScore: state.rightPoints,
+            team1SetScore: state.leftSets,
+            team2SetScore: state.rightSets,
+            winner: winner,
+            detailedActions: detailedActions,
+            setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
+            totalScoreChanges: detailedActions.count,
+            projectConfiguration: [
+                "maxSets": AnyCodable(state.rules.maxSets),
+                "pointsPerSet": AnyCodable(state.rules.pointsToWinSet),
+                "autoChangeSides": AnyCodable(state.rules.autoChangeSides)
+            ],
+            stateSnapshot: snapshot,
+            status: state.finished ? .finished : .draft
+        )
+        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        ScoreboardRecordsViewModel.shared.refreshRecords()
     }
 
     private static func doublesState(

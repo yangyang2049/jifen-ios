@@ -48,7 +48,6 @@ struct PingPongScoreboardView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .landscapeLeft) {
     PingPongScoreboardView()
-        .previewInterfaceOrientation(.landscapeLeft)
 }

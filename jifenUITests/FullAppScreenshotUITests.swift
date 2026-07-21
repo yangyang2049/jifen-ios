@@ -36,6 +36,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         ("go", "围棋", true),
         ("xiangqi", "象棋", true),
         ("chess", "国际象棋", true),
+        ("checkers", "国际跳棋", true),
         ("cube", "魔方", false),
         ("stopwatch", "秒表", false),
         ("timeout", "倒计时", false),
@@ -45,7 +46,9 @@ final class FullAppScreenshotUITests: XCTestCase {
         ("flip_coin", "抛硬币"),
         ("dice", "骰子"),
         ("whistle", "哨子"),
+        ("random_team", "随机分组"),
         ("red_yellow_card", "红黄牌"),
+        ("fullscreen_barrage", "全屏弹幕"),
         ("points_table", "积分表"),
         ("time", "翻页时钟"),
         ("aa_calculator", "AA计算器"),
@@ -259,71 +262,73 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     private func captureAllTools() {
         relaunch()
-        selectTab("首页")
-        for _ in 0..<5 { app.swipeUp() }
-
-        // Enter tools list via chevron near 工具
-        let chevron = app.buttons.matching(NSPredicate(format: "label == %@", "chevron.right")).firstMatch
-        if chevron.exists {
-            chevron.tap()
-        } else {
-            // Tap right side of 工具 header
-            let toolsText = app.staticTexts["工具"]
-            if toolsText.exists {
-                toolsText.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
-            }
-        }
-
-        if app.navigationBars["工具"].waitForExistence(timeout: 3)
-            || app.staticTexts["比赛工具"].waitForExistence(timeout: 2)
-            || app.staticTexts["其他工具"].waitForExistence(timeout: 2) {
-            snap("30_tools_list")
-        }
+        openToolsListFromHome()
+        XCTAssertTrue(
+            app.navigationBars["工具"].waitForExistence(timeout: 4)
+                || app.staticTexts["比赛工具"].waitForExistence(timeout: 2)
+                || app.staticTexts["其他工具"].waitForExistence(timeout: 2),
+            "Tools list did not open"
+        )
+        snap("30_tools_list")
 
         for (index, item) in tools.enumerated() {
             XCTContext.runActivity(named: "Tool \(item.id)") { _ in
-                // Ensure on tools list
                 if !app.descendants(matching: .any)["tool_card_\(item.id)"].exists {
-                    relaunch()
-                    selectTab("首页")
-                    for _ in 0..<5 { app.swipeUp() }
-                    let chevron = app.buttons.matching(NSPredicate(format: "label == %@", "chevron.right")).firstMatch
-                    if chevron.exists { chevron.tap() }
+                    openToolsListFromHome()
                 }
 
                 let card = app.descendants(matching: .any)["tool_card_\(item.id)"]
-                if card.waitForExistence(timeout: 2) {
+                if card.waitForExistence(timeout: 3) {
+                    for _ in 0..<6 where !card.isHittable {
+                        app.swipeUp()
+                    }
                     card.tap()
                 } else {
                     let labels = [item.label, item.label.replacingOccurrences(of: "哨子", with: "哨声")]
                     var tapped = false
                     for label in labels {
-                        let byLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
+                        let byLabel = app.descendants(matching: .any)
+                            .matching(NSPredicate(format: "label CONTAINS %@", label))
+                            .firstMatch
                         if byLabel.waitForExistence(timeout: 2) {
                             byLabel.tap()
                             tapped = true
                             break
                         }
                     }
-                    if !tapped {
-                        // Home grid fallback
-                        relaunch()
-                        selectTab("首页")
-                        for _ in 0..<4 { app.swipeUp() }
-                        let homeTool = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", item.label)).firstMatch
-                        guard homeTool.waitForExistence(timeout: 3) else {
-                            XCTFail("Missing tool: \(item.id)")
-                            return
-                        }
-                        homeTool.tap()
+                    guard tapped else {
+                        XCTFail("Missing tool: \(item.id)")
+                        return
                     }
                 }
 
-                // Some tools are landscape (flip clock)
                 RunLoop.current.run(until: Date().addingTimeInterval(0.8))
                 snap(String(format: "31_%02d_tool_%@", index + 1, item.id))
                 navigateBack()
             }
+        }
+    }
+
+    private func openToolsListFromHome() {
+        relaunch()
+        selectTab("首页")
+        for _ in 0..<6 { app.swipeUp() }
+
+        let allTools = app.descendants(matching: .any)["home_all_tools_button"]
+        if allTools.waitForExistence(timeout: 3) {
+            allTools.tap()
+            return
+        }
+
+        // Fallback for older accessibility trees
+        let chevron = app.buttons.matching(NSPredicate(format: "label == %@", "chevron.right")).firstMatch
+        if chevron.exists {
+            chevron.tap()
+            return
+        }
+        let toolsText = app.staticTexts["工具"]
+        if toolsText.exists {
+            toolsText.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
         }
     }
 
@@ -363,19 +368,30 @@ final class FullAppScreenshotUITests: XCTestCase {
     private func captureScheduleFlow() {
         relaunch()
         selectTab("首页")
-        for _ in 0..<6 { app.swipeUp() }
+        for _ in 0..<4 { app.swipeUp() }
 
-        let entry = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "我的球局", "查看全部")).firstMatch
-        if entry.waitForExistence(timeout: 3) {
-            entry.tap()
+        let scheduleEntry = app.descendants(matching: .any)["home_schedule_all_button"]
+        if scheduleEntry.waitForExistence(timeout: 3) {
+            scheduleEntry.tap()
         } else {
-            tapContaining("球局")
+            // Prefer the section chevron over the empty-state "预约新球局" CTA
+            let chevron = app.buttons.matching(NSPredicate(format: "label == %@", "我的球局")).firstMatch
+            if chevron.waitForExistence(timeout: 2) {
+                chevron.tap()
+            } else {
+                tapContaining("查看全部")
+            }
         }
 
+        XCTAssertTrue(
+            app.navigationBars.matching(NSPredicate(format: "identifier CONTAINS %@ OR label CONTAINS %@", "我的球局", "我的球局")).firstMatch.waitForExistence(timeout: 4)
+                || app.staticTexts["暂无待进行球局"].waitForExistence(timeout: 2)
+                || app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "预约新球局")).firstMatch.waitForExistence(timeout: 2),
+            "Schedule list did not open"
+        )
         RunLoop.current.run(until: Date().addingTimeInterval(0.6))
         snap("50_schedule_list")
 
-        // The navigation title can expose a duplicate, non-hittable button.
         let createTapped = tapFirstHittableButton(containing: "预约新球局", maxScrolls: 3)
             || tapFirstHittableButton(containing: "预约", maxScrolls: 1)
         if createTapped {

@@ -7,6 +7,7 @@ final class BoardTimerConfigTests: XCTestCase {
         XCTAssertEqual(BoardTimerConfig.availableModes(for: .go), [.countdown, .byoyomi])
         XCTAssertEqual(BoardTimerConfig.availableModes(for: .xiangqi), [.countdown, .increment])
         XCTAssertEqual(BoardTimerConfig.availableModes(for: .chess), [.countdown, .increment, .delay])
+        XCTAssertEqual(BoardTimerConfig.availableModes(for: .checkers), [.countdown, .increment])
     }
 
     func testDefaultConfigsMatchHarmonyFastPreset() {
@@ -25,6 +26,11 @@ final class BoardTimerConfigTests: XCTestCase {
         XCTAssertEqual(chess.timeMode, .increment)
         XCTAssertEqual(chess.mainMinutes, 15)
         XCTAssertEqual(chess.incrementSeconds, 10)
+
+        let checkers = BoardTimerConfig.default(for: .checkers)
+        XCTAssertEqual(checkers.timeMode, .increment)
+        XCTAssertEqual(checkers.mainMinutes, 15)
+        XCTAssertEqual(checkers.incrementSeconds, 10)
     }
 
     func testModeDefaultsFillSecondaryFields() {

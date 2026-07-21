@@ -119,8 +119,9 @@ struct SportsSetupDialogView: View {
     var initialMaxSets: Int?
     var initialPointsPerSet: Int?
     var initialTieBreakPoints: Int?
-    /// 由居中容器传入；内容超出时滚动，不设最小高度以免留白。
-    var maxContentHeight: CGFloat = 520
+    var initialSetup: SportsSetupResult? = nil
+    /// 整张 Setup 卡片的可用高度；标题、内容和操作区会分别测量。
+    var maxDialogHeight: CGFloat = 680
     var onConfirm: ((SportsSetupResult) -> Void)?
     var onCancel: (() -> Void)?
 
@@ -140,7 +141,10 @@ struct SportsSetupDialogView: View {
     @State private var activeNameInputTarget: NameInputTarget? = nil
     @State private var selectedMaxSets: Int = 0
     @State private var selectedPointsPerSet: Int = 0
-    @State private var selectedTieBreakPoints: Int = 0
+    @State private var regularTieBreakPoints: Int = 7
+    @State private var matchTieBreakPoints: Int = 7
+    @State private var tennisGamesPerSet: Int = 6
+    @State private var tennisSetScoringMode: String = "regular"
     @State private var matchCompletionMode: MatchCompletionMode = .bestOf
     @State private var customMaxSetsText: String = ""
     @State private var customPointsText: String = ""
@@ -172,7 +176,7 @@ struct SportsSetupDialogView: View {
     private let commonNamesManager = CommonNamesManager.shared
 
     var body: some View {
-        VStack(spacing: 0) {
+        AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 6) {
                 Text(getEmoji())
                     .font(.system(size: 20))
@@ -183,7 +187,7 @@ struct SportsSetupDialogView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .padding(.horizontal, Theme.md)
-
+        } content: { maxContentHeight in
             AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(spacing: 20) {
                     if shouldShowSinglesDoublesAtTop() {
@@ -205,7 +209,7 @@ struct SportsSetupDialogView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, Theme.md)
             }
-
+        } actions: {
             buildDialogActions()
         }
         .onAppear {
@@ -226,7 +230,9 @@ struct SportsSetupDialogView: View {
             if newMode == .bestOf, selectedMaxSets.isMultiple(of: 2) {
                 selectedMaxSets = min(99, selectedMaxSets + 1)
             }
-            customMaxSetsText = matchCompletionPresets.contains(selectedMaxSets) ? "" : String(selectedMaxSets)
+            customMaxSetsText = frameCountPresets.contains(selectedMaxSets) ? "" : (
+                selectedMaxSets > 0 ? String(selectedMaxSets) : ""
+            )
             syncPickleballTargetForSets()
         }
         .onChange(of: selectedMaxSets) { _, _ in
@@ -342,30 +348,48 @@ struct SportsSetupDialogView: View {
     }
 
     private func initializeView() {
-        team1Name = defaultTeam1Name
-        team2Name = defaultTeam2Name
+        let setup = initialSetup
+        team1Name = setup?.team1Name ?? defaultTeam1Name
+        team2Name = setup?.team2Name ?? defaultTeam2Name
         syncDoublesPlayerNamesFromTeamNames()
 
-        selectedMaxSets = initialMaxSets ?? getDefaultMaxSets() ?? 0
-        customMaxSetsText = matchCompletionPresets.contains(selectedMaxSets) ? "" : String(selectedMaxSets)
-        selectedPointsPerSet = initialPointsPerSet ?? getDefaultPointsPerSet() ?? 0
+        selectedMaxSets = setup?.maxSets ?? initialMaxSets ?? getDefaultMaxSets() ?? 0
+        customMaxSetsText = frameCountPresets.contains(selectedMaxSets) ? "" : (
+            selectedMaxSets > 0 ? String(selectedMaxSets) : ""
+        )
+        selectedPointsPerSet = setup?.pointsPerSet ?? initialPointsPerSet ?? getDefaultPointsPerSet() ?? 0
         customPointsText = pointPresets.contains(selectedPointsPerSet) ? "" : String(selectedPointsPerSet)
-        selectedTieBreakPoints = initialTieBreakPoints ?? getDefaultTieBreakPoints() ?? 0
-        basketballRuleSet = "fiba"
-        tennisDeuceMode = "advantage"
-        servingSide = .left
-        voiceAnnouncement = false
-        pickleballTargetScore = 11
-        pickleballScoreCap = nil
-        pickleballUseRallyScoring = false
-        foosballWinByTwo = false
-        foosballScoreCap = nil
+        tennisGamesPerSet = setup?.gamesPerSet == 4 ? 4 : 6
+        tennisSetScoringMode = setup?.setScoringMode == "tiebreak_only" ? "tiebreak_only" : "regular"
+        let restoredTieBreakPoints = setup?.tieBreakPoints ?? initialTieBreakPoints ?? getDefaultTieBreakPoints() ?? 7
+        if tennisSetScoringMode == "tiebreak_only" {
+            matchTieBreakPoints = restoredTieBreakPoints == 10 ? 10 : 7
+            regularTieBreakPoints = 7
+        } else {
+            regularTieBreakPoints = restoredTieBreakPoints == 10 ? 10 : 7
+            matchTieBreakPoints = 7
+        }
+        matchCompletionMode = setup?.matchCompletionMode ?? .bestOf
+        autoChangeSides = setup?.autoChangeSides ?? true
+        basketballRuleSet = setup?.basketballRuleSet ?? "fiba"
+        tennisDeuceMode = setup?.tennisDeuceMode ?? "advantage"
+        servingSide = setup?.servingSide == "right" ? .right : .left
+        voiceAnnouncement = setup?.voiceAnnouncement ?? false
+        pickleballTargetScore = setup?.targetScore ?? 11
+        pickleballScoreCap = setup?.scoreCap
+        pickleballUseRallyScoring = setup?.useRallyScoring ?? false
+        foosballWinByTwo = setup?.winByTwo ?? false
+        foosballScoreCap = setup?.scoreCap
         customFoosballScoreCapText = ""
-        eightBallHandicapMode = "none"
-        eightBallHandicapRacks = 0
+        eightBallHandicapMode = setup?.eightBallHandicapBeneficiary ?? "none"
+        eightBallHandicapRacks = setup?.eightBallHandicapRacks ?? 0
         customEightBallHandicapText = ""
         snookerShowMoreFrames = false
-        isSingles = gameType != .foosball
+        isSingles = setup?.isSingles ?? (gameType != .foosball)
+        team1Player1Name = setup?.team1Player1Name ?? team1Player1Name
+        team1Player2Name = setup?.team1Player2Name ?? team1Player2Name
+        team2Player1Name = setup?.team2Player1Name ?? team2Player1Name
+        team2Player2Name = setup?.team2Player2Name ?? team2Player2Name
         if gameType == .foosball && !isSingles {
             applyDefaultsWhenSwitchingToDoubles()
         }
@@ -523,24 +547,49 @@ struct SportsSetupDialogView: View {
     }
 
     private func servingSideButton(_ side: MatchSide) -> some View {
-        Button {
+        let isSelected = side == servingSide
+
+        return Button {
             servingSide = side
         } label: {
-            Text(getEmoji())
-                .font(.system(size: 20))
-                .frame(width: 34, height: 34)
-                .background(side == servingSide ? Theme.primary.opacity(0.18) : Color.clear)
-                .clipShape(Circle())
-                .overlay {
-                    if side == servingSide {
-                        Circle().stroke(Theme.primary, lineWidth: 1.5)
-                    }
+            Group {
+                if gameType == .archery {
+                    Image(systemName: "scope")
+                        .font(.system(size: 22, weight: .medium))
+                } else {
+                    Image(servingIconAssetName)
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
                 }
+            }
+                .foregroundStyle(isSelected ? Theme.primary : Theme.textSecondary.opacity(0.72))
+                .frame(width: 26, height: 26)
+                .frame(width: 34, height: 34)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(side == .left
             ? NSLocalizedString("setup_serving_left", value: "左侧发球", comment: "")
             : NSLocalizedString("setup_serving_right", value: "右侧发球", comment: ""))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private var servingIconAssetName: String {
+        switch gameType {
+        case .pingpong:
+            return "ic_pingpong_serve"
+        case .badminton:
+            return "ic_badminton_serve"
+        case .tennis, .pickleball:
+            return "ic_tennis_serve"
+        case .volleyball, .beachVolleyball, .airVolleyball:
+            return "ic_volleyball_serve"
+        case .snooker:
+            return "ic_snooker_cue"
+        default:
+            return "ic_pingpong_serve"
+        }
     }
 
     /// 名称区域：左右对半、中间 vs 隔开，无队伍/队员标题（对齐鸿蒙）
@@ -616,7 +665,6 @@ struct SportsSetupDialogView: View {
         }
         .pickerStyle(.segmented)
         .labelsHidden()
-        .tint(Theme.primary)
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityIdentifier("singles_doubles_picker")
         .accessibilityValue(isSingles ? singlesModeLabel : doublesModeLabel)
@@ -706,33 +754,93 @@ struct SportsSetupDialogView: View {
 
     @ViewBuilder
     private func buildTennisSettings() -> some View {
-        buildMatchCompletionSection(useTennisWording: true)
         VStack(alignment: .leading, spacing: 8) {
-            Text(NSLocalizedString("tennis_deuce_mode", value: "40:40 规则", comment: "Tennis deuce mode"))
+            Text(NSLocalizedString("tennis_format_label", value: "赛制", comment: "Tennis format"))
                 .settingsLabelStyle()
-            chipRow(options: ["advantage", "no_ad"], selection: $tennisDeuceMode) { value in
-                value == "no_ad"
-                    ? NSLocalizedString("tennis_deuce_option_no_ad", value: "金球", comment: "")
-                    : NSLocalizedString("tennis_deuce_option_advantage", value: "占先", comment: "")
-            }
-        }
-        VStack(alignment: .leading, spacing: 8) {
-            Text(NSLocalizedString("tennis_tiebreak_label", comment: "Tennis tiebreak label"))
-                .settingsLabelStyle()
-            HStack(spacing: 8) {
-                ForEach([7, 10], id: \.self) { points in
+            HStack(spacing: 6) {
+                ForEach(["regular", "tiebreak_7", "tiebreak_10"], id: \.self) { format in
+                    let selected = format == "regular"
+                        ? tennisSetScoringMode == "regular"
+                        : tennisSetScoringMode == "tiebreak_only" && matchTieBreakPoints == (format == "tiebreak_10" ? 10 : 7)
                     Button {
-                        selectedTieBreakPoints = points
+                        if format == "regular" {
+                            tennisSetScoringMode = "regular"
+                        } else {
+                            tennisSetScoringMode = "tiebreak_only"
+                            matchTieBreakPoints = format == "tiebreak_10" ? 10 : 7
+                        }
                     } label: {
-                        Text(tennisTiebreakOptionText(points))
-                            .font(.system(size: 14, weight: selectedTieBreakPoints == points ? .medium : .regular))
-                            .foregroundStyle(getChipTextColor(selected: selectedTieBreakPoints == points))
+                        Text(tennisFormatOptionText(format))
+                            .font(.system(size: 13, weight: selected ? .medium : .regular))
+                            .foregroundStyle(getChipTextColor(selected: selected))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.72)
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
-                            .background(getChipBackgroundColor(selected: selectedTieBreakPoints == points))
+                            .background(getChipBackgroundColor(selected: selected))
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                }
+            }
+        }
+
+        if tennisSetScoringMode == "regular" {
+            buildMatchCompletionSection(useTennisWording: true)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(NSLocalizedString("tennis_games_per_set_label", value: "每盘局数", comment: "Games per tennis set"))
+                    .settingsLabelStyle()
+                HStack(spacing: 8) {
+                    ForEach([4, 6], id: \.self) { games in
+                        Button {
+                            tennisGamesPerSet = games
+                        } label: {
+                            Text(NSLocalizedString(games == 4 ? "tennis_games_per_set_4" : "tennis_games_per_set_6", value: games == 4 ? "四局制" : "六局制", comment: ""))
+                                .font(.system(size: 14, weight: tennisGamesPerSet == games ? .medium : .regular))
+                                .foregroundStyle(getChipTextColor(selected: tennisGamesPerSet == games))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 40)
+                                .background(getChipBackgroundColor(selected: tennisGamesPerSet == games))
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                if tennisGamesPerSet == 4 {
+                    Text(NSLocalizedString("tennis_short_set_help", value: "先到 4 局且领先 2 局，4-4 进入抢七", comment: "Short tennis set explanation"))
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                Text(NSLocalizedString("tennis_set_tiebreak_label", value: "盘内抢分", comment: "In-set tiebreak"))
+                    .settingsLabelStyle()
+                HStack(spacing: 8) {
+                    ForEach([7, 10], id: \.self) { points in
+                        Button {
+                            regularTieBreakPoints = points
+                        } label: {
+                            Text(tennisTiebreakOptionText(points))
+                                .font(.system(size: 14, weight: regularTieBreakPoints == points ? .medium : .regular))
+                                .foregroundStyle(getChipTextColor(selected: regularTieBreakPoints == points))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 40)
+                                .background(getChipBackgroundColor(selected: regularTieBreakPoints == points))
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                Text(NSLocalizedString("tennis_deuce_mode", value: "40:40 规则", comment: "Tennis deuce mode"))
+                    .settingsLabelStyle()
+                chipRow(options: ["advantage", "no_ad"], selection: $tennisDeuceMode) { value in
+                    value == "no_ad"
+                        ? NSLocalizedString("tennis_deuce_option_no_ad", value: "金球", comment: "")
+                        : NSLocalizedString("tennis_deuce_option_advantage", value: "占先", comment: "")
                 }
             }
         }
@@ -1101,6 +1209,20 @@ struct SportsSetupDialogView: View {
         matchCompletionMode == .playAll ? [1, 2, 3, 4, 5] : [1, 3, 5, 7]
     }
 
+    /// Presets used by the currently visible “局数/盘数” chips (not only classic best-of).
+    private var frameCountPresets: [Int] {
+        switch gameType {
+        case .eightBall:
+            return [1, 3, 5, 7, 9, 11]
+        case .snooker:
+            return [1, 3, 5, 7, 9, 11, 15, 17, 19, 25, 33, 35]
+        case .billiards:
+            return [1, 3, 5, 7, 9, 11]
+        default:
+            return matchCompletionPresets
+        }
+    }
+
     private var hasValidMatchCompletionSets: Bool {
         guard selectedMaxSets >= 1, selectedMaxSets <= 99 else { return false }
         return matchCompletionMode == .playAll || !selectedMaxSets.isMultiple(of: 2)
@@ -1127,28 +1249,38 @@ struct SportsSetupDialogView: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("match_completion_mode_selector")
-
-            if completionModeExpanded {
-                ForEach(MatchCompletionMode.allCases, id: \.self) { mode in
-                    Button(action: {
-                        matchCompletionMode = mode
-                        completionModeExpanded = false
-                    }) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(matchCompletionModeTitle(mode))
-                                .font(.system(size: 16, weight: .medium))
-                            Text(matchCompletionModeDescription(mode, useTennisWording: useTennisWording))
-                                .font(.system(size: 12))
-                                .foregroundColor(Theme.textSecondary)
+            .popover(isPresented: $completionModeExpanded, attachmentAnchor: .rect(.bounds), arrowEdge: .top) {
+                VStack(spacing: Theme.sm) {
+                    ForEach(MatchCompletionMode.allCases, id: \.self) { mode in
+                        Button(action: {
+                            matchCompletionMode = mode
+                            completionModeExpanded = false
+                        }) {
+                            VStack(spacing: 4) {
+                                Text(matchCompletionModeTitle(mode))
+                                    .font(.system(size: 16, weight: mode == matchCompletionMode ? .medium : .regular))
+                                    .foregroundStyle(mode == matchCompletionMode ? Color.white : Theme.textPrimary)
+                                    .frame(maxWidth: .infinity)
+                                    .multilineTextAlignment(.center)
+                                Text(matchCompletionModeDescription(mode, useTennisWording: useTennisWording))
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(mode == matchCompletionMode ? Color.white.opacity(0.88) : Theme.textSecondary)
+                                    .frame(maxWidth: .infinity)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 62)
+                            .padding(.horizontal, 14)
+                            .background(mode == matchCompletionMode ? Theme.primary : Theme.controlBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
-                        .foregroundColor(Theme.textPrimary)
-                        .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-                        .padding(.horizontal, Theme.md)
-                        .background(mode == matchCompletionMode ? Theme.primary.opacity(0.18) : Theme.homeCardDark)
-                        .cornerRadius(Theme.sm)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .frame(width: useTennisWording ? 260 : 244)
+                .presentationCompactAdaptation(.popover)
             }
 
             HStack(spacing: Theme.sm) {
@@ -1160,9 +1292,10 @@ struct SportsSetupDialogView: View {
                         Text("\(sets)")
                             .font(.system(size: 14, weight: selectedMaxSets == sets ? .medium : .regular))
                             .foregroundColor(getChipTextColor(selected: selectedMaxSets == sets))
-                            .frame(minWidth: 30, minHeight: 30)
+                            .frame(maxWidth: .infinity)
+                            .frame(minWidth: 38, minHeight: 36)
                             .background(getChipBackgroundColor(selected: selectedMaxSets == sets))
-                            .cornerRadius(Theme.sm)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
@@ -1176,14 +1309,15 @@ struct SportsSetupDialogView: View {
                     Text(NSLocalizedString("custom", value: "自定义", comment: ""))
                         .font(.system(size: 14))
                         .foregroundColor(getChipTextColor(selected: !matchCompletionPresets.contains(selectedMaxSets)))
-                        .padding(.horizontal, Theme.sm)
-                        .frame(minHeight: 30)
+                        .frame(maxWidth: .infinity)
+                        .frame(minWidth: 58, minHeight: 36)
                         .background(getChipBackgroundColor(selected: !matchCompletionPresets.contains(selectedMaxSets)))
-                        .cornerRadius(Theme.sm)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("custom_match_sets_button")
             }
+            .frame(maxWidth: .infinity, alignment: .center)
 
             if !matchCompletionPresets.contains(selectedMaxSets) {
                 TextField(NSLocalizedString("match_completion_custom_placeholder", value: "输入 1-99", comment: ""), text: Binding(
@@ -1365,6 +1499,17 @@ struct SportsSetupDialogView: View {
             return "\(points)"
         }
     }
+
+    private func tennisFormatOptionText(_ format: String) -> String {
+        switch format {
+        case "tiebreak_7":
+            return NSLocalizedString("tennis_scoring_mode_tiebreak_7", value: "一盘抢七", comment: "")
+        case "tiebreak_10":
+            return NSLocalizedString("tennis_scoring_mode_tiebreak_10", value: "一盘抢十", comment: "")
+        default:
+            return NSLocalizedString("tennis_scoring_mode_regular", value: "传统赛制", comment: "")
+        }
+    }
     
     private func confirmSetup(startOnWatch: Bool = false) async {
         if supportsMatchCompletionMode, !hasValidMatchCompletionSets {
@@ -1414,9 +1559,11 @@ struct SportsSetupDialogView: View {
             finalConfig.servingSide = servingSide.rawValue
             finalConfig.voiceAnnouncement = voiceAnnouncement
         } else if gameType == .tennis {
-            finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
-            finalConfig.matchCompletionMode = matchCompletionMode
-            finalConfig.tieBreakPoints = selectedTieBreakPoints > 0 ? selectedTieBreakPoints : 7
+            finalConfig.maxSets = tennisSetScoringMode == "tiebreak_only" ? 1 : (selectedMaxSets > 0 ? selectedMaxSets : 3)
+            finalConfig.matchCompletionMode = tennisSetScoringMode == "tiebreak_only" ? .bestOf : matchCompletionMode
+            finalConfig.tieBreakPoints = tennisSetScoringMode == "tiebreak_only" ? matchTieBreakPoints : regularTieBreakPoints
+            finalConfig.gamesPerSet = tennisGamesPerSet
+            finalConfig.setScoringMode = tennisSetScoringMode
             finalConfig.autoChangeSides = autoChangeSides
             finalConfig.isSingles = isSingles
             finalConfig.tennisDeuceMode = tennisDeuceMode

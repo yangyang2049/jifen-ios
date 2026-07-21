@@ -1,5 +1,26 @@
 import SwiftUI
 
+enum ScoreboardServeGeometry {
+    static let triangleSize: CGFloat = 36
+
+    static func doublesAnchorY(height: CGFloat, topRow: Bool) -> CGFloat {
+        height * (topRow ? 1 / 6 : 5 / 6)
+    }
+
+    static func keyPointBadgeCenterY(
+        height: CGFloat,
+        doublesTopRow: Bool?,
+        largeWindow: Bool
+    ) -> CGFloat {
+        let triangleCenterY = doublesTopRow.map {
+            doublesAnchorY(height: height, topRow: $0)
+        } ?? (height / 2)
+        let gap: CGFloat = largeWindow ? 14 : 10
+        let badgeHalfHeight: CGFloat = 14
+        return triangleCenterY - triangleSize / 2 - gap - badgeHalfHeight
+    }
+}
+
 enum ServeTriangleDirection {
     case top
     case bottom
@@ -9,7 +30,7 @@ enum ServeTriangleDirection {
 
 struct ServeTriangleIndicator: View {
     let direction: ServeTriangleDirection
-    var triangleSize: CGFloat = 36
+    var triangleSize: CGFloat = ScoreboardServeGeometry.triangleSize
     var color: Color = Color(hex: "30D158")
 
     var body: some View {
@@ -22,7 +43,7 @@ struct ServeTriangleIndicator: View {
 /// 发球指示：箭头整体在发球方一侧，贴中心线。红队发球→箭头在红区右缘贴中线；蓝队发球→箭头在蓝区左缘贴中线。
 struct CenterLineServeIndicator: View {
     let isLeftServing: Bool
-    var triangleSize: CGFloat = 36
+    var triangleSize: CGFloat = ScoreboardServeGeometry.triangleSize
     var color: Color = Color(hex: "30D158")
 
     var body: some View {

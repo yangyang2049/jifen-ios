@@ -6,66 +6,14 @@
 //
 
 import Foundation
+import ScoreCore
 
 @Observable
-class FootballViewModel: BaseScoreViewModel {
-    private static let scoreRange = 0 ... 9999
-
-    override init(controller: BaseScoreboardController? = nil) {
-        super.init(controller: controller, scoreRange: Self.scoreRange)
+class FootballViewModel: LineScoreViewModel {
+    init(controller: BaseScoreboardController? = nil) {
+        super.init(controller: controller, rules: .nonNegative)
         self.leftTeam = TeamData(name: NSLocalizedString("team_home", comment: "Home Team"), score: 0)
         self.rightTeam = TeamData(name: NSLocalizedString("team_away", comment: "Away Team"), score: 0)
-    }
-
-    override func endGame() {
-        gameFinished = true
-    }
-
-    override func addScore(isLeft: Bool, points: Int) {
-        guard !gameFinished else { return }
-
-        // Save history before change
-        controller?.pushHistory(
-            left: leftTeam.score,
-            right: rightTeam.score,
-            leftSets: leftTeam.sets,
-            rightSets: rightTeam.sets,
-            leftGames: leftTeam.games,
-            rightGames: rightTeam.games
-        )
-
-        if isLeft {
-            leftTeam.score = min(Self.scoreRange.upperBound, leftTeam.score + points)
-        } else {
-            rightTeam.score = min(Self.scoreRange.upperBound, rightTeam.score + points)
-        }
-
-        // Record football-specific action
-        controller?.recordScoreAction(action: "\(isLeft ? leftTeam.name : rightTeam.name) 进球 +\(points)分")
-
-        controller?.performVibration(type: .light)
-    }
-
-    override func adjustScore(isLeft: Bool, delta: Int) {
-        guard delta != 0 else { return }
-        // Save history before change
-        controller?.pushHistory(
-            left: leftTeam.score,
-            right: rightTeam.score,
-            leftSets: leftTeam.sets,
-            rightSets: rightTeam.sets,
-            leftGames: leftTeam.games,
-            rightGames: rightTeam.games
-        )
-
-        // Adjust score
-        if isLeft {
-            leftTeam.score = min(Self.scoreRange.upperBound, max(Self.scoreRange.lowerBound, leftTeam.score + delta))
-        } else {
-            rightTeam.score = min(Self.scoreRange.upperBound, max(Self.scoreRange.lowerBound, rightTeam.score + delta))
-        }
-
-        controller?.performVibration(type: .light)
     }
 
     func getScoringOptions() -> [Int] {

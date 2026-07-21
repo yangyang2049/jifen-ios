@@ -681,3 +681,25 @@ private struct CounterReducer: DomainReducer {
     state = reducer.reduce(state: state, intent: .reset, at: 2).state
     #expect(state.doubles?.playerNames == names)
 }
+
+@Test func sessionArchiveRepositoryOwnsSnapshotIndexAndDeletion() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    let repository = SessionArchiveRepository(rootURL: root)
+    let state = LineScoreState(leftName: "A", rightName: "B", rules: .freeCounter, leftScore: -2, rightScore: 4)
+    let session = ScoreSession<LineScoreState, LineScoreEvent>(
+        gameType: .simpleScore,
+        ruleFamily: .s1,
+        reducerType: "line/v1",
+        state: state
+    )
+
+    try await repository.save(session, updatedAtEpochMilliseconds: 100)
+    #expect(try await repository.entries().map(\.sessionId) == [session.sessionId])
+    let restored: ScoreSession<LineScoreState, LineScoreEvent>? = try await repository.load(sessionId: session.sessionId)
+    #expect(restored?.state == state)
+
+    try await repository.remove(sessionId: session.sessionId)
+    #expect(try await repository.entries().isEmpty)
+    #expect(!FileManager.default.fileExists(atPath: SessionArchiveRepository.snapshotURL(sessionId: session.sessionId, rootURL: root).path))
+}

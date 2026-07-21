@@ -10,8 +10,7 @@ import SwiftUI
 @Observable
 private final class WatchRallySessionStore {
     private let core: ScoreSessionCore<RallyMatchReducer>
-    private let snapshotStore: AtomicJSONFileStore<ScoreSession<RallyMatchState, RallyMatchEvent>>
-    private let archiveIndex: SessionArchiveIndex
+    private let archiveRepository: SessionArchiveRepository
 
     private(set) var state: RallyMatchState
 
@@ -24,7 +23,7 @@ private final class WatchRallySessionStore {
         let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
             gameType: gameType,
             ruleFamily: .s1,
-            reducerType: "rally/v1",
+            reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
             state: initial,
             participants: [
                 .init(id: "left", name: initial.leftName, role: "team"),
@@ -32,8 +31,7 @@ private final class WatchRallySessionStore {
             ]
         )
         core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
-        snapshotStore = AtomicJSONFileStore(fileURL: Self.snapshotURL(for: session.sessionId))
-        archiveIndex = SessionArchiveIndex(fileURL: Self.archiveIndexURL())
+        archiveRepository = SessionArchiveRepository()
         state = initial
     }
 
@@ -46,45 +44,28 @@ private final class WatchRallySessionStore {
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
             guard case .accepted(let session, _) = await core.dispatch(actorId: "watch", intent: intent, at: now), let self else { return }
             self.state = session.state
+            try? await self.archiveRepository.save(session, source: .watchLocal)
         }
     }
 
     func undo() {
         Task { [weak self, core] in
             guard await core.undo(actorId: "watch"), let self else { return }
-            self.state = await core.snapshot().state
+            let session = await core.snapshot()
+            self.state = session.state
+            try? await self.archiveRepository.save(session, source: .watchLocal)
         }
     }
 
     func persist() {
-        Task { [core, snapshotStore, archiveIndex] in
+        Task { [core, archiveRepository] in
             let session = await core.snapshot()
-            try? await snapshotStore.save(session)
-            try? await archiveIndex.upsert(.init(
-                sessionId: session.sessionId,
-                gameType: session.gameType,
-                source: .watchLocal,
-                snapshotPath: "watch-sessions/\(session.sessionId.uuidString).json",
-                participants: session.participants,
-                status: session.status,
-                updatedAtEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
-            ))
+            try? await archiveRepository.save(session, source: .watchLocal)
         }
     }
 
     func replaceDisplayedState(_ state: RallyMatchState) {
         self.state = state
-    }
-
-    private static func snapshotURL(for sessionId: UUID) -> URL {
-        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("jifen-v2/watch-sessions", isDirectory: true)
-        return directory.appendingPathComponent("\(sessionId.uuidString).json")
-    }
-
-    private static func archiveIndexURL() -> URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("jifen-v2/session-index.json")
     }
 }
 

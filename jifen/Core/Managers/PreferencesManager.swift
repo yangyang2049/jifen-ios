@@ -6,13 +6,11 @@
 //
 
 import Foundation
+import Observation
 import ScoreCore
 
-extension Notification.Name {
-    static let scoreboardPreferencesDidChange = Notification.Name("scoreboardPreferencesDidChange")
-}
-
 /// User preferences manager
+@Observable
 class PreferencesManager {
     static let shared = PreferencesManager()
     
@@ -21,6 +19,7 @@ class PreferencesManager {
     }
     
     private let defaults = UserDefaults.standard
+    private(set) var scoreboardRevision: UInt64 = 0
     
     // Vibration
     var vibrationEnabled: Bool {
@@ -205,7 +204,7 @@ class PreferencesManager {
     }
 
     private func notifyScoreboardPreferencesChanged() {
-        NotificationCenter.default.post(name: .scoreboardPreferencesDidChange, object: nil)
+        scoreboardRevision &+= 1
     }
 }
 

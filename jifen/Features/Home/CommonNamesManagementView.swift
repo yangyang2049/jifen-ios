@@ -349,9 +349,12 @@ struct CommonNamesManagementView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    let canAdd = !addInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     Button(NSLocalizedString("common_names_add", value: "添加", comment: "")) {
                         submitAddAndContinue()
                     }
+                    .disabled(!canAdd)
+                    .foregroundStyle(canAdd ? Theme.primary : Theme.textSecondary)
                 }
             }
             .onAppear {

@@ -65,6 +65,23 @@ struct KeyPointStatusTests {
         #expect(KeyPointResolver.tennis(snapshot: snapshot) == .init(kind: .match, side: .left))
     }
 
+    @Test func tennisNewFormatsProduceSetAndMatchPoints() {
+        var shortSet = tennisSnapshot()
+        shortSet.gamesPerSet = 4
+        shortSet.leftGames = 3
+        shortSet.leftPoints = 3
+        #expect(KeyPointResolver.tennis(snapshot: shortSet) == .init(kind: .set, side: .left))
+
+        var matchTieBreak = tennisSnapshot()
+        matchTieBreak.maxSets = 1
+        matchTieBreak.setScoringMode = "tiebreak_only"
+        matchTieBreak.isTieBreak = true
+        matchTieBreak.tieBreakTarget = 10
+        matchTieBreak.leftPoints = 9
+        matchTieBreak.rightPoints = 8
+        #expect(KeyPointResolver.tennis(snapshot: matchTieBreak) == .init(kind: .match, side: .left))
+    }
+
     private func tennisSnapshot() -> TennisKeyPointSnapshot {
         .init(
             leftPoints: 0,

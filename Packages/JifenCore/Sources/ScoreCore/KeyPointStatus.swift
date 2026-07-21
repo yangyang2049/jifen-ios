@@ -29,6 +29,8 @@ public struct TennisKeyPointSnapshot: Equatable, Sendable {
     public var tieBreakTarget: Int
     public var usesNoAdScoring: Bool
     public var finished: Bool
+    public var gamesPerSet: Int
+    public var setScoringMode: String
 
     public init(
         leftPoints: Int,
@@ -42,7 +44,9 @@ public struct TennisKeyPointSnapshot: Equatable, Sendable {
         isTieBreak: Bool,
         tieBreakTarget: Int,
         usesNoAdScoring: Bool,
-        finished: Bool
+        finished: Bool,
+        gamesPerSet: Int = 6,
+        setScoringMode: String = "regular"
     ) {
         self.leftPoints = leftPoints
         self.rightPoints = rightPoints
@@ -56,6 +60,8 @@ public struct TennisKeyPointSnapshot: Equatable, Sendable {
         self.tieBreakTarget = tieBreakTarget
         self.usesNoAdScoring = usesNoAdScoring
         self.finished = finished
+        self.gamesPerSet = gamesPerSet == 4 ? 4 : 6
+        self.setScoringMode = setScoringMode == "tiebreak_only" ? "tiebreak_only" : "regular"
     }
 }
 
@@ -133,16 +139,18 @@ public enum KeyPointResolver {
         var leftGames = snapshot.leftGames
         var rightGames = snapshot.rightGames
         if side == .left { leftGames += 1 } else { rightGames += 1 }
-        let winsSet = (leftGames >= 6 && leftGames - rightGames >= 2)
-            || (rightGames >= 6 && rightGames - leftGames >= 2)
-            || (leftGames == 7 && rightGames == 6)
-            || (rightGames == 7 && leftGames == 6)
+        let target = snapshot.gamesPerSet == 4 ? 4 : 6
+        let winsSet = snapshot.setScoringMode == "tiebreak_only"
+            || (leftGames >= target && leftGames - rightGames >= 2)
+            || (rightGames >= target && rightGames - leftGames >= 2)
+            || (leftGames == target + 1 && rightGames == target)
+            || (rightGames == target + 1 && leftGames == target)
         guard winsSet else { return nil }
 
         var leftSets = snapshot.leftSets
         var rightSets = snapshot.rightSets
         if side == .left { leftSets += 1 } else { rightSets += 1 }
-        return snapshot.matchCompletionMode.isMatchFinished(
+        return snapshot.setScoringMode == "tiebreak_only" || snapshot.matchCompletionMode.isMatchFinished(
             maxSets: snapshot.maxSets,
             leftSets: leftSets,
             rightSets: rightSets

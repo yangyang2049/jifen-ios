@@ -83,15 +83,33 @@ struct jifenApp: App {
 
     init() {
         FontRegistrar.registerFonts()
+        UITestRecordFixtures.installIfRequested()
     }
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            rootView
                 .environment(appearance)
                 .environment(watchLinkService)
                 .preferredColorScheme(appearance.mode.preferredColorScheme)
         }
+    }
+
+    @ViewBuilder
+    private var rootView: some View {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        if let index = arguments.firstIndex(of: "-UITestRecordDetail"),
+           arguments.indices.contains(index + 1) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: "ui-fixture-\(arguments[index + 1])")
+            }
+        } else {
+            ContentView()
+        }
+        #else
+        ContentView()
+        #endif
     }
 }
 

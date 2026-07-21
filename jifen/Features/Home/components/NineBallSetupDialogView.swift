@@ -3,7 +3,8 @@ import SwiftUI
 /// 追分开局设置。人数与事件分值直接写入 `SportsSetupResult`，计分板不再
 /// 根据页面默认值二次猜测，和鸿蒙/安卓的 setup -> reducer 契约保持一致。
 struct NineBallSetupDialogView: View {
-    var maxContentHeight: CGFloat = 520
+    var initialSetup: SportsSetupResult? = nil
+    var maxDialogHeight: CGFloat = 680
     var onConfirm: (SportsSetupResult) -> Void
     var onCancel: (() -> Void)?
 
@@ -22,7 +23,7 @@ struct NineBallSetupDialogView: View {
     @State private var foul = 1
 
     var body: some View {
-        VStack(spacing: 0) {
+        AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 6) {
                 Text("🎱")
                 Text(NSLocalizedString("game_nine_ball", value: "追分", comment: ""))
@@ -31,7 +32,7 @@ struct NineBallSetupDialogView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 56)
-
+        } content: { maxContentHeight in
             AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(spacing: 18) {
                     Picker("", selection: $playerCount) {
@@ -69,7 +70,7 @@ struct NineBallSetupDialogView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 16)
             }
-
+        } actions: {
             HStack(spacing: 16) {
                 Button(action: cancel) {
                     Text(NSLocalizedString("cancel", comment: ""))
@@ -101,6 +102,21 @@ struct NineBallSetupDialogView: View {
                 activeNameIndex = nil
             }
         }
+        .onAppear(perform: applyInitialSetup)
+    }
+
+    private func applyInitialSetup() {
+        guard let setup = initialSetup else { return }
+        playerCount = min(4, max(2, setup.playerCount ?? setup.playerNames?.count ?? 2))
+        for (index, name) in (setup.playerNames ?? []).prefix(4).enumerated() {
+            playerNames[index] = name
+        }
+        bigGold = setup.nineBallBigGold ?? bigGold
+        smallGold = setup.nineBallSmallGold ?? smallGold
+        goldenNine = setup.nineBallGoldenNine ?? goldenNine
+        normalWin = setup.nineBallNormalWin ?? normalWin
+        ballInHand = setup.nineBallBallInHand ?? ballInHand
+        foul = setup.nineBallFoul ?? foul
     }
 
     private func scoreStepper(_ key: String, fallback: String, value: Binding<Int>) -> some View {

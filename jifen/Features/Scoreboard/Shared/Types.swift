@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ScoreCore
 import SwiftUI
 
 // MARK: - Game Type
@@ -134,6 +135,38 @@ enum GameType: String, Codable, CaseIterable {
         default: return rawValue
         }
     }
+
+    init?(scoreCoreGameType: ScoreCore.GameType) {
+        switch scoreCoreGameType {
+        case .pingpong, .pingpongDoubles: self = .pingpong
+        case .badminton, .badmintonDoubles: self = .badminton
+        case .tennis, .tennisDoubles: self = .tennis
+        case .basketball: self = .basketball
+        case .threeBasketball: self = .threeBasketball
+        case .football: self = .football
+        case .volleyball: self = .volleyball
+        case .beachVolleyball: self = .beachVolleyball
+        case .airVolleyball: self = .airVolleyball
+        case .boxing: self = .boxing
+        case .billiards: self = .billiards
+        case .eightBall: self = .eightBall
+        case .nineBall: self = .nineBall
+        case .snooker: self = .snooker
+        case .pickleball, .pickleballDoubles: self = .pickleball
+        case .archeryDual: self = .archery
+        case .guandan: self = .guandan
+        case .doudizhu: self = .doudizhu
+        case .shengji: self = .shengji
+        case .uno: self = .uno
+        case .foosball, .foosballDoubles: self = .foosball
+        case .simpleScore: self = .simpleScore
+        case .multiScoreboard: self = .multiScoreboard
+        }
+    }
+
+    var scoreCoreGameType: ScoreCore.GameType? {
+        ScoreCore.GameType(rawValue: canonicalScoreboardIdentifier)
+    }
 }
 
 // MARK: - Team Data
@@ -219,6 +252,7 @@ protocol BaseScoreboardControllerProtocol {
     func pushHistory(left: Int, right: Int, leftSets: Int?, rightSets: Int?, leftGames: Int?, rightGames: Int?)
     func popHistory() -> HistoryItem?
     func clearHistory()
+    func recordScoreAction(action: String)
     func getScoringOptions() -> [Int]
     func handleExitClick() -> Bool
     func captureScreenshot(of view: UIView) -> UIImage?
@@ -266,6 +300,10 @@ struct TemplateConfig {
     let showEndGame: Bool
     let showSettleMatch: Bool
     let onEndGame: (() -> Void)?
+    let extraMenuItemsProvider: (() -> [ScoreboardMenuItem])?
+    let onMenuAction: ((String) -> Void)?
+    /// Optional semantic key-point state for local display snapshots.
+    let syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)?
     /// When set, replaces default tap-to-+1 / double-tap scoring for that panel side.
     let onScorePanelTap: ((Bool) -> Void)?
 
@@ -283,6 +321,9 @@ struct TemplateConfig {
         showEndGame: Bool = false,
         showSettleMatch: Bool = false,
         onEndGame: (() -> Void)? = nil,
+        extraMenuItemsProvider: (() -> [ScoreboardMenuItem])? = nil,
+        onMenuAction: ((String) -> Void)? = nil,
+        syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)? = nil,
         onScorePanelTap: ((Bool) -> Void)? = nil
     ) {
         self.gameType = gameType
@@ -298,6 +339,9 @@ struct TemplateConfig {
         self.showEndGame = showEndGame
         self.showSettleMatch = showSettleMatch
         self.onEndGame = onEndGame
+        self.extraMenuItemsProvider = extraMenuItemsProvider
+        self.onMenuAction = onMenuAction
+        self.syncKeyPointProvider = syncKeyPointProvider
         self.onScorePanelTap = onScorePanelTap
     }
 }
