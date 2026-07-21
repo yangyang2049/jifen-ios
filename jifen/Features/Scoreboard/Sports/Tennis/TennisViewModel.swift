@@ -49,6 +49,8 @@ class TennisViewModel: BaseScoreViewModel {
     var onSideChangeCallback: ((Bool) -> Void)? = nil
 
     private var tennisHistory: [TennisStateSnapshot] = []
+    private var completedSetScores: [VoiceSetScore] = []
+    private var didSpeakOpeningAnnouncement = false
 
     override init(controller: BaseScoreboardController? = nil) {
         super.init(controller: controller)
@@ -221,15 +223,20 @@ class TennisViewModel: BaseScoreViewModel {
             } else {
                 rightTeam.score += points
             }
-            announceScoreIfNeeded()
-            
+
+            let tieBreakJustWon = max(leftTeam.score, rightTeam.score) >= tieBreakTarget
+                && abs(leftTeam.score - rightTeam.score) >= 2
+            if !tieBreakJustWon {
+                announceScoreChange()
+            }
+
             let totalScore = leftTeam.score + rightTeam.score
             let expectedChangeCount = totalScore / 6
             if expectedChangeCount > tieBreakChangeSidesCount {
                 tieBreakChangeSidesCount = expectedChangeCount
                 applySideChangeIfNeeded()
             }
-            
+
             handleTieBreak()
         } else {
             if isLeft {
@@ -237,7 +244,10 @@ class TennisViewModel: BaseScoreViewModel {
             } else {
                 rightTeam.score += points
             }
-            announceScoreIfNeeded()
+            let gameJustWon = canWinGame(leftScore: leftTeam.score, rightScore: rightTeam.score)
+            if !gameJustWon {
+                announceScoreChange()
+            }
             checkGameWinner()
         }
         
@@ -263,6 +273,8 @@ class TennisViewModel: BaseScoreViewModel {
         tieBreakFirstServer = openingServerSide
         tieBreakFirstServerSlot = firstServerSlotInSet
         tennisHistory.removeAll()
+        completedSetScores = []
+        didSpeakOpeningAnnouncement = false
     }
     
     override func undo() -> Bool {
@@ -306,7 +318,9 @@ class TennisViewModel: BaseScoreViewModel {
         let prevTeam0Receiver = team0FirstReceiverSlot
         team0FirstReceiverSlot = swapDoublesSlotSides(team1FirstReceiverSlot)
         team1FirstReceiverSlot = swapDoublesSlotSides(prevTeam0Receiver)
+        completedSetScores = completedSetScores.map { $0.swapped() }
         controller?.performVibration(type: .medium)
+        announceSideChange()
     }
     
     // MARK: - Game Logic
@@ -332,6 +346,7 @@ class TennisViewModel: BaseScoreViewModel {
         let rightGames = rightTeam.games ?? 0
         
         onGameEndCallback?(leftGames, rightGames, currentGameInSet)
+        announceGameEnd(leftGames: leftGames, rightGames: rightGames)
 
         let setJustWon = setWinnerIsDecided(leftGames: leftGames, rightGames: rightGames)
         // Odd games in set → change ends, unless the set itself just ended (set-end path handles that).
@@ -389,9 +404,93 @@ class TennisViewModel: BaseScoreViewModel {
         }
     }
 
-    private func announceScoreIfNeeded() {
+    private func announceScoreChange() {
         guard voiceAnnouncement else { return }
-        ScoreVoiceAnnouncer.shared.announce(left: leftTeam.score, right: rightTeam.score)
+        let payload = VoiceAnnouncementPayload(
+            gameType: isSingles ? .tennis : .tennisDoubles,
+            phase: .scoreChange,
+            leftTeamName: leftTeam.name,
+            rightTeamName: rightTeam.name,
+            leftScore: leftTeam.score,
+            rightScore: rightTeam.score,
+            leftSets: leftTeam.sets ?? 0,
+            rightSets: rightTeam.sets ?? 0,
+            currentSet: currentSet,
+            serverSide: servingSide(),
+            isTieBreak: isTieBreak,
+            tennisDeuceMode: usesNoAdScoring ? "no_ad" : "advantage"
+        )
+        ScoreVoiceAnnouncer.shared.speak(payload)
+    }
+
+    private func announceGameEnd(leftGames: Int, rightGames: Int) {
+        guard voiceAnnouncement else { return }
+        if setWinnerIsDecided(leftGames: leftGames, rightGames: rightGames) {
+            return
+        }
+        // Point scores still hold the game-winning point here.
+        let inferredWinner: MatchSide = leftTeam.score > rightTeam.score ? .left : .right
+        let payload = VoiceAnnouncementPayload(
+            gameType: isSingles ? .tennis : .tennisDoubles,
+            phase: .gameEnd,
+            leftTeamName: leftTeam.name,
+            rightTeamName: rightTeam.name,
+            leftScore: leftGames,
+            rightScore: rightGames,
+            leftSets: leftTeam.sets ?? 0,
+            rightSets: rightTeam.sets ?? 0,
+            currentSet: currentSet,
+            winnerSide: inferredWinner,
+            winnerName: inferredWinner == .left ? leftTeam.name : rightTeam.name,
+            tennisDeuceMode: usesNoAdScoring ? "no_ad" : "advantage"
+        )
+        ScoreVoiceAnnouncer.shared.speak(payload)
+    }
+
+    private func announceSideChange() {
+        guard voiceAnnouncement else { return }
+        let payload = VoiceAnnouncementPayload(
+            gameType: isSingles ? .tennis : .tennisDoubles,
+            phase: .sideChange,
+            leftTeamName: leftTeam.name,
+            rightTeamName: rightTeam.name,
+            leftScore: leftTeam.score,
+            rightScore: rightTeam.score,
+            leftSets: leftTeam.sets ?? 0,
+            rightSets: rightTeam.sets ?? 0,
+            currentSet: currentSet
+        )
+        ScoreVoiceAnnouncer.shared.speak(payload)
+    }
+
+    private func announceSetOrMatchEnd(
+        leftGames: Int,
+        rightGames: Int,
+        setNumber: Int,
+        newLeftSets: Int,
+        newRightSets: Int,
+        isMatchFinished: Bool,
+        winnerName: String,
+        winnerIsLeft: Bool
+    ) {
+        guard voiceAnnouncement else { return }
+        completedSetScores.append(VoiceSetScore(leftGames: leftGames, rightGames: rightGames))
+        let payload = VoiceAnnouncementPayload(
+            gameType: isSingles ? .tennis : .tennisDoubles,
+            phase: isMatchFinished ? .matchEnd : .setEnd,
+            leftTeamName: leftTeam.name,
+            rightTeamName: rightTeam.name,
+            leftScore: leftGames,
+            rightScore: rightGames,
+            leftSets: newLeftSets,
+            rightSets: newRightSets,
+            currentSet: setNumber,
+            winnerSide: winnerIsLeft ? .left : .right,
+            winnerName: winnerName,
+            tennisDeuceMode: usesNoAdScoring ? "no_ad" : "advantage",
+            setScores: completedSetScores
+        )
+        ScoreVoiceAnnouncer.shared.speak(payload)
     }
     
     private func shouldStartTieBreak(leftGames: Int, rightGames: Int) -> Bool {
@@ -463,6 +562,17 @@ class TennisViewModel: BaseScoreViewModel {
             rightSets: newRightSets
         )
         let shouldChangeSides = !isGameFinished && (leftGames + rightGames) % 2 == 1
+
+        announceSetOrMatchEnd(
+            leftGames: leftGames,
+            rightGames: rightGames,
+            setNumber: setNumber,
+            newLeftSets: newLeftSets,
+            newRightSets: newRightSets,
+            isMatchFinished: isGameFinished,
+            winnerName: winnerName,
+            winnerIsLeft: winnerIsLeft
+        )
 
         if let callback = onSetEndCallback {
             let callbackData = SetEndCallbackData(
@@ -605,6 +715,7 @@ class TennisViewModel: BaseScoreViewModel {
             exchangeSides()
             onSideChangeCallback?(true)
         } else {
+            announceSideChange()
             onSideChangeCallback?(false)
         }
     }

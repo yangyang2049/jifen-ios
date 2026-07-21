@@ -117,6 +117,24 @@ final class MainFlowUITests: XCTestCase {
         }
     }
 
+    func testScoreboardShowsBottomLeftBackButton() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN"
+        ]
+        app.launch()
+        defer { app.terminate() }
+
+        XCTAssertTrue(openPingPongSetup(in: app))
+        app.buttons["开始"].tap()
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let back = app.descendants(matching: .any)["scoreboard_back_button"]
+        XCTAssertTrue(back.waitForExistence(timeout: 8), "Scoreboard missing bottom-left back button")
+        XCUIDevice.shared.orientation = .portrait
+    }
+
     func testPlayAllSetupSupportsEvenAndCustomSetCounts() {
         runPlayAllSetup(appearance: "light")
     }
@@ -145,7 +163,7 @@ final class MainFlowUITests: XCTestCase {
         randomTeam.tap()
         XCTAssertTrue(app.buttons["random_team_players_4"].waitForExistence(timeout: 5))
         app.buttons["random_team_players_4"].tap()
-        XCTAssertTrue(app.buttons["模拟"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["一键分组"].waitForExistence(timeout: 5))
         addScreenshot("Random team - 4 players")
 
         app.terminate()

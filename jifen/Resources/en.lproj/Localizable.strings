@@ -280,6 +280,9 @@
 "please_change_sides_manually" = "Please change sides manually";
 "press_again_to_exit" = "Press again to exit";
 "press_again_to_reset" = "Press again to reset";
+"click_again_to_reset" = "Click again to reset";
+"click_again_to_finish" = "Tap again to finish the game";
+"click_again_to_exchange_sides" = "Tap again to confirm swap";
 "match_completion_sets" = "Sets";
 "match_completion_sets_tennis" = "Sets";
 "match_completion_classic" = "Classic";
@@ -334,8 +337,8 @@
 
 /* Whistle Tool */
 "whistle_title" = "Whistle";
-"short_whistle" = "Short";
-"long_whistle" = "Long";
+"short_whistle" = "Whistle";
+"long_whistle" = "Buzzer";
 
 /* Random Team Tool */
 "random_team_title" = "Random Team";
@@ -359,6 +362,7 @@
 "heads" = "Heads";
 "tails" = "Tails";
 "total" = "Total";
+"coin_heads_text" = "8";
 
 /* Dice Tool */
 "dice_title" = "Dice";
@@ -369,6 +373,30 @@
 
 /* Points Table Tool */
 "points_table_title" = "Points Table";
+"points_table_empty" = "No points tables";
+"points_table_empty_hint" = "Tap + in the top right to create one";
+"points_table_teams" = "teams";
+"points_table_new_name" = "New Table";
+"points_table_team_a" = "A";
+"points_table_team_b" = "B";
+"points_table_team_c" = "C";
+"points_table_name" = "Name";
+"points_table_rank" = "Rank";
+"points_table_team" = "Team";
+"points_table_played" = "P";
+"points_table_win" = "W";
+"points_table_draw" = "D";
+"points_table_loss" = "L";
+"points_table_points" = "Pts";
+"points_table_add_team" = "Add Team";
+"points_table_team_name" = "Team name";
+"points_table_team_suffix" = "";
+"points_table_new_team" = "Team";
+"points_table_delete_confirm_title" = "Delete this table?";
+"points_table_delete_confirm_message" = "This cannot be undone";
+"points_table_min_teams" = "Keep at least 2 teams";
+"points_table_tap_again_to_delete_team" = "Tap again to delete team";
+"points_table_team_deleted_toast" = "Team deleted";
 "no_players" = "No players";
 "add_player" = "Add Player";
 "player_name" = "Player Name";
@@ -499,6 +527,13 @@
 "about_us_title" = "About Us";
 "about_version_format" = "Version %@";
 "about_legal" = "Information";
+"about_feedback_row" = "Feedback";
+"about_wechat_group" = "WeChat Group";
+"about_qq_group_label" = "QQ Group";
+"about_qq_group_number" = "825096333";
+"about_copy_qq_toast" = "QQ group number copied";
+"about_company_zh" = "重庆豆花科技有限公司";
+"about_company_en" = "Chongqing Douhua Technology Co., Ltd.";
 "terms_of_service" = "Terms of Service";
 "home_common_names_desc" = "Teams and players";
 "common_places_title" = "Common Places";
@@ -844,12 +879,12 @@
 "scoreboard_usage_tap" = "Tap a scoring area to add points. Some games open a round or settlement panel.";
 "scoreboard_usage_undo" = "Use Undo in the menu to reverse a mistaken action.";
 "scoreboard_usage_edit" = "Tap the pencil to edit names and scores, then tap the checkmark to save.";
-"scoreboard_usage_reset" = "Reset requires a second tap within a short time to confirm.";
+"scoreboard_usage_reset" = "Reset, swap sides, finish, and settle need a second tap on the same button (it turns green).";
 "scoreboard_usage_finish" = "Ending a match saves it as a finished record.";
 "scoreboard_usage_display" = "Display Settings controls the theme, font, and immersive mode.";
 "scoreboard_rotate_orientation" = "Switch Layout";
 "settle_match" = "Settle";
-"click_again_to_settle_match" = "Tap again to settle";
+"click_again_to_settle_match" = "Tap again to settle the match";
 "voice_announcement_on" = "Voice: On";
 "voice_announcement_off" = "Voice: Off";
 "scoreboard_key_point_game" = "GP";

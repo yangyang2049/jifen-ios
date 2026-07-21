@@ -9,7 +9,6 @@ import SwiftUI
 
 struct FootballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
-    var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil

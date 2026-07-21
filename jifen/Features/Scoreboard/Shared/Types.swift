@@ -255,6 +255,8 @@ protocol BaseScoreboardControllerProtocol {
     func recordScoreAction(action: String)
     func getScoringOptions() -> [Int]
     func handleExitClick() -> Bool
+    /// Seconds remaining in the double-tap exit confirm window, if armed.
+    var exitConfirmRemainingSeconds: TimeInterval? { get }
     func captureScreenshot(of view: UIView) -> UIImage?
     func saveScreenshotToPhotoLibrary(_ image: UIImage, completion: @escaping (Bool, Error?) -> Void)
     func generateScreenshotFileName() -> String

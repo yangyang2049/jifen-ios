@@ -217,12 +217,13 @@ struct GuandanScoreboardView: View {
         }
     }
 
-    private func undo() {
-        guard let previous = history.popLast() else { return }
+    private func undo() -> Bool {
+        guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
         appendSnapshot("undo")
         showGameFinishedOverlay = state.phase == .finished
+        return true
     }
 
     private func resetMatch() {

@@ -36,9 +36,8 @@ struct DoudizhuScoreboardView: View {
     @State private var editingIndex: Int? = nil
     @State private var editName = ""
     @State private var activeCommonNameIndex: Int? = nil
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var exitClickTime: TimeInterval = 0
-    @State private var resetClickTime: TimeInterval = 0
-    @State private var settleClickTime: TimeInterval = 0
     @State private var toastMessage: String? = nil
     @State private var showScorePanel = false
     @State private var selectedBaseScore = 1
@@ -51,10 +50,17 @@ struct DoudizhuScoreboardView: View {
     @State private var showDisplaySettings = false
     @State private var showLocalSync = false
     @State private var actions: [String]
+    @State private var chromeVisible = true
+    @State private var immersiveGeneration = 0
+    @State private var previousIdleTimerDisabled: Bool?
 
     private let commonNamesManager = CommonNamesManager.shared
     private let baseScoreOptions = [1, 2, 3]
     private let multiplierPowers = [0, 1, 2, 3, 4, 5]
+
+    private var shouldShowChrome: Bool {
+        !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showLocalSync || showScorePanel
+    }
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -131,9 +137,11 @@ struct DoudizhuScoreboardView: View {
                     }
                 }
 
-                topTrailingEditButton
+                if shouldShowChrome {
+                    topTrailingEditButton
+                }
 
-                if !isEditMode && !showScorePanel {
+                if !isEditMode && !showScorePanel && shouldShowChrome {
                     bottomControls
                     // Center + button opens HOS-style settle panel
                     VStack {
@@ -152,10 +160,17 @@ struct DoudizhuScoreboardView: View {
                     }
                 }
 
+                if appearance.immersiveMode && !chromeVisible && !isEditMode && !showScorePanel {
+                    ImmersiveCornerRevealZones(onReveal: revealImmersiveChrome)
+                }
+
                 if showMenu {
                     MenuDialog(
                         isVisible: true,
-                        onClose: { showMenu = false },
+                        onClose: {
+                            menuConfirm.clear()
+                            showMenu = false
+                        },
                         onMenuItemClick: handleDoudizhuMenuAction,
                         items: doudizhuMenuItems
                     )
@@ -177,9 +192,11 @@ struct DoudizhuScoreboardView: View {
                         ToastView(message: message)
                             .padding(.bottom, 24)
                     }
+                    .allowsHitTesting(false)
                 }
             }
             .animation(.easeOut(duration: 0.3), value: showScorePanel)
+            .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         }
         .ignoresSafeArea(.all)
         .navigationTitle(NSLocalizedString("game_doudizhu", comment: "Doudizhu"))
@@ -203,9 +220,14 @@ struct DoudizhuScoreboardView: View {
                 }
                 onSetupConsumed?()
             }
+            appearance = .current()
+            previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
+            UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            revealImmersiveChrome()
         }
         .onDisappear {
             saveRecord(finished: gameFinished)
+            if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
         .sheet(isPresented: Binding(
             get: { activeCommonNameIndex != nil },
@@ -227,7 +249,14 @@ struct DoudizhuScoreboardView: View {
         .sheet(isPresented: $showLocalSync) { LocalSyncView() }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
+            UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            revealImmersiveChrome()
         }
+        .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showLocalSync) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: isEditMode) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showScorePanel) { _, _ in updateImmersiveForBlocking() }
     }
 
     private var topTrailingEditButton: some View {
@@ -271,6 +300,7 @@ struct DoudizhuScoreboardView: View {
                         .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
+                .modifier(ScoreboardBackButtonAccessibility(isBack: true))
                 .padding(.leading, ScoreboardConstants.buttonPadding)
                 .padding(.bottom, ScoreboardConstants.buttonPadding)
 
@@ -541,21 +571,15 @@ struct DoudizhuScoreboardView: View {
     }
 
     private var doudizhuMenuItems: [ScoreboardMenuItem] {
-        let exitConfirming = exitClickTime > 0 &&
-            Date().timeIntervalSince1970 * 1000 - exitClickTime < 2000
-        let resetConfirming = resetClickTime > 0 &&
-            Date().timeIntervalSince1970 * 1000 - resetClickTime < 2000
-        let settleConfirming = settleClickTime > 0 &&
-            Date().timeIntervalSince1970 * 1000 - settleClickTime < 2000
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: false,
             showWhistle: true,
             showScreenshot: true,
             showSettleMatch: true,
-            resetConfirming: resetConfirming,
-            finishConfirming: false,
-            settleConfirming: settleConfirming,
+            resetConfirming: menuConfirm.resetConfirming,
+            finishConfirming: menuConfirm.finishConfirming,
+            settleConfirming: menuConfirm.settleConfirming,
             extraItems: [
                 ScoreboardMenuItem(
                     title: NSLocalizedString("exit", value: "退出", comment: "Exit"),
@@ -563,7 +587,7 @@ struct DoudizhuScoreboardView: View {
                     group: .match,
                     icon: "rectangle.portrait.and.arrow.right",
                     keepDialogOpen: true,
-                    confirming: exitConfirming
+                    confirming: menuConfirm.exitConfirming
                 )
             ]
         ).map { item in
@@ -584,11 +608,12 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func handleDoudizhuMenuAction(_ action: String) {
+        menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
             undoLast()
         case "endGame":
-            markFinished()
+            confirmFinish()
         case "settleMatch":
             confirmSettle()
         case "reset":
@@ -597,8 +622,10 @@ struct DoudizhuScoreboardView: View {
             handleExitAttempt(fromMenu: true)
         case "displaySettings":
             showDisplaySettings = true
+            showMenu = false
         case "localSync":
             showLocalSync = true
+            showMenu = false
         default:
             break
         }
@@ -614,42 +641,66 @@ struct DoudizhuScoreboardView: View {
         VibrationManager.shared.vibrateMedium()
     }
 
-    private func confirmReset() {
-        let now = Date().timeIntervalSince1970 * 1000
-        guard now - resetClickTime < 2000, resetClickTime > 0 else {
-            resetClickTime = now
-            toastMessage = NSLocalizedString("press_again_to_reset", value: "再按一次重置", comment: "")
+    private func confirmFinish() {
+        if menuConfirm.armOrConfirm(.finish) {
+            markFinished()
+            showMenu = false
             return
         }
-        resetClickTime = 0
-        history.append(players.map(\.score))
-        for index in players.indices { players[index].score = 0 }
-        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|reset")
-        gameFinished = false
-        showGameFinishedOverlay = false
-        showScorePanel = false
-        saveRecord()
+        toastMessage = ScoreboardMenuConfirmAction.finish.localizedToast
+    }
+
+    private func confirmReset() {
+        if menuConfirm.armOrConfirm(.reset) {
+            history.append(players.map(\.score))
+            for index in players.indices { players[index].score = 0 }
+            actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|reset")
+            gameFinished = false
+            showGameFinishedOverlay = false
+            showScorePanel = false
+            saveRecord()
+            showMenu = false
+            toastMessage = NSLocalizedString("has_been_reset", value: "已重置", comment: "")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if toastMessage == NSLocalizedString("has_been_reset", value: "已重置", comment: "") {
+                    toastMessage = nil
+                }
+            }
+            return
+        }
+        toastMessage = ScoreboardMenuConfirmAction.reset.localizedToast
     }
 
     private func confirmSettle() {
-        let now = Date().timeIntervalSince1970 * 1000
-        guard now - settleClickTime < 2000, settleClickTime > 0 else {
-            settleClickTime = now
-            toastMessage = NSLocalizedString("click_again_to_settle_match", value: "再按一次结算", comment: "")
+        if menuConfirm.armOrConfirm(.settleMatch) {
+            markFinished()
+            showMenu = false
             return
         }
-        settleClickTime = 0
-        markFinished()
-        showMenu = false
+        toastMessage = ScoreboardMenuConfirmAction.settleMatch.localizedToast
     }
 
     private func undoLast() {
-        guard let last = history.popLast() else { return }
+        guard let last = history.popLast() else {
+            toastMessage = NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: "")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if toastMessage == NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: "") {
+                    toastMessage = nil
+                }
+            }
+            return
+        }
         for i in players.indices where i < last.count {
             players[i].score = last[i]
         }
         actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|undo")
         VibrationManager.shared.vibrateLight()
+        toastMessage = NSLocalizedString("undone", value: "已撤销", comment: "Undo done")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if toastMessage == NSLocalizedString("undone", value: "已撤销", comment: "Undo done") {
+                toastMessage = nil
+            }
+        }
     }
 
     private func confirmEdit(index: Int) {
@@ -721,11 +772,25 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func handleExitAttempt(fromMenu: Bool) {
+        if fromMenu {
+            if menuConfirm.armOrConfirm(.exit) {
+                toastMessage = nil
+                showMenu = false
+                confirmEditIfNeeded()
+                saveRecord(finished: gameFinished)
+                OrientationLock.shared.unlock()
+                onNavigationBack?()
+                dismiss()
+                return
+            }
+            toastMessage = ScoreboardMenuConfirmAction.exit.localizedToast
+            return
+        }
+
         let currentTime = Date().timeIntervalSince1970 * 1000
         if currentTime - exitClickTime < 2000 && exitClickTime > 0 {
             exitClickTime = 0
             toastMessage = nil
-            showMenu = false
             confirmEditIfNeeded()
             saveRecord(finished: gameFinished)
             OrientationLock.shared.unlock()
@@ -736,11 +801,47 @@ struct DoudizhuScoreboardView: View {
 
         exitClickTime = currentTime
         toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
+        revealImmersiveChrome()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if Date().timeIntervalSince1970 * 1000 - exitClickTime >= 2000 {
                 toastMessage = nil
                 exitClickTime = 0
             }
+        }
+    }
+
+    private func revealImmersiveChrome() {
+        chromeVisible = true
+        immersiveGeneration += 1
+        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showLocalSync, !showScorePanel else { return }
+        let hideDelay: TimeInterval
+        let nowMs = Date().timeIntervalSince1970 * 1000
+        if exitClickTime > 0, nowMs - exitClickTime < 2000 {
+            hideDelay = max((2000 - (nowMs - exitClickTime)) / 1000, 0) + 0.05
+        } else {
+            hideDelay = 1.5
+        }
+        let generation = immersiveGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideDelay) {
+            guard generation == immersiveGeneration,
+                  appearance.immersiveMode,
+                  !isEditMode,
+                  !showMenu,
+                  !showDisplaySettings,
+                  !showLocalSync,
+                  !showScorePanel else { return }
+            let now = Date().timeIntervalSince1970 * 1000
+            if exitClickTime > 0, now - exitClickTime < 2000 { return }
+            chromeVisible = false
+        }
+    }
+
+    private func updateImmersiveForBlocking() {
+        if showMenu || showDisplaySettings || showLocalSync || isEditMode || showScorePanel || !appearance.immersiveMode {
+            immersiveGeneration += 1
+            chromeVisible = true
+        } else {
+            revealImmersiveChrome()
         }
     }
 }

@@ -7,14 +7,12 @@ struct RallyScoreboardView: View {
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
     let gameType: ScoreCore.GameType
-    let showBackButton: Bool
     let onNavigationBack: (() -> Void)?
     let onPresented: () -> Void
     @State private var voiceAnnouncementEnabled: Bool
     @State private var store: RallySessionStore
     @State private var watchSessionId: UUID?
-    @State private var finishConfirmationDeadline: Date?
-    @State private var settleConfirmationDeadline: Date?
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var toastMessage: String?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var preferences = PreferencesManager.shared
@@ -36,6 +34,8 @@ struct RallyScoreboardView: View {
     @State private var showGameFinishedOverlay = false
     @State private var legacyRecordId: String?
     @State private var draftSaveGeneration = 0
+    @State private var completedSetScores: [VoiceSetScore] = []
+    @State private var didSpeakOpeningAnnouncement = false
 
     init(
         leftName: String,
@@ -47,11 +47,9 @@ struct RallyScoreboardView: View {
         voiceAnnouncementEnabled: Bool = false,
         initialWatchSessionId: UUID? = nil,
         initialRecordId: String? = nil,
-        showBackButton: Bool = true,
         onNavigationBack: (() -> Void)? = nil,
         onPresented: @escaping () -> Void = {}
     ) {
-        self.showBackButton = showBackButton
         self.onNavigationBack = onNavigationBack
         self.onPresented = onPresented
         _watchSessionId = State(initialValue: initialWatchSessionId)
@@ -141,7 +139,10 @@ struct RallyScoreboardView: View {
 
                 MenuDialog(
                     isVisible: showMenu,
-                    onClose: { showMenu = false },
+                    onClose: {
+                        menuConfirm.clear()
+                        showMenu = false
+                    },
                     onMenuItemClick: handleMenuAction,
                     showEndGame: true,
                     items: menuItems
@@ -187,6 +188,7 @@ struct RallyScoreboardView: View {
                 showGameFinishedOverlay = true
             }
             migrateLegacyDraftIfNeeded()
+            speakOpeningAnnouncementIfNeeded()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
@@ -194,10 +196,6 @@ struct RallyScoreboardView: View {
             revealImmersiveChrome()
         }
         .onChange(of: store.state) { previous, state in
-            if voiceAnnouncementEnabled,
-               previous.leftPoints != state.leftPoints || previous.rightPoints != state.rightPoints {
-                ScoreVoiceAnnouncer.shared.announce(left: state.leftPoints, right: state.rightPoints)
-            }
             if pendingDoublesFlash != nil,
                previous.leftPoints != state.leftPoints || previous.rightPoints != state.rightPoints {
                 processPendingDoublesFlash()
@@ -211,7 +209,10 @@ struct RallyScoreboardView: View {
             }
             scheduleDraftPersist(finished: state.finished)
         }
-        .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showMenu) { _, isOpen in
+            if !isOpen { menuConfirm.clear() }
+            updateImmersiveForBlocking()
+        }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showLocalSync) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: isEditMode) { _, editing in
@@ -268,10 +269,7 @@ struct RallyScoreboardView: View {
                 .onEnded { value in
                     guard !isEditMode else { return }
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
-                        store.undo {
-                            scheduleDraftPersist(finished: store.state.finished)
-                        }
-                        showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
+                        performUndo()
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
@@ -411,10 +409,7 @@ struct RallyScoreboardView: View {
                 .onEnded { value in
                     guard !isEditMode else { return }
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
-                        store.undo {
-                            scheduleDraftPersist(finished: store.state.finished)
-                        }
-                        showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
+                        performUndo()
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
@@ -745,11 +740,9 @@ struct RallyScoreboardView: View {
                 VStack {
                     Spacer()
                     HStack {
-                        if showBackButton {
-                            chromeButton(systemName: "chevron.left", action: requestBack)
-                                .padding(.leading, ScoreboardConstants.buttonPadding)
-                                .padding(.bottom, ScoreboardConstants.buttonPadding)
-                        }
+                        chromeButton(systemName: "chevron.left", action: requestBack)
+                            .padding(.leading, ScoreboardConstants.buttonPadding)
+                            .padding(.bottom, ScoreboardConstants.buttonPadding)
                         Spacer()
                         chromeButton(systemName: "line.3.horizontal") {
                             showMenu = true
@@ -779,20 +772,23 @@ struct RallyScoreboardView: View {
                 .background(Circle().fill(background))
         }
         .buttonStyle(.plain)
+        .modifier(ScoreboardBackButtonAccessibility(isBack: systemName == "chevron.left"))
     }
 
     private var menuItems: [ScoreboardMenuItem] {
-        let extras = [
-            ScoreboardMenuItem(
-                title: voiceAnnouncementEnabled
-                    ? NSLocalizedString("voice_announcement_on", value: "语音：开", comment: "")
-                    : NSLocalizedString("voice_announcement_off", value: "语音：关", comment: ""),
-                action: "voiceAnnouncement",
-                group: .sync,
-                icon: voiceAnnouncementEnabled ? "speaker.wave.2" : "speaker.slash",
-                keepDialogOpen: true
-            )
-        ]
+        let extras: [ScoreboardMenuItem] = VoiceAnnouncementSupport.isSupported(gameType)
+            ? [
+                ScoreboardMenuItem(
+                    title: voiceAnnouncementEnabled
+                        ? NSLocalizedString("voice_announcement_on", value: "语音：开", comment: "")
+                        : NSLocalizedString("voice_announcement_off", value: "语音：关", comment: ""),
+                    action: "voiceAnnouncement",
+                    group: .sync,
+                    icon: voiceAnnouncementEnabled ? "speaker.wave.2" : "speaker.slash",
+                    keepDialogOpen: true
+                )
+            ]
+            : []
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: true,
@@ -801,33 +797,61 @@ struct RallyScoreboardView: View {
             showScreenshot: true,
             showDisplaySettings: true,
             showSettleMatch: gameType == .foosball || gameType == .foosballDoubles,
-            settleConfirming: settleConfirmationDeadline.map { Date() <= $0 } == true,
+            resetConfirming: menuConfirm.resetConfirming,
+            exchangeConfirming: menuConfirm.exchangeConfirming,
+            finishConfirming: menuConfirm.finishConfirming,
+            settleConfirming: menuConfirm.settleConfirming,
             extraItems: extras
         )
     }
 
     private func handleMenuAction(_ action: String) {
+        menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
-            store.undo {
-                scheduleDraftPersist(finished: store.state.finished)
-            }
-            showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
+            performUndo()
         case "exchangeSide":
-            dispatch(.exchangeSides)
+            if menuConfirm.armOrConfirm(.exchangeSide) {
+                dispatch(.exchangeSides)
+            } else {
+                showToast(ScoreboardMenuConfirmAction.exchangeSide.localizedToast)
+            }
         case "reset":
-            showGameFinishedOverlay = false
-            dispatch(.reset)
+            if menuConfirm.armOrConfirm(.reset) {
+                showGameFinishedOverlay = false
+                dispatch(.reset)
+                showToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+                showMenu = false
+            } else {
+                showToast(ScoreboardMenuConfirmAction.reset.localizedToast)
+            }
         case "endGame":
-            finishMatch()
+            if menuConfirm.armOrConfirm(.finish) {
+                finishMatch()
+                showMenu = false
+            } else {
+                showToast(ScoreboardMenuConfirmAction.finish.localizedToast)
+            }
         case "settleMatch":
-            settleMatch()
+            if menuConfirm.armOrConfirm(.settleMatch) {
+                finishMatch()
+                showMenu = false
+            } else {
+                showToast(ScoreboardMenuConfirmAction.settleMatch.localizedToast)
+            }
         case "displaySettings":
             showDisplaySettings = true
+            showMenu = false
         case "localSync":
             showLocalSync = true
+            showMenu = false
         case "voiceAnnouncement":
             voiceAnnouncementEnabled.toggle()
+            if voiceAnnouncementEnabled {
+                speakOpeningAnnouncementIfNeeded()
+            } else {
+                ScoreVoiceAnnouncer.shared.stop()
+            }
             scheduleDraftPersist(finished: store.state.finished)
         default:
             break
@@ -856,14 +880,21 @@ struct RallyScoreboardView: View {
         chromeVisible = true
         immersiveGeneration += 1
         guard appearance.immersiveMode, !isEditMode, !showDisplaySettings, !showLocalSync, !showMenu else { return }
+        let hideDelay: TimeInterval
+        if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
+            hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
+        } else {
+            hideDelay = 1.5
+        }
         let generation = immersiveGeneration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideDelay) {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !isEditMode,
                   !showDisplaySettings,
                   !showLocalSync,
                   !showMenu else { return }
+            if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
         }
     }
@@ -932,9 +963,7 @@ struct RallyScoreboardView: View {
                     guard store.state.rightPoints > 0, !store.state.finished else { return }
                     dispatch(.adjustPoints(side: side, delta: -1))
                 case .undo:
-                    store.undo {
-                        scheduleDraftPersist(finished: store.state.finished)
-                    }
+                    performUndo()
                 case .exchangeSides: dispatch(.exchangeSides)
                 case .requestSnapshot: break
                 }
@@ -951,6 +980,7 @@ struct RallyScoreboardView: View {
         if exitConfirmDeadline.map({ now <= $0 }) != true {
             exitConfirmDeadline = now.addingTimeInterval(2)
             showToast(NSLocalizedString("press_again_to_exit", value: "再按一次退出", comment: ""))
+            revealImmersiveChrome()
             return
         }
         back()
@@ -965,39 +995,13 @@ struct RallyScoreboardView: View {
     }
 
     private func finishMatch() {
-        let now = Date()
-        let requiresConfirmation = store.state.rules.matchCompletionMode == .playAll
-            && !store.state.rules.isMatchFinished(
-                leftSets: store.state.leftSets,
-                rightSets: store.state.rightSets
-            )
-        if requiresConfirmation, finishConfirmationDeadline.map({ now <= $0 }) != true {
-            finishConfirmationDeadline = now.addingTimeInterval(2)
-            showToast(NSLocalizedString(
-                "match_completion_finish_confirmation",
-                value: "尚未打满，2 秒内再次点击结束比赛。",
-                comment: ""
-            ))
-            return
-        }
-        finishConfirmationDeadline = nil
         dispatch(.finish)
     }
 
-    private func settleMatch() {
-        let now = Date()
-        guard settleConfirmationDeadline.map({ now <= $0 }) == true else {
-            settleConfirmationDeadline = now.addingTimeInterval(2)
-            showToast(NSLocalizedString("click_again_to_settle_match", value: "再按一次结算", comment: ""))
-            return
-        }
-        settleConfirmationDeadline = nil
-        finishMatch()
-        showMenu = false
-    }
-
     private func dispatch(_ intent: RallyMatchIntent) {
+        let before = store.state
         store.send(intent) { events in
+            handleVoiceAnnouncement(before: before, events: events)
             handleEvents(events)
         }
     }
@@ -1024,8 +1028,12 @@ struct RallyScoreboardView: View {
                 sideToast = NSLocalizedString("please_change_sides_manually", value: "请手动换边", comment: "")
             case .matchFinished:
                 matchFinished = true
-            case .pointScored, .matchReset:
+            case .pointScored:
                 break
+            case .matchReset:
+                completedSetScores = []
+                didSpeakOpeningAnnouncement = false
+                speakOpeningAnnouncementIfNeeded()
             }
         }
 
@@ -1044,6 +1052,45 @@ struct RallyScoreboardView: View {
             showGameFinishedOverlay = true
             store.persistSnapshot()
         }
+    }
+
+    private func handleVoiceAnnouncement(before: RallyMatchState, events: [RallyMatchEvent]) {
+        guard voiceAnnouncementEnabled,
+              VoiceAnnouncementSupport.isSupported(gameType) else { return }
+
+        // Append completed set first (Android / Harmony order), then flip history on exchange.
+        for event in events {
+            if case let .setCompleted(_, _, leftPoints, rightPoints, _, _) = event {
+                completedSetScores.append(VoiceSetScore(leftGames: leftPoints, rightGames: rightPoints))
+            }
+        }
+        let sideChanged = events.contains {
+            if case .sidesExchanged = $0 { return true }
+            return false
+        }
+        if sideChanged {
+            completedSetScores = completedSetScores.map { $0.swapped() }
+        }
+
+        let payloads = RallyVoiceAnnouncementMapper.payloads(
+            gameType: gameType,
+            before: before,
+            after: store.state,
+            events: events,
+            completedSetScores: completedSetScores
+        )
+        for payload in payloads {
+            ScoreVoiceAnnouncer.shared.speak(payload)
+        }
+    }
+
+    private func speakOpeningAnnouncementIfNeeded() {
+        guard voiceAnnouncementEnabled,
+              !didSpeakOpeningAnnouncement,
+              let payload = RallyVoiceAnnouncementMapper.openingPayload(gameType: gameType, state: store.state)
+        else { return }
+        didSpeakOpeningAnnouncement = true
+        ScoreVoiceAnnouncer.shared.speak(payload)
     }
 
     private var finishedWinnerName: String {
@@ -1107,6 +1154,17 @@ struct RallyScoreboardView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if toastMessage == message {
                 toastMessage = nil
+            }
+        }
+    }
+
+    private func performUndo() {
+        store.undo { success in
+            if success {
+                scheduleDraftPersist(finished: store.state.finished)
+                showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
+            } else {
+                showToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
             }
         }
     }

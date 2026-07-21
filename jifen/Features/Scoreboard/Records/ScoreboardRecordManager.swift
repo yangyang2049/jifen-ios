@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import PersistenceCore
 
 struct ScoreboardRecordIndexEntry: Codable, Equatable {
     let id: String
@@ -212,6 +213,8 @@ final class ScoreboardRecordManager {
                 records.removeAll { $0.id == previousDraftId }
             }
             defaults.set(record.id, forKey: unfinishedRecordIdKey)
+            // Keep Resume GameBar singular across v1 drafts and v2 live sessions.
+            discardConflictingLiveSessions(keeping: UUID(uuidString: record.id))
         } else if getUnfinishedRecordId() == record.id {
             defaults.removeObject(forKey: unfinishedRecordIdKey)
         }
@@ -283,6 +286,17 @@ final class ScoreboardRecordManager {
         records.forEach { RecordSyncOutbox.shared.enqueueDelete(recordID: $0.id) }
         store.removeRecords(records)
         defaults.removeObject(forKey: unfinishedRecordIdKey)
+    }
+
+    private func discardConflictingLiveSessions(keeping sessionId: UUID?) {
+        Task {
+            let repository = SessionArchiveRepository()
+            if let sessionId {
+                try? await repository.discardOtherLiveSessions(except: sessionId)
+            } else {
+                try? await repository.discardAllLiveSessions()
+            }
+        }
     }
 
     private func migrateIfNeeded() {

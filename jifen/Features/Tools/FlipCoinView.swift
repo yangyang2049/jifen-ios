@@ -17,11 +17,14 @@ struct FlipCoinView: View {
     @State private var rotationAngle: Double = 0
     @State private var coinPositionY: CGFloat = 0
     @State private var coinScale: CGFloat = 1.0
-    @State private var isEnglish = false
     @State private var showHint = false
     @State private var flipTimer: Timer?
 
     private let hintShownKey = "flip_coin_hint_shown"
+    /// Chinese: "666"; other languages: "8" (avoid religious connotations of 666 outside Chinese)
+    private var headsText: String {
+        NSLocalizedString("coin_heads_text", value: "8", comment: "Coin heads label")
+    }
 
 
     var body: some View {
@@ -91,6 +94,10 @@ struct FlipCoinView: View {
                                 lineWidth: 2
                             )
                             .frame(width: 178, height: 178)
+                    }
+                    .contentShape(Circle())
+                    .onTapGesture {
+                        flipCoin()
                     }
                     .rotation3DEffect(
                         .degrees(rotationAngle),
@@ -177,8 +184,8 @@ struct FlipCoinView: View {
                                                     .frame(width: 32, height: 32)
                                                     .opacity(0.8)
 
-                                                Text(result.side == .heads ? (isEnglish ? "8" : "666") : "❀")
-                                                    .font(.system(size: 16))
+                                                Text(result.side == .heads ? headsText : "❀")
+                                                    .font(.system(size: headsText.count > 1 ? 12 : 16, weight: .bold, design: .rounded))
                                                     .foregroundColor(Color(hex: "8B6914"))
                                             }
                                         }
@@ -226,8 +233,8 @@ struct FlipCoinView: View {
                 .shadow(color: Color(hex: "6B5210").opacity(0.3), radius: 1, x: 1, y: 1)
                 .rotationEffect(.degrees(180))
         } else {
-            Text(isEnglish ? "8" : "666")
-                .font(.system(size: isEnglish ? 78 : 57, weight: .bold, design: .rounded))
+            Text(headsText)
+                .font(.system(size: headsText.count > 1 ? 57 : 78, weight: .bold, design: .rounded))
                 .foregroundColor(Color(hex: "8B6914"))
                 .shadow(color: Color(hex: "6B5210").opacity(0.3), radius: 1, x: 1, y: 1)
         }

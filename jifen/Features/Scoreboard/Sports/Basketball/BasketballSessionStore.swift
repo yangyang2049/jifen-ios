@@ -85,11 +85,15 @@ final class BasketballSessionStore {
         }
     }
 
-    func undo() {
+    func undo(completion: ((Bool) -> Void)? = nil) {
         Task { [weak self, core] in
-            guard await core.undo(actorId: "phone"), let self else { return }
+            guard await core.undo(actorId: "phone"), let self else {
+                completion?(false)
+                return
+            }
             let session = await core.snapshot()
             self.state = session.state
+            completion?(true)
             try? await self.archiveRepository.save(session)
             self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftScore, session.state.rightScore], periodNumber: session.state.currentPeriod, operationCode: "undo"))
             self.persistRecord(session)

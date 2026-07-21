@@ -537,14 +537,14 @@ struct CubeTimerView: View {
                     if newStatus == .authorized || newStatus == .limited {
                         writeImageToPhotoLibrary(screenshotImage)
                     } else {
-                        showToast(NSLocalizedString("save_screenshot_failed", value: "保存截图失败", comment: ""), duration: 2.0)
+                        showToast(NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: ""), duration: 2.0)
                     }
                 }
             }
             return
         }
 
-        showToast(NSLocalizedString("save_screenshot_failed", value: "保存截图失败", comment: ""), duration: 2.0)
+        showToast(NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: ""), duration: 2.0)
     }
 
     private func writeImageToPhotoLibrary(_ image: UIImage) {

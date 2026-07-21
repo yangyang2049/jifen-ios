@@ -2,7 +2,6 @@ import ScoreCore
 import SwiftUI
 
 struct PingPongScoreboardView: View {
-    var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
@@ -20,7 +19,6 @@ struct PingPongScoreboardView: View {
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialRecordId: initialRecordId,
-            showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )

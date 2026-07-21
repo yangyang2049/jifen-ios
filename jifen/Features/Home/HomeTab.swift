@@ -66,12 +66,19 @@ struct HomeTab: View {
             GeometryReader { geo in
                 let isWide = geo.size.width >= wideLayoutThreshold
                 let contentWidth = geo.size.width - Theme.lg * 2
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: Theme.lg) {
-                        buildHeader()
-                        buildContent(isWide: isWide, contentWidth: contentWidth)
+                // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
+                VStack(spacing: 0) {
+                    HomeHeaderView(headerDate: headerDate) {
+                        showLocalSync = true
                     }
                     .padding(.horizontal, Theme.lg)
+
+                    ScrollView(showsIndicators: false) {
+                        buildContent(isWide: isWide, contentWidth: contentWidth)
+                            .padding(.horizontal, Theme.lg)
+                            .padding(.top, Theme.lg)
+                            .padding(.bottom, Theme.lg)
+                    }
                 }
             }
             .background(Theme.backgroundColor)
@@ -330,7 +337,8 @@ struct HomeTab: View {
     private func loadUnfinishedRecord() {
         Task {
             let repository = SessionArchiveRepository()
-            if let entry = try? await repository.liveEntries().first,
+            // At most one Resume GameBar: prune any stacked live sessions first.
+            if let entry = try? await repository.retainNewestLiveSession(),
                let summary = UnfinishedGameSummary(session: entry) {
                 unfinishedRecord = summary
                 return
@@ -357,11 +365,20 @@ struct HomeTab: View {
         switch unfinishedRecord.source {
         case .legacy:
             _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
-            ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
-            loadUnfinishedRecord()
+            Task {
+                try? await SessionArchiveRepository().discardAllLiveSessions()
+                ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+                loadUnfinishedRecord()
+            }
         case .session(let sessionId):
             Task {
                 try? await SessionArchiveRepository().remove(sessionId: sessionId)
+                if ScoreboardRecordManager.shared.getUnfinishedRecordId() == sessionId.uuidString {
+                    _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
+                } else {
+                    _ = ScoreboardRecordManager.shared.deleteRecord(sessionId.uuidString)
+                }
+                ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
                 loadUnfinishedRecord()
             }
         }
@@ -471,39 +488,6 @@ struct HomeTab: View {
         }
     }
     // MARK: - @ViewBuilder Layouts
-
-    @ViewBuilder
-    private func buildHeader() -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(NSLocalizedString("app_name", comment: "App Name"))
-                    .font(.system(size: Theme.fontH4, weight: .bold))
-                    .foregroundColor(Theme.textPrimary)
-                    .padding(.bottom, 2)
-
-                Text(headerDate)
-                    .font(.system(size: Theme.fontCaption, weight: .medium))
-                    .foregroundColor(Theme.textSecondary)
-            }
-            .layoutPriority(1)
-
-            Spacer()
-
-            Button {
-                showLocalSync = true
-            } label: {
-                Image(systemName: "rectangle.connected.to.line.below")
-                    .font(.system(size: 19, weight: .medium))
-                    .foregroundStyle(Theme.textPrimary)
-                    .frame(width: 44, height: 44)
-                    .background(.thinMaterial)
-                    .clipShape(Circle())
-            }
-            .accessibilityLabel(NSLocalizedString("sync_title", value: "局域网同步", comment: ""))
-        }
-        .padding(.top, Theme.md)
-        .padding(.bottom, Theme.sm)
-    }
 
     @ViewBuilder
     private func buildContent(isWide: Bool, contentWidth: CGFloat = 0) -> some View {

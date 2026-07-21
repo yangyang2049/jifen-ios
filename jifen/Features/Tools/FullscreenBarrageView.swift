@@ -109,17 +109,24 @@ struct FullscreenBarrageView: View {
                 .frame(maxWidth: .infinity)
             }
 
-            overlayButton(systemName: "chevron.left", label: NSLocalizedString("back", value: "返回", comment: "")) {
-                dismiss()
+            VStack {
+                HStack {
+                    overlayButton(systemName: "chevron.left", label: NSLocalizedString("back", value: "返回", comment: "")) {
+                        dismiss()
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                Spacer()
             }
-            .padding(.leading, 16)
-            .padding(.top, 10)
         }
         .accessibilityIdentifier("barrage_settings")
     }
 
     private var runningDisplay: some View {
         GeometryReader { geometry in
+            let fullWidth = geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing
             ZStack {
                 backgroundColor.ignoresSafeArea()
 
@@ -131,19 +138,23 @@ struct FullscreenBarrageView: View {
                         .minimumScaleFactor(0.2)
                         .padding(24)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
                 } else {
-                    scrollingText(width: geometry.size.width)
+                    scrollingText(width: fullWidth)
+                        .ignoresSafeArea()
                 }
 
-                if showEditor {
-                    runningEditor
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                } else {
-                    runningOverlayButtons
+                VStack(spacing: 0) {
+                    if showEditor {
+                        runningEditor
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    } else {
+                        runningOverlayButtons
+                    }
+                    Spacer(minLength: 0)
                 }
             }
         }
-        .ignoresSafeArea()
         .accessibilityIdentifier("barrage_running")
     }
 
@@ -167,63 +178,57 @@ struct FullscreenBarrageView: View {
     }
 
     private var runningOverlayButtons: some View {
-        VStack {
-            HStack {
-                overlayButton(systemName: "chevron.left", label: NSLocalizedString("back", value: "返回", comment: "")) {
-                    dismiss()
-                }
-                Spacer()
-                if UIDevice.current.userInterfaceIdiom == .phone {
-                    overlayButton(systemName: "rectangle.portrait.rotate", label: NSLocalizedString("rotate_display", value: "旋转屏幕", comment: "")) {
-                        rotateScreen()
-                    }
-                }
-                overlayButton(systemName: "pencil", label: NSLocalizedString("edit", value: "编辑", comment: "")) {
-                    withAnimation(.easeInOut(duration: 0.2)) { showEditor = true }
-                }
-                overlayButton(systemName: "xmark", label: NSLocalizedString("close", value: "关闭", comment: "")) {
-                    isRunning = false
-                }
+        HStack(spacing: 12) {
+            overlayButton(systemName: "chevron.left", label: NSLocalizedString("back", value: "返回", comment: "")) {
+                // Exit fullscreen display back to settings (replaces removed close button).
+                isRunning = false
+                showEditor = false
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-            Spacer()
+            Spacer(minLength: 8)
+            overlayButton(systemName: "rectangle.portrait.rotate", label: NSLocalizedString("rotate_display", value: "旋转屏幕", comment: "")) {
+                rotateScreen()
+            }
+            overlayButton(systemName: "pencil", label: NSLocalizedString("edit", value: "编辑", comment: "")) {
+                withAnimation(.easeInOut(duration: 0.2)) { showEditor = true }
+            }
         }
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
     }
 
     private var runningEditor: some View {
         VStack(spacing: 12) {
-            HStack(spacing: 10) {
-                TextField(NSLocalizedString("barrage_input_placeholder", value: "输入要展示的内容", comment: ""), text: $message)
-                    .textFieldStyle(.plain)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .frame(height: 44)
-                    .background(Color(hex: "374151").opacity(0.95))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            TextField(NSLocalizedString("barrage_input_placeholder", value: "输入要展示的内容", comment: ""), text: $message)
+                .textFieldStyle(.plain)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .frame(height: 44)
+                .frame(maxWidth: .infinity)
+                .background(Color(hex: "374151").opacity(0.95))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
+            HStack(spacing: 10) {
                 Button(NSLocalizedString("barrage_scroll_mode", value: "滚动", comment: "")) {
                     mode = .scroll
                     scrollStartedAt = Date()
                 }
                 .buttonStyle(BarrageModeButtonStyle(color: Color(hex: "2563EB")))
+                .frame(maxWidth: .infinity)
 
                 Button(NSLocalizedString("barrage_static_mode", value: "静态", comment: "")) {
                     mode = .static
                 }
                 .buttonStyle(BarrageModeButtonStyle(color: Color(hex: "16A34A")))
+                .frame(maxWidth: .infinity)
             }
 
-            HStack(spacing: 16) {
-                compactSlider(title: NSLocalizedString("barrage_font_size", value: "字号", comment: ""), value: $fontSize, range: 20...200)
-                compactSlider(title: NSLocalizedString("barrage_scroll_speed", value: "速度", comment: ""), value: $speed, range: 5...50)
-            }
+            compactSlider(title: NSLocalizedString("barrage_font_size", value: "字号", comment: ""), value: $fontSize, range: 20...200)
+            compactSlider(title: NSLocalizedString("barrage_scroll_speed", value: "速度", comment: ""), value: $speed, range: 5...50)
 
-            HStack {
-                compactColors(colors: textColors, selection: $textColor)
-                Spacer(minLength: 16)
-                compactColors(colors: backgroundColors, selection: $backgroundColor)
-            }
+            compactColors(colors: textColors, selection: $textColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            compactColors(colors: backgroundColors, selection: $backgroundColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) { showEditor = false }
@@ -237,9 +242,9 @@ struct FullscreenBarrageView: View {
         .padding(.horizontal, 16)
         .padding(.top, 14)
         .padding(.bottom, 12)
+        .frame(maxWidth: .infinity, alignment: .top)
         .background(Color(hex: "1F2937").opacity(0.96))
         .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 16, bottomTrailingRadius: 16))
-        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     private func sliderRow(title: String, value: Binding<Double>, range: ClosedRange<Double>, step: Double) -> some View {
@@ -267,6 +272,8 @@ struct FullscreenBarrageView: View {
                         }
                     }
                 }
+                // Leave room for the selection stroke so it isn't clipped by the scroll view.
+                .padding(.vertical, 4)
             }
         }
     }
@@ -278,16 +285,19 @@ struct FullscreenBarrageView: View {
                 .foregroundStyle(.white.opacity(0.8))
             Slider(value: value, in: range).tint(.blue)
         }
-        .frame(maxWidth: 180)
+        .frame(maxWidth: .infinity)
     }
 
     private func compactColors(colors: [Color], selection: Binding<Color>) -> some View {
-        HStack(spacing: 7) {
-            ForEach(Array(colors.prefix(6).enumerated()), id: \.offset) { _, color in
-                colorButton(color: color, selected: colorsEqual(color, selection.wrappedValue), size: 28) {
-                    selection.wrappedValue = color
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 7) {
+                ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
+                    colorButton(color: color, selected: colorsEqual(color, selection.wrappedValue), size: 28) {
+                        selection.wrappedValue = color
+                    }
                 }
             }
+            .padding(.vertical, 3)
         }
     }
 
@@ -296,7 +306,12 @@ struct FullscreenBarrageView: View {
             Circle()
                 .fill(color)
                 .frame(width: size, height: size)
-                .overlay(Circle().stroke(selected ? Theme.primary : Color.gray.opacity(0.45), lineWidth: selected ? 3 : 1))
+                .overlay(
+                    Circle()
+                        .stroke(selected ? Theme.primary : Color.gray.opacity(0.45), lineWidth: selected ? 3 : 1)
+                )
+                // Always pad for the thicker selection stroke so layout doesn't jump.
+                .padding(3)
         }
         .buttonStyle(.plain)
     }
@@ -407,6 +422,7 @@ private struct BarrageModeButtonStyle: ButtonStyle {
         configuration.label
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
             .padding(.horizontal, 12)
             .frame(height: 44)
             .background(color.opacity(configuration.isPressed ? 0.7 : 0.95))

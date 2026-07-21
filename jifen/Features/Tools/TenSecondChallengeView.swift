@@ -71,7 +71,7 @@ struct TenSecondChallengeView: View {
             // Main timer display
             Text(formatTime(currentTime))
                 .font(.system(size: 100, weight: .bold, design: .monospaced))
-                .foregroundColor(Theme.goldText)
+                .foregroundColor(Theme.primary)
             
             // Result display
             if showResult {

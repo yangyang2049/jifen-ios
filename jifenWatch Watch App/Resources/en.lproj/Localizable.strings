@@ -107,7 +107,7 @@
 "days_ago" = "%d days ago";
 
 /* Tools extras */
-"watch_coin_heads_text" = "888";
+"watch_coin_heads_text" = "8";
 "watch_archery_miss" = "M";
 "watch_flip_coin_hint" = "Tap to flip";
 "watch_ten_second_challenge" = "10s Challenge";

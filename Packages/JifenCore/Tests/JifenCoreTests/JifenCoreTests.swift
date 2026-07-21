@@ -703,3 +703,42 @@ private struct CounterReducer: DomainReducer {
     #expect(try await repository.entries().isEmpty)
     #expect(!FileManager.default.fileExists(atPath: SessionArchiveRepository.snapshotURL(sessionId: session.sessionId, rootURL: root).path))
 }
+
+@Test func sessionArchiveRepositoryKeepsAtMostOneLiveResumeSession() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    let repository = SessionArchiveRepository(rootURL: root)
+    let first = ScoreSession<LineScoreState, LineScoreEvent>(
+        gameType: .simpleScore,
+        ruleFamily: .s1,
+        reducerType: "line/v1",
+        state: LineScoreState(leftName: "A", rightName: "B", rules: .freeCounter, leftScore: 1, rightScore: 0)
+    )
+    let second = ScoreSession<LineScoreState, LineScoreEvent>(
+        gameType: .simpleScore,
+        ruleFamily: .s1,
+        reducerType: "line/v1",
+        state: LineScoreState(leftName: "C", rightName: "D", rules: .freeCounter, leftScore: 2, rightScore: 3)
+    )
+
+    try await repository.save(first, updatedAtEpochMilliseconds: 100)
+    try await repository.save(second, updatedAtEpochMilliseconds: 200)
+
+    let live = try await repository.liveEntries()
+    #expect(live.map(\.sessionId) == [second.sessionId])
+    #expect(try await repository.entries().map(\.sessionId) == [second.sessionId])
+    #expect(!FileManager.default.fileExists(atPath: SessionArchiveRepository.snapshotURL(sessionId: first.sessionId, rootURL: root).path))
+
+    let finishedFirst = ScoreSession<LineScoreState, LineScoreEvent>(
+        sessionId: first.sessionId,
+        gameType: .simpleScore,
+        ruleFamily: .s1,
+        reducerType: "line/v1",
+        state: LineScoreState(leftName: "A", rightName: "B", rules: .freeCounter, leftScore: 1, rightScore: 0),
+        status: .finished
+    )
+    try await repository.save(finishedFirst, updatedAtEpochMilliseconds: 300)
+    // Finished saves must not discard the remaining live resume.
+    #expect(try await repository.liveEntries().map(\.sessionId) == [second.sessionId])
+    #expect(Set(try await repository.entries().map(\.sessionId)) == Set([first.sessionId, second.sessionId]))
+}

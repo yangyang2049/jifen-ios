@@ -53,7 +53,7 @@ struct WhistleToolView: View {
                     .animation(.easeInOut(duration: isPlayingShort ? 0.2 : 0.3), value: isPlayingShort)
 
                 Text(NSLocalizedString("short_whistle", comment: "Short whistle"))
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
             }
             .frame(width: 200, height: 200)
@@ -86,7 +86,7 @@ struct WhistleToolView: View {
                     .animation(.easeInOut(duration: isPlayingLong ? 1.0 : 0.3), value: isPlayingLong)
 
                 Text(NSLocalizedString("long_whistle", comment: "Long whistle"))
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
             }
             .frame(width: 200, height: 200)

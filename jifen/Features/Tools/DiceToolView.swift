@@ -32,7 +32,19 @@ struct DiceToolView: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .opacity(webVisible ? 1 : 0)
-            .animation(.easeInOut(duration: 0.3), value: webVisible)
+
+            // Cover WKWebView until HTML/CSS first paint is ready to avoid white flash.
+            if !webVisible {
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white.opacity(0.85))
+                        .scaleEffect(1.15)
+                }
+                .transition(.opacity)
+                .zIndex(2)
+            }
 
             if !hasRolled && showHint {
                 VStack {
@@ -49,14 +61,16 @@ struct DiceToolView: View {
             if showDiceCountDialog {
                 diceCountDialogView
                     .transition(.opacity)
-                    .zIndex(1)
+                    .zIndex(3)
             }
 
             if showEnterToast {
                 ToastView(message: NSLocalizedString("tap_to_roll", value: "Tap to roll", comment: "Tap to roll dice"))
                     .transition(.opacity)
+                    .zIndex(4)
             }
         }
+        .animation(.easeInOut(duration: 0.35), value: webVisible)
         .navigationTitle(NSLocalizedString("dice_title", comment: "Dice title"))
         .navigationBarTitleDisplayMode(.inline)
         .preferredColorScheme(.dark)
@@ -65,6 +79,9 @@ struct DiceToolView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear {
             checkAndShowHint()
+        }
+        .onChange(of: webVisible) { _, visible in
+            guard visible else { return }
             showEnterToast = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 showEnterToast = false
@@ -141,11 +158,11 @@ struct DiceToolView: View {
             }
         } label: {
             Text(diceCountLabel(count))
-                .frame(maxWidth: .infinity)
-                .frame(height: 52)
                 .font(.system(size: 18, weight: isSelected ? .medium : .regular))
                 .foregroundColor(isSelected ? Theme.accentColor : .white)
+                .frame(maxWidth: .infinity, minHeight: 52)
                 .background(isSelected ? Color.white.opacity(0.08) : Color.clear)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -186,8 +203,12 @@ struct DiceWebView: UIViewRepresentable {
     @Binding var diceCount: Int
     let onSoundRequest: () -> Void
 
+    /// Shared process pool keeps subsequent opens warmer.
+    private static let processPool = WKProcessPool()
+
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
+        config.processPool = Self.processPool
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
 
@@ -201,6 +222,8 @@ struct DiceWebView: UIViewRepresentable {
         window.nativeInterface.getDiceCount = function() {
             return window.__nativeDiceCount || 1;
         };
+        document.documentElement.style.background = '#000';
+        if (document.body) { document.body.style.background = '#000'; }
         """
         let userScript = WKUserScript(source: bridgeScript, injectionTime: .atDocumentStart, forMainFrameOnly: true)
         userController.addUserScript(userScript)
@@ -208,10 +231,15 @@ struct DiceWebView: UIViewRepresentable {
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
-        webView.backgroundColor = .black
         webView.isOpaque = true
+        webView.backgroundColor = .black
+        webView.scrollView.backgroundColor = .black
         webView.scrollView.isScrollEnabled = false
         webView.scrollView.bounces = false
+        webView.isHidden = true
+        if #available(iOS 15.0, *) {
+            webView.underPageBackgroundColor = .black
+        }
 
         if let htmlURL = Bundle.main.url(forResource: "dice", withExtension: "html") {
             context.coordinator.load(htmlURL, in: webView)
@@ -225,6 +253,12 @@ struct DiceWebView: UIViewRepresentable {
 
     func updateUIView(_ webView: WKWebView, context: Context) {
         context.coordinator.syncDiceCount(on: webView, diceCount: diceCount)
+        // Keep UIKit visibility in sync with SwiftUI fade state.
+        if webVisible, webView.isHidden {
+            webView.isHidden = false
+        } else if !webVisible, !webView.isHidden, !context.coordinator.hasRevealed {
+            webView.isHidden = true
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -243,6 +277,7 @@ struct DiceWebView: UIViewRepresentable {
         private var pendingDiceCount = 1
         private var didRetryWithFileURL = false
         private var htmlURL: URL?
+        private(set) var hasRevealed = false
 
         init(webVisible: Binding<Bool>, onSoundRequest: @escaping () -> Void) {
             self.webVisible = webVisible
@@ -264,7 +299,7 @@ struct DiceWebView: UIViewRepresentable {
             webView.loadHTMLString(
                 """
                 <html><head><style>
-                body { margin: 0; background: #000000; }
+                html, body { margin: 0; background: #000000; }
                 </style></head><body></body></html>
                 """,
                 baseURL: nil
@@ -291,7 +326,7 @@ struct DiceWebView: UIViewRepresentable {
 
                 if error == nil, (value as? NSNumber)?.intValue == 3 {
                     self.syncDiceCount(on: webView, diceCount: self.pendingDiceCount)
-                    self.webVisible.wrappedValue = true
+                    self.reveal(webView)
                 } else {
                     self.retryWithFileURL(in: webView)
                 }
@@ -310,9 +345,21 @@ struct DiceWebView: UIViewRepresentable {
             retryWithFileURL(in: webView)
         }
 
+        private func reveal(_ webView: WKWebView) {
+            guard !hasRevealed else { return }
+            hasRevealed = true
+            // One short beat after paint so the first CSS layout isn't shown mid-flash.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                webView.isHidden = false
+                withAnimation(.easeInOut(duration: 0.35)) {
+                    self.webVisible.wrappedValue = true
+                }
+            }
+        }
+
         private func retryWithFileURL(in webView: WKWebView) {
             guard !didRetryWithFileURL, let htmlURL else {
-                webVisible.wrappedValue = true
+                reveal(webView)
                 return
             }
 

@@ -1,12 +1,16 @@
 import PersistenceCore
 import StoreKit
 import SwiftUI
+import UIKit
 
 private enum AppSupportURLs {
     static let website = URL(string: "https://jifenqi.com")!
     static let support = URL(string: "https://jifenqi.com/contact")!
+    static let feedback = URL(string: "https://jifenqi.com/feedback")!
     static let terms = URL(string: "https://jifenqi.com/terms")!
     static let privacy = URL(string: "https://jifenqi.com/privacy")!
+    static let wechatGroup = URL(string: "https://jifenqi.com/contact?utm_source=jifenqi_app&utm_medium=app_link&utm_campaign=official_wechat_group&utm_content=about_page")!
+    static let qqGroupNumber = "825096333"
 }
 
 struct SettingsView: View {
@@ -452,39 +456,116 @@ private struct FAQView: View {
 }
 
 private struct AboutUsView: View {
+    @State private var toastMessage: String?
+
     var body: some View {
-        ScrollView {
-            VStack(spacing: Theme.lg) {
-                VStack(spacing: Theme.sm) {
-                    Image(systemName: "sportscourt")
-                        .font(.system(size: 52))
-                        .foregroundColor(Theme.primaryDark)
-                    Text(NSLocalizedString("app_name", value: "全能计分器", comment: ""))
-                        .font(.title2.weight(.semibold))
-                        .foregroundColor(Theme.textPrimary)
-                    Text(String(format: NSLocalizedString("about_version_format", value: "版本 %@", comment: ""), appVersion))
-                        .font(.subheadline)
-                        .foregroundColor(Theme.textSecondary)
-                }
-                SettingsSection(title: NSLocalizedString("about_legal", value: "相关信息", comment: "")) {
-                    VStack(spacing: 0) {
-                        Link(destination: AppSupportURLs.terms) { SettingsNavigationRow(title: NSLocalizedString("terms_of_service", value: "用户协议", comment: "")) }
-                        Divider().overlay(Theme.divider)
-                        Link(destination: AppSupportURLs.privacy) { SettingsNavigationRow(title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: "")) }
-                        Divider().overlay(Theme.divider)
-                        Link(destination: AppSupportURLs.support) { SettingsNavigationRow(title: NSLocalizedString("support_contact", value: "联系我们", comment: "")) }
+        ZStack {
+            Theme.backgroundColor.ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: Theme.lg) {
+                    VStack(spacing: Theme.sm) {
+                        AppLogoImage(size: 72)
+                        Text(NSLocalizedString("app_name", value: "全能计分器", comment: ""))
+                            .font(.title2.weight(.semibold))
+                            .foregroundColor(Theme.textPrimary)
+                        Text(String(format: NSLocalizedString("about_version_format", value: "版本 %@", comment: ""), appVersion))
+                            .font(.subheadline)
+                            .foregroundColor(Theme.textSecondary)
                     }
+                    .padding(.top, Theme.sm)
+
+                    VStack(spacing: 0) {
+                        Link(destination: AppSupportURLs.terms) {
+                            SettingsNavigationRow(title: NSLocalizedString("terms_of_service", value: "用户协议", comment: ""))
+                        }
+                        Divider().overlay(Theme.divider)
+                        Link(destination: AppSupportURLs.privacy) {
+                            SettingsNavigationRow(title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: ""))
+                        }
+                        Divider().overlay(Theme.divider)
+                        Link(destination: AppSupportURLs.feedback) {
+                            SettingsNavigationRow(title: NSLocalizedString("about_feedback_row", value: "意见反馈", comment: ""))
+                        }
+                        Divider().overlay(Theme.divider)
+                        Link(destination: AppSupportURLs.wechatGroup) {
+                            SettingsNavigationRow(title: NSLocalizedString("about_wechat_group", value: "微信群", comment: ""))
+                        }
+                        Divider().overlay(Theme.divider)
+                        qqGroupRow
+                    }
+                    .background(Theme.cardBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(Theme.divider.opacity(0.7), lineWidth: 0.5)
+                    }
+
+                    Text(companyDisplayName)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(Theme.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 40)
+                        .padding(.bottom, Theme.lg)
                 }
+                .padding(.horizontal, Theme.md)
+                .padding(.vertical, Theme.md)
             }
-            .padding(Theme.md)
+
+            if let toastMessage {
+                ToastView(message: toastMessage)
+                    .transition(.opacity)
+                    .zIndex(1)
+            }
         }
-        .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    private var qqGroupRow: some View {
+        HStack(spacing: Theme.sm) {
+            Text(NSLocalizedString("about_qq_group_label", value: "QQ 群", comment: ""))
+                .font(.system(size: 16))
+                .foregroundColor(Theme.textPrimary)
+            Spacer()
+            Text(AppSupportURLs.qqGroupNumber)
+                .font(.system(size: 15))
+                .foregroundColor(Theme.textSecondary)
+            Button {
+                UIPasteboard.general.string = AppSupportURLs.qqGroupNumber
+                showToast(NSLocalizedString("about_copy_qq_toast", value: "已复制 QQ 群号", comment: ""))
+            } label: {
+                Image(systemName: "doc.on.doc")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Theme.textSecondary)
+                    .frame(width: 24, height: 24)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("about_qq_group_label", value: "QQ 群", comment: ""))
+        }
+        .padding(.horizontal, Theme.md)
+        .frame(minHeight: 56)
+    }
+
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    }
+
+    private var companyDisplayName: String {
+        let isChinese = Locale.current.language.languageCode?.identifier.hasPrefix("zh") == true
+        return isChinese
+            ? NSLocalizedString("about_company_zh", value: "重庆豆花科技有限公司", comment: "")
+            : NSLocalizedString("about_company_en", value: "Chongqing Douhua Technology Co., Ltd.", comment: "")
+    }
+
+    private func showToast(_ message: String) {
+        toastMessage = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if toastMessage == message {
+                toastMessage = nil
+            }
+        }
     }
 }
 

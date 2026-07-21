@@ -3,7 +3,6 @@ import SwiftUI
 
 struct VolleyballScoreboardView: View {
     var variant: ScoreCore.GameType = .volleyball
-    var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
@@ -17,7 +16,6 @@ struct VolleyballScoreboardView: View {
             rules: rules,
             openingServer: openingServer,
             initialRecordId: initialRecordId,
-            showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )

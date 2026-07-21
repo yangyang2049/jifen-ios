@@ -94,12 +94,15 @@ final class RallySessionStore {
         }
     }
 
-    func undo(onRestored: (() -> Void)? = nil) {
+    func undo(completion: ((Bool) -> Void)? = nil) {
         Task { [weak self, core] in
-            guard await core.undo(actorId: "phone"), let self else { return }
+            guard await core.undo(actorId: "phone"), let self else {
+                completion?(false)
+                return
+            }
             let session = await core.snapshot()
             self.state = session.state
-            onRestored?()
+            completion?(true)
             try? await self.archiveRepository.save(session)
             self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftPoints, session.state.rightPoints], setScores: [session.state.leftSets, session.state.rightSets], setNumber: session.state.currentSet, operationCode: "undo"))
             self.persistRecord(session)

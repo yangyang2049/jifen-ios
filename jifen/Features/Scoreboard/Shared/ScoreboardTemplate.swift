@@ -10,6 +10,7 @@ import Photos // For PHPhotoLibrary
 import UIKit
 
 struct ScoreboardTemplate: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var config: TemplateConfig
     var onBack: (() -> Void)? = nil
 
@@ -22,10 +23,9 @@ struct ScoreboardTemplate: View {
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     @State private var hideButtonsForScreenshot: Bool = false
-    @State private var resetClickCount: Int = 0
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var screenshotPreviewImage: UIImage? = nil // Screenshot preview image
     @State private var showScreenshotPreview: Bool = false // Show screenshot preview
-    @State private var settleClickCount: Int = 0
     @State private var pendingTapSide: Bool?
     @State private var pendingTapAt: Date = .distantPast
     @State private var tapGeneration = 0
@@ -248,38 +248,35 @@ struct ScoreboardTemplate: View {
                     VStack {
                         Spacer()
                         HStack {
-                            // Back button (bottom left) - left margin = bottom margin, full screen
-                            if let onBack = onBack {
-                                Button(action: {
-                                    config.controller.performVibration(type: .heavy)
+                            // Back button always exists; immersive mode only toggles chrome visibility.
+                            Button(action: {
+                                config.controller.performVibration(type: .heavy)
 
-                                    // Handle double tap exit
-                                    if config.controller.handleExitClick() {
-                                        // Can exit
-                                        OrientationLock.shared.unlock()
-                                        onBack()
-                                    } else {
-                                        // Need to tap again - show toast
-                                        toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
-                                        showToast = true
-                                        // Auto hide toast after 2 seconds
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            showToast = false
-                                        }
+                                // Handle double tap exit
+                                if config.controller.handleExitClick() {
+                                    OrientationLock.shared.unlock()
+                                    performBack()
+                                } else {
+                                    toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
+                                    showToast = true
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        showToast = false
                                     }
-                                }) {
-                                    Image(systemName: "chevron.left")
-                                        .font(.system(size: ScoreboardConstants.buttonIconSize))
-                                        .foregroundColor(.white)
-                                        .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
-                                        .background(
-                                            Circle()
-                                                .fill(Color.black.opacity(0.25))
-                                        )
+                                    revealImmersiveChrome()
                                 }
-                                .padding(.leading, ScoreboardConstants.buttonPadding)
-                                .padding(.bottom, ScoreboardConstants.buttonPadding)
+                            }) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                    .foregroundColor(.white)
+                                    .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.black.opacity(0.25))
+                                    )
                             }
+                            .modifier(ScoreboardBackButtonAccessibility(isBack: true))
+                            .padding(.leading, ScoreboardConstants.buttonPadding)
+                            .padding(.bottom, ScoreboardConstants.buttonPadding)
 
                             Spacer()
 
@@ -318,6 +315,7 @@ struct ScoreboardTemplate: View {
                 MenuDialog(
                     isVisible: showMenu,
                     onClose: {
+                        menuConfirm.clear()
                         showMenu = false
                     },
                     onMenuItemClick: { action in
@@ -327,7 +325,7 @@ struct ScoreboardTemplate: View {
                         || config.gameType == .football
                         || config.gameType == .basketball
                         || config.gameType == .simpleScore,
-                    resetConfirming: resetClickCount >= 1,
+                    resetConfirming: menuConfirm.resetConfirming,
                     items: ScoreboardMenuItemBuilder.defaultItems(
                         showEndGame: config.showEndGame
                             || config.gameType == .football
@@ -335,8 +333,10 @@ struct ScoreboardTemplate: View {
                             || config.gameType == .simpleScore,
                         showExchangeSide: true,
                         showSettleMatch: config.showSettleMatch,
-                        resetConfirming: resetClickCount >= 1,
-                        settleConfirming: settleClickCount >= 1,
+                        resetConfirming: menuConfirm.resetConfirming,
+                        exchangeConfirming: menuConfirm.exchangeConfirming,
+                        finishConfirming: menuConfirm.finishConfirming,
+                        settleConfirming: menuConfirm.settleConfirming,
                         extraItems: config.extraMenuItemsProvider?() ?? []
                     )
                 )
@@ -345,6 +345,7 @@ struct ScoreboardTemplate: View {
                 if showToast {
                     ToastView(message: toastMessage)
                         .transition(.opacity.combined(with: .scale))
+                        .allowsHitTesting(false)
                 }
                 
                 // Screenshot preview (floating at bottom)
@@ -381,7 +382,7 @@ struct ScoreboardTemplate: View {
         }
         .onChange(of: showMenu) { _, isOpen in
             if !isOpen {
-                resetClickCount = 0
+                menuConfirm.clear()
             }
             updateImmersiveChromeForBlockingState()
         }
@@ -424,24 +425,16 @@ struct ScoreboardTemplate: View {
     
     private func handleMenuItemClick(_ action: String) {
         config.controller.performVibration(type: .medium)
-        if action != "reset" {
-            resetClickCount = 0
-        }
-        if action != "settleMatch" {
-            settleClickCount = 0
-        }
+        menuConfirm.prepare(forMenuAction: action)
 
         switch action {
         case "whistle":
-            // Play whistle sound
-            SoundManager.shared.playSound("whistle")
-            // Don't close dialog
+            // Sound is played by MenuDialog; this branch clears pending confirm.
+            break
 
         case "screenshot":
+            // Capture is handled by MenuDialog; this branch clears pending confirm.
             showMenu = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                handleScreenshotGesture()
-            }
 
         case "displaySettings":
             showMenu = false
@@ -452,27 +445,23 @@ struct ScoreboardTemplate: View {
             showLocalSync = true
             
         case "exchangeSide":
-            // Exchange sides (keep dialog open)
-            config.viewModel.exchangeSides()
-            config.controller.recordScoreAction(action: "exchangeSide")
-            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            if menuConfirm.armOrConfirm(.exchangeSide) {
+                config.viewModel.exchangeSides()
+                config.controller.recordScoreAction(action: "exchangeSide")
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            } else {
+                showToastMessage(ScoreboardMenuConfirmAction.exchangeSide.localizedToast)
+            }
             
         case "reset":
-            // Double tap to reset
-            resetClickCount += 1
-            if resetClickCount == 1 {
-                showToastMessage(NSLocalizedString("press_again_to_reset", comment: ""))
-                // Reset count after 3 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    resetClickCount = 0
-                }
-            } else if resetClickCount >= 2 {
-                resetClickCount = 0
-                // Don't close dialog - keep it open like other actions
+            if menuConfirm.armOrConfirm(.reset) {
                 config.viewModel.reset()
                 config.controller.recordScoreAction(action: "reset")
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 showToastMessage(NSLocalizedString("has_been_reset", comment: ""))
+                showMenu = false
+            } else {
+                showToastMessage(ScoreboardMenuConfirmAction.reset.localizedToast)
             }
             
         case "undo":
@@ -487,25 +476,24 @@ struct ScoreboardTemplate: View {
             }
 
         case "endGame":
-            if let onEndGame = config.onEndGame {
-                onEndGame()
+            if menuConfirm.armOrConfirm(.finish) {
+                if let onEndGame = config.onEndGame {
+                    onEndGame()
+                } else {
+                    config.viewModel.endGame()
+                }
+                showMenu = false
             } else {
-                config.viewModel.endGame()
+                showToastMessage(ScoreboardMenuConfirmAction.finish.localizedToast)
             }
-            showMenu = false
 
         case "settleMatch":
-            settleClickCount += 1
-            if settleClickCount == 1 {
-                showToastMessage(NSLocalizedString("click_again_to_settle_match", value: "再按一次结算", comment: ""))
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    settleClickCount = 0
-                }
-            } else {
-                settleClickCount = 0
+            if menuConfirm.armOrConfirm(.settleMatch) {
                 if let onEndGame = config.onEndGame { onEndGame() }
                 else { config.viewModel.endGame() }
                 showMenu = false
+            } else {
+                showToastMessage(ScoreboardMenuConfirmAction.settleMatch.localizedToast)
             }
             
         default:
@@ -770,15 +758,30 @@ struct ScoreboardTemplate: View {
         chromeButtonsVisible = true
         immersiveGeneration += 1
         guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showLocalSync else { return }
+        let hideDelay: TimeInterval
+        if let remaining = config.controller.exitConfirmRemainingSeconds {
+            hideDelay = remaining + 0.05
+        } else {
+            hideDelay = 1.5
+        }
         let generation = immersiveGeneration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideDelay) {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !isEditMode,
                   !showMenu,
                   !showDisplaySettings,
                   !showLocalSync else { return }
+            if config.controller.exitConfirmRemainingSeconds != nil { return }
             chromeButtonsVisible = false
+        }
+    }
+
+    private func performBack() {
+        if let onBack {
+            onBack()
+        } else {
+            dismiss()
         }
     }
 

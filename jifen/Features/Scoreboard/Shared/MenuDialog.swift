@@ -6,6 +6,7 @@
 //  (top sync strip / middle match large cards / bottom tools small cards).
 //
 
+import Photos
 import SwiftUI
 import UIKit
 
@@ -122,6 +123,7 @@ enum ScoreboardMenuItemBuilder {
                     action: "endGame",
                     group: .match,
                     icon: "flag.checkered",
+                    keepDialogOpen: true,
                     confirming: finishConfirming
                 )
             )
@@ -384,6 +386,9 @@ struct MenuDialog: View {
     private func menuCard(item: ScoreboardMenuItem, size: ScoreboardMenuCardSize, stripItem: Bool) -> some View {
         Button {
             guard item.enabled else { return }
+            // Always notify parent first so pending green-confirm state can clear
+            // when tapping non-confirm actions handled inside the dialog.
+            onMenuItemClick(item.action)
             if item.action == "usageHint" {
                 showUsageHint = true
                 return
@@ -399,7 +404,6 @@ struct MenuDialog: View {
                 }
                 return
             }
-            onMenuItemClick(item.action)
             if !item.keepDialogOpen {
                 onClose()
             }
@@ -473,7 +477,7 @@ struct ScoreboardUsageHintView: View {
                 usageRow("hand.tap", "scoreboard_usage_tap", "点击计分区加分；部分项目点击后会打开回合或结算面板。")
                 usageRow("arrow.uturn.backward", "scoreboard_usage_undo", "误操作后可在菜单中撤销。")
                 usageRow("pencil", "scoreboard_usage_edit", "点击铅笔可编辑名称和比分，点击对勾保存。")
-                usageRow("arrow.counterclockwise", "scoreboard_usage_reset", "重置需要在短时间内再次点击确认。")
+                usageRow("arrow.counterclockwise", "scoreboard_usage_reset", "重置、换边、结束比赛、结算等需要再次点击同一按钮确认（按钮会变绿）。")
                 usageRow("flag.checkered", "scoreboard_usage_finish", "结束比赛后会保存为已完成记录。")
                 usageRow("textformat.size", "scoreboard_usage_display", "显示设置可调整主题、字体和沉浸模式。")
             }
@@ -496,12 +500,104 @@ private func captureScoreboardScreenshot() {
     guard let scene = UIApplication.shared.connectedScenes
         .compactMap({ $0 as? UIWindowScene })
         .first(where: { $0.activationState == .foregroundActive }),
-          let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return }
+          let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else {
+        ScoreboardScreenshotToast.show(NSLocalizedString("screenshot_failed", value: "截图失败", comment: ""))
+        return
+    }
     let renderer = UIGraphicsImageRenderer(bounds: window.bounds)
     let image = renderer.image { _ in
         window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
     }
-    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+    saveScoreboardScreenshotToPhotoLibrary(image)
+}
+
+private func saveScoreboardScreenshotToPhotoLibrary(_ image: UIImage) {
+    let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+
+    switch status {
+    case .authorized, .limited:
+        performScoreboardScreenshotSave(image)
+    case .notDetermined:
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { newStatus in
+            DispatchQueue.main.async {
+                if newStatus == .authorized || newStatus == .limited {
+                    performScoreboardScreenshotSave(image)
+                } else {
+                    ScoreboardScreenshotToast.show(
+                        NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: "")
+                    )
+                }
+            }
+        }
+    case .denied, .restricted:
+        ScoreboardScreenshotToast.show(
+            NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: "")
+        )
+    @unknown default:
+        ScoreboardScreenshotToast.show(
+            NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: "")
+        )
+    }
+}
+
+private func performScoreboardScreenshotSave(_ image: UIImage) {
+    PHPhotoLibrary.shared().performChanges({
+        PHAssetChangeRequest.creationRequestForAsset(from: image)
+    }) { success, error in
+        DispatchQueue.main.async {
+            if success {
+                ScoreboardScreenshotToast.show(
+                    NSLocalizedString("screenshot_saved", value: "截图已保存", comment: "")
+                )
+            } else {
+                let errorMessage = error?.localizedDescription
+                    ?? NSLocalizedString("unknown_error", value: "未知错误", comment: "")
+                ScoreboardScreenshotToast.show(
+                    String(format: NSLocalizedString("save_failed", value: "保存失败: %@", comment: ""), errorMessage)
+                )
+            }
+        }
+    }
+}
+
+@MainActor
+private enum ScoreboardScreenshotToast {
+    private static var hostingController: UIHostingController<ToastView>?
+    private static var hideWorkItem: DispatchWorkItem?
+
+    static func show(_ message: String, duration: TimeInterval = 2.0) {
+        guard let scene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }),
+              let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return }
+
+        hideWorkItem?.cancel()
+        hostingController?.view.removeFromSuperview()
+        hostingController = nil
+
+        let toast = ToastView(message: message)
+        let hosting = UIHostingController(rootView: toast)
+        hosting.view.backgroundColor = .clear
+        hosting.view.isUserInteractionEnabled = false
+        hosting.view.translatesAutoresizingMaskIntoConstraints = false
+        window.addSubview(hosting.view)
+        NSLayoutConstraint.activate([
+            hosting.view.leadingAnchor.constraint(equalTo: window.leadingAnchor),
+            hosting.view.trailingAnchor.constraint(equalTo: window.trailingAnchor),
+            hosting.view.topAnchor.constraint(equalTo: window.topAnchor),
+            hosting.view.bottomAnchor.constraint(equalTo: window.bottomAnchor),
+        ])
+        hostingController = hosting
+
+        let workItem = DispatchWorkItem {
+            hosting.view.removeFromSuperview()
+            if hostingController === hosting {
+                hostingController = nil
+            }
+        }
+        hideWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
+    }
 }
 
 #Preview {

@@ -280,6 +280,9 @@
 "please_change_sides_manually" = "请手动换边";
 "press_again_to_exit" = "再按一次退出";
 "press_again_to_reset" = "再次点击重置";
+"click_again_to_reset" = "再次点击重置";
+"click_again_to_finish" = "再点一次结束比赛";
+"click_again_to_exchange_sides" = "再次点击确认换边";
 "match_completion_sets" = "局数";
 "match_completion_sets_tennis" = "盘数";
 "match_completion_classic" = "经典";
@@ -334,8 +337,8 @@
 
 /* Whistle Tool */
 "whistle_title" = "哨声";
-"short_whistle" = "短哨";
-"long_whistle" = "长哨";
+"short_whistle" = "哨声";
+"long_whistle" = "蜂鸣";
 
 /* Random Team Tool */
 "random_team_title" = "随机分组";
@@ -344,14 +347,14 @@
 "players_8" = "8人";
 "players_count_format" = "%d人";
 "random_grouping" = "随机分组";
-"simulate" = "模拟";
+"simulate" = "一键分组";
 "try_again" = "再来一次";
 "place_fingers_on_blocks" = "请将手指放在方块上 (%d/%d)";
 "grouping_in_progress" = "正在分组...";
 "grouping_complete" = "分组完成！";
 "random_team_select_team_count" = "选择分组数量";
 "random_team_team_count_format" = "%d队";
-"random_team_reselect" = "重新选人数";
+"random_team_reselect" = "重选人数";
 
 /* Flip Coin Tool */
 "flip_coin_title" = "抛硬币";
@@ -359,16 +362,41 @@
 "heads" = "正面";
 "tails" = "反面";
 "total" = "总计";
+"coin_heads_text" = "666";
 
 /* Dice Tool */
 "dice_title" = "骰子";
 "tap_to_roll" = "点击屏幕摇骰子";
-"dice_count_1" = "1颗骰子";
-"dice_count_2" = "2颗骰子";
-"dice_count_3" = "3颗骰子";
+"dice_count_1" = "1颗";
+"dice_count_2" = "2颗";
+"dice_count_3" = "3颗";
 
 /* Points Table Tool */
 "points_table_title" = "积分表";
+"points_table_empty" = "暂无积分表";
+"points_table_empty_hint" = "点击右上角 + 创建";
+"points_table_teams" = "支队伍";
+"points_table_new_name" = "新积分表";
+"points_table_team_a" = "甲";
+"points_table_team_b" = "乙";
+"points_table_team_c" = "丙";
+"points_table_name" = "名称";
+"points_table_rank" = "排名";
+"points_table_team" = "队伍";
+"points_table_played" = "赛";
+"points_table_win" = "胜";
+"points_table_draw" = "平";
+"points_table_loss" = "负";
+"points_table_points" = "积分";
+"points_table_add_team" = "添加队伍";
+"points_table_team_name" = "队伍名称";
+"points_table_team_suffix" = "队";
+"points_table_new_team" = "新队伍";
+"points_table_delete_confirm_title" = "删除此积分表？";
+"points_table_delete_confirm_message" = "删除后无法恢复";
+"points_table_min_teams" = "至少保留 2 支队伍";
+"points_table_tap_again_to_delete_team" = "再点一次删除该队伍";
+"points_table_team_deleted_toast" = "已删除队伍";
 "no_players" = "暂无玩家";
 "add_player" = "添加玩家";
 "player_name" = "玩家名称";
@@ -499,6 +527,13 @@
 "about_us_title" = "关于我们";
 "about_version_format" = "版本 %@";
 "about_legal" = "相关信息";
+"about_feedback_row" = "意见反馈";
+"about_wechat_group" = "微信群";
+"about_qq_group_label" = "QQ 群";
+"about_qq_group_number" = "825096333";
+"about_copy_qq_toast" = "已复制 QQ 群号";
+"about_company_zh" = "重庆豆花科技有限公司";
+"about_company_en" = "Chongqing Douhua Technology Co., Ltd.";
 "terms_of_service" = "用户协议";
 "home_common_names_desc" = "队名、球员名";
 "common_places_title" = "常用地点";
@@ -844,12 +879,12 @@
 "scoreboard_usage_tap" = "点击计分区加分；部分项目点击后会打开回合或结算面板。";
 "scoreboard_usage_undo" = "误操作后可在菜单中撤销。";
 "scoreboard_usage_edit" = "点击铅笔可编辑名称和比分，点击对勾保存。";
-"scoreboard_usage_reset" = "重置需要在短时间内再次点击确认。";
+"scoreboard_usage_reset" = "重置、换边、结束比赛、结算等需要再次点击同一按钮确认（按钮会变绿）。";
 "scoreboard_usage_finish" = "结束比赛后会保存为已完成记录。";
 "scoreboard_usage_display" = "显示设置可调整主题、字体和沉浸模式。";
 "scoreboard_rotate_orientation" = "切换布局";
 "settle_match" = "结算";
-"click_again_to_settle_match" = "再按一次结算";
+"click_again_to_settle_match" = "再点一次结算比赛";
 "voice_announcement_on" = "语音：开";
 "voice_announcement_off" = "语音：关";
 "scoreboard_key_point_game" = "局点";

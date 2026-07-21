@@ -233,6 +233,12 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         exitClickTime = currentTime
         return false // Need to tap again
     }
+
+    var exitConfirmRemainingSeconds: TimeInterval? {
+        guard exitClickTime > 0 else { return nil }
+        let remainingMs = 2000 - (Date().timeIntervalSince1970 * 1000 - exitClickTime)
+        return remainingMs > 0 ? remainingMs / 1000 : nil
+    }
     
     // MARK: - Screenshot
     

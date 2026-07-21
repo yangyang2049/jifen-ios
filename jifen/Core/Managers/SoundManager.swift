@@ -7,6 +7,7 @@
 
 import AVFoundation
 import Foundation
+import ScoreCore
 
 /// Sound effects manager
 class SoundManager {
@@ -62,14 +63,53 @@ final class ScoreVoiceAnnouncer {
     static let shared = ScoreVoiceAnnouncer()
 
     private let synthesizer = AVSpeechSynthesizer()
+    private var scoreChangeTask: Task<Void, Never>?
+    private let scoreChangeDebounceNanoseconds: UInt64 = 420_000_000
 
     private init() {}
 
-    func announce(left: Int, right: Int) {
+    /// International-standard scoreboard voice (BWF / ITTF / ITF).
+    func speak(_ payload: VoiceAnnouncementPayload) {
+        let language = resolveLanguage()
+        let text = VoiceAnnouncementMessageBuilder.build(payload, language: language)
+        guard !text.isEmpty else { return }
+
+        switch payload.phase {
+        case .scoreChange:
+            scoreChangeTask?.cancel()
+            scoreChangeTask = Task { [weak self] in
+                try? await Task.sleep(nanoseconds: self?.scoreChangeDebounceNanoseconds ?? 420_000_000)
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    self?.speakText(text, language: language, queue: false)
+                }
+            }
+        case .sideChange:
+            speakText(text, language: language, queue: true)
+        default:
+            scoreChangeTask?.cancel()
+            scoreChangeTask = nil
+            speakText(text, language: language, queue: false)
+        }
+    }
+
+    func stop() {
+        scoreChangeTask?.cancel()
+        scoreChangeTask = nil
         synthesizer.stopSpeaking(at: .immediate)
-        let utterance = AVSpeechUtterance(string: "\(left) 比 \(right)")
-        utterance.voice = AVSpeechSynthesisVoice(language: Locale.current.language.languageCode?.identifier == "zh" ? "zh-CN" : "en-US")
+    }
+
+    private func speakText(_ text: String, language: VoiceAnnouncementLanguage, queue: Bool) {
+        if !queue {
+            synthesizer.stopSpeaking(at: .immediate)
+        }
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: language.rawValue)
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate
         synthesizer.speak(utterance)
+    }
+
+    private func resolveLanguage() -> VoiceAnnouncementLanguage {
+        Locale.current.language.languageCode?.identifier == "en" ? .enUS : .zhCN
     }
 }

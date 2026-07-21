@@ -44,9 +44,8 @@ struct MultiScoreboardView: View {
     @State private var editScoreText = ""
     @State private var initialSetupApplied = false
     @State private var activeCommonNameIndex: Int? = nil
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var exitClickTime: TimeInterval = 0
-    @State private var finishClickTime: TimeInterval = 0
-    @State private var settleClickTime: TimeInterval = 0
     @State private var toastMessage: String? = nil
     @State private var showUnoRoundPanel = false
     @State private var unoRoundPlayerIndex: Int? = nil
@@ -145,7 +144,10 @@ struct MultiScoreboardView: View {
                 if showMenu {
                     MenuDialog(
                         isVisible: true,
-                        onClose: { showMenu = false },
+                        onClose: {
+                            menuConfirm.clear()
+                            showMenu = false
+                        },
                         onMenuItemClick: handleMultiScoreMenuAction,
                         items: multiScoreMenuItems
                     )
@@ -308,6 +310,7 @@ struct MultiScoreboardView: View {
                         .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
+                .modifier(ScoreboardBackButtonAccessibility(isBack: true))
                 .padding(.leading, ScoreboardConstants.buttonPadding)
                 .padding(.bottom, ScoreboardConstants.buttonPadding)
 
@@ -486,20 +489,15 @@ struct MultiScoreboardView: View {
     // MARK: - Menu
 
     private var multiScoreMenuItems: [ScoreboardMenuItem] {
-        let exitConfirming = exitClickTime > 0 &&
-            Date().timeIntervalSince1970 * 1000 - exitClickTime < 2000
-        let finishConfirming = finishClickTime > 0 &&
-            Date().timeIntervalSince1970 * 1000 - finishClickTime < 2000
-        let settleConfirming = settleClickTime > 0 &&
-            Date().timeIntervalSince1970 * 1000 - settleClickTime < 2000
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: false,
             showWhistle: true,
             showScreenshot: true,
             showSettleMatch: true,
-            finishConfirming: finishConfirming,
-            settleConfirming: settleConfirming,
+            resetConfirming: menuConfirm.resetConfirming,
+            finishConfirming: menuConfirm.finishConfirming,
+            settleConfirming: menuConfirm.settleConfirming,
             extraItems: [
                 ScoreboardMenuItem(
                     title: NSLocalizedString("scoreboard_rotate_orientation", value: "切换布局", comment: ""),
@@ -513,26 +511,29 @@ struct MultiScoreboardView: View {
                     group: .match,
                     icon: "rectangle.portrait.and.arrow.right",
                     keepDialogOpen: true,
-                    confirming: exitConfirming
+                    confirming: menuConfirm.exitConfirming
                 )
             ]
         )
     }
 
     private func handleMultiScoreMenuAction(_ action: String) {
+        menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
             undoLast()
         case "reset":
-            resetScores()
+            handleResetAttempt()
         case "endGame":
             handleEndGameAttempt()
         case "settleMatch":
             handleSettleAttempt()
         case "displaySettings":
             showDisplaySettings = true
+            showMenu = false
         case "localSync":
             showLocalSync = true
+            showMenu = false
         case "layout":
             toggleLayout()
         case "exit":
@@ -543,36 +544,38 @@ struct MultiScoreboardView: View {
     }
 
     private func handleEndGameAttempt() {
-        let currentTime = Date().timeIntervalSince1970 * 1000
-        if currentTime - finishClickTime < 2000 && finishClickTime > 0 {
-            finishClickTime = 0
+        if menuConfirm.armOrConfirm(.finish) {
             markFinished()
             showMenu = false
             return
         }
-        finishClickTime = currentTime
-        toastMessage = NSLocalizedString("press_again_to_end", value: "再按一次结束比赛", comment: "")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            if Date().timeIntervalSince1970 * 1000 - finishClickTime >= 2000 {
-                toastMessage = nil
-                finishClickTime = 0
-            }
-        }
+        showTransientToast(ScoreboardMenuConfirmAction.finish.localizedToast)
     }
 
     private func handleSettleAttempt() {
-        let currentTime = Date().timeIntervalSince1970 * 1000
-        if currentTime - settleClickTime < 2000 && settleClickTime > 0 {
-            settleClickTime = 0
+        if menuConfirm.armOrConfirm(.settleMatch) {
             markFinished()
             showMenu = false
             return
         }
-        settleClickTime = currentTime
-        toastMessage = NSLocalizedString("click_again_to_settle_match", value: "再按一次结算", comment: "")
+        showTransientToast(ScoreboardMenuConfirmAction.settleMatch.localizedToast)
+    }
+
+    private func handleResetAttempt() {
+        if menuConfirm.armOrConfirm(.reset) {
+            resetScores()
+            showTransientToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+            showMenu = false
+            return
+        }
+        showTransientToast(ScoreboardMenuConfirmAction.reset.localizedToast)
+    }
+
+    private func showTransientToast(_ message: String) {
+        toastMessage = message
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            if Date().timeIntervalSince1970 * 1000 - settleClickTime >= 2000 {
-                settleClickTime = 0
+            if toastMessage == message {
+                toastMessage = nil
             }
         }
     }
@@ -901,7 +904,10 @@ struct MultiScoreboardView: View {
     }
 
     private func undoLast() {
-        guard let last = history.popLast() else { return }
+        guard let last = history.popLast() else {
+            showTransientToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
+            return
+        }
         for i in players.indices where i < last.count {
             players[i].score = last[i]
         }
@@ -918,6 +924,7 @@ struct MultiScoreboardView: View {
         VibrationManager.shared.vibrateLight()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         scheduleDraftPersist()
+        showTransientToast(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
     }
 
     private func resetScores() {
@@ -1164,11 +1171,25 @@ struct MultiScoreboardView: View {
     }
 
     private func handleExitAttempt(fromMenu: Bool) {
+        if fromMenu {
+            if menuConfirm.armOrConfirm(.exit) {
+                toastMessage = nil
+                showMenu = false
+                confirmEditIfNeeded()
+                persistRecord(finished: gameFinished)
+                OrientationLock.shared.unlock()
+                onNavigationBack?()
+                dismiss()
+                return
+            }
+            showTransientToast(ScoreboardMenuConfirmAction.exit.localizedToast)
+            return
+        }
+
         let currentTime = Date().timeIntervalSince1970 * 1000
         if currentTime - exitClickTime < 2000 && exitClickTime > 0 {
             exitClickTime = 0
             toastMessage = nil
-            showMenu = false
             confirmEditIfNeeded()
             persistRecord(finished: gameFinished)
             OrientationLock.shared.unlock()

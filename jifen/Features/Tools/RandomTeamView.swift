@@ -76,18 +76,6 @@ struct RandomTeamView: View {
         .navigationTitle(NSLocalizedString("random_team_title", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .confirmationDialog(
-            NSLocalizedString("random_team_select_team_count", value: "选择分组数量", comment: ""),
-            isPresented: $showTeamPicker,
-            titleVisibility: .visible
-        ) {
-            ForEach(RandomTeamAssignment.teamCountOptions(for: pendingPlayerCount), id: \.self) { option in
-                Button(teamOptionLabel(players: pendingPlayerCount, teams: option)) {
-                    beginSetup(players: pendingPlayerCount, teams: option)
-                }
-            }
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-        }
         .onDisappear {
             animationTask?.cancel()
             animationTask = nil
@@ -99,19 +87,7 @@ struct RandomTeamView: View {
             ForEach(Array([[4, 5], [6, 7], [8, 9], [10]].enumerated()), id: \.offset) { _, row in
                 HStack(spacing: isPad ? 20 : 14) {
                     ForEach(row, id: \.self) { count in
-                        Button {
-                            selectPlayerCount(count)
-                        } label: {
-                            Text(String(format: NSLocalizedString("players_count_format", comment: ""), count))
-                                .font(.system(size: isPad ? 21 : 18, weight: .medium))
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: isPad ? 64 : 56)
-                                .background(Theme.primary)
-                                .clipShape(RoundedRectangle(cornerRadius: isPad ? 14 : 12, style: .continuous))
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("random_team_players_\(count)")
+                        playerCountButton(count, isPad: isPad)
                     }
                     if row.count == 1 {
                         Color.clear.frame(maxWidth: .infinity).frame(height: isPad ? 64 : 56)
@@ -124,8 +100,48 @@ struct RandomTeamView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private func playerCountButton(_ count: Int, isPad: Bool) -> some View {
+        Button {
+            selectPlayerCount(count)
+        } label: {
+            Text(String(format: NSLocalizedString("players_count_format", comment: ""), count))
+                .font(.system(size: isPad ? 21 : 18, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: isPad ? 64 : 56)
+                .background(Theme.primary)
+                .clipShape(RoundedRectangle(cornerRadius: isPad ? 14 : 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("random_team_players_\(count)")
+        .confirmationDialog(
+            NSLocalizedString("random_team_select_team_count", value: "选择分组数量", comment: ""),
+            isPresented: teamPickerBinding(for: count),
+            titleVisibility: .visible
+        ) {
+            ForEach(RandomTeamAssignment.teamCountOptions(for: count), id: \.self) { option in
+                Button(teamOptionLabel(players: count, teams: option)) {
+                    beginSetup(players: count, teams: option)
+                }
+            }
+            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
+        }
+    }
+
+    private func teamPickerBinding(for count: Int) -> Binding<Bool> {
+        Binding(
+            get: { showTeamPicker && pendingPlayerCount == count },
+            set: { presented in
+                showTeamPicker = presented
+                if presented {
+                    pendingPlayerCount = count
+                }
+            }
+        )
+    }
+
     private func groupingContent(size: CGSize, isPad: Bool) -> some View {
-        let secondaryTitle = NSLocalizedString("random_team_reselect", value: "重新选人数", comment: "")
+        let secondaryTitle = NSLocalizedString("random_team_reselect", value: "重选人数", comment: "")
         let primaryTitle = isComplete
             ? NSLocalizedString("try_again", comment: "")
             : NSLocalizedString("simulate", comment: "")

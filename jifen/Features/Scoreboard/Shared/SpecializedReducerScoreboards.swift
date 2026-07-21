@@ -14,7 +14,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     let finished: Bool
     let onLeftTap: () -> Void
     let onRightTap: () -> Void
-    let onUndo: () -> Void
+    let onUndo: () -> Bool
     let onReset: () -> Void
     let onExchange: (() -> Void)?
     let onBack: () -> Void
@@ -36,7 +36,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     @State private var showDisplaySettings = false
     @State private var showLocalSync = false
     @State private var showMenu = false
-    @State private var resetConfirming = false
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
@@ -45,6 +45,9 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     @State private var editRightName = ""
     @State private var editLeftScore = ""
     @State private var editRightScore = ""
+    @State private var exitConfirmDeadline: Date?
+    @State private var showToast = false
+    @State private var toastMessage = ""
 
     private var shouldShowChrome: Bool {
         !appearance.immersiveMode || chromeVisible || showDisplaySettings || showLocalSync || showMenu
@@ -114,6 +117,12 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 if appearance.immersiveMode && !chromeVisible {
                     ImmersiveCornerRevealZones(onReveal: revealImmersiveChrome)
                 }
+
+                if showToast {
+                    ToastView(message: toastMessage)
+                        .transition(.opacity.combined(with: .scale))
+                        .allowsHitTesting(false)
+                }
             }
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
@@ -133,7 +142,10 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
-        .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showMenu) { _, isOpen in
+            if !isOpen { menuConfirm.clear() }
+            updateImmersiveForBlocking()
+        }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showLocalSync) { _, _ in updateImmersiveForBlocking() }
         .onDisappear {
@@ -144,15 +156,42 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
         .overlay {
             MenuDialog(
                 isVisible: showMenu,
-                onClose: { showMenu = false },
+                onClose: {
+                    menuConfirm.clear()
+                    showMenu = false
+                },
                 onMenuItemClick: { action in
+                    menuConfirm.prepare(forMenuAction: action)
                     switch action {
-                    case "undo": onUndo()
-                    case "reset": handleReset()
-                    case "exchangeSide": onExchange?()
-                    case "endGame": onEndGame?()
-                    case "displaySettings": showDisplaySettings = true
-                    case "localSync": showLocalSync = true
+                    case "undo":
+                        if onUndo() {
+                            showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
+                        } else {
+                            showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
+                        }
+                    case "reset":
+                        if menuConfirm.armOrConfirm(.reset) {
+                            onReset()
+                            showToastMessage(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+                            showMenu = false
+                        } else {
+                            showToastMessage(ScoreboardMenuConfirmAction.reset.localizedToast)
+                        }
+                    case "exchangeSide":
+                        if menuConfirm.armOrConfirm(.exchangeSide) {
+                            onExchange?()
+                        } else {
+                            showToastMessage(ScoreboardMenuConfirmAction.exchangeSide.localizedToast)
+                        }
+                    case "endGame":
+                        if menuConfirm.armOrConfirm(.finish) {
+                            onEndGame?()
+                            showMenu = false
+                        } else {
+                            showToastMessage(ScoreboardMenuConfirmAction.finish.localizedToast)
+                        }
+                    case "displaySettings": showDisplaySettings = true; showMenu = false
+                    case "localSync": showLocalSync = true; showMenu = false
                     default: onMenuAction?(action)
                     }
                 },
@@ -163,22 +202,12 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                     showExchangeSide: onExchange != nil,
                     showWhistle: true,
                     showScreenshot: true,
-                    resetConfirming: resetConfirming,
+                    resetConfirming: menuConfirm.resetConfirming,
+                    exchangeConfirming: menuConfirm.exchangeConfirming,
+                    finishConfirming: menuConfirm.finishConfirming,
                     extraItems: extraMenuItems
                 )
             )
-        }
-    }
-
-    private func handleReset() {
-        if resetConfirming {
-            resetConfirming = false
-            onReset()
-            return
-        }
-        resetConfirming = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            resetConfirming = false
         }
     }
 
@@ -186,13 +215,20 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
         chromeVisible = true
         immersiveGeneration += 1
         guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync, !showMenu else { return }
+        let hideDelay: TimeInterval
+        if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
+            hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
+        } else {
+            hideDelay = 1.5
+        }
         let generation = immersiveGeneration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideDelay) {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !showDisplaySettings,
                   !showLocalSync,
                   !showMenu else { return }
+            if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
         }
     }
@@ -219,20 +255,46 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
             }
             .padding(ScoreboardConstants.buttonPadding)
 
-            VStack {
-                Spacer()
-                HStack {
-                    chromeButton("chevron.left", action: onBack)
+            if !isEditMode {
+                VStack {
                     Spacer()
-                    chromeButton("line.3.horizontal") { showMenu = true }
+                    HStack {
+                        chromeButton("chevron.left", action: requestBack)
+                        Spacer()
+                        chromeButton("line.3.horizontal") { showMenu = true }
+                    }
                 }
+                .padding(ScoreboardConstants.buttonPadding)
             }
-            .padding(ScoreboardConstants.buttonPadding)
+        }
+    }
+
+    private func requestBack() {
+        let now = Date()
+        if exitConfirmDeadline.map({ now <= $0 }) != true {
+            exitConfirmDeadline = now.addingTimeInterval(2)
+            showToastMessage(NSLocalizedString("press_again_to_exit", value: "再按一次退出", comment: ""))
+            VibrationManager.shared.vibrateHeavy()
+            revealImmersiveChrome()
+            return
+        }
+        exitConfirmDeadline = nil
+        onBack()
+    }
+
+    private func showToastMessage(_ message: String) {
+        toastMessage = message
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showToast = false
         }
     }
 
     private func chromeButton(_ systemName: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button(action: {
+            action()
+            revealImmersiveChrome()
+        }) {
             Image(systemName: systemName)
                 .font(.system(size: ScoreboardConstants.buttonIconSize))
                 .foregroundColor(.white)
@@ -240,6 +302,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 .background(Circle().fill(Color.black.opacity(0.25)))
         }
         .buttonStyle(.plain)
+        .modifier(ScoreboardBackButtonAccessibility(isBack: systemName == "chevron.left"))
     }
 
     private func scorePanel(
@@ -480,7 +543,14 @@ struct EightBallScoreboardView: View {
             showGameFinishedOverlay = false
         }
     }
-    private func undo() { guard let previous = history.popLast() else { return }; state = previous; actionCount = max(0, actionCount - 1); actionLog.append(recordSnapshot(code: "undo", scores: [state.leftPoints, state.rightPoints])); showGameFinishedOverlay = state.finished }
+    private func undo() -> Bool {
+        guard let previous = history.popLast() else { return false }
+        state = previous
+        actionCount = max(0, actionCount - 1)
+        actionLog.append(recordSnapshot(code: "undo", scores: [state.leftPoints, state.rightPoints]))
+        showGameFinishedOverlay = state.finished
+        return true
+    }
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
     private func registerSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { intent in
@@ -530,12 +600,21 @@ struct NineBallChaseScoreboardView: View {
     @State private var showDisplaySettings = false
     @State private var showLocalSync = false
     @State private var showGameFinishedOverlay = false
-    @State private var resetConfirming = false
-    @State private var settleConfirming = false
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var showEditPanel = false
     @State private var editPlayerNames: [String] = []
     @State private var editPlayerScores: [String] = []
+    @State private var exitConfirmDeadline: Date?
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @State private var chromeVisible = true
+    @State private var immersiveGeneration = 0
+    @State private var previousIdleTimerDisabled: Bool?
     private let reducer = NineBallChaseReducer()
+
+    private var shouldShowChrome: Bool {
+        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showLocalSync || showMenu || showEditPanel
+    }
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -617,35 +696,94 @@ struct NineBallChaseScoreboardView: View {
                         .disabled(state.finished)
                     }
                 }
-                .overlay(alignment: .top) {
-                    HStack {
-                        Button(action: exit) { Image(systemName: "chevron.left") }
-                        Button(action: undo) { Image(systemName: "arrow.uturn.backward") }
-                        Spacer()
-                        Button(action: openEditPanel) { Image(systemName: "pencil") }
-                        Button { showMenu = true } label: { Image(systemName: "line.3.horizontal") }
-                    }
-                    .foregroundStyle(.white)
-                    .padding(10)
-                }
             }
             .background(appearance.theme.palette.background).ignoresSafeArea()
 
+            if shouldShowChrome {
+                // Top undo / edit
+                VStack {
+                    HStack {
+                        Button(action: { _ = undo(); revealImmersiveChrome() }) {
+                            Image(systemName: "arrow.uturn.backward")
+                        }
+                        Spacer()
+                        Button(action: { openEditPanel(); revealImmersiveChrome() }) {
+                            Image(systemName: "pencil")
+                        }
+                    }
+                    .foregroundStyle(.white)
+                    .padding(10)
+                    Spacer()
+                }
+
+                // Bottom-left back + bottom-right menu
+                VStack {
+                    Spacer()
+                    HStack {
+                        Button(action: requestBack) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                .foregroundColor(.white)
+                                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                .background(Circle().fill(Color.black.opacity(0.25)))
+                        }
+                        .buttonStyle(.plain)
+                        .modifier(ScoreboardBackButtonAccessibility(isBack: true))
+                        .padding(.leading, ScoreboardConstants.buttonPadding)
+                        .padding(.bottom, ScoreboardConstants.buttonPadding)
+
+                        Spacer()
+
+                        Button {
+                            showMenu = true
+                            revealImmersiveChrome()
+                        } label: {
+                            Image(systemName: "line.3.horizontal")
+                                .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                .foregroundColor(.white)
+                                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                .background(Circle().fill(Color.black.opacity(0.25)))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.trailing, ScoreboardConstants.buttonPadding)
+                        .padding(.bottom, ScoreboardConstants.buttonPadding)
+                    }
+                }
+            }
+
+            if appearance.immersiveMode && !chromeVisible {
+                ImmersiveCornerRevealZones(onReveal: revealImmersiveChrome)
+            }
+
+            if showToast {
+                ToastView(message: toastMessage)
+                    .transition(.opacity.combined(with: .scale))
+                    .allowsHitTesting(false)
+            }
             if showGameFinishedOverlay {
                 GameFinishedOverlay(winnerName: finishedWinnerName)
             }
 
             MenuDialog(
                 isVisible: showMenu,
-                onClose: { showMenu = false },
+                onClose: {
+                    menuConfirm.clear()
+                    showMenu = false
+                },
                 onMenuItemClick: { action in
+                    menuConfirm.prepare(forMenuAction: action)
                     switch action {
-                    case "undo": undo()
+                    case "undo":
+                        if undo() {
+                            showNineBallToast(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
+                        } else {
+                            showNineBallToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
+                        }
                     case "reset": confirmReset()
-                    case "endGame": markFinished()
+                    case "endGame": confirmFinish()
                     case "settleMatch": confirmSettle()
-                    case "displaySettings": showDisplaySettings = true
-                    case "localSync": showLocalSync = true
+                    case "displaySettings": showDisplaySettings = true; showMenu = false
+                    case "localSync": showLocalSync = true; showMenu = false
                     default: break
                     }
                 },
@@ -657,17 +795,38 @@ struct NineBallChaseScoreboardView: View {
                     showWhistle: true,
                     showScreenshot: true,
                     showSettleMatch: true,
-                    resetConfirming: resetConfirming,
-                    settleConfirming: settleConfirming
+                    resetConfirming: menuConfirm.resetConfirming,
+                    finishConfirming: menuConfirm.finishConfirming,
+                    settleConfirming: menuConfirm.settleConfirming
                 )
             )
         }
+        .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         .navigationBarBackButtonHidden(true).toolbar(.hidden, for: .navigationBar).lockOrientation(.landscape)
-        .onAppear { onSetupConsumed?(); registerSync() }
-        .onChange(of: preferences.scoreboardRevision) { _, _ in appearance = .current() }
+        .onAppear {
+            onSetupConsumed?()
+            registerSync()
+            appearance = .current()
+            previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
+            UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            revealImmersiveChrome()
+        }
+        .onChange(of: preferences.scoreboardRevision) { _, _ in
+            appearance = .current()
+            UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            revealImmersiveChrome()
+        }
+        .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showLocalSync) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showEditPanel) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: state.finished) { _, finished in if finished { showGameFinishedOverlay = true } }
         .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
-        .onDisappear { LocalScoreboardSyncCoordinator.shared.unregisterHost(); saveRecord() }
+        .onDisappear {
+            LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            saveRecord()
+            if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
+        }
         .sheet(isPresented: $showDisplaySettings) { ScoreboardDisplaySettingsView(gameType: .nineBall) }
         .sheet(isPresented: $showLocalSync) { LocalSyncView() }
         .sheet(isPresented: $showEditPanel) { nineBallEditSheet }
@@ -774,36 +933,93 @@ struct NineBallChaseScoreboardView: View {
         showGameFinishedOverlay = true
     }
     private func confirmReset() {
-        if resetConfirming {
-            resetConfirming = false
+        if menuConfirm.armOrConfirm(.reset) {
             send(.resetScores)
             showGameFinishedOverlay = false
+            showNineBallToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+            showMenu = false
             return
         }
-        resetConfirming = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            resetConfirming = false
-        }
+        showNineBallToast(ScoreboardMenuConfirmAction.reset.localizedToast)
     }
-    private func confirmSettle() {
-        if settleConfirming {
-            settleConfirming = false
+    private func confirmFinish() {
+        if menuConfirm.armOrConfirm(.finish) {
             markFinished()
             showMenu = false
             return
         }
-        settleConfirming = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            settleConfirming = false
-        }
+        showNineBallToast(ScoreboardMenuConfirmAction.finish.localizedToast)
     }
-    private func undo() {
-        guard let previous = history.popLast() else { return }
+    private func confirmSettle() {
+        if menuConfirm.armOrConfirm(.settleMatch) {
+            markFinished()
+            showMenu = false
+            return
+        }
+        showNineBallToast(ScoreboardMenuConfirmAction.settleMatch.localizedToast)
+    }
+    private func undo() -> Bool {
+        guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
         actionLog.append(recordSnapshot(code: "undo", scores: state.playerPoints))
         showGameFinishedOverlay = state.finished
+        return true
     }
+    private func showNineBallToast(_ message: String) {
+        toastMessage = message
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { showToast = false }
+    }
+    private func requestBack() {
+        let now = Date()
+        if exitConfirmDeadline.map({ now <= $0 }) != true {
+            exitConfirmDeadline = now.addingTimeInterval(2)
+            toastMessage = NSLocalizedString("press_again_to_exit", value: "再按一次退出", comment: "")
+            showToast = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showToast = false
+            }
+            VibrationManager.shared.vibrateHeavy()
+            revealImmersiveChrome()
+            return
+        }
+        exitConfirmDeadline = nil
+        exit()
+    }
+
+    private func revealImmersiveChrome() {
+        chromeVisible = true
+        immersiveGeneration += 1
+        guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync, !showMenu, !showEditPanel else { return }
+        let hideDelay: TimeInterval
+        if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
+            hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
+        } else {
+            hideDelay = 1.5
+        }
+        let generation = immersiveGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideDelay) {
+            guard generation == immersiveGeneration,
+                  appearance.immersiveMode,
+                  !showDisplaySettings,
+                  !showLocalSync,
+                  !showMenu,
+                  !showEditPanel else { return }
+            if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
+            chromeVisible = false
+        }
+    }
+
+    private func updateImmersiveForBlocking() {
+        if showMenu || showDisplaySettings || showLocalSync || showEditPanel || !appearance.immersiveMode {
+            immersiveGeneration += 1
+            chromeVisible = true
+        } else {
+            revealImmersiveChrome()
+        }
+    }
+
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
     private func registerSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { intent in
@@ -1165,12 +1381,13 @@ struct SnookerReducerScoreboardView: View {
         actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
         if state.finished { showGameFinishedOverlay = true }
     }
-    private func undo() {
-        guard let previous = history.popLast() else { return }
+    private func undo() -> Bool {
+        guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
         actionLog.append(recordSnapshot(code: "undo", scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
         showGameFinishedOverlay = state.finished
+        return true
     }
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
     private func registerSync() {
@@ -1395,11 +1612,12 @@ struct ShengjiReducerScoreboardView: View {
         actionCount += 1
         actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftIndex, state.rightIndex]))
     }
-    private func undo() {
-        guard let previous = history.popLast() else { return }
+    private func undo() -> Bool {
+        guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
         actionLog.append(recordSnapshot(code: "undo", scores: [state.leftIndex, state.rightIndex]))
+        return true
     }
     private func resetMatch() {
         history.append(state)

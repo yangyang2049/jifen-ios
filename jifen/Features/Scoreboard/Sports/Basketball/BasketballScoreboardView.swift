@@ -6,7 +6,6 @@ struct BasketballScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
-    var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
@@ -19,19 +18,20 @@ struct BasketballScoreboardView: View {
     @State private var showDisplaySettings = false
     @State private var showLocalSync = false
     @State private var showMenu = false
-    @State private var resetConfirming = false
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
+    @State private var exitConfirmDeadline: Date?
+    @State private var showToast = false
+    @State private var toastMessage = ""
 
     init(
-        showBackButton: Bool = true,
         onNavigationBack: (() -> Void)? = nil,
         initialSetup: SportsSetupResult? = nil,
         initialRecordId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil
     ) {
-        self.showBackButton = showBackButton
         self.onNavigationBack = onNavigationBack
         self.initialSetup = initialSetup
         self.initialRecordId = initialRecordId
@@ -61,68 +61,80 @@ struct BasketballScoreboardView: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            let centerW = ScoreboardLayoutMetrics.basketballCenterWidth(screenWidth: proxy.size.width)
-            let sideW = (proxy.size.width - centerW) / 2
-            HStack(spacing: 0) {
-                BasketballTeamPanel(
-                    name: displayName(for: .left),
-                    score: displayScore(for: .left),
-                    fouls: displayFouls(for: .left),
-                    timeouts: displayTimeouts(for: .left),
-                    foulDisplayLimit: BasketballMatchEngine.foulDisplayLimit(store.state),
-                    bonusThreshold: BasketballMatchEngine.bonusThreshold(store.state),
-                    doubleBonusThreshold: BasketballMatchEngine.doubleBonusThreshold(store.state),
-                    color: logicalSide(forScreen: .left) == .left ? Color(hex: "C62828") : Color(hex: "007AFF"),
-                    isLeftSide: true,
-                    scoreboardFont: appearance.font,
-                    scoreMultiplier: scoreMultiplier,
-                    panelHeight: proxy.size.height,
-                    points: BasketballMatchEngine.scoringButtons(store.state),
-                    onScore: { store.send(.addPoints(side: logicalSide(forScreen: .left), points: $0)) },
-                    onFoul: { store.send(.addFoul(side: logicalSide(forScreen: .left))) },
-                    onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: .left))) },
-                    onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: .left))) }
-                )
-                .frame(width: sideW)
+        ZStack {
+            GeometryReader { proxy in
+                let centerW = ScoreboardLayoutMetrics.basketballCenterWidth(screenWidth: proxy.size.width)
+                let sideW = (proxy.size.width - centerW) / 2
+                HStack(spacing: 0) {
+                    BasketballTeamPanel(
+                        name: displayName(for: .left),
+                        score: displayScore(for: .left),
+                        fouls: displayFouls(for: .left),
+                        timeouts: displayTimeouts(for: .left),
+                        foulDisplayLimit: BasketballMatchEngine.foulDisplayLimit(store.state),
+                        bonusThreshold: BasketballMatchEngine.bonusThreshold(store.state),
+                        doubleBonusThreshold: BasketballMatchEngine.doubleBonusThreshold(store.state),
+                        color: logicalSide(forScreen: .left) == .left ? Color(hex: "C62828") : Color(hex: "007AFF"),
+                        isLeftSide: true,
+                        scoreboardFont: appearance.font,
+                        scoreMultiplier: scoreMultiplier,
+                        panelHeight: proxy.size.height,
+                        points: BasketballMatchEngine.scoringButtons(store.state),
+                        onScore: { store.send(.addPoints(side: logicalSide(forScreen: .left), points: $0)) },
+                        onFoul: { store.send(.addFoul(side: logicalSide(forScreen: .left))) },
+                        onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: .left))) },
+                        onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: .left))) }
+                    )
+                    .frame(width: sideW)
 
-                BasketballCenterPanel(
-                    state: store.state,
-                    onBack: back,
-                    showsBackButton: showBackButton,
-                    onToggleClock: { store.send(.setClockRunning(!store.state.gameRunning)) },
-                    onResetGameClock: { store.send(.resetGameClock) },
-                    onResetShotClock: { store.send(.resetShotClock(seconds: $0)) },
-                    onAdvancePeriod: { store.send(.advanceToNextPeriod) },
-                    onEnterOvertime: { store.send(.enterOvertime) },
-                    onSelectPeriod: { store.send(.selectPeriod($0)) },
-                    onOpenMenu: { showMenu = true },
-                    showsChrome: shouldShowChrome
-                )
-                .frame(width: centerW)
+                    BasketballCenterPanel(
+                        state: store.state,
+                        onToggleClock: { store.send(.setClockRunning(!store.state.gameRunning)) },
+                        onResetGameClock: { store.send(.resetGameClock) },
+                        onResetShotClock: { store.send(.resetShotClock(seconds: $0)) },
+                        onAdvancePeriod: { store.send(.advanceToNextPeriod) },
+                        onEnterOvertime: { store.send(.enterOvertime) },
+                        onSelectPeriod: { store.send(.selectPeriod($0)) }
+                    )
+                    .frame(width: centerW)
 
-                BasketballTeamPanel(
-                    name: displayName(for: .right),
-                    score: displayScore(for: .right),
-                    fouls: displayFouls(for: .right),
-                    timeouts: displayTimeouts(for: .right),
-                    foulDisplayLimit: BasketballMatchEngine.foulDisplayLimit(store.state),
-                    bonusThreshold: BasketballMatchEngine.bonusThreshold(store.state),
-                    doubleBonusThreshold: BasketballMatchEngine.doubleBonusThreshold(store.state),
-                    color: logicalSide(forScreen: .right) == .left ? Color(hex: "C62828") : Color(hex: "007AFF"),
-                    isLeftSide: false,
-                    scoreboardFont: appearance.font,
-                    scoreMultiplier: scoreMultiplier,
-                    panelHeight: proxy.size.height,
-                    points: BasketballMatchEngine.scoringButtons(store.state),
-                    onScore: { store.send(.addPoints(side: logicalSide(forScreen: .right), points: $0)) },
-                    onFoul: { store.send(.addFoul(side: logicalSide(forScreen: .right))) },
-                    onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: .right))) },
-                    onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: .right))) }
-                )
-                .frame(width: sideW)
+                    BasketballTeamPanel(
+                        name: displayName(for: .right),
+                        score: displayScore(for: .right),
+                        fouls: displayFouls(for: .right),
+                        timeouts: displayTimeouts(for: .right),
+                        foulDisplayLimit: BasketballMatchEngine.foulDisplayLimit(store.state),
+                        bonusThreshold: BasketballMatchEngine.bonusThreshold(store.state),
+                        doubleBonusThreshold: BasketballMatchEngine.doubleBonusThreshold(store.state),
+                        color: logicalSide(forScreen: .right) == .left ? Color(hex: "C62828") : Color(hex: "007AFF"),
+                        isLeftSide: false,
+                        scoreboardFont: appearance.font,
+                        scoreMultiplier: scoreMultiplier,
+                        panelHeight: proxy.size.height,
+                        points: BasketballMatchEngine.scoringButtons(store.state),
+                        onScore: { store.send(.addPoints(side: logicalSide(forScreen: .right), points: $0)) },
+                        onFoul: { store.send(.addFoul(side: logicalSide(forScreen: .right))) },
+                        onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: .right))) },
+                        onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: .right))) }
+                    )
+                    .frame(width: sideW)
+                }
+                .background(Color.black)
             }
-            .background(Color.black)
+
+            if shouldShowChrome {
+                chromeOverlay
+            }
+
+            if appearance.immersiveMode && !chromeVisible {
+                ImmersiveCornerRevealZones(onReveal: revealImmersiveChrome)
+            }
+
+            if showToast {
+                ToastView(message: toastMessage)
+                    .transition(.opacity.combined(with: .scale))
+                    .allowsHitTesting(false)
+            }
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
@@ -164,18 +176,56 @@ struct BasketballScoreboardView: View {
         .overlay {
             MenuDialog(
                 isVisible: showMenu,
-                onClose: { showMenu = false },
+                onClose: {
+                    menuConfirm.clear()
+                    showMenu = false
+                },
                 onMenuItemClick: handleMenuAction,
                 showEndGame: true,
-                resetConfirming: resetConfirming,
+                resetConfirming: menuConfirm.resetConfirming,
                 items: ScoreboardMenuItemBuilder.defaultItems(
                     showEndGame: true,
                     showExchangeSide: true,
                     showScreenshot: false,
-                    resetConfirming: resetConfirming
+                    resetConfirming: menuConfirm.resetConfirming,
+                    exchangeConfirming: menuConfirm.exchangeConfirming,
+                    finishConfirming: menuConfirm.finishConfirming
                 )
             )
         }
+    }
+
+    private var chromeOverlay: some View {
+        VStack {
+            Spacer()
+            HStack {
+                chromeButton(systemName: "chevron.left", action: requestBack)
+                    .padding(.leading, ScoreboardConstants.buttonPadding)
+                    .padding(.bottom, ScoreboardConstants.buttonPadding)
+                Spacer()
+                chromeButton(systemName: "line.3.horizontal") {
+                    showMenu = true
+                }
+                .padding(.trailing, ScoreboardConstants.buttonPadding)
+                .padding(.bottom, ScoreboardConstants.buttonPadding)
+            }
+        }
+        .allowsHitTesting(true)
+    }
+
+    private func chromeButton(systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: {
+            action()
+            revealImmersiveChrome()
+        }) {
+            Image(systemName: systemName)
+                .font(.system(size: ScoreboardConstants.buttonIconSize))
+                .foregroundColor(.white)
+                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                .background(Circle().fill(Color.black.opacity(0.25)))
+        }
+        .buttonStyle(.plain)
+        .modifier(ScoreboardBackButtonAccessibility(isBack: systemName == "chevron.left"))
     }
 
     private func displayName(for side: MatchSide) -> String {
@@ -214,43 +264,78 @@ struct BasketballScoreboardView: View {
         chromeVisible = true
         immersiveGeneration += 1
         guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync, !showMenu else { return }
+        let hideDelay: TimeInterval
+        if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
+            hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
+        } else {
+            hideDelay = 1.5
+        }
         let generation = immersiveGeneration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideDelay) {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !showDisplaySettings,
                   !showLocalSync,
                   !showMenu else { return }
+            if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
         }
     }
 
     private func handleMenuAction(_ action: String) {
+        menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
-            store.undo()
+            store.undo { success in
+                showToastMessage(
+                    success
+                        ? NSLocalizedString("undone", value: "已撤销", comment: "Undo done")
+                        : NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: "")
+                )
+            }
         case "exchangeSide":
-            store.send(.exchangeSides)
-        case "reset":
-            if resetConfirming {
-                resetConfirming = false
-                store.send(.reset)
+            if menuConfirm.armOrConfirm(.exchangeSide) {
+                store.send(.exchangeSides)
             } else {
-                resetConfirming = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    resetConfirming = false
-                }
+                showConfirmToast(.exchangeSide)
+            }
+        case "reset":
+            if menuConfirm.armOrConfirm(.reset) {
+                store.send(.reset)
+                showToastMessage(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+                showMenu = false
+            } else {
+                showConfirmToast(.reset)
             }
         case "endGame":
-            store.send(.finish)
+            if menuConfirm.armOrConfirm(.finish) {
+                store.send(.finish)
+                showMenu = false
+            } else {
+                showConfirmToast(.finish)
+            }
         case "displaySettings":
             showDisplaySettings = true
+            showMenu = false
         case "localSync":
             showLocalSync = true
+            showMenu = false
         case "whistle":
-            SoundManager.shared.playSound("whistle")
+            break
         default:
             break
+        }
+    }
+
+    private func showConfirmToast(_ action: ScoreboardMenuConfirmAction) {
+        showToastMessage(action.localizedToast)
+    }
+
+    private func showToastMessage(_ message: String) {
+        toastMessage = message
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showToast = false
         }
     }
 
@@ -282,6 +367,19 @@ struct BasketballScoreboardView: View {
                 }
             }
         )
+    }
+
+    private func requestBack() {
+        let now = Date()
+        if exitConfirmDeadline.map({ now <= $0 }) != true {
+            exitConfirmDeadline = now.addingTimeInterval(2)
+            showToastMessage(NSLocalizedString("press_again_to_exit", value: "再按一次退出", comment: ""))
+            VibrationManager.shared.vibrateHeavy()
+            revealImmersiveChrome()
+            return
+        }
+        exitConfirmDeadline = nil
+        back()
     }
 
     private func back() {
@@ -429,16 +527,12 @@ private struct BasketballTeamPanel: View {
 
 private struct BasketballCenterPanel: View {
     let state: BasketballMatchState
-    let onBack: () -> Void
-    let showsBackButton: Bool
     let onToggleClock: () -> Void
     let onResetGameClock: () -> Void
     let onResetShotClock: (Int) -> Void
     let onAdvancePeriod: () -> Void
     let onEnterOvertime: () -> Void
     let onSelectPeriod: (Int) -> Void
-    let onOpenMenu: () -> Void
-    let showsChrome: Bool
 
     @State private var showPeriodPicker = false
     @State private var shotClockBlinkPhase = false
@@ -471,24 +565,6 @@ private struct BasketballCenterPanel: View {
 
     private var upperZone: some View {
         VStack(spacing: 10) {
-            if showsChrome {
-                HStack(spacing: 8) {
-                    if showsBackButton {
-                        Button(action: onBack) {
-                            Image(systemName: "chevron.left")
-                                .foregroundStyle(.white)
-                        }
-                    }
-                    Spacer()
-                    Button(action: onOpenMenu) {
-                        Image(systemName: "line.3.horizontal").foregroundStyle(.white)
-                    }
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 8)
-                .padding(.top, 8)
-            }
-
             if state.gameMode == .fiveVFive {
                 Button {
                     showPeriodPicker.toggle()
@@ -533,6 +609,7 @@ private struct BasketballCenterPanel: View {
 
             Spacer(minLength: 0)
         }
+        .padding(.top, 8)
     }
 
     private var lowerZone: some View {

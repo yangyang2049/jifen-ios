@@ -138,6 +138,10 @@ public actor SessionArchiveRepository {
             status: session.status,
             updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
         ))
+        // Resume GameBar allows at most one live session (aligned with HarmonyOS).
+        if session.status == .live {
+            try await discardOtherLiveSessions(except: session.sessionId)
+        }
     }
 
     public func load<State: Codable & Sendable, Event: Codable & Sendable>(
@@ -155,6 +159,30 @@ public actor SessionArchiveRepository {
 
     public func liveEntries() async throws -> [SessionArchiveEntry] {
         try await entries().filter { $0.status == .live }
+    }
+
+    /// Keeps at most one live resume target: discards every live session except `sessionId`.
+    public func discardOtherLiveSessions(except sessionId: UUID) async throws {
+        for entry in try await liveEntries() where entry.sessionId != sessionId {
+            try await remove(sessionId: entry.sessionId)
+        }
+    }
+
+    public func discardAllLiveSessions() async throws {
+        for entry in try await liveEntries() {
+            try await remove(sessionId: entry.sessionId)
+        }
+    }
+
+    /// Prunes stacked live sessions (legacy data) down to the newest one.
+    @discardableResult
+    public func retainNewestLiveSession() async throws -> SessionArchiveEntry? {
+        let live = try await liveEntries()
+        guard let newest = live.first else { return nil }
+        for entry in live.dropFirst() {
+            try await remove(sessionId: entry.sessionId)
+        }
+        return newest
     }
 
     public func remove(sessionId: UUID) async throws {

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AACalculatorView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var totalAmount: String = ""
     @State private var participants: Int = 2
     @State private var amountPerPerson: Double = 0
@@ -16,6 +17,13 @@ struct AACalculatorView: View {
     @State private var showToast = false
     @State private var toastMessage = ""
     @FocusState private var isAmountFocused: Bool
+
+    /// Light: soft white so fields lift off the gray page; dark: keep system control fill.
+    private var fieldBackground: Color {
+        colorScheme == .dark
+            ? Theme.controlBackground
+            : Color.white.opacity(0.92)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -35,7 +43,7 @@ struct AACalculatorView: View {
                             .padding(16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Theme.controlBackground)
+                                    .fill(fieldBackground)
                             )
                             .focused($isAmountFocused)
                             .onChange(of: totalAmount) { _, _ in
@@ -60,7 +68,7 @@ struct AACalculatorView: View {
                                             .frame(height: 40)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 8)
-                                                    .fill(totalAmount == "\(amount)" ? Color(hex: "4CAF50") : Theme.controlBackground)
+                                                    .fill(totalAmount == "\(amount)" ? Color(hex: "4CAF50") : fieldBackground)
                                             )
                                     }
                                 }
@@ -81,7 +89,7 @@ struct AACalculatorView: View {
                                             .frame(height: 40)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 8)
-                                                    .fill(totalAmount == "\(amount)" ? Color(hex: "4CAF50") : Theme.controlBackground)
+                                                    .fill(totalAmount == "\(amount)" ? Color(hex: "4CAF50") : fieldBackground)
                                             )
                                     }
                                 }
@@ -109,7 +117,7 @@ struct AACalculatorView: View {
                                     .frame(width: 60, height: 60)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Theme.controlBackground)
+                                            .fill(fieldBackground)
                                     )
                             }
                             .disabled(participants <= 2)
@@ -138,7 +146,7 @@ struct AACalculatorView: View {
                                     .frame(width: 60, height: 60)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Theme.controlBackground)
+                                            .fill(fieldBackground)
                                     )
                             }
                             .disabled(participants >= 20)

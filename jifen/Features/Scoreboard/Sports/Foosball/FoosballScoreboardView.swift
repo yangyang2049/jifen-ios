@@ -3,7 +3,6 @@ import SwiftUI
 
 /// 桌上足球：复用 Rally 抢分内核；2V2 使用四角球员布局且无发球轮转。
 struct FoosballScoreboardView: View {
-    var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
@@ -20,7 +19,6 @@ struct FoosballScoreboardView: View {
             openingServer: .left,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
             initialRecordId: initialRecordId,
-            showBackButton: showBackButton,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )

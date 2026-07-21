@@ -13,23 +13,23 @@ struct ScoreboardLaunchView: View {
     var body: some View {
         switch gameType {
         case .pingpong:
-            PingPongScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            PingPongScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .badminton:
-            BadmintonScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            BadmintonScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .tennis:
-            TennisScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            TennisScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .basketball:
-            BasketballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            BasketballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .threeBasketball:
-            BasketballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: threeBasketballSetup, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            BasketballScoreboardView(onNavigationBack: onBack, initialSetup: threeBasketballSetup, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .football:
-            FootballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            FootballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .volleyball:
-            VolleyballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            VolleyballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .beachVolleyball:
-            VolleyballScoreboardView(variant: .beachVolleyball, showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            VolleyballScoreboardView(variant: .beachVolleyball, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .airVolleyball:
-            VolleyballScoreboardView(variant: .airVolleyball, showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            VolleyballScoreboardView(variant: .airVolleyball, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .archery:
             ArcheryScoreboardView(initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .boxing:
@@ -53,7 +53,7 @@ struct ScoreboardLaunchView: View {
         case .uno:
             MultiScoreboardView(gameType: .uno, defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.unoPlayerCount, targetScore: setupResult?.targetScore ?? PreferencesManager.shared.unoTargetScore, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .foosball:
-            FoosballScoreboardView(showBackButton: false, onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
+            FoosballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed)
         case .simpleScore, .counter:
             SimpleScoreboardView(initialSetup: setupResult, initialRecordId: initialRecordId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
         case .multiScoreboard:

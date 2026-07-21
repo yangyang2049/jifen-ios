@@ -10,7 +10,6 @@ import SwiftUI
 
 struct TennisScoreboardView: View {
     @Environment(\.dismiss) var dismiss
-    var showBackButton: Bool = true
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
@@ -30,7 +29,6 @@ struct TennisScoreboardView: View {
     
     @State private var toastMessage: String = ""
     @State private var isEditMode: Bool = false
-    @State private var finishConfirmationDeadline: Date?
 
     var body: some View {
         ZStack {
@@ -306,25 +304,6 @@ struct TennisScoreboardView: View {
     }
 
     private func finishMatchManually() {
-        let now = Date()
-        let leftSets = viewModel.leftTeam.sets ?? 0
-        let rightSets = viewModel.rightTeam.sets ?? 0
-        let requiresConfirmation = viewModel.matchCompletionMode == .playAll
-            && !viewModel.matchCompletionMode.isMatchFinished(
-                maxSets: viewModel.maxSets,
-                leftSets: leftSets,
-                rightSets: rightSets
-            )
-        if requiresConfirmation, finishConfirmationDeadline.map({ now <= $0 }) != true {
-            finishConfirmationDeadline = now.addingTimeInterval(2)
-            showToastMessage(NSLocalizedString(
-                "match_completion_finish_confirmation",
-                value: "尚未打满，2 秒内再次点击结束比赛。",
-                comment: ""
-            ))
-            return
-        }
-        finishConfirmationDeadline = nil
         viewModel.endGame()
     }
     
