@@ -71,6 +71,35 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertNil(LocalScoreboardKeyPoint.syncValue(keyPoint, finished: true, isEditing: false))
     }
 
+    func testTennisTiebreakOnlySevenAndTenOmitGameAndSetDetails() {
+        for target in [7, 10] {
+            var state = TennisMatchState(
+                leftName: "A",
+                rightName: "B",
+                rules: TennisRuleSet(
+                    maxSets: 1,
+                    tieBreakPoints: target,
+                    setScoringMode: .tiebreakOnly
+                )
+            )
+            state.leftPoints = target - 1
+            state.rightPoints = target - 3
+            state.leftGames = 1
+            state.leftSets = 1
+
+            XCTAssertNil(tennisLocalSyncDetail(state: state, side: .left))
+            XCTAssertNil(tennisLocalSyncDetail(state: state, side: .right))
+        }
+    }
+
+    func testRegularTennisKeepsGameAndSetDetails() {
+        var state = TennisMatchState(leftName: "A", rightName: "B")
+        state.leftGames = 5
+        state.leftSets = 1
+
+        XCTAssertNotNil(tennisLocalSyncDetail(state: state, side: .left))
+    }
+
     func testBadgeCenterUsesCompactAndLargeViewportSpacing() {
         XCTAssertEqual(
             ScoreboardServeGeometry.keyPointBadgeCenterY(

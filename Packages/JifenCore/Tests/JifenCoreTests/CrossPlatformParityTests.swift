@@ -99,10 +99,21 @@ import SessionCore
     matchTieBreak.rightPoints = 9
     matchTieBreak = reducer.reduce(state: matchTieBreak, intent: .pointWon(.left), at: 2).state
     #expect(!matchTieBreak.finished)
-    matchTieBreak = reducer.reduce(state: matchTieBreak, intent: .pointWon(.left), at: 3).state
-    #expect(matchTieBreak.leftSets == 1)
-    #expect(matchTieBreak.leftGames == 1)
+    let finalTieBreak = reducer.reduce(state: matchTieBreak, intent: .pointWon(.left), at: 3)
+    matchTieBreak = finalTieBreak.state
+    #expect(matchTieBreak.leftPoints == 11)
+    #expect(matchTieBreak.rightPoints == 9)
+    #expect(matchTieBreak.leftSets == 0)
+    #expect(matchTieBreak.rightSets == 0)
+    #expect(matchTieBreak.leftGames == 0)
+    #expect(matchTieBreak.rightGames == 0)
     #expect(matchTieBreak.finished)
+    #expect(!finalTieBreak.events.contains { event in
+        if case .gameCompleted = event { return true }
+        if case .setCompleted = event { return true }
+        return false
+    })
+    #expect(finalTieBreak.events.contains(.matchFinished(winner: .left)))
 
     let edit = reducer.reduce(state: TennisMatchState(leftName: "A", rightName: "B", rules: matchRules), intent: .adjustGames(side: .left, delta: 1), at: 4)
     #expect(!edit.accepted)

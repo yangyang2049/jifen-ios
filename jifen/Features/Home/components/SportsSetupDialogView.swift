@@ -1,3 +1,4 @@
+import LinkCore
 import ScoreCore
 import SwiftUI
 
@@ -518,15 +519,13 @@ struct SportsSetupDialogView: View {
     }
 
     private var supportsWatchProject: Bool {
-        gameType == .basketball || gameType == .pingpong || gameType == .badminton || gameType == .pickleball
+        AppFeatureFlags.isWatchLinkSupportedProject(gameType)
     }
 
     private var canStartOnWatch: Bool {
-        #if DEBUG
-        supportsWatchProject && watchLinkService.canStartInteractiveSession
-        #else
-        false
-        #endif
+        AppFeatureFlags.watchLinkEntryEnabled
+            && supportsWatchProject
+            && watchLinkService.canStartInteractiveSession
     }
 
     @ViewBuilder
@@ -1720,6 +1719,70 @@ struct SportsSetupDialogView: View {
             configured.useRallyScoring = config.useRallyScoring ?? false
             configured.nextSetServerModel = config.isSingles == false ? .alternateFromOpening : .opening
             rules = configured
+        case .tennis:
+            let tennisType: ScoreCore.GameType = config.isSingles == false ? .tennisDoubles : .tennis
+            let tennisRules = TennisRuleSet(
+                maxSets: config.maxSets ?? 3,
+                tieBreakPoints: config.tieBreakPoints == 10 ? 10 : 7,
+                gamesPerSet: config.gamesPerSet ?? 6,
+                setScoringMode: config.setScoringMode == "tiebreak_only" ? .tiebreakOnly : .regular,
+                matchCompletionMode: config.matchCompletionMode ?? .bestOf,
+                usesNoAdScoring: config.tennisDeuceMode == "no_ad",
+                autoChangeSides: config.autoChangeSides ?? true
+            )
+            let opening: MatchSide = config.servingSide == MatchSide.right.rawValue ? .right : .left
+            let tennisState = TennisMatchState(
+                leftName: config.team1Name,
+                rightName: config.team2Name,
+                rules: tennisRules,
+                openingServer: opening
+            )
+            return try await watchLinkService.startInteractiveOnWatch(gameType: tennisType, state: tennisState)
+        case .archery:
+            let archery = LinkedArcheryState(
+                leftName: config.team1Name,
+                rightName: config.team2Name,
+                currentShooterIsLeft: config.servingSide != MatchSide.right.rawValue
+            )
+            return try await watchLinkService.startInteractiveOnWatch(
+                snapshot: .archery(archery),
+                gameType: .archeryDual
+            )
+        case .eightBall:
+            let beneficiary: MatchSide? = config.eightBallHandicapBeneficiary == "team1" ? .left :
+                (config.eightBallHandicapBeneficiary == "team2" ? .right : nil)
+            let eight = EightBallState.initial(
+                targetPoints: config.maxSets ?? 9,
+                handicapRacks: config.eightBallHandicapRacks ?? 0,
+                handicapBeneficiary: beneficiary
+            )
+            return try await watchLinkService.startInteractiveOnWatch(
+                snapshot: .eightBall(eight),
+                gameType: .eightBall
+            )
+        case .nineBall:
+            let nineConfig = NineBallChaseConfig(
+                bigGold: config.nineBallBigGold ?? 10,
+                smallGold: config.nineBallSmallGold ?? 7,
+                goldenNine: config.nineBallGoldenNine ?? 8,
+                normalWin: config.nineBallNormalWin ?? 4,
+                ballInHand: config.nineBallBallInHand ?? 1,
+                foul: config.nineBallFoul ?? 1
+            )
+            let nine = NineBallChaseState.initial(config: nineConfig, playerCount: config.playerCount ?? 2)
+            return try await watchLinkService.startInteractiveOnWatch(
+                snapshot: .nineBall(nine),
+                gameType: .nineBall
+            )
+        case .snooker:
+            let snooker = SnookerState.initial(
+                striker: config.servingSide == MatchSide.right.rawValue ? .right : .left,
+                maxFrames: config.maxSets ?? 1
+            )
+            return try await watchLinkService.startInteractiveOnWatch(
+                snapshot: .snooker(snooker),
+                gameType: .snooker
+            )
         default:
             throw PhoneWatchLinkService.InteractiveStartError.watchUnavailable
         }

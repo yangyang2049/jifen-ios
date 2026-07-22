@@ -43,16 +43,31 @@ public enum LinkMessageKind: String, Codable, Sendable {
 public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     case basketball(BasketballMatchState)
     case rally(RallyMatchState)
+    case tennis(TennisMatchState)
+    case archery(LinkedArcheryState)
+    case eightBall(EightBallState)
+    case nineBall(NineBallChaseState)
+    case snooker(SnookerState)
 
     private enum CodingKeys: String, CodingKey {
         case kind
         case basketball
         case rally
+        case tennis
+        case archery
+        case eightBall
+        case nineBall
+        case snooker
     }
 
     private enum Kind: String, Codable {
         case basketball
         case rally
+        case tennis
+        case archery
+        case eightBall
+        case nineBall
+        case snooker
     }
 
     public init(from decoder: Decoder) throws {
@@ -62,6 +77,16 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
             self = .basketball(try container.decode(BasketballMatchState.self, forKey: .basketball))
         case .rally:
             self = .rally(try container.decode(RallyMatchState.self, forKey: .rally))
+        case .tennis:
+            self = .tennis(try container.decode(TennisMatchState.self, forKey: .tennis))
+        case .archery:
+            self = .archery(try container.decode(LinkedArcheryState.self, forKey: .archery))
+        case .eightBall:
+            self = .eightBall(try container.decode(EightBallState.self, forKey: .eightBall))
+        case .nineBall:
+            self = .nineBall(try container.decode(NineBallChaseState.self, forKey: .nineBall))
+        case .snooker:
+            self = .snooker(try container.decode(SnookerState.self, forKey: .snooker))
         }
     }
 
@@ -74,6 +99,21 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case .rally(let state):
             try container.encode(Kind.rally, forKey: .kind)
             try container.encode(state, forKey: .rally)
+        case .tennis(let state):
+            try container.encode(Kind.tennis, forKey: .kind)
+            try container.encode(state, forKey: .tennis)
+        case .archery(let state):
+            try container.encode(Kind.archery, forKey: .kind)
+            try container.encode(state, forKey: .archery)
+        case .eightBall(let state):
+            try container.encode(Kind.eightBall, forKey: .kind)
+            try container.encode(state, forKey: .eightBall)
+        case .nineBall(let state):
+            try container.encode(Kind.nineBall, forKey: .kind)
+            try container.encode(state, forKey: .nineBall)
+        case .snooker(let state):
+            try container.encode(Kind.snooker, forKey: .kind)
+            try container.encode(state, forKey: .snooker)
         }
     }
 
@@ -85,6 +125,176 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     public var rallyState: RallyMatchState? {
         guard case .rally(let state) = self else { return nil }
         return state
+    }
+
+    public var tennisState: TennisMatchState? {
+        guard case .tennis(let state) = self else { return nil }
+        return state
+    }
+
+    public var archeryState: LinkedArcheryState? {
+        guard case .archery(let state) = self else { return nil }
+        return state
+    }
+
+    public var eightBallState: EightBallState? {
+        guard case .eightBall(let state) = self else { return nil }
+        return state
+    }
+
+    public var nineBallState: NineBallChaseState? {
+        guard case .nineBall(let state) = self else { return nil }
+        return state
+    }
+
+    public var snookerState: SnookerState? {
+        guard case .snooker(let state) = self else { return nil }
+        return state
+    }
+}
+
+/// Lightweight archery sync DTO (phone/Watch archery UI is not yet a ScoreCore reducer).
+public struct LinkedArcheryState: Codable, Equatable, Sendable {
+    public var leftName: String
+    public var rightName: String
+    public var leftSetPoints: Int
+    public var rightSetPoints: Int
+    public var leftArrowSum: Int
+    public var rightArrowSum: Int
+    public var currentShooterIsLeft: Bool
+    public var setNumber: Int
+    public var finished: Bool
+
+    public init(
+        leftName: String = "红方",
+        rightName: String = "蓝方",
+        leftSetPoints: Int = 0,
+        rightSetPoints: Int = 0,
+        leftArrowSum: Int = 0,
+        rightArrowSum: Int = 0,
+        currentShooterIsLeft: Bool = true,
+        setNumber: Int = 1,
+        finished: Bool = false
+    ) {
+        self.leftName = leftName
+        self.rightName = rightName
+        self.leftSetPoints = leftSetPoints
+        self.rightSetPoints = rightSetPoints
+        self.leftArrowSum = leftArrowSum
+        self.rightArrowSum = rightArrowSum
+        self.currentShooterIsLeft = currentShooterIsLeft
+        self.setNumber = setNumber
+        self.finished = finished
+    }
+}
+
+public struct EmptyLinkPayload: Codable, Equatable, Sendable {
+    public init() {}
+}
+
+public struct LinkAcknowledgementPayload: Codable, Equatable, Sendable {
+    public var acknowledgedMessageId: UUID
+    public var acknowledgedRevision: UInt64
+
+    public init(acknowledgedMessageId: UUID, acknowledgedRevision: UInt64) {
+        self.acknowledgedMessageId = acknowledgedMessageId
+        self.acknowledgedRevision = acknowledgedRevision
+    }
+}
+
+public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
+    public var snapshot: LinkedScoreboardSnapshot
+    public var recordId: String
+    public var winnerSide: MatchSide?
+    public var manualEnd: Bool
+
+    public init(
+        snapshot: LinkedScoreboardSnapshot,
+        recordId: String,
+        winnerSide: MatchSide? = nil,
+        manualEnd: Bool = false
+    ) {
+        self.snapshot = snapshot
+        self.recordId = recordId
+        self.winnerSide = winnerSide
+        self.manualEnd = manualEnd
+    }
+}
+
+public struct LinkStatusPayload: Codable, Equatable, Sendable {
+    public var role: LinkControlRole
+    public var revision: UInt64
+    public var reachable: Bool
+
+    public init(role: LinkControlRole, revision: UInt64, reachable: Bool = true) {
+        self.role = role
+        self.revision = revision
+        self.reachable = reachable
+    }
+}
+
+/// Single-pending ACK queue: Harmony-aligned ~3s retry, max 2 retries.
+public struct LinkPendingAckQueue: Equatable, Sendable {
+    public struct PendingItem: Equatable, Sendable {
+        public var messageId: UUID
+        public var sessionId: UUID
+        public var revision: UInt64
+        public var data: Data
+        public var attempts: Int
+        public var lastSentAtEpochMilliseconds: Int64
+
+        public init(
+            messageId: UUID,
+            sessionId: UUID,
+            revision: UInt64,
+            data: Data,
+            attempts: Int = 0,
+            lastSentAtEpochMilliseconds: Int64
+        ) {
+            self.messageId = messageId
+            self.sessionId = sessionId
+            self.revision = revision
+            self.data = data
+            self.attempts = attempts
+            self.lastSentAtEpochMilliseconds = lastSentAtEpochMilliseconds
+        }
+    }
+
+    public static let retryIntervalMilliseconds: Int64 = 3_000
+    public static let maxRetries = 2
+
+    public private(set) var pending: PendingItem?
+
+    public init() {}
+
+    public mutating func enqueue(_ item: PendingItem) {
+        pending = item
+    }
+
+    public mutating func acknowledge(messageId: UUID) -> Bool {
+        guard pending?.messageId == messageId else { return false }
+        pending = nil
+        return true
+    }
+
+    public mutating func clear() {
+        pending = nil
+    }
+
+    /// Returns data to resend when due; nil if nothing pending or still within interval / exhausted.
+    public mutating func retryIfDue(nowEpochMilliseconds: Int64) -> Data? {
+        guard var item = pending else { return nil }
+        guard nowEpochMilliseconds - item.lastSentAtEpochMilliseconds >= Self.retryIntervalMilliseconds else {
+            return nil
+        }
+        guard item.attempts < Self.maxRetries else {
+            pending = nil
+            return nil
+        }
+        item.attempts += 1
+        item.lastSentAtEpochMilliseconds = nowEpochMilliseconds
+        pending = item
+        return item.data
     }
 }
 

@@ -182,7 +182,7 @@ public struct TennisMatchReducer: DomainReducer {
         case .finish:
             var next = state
             next.finished = true
-            return .init(state: next, events: [.matchFinished(winner: matchWinner(left: next.leftSets, right: next.rightSets))])
+            return .init(state: next, events: [.matchFinished(winner: matchWinner(for: next))])
         case .reset:
             let leftName = state.sidesSwapped ? state.rightName : state.leftName
             let rightName = state.sidesSwapped ? state.leftName : state.rightName
@@ -206,14 +206,14 @@ public struct TennisMatchReducer: DomainReducer {
             let leading = max(next.leftPoints, next.rightPoints)
             if leading >= state.rules.tieBreakPoints, abs(next.leftPoints - next.rightPoints) >= 2 {
                 let winner: MatchSide = next.leftPoints > next.rightPoints ? .left : .right
-                if state.rules.setScoringMode == .tiebreakOnly {
-                    next.leftGames = winner == .left ? 1 : 0
-                    next.rightGames = winner == .right ? 1 : 0
-                } else {
-                    next.leftGames = winner == .left ? state.rules.gamesPerSet + 1 : state.rules.gamesPerSet
-                    next.rightGames = winner == .right ? state.rules.gamesPerSet + 1 : state.rules.gamesPerSet
-                }
                 events.append(.pointScored(side: side, left: next.leftPoints, right: next.rightPoints))
+                if state.rules.setScoringMode == .tiebreakOnly {
+                    next.finished = true
+                    events.append(.matchFinished(winner: winner))
+                    return .init(state: next, events: events)
+                }
+                next.leftGames = winner == .left ? state.rules.gamesPerSet + 1 : state.rules.gamesPerSet
+                next.rightGames = winner == .right ? state.rules.gamesPerSet + 1 : state.rules.gamesPerSet
                 events.append(.gameCompleted(winner: winner, leftGames: next.leftGames, rightGames: next.rightGames, tieBreak: true))
                 completeSet(state: &next, winner: winner, events: &events)
             } else {
@@ -348,5 +348,11 @@ public struct TennisMatchReducer: DomainReducer {
 
     private func matchWinner(left: Int, right: Int) -> MatchSide? {
         left == right ? nil : (left > right ? .left : .right)
+    }
+
+    private func matchWinner(for state: TennisMatchState) -> MatchSide? {
+        state.rules.setScoringMode == .tiebreakOnly
+            ? matchWinner(left: state.leftPoints, right: state.rightPoints)
+            : matchWinner(left: state.leftSets, right: state.rightSets)
     }
 }

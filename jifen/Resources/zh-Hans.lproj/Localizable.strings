@@ -34,8 +34,11 @@
 "home_yesterday" = "昨天";
 "loading" = "加载中";
 "home_complete_and_save" = "保存";
-"home_edit_primary_card" = "自定义主卡片";
-"home_edit_secondary_card" = "自定义副卡片";
+"home_customize_quick_start" = "自定义快捷入口";
+"home_quick_primary_slot" = "主卡片";
+"home_quick_secondary_slot" = "副卡片";
+"home_edit_primary_card" = "设置主卡片 (大)";
+"home_edit_secondary_card" = "设置副卡片 (小)";
 
 /* Tool Names */
 "home_tool_whistle" = "哨子";
@@ -358,7 +361,7 @@
 
 /* Flip Coin Tool */
 "flip_coin_title" = "抛硬币";
-"tap_to_flip" = "点击抛硬币";
+"tap_to_flip" = "点击屏幕抛硬币";
 "heads" = "正面";
 "tails" = "反面";
 "total" = "总计";
@@ -676,6 +679,33 @@
 "stopwatch_lap_total" = "总时长";
 "linked_score_watch_unavailable" = "Apple Watch 未连接，请打开手表端全能计分器后重试。";
 "linked_score_start_on_watch" = "在手表开始";
+"linked_score_watch_rejected" = "手表拒绝了联动开局。";
+"linked_score_watch_timeout" = "等待手表确认超时，请重试。";
+"linked_score_takeover" = "接管计分";
+"linked_score_end" = "结束联动";
+"linked_score_confirm_title" = "手机请求联动计分";
+"linked_score_accept" = "接受";
+"linked_score_reject" = "拒绝";
+"watch_link_title" = "手表联动";
+"watch_link_status" = "连接状态";
+"watch_link_entry_enabled" = "入口已开启";
+"watch_link_paired" = "已配对";
+"watch_link_installed" = "手表 App 已安装";
+"watch_link_reachable" = "可达";
+"watch_link_role" = "当前角色";
+"watch_link_role_phone_controller" = "手机主控";
+"watch_link_role_phone_follower" = "手机跟随";
+"watch_link_role_idle" = "空闲";
+"watch_link_help" = "在支持项目的开局设置中选择「在手表开始」。发布版本可通过 Info.plist 的 JifenWatchLinkEntryEnabled 关闭入口，不影响已编译能力。";
+"yes" = "是";
+"no" = "否";
+"game_badminton_doubles" = "羽毛球双打";
+"game_tennis_doubles" = "网球双打";
+"game_pingpong_doubles" = "乒乓球双打";
+"game_pickleball_doubles" = "匹克球双打";
+"game_eight_ball" = "黑八";
+"game_nine_ball" = "九球";
+"game_snooker" = "斯诺克";
 "setup_serving_side" = "发球方";
 "setup_serving_left" = "左侧发球";
 "setup_serving_right" = "右侧发球";
@@ -717,7 +747,8 @@
 "scoreboard_double_tap_help_title" = "双击减分";
 "scoreboard_double_tap_help_message" = "开启后，快速双击某一方的比分区域会减 1 分。";
 "scoreboard_display_settings" = "显示设置";
-"scoreboard_font_size" = "字号";
+"scoreboard_font_size" = "字号调节";
+"scoreboard_font_size_reset" = "恢复默认";
 "scoreboard_font_metric_score" = "主比分";
 "scoreboard_font_metric_name" = "名称";
 "scoreboard_font_metric_secondary" = "局分/盘分";

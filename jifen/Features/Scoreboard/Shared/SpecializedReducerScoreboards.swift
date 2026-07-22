@@ -1,3 +1,4 @@
+import LinkCore
 import ScoreCore
 import SwiftUI
 import UIKit
@@ -34,7 +35,6 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
-    @State private var showLocalSync = false
     @State private var showMenu = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var previousIdleTimerDisabled: Bool?
@@ -50,7 +50,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     @State private var toastMessage = ""
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showLocalSync || showMenu
+        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu
     }
 
     var body: some View {
@@ -147,12 +147,9 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
             updateImmersiveForBlocking()
         }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
-        .onChange(of: showLocalSync) { _, _ in updateImmersiveForBlocking() }
         .onDisappear {
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
-        .sheet(isPresented: $showDisplaySettings) { ScoreboardDisplaySettingsView(gameType: gameType) }
-        .sheet(isPresented: $showLocalSync) { LocalSyncView() }
         .overlay {
             MenuDialog(
                 isVisible: showMenu,
@@ -191,7 +188,6 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                             showToastMessage(ScoreboardMenuConfirmAction.finish.localizedToast)
                         }
                     case "displaySettings": showDisplaySettings = true; showMenu = false
-                    case "localSync": showLocalSync = true; showMenu = false
                     default: onMenuAction?(action)
                     }
                 },
@@ -209,12 +205,13 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 )
             )
         }
+        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: gameType)
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync, !showMenu else { return }
+        guard appearance.immersiveMode, !showDisplaySettings, !showMenu else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -226,7 +223,6 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !showDisplaySettings,
-                  !showLocalSync,
                   !showMenu else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
@@ -234,7 +230,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || showLocalSync || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {
@@ -401,6 +397,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
 
 struct EightBallScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)?
@@ -415,6 +412,7 @@ struct EightBallScoreboardView: View {
     @State private var leftName: String
     @State private var rightName: String
     @State private var showGameFinishedOverlay = false
+    @State private var watchSessionId: UUID?
     private let reducer = EightBallReducer()
 
     init(
@@ -462,7 +460,10 @@ struct EightBallScoreboardView: View {
         _leftName = State(initialValue: left)
         _rightName = State(initialValue: right)
         _showGameFinishedOverlay = State(initialValue: showFinished)
+        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
+
+    private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
 
     var body: some View {
         ZStack {
@@ -475,15 +476,24 @@ struct EightBallScoreboardView: View {
                 leftDetail: String(format: NSLocalizedString("eight_ball_target_format", value: "抢 %d", comment: ""), state.targetPoints),
                 rightDetail: String(format: NSLocalizedString("eight_ball_target_format", value: "抢 %d", comment: ""), state.targetPoints),
                 finished: state.finished,
-                onLeftTap: { send(.addRack(screenSide(.left))) },
-                onRightTap: { send(.addRack(screenSide(.right))) },
-                onUndo: undo,
-                onReset: { send(.reset) },
-                onExchange: { send(.exchangeSides) },
+                onLeftTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.left))) },
+                onRightTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.right))) },
+                onUndo: { scoringLocked ? false : undo() },
+                onReset: { guard !scoringLocked else { return }; send(.reset) },
+                onExchange: { guard !scoringLocked else { return }; send(.exchangeSides) },
                 onBack: exit,
                 showEndGame: true,
-                onEndGame: markFinished,
-                onEditCommit: applyEdit
+                onEndGame: { guard !scoringLocked else { return }; markFinished() },
+                onEditCommit: { left, right, leftScore, rightScore in
+                    guard !scoringLocked else { return }
+                    applyEdit(left: left, right: right, leftScore: leftScore, rightScore: rightScore)
+                },
+                extraMenuItems: WatchLinkMenuSupport.extraItems(
+                    entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                    sessionId: watchSessionId,
+                    isFollower: watchLinkService.isFollower
+                ),
+                onMenuAction: handleWatchMenu
             ) {
                 VStack(spacing: 6) {
                     Text(NSLocalizedString("eight_ball_tap_rack", value: "点击比分区记一局", comment: ""))
@@ -504,8 +514,44 @@ struct EightBallScoreboardView: View {
         .onChange(of: state.finished) { _, finished in
             if finished { showGameFinishedOverlay = true }
         }
-        .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
-        .onDisappear { LocalScoreboardSyncCoordinator.shared.unregisterHost(); saveRecord() }
+        .onChange(of: state) { _, newState in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            publishWatchIfNeeded(newState)
+        }
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                  let remote = update.snapshot.eightBallState else { return }
+            state = remote
+        }
+        .onDisappear {
+            LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
+            saveRecord()
+        }
+    }
+
+    private func handleWatchMenu(_ action: String) {
+        switch action {
+        case "takeover":
+            if let id = watchSessionId {
+                Task {
+                    try? await watchLinkService.takeover(sessionId: id)
+                    publishWatchIfNeeded(state)
+                }
+            }
+        case "endLink":
+            if let id = watchSessionId {
+                watchLinkService.leaveSession(id)
+                watchSessionId = nil
+            }
+        default:
+            break
+        }
+    }
+
+    private func publishWatchIfNeeded(_ state: EightBallState) {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        watchLinkService.syncWatch(sessionId: watchSessionId, gameType: .eightBall, snapshot: .eightBall(state))
     }
 
     private var finishedWinnerName: String {
@@ -583,6 +629,7 @@ struct EightBallScoreboardView: View {
 
 struct NineBallChaseScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)?
@@ -598,7 +645,6 @@ struct NineBallChaseScoreboardView: View {
     @State private var playerNames: [String]
     @State private var showMenu = false
     @State private var showDisplaySettings = false
-    @State private var showLocalSync = false
     @State private var showGameFinishedOverlay = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var showEditPanel = false
@@ -610,10 +656,13 @@ struct NineBallChaseScoreboardView: View {
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
     @State private var previousIdleTimerDisabled: Bool?
+    @State private var watchSessionId: UUID?
     private let reducer = NineBallChaseReducer()
 
+    private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
+
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showLocalSync || showMenu || showEditPanel
+        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu || showEditPanel
     }
 
     init(
@@ -665,6 +714,7 @@ struct NineBallChaseScoreboardView: View {
         _actionCount = State(initialValue: actions)
         _playerNames = State(initialValue: names)
         _showGameFinishedOverlay = State(initialValue: showFinished)
+        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
     var body: some View {
@@ -783,7 +833,20 @@ struct NineBallChaseScoreboardView: View {
                     case "endGame": confirmFinish()
                     case "settleMatch": confirmSettle()
                     case "displaySettings": showDisplaySettings = true; showMenu = false
-                    case "localSync": showLocalSync = true; showMenu = false
+                    case "takeover":
+                        if let id = watchSessionId {
+                            Task {
+                                try? await watchLinkService.takeover(sessionId: id)
+                                publishWatchIfNeeded(state)
+                            }
+                        }
+                        showMenu = false
+                    case "endLink":
+                        if let id = watchSessionId {
+                            watchLinkService.leaveSession(id)
+                            watchSessionId = nil
+                        }
+                        showMenu = false
                     default: break
                     }
                 },
@@ -797,7 +860,12 @@ struct NineBallChaseScoreboardView: View {
                     showSettleMatch: true,
                     resetConfirming: menuConfirm.resetConfirming,
                     finishConfirming: menuConfirm.finishConfirming,
-                    settleConfirming: menuConfirm.settleConfirming
+                    settleConfirming: menuConfirm.settleConfirming,
+                    extraItems: WatchLinkMenuSupport.extraItems(
+                        entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                        sessionId: watchSessionId,
+                        isFollower: watchLinkService.isFollower
+                    )
                 )
             )
         }
@@ -818,18 +886,30 @@ struct NineBallChaseScoreboardView: View {
         }
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
-        .onChange(of: showLocalSync) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showEditPanel) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: state.finished) { _, finished in if finished { showGameFinishedOverlay = true } }
-        .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
+        .onChange(of: state) { _, newState in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            publishWatchIfNeeded(newState)
+        }
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                  let remote = update.snapshot.nineBallState else { return }
+            state = remote
+        }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
             saveRecord()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
-        .sheet(isPresented: $showDisplaySettings) { ScoreboardDisplaySettingsView(gameType: .nineBall) }
-        .sheet(isPresented: $showLocalSync) { LocalSyncView() }
+        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: .nineBall)
         .sheet(isPresented: $showEditPanel) { nineBallEditSheet }
+    }
+
+    private func publishWatchIfNeeded(_ state: NineBallChaseState) {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        watchLinkService.syncWatch(sessionId: watchSessionId, gameType: .nineBall, snapshot: .nineBall(state))
     }
 
     private var finishedWinnerName: String {
@@ -840,7 +920,10 @@ struct NineBallChaseScoreboardView: View {
     }
 
     private func chaseButton(_ kind: NineBallChaseKind, player: Int) -> some View {
-        Button { send(.chaseEvent(player: player, kind: kind)) } label: {
+        Button {
+            guard !scoringLocked else { return }
+            send(.chaseEvent(player: player, kind: kind))
+        } label: {
             Text(chaseTitle(kind)).font(.caption.weight(.medium)).frame(maxWidth: .infinity, minHeight: 30).background(.black.opacity(0.2)).clipShape(Capsule())
         }.buttonStyle(.plain)
     }
@@ -991,7 +1074,7 @@ struct NineBallChaseScoreboardView: View {
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync, !showMenu, !showEditPanel else { return }
+        guard appearance.immersiveMode, !showDisplaySettings, !showMenu, !showEditPanel else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -1003,7 +1086,6 @@ struct NineBallChaseScoreboardView: View {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !showDisplaySettings,
-                  !showLocalSync,
                   !showMenu,
                   !showEditPanel else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
@@ -1012,7 +1094,7 @@ struct NineBallChaseScoreboardView: View {
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || showLocalSync || showEditPanel || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || showEditPanel || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {
@@ -1060,6 +1142,7 @@ struct NineBallChaseScoreboardView: View {
 
 struct SnookerReducerScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)?
@@ -1077,6 +1160,7 @@ struct SnookerReducerScoreboardView: View {
     @State private var foulSwitchTurn = true
     @State private var settleWinner: MatchSide = .left
     @State private var showGameFinishedOverlay = false
+    @State private var watchSessionId: UUID?
     private let reducer = SnookerReducer()
 
     private let balls: [(points: Int, color: Color, label: String)] = [
@@ -1131,7 +1215,10 @@ struct SnookerReducerScoreboardView: View {
         _leftName = State(initialValue: left)
         _rightName = State(initialValue: right)
         _showGameFinishedOverlay = State(initialValue: showFinished)
+        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
+
+    private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
 
     var body: some View {
         ZStack {
@@ -1146,13 +1233,16 @@ struct SnookerReducerScoreboardView: View {
                 finished: state.finished,
                 onLeftTap: {},
                 onRightTap: {},
-                onUndo: undo,
-                onReset: resetMatch,
+                onUndo: { scoringLocked ? false : undo() },
+                onReset: { guard !scoringLocked else { return }; resetMatch() },
                 onExchange: nil,
                 onBack: exit,
                 showEndGame: true,
-                onEndGame: { send(.finishMatch) },
-                onEditCommit: applyEdit,
+                onEndGame: { guard !scoringLocked else { return }; send(.finishMatch) },
+                onEditCommit: { left, right, leftScore, rightScore in
+                    guard !scoringLocked else { return }
+                    applyEdit(left: left, right: right, leftScore: leftScore, rightScore: rightScore)
+                },
                 extraMenuItems: [
                     ScoreboardMenuItem(
                         title: NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: ""),
@@ -1160,11 +1250,31 @@ struct SnookerReducerScoreboardView: View {
                         group: .match,
                         icon: "flag"
                     )
-                ],
+                ] + WatchLinkMenuSupport.extraItems(
+                    entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                    sessionId: watchSessionId,
+                    isFollower: watchLinkService.isFollower
+                ),
                 onMenuAction: { action in
-                    if action == "settleFrame" {
+                    switch action {
+                    case "settleFrame":
+                        guard !scoringLocked else { return }
                         settleWinner = state.leftScore >= state.rightScore ? .left : .right
                         showSettlePanel = true
+                    case "takeover":
+                        if let id = watchSessionId {
+                            Task {
+                                try? await watchLinkService.takeover(sessionId: id)
+                                publishWatchIfNeeded(state)
+                            }
+                        }
+                    case "endLink":
+                        if let id = watchSessionId {
+                            watchLinkService.leaveSession(id)
+                            watchSessionId = nil
+                        }
+                    default:
+                        break
                     }
                 },
                 seamOverlay: {
@@ -1185,6 +1295,7 @@ struct SnookerReducerScoreboardView: View {
                 Group {
                     if state.frameCompletePending {
                         Button(NSLocalizedString("snooker_next_frame", value: "下一局", comment: "")) {
+                            guard !scoringLocked else { return }
                             send(.confirmNextFrame)
                         }
                         .buttonStyle(.borderedProminent)
@@ -1199,10 +1310,27 @@ struct SnookerReducerScoreboardView: View {
         }
         .onAppear { onSetupConsumed?(); registerSync() }
         .onChange(of: state.finished) { _, finished in if finished { showGameFinishedOverlay = true } }
-        .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
-        .onDisappear { LocalScoreboardSyncCoordinator.shared.unregisterHost(); saveRecord() }
+        .onChange(of: state) { _, newState in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            publishWatchIfNeeded(newState)
+        }
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                  let remote = update.snapshot.snookerState else { return }
+            state = remote
+        }
+        .onDisappear {
+            LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
+            saveRecord()
+        }
         .sheet(isPresented: $showFoulPanel) { foulSheet }
         .sheet(isPresented: $showSettlePanel) { settleSheet }
+    }
+
+    private func publishWatchIfNeeded(_ state: SnookerState) {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        watchLinkService.syncWatch(sessionId: watchSessionId, gameType: .snooker, snapshot: .snooker(state))
     }
 
     private var finishedWinnerName: String {

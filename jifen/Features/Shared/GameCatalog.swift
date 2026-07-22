@@ -39,6 +39,8 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
     case checkers
     case cube
     case timeout
+    case basketball24
+    case basketball12
 
     var id: String { rawValue }
 
@@ -51,6 +53,7 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
         case .checkers: return "⚪"
         case .cube: return "🧩"
         case .timeout: return "⏸️"
+        case .basketball24, .basketball12: return "🏀"
         }
     }
 
@@ -63,6 +66,8 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
         case .checkers: return "timer_checkers"
         case .cube: return "timer_cube"
         case .timeout: return "timer_timeout"
+        case .basketball24: return "timer_basketball_24s"
+        case .basketball12: return "timer_basketball_12s"
         }
     }
 
@@ -126,7 +131,7 @@ enum GameCatalog {
     }
 
     static let timerBoardGameItems: [TimerDestination] = [.go, .xiangqi, .chess, .checkers]
-    static let timerOtherItems: [TimerDestination] = [.cube, .stopwatch, .timeout]
+    static let timerOtherItems: [TimerDestination] = [.cube, .stopwatch, .timeout, .basketball24, .basketball12]
     static let timerAllItems: [TimerDestination] = timerBoardGameItems + timerOtherItems
 
     static let scoreboardGameTypes: [GameType] = scoreboardItems.map(\.gameType)

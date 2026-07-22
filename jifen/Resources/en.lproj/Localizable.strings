@@ -34,8 +34,11 @@
 "home_yesterday" = "Yesterday";
 "loading" = "Loading";
 "home_complete_and_save" = "Save";
-"home_edit_primary_card" = "Customize primary card";
-"home_edit_secondary_card" = "Customize secondary card";
+"home_customize_quick_start" = "Customize Quick Start";
+"home_quick_primary_slot" = "Primary";
+"home_quick_secondary_slot" = "Secondary";
+"home_edit_primary_card" = "Primary card (large)";
+"home_edit_secondary_card" = "Secondary card (small)";
 
 /* Tool Names */
 "home_tool_whistle" = "Whistle";
@@ -358,7 +361,7 @@
 
 /* Flip Coin Tool */
 "flip_coin_title" = "Flip Coin";
-"tap_to_flip" = "Tap to flip";
+"tap_to_flip" = "Tap the screen to flip the coin";
 "heads" = "Heads";
 "tails" = "Tails";
 "total" = "Total";
@@ -676,6 +679,33 @@
 "stopwatch_lap_total" = "Total";
 "linked_score_watch_unavailable" = "Apple Watch is not connected. Open ScoreKeeper on your watch and try again.";
 "linked_score_start_on_watch" = "Start on Apple Watch";
+"linked_score_watch_rejected" = "The watch rejected the linked session.";
+"linked_score_watch_timeout" = "Timed out waiting for watch confirmation.";
+"linked_score_takeover" = "Take over scoring";
+"linked_score_end" = "End link";
+"linked_score_confirm_title" = "Phone requests linked scoring";
+"linked_score_accept" = "Accept";
+"linked_score_reject" = "Decline";
+"watch_link_title" = "Watch Link";
+"watch_link_status" = "Connection";
+"watch_link_entry_enabled" = "Entry enabled";
+"watch_link_paired" = "Paired";
+"watch_link_installed" = "Watch app installed";
+"watch_link_reachable" = "Reachable";
+"watch_link_role" = "Current role";
+"watch_link_role_phone_controller" = "Phone controller";
+"watch_link_role_phone_follower" = "Phone follower";
+"watch_link_role_idle" = "Idle";
+"watch_link_help" = "Choose “Start on Apple Watch” in supported setup dialogs. Set Info.plist JifenWatchLinkEntryEnabled to false to hide entries for release without removing the capability.";
+"yes" = "Yes";
+"no" = "No";
+"game_badminton_doubles" = "Badminton Doubles";
+"game_tennis_doubles" = "Tennis Doubles";
+"game_pingpong_doubles" = "Table Tennis Doubles";
+"game_pickleball_doubles" = "Pickleball Doubles";
+"game_eight_ball" = "Eight-ball";
+"game_nine_ball" = "Nine-ball";
+"game_snooker" = "Snooker";
 "setup_serving_side" = "First server";
 "setup_serving_left" = "Left side serves";
 "setup_serving_right" = "Right side serves";
@@ -718,6 +748,7 @@
 "scoreboard_double_tap_help_message" = "When enabled, quickly double-tap a side to subtract one point.";
 "scoreboard_display_settings" = "Display Settings";
 "scoreboard_font_size" = "Font Size";
+"scoreboard_font_size_reset" = "Reset to default";
 "scoreboard_font_metric_score" = "Main Score";
 "scoreboard_font_metric_name" = "Name";
 "scoreboard_font_metric_secondary" = "Sets/Games";

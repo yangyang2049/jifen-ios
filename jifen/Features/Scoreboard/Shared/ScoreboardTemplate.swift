@@ -35,7 +35,6 @@ struct ScoreboardTemplate: View {
     @State private var immersiveGeneration = 0
     @State private var previousIdleTimerDisabled: Bool?
     @State private var showDisplaySettings = false
-    @State private var showLocalSync = false
     private let doubleTapWindow: TimeInterval = 0.24
     
     var body: some View {
@@ -76,22 +75,16 @@ struct ScoreboardTemplate: View {
                                 config.viewModel.subtractScore(isLeft: true, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
-                                if let tennisViewModel = config.viewModel as? TennisViewModel {
-                                    tennisViewModel.adjustScore(isLeft: isLeft, delta: delta)
+                                if delta > 0 {
+                                    config.viewModel.addScore(isLeft: isLeft, points: delta)
                                 } else {
-                                    if delta > 0 {
-                                        config.viewModel.addScore(isLeft: isLeft, points: delta)
-                                    } else {
-                                        config.viewModel.subtractScore(isLeft: isLeft, points: -delta)
-                                    }
+                                    config.viewModel.subtractScore(isLeft: isLeft, points: -delta)
                                 }
                             },
                             onSetsAdjust: { (isLeft, delta) in
                                 applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
-                            onGamesAdjust: (config.viewModel as? TennisViewModel)?.setScoringMode == "tiebreak_only" ? nil : { (isLeft, delta) in
-                                (config.viewModel as? TennisViewModel)?.adjustGames(isLeft: isLeft, delta: delta)
-                            },
+                            onGamesAdjust: nil,
                             onStartEditName: {
                                 baseViewModel.startEditName(isLeft: true)
                             },
@@ -147,22 +140,16 @@ struct ScoreboardTemplate: View {
                                 config.viewModel.subtractScore(isLeft: false, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
-                                if let tennisViewModel = config.viewModel as? TennisViewModel {
-                                    tennisViewModel.adjustScore(isLeft: isLeft, delta: delta)
+                                if delta > 0 {
+                                    config.viewModel.addScore(isLeft: isLeft, points: delta)
                                 } else {
-                                    if delta > 0 {
-                                        config.viewModel.addScore(isLeft: isLeft, points: delta)
-                                    } else {
-                                        config.viewModel.subtractScore(isLeft: isLeft, points: -delta)
-                                    }
+                                    config.viewModel.subtractScore(isLeft: isLeft, points: -delta)
                                 }
                             },
                             onSetsAdjust: { (isLeft, delta) in
                                 applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
-                            onGamesAdjust: (config.viewModel as? TennisViewModel)?.setScoringMode == "tiebreak_only" ? nil : { (isLeft, delta) in
-                                (config.viewModel as? TennisViewModel)?.adjustGames(isLeft: isLeft, delta: delta)
-                            },
+                            onGamesAdjust: nil,
                             onStartEditName: {
                                 baseViewModel.startEditName(isLeft: false)
                             },
@@ -387,7 +374,6 @@ struct ScoreboardTemplate: View {
             updateImmersiveChromeForBlockingState()
         }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveChromeForBlockingState() }
-        .onChange(of: showLocalSync) { _, _ in updateImmersiveChromeForBlockingState() }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
             applyScreenAwakePreference()
@@ -408,16 +394,7 @@ struct ScoreboardTemplate: View {
                 UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
             }
         }
-        .sheet(isPresented: $showDisplaySettings) {
-            ScoreboardDisplaySettingsView(gameType: config.gameType)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
-        .sheet(isPresented: $showLocalSync, onDismiss: registerScoreboardSync) {
-            LocalSyncView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
-        }
+        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: config.gameType)
         // Screenshot dialog removed - iOS auto-saves after permission is granted
     }
     
@@ -439,10 +416,6 @@ struct ScoreboardTemplate: View {
         case "displaySettings":
             showMenu = false
             showDisplaySettings = true
-
-        case "localSync":
-            showMenu = false
-            showLocalSync = true
             
         case "exchangeSide":
             if menuConfirm.armOrConfirm(.exchangeSide) {
@@ -626,7 +599,7 @@ struct ScoreboardTemplate: View {
     }
 
     private var shouldShowImmersiveRevealZones: Bool {
-        appearance.immersiveMode && !isEditMode && !showMenu && !showDisplaySettings && !showLocalSync && !chromeButtonsVisible
+        appearance.immersiveMode && !isEditMode && !showMenu && !showDisplaySettings && !chromeButtonsVisible
     }
 
     private var savedFontMultipliers: [String: Double] {
@@ -746,7 +719,7 @@ struct ScoreboardTemplate: View {
     }
 
     private func updateImmersiveChromeForBlockingState() {
-        if isEditMode || showMenu || showDisplaySettings || showLocalSync || !appearance.immersiveMode {
+        if isEditMode || showMenu || showDisplaySettings || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeButtonsVisible = true
         } else {
@@ -757,7 +730,7 @@ struct ScoreboardTemplate: View {
     private func revealImmersiveChrome() {
         chromeButtonsVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showLocalSync else { return }
+        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings else { return }
         let hideDelay: TimeInterval
         if let remaining = config.controller.exitConfirmRemainingSeconds {
             hideDelay = remaining + 0.05
@@ -771,7 +744,7 @@ struct ScoreboardTemplate: View {
                   !isEditMode,
                   !showMenu,
                   !showDisplaySettings,
-                  !showLocalSync else { return }
+                  true else { return }
             if config.controller.exitConfirmRemainingSeconds != nil { return }
             chromeButtonsVisible = false
         }
@@ -788,8 +761,6 @@ struct ScoreboardTemplate: View {
     /// 编辑模式下局分 ±：显式按具体 ViewModel 类型调用 adjustSets，避免协议默认实现被误派发导致局分不改（与射箭修复一致）。
     private func applySetsAdjust(viewModel: ScoreViewModelProtocol, isLeft: Bool, delta: Int) {
         if let vm = viewModel as? ArcheryViewModel {
-            vm.adjustSets(isLeft: isLeft, delta: delta)
-        } else if let vm = viewModel as? TennisViewModel {
             vm.adjustSets(isLeft: isLeft, delta: delta)
         } else if let vm = viewModel as? BoxingViewModel {
             vm.adjustSets(isLeft: isLeft, delta: delta)
