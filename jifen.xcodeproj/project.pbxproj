@@ -34,6 +34,7 @@
 		F30000000000000000000002 /* RandomTeamAssignmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001 /* RandomTeamAssignmentTests.swift */; };
 		F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */; };
 		F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */; };
+		F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		F30000000000000000000001 /* RandomTeamAssignmentTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RandomTeamAssignmentTests.swift; sourceTree = "<group>"; };
 		F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardRecordV4Tests.swift; sourceTree = "<group>"; };
 		F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalScoreboardDisplayStateTests.swift; sourceTree = "<group>"; };
+		F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardMenuConfirmStateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -188,6 +190,7 @@
 				F30000000000000000000001 /* RandomTeamAssignmentTests.swift */,
 				F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */,
 				F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */,
+				F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */,
 			);
 			path = jifenTests;
 			sourceTree = "<group>";
@@ -438,6 +441,7 @@
 				F30000000000000000000002 /* RandomTeamAssignmentTests.swift in Sources */,
 				F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */,
 				F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */,
+				F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
