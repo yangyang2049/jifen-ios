@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 
 struct WatchFlipCoinView: View {

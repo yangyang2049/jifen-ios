@@ -78,6 +78,30 @@ public enum ScoreboardSessionFactory {
         return ScoreSessionCore(seedSession: session, reducer: BoxingMatchReducer(), shouldFinish: { _, state in state.finished })
     }
 
+    public static func archery(
+        leftName: String,
+        rightName: String,
+        openingShooterIsLeft: Bool = true,
+        rules: ArcheryMatchRules = .default
+    ) -> ScoreSessionCore<ArcheryMatchReducer> {
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: .archeryDual)
+        let state = ArcheryMatchState(
+            leftName: leftName,
+            rightName: rightName,
+            currentShooterIsLeft: openingShooterIsLeft,
+            openingShooterIsLeft: openingShooterIsLeft,
+            rules: rules
+        )
+        let session = ScoreSession<ArcheryMatchState, ArcheryMatchEvent>(
+            gameType: .archeryDual,
+            ruleFamily: descriptor.ruleFamily,
+            reducerType: descriptor.reducerType,
+            state: state,
+            participants: participants(leftName, rightName)
+        )
+        return ScoreSessionCore(seedSession: session, reducer: ArcheryMatchReducer(), shouldFinish: { _, state in state.finished })
+    }
+
     private static func participants(_ left: String, _ right: String) -> [SessionParticipant] {
         [.init(id: "left", name: left, role: "team"), .init(id: "right", name: right, role: "team")]
     }

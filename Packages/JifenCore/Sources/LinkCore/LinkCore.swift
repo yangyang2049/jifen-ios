@@ -153,7 +153,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     }
 }
 
-/// Lightweight archery sync DTO (phone/Watch archery UI is not yet a ScoreCore reducer).
+/// Lightweight archery sync DTO projected from `ArcheryMatchState`.
 public struct LinkedArcheryState: Codable, Equatable, Sendable {
     public var leftName: String
     public var rightName: String
@@ -185,6 +185,36 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         self.currentShooterIsLeft = currentShooterIsLeft
         self.setNumber = setNumber
         self.finished = finished
+    }
+
+    public init(match: ArcheryMatchState) {
+        self.init(
+            leftName: match.leftName,
+            rightName: match.rightName,
+            leftSetPoints: match.leftSetPoints,
+            rightSetPoints: match.rightSetPoints,
+            leftArrowSum: match.leftArrowSum,
+            rightArrowSum: match.rightArrowSum,
+            currentShooterIsLeft: match.currentShooterIsLeft,
+            setNumber: match.currentSet,
+            finished: match.finished
+        )
+    }
+
+    public func applying(to match: inout ArcheryMatchState) {
+        match.leftName = leftName
+        match.rightName = rightName
+        match.leftSetPoints = leftSetPoints
+        match.rightSetPoints = rightSetPoints
+        match.leftArrowSum = leftArrowSum
+        match.rightArrowSum = rightArrowSum
+        match.currentShooterIsLeft = currentShooterIsLeft
+        match.currentSet = max(1, setNumber)
+        match.finished = finished
+        if finished {
+            match.pendingSetNumber = 0
+            match.closestToCenterPending = false
+        }
     }
 }
 
@@ -418,11 +448,19 @@ public struct WatchConnectivityStatus: Equatable, Sendable {
 /// A binary transport shared by the phone and Watch targets.
 public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, LinkTransport {
     public typealias ReceiveHandler = @Sendable (Data) -> Void
+    public typealias DictionaryHandler = @Sendable ([String: Any]) -> Void
 
     private static let userInfoPayloadKey = "jifen.link.payload"
+    public static let commonNamesContextKey = "jifen.common_names.v1"
+    public static let watchRecordUserInfoKey = "jifen.watch_record.v1"
+
     private let session: WCSession
     public var onReceive: ReceiveHandler?
     public var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
+    /// Latest application context from the peer (phone→watch common names, etc.).
+    public var onApplicationContext: DictionaryHandler?
+    /// Queued watch→phone finished-record payloads.
+    public var onWatchRecordData: ReceiveHandler?
 
     public init(session: WCSession = .default) {
         self.session = session
@@ -436,6 +474,11 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
         }
         session.delegate = self
         session.activate()
+    }
+
+    /// Re-read WCSession flags and notify listeners (e.g. settings “刷新连接”).
+    public func refreshStatus() {
+        reportStatus()
     }
 
     public var status: WatchConnectivityStatus {
@@ -455,6 +498,11 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
         )
     }
 
+    /// Current application context received from the peer (may be empty).
+    public var receivedApplicationContext: [String: Any] {
+        session.receivedApplicationContext
+    }
+
     public func send(_ data: Data) async throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
@@ -466,14 +514,37 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
         }
     }
 
+    /// Push a small always-latest dictionary to the peer (used for common-names auto sync).
+    public func updateApplicationContext(_ context: [String: Any]) throws {
+        guard session.activationState == .activated else {
+            throw WatchConnectivityTransportError.sessionNotActivated
+        }
+        try session.updateApplicationContext(context)
+    }
+
+    /// Queue a finished watch record for delivery even when the peer is not reachable.
+    public func transferWatchRecord(_ data: Data) throws {
+        guard session.activationState == .activated else {
+            throw WatchConnectivityTransportError.sessionNotActivated
+        }
+        session.transferUserInfo([Self.watchRecordUserInfoKey: data])
+    }
+
     private func reportStatus() {
         onStatusChange?(status)
+    }
+
+    private func deliverApplicationContextIfNeeded() {
+        let context = session.receivedApplicationContext
+        guard !context.isEmpty else { return }
+        onApplicationContext?(context)
     }
 }
 
 extension WatchConnectivityTransport: WCSessionDelegate {
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         reportStatus()
+        deliverApplicationContextIfNeeded()
     }
 
     public func sessionReachabilityDidChange(_ session: WCSession) {
@@ -485,8 +556,16 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     }
 
     public func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        if let recordData = userInfo[Self.watchRecordUserInfoKey] as? Data {
+            onWatchRecordData?(recordData)
+            return
+        }
         guard let data = userInfo[Self.userInfoPayloadKey] as? Data else { return }
         onReceive?(data)
+    }
+
+    public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        onApplicationContext?(applicationContext)
     }
 
 #if os(iOS)

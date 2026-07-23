@@ -23,7 +23,6 @@
 		C20000000000000000000003 /* RecordCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000003 /* RecordCore */; };
 		C20000000000000000000004 /* PersistenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000004 /* PersistenceCore */; };
 		C20000000000000000000005 /* LinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000005 /* LinkCore */; };
-		C20000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000006 /* TimerCore */; };
 		D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */; };
 		E10000000000000000000002 /* RallySessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* RallySessionStoreTests.swift */; };
 		E10000000000000000000004 /* BoardTimerConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* BoardTimerConfigTests.swift */; };
@@ -133,7 +132,6 @@
 				C20000000000000000000003 /* RecordCore in Frameworks */,
 				C20000000000000000000004 /* PersistenceCore in Frameworks */,
 				C20000000000000000000005 /* LinkCore in Frameworks */,
-				C20000000000000000000006 /* TimerCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,7 +276,6 @@
 				B10000000000000000000003 /* RecordCore */,
 				B10000000000000000000004 /* PersistenceCore */,
 				B10000000000000000000005 /* LinkCore */,
-				B10000000000000000000006 /* TimerCore */,
 			);
 			productName = "jifenWatch Watch App";
 			productReference = 0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */;
@@ -957,11 +954,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = LinkCore;
-		};
-		B10000000000000000000006 /* TimerCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
-			productName = TimerCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,4 +1,6 @@
 import Foundation
+import RecordCore
+import ScoreCore
 
 enum WatchGameType: String, Codable, CaseIterable {
     case pingpong
@@ -39,6 +41,17 @@ enum WatchGameType: String, Codable, CaseIterable {
             return "🏹"
         case .basketballTraining:
             return "🏀"
+        }
+    }
+
+    var scoreCoreGameType: GameType? {
+        switch self {
+        case .pingpong: .pingpong
+        case .badminton: .badminton
+        case .tennis: .tennis
+        case .pickleball: .pickleball
+        case .archery: .archeryDual
+        case .basketballTraining: nil
         }
     }
 }

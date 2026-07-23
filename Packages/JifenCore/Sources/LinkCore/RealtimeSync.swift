@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import Foundation
 import ScoreCore
 
@@ -282,3 +283,4 @@ public actor LocalRecordSyncStore: RecordSyncStore {
         try data.write(to: fileURL, options: .atomic)
     }
 }
+#endif

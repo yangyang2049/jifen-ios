@@ -1,4 +1,6 @@
 import Foundation
+import RecordCore
+import ScoreCore
 import SwiftUI // Required for Color, though not directly used in this file for styling. Keep for consistency if needed elsewhere.
 
 struct WatchScoreboardRecord: Codable, Identifiable {
@@ -16,6 +18,34 @@ struct WatchScoreboardRecord: Codable, Identifiable {
     var winner: String?
     var actions: [WatchScoreAction]
     var totalScoreChanges: Int
+
+    /// Canonical shared DTO for phone ingest / future RecordCore alignment.
+    func toSharedRecord() -> SharedTwoSideMatchRecord? {
+        guard let coreType = gameType.scoreCoreGameType else { return nil }
+        let winnerTeamID: String?
+        if winner == team1Name || winner == "red" || winner == "left" {
+            winnerTeamID = "team_0"
+        } else if winner == team2Name || winner == "blue" || winner == "right" {
+            winnerTeamID = "team_1"
+        } else {
+            winnerTeamID = nil
+        }
+        return SharedTwoSideMatchRecord(
+            id: id,
+            gameType: coreType,
+            source: .watchLocal,
+            startEpochMilliseconds: Int64(startTime.timeIntervalSince1970 * 1000),
+            endEpochMilliseconds: Int64(endTime.timeIntervalSince1970 * 1000),
+            durationSeconds: duration,
+            team1Name: team1Name,
+            team2Name: team2Name,
+            team1FinalScore: team1FinalScore,
+            team2FinalScore: team2FinalScore,
+            team1SetScore: team1SetScore,
+            team2SetScore: team2SetScore,
+            winnerTeamID: winnerTeamID
+        )
+    }
 }
 
 struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {

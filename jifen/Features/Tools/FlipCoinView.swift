@@ -5,6 +5,7 @@
 //  Flip coin tool - pixel perfect copy from HarmonyOS
 //
 
+import ScoreCore
 import SwiftUI
 
 struct FlipCoinView: View {
@@ -18,6 +19,7 @@ struct FlipCoinView: View {
     @State private var coinPositionY: CGFloat = 0
     @State private var coinScale: CGFloat = 1.0
     @State private var showHint = false
+    @State private var showEnterToast = false
     @State private var flipTimer: Timer?
 
     private let hintShownKey = "flip_coin_hint_shown"
@@ -113,7 +115,7 @@ struct FlipCoinView: View {
                         Spacer()
 
                         // Hint text (only show once across app installation)
-                        if !isFlipping && headsCount + tailsCount == 0 && showHint {
+                        if !isFlipping && headsCount + tailsCount == 0 && showHint && !showEnterToast {
                             Text(NSLocalizedString("tap_to_flip", comment: "Tap to flip coin"))
                                 .font(.system(size: 18))
                                 .foregroundColor(Theme.textSecondary)
@@ -199,11 +201,30 @@ struct FlipCoinView: View {
                     }
                 }
             }
+
+            if showEnterToast {
+                ToastView(
+                    message: NSLocalizedString(
+                        "tap_to_flip",
+                        value: "Tap the screen to flip the coin",
+                        comment: "Tap the screen to flip the coin"
+                    )
+                )
+                .transition(.opacity)
+                .zIndex(2)
+                .allowsHitTesting(false)
+            }
         }
         .navigationTitle(NSLocalizedString("flip_coin_title", comment: "Flip Coin title"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             checkAndShowHint()
+        }
+        .task {
+            showEnterToast = true
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            guard !Task.isCancelled else { return }
+            showEnterToast = false
         }
         .onDisappear {
             flipTimer?.invalidate()

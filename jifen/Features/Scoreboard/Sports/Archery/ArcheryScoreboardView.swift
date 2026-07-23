@@ -5,8 +5,10 @@
 //  射箭计分板：使用标准 PVP 模板布局，保留射箭局分规则（先到 6 分胜、5:5 一箭决胜）。
 //
 
+import LinkCore
 import ScoreCore
 import SwiftUI
+import UIKit
 
 private let archeryArrowsPerSetNormal = 3
 private let archeryArrowsPerSetShootoff = 1
@@ -23,6 +25,7 @@ private let archeryScoreGrid: [[Int?]] = [
 
 struct ArcheryScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
@@ -32,6 +35,9 @@ struct ArcheryScoreboardView: View {
     @State private var viewModel = ArcheryViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
     @State private var showGameFinishedOverlay = false
+    @State private var showFinishedRecordDetail = false
+    @State private var recordID: String
+    @State private var watchSessionId: UUID?
 
     @State private var showArrowPicker = false
     @State private var showSetEndOverlay = false
@@ -41,6 +47,21 @@ struct ArcheryScoreboardView: View {
     @State private var pendingSetRightScore = 0
     @State private var pendingContinueUpdate: (() -> Void)? = nil
     @State private var pendingClosestContinue: ((Bool) -> Void)? = nil
+
+    private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
+
+    init(
+        initialSetup: SportsSetupResult? = nil,
+        initialRecordId: String? = nil,
+        onSetupConsumed: (() -> Void)? = nil,
+        onNavigationBack: (() -> Void)? = nil
+    ) {
+        self.initialSetup = initialSetup
+        self.initialRecordId = initialRecordId
+        self.onSetupConsumed = onSetupConsumed
+        self.onNavigationBack = onNavigationBack
+        _recordID = State(initialValue: initialRecordId ?? "archery_\(Int(Date().timeIntervalSince1970))")
+    }
 
     var body: some View {
         ZStack {
@@ -58,10 +79,36 @@ struct ArcheryScoreboardView: View {
                             viewModel: viewModel,
                             showArrowPicker: $showArrowPicker,
                             controller: controller,
-                            isEditMode: isEditMode
+                            isEditMode: isEditMode,
+                            scoringLocked: scoringLocked
                         ))
                     },
-                    showEndGame: true
+                    showEndGame: true,
+                    extraMenuItemsProvider: {
+                        WatchLinkMenuSupport.extraItems(
+                            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                            sessionId: watchSessionId,
+                            isFollower: watchLinkService.isFollower
+                        )
+                    },
+                    onMenuAction: { action in
+                        switch action {
+                        case "takeover":
+                            if let id = watchSessionId {
+                                Task {
+                                    try? await watchLinkService.takeover(sessionId: id)
+                                    publishWatchIfNeeded()
+                                }
+                            }
+                        case "endLink":
+                            if let id = watchSessionId {
+                                watchLinkService.leaveSession(id)
+                                watchSessionId = nil
+                            }
+                        default:
+                            break
+                        }
+                    }
                 ),
                 onBack: {
                     saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
@@ -89,7 +136,42 @@ struct ArcheryScoreboardView: View {
             }
 
             if showGameFinishedOverlay {
-                GameFinishedOverlay(winnerName: viewModel.getWinnerName())
+                GameFinishedOverlay(
+                    winnerName: viewModel.getWinnerName(),
+                    leftName: viewModel.leftTeam.name,
+                    rightName: viewModel.rightTeam.name,
+                    leftScore: viewModel.leftTeam.sets ?? 0,
+                    rightScore: viewModel.rightTeam.sets ?? 0,
+                    onNewGame: {
+                        showGameFinishedOverlay = false
+                        viewModel.reset()
+                        controller.recordScoreAction(action: "reset")
+                    },
+                    onRecords: {
+                        saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        shareFinishedMatch()
+                    },
+                    onExit: {
+                        saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        onNavigationBack?()
+                        dismiss()
+                    }
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
             }
         }
         .navigationTitle(NSLocalizedString("project_archery", value: "Archery", comment: ""))
@@ -99,12 +181,17 @@ struct ArcheryScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .onAppear {
+            watchSessionId = initialSetup?.linkedWatchSessionId
             viewModel.controller = controller
             if let setup = initialSetup {
-                if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
-                if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
-                viewModel.openingShooterIsLeft = setup.servingSide != MatchSide.right.rawValue
-                viewModel.currentShooterIsLeft = viewModel.openingShooterIsLeft
+                let left = setup.team1Name.isEmpty
+                    ? NSLocalizedString("watch_team_red", value: "红方", comment: "")
+                    : setup.team1Name
+                let right = setup.team2Name.isEmpty
+                    ? NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+                    : setup.team2Name
+                let openingIsLeft = setup.servingSide != MatchSide.right.rawValue
+                viewModel.configureOpening(leftName: left, rightName: right, openingIsLeft: openingIsLeft)
                 onSetupConsumed?()
             }
             restoreDraftIfNeeded()
@@ -117,11 +204,26 @@ struct ArcheryScoreboardView: View {
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
                 showGameFinishedOverlay = true
-                saveGameRecordInRealTime(isGameFinished: true)
+                if !watchLinkService.isFollower {
+                    saveGameRecordInRealTime(isGameFinished: true)
+                }
+                publishWatchIfNeeded(finished: true)
             }
         }
+        .onChange(of: viewModel.leftTeam.score) { _, _ in publishWatchIfNeeded() }
+        .onChange(of: viewModel.rightTeam.score) { _, _ in publishWatchIfNeeded() }
+        .onChange(of: viewModel.leftTeam.sets) { _, _ in publishWatchIfNeeded() }
+        .onChange(of: viewModel.rightTeam.sets) { _, _ in publishWatchIfNeeded() }
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                  let remote = update.snapshot.archeryState else { return }
+            applyRemoteArchery(remote)
+        }
         .onDisappear {
-            saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
+            if !watchLinkService.isFollower {
+                saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+            }
         }
     }
 
@@ -330,6 +432,7 @@ struct ArcheryScoreboardView: View {
             return
         }
 
+        recordID = recordId
         controller.gameStartTime = record.startTime
         controller.gameActions = record.actions
         controller.gameRecordSaved = false
@@ -337,35 +440,40 @@ struct ArcheryScoreboardView: View {
         viewModel.leftTeam.name = record.team1Name
         viewModel.rightTeam.name = record.team2Name
 
-        if let leftRingScore = record.extraData?["leftRingScore"]?.value as? Int {
-            viewModel.leftTeam.score = leftRingScore
+        if let leftRingScore = record.extraData?["leftRingScore"]?.value as? Int,
+           let rightRingScore = record.extraData?["rightRingScore"]?.value as? Int {
+            // keep names already set
+            _ = leftRingScore
+            _ = rightRingScore
         }
-        if let rightRingScore = record.extraData?["rightRingScore"]?.value as? Int {
-            viewModel.rightTeam.score = rightRingScore
-        }
-        if let leftSets = record.extraData?["leftSets"]?.value as? Int {
-            viewModel.leftTeam.sets = leftSets
-        }
-        if let rightSets = record.extraData?["rightSets"]?.value as? Int {
-            viewModel.rightTeam.sets = rightSets
-        }
-        if let currentSet = record.extraData?["currentSet"]?.value as? Int {
-            viewModel.currentSet = currentSet
-        }
-        if let arrowsPerSet = record.extraData?["arrowsPerSet"]?.value as? Int {
-            viewModel.arrowsPerSet = arrowsPerSet
-        }
-        if let arrowsLeftThisSet = record.extraData?["arrowsLeftThisSet"]?.value as? Int {
-            viewModel.arrowsLeftThisSet = arrowsLeftThisSet
-        }
-        if let arrowsRightThisSet = record.extraData?["arrowsRightThisSet"]?.value as? Int {
-            viewModel.arrowsRightThisSet = arrowsRightThisSet
-        }
-        if let currentShooterIsLeft = record.extraData?["currentShooterIsLeft"]?.value as? Bool {
-            viewModel.currentShooterIsLeft = currentShooterIsLeft
-        }
-        if let openingShooterIsLeft = record.extraData?["openingShooterIsLeft"]?.value as? Bool {
-            viewModel.openingShooterIsLeft = openingShooterIsLeft
+        viewModel.restoreMatchFields(
+            leftRingScore: record.extraData?["leftRingScore"]?.value as? Int,
+            rightRingScore: record.extraData?["rightRingScore"]?.value as? Int,
+            leftSets: record.extraData?["leftSets"]?.value as? Int,
+            rightSets: record.extraData?["rightSets"]?.value as? Int,
+            currentSet: record.extraData?["currentSet"]?.value as? Int,
+            arrowsPerSet: record.extraData?["arrowsPerSet"]?.value as? Int,
+            arrowsLeftThisSet: record.extraData?["arrowsLeftThisSet"]?.value as? Int,
+            arrowsRightThisSet: record.extraData?["arrowsRightThisSet"]?.value as? Int,
+            currentShooterIsLeft: record.extraData?["currentShooterIsLeft"]?.value as? Bool,
+            openingShooterIsLeft: record.extraData?["openingShooterIsLeft"]?.value as? Bool
+        )
+    }
+
+    private func publishWatchIfNeeded(finished: Bool = false) {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let snapshot = viewModel.linkedSnapshot(finished: finished)
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: .archeryDual,
+            snapshot: .archery(snapshot)
+        )
+    }
+
+    private func applyRemoteArchery(_ remote: LinkedArcheryState) {
+        viewModel.applyRemote(remote)
+        if remote.finished {
+            showGameFinishedOverlay = true
         }
     }
 
@@ -395,7 +503,7 @@ struct ArcheryScoreboardView: View {
         }
 
         controller.saveScoreboardRecord(
-            id: "archery_\(Int(start.timeIntervalSince1970))",
+            id: recordID,
             endTime: end,
             duration: end.timeIntervalSince(start),
             team1Name: viewModel.leftTeam.name,
@@ -421,6 +529,11 @@ struct ArcheryScoreboardView: View {
             status: finished ? .finished : .draft
         )
     }
+
+    private func shareFinishedMatch() {
+        let text = "\(viewModel.leftTeam.name) \(viewModel.leftTeam.sets ?? 0) - \(viewModel.rightTeam.sets ?? 0) \(viewModel.rightTeam.name)"
+        ScoreboardShareSupport.present(text: text)
+    }
 }
 
 private class ArcheryScoreboardController: BaseScoreboardController {
@@ -440,80 +553,77 @@ private class ArcheryScoreboardController: BaseScoreboardController {
 }
 
 private struct ArcheryStateSnapshot {
-    let leftName: String
-    let rightName: String
-    let leftScore: Int
-    let rightScore: Int
-    let leftSetPoints: Int
-    let rightSetPoints: Int
-    let currentSet: Int
-    let currentShooterIsLeft: Bool
-    let arrowsLeftThisSet: Int
-    let arrowsRightThisSet: Int
-    let arrowsPerSet: Int
-    let gameFinished: Bool
+    let match: ArcheryMatchState
 }
 
 /// 需为 internal 以便 ScoreboardTemplate 通过 ScoreViewModelProtocol 派发调用 adjustSets（private 时协议走默认空实现，局分 +/- 不生效）
 @Observable
 class ArcheryViewModel: BaseScoreViewModel {
-    var currentSet: Int = 1
-    var currentShooterIsLeft: Bool = true
-    var openingShooterIsLeft: Bool = true
-    var arrowsLeftThisSet: Int = 0
-    var arrowsRightThisSet: Int = 0
-    var arrowsPerSet: Int = archeryArrowsPerSetNormal
-
+    private let reducer = ArcheryMatchReducer()
+    private(set) var match: ArcheryMatchState
     private var snapshots: [ArcheryStateSnapshot] = []
     private var onSetEndCallback: ((SetEndCallbackData) -> Void)? = nil
+    private var lastEvents: [ArcheryMatchEvent] = []
+
+    var currentSet: Int { match.currentSet }
+    var currentShooterIsLeft: Bool {
+        get { match.currentShooterIsLeft }
+        set { _ = apply(.selectShooter(isLeft: newValue), recordHistory: false) }
+    }
+    var openingShooterIsLeft: Bool { match.openingShooterIsLeft }
+    var arrowsLeftThisSet: Int { match.arrowsLeftThisSet }
+    var arrowsRightThisSet: Int { match.arrowsRightThisSet }
+    var arrowsPerSet: Int { match.arrowsPerSet }
 
     override init(controller: BaseScoreboardController? = nil) {
+        match = ArcheryMatchState(
+            leftName: NSLocalizedString("watch_team_red", value: "红方", comment: ""),
+            rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+        )
         super.init(controller: controller)
-        leftTeam.name = NSLocalizedString("watch_team_red", value: "红方", comment: "")
-        rightTeam.name = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
-        leftTeam.sets = 0
-        rightTeam.sets = 0
+        syncTeamsFromMatch()
     }
 
     func setOnSetEndCallback(_ callback: @escaping (SetEndCallbackData) -> Void) {
         onSetEndCallback = callback
     }
 
+    func configureOpening(leftName: String, rightName: String, openingIsLeft: Bool) {
+        match = ArcheryMatchState(
+            leftName: leftName,
+            rightName: rightName,
+            currentShooterIsLeft: openingIsLeft,
+            openingShooterIsLeft: openingIsLeft
+        )
+        syncTeamsFromMatch()
+        snapshots.removeAll()
+    }
+
+    func applyRemote(_ remote: LinkedArcheryState) {
+        remote.applying(to: &match)
+        syncTeamsFromMatch()
+    }
+
+    func linkedSnapshot(finished: Bool = false) -> LinkedArcheryState {
+        var snap = LinkedArcheryState(match: match)
+        if finished { snap.finished = true }
+        return snap
+    }
+
     func recordArrow(value: Int?) {
-        let points = max(0, value ?? 0)
-        addScore(isLeft: currentShooterIsLeft, points: points)
+        _ = apply(.recordArrow(side: nil, value: value))
+        handlePostReduceUI()
     }
 
     override func adjustScore(isLeft: Bool, delta: Int) {
-        saveSnapshot()
-        if isLeft {
-            leftTeam.score = max(0, leftTeam.score + delta)
-        } else {
-            rightTeam.score = max(0, rightTeam.score + delta)
-        }
+        _ = apply(.adjustArrowSum(side: isLeft ? .left : .right, delta: delta))
     }
 
     func adjustSetPoints(isLeft: Bool, delta: Int) {
-        #if DEBUG
-        let beforeLeft = leftTeam.sets ?? 0
-        let beforeRight = rightTeam.sets ?? 0
-        print("[ArcheryViewModel] adjustSetPoints isLeft=\(isLeft) delta=\(delta) before L=\(beforeLeft) R=\(beforeRight)")
-        #endif
-        saveSnapshot()
-        if isLeft {
-            leftTeam.sets = max(0, (leftTeam.sets ?? 0) + delta)
-        } else {
-            rightTeam.sets = max(0, (rightTeam.sets ?? 0) + delta)
-        }
-        #if DEBUG
-        print("[ArcheryViewModel] adjustSetPoints after L=\(leftTeam.sets ?? 0) R=\(rightTeam.sets ?? 0)")
-        #endif
+        _ = apply(.adjustSetPoints(side: isLeft ? .left : .right, delta: delta))
     }
 
     func adjustSets(isLeft: Bool, delta: Int) {
-        #if DEBUG
-        print("[ArcheryViewModel] adjustSets isLeft=\(isLeft) delta=\(delta)")
-        #endif
         adjustSetPoints(isLeft: isLeft, delta: delta)
     }
 
@@ -526,111 +636,102 @@ class ArcheryViewModel: BaseScoreViewModel {
     }
 
     func getWinnerName() -> String {
-        guard gameFinished else { return "" }
-        let leftSetPoints = leftTeam.sets ?? 0
-        let rightSetPoints = rightTeam.sets ?? 0
-        if leftSetPoints > rightSetPoints { return leftTeam.name }
-        if rightSetPoints > leftSetPoints { return rightTeam.name }
-        return ""
+        guard match.finished, let side = match.winnerSide else { return "" }
+        return side == .left ? match.leftName : match.rightName
     }
 
     override func addScore(isLeft: Bool, points: Int) {
-        guard !gameFinished else { return }
+        guard !match.finished else { return }
+        let side: MatchSide? = editState.isEditMode ? (isLeft ? .left : .right) : nil
         if !editState.isEditMode {
-            guard isLeft == currentShooterIsLeft else { return }
+            guard isLeft == match.currentShooterIsLeft else { return }
         }
-
-        saveSnapshot()
-
-        if isLeft {
-            leftTeam.score += max(0, points)
-            arrowsLeftThisSet += 1
-        } else {
-            rightTeam.score += max(0, points)
-            arrowsRightThisSet += 1
-        }
-
+        _ = apply(.recordArrow(side: side, value: points))
         controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") +\(max(0, points))")
         controller?.performVibration(type: .light)
-
-        currentShooterIsLeft.toggle()
-
-        if arrowsLeftThisSet >= arrowsPerSet && arrowsRightThisSet >= arrowsPerSet {
-            finishCurrentSet()
-        }
+        handlePostReduceUI()
     }
 
     override func subtractScore(isLeft: Bool, points: Int) {
-        guard !gameFinished else { return }
-        saveSnapshot()
-        if isLeft {
-            leftTeam.score = max(0, leftTeam.score - max(0, points))
-        } else {
-            rightTeam.score = max(0, rightTeam.score - max(0, points))
-        }
+        guard !match.finished else { return }
+        _ = apply(.adjustArrowSum(side: isLeft ? .left : .right, delta: -max(0, points)))
         controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") -\(max(0, points))")
         controller?.performVibration(type: .light)
     }
 
     override func undo() -> Bool {
         guard let snapshot = snapshots.popLast() else { return false }
-        restoreSnapshot(snapshot)
+        match = snapshot.match
+        syncTeamsFromMatch()
         controller?.performVibration(type: .light)
         return true
     }
 
     override func exchangeSides() {
-        guard !gameFinished else { return }
-
-        saveSnapshot()
-
-        let tempName = leftTeam.name
-        let tempScore = leftTeam.score
-        let tempSets = leftTeam.sets
-
-        leftTeam.name = rightTeam.name
-        leftTeam.score = rightTeam.score
-        leftTeam.sets = rightTeam.sets
-
-        rightTeam.name = tempName
-        rightTeam.score = tempScore
-        rightTeam.sets = tempSets
-
-        currentShooterIsLeft.toggle()
-        openingShooterIsLeft.toggle()
+        guard !match.finished else { return }
+        _ = apply(.exchangeSides)
         controller?.performVibration(type: .medium)
     }
 
     override func reset() {
         super.reset()
-        currentSet = 1
-        currentShooterIsLeft = openingShooterIsLeft
-        arrowsLeftThisSet = 0
-        arrowsRightThisSet = 0
-        arrowsPerSet = archeryArrowsPerSetNormal
-        leftTeam.sets = 0
-        rightTeam.sets = 0
+        _ = apply(.reset, recordHistory: false)
         snapshots.removeAll()
     }
 
-    private func finishCurrentSet() {
-        let finalLeftScore = leftTeam.score
-        let finalRightScore = rightTeam.score
-        let setNumber = currentSet
-        let isShootoff = arrowsPerSet == archeryArrowsPerSetShootoff
-            && (leftTeam.sets ?? 0) == 5
-            && (rightTeam.sets ?? 0) == 5
+    func needsClosestToCenterDecision(leftArrowScore: Int, rightArrowScore: Int) -> Bool {
+        match.needsClosestToCenter
+            && match.leftArrowSum == leftArrowScore
+            && match.rightArrowSum == rightArrowScore
+    }
 
-        // 5–5 shootoff same rings → ask closest-to-center before awarding set point.
-        if isShootoff && finalLeftScore == finalRightScore {
-            if let callback = onSetEndCallback {
+    func applyClosestToCenter(leftWins: Bool) {
+        _ = apply(.completeSet(closestToCenterWinner: leftWins ? .left : .right), recordHistory: false)
+        if match.finished {
+            gameFinished = true
+            controller?.performVibration(type: .heavy)
+        }
+        syncTeamsFromMatch()
+    }
+
+    func continuePendingSetEnd() {
+        guard match.setCompletionPending, !match.closestToCenterPending else { return }
+        _ = apply(.completeSet(closestToCenterWinner: nil), recordHistory: false)
+        if match.finished {
+            gameFinished = true
+            controller?.performVibration(type: .heavy)
+        }
+        syncTeamsFromMatch()
+    }
+
+    @discardableResult
+    private func apply(_ intent: ArcheryMatchIntent, recordHistory: Bool = true) -> Bool {
+        if recordHistory {
+            snapshots.append(ArcheryStateSnapshot(match: match))
+            if snapshots.count > 100 { snapshots.removeFirst() }
+        }
+        let result = reducer.reduce(state: match, intent: intent, at: Int64(Date().timeIntervalSince1970 * 1000))
+        guard result.accepted else {
+            if recordHistory { _ = snapshots.popLast() }
+            return false
+        }
+        match = result.state
+        lastEvents = result.events
+        syncTeamsFromMatch()
+        return true
+    }
+
+    private func handlePostReduceUI() {
+        for event in lastEvents {
+            switch event {
+            case .closestToCenterRequired(let setNumber, _):
                 let data = SetEndCallbackData(
-                    finalLeftScore: finalLeftScore,
-                    finalRightScore: finalRightScore,
+                    finalLeftScore: match.leftArrowSum,
+                    finalRightScore: match.rightArrowSum,
                     winnerName: NSLocalizedString("draw_result", value: "平局", comment: ""),
                     setNumber: setNumber,
-                    leftSets: leftTeam.sets ?? 0,
-                    rightSets: rightTeam.sets ?? 0,
+                    leftSets: match.leftSetPoints,
+                    rightSets: match.rightSetPoints,
                     leftGames: nil,
                     rightGames: nil,
                     shouldChangeSides: false,
@@ -639,135 +740,75 @@ class ArcheryViewModel: BaseScoreViewModel {
                         self?.applyClosestToCenter(leftWins: true)
                     }
                 )
-                // Flag via equal scores + shootoff set points still 5–5 for UI CTC path.
-                callback(data)
-            }
-            return
-        }
-
-        let setWinPoints = isShootoff ? 1 : archerySetPointsWin
-        let newLeftSetPoints: Int
-        let newRightSetPoints: Int
-        let winnerName: String
-
-        if finalLeftScore > finalRightScore {
-            newLeftSetPoints = (leftTeam.sets ?? 0) + setWinPoints
-            newRightSetPoints = rightTeam.sets ?? 0
-            winnerName = leftTeam.name
-        } else if finalRightScore > finalLeftScore {
-            newLeftSetPoints = leftTeam.sets ?? 0
-            newRightSetPoints = (rightTeam.sets ?? 0) + setWinPoints
-            winnerName = rightTeam.name
-        } else {
-            newLeftSetPoints = (leftTeam.sets ?? 0) + archerySetPointsTie
-            newRightSetPoints = (rightTeam.sets ?? 0) + archerySetPointsTie
-            winnerName = NSLocalizedString("draw_result", value: "平局", comment: "")
-        }
-
-        let isMatchFinished = newLeftSetPoints >= archerySetPointsToWin || newRightSetPoints >= archerySetPointsToWin
-
-        if let callback = onSetEndCallback {
-            let data = SetEndCallbackData(
-                finalLeftScore: finalLeftScore,
-                finalRightScore: finalRightScore,
-                winnerName: winnerName,
-                setNumber: setNumber,
-                leftSets: newLeftSetPoints,
-                rightSets: newRightSetPoints,
-                leftGames: nil,
-                rightGames: nil,
-                shouldChangeSides: false,
-                isGameFinished: isMatchFinished,
-                continueUpdate: {
-                    self.applySetEnd(
-                        newLeftSetPoints: newLeftSetPoints,
-                        newRightSetPoints: newRightSetPoints,
-                        isMatchFinished: isMatchFinished
-                    )
+                onSetEndCallback?(data)
+            case .setReady(let setNumber, let leftArrow, let rightArrow, let pendingLeft, let pendingRight):
+                let winnerName: String
+                if leftArrow > rightArrow {
+                    winnerName = match.leftName
+                } else if rightArrow > leftArrow {
+                    winnerName = match.rightName
+                } else {
+                    winnerName = NSLocalizedString("draw_result", value: "平局", comment: "")
                 }
-            )
-            callback(data)
-        } else {
-            applySetEnd(
-                newLeftSetPoints: newLeftSetPoints,
-                newRightSetPoints: newRightSetPoints,
-                isMatchFinished: isMatchFinished
-            )
+                let isMatchFinished = pendingLeft >= match.rules.setPointsToWin || pendingRight >= match.rules.setPointsToWin
+                let data = SetEndCallbackData(
+                    finalLeftScore: leftArrow,
+                    finalRightScore: rightArrow,
+                    winnerName: winnerName,
+                    setNumber: setNumber,
+                    leftSets: pendingLeft,
+                    rightSets: pendingRight,
+                    leftGames: nil,
+                    rightGames: nil,
+                    shouldChangeSides: false,
+                    isGameFinished: isMatchFinished,
+                    continueUpdate: { [weak self] in
+                        self?.continuePendingSetEnd()
+                    }
+                )
+                onSetEndCallback?(data)
+            case .matchFinished:
+                gameFinished = true
+                controller?.performVibration(type: .heavy)
+            default:
+                break
+            }
         }
     }
 
-    func needsClosestToCenterDecision(leftArrowScore: Int, rightArrowScore: Int) -> Bool {
-        arrowsPerSet == archeryArrowsPerSetShootoff
-            && (leftTeam.sets ?? 0) == 5
-            && (rightTeam.sets ?? 0) == 5
-            && leftArrowScore == rightArrowScore
-            && !gameFinished
+    private func syncTeamsFromMatch() {
+        leftTeam.name = match.leftName
+        rightTeam.name = match.rightName
+        leftTeam.score = match.leftArrowSum
+        rightTeam.score = match.rightArrowSum
+        leftTeam.sets = match.leftSetPoints
+        rightTeam.sets = match.rightSetPoints
+        gameFinished = match.finished
     }
 
-    func applyClosestToCenter(leftWins: Bool) {
-        let newLeft = (leftTeam.sets ?? 0) + (leftWins ? 1 : 0)
-        let newRight = (rightTeam.sets ?? 0) + (leftWins ? 0 : 1)
-        applySetEnd(newLeftSetPoints: newLeft, newRightSetPoints: newRight, isMatchFinished: true)
-    }
-
-    private func applySetEnd(newLeftSetPoints: Int, newRightSetPoints: Int, isMatchFinished: Bool) {
-        leftTeam.sets = newLeftSetPoints
-        rightTeam.sets = newRightSetPoints
-
-        if isMatchFinished {
-            gameFinished = true
-            controller?.performVibration(type: .heavy)
-            return
-        }
-
-        currentSet += 1
-        leftTeam.score = 0
-        rightTeam.score = 0
-        arrowsLeftThisSet = 0
-        arrowsRightThisSet = 0
-        arrowsPerSet = (newLeftSetPoints == 5 && newRightSetPoints == 5)
-            ? archeryArrowsPerSetShootoff
-            : archeryArrowsPerSetNormal
-        currentShooterIsLeft = ArcheryShooterRules.nextStartingIsLeft(
-            leftSetPoints: newLeftSetPoints,
-            rightSetPoints: newRightSetPoints,
-            openingIsLeft: openingShooterIsLeft
-        )
-    }
-
-    private func saveSnapshot() {
-        snapshots.append(ArcheryStateSnapshot(
-            leftName: leftTeam.name,
-            rightName: rightTeam.name,
-            leftScore: leftTeam.score,
-            rightScore: rightTeam.score,
-            leftSetPoints: leftTeam.sets ?? 0,
-            rightSetPoints: rightTeam.sets ?? 0,
-            currentSet: currentSet,
-            currentShooterIsLeft: currentShooterIsLeft,
-            arrowsLeftThisSet: arrowsLeftThisSet,
-            arrowsRightThisSet: arrowsRightThisSet,
-            arrowsPerSet: arrowsPerSet,
-            gameFinished: gameFinished
-        ))
-        if snapshots.count > 100 {
-            snapshots.removeFirst()
-        }
-    }
-
-    private func restoreSnapshot(_ snapshot: ArcheryStateSnapshot) {
-        leftTeam.name = snapshot.leftName
-        rightTeam.name = snapshot.rightName
-        leftTeam.score = snapshot.leftScore
-        rightTeam.score = snapshot.rightScore
-        leftTeam.sets = snapshot.leftSetPoints
-        rightTeam.sets = snapshot.rightSetPoints
-        currentSet = snapshot.currentSet
-        currentShooterIsLeft = snapshot.currentShooterIsLeft
-        arrowsLeftThisSet = snapshot.arrowsLeftThisSet
-        arrowsRightThisSet = snapshot.arrowsRightThisSet
-        arrowsPerSet = snapshot.arrowsPerSet
-        gameFinished = snapshot.gameFinished
+    func restoreMatchFields(
+        leftRingScore: Int?,
+        rightRingScore: Int?,
+        leftSets: Int?,
+        rightSets: Int?,
+        currentSet: Int?,
+        arrowsPerSet: Int?,
+        arrowsLeftThisSet: Int?,
+        arrowsRightThisSet: Int?,
+        currentShooterIsLeft: Bool?,
+        openingShooterIsLeft: Bool?
+    ) {
+        if let leftRingScore { match.leftArrowSum = leftRingScore }
+        if let rightRingScore { match.rightArrowSum = rightRingScore }
+        if let leftSets { match.leftSetPoints = leftSets }
+        if let rightSets { match.rightSetPoints = rightSets }
+        if let currentSet { match.currentSet = max(1, currentSet) }
+        if let arrowsPerSet { match.arrowsPerSet = max(1, arrowsPerSet) }
+        if let arrowsLeftThisSet { match.arrowsLeftThisSet = max(0, arrowsLeftThisSet) }
+        if let arrowsRightThisSet { match.arrowsRightThisSet = max(0, arrowsRightThisSet) }
+        if let currentShooterIsLeft { match.currentShooterIsLeft = currentShooterIsLeft }
+        if let openingShooterIsLeft { match.openingShooterIsLeft = openingShooterIsLeft }
+        syncTeamsFromMatch()
     }
 }
 
@@ -777,10 +818,11 @@ private struct ArcheryMiddleLayer: View {
     @Binding var showArrowPicker: Bool
     var controller: ArcheryScoreboardController
     var isEditMode: Bool
+    var scoringLocked: Bool = false
 
     var body: some View {
         Group {
-            if !isEditMode && !viewModel.gameFinished {
+            if !isEditMode && !viewModel.gameFinished && !scoringLocked {
                 CenterLineServeIndicator(isLeftServing: viewModel.currentShooterIsLeft, triangleSize: 34)
                     .allowsHitTesting(false)
 
