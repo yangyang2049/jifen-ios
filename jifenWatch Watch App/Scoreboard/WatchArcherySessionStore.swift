@@ -1,13 +1,15 @@
 import Foundation
+import LinkCore
 import Observation
 import PersistenceCore
+import RecordCore
 import ScoreCore
 import SessionCore
 
-/// Primary archery session host — sync apply for scoreboard UI, archives via SessionCore snapshot shape.
+/// Watch archery session host — sync apply (same reducer as phone), local undo + archive.
 @MainActor
 @Observable
-final class ArcherySessionStore {
+final class WatchArcherySessionStore {
     private let reducer = ArcheryMatchReducer()
     private let archiveRepository = SessionArchiveRepository()
     private var undoStack: [ArcheryMatchState] = []
@@ -19,43 +21,44 @@ final class ArcherySessionStore {
     let sessionId: UUID
     let startedAt: Date
 
-    /// HOS-aligned screen placement derived from engine `sidesSwapped`.
     var teamScreenLayout: TeamScreenLayout {
         TeamScreenLayout(sidesSwapped: state.sidesSwapped)
     }
 
-    convenience init(leftName: String, rightName: String, openingShooterIsLeft: Bool = true) {
+    init(initialState: LinkedArcheryState? = nil) {
         let descriptor = ScoreboardKernelRegistry.descriptor(for: .archeryDual)
-        let initial = ArcheryMatchState(
-            leftName: leftName,
-            rightName: rightName,
-            currentShooterIsLeft: openingShooterIsLeft,
-            openingShooterIsLeft: openingShooterIsLeft
-        )
-        self.init(
-            sessionId: UUID(),
-            state: initial,
-            ruleFamily: descriptor.ruleFamily,
-            reducerType: descriptor.reducerType,
-            participants: [
-                .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
-                .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
-            ]
-        )
-    }
-
-    private init(
-        sessionId: UUID,
-        state: ArcheryMatchState,
-        ruleFamily: RuleFamily,
-        reducerType: String,
-        participants: [SessionParticipant]
-    ) {
-        self.sessionId = sessionId
-        self.state = state
-        self.ruleFamily = ruleFamily
-        self.reducerType = reducerType
-        self.participants = participants
+        let defaults = WatchDefaultTeamNames.resolve()
+        let seed: ArcheryMatchState
+        if let initialState {
+            var match = ArcheryMatchState(
+                leftName: initialState.leftName,
+                rightName: initialState.rightName,
+                leftArrowSum: initialState.leftArrowSum,
+                rightArrowSum: initialState.rightArrowSum,
+                leftSetPoints: initialState.leftSetPoints,
+                rightSetPoints: initialState.rightSetPoints,
+                currentSet: max(1, initialState.setNumber),
+                currentShooterIsLeft: initialState.currentShooterIsLeft,
+                openingShooterIsLeft: initialState.currentShooterIsLeft,
+                finished: initialState.finished,
+                sidesSwapped: initialState.sidesSwapped
+            )
+            initialState.applying(to: &match)
+            seed = match
+        } else {
+            seed = ArcheryMatchState(
+                leftName: defaults.left,
+                rightName: defaults.right
+            )
+        }
+        sessionId = UUID()
+        state = seed
+        ruleFamily = descriptor.ruleFamily
+        reducerType = descriptor.reducerType
+        participants = [
+            .init(id: TeamID.team0.rawValue, name: seed.leftName, role: "team"),
+            .init(id: TeamID.team1.rawValue, name: seed.rightName, role: "team")
+        ]
         startedAt = Date()
     }
 
@@ -64,7 +67,7 @@ final class ArcherySessionStore {
         let now = Int64(Date().timeIntervalSince1970 * 1_000)
         if recordHistory {
             undoStack.append(state)
-            if undoStack.count > 100 { undoStack.removeFirst() }
+            if undoStack.count > 50 { undoStack.removeFirst() }
         }
         let result = reducer.reduce(state: state, intent: intent, at: now)
         guard result.accepted else {
@@ -82,21 +85,6 @@ final class ArcherySessionStore {
         state = previous
         persistSnapshot()
         return true
-    }
-
-    func configureOpening(leftName: String, rightName: String, openingIsLeft: Bool) {
-        state = ArcheryMatchState(
-            leftName: leftName,
-            rightName: rightName,
-            currentShooterIsLeft: openingIsLeft,
-            openingShooterIsLeft: openingIsLeft
-        )
-        participants = [
-            .init(id: TeamID.team0.rawValue, name: leftName, role: "team"),
-            .init(id: TeamID.team1.rawValue, name: rightName, role: "team")
-        ]
-        undoStack.removeAll()
-        persistSnapshot()
     }
 
     func replaceDisplayedState(_ state: ArcheryMatchState) {
@@ -121,7 +109,7 @@ final class ArcherySessionStore {
             ])
         )
         Task { [archiveRepository] in
-            try? await archiveRepository.save(session)
+            try? await archiveRepository.save(session, source: .watchLocal)
         }
     }
 }

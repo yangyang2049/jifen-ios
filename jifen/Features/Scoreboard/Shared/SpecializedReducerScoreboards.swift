@@ -508,7 +508,7 @@ struct EightBallScoreboardView: View {
             }
 
             if showGameOverDialog {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: finishedWinnerName,
                     leftName: leftName,
                     rightName: rightName,
@@ -595,7 +595,9 @@ struct EightBallScoreboardView: View {
         let side = screenSide(screen)
         return side == .left ? state.leftPoints : state.rightPoints
     }
-    private func screenSide(_ screen: MatchSide) -> MatchSide { state.sidesSwapped ? screen.opposite : screen }
+    private func screenSide(_ screen: MatchSide) -> MatchSide {
+        TeamScreenLayout(sidesSwapped: state.sidesSwapped).engineSide(onScreen: screen)
+    }
     private func send(_ intent: EightBallIntent) {
         let result = reducer.reduce(state: state, intent: intent, at: nowMilliseconds())
         guard result.accepted else { return }
@@ -853,7 +855,7 @@ struct NineBallChaseScoreboardView: View {
                     .allowsHitTesting(false)
             }
             if showGameOverDialog {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: finishedWinnerName,
                     multiNames: (0..<state.playerCount).map { playerName($0) },
                     multiScores: Array(state.playerPoints.prefix(state.playerCount)),
@@ -1425,7 +1427,7 @@ struct SnookerReducerScoreboardView: View {
             }
 
             if showGameOverDialog {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: finishedWinnerName,
                     leftName: leftName,
                     rightName: rightName,
@@ -1814,7 +1816,7 @@ struct ShengjiReducerScoreboardView: View {
 
             if state.finished {
                 let winnerName = state.leftIndex >= state.maxTierIndex ? leftName : rightName
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: winnerName,
                     resultText: "\(level(state.leftIndex)) - \(level(state.rightIndex))",
                     leftName: leftName,

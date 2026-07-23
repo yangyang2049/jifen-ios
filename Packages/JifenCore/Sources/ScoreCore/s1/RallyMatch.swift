@@ -1,7 +1,8 @@
 import Foundation
 
 /// S1 dual-side rally family (= Android `S1DualSide*` / HOS per-sport rally reducers).
-/// Geometric `left`/`right` scores are screen sides; team identity uses `TeamID` + `TeamScreenLayout`.
+/// Engine `left`/`right` are identity slots (team0/team1). Screen placement uses
+/// `sidesSwapped` ↔ `TeamScreenLayout.team0ScreenSide`; UI maps taps via `engineSide(onScreen:)`.
 
 public enum MatchCompletionMode: String, Codable, CaseIterable, Hashable, Sendable {
     case bestOf = "best_of"

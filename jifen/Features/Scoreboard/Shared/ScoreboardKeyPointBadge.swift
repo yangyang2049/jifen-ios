@@ -11,7 +11,8 @@ struct ScoreboardKeyPointBadgeLayer: View {
     var body: some View {
         GeometryReader { proxy in
             if let status {
-                let screenSide = sidesSwapped ? status.side.opposite : status.side
+                let screenSide = TeamScreenLayout(sidesSwapped: sidesSwapped)
+                    .screenSide(of: TeamScreenLayout.teamID(forEngine: status.side))
                 let midX = proxy.size.width / 2
                 let largeWindow = min(proxy.size.width, proxy.size.height) >= 600
                 let innerGap: CGFloat = 12

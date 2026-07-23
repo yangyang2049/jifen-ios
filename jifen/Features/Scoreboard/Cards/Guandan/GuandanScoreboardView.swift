@@ -109,7 +109,7 @@ struct GuandanScoreboardView: View {
             )
 
             if showGameOverDialog, let winner = state.finalWinner {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: winner == .red ? state.redTeam.name : state.blueTeam.name,
                     leftName: state.redTeam.name,
                     rightName: state.blueTeam.name,

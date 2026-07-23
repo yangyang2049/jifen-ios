@@ -126,7 +126,22 @@ public struct TeamScreenLayout: Codable, Equatable, Sendable {
         screen == team0ScreenSide ? .team0 : .team1
     }
 
-    /// Map a screen tap/side to geometric MatchSide for reducers that still store left/right scores.
+    /// Engine slot for team identity when reducer stores left=team0, right=team1.
+    public static func identityEngineSide(for team: TeamID) -> MatchSide {
+        team == .team0 ? .left : .right
+    }
+
+    public static func teamID(forEngine side: MatchSide) -> TeamID {
+        side == .left ? .team0 : .team1
+    }
+
+    /// Screen tap → engine MatchSide for identity-keyed reducers (`left`/`right` = team0/team1).
+    public func engineSide(onScreen screen: MatchSide) -> MatchSide {
+        Self.identityEngineSide(for: teamID(on: screen))
+    }
+
+    /// Map team identity to engine MatchSide when engine `sidesSwapped` mirrors this layout.
+    /// Prefer `identityEngineSide(for:)` / `engineSide(onScreen:)` for new call sites.
     public func geometricSide(for team: TeamID, sidesSwappedInEngine: Bool) -> MatchSide {
         let screen = screenSide(of: team)
         return sidesSwappedInEngine ? screen.opposite : screen

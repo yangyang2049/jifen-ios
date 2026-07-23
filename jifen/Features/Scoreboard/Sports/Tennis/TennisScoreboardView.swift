@@ -146,7 +146,7 @@ struct TennisScoreboardView: View {
                     )
                 }
                 if showGameOverDialog {
-                    GameFinishedOverlay(
+                    GameOverDialog(
                         winnerName: finishedWinnerName,
                         resultText: store.state.rules.setScoringMode == .tiebreakOnly
                             ? "\(store.state.leftPoints):\(store.state.rightPoints)"
@@ -264,7 +264,7 @@ struct TennisScoreboardView: View {
     }
 
     private func half(_ screenSide: MatchSide, size: CGSize) -> some View {
-        let side = store.state.sidesSwapped ? screenSide.opposite : screenSide
+        let side = store.teamScreenLayout.engineSide(onScreen: screenSide)
         let isLeft = side == .left
         return ZStack {
             (isLeft ? appearance.theme.palette.left : appearance.theme.palette.right)
@@ -371,7 +371,7 @@ struct TennisScoreboardView: View {
     }
 
     private func logicalSide(forScreen side: MatchSide) -> MatchSide {
-        store.state.sidesSwapped ? side.opposite : side
+        store.teamScreenLayout.engineSide(onScreen: side)
     }
 
     private func tennisKeyPointSnapshot(_ state: TennisMatchState) -> TennisKeyPointSnapshot {

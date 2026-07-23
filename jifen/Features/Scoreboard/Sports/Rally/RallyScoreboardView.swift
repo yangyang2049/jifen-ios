@@ -1060,7 +1060,7 @@ struct RallyScoreboardView: View {
     }
 
     private func logicalSide(forScreen side: MatchSide) -> MatchSide {
-        store.state.sidesSwapped ? side.opposite : side
+        store.teamScreenLayout.engineSide(onScreen: side)
     }
 
     private func requestBack() {

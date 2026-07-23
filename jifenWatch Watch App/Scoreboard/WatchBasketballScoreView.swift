@@ -28,8 +28,8 @@ private final class WatchBasketballSessionStore {
             reducerType: "basketball/v1",
             state: initial,
             participants: [
-                .init(id: "left", name: initial.leftName, role: "team"),
-                .init(id: "right", name: initial.rightName, role: "team")
+                .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
+                .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
             ]
         )
         self.core = ScoreSessionCore(
@@ -209,7 +209,7 @@ struct WatchBasketballScoreView: View {
     }
 
     private func side(_ screenSide: MatchSide, height: CGFloat) -> some View {
-        let logicalSide = store.state.sidesSwapped ? screenSide.opposite : screenSide
+        let logicalSide = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped).engineSide(onScreen: screenSide)
         let isLeft = logicalSide == .left
         let score = isLeft ? store.state.leftScore : store.state.rightScore
         let fouls = isLeft ? store.state.leftFouls : store.state.rightFouls
@@ -301,7 +301,7 @@ struct WatchBasketballScoreView: View {
     }
 
     private var isFollowingPhone: Bool {
-        linkedSessionId != nil
+        linkedSessionId != nil && linkService.isFollower
     }
 
     private var shotClockOptions: [Int] {

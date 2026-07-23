@@ -18,6 +18,14 @@ final class TennisSessionStore {
     var teamScreenLayout: TeamScreenLayout {
         TeamScreenLayout(sidesSwapped: state.sidesSwapped)
     }
+
+    func teamID(onScreen side: MatchSide) -> TeamID {
+        teamScreenLayout.teamID(on: side)
+    }
+
+    func geometricSide(for team: TeamID) -> MatchSide {
+        TeamScreenLayout.identityEngineSide(for: team)
+    }
     let gameType: ScoreCore.GameType
     let sessionId: UUID
     let startedAt: Date
@@ -51,8 +59,8 @@ final class TennisSessionStore {
             reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
             state: state,
             participants: [
-                .init(id: "left", name: state.leftName, role: "team"),
-                .init(id: "right", name: state.rightName, role: "team")
+                .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
+                .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
             ],
             metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
         )

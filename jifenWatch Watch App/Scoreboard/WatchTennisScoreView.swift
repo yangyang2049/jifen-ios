@@ -15,9 +15,10 @@ private final class WatchTennisSessionStore {
     var onStateChanged: ((TennisMatchState) -> Void)?
 
     init(gameType: GameType, rules: TennisRuleSet, initialState: TennisMatchState? = nil) {
+        let defaults = WatchDefaultTeamNames.resolve()
         let initial = initialState ?? TennisMatchState(
-            leftName: NSLocalizedString("watch_team_red", value: "红方", comment: ""),
-            rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: ""),
+            leftName: defaults.left,
+            rightName: defaults.right,
             rules: rules
         )
         let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
@@ -26,8 +27,8 @@ private final class WatchTennisSessionStore {
             reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
             state: initial,
             participants: [
-                .init(id: "left", name: initial.leftName, role: "team"),
-                .init(id: "right", name: initial.rightName, role: "team")
+                .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
+                .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
             ]
         )
         core = ScoreSessionCore(seedSession: session, reducer: TennisMatchReducer(), shouldFinish: { _, state in state.finished })
@@ -73,6 +74,8 @@ struct WatchTennisScoreView: View {
     let isDoubles: Bool
     @State private var store: WatchTennisSessionStore
     @State private var showMenu = false
+    @State private var matchStartTime = Date()
+    @State private var didTransferFinishedRecord = false
 
     init(
         maxSets: Int,
@@ -144,25 +147,32 @@ struct WatchTennisScoreView: View {
         }
         .disabled(scoringLocked)
         .onAppear {
+            matchStartTime = Date()
             store.onStateChanged = { [linkService] state in
-                guard linkedSessionId != nil, linkService.isController else { return }
-                linkService.publishSnapshot(.tennis(state))
+                if linkedSessionId != nil {
+                    guard linkService.isController else { return }
+                    linkService.publishSnapshot(.tennis(state))
+                    if state.finished {
+                        let leftWinnerScore = state.rules.setScoringMode == .tiebreakOnly
+                            ? state.leftPoints
+                            : state.leftSets
+                        let rightWinnerScore = state.rules.setScoringMode == .tiebreakOnly
+                            ? state.rightPoints
+                            : state.rightSets
+                        let winner: MatchSide? = leftWinnerScore == rightWinnerScore
+                            ? nil
+                            : (leftWinnerScore > rightWinnerScore ? .left : .right)
+                        linkService.publishMatchFinished(
+                            snapshot: .tennis(state),
+                            recordId: "w_\(UUID().uuidString)",
+                            winnerSide: winner,
+                            manualEnd: false
+                        )
+                    }
+                    return
+                }
                 if state.finished {
-                    let leftWinnerScore = state.rules.setScoringMode == .tiebreakOnly
-                        ? state.leftPoints
-                        : state.leftSets
-                    let rightWinnerScore = state.rules.setScoringMode == .tiebreakOnly
-                        ? state.rightPoints
-                        : state.rightSets
-                    let winner: MatchSide? = leftWinnerScore == rightWinnerScore
-                        ? nil
-                        : (leftWinnerScore > rightWinnerScore ? .left : .right)
-                    linkService.publishMatchFinished(
-                        snapshot: .tennis(state),
-                        recordId: "w_\(UUID().uuidString)",
-                        winnerSide: winner,
-                        manualEnd: false
-                    )
+                    transferLocalFinishedRecordIfNeeded(state)
                 }
             }
         }
@@ -174,11 +184,14 @@ struct WatchTennisScoreView: View {
     }
 
     private func side(_ screenSide: MatchSide, height: CGFloat) -> some View {
-        let logical = store.state.sidesSwapped ? screenSide.opposite : screenSide
+        let logical = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped).engineSide(onScreen: screenSide)
         let isLeft = logical == .left
         return VStack {
-            Text(isLeft ? store.state.leftName : store.state.rightName)
+            Text(isLeft ? store.state.doublesTeamDisplayName(for: .left) : store.state.doublesTeamDisplayName(for: .right))
                 .font(.caption.weight(.semibold))
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
+                .multilineTextAlignment(.center)
             Text(store.state.scoreDisplay(for: logical))
                 .font(.system(size: 48, weight: .bold, design: .rounded))
                 .monospacedDigit()
@@ -205,5 +218,34 @@ struct WatchTennisScoreView: View {
                     showMenu = true
                 }
             }
+    }
+
+    private func transferLocalFinishedRecordIfNeeded(_ state: TennisMatchState) {
+        guard !didTransferFinishedRecord else { return }
+        didTransferFinishedRecord = true
+        let end = Date()
+        let leftScore = state.rules.setScoringMode == .tiebreakOnly ? state.leftPoints : state.leftSets
+        let rightScore = state.rules.setScoringMode == .tiebreakOnly ? state.rightPoints : state.rightSets
+        let winnerName: String? = {
+            if leftScore == rightScore { return nil }
+            return leftScore > rightScore ? state.leftName : state.rightName
+        }()
+        let record = WatchScoreboardRecord(
+            id: "w_\(UUID().uuidString)",
+            gameType: .tennis,
+            startTime: matchStartTime,
+            endTime: end,
+            duration: end.timeIntervalSince(matchStartTime),
+            team1Name: state.leftName,
+            team2Name: state.rightName,
+            team1FinalScore: state.leftPoints,
+            team2FinalScore: state.rightPoints,
+            team1SetScore: state.leftSets,
+            team2SetScore: state.rightSets,
+            winner: winnerName,
+            actions: [],
+            totalScoreChanges: max(1, state.leftPoints + state.rightPoints)
+        )
+        WatchRecordManager.shared.saveRecord(record)
     }
 }

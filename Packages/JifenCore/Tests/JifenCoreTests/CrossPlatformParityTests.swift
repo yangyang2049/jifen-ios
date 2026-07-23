@@ -270,6 +270,22 @@ import SessionCore
     #expect(ArcheryShooterRules.nextStartingIsLeft(leftSetPoints: 3, rightSetPoints: 3, openingIsLeft: false) == false)
 }
 
+@Test func archeryReducerAwardsSetPointsLikeSharedRules() {
+    let reducer = ArcheryMatchReducer()
+    var state = ArcheryMatchState(leftName: "红", rightName: "蓝")
+    for _ in 0..<3 {
+        state = reducer.reduce(state: state, intent: .recordArrow(side: nil, value: 10), at: 0).state
+        state = reducer.reduce(state: state, intent: .recordArrow(side: nil, value: 8), at: 0).state
+    }
+    #expect(state.setCompletionPending)
+    #expect(state.pendingLeftSetPoints == 2)
+    #expect(state.pendingRightSetPoints == 0)
+    state = reducer.reduce(state: state, intent: .completeSet(closestToCenterWinner: nil), at: 0).state
+    #expect(state.leftSetPoints == 2)
+    #expect(state.rightSetPoints == 0)
+    #expect(state.currentSet == 2)
+}
+
 @Test func guandanTripleADisplayRankShowsAttemptNumber() {
     var state = GuandanMatchState.initial(
         redName: "红",

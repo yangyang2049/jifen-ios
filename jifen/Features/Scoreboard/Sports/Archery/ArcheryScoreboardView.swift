@@ -136,7 +136,7 @@ struct ArcheryScoreboardView: View {
             }
 
             if showGameOverDialog {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: viewModel.getWinnerName(),
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,
@@ -456,7 +456,8 @@ struct ArcheryScoreboardView: View {
             arrowsLeftThisSet: record.extraData?["arrowsLeftThisSet"]?.value as? Int,
             arrowsRightThisSet: record.extraData?["arrowsRightThisSet"]?.value as? Int,
             currentShooterIsLeft: record.extraData?["currentShooterIsLeft"]?.value as? Bool,
-            openingShooterIsLeft: record.extraData?["openingShooterIsLeft"]?.value as? Bool
+            openingShooterIsLeft: record.extraData?["openingShooterIsLeft"]?.value as? Bool,
+            sidesSwapped: record.extraData?["sidesSwapped"]?.value as? Bool
         )
     }
 
@@ -521,6 +522,7 @@ struct ArcheryScoreboardView: View {
                 "arrowsRightThisSet": viewModel.arrowsRightThisSet,
                 "currentShooterIsLeft": viewModel.currentShooterIsLeft,
                 "openingShooterIsLeft": viewModel.openingShooterIsLeft,
+                "sidesSwapped": viewModel.match.sidesSwapped,
                 "leftRingScore": viewModel.leftTeam.score,
                 "rightRingScore": viewModel.rightTeam.score,
                 "leftSets": viewModel.leftTeam.sets ?? 0,
@@ -552,18 +554,16 @@ private class ArcheryScoreboardController: BaseScoreboardController {
     }
 }
 
-private struct ArcheryStateSnapshot {
-    let match: ArcheryMatchState
-}
-
 /// 需为 internal 以便 ScoreboardTemplate 通过 ScoreViewModelProtocol 派发调用 adjustSets（private 时协议走默认空实现，局分 +/- 不生效）
 @Observable
 class ArcheryViewModel: BaseScoreViewModel {
-    private let reducer = ArcheryMatchReducer()
-    private(set) var match: ArcheryMatchState
-    private var snapshots: [ArcheryStateSnapshot] = []
+    private let sessionStore: ArcherySessionStore
     private var onSetEndCallback: ((SetEndCallbackData) -> Void)? = nil
     private var lastEvents: [ArcheryMatchEvent] = []
+
+    var match: ArcheryMatchState { sessionStore.state }
+    var teamScreenLayout: TeamScreenLayout { sessionStore.teamScreenLayout }
+    var sessionId: UUID { sessionStore.sessionId }
 
     var currentSet: Int { match.currentSet }
     var currentShooterIsLeft: Bool {
@@ -576,7 +576,7 @@ class ArcheryViewModel: BaseScoreViewModel {
     var arrowsPerSet: Int { match.arrowsPerSet }
 
     override init(controller: BaseScoreboardController? = nil) {
-        match = ArcheryMatchState(
+        sessionStore = ArcherySessionStore(
             leftName: NSLocalizedString("watch_team_red", value: "红方", comment: ""),
             rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
         )
@@ -589,18 +589,14 @@ class ArcheryViewModel: BaseScoreViewModel {
     }
 
     func configureOpening(leftName: String, rightName: String, openingIsLeft: Bool) {
-        match = ArcheryMatchState(
-            leftName: leftName,
-            rightName: rightName,
-            currentShooterIsLeft: openingIsLeft,
-            openingShooterIsLeft: openingIsLeft
-        )
+        sessionStore.configureOpening(leftName: leftName, rightName: rightName, openingIsLeft: openingIsLeft)
         syncTeamsFromMatch()
-        snapshots.removeAll()
     }
 
     func applyRemote(_ remote: LinkedArcheryState) {
-        remote.applying(to: &match)
+        var next = match
+        remote.applying(to: &next)
+        sessionStore.replaceDisplayedState(next)
         syncTeamsFromMatch()
     }
 
@@ -660,8 +656,7 @@ class ArcheryViewModel: BaseScoreViewModel {
     }
 
     override func undo() -> Bool {
-        guard let snapshot = snapshots.popLast() else { return false }
-        match = snapshot.match
+        guard sessionStore.undo() else { return false }
         syncTeamsFromMatch()
         controller?.performVibration(type: .light)
         return true
@@ -676,7 +671,7 @@ class ArcheryViewModel: BaseScoreViewModel {
     override func reset() {
         super.reset()
         _ = apply(.reset, recordHistory: false)
-        snapshots.removeAll()
+        sessionStore.clearHistory()
     }
 
     func needsClosestToCenterDecision(leftArrowScore: Int, rightArrowScore: Int) -> Bool {
@@ -706,16 +701,8 @@ class ArcheryViewModel: BaseScoreViewModel {
 
     @discardableResult
     private func apply(_ intent: ArcheryMatchIntent, recordHistory: Bool = true) -> Bool {
-        if recordHistory {
-            snapshots.append(ArcheryStateSnapshot(match: match))
-            if snapshots.count > 100 { snapshots.removeFirst() }
-        }
-        let result = reducer.reduce(state: match, intent: intent, at: Int64(Date().timeIntervalSince1970 * 1000))
-        guard result.accepted else {
-            if recordHistory { _ = snapshots.popLast() }
-            return false
-        }
-        match = result.state
+        let result = sessionStore.apply(intent, recordHistory: recordHistory)
+        guard result.accepted else { return false }
         lastEvents = result.events
         syncTeamsFromMatch()
         return true
@@ -796,18 +783,23 @@ class ArcheryViewModel: BaseScoreViewModel {
         arrowsLeftThisSet: Int?,
         arrowsRightThisSet: Int?,
         currentShooterIsLeft: Bool?,
-        openingShooterIsLeft: Bool?
+        openingShooterIsLeft: Bool?,
+        sidesSwapped: Bool? = nil
     ) {
-        if let leftRingScore { match.leftArrowSum = leftRingScore }
-        if let rightRingScore { match.rightArrowSum = rightRingScore }
-        if let leftSets { match.leftSetPoints = leftSets }
-        if let rightSets { match.rightSetPoints = rightSets }
-        if let currentSet { match.currentSet = max(1, currentSet) }
-        if let arrowsPerSet { match.arrowsPerSet = max(1, arrowsPerSet) }
-        if let arrowsLeftThisSet { match.arrowsLeftThisSet = max(0, arrowsLeftThisSet) }
-        if let arrowsRightThisSet { match.arrowsRightThisSet = max(0, arrowsRightThisSet) }
-        if let currentShooterIsLeft { match.currentShooterIsLeft = currentShooterIsLeft }
-        if let openingShooterIsLeft { match.openingShooterIsLeft = openingShooterIsLeft }
+        var next = match
+        if let leftRingScore { next.leftArrowSum = leftRingScore }
+        if let rightRingScore { next.rightArrowSum = rightRingScore }
+        if let leftSets { next.leftSetPoints = leftSets }
+        if let rightSets { next.rightSetPoints = rightSets }
+        if let currentSet { next.currentSet = max(1, currentSet) }
+        if let arrowsPerSet { next.arrowsPerSet = max(1, arrowsPerSet) }
+        if let arrowsLeftThisSet { next.arrowsLeftThisSet = max(0, arrowsLeftThisSet) }
+        if let arrowsRightThisSet { next.arrowsRightThisSet = max(0, arrowsRightThisSet) }
+        if let currentShooterIsLeft { next.currentShooterIsLeft = currentShooterIsLeft }
+        if let openingShooterIsLeft { next.openingShooterIsLeft = openingShooterIsLeft }
+        if let sidesSwapped { next.sidesSwapped = sidesSwapped }
+        sessionStore.replaceDisplayedState(next)
+        sessionStore.persistSnapshot()
         syncTeamsFromMatch()
     }
 }

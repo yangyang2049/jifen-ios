@@ -34,6 +34,7 @@
 		F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */; };
 		F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */; };
 		F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */; };
+		FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000000000000000000001 /* RemodelFocusUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardRecordV4Tests.swift; sourceTree = "<group>"; };
 		F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalScoreboardDisplayStateTests.swift; sourceTree = "<group>"; };
 		F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardMenuConfirmStateTests.swift; sourceTree = "<group>"; };
+		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -206,6 +208,7 @@
 			children = (
 				BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */,
 				AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */,
+				FA1000000000000000000001 /* RemodelFocusUITests.swift */,
 				F10000000000000000000001 /* FullAppScreenshotUITests.swift */,
 				F10000000000000000000003 /* UITestScreenshotStore.swift */,
 				F10000000000000000000005 /* SupplementalScreenshotUITests.swift */,
@@ -407,6 +410,7 @@
 			files = (
 				D987C048DDD2CFB6D1560D48 /* jifenUITests.swift in Sources */,
 				A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */,
+				FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */,
 				F10000000000000000000002 /* FullAppScreenshotUITests.swift in Sources */,
 				F10000000000000000000004 /* UITestScreenshotStore.swift in Sources */,
 				F10000000000000000000006 /* SupplementalScreenshotUITests.swift in Sources */,

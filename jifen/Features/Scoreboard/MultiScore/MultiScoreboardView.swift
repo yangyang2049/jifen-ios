@@ -178,7 +178,7 @@ struct MultiScoreboardView: View {
                 }
 
                 if gameFinished {
-                    GameFinishedOverlay(
+                    GameOverDialog(
                         winnerName: finishedWinnerName,
                         multiNames: players.map(\.name),
                         multiScores: players.map(\.score),

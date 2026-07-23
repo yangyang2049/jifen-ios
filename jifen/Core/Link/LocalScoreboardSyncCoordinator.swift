@@ -39,7 +39,8 @@ struct LocalScoreboardKeyPoint: Codable, Equatable {
         case .set: kind = .set
         case .match: kind = .match
         }
-        let screenSide = sidesSwapped ? status.side.opposite : status.side
+        let screenSide = TeamScreenLayout(sidesSwapped: sidesSwapped)
+            .screenSide(of: TeamScreenLayout.teamID(forEngine: status.side))
         side = screenSide == .left ? .left : .right
     }
 

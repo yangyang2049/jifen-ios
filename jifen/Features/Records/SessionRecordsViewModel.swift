@@ -190,5 +190,3 @@ private extension ScoreCore.GameType {
         }
     }
 }
-
-typealias V2SessionRecordsViewModel = SessionRecordsViewModel

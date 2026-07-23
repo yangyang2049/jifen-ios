@@ -63,7 +63,7 @@ struct BilliardsScoreboardView: View {
             )
 
             if showGameOverDialog {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: winnerName,
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,

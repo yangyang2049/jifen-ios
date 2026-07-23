@@ -17,6 +17,19 @@ final class BasketballSessionStore {
     let sessionId: UUID
     let startedAt: Date
 
+    /// HOS-aligned screen placement derived from engine `sidesSwapped`.
+    var teamScreenLayout: TeamScreenLayout {
+        TeamScreenLayout(sidesSwapped: state.sidesSwapped)
+    }
+
+    func teamID(onScreen side: MatchSide) -> TeamID {
+        teamScreenLayout.teamID(on: side)
+    }
+
+    func geometricSide(for team: TeamID) -> MatchSide {
+        TeamScreenLayout.identityEngineSide(for: team)
+    }
+
     convenience init(
         leftName: String,
         rightName: String,
@@ -35,8 +48,8 @@ final class BasketballSessionStore {
             reducerType: ScoreboardKernelRegistry.descriptor(for: gameMode == .threeXThree ? .threeBasketball : .basketball).reducerType,
             state: initial,
             participants: [
-                .init(id: "left", name: initial.leftName, role: "team"),
-                .init(id: "right", name: initial.rightName, role: "team")
+                .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
+                .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
             ],
             metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
         )

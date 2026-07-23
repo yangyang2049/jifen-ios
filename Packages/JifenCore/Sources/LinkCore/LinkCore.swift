@@ -164,6 +164,7 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
     public var currentShooterIsLeft: Bool
     public var setNumber: Int
     public var finished: Bool
+    public var sidesSwapped: Bool
 
     public init(
         leftName: String = "红方",
@@ -174,7 +175,8 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         rightArrowSum: Int = 0,
         currentShooterIsLeft: Bool = true,
         setNumber: Int = 1,
-        finished: Bool = false
+        finished: Bool = false,
+        sidesSwapped: Bool = false
     ) {
         self.leftName = leftName
         self.rightName = rightName
@@ -185,6 +187,7 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         self.currentShooterIsLeft = currentShooterIsLeft
         self.setNumber = setNumber
         self.finished = finished
+        self.sidesSwapped = sidesSwapped
     }
 
     public init(match: ArcheryMatchState) {
@@ -197,7 +200,8 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
             rightArrowSum: match.rightArrowSum,
             currentShooterIsLeft: match.currentShooterIsLeft,
             setNumber: match.currentSet,
-            finished: match.finished
+            finished: match.finished,
+            sidesSwapped: match.sidesSwapped
         )
     }
 
@@ -211,6 +215,7 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         match.currentShooterIsLeft = currentShooterIsLeft
         match.currentSet = max(1, setNumber)
         match.finished = finished
+        match.sidesSwapped = sidesSwapped
         if finished {
             match.pendingSetNumber = 0
             match.closestToCenterPending = false

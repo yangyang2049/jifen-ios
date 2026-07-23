@@ -5,9 +5,11 @@ import ScoreCore
 @MainActor
 final class ScoreboardCatalogTests: XCTestCase {
     func testTimerAndToolCatalogCountsIncludeNewParityFeatures() {
-        XCTAssertEqual(GameCatalog.timerAllItems.count, 7)
-        XCTAssertEqual(Set(GameCatalog.timerAllItems).count, 7)
+        XCTAssertEqual(GameCatalog.timerAllItems.count, 9)
+        XCTAssertEqual(Set(GameCatalog.timerAllItems).count, 9)
         XCTAssertTrue(GameCatalog.timerAllItems.contains(.checkers))
+        XCTAssertTrue(GameCatalog.timerAllItems.contains(.basketball24))
+        XCTAssertTrue(GameCatalog.timerAllItems.contains(.basketball12))
         XCTAssertEqual(ToolItem.allTools.count, 10)
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "random_team" })
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "fullscreen_barrage" })

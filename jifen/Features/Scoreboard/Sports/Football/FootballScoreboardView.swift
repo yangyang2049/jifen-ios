@@ -44,7 +44,7 @@ struct FootballScoreboardView: View {
             )
 
             if showGameOverDialog {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: viewModel.getWinnerName(),
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,

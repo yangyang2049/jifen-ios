@@ -22,9 +22,13 @@ final class RallySessionStore {
         TeamScreenLayout(sidesSwapped: state.sidesSwapped)
     }
 
-    /// Geometric MatchSide for a team identity under current layout.
+    /// Engine MatchSide for a team identity (left=team0, right=team1).
     func geometricSide(for team: TeamID) -> MatchSide {
-        teamScreenLayout.geometricSide(for: team, sidesSwappedInEngine: state.sidesSwapped)
+        TeamScreenLayout.identityEngineSide(for: team)
+    }
+
+    func teamID(onScreen side: MatchSide) -> TeamID {
+        teamScreenLayout.teamID(on: side)
     }
 
     convenience init(
@@ -56,8 +60,8 @@ final class RallySessionStore {
         participants: [SessionParticipant]? = nil
     ) {
         let sessionParticipants = participants ?? [
-            .init(id: "left", name: state.leftName, role: "team"),
-            .init(id: "right", name: state.rightName, role: "team")
+            .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
+            .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
         ]
         let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
             gameType: gameType,

@@ -31,20 +31,8 @@ struct WatchArcheryScoreView: View {
 
     let linkedSessionId: UUID?
 
-    @State private var redScore: Int = 0
-    @State private var blueScore: Int = 0
-    @State private var redSets: Int = 0
-    @State private var blueSets: Int = 0
-    /// `true` = red (left) currently shooting.
-    @State private var currentShooter: Bool = true
-    @State private var openingShooterIsRed: Bool = true
-    @State private var arrowsRedThisSet: Int = 0
-    @State private var arrowsBlueThisSet: Int = 0
-    @State private var arrowsPerSet: Int = arrowsPerSetNormal
-    @State private var setNumber: Int = 1
+    @State private var store: WatchArcherySessionStore
     @State private var setEnding: Bool = false
-    @State private var pendingSetNumber: Int = 0
-    @State private var pendingSetWinner: Bool? = nil
     @State private var showScorePanel: Bool = false
     @State private var showClosestToCenter: Bool = false
     @State private var showMenu: Bool = false
@@ -55,26 +43,33 @@ struct WatchArcheryScoreView: View {
     @State private var undoHideTimer: Timer? = nil
     @State private var recordSaved: Bool = false
     @State private var toastMessage: String? = nil
-    @State private var history: [(redScore: Int, blueScore: Int, redSets: Int, blueSets: Int, currentShooter: Bool, arrowsRed: Int, arrowsBlue: Int, arrowsPerSet: Int)] = []
-    @State private var matchStartTime: Date = Date()
     @State private var scoreboardLayout: String = "vertical"
-    @State private var leftName: String = NSLocalizedString("watch_team_red", value: "红方", comment: "")
-    @State private var rightName: String = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+
+    private var redScore: Int { store.state.leftArrowSum }
+    private var blueScore: Int { store.state.rightArrowSum }
+    private var redSets: Int { store.state.leftSetPoints }
+    private var blueSets: Int { store.state.rightSetPoints }
+    /// `true` = red/left engine slot currently shooting.
+    private var currentShooter: Bool { store.state.currentShooterIsLeft }
+    private var openingShooterIsRed: Bool { store.state.openingShooterIsLeft }
+    private var arrowsRedThisSet: Int { store.state.arrowsLeftThisSet }
+    private var arrowsBlueThisSet: Int { store.state.arrowsRightThisSet }
+    private var arrowsPerSet: Int { store.state.arrowsPerSet }
+    private var setNumber: Int { store.state.currentSet }
+    private var pendingSetNumber: Int { store.state.pendingSetNumber }
+    private var pendingSetWinner: Bool? { store.state.pendingSetWinnerIsLeft }
+    private var leftName: String { store.state.leftName }
+    private var rightName: String { store.state.rightName }
+    private var matchStartTime: Date { store.startedAt }
 
     init(initialState: LinkedArcheryState? = nil, linkedSessionId: UUID? = nil) {
         self.linkedSessionId = linkedSessionId
-        if let initialState {
-            _redScore = State(initialValue: initialState.leftArrowSum)
-            _blueScore = State(initialValue: initialState.rightArrowSum)
-            _redSets = State(initialValue: initialState.leftSetPoints)
-            _blueSets = State(initialValue: initialState.rightSetPoints)
-            _currentShooter = State(initialValue: initialState.currentShooterIsLeft)
-            _setNumber = State(initialValue: initialState.setNumber)
-            _leftName = State(initialValue: initialState.leftName)
-            _rightName = State(initialValue: initialState.rightName)
-            if initialState.finished {
-                _winner = State(initialValue: initialState.leftSetPoints >= initialState.rightSetPoints)
-            }
+        _store = State(initialValue: WatchArcherySessionStore(initialState: initialState))
+        if let initialState, initialState.finished {
+            _winner = State(initialValue: initialState.leftSetPoints == initialState.rightSetPoints
+                ? nil
+                : (initialState.leftSetPoints > initialState.rightSetPoints))
+            _isStopped = State(initialValue: true)
         }
     }
 
@@ -111,7 +106,7 @@ struct WatchArcheryScoreView: View {
         .ignoresSafeArea()
         .onAppear {
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
-            if scoreboardLayout != "horizontal" && scoreboardLayout != "vertical" { scoreboardLayout = "vertical" }
+            if scoreboardLayout != "horizontal" && scoreboardLayout != "vertical" { scoreboardLayout = "horizontal" }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
@@ -559,12 +554,7 @@ struct WatchArcheryScoreView: View {
 
     private func addArrow(value: Int?) {
         guard !scoringLocked else { return }
-        saveHistoryFromMatch()
-        let result = ArcheryMatchReducer().reduce(
-            state: matchState,
-            intent: .recordArrow(side: nil, value: value),
-            at: Int64(Date().timeIntervalSince1970 * 1000)
-        )
+        let result = store.apply(.recordArrow(side: nil, value: value))
         guard result.accepted else { return }
         applyMatch(result.state)
         WatchHaptics.shared.play(.score)
@@ -579,42 +569,11 @@ struct WatchArcheryScoreView: View {
         }
     }
 
-    private var matchState: ArcheryMatchState {
-        ArcheryMatchState(
-            leftName: leftName,
-            rightName: rightName,
-            leftArrowSum: redScore,
-            rightArrowSum: blueScore,
-            leftSetPoints: redSets,
-            rightSetPoints: blueSets,
-            currentSet: setNumber,
-            currentShooterIsLeft: currentShooter,
-            openingShooterIsLeft: openingShooterIsRed,
-            arrowsLeftThisSet: arrowsRedThisSet,
-            arrowsRightThisSet: arrowsBlueThisSet,
-            arrowsPerSet: arrowsPerSet,
-            pendingSetNumber: pendingSetNumber,
-            pendingSetWinnerIsLeft: pendingSetWinner,
-            closestToCenterPending: showClosestToCenter,
-            finished: isMatchFinished && !isManualFinish
-        )
-    }
+    private var matchState: ArcheryMatchState { store.state }
 
     private func applyMatch(_ state: ArcheryMatchState) {
-        leftName = state.leftName
-        rightName = state.rightName
-        redScore = state.leftArrowSum
-        blueScore = state.rightArrowSum
-        redSets = state.leftSetPoints
-        blueSets = state.rightSetPoints
-        setNumber = state.currentSet
-        currentShooter = state.currentShooterIsLeft
-        openingShooterIsRed = state.openingShooterIsLeft
-        arrowsRedThisSet = state.arrowsLeftThisSet
-        arrowsBlueThisSet = state.arrowsRightThisSet
-        arrowsPerSet = state.arrowsPerSet
-        pendingSetNumber = state.pendingSetNumber
-        pendingSetWinner = state.pendingSetWinnerIsLeft
+        store.replaceDisplayedState(state)
+        showClosestToCenter = state.closestToCenterPending
         if state.finished {
             winner = state.winnerSide.map { $0 == .left }
             isStopped = true
@@ -634,11 +593,7 @@ struct WatchArcheryScoreView: View {
             showClosestToCenter = true
             return
         }
-        let result = ArcheryMatchReducer().reduce(
-            state: matchState,
-            intent: .completeSet(closestToCenterWinner: nil),
-            at: Int64(Date().timeIntervalSince1970 * 1000)
-        )
+        let result = store.apply(.completeSet(closestToCenterWinner: nil), recordHistory: false)
         guard result.accepted else {
             setEnding = false
             return
@@ -649,13 +604,15 @@ struct WatchArcheryScoreView: View {
 
     private func applyClosestToCenter(redWins: Bool) {
         showClosestToCenter = false
-        var pending = matchState
-        pending.closestToCenterPending = true
-        pending.pendingSetNumber = max(pending.pendingSetNumber, pending.currentSet)
-        let result = ArcheryMatchReducer().reduce(
-            state: pending,
-            intent: .completeSet(closestToCenterWinner: redWins ? .left : .right),
-            at: Int64(Date().timeIntervalSince1970 * 1000)
+        if !store.state.closestToCenterPending {
+            var pending = store.state
+            pending.closestToCenterPending = true
+            pending.pendingSetNumber = max(pending.pendingSetNumber, pending.currentSet)
+            store.replaceDisplayedState(pending)
+        }
+        let result = store.apply(
+            .completeSet(closestToCenterWinner: redWins ? .left : .right),
+            recordHistory: false
         )
         guard result.accepted else { return }
         applyMatch(result.state)
@@ -674,39 +631,25 @@ struct WatchArcheryScoreView: View {
             publishLinked(finished: true)
             WatchHaptics.shared.play(.finish)
             setEnding = false
-            pendingSetNumber = 0
-            pendingSetWinner = nil
             return
         }
         setEnding = false
-        pendingSetNumber = 0
-        pendingSetWinner = nil
         publishLinked()
     }
 
-    private func saveHistoryFromMatch() {
-        history.append((redScore, blueScore, redSets, blueSets, currentShooter, arrowsRedThisSet, arrowsBlueThisSet, arrowsPerSet))
-        if history.count > 50 { history.removeFirst() }
-    }
-
     private func undoScore() {
-        guard let s = history.popLast() else { return }
-        redScore = s.redScore
-        blueScore = s.blueScore
-        redSets = s.redSets
-        blueSets = s.blueSets
-        currentShooter = s.currentShooter
-        arrowsRedThisSet = s.arrowsRed
-        arrowsBlueThisSet = s.arrowsBlue
-        arrowsPerSet = s.arrowsPerSet
-        showClosestToCenter = false
-        pendingSetNumber = 0
-        pendingSetWinner = nil
+        guard store.undo() else { return }
+        showClosestToCenter = store.state.closestToCenterPending
         setEnding = false
         if isStopped { recordSaved = false }
         isManualFinish = false
+        if !store.state.finished {
+            isStopped = false
+            winner = nil
+        }
         WatchHaptics.shared.play(.undo)
         showToast(NSLocalizedString("watch_undo_toast", value: "已撤销", comment: "Undo toast"))
+        publishLinked()
     }
 
     private func showUndoButton() {
@@ -722,11 +665,7 @@ struct WatchArcheryScoreView: View {
         guard !isMatchFinished else { return }
         showScorePanel = false
         showClosestToCenter = false
-        let result = ArcheryMatchReducer().reduce(
-            state: matchState,
-            intent: .finish,
-            at: Int64(Date().timeIntervalSince1970 * 1000)
-        )
+        let result = store.apply(.finish, recordHistory: false)
         if result.accepted {
             applyMatch(result.state)
         }
@@ -743,17 +682,12 @@ struct WatchArcheryScoreView: View {
     private func resetMatch() {
         undoHideTimer?.invalidate()
         undoHideTimer = nil
-        let result = ArcheryMatchReducer().reduce(
-            state: matchState,
-            intent: .reset,
-            at: Int64(Date().timeIntervalSince1970 * 1000)
-        )
+        let result = store.apply(.reset, recordHistory: false)
         if result.accepted {
             applyMatch(result.state)
         }
+        store.clearHistory()
         setEnding = false
-        pendingSetNumber = 0
-        pendingSetWinner = nil
         showScorePanel = false
         showClosestToCenter = false
         showMenu = false
@@ -762,8 +696,6 @@ struct WatchArcheryScoreView: View {
         isManualFinish = false
         undoButtonVisible = false
         recordSaved = false
-        history.removeAll()
-        matchStartTime = Date()
         WatchHaptics.shared.play(.light)
         showToast(NSLocalizedString("watch_reset_toast", comment: "Match reset"))
     }
@@ -802,7 +734,7 @@ struct WatchArcheryScoreView: View {
     }
 
     private func applyRemote(_ remote: LinkedArcheryState) {
-        var state = matchState
+        var state = store.state
         remote.applying(to: &state)
         applyMatch(state)
         if remote.finished {
@@ -834,7 +766,7 @@ struct WatchArcheryScoreView: View {
             team2SetScore: blueSets,
             winner: winnerName,
             actions: [WatchScoreAction(actionType: .gameStart, description: NSLocalizedString("watch_match_start", comment: ""))],
-            totalScoreChanges: history.count
+            totalScoreChanges: max(redSets + blueSets, 1)
         )
         WatchRecordManager.shared.saveRecord(record)
         recordSaved = true

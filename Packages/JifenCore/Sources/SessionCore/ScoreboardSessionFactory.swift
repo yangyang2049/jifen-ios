@@ -103,6 +103,9 @@ public enum ScoreboardSessionFactory {
     }
 
     private static func participants(_ left: String, _ right: String) -> [SessionParticipant] {
-        [.init(id: "left", name: left, role: "team"), .init(id: "right", name: right, role: "team")]
+        [
+            .init(id: TeamID.team0.rawValue, name: left, role: "team"),
+            .init(id: TeamID.team1.rawValue, name: right, role: "team")
+        ]
     }
 }

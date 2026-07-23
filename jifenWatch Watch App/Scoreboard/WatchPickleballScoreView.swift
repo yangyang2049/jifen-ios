@@ -1,8 +1,3 @@
-//
-//  WatchPickleballScoreView.swift
-//  jifenWatch Watch App
-//
-
 import ScoreCore
 import SwiftUI
 
@@ -10,16 +5,23 @@ struct WatchPickleballScoreView: View {
     let maxSets: Int
     let initialState: RallyMatchState?
     let linkedSessionId: UUID?
+    let doublesGameType: GameType?
 
-    init(maxSets: Int, initialState: RallyMatchState? = nil, linkedSessionId: UUID? = nil) {
+    init(
+        maxSets: Int,
+        initialState: RallyMatchState? = nil,
+        linkedSessionId: UUID? = nil,
+        doublesGameType: GameType? = nil
+    ) {
         self.maxSets = maxSets
         self.initialState = initialState
         self.linkedSessionId = linkedSessionId
+        self.doublesGameType = doublesGameType
     }
 
     var body: some View {
         WatchRallyScoreView(
-            gameType: .pickleball,
+            gameType: doublesGameType ?? (initialState?.doubles == nil ? .pickleball : .pickleballDoubles),
             rules: .pickleball(maxSets: maxSets),
             initialState: initialState,
             linkedSessionId: linkedSessionId

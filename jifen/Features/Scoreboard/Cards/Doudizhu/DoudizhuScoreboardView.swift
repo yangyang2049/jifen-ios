@@ -184,7 +184,7 @@ struct DoudizhuScoreboardView: View {
                 }
 
                 if showGameOverDialog {
-                    GameFinishedOverlay(
+                    GameOverDialog(
                         winnerName: finishedWinnerName,
                         multiNames: players.map(\.name),
                         multiScores: players.map(\.score),

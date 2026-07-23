@@ -140,7 +140,7 @@ struct BasketballScoreboardView: View {
             }
 
             if showGameOverDialog {
-                GameFinishedOverlay(
+                GameOverDialog(
                     winnerName: finishedWinnerName,
                     leftName: store.state.leftName,
                     rightName: store.state.rightName,
@@ -329,7 +329,7 @@ struct BasketballScoreboardView: View {
     }
 
     private func logicalSide(forScreen side: MatchSide) -> MatchSide {
-        store.state.sidesSwapped ? side.opposite : side
+        store.teamScreenLayout.engineSide(onScreen: side)
     }
 
     private var appGameType: GameType {
