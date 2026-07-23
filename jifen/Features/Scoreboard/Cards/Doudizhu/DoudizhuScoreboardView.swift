@@ -7,6 +7,7 @@
 
 import ScoreCore
 import SwiftUI
+import UIKit
 
 private let defaultDoudizhuNames = [
     NSLocalizedString("doudizhu_player_adam", value: "刘备", comment: ""),
@@ -46,9 +47,9 @@ struct DoudizhuScoreboardView: View {
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var preferences = PreferencesManager.shared
     @State private var gameFinished = false
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
     @State private var showDisplaySettings = false
-    @State private var showLocalSync = false
     @State private var actions: [String]
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
@@ -59,7 +60,7 @@ struct DoudizhuScoreboardView: View {
     private let multiplierPowers = [0, 1, 2, 3, 4, 5]
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showLocalSync || showScorePanel
+        !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showScorePanel
     }
 
     init(
@@ -111,7 +112,7 @@ struct DoudizhuScoreboardView: View {
         _gameStartTime = State(initialValue: start)
         _recordID = State(initialValue: id)
         _gameFinished = State(initialValue: finished)
-        _showGameFinishedOverlay = State(initialValue: finished)
+        _showGameOverDialog = State(initialValue: finished)
         _actions = State(initialValue: restoredActions)
     }
 
@@ -182,8 +183,30 @@ struct DoudizhuScoreboardView: View {
                         .zIndex(20)
                 }
 
-                if showGameFinishedOverlay {
-                    GameFinishedOverlay(winnerName: finishedWinnerName)
+                if showGameOverDialog {
+                    GameFinishedOverlay(
+                        winnerName: finishedWinnerName,
+                        multiNames: players.map(\.name),
+                        multiScores: players.map(\.score),
+                        onNewGame: {
+                            performMatchReset()
+                        },
+                        onRecords: {
+                            saveRecord(finished: gameFinished)
+                            showFinishedRecordDetail = true
+                        },
+                        onShare: {
+                            let text = zip(players.map(\.name), players.map(\.score))
+                                .map { "\($0) \($1)" }
+                                .joined(separator: " · ")
+                            ScoreboardShareSupport.present(text: text)
+                        },
+                        onExit: {
+                            saveRecord(finished: gameFinished)
+                            onNavigationBack?()
+                            dismiss()
+                        }
+                    )
                 }
 
                 if let message = toastMessage {
@@ -243,10 +266,19 @@ struct DoudizhuScoreboardView: View {
                 activeCommonNameIndex = nil
             }
         }
-        .sheet(isPresented: $showDisplaySettings) {
-            ScoreboardDisplaySettingsView(gameType: .doudizhu)
+        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: .doudizhu)
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
+            }
         }
-        .sheet(isPresented: $showLocalSync) { LocalSyncView() }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
@@ -254,7 +286,6 @@ struct DoudizhuScoreboardView: View {
         }
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
-        .onChange(of: showLocalSync) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: isEditMode) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showScorePanel) { _, _ in updateImmersiveForBlocking() }
     }
@@ -623,9 +654,6 @@ struct DoudizhuScoreboardView: View {
         case "displaySettings":
             showDisplaySettings = true
             showMenu = false
-        case "localSync":
-            showLocalSync = true
-            showMenu = false
         default:
             break
         }
@@ -635,7 +663,7 @@ struct DoudizhuScoreboardView: View {
         guard !gameFinished else { return }
         gameFinished = true
         actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|finish")
-        showGameFinishedOverlay = true
+        showGameOverDialog = true
         showScorePanel = false
         saveRecord(finished: true)
         VibrationManager.shared.vibrateMedium()
@@ -652,13 +680,7 @@ struct DoudizhuScoreboardView: View {
 
     private func confirmReset() {
         if menuConfirm.armOrConfirm(.reset) {
-            history.append(players.map(\.score))
-            for index in players.indices { players[index].score = 0 }
-            actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|reset")
-            gameFinished = false
-            showGameFinishedOverlay = false
-            showScorePanel = false
-            saveRecord()
+            performMatchReset()
             showMenu = false
             toastMessage = NSLocalizedString("has_been_reset", value: "已重置", comment: "")
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -669,6 +691,16 @@ struct DoudizhuScoreboardView: View {
             return
         }
         toastMessage = ScoreboardMenuConfirmAction.reset.localizedToast
+    }
+
+    private func performMatchReset() {
+        history.append(players.map(\.score))
+        for index in players.indices { players[index].score = 0 }
+        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|reset")
+        gameFinished = false
+        showGameOverDialog = false
+        showScorePanel = false
+        saveRecord()
     }
 
     private func confirmSettle() {
@@ -813,7 +845,7 @@ struct DoudizhuScoreboardView: View {
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showLocalSync, !showScorePanel else { return }
+        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showScorePanel else { return }
         let hideDelay: TimeInterval
         let nowMs = Date().timeIntervalSince1970 * 1000
         if exitClickTime > 0, nowMs - exitClickTime < 2000 {
@@ -828,7 +860,6 @@ struct DoudizhuScoreboardView: View {
                   !isEditMode,
                   !showMenu,
                   !showDisplaySettings,
-                  !showLocalSync,
                   !showScorePanel else { return }
             let now = Date().timeIntervalSince1970 * 1000
             if exitClickTime > 0, now - exitClickTime < 2000 { return }
@@ -837,7 +868,7 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || showLocalSync || isEditMode || showScorePanel || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || isEditMode || showScorePanel || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {

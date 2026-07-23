@@ -11,8 +11,13 @@ final class TennisSessionStore {
     private let core: ScoreSessionCore<TennisMatchReducer>
     private let archiveRepository: SessionArchiveRepository
     private var detailedActions: [DetailedScoreAction]
+    private var completedSetScores: [VoiceSetScore] = []
 
     private(set) var state: TennisMatchState
+
+    var teamScreenLayout: TeamScreenLayout {
+        TeamScreenLayout(sidesSwapped: state.sidesSwapped)
+    }
     let gameType: ScoreCore.GameType
     let sessionId: UUID
     let startedAt: Date
@@ -82,15 +87,16 @@ final class TennisSessionStore {
 
     func send(_ intent: TennisMatchIntent, onEvents: (([TennisMatchEvent]) -> Void)? = nil) {
         Task { [weak self, core] in
+            guard let self else { return }
+            let before = self.state
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now),
-                  let self else { return }
+            guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now) else { return }
             self.state = session.state
             onEvents?(events)
             try? await self.archiveRepository.save(session)
             self.append(events: events, at: now, state: session.state)
             self.persistRecord(session)
-            self.speak(events: events, state: session.state)
+            self.speak(intent: intent, before: before, after: session.state, events: events)
         }
     }
 
@@ -132,80 +138,41 @@ final class TennisSessionStore {
         }
     }
 
-    private func speak(events: [TennisMatchEvent], state: TennisMatchState) {
+    private func speak(
+        intent: TennisMatchIntent,
+        before: TennisMatchState,
+        after: TennisMatchState,
+        events: [TennisMatchEvent]
+    ) {
         guard voiceAnnouncementEnabled else { return }
+
+        // Append completed set first (Android / Harmony order), then flip history on exchange.
         for event in events {
-            switch event {
-            case .pointScored(let side, let left, let right):
-                let payload = VoiceAnnouncementPayload(
-                    gameType: gameType,
-                    phase: .scoreChange,
-                    leftTeamName: state.leftName,
-                    rightTeamName: state.rightName,
-                    leftScore: left,
-                    rightScore: right,
-                    leftSets: state.leftSets,
-                    rightSets: state.rightSets,
-                    scoringSide: side,
-                    serverSide: state.servingSide,
-                    isTieBreak: state.isTieBreak
-                )
-                ScoreVoiceAnnouncer.shared.speak(payload)
-            case .gameCompleted(let winner, _, _, _):
-                let payload = VoiceAnnouncementPayload(
-                    gameType: gameType,
-                    phase: .gameEnd,
-                    leftTeamName: state.leftName,
-                    rightTeamName: state.rightName,
-                    leftScore: state.leftPoints,
-                    rightScore: state.rightPoints,
-                    leftSets: state.leftSets,
-                    rightSets: state.rightSets,
-                    winnerSide: winner
-                )
-                ScoreVoiceAnnouncer.shared.speak(payload)
-            case .setCompleted(let winner, _, _, _, let leftSets, let rightSets):
-                let payload = VoiceAnnouncementPayload(
-                    gameType: gameType,
-                    phase: .setEnd,
-                    leftTeamName: state.leftName,
-                    rightTeamName: state.rightName,
-                    leftScore: state.leftGames,
-                    rightScore: state.rightGames,
-                    leftSets: leftSets,
-                    rightSets: rightSets,
-                    winnerSide: winner
-                )
-                ScoreVoiceAnnouncer.shared.speak(payload)
-            case .matchFinished(let winner):
-                let usePointScore = state.rules.setScoringMode == .tiebreakOnly
-                let payload = VoiceAnnouncementPayload(
-                    gameType: gameType,
-                    phase: .matchEnd,
-                    leftTeamName: state.leftName,
-                    rightTeamName: state.rightName,
-                    leftScore: usePointScore ? state.leftPoints : state.leftGames,
-                    rightScore: usePointScore ? state.rightPoints : state.rightGames,
-                    leftSets: state.leftSets,
-                    rightSets: state.rightSets,
-                    winnerSide: winner
-                )
-                ScoreVoiceAnnouncer.shared.speak(payload)
-            case .sidesExchanged, .sidesExchangeReminder:
-                let payload = VoiceAnnouncementPayload(
-                    gameType: gameType,
-                    phase: .sideChange,
-                    leftTeamName: state.leftName,
-                    rightTeamName: state.rightName,
-                    leftScore: state.leftPoints,
-                    rightScore: state.rightPoints,
-                    leftSets: state.leftSets,
-                    rightSets: state.rightSets
-                )
-                ScoreVoiceAnnouncer.shared.speak(payload)
-            default:
-                break
+            if case let .setCompleted(_, _, leftGames, rightGames, _, _) = event {
+                completedSetScores.append(VoiceSetScore(leftGames: leftGames, rightGames: rightGames))
             }
+        }
+        let sideChanged = events.contains {
+            if case .sidesExchanged = $0 { return true }
+            return false
+        }
+        if sideChanged {
+            completedSetScores = completedSetScores.map { $0.swapped() }
+        }
+        if events.contains(where: { if case .matchReset = $0 { return true }; return false }) {
+            completedSetScores = []
+        }
+
+        let payloads = TennisVoiceAnnouncementMapper.payloads(
+            gameType: gameType,
+            before: before,
+            after: after,
+            intent: intent,
+            events: events,
+            completedSetScores: completedSetScores
+        )
+        for payload in payloads {
+            ScoreVoiceAnnouncer.shared.speak(payload)
         }
     }
 

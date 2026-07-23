@@ -1,5 +1,6 @@
 import ScoreCore
 import SwiftUI
+import UIKit
 
 struct GuandanScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
@@ -14,7 +15,8 @@ struct GuandanScoreboardView: View {
     @State private var actionCount = 0
     @State private var gameStartAt: Date
     @State private var recordID: String
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
 
     private let reducer = GuandanSessionReducer()
 
@@ -69,7 +71,7 @@ struct GuandanScoreboardView: View {
         _gameStartAt = State(initialValue: start)
         _recordID = State(initialValue: id)
         _actionCount = State(initialValue: actions)
-        _showGameFinishedOverlay = State(initialValue: showFinished)
+        _showGameOverDialog = State(initialValue: showFinished)
         _actionLog = State(initialValue: restoredActions)
     }
 
@@ -106,8 +108,43 @@ struct GuandanScoreboardView: View {
                 }
             )
 
-            if showGameFinishedOverlay, let winner = state.finalWinner {
-                GameFinishedOverlay(winnerName: winner == .red ? state.redTeam.name : state.blueTeam.name)
+            if showGameOverDialog, let winner = state.finalWinner {
+                GameFinishedOverlay(
+                    winnerName: winner == .red ? state.redTeam.name : state.blueTeam.name,
+                    leftName: state.redTeam.name,
+                    rightName: state.blueTeam.name,
+                    leftScore: GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
+                    rightScore: GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank),
+                    onNewGame: {
+                        resetMatch()
+                    },
+                    onRecords: {
+                        saveRecord()
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        ScoreboardShareSupport.present(
+                            text: "\(state.redTeam.name) \(state.displayRank(for: .red)) - \(state.displayRank(for: .blue)) \(state.blueTeam.name)"
+                        )
+                    },
+                    onExit: {
+                        saveRecord()
+                        onNavigationBack?()
+                        dismiss()
+                    }
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
             }
         }
         .onAppear {
@@ -118,7 +155,7 @@ struct GuandanScoreboardView: View {
         }
         .onChange(of: state.phase) { _, phase in
             if phase == .finished {
-                showGameFinishedOverlay = true
+                showGameOverDialog = true
             }
         }
         .onDisappear {
@@ -213,7 +250,7 @@ struct GuandanScoreboardView: View {
         appendSnapshot(String(describing: intent))
         VibrationManager.shared.vibrateMedium()
         if state.phase == .finished {
-            showGameFinishedOverlay = true
+            showGameOverDialog = true
         }
     }
 
@@ -222,7 +259,7 @@ struct GuandanScoreboardView: View {
         state = previous
         actionCount = max(0, actionCount - 1)
         appendSnapshot("undo")
-        showGameFinishedOverlay = state.phase == .finished
+        showGameOverDialog = state.phase == .finished
         return true
     }
 
@@ -238,7 +275,7 @@ struct GuandanScoreboardView: View {
         state.phase = .playing
         actionCount += 1
         appendSnapshot("reset")
-        showGameFinishedOverlay = false
+        showGameOverDialog = false
     }
 
     private func finishMatch() {
@@ -250,7 +287,7 @@ struct GuandanScoreboardView: View {
         state.phase = .finished
         actionCount += 1
         appendSnapshot("finish")
-        showGameFinishedOverlay = true
+        showGameOverDialog = true
     }
 
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
@@ -268,7 +305,7 @@ struct GuandanScoreboardView: View {
         state.phase = .playing
         state.finalWinner = nil
         actionCount += 1
-        showGameFinishedOverlay = false
+        showGameOverDialog = false
     }
 
     private func saveRecord() {

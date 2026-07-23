@@ -5,7 +5,7 @@ struct ScoreboardKeyPointBadgeLayer: View {
     let status: KeyPointStatus?
     let gameType: ScoreCore.GameType
     let sidesSwapped: Bool
-    /// nil = centre triangle; true/false = doubles top/bottom triangle row.
+    /// nil = singles above the centre triangle; non-nil = doubles fixed at vertical centre.
     var doublesTopRow: Bool? = nil
 
     var body: some View {
@@ -26,7 +26,7 @@ struct ScoreboardKeyPointBadgeLayer: View {
                         x: midX + (screenSide == .left ? -(innerGap + badgeHalfWidth) : innerGap + badgeHalfWidth),
                         y: ScoreboardServeGeometry.keyPointBadgeCenterY(
                             height: proxy.size.height,
-                            doublesTopRow: doublesTopRow,
+                            doublesTopRow: usesDoublesLayout ? (doublesTopRow ?? false) : nil,
                             largeWindow: largeWindow
                         )
                     )
@@ -34,6 +34,15 @@ struct ScoreboardKeyPointBadgeLayer: View {
         }
         .allowsHitTesting(false)
         .accessibilityIdentifier("scoreboard_key_point_badge")
+    }
+
+    private var usesDoublesLayout: Bool {
+        switch gameType {
+        case .pingpongDoubles, .badmintonDoubles, .pickleballDoubles, .foosballDoubles, .tennisDoubles:
+            return true
+        default:
+            return false
+        }
     }
 
     private func label(for kind: KeyPointKind) -> String {

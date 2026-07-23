@@ -72,12 +72,15 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
     public var isTieBreak: Bool
     public var sidesSwapped: Bool
     public var finished: Bool
+    /// Doubles only. Slot order matches Rally: [team0A, team1A, team0B, team1B].
+    public var doublesPlayerNames: [String]?
 
     public init(
         leftName: String,
         rightName: String,
         rules: TennisRuleSet = .init(),
-        openingServer: MatchSide = .left
+        openingServer: MatchSide = .left,
+        doublesPlayerNames: [String]? = nil
     ) {
         self.rules = rules
         self.leftName = leftName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -94,6 +97,29 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
         isTieBreak = rules.setScoringMode == .tiebreakOnly
         sidesSwapped = false
         finished = false
+        self.doublesPlayerNames = Self.normalizedDoublesNames(doublesPlayerNames)
+    }
+
+    /// Team display preferring individual doubles names when present.
+    public func doublesTeamDisplayName(for side: MatchSide) -> String {
+        guard let names = doublesPlayerNames, names.count >= 4 else {
+            return side == .left ? leftName : rightName
+        }
+        let first = side == .left ? names[0] : names[1]
+        let second = side == .left ? names[2] : names[3]
+        if !first.isEmpty && !second.isEmpty { return "\(first) / \(second)" }
+        if !first.isEmpty { return first }
+        if !second.isEmpty { return second }
+        return side == .left ? leftName : rightName
+    }
+
+    private static func normalizedDoublesNames(_ names: [String]?) -> [String]? {
+        guard let names, !names.isEmpty else { return nil }
+        let normalized = (0..<4).map { index -> String in
+            guard names.indices.contains(index) else { return "" }
+            return names[index].trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return normalized.contains(where: { !$0.isEmpty }) ? normalized : nil
     }
 
     public var currentSet: Int { leftSets + rightSets + 1 }
@@ -186,8 +212,20 @@ public struct TennisMatchReducer: DomainReducer {
         case .reset:
             let leftName = state.sidesSwapped ? state.rightName : state.leftName
             let rightName = state.sidesSwapped ? state.leftName : state.rightName
+            var doublesNames = state.doublesPlayerNames
+            if state.sidesSwapped, var names = doublesNames, names.count >= 4 {
+                names.swapAt(0, 1)
+                names.swapAt(2, 3)
+                doublesNames = names
+            }
             return .init(
-                state: .init(leftName: leftName, rightName: rightName, rules: state.rules, openingServer: state.openingServerSide),
+                state: .init(
+                    leftName: leftName,
+                    rightName: rightName,
+                    rules: state.rules,
+                    openingServer: state.openingServerSide,
+                    doublesPlayerNames: doublesNames
+                ),
                 events: [.matchReset]
             )
         }
@@ -319,6 +357,11 @@ public struct TennisMatchReducer: DomainReducer {
         swap(&next.leftPoints, &next.rightPoints)
         swap(&next.leftGames, &next.rightGames)
         swap(&next.leftSets, &next.rightSets)
+        if var names = next.doublesPlayerNames, names.count >= 4 {
+            names.swapAt(0, 1)
+            names.swapAt(2, 3)
+            next.doublesPlayerNames = names
+        }
         next.servingSide = next.servingSide.opposite
         next.openingServerSide = next.openingServerSide.opposite
         next.firstServerInSet = next.firstServerInSet.opposite

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct BoxingScoreboardView: View {
     @Environment(\.dismiss) var dismiss
@@ -17,9 +18,14 @@ struct BoxingScoreboardView: View {
     @State private var viewModel = BoxingViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
     @State private var showRoundDialog: Bool = false
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
+
+    private var recordID: String {
+        initialRecordId ?? "boxing_\(Int(controller.gameStartTime.timeIntervalSince1970))"
+    }
 
     var body: some View {
         ZStack {
@@ -40,8 +46,33 @@ struct BoxingScoreboardView: View {
                 }
             )
 
-            if showGameFinishedOverlay {
-                GameFinishedOverlay(winnerName: viewModel.getWinnerName())
+            if showGameOverDialog {
+                GameFinishedOverlay(
+                    winnerName: viewModel.getWinnerName(),
+                    leftName: viewModel.leftTeam.name,
+                    rightName: viewModel.rightTeam.name,
+                    leftScore: viewModel.leftTeam.score,
+                    rightScore: viewModel.rightTeam.score,
+                    onNewGame: {
+                        showGameOverDialog = false
+                        viewModel.reset()
+                        controller.recordScoreAction(action: "reset")
+                    },
+                    onRecords: {
+                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        ScoreboardShareSupport.present(
+                            text: "\(viewModel.leftTeam.name) \(viewModel.leftTeam.score) - \(viewModel.rightTeam.score) \(viewModel.rightTeam.name)"
+                        )
+                    },
+                    onExit: {
+                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        onNavigationBack?()
+                        dismiss()
+                    }
+                )
             }
 
             VStack(spacing: 0) {
@@ -68,6 +99,18 @@ struct BoxingScoreboardView: View {
                 )
             }
         }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
+            }
+        }
         .navigationTitle(NSLocalizedString("game_boxing", comment: "Boxing"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -87,7 +130,7 @@ struct BoxingScoreboardView: View {
         }
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
-                showGameFinishedOverlay = true
+                showGameOverDialog = true
                 viewModel.saveGameRecordInRealTime(isGameFinished: true)
             }
         }

@@ -42,7 +42,6 @@ enum ScoreboardMenuItemBuilder {
     static func defaultItems(
         showEndGame: Bool = false,
         showExchangeSide: Bool = true,
-        showLocalSync: Bool = true,
         showWhistle: Bool = true,
         showScreenshot: Bool = true,
         showDisplaySettings: Bool = true,
@@ -54,17 +53,6 @@ enum ScoreboardMenuItemBuilder {
         extraItems: [ScoreboardMenuItem] = []
     ) -> [ScoreboardMenuItem] {
         var items: [ScoreboardMenuItem] = []
-
-        if showLocalSync {
-            items.append(
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("sync_title", value: "局域网同步", comment: ""),
-                    action: "localSync",
-                    group: .sync,
-                    icon: "rectangle.connected.to.line.below"
-                )
-            )
-        }
 
         items.append(
             ScoreboardMenuItem(

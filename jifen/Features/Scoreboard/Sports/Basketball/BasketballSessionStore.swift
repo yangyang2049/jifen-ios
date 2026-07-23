@@ -124,6 +124,10 @@ final class BasketballSessionStore {
         }
     }
 
+    func replaceDisplayedState(_ state: BasketballMatchState) {
+        self.state = state
+    }
+
     private func append(intent: BasketballMatchIntent, at milliseconds: Int64, state: BasketballMatchState) {
         let action: DetailedScoreAction
         switch intent {

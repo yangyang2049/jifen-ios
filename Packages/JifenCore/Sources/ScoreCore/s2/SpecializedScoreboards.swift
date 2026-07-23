@@ -125,19 +125,75 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
     public var playerCounts: [[Int]]
     public var config: NineBallChaseConfig
     public var finished: Bool
+    /// Display names for up to 4 players. Empty slots use UI defaults.
+    public var playerNames: [String]
 
-    public static func initial(config: NineBallChaseConfig = .init(), playerCount: Int = 2) -> Self {
+    public init(
+        playerCount: Int,
+        playerPoints: [Int],
+        playerCounts: [[Int]],
+        config: NineBallChaseConfig,
+        finished: Bool,
+        playerNames: [String] = []
+    ) {
+        self.playerCount = min(4, max(2, playerCount))
+        self.playerPoints = Array((playerPoints + Array(repeating: 0, count: 4)).prefix(4))
+        self.playerCounts = (0..<4).map { index in
+            let source = playerCounts[safe: index] ?? []
+            return Array((source + Array(repeating: 0, count: NineBallChaseKind.allCases.count)).prefix(NineBallChaseKind.allCases.count))
+        }
+        self.config = config
+        self.finished = finished
+        self.playerNames = Self.normalizedNames(playerNames)
+    }
+
+    public static func initial(
+        config: NineBallChaseConfig = .init(),
+        playerCount: Int = 2,
+        playerNames: [String] = []
+    ) -> Self {
         .init(
-            playerCount: min(4, max(2, playerCount)),
+            playerCount: playerCount,
             playerPoints: Array(repeating: 0, count: 4),
             playerCounts: Array(repeating: Array(repeating: 0, count: NineBallChaseKind.allCases.count), count: 4),
             config: config,
-            finished: false
+            finished: false,
+            playerNames: playerNames
         )
     }
 
     public var leftPoints: Int { playerPoints[safe: 0] ?? 0 }
     public var rightPoints: Int { playerPoints[safe: 1] ?? 0 }
+
+    public func resolvedName(at index: Int, fallback: String? = nil) -> String {
+        let trimmed = playerNames[safe: index]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !trimmed.isEmpty { return trimmed }
+        if let fallback, !fallback.isEmpty { return fallback }
+        return "P\(index + 1)"
+    }
+
+    private static func normalizedNames(_ names: [String]) -> [String] {
+        (0..<4).map { index in
+            guard names.indices.contains(index) else { return "" }
+            return names[index].trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case playerCount, playerPoints, playerCounts, config, finished, playerNames
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            playerCount: try container.decode(Int.self, forKey: .playerCount),
+            playerPoints: try container.decode([Int].self, forKey: .playerPoints),
+            playerCounts: try container.decode([[Int]].self, forKey: .playerCounts),
+            config: try container.decode(NineBallChaseConfig.self, forKey: .config),
+            finished: try container.decode(Bool.self, forKey: .finished),
+            playerNames: try container.decodeIfPresent([String].self, forKey: .playerNames) ?? []
+        )
+    }
 }
 
 public enum NineBallChaseIntent: Codable, Sendable {
@@ -196,6 +252,9 @@ public struct NineBallChaseReducer: DomainReducer {
         value.playerCounts = (0 ..< 4).map { player in
             let source = value.playerCounts[safe: player] ?? []
             return Array((source + Array(repeating: 0, count: 6)).prefix(6))
+        }
+        value.playerNames = Array((value.playerNames + Array(repeating: "", count: 4)).prefix(4)).map {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         return value
     }

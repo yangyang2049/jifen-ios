@@ -164,103 +164,233 @@ enum ScoreboardFontSizePolicy {
 }
 
 struct ScoreboardDisplaySettingsView: View {
-    @Environment(\.dismiss) private var dismiss
+    let gameType: GameType
+    var onClose: () -> Void
+
     @State private var selectedFont: ScoreboardFont
     @State private var draftValues: [String: Double]
-    private let gameType: GameType
+    private let initialFont: ScoreboardFont
+    private let initialValues: [String: Double]
 
-    init(gameType: GameType) {
+    init(gameType: GameType, onClose: @escaping () -> Void = {}) {
         self.gameType = gameType
-        _selectedFont = State(initialValue: ScoreboardFont(rawValue: PreferencesManager.shared.scoreboardFont) ?? .default)
-        _draftValues = State(initialValue: PreferencesManager.shared.fontSizeMultipliers(for: gameType))
+        self.onClose = onClose
+        let font = ScoreboardFont(rawValue: PreferencesManager.shared.scoreboardFont) ?? .default
+        let values = PreferencesManager.shared.fontSizeMultipliers(for: gameType)
+        self.initialFont = font
+        self.initialValues = values
+        _selectedFont = State(initialValue: font)
+        _draftValues = State(initialValue: values)
     }
 
     private var isLargeScreen: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(NSLocalizedString("scoreboard_font", value: "比分字体", comment: ""))
-                            .font(.headline)
-                        Picker("", selection: $selectedFont) {
-                            ForEach(ScoreboardFont.allCases) { font in
-                                Text(font.localizedTitle).tag(font)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                    }
+        // 1:1 HarmonyOS ScoreboardDisplaySettingsPanel:
+        // transparent left tap-to-dismiss + semi-transparent right side panel (360pt).
+        HStack(spacing: 0) {
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture(perform: cancel)
 
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack {
-                            Text(NSLocalizedString("scoreboard_font_size", value: "字号", comment: ""))
-                                .font(.headline)
-                            Spacer()
-                            Button(NSLocalizedString("reset", value: "重置", comment: "")) {
-                                draftValues = [:]
-                            }
-                        }
-                        ForEach(ScoreboardFontMetric.allCases, id: \.rawValue) { metric in
-                            ScoreboardFontSizeAdjustmentRow(
-                                title: metric.localizedTitle,
-                                value: multiplierBinding(for: metric),
-                                isLargeScreen: isLargeScreen
-                            )
-                        }
-                    }
+            panelContent
+                .frame(width: 360)
+                .frame(maxHeight: .infinity)
+                .background(Color.black.opacity(0.68))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+
+    private var panelContent: some View {
+        VStack(spacing: 18) {
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 18) {
+                    fontSection
+                    fontSizeSection
                 }
-                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .background(Theme.backgroundColor)
-            .navigationTitle(NSLocalizedString("scoreboard_display_settings", value: "显示设置", comment: ""))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) { dismiss() }
+
+            HStack(spacing: 12) {
+                Button(action: cancel) {
+                    Text(NSLocalizedString("cancel", value: "取消", comment: ""))
+                        .font(.system(size: isLargeScreen ? 20 : 17, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: isLargeScreen ? 56 : 48)
+                        .background(Color.white.opacity(0.14))
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(NSLocalizedString("apply", value: "应用", comment: "")) {
-                        PreferencesManager.shared.scoreboardFont = selectedFont.rawValue
-                        PreferencesManager.shared.setFontSizeMultipliers(draftValues, for: gameType)
-                        dismiss()
-                    }
+                .buttonStyle(.plain)
+
+                Button(action: apply) {
+                    Text(NSLocalizedString("apply", value: "应用", comment: ""))
+                        .font(.system(size: isLargeScreen ? 20 : 17, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: isLargeScreen ? 56 : 48)
+                        .background(Theme.primary)
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 28)
+        .padding(.vertical, 20)
+    }
+
+    private var fontSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(NSLocalizedString("scoreboard_font", value: "比分字体", comment: ""))
+                .font(.system(size: isLargeScreen ? 20 : 16, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 8) {
+                ForEach(ScoreboardFont.allCases) { font in
+                    fontChip(font)
                 }
             }
         }
     }
 
-    private func multiplierBinding(for metric: ScoreboardFontMetric) -> Binding<Double> {
-        Binding(
-            get: { draftValues[metric.rawValue] ?? 1 },
-            set: { draftValues[metric.rawValue] = ScoreboardFontSizePolicy.normalized($0, isLargeScreen: isLargeScreen) }
-        )
+    private func fontChip(_ font: ScoreboardFont) -> some View {
+        let selected = selectedFont == font
+        return Button {
+            selectedFont = font
+            PreferencesManager.shared.scoreboardFont = font.rawValue
+        } label: {
+            VStack(spacing: 4) {
+                Text("123")
+                    .font(font.swiftUIFont(size: isLargeScreen ? 22 : 18, weight: .bold))
+                    .foregroundStyle(.white)
+                Text(font.localizedTitle)
+                    .font(.system(size: isLargeScreen ? 14 : 12))
+                    .foregroundStyle(selected ? .white : .white.opacity(0.72))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: isLargeScreen ? 78 : 66)
+            .background(selected ? Color(hex: "34C759").opacity(0.28) : Color.white.opacity(0.12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(selected ? Theme.primary : Color.white.opacity(0.12), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var fontSizeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(NSLocalizedString("scoreboard_font_size", value: "字号调节", comment: ""))
+                .font(.system(size: isLargeScreen ? 20 : 16, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(spacing: 12) {
+                ForEach(ScoreboardFontMetric.allCases, id: \.rawValue) { metric in
+                    fontSizeRow(metric)
+                }
+            }
+
+            Button {
+                draftValues = [:]
+                PreferencesManager.shared.setFontSizeMultipliers([:], for: gameType)
+            } label: {
+                Text(NSLocalizedString("scoreboard_font_size_reset", value: "恢复默认", comment: ""))
+                    .font(.system(size: isLargeScreen ? 18 : 16, weight: .medium))
+                    // HOS app.color.app_secondary_light
+                    .foregroundStyle(Color(hex: "F7C948"))
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, 4)
+            .padding(.bottom, 2)
+        }
+    }
+
+    private func fontSizeRow(_ metric: ScoreboardFontMetric) -> some View {
+        let value = draftValues[metric.rawValue] ?? 1
+        return HStack(spacing: 12) {
+            Text(metric.localizedTitle)
+                .font(.system(size: isLargeScreen ? 20 : 16, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            adjustButton(systemName: "minus") {
+                updateMetric(metric, delta: -ScoreboardFontSizePolicy.step)
+            }
+
+            Text(formatMultiplier(value))
+                .font(.system(size: isLargeScreen ? 22 : 17, weight: .bold))
+                .foregroundStyle(.white)
+                .monospacedDigit()
+                .frame(width: isLargeScreen ? 72 : 54)
+
+            adjustButton(systemName: "plus") {
+                updateMetric(metric, delta: ScoreboardFontSizePolicy.step)
+            }
+        }
+        .frame(height: isLargeScreen ? 68 : 56)
+        .padding(.horizontal, 4)
+    }
+
+    private func adjustButton(systemName: String, action: @escaping () -> Void) -> some View {
+        let size: CGFloat = isLargeScreen ? 52 : 40
+        return Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: isLargeScreen ? 20 : 17, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: size, height: size)
+                .background(Color.white.opacity(0.14))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func updateMetric(_ metric: ScoreboardFontMetric, delta: Double) {
+        let current = draftValues[metric.rawValue] ?? 1
+        let next = ScoreboardFontSizePolicy.normalized(current + delta, isLargeScreen: isLargeScreen)
+        draftValues[metric.rawValue] = next
+        PreferencesManager.shared.setFontSizeMultipliers(draftValues, for: gameType)
+    }
+
+    private func formatMultiplier(_ value: Double) -> String {
+        // Align with HOS formatScoreboardFontSizeMultiplier.
+        let normalized = (value / ScoreboardFontSizePolicy.step).rounded() * ScoreboardFontSizePolicy.step
+        let fractionDigits = Int(round(normalized * 100)) % 10 == 0 ? 1 : 2
+        return normalized.formatted(.number.precision(.fractionLength(fractionDigits))) + "×"
+    }
+
+    private func cancel() {
+        PreferencesManager.shared.scoreboardFont = initialFont.rawValue
+        PreferencesManager.shared.setFontSizeMultipliers(initialValues, for: gameType)
+        onClose()
+    }
+
+    private func apply() {
+        PreferencesManager.shared.scoreboardFont = selectedFont.rawValue
+        PreferencesManager.shared.setFontSizeMultipliers(draftValues, for: gameType)
+        onClose()
     }
 }
 
-private struct ScoreboardFontSizeAdjustmentRow: View {
-    let title: String
-    @Binding var value: Double
-    let isLargeScreen: Bool
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Text(title)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Button { value = ScoreboardFontSizePolicy.normalized(value - ScoreboardFontSizePolicy.step, isLargeScreen: isLargeScreen) } label: {
-                Image(systemName: "minus.circle")
+extension View {
+    /// Harmony-style side panel overlay (not a system sheet).
+    func scoreboardDisplaySettingsOverlay(isPresented: Binding<Bool>, gameType: GameType) -> some View {
+        overlay {
+            if isPresented.wrappedValue {
+                ScoreboardDisplaySettingsView(gameType: gameType) {
+                    isPresented.wrappedValue = false
+                }
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+                .zIndex(300)
             }
-            .buttonStyle(.plain)
-            Text(value.formatted(.number.precision(.fractionLength(value.truncatingRemainder(dividingBy: 0.1) == 0 ? 1 : 2))) + "×")
-                .monospacedDigit()
-                .frame(width: 54)
-            Button { value = ScoreboardFontSizePolicy.normalized(value + ScoreboardFontSizePolicy.step, isLargeScreen: isLargeScreen) } label: {
-                Image(systemName: "plus.circle")
-            }
-            .buttonStyle(.plain)
         }
-        .font(.system(size: 16))
-        .frame(minHeight: 44)
+        .animation(.easeInOut(duration: 0.22), value: isPresented.wrappedValue)
     }
 }
 

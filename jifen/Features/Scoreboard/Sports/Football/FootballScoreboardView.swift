@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct FootballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
@@ -15,7 +16,12 @@ struct FootballScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
     @State private var controller = FootballController()
     @State private var viewModel = FootballViewModel()
-    @State private var showGameFinishedOverlay: Bool = false
+    @State private var showGameOverDialog: Bool = false
+    @State private var showFinishedRecordDetail = false
+
+    private var recordID: String {
+        initialRecordId ?? "football_\(Int(controller.gameStartTime.timeIntervalSince1970))"
+    }
 
     var body: some View {
         ZStack {
@@ -37,8 +43,48 @@ struct FootballScoreboardView: View {
                 }
             )
 
-            if showGameFinishedOverlay {
-                GameFinishedOverlay(winnerName: viewModel.getWinnerName())
+            if showGameOverDialog {
+                GameFinishedOverlay(
+                    winnerName: viewModel.getWinnerName(),
+                    leftName: viewModel.leftTeam.name,
+                    rightName: viewModel.rightTeam.name,
+                    leftScore: viewModel.leftTeam.score,
+                    rightScore: viewModel.rightTeam.score,
+                    onNewGame: {
+                        showGameOverDialog = false
+                        viewModel.reset()
+                        controller.recordScoreAction(action: "reset")
+                    },
+                    onRecords: {
+                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        ScoreboardShareSupport.present(
+                            text: "\(viewModel.leftTeam.name) \(viewModel.leftTeam.score) - \(viewModel.rightTeam.score) \(viewModel.rightTeam.name)"
+                        )
+                    },
+                    onExit: {
+                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        if let onNavigationBack {
+                            onNavigationBack()
+                        } else {
+                            dismiss()
+                        }
+                    }
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
             }
         }
         .navigationTitle(NSLocalizedString("game_football", comment: "Football"))
@@ -68,7 +114,7 @@ struct FootballScoreboardView: View {
         }
         .onChange(of: viewModel.gameFinished) { _, newValue in
             if newValue {
-                showGameFinishedOverlay = true
+                showGameOverDialog = true
             }
         }
         .onDisappear {

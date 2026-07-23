@@ -12,12 +12,28 @@ import SwiftUI
 struct RecordsTab: View {
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
-    @State private var v2RecordsVM = V2SessionRecordsViewModel()
+    @State private var v2RecordsVM = SessionRecordsViewModel()
 
     @State private var currentTab: Int = 0 // 0: 全部, 1: 计分, 2: 计时
     @State private var searchText: String = ""
     @State private var showClearConfirm = false
     @State private var isEditMode = false
+    @State private var selectedTimeFilter: RecordsTimeFilter = .all
+    @State private var selectedGameType: GameType? = nil
+    @State private var showFilterSheet = false
+
+    private enum RecordsTimeFilter: String, CaseIterable, Identifiable {
+        case today, week, month, all
+        var id: String { rawValue }
+        var title: String {
+            switch self {
+            case .today: return NSLocalizedString("today", value: "今天", comment: "")
+            case .week: return NSLocalizedString("this_week", value: "本周", comment: "")
+            case .month: return NSLocalizedString("this_month", value: "本月", comment: "")
+            case .all: return NSLocalizedString("all", value: "全部", comment: "")
+            }
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -42,6 +58,11 @@ struct RecordsTab: View {
                     } else {
                         Menu {
                             Button {
+                                showFilterSheet = true
+                            } label: {
+                                Label(NSLocalizedString("filter", value: "筛选", comment: ""), systemImage: "line.3.horizontal.decrease.circle")
+                            }
+                            Button {
                                 searchText = ""
                                 isEditMode = true
                             } label: {
@@ -59,6 +80,9 @@ struct RecordsTab: View {
                     }
                 }
             }
+            .sheet(isPresented: $showFilterSheet) {
+                recordsFilterSheet
+            }
             .onAppear {
                 scoreboardVM.refreshRecords()
                 timerVM.loadFromStorage()
@@ -74,6 +98,76 @@ struct RecordsTab: View {
             }
         }
         .tint(Theme.accentColor)
+    }
+
+    private var recordsFilterSheet: some View {
+        NavigationStack {
+            Form {
+                Section(NSLocalizedString("time_filter", value: "时间", comment: "")) {
+                    ForEach(RecordsTimeFilter.allCases) { filter in
+                        Button {
+                            selectedTimeFilter = filter
+                        } label: {
+                            HStack {
+                                Text(filter.title)
+                                    .foregroundStyle(Theme.textPrimary)
+                                Spacer()
+                                if selectedTimeFilter == filter {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Theme.accentColor)
+                                }
+                            }
+                        }
+                    }
+                }
+                Section(NSLocalizedString("game_type_filter", value: "项目", comment: "")) {
+                    Button {
+                        selectedGameType = nil
+                    } label: {
+                        HStack {
+                            Text(NSLocalizedString("all", value: "全部", comment: ""))
+                                .foregroundStyle(Theme.textPrimary)
+                            Spacer()
+                            if selectedGameType == nil {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Theme.accentColor)
+                            }
+                        }
+                    }
+                    ForEach(GameType.scoreboardFilterTypes, id: \.self) { type in
+                        Button {
+                            selectedGameType = type
+                        } label: {
+                            HStack {
+                                Text("\(type.icon) \(type.displayName)")
+                                    .foregroundStyle(Theme.textPrimary)
+                                Spacer()
+                                if selectedGameType == type {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Theme.accentColor)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle(NSLocalizedString("filter", value: "筛选", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(NSLocalizedString("done", comment: "Done")) {
+                        showFilterSheet = false
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(NSLocalizedString("reset", value: "重置", comment: "")) {
+                        selectedTimeFilter = .all
+                        selectedGameType = nil
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
     }
 
     private var searchBar: some View {
@@ -153,6 +247,10 @@ struct RecordsTab: View {
         if currentTab == 0 {
             items.sort { $0.timestamp > $1.timestamp }
         }
+        items = items.filter { matchesTimeFilter($0) }
+        if let selectedGameType {
+            items = items.filter { matchesGameType($0, selectedGameType) }
+        }
         if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
             let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
             items = items.filter { item in
@@ -167,6 +265,37 @@ struct RecordsTab: View {
             }
         }
         return items
+    }
+
+    private func matchesTimeFilter(_ item: RecordsTabRecordItem) -> Bool {
+        let date = Date(timeIntervalSince1970: item.timestamp)
+        let cal = Calendar.current
+        switch selectedTimeFilter {
+        case .all:
+            return true
+        case .today:
+            return cal.isDateInToday(date)
+        case .week:
+            guard let start = cal.date(from: cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) else {
+                return true
+            }
+            return date >= start
+        case .month:
+            let comps = cal.dateComponents([.year, .month], from: Date())
+            guard let start = cal.date(from: comps) else { return true }
+            return date >= start
+        }
+    }
+
+    private func matchesGameType(_ item: RecordsTabRecordItem, _ type: GameType) -> Bool {
+        switch item {
+        case .scoreboard(let r):
+            return r.gameType == type
+        case .timer(let r):
+            return r.gameType == type
+        case .v2(let r):
+            return r.gameName.lowercased().contains(type.displayName.lowercased())
+        }
     }
 
     private func groupedByDate(_ items: [RecordsTabRecordItem]) -> [(date: String, displayDate: String, records: [RecordsTabRecordItem])] {
@@ -346,7 +475,7 @@ struct RecordsTab: View {
         .padding(.vertical, Theme.md)
     }
 
-    private func v2RowContent(_ record: V2SessionRecordsViewModel.Record) -> some View {
+    private func v2RowContent(_ record: SessionRecordsViewModel.Record) -> some View {
         HStack(spacing: 0) {
             Image(systemName: "sportscourt.fill")
                 .font(.system(size: 22))
@@ -458,7 +587,7 @@ struct RecordsTab: View {
 private enum RecordsTabRecordItem: Identifiable {
     case scoreboard(ScoreboardRecordSummary)
     case timer(GameRecordSummary)
-    case v2(V2SessionRecordsViewModel.Record)
+    case v2(SessionRecordsViewModel.Record)
 
     var id: String {
         switch self {

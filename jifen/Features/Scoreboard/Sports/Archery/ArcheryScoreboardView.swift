@@ -34,7 +34,7 @@ struct ArcheryScoreboardView: View {
     @State private var controller = ArcheryScoreboardController()
     @State private var viewModel = ArcheryViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var recordID: String
     @State private var watchSessionId: UUID?
@@ -135,7 +135,7 @@ struct ArcheryScoreboardView: View {
                 closestToCenterOverlay
             }
 
-            if showGameFinishedOverlay {
+            if showGameOverDialog {
                 GameFinishedOverlay(
                     winnerName: viewModel.getWinnerName(),
                     leftName: viewModel.leftTeam.name,
@@ -143,7 +143,7 @@ struct ArcheryScoreboardView: View {
                     leftScore: viewModel.leftTeam.sets ?? 0,
                     rightScore: viewModel.rightTeam.sets ?? 0,
                     onNewGame: {
-                        showGameFinishedOverlay = false
+                        showGameOverDialog = false
                         viewModel.reset()
                         controller.recordScoreAction(action: "reset")
                     },
@@ -203,7 +203,7 @@ struct ArcheryScoreboardView: View {
         }
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
-                showGameFinishedOverlay = true
+                showGameOverDialog = true
                 if !watchLinkService.isFollower {
                     saveGameRecordInRealTime(isGameFinished: true)
                 }
@@ -473,7 +473,7 @@ struct ArcheryScoreboardView: View {
     private func applyRemoteArchery(_ remote: LinkedArcheryState) {
         viewModel.applyRemote(remote)
         if remote.finished {
-            showGameFinishedOverlay = true
+            showGameOverDialog = true
         }
     }
 
@@ -496,9 +496,9 @@ struct ArcheryScoreboardView: View {
             let leftSets = viewModel.leftTeam.sets ?? 0
             let rightSets = viewModel.rightTeam.sets ?? 0
             if leftSets > rightSets {
-                winner = "left"
+                winner = TeamID.team0.rawValue
             } else if rightSets > leftSets {
-                winner = "right"
+                winner = TeamID.team1.rawValue
             }
         }
 

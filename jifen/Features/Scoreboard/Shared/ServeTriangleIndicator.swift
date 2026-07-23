@@ -12,9 +12,10 @@ enum ScoreboardServeGeometry {
         doublesTopRow: Bool?,
         largeWindow: Bool
     ) -> CGFloat {
-        let triangleCenterY = doublesTopRow.map {
-            doublesAnchorY(height: height, topRow: $0)
-        } ?? (height / 2)
+        if doublesTopRow != nil {
+            return height / 2
+        }
+        let triangleCenterY = height / 2
         let gap: CGFloat = largeWindow ? 14 : 10
         let badgeHalfHeight: CGFloat = 14
         return triangleCenterY - triangleSize / 2 - gap - badgeHalfHeight

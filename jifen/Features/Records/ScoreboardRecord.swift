@@ -7,6 +7,7 @@
 
 import Foundation
 import RecordCore
+import ScoreCore
 
 enum ScoreboardRecordStatus: String, Codable {
     case draft
@@ -28,7 +29,11 @@ struct ScoreboardRecord: Codable, Identifiable {
     var team2FinalScore: Int
     var team1SetScore: Int?
     var team2SetScore: Int?
-    var winner: String? // "left", "right", or nil
+    var winner: String? // Canonical: team_0 / team_1. Legacy left/right/red/blue still decoded.
+    var winnerTeamID: TeamID? {
+        get { TeamID.fromLegacyWinnerToken(winner) }
+        set { winner = newValue?.rawValue }
+    }
     var actions: [String] // Simplified action strings
     /// Schema v4 actions. `actions` is retained for old clients and recovery.
     var detailedActions: [DetailedScoreAction]?

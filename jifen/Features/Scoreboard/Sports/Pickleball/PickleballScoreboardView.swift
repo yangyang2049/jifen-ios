@@ -16,6 +16,7 @@ struct PickleballScoreboardView: View {
             rules: rules,
             participants: initialSetup?.isSingles == false ? doublesParticipants(initialSetup) : nil,
             openingServer: openingServer,
+            voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialRecordId: initialRecordId,
             onNavigationBack: onNavigationBack,

@@ -411,7 +411,8 @@ struct EightBallScoreboardView: View {
     @State private var recordID: String
     @State private var leftName: String
     @State private var rightName: String
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
     @State private var watchSessionId: UUID?
     private let reducer = EightBallReducer()
 
@@ -459,7 +460,7 @@ struct EightBallScoreboardView: View {
         _actionCount = State(initialValue: actions)
         _leftName = State(initialValue: left)
         _rightName = State(initialValue: right)
-        _showGameFinishedOverlay = State(initialValue: showFinished)
+        _showGameOverDialog = State(initialValue: showFinished)
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
@@ -506,13 +507,43 @@ struct EightBallScoreboardView: View {
                 .foregroundStyle(.white.opacity(0.78))
             }
 
-            if showGameFinishedOverlay {
-                GameFinishedOverlay(winnerName: finishedWinnerName)
+            if showGameOverDialog {
+                GameFinishedOverlay(
+                    winnerName: finishedWinnerName,
+                    leftName: leftName,
+                    rightName: rightName,
+                    leftScore: state.leftPoints,
+                    rightScore: state.rightPoints,
+                    onNewGame: {
+                        showGameOverDialog = false
+                        send(.reset)
+                    },
+                    onRecords: {
+                        saveRecord()
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        ScoreboardShareSupport.present(text: "\(leftName) \(state.leftPoints) - \(state.rightPoints) \(rightName)")
+                    },
+                    onExit: exit
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
             }
         }
         .onAppear { onSetupConsumed?(); registerSync() }
         .onChange(of: state.finished) { _, finished in
-            if finished { showGameFinishedOverlay = true }
+            if finished { showGameOverDialog = true }
         }
         .onChange(of: state) { _, newState in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -579,14 +610,14 @@ struct EightBallScoreboardView: View {
         state = next
         actionCount += 1
         actionLog.append(recordSnapshot(code: "finish", scores: [state.leftPoints, state.rightPoints]))
-        showGameFinishedOverlay = true
+        showGameOverDialog = true
     }
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
         if !left.isEmpty { leftName = left }
         if !right.isEmpty { rightName = right }
         if let leftValue = Int(leftScore), let rightValue = Int(rightScore) {
             send(.adminAdjust(left: leftValue, right: rightValue))
-            showGameFinishedOverlay = false
+            showGameOverDialog = false
         }
     }
     private func undo() -> Bool {
@@ -594,7 +625,7 @@ struct EightBallScoreboardView: View {
         state = previous
         actionCount = max(0, actionCount - 1)
         actionLog.append(recordSnapshot(code: "undo", scores: [state.leftPoints, state.rightPoints]))
-        showGameFinishedOverlay = state.finished
+        showGameOverDialog = state.finished
         return true
     }
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
@@ -645,7 +676,8 @@ struct NineBallChaseScoreboardView: View {
     @State private var playerNames: [String]
     @State private var showMenu = false
     @State private var showDisplaySettings = false
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var showEditPanel = false
     @State private var editPlayerNames: [String] = []
@@ -657,6 +689,7 @@ struct NineBallChaseScoreboardView: View {
     @State private var immersiveGeneration = 0
     @State private var previousIdleTimerDisabled: Bool?
     @State private var watchSessionId: UUID?
+    @State private var useLandscapeLayout: Bool
     private let reducer = NineBallChaseReducer()
 
     private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
@@ -680,10 +713,6 @@ struct NineBallChaseScoreboardView: View {
             goldenNine: initialSetup?.nineBallGoldenNine ?? 8, normalWin: initialSetup?.nineBallNormalWin ?? 4,
             ballInHand: initialSetup?.nineBallBallInHand ?? 1, foul: initialSetup?.nineBallFoul ?? 1
         )
-        var initial = NineBallChaseState.initial(config: config, playerCount: initialSetup?.playerCount ?? 2)
-        var start = Date()
-        var id = "nine_ball_\(Int(start.timeIntervalSince1970))"
-        var actions = 0
         var names = (0..<4).map { index in
             initialSetup?.playerNames?[safe: index]?.nonEmpty
                 ?? String.localizedStringWithFormat(
@@ -691,6 +720,14 @@ struct NineBallChaseScoreboardView: View {
                     index + 1
                 )
         }
+        var initial = NineBallChaseState.initial(
+            config: config,
+            playerCount: initialSetup?.playerCount ?? 2,
+            playerNames: names
+        )
+        var start = Date()
+        var id = "nine_ball_\(Int(start.timeIntervalSince1970))"
+        var actions = 0
         var showFinished = false
 
         if let initialRecordId,
@@ -700,11 +737,16 @@ struct NineBallChaseScoreboardView: View {
             id = draft.record.id
             actions = max(draft.record.totalScoreChanges, 1)
             showFinished = draft.state.finished
-            if let stored = draft.record.extraData?["playerNames"]?.value as? [String], !stored.isEmpty {
+            if !draft.state.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }),
+               let stored = draft.record.extraData?["playerNames"]?.value as? [String], !stored.isEmpty {
                 names = Array((stored + names).prefix(4))
+                initial.playerNames = names
+            } else if draft.state.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
+                names = (0..<4).map { draft.state.resolvedName(at: $0, fallback: names[safe: $0]) }
             } else {
                 names[0] = draft.record.team1Name
                 names[1] = draft.record.team2Name
+                initial.playerNames = names
             }
         }
 
@@ -713,37 +755,37 @@ struct NineBallChaseScoreboardView: View {
         _recordID = State(initialValue: id)
         _actionCount = State(initialValue: actions)
         _playerNames = State(initialValue: names)
-        _showGameFinishedOverlay = State(initialValue: showFinished)
+        _showGameOverDialog = State(initialValue: showFinished)
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
+        _useLandscapeLayout = State(
+            initialValue: UserDefaults.standard.object(forKey: "nine_ball_use_landscape_layout") as? Bool ?? true
+        )
     }
 
     var body: some View {
         ZStack {
             GeometryReader { proxy in
-                HStack(spacing: 8) {
-                    ForEach(0..<state.playerCount, id: \.self) { player in
-                        VStack(spacing: 10) {
-                            Text(playerName(player)).font(.headline).lineLimit(1)
-                            Text("\(state.playerPoints[player])")
-                                .font(appearance.font.swiftUIFont(size: state.playerPoints[player].magnitude >= 100 ? 64 : 82))
-                                .minimumScaleFactor(0.5)
-                            ScrollView {
-                                VStack(spacing: 6) {
-                                    chaseButton(.bigGold, player: player)
-                                    chaseButton(.smallGold, player: player)
-                                    chaseButton(.goldenNine, player: player)
-                                    chaseButton(.normalWin, player: player)
-                                    chaseButton(.ballInHand, player: player)
-                                    chaseButton(.foul, player: player)
-                                }
+                Group {
+                    if useLandscapeLayout {
+                        HStack(spacing: 8) {
+                            ForEach(0..<state.playerCount, id: \.self) { player in
+                                nineBallPlayerColumn(
+                                    player: player,
+                                    width: (proxy.size.width - CGFloat(state.playerCount - 1) * 8) / CGFloat(state.playerCount),
+                                    height: proxy.size.height
+                                )
                             }
                         }
-                        .foregroundStyle(appearance.theme.palette.foreground)
-                        .padding(10)
-                        .frame(width: (proxy.size.width - CGFloat(state.playerCount - 1) * 8) / CGFloat(state.playerCount))
-                        .frame(maxHeight: .infinity)
-                        .background(player.isMultiple(of: 2) ? appearance.theme.palette.left : appearance.theme.palette.right)
-                        .disabled(state.finished)
+                    } else {
+                        VStack(spacing: 8) {
+                            ForEach(0..<state.playerCount, id: \.self) { player in
+                                nineBallPlayerColumn(
+                                    player: player,
+                                    width: proxy.size.width,
+                                    height: (proxy.size.height - CGFloat(state.playerCount - 1) * 8) / CGFloat(state.playerCount)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -810,8 +852,27 @@ struct NineBallChaseScoreboardView: View {
                     .transition(.opacity.combined(with: .scale))
                     .allowsHitTesting(false)
             }
-            if showGameFinishedOverlay {
-                GameFinishedOverlay(winnerName: finishedWinnerName)
+            if showGameOverDialog {
+                GameFinishedOverlay(
+                    winnerName: finishedWinnerName,
+                    multiNames: (0..<state.playerCount).map { playerName($0) },
+                    multiScores: Array(state.playerPoints.prefix(state.playerCount)),
+                    onNewGame: {
+                        showGameOverDialog = false
+                        send(.resetScores)
+                    },
+                    onRecords: {
+                        saveRecord()
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        let names = (0..<state.playerCount).map { playerName($0) }
+                        let scores = Array(state.playerPoints.prefix(state.playerCount))
+                        let text = zip(names, scores).map { "\($0) \($1)" }.joined(separator: " · ")
+                        ScoreboardShareSupport.present(text: text)
+                    },
+                    onExit: exit
+                )
             }
 
             MenuDialog(
@@ -833,6 +894,7 @@ struct NineBallChaseScoreboardView: View {
                     case "endGame": confirmFinish()
                     case "settleMatch": confirmSettle()
                     case "displaySettings": showDisplaySettings = true; showMenu = false
+                    case "layout": toggleLayout()
                     case "takeover":
                         if let id = watchSessionId {
                             Task {
@@ -861,7 +923,14 @@ struct NineBallChaseScoreboardView: View {
                     resetConfirming: menuConfirm.resetConfirming,
                     finishConfirming: menuConfirm.finishConfirming,
                     settleConfirming: menuConfirm.settleConfirming,
-                    extraItems: WatchLinkMenuSupport.extraItems(
+                    extraItems: [
+                        ScoreboardMenuItem(
+                            title: NSLocalizedString("scoreboard_rotate_orientation", value: "切换布局", comment: ""),
+                            action: "layout",
+                            group: .match,
+                            icon: "rectangle.portrait.rotate.90"
+                        )
+                    ] + WatchLinkMenuSupport.extraItems(
                         entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
                         sessionId: watchSessionId,
                         isFollower: watchLinkService.isFollower
@@ -870,7 +939,8 @@ struct NineBallChaseScoreboardView: View {
             )
         }
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
-        .navigationBarBackButtonHidden(true).toolbar(.hidden, for: .navigationBar).lockOrientation(.landscape)
+        .navigationBarBackButtonHidden(true).toolbar(.hidden, for: .navigationBar)
+        .lockOrientation(useLandscapeLayout ? .landscape : .portrait)
         .onAppear {
             onSetupConsumed?()
             registerSync()
@@ -887,7 +957,7 @@ struct NineBallChaseScoreboardView: View {
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showEditPanel) { _, _ in updateImmersiveForBlocking() }
-        .onChange(of: state.finished) { _, finished in if finished { showGameFinishedOverlay = true } }
+        .onChange(of: state.finished) { _, finished in if finished { showGameOverDialog = true } }
         .onChange(of: state) { _, newState in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             publishWatchIfNeeded(newState)
@@ -896,6 +966,9 @@ struct NineBallChaseScoreboardView: View {
             guard let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.nineBallState else { return }
             state = remote
+            if remote.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
+                playerNames = (0..<4).map { remote.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
+            }
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
@@ -904,12 +977,26 @@ struct NineBallChaseScoreboardView: View {
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
         .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: .nineBall)
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
+            }
+        }
         .sheet(isPresented: $showEditPanel) { nineBallEditSheet }
     }
 
     private func publishWatchIfNeeded(_ state: NineBallChaseState) {
         guard let watchSessionId, watchLinkService.isController else { return }
-        watchLinkService.syncWatch(sessionId: watchSessionId, gameType: .nineBall, snapshot: .nineBall(state))
+        var snapshot = state
+        snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
+        watchLinkService.syncWatch(sessionId: watchSessionId, gameType: .nineBall, snapshot: .nineBall(snapshot))
     }
 
     private var finishedWinnerName: String {
@@ -926,6 +1013,37 @@ struct NineBallChaseScoreboardView: View {
         } label: {
             Text(chaseTitle(kind)).font(.caption.weight(.medium)).frame(maxWidth: .infinity, minHeight: 30).background(.black.opacity(0.2)).clipShape(Capsule())
         }.buttonStyle(.plain)
+    }
+
+    private func nineBallPlayerColumn(player: Int, width: CGFloat, height: CGFloat) -> some View {
+        VStack(spacing: 10) {
+            Text(playerName(player)).font(.headline).lineLimit(1)
+            Text("\(state.playerPoints[player])")
+                .font(appearance.font.swiftUIFont(size: state.playerPoints[player].magnitude >= 100 ? 64 : 82))
+                .minimumScaleFactor(0.5)
+            ScrollView {
+                VStack(spacing: 6) {
+                    chaseButton(.bigGold, player: player)
+                    chaseButton(.smallGold, player: player)
+                    chaseButton(.goldenNine, player: player)
+                    chaseButton(.normalWin, player: player)
+                    chaseButton(.ballInHand, player: player)
+                    chaseButton(.foul, player: player)
+                }
+            }
+        }
+        .foregroundStyle(appearance.theme.palette.foreground)
+        .padding(10)
+        .frame(width: width, height: height)
+        .background(player.isMultiple(of: 2) ? appearance.theme.palette.left : appearance.theme.palette.right)
+        .disabled(state.finished)
+    }
+
+    private func toggleLayout() {
+        useLandscapeLayout.toggle()
+        UserDefaults.standard.set(useLandscapeLayout, forKey: "nine_ball_use_landscape_layout")
+        actionLog.append(recordSnapshot(code: "layout:\(useLandscapeLayout ? "landscape" : "portrait")", scores: state.playerPoints))
+        showMenu = false
     }
     private func chaseTitle(_ kind: NineBallChaseKind) -> String {
         switch kind {
@@ -994,9 +1112,10 @@ struct NineBallChaseScoreboardView: View {
                 state.playerPoints[index] = min(9999, max(-9999, score))
             }
         }
+        state.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
         state.finished = false
         actionCount += 1
-        showGameFinishedOverlay = false
+        showGameOverDialog = false
         showEditPanel = false
     }
     private func send(_ intent: NineBallChaseIntent) {
@@ -1013,12 +1132,12 @@ struct NineBallChaseScoreboardView: View {
         state = next
         actionCount += 1
         actionLog.append(recordSnapshot(code: "finish", scores: state.playerPoints))
-        showGameFinishedOverlay = true
+        showGameOverDialog = true
     }
     private func confirmReset() {
         if menuConfirm.armOrConfirm(.reset) {
             send(.resetScores)
-            showGameFinishedOverlay = false
+            showGameOverDialog = false
             showNineBallToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
             showMenu = false
             return
@@ -1046,7 +1165,7 @@ struct NineBallChaseScoreboardView: View {
         state = previous
         actionCount = max(0, actionCount - 1)
         actionLog.append(recordSnapshot(code: "undo", scores: state.playerPoints))
-        showGameFinishedOverlay = state.finished
+        showGameOverDialog = state.finished
         return true
     }
     private func showNineBallToast(_ message: String) {
@@ -1159,7 +1278,8 @@ struct SnookerReducerScoreboardView: View {
     @State private var showSettlePanel = false
     @State private var foulSwitchTurn = true
     @State private var settleWinner: MatchSide = .left
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
     @State private var watchSessionId: UUID?
     private let reducer = SnookerReducer()
 
@@ -1214,7 +1334,7 @@ struct SnookerReducerScoreboardView: View {
         _actionCount = State(initialValue: actions)
         _leftName = State(initialValue: left)
         _rightName = State(initialValue: right)
-        _showGameFinishedOverlay = State(initialValue: showFinished)
+        _showGameOverDialog = State(initialValue: showFinished)
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
@@ -1304,12 +1424,44 @@ struct SnookerReducerScoreboardView: View {
                 }
             }
 
-            if showGameFinishedOverlay {
-                GameFinishedOverlay(winnerName: finishedWinnerName)
+            if showGameOverDialog {
+                GameFinishedOverlay(
+                    winnerName: finishedWinnerName,
+                    leftName: leftName,
+                    rightName: rightName,
+                    leftScore: state.maxFrames > 1 ? state.leftFrames : state.leftScore,
+                    rightScore: state.maxFrames > 1 ? state.rightFrames : state.rightScore,
+                    onNewGame: {
+                        showGameOverDialog = false
+                        resetMatch()
+                    },
+                    onRecords: {
+                        saveRecord()
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        let left = state.maxFrames > 1 ? state.leftFrames : state.leftScore
+                        let right = state.maxFrames > 1 ? state.rightFrames : state.rightScore
+                        ScoreboardShareSupport.present(text: "\(leftName) \(left) - \(right) \(rightName)")
+                    },
+                    onExit: exit
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
             }
         }
         .onAppear { onSetupConsumed?(); registerSync() }
-        .onChange(of: state.finished) { _, finished in if finished { showGameFinishedOverlay = true } }
+        .onChange(of: state.finished) { _, finished in if finished { showGameOverDialog = true } }
         .onChange(of: state) { _, newState in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             publishWatchIfNeeded(newState)
@@ -1507,14 +1659,14 @@ struct SnookerReducerScoreboardView: View {
         state = result.state
         actionCount += 1
         actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
-        if state.finished { showGameFinishedOverlay = true }
+        if state.finished { showGameOverDialog = true }
     }
     private func undo() -> Bool {
         guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
         actionLog.append(recordSnapshot(code: "undo", scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
-        showGameFinishedOverlay = state.finished
+        showGameOverDialog = state.finished
         return true
     }
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
@@ -1552,14 +1704,14 @@ struct SnookerReducerScoreboardView: View {
         foulSwitchTurn = true
         showSettlePanel = false
         showFoulPanel = false
-        showGameFinishedOverlay = false
+        showGameOverDialog = false
     }
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
         if !left.isEmpty { leftName = left }
         if !right.isEmpty { rightName = right }
         if let leftValue = Int(leftScore), let rightValue = Int(rightScore) {
             send(.adminCorrect(left: max(0, leftValue), right: max(0, rightValue), striker: state.striker))
-            showGameFinishedOverlay = false
+            showGameOverDialog = false
         }
     }
     private func saveRecord() {
@@ -1587,6 +1739,7 @@ struct ShengjiReducerScoreboardView: View {
     @State private var recordID: String
     @State private var leftName: String
     @State private var rightName: String
+    @State private var showFinishedRecordDetail = false
     private let reducer = ShengjiTierReducer()
     private let levels = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 
@@ -1661,7 +1814,35 @@ struct ShengjiReducerScoreboardView: View {
 
             if state.finished {
                 let winnerName = state.leftIndex >= state.maxTierIndex ? leftName : rightName
-                GameFinishedOverlay(winnerName: winnerName)
+                GameFinishedOverlay(
+                    winnerName: winnerName,
+                    resultText: "\(level(state.leftIndex)) - \(level(state.rightIndex))",
+                    leftName: leftName,
+                    rightName: rightName,
+                    onNewGame: {
+                        resetMatch()
+                    },
+                    onRecords: {
+                        saveRecord()
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        ScoreboardShareSupport.present(text: "\(leftName) \(level(state.leftIndex)) - \(level(state.rightIndex)) \(rightName)")
+                    },
+                    onExit: exit
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
             }
         }
         .onAppear { onSetupConsumed?(); registerSync() }

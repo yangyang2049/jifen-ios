@@ -67,6 +67,81 @@ public enum MatchSide: String, Codable, CaseIterable, Sendable {
     }
 }
 
+/// Stable team identity (aligned with HOS `team_0` / `team_1`).
+/// Colors stick to identity: team0 = red/A, team1 = blue/B. Not screen left/right.
+public enum TeamID: String, Codable, CaseIterable, Sendable {
+    case team0 = "team_0"
+    case team1 = "team_1"
+
+    public var opposite: TeamID {
+        self == .team0 ? .team1 : .team0
+    }
+
+    /// Legacy record / UI winner tokens → team identity.
+    public static func fromLegacyWinnerToken(_ token: String?) -> TeamID? {
+        guard let raw = token?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(), !raw.isEmpty else {
+            return nil
+        }
+        switch raw {
+        case "team_0", "team0", "left", "red", "a":
+            return .team0
+        case "team_1", "team1", "right", "blue", "b":
+            return .team1
+        default:
+            return nil
+        }
+    }
+}
+
+/// Screen placement for team0 (HOS `team0ScreenSide`). Exchange sides flips only this value.
+public struct TeamScreenLayout: Codable, Equatable, Sendable {
+    public var team0ScreenSide: MatchSide
+
+    public init(team0ScreenSide: MatchSide = .left) {
+        self.team0ScreenSide = team0ScreenSide
+    }
+
+    public static let `default` = TeamScreenLayout()
+
+    public var sidesSwapped: Bool {
+        team0ScreenSide == .right
+    }
+
+    public init(sidesSwapped: Bool) {
+        team0ScreenSide = sidesSwapped ? .right : .left
+    }
+
+    public mutating func exchangeSides() {
+        team0ScreenSide = team0ScreenSide.opposite
+    }
+
+    public func screenSide(of team: TeamID) -> MatchSide {
+        switch team {
+        case .team0: team0ScreenSide
+        case .team1: team0ScreenSide.opposite
+        }
+    }
+
+    public func teamID(on screen: MatchSide) -> TeamID {
+        screen == team0ScreenSide ? .team0 : .team1
+    }
+
+    /// Map a screen tap/side to geometric MatchSide for reducers that still store left/right scores.
+    public func geometricSide(for team: TeamID, sidesSwappedInEngine: Bool) -> MatchSide {
+        let screen = screenSide(of: team)
+        return sidesSwappedInEngine ? screen.opposite : screen
+    }
+}
+
+/// Setup name adapter: SportsSetup `team1`/`team2` → team0/team1 identity.
+public enum TeamSetupMapping {
+    public static func team0Name(team1Name: String, team2Name: String) -> String { team1Name }
+    public static func team1Name(team1Name: String, team2Name: String) -> String { team2Name }
+}
+
+/// S1 dual-side rally family (= Android/HOS S1 DualSide).
+public typealias S1DualSideMatchSide = MatchSide
+
 public enum SessionStatus: String, Codable, Sendable {
     case live
     case finished

@@ -33,6 +33,12 @@ struct SettingsView: View {
                                 NavigationLink { ScoreboardSettingsView() } label: {
                                     SettingsNavigationRow(title: NSLocalizedString("scoreboard_settings_title", value: "计分器设置", comment: ""))
                                 }
+                                if AppFeatureFlags.watchLinkEntryEnabled {
+                                    Divider().overlay(Theme.divider)
+                                    NavigationLink { WatchLinkSettingsView() } label: {
+                                        SettingsNavigationRow(title: NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
+                                    }
+                                }
                                 Divider().overlay(Theme.divider)
                                 Button { showAppearancePicker = true } label: {
                                     SettingsNavigationRow(
@@ -77,7 +83,8 @@ struct SettingsView: View {
             }
             .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar(isTabRoot ? .visible : .hidden, for: .tabBar)
+            // Use `.automatic` on the Me tab root so pushed pages can hide the tab bar.
+            .toolbar(isTabRoot ? .automatic : .hidden, for: .tabBar)
             .toolbar {
                 if !isTabRoot {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -250,11 +257,13 @@ private struct ScoreboardSettingsView: View {
             }
             .frame(maxWidth: horizontalSizeClass == .regular ? 680 : .infinity)
             .padding(.horizontal, Theme.md)
-            .padding(.vertical, Theme.lg)
+            .padding(.top, Theme.lg)
+            .padding(.bottom, Theme.lg + 72)
         }
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("scoreboard_settings_title", value: "计分器设置", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .onChange(of: selectedTheme) { _, value in PreferencesManager.shared.scoreboardTheme = value.rawValue }
         .onChange(of: selectedFont) { _, value in PreferencesManager.shared.scoreboardFont = value.rawValue }
         .onChange(of: forceIPadLandscape) { _, value in PreferencesManager.shared.forceIPadLandscape = value }
@@ -292,8 +301,34 @@ private enum ScoreboardSettingHelp: String, Identifiable {
         case .touchGuard:
             return NSLocalizedString("scoreboard_touch_guard_help_message", value: "仅点击比分数字附近时才会计分，减少握持和擦拭屏幕时的误触。", comment: "")
         case .doubleTapSubtract:
-            return NSLocalizedString("scoreboard_double_tap_help_message", value: "开启后，快速双击某一方的比分区域会减 1 分。", comment: "")
+            return NSLocalizedString("scoreboard_double_tap_help_message", value: "开启后，快速双击某一方的比分区域会减 1 分。仅适用于部分计分板。", comment: "")
         }
+    }
+}
+
+private struct ScoreboardThemePreviewSwatch: View {
+    let theme: ScoreboardTheme
+
+    var body: some View {
+        HStack(spacing: 0) {
+            themePreviewHalf(color: theme.palette.left, sample: "0")
+            themePreviewHalf(color: theme.palette.right, sample: "0")
+        }
+        .frame(height: 42)
+        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+    }
+
+    @ViewBuilder
+    private func themePreviewHalf(color: Color, sample: String) -> some View {
+        ZStack {
+            color
+            Text(sample)
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .foregroundColor(theme.palette.foreground)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -309,12 +344,7 @@ private struct ScoreboardThemeSelector: View {
                 ForEach(ScoreboardTheme.allCases) { theme in
                     Button { selection = theme } label: {
                         VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 0) {
-                                theme.palette.left
-                                theme.palette.right
-                            }
-                            .frame(height: 42)
-                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            ScoreboardThemePreviewSwatch(theme: theme)
                             HStack {
                                 Text(theme.localizedTitle)
                                     .font(.system(size: 13, weight: .medium))
@@ -452,6 +482,7 @@ private struct FAQView: View {
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -520,6 +551,7 @@ private struct AboutUsView: View {
         }
         .navigationTitle(NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 
     private var qqGroupRow: some View {

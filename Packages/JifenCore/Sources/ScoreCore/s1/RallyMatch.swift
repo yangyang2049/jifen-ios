@@ -1,5 +1,8 @@
 import Foundation
 
+/// S1 dual-side rally family (= Android `S1DualSide*` / HOS per-sport rally reducers).
+/// Geometric `left`/`right` scores are screen sides; team identity uses `TeamID` + `TeamScreenLayout`.
+
 public enum MatchCompletionMode: String, Codable, CaseIterable, Hashable, Sendable {
     case bestOf = "best_of"
     case playAll = "play_all"
@@ -271,6 +274,8 @@ public enum RallyMatchIntent: Codable, Sendable {
 
 public enum RallyMatchEvent: Codable, Equatable, Sendable {
     case pointScored(side: MatchSide, leftPoints: Int, rightPoints: Int)
+    /// Traditional pickleball side-out: serve changes without a point.
+    case sideOut(servingSide: MatchSide, leftPoints: Int, rightPoints: Int)
     case setCompleted(winner: MatchSide, setNumber: Int, leftPoints: Int, rightPoints: Int, leftSets: Int, rightSets: Int)
     case sidesExchangeReminder
     case sidesExchanged
@@ -371,7 +376,8 @@ public struct RallyMatchReducer: DomainReducer {
 
     private func usesPickleballServeRules(_ state: RallyMatchState) -> Bool {
         if case .pickleball = state.doubles?.rotation { return true }
-        return state.rules.nextSetServerModel != .scorerContinues
+        // Singles pickleball only (factory uses `.opening`); volleyball uses `.alternateFromOpening`.
+        return state.rules.nextSetServerModel == .opening
     }
 
     /// Aligns with Android `PickleballMatchEngine.recordRally`.
@@ -392,7 +398,16 @@ public struct RallyMatchReducer: DomainReducer {
         if side != state.servingSide {
             var next = state
             applyPickleballSideOut(&next)
-            return .init(state: next)
+            return .init(
+                state: next,
+                events: [
+                    .sideOut(
+                        servingSide: next.servingSide,
+                        leftPoints: next.leftPoints,
+                        rightPoints: next.rightPoints
+                    )
+                ]
+            )
         }
 
         var next = state

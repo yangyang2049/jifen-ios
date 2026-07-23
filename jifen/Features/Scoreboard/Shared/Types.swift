@@ -127,6 +127,17 @@ enum GameType: String, Codable, CaseIterable {
         }
     }
 
+    /// Scoreboard/timer types shown in Records filter (excludes counter).
+    static var scoreboardFilterTypes: [GameType] {
+        [
+            .pingpong, .badminton, .tennis, .pickleball, .football, .basketball, .threeBasketball,
+            .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
+            .billiards, .eightBall, .nineBall, .snooker,
+            .doudizhu, .guandan, .shengji, .uno, .foosball, .simpleScore, .multiScoreboard,
+            .xiangqi, .go, .chess, .checkers, .stopwatch
+        ]
+    }
+
     var canonicalScoreboardIdentifier: String {
         switch self {
         case .archery: return "archery_dual"

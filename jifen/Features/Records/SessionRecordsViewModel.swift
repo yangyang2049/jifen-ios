@@ -7,7 +7,7 @@ import SessionCore
 
 @MainActor
 @Observable
-final class V2SessionRecordsViewModel {
+final class SessionRecordsViewModel {
     struct Record: Identifiable {
         let entry: SessionArchiveEntry
         let scoreText: String?
@@ -107,6 +107,8 @@ final class V2SessionRecordsViewModel {
                 switch event {
                 case .pointScored(let side, let left, let right):
                     actions.append(.init(type: .scoreChanged, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: sets, setNumber: sets[0] + sets[1] + 1, scoreChange: 1, operationCode: "point"))
+                case .sideOut(_, let left, let right):
+                    actions.append(.init(type: .stateChanged, scores: [left, right], setScores: sets, setNumber: sets[0] + sets[1] + 1, operationCode: "side_out"))
                 case .setCompleted(let winner, let number, let left, let right, let leftSets, let rightSets):
                     sets = [leftSets, rightSets]
                     actions.append(.init(type: .setFinished, team: winner == .left ? .team1 : .team2, scores: [left, right], setScores: sets, setNumber: number, winner: winner == .left ? .team1 : .team2, operationCode: "set_completed"))
@@ -188,3 +190,5 @@ private extension ScoreCore.GameType {
         }
     }
 }
+
+typealias V2SessionRecordsViewModel = SessionRecordsViewModel

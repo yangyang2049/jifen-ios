@@ -48,6 +48,8 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
     public var isTieBreak: Bool
     public var tennisDeuceMode: String?
     public var setScores: [VoiceSetScore]
+    /// Pickleball doubles server number (1 or 2). Nil for singles / other sports.
+    public var serverNumber: Int?
 
     public init(
         gameType: GameType,
@@ -67,7 +69,8 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
         serviceOver: Bool = false,
         isTieBreak: Bool = false,
         tennisDeuceMode: String? = nil,
-        setScores: [VoiceSetScore] = []
+        setScores: [VoiceSetScore] = [],
+        serverNumber: Int? = nil
     ) {
         self.gameType = gameType
         self.phase = phase
@@ -87,12 +90,13 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
         self.isTieBreak = isTieBreak
         self.tennisDeuceMode = tennisDeuceMode
         self.setScores = setScores
+        self.serverNumber = serverNumber
     }
 }
 
 public enum VoiceAnnouncementSupport {
     public static func isSupported(_ gameType: GameType) -> Bool {
-        isBadminton(gameType) || isPingpong(gameType) || isTennis(gameType)
+        isBadminton(gameType) || isPingpong(gameType) || isTennis(gameType) || isPickleball(gameType)
     }
 
     public static func isBadminton(_ gameType: GameType) -> Bool {
@@ -105,6 +109,10 @@ public enum VoiceAnnouncementSupport {
 
     public static func isTennis(_ gameType: GameType) -> Bool {
         gameType == .tennis || gameType == .tennisDoubles
+    }
+
+    public static func isPickleball(_ gameType: GameType) -> Bool {
+        gameType == .pickleball || gameType == .pickleballDoubles
     }
 }
 
@@ -128,6 +136,9 @@ public enum VoiceAnnouncementMessageBuilder {
             }
             if VoiceAnnouncementSupport.isTennis(payload.gameType) {
                 return buildTennisScoreChangeZh(payload)
+            }
+            if VoiceAnnouncementSupport.isPickleball(payload.gameType) {
+                return buildPickleballScoreChangeZh(payload)
             }
             return buildBadmintonScoreChangeZh(payload)
         case .gameEnd:
@@ -161,6 +172,9 @@ public enum VoiceAnnouncementMessageBuilder {
             if VoiceAnnouncementSupport.isTennis(payload.gameType) {
                 return buildTennisScoreChangeEn(payload)
             }
+            if VoiceAnnouncementSupport.isPickleball(payload.gameType) {
+                return buildPickleballScoreChangeEn(payload)
+            }
             return buildBadmintonScoreChangeEn(payload)
         case .gameEnd:
             return VoiceAnnouncementSupport.isTennis(payload.gameType) ? buildTennisGameEndEn(payload) : ""
@@ -179,6 +193,55 @@ public enum VoiceAnnouncementMessageBuilder {
             return buildRallyMatchEndEn(payload)
         case .sideChange:
             return "Change ends"
+        }
+    }
+
+    // —— Pickleball USA / IFP ——
+
+    private static func buildPickleballScoreChangeZh(_ payload: VoiceAnnouncementPayload) -> String {
+        let server = resolveServerSide(payload)
+        let first = scoreOf(payload, server)
+        let second = scoreOf(payload, server.opposite)
+        let line = "\(first)比\(second)"
+        if let number = payload.serverNumber, number == 1 || number == 2 {
+            let withServer = "\(line)，\(number == 2 ? "二" : "一")号"
+            return payload.serviceOver ? "换发球，\(withServer)" : withServer
+        }
+        return payload.serviceOver ? "换发球，\(line)" : line
+    }
+
+    private static func buildPickleballScoreChangeEn(_ payload: VoiceAnnouncementPayload) -> String {
+        let server = resolveServerSide(payload)
+        let first = scoreOf(payload, server)
+        let second = scoreOf(payload, server == .left ? .right : .left)
+        let line: String
+        if let number = payload.serverNumber, number == 1 || number == 2 {
+            line = "\(englishPickleballNumber(first)), \(englishPickleballNumber(second)), \(number)"
+        } else {
+            line = "\(englishPickleballNumber(first)), \(englishPickleballNumber(second))"
+        }
+        return payload.serviceOver ? "Side out, \(line)" : line
+    }
+
+    private static func englishPickleballNumber(_ value: Int) -> String {
+        switch value {
+        case 0: return "zero"
+        case 1: return "one"
+        case 2: return "two"
+        case 3: return "three"
+        case 4: return "four"
+        case 5: return "five"
+        case 6: return "six"
+        case 7: return "seven"
+        case 8: return "eight"
+        case 9: return "nine"
+        case 10: return "ten"
+        case 11: return "eleven"
+        case 12: return "twelve"
+        case 13: return "thirteen"
+        case 14: return "fourteen"
+        case 15: return "fifteen"
+        default: return "\(value)"
         }
     }
 
@@ -336,8 +399,9 @@ public enum VoiceAnnouncementMessageBuilder {
         let winnerName = getWinnerName(payload)
         let leftGames = payload.leftScore
         let rightGames = payload.rightScore
-        if leftGames == 6, rightGames == 6 {
-            return "\(winnerName)胜本局，局分6平，抢七"
+        // Android: tied games + isTieBreak → entering TB (covers 6-6 and short-set 4-4).
+        if leftGames == rightGames, payload.isTieBreak {
+            return "\(winnerName)胜本局，局分\(leftGames)平，抢七"
         }
         if leftGames == rightGames {
             return "\(winnerName)胜本局，局分\(leftGames)平"
@@ -353,8 +417,8 @@ public enum VoiceAnnouncementMessageBuilder {
         let winnerName = getWinnerName(payload)
         let leftGames = payload.leftScore
         let rightGames = payload.rightScore
-        if leftGames == 6, rightGames == 6 {
-            return "Game \(winnerName). 6 games all. Tie-break"
+        if leftGames == rightGames, payload.isTieBreak {
+            return "Game \(winnerName). \(leftGames) games all. Tie-break"
         }
         if leftGames == rightGames {
             return "Game \(winnerName). \(leftGames) games all"
@@ -522,15 +586,23 @@ public enum RallyVoiceAnnouncementMapper {
         events: [RallyMatchEvent],
         completedSetScores: [VoiceSetScore]
     ) -> [VoiceAnnouncementPayload] {
-        guard VoiceAnnouncementSupport.isSupported(gameType),
-              VoiceAnnouncementSupport.isBadminton(gameType) || VoiceAnnouncementSupport.isPingpong(gameType)
-        else {
+        let isRallyVoice = VoiceAnnouncementSupport.isBadminton(gameType)
+            || VoiceAnnouncementSupport.isPingpong(gameType)
+            || VoiceAnnouncementSupport.isPickleball(gameType)
+        guard VoiceAnnouncementSupport.isSupported(gameType), isRallyVoice else {
             return []
         }
 
         let point = events.compactMap { event -> (MatchSide, Int, Int)? in
             if case let .pointScored(side, left, right) = event {
                 return (side, left, right)
+            }
+            return nil
+        }.last
+
+        let sideOut = events.compactMap { event -> (MatchSide, Int, Int)? in
+            if case let .sideOut(servingSide, left, right) = event {
+                return (servingSide, left, right)
             }
             return nil
         }.last
@@ -556,11 +628,30 @@ public enum RallyVoiceAnnouncementMapper {
         }
 
         // Manual exchange-only intent.
-        if point == nil, setEnd == nil, !matchEnd {
+        if point == nil, sideOut == nil, setEnd == nil, !matchEnd {
             if sideChanged || sideReminder {
                 return [sideChangePayload(gameType: gameType, state: before)]
             }
             return []
+        }
+
+        // Traditional pickleball side-out (no point scored).
+        if point == nil, let sideOut, setEnd == nil, !matchEnd {
+            let useRally = after.rules.useRallyScoring
+            return [
+                basePayload(
+                    gameType: gameType,
+                    phase: .scoreChange,
+                    state: after,
+                    leftScore: sideOut.1,
+                    rightScore: sideOut.2,
+                    leftSets: after.leftSets,
+                    rightSets: after.rightSets,
+                    serverSide: sideOut.0,
+                    serviceOver: !useRally,
+                    serverNumber: after.doubles?.pickleballServerNumber
+                )
+            ]
         }
 
         guard let point else { return [] }
@@ -574,11 +665,15 @@ public enum RallyVoiceAnnouncementMapper {
             if VoiceAnnouncementSupport.isBadminton(gameType) {
                 return before.servingSide != point.0
             }
+            // Pickleball traditional: only server scores — serviceOver only on sideOut path.
             return false
         }()
 
         let leftAtEnd = setEnd?.2 ?? point.1
         let rightAtEnd = setEnd?.3 ?? point.2
+        let serverNumber = VoiceAnnouncementSupport.isPickleball(gameType)
+            ? (sideChanged ? before.doubles?.pickleballServerNumber : after.doubles?.pickleballServerNumber)
+            : nil
 
         let main: VoiceAnnouncementPayload
         if matchEnd, let setEnd {
@@ -592,7 +687,8 @@ public enum RallyVoiceAnnouncementMapper {
                 rightSets: setEnd.5,
                 currentSet: setEnd.1,
                 winnerSide: setEnd.0,
-                setScores: completedSetScores
+                setScores: completedSetScores,
+                serverNumber: serverNumber
             )
         } else if let setEnd {
             main = basePayload(
@@ -605,7 +701,8 @@ public enum RallyVoiceAnnouncementMapper {
                 rightSets: setEnd.5,
                 currentSet: setEnd.1,
                 winnerSide: setEnd.0,
-                setScores: completedSetScores
+                setScores: completedSetScores,
+                serverNumber: serverNumber
             )
         } else {
             main = basePayload(
@@ -618,7 +715,8 @@ public enum RallyVoiceAnnouncementMapper {
                 rightSets: before.rightSets,
                 scoringSide: point.0,
                 serverSide: servingSideAfterPoint,
-                serviceOver: serviceOver
+                serviceOver: serviceOver,
+                serverNumber: serverNumber
             )
         }
 
@@ -630,8 +728,7 @@ public enum RallyVoiceAnnouncementMapper {
     }
 
     public static func openingPayload(gameType: GameType, state: RallyMatchState) -> VoiceAnnouncementPayload? {
-        guard VoiceAnnouncementSupport.isPingpong(gameType),
-              state.leftPoints == 0,
+        guard state.leftPoints == 0,
               state.rightPoints == 0,
               state.leftSets == 0,
               state.rightSets == 0,
@@ -639,16 +736,33 @@ public enum RallyVoiceAnnouncementMapper {
         else {
             return nil
         }
-        return basePayload(
-            gameType: gameType,
-            phase: .scoreChange,
-            state: state,
-            leftScore: 0,
-            rightScore: 0,
-            leftSets: 0,
-            rightSets: 0,
-            serverSide: state.servingSide
-        )
+        if VoiceAnnouncementSupport.isPingpong(gameType) {
+            return basePayload(
+                gameType: gameType,
+                phase: .scoreChange,
+                state: state,
+                leftScore: 0,
+                rightScore: 0,
+                leftSets: 0,
+                rightSets: 0,
+                serverSide: state.servingSide
+            )
+        }
+        if VoiceAnnouncementSupport.isPickleball(gameType) {
+            return basePayload(
+                gameType: gameType,
+                phase: .scoreChange,
+                state: state,
+                leftScore: 0,
+                rightScore: 0,
+                leftSets: 0,
+                rightSets: 0,
+                serverSide: state.servingSide,
+                serverNumber: state.doubles?.pickleballServerNumber
+                    ?? (gameType == .pickleballDoubles ? 2 : nil)
+            )
+        }
+        return nil
     }
 
     private static func sideChangePayload(gameType: GameType, state: RallyMatchState) -> VoiceAnnouncementPayload {
@@ -676,7 +790,8 @@ public enum RallyVoiceAnnouncementMapper {
         serverSide: MatchSide? = nil,
         winnerSide: MatchSide? = nil,
         serviceOver: Bool = false,
-        setScores: [VoiceSetScore] = []
+        setScores: [VoiceSetScore] = [],
+        serverNumber: Int? = nil
     ) -> VoiceAnnouncementPayload {
         let resolvedWinner = winnerSide
         let winnerName: String? = {
@@ -698,6 +813,192 @@ public enum RallyVoiceAnnouncementMapper {
             winnerSide: winnerSide,
             winnerName: winnerName,
             serviceOver: serviceOver,
+            setScores: setScores,
+            serverNumber: serverNumber
+        )
+    }
+}
+
+// MARK: - Tennis event → payloads (aligned with Android VoiceAnnouncementEventMapper.tennisPayloads)
+
+public enum TennisVoiceAnnouncementMapper {
+    public static func payloads(
+        gameType: GameType,
+        before: TennisMatchState,
+        after: TennisMatchState,
+        intent: TennisMatchIntent,
+        events: [TennisMatchEvent],
+        completedSetScores: [VoiceSetScore]
+    ) -> [VoiceAnnouncementPayload] {
+        guard case .pointWon = intent, VoiceAnnouncementSupport.isTennis(gameType) else {
+            return []
+        }
+
+        let point = events.compactMap { event -> (MatchSide, Int, Int)? in
+            if case let .pointScored(side, left, right) = event { return (side, left, right) }
+            return nil
+        }.last
+        let gameEnd = events.compactMap { event -> (MatchSide, Int, Int, Bool)? in
+            if case let .gameCompleted(winner, leftGames, rightGames, tieBreak) = event {
+                return (winner, leftGames, rightGames, tieBreak)
+            }
+            return nil
+        }.last
+        let setEnd = events.compactMap { event -> (MatchSide, Int, Int, Int, Int, Int)? in
+            if case let .setCompleted(winner, setNumber, leftGames, rightGames, leftSets, rightSets) = event {
+                return (winner, setNumber, leftGames, rightGames, leftSets, rightSets)
+            }
+            return nil
+        }.last
+        let matchEnd = events.compactMap { event -> MatchSide? in
+            if case let .matchFinished(winner) = event { return winner }
+            return nil
+        }.last
+        let matchFinished = events.contains {
+            if case .matchFinished = $0 { return true }
+            return false
+        }
+        let sideChanged = events.contains {
+            if case .sidesExchanged = $0 { return true }
+            return false
+        }
+        let sideReminder = events.contains {
+            if case .sidesExchangeReminder = $0 { return true }
+            return false
+        }
+
+        let namesState = sideChanged ? before : after
+        let servingSideAfterPoint: MatchSide = sideChanged ? after.servingSide.opposite : after.servingSide
+        let deuceMode = before.rules.usesNoAdScoring ? "no_ad" : "advantage"
+
+        let main: VoiceAnnouncementPayload
+        if matchFinished {
+            let leftScore = setEnd?.2 ?? gameEnd?.1 ?? point?.1 ?? after.leftPoints
+            let rightScore = setEnd?.3 ?? gameEnd?.2 ?? point?.2 ?? after.rightPoints
+            let leftSets = setEnd?.4 ?? after.leftSets
+            let rightSets = setEnd?.5 ?? after.rightSets
+            let winner = setEnd?.0 ?? matchEnd ?? winnerByScore(left: leftSets, right: rightSets)
+            main = basePayload(
+                gameType: gameType,
+                phase: .matchEnd,
+                state: namesState,
+                leftScore: leftScore,
+                rightScore: rightScore,
+                leftSets: leftSets,
+                rightSets: rightSets,
+                currentSet: setEnd?.1,
+                winnerSide: winner,
+                tennisDeuceMode: deuceMode,
+                setScores: completedSetScores
+            )
+        } else if let setEnd {
+            main = basePayload(
+                gameType: gameType,
+                phase: .setEnd,
+                state: namesState,
+                leftScore: setEnd.2,
+                rightScore: setEnd.3,
+                leftSets: setEnd.4,
+                rightSets: setEnd.5,
+                currentSet: setEnd.1,
+                winnerSide: setEnd.0,
+                isTieBreak: gameEnd?.3 == true,
+                tennisDeuceMode: deuceMode,
+                setScores: completedSetScores
+            )
+        } else if let gameEnd {
+            let winner = point?.0 ?? winnerByScore(left: gameEnd.1, right: gameEnd.2)
+            main = basePayload(
+                gameType: gameType,
+                phase: .gameEnd,
+                state: namesState,
+                leftScore: gameEnd.1,
+                rightScore: gameEnd.2,
+                leftSets: before.leftSets,
+                rightSets: before.rightSets,
+                currentSet: before.leftSets + before.rightSets + 1,
+                winnerSide: winner,
+                // Entering a tie-break is represented by the resulting state (4-4 or 6-6).
+                isTieBreak: after.isTieBreak,
+                tennisDeuceMode: deuceMode
+            )
+        } else if let point {
+            main = basePayload(
+                gameType: gameType,
+                phase: .scoreChange,
+                state: namesState,
+                leftScore: point.1,
+                rightScore: point.2,
+                leftSets: before.leftSets,
+                rightSets: before.rightSets,
+                scoringSide: point.0,
+                serverSide: servingSideAfterPoint,
+                isTieBreak: before.isTieBreak,
+                tennisDeuceMode: deuceMode
+            )
+        } else {
+            return []
+        }
+
+        var result = [main]
+        if (sideChanged || sideReminder), !matchFinished, setEnd == nil {
+            result.append(
+                basePayload(
+                    gameType: gameType,
+                    phase: .sideChange,
+                    state: namesState,
+                    leftScore: namesState.leftPoints,
+                    rightScore: namesState.rightPoints,
+                    leftSets: namesState.leftSets,
+                    rightSets: namesState.rightSets
+                )
+            )
+        }
+        return result
+    }
+
+    private static func winnerByScore(left: Int, right: Int) -> MatchSide? {
+        if left > right { return .left }
+        if right > left { return .right }
+        return nil
+    }
+
+    private static func basePayload(
+        gameType: GameType,
+        phase: VoiceAnnouncementPhase,
+        state: TennisMatchState,
+        leftScore: Int,
+        rightScore: Int,
+        leftSets: Int,
+        rightSets: Int,
+        currentSet: Int? = nil,
+        scoringSide: MatchSide? = nil,
+        serverSide: MatchSide? = nil,
+        winnerSide: MatchSide? = nil,
+        isTieBreak: Bool = false,
+        tennisDeuceMode: String? = nil,
+        setScores: [VoiceSetScore] = []
+    ) -> VoiceAnnouncementPayload {
+        let winnerName: String? = {
+            guard let winnerSide else { return nil }
+            return winnerSide == .left ? state.leftName : state.rightName
+        }()
+        return VoiceAnnouncementPayload(
+            gameType: gameType,
+            phase: phase,
+            leftTeamName: state.leftName,
+            rightTeamName: state.rightName,
+            leftScore: leftScore,
+            rightScore: rightScore,
+            leftSets: leftSets,
+            rightSets: rightSets,
+            currentSet: currentSet,
+            scoringSide: scoringSide,
+            serverSide: serverSide,
+            winnerSide: winnerSide,
+            winnerName: winnerName,
+            isTieBreak: isTieBreak,
+            tennisDeuceMode: tennisDeuceMode,
             setScores: setScores
         )
     }

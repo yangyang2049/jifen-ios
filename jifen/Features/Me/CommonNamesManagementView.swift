@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CommonNamesManagementView: View {
     @FocusState private var isEditorFocused: Bool
@@ -24,6 +25,13 @@ struct CommonNamesManagementView: View {
     @State private var showToast = false
 
     private let manager = CommonNamesManager.shared
+
+    /// Menu 里 role=.destructive 只会染文字，图标仍跟 tint；预着色保证垃圾桶为红。
+    private static let redTrashIcon: UIImage = {
+        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+        let base = UIImage(systemName: "trash", withConfiguration: config) ?? UIImage()
+        return base.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+    }()
 
     private var currentNames: [String] {
         selectedType == .team ? teamNames : playerNames
@@ -175,10 +183,11 @@ struct CommonNamesManagementView: View {
                     Button(role: .destructive) {
                         showClearConfirm = true
                     } label: {
-                        Label(
-                            NSLocalizedString("common_names_clear_current", value: "清空当前分类", comment: ""),
-                            systemImage: "trash"
-                        )
+                        Label {
+                            Text(NSLocalizedString("common_names_clear_current", value: "清空当前分类", comment: ""))
+                        } icon: {
+                            Image(uiImage: Self.redTrashIcon)
+                        }
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")

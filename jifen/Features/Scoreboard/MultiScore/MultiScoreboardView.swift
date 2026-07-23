@@ -48,6 +48,7 @@ struct MultiScoreboardView: View {
     @State private var exitClickTime: TimeInterval = 0
     @State private var toastMessage: String? = nil
     @State private var showUnoRoundPanel = false
+    @State private var showFinishedRecordDetail = false
     @State private var unoRoundPlayerIndex: Int? = nil
     @State private var unoSelectedWinnerIndex: Int = 0
     @State private var unoNumberTotalText = ""
@@ -61,7 +62,6 @@ struct MultiScoreboardView: View {
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
-    @State private var showLocalSync = false
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
@@ -178,7 +178,30 @@ struct MultiScoreboardView: View {
                 }
 
                 if gameFinished {
-                    GameFinishedOverlay(winnerName: finishedWinnerName)
+                    GameFinishedOverlay(
+                        winnerName: finishedWinnerName,
+                        multiNames: players.map(\.name),
+                        multiScores: players.map(\.score),
+                        onNewGame: {
+                            resetScores()
+                            showTransientToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+                        },
+                        onRecords: {
+                            persistRecord(finished: gameFinished)
+                            showFinishedRecordDetail = true
+                        },
+                        onShare: {
+                            let text = zip(players.map(\.name), players.map(\.score))
+                                .map { "\($0) \($1)" }
+                                .joined(separator: " · ")
+                            ScoreboardShareSupport.present(text: text)
+                        },
+                        onExit: {
+                            persistRecord(finished: gameFinished)
+                            onNavigationBack?()
+                            dismiss()
+                        }
+                    )
                 }
             }
         }
@@ -209,11 +232,19 @@ struct MultiScoreboardView: View {
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
             persistRecord(finished: gameFinished)
         }
-        .sheet(isPresented: $showDisplaySettings) {
-            ScoreboardDisplaySettingsView(gameType: gameType)
-                .presentationDetents([.medium, .large])
+        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: gameType)
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordId)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
+            }
         }
-        .sheet(isPresented: $showLocalSync, onDismiss: registerScoreboardSync) { LocalSyncView() }
         .sheet(isPresented: Binding(
             get: { activeCommonNameIndex != nil },
             set: { if !$0 { activeCommonNameIndex = nil } }
@@ -530,9 +561,6 @@ struct MultiScoreboardView: View {
             handleSettleAttempt()
         case "displaySettings":
             showDisplaySettings = true
-            showMenu = false
-        case "localSync":
-            showLocalSync = true
             showMenu = false
         case "layout":
             toggleLayout()
@@ -949,13 +977,13 @@ struct MultiScoreboardView: View {
     }
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showLocalSync || showUnoRoundPanel
+        !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showUnoRoundPanel
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showLocalSync, !showUnoRoundPanel else { return }
+        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showUnoRoundPanel else { return }
         let generation = immersiveGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             guard generation == immersiveGeneration,
@@ -963,7 +991,6 @@ struct MultiScoreboardView: View {
                   !isEditMode,
                   !showMenu,
                   !showDisplaySettings,
-                  !showLocalSync,
                   !showUnoRoundPanel else { return }
             chromeVisible = false
         }

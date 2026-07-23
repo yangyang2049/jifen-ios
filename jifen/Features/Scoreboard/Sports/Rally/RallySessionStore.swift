@@ -17,6 +17,16 @@ final class RallySessionStore {
     let sessionId: UUID
     let startedAt: Date
 
+    /// HOS-aligned screen placement derived from engine `sidesSwapped`.
+    var teamScreenLayout: TeamScreenLayout {
+        TeamScreenLayout(sidesSwapped: state.sidesSwapped)
+    }
+
+    /// Geometric MatchSide for a team identity under current layout.
+    func geometricSide(for team: TeamID) -> MatchSide {
+        teamScreenLayout.geometricSide(for: team, sidesSwappedInEngine: state.sidesSwapped)
+    }
+
     convenience init(
         leftName: String,
         rightName: String,
@@ -122,11 +132,17 @@ final class RallySessionStore {
         }
     }
 
+    func replaceDisplayedState(_ state: RallyMatchState) {
+        self.state = state
+    }
+
     private func append(events: [RallyMatchEvent], at milliseconds: Int64, state: RallyMatchState) {
         for event in events {
             switch event {
             case .pointScored(let side, let left, let right):
                 detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, scoreChange: 1, operationCode: "point"))
+            case .sideOut(_, let left, let right):
+                detailedActions.append(.init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, operationCode: "side_out"))
             case .setCompleted(let winner, let number, let left, let right, let leftSets, let rightSets):
                 detailedActions.append(.init(type: .setFinished, epochMilliseconds: milliseconds, team: winner == .left ? .team1 : .team2, scores: [left, right], setScores: [leftSets, rightSets], setNumber: number, winner: winner == .left ? .team1 : .team2, operationCode: "set_completed"))
             case .sidesExchanged:

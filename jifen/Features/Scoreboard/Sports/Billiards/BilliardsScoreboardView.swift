@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct BilliardsScoreboardView: View {
     @Environment(\.dismiss) var dismiss
@@ -17,9 +18,14 @@ struct BilliardsScoreboardView: View {
     @State private var controller: BilliardsScoreboardController
     @State private var viewModel: BaseScoreViewModel
     @State private var responsiveScoreFontSize: CGFloat = ScoreboardConstants.baseMainScoreFontSize
-    @State private var showGameFinishedOverlay = false
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
 
     private static let scoreRange = 0 ... 9999
+
+    private var recordID: String {
+        initialRecordId ?? "billiards_\(Int(controller.gameStartTime.timeIntervalSince1970))"
+    }
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -56,8 +62,45 @@ struct BilliardsScoreboardView: View {
                 }
             )
 
-            if showGameFinishedOverlay {
-                GameFinishedOverlay(winnerName: winnerName)
+            if showGameOverDialog {
+                GameFinishedOverlay(
+                    winnerName: winnerName,
+                    leftName: viewModel.leftTeam.name,
+                    rightName: viewModel.rightTeam.name,
+                    leftScore: viewModel.leftTeam.score,
+                    rightScore: viewModel.rightTeam.score,
+                    onNewGame: {
+                        showGameOverDialog = false
+                        viewModel.reset()
+                        controller.recordScoreAction(action: "reset")
+                    },
+                    onRecords: {
+                        saveGameRecordInRealTime(isGameFinished: true)
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        ScoreboardShareSupport.present(
+                            text: "\(viewModel.leftTeam.name) \(viewModel.leftTeam.score) - \(viewModel.rightTeam.score) \(viewModel.rightTeam.name)"
+                        )
+                    },
+                    onExit: {
+                        saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        onNavigationBack?()
+                        dismiss()
+                    }
+                )
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
             }
         }
         .navigationTitle(NSLocalizedString("game_billiards", comment: "Billiards"))
@@ -78,7 +121,7 @@ struct BilliardsScoreboardView: View {
         }
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
-                showGameFinishedOverlay = true
+                showGameOverDialog = true
                 saveGameRecordInRealTime(isGameFinished: true)
             }
         }
@@ -150,7 +193,7 @@ struct BilliardsScoreboardView: View {
         }
 
         controller.saveScoreboardRecord(
-            id: "billiards_\(Int(start.timeIntervalSince1970))",
+            id: recordID,
             endTime: endTime,
             duration: endTime.timeIntervalSince(start),
             team1Name: viewModel.leftTeam.name,

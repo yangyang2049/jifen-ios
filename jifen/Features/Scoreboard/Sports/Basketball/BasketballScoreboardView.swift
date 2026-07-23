@@ -1,5 +1,6 @@
 import SwiftUI
 import ScoreCore
+import LinkCore
 import UIKit
 
 struct BasketballScoreboardView: View {
@@ -16,7 +17,6 @@ struct BasketballScoreboardView: View {
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
-    @State private var showLocalSync = false
     @State private var showMenu = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var previousIdleTimerDisabled: Bool?
@@ -25,6 +25,8 @@ struct BasketballScoreboardView: View {
     @State private var exitConfirmDeadline: Date?
     @State private var showToast = false
     @State private var toastMessage = ""
+    @State private var showGameOverDialog = false
+    @State private var showFinishedRecordDetail = false
 
     init(
         onNavigationBack: (() -> Void)? = nil,
@@ -41,6 +43,7 @@ struct BasketballScoreboardView: View {
            let sessionId = UUID(uuidString: initialRecordId),
            let restoredStore = BasketballSessionStore(restoring: sessionId) {
             _store = State(initialValue: restoredStore)
+            _showGameOverDialog = State(initialValue: restoredStore.state.finished)
         } else {
             let leftName = initialSetup?.team1Name.isEmpty == false
                 ? initialSetup!.team1Name
@@ -80,21 +83,21 @@ struct BasketballScoreboardView: View {
                         scoreMultiplier: scoreMultiplier,
                         panelHeight: proxy.size.height,
                         points: BasketballMatchEngine.scoringButtons(store.state),
-                        onScore: { store.send(.addPoints(side: logicalSide(forScreen: .left), points: $0)) },
-                        onFoul: { store.send(.addFoul(side: logicalSide(forScreen: .left))) },
-                        onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: .left))) },
-                        onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: .left))) }
+                        onScore: { guard !scoringLocked else { return }; store.send(.addPoints(side: logicalSide(forScreen: .left), points: $0)) },
+                        onFoul: { guard !scoringLocked else { return }; store.send(.addFoul(side: logicalSide(forScreen: .left))) },
+                        onRemoveFoul: { guard !scoringLocked else { return }; store.send(.removeFoul(side: logicalSide(forScreen: .left))) },
+                        onTimeout: { guard !scoringLocked else { return }; store.send(.useTimeout(side: logicalSide(forScreen: .left))) }
                     )
                     .frame(width: sideW)
 
                     BasketballCenterPanel(
                         state: store.state,
-                        onToggleClock: { store.send(.setClockRunning(!store.state.gameRunning)) },
-                        onResetGameClock: { store.send(.resetGameClock) },
-                        onResetShotClock: { store.send(.resetShotClock(seconds: $0)) },
-                        onAdvancePeriod: { store.send(.advanceToNextPeriod) },
-                        onEnterOvertime: { store.send(.enterOvertime) },
-                        onSelectPeriod: { store.send(.selectPeriod($0)) }
+                        onToggleClock: { guard !scoringLocked else { return }; store.send(.setClockRunning(!store.state.gameRunning)) },
+                        onResetGameClock: { guard !scoringLocked else { return }; store.send(.resetGameClock) },
+                        onResetShotClock: { guard !scoringLocked else { return }; store.send(.resetShotClock(seconds: $0)) },
+                        onAdvancePeriod: { guard !scoringLocked else { return }; store.send(.advanceToNextPeriod) },
+                        onEnterOvertime: { guard !scoringLocked else { return }; store.send(.enterOvertime) },
+                        onSelectPeriod: { guard !scoringLocked else { return }; store.send(.selectPeriod($0)) }
                     )
                     .frame(width: centerW)
 
@@ -112,10 +115,10 @@ struct BasketballScoreboardView: View {
                         scoreMultiplier: scoreMultiplier,
                         panelHeight: proxy.size.height,
                         points: BasketballMatchEngine.scoringButtons(store.state),
-                        onScore: { store.send(.addPoints(side: logicalSide(forScreen: .right), points: $0)) },
-                        onFoul: { store.send(.addFoul(side: logicalSide(forScreen: .right))) },
-                        onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: .right))) },
-                        onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: .right))) }
+                        onScore: { guard !scoringLocked else { return }; store.send(.addPoints(side: logicalSide(forScreen: .right), points: $0)) },
+                        onFoul: { guard !scoringLocked else { return }; store.send(.addFoul(side: logicalSide(forScreen: .right))) },
+                        onRemoveFoul: { guard !scoringLocked else { return }; store.send(.removeFoul(side: logicalSide(forScreen: .right))) },
+                        onTimeout: { guard !scoringLocked else { return }; store.send(.useTimeout(side: logicalSide(forScreen: .right))) }
                     )
                     .frame(width: sideW)
                 }
@@ -135,6 +138,32 @@ struct BasketballScoreboardView: View {
                     .transition(.opacity.combined(with: .scale))
                     .allowsHitTesting(false)
             }
+
+            if showGameOverDialog {
+                GameFinishedOverlay(
+                    winnerName: finishedWinnerName,
+                    leftName: store.state.leftName,
+                    rightName: store.state.rightName,
+                    leftScore: store.state.leftScore,
+                    rightScore: store.state.rightScore,
+                    onNewGame: {
+                        showGameOverDialog = false
+                        store.send(.reset)
+                        showToastMessage(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+                    },
+                    onRecords: {
+                        store.persistSnapshot()
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        shareFinishedMatch()
+                    },
+                    onExit: {
+                        store.persistSnapshot()
+                        back()
+                    }
+                )
+            }
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
@@ -149,10 +178,38 @@ struct BasketballScoreboardView: View {
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
             revealImmersiveChrome()
+            if store.state.finished {
+                showGameOverDialog = true
+            }
+        }
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                showFinishedRecordDetail = false
+                            }
+                        }
+                    }
+            }
         }
         .onChange(of: store.state) { _, state in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-            if let watchSessionId { watchLinkService.syncWatch(sessionId: watchSessionId, state: state) }
+            if let watchSessionId, watchLinkService.isController {
+                watchLinkService.syncWatch(sessionId: watchSessionId, state: state)
+            }
+            if state.finished {
+                showGameOverDialog = true
+                store.persistSnapshot()
+            }
+        }
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
+            guard let watchSessionId,
+                  let update,
+                  update.sessionId == watchSessionId,
+                  let basketball = update.snapshot.basketballState else { return }
+            store.replaceDisplayedState(basketball)
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
@@ -168,11 +225,6 @@ struct BasketballScoreboardView: View {
             store.stopClock()
             store.persistSnapshot()
         }
-        .sheet(isPresented: $showDisplaySettings) {
-            ScoreboardDisplaySettingsView(gameType: appGameType)
-                .presentationDetents([.medium, .large])
-        }
-        .sheet(isPresented: $showLocalSync, onDismiss: registerScoreboardSync) { LocalSyncView() }
         .overlay {
             MenuDialog(
                 isVisible: showMenu,
@@ -183,16 +235,48 @@ struct BasketballScoreboardView: View {
                 onMenuItemClick: handleMenuAction,
                 showEndGame: true,
                 resetConfirming: menuConfirm.resetConfirming,
-                items: ScoreboardMenuItemBuilder.defaultItems(
-                    showEndGame: true,
-                    showExchangeSide: true,
-                    showScreenshot: false,
-                    resetConfirming: menuConfirm.resetConfirming,
-                    exchangeConfirming: menuConfirm.exchangeConfirming,
-                    finishConfirming: menuConfirm.finishConfirming
+                items: basketballMenuItems
+            )
+        }
+        // Keep above MenuDialog so the side panel is not covered.
+        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: appGameType)
+    }
+
+    private var scoringLocked: Bool {
+        watchSessionId != nil && watchLinkService.isFollower
+    }
+
+    private var basketballMenuItems: [ScoreboardMenuItem] {
+        var extras: [ScoreboardMenuItem] = []
+        if AppFeatureFlags.watchLinkEntryEnabled, watchSessionId != nil {
+            if watchLinkService.isFollower {
+                extras.append(
+                    ScoreboardMenuItem(
+                        title: NSLocalizedString("linked_score_takeover", value: "接管计分", comment: ""),
+                        action: "takeover",
+                        group: .sync,
+                        icon: "applewatch"
+                    )
+                )
+            }
+            extras.append(
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("linked_score_end", value: "结束联动", comment: ""),
+                    action: "endLink",
+                    group: .sync,
+                    icon: "xmark.circle"
                 )
             )
         }
+        return ScoreboardMenuItemBuilder.defaultItems(
+            showEndGame: true,
+            showExchangeSide: true,
+            showScreenshot: false,
+            resetConfirming: menuConfirm.resetConfirming,
+            exchangeConfirming: menuConfirm.exchangeConfirming,
+            finishConfirming: menuConfirm.finishConfirming,
+            extraItems: extras
+        )
     }
 
     private var chromeOverlay: some View {
@@ -257,13 +341,13 @@ struct BasketballScoreboardView: View {
     }
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showLocalSync || showMenu
+        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !showDisplaySettings, !showLocalSync, !showMenu else { return }
+        guard appearance.immersiveMode, !showDisplaySettings, !showMenu else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -275,7 +359,6 @@ struct BasketballScoreboardView: View {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !showDisplaySettings,
-                  !showLocalSync,
                   !showMenu else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
@@ -301,6 +384,7 @@ struct BasketballScoreboardView: View {
             }
         case "reset":
             if menuConfirm.armOrConfirm(.reset) {
+                showGameOverDialog = false
                 store.send(.reset)
                 showToastMessage(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
                 showMenu = false
@@ -310,6 +394,8 @@ struct BasketballScoreboardView: View {
         case "endGame":
             if menuConfirm.armOrConfirm(.finish) {
                 store.send(.finish)
+                showGameOverDialog = true
+                store.persistSnapshot()
                 showMenu = false
             } else {
                 showConfirmToast(.finish)
@@ -317,11 +403,22 @@ struct BasketballScoreboardView: View {
         case "displaySettings":
             showDisplaySettings = true
             showMenu = false
-        case "localSync":
-            showLocalSync = true
-            showMenu = false
         case "whistle":
             break
+        case "takeover":
+            if let id = watchSessionId {
+                Task {
+                    try? await watchLinkService.takeover(sessionId: id)
+                    watchLinkService.syncWatch(sessionId: id, state: store.state)
+                }
+            }
+            showMenu = false
+        case "endLink":
+            if let id = watchSessionId {
+                watchLinkService.leaveSession(id)
+                watchSessionId = nil
+            }
+            showMenu = false
         default:
             break
         }
@@ -388,6 +485,17 @@ struct BasketballScoreboardView: View {
         } else {
             dismiss()
         }
+    }
+
+    private var finishedWinnerName: String {
+        guard store.state.finished else { return "" }
+        if store.state.leftScore == store.state.rightScore { return "" }
+        return store.state.leftScore > store.state.rightScore ? store.state.leftName : store.state.rightName
+    }
+
+    private func shareFinishedMatch() {
+        let text = "\(store.state.leftName) \(store.state.leftScore) - \(store.state.rightScore) \(store.state.rightName)"
+        ScoreboardShareSupport.present(text: text)
     }
 }
 
