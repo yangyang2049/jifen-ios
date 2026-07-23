@@ -495,14 +495,14 @@ final class MainFlowUITests: XCTestCase {
             if app.tabBars.firstMatch.exists { return }
 
             let navBack = app.navigationBars.buttons.allElementsBoundByIndex.first {
-                $0.exists && $0.isHittable && isNonCancelButton($0)
+                isVisiblyTapCandidate($0, in: app) && isNonCancelButton($0)
             }
             if let navBack {
-                navBack.tap()
-            } else if app.buttons["Back"].exists && app.buttons["Back"].isHittable {
-                app.buttons["Back"].tap()
-            } else if app.buttons["Done"].exists && app.buttons["Done"].isHittable {
-                app.buttons["Done"].tap()
+                _ = safeTap(navBack, in: app)
+            } else if isVisiblyTapCandidate(app.buttons["Back"], in: app) {
+                _ = safeTap(app.buttons["Back"], in: app)
+            } else if isVisiblyTapCandidate(app.buttons["Done"], in: app) {
+                _ = safeTap(app.buttons["Done"], in: app)
             } else {
                 app.swipeRight()
             }
@@ -521,7 +521,7 @@ final class MainFlowUITests: XCTestCase {
     private func tabBarUsable(in app: XCUIApplication) -> Bool {
         return tabNames.contains {
             let button = tabButton(named: $0, in: app)
-            return button.exists && button.isHittable
+            return isVisiblyTapCandidate(button, in: app)
         }
     }
 
@@ -530,9 +530,8 @@ final class MainFlowUITests: XCTestCase {
         for _ in 0..<8 {
             XCUIDevice.shared.orientation = .portrait
             let tabButton = tabButton(named: tab, in: app)
-            if tabButton.exists && tabButton.isHittable {
-                tabButton.tap()
-                if tabButton.isSelected || tabButton.exists { return true }
+            if isVisiblyTapCandidate(tabButton, in: app), safeTap(tabButton, in: app) {
+                return true
             }
             if dismissKnownOverlayIfNeeded(in: app) { continue }
             navigateBackIfNeeded(from: app)
@@ -542,45 +541,43 @@ final class MainFlowUITests: XCTestCase {
 
     @discardableResult
     private func dismissKnownOverlayIfNeeded(in app: XCUIApplication) -> Bool {
-        if tapPreferredDialogButton(in: app.alerts.firstMatch) { return true }
-        if tapPreferredDialogButton(in: app.sheets.firstMatch) { return true }
+        if tapPreferredDialogButton(in: app.alerts.firstMatch, app: app) { return true }
+        if tapPreferredDialogButton(in: app.sheets.firstMatch, app: app) { return true }
 
         let overlayButtons = ["xmark", "Close", "Done", "Back"]
         for title in overlayButtons {
             let button = app.buttons[title]
-            if button.exists && button.isHittable {
-                button.tap()
+            if isVisiblyTapCandidate(button, in: app), safeTap(button, in: app) {
                 return true
             }
         }
 
         let navBack = app.navigationBars.buttons.allElementsBoundByIndex.first {
-            $0.exists && $0.isHittable && isNonCancelButton($0)
+            isVisiblyTapCandidate($0, in: app) && isNonCancelButton($0)
         }
         if let navBack {
-            navBack.tap()
-            return true
+            return safeTap(navBack, in: app)
         }
 
         return false
     }
 
     @discardableResult
-    private func tapPreferredDialogButton(in container: XCUIElement) -> Bool {
+    private func tapPreferredDialogButton(in container: XCUIElement, app: XCUIApplication) -> Bool {
         guard container.exists else { return false }
 
         for title in preferredDialogButtons {
             let button = container.buttons[title]
-            if button.exists && button.isHittable {
-                button.tap()
+            if isVisiblyTapCandidate(button, in: app), safeTap(button, in: app) {
                 return true
             }
         }
 
         let buttons = container.buttons.allElementsBoundByIndex
-        if let fallback = buttons.first(where: { isNonCancelButton($0) && $0.isHittable }) {
-            fallback.tap()
-            return true
+        if let fallback = buttons.first(where: {
+            isNonCancelButton($0) && isVisiblyTapCandidate($0, in: app)
+        }) {
+            return safeTap(fallback, in: app)
         }
 
         return false

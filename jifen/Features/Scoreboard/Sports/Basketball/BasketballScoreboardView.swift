@@ -45,12 +45,14 @@ struct BasketballScoreboardView: View {
             _store = State(initialValue: restoredStore)
             _showGameOverDialog = State(initialValue: restoredStore.state.finished)
         } else {
-            let leftName = initialSetup?.team1Name.isEmpty == false
-                ? initialSetup!.team1Name
-                : NSLocalizedString("team_home", value: "主队", comment: "Home team")
-            let rightName = initialSetup?.team2Name.isEmpty == false
-                ? initialSetup!.team2Name
-                : NSLocalizedString("team_away", value: "客队", comment: "Away team")
+            let leftName = resolvedScoreboardSetupName(
+                initialSetup?.team1Name,
+                fallback: NSLocalizedString("team_home", value: "主队", comment: "Home team")
+            )
+            let rightName = resolvedScoreboardSetupName(
+                initialSetup?.team2Name,
+                fallback: NSLocalizedString("team_away", value: "客队", comment: "Away team")
+            )
             let gameMode: BasketballGameMode = initialSetup?.basketballMode == "three_x_three" ? .threeXThree : .fiveVFive
             let ruleSet: BasketballRuleSet = initialSetup?.basketballRuleSet == "nba" ? .nba : .fiba
             _store = State(initialValue: BasketballSessionStore(
@@ -66,8 +68,15 @@ struct BasketballScoreboardView: View {
     var body: some View {
         ZStack {
             GeometryReader { proxy in
-                let centerW = ScoreboardLayoutMetrics.basketballCenterWidth(screenWidth: proxy.size.width)
-                let sideW = (proxy.size.width - centerW) / 2
+                // During rotation SwiftUI may briefly report a width below the
+                // fixed center-column target. Clamp every child width so that
+                // the transitional layout never receives a negative frame.
+                let availableW = max(0, proxy.size.width)
+                let centerW = min(
+                    availableW,
+                    ScoreboardLayoutMetrics.basketballCenterWidth(screenWidth: availableW)
+                )
+                let sideW = max(0, (availableW - centerW) / 2)
                 HStack(spacing: 0) {
                     BasketballTeamPanel(
                         name: displayName(for: .left),

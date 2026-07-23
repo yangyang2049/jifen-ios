@@ -3,6 +3,73 @@ import RecordCore
 import ScoreCore
 import SwiftUI // Required for Color, though not directly used in this file for styling. Keep for consistency if needed elsewhere.
 
+struct WatchRecordParticipant: Codable, Hashable {
+    let name: String
+    let score: Int
+}
+
+struct WatchBasketballTrainingShot: Codable, Hashable, Identifiable {
+    let id: String
+    let points: Int
+    let made: Bool
+    let timestamp: Date
+
+    init(
+        id: String = UUID().uuidString,
+        points: Int,
+        made: Bool,
+        timestamp: Date = Date()
+    ) {
+        self.id = id
+        self.points = points
+        self.made = made
+        self.timestamp = timestamp
+    }
+}
+
+struct WatchBasketballTrainingDetails: Codable, Hashable {
+    let mode: WatchBasketballTrainingMode
+    let shots: [WatchBasketballTrainingShot]
+    /// Explicit Android-compatible six-category totals. Optional keeps records
+    /// produced by the first Apple Watch implementation decodable.
+    let onePointMade: Int?
+    let onePointMiss: Int?
+    let twoPointMade: Int?
+    let twoPointMiss: Int?
+    let threePointMade: Int?
+    let threePointMiss: Int?
+
+    init(mode: WatchBasketballTrainingMode, shots: [WatchBasketballTrainingShot]) {
+        self.mode = mode
+        self.shots = shots
+        onePointMade = Self.count(shots, points: 1, made: true)
+        onePointMiss = Self.count(shots, points: 1, made: false)
+        twoPointMade = Self.count(shots, points: 2, made: true)
+        twoPointMiss = Self.count(shots, points: 2, made: false)
+        threePointMade = Self.count(shots, points: 3, made: true)
+        threePointMiss = Self.count(shots, points: 3, made: false)
+    }
+
+    func count(points: Int, made: Bool) -> Int {
+        switch (points, made) {
+        case (1, true): return onePointMade ?? Self.count(shots, points: 1, made: true)
+        case (1, false): return onePointMiss ?? Self.count(shots, points: 1, made: false)
+        case (2, true): return twoPointMade ?? Self.count(shots, points: 2, made: true)
+        case (2, false): return twoPointMiss ?? Self.count(shots, points: 2, made: false)
+        case (3, true): return threePointMade ?? Self.count(shots, points: 3, made: true)
+        default: return threePointMiss ?? Self.count(shots, points: 3, made: false)
+        }
+    }
+
+    private static func count(
+        _ shots: [WatchBasketballTrainingShot],
+        points: Int,
+        made: Bool
+    ) -> Int {
+        shots.lazy.filter { $0.points == points && $0.made == made }.count
+    }
+}
+
 struct WatchScoreboardRecord: Codable, Identifiable {
     let id: String
     let gameType: WatchGameType
@@ -18,6 +85,10 @@ struct WatchScoreboardRecord: Codable, Identifiable {
     var winner: String?
     var actions: [WatchScoreAction]
     var totalScoreChanges: Int
+    /// Optional so records created by older watch versions remain decodable.
+    var participants: [WatchRecordParticipant]? = nil
+    var projectConfiguration: [String: String]? = nil
+    var basketballTrainingDetails: WatchBasketballTrainingDetails? = nil
 
     /// Canonical shared DTO for phone ingest / future RecordCore alignment.
     func toSharedRecord() -> SharedTwoSideMatchRecord? {
@@ -62,6 +133,7 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
     var team1SetScore: Int
     var team2SetScore: Int
     var winner: String?
+    var participants: [WatchRecordParticipant]?
 
     init(from record: WatchScoreboardRecord) {
         self.id = record.id
@@ -75,6 +147,7 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
         self.team1SetScore = record.team1SetScore
         self.team2SetScore = record.team2SetScore
         self.winner = record.winner
+        self.participants = record.participants
 
         let dateFormatter = DateFormatter()
         let calendar = Calendar.current

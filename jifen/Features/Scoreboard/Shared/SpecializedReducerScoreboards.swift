@@ -556,8 +556,10 @@ struct EightBallScoreboardView: View {
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            let skipSave = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
-            saveRecord()
+            if !skipSave { saveRecord() }
         }
     }
 
@@ -636,7 +638,7 @@ struct EightBallScoreboardView: View {
             switch intent {
             case .addLeft: send(.addRack(screenSide(.left)))
             case .addRight: send(.addRack(screenSide(.right)))
-            case .subtractLeft, .subtractRight, .undo: undo()
+            case .subtractLeft, .subtractRight, .undo: _ = undo()
             case .exchangeSides: send(.exchangeSides)
             case .requestSnapshot: break
             }
@@ -974,8 +976,10 @@ struct NineBallChaseScoreboardView: View {
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            let skipSave = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
-            saveRecord()
+            if !skipSave { saveRecord() }
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
         .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: .nineBall)
@@ -1229,7 +1233,7 @@ struct NineBallChaseScoreboardView: View {
             switch intent {
             case .addLeft: send(.chaseEvent(player: 0, kind: .normalWin))
             case .addRight: send(.chaseEvent(player: 1, kind: .normalWin))
-            case .subtractLeft, .subtractRight, .undo: undo()
+            case .subtractLeft, .subtractRight, .undo: _ = undo()
             default: break
             }
         }
@@ -1475,8 +1479,10 @@ struct SnookerReducerScoreboardView: View {
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            let skipSave = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
-            saveRecord()
+            if !skipSave { saveRecord() }
         }
         .sheet(isPresented: $showFoulPanel) { foulSheet }
         .sheet(isPresented: $showSettlePanel) { settleSheet }
@@ -1677,7 +1683,7 @@ struct SnookerReducerScoreboardView: View {
             switch intent {
             case .addLeft: send(.potBallAsSide(side: .left, points: 1))
             case .addRight: send(.potBallAsSide(side: .right, points: 1))
-            case .subtractLeft, .subtractRight, .undo: undo()
+            case .subtractLeft, .subtractRight, .undo: _ = undo()
             default: break
             }
         }
@@ -1964,7 +1970,7 @@ struct ShengjiReducerScoreboardView: View {
                 else { send(.resolveRound(winner: .right, delta: 1)) }
             case .subtractLeft: send(.subtractLevels(side: .left, delta: 1))
             case .subtractRight: send(.subtractLevels(side: .right, delta: 1))
-            case .undo: undo()
+            case .undo: _ = undo()
             default: break
             }
         }

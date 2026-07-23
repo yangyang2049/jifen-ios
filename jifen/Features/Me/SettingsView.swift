@@ -581,7 +581,8 @@ private struct AboutUsView: View {
     }
 
     private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let short = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0.0"
+        return short.hasPrefix("v") ? short : "v\(short)"
     }
 
     private var companyDisplayName: String {

@@ -22,12 +22,15 @@ final class PhoneWatchLinkService {
     private var setupTimeoutTask: Task<Void, Never>?
     private var ackRetryTask: Task<Void, Never>?
     private var revisionGate = LinkRevisionGate()
+    private var pendingTakeoverMessageId: UUID?
 
     private(set) var connectivityStatus: WatchConnectivityStatus
     private(set) var controlRole: LinkControlRole?
     private(set) var latestRemoteSnapshot: LinkedSnapshotUpdate?
     private(set) var finishedRecordId: String?
     private(set) var lastErrorMessage: String?
+    /// Last watch record id auto-synced into phone records (for toast / UI).
+    private(set) var lastSyncedWatchRecordId: String?
 
     static let setupTimeoutSeconds: TimeInterval = 20
 
@@ -77,7 +80,7 @@ final class PhoneWatchLinkService {
         connectivityStatus = transport.status
         transport.onStatusChange = { [weak self] status in
             DispatchQueue.main.async {
-                self?.connectivityStatus = status
+                self?.handleConnectivityStatusChange(status)
             }
         }
         transport.onReceive = { [weak self] data in
@@ -85,12 +88,96 @@ final class PhoneWatchLinkService {
                 self?.handleIncoming(data)
             }
         }
+        transport.onWatchRecordData = { [weak self] data in
+            DispatchQueue.main.async {
+                self?.handleWatchRecordTransfer(data)
+            }
+        }
+        transport.onCommonNameUsageData = { [weak self] data in
+            DispatchQueue.main.async {
+                self?.handleCommonNameUsage(data)
+            }
+        }
         transport.activate()
         startAckRetryLoop()
+        NotificationCenter.default.addObserver(
+            forName: .commonNamesDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let service = self else { return }
+            Task { @MainActor in
+                service.pushCommonNamesToWatch()
+            }
+        }
+        pushCommonNamesToWatch()
     }
 
     var canStartInteractiveSession: Bool {
         connectivityStatus.canStartInteractiveSession
+    }
+
+    /// Force a connectivity status refresh for the Watch Link settings page.
+    func refreshConnectivity() {
+        transport.refreshStatus()
+        connectivityStatus = transport.status
+        pushCommonNamesToWatch()
+    }
+
+    /// Push current phone common names to the watch via application context (always-latest).
+    func pushCommonNamesToWatch() {
+        guard connectivityStatus.isSupported,
+              connectivityStatus.isActivated,
+              connectivityStatus.isPaired,
+              connectivityStatus.isWatchAppInstalled else { return }
+        let snapshot = CommonNamesSyncSnapshot(
+            teams: CommonNamesManager.shared.getNames(type: .team),
+            players: CommonNamesManager.shared.getNames(type: .player)
+        )
+        let context: [String: Any] = [
+            WatchConnectivityTransport.commonNamesContextKey: snapshot.applicationContextValue()
+        ]
+        do {
+            try transport.updateApplicationContext(context)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func handleWatchRecordTransfer(_ data: Data) {
+        guard let payload = try? JSONDecoder().decode(WatchRecordTransferPayload.self, from: data) else {
+            return
+        }
+        do {
+            lastSyncedWatchRecordId = try WatchStandaloneRecordIngestor.ingest(payload)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func handleCommonNameUsage(_ data: Data) {
+        guard let payload = try? JSONDecoder().decode(CommonNameUsagePayload.self, from: data),
+              payload.nameType == "player" else { return }
+        Task { @MainActor [weak self] in
+            for name in payload.names {
+                await CommonNamesManager.shared.recordUsage(name, .player)
+            }
+            self?.pushCommonNamesToWatch()
+        }
+    }
+
+    /// Cancel an in-flight setup handshake (user left Setup while waiting).
+    func cancelPendingSetupHandshake() {
+        setupTimeoutTask?.cancel()
+        setupTimeoutTask = nil
+        let continuation = setupContinuation
+        setupContinuation = nil
+        if let sessionId = activeSession?.sessionId {
+            leaveSession(sessionId)
+        } else {
+            clearSession()
+        }
+        continuation?.resume(throwing: InteractiveStartError.setupRejected)
     }
 
     var isFollower: Bool {
@@ -156,11 +243,15 @@ final class PhoneWatchLinkService {
     }
 
     func takeover(sessionId: UUID) async throws {
-        guard var session = activeSession, session.sessionId == sessionId else {
+        guard let session = activeSession,
+              session.sessionId == sessionId,
+              connectivityStatus.canStartInteractiveSession else {
             throw InteractiveStartError.watchUnavailable
         }
         sequence += 1
+        let messageId = UUID()
         let envelope = LinkEnvelope(
+            messageId: messageId,
             sessionId: sessionId,
             kind: .takeoverByPhone,
             sender: .phone,
@@ -169,10 +260,22 @@ final class PhoneWatchLinkService {
             sentAtEpochMilliseconds: nowMs(),
             payload: EmptyLinkPayload()
         )
-        try await sendEnvelope(envelope)
-        session.role = .phoneController
-        activeSession = session
-        controlRole = .phoneController
+        let data = try JSONEncoder().encode(envelope)
+        pendingTakeoverMessageId = messageId
+        pendingAck.enqueue(.init(
+            messageId: messageId,
+            sessionId: sessionId,
+            revision: session.revision,
+            data: data,
+            lastSentAtEpochMilliseconds: nowMs()
+        ))
+        do {
+            try await transport.send(data)
+        } catch {
+            _ = pendingAck.acknowledge(messageId: messageId)
+            pendingTakeoverMessageId = nil
+            throw error
+        }
     }
 
     func leaveSession(_ sessionId: UUID) {
@@ -200,13 +303,19 @@ final class PhoneWatchLinkService {
         snapshot: LinkedScoreboardSnapshot,
         recordId: String,
         winnerSide: MatchSide?,
-        manualEnd: Bool
+        manualEnd: Bool,
+        startTime: Date? = nil,
+        endTime: Date? = nil,
+        totalScoreChanges: Int? = nil
     ) {
         guard var session = activeSession, session.sessionId == sessionId else { return }
         session.revision += 1
         activeSession = session
         sequence += 1
         let messageId = UUID()
+        let end = endTime ?? Date()
+        let start = startTime ?? end.addingTimeInterval(-60)
+        let duration = max(1, end.timeIntervalSince(start))
         let envelope = LinkEnvelope(
             messageId: messageId,
             sessionId: sessionId,
@@ -219,7 +328,11 @@ final class PhoneWatchLinkService {
                 snapshot: snapshot,
                 recordId: recordId,
                 winnerSide: winnerSide,
-                manualEnd: manualEnd
+                manualEnd: manualEnd,
+                startTimeEpochMilliseconds: Int64(start.timeIntervalSince1970 * 1000),
+                endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
+                durationSeconds: duration,
+                totalScoreChanges: totalScoreChanges
             )
         )
         Task {
@@ -247,8 +360,14 @@ final class PhoneWatchLinkService {
             throw InteractiveStartError.watchUnavailable
         }
         if setupContinuation != nil {
-            setupContinuation?.resume(throwing: InteractiveStartError.setupTimedOut)
+            let continuation = setupContinuation
             setupContinuation = nil
+            if let existing = activeSession?.sessionId {
+                leaveSession(existing)
+            } else {
+                clearSession()
+            }
+            continuation?.resume(throwing: InteractiveStartError.setupTimedOut)
         }
         setupTimeoutTask?.cancel()
 
@@ -260,7 +379,7 @@ final class PhoneWatchLinkService {
             initialSnapshot: initialSnapshot
         )
         if let existing = activeSession?.sessionId {
-            revisionGate.endSession(existing)
+            leaveSession(existing)
         }
         activeSession = ActiveSession(
             sessionId: sessionId,
@@ -284,17 +403,36 @@ final class PhoneWatchLinkService {
             sentAtEpochMilliseconds: nowMs(),
             payload: setup
         )
-        try await sendEnvelope(envelope)
-
         return try await withCheckedThrowingContinuation { continuation in
             setupContinuation = continuation
             setupTimeoutTask = Task { [weak self] in
-                try? await Task.sleep(nanoseconds: UInt64(Self.setupTimeoutSeconds * 1_000_000_000))
+                do {
+                    try await Task.sleep(nanoseconds: UInt64(Self.setupTimeoutSeconds * 1_000_000_000))
+                } catch {
+                    return
+                }
                 await MainActor.run {
-                    guard let self, let cont = self.setupContinuation else { return }
+                    guard let self,
+                          self.activeSession?.sessionId == sessionId,
+                          let cont = self.setupContinuation else { return }
                     self.setupContinuation = nil
-                    self.clearSession()
+                    self.setupTimeoutTask = nil
+                    self.leaveSession(sessionId)
                     cont.resume(throwing: InteractiveStartError.setupTimedOut)
+                }
+            }
+            Task { [weak self] in
+                guard let self else { return }
+                do {
+                    try await self.sendEnvelope(envelope)
+                } catch {
+                    guard self.activeSession?.sessionId == sessionId,
+                          let cont = self.setupContinuation else { return }
+                    self.setupContinuation = nil
+                    self.setupTimeoutTask?.cancel()
+                    self.setupTimeoutTask = nil
+                    self.clearSession()
+                    cont.resume(throwing: error)
                 }
             }
         }
@@ -387,7 +525,16 @@ final class PhoneWatchLinkService {
               envelope.kind == .acknowledgement || envelope.kind == .recordAcknowledgement else {
             return false
         }
-        _ = pendingAck.acknowledge(messageId: envelope.payload.acknowledgedMessageId)
+        let acknowledgedMessageId = envelope.payload.acknowledgedMessageId
+        _ = pendingAck.acknowledge(messageId: acknowledgedMessageId)
+        if acknowledgedMessageId == pendingTakeoverMessageId,
+           var session = activeSession,
+           session.sessionId == envelope.sessionId {
+            pendingTakeoverMessageId = nil
+            session.role = .phoneController
+            activeSession = session
+            controlRole = .phoneController
+        }
         return true
     }
 
@@ -396,20 +543,25 @@ final class PhoneWatchLinkService {
               envelope.sender == .watch,
               envelope.kind == .stateSnapshot,
               let snapshot = envelope.payload.initialSnapshot,
-              activeSession?.sessionId == envelope.sessionId,
-              revisionGate.accept(sessionId: envelope.sessionId, revision: envelope.sessionRevision)
-                || activeSession?.revision ?? 0 < envelope.sessionRevision else {
+              activeSession?.sessionId == envelope.sessionId else {
             return false
         }
-        if var session = activeSession {
+
+        let disposition = revisionGate.classify(
+            sessionId: envelope.sessionId,
+            revision: envelope.sessionRevision
+        )
+        guard disposition != .wrongSession else { return false }
+        if disposition == .newer, var session = activeSession {
             session.revision = max(session.revision, envelope.sessionRevision)
             activeSession = session
+            latestRemoteSnapshot = LinkedSnapshotUpdate(
+                sessionId: envelope.sessionId,
+                revision: envelope.sessionRevision,
+                snapshot: snapshot
+            )
         }
-        latestRemoteSnapshot = LinkedSnapshotUpdate(
-            sessionId: envelope.sessionId,
-            revision: envelope.sessionRevision,
-            snapshot: snapshot
-        )
+        // ACK valid duplicates too: a retry usually means our prior ACK was lost.
         sendAck(
             sessionId: envelope.sessionId,
             messageId: envelope.messageId,
@@ -447,14 +599,37 @@ final class PhoneWatchLinkService {
               envelope.sender == .watch,
               envelope.kind == .matchFinished,
               envelope.sessionId == activeSession?.sessionId else { return false }
-        finishedRecordId = envelope.payload.recordId
+
         latestRemoteSnapshot = LinkedSnapshotUpdate(
             sessionId: envelope.sessionId,
             revision: envelope.sessionRevision,
             snapshot: envelope.payload.snapshot
         )
-        if let gameType = activeSession?.gameType {
-            LinkedMatchRecordIngestor.ingest(payload: envelope.payload, gameType: gameType)
+
+        // Once this session has been durably committed, acknowledge any retry
+        // without replacing the accepted record.
+        if finishedRecordId != nil {
+            sendAck(
+                sessionId: envelope.sessionId,
+                messageId: envelope.messageId,
+                revision: envelope.sessionRevision,
+                recordAck: true
+            )
+            return true
+        }
+
+        guard let gameType = activeSession?.gameType else { return false }
+        do {
+            finishedRecordId = try LinkedMatchRecordIngestor.ingest(
+                payload: envelope.payload,
+                gameType: gameType,
+                sessionId: envelope.sessionId
+            )
+        } catch {
+            // Do not ACK a record that was not saved. The watch retains the
+            // stable message and retries instead of silently losing the match.
+            lastErrorMessage = error.localizedDescription
+            return true
         }
         sendAck(
             sessionId: envelope.sessionId,
@@ -480,9 +655,40 @@ final class PhoneWatchLinkService {
               envelope.kind == .statusResponse else { return false }
         if var session = activeSession, session.sessionId == envelope.sessionId {
             session.revision = max(session.revision, envelope.payload.revision)
+            switch envelope.payload.role {
+            case .watchController:
+                session.role = .phoneFollower
+            case .watchFollower:
+                session.role = .phoneController
+            case .phoneController, .phoneFollower:
+                break
+            }
             activeSession = session
+            controlRole = session.role
         }
         return true
+    }
+
+    private func handleConnectivityStatusChange(_ status: WatchConnectivityStatus) {
+        connectivityStatus = status
+        pushCommonNamesToWatch()
+        guard status.isReachable else { return }
+        requestStatusForActiveSession()
+    }
+
+    private func requestStatusForActiveSession() {
+        guard let session = activeSession else { return }
+        sequence += 1
+        let envelope = LinkEnvelope(
+            sessionId: session.sessionId,
+            kind: .statusQuery,
+            sender: .phone,
+            senderSequence: sequence,
+            sessionRevision: session.revision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: EmptyLinkPayload()
+        )
+        Task { try? await sendEnvelope(envelope) }
     }
 
     private func sendAck(
@@ -533,6 +739,7 @@ final class PhoneWatchLinkService {
         }
         activeSession = nil
         controlRole = nil
+        pendingTakeoverMessageId = nil
         pendingAck.clear()
         latestRemoteSnapshot = nil
     }

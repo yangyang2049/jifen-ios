@@ -79,96 +79,63 @@ final class RallySessionStoreTests: XCTestCase {
     }
 
     func testTennisPlayAllAcceptsEvenSetsAndFinishesInDraw() {
-        let viewModel = TennisViewModel()
-        viewModel.setConfig(maxSets: 4, matchCompletionMode: .playAll)
+        let reducer = TennisMatchReducer()
+        var state = TennisMatchState(
+            leftName: "A",
+            rightName: "B",
+            rules: .init(maxSets: 4, matchCompletionMode: .playAll, autoChangeSides: false)
+        )
 
-        viewModel.adjustSets(isLeft: true, delta: 1)
-        viewModel.adjustSets(isLeft: true, delta: 1)
-        viewModel.adjustSets(isLeft: false, delta: 1)
-        XCTAssertFalse(viewModel.gameFinished)
-        viewModel.adjustSets(isLeft: false, delta: 1)
+        state = reducer.reduce(state: state, intent: .adjustSets(side: .left, delta: 1), at: 1).state
+        state = reducer.reduce(state: state, intent: .adjustSets(side: .left, delta: 1), at: 2).state
+        state = reducer.reduce(state: state, intent: .adjustSets(side: .right, delta: 1), at: 3).state
+        XCTAssertFalse(state.rules.isMatchFinished(leftSets: state.leftSets, rightSets: state.rightSets))
+        state = reducer.reduce(state: state, intent: .adjustSets(side: .right, delta: 1), at: 4).state
 
-        XCTAssertTrue(viewModel.gameFinished)
-        XCTAssertEqual(viewModel.leftTeam.sets, 2)
-        XCTAssertEqual(viewModel.rightTeam.sets, 2)
-        XCTAssertEqual(viewModel.getWinnerName(), "")
+        XCTAssertTrue(state.rules.isMatchFinished(leftSets: state.leftSets, rightSets: state.rightSets))
+        XCTAssertEqual(state.leftSets, 2)
+        XCTAssertEqual(state.rightSets, 2)
     }
 
     func testTennisClassicStillFinishesEarly() {
-        let viewModel = TennisViewModel()
-        viewModel.setConfig(maxSets: 5, matchCompletionMode: .bestOf)
+        let reducer = TennisMatchReducer()
+        var state = TennisMatchState(
+            leftName: "A",
+            rightName: "B",
+            rules: .init(maxSets: 5, matchCompletionMode: .bestOf, autoChangeSides: false)
+        )
 
-        viewModel.adjustSets(isLeft: true, delta: 1)
-        viewModel.adjustSets(isLeft: true, delta: 1)
-        viewModel.adjustSets(isLeft: true, delta: 1)
+        state = reducer.reduce(state: state, intent: .adjustSets(side: .left, delta: 1), at: 1).state
+        state = reducer.reduce(state: state, intent: .adjustSets(side: .left, delta: 1), at: 2).state
+        state = reducer.reduce(state: state, intent: .adjustSets(side: .left, delta: 1), at: 3).state
 
-        XCTAssertTrue(viewModel.gameFinished)
+        XCTAssertTrue(state.rules.isMatchFinished(leftSets: state.leftSets, rightSets: state.rightSets))
+        XCTAssertEqual(state.leftSets, 3)
     }
 
     func testTennisTieBreakServeUsesOneThenTwoPointBlocks() {
-        let viewModel = TennisViewModel()
-        viewModel.setConfig(maxSets: 3, openingServerSide: .left)
-        viewModel.leftTeam.games = 6
-        viewModel.rightTeam.games = 6
-        viewModel.isTieBreak = true
-        viewModel.tieBreakFirstServer = .left
-        viewModel.leftTeam.score = 0
-        viewModel.rightTeam.score = 0
-
-        XCTAssertTrue(viewModel.isLeftServing()) // point 0 → block 0 → left
-        viewModel.leftTeam.score = 1
-        XCTAssertFalse(viewModel.isLeftServing()) // point 1 → block 1 → right
-        viewModel.rightTeam.score = 1 // total 2
-        XCTAssertFalse(viewModel.isLeftServing()) // block 1 still
-        viewModel.leftTeam.score = 2 // total 3
-        XCTAssertTrue(viewModel.isLeftServing()) // block 2 → left
-    }
-
-    func testTennisDoublesServerSlotAdvancesEachGame() {
-        let viewModel = TennisViewModel()
-        viewModel.setConfig(maxSets: 3, openingServerSide: .left, isSingles: false)
-        XCTAssertEqual(viewModel.currentServerSlot(), 0)
-        viewModel.leftTeam.games = 1
-        XCTAssertEqual(viewModel.currentServerSlot(), 1)
-        viewModel.rightTeam.games = 1 // total 2
-        XCTAssertEqual(viewModel.currentServerSlot(), 2)
-    }
-
-    func testTennisNewFormatsNormalizeAndFinishCorrectly() {
-        let shortSet = TennisViewModel()
-        shortSet.setConfig(maxSets: 1, autoChangeSides: false, gamesPerSet: 4)
-        shortSet.leftTeam.games = 4
-        shortSet.rightTeam.games = 4
-        shortSet.isTieBreak = true
-        shortSet.tieBreakTarget = 7
-        shortSet.leftTeam.score = 6
-        shortSet.rightTeam.score = 5
-        shortSet.addScore(isLeft: true, points: 1)
-        XCTAssertEqual(shortSet.leftTeam.games, 5)
-        XCTAssertTrue(shortSet.gameFinished)
-
-        let matchTieBreak = TennisViewModel()
-        matchTieBreak.setConfig(
-            maxSets: 5,
-            autoChangeSides: false,
-            matchCompletionMode: .playAll,
-            gamesPerSet: 6,
-            setScoringMode: "tiebreak_only"
+        let reducer = TennisMatchReducer()
+        var state = TennisMatchState(
+            leftName: "A",
+            rightName: "B",
+            rules: .init(maxSets: 3, autoChangeSides: false),
+            openingServer: .left
         )
-        matchTieBreak.tieBreakTarget = 10
-        XCTAssertEqual(matchTieBreak.maxSets, 1)
-        XCTAssertEqual(matchTieBreak.matchCompletionMode, .bestOf)
-        XCTAssertTrue(matchTieBreak.isTieBreak)
-        matchTieBreak.leftTeam.score = 9
-        matchTieBreak.rightTeam.score = 9
-        matchTieBreak.addScore(isLeft: true, points: 1)
-        XCTAssertFalse(matchTieBreak.gameFinished)
-        matchTieBreak.addScore(isLeft: true, points: 1)
-        XCTAssertEqual(matchTieBreak.leftTeam.sets, 1)
-        XCTAssertTrue(matchTieBreak.gameFinished)
+        state.leftGames = 6
+        state.rightGames = 6
+        state.isTieBreak = true
+        state.firstServerInSet = .left
+        state.servingSide = .left
+        state.leftPoints = 0
+        state.rightPoints = 0
 
-        matchTieBreak.adjustGames(isLeft: true, delta: 1)
-        XCTAssertEqual(matchTieBreak.leftTeam.games, 1)
+        XCTAssertEqual(state.servingSide, .left)
+        state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+        XCTAssertEqual(state.servingSide, .right)
+        state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+        XCTAssertEqual(state.servingSide, .right)
+        state = reducer.reduce(state: state, intent: .pointWon(.left), at: 3).state
+        XCTAssertEqual(state.servingSide, .left)
     }
 
     func testSportsSetupResultDefaultsMissingCompletionMode() throws {

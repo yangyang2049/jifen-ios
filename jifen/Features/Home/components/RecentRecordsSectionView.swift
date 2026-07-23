@@ -73,13 +73,24 @@ struct RecentRowView: View {
     private func buildScoreboardItem() -> some View {
         NavigationLink(destination: ScoreboardRecordDetailPage(recordId: activity.id)) {
             HStack(spacing: 0) { // Row()
-                // Left: Game Emoji Icon
-                Text(activity.gameType.icon) // Text(GameTypeIcons[this.activity.gameType] || '🎮')
-                    .font(.system(size: 28))
-                    .frame(width: 40, height: 40)
-                    .multilineTextAlignment(.center) // textAlign(TextAlign.Center)
-                    .minimumScaleFactor(0.5)
-                    .padding(.trailing, Theme.sm) // margin({ left: 12 }) (approximated)
+                // Left: Game Emoji Icon (+ watch sync badge)
+                ZStack(alignment: .bottomTrailing) {
+                    Text(activity.gameType.icon)
+                        .font(.system(size: 28))
+                        .frame(width: 40, height: 40)
+                        .multilineTextAlignment(.center)
+                        .minimumScaleFactor(0.5)
+                    if activity.isSyncedFromWatch {
+                        Image(systemName: "applewatch")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(3)
+                            .background(Circle().fill(Theme.accentColor))
+                            .offset(x: 2, y: 2)
+                    }
+                }
+                .frame(width: 40, height: 40)
+                .padding(.trailing, Theme.sm)
 
                 // Middle Info
                 HStack(spacing: 0) { // Row()
@@ -93,6 +104,16 @@ struct RecentRowView: View {
                             Text(formatTime(activity.timestamp))
                                 .font(.system(size: Theme.fontCaption)) // fontSize(12)
                                 .foregroundColor(Theme.homeNeutralCardTextSecondary)
+                            if activity.isSyncedFromWatch {
+                                Text(NSLocalizedString(
+                                    "record_detail_synced_from_watch_badge",
+                                    value: "手表记录已同步",
+                                    comment: ""
+                                ))
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(Theme.accentColor)
+                                .lineLimit(1)
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading) // alignItems(HorizontalAlign.Start), width('100%'), layoutWeight(1)

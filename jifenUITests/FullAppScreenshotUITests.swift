@@ -1,7 +1,7 @@
 import XCTest
 
 /// 全页面截图 UI 测试：覆盖 Tab、全部计分板、计时面板、工具、二三级页面。
-/// 截图写入仓库根目录 `UITestScreenshots/`。
+/// iPhone / iPad 截图带设备前缀写入仓库根目录 `UITestScreenshots-All/`。
 /// 横屏计分/计时页每次结束后 terminate+relaunch，避免方向锁导致后续导航失败。
 final class FullAppScreenshotUITests: XCTestCase {
     private var app: XCUIApplication!
@@ -40,6 +40,8 @@ final class FullAppScreenshotUITests: XCTestCase {
         ("cube", "魔方", false),
         ("stopwatch", "秒表", false),
         ("timeout", "倒计时", false),
+        ("basketball24", "篮球24秒", false),
+        ("basketball12", "篮球12秒", false),
     ]
 
     private let tools: [(id: String, label: String)] = [
@@ -77,7 +79,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         let count = UITestScreenshotStore.writtenFileCount()
         XCTAssertGreaterThanOrEqual(
             count,
-            70,
+            89,
             "Expected broad screenshot coverage, got \(count). Dir: \(UITestScreenshotStore.outputDirectory.path)"
         )
     }
@@ -126,9 +128,27 @@ final class FullAppScreenshotUITests: XCTestCase {
         ]
         let names = aliases[name] ?? [name]
         for n in names {
-            let button = app.tabBars.buttons[n]
-            if button.waitForExistence(timeout: 1.5) {
-                if !button.isSelected { button.tap() }
+            // iPhone: standard tab bar. iPad (iOS 18+/26): may expose tabs outside `tabBars`.
+            let candidates: [XCUIElement] = [
+                app.tabBars.buttons[n],
+                app.buttons[n],
+                app.otherElements[n]
+            ]
+            for button in candidates {
+                if button.waitForExistence(timeout: 0.6), button.isHittable {
+                    if !button.isSelected { button.tap() }
+                    return true
+                }
+            }
+        }
+        // Last resort: fuzzy match any hittable control with the tab label.
+        for n in names {
+            let fuzzy = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label == %@ OR label CONTAINS %@", n, n))
+                .allElementsBoundByIndex
+                .first(where: { $0.isHittable })
+            if let el = fuzzy {
+                el.tap()
                 return true
             }
         }
@@ -147,7 +167,11 @@ final class FullAppScreenshotUITests: XCTestCase {
         selectTab("首页"); snap("01_tab_home")
         selectTab("记录"); snap("02_tab_records")
         selectTab("计分"); snap("03_tab_score")
-        selectTab("计时"); snap("04_tab_timer")
+        selectTab("计时")
+        // Ensure basketball 24s/12s (below the fold on smaller phones) are visible.
+        app.swipeUp()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        snap("04_tab_timer")
         selectTab("我的"); snap("05_tab_me")
 
         selectTab("首页")
@@ -213,7 +237,12 @@ final class FullAppScreenshotUITests: XCTestCase {
                 }
 
                 snap(String(format: "10_%02d_setup_%@", index + 1, item.id), settle: 0.5)
-                tapStart()
+                XCTAssertTrue(tapStart(), "Start button not found for \(item.id)")
+                let scoreboard = app.descendants(matching: .any)["scoreboard_back_button"]
+                XCTAssertTrue(
+                    scoreboard.waitForExistence(timeout: 8),
+                    "Scoreboard did not open for \(item.id)"
+                )
 
                 // Landscape boards need orientation settle
                 XCUIDevice.shared.orientation = .landscapeLeft
@@ -234,21 +263,41 @@ final class FullAppScreenshotUITests: XCTestCase {
                     return
                 }
 
+                scrollUntilExists(identifier: "timer_dest_\(item.id)")
                 let card = app.descendants(matching: .any)["timer_dest_\(item.id)"]
                 if card.waitForExistence(timeout: 3) {
+                    for _ in 0..<4 where !card.isHittable {
+                        app.swipeUp()
+                        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+                    }
                     card.tap()
                 } else {
-                    let byLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", item.label)).firstMatch
-                    guard byLabel.waitForExistence(timeout: 3) else {
+                    // Labels may be "篮球 24 秒" / "Basketball 24s" depending on locale strings.
+                    let altLabels = [
+                        item.label,
+                        item.label.replacingOccurrences(of: "篮球24秒", with: "篮球 24"),
+                        item.label.replacingOccurrences(of: "篮球12秒", with: "篮球 12"),
+                        item.label.replacingOccurrences(of: "篮球24秒", with: "24"),
+                        item.label.replacingOccurrences(of: "篮球12秒", with: "12"),
+                    ]
+                    var tapped = false
+                    for label in altLabels {
+                        let byLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
+                        if byLabel.waitForExistence(timeout: 1.5) {
+                            byLabel.tap()
+                            tapped = true
+                            break
+                        }
+                    }
+                    guard tapped else {
                         XCTFail("Missing timer card: \(item.id)")
                         return
                     }
-                    byLabel.tap()
                 }
 
                 if item.needsSetup {
                     snap(String(format: "20_%02d_timer_setup_%@", index + 1, item.id), settle: 0.4)
-                    tapStart()
+                    XCTAssertTrue(tapStart(), "Timer start button not found for \(item.id)")
                 }
 
                 XCUIDevice.shared.orientation = .landscapeLeft
@@ -345,6 +394,19 @@ final class FullAppScreenshotUITests: XCTestCase {
         navigateBack()
 
         selectTab("我的")
+        if app.staticTexts["手表联动"].exists || app.buttons["手表联动"].exists
+            || app.staticTexts["Watch Link"].exists || app.buttons["Watch Link"].exists {
+            tapRow("手表联动")
+            if !(app.navigationBars["手表联动"].waitForExistence(timeout: 2)
+                || app.navigationBars["Watch Link"].waitForExistence(timeout: 1)) {
+                tapRow("Watch Link")
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+            snap("41b_me_watch_link")
+            navigateBack()
+        }
+
+        selectTab("我的")
         tapRow("外观")
         RunLoop.current.run(until: Date().addingTimeInterval(0.4))
         snap("42_me_appearance")
@@ -404,14 +466,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         relaunch()
         selectTab("记录")
         snap("60_records_root")
-
-        selectTab("首页")
-        let sync = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "局域网同步", "同步")).firstMatch
-        if sync.waitForExistence(timeout: 3) {
-            sync.tap()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
-            snap("61_local_sync")
-        }
+        // Local sync entry removed from the app; keep records-only capture.
     }
 
     // MARK: - Helpers
@@ -448,19 +503,21 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
-    private func tapStart() {
+    @discardableResult
+    private func tapStart() -> Bool {
         for label in ["开始", "Start", "确认"] {
             let button = app.buttons[label]
             if button.waitForExistence(timeout: 1.2), button.isHittable {
                 button.tap()
-                return
+                return true
             }
             let fuzzy = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
             if fuzzy.exists, fuzzy.isHittable {
                 fuzzy.tap()
-                return
+                return true
             }
         }
+        return false
     }
 
     private func tapContaining(_ text: String) {
@@ -526,7 +583,8 @@ final class FullAppScreenshotUITests: XCTestCase {
         try? """
         UITestScreenshots index
         generated: \(ISO8601DateFormatter().string(from: Date()))
-        count: \(count)
+        \(UITestScreenshotStore.devicePrefix) count: \(count)
+        total count: \(UITestScreenshotStore.totalWrittenFileCount())
 
         \(listing)
         """.write(to: manifest, atomically: true, encoding: .utf8)

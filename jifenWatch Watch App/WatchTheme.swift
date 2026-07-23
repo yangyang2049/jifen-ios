@@ -60,13 +60,60 @@ struct WatchTheme {
     static let card = Color(hex: 0x2C2C2E)
     static let primaryText = Color(hex: 0xFFFFFF)
     static let secondaryText = Color(hex: 0x8E8E93)
-    static let accent = Color(hex: 0x32D74B)
+    static let accent = Color(hex: 0x30D158)
     static let listItemBackground = Color(hex: 0x222222)
     static let overlayCard = Color(hex: 0x1C1C1E)
     static let timerAccent = Color(hex: 0x39FF14)
     static let successGreen = Color(hex: 0x4CAF50)
     static let warningOrange = Color(hex: 0xFF7043)
     static let dangerRed = Color(hex: 0xFF3B30)
+}
+
+struct WatchMenuGridButton: View {
+    let title: String
+    let systemImage: String
+    var background: Color = WatchTheme.card
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: systemImage)
+                    .font(.system(size: WatchLayout.isCompactScreen ? 15 : 18, weight: .semibold))
+                Text(title)
+                    .font(.system(size: WatchLayout.isCompactScreen ? 10 : 11, weight: .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: WatchLayout.isCompactScreen ? 48 : 56)
+            .background(background)
+            .clipShape(RoundedRectangle(
+                cornerRadius: WatchLayout.isCompactScreen ? 10 : 12,
+                style: .continuous
+            ))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct WatchMenuCloseButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
+                .foregroundStyle(WatchTheme.secondaryText)
+                .frame(
+                    width: WatchLayout.isCompactScreen ? 32 : 38,
+                    height: WatchLayout.isCompactScreen ? 32 : 38
+                )
+        }
+        .buttonStyle(.plain)
+    }
 }
 
 struct WatchMetrics {

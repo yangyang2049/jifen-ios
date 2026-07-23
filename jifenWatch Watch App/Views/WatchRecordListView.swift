@@ -139,9 +139,14 @@ struct WatchRecordListView: View {
     }
 
     private func recordDisplayText(_ record: WatchScoreboardRecordSummary) -> String {
+        if let participants = record.participants, participants.count > 2 {
+            return participants
+                .map { "\($0.name) \($0.score)" }
+                .joined(separator: " · ")
+        }
         let left: Int
         let right: Int
-        if record.gameType == .basketballTraining {
+        if record.gameType.usesPointScoreInList {
             left = record.team1FinalScore
             right = record.team2FinalScore
         } else {

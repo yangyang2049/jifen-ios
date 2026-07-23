@@ -406,11 +406,7 @@ struct RecordsTab: View {
 
     private func scoreboardRowContent(_ record: ScoreboardRecordSummary) -> some View {
         HStack(spacing: 0) {
-            Text(record.gameType.icon)
-                .font(.system(size: 26))
-                .frame(width: 40, height: 40)
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.5)
+            recordGameIcon(icon: record.gameType.icon, isSyncedFromWatch: record.isSyncedFromWatch)
                 .padding(.trailing, Theme.sm)
 
             VStack(alignment: .leading, spacing: Theme.xs) {
@@ -418,9 +414,21 @@ struct RecordsTab: View {
                     .font(.system(size: Theme.fontBody2, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
                     .lineLimit(1)
-                Text(record.time)
-                    .font(.system(size: Theme.fontCaption))
-                    .foregroundColor(Theme.textSecondary)
+                HStack(spacing: 6) {
+                    Text(record.time)
+                        .font(.system(size: Theme.fontCaption))
+                        .foregroundColor(Theme.textSecondary)
+                    if record.isSyncedFromWatch {
+                        Text(NSLocalizedString(
+                            "record_detail_synced_from_watch_badge",
+                            value: "手表记录已同步",
+                            comment: ""
+                        ))
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Theme.accentColor)
+                        .lineLimit(1)
+                    }
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -438,6 +446,31 @@ struct RecordsTab: View {
         .contentShape(Rectangle())
         .padding(.vertical, Theme.md)
         .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
+    }
+
+    /// Game emoji with optional Watch-sync corner badge (aligned with HarmonyOS RecordsTab).
+    private func recordGameIcon(icon: String, isSyncedFromWatch: Bool) -> some View {
+        ZStack(alignment: .bottomTrailing) {
+            Text(icon)
+                .font(.system(size: 26))
+                .frame(width: 40, height: 40)
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.5)
+            if isSyncedFromWatch {
+                Image(systemName: "applewatch")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(3)
+                    .background(Circle().fill(Theme.accentColor))
+                    .offset(x: 2, y: 2)
+                    .accessibilityLabel(NSLocalizedString(
+                        "record_detail_synced_from_watch_badge",
+                        value: "手表记录已同步",
+                        comment: ""
+                    ))
+            }
+        }
+        .frame(width: 40, height: 40)
     }
 
     private func timerRowContent(_ record: GameRecordSummary) -> some View {

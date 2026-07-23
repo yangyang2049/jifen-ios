@@ -214,7 +214,7 @@ struct WatchLinkSettingsView: View {
 
             Text(NSLocalizedString(
                 "watch_sync_usage_prerequisite",
-                value: "使用前请确认手机和手表均已安装全能计分器，并保持两端应用打开。",
+                value: "使用前请确认手机和手表均已安装全能计分器，并保持配对连接。",
                 comment: ""
             ))
             .font(.system(size: 13))

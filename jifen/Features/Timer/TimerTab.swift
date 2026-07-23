@@ -151,6 +151,10 @@ struct TimerTab: View {
             CubeTimerView()
         case .timeout:
             TimeoutCountdownView()
+        case .basketball24:
+            BasketballCountdownView(duration: 24)
+        case .basketball12:
+            BasketballCountdownView(duration: 12)
         }
     }
 

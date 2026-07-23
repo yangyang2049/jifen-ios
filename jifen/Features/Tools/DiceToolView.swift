@@ -203,12 +203,8 @@ struct DiceWebView: UIViewRepresentable {
     @Binding var diceCount: Int
     let onSoundRequest: () -> Void
 
-    /// Shared process pool keeps subsequent opens warmer.
-    private static let processPool = WKProcessPool()
-
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
-        config.processPool = Self.processPool
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
 

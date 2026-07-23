@@ -260,10 +260,10 @@ struct TimeoutCountdownView: View {
                         } label: {
                             Text(sport.title)
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(selectedSportID == sport.id ? .black : .white.opacity(0.72))
+                                .foregroundStyle(selectedSportID == sport.id ? Theme.textOnPrimary : .white.opacity(0.65))
                                 .padding(.horizontal, 14)
                                 .frame(height: 34)
-                                .background(selectedSportID == sport.id ? .white : .white.opacity(0.08), in: Capsule())
+                                .background(selectedSportID == sport.id ? Theme.primary : .white.opacity(0.10), in: Capsule())
                         }
                         .buttonStyle(.plain)
                     }
@@ -305,10 +305,10 @@ struct TimeoutCountdownView: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
-            .background(selected ? Color.white.opacity(0.22) : Color.white.opacity(0.08))
+            .background(selected ? Color.white.opacity(0.22) : Color.white.opacity(0.10))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(selected ? Color.white.opacity(0.82) : Color.white.opacity(0.14), lineWidth: 1)
+                    .stroke(selected ? Theme.primary : Color.clear, lineWidth: 1.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
@@ -324,10 +324,10 @@ struct TimeoutCountdownView: View {
                 } label: {
                     Text(item.title)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(mode == item ? .black : .white.opacity(0.66))
+                        .foregroundStyle(mode == item ? Theme.textOnPrimary : .white.opacity(0.65))
                         .frame(maxWidth: .infinity)
                         .frame(height: 36)
-                        .background(mode == item ? .white : .clear, in: Capsule())
+                        .background(mode == item ? Theme.primary : .clear, in: Capsule())
                 }
                 .buttonStyle(.plain)
             }
@@ -604,7 +604,8 @@ struct TimeoutCountdownView: View {
         )
         displayRemainingMilliseconds = 0
         TimerToolStateStore.saveCountdown(state)
-        SoundManager.shared.playSound("buzzer")
+        // Harmony CountdownPage plays timeout.mp3 (locale-aware); fall back to buzzer if missing.
+        BoardTimerVoiceAnnouncer.shared.playTimeout()
         VibrationManager.shared.vibrateHeavy()
     }
 

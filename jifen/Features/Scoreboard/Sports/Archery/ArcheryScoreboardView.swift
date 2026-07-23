@@ -220,8 +220,10 @@ struct ArcheryScoreboardView: View {
             applyRemoteArchery(remote)
         }
         .onDisappear {
+            let skipSave = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
-            if !watchLinkService.isFollower {
+            if !skipSave {
                 saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
             }
         }

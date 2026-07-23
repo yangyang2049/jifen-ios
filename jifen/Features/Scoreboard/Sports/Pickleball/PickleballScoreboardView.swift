@@ -10,8 +10,14 @@ struct PickleballScoreboardView: View {
     var body: some View {
         let isDoubles = initialSetup?.isSingles == false
         RallyScoreboardView(
-            leftName: initialSetup?.team1Name.isEmpty == false ? initialSetup!.team1Name : NSLocalizedString("red_team", value: "红方", comment: "Red team"),
-            rightName: initialSetup?.team2Name.isEmpty == false ? initialSetup!.team2Name : NSLocalizedString("blue_team", value: "蓝方", comment: "Blue team"),
+            leftName: resolvedScoreboardSetupName(
+                initialSetup?.team1Name,
+                fallback: NSLocalizedString("red_team", value: "红方", comment: "Red team")
+            ),
+            rightName: resolvedScoreboardSetupName(
+                initialSetup?.team2Name,
+                fallback: NSLocalizedString("blue_team", value: "蓝方", comment: "Blue team")
+            ),
             gameType: isDoubles ? .pickleballDoubles : .pickleball,
             rules: rules,
             participants: initialSetup?.isSingles == false ? doublesParticipants(initialSetup) : nil,

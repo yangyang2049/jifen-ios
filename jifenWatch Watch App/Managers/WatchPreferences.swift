@@ -7,9 +7,11 @@ extension Notification.Name {
 final class WatchPreferences {
     static let shared = WatchPreferences()
 
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
 
-    private init() {}
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
 
     var vibrationEnabled: Bool {
         get { defaults.object(forKey: "watch_vibration_enabled") as? Bool ?? true }
@@ -21,12 +23,18 @@ final class WatchPreferences {
         set { defaults.set(newValue, forKey: "watch_sound_enabled") }
     }
 
-    /// Scoreboard layout: "vertical" (red top, blue bottom) or "horizontal" (red left, blue right)
+    /// Whether to show a brief between-set rest hint on rally/tennis boards. Default on (Harmony-aligned).
+    var setBreakEnabled: Bool {
+        get { defaults.object(forKey: "watch_set_break_enabled") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "watch_set_break_enabled") }
+    }
+
+    /// Scoreboard layout: "horizontal" (left-right) or "vertical" (top-bottom). Default is horizontal.
     var scoreboardLayout: String {
-        get { defaults.string(forKey: "watch_scoreboard_layout") ?? "vertical" }
+        get { defaults.string(forKey: "watch_scoreboard_layout") ?? "horizontal" }
         set {
-            let normalized = (newValue == "horizontal") ? "horizontal" : "vertical"
-            let current = defaults.string(forKey: "watch_scoreboard_layout") ?? "vertical"
+            let normalized = (newValue == "vertical") ? "vertical" : "horizontal"
+            let current = defaults.string(forKey: "watch_scoreboard_layout") ?? "horizontal"
             guard current != normalized else { return }
             defaults.set(normalized, forKey: "watch_scoreboard_layout")
             NotificationCenter.default.post(name: .watchScoreboardLayoutDidChange, object: normalized)
@@ -53,5 +61,19 @@ final class WatchPreferences {
 
     func setString(_ value: String, forKey key: String) {
         defaults.set(value, forKey: key)
+    }
+
+    func int(forKey key: String, defaultValue: Int = 0) -> Int {
+        guard defaults.object(forKey: key) != nil else { return defaultValue }
+        return defaults.integer(forKey: key)
+    }
+
+    func setInt(_ value: Int, forKey key: String) {
+        defaults.set(value, forKey: key)
+    }
+
+    func allowedInt(forKey key: String, defaultValue: Int, allowed: [Int]) -> Int {
+        let value = int(forKey: key, defaultValue: defaultValue)
+        return allowed.contains(value) ? value : defaultValue
     }
 }

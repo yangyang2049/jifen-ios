@@ -47,8 +47,14 @@ struct TennisScoreboardView: View {
             autoChangeSides: setup?.autoChangeSides ?? true
         )
         let opening: MatchSide = setup?.servingSide == MatchSide.right.rawValue ? .right : .left
-        let left = (setup?.team1Name.isEmpty == false) ? setup!.team1Name : NSLocalizedString("red_team", comment: "")
-        let right = (setup?.team2Name.isEmpty == false) ? setup!.team2Name : NSLocalizedString("blue_team", comment: "")
+        let left = resolvedScoreboardSetupName(
+            setup?.team1Name,
+            fallback: NSLocalizedString("red_team", comment: "")
+        )
+        let right = resolvedScoreboardSetupName(
+            setup?.team2Name,
+            fallback: NSLocalizedString("blue_team", comment: "")
+        )
         let doublesNames: [String]? = isDoubles ? [
             setup?.team1Player1Name ?? "",
             setup?.team2Player1Name ?? "",
@@ -256,9 +262,13 @@ struct TennisScoreboardView: View {
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
-            store.persistSnapshot()
+            let skipPersist = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
                 watchLinkService.endWatchSession(watchSessionId)
+            }
+            if !skipPersist {
+                store.persistSnapshot()
             }
         }
     }

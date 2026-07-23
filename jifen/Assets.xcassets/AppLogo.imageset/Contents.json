@@ -6,12 +6,12 @@
       "scale" : "1x"
     },
     {
-      "filename" : "julia.r@example.org",
+      "filename" : "AppLogo@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "james.b@example.com",
+      "filename" : "AppLogo@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

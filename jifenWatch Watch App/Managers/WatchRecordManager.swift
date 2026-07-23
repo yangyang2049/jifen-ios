@@ -1,10 +1,13 @@
 import Foundation
+import LinkCore
 
 final class WatchRecordManager {
     static let shared = WatchRecordManager()
 
     private let recordsKey = "watch_scoreboard_records"
     private let maxRecords = 500
+    /// Injected by Watch app so save can auto-transfer to phone without creating a second WCSession.
+    var recordTransferHandler: ((WatchRecordTransferPayload) -> Void)?
 
     private init() {}
 
@@ -27,6 +30,34 @@ final class WatchRecordManager {
             print("[WatchRecordManager] Failed to save record: \(error)")
             #endif
         }
+
+        autoTransferToPhoneIfNeeded(record)
+    }
+
+    private func autoTransferToPhoneIfNeeded(_ record: WatchScoreboardRecord) {
+        // Basketball training is a local tool session — keep it watch-only.
+        guard record.gameType != .basketballTraining else { return }
+        let payload = WatchRecordTransferPayload(
+            id: record.id,
+            gameType: record.gameType.rawValue,
+            startTimeEpochMilliseconds: Int64(record.startTime.timeIntervalSince1970 * 1000),
+            endTimeEpochMilliseconds: Int64(record.endTime.timeIntervalSince1970 * 1000),
+            durationSeconds: record.duration,
+            team1Name: record.team1Name,
+            team2Name: record.team2Name,
+            team1FinalScore: record.team1FinalScore,
+            team2FinalScore: record.team2FinalScore,
+            team1SetScore: record.team1SetScore,
+            team2SetScore: record.team2SetScore,
+            winner: record.winner,
+            actions: record.actions.map(\.description),
+            totalScoreChanges: record.totalScoreChanges,
+            participants: record.participants?.map {
+                WatchRecordParticipantPayload(name: $0.name, score: $0.score)
+            },
+            projectConfiguration: record.projectConfiguration
+        )
+        recordTransferHandler?(payload)
     }
 
     func loadAllRecords() -> [WatchScoreboardRecord] {

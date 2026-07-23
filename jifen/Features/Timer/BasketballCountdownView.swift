@@ -24,58 +24,112 @@ struct BasketballCountdownView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            VStack(spacing: 24) {
-                Text(formatTime(timeLeft))
-                    .font(.system(size: 72, weight: .bold, design: .monospaced))
-                    .foregroundColor(timeLeft <= 5 ? Color(hex: "FF3B30") : .white)
-                HStack(spacing: 20) {
-                    Button {
-                        if isRunning { pauseTimer() } else { startTimer() }
-                    } label: {
-                        Text(isRunning ? NSLocalizedString("pause", comment: "") : NSLocalizedString("start", comment: ""))
-                            .frame(width: 100, height: 44)
-                            .background(Theme.accentColor)
-                            .foregroundColor(.white)
-                            .cornerRadius(22)
+        GeometryReader { geo in
+            let isLandscape = geo.size.width > geo.size.height
+            let digitSize = min(geo.size.width, geo.size.height) * (isLandscape ? 0.58 : 0.42)
+
+            ZStack {
+                Color.black.ignoresSafeArea()
+
+                Group {
+                    if isLandscape {
+                        HStack(spacing: 28) {
+                            controlColumn
+                            Text(formatTime(timeLeft))
+                                .font(.system(size: digitSize, weight: .bold, design: .monospaced))
+                                .foregroundColor(timeLeft <= 5 ? Color(hex: "FF3B30") : .white)
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity)
+                            Text("\(duration)\n" + NSLocalizedString("seconds", value: "秒", comment: ""))
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.white.opacity(0.55))
+                                .multilineTextAlignment(.center)
+                                .frame(width: 56)
+                        }
+                        .padding(.horizontal, 28)
+                    } else {
+                        VStack(spacing: 28) {
+                            Text("\(duration) " + NSLocalizedString("seconds", value: "秒", comment: ""))
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white.opacity(0.55))
+                            Text(formatTime(timeLeft))
+                                .font(.system(size: digitSize, weight: .bold, design: .monospaced))
+                                .foregroundColor(timeLeft <= 5 ? Color(hex: "FF3B30") : .white)
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity)
+                            controlColumn
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 24)
                     }
-                    .buttonStyle(.plain)
-                    Button {
-                        resetTimer()
-                    } label: {
-                        Text(NSLocalizedString("menu_reset", value: "重置", comment: ""))
-                            .frame(width: 100, height: 44)
-                            .background(Color.white.opacity(0.12))
-                            .foregroundColor(.white)
-                            .cornerRadius(22)
-                    }
-                    .buttonStyle(.plain)
                 }
+
+                VStack {
+                    HStack {
+                        Button {
+                            saveRecordIfNeeded()
+                            dismiss()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 40, height: 40)
+                                .background(Color.white.opacity(0.14))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
         }
-        .navigationTitle("\(duration) " + NSLocalizedString("seconds", value: "秒", comment: ""))
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    saveRecordIfNeeded()
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 17, weight: .regular))
-                        .foregroundColor(.white)
-                }
-            }
+        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .tabBar)
+        .statusBarHidden(true)
+        .onAppear {
+            OrientationLock.shared.lock(.landscape)
         }
-        .toolbarBackground(Color.black, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .onDisappear {
+            OrientationLock.shared.unlock()
             stopTimer()
             saveRecordIfNeeded()
         }
+    }
+
+    private var controlColumn: some View {
+        VStack(spacing: 16) {
+            controlButton(
+                title: isRunning
+                    ? NSLocalizedString("pause", comment: "")
+                    : NSLocalizedString("start", comment: ""),
+                fill: Theme.accentColor
+            ) {
+                if isRunning { pauseTimer() } else { startTimer() }
+            }
+            controlButton(
+                title: NSLocalizedString("menu_reset", value: "重置", comment: ""),
+                fill: Color.white.opacity(0.12)
+            ) {
+                resetTimer()
+            }
+        }
+    }
+
+    private func controlButton(title: String, fill: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 120, height: 48)
+                .background(fill)
+                .foregroundColor(.white)
+                .cornerRadius(24)
+        }
+        .buttonStyle(.plain)
     }
 
     private func formatTime(_ seconds: Double) -> String {

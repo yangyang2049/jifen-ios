@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TimerCore
 
 private enum DualTimerGameState {
     case notStarted
@@ -99,6 +100,7 @@ struct DualPlayerTimerView: View {
                 hasLockedOrientation = false
             }
             stopTicker()
+            BoardTimerVoiceAnnouncer.shared.cancelScheduled()
             if gameState != .notStarted {
                 saveRecordIfNeeded(winnerLabel: winnerPlayerName)
             }
@@ -393,6 +395,7 @@ struct DualPlayerTimerView: View {
         startTicker()
         appendAction(.start)
         vibrateIfEnabled(heavy: false)
+        speakStartIfEnabled()
     }
 
     private func pauseGame(logAction: Bool = true) {
@@ -403,6 +406,7 @@ struct DualPlayerTimerView: View {
             appendAction(.pause)
         }
         vibrateIfEnabled(heavy: false)
+        speakPauseIfEnabled()
     }
 
     private func resumeGame(logAction: Bool = true) {
@@ -414,6 +418,7 @@ struct DualPlayerTimerView: View {
             appendAction(.resume)
         }
         vibrateIfEnabled(heavy: false)
+        speakResumeIfEnabled()
     }
 
     private func stopCurrentGame() {
@@ -433,12 +438,15 @@ struct DualPlayerTimerView: View {
     private func finishGame(winner: Int?, reason: DualTimerEndReason) {
         guard gameState != .finished else { return }
         stopTicker()
+        BoardTimerVoiceAnnouncer.shared.cancelScheduled()
 
         switch reason {
         case .timeout(let loser):
             appendAction(.timeout, actor: playerName(for: loser))
+            speakControlIfEnabled(.end)
         case .manualStop:
             appendAction(.manualStop)
+            speakControlIfEnabled(.stop)
         }
 
         winnerPlayer = winner
@@ -449,6 +457,7 @@ struct DualPlayerTimerView: View {
     }
 
     private func restartGame() {
+        BoardTimerVoiceAnnouncer.shared.cancelScheduled()
         resetClocks()
         activePlayer = 1
         winnerPlayer = nil
@@ -590,6 +599,7 @@ struct DualPlayerTimerView: View {
                 clock.byoyomiPeriodsRemaining = max(1, config.byoyomiPeriods)
             }
             clock.byoyomiRemaining = Double(max(1, config.byoyomiSeconds))
+            speakByoyomiIfEnabled(periodsRemaining: clock.byoyomiPeriodsRemaining)
         }
 
         while remaining > 0 && clock.inByoyomi {
@@ -608,6 +618,7 @@ struct DualPlayerTimerView: View {
             }
 
             clock.byoyomiRemaining = Double(max(1, config.byoyomiSeconds))
+            speakByoyomiIfEnabled(periodsRemaining: clock.byoyomiPeriodsRemaining)
         }
 
         return false
@@ -657,6 +668,7 @@ struct DualPlayerTimerView: View {
         lastTickAt = Date()
         appendAction(.move, actor: playerName(for: playerID))
         vibrateIfEnabled(heavy: false)
+        speakPlayerColorIfEnabled(playerID: nextPlayer)
     }
 
     // MARK: - Helpers
@@ -668,6 +680,42 @@ struct DualPlayerTimerView: View {
         } else {
             VibrationManager.shared.vibrateMedium()
         }
+    }
+
+    private func speakStartIfEnabled() {
+        guard config.voiceEnabled else { return }
+        BoardTimerVoiceAnnouncer.shared.playStartThenSchedulePlayer1(gameType: gameType)
+    }
+
+    private func speakPauseIfEnabled() {
+        guard config.voiceEnabled else { return }
+        BoardTimerVoiceAnnouncer.shared.cancelScheduled()
+        BoardTimerVoiceAnnouncer.shared.playControl(.pause)
+    }
+
+    private func speakResumeIfEnabled() {
+        guard config.voiceEnabled else { return }
+        BoardTimerVoiceAnnouncer.shared.playResumeWithCurrentPlayer(
+            gameType: gameType,
+            playerID: activePlayer
+        )
+    }
+
+    private func speakPlayerColorIfEnabled(playerID: Int) {
+        guard config.voiceEnabled else { return }
+        BoardTimerVoiceAnnouncer.shared.cancelScheduled()
+        BoardTimerVoiceAnnouncer.shared.playPlayerColor(gameType: gameType, playerID: playerID)
+    }
+
+    private func speakControlIfEnabled(_ sound: BoardTimerVoice.ControlSound) {
+        guard config.voiceEnabled else { return }
+        BoardTimerVoiceAnnouncer.shared.playControl(sound)
+    }
+
+    private func speakByoyomiIfEnabled(periodsRemaining: Int) {
+        guard config.voiceEnabled else { return }
+        guard gameType == .go, config.timeMode == .byoyomi else { return }
+        BoardTimerVoiceAnnouncer.shared.playByoyomiPhrase(periodsRemaining: periodsRemaining)
     }
 
     private func clockFor(_ playerID: Int) -> PlayerClockState {

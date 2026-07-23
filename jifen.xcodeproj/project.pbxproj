@@ -59,6 +59,13 @@
 			remoteGlobalIDString = 0FA5BAD02F18F3EB00182375;
 			remoteInfo = jifen;
 		};
+		D20000000000000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0FA5BAC92F18F3EB00182375 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FA5BAE22F18F43E00182375;
+			remoteInfo = "jifenWatch Watch App";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -84,6 +91,7 @@
 		A6C476D58990954AF104F51A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
+		D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "jifenWatch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E10000000000000000000001 /* RallySessionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RallySessionStoreTests.swift; sourceTree = "<group>"; };
 		E10000000000000000000003 /* BoardTimerConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardTimerConfigTests.swift; sourceTree = "<group>"; };
@@ -107,6 +115,11 @@
 		0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "jifenWatch Watch App";
+			sourceTree = "<group>";
+		};
+		D20000000000000000000002 /* jifenWatch Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "jifenWatch Watch AppTests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -145,6 +158,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D20000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4B8F725AF338AEB477A3C5F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -165,6 +185,7 @@
 				0FA5BAD22F18F3EB00182375 /* Products */,
 				8C76EE3CB0FD1BF87723242C /* Frameworks */,
 				4BEAA1146F45CAF74810C41D /* jifenTests */,
+				D20000000000000000000002 /* jifenWatch Watch AppTests */,
 				CB5A5C00CFDC9B30D0B4EDFC /* jifenUITests */,
 			);
 			sourceTree = "<group>";
@@ -175,6 +196,7 @@
 				0FA5BAD12F18F3EB00182375 /* jifen.app */,
 				0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */,
 				6698F86CD13F72512D8A63C9 /* jifenTests.xctest */,
+				D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */,
 				D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */,
 			);
 			name = Products;
@@ -320,6 +342,27 @@
 			productReference = 6698F86CD13F72512D8A63C9 /* jifenTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		D20000000000000000000006 /* jifenWatch Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D2000000000000000000000B /* Build configuration list for PBXNativeTarget "jifenWatch Watch AppTests" */;
+			buildPhases = (
+				D20000000000000000000005 /* Sources */,
+				D20000000000000000000003 /* Frameworks */,
+				D20000000000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D20000000000000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D20000000000000000000002 /* jifenWatch Watch AppTests */,
+			);
+			name = "jifenWatch Watch AppTests";
+			productName = "jifenWatch Watch AppTests";
+			productReference = D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -344,6 +387,10 @@
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 0FA5BAD02F18F3EB00182375;
 					};
+					D20000000000000000000006 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 0FA5BAE22F18F43E00182375;
+					};
 				};
 			};
 			buildConfigurationList = 0FA5BACC2F18F3EB00182375 /* Build configuration list for PBXProject "jifen" */;
@@ -367,6 +414,7 @@
 				0FA5BAD02F18F3EB00182375 /* jifen */,
 				0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */,
 				BAD76ABED0DB2CDE0A4515E2 /* jifenTests */,
+				D20000000000000000000006 /* jifenWatch Watch AppTests */,
 				2359CCD2086CD5E81A2F31FA /* jifenUITests */,
 			);
 		};
@@ -395,6 +443,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D081E4FFA434AD3CBEFBDE4B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D20000000000000000000004 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -446,6 +501,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D20000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -465,6 +527,12 @@
 			name = jifen;
 			target = 0FA5BAD02F18F3EB00182375 /* jifen */;
 			targetProxy = 43607C4E36BA1140CEFAD7CE /* PBXContainerItemProxy */;
+		};
+		D20000000000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "jifenWatch Watch App";
+			target = 0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */;
+			targetProxy = D20000000000000000000007 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -631,8 +699,6 @@
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -680,8 +746,6 @@
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -846,6 +910,57 @@
 			};
 			name = Release;
 		};
+		D20000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jifenWatch Watch App.app/jifenWatch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Debug;
+		};
+		D2000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X9VDZZL3C3;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios.watchkitapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jifenWatch Watch App.app/jifenWatch Watch App";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -881,6 +996,15 @@
 			buildConfigurations = (
 				060D44424D5D2C882224703D /* Release */,
 				AA7343AB94A683BC48372064 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D2000000000000000000000B /* Build configuration list for PBXNativeTarget "jifenWatch Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D20000000000000000000009 /* Debug */,
+				D2000000000000000000000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

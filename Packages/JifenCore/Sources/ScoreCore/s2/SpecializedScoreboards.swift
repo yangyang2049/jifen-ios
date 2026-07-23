@@ -231,8 +231,11 @@ public struct NineBallChaseReducer: DomainReducer {
             guard configured != 0 else { return .rejected(state: state, reason: "Invalid point value") }
             let scorePlayer = kind == .foul && next.playerCount == 2 ? (player == 0 ? 1 : 0) : player
             let scoreDelta = kind == .foul && next.playerCount > 2 ? -configured : configured
+            guard let kindIndex = NineBallChaseKind.allCases.firstIndex(of: kind) else {
+                return .rejected(state: state, reason: "Invalid event kind")
+            }
             next.playerPoints[scorePlayer] += scoreDelta
-            next.playerCounts[player][NineBallChaseKind.allCases.firstIndex(of: kind)!] += 1
+            next.playerCounts[player][kindIndex] += 1
             return .init(state: next, events: [.chaseApplied(player: player, scorePlayer: scorePlayer, kind: kind, delta: scoreDelta)])
         case .deltaTotal(let player, let delta):
             guard (0 ..< next.playerCount).contains(player) else { return .rejected(state: state, reason: "Invalid player") }
@@ -331,7 +334,7 @@ public struct ShengjiTierReducer: DomainReducer {
             current.dealer = winner == previousDealer ? previousDealer : winner
             var events: [ShengjiTierEvent] = []
             if delta > 0 { events.append(.tierAdjusted(add: true, side: winner, delta: delta, left: current.leftIndex, right: current.rightIndex)) }
-            if current.dealer != previousDealer { events.append(.dealerClaimed(side: current.dealer!, initial: false)) }
+            if current.dealer != previousDealer { events.append(.dealerClaimed(side: winner, initial: false)) }
             return .init(state: current, events: events)
         }
     }

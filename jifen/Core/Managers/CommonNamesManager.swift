@@ -1,5 +1,9 @@
 import Foundation
 
+extension Notification.Name {
+    static let commonNamesDidChange = Notification.Name("jifen.commonNamesDidChange")
+}
+
 enum CommonNamesError: Error {
     case emptyName
     case duplicateName
@@ -163,6 +167,7 @@ class CommonNamesManager {
     private func saveNames(_ names: [String], type: NameType) {
         let key = (type == .team) ? teamsKey : playersKey
         userDefaults.set(names, forKey: key)
+        NotificationCenter.default.post(name: .commonNamesDidChange, object: nil)
     }
 
     private func normalizeName(_ raw: String) -> String {

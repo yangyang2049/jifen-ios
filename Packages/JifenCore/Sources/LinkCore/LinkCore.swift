@@ -242,17 +242,33 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
     public var recordId: String
     public var winnerSide: MatchSide?
     public var manualEnd: Bool
+    /// Match wall-clock start (ms since epoch). Optional for backward compatibility.
+    public var startTimeEpochMilliseconds: Int64?
+    /// Match wall-clock end (ms since epoch). Optional for backward compatibility.
+    public var endTimeEpochMilliseconds: Int64?
+    /// Duration in seconds. Optional for backward compatibility.
+    public var durationSeconds: Double?
+    /// Approximate score-change count for record summaries.
+    public var totalScoreChanges: Int?
 
     public init(
         snapshot: LinkedScoreboardSnapshot,
         recordId: String,
         winnerSide: MatchSide? = nil,
-        manualEnd: Bool = false
+        manualEnd: Bool = false,
+        startTimeEpochMilliseconds: Int64? = nil,
+        endTimeEpochMilliseconds: Int64? = nil,
+        durationSeconds: Double? = nil,
+        totalScoreChanges: Int? = nil
     ) {
         self.snapshot = snapshot
         self.recordId = recordId
         self.winnerSide = winnerSide
         self.manualEnd = manualEnd
+        self.startTimeEpochMilliseconds = startTimeEpochMilliseconds
+        self.endTimeEpochMilliseconds = endTimeEpochMilliseconds
+        self.durationSeconds = durationSeconds
+        self.totalScoreChanges = totalScoreChanges
     }
 }
 
@@ -387,6 +403,12 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
 }
 
 public struct LinkRevisionGate: Equatable, Sendable {
+    public enum Disposition: Equatable, Sendable {
+        case newer
+        case duplicateOrOlder
+        case wrongSession
+    }
+
     public private(set) var activeSessionId: UUID?
     public private(set) var latestRevision: UInt64?
 
@@ -402,10 +424,17 @@ public struct LinkRevisionGate: Equatable, Sendable {
 
     @discardableResult
     public mutating func accept(sessionId: UUID, revision: UInt64) -> Bool {
-        guard activeSessionId == sessionId,
-              revision > (latestRevision ?? 0) else { return false }
+        classify(sessionId: sessionId, revision: revision) == .newer
+    }
+
+    /// Advances only for a newer value. Receivers should still ACK
+    /// `.duplicateOrOlder`: the original ACK may have been lost.
+    @discardableResult
+    public mutating func classify(sessionId: UUID, revision: UInt64) -> Disposition {
+        guard activeSessionId == sessionId else { return .wrongSession }
+        guard revision > (latestRevision ?? 0) else { return .duplicateOrOlder }
         latestRevision = revision
-        return true
+        return .newer
     }
 
     public mutating func endSession(_ sessionId: UUID) {
@@ -458,6 +487,7 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
     private static let userInfoPayloadKey = "jifen.link.payload"
     public static let commonNamesContextKey = "jifen.common_names.v1"
     public static let watchRecordUserInfoKey = "jifen.watch_record.v1"
+    public static let commonNameUsageUserInfoKey = "jifen.common_name_usage.v1"
 
     private let session: WCSession
     public var onReceive: ReceiveHandler?
@@ -466,6 +496,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
     public var onApplicationContext: DictionaryHandler?
     /// Queued watch→phone finished-record payloads.
     public var onWatchRecordData: ReceiveHandler?
+    /// Queued watch→phone common-name usage events.
+    public var onCommonNameUsageData: ReceiveHandler?
 
     public init(session: WCSession = .default) {
         self.session = session
@@ -535,6 +567,14 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
         session.transferUserInfo([Self.watchRecordUserInfoKey: data])
     }
 
+    /// Queue a name-usage event even if the phone is currently unreachable.
+    public func transferCommonNameUsage(_ data: Data) throws {
+        guard session.activationState == .activated else {
+            throw WatchConnectivityTransportError.sessionNotActivated
+        }
+        session.transferUserInfo([Self.commonNameUsageUserInfoKey: data])
+    }
+
     private func reportStatus() {
         onStatusChange?(status)
     }
@@ -561,6 +601,10 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     }
 
     public func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        if let usageData = userInfo[Self.commonNameUsageUserInfoKey] as? Data {
+            onCommonNameUsageData?(usageData)
+            return
+        }
         if let recordData = userInfo[Self.watchRecordUserInfoKey] as? Data {
             onWatchRecordData?(recordData)
             return

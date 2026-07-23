@@ -15,7 +15,13 @@ struct Theme {
     static let textPrimary = Color(uiColor: .label)
     static let textSecondary = Color(uiColor: .secondaryLabel)
     static let divider = Color(uiColor: .separator)
-    static let accentColor = Color(uiColor: .systemGreen)
+    /// 与鸿蒙端一致：浅色 #4CAF50，深色 #30D158。
+    static let accentColor = Color(uiColor: UIColor { traits in
+        if traits.userInterfaceStyle == .dark {
+            return UIColor(red: 48 / 255, green: 209 / 255, blue: 88 / 255, alpha: 1)
+        }
+        return UIColor(red: 76 / 255, green: 175 / 255, blue: 80 / 255, alpha: 1)
+    })
     static let goldText = Color("GoldText")
     static let positiveText = Color("PositiveText")
     static let warningText = Color("WarningText")

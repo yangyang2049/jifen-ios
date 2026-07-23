@@ -3,6 +3,8 @@ import LinkCore
 import ScoreCore
 
 enum WatchScoreboardRoute: Hashable, Identifiable {
+    case setup(sport: WatchSetupSport, playerCount: Int)
+    case configured(WatchScoreboardLaunchConfig)
     case pingpong(maxSets: Int)
     case pingpongDoubles(maxSets: Int)
     case badminton(maxSets: Int)
@@ -13,13 +15,15 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
     case pickleballDoubles(maxSets: Int)
     case archery
     case basketball(threeXThree: Bool)
-    case basketballTraining
+    case basketballTraining(mode: WatchBasketballTrainingMode)
     case eightBall
     case nineBall
     case snooker
 
     var id: String {
         switch self {
+        case .setup(let sport, let playerCount): return "setup-\(sport.rawValue)-\(playerCount)"
+        case .configured(let config): return "configured-\(config.sport.rawValue)-\(config.hashValue)"
         case .pingpong(let maxSets): return "pingpong-\(maxSets)"
         case .pingpongDoubles(let maxSets): return "pingpong-d-\(maxSets)"
         case .badminton(let maxSets): return "badminton-\(maxSets)"
@@ -30,7 +34,7 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
         case .pickleballDoubles(let maxSets): return "pickleball-d-\(maxSets)"
         case .archery: return "archery"
         case .basketball(let threeXThree): return threeXThree ? "basketball-3x3" : "basketball-5v5"
-        case .basketballTraining: return "basketballTraining"
+        case .basketballTraining(let mode): return "basketballTraining-\(mode.rawValue)"
         case .eightBall: return "eightBall"
         case .nineBall: return "nineBall"
         case .snooker: return "snooker"

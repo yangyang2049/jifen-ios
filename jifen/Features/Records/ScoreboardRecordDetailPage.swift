@@ -109,9 +109,35 @@ struct ScoreboardRecordDetailPage: View {
                 Text(record.gameType.icon).font(.title)
                 Text(record.gameType.displayName).font(.headline)
                 Spacer()
+                if record.isSyncedFromWatch {
+                    Label(
+                        NSLocalizedString(
+                            "record_detail_synced_from_watch_badge",
+                            value: "手表记录已同步",
+                            comment: ""
+                        ),
+                        systemImage: "applewatch"
+                    )
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Theme.accentColor)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Theme.accentColor.opacity(0.12))
+                    .clipShape(Capsule())
+                }
                 Text(record.status == .draft ? NSLocalizedString("unfinished", value: "未结束", comment: "") : NSLocalizedString("finished", value: "已结束", comment: ""))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(record.status == .draft ? .orange : .green)
+            }
+            if record.isSyncedFromWatch {
+                Text(NSLocalizedString(
+                    "record_detail_synced_from_watch_hint",
+                    value: "这条记录已从手表同步到手机",
+                    comment: ""
+                ))
+                .font(.caption)
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             HStack(alignment: .center, spacing: 12) {
                 scoreSide(record.team1Name, score: record.team1FinalScore, isWinner: record.winner == "left")

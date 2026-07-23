@@ -7,5 +7,3 @@
 
 "NSPhotoLibraryAddUsageDescription" = "We need access to your photo library to save scoreboard screenshots.";
 "CFBundleDisplayName" = "iScoreboard";
-"NSCameraUsageDescription" = "Used to scan a local scoreboard sync QR code.";
-"NSLocalNetworkUsageDescription" = "Used to discover and connect scoreboard controllers and displays on your local network.";

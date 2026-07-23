@@ -288,13 +288,14 @@ public struct GuandanSessionReducer: DomainReducer {
             return withCurrentAStage(next, side: winnerAtA ? winner : nil)
         }
 
-        let failCount = state.aFailCount(for: prevAStageTeam!) + 1
-        next = withFailCount(next, side: prevAStageTeam!, value: failCount)
+        guard let activeAStageTeam = prevAStageTeam else { return next }
+        let failCount = state.aFailCount(for: activeAStageTeam) + 1
+        next = withFailCount(next, side: activeAStageTeam, value: failCount)
         if failCount >= 3 {
             let fallback = state.tripleAFallbackRank.isEmpty ? "2" : state.tripleAFallbackRank
-            let fallbackTeam = GuandanTeamState(name: team(next, prevAStageTeam!).name, currentRank: fallback)
-            next = withTeam(next, side: prevAStageTeam!, team: fallbackTeam)
-            next = withFailCount(next, side: prevAStageTeam!, value: 0)
+            let fallbackTeam = GuandanTeamState(name: team(next, activeAStageTeam).name, currentRank: fallback)
+            next = withTeam(next, side: activeAStageTeam, team: fallbackTeam)
+            next = withFailCount(next, side: activeAStageTeam, value: 0)
         }
         let winnerAtA = team(next, winner).currentRank == "A"
         next.phase = .playing
@@ -374,13 +375,15 @@ public struct GuandanSessionReducer: DomainReducer {
                 team1Score: GuandanMatchState.rankDisplayScore(next.redTeam.currentRank),
                 team2Score: GuandanMatchState.rankDisplayScore(next.blueTeam.currentRank)
             )]
-        case .applyRoundSettlement(let step) where before.roundWinner != nil:
-            return [.roundSettlementApplied(winner: before.roundWinner!, step: step)]
-        case .recordPassA(let success) where before.aStageTeam != nil:
+        case .applyRoundSettlement(let step):
+            guard let winner = before.roundWinner else { return [] }
+            return [.roundSettlementApplied(winner: winner, step: step)]
+        case .recordPassA(let success):
+            guard let side = before.aStageTeam else { return [] }
             return [.passARecorded(
-                side: before.aStageTeam!,
+                side: side,
                 success: success,
-                prevAttempt: before.aFailCount(for: before.aStageTeam!)
+                prevAttempt: before.aFailCount(for: side)
             )]
         default:
             return []

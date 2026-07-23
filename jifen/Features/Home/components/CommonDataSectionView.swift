@@ -51,13 +51,7 @@ struct CommonDataSectionView: View {
             }
             .padding(.horizontal, 12)
             .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
-            .background {
-                LinearGradient(
-                    colors: [tint.opacity(0.96), tint.opacity(0.72)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
+            .background(tint)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)

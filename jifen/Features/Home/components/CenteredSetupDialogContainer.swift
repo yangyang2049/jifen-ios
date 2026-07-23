@@ -151,6 +151,7 @@ struct CenteredSetupDialogContainer<Content: View>: View {
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
+            let cardWidth = max(0, min(340, proxy.size.width - 32))
 
             ZStack {
                 Color.black.opacity(0.48)
@@ -164,7 +165,7 @@ struct CenteredSetupDialogContainer<Content: View>: View {
 
                 content(cardMaxHeight)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: min(340, proxy.size.width - 32))
+                    .frame(width: cardWidth)
                     .background(Theme.homeDialogBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .shadow(color: .black.opacity(0.28), radius: 28, y: 12)
@@ -197,6 +198,7 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
+            let cardWidth = max(0, min(340, proxy.size.width - 32))
 
             ZStack {
                 if let visibleItem {
@@ -211,7 +213,7 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
 
                     content(visibleItem, requestDismiss, cardMaxHeight)
                         .fixedSize(horizontal: false, vertical: true)
-                        .frame(width: min(340, proxy.size.width - 32))
+                        .frame(width: cardWidth)
                         .background(Theme.homeDialogBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                         .shadow(color: .black.opacity(0.28), radius: 28, y: 12)

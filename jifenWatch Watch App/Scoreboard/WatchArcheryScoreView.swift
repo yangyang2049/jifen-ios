@@ -43,7 +43,7 @@ struct WatchArcheryScoreView: View {
     @State private var undoHideTimer: Timer? = nil
     @State private var recordSaved: Bool = false
     @State private var toastMessage: String? = nil
-    @State private var scoreboardLayout: String = "vertical"
+    @State private var scoreboardLayout: String = "horizontal"
 
     private var redScore: Int { store.state.leftArrowSum }
     private var blueScore: Int { store.state.rightArrowSum }
@@ -232,7 +232,7 @@ struct WatchArcheryScoreView: View {
                 .ignoresSafeArea()
                 .onTapGesture { showScorePanel = false }
             VStack(spacing: WatchLayout.archeryScorePanelVStackSpacing) {
-                Text(currentShooter ? NSLocalizedString("watch_team_red", comment: "Red") : NSLocalizedString("watch_team_blue", comment: "Blue"))
+                Text(currentShooter ? leftName : rightName)
                     .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14, weight: .bold))
                     .foregroundColor(currentShooter ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
                 VStack(spacing: gridSpacing) {
@@ -240,15 +240,20 @@ struct WatchArcheryScoreView: View {
                         HStack(spacing: gridSpacing) {
                             ForEach(0..<4, id: \.self) { col in
                                 let val = scoreGrid[row][col]
+                                let isMiss = val == nil || val == -1
                                 Button {
-                                    addArrow(value: val == -1 ? nil : val)
+                                    addArrow(value: isMiss ? nil : val)
                                     showScorePanel = false
                                 } label: {
-                                    Text(val == -1 ? NSLocalizedString("watch_archery_miss", value: "M", comment: "Archery miss") : "\(val!)")
+                                    Text(
+                                        isMiss
+                                            ? NSLocalizedString("watch_archery_miss", value: "M", comment: "Archery miss")
+                                            : String(val ?? 0)
+                                    )
                                         .font(.system(size: fontSize, weight: .medium))
-                                        .foregroundColor(val == -1 ? Color.white : Color.black)
+                                        .foregroundColor(isMiss ? Color.white : Color.black)
                                         .frame(width: btnSize, height: btnSize)
-                                        .background(val == -1 ? Color.orange : Color.white.opacity(0.8))
+                                        .background(isMiss ? Color.orange : Color.white.opacity(0.8))
                                         .cornerRadius(WatchLayout.isCompactScreen ? 6 : 8)
                                 }
                                 .buttonStyle(.plain)
@@ -283,13 +288,13 @@ struct WatchArcheryScoreView: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color.white.opacity(0.95))
                 HStack(spacing: 8) {
-                    Text(NSLocalizedString("watch_team_red", comment: "Red"))
+                    Text(leftName)
                         .font(.system(size: 14))
                         .foregroundColor(Color(hex: 0xE53935))
                     Text("\(redScore) - \(blueScore)")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
-                    Text(NSLocalizedString("watch_team_blue", comment: "Blue"))
+                    Text(rightName)
                         .font(.system(size: 14))
                         .foregroundColor(Color(hex: 0x1E88E5))
                 }
@@ -322,7 +327,7 @@ struct WatchArcheryScoreView: View {
                     Button {
                         applyClosestToCenter(redWins: true)
                     } label: {
-                        Text(NSLocalizedString("watch_team_red", comment: "Red"))
+                        Text(leftName)
                             .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14, weight: .semibold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -335,7 +340,7 @@ struct WatchArcheryScoreView: View {
                     Button {
                         applyClosestToCenter(redWins: false)
                     } label: {
-                        Text(NSLocalizedString("watch_team_blue", comment: "Blue"))
+                        Text(rightName)
                             .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14, weight: .semibold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -366,7 +371,7 @@ struct WatchArcheryScoreView: View {
                         .font(.system(size: WatchLayout.isCompactScreen ? 16 : 20, weight: .bold))
                         .foregroundColor(.white)
                     if isMatchFinished {
-                        Text("\(NSLocalizedString("watch_team_red", comment: "Red")) \(redSets) - \(blueSets) \(NSLocalizedString("watch_team_blue", comment: "Blue"))")
+                        Text("\(leftName) \(redSets) - \(blueSets) \(rightName)")
                             .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
                             .foregroundColor(WatchTheme.accent)
                     }
@@ -513,25 +518,6 @@ struct WatchArcheryScoreView: View {
                     .foregroundColor(.white)
                     .cornerRadius(WatchLayout.isCompactScreen ? 10 : 12)
 
-                    Button {
-                        toggleLayout()
-                        showMenu = false
-                    } label: {
-                        VStack(spacing: 4) {
-                            Image(systemName: scoreboardLayout == "vertical" ? "rectangle.split.2x1" : "rectangle.split.1x2")
-                                .font(.system(size: iconSz, weight: .medium))
-                            Text(scoreboardLayout == "vertical" ? NSLocalizedString("watch_layout_horizontal", comment: "Horizontal") : NSLocalizedString("watch_layout_vertical", comment: "Vertical"))
-                                .font(.system(size: WatchLayout.isCompactScreen ? 10 : 11, weight: .medium))
-                                .lineLimit(1)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: btnH)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .background(WatchTheme.card)
-                    .foregroundColor(.white)
-                    .cornerRadius(WatchLayout.isCompactScreen ? 10 : 12)
                 }
                 .padding(menuPad)
 
@@ -676,7 +662,12 @@ struct WatchArcheryScoreView: View {
         undoHideTimer = nil
         winner = redSets > blueSets ? true : (blueSets > redSets ? false : nil)
         WatchHaptics.shared.play(.finish)
-        saveMatchRecord()
+        if linkedSessionId != nil {
+            // Notify phone via matchFinished; do not also save a standalone watch transfer record.
+            publishLinked(finished: true)
+        } else {
+            saveMatchRecord()
+        }
     }
 
     private func resetMatch() {
@@ -698,12 +689,6 @@ struct WatchArcheryScoreView: View {
         recordSaved = false
         WatchHaptics.shared.play(.light)
         showToast(NSLocalizedString("watch_reset_toast", comment: "Match reset"))
-    }
-
-    private func toggleLayout() {
-        let next = scoreboardLayout == "vertical" ? "horizontal" : "vertical"
-        scoreboardLayout = next
-        WatchPreferences.shared.scoreboardLayout = next
     }
 
     private func showToast(_ text: String) {
@@ -728,7 +713,10 @@ struct WatchArcheryScoreView: View {
                 snapshot: .archery(snapshot),
                 recordId: "w_archery_\(UUID().uuidString)",
                 winnerSide: redSets == blueSets ? nil : (redSets > blueSets ? .left : .right),
-                manualEnd: isManualFinish
+                manualEnd: isManualFinish,
+                startTime: matchStartTime,
+                endTime: Date(),
+                totalScoreChanges: max(1, redScore + blueScore + redSets + blueSets)
             )
         }
     }
@@ -749,8 +737,8 @@ struct WatchArcheryScoreView: View {
         guard !recordSaved else { return }
         let endTime = Date()
         let duration = endTime.timeIntervalSince(matchStartTime)
-        let redName = NSLocalizedString("watch_team_red", comment: "Red")
-        let blueName = NSLocalizedString("watch_team_blue", comment: "Blue")
+        let redName = leftName
+        let blueName = rightName
         let winnerName = winner == true ? redName : (winner == false ? blueName : nil)
         let record = WatchScoreboardRecord(
             id: "watch-archery-\(Int(endTime.timeIntervalSince1970))",
@@ -766,7 +754,11 @@ struct WatchArcheryScoreView: View {
             team2SetScore: blueSets,
             winner: winnerName,
             actions: [WatchScoreAction(actionType: .gameStart, description: NSLocalizedString("watch_match_start", comment: ""))],
-            totalScoreChanges: max(redSets + blueSets, 1)
+            totalScoreChanges: max(redSets + blueSets, 1),
+            participants: [
+                WatchRecordParticipant(name: redName, score: redSets),
+                WatchRecordParticipant(name: blueName, score: blueSets)
+            ]
         )
         WatchRecordManager.shared.saveRecord(record)
         recordSaved = true

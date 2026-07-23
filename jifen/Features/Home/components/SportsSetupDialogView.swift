@@ -168,6 +168,9 @@ struct SportsSetupDialogView: View {
     @State private var eightBallHandicapRacks = 0
     @State private var isSendingSetupToWatch = false
     @State private var setupSendErrorText = ""
+    @State private var showWatchStartConfirm = false
+    @State private var showExitWhileSendingConfirm = false
+    @State private var showWatchStartGuide = !PreferencesManager.shared.linkedScoreWatchStartGuideShown
     @State private var team1Player1Name: String = ""
     @State private var team1Player2Name: String = ""
     @State private var team2Player1Name: String = ""
@@ -264,7 +267,7 @@ struct SportsSetupDialogView: View {
             }
 
             HStack(spacing: 12) {
-                Button(action: cancelDialog) {
+                Button(action: requestCancelDialog) {
                     Text(NSLocalizedString("cancel", comment: "Cancel button"))
                         .font(.system(size: 16))
                         .foregroundColor(Theme.textSecondary)
@@ -273,7 +276,6 @@ struct SportsSetupDialogView: View {
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .disabled(isSendingSetupToWatch)
 
                 if canStartOnWatch {
                     HStack(spacing: 0) {
@@ -286,7 +288,7 @@ struct SportsSetupDialogView: View {
                             ))
 
                         Button {
-                            Task { await confirmSetup(startOnWatch: true) }
+                            showWatchStartConfirm = true
                         } label: {
                             Group {
                                 if isSendingSetupToWatch {
@@ -317,6 +319,16 @@ struct SportsSetupDialogView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .clipShape(Capsule())
+                    // Overlay so the guide bubble does not expand the start-button layout.
+                    .overlay(alignment: .topTrailing) {
+                        if showWatchStartGuide {
+                            watchStartGuideBubble
+                                // Anchor bubble bottom (arrow tip) to the top of the start row.
+                                .alignmentGuide(.top) { $0[.bottom] }
+                                .offset(x: 4, y: -2)
+                        }
+                    }
+                    .zIndex(showWatchStartGuide ? 1 : 0)
                 } else {
                     startButton(startOnWatch: false)
                         .clipShape(Capsule())
@@ -326,6 +338,83 @@ struct SportsSetupDialogView: View {
         .padding(.horizontal, 20)
         .padding(.top, 20)
         .padding(.bottom, 24)
+        .confirmationDialog(
+            NSLocalizedString("linked_score_start_confirm_title", value: "在手表开始？", comment: ""),
+            isPresented: $showWatchStartConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(NSLocalizedString("linked_score_start_on_watch", value: "在手表开始", comment: "")) {
+                dismissWatchStartGuide()
+                Task { await confirmSetup(startOnWatch: true) }
+            }
+            Button(NSLocalizedString("cancel", comment: "Cancel button"), role: .cancel) {}
+        } message: {
+            Text(NSLocalizedString(
+                "linked_score_start_confirm_message",
+                value: "将向手表发送开局请求，请在手表上确认后开始计分；手机将跟随显示。",
+                comment: ""
+            ))
+        }
+        .alert(
+            NSLocalizedString("linked_score_setup_exit_title", value: "退出同步计分？", comment: ""),
+            isPresented: $showExitWhileSendingConfirm
+        ) {
+            Button(NSLocalizedString("linked_score_setup_exit_confirm", value: "退出", comment: ""), role: .destructive) {
+                watchLinkService.cancelPendingSetupHandshake()
+                isSendingSetupToWatch = false
+                onCancel?()
+            }
+            Button(NSLocalizedString("cancel", comment: "Cancel button"), role: .cancel) {}
+        } message: {
+            Text(NSLocalizedString(
+                "linked_score_setup_exit_message",
+                value: "现在正在等待手表确认。退出后将取消本次同步计分。",
+                comment: ""
+            ))
+        }
+    }
+
+    private var watchStartGuideBubble: some View {
+        VStack(alignment: .trailing, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(NSLocalizedString("linked_score_watch_start_guide_title", value: "手表主控计分", comment: ""))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                Text(NSLocalizedString(
+                    "linked_score_watch_start_guide_message",
+                    value: "点右侧手表按钮发送到手表，由手表主控；手机同步显示并保存记录。",
+                    comment: ""
+                ))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+                Button {
+                    dismissWatchStartGuide()
+                } label: {
+                    Text(NSLocalizedString("watch_sync_comm_failure_help_confirm", value: "知道了", comment: ""))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.primary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(10)
+            .frame(width: 210, alignment: .leading)
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
+
+            Image(systemName: "triangle.fill")
+                .font(.system(size: 10))
+                .foregroundStyle(Theme.cardBackground)
+                .rotationEffect(.degrees(180))
+                .padding(.trailing, 18)
+                .offset(y: -1)
+        }
+    }
+
+    private func dismissWatchStartGuide() {
+        guard showWatchStartGuide else { return }
+        showWatchStartGuide = false
+        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
     }
 
     private func startButton(startOnWatch: Bool) -> some View {
@@ -342,6 +431,14 @@ struct SportsSetupDialogView: View {
         .buttonStyle(.plain)
         .disabled(isSendingSetupToWatch)
         .opacity(isSendingSetupToWatch ? 0.7 : 1)
+    }
+
+    private func requestCancelDialog() {
+        if isSendingSetupToWatch {
+            showExitWhileSendingConfirm = true
+        } else {
+            onCancel?()
+        }
     }
 
     private func cancelDialog() {
@@ -519,7 +616,10 @@ struct SportsSetupDialogView: View {
     }
 
     private var supportsWatchProject: Bool {
-        AppFeatureFlags.isWatchLinkSupportedProject(gameType)
+        AppFeatureFlags.isWatchLinkSupportedSetup(
+            gameType: gameType,
+            isSingles: shouldShowSinglesDoublesAtTop() ? isSingles : nil
+        )
     }
 
     private var canStartOnWatch: Bool {
@@ -890,6 +990,7 @@ struct SportsSetupDialogView: View {
         }
         settingsToggle("pickleball_rally_scoring", fallback: "每球得分", value: $pickleballUseRallyScoring)
         settingsToggle("pickleball_auto_change_sides", fallback: "自动换边", value: $autoChangeSides)
+        settingsToggle("voice_announcement", fallback: "语音播报", value: $voiceAnnouncement)
     }
 
     @ViewBuilder
@@ -1586,6 +1687,7 @@ struct SportsSetupDialogView: View {
             finalConfig.useRallyScoring = pickleballUseRallyScoring
             finalConfig.autoChangeSides = autoChangeSides
             finalConfig.servingSide = servingSide.rawValue
+            finalConfig.voiceAnnouncement = voiceAnnouncement
         } else if gameType == .foosball {
             finalConfig.isSingles = isSingles
             finalConfig.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
@@ -1662,18 +1764,6 @@ struct SportsSetupDialogView: View {
     }
 
     private func startLinkedWatchSession(for config: SportsSetupResult) async throws -> UUID {
-        if gameType == .basketball {
-            let mode: BasketballGameMode = config.basketballMode == "three_x_three" ? .threeXThree : .fiveVFive
-            let ruleSet: BasketballRuleSet = config.basketballRuleSet == "nba" ? .nba : .fiba
-            let state = BasketballMatchEngine.initial(
-                leftName: config.team1Name,
-                rightName: config.team2Name,
-                gameMode: mode,
-                ruleSet: ruleSet
-            )
-            return try await watchLinkService.startInteractiveOnWatch(state: state)
-        }
-
         let coreGameType: ScoreCore.GameType
         let rules: RallyRuleSet
         switch gameType {
@@ -1731,11 +1821,18 @@ struct SportsSetupDialogView: View {
                 autoChangeSides: config.autoChangeSides ?? true
             )
             let opening: MatchSide = config.servingSide == MatchSide.right.rawValue ? .right : .left
+            let doublesNames: [String]? = config.isSingles == false ? [
+                config.team1Player1Name ?? "红A",
+                config.team2Player1Name ?? "蓝A",
+                config.team1Player2Name ?? "红B",
+                config.team2Player2Name ?? "蓝B"
+            ] : nil
             let tennisState = TennisMatchState(
                 leftName: config.team1Name,
                 rightName: config.team2Name,
                 rules: tennisRules,
-                openingServer: opening
+                openingServer: opening,
+                doublesPlayerNames: doublesNames
             )
             return try await watchLinkService.startInteractiveOnWatch(gameType: tennisType, state: tennisState)
         case .archery:
@@ -1769,7 +1866,11 @@ struct SportsSetupDialogView: View {
                 ballInHand: config.nineBallBallInHand ?? 1,
                 foul: config.nineBallFoul ?? 1
             )
-            let nine = NineBallChaseState.initial(config: nineConfig, playerCount: config.playerCount ?? 2)
+            let nine = NineBallChaseState.initial(
+                config: nineConfig,
+                playerCount: config.playerCount ?? 2,
+                playerNames: config.playerNames ?? []
+            )
             return try await watchLinkService.startInteractiveOnWatch(
                 snapshot: .nineBall(nine),
                 gameType: .nineBall

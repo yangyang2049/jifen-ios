@@ -216,6 +216,14 @@ struct ScoreboardRecordParticipant: Equatable {
 }
 
 extension ScoreboardRecord {
+    /// Standalone or linked finishes that originated on Apple Watch.
+    var isSyncedFromWatch: Bool {
+        if let syncFrom = extraData?["syncFrom"]?.value as? String, syncFrom == "watch" {
+            return true
+        }
+        return false
+    }
+
     var displayParticipants: [ScoreboardRecordParticipant] {
         scoreboardRecordParticipants(gameType: gameType, from: extraData)
     }
@@ -232,6 +240,13 @@ extension ScoreboardRecord {
 }
 
 extension ScoreboardRecordSummary {
+    var isSyncedFromWatch: Bool {
+        if let syncFrom = extraData?["syncFrom"]?.value as? String, syncFrom == "watch" {
+            return true
+        }
+        return false
+    }
+
     var displayParticipants: [ScoreboardRecordParticipant] {
         scoreboardRecordParticipants(gameType: gameType, from: extraData)
     }

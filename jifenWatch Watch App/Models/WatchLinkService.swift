@@ -29,23 +29,131 @@ final class WatchLinkService {
     private var revisionGate = LinkRevisionGate()
     private var sequence: UInt64 = 0
     private var pendingAck = LinkPendingAckQueue()
+    private var publishedFinishedRecordId: String?
     private var activeSessionId: UUID?
     private var activeRevision: UInt64 = 0
     private var activeGameType: GameType?
     private var ackRetryTask: Task<Void, Never>?
+    private let pendingWatchRecordsKey = "watch_pending_record_transfers_v1"
+    private var pendingWatchRecords: [WatchRecordTransferPayload] = []
+    private let pendingCommonNameUsageKey = "watch_pending_common_name_usage_v1"
+    private var pendingCommonNameUsage: [CommonNameUsagePayload] = []
 
     init() {
+        if let data = UserDefaults.standard.data(forKey: pendingWatchRecordsKey),
+           let payloads = try? JSONDecoder().decode([WatchRecordTransferPayload].self, from: data) {
+            pendingWatchRecords = payloads
+        }
+        if let data = UserDefaults.standard.data(forKey: pendingCommonNameUsageKey),
+           let payloads = try? JSONDecoder().decode([CommonNameUsagePayload].self, from: data) {
+            pendingCommonNameUsage = payloads
+        }
         transport.onReceive = { [weak self] data in
             DispatchQueue.main.async {
                 self?.receive(data)
             }
         }
+        transport.onApplicationContext = { [weak self] context in
+            DispatchQueue.main.async {
+                self?.handleApplicationContext(context)
+            }
+        }
+        transport.onStatusChange = { [weak self] status in
+            guard status.isActivated else { return }
+            DispatchQueue.main.async {
+                self?.flushPendingWatchRecords()
+                self?.flushPendingCommonNameUsage()
+            }
+        }
         transport.activate()
         startAckRetryLoop()
+        handleApplicationContext(transport.receivedApplicationContext)
+        WatchRecordManager.shared.recordTransferHandler = { [weak self] payload in
+            self?.transferFinishedRecord(payload)
+        }
     }
 
     var isController: Bool {
         controlRole == .watchController
+    }
+
+    /// Auto-queue a finished local watch record to the phone.
+    func transferFinishedRecord(_ payload: WatchRecordTransferPayload) {
+        if let index = pendingWatchRecords.firstIndex(where: { $0.id == payload.id }) {
+            pendingWatchRecords[index] = payload
+        } else {
+            pendingWatchRecords.append(payload)
+        }
+        persistPendingWatchRecords()
+        flushPendingWatchRecords()
+    }
+
+    private func flushPendingWatchRecords() {
+        guard transport.status.isActivated, !pendingWatchRecords.isEmpty else { return }
+        var deliveredCount = 0
+        for payload in pendingWatchRecords {
+            guard let data = try? JSONEncoder().encode(payload) else { break }
+            do {
+                try transport.transferWatchRecord(data)
+                deliveredCount += 1
+            } catch {
+                break
+            }
+        }
+        guard deliveredCount > 0 else { return }
+        pendingWatchRecords.removeFirst(deliveredCount)
+        persistPendingWatchRecords()
+    }
+
+    private func persistPendingWatchRecords() {
+        if pendingWatchRecords.isEmpty {
+            UserDefaults.standard.removeObject(forKey: pendingWatchRecordsKey)
+        } else if let data = try? JSONEncoder().encode(pendingWatchRecords) {
+            UserDefaults.standard.set(data, forKey: pendingWatchRecordsKey)
+        }
+    }
+
+    /// Uses `transferUserInfo`, so usage survives an offline phone/watch interval.
+    func recordCommonNameUsage(_ names: [String]) {
+        let normalized = names
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard !normalized.isEmpty else { return }
+        pendingCommonNameUsage.append(CommonNameUsagePayload(names: normalized))
+        persistPendingCommonNameUsage()
+        flushPendingCommonNameUsage()
+    }
+
+    private func flushPendingCommonNameUsage() {
+        guard transport.status.isActivated, !pendingCommonNameUsage.isEmpty else { return }
+        var deliveredCount = 0
+        for payload in pendingCommonNameUsage {
+            guard let data = try? JSONEncoder().encode(payload) else { break }
+            do {
+                try transport.transferCommonNameUsage(data)
+                deliveredCount += 1
+            } catch {
+                break
+            }
+        }
+        guard deliveredCount > 0 else { return }
+        pendingCommonNameUsage.removeFirst(deliveredCount)
+        persistPendingCommonNameUsage()
+    }
+
+    private func persistPendingCommonNameUsage() {
+        if pendingCommonNameUsage.isEmpty {
+            UserDefaults.standard.removeObject(forKey: pendingCommonNameUsageKey)
+        } else if let data = try? JSONEncoder().encode(pendingCommonNameUsage) {
+            UserDefaults.standard.set(data, forKey: pendingCommonNameUsageKey)
+        }
+    }
+
+    private func handleApplicationContext(_ context: [String: Any]) {
+        guard let snapshot = CommonNamesSyncSnapshot.fromApplicationContextValue(
+            context[WatchConnectivityTransport.commonNamesContextKey]
+        ) else { return }
+        WatchCommonNamesStore.shared.apply(snapshot)
     }
 
     var isFollower: Bool {
@@ -138,12 +246,22 @@ final class WatchLinkService {
         snapshot: LinkedScoreboardSnapshot,
         recordId: String,
         winnerSide: MatchSide?,
-        manualEnd: Bool
+        manualEnd: Bool,
+        startTime: Date? = nil,
+        endTime: Date? = nil,
+        totalScoreChanges: Int? = nil
     ) {
         guard let sessionId = activeSessionId else { return }
+        // One finished record per linked session — keep a stable id for ACK retries.
+        if publishedFinishedRecordId != nil { return }
+        let stableRecordId = recordId.isEmpty ? "w_\(UUID().uuidString)" : recordId
+        publishedFinishedRecordId = stableRecordId
         activeRevision += 1
         sequence += 1
         let messageId = UUID()
+        let end = endTime ?? Date()
+        let start = startTime ?? end.addingTimeInterval(-60)
+        let duration = max(1, end.timeIntervalSince(start))
         let envelope = LinkEnvelope(
             messageId: messageId,
             sessionId: sessionId,
@@ -154,9 +272,13 @@ final class WatchLinkService {
             sentAtEpochMilliseconds: nowMs(),
             payload: LinkMatchFinishedPayload(
                 snapshot: snapshot,
-                recordId: recordId,
+                recordId: stableRecordId,
                 winnerSide: winnerSide,
-                manualEnd: manualEnd
+                manualEnd: manualEnd,
+                startTimeEpochMilliseconds: Int64(start.timeIntervalSince1970 * 1000),
+                endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
+                durationSeconds: duration,
+                totalScoreChanges: totalScoreChanges
             )
         )
         Task {
@@ -199,11 +321,24 @@ final class WatchLinkService {
 
     private func handleSetupRequest(_ data: Data) -> Bool {
         guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: data),
-              envelope.protocolVersion == LinkProtocol.currentVersion,
               envelope.sender == .phone,
               envelope.kind == .setupRequest else { return false }
+        guard envelope.protocolVersion == LinkProtocol.currentVersion else {
+            sequence += 1
+            let rejection = LinkEnvelope(
+                sessionId: envelope.sessionId,
+                kind: .setupRejected,
+                sender: .watch,
+                senderSequence: sequence,
+                sessionRevision: 0,
+                sentAtEpochMilliseconds: nowMs(),
+                payload: EmptyLinkPayload()
+            )
+            Task { try? await send(rejection) }
+            return true
+        }
         if let existing = revisionGate.activeSessionId, existing != envelope.sessionId {
-            revisionGate.endSession(existing)
+            endLocalSession()
         }
         _ = revisionGate.beginSession(envelope.sessionId, initialRevision: envelope.sessionRevision)
         latestSnapshot = nil
@@ -229,15 +364,22 @@ final class WatchLinkService {
               envelope.sender == .phone,
               envelope.kind == .stateSnapshot,
               let snapshot = envelope.payload.initialSnapshot,
-              envelope.sessionId == activeSessionId,
-              revisionGate.accept(sessionId: envelope.sessionId, revision: envelope.sessionRevision)
-                || activeRevision < envelope.sessionRevision else { return false }
-        activeRevision = max(activeRevision, envelope.sessionRevision)
-        latestSnapshot = .init(
+              envelope.sessionId == activeSessionId else { return false }
+
+        let disposition = revisionGate.classify(
             sessionId: envelope.sessionId,
-            revision: envelope.sessionRevision,
-            snapshot: snapshot
+            revision: envelope.sessionRevision
         )
+        guard disposition != .wrongSession else { return false }
+        if disposition == .newer {
+            activeRevision = max(activeRevision, envelope.sessionRevision)
+            latestSnapshot = .init(
+                sessionId: envelope.sessionId,
+                revision: envelope.sessionRevision,
+                snapshot: snapshot
+            )
+        }
+        // ACK valid duplicates too: a retry usually means our prior ACK was lost.
         sendAck(sessionId: envelope.sessionId, messageId: envelope.messageId, revision: envelope.sessionRevision)
         return true
     }
@@ -249,14 +391,24 @@ final class WatchLinkService {
               envelope.sessionId == activeSessionId else { return false }
         controlRole = .watchFollower
         phoneTookOver = true
+        sendAck(
+            sessionId: envelope.sessionId,
+            messageId: envelope.messageId,
+            revision: envelope.sessionRevision
+        )
         return true
     }
 
     private func handleSessionLeft(_ data: Data) -> Bool {
         guard let envelope = try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: data),
               envelope.sender == .phone,
-              envelope.kind == .sessionLeft,
-              envelope.sessionId == activeSessionId else { return false }
+              envelope.kind == .sessionLeft else { return false }
+        if pendingConfirmRequest?.sessionId == envelope.sessionId {
+            revisionGate.endSession(envelope.sessionId)
+            pendingConfirmRequest = nil
+            return true
+        }
+        guard envelope.sessionId == activeSessionId else { return false }
         endLocalSession()
         return true
     }
@@ -320,7 +472,7 @@ final class WatchLinkService {
     }
 
     private func endLocalSession() {
-        if let id = activeSessionId {
+        if let id = revisionGate.activeSessionId {
             revisionGate.endSession(id)
         }
         activeSessionId = nil
@@ -331,6 +483,7 @@ final class WatchLinkService {
         pendingConfirmRequest = nil
         latestSnapshot = nil
         phoneTookOver = false
+        publishedFinishedRecordId = nil
         pendingAck.clear()
     }
 

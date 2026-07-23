@@ -21,7 +21,6 @@ struct HomeTab: View {
     @State private var showQuickStartEditSheet = false
     @State private var showDiscardUnfinishedAlert = false
     @State private var showCreateBookingSheet = false
-    @State private var showLocalSync = false
     @State private var path = NavigationPath()
     @State private var didHandleUITestRoute = false
     /// When user selects a scoreboard game from New Game or Quick Start, show setup first for supported sports.
@@ -68,10 +67,8 @@ struct HomeTab: View {
                 let contentWidth = geo.size.width - Theme.lg * 2
                 // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
                 VStack(spacing: 0) {
-                    HomeHeaderView(headerDate: headerDate) {
-                        showLocalSync = true
-                    }
-                    .padding(.horizontal, Theme.lg)
+                    HomeHeaderView(headerDate: headerDate)
+                        .padding(.horizontal, Theme.lg)
 
                     ScrollView(showsIndicators: false) {
                         buildContent(isWide: isWide, contentWidth: contentWidth)
@@ -131,9 +128,6 @@ struct HomeTab: View {
                         path.append(NavigationDestination.schedule)
                     }
                 }
-            }
-            .sheet(isPresented: $showLocalSync) {
-                LocalSyncView()
             }
             .navigationDestination(for: NavigationDestination.self) { destination in
                 switch destination {
@@ -325,7 +319,8 @@ struct HomeTab: View {
                 gameType: record.gameType,
                 timestamp: record.timestamp,
                 title: record.displayMatchTitle,
-                description: record.displayScore()
+                description: record.displayScore(),
+                syncFrom: record.isSyncedFromWatch ? "watch" : nil
             )
         }
     }

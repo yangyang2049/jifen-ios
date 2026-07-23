@@ -11,6 +11,12 @@ import SwiftUI
 
 // MARK: - Game Type
 
+func resolvedScoreboardSetupName(_ name: String?, fallback: String) -> String {
+    guard let name else { return fallback }
+    let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.isEmpty ? fallback : trimmed
+}
+
 enum GameType: String, Codable, CaseIterable {
     case pingpong = "pingpong"
     case badminton = "badminton"

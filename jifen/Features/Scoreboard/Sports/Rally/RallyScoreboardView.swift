@@ -293,10 +293,16 @@ struct RallyScoreboardView: View {
             flashTask?.cancel()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
+            // Capture before leave — ending the session clears follower role.
+            let skipPersist = watchSessionId != nil
+                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
                 watchLinkService.endWatchSession(watchSessionId)
             }
-            store.persistSnapshot()
+            // Linked follower finishes are ingested via matchFinished — do not write a draft/second record.
+            if !skipPersist {
+                store.persistSnapshot()
+            }
         }
         .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: appGameType)
     }

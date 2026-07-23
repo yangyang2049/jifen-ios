@@ -81,6 +81,10 @@ struct RecentActivity: Identifiable, Codable {
     let timestamp: TimeInterval // Unix timestamp
     let title: String
     let description: String
+    /// Matches phone `extraData.syncFrom == "watch"` for Watch-originated records.
+    var syncFrom: String? = nil
+
+    var isSyncedFromWatch: Bool { syncFrom == "watch" }
 }
 
 // MARK: - SourcePage Enum

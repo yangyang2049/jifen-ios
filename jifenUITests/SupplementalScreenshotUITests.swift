@@ -35,26 +35,10 @@ final class SupplementalScreenshotUITests: XCTestCase {
             UITestScreenshotStore.capture(app, name: "51_schedule_create", testCase: self)
         }
 
-        // Records + sync
+        // Records (local sync entry removed)
         relaunch()
         selectTab("记录")
         UITestScreenshotStore.capture(app, name: "60_records_root", testCase: self)
-
-        selectTab("首页")
-        let sync = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "局域网同步")).firstMatch
-        if sync.exists {
-            sync.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
-            UITestScreenshotStore.capture(app, name: "61_local_sync", testCase: self)
-        } else {
-            // Fallback: toolbar / header sync icon
-            let anySync = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "同步")).firstMatch
-            if anySync.exists {
-                anySync.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-                RunLoop.current.run(until: Date().addingTimeInterval(0.5))
-                UITestScreenshotStore.capture(app, name: "61_local_sync", testCase: self)
-            }
-        }
 
         let listing = ((try? FileManager.default.contentsOfDirectory(atPath: UITestScreenshotStore.outputDirectory.path)) ?? [])
             .filter { $0.hasSuffix(".png") }
@@ -64,7 +48,8 @@ final class SupplementalScreenshotUITests: XCTestCase {
         try? """
         UITestScreenshots index
         generated: \(ISO8601DateFormatter().string(from: Date()))
-        count: \(count)
+        \(UITestScreenshotStore.devicePrefix) count: \(count)
+        total count: \(UITestScreenshotStore.totalWrittenFileCount())
 
         \(listing)
         """.write(

@@ -223,7 +223,7 @@ struct WatchBasketballScoreView: View {
             Text("\(score)")
                 .font(.system(size: 58, weight: .bold, design: .rounded))
                 .monospacedDigit()
-            Text("犯规 \(fouls)  暂停 \(timeouts)")
+            Text(String(format: NSLocalizedString("watch_bball_fouls_timeouts_format", value: "犯规 %d  暂停 %d", comment: ""), fouls, timeouts))
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.72))
         }
@@ -265,39 +265,85 @@ struct WatchBasketballScoreView: View {
                     }
                 }
             }
-            Button("犯规 +1") {
+            Button(NSLocalizedString("watch_bball_foul_plus", value: "犯规 +1", comment: "")) {
                 store.send(.addFoul(side: side))
                 selectedSide = nil
             }
-            Button("暂停") {
+            Button(NSLocalizedString("watch_bball_timeout", value: "暂停", comment: "")) {
                 store.send(.useTimeout(side: side))
                 selectedSide = nil
             }
-            Button("取消", role: .cancel) { selectedSide = nil }
+            Button(NSLocalizedString("watch_bball_cancel", value: "取消", comment: ""), role: .cancel) { selectedSide = nil }
         }
         .padding()
     }
 
     private var menuOverlay: some View {
-        VStack(spacing: 10) {
-            HStack {
-                ForEach(shotClockOptions, id: \.self) { seconds in
-                    Button("\(seconds)") { store.send(.resetShotClock(seconds: seconds)) }
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+                .onTapGesture { showMenu = false }
+
+            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
+                LazyVGrid(
+                    columns: [GridItem(.flexible()), GridItem(.flexible())],
+                    spacing: WatchLayout.isCompactScreen ? 6 : 8
+                ) {
+                    ForEach(shotClockOptions, id: \.self) { seconds in
+                        WatchMenuGridButton(
+                            title: "\(seconds)s",
+                            systemImage: "timer"
+                        ) {
+                            store.send(.resetShotClock(seconds: seconds))
+                            showMenu = false
+                        }
+                    }
+                    WatchMenuGridButton(
+                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                        systemImage: "arrow.uturn.backward"
+                    ) {
+                        store.undo()
+                        showMenu = false
+                    }
+                    WatchMenuGridButton(
+                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
+                        systemImage: "flag.checkered",
+                        background: WatchTheme.dangerRed
+                    ) {
+                        store.send(.finish)
+                        showMenu = false
+                    }
+                    WatchMenuGridButton(
+                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
+                        systemImage: "arrow.counterclockwise"
+                    ) {
+                        store.send(.reset)
+                        showMenu = false
+                    }
+                }
+
+                WatchMenuCloseButton {
+                    showMenu = false
                 }
             }
-            Button("交换两侧") { store.send(.exchangeSides) }
-            Button("结束比赛") { store.send(.finish) }
-            Button("关闭") { showMenu = false }
+            .padding(WatchLayout.isCompactScreen ? 8 : 12)
+            .background(WatchTheme.overlayCard)
+            .clipShape(RoundedRectangle(
+                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
+                style: .continuous
+            ))
+            .padding(.horizontal, WatchLayout.isCompactScreen ? 12 : 18)
         }
-        .buttonStyle(.borderedProminent)
-        .padding()
-        .background(Color.black.opacity(0.9))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var periodTitle: String {
-        if store.state.isOvertime { return "加时" }
-        return gameMode == .threeXThree ? "3x3" : "第 \(store.state.currentPeriod) 节"
+        if store.state.isOvertime {
+            return NSLocalizedString("watch_bball_overtime", value: "加时", comment: "")
+        }
+        return gameMode == .threeXThree
+            ? "3x3"
+            : String(format: NSLocalizedString("watch_bball_period_format", value: "第 %d 节", comment: ""), store.state.currentPeriod)
     }
 
     private var isFollowingPhone: Bool {

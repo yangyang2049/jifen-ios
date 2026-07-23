@@ -3,6 +3,7 @@ import ScoreCore
 @testable import jifen
 
 final class LocalScoreboardDisplayStateTests: XCTestCase {
+    @MainActor
     func testLegacySnapshotWithoutKeyPointStillDecodes() throws {
         let json = #"{"gameID":"badminton","title":"羽毛球","leftName":"A","rightName":"B","leftScore":"20","rightScore":"18","themeID":"default","fontID":"default","finished":false,"revision":3}"#
         let state = try JSONDecoder().decode(LocalScoreboardDisplayState.self, from: Data(json.utf8))
@@ -11,6 +12,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertEqual(state.revision, 3)
     }
 
+    @MainActor
     func testKeyPointRoundTripPreservesSemanticKindAndScreenSide() throws {
         let state = LocalScoreboardDisplayState(
             gameID: "tennis",
@@ -38,6 +40,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertTrue(decoded.keyPoint?.isRenderable == true)
     }
 
+    @MainActor
     func testUnknownKeyPointValuesDoNotRejectTheScoreSnapshot() throws {
         let json = #"{"gameID":"badminton","title":"羽毛球","leftName":"A","rightName":"B","leftScore":"20","rightScore":"18","themeID":"default","fontID":"default","finished":false,"keyPoint":{"kind":"future","side":"middle"},"revision":5}"#
         let state = try JSONDecoder().decode(LocalScoreboardDisplayState.self, from: Data(json.utf8))
@@ -119,11 +122,27 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         )
     }
 
-    func testDoublesBadgeReusesServingRowGeometry() {
+    func testDoublesBadgeStaysVerticallyCenteredForBothServingRows() {
         let topAnchor = ScoreboardServeGeometry.doublesAnchorY(height: 600, topRow: true)
         let bottomAnchor = ScoreboardServeGeometry.doublesAnchorY(height: 600, topRow: false)
 
         XCTAssertEqual(topAnchor, 100)
         XCTAssertEqual(bottomAnchor, 500)
+        XCTAssertEqual(
+            ScoreboardServeGeometry.keyPointBadgeCenterY(
+                height: 600,
+                doublesTopRow: true,
+                largeWindow: true
+            ),
+            300
+        )
+        XCTAssertEqual(
+            ScoreboardServeGeometry.keyPointBadgeCenterY(
+                height: 600,
+                doublesTopRow: false,
+                largeWindow: true
+            ),
+            300
+        )
     }
 }

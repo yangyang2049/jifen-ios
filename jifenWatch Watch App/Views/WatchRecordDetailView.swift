@@ -17,6 +17,12 @@ struct WatchRecordDetailView: View {
                 } else if let record = record {
                     titleHeader
                     gameInfoCard(record)
+                    if let details = record.basketballTrainingDetails {
+                        basketballDetailsCard(details)
+                    }
+                    if let participants = record.participants, participants.count > 2 {
+                        participantsCard(participants)
+                    }
                     if !record.actions.isEmpty {
                         actionsCard(record)
                     }
@@ -98,9 +104,9 @@ struct WatchRecordDetailView: View {
     }
 
     private func scoreRow(_ record: WatchScoreboardRecord) -> some View {
-        let isBasketballTraining = record.gameType == .basketballTraining
-        let leftScore = isBasketballTraining ? record.team1FinalScore : record.team1SetScore
-        let rightScore = isBasketballTraining ? record.team2FinalScore : record.team2SetScore
+        let usePoints = record.gameType.usesPointScoreInList
+        let leftScore = usePoints ? record.team1FinalScore : record.team1SetScore
+        let rightScore = usePoints ? record.team2FinalScore : record.team2SetScore
         return VStack(spacing: 6) {
             HStack(spacing: 0) {
                 VStack(spacing: 2) {
@@ -125,7 +131,7 @@ struct WatchRecordDetailView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            if isBasketballTraining && record.team1FinalScore > 0 {
+            if record.gameType == .basketballTraining {
                 Text("\(NSLocalizedString("watch_bb_hit_rate", comment: "Hit rate")): \(basketballHitRate(record))")
                     .font(.system(size: 11))
                     .foregroundColor(WatchTheme.accent)
@@ -134,11 +140,58 @@ struct WatchRecordDetailView: View {
     }
 
     private func basketballHitRate(_ record: WatchScoreboardRecord) -> String {
-        let shots = record.team1FinalScore
-        let made = record.team2FinalScore
+        let shots = record.basketballTrainingDetails?.shots.count ?? record.team1FinalScore
+        let made = record.basketballTrainingDetails?.shots.lazy.filter(\.made).count ?? record.team2FinalScore
         if shots <= 0 { return "0%" }
         let pct = Int(round(Double(made) / Double(shots) * 100))
         return "\(made)/\(shots) = \(pct)%"
+    }
+
+    private func basketballDetailsCard(_ details: WatchBasketballTrainingDetails) -> some View {
+        VStack(spacing: 7) {
+            Text(NSLocalizedString("watch_training_breakdown", value: "投篮明细", comment: ""))
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(WatchTheme.primaryText)
+            ForEach([1, 2, 3], id: \.self) { points in
+                HStack {
+                    Text(
+                        String.localizedStringWithFormat(
+                            NSLocalizedString("watch_training_point_value", value: "%d分", comment: ""),
+                            points
+                        )
+                    )
+                    Spacer()
+                    Text("\(NSLocalizedString("watch_training_miss", value: "未中", comment: "")) \(details.count(points: points, made: false))")
+                    Text("\(NSLocalizedString("watch_training_made", value: "命中", comment: "")) \(details.count(points: points, made: true))")
+                }
+                .font(.system(size: 11))
+                .foregroundStyle(WatchTheme.secondaryText)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(WatchTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func participantsCard(_ participants: [WatchRecordParticipant]) -> some View {
+        VStack(spacing: 6) {
+            ForEach(Array(participants.enumerated()), id: \.offset) { _, participant in
+                HStack {
+                    Text(participant.name)
+                        .lineLimit(1)
+                    Spacer()
+                    Text("\(participant.score)")
+                        .fontWeight(.bold)
+                }
+                .font(.system(size: 12))
+                .foregroundStyle(WatchTheme.primaryText)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(WatchTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private func actionsCard(_ record: WatchScoreboardRecord) -> some View {
@@ -154,7 +207,7 @@ struct WatchRecordDetailView: View {
                         .foregroundColor(WatchTheme.secondaryText)
                         .frame(width: 42, alignment: .leading)
 
-                    Text(action.description)
+                    Text(displayActionDescription(action, record: record))
                         .font(.system(size: 12))
                         .foregroundColor(isSpecialAction(action) ? WatchTheme.accent : WatchTheme.primaryText)
                         .lineLimit(1)
@@ -237,6 +290,43 @@ struct WatchRecordDetailView: View {
             return "\(left) - \(right)"
         }
         return nil
+    }
+
+    private func displayActionDescription(
+        _ action: WatchScoreAction,
+        record: WatchScoreboardRecord
+    ) -> String {
+        guard record.gameType == .basketballTraining else {
+            return action.description
+        }
+        if action.description == "training_start" {
+            return NSLocalizedString("watch_training_start", value: "训练开始", comment: "")
+        }
+        if action.description.hasPrefix("training_rate_"),
+           let rate = Int(action.description.replacingOccurrences(of: "training_rate_", with: "")) {
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_training_rate_format", value: "命中率 %d%%", comment: ""),
+                rate
+            )
+        }
+
+        let values = action.description.split(separator: "_")
+        guard values.count == 3,
+              values[0] == "training",
+              let points = Int(values[1].replacingOccurrences(of: "pt", with: "")) else {
+            return action.description
+        }
+        let status = values[2] == "made"
+            ? NSLocalizedString("watch_training_made", value: "命中", comment: "")
+            : NSLocalizedString("watch_training_miss", value: "未中", comment: "")
+        if record.basketballTrainingDetails?.mode != .free {
+            return status
+        }
+        return String.localizedStringWithFormat(
+            NSLocalizedString("watch_training_action_format", value: "%d分 · %@", comment: ""),
+            points,
+            status
+        )
     }
 
     private func loadRecord() {

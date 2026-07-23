@@ -230,6 +230,7 @@ import ScoreCore
                 $0.phase = .gameEnd
                 $0.leftScore = 6
                 $0.rightScore = 6
+                $0.isTieBreak = true
             } == "Alice胜本局，局分6平，抢七"
         )
         #expect(
@@ -237,7 +238,24 @@ import ScoreCore
                 $0.phase = .gameEnd
                 $0.leftScore = 6
                 $0.rightScore = 6
+                $0.isTieBreak = true
             } == "Game Alice. 6 games all. Tie-break"
+        )
+        #expect(
+            tennis {
+                $0.phase = .gameEnd
+                $0.leftScore = 4
+                $0.rightScore = 4
+                $0.isTieBreak = true
+            } == "Alice胜本局，局分4平，抢七"
+        )
+        #expect(
+            tennis(language: .enUS) {
+                $0.phase = .gameEnd
+                $0.leftScore = 4
+                $0.rightScore = 4
+                $0.isTieBreak = true
+            } == "Game Alice. 4 games all. Tie-break"
         )
         #expect(
             tennis {

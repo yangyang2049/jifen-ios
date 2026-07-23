@@ -85,6 +85,9 @@ struct WatchRallyScoreView: View {
     @State private var showMenu = false
     @State private var matchStartTime = Date()
     @State private var didTransferFinishedRecord = false
+    @State private var scoreboardLayout: String = "horizontal"
+    @State private var setBreakToast: String?
+    @State private var lastObservedSets: (Int, Int) = (0, 0)
 
     init(
         gameType: GameType,
@@ -102,50 +105,28 @@ struct WatchRallyScoreView: View {
         linkedSessionId != nil && linkService.isFollower
     }
 
+    private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
+
     var body: some View {
         ZStack {
-            GeometryReader { proxy in
-                let width = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
-                let height = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
-                VStack(spacing: 0) {
-                    side(.left, height: height / 2)
-                    side(.right, height: height / 2)
-                }
-                .frame(width: width, height: height)
-                .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
-            }
-            .ignoresSafeArea()
-            .gesture(boardGesture)
-
-            VStack(spacing: 1) {
-                Text("第 \(store.state.currentSet) 局")
-                    .font(.caption2.weight(.bold))
-                Text("\(store.state.leftSets) : \(store.state.rightSets)")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                Image(systemName: store.state.servingSide == .left ? "arrow.up.left" : "arrow.down.right")
-                    .font(.caption2)
-                    .foregroundStyle(WatchTheme.accent)
-                if let serverName = store.state.doubles?.serverName {
-                    Label(serverName, systemImage: "arrow.up.circle.fill")
-                        .font(.system(size: 9, weight: .semibold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                }
-                if linkedSessionId != nil {
-                    Text(linkService.isController ? "手表主控" : "跟随手机")
-                        .font(.system(size: 8, weight: .semibold))
-                        .foregroundStyle(WatchTheme.accent)
-                }
-            }
-            .padding(7)
-            .background(Color.black.opacity(0.78))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-
+            mainBoard
             if showMenu { menuOverlay }
+            if let setBreakToast {
+                Text(setBreakToast)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.black.opacity(0.82))
+                    .clipShape(Capsule())
+                    .transition(.opacity)
+            }
         }
         .ignoresSafeArea()
         .disabled(scoringLocked)
         .onAppear {
+            scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+            lastObservedSets = (store.state.leftSets, store.state.rightSets)
             matchStartTime = Date()
             store.onStateChanged = { [linkService] state in
                 if linkedSessionId != nil {
@@ -159,7 +140,10 @@ struct WatchRallyScoreView: View {
                             snapshot: .rally(state),
                             recordId: "w_\(UUID().uuidString)",
                             winnerSide: winner,
-                            manualEnd: false
+                            manualEnd: false,
+                            startTime: matchStartTime,
+                            endTime: Date(),
+                            totalScoreChanges: max(1, state.leftPoints + state.rightPoints)
                         )
                     }
                     return
@@ -168,6 +152,11 @@ struct WatchRallyScoreView: View {
                     transferLocalFinishedRecordIfNeeded(state)
                 }
             }
+        }
+        .onChange(of: store.state.leftSets) { _, _ in handlePossibleSetBreak() }
+        .onChange(of: store.state.rightSets) { _, _ in handlePossibleSetBreak() }
+        .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
+            scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId,
@@ -183,32 +172,110 @@ struct WatchRallyScoreView: View {
         }
     }
 
-    private func side(_ screenSide: MatchSide, height: CGFloat) -> some View {
+    private var mainBoard: some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
+            let height = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+            Group {
+                if isHorizontal {
+                    HStack(spacing: 0) {
+                        side(.left, size: CGSize(width: width / 2, height: height))
+                        side(.right, size: CGSize(width: width / 2, height: height))
+                    }
+                    .frame(width: width, height: height)
+                } else {
+                    VStack(spacing: 0) {
+                        side(.left, size: CGSize(width: width, height: height / 2))
+                        side(.right, size: CGSize(width: width, height: height / 2))
+                    }
+                    .frame(width: width, height: height)
+                }
+            }
+            .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
+        }
+        .ignoresSafeArea()
+        .gesture(boardGesture)
+    }
+
+    private func side(_ screenSide: MatchSide, size: CGSize) -> some View {
         let layout = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped)
         let logicalSide = layout.engineSide(onScreen: screenSide)
-        let isLeft = logicalSide == .left
-        let name = isLeft ? store.state.leftName : store.state.rightName
-        let points = isLeft ? store.state.leftPoints : store.state.rightPoints
+        let isLeftTeam = logicalSide == .left
+        let name = isLeftTeam ? store.state.leftName : store.state.rightName
+        let points = isLeftTeam ? store.state.leftPoints : store.state.rightPoints
+        let sets = isLeftTeam ? store.state.leftSets : store.state.rightSets
+        let isServing = store.state.servingSide == logicalSide
+        let showSets = store.state.leftSets + store.state.rightSets > 0 || store.state.currentSet > 1
+        let mainScoreFont: CGFloat = isHorizontal ? 64 : 62
 
-        return VStack(spacing: 2) {
-            Text(name)
-                .font(.caption.weight(.semibold))
-                .lineLimit(1)
+        return ZStack {
+            // Main point score (Harmony-style: no helper caption).
             Text("\(points)")
-                .font(.system(size: 62, weight: .bold, design: .rounded))
+                .font(.system(size: mainScoreFont, weight: .bold, design: .rounded))
                 .monospacedDigit()
-            Text(store.state.finished ? "比赛结束" : (scoringLocked ? "跟随中" : "点按得分"))
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(.white)
+
+            // Team name
+            Text(name)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.black.opacity(0.28))
+                .clipShape(Capsule())
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: isHorizontal ? .top : .top)
+                .padding(.top, isHorizontal ? 28 : 8)
+
+            // Set score on each half (no floating center card).
+            if showSets {
+                Text("\(sets)")
+                    .font(.system(size: isHorizontal ? 20 : 22, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.65))
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: isHorizontal ? .bottom : .leading
+                    )
+                    .padding(.bottom, isHorizontal ? 28 : 0)
+                    .padding(.leading, isHorizontal ? 0 : 16)
+            }
+
+            if isServing {
+                servingIndicator(screenSide: screenSide, isLeftTeam: isLeftTeam)
+            }
         }
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
-        .background(isLeft ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
+        .frame(width: size.width, height: size.height)
+        .background(isLeftTeam ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
         .contentShape(Rectangle())
         .onTapGesture {
             guard !scoringLocked else { return }
             store.score(logicalSide)
         }
+    }
+
+    @ViewBuilder
+    private func servingIndicator(screenSide: MatchSide, isLeftTeam: Bool) -> some View {
+        let direction: WatchServerIndicatorDirection = {
+            if isHorizontal {
+                return screenSide == .left ? .right : .left
+            }
+            return isLeftTeam ? .bottom : .top
+        }()
+        let alignment: Alignment = {
+            if isHorizontal {
+                return screenSide == .left ? .leading : .trailing
+            }
+            return screenSide == .left ? .top : .bottom
+        }()
+        WatchServerIndicator(direction: direction, size: 14, color: WatchTheme.accent)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
+            .padding(.top, alignment == .top ? 0 : 8)
+            .padding(.bottom, alignment == .bottom ? 0 : 8)
+            .padding(.leading, alignment == .leading ? 0 : 8)
+            .padding(.trailing, alignment == .trailing ? 0 : 8)
+            .allowsHitTesting(false)
     }
 
     private var boardGesture: some Gesture {
@@ -231,16 +298,117 @@ struct WatchRallyScoreView: View {
     }
 
     private var menuOverlay: some View {
-        VStack(spacing: 10) {
-            Button("交换两侧") { store.send(.exchangeSides); showMenu = false }
-            Button("结束比赛") { store.send(.finish); showMenu = false }
-            Button("重新开始", role: .destructive) { store.send(.reset); showMenu = false }
-            Button("关闭") { showMenu = false }
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+                .onTapGesture { showMenu = false }
+
+            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
+                LazyVGrid(
+                    columns: [GridItem(.flexible()), GridItem(.flexible())],
+                    spacing: WatchLayout.isCompactScreen ? 6 : 8
+                ) {
+                    menuGridButton(
+                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                        systemImage: "arrow.uturn.backward",
+                        background: WatchTheme.card
+                    ) {
+                        store.undo()
+                        showMenu = false
+                    }
+
+                    menuGridButton(
+                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
+                        systemImage: "flag.checkered",
+                        background: WatchTheme.dangerRed
+                    ) {
+                        store.send(.finish)
+                        showMenu = false
+                    }
+
+                    menuGridButton(
+                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
+                        systemImage: "arrow.counterclockwise",
+                        background: WatchTheme.card
+                    ) {
+                        store.send(.reset)
+                        showMenu = false
+                    }
+                }
+
+                Button {
+                    showMenu = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
+                        .foregroundStyle(WatchTheme.secondaryText)
+                        .frame(
+                            width: WatchLayout.isCompactScreen ? 32 : 38,
+                            height: WatchLayout.isCompactScreen ? 32 : 38
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(WatchLayout.isCompactScreen ? 8 : 12)
+            .background(WatchTheme.overlayCard)
+            .clipShape(RoundedRectangle(
+                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
+                style: .continuous
+            ))
+            .padding(.horizontal, WatchLayout.isCompactScreen ? 12 : 18)
         }
-        .buttonStyle(.borderedProminent)
-        .padding()
-        .background(Color.black.opacity(0.9))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func menuGridButton(
+        title: String,
+        systemImage: String,
+        background: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: systemImage)
+                    .font(.system(
+                        size: WatchLayout.isCompactScreen ? 18 : 21,
+                        weight: .medium
+                    ))
+                Text(title)
+                    .font(.system(
+                        size: WatchLayout.isCompactScreen ? 10 : 11,
+                        weight: .medium
+                    ))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: WatchLayout.isCompactScreen ? 48 : 54)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.white)
+        .background(background)
+        .clipShape(RoundedRectangle(
+            cornerRadius: WatchLayout.isCompactScreen ? 10 : 12,
+            style: .continuous
+        ))
+    }
+
+    private func normalizedLayout(_ raw: String) -> String {
+        raw == "vertical" ? "vertical" : "horizontal"
+    }
+
+    private func handlePossibleSetBreak() {
+        let current = (store.state.leftSets, store.state.rightSets)
+        defer { lastObservedSets = current }
+        guard WatchPreferences.shared.setBreakEnabled else { return }
+        guard !store.state.finished else { return }
+        guard current != lastObservedSets else { return }
+        guard current.0 + current.1 > lastObservedSets.0 + lastObservedSets.1 else { return }
+        setBreakToast = NSLocalizedString("watch_set_break_toast", value: "局间休息", comment: "")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            if setBreakToast != nil { setBreakToast = nil }
+        }
     }
 
     private func transferLocalFinishedRecordIfNeeded(_ state: RallyMatchState) {
@@ -265,7 +433,16 @@ struct WatchRallyScoreView: View {
             team2SetScore: state.rightSets,
             winner: winnerName,
             actions: [],
-            totalScoreChanges: max(1, state.leftPoints + state.rightPoints)
+            totalScoreChanges: max(1, state.leftPoints + state.rightPoints),
+            participants: state.doubles?.playerNames.map {
+                WatchRecordParticipant(name: $0, score: 0)
+            },
+            projectConfiguration: [
+                "maxSets": String(state.rules.maxSets),
+                "pointsPerSet": String(state.rules.pointsToWinSet),
+                "rallyScoring": String(state.rules.useRallyScoring),
+                "isDoubles": String(state.doubles != nil)
+            ]
         )
         WatchRecordManager.shared.saveRecord(record)
     }
