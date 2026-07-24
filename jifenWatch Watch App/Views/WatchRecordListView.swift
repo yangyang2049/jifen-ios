@@ -93,24 +93,8 @@ struct WatchRecordListView: View {
         let rowSpacing = WatchLayout.recordRowSpacing
         let rowPadding = WatchLayout.recordRowHorizontalPadding
         return HStack(spacing: rowSpacing) {
-            if record.gameType == .pickleball {
-                ZStack(alignment: .bottomTrailing) {
-                    Text("🎾")
-                        .font(.system(size: iconSize))
-                    Text(NSLocalizedString("pickleball_icon_label", value: "匹", comment: "Pickleball badge"))
-                        .font(.system(size: iconSize * 0.42, weight: .bold))
-                        .foregroundColor(WatchTheme.primaryText)
-                        .padding(.horizontal, 2)
-                        .padding(.vertical, 1)
-                        .background(WatchTheme.listItemBackground)
-                        .cornerRadius(2)
-                        .offset(x: 2, y: 2)
-                }
-                .frame(width: iconSize, height: iconSize)
-            } else {
-                Text(record.gameType.icon)
-                    .font(.system(size: iconSize))
-            }
+            Text(record.gameType.icon)
+                .font(.system(size: iconSize))
 
             VStack(alignment: .leading, spacing: WatchLayout.recordRowLineSpacing) {
                 Text(recordDisplayText(record))

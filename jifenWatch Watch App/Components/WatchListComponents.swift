@@ -16,6 +16,7 @@ struct WatchPillRow: View {
     let icon: String
     let title: String
     var subtitle: String? = nil
+    var trailingIcon: String? = nil
 
     var body: some View {
         HStack(spacing: 12) {
@@ -26,7 +27,9 @@ struct WatchPillRow: View {
                 Text(title)
                     .font(.system(size: 16, weight: .regular))
                     .foregroundColor(WatchTheme.primaryText)
-                    .lineLimit(1)
+                    .lineLimit(trailingIcon == nil ? 1 : 2)
+                    .minimumScaleFactor(trailingIcon == nil ? 0.75 : 1)
+                    .multilineTextAlignment(.leading)
 
                 if let subtitle = subtitle {
                     Text(subtitle)
@@ -35,8 +38,14 @@ struct WatchPillRow: View {
                         .lineLimit(1)
                 }
             }
+            .layoutPriority(1)
+            .padding(.trailing, trailingIcon == nil ? 0 : 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer(minLength: 0)
+            if let trailingIcon {
+                Text(trailingIcon)
+                    .font(.system(size: 14))
+            }
         }
         .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
         .frame(maxWidth: .infinity)

@@ -19,6 +19,61 @@ final class WatchSportsSetupTests: XCTestCase {
         super.tearDown()
     }
 
+    func testPickleballUsesTableTennisIcon() {
+        XCTAssertEqual(WatchGameType.pickleball.icon, WatchGameType.pingpong.icon)
+    }
+
+    func testWatchHomePinningKeepsPinnedOrderAndDefaultOrderForTheRest() {
+        let ordered = WatchHomePinning.orderedItems(
+            pinnedItems: [.tennis, .badmintonDoubles]
+        )
+
+        XCTAssertEqual(Array(ordered.prefix(2)), [.tennis, .badmintonDoubles])
+        XCTAssertEqual(
+            Array(ordered.dropFirst(2)),
+            WatchHomeItem.allCases.filter { ![.tennis, .badmintonDoubles].contains($0) }
+        )
+    }
+
+    func testWatchHomePinningRejectsThirdItemAndRestoresUnpinnedDefaultPosition() {
+        let pinned: [WatchHomeItem] = [.tennis, .badminton]
+
+        XCTAssertNil(WatchHomePinning.adding(.pingpong, to: pinned))
+        XCTAssertEqual(
+            WatchHomePinning.removing(.tennis, from: pinned),
+            [.badminton]
+        )
+        XCTAssertEqual(
+            WatchHomePinning.orderedItems(pinnedItems: [.badminton]),
+            [.badminton] + WatchHomeItem.allCases.filter { $0 != .badminton }
+        )
+    }
+
+    func testWatchHomePinningFiltersUnknownAndDuplicateStoredIDs() {
+        XCTAssertEqual(
+            WatchHomePinning.normalizedItems(
+                from: ["unknown", "tennis", "tennis", "pingpong", "badminton"]
+            ),
+            [.tennis, .pingpong]
+        )
+    }
+
+    func testPinnedHomeItemsPersistAndIgnoreLegacyLastSelectedItem() {
+        preferences.setString(WatchHomeItem.snooker.rawValue, forKey: "watchLastSelectedGame")
+        preferences.pinnedHomeItemIDs = [
+            WatchHomeItem.pingpongDoubles.rawValue,
+            WatchHomeItem.archery.rawValue
+        ]
+
+        let reloaded = WatchPreferences(defaults: defaults)
+        let pinned = WatchHomePinning.normalizedItems(from: reloaded.pinnedHomeItemIDs)
+        XCTAssertEqual(pinned, [.pingpongDoubles, .archery])
+        XCTAssertEqual(
+            Array(WatchHomePinning.orderedItems(pinnedItems: pinned).prefix(2)),
+            [.pingpongDoubles, .archery]
+        )
+    }
+
     func testAndroid29Defaults() {
         let badminton = WatchSportsSetupDraft(sport: .badminton, preferences: preferences)
         XCTAssertEqual(badminton.maxSets, 3)

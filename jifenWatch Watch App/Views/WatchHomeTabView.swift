@@ -1,6 +1,6 @@
 import SwiftUI
 
-private enum WatchHomeItem: String, CaseIterable {
+enum WatchHomeItem: String, CaseIterable {
     case badminton
     case badmintonDoubles
     case tennis
@@ -17,38 +17,217 @@ private enum WatchHomeItem: String, CaseIterable {
     case basketball_training
 }
 
+enum WatchHomePinning {
+    static let maximumPinnedItems = 2
+
+    static func normalizedItems(from itemIDs: [String]) -> [WatchHomeItem] {
+        var result: [WatchHomeItem] = []
+        for itemID in itemIDs {
+            guard let item = WatchHomeItem(rawValue: itemID),
+                  !result.contains(item) else {
+                continue
+            }
+            result.append(item)
+            if result.count == maximumPinnedItems {
+                break
+            }
+        }
+        return result
+    }
+
+    static func orderedItems(pinnedItems: [WatchHomeItem]) -> [WatchHomeItem] {
+        let normalized = normalizedItems(from: pinnedItems.map(\.rawValue))
+        return normalized + WatchHomeItem.allCases.filter { !normalized.contains($0) }
+    }
+
+    static func adding(
+        _ item: WatchHomeItem,
+        to pinnedItems: [WatchHomeItem]
+    ) -> [WatchHomeItem]? {
+        let normalized = normalizedItems(from: pinnedItems.map(\.rawValue))
+        if normalized.contains(item) {
+            return normalized
+        }
+        guard normalized.count < maximumPinnedItems else { return nil }
+        return normalized + [item]
+    }
+
+    static func removing(
+        _ item: WatchHomeItem,
+        from pinnedItems: [WatchHomeItem]
+    ) -> [WatchHomeItem] {
+        normalizedItems(from: pinnedItems.map(\.rawValue)).filter { $0 != item }
+    }
+}
+
 private enum WatchHomePreflightPicker {
     case nineBallPlayers
     case basketballTraining
 }
 
 struct WatchHomeTabView: View {
+    private static let scrollTopAnchor = "watch-home-top"
+
     @Binding var scoreboardRoute: WatchScoreboardRoute?
-    @State private var orderedItems: [WatchHomeItem] = WatchHomeItem.allCases
+    @State private var pinnedItems: [WatchHomeItem] = []
     @State private var preflightPicker: WatchHomePreflightPicker?
+    @State private var pinDialogItem: WatchHomeItem?
+    @State private var showPinLimitAlert = false
+    @State private var toastMessage: String?
+    @State private var toastToken = UUID()
+    @State private var scrollToTopRequest = 0
+
+    private var orderedItems: [WatchHomeItem] {
+        WatchHomePinning.orderedItems(pinnedItems: pinnedItems)
+    }
 
     var body: some View {
         ZStack {
-            ScrollView {
-                VStack(spacing: 8) {
-                    ForEach(orderedItems, id: \.rawValue) { item in
-                        WatchPillButton(icon: icon(for: item), title: title(for: item)) {
-                            handleTap(item)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 8) {
+                        Color.clear
+                            .frame(height: 0)
+                            .id(Self.scrollTopAnchor)
+
+                        ForEach(orderedItems, id: \.rawValue) { item in
+                            WatchHomePillControl(
+                                icon: icon(for: item),
+                                title: title(for: item),
+                                isPinned: pinnedItems.contains(item),
+                                longPressActionTitle: pinActionTitle(for: item),
+                                onTap: { handleTap(item) },
+                                onLongPress: { handleLongPress(item) }
+                            )
                         }
+
+                        Text(NSLocalizedString(
+                            "watch_home_pin_hint",
+                            value: "长按可置顶项目",
+                            comment: "Long press to pin projects"
+                        ))
+                        .font(.system(size: 11))
+                        .foregroundStyle(WatchTheme.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 4)
+                    }
+                    .padding(.horizontal, WatchLayout.tabHorizontalPadding)
+                    .padding(.bottom, 12)
+                }
+                .onChange(of: scrollToTopRequest) { _, _ in
+                    withAnimation {
+                        proxy.scrollTo(Self.scrollTopAnchor, anchor: .top)
                     }
                 }
-                .padding(.horizontal, WatchLayout.tabHorizontalPadding)
-                .padding(.bottom, 12)
             }
 
             if let preflightPicker {
                 preflightOverlay(preflightPicker)
             }
+
+            if let toastMessage {
+                VStack {
+                    Spacer()
+                    WatchToastView(message: toastMessage)
+                        .padding(.bottom, 14)
+                }
+                .transition(.opacity)
+                .allowsHitTesting(false)
+            }
         }
         .background(WatchTheme.background)
         .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { updateOrderedItems() }
+        .onAppear { loadPinnedItems() }
+        .confirmationDialog(
+            pinDialogTitle,
+            isPresented: pinDialogPresented,
+            titleVisibility: .visible
+        ) {
+            if let item = pinDialogItem {
+                if pinnedItems.contains(item) {
+                    Button(
+                        NSLocalizedString(
+                            "watch_home_unpin_confirm",
+                            value: "取消置顶",
+                            comment: "Unpin project"
+                        ),
+                        role: .destructive
+                    ) {
+                        unpin(item)
+                    }
+                } else {
+                    Button(NSLocalizedString(
+                        "watch_home_pin_confirm",
+                        value: "置顶",
+                        comment: "Pin project"
+                    )) {
+                        pin(item)
+                    }
+                }
+            }
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
+        } message: {
+            Text(pinDialogMessage)
+        }
+        .alert(
+            NSLocalizedString(
+                "watch_home_pin_full_title",
+                value: "置顶已满",
+                comment: "Pinned projects full"
+            ),
+            isPresented: $showPinLimitAlert
+        ) {
+            Button(NSLocalizedString("confirm", comment: "Confirm"), role: .cancel) { }
+        } message: {
+            Text(NSLocalizedString(
+                "watch_home_pin_full_message",
+                value: "最多置顶 2 个项目，请先取消一个。",
+                comment: "Up to two projects can be pinned"
+            ))
+        }
+    }
+
+    private var pinDialogPresented: Binding<Bool> {
+        Binding(
+            get: { pinDialogItem != nil },
+            set: { isPresented in
+                if !isPresented {
+                    pinDialogItem = nil
+                }
+            }
+        )
+    }
+
+    private var pinDialogTitle: String {
+        guard let item = pinDialogItem else { return "" }
+        return pinnedItems.contains(item)
+            ? NSLocalizedString(
+                "watch_home_unpin_title",
+                value: "取消置顶？",
+                comment: "Unpin project confirmation title"
+            )
+            : NSLocalizedString(
+                "watch_home_pin_title",
+                value: "置顶项目？",
+                comment: "Pin project confirmation title"
+            )
+    }
+
+    private var pinDialogMessage: String {
+        guard let item = pinDialogItem else { return "" }
+        return pinnedItems.contains(item)
+            ? NSLocalizedString(
+                "watch_home_unpin_message",
+                value: "将这个项目从置顶项目中移除？",
+                comment: "Unpin project confirmation message"
+            )
+            : NSLocalizedString(
+                "watch_home_pin_message",
+                value: "将这个项目置顶到首页列表顶部？",
+                comment: "Pin project confirmation message"
+            )
     }
 
     private func icon(for item: WatchHomeItem) -> String {
@@ -56,7 +235,7 @@ struct WatchHomeTabView: View {
         case .badminton, .badmintonDoubles: return "🏸"
         case .tennis, .tennisDoubles: return "🎾"
         case .pingpong, .pingpongDoubles: return "🏓"
-        case .pickleball, .pickleballDoubles: return "🥒"
+        case .pickleball, .pickleballDoubles: return "🏓"
         case .archery: return "🏹"
         case .eightBall, .nineBall, .snooker: return "🎱"
         case .basketball_training: return "🏀"
@@ -89,9 +268,18 @@ struct WatchHomeTabView: View {
             preflightPicker = .basketballTraining
         default:
             guard let sport = setupSport(for: item) else { return }
-            saveLastSelected(item)
             scoreboardRoute = .setup(sport: sport, playerCount: sport.defaultPlayerCount)
         }
+    }
+
+    private func handleLongPress(_ item: WatchHomeItem) {
+        WatchHaptics.shared.play(.strong)
+        if !pinnedItems.contains(item),
+           pinnedItems.count >= WatchHomePinning.maximumPinnedItems {
+            showPinLimitAlert = true
+            return
+        }
+        pinDialogItem = item
     }
 
     private func setupSport(for item: WatchHomeItem) -> WatchSetupSport? {
@@ -139,7 +327,6 @@ struct WatchHomeTabView: View {
                                 )
                             ) {
                                 preflightPicker = nil
-                                saveLastSelected(.nineBall)
                                 scoreboardRoute = .setup(sport: .nineBall, playerCount: count)
                             }
                         }
@@ -173,7 +360,6 @@ struct WatchHomeTabView: View {
     ) -> some View {
         Button {
             preflightPicker = nil
-            saveLastSelected(.basketball_training)
             scoreboardRoute = .basketballTraining(mode: mode)
         } label: {
             Text(title)
@@ -201,21 +387,110 @@ struct WatchHomeTabView: View {
         .buttonStyle(.plain)
     }
 
-    private func saveLastSelected(_ item: WatchHomeItem) {
-        WatchPreferences.shared.setString(item.rawValue, forKey: "watchLastSelectedGame")
+    private func pinActionTitle(for item: WatchHomeItem) -> String {
+        pinnedItems.contains(item)
+            ? NSLocalizedString(
+                "watch_home_unpin_confirm",
+                value: "取消置顶",
+                comment: "Unpin project"
+            )
+            : NSLocalizedString(
+                "watch_home_pin_confirm",
+                value: "置顶",
+                comment: "Pin project"
+            )
     }
 
-    private func updateOrderedItems() {
-        let last = WatchPreferences.shared.string(forKey: "watchLastSelectedGame", defaultValue: "")
-        guard let lastItem = WatchHomeItem(rawValue: last) else {
-            orderedItems = WatchHomeItem.allCases
+    private func loadPinnedItems() {
+        let storedIDs = WatchPreferences.shared.pinnedHomeItemIDs
+        let normalized = WatchHomePinning.normalizedItems(from: storedIDs)
+        pinnedItems = normalized
+        let normalizedIDs = normalized.map(\.rawValue)
+        if normalizedIDs != storedIDs {
+            WatchPreferences.shared.pinnedHomeItemIDs = normalizedIDs
+        }
+    }
+
+    private func pin(_ item: WatchHomeItem) {
+        pinDialogItem = nil
+        guard let updated = WatchHomePinning.adding(item, to: pinnedItems) else {
+            showPinLimitAlert = true
             return
         }
-        var items = WatchHomeItem.allCases
-        if let index = items.firstIndex(of: lastItem), index > 0 {
-            items.remove(at: index)
-            items.insert(lastItem, at: 0)
+        persistPinnedItems(updated)
+        scrollToTopRequest += 1
+        showToast(NSLocalizedString(
+            "watch_home_pin_success",
+            value: "已置顶",
+            comment: "Pinned to top"
+        ))
+    }
+
+    private func unpin(_ item: WatchHomeItem) {
+        pinDialogItem = nil
+        persistPinnedItems(WatchHomePinning.removing(item, from: pinnedItems))
+        showToast(NSLocalizedString(
+            "watch_home_unpin_success",
+            value: "已取消置顶",
+            comment: "Removed from pinned"
+        ))
+    }
+
+    private func persistPinnedItems(_ items: [WatchHomeItem]) {
+        let normalized = WatchHomePinning.normalizedItems(from: items.map(\.rawValue))
+        pinnedItems = normalized
+        WatchPreferences.shared.pinnedHomeItemIDs = normalized.map(\.rawValue)
+    }
+
+    private func showToast(_ message: String) {
+        let token = UUID()
+        toastToken = token
+        withAnimation {
+            toastMessage = message
         }
-        orderedItems = items
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard toastToken == token else { return }
+            withAnimation {
+                toastMessage = nil
+            }
+        }
+    }
+}
+
+private struct WatchHomePillControl: View {
+    let icon: String
+    let title: String
+    let isPinned: Bool
+    let longPressActionTitle: String
+    let onTap: () -> Void
+    let onLongPress: () -> Void
+
+    var body: some View {
+        WatchPillRow(
+            icon: icon,
+            title: title,
+            trailingIcon: isPinned ? "📌" : nil
+        )
+        .contentShape(Rectangle())
+        .gesture(
+            LongPressGesture(minimumDuration: WatchTiming.longPressThreshold)
+                .exclusively(before: TapGesture())
+                .onEnded { value in
+                    switch value {
+                    case .first:
+                        onLongPress()
+                    case .second:
+                        onTap()
+                    }
+                }
+        )
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction {
+            onTap()
+        }
+        .accessibilityAction(named: Text(longPressActionTitle)) {
+            onLongPress()
+        }
     }
 }

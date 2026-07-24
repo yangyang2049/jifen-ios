@@ -474,8 +474,8 @@ struct EightBallScoreboardView: View {
                 rightName: rightName,
                 leftScore: "\(logical(.left))",
                 rightScore: "\(logical(.right))",
-                leftDetail: String(format: NSLocalizedString("eight_ball_target_format", value: "抢 %d", comment: ""), state.targetPoints),
-                rightDetail: String(format: NSLocalizedString("eight_ball_target_format", value: "抢 %d", comment: ""), state.targetPoints),
+                leftDetail: nil,
+                rightDetail: nil,
                 finished: state.finished,
                 onLeftTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.left))) },
                 onRightTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.right))) },
@@ -494,7 +494,8 @@ struct EightBallScoreboardView: View {
                     sessionId: watchSessionId,
                     isFollower: watchLinkService.isFollower
                 ),
-                onMenuAction: handleWatchMenu
+                onMenuAction: handleWatchMenu,
+                topCenter: { AnyView(eightBallTargetPill) }
             ) {
                 VStack(spacing: 6) {
                     Text(NSLocalizedString("eight_ball_tap_rack", value: "点击比分区记一局", comment: ""))
@@ -593,6 +594,15 @@ struct EightBallScoreboardView: View {
         return ""
     }
 
+    private var eightBallTargetPill: some View {
+        Text("\(state.targetPoints)")
+            .font(.system(size: 18, weight: .bold, design: .rounded).monospacedDigit())
+            .foregroundStyle(.white)
+            .frame(minWidth: 44, minHeight: 34)
+            .background(Capsule().fill(Color.black.opacity(0.4)))
+            .accessibilityIdentifier("eight_ball_target")
+    }
+
     private func logical(_ screen: MatchSide) -> Int {
         let side = screenSide(screen)
         return side == .left ? state.leftPoints : state.rightPoints
@@ -605,6 +615,9 @@ struct EightBallScoreboardView: View {
         guard result.accepted else { return }
         history.append(state); state = result.state; actionCount += 1
         actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftPoints, state.rightPoints]))
+        if result.state.finished {
+            showGameOverDialog = true
+        }
     }
     private func markFinished() {
         guard !state.finished else { return }
@@ -648,8 +661,7 @@ struct EightBallScoreboardView: View {
         .init(gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: GameType.eightBall.displayName,
               leftName: leftName, rightName: rightName,
               leftScore: "\(logical(.left))", rightScore: "\(logical(.right))",
-              leftDetail: String.localizedStringWithFormat(NSLocalizedString("eight_ball_target_format", value: "抢 %d", comment: ""), state.targetPoints),
-              rightDetail: String.localizedStringWithFormat(NSLocalizedString("eight_ball_target_format", value: "抢 %d", comment: ""), state.targetPoints),
+              leftDetail: nil, rightDetail: nil,
               themeID: ScoreboardAppearanceSnapshot.current().theme.rawValue, fontID: ScoreboardAppearanceSnapshot.current().font.rawValue, finished: state.finished, revision: 0)
     }
     private func saveRecord() {

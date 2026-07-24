@@ -152,6 +152,19 @@ import SessionCore
     #expect(state.leftPoints == 2)
     #expect(state.rightPoints == 1)
     #expect(!state.finished)
+
+    let winningResult = reducer.reduce(state: state, intent: .addRack(.left), at: 4)
+    #expect(winningResult.accepted)
+    #expect(winningResult.state.leftPoints == 3)
+    #expect(winningResult.state.finished)
+
+    let postFinishResult = reducer.reduce(
+        state: winningResult.state,
+        intent: .addRack(.right),
+        at: 5
+    )
+    #expect(!postFinishResult.accepted)
+    #expect(postFinishResult.state.rightPoints == 1)
 }
 
 @Test func nineBallChaseFoulMatchesTwoAndFourPlayerRules() {

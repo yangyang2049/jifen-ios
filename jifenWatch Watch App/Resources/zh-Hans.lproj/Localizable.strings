@@ -10,7 +10,6 @@
 "game_pingpong" = "乒乓球";
 "game_tennis" = "网球";
 "game_pickleball" = "匹克球";
-"pickleball_icon_label" = "匹";
 "pickleball_sets" = "匹克球局数";
 "game_archery" = "射箭";
 "tool_basketball_training" = "投篮训练";
@@ -101,8 +100,8 @@
 "linked_score_sport_pingpong_doubles" = "🏓 乒乓球双打";
 "linked_score_sport_tennis" = "🎾 网球单打";
 "linked_score_sport_tennis_doubles" = "🎾 网球双打";
-"linked_score_sport_pickleball" = "🥒 匹克球单打";
-"linked_score_sport_pickleball_doubles" = "🥒 匹克球双打";
+"linked_score_sport_pickleball" = "🏓 匹克球单打";
+"linked_score_sport_pickleball_doubles" = "🏓 匹克球双打";
 "linked_score_sport_basketball" = "🏀 篮球";
 "linked_score_sport_three_basketball" = "🏀 三人篮球";
 "linked_score_sport_archery" = "🏹 射箭";
@@ -221,3 +220,16 @@
 "watch_training_start" = "训练开始";
 "watch_training_rate_format" = "命中率 %d%%";
 "watch_training_action_format" = "%d分 · %@";
+
+/* 首页置顶 */
+"watch_home_pin_title" = "置顶项目？";
+"watch_home_pin_message" = "将这个项目置顶到首页列表顶部？";
+"watch_home_pin_confirm" = "置顶";
+"watch_home_unpin_title" = "取消置顶？";
+"watch_home_unpin_message" = "将这个项目从置顶项目中移除？";
+"watch_home_unpin_confirm" = "移除";
+"watch_home_pin_full_title" = "置顶已满";
+"watch_home_pin_full_message" = "最多置顶 2 个项目，请先取消一个。";
+"watch_home_pin_hint" = "长按可置顶项目";
+"watch_home_pin_success" = "已置顶";
+"watch_home_unpin_success" = "已取消置顶";

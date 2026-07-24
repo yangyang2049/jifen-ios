@@ -46,7 +46,7 @@ enum WatchGameType: String, Codable, CaseIterable {
         case .tennis:
             return "🎾"
         case .pickleball:
-            return "🥒"
+            return "🏓"
         case .archery:
             return "🏹"
         case .eightBall, .nineBall, .snooker:

@@ -49,7 +49,7 @@ enum BookingSportType: String, Codable, CaseIterable, Identifiable {
         case .tennis: return "🎾"
         case .football: return "⚽"
         case .volleyball: return "🏐"
-        case .pickleball: return "🥎"
+        case .pickleball: return "🏓"
         case .other: return "📅"
         }
     }

@@ -6,6 +6,7 @@ extension Notification.Name {
 
 final class WatchPreferences {
     static let shared = WatchPreferences()
+    static let pinnedHomeItemIDsKey = "watch_pinned_home_item_ids"
 
     private let defaults: UserDefaults
 
@@ -39,6 +40,11 @@ final class WatchPreferences {
             defaults.set(normalized, forKey: "watch_scoreboard_layout")
             NotificationCenter.default.post(name: .watchScoreboardLayoutDidChange, object: normalized)
         }
+    }
+
+    var pinnedHomeItemIDs: [String] {
+        get { defaults.stringArray(forKey: Self.pinnedHomeItemIDsKey) ?? [] }
+        set { defaults.set(newValue, forKey: Self.pinnedHomeItemIDsKey) }
     }
 
     func bool(forKey key: String, defaultValue: Bool = false) -> Bool {

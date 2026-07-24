@@ -26,6 +26,14 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(GameCatalog.scoreboardItems.count, 23)
     }
 
+    func testPickleballUsesTableTennisIcon() throws {
+        let pickleballItem = try XCTUnwrap(
+            GameCatalog.scoreboardItems.first { $0.gameType == .pickleball }
+        )
+        XCTAssertEqual(jifen.GameType.pickleball.icon, jifen.GameType.pingpong.icon)
+        XCTAssertEqual(pickleballItem.emoji, jifen.GameType.pingpong.icon)
+    }
+
     func testLegacyAndCanonicalGameIdentifiersDecode() throws {
         let decoder = JSONDecoder()
         XCTAssertEqual(try decoder.decode(jifen.GameType.self, from: Data("\"archery\"".utf8)), .archery)

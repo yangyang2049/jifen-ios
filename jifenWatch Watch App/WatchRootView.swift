@@ -484,9 +484,9 @@ private enum LinkedSetupConfirmCopy {
         case .tennisDoubles:
             return NSLocalizedString("linked_score_sport_tennis_doubles", value: "🎾 网球双打", comment: "")
         case .pickleball:
-            return NSLocalizedString("linked_score_sport_pickleball", value: "🥒 匹克球单打", comment: "")
+            return NSLocalizedString("linked_score_sport_pickleball", value: "🏓 匹克球单打", comment: "")
         case .pickleballDoubles:
-            return NSLocalizedString("linked_score_sport_pickleball_doubles", value: "🥒 匹克球双打", comment: "")
+            return NSLocalizedString("linked_score_sport_pickleball_doubles", value: "🏓 匹克球双打", comment: "")
         case .basketball:
             return NSLocalizedString("linked_score_sport_basketball", value: "🏀 篮球", comment: "")
         case .threeBasketball:

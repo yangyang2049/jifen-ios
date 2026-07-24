@@ -10,7 +10,6 @@
 "game_pingpong" = "Ping Pong";
 "game_tennis" = "Tennis";
 "game_pickleball" = "Pickleball";
-"pickleball_icon_label" = "P";
 "pickleball_sets" = "Pickleball Sets";
 "game_archery" = "Archery";
 "tool_basketball_training" = "Basketball Training";
@@ -101,8 +100,8 @@
 "linked_score_sport_pingpong_doubles" = "🏓 Table Tennis Doubles";
 "linked_score_sport_tennis" = "🎾 Tennis Singles";
 "linked_score_sport_tennis_doubles" = "🎾 Tennis Doubles";
-"linked_score_sport_pickleball" = "🥒 Pickleball Singles";
-"linked_score_sport_pickleball_doubles" = "🥒 Pickleball Doubles";
+"linked_score_sport_pickleball" = "🏓 Pickleball Singles";
+"linked_score_sport_pickleball_doubles" = "🏓 Pickleball Doubles";
 "linked_score_sport_basketball" = "🏀 Basketball";
 "linked_score_sport_three_basketball" = "🏀 3x3 Basketball";
 "linked_score_sport_archery" = "🏹 Archery";
@@ -221,3 +220,16 @@
 "watch_training_start" = "Training started";
 "watch_training_rate_format" = "Hit rate %d%%";
 "watch_training_action_format" = "%d pt · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Pin project?";
+"watch_home_pin_message" = "Pin this project to the top of the list?";
+"watch_home_pin_confirm" = "Pin";
+"watch_home_unpin_title" = "Unpin project?";
+"watch_home_unpin_message" = "Remove this project from pinned items?";
+"watch_home_unpin_confirm" = "Remove";
+"watch_home_pin_full_title" = "Pinned projects full";
+"watch_home_pin_full_message" = "Up to 2 projects can be pinned. Unpin one first.";
+"watch_home_pin_hint" = "Long press to pin projects";
+"watch_home_pin_success" = "Pinned to top";
+"watch_home_unpin_success" = "Removed from pinned";

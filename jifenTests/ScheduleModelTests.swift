@@ -29,6 +29,10 @@ final class ScheduleModelTests: XCTestCase {
         XCTAssertNil(BookingSportType.other.gameType)
     }
 
+    func testPickleballUsesTableTennisIcon() {
+        XCTAssertEqual(BookingSportType.pickleball.icon, BookingSportType.pingpong.icon)
+    }
+
     func testLocalBookingCodableRoundTrip() throws {
         let booking = LocalBooking(
             id: "booking-1",
