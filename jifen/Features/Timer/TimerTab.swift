@@ -24,24 +24,33 @@ struct TimerTab: View {
 
     private static let dualTimerDestinations: Set<TimerDestination> = Set(GameCatalog.timerAllItems.filter { $0.requiresDualSetup })
 
-    private let columns = [
-        GridItem(.flexible(), spacing: Theme.spacing),
-        GridItem(.flexible(), spacing: Theme.spacing),
-        GridItem(.flexible(), spacing: Theme.spacing)
-    ]
-
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: Theme.lg) {
-                    timerSectionGroup(title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""), items: GameCatalog.timerBoardGameItems)
-                    timerSectionGroup(title: NSLocalizedString("timer_section_other", value: "其他", comment: ""), items: GameCatalog.timerOtherItems)
+            GeometryReader { proxy in
+                let usesPadLayout = UIDevice.current.userInterfaceIdiom == .pad
+                    && proxy.size.width >= 760
+
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: Theme.lg) {
+                        timerSectionGroup(
+                            title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
+                            items: GameCatalog.timerBoardGameItems,
+                            usesPadLayout: usesPadLayout
+                        )
+                        timerSectionGroup(
+                            title: NSLocalizedString("timer_section_other", value: "其他", comment: ""),
+                            items: GameCatalog.timerOtherItems,
+                            usesPadLayout: usesPadLayout
+                        )
+                    }
+                    .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, usesPadLayout ? Theme.xl : Theme.padding)
+                    .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
+                    .padding(.bottom, Theme.lg + 56)
                 }
-                .padding(.horizontal, Theme.padding)
-                .padding(.top, Theme.md)
-                .padding(.bottom, Theme.lg + 56)
+                .background(Theme.backgroundColor)
             }
-            .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_timer", value: "计时", comment: "Timer tab"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $selectedDestination) { dest in
@@ -89,10 +98,20 @@ struct TimerTab: View {
         .tint(Theme.accentColor)
     }
 
-    private func timerSectionGroup(title: String, items: [TimerDestination]) -> some View {
-        VStack(alignment: .leading, spacing: Theme.spacing) {
+    private func timerSectionGroup(
+        title: String,
+        items: [TimerDestination],
+        usesPadLayout: Bool
+    ) -> some View {
+        let columnCount = usesPadLayout ? 4 : 3
+        let columns = Array(
+            repeating: GridItem(.flexible(), spacing: Theme.spacing),
+            count: columnCount
+        )
+
+        return VStack(alignment: .leading, spacing: Theme.spacing) {
             Text(title)
-                .font(.system(size: Theme.fontH5, weight: .medium))
+                .font(.system(size: usesPadLayout ? Theme.fontH4 : Theme.fontH5, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
 
             LazyVGrid(columns: columns, spacing: Theme.spacing) {
@@ -107,16 +126,16 @@ struct TimerTab: View {
                     } label: {
                         VStack(spacing: 10) {
                             Text(dest.emoji)
-                                .font(.system(size: 40))
+                                .font(.system(size: usesPadLayout ? 48 : 40))
                             Text(dest.title)
-                                .font(.system(size: Theme.fontBody2))
+                                .font(.system(size: usesPadLayout ? Theme.fontBody1 : Theme.fontBody2))
                                 .foregroundColor(Theme.textPrimary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
                         }
                         .padding(.vertical, Theme.md)
                         .frame(maxWidth: .infinity)
-                        .frame(minHeight: 92)
+                        .frame(minHeight: usesPadLayout ? 124 : 92)
                         .background {
                             if colorScheme == .light {
                                 Color.white

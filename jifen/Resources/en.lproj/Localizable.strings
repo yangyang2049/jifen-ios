@@ -538,6 +538,19 @@
 "about_company_zh" = "重庆豆花科技有限公司";
 "about_company_en" = "Chongqing Douhua Technology Co., Ltd.";
 "terms_of_service" = "Terms of Service";
+
+/* First-launch legal consent */
+"legal_consent_title" = "Please Review Before Using";
+"legal_consent_subtitle" = "Please read and agree to the Terms of Service and Privacy Policy before using the app.";
+"legal_summary_title" = "How We Use Data";
+"legal_summary_body" = "• Scores, timers, match records, and bookings are stored on this device.\n• Third-party SDKs include Umeng Analytics to measure app usage and improve the product experience. See the Privacy Policy for details.";
+"legal_consent_checkbox_markdown" = "I have read and agree to the [Terms of Service](%@) and [Privacy Policy](%@)";
+"legal_consent_toggle" = "Agree to the Terms of Service and Privacy Policy";
+"legal_decline" = "Not Now";
+"legal_decline_title" = "Your Consent Is Required";
+"legal_decline_message" = "Until you agree, the app will not initialize Umeng Analytics or open its main features. You can close the app and decide later.";
+"legal_decline_acknowledge" = "OK";
+"legal_agree_continue" = "Agree and Continue";
 "home_common_names_desc" = "Teams and players";
 "common_places_title" = "Common Places";
 "home_common_places_desc" = "Venues, courts, places";

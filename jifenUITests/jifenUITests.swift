@@ -9,7 +9,11 @@ final class jifenUITests: XCTestCase {
         if #available(iOS 13.0, *) {
             measure(metrics: [XCTApplicationLaunchMetric()]) {
                 let app = XCUIApplication()
-                app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+                app.launchArguments += [
+                    "-AppleLanguages", "(en)",
+                    "-AppleLocale", "en_US",
+                    "-UITestSkipLegalConsent"
+                ]
                 app.launch()
             }
         }

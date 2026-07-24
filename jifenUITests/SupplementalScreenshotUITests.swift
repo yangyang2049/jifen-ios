@@ -64,7 +64,11 @@ final class SupplementalScreenshotUITests: XCTestCase {
     private func relaunch() {
         if app != nil { app.terminate() }
         app = XCUIApplication()
-        app.launchArguments += ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN"]
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent"
+        ]
         app.launch()
         XCUIDevice.shared.orientation = .portrait
         _ = app.tabBars.buttons["首页"].waitForExistence(timeout: 10)

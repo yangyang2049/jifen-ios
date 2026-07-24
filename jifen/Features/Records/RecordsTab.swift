@@ -10,6 +10,7 @@ import ScoreCore
 import SwiftUI
 
 struct RecordsTab: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
     @State private var v2RecordsVM = SessionRecordsViewModel()
@@ -44,6 +45,7 @@ struct RecordsTab: View {
                 tabChips
                 content
             }
+            .frame(maxWidth: usesPadLayout ? 920 : .infinity, maxHeight: .infinity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_records", comment: "Records"))
@@ -98,6 +100,10 @@ struct RecordsTab: View {
             }
         }
         .tint(Theme.accentColor)
+    }
+
+    private var usesPadLayout: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .regular
     }
 
     private var recordsFilterSheet: some View {

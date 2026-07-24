@@ -15,6 +15,7 @@ private enum AppSupportURLs {
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.requestReview) private var requestReview
     @Environment(AppAppearanceStore.self) private var appearance
     var isTabRoot: Bool = false
@@ -77,6 +78,8 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: usesPadLayout ? 760 : .infinity)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, Theme.md)
                     .padding(.vertical, Theme.lg)
                 }
@@ -122,6 +125,9 @@ struct SettingsView: View {
         }
     }
 
+    private var usesPadLayout: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .regular
+    }
 }
 
 struct MeTab: View {

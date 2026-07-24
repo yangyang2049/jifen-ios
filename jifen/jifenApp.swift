@@ -80,10 +80,16 @@ struct jifenApp: App {
     @UIApplicationDelegateAdaptor(ScoreboardAppDelegate.self) var appDelegate
     @State private var appearance = AppAppearanceStore()
     @State private var watchLinkService = PhoneWatchLinkService()
+    @State private var hasAcceptedLegal: Bool
 
     init() {
         FontRegistrar.registerFonts()
         UITestRecordFixtures.installIfRequested()
+        let hasAcceptedLegal = LegalConsent.hasAcceptedCurrentDocuments()
+        _hasAcceptedLegal = State(initialValue: hasAcceptedLegal)
+        if hasAcceptedLegal {
+            UmengAnalytics.initializeIfConsented()
+        }
     }
     
     var body: some Scene {
@@ -105,10 +111,31 @@ struct jifenApp: App {
                 ScoreboardRecordDetailPage(recordId: "ui-fixture-\(arguments[index + 1])")
             }
         } else {
-            ContentView()
+            legalGatedContent
         }
         #else
-        ContentView()
+        legalGatedContent
+        #endif
+    }
+
+    @ViewBuilder
+    private var legalGatedContent: some View {
+        if hasAcceptedLegal || shouldSkipLegalForUITests {
+            ContentView()
+        } else {
+            FirstLaunchLegalScreen {
+                LegalConsent.acceptCurrentDocuments()
+                UmengAnalytics.initializeIfConsented()
+                hasAcceptedLegal = true
+            }
+        }
+    }
+
+    private var shouldSkipLegalForUITests: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-UITestSkipLegalConsent")
+        #else
+        false
         #endif
     }
 }

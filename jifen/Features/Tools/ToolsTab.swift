@@ -21,22 +21,31 @@ struct ToolsListPageView: View {
     var onToolTap: ((ToolItem) -> Void)? = nil
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: Theme.lg) {
-                ToolSectionView(
-                    title: NSLocalizedString("match_tools", comment: "Match Tools"),
-                    tools: ToolItem.competitionTools
-                ) { tool in
-                    onToolTap?(tool)
+        GeometryReader { proxy in
+            let usesPadLayout = UIDevice.current.userInterfaceIdiom == .pad
+                && proxy.size.width >= 760
+
+            ScrollView(showsIndicators: false) {
+                LazyVStack(spacing: usesPadLayout ? Theme.xl : Theme.lg) {
+                    ToolSectionView(
+                        title: NSLocalizedString("match_tools", comment: "Match Tools"),
+                        tools: ToolItem.competitionTools,
+                        usesPadLayout: usesPadLayout
+                    ) { tool in
+                        onToolTap?(tool)
+                    }
+                    ToolSectionView(
+                        title: NSLocalizedString("other_tools", comment: "Other Tools"),
+                        tools: ToolItem.otherTools,
+                        usesPadLayout: usesPadLayout
+                    ) { tool in
+                        onToolTap?(tool)
+                    }
                 }
-                ToolSectionView(
-                    title: NSLocalizedString("other_tools", comment: "Other Tools"),
-                    tools: ToolItem.otherTools
-                ) { tool in
-                    onToolTap?(tool)
-                }
+                .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                .frame(maxWidth: .infinity)
+                .padding(usesPadLayout ? Theme.xl : Theme.lg)
             }
-            .padding(Theme.lg)
         }
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))
@@ -50,6 +59,7 @@ struct ToolsListPageView: View {
 struct ToolSectionView: View {
     let title: String
     let tools: [ToolItem]
+    let usesPadLayout: Bool
     let onToolClick: (ToolItem) -> Void
     
     var body: some View {
@@ -59,23 +69,27 @@ struct ToolSectionView: View {
                 .foregroundColor(Theme.textPrimary.opacity(0.9))
                 .padding(.horizontal, 4)
             
-            LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: Theme.md),
-                GridItem(.flexible(), spacing: Theme.md),
-                GridItem(.flexible(), spacing: Theme.md)
-            ], spacing: Theme.md) {
+            LazyVGrid(columns: columns, spacing: Theme.md) {
                 ForEach(tools, id: \.self) { tool in
-                    ToolCardView(tool: tool) {
+                    ToolCardView(tool: tool, usesPadLayout: usesPadLayout) {
                         onToolClick(tool)
                     }
                 }
             }
         }
     }
+
+    private var columns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(), spacing: Theme.md),
+            count: usesPadLayout ? 4 : 3
+        )
+    }
 }
 
 struct ToolCardView: View {
     let tool: ToolItem
+    let usesPadLayout: Bool
     let action: () -> Void
     
     var body: some View {
@@ -85,14 +99,14 @@ struct ToolCardView: View {
         }) {
             VStack(spacing: 12) {
                 Text(tool.emoji)
-                    .font(.system(size: 48))
+                    .font(.system(size: usesPadLayout ? 56 : 48))
                 
                 Text(tool.title)
-                    .font(.subheadline)
+                    .font(usesPadLayout ? .body : .subheadline)
                     .foregroundColor(Theme.textPrimary)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 120)
+            .frame(height: usesPadLayout ? 144 : 120)
             .background(Theme.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
             .overlay(

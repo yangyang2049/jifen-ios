@@ -6,6 +6,10 @@
 	<string>用于将计分板截图保存到相册。</string>
 	<key>JifenWatchLinkEntryEnabled</key>
 	<true/>
+	<key>UMENG_APP_KEY</key>
+	<string>$(UMENG_APP_KEY)</string>
+	<key>UMENG_CHANNEL</key>
+	<string>App Store</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

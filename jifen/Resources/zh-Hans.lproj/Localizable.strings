@@ -538,6 +538,19 @@
 "about_company_zh" = "重庆豆花科技有限公司";
 "about_company_en" = "Chongqing Douhua Technology Co., Ltd.";
 "terms_of_service" = "用户协议";
+
+/* First-launch legal consent */
+"legal_consent_title" = "使用前请先阅读并同意";
+"legal_consent_subtitle" = "为保障你的相关权利，请在使用前阅读并同意《用户协议》和《隐私政策》。";
+"legal_summary_title" = "我们如何使用数据";
+"legal_summary_body" = "• 计分、计时、比赛记录和球局预约等数据保存在当前设备。\n• 第三方 SDK 包含友盟统计，用于统计应用使用情况和改进产品体验，具体处理方式详见《隐私政策》。";
+"legal_consent_checkbox_markdown" = "我已阅读并同意[《用户协议》](%@)和[《隐私政策》](%@)";
+"legal_consent_toggle" = "同意用户协议和隐私政策";
+"legal_decline" = "暂不同意";
+"legal_decline_title" = "需要你的同意";
+"legal_decline_message" = "在你同意前，应用不会初始化友盟统计，也不会进入主要功能。你可以关闭应用，稍后再决定。";
+"legal_decline_acknowledge" = "知道了";
+"legal_agree_continue" = "同意并继续";
 "home_common_names_desc" = "队名、球员名";
 "common_places_title" = "常用地点";
 "home_common_places_desc" = "球馆、球场、地点";

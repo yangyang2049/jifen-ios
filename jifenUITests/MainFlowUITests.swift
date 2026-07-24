@@ -24,7 +24,8 @@ final class MainFlowUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += [
             "-AppleLanguages", "(en)",
-            "-AppleLocale", "en_US"
+            "-AppleLocale", "en_US",
+            "-UITestSkipLegalConsent"
         ]
         app.launch()
         return app
@@ -40,6 +41,31 @@ final class MainFlowUITests: XCTestCase {
             button.tap()
             XCTAssertTrue(button.isHittable || button.isSelected, "Failed to select tab: \(tab)")
         }
+    }
+
+    func testFirstLaunchLegalConsentGatesMainContent() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-UITestDisableAnalytics",
+            "-legal_documents_accepted_version", ""
+        ]
+        app.launch()
+        defer { app.terminate() }
+
+        XCTAssertTrue(app.staticTexts["使用前请先阅读并同意"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.tabBars.buttons["首页"].exists)
+
+        let agreeButton = app.buttons["同意并继续"]
+        XCTAssertTrue(agreeButton.exists)
+        XCTAssertFalse(agreeButton.isEnabled)
+
+        app.buttons["同意用户协议和隐私政策"].tap()
+        XCTAssertTrue(agreeButton.isEnabled)
+        agreeButton.tap()
+
+        XCTAssertTrue(app.tabBars.buttons["首页"].waitForExistence(timeout: 8))
     }
 
     func testMeTabContainsLocalSettings() {
@@ -90,7 +116,8 @@ final class MainFlowUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN"
+            "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent"
         ]
         app.launch()
         defer { app.terminate() }
@@ -121,7 +148,8 @@ final class MainFlowUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN"
+            "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent"
         ]
         app.launch()
         defer { app.terminate() }
@@ -230,6 +258,7 @@ final class MainFlowUITests: XCTestCase {
             let app = XCUIApplication()
             app.launchArguments += [
                 "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+                "-UITestSkipLegalConsent",
                 "-UITestRecordFixtures", "-UITestRecordDetail", project
             ]
             app.launch()
@@ -244,7 +273,7 @@ final class MainFlowUITests: XCTestCase {
 
     private func clearRecordFixtures() {
         let cleanup = XCUIApplication()
-        cleanup.launchArguments += ["-UITestClearRecordFixtures"]
+        cleanup.launchArguments += ["-UITestSkipLegalConsent", "-UITestClearRecordFixtures"]
         cleanup.launch()
         cleanup.terminate()
     }
@@ -260,7 +289,11 @@ final class MainFlowUITests: XCTestCase {
         arguments: [String] = []
     ) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments += ["-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+        app.launchArguments += [
+            "-AppleLanguages", "(\(language))",
+            "-AppleLocale", locale,
+            "-UITestSkipLegalConsent"
+        ]
         if let appearance {
             app.launchArguments += ["-jifen-v2.appAppearanceMode", appearance]
         }
@@ -298,6 +331,7 @@ final class MainFlowUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent",
             "-jifen-v2.appAppearanceMode", appearance
         ]
         app.launch()

@@ -68,6 +68,7 @@ final class FullAppScreenshotUITests: XCTestCase {
             writeManifest(count: count)
         }
 
+        captureFirstLaunchLegalScreen()
         captureTabRootsAndHomeSecondary()
         captureAllScoreboards()
         captureAllTimers()
@@ -79,7 +80,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         let count = UITestScreenshotStore.writtenFileCount()
         XCTAssertGreaterThanOrEqual(
             count,
-            89,
+            90,
             "Expected broad screenshot coverage, got \(count). Dir: \(UITestScreenshotStore.outputDirectory.path)"
         )
     }
@@ -94,6 +95,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent",
             "-UITestScreenshotMode", "1"
         ]
         app.launch()
@@ -101,6 +103,26 @@ final class FullAppScreenshotUITests: XCTestCase {
         // Ensure portrait for tab navigation
         XCUIDevice.shared.orientation = .portrait
         RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+    }
+
+    private func captureFirstLaunchLegalScreen() {
+        if app != nil {
+            app.terminate()
+        }
+        app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-legal_documents_accepted_version", "",
+            "-UITestDisableAnalytics",
+            "-UITestScreenshotMode", "1"
+        ]
+        XCUIDevice.shared.orientation = .portrait
+        app.launch()
+
+        let title = app.staticTexts["使用前请先阅读并同意"]
+        XCTAssertTrue(title.waitForExistence(timeout: 8), "First-launch legal screen not ready")
+        snap("00_first_launch_legal")
     }
 
     private func waitForTabs(timeout: TimeInterval) -> Bool {
