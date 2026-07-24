@@ -307,7 +307,7 @@ struct WatchHomeTabView: View {
                 .ignoresSafeArea()
                 .onTapGesture { preflightPicker = nil }
 
-            VStack(spacing: 12) {
+            VStack(spacing: WatchLayout.isCompactScreen ? 8 : 10) {
                 Text(
                     picker == .nineBallPlayers
                         ? NSLocalizedString("watch_setup_select_players", value: "选择人数", comment: "")
@@ -332,8 +332,8 @@ struct WatchHomeTabView: View {
                         }
                     }
                 } else {
-                    VStack(spacing: 10) {
-                        HStack(spacing: 8) {
+                    VStack(spacing: 6) {
+                        HStack(spacing: 6) {
                             trainingModeButton(.onePoint, title: NSLocalizedString("watch_bb_1pt", value: "1分", comment: ""))
                             trainingModeButton(.twoPoint, title: NSLocalizedString("watch_bb_2pt", value: "2分", comment: ""))
                             trainingModeButton(.threePoint, title: NSLocalizedString("watch_bb_3pt", value: "3分", comment: ""))
@@ -346,10 +346,11 @@ struct WatchHomeTabView: View {
                     }
                 }
             }
-            .padding(14)
-            .frame(width: WatchLayout.isCompactScreen ? 184 : 208)
+            .padding(WatchLayout.isCompactScreen ? 10 : 12)
+            .frame(maxWidth: .infinity)
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 10)
         }
     }
 
@@ -363,10 +364,10 @@ struct WatchHomeTabView: View {
             scoreboardRoute = .basketballTraining(mode: mode)
         } label: {
             Text(title)
-                .font(.system(size: fillsWidth ? 16 : 14, weight: .medium))
+                .font(.system(size: fillsWidth ? 15 : 13, weight: .medium))
                 .foregroundStyle(WatchTheme.primaryText)
                 .frame(maxWidth: .infinity)
-                .frame(height: WatchLayout.isCompactScreen ? 42 : 50)
+                .frame(height: WatchLayout.isCompactScreen ? 38 : 42)
                 .background(Color.white.opacity(0.08))
                 .clipShape(Capsule())
         }

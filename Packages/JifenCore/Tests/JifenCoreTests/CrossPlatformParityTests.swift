@@ -67,6 +67,93 @@ import SessionCore
     #expect(tieBreak.rightGames == 0)
 }
 
+@Test func tennisSideExchangeKeepsStableTeamIdentity() {
+    let reducer = TennisMatchReducer()
+    var state = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        openingServer: .left,
+        doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+    )
+    state.leftPoints = 2
+    state.rightPoints = 1
+    state.leftGames = 3
+    state.rightGames = 2
+    state.leftSets = 1
+    state.servingSide = .right
+    state.firstServerInSet = .left
+
+    let exchanged = reducer.reduce(state: state, intent: .exchangeSides, at: 1).state
+
+    #expect(exchanged.sidesSwapped)
+    #expect(exchanged.leftName == "A")
+    #expect(exchanged.rightName == "B")
+    #expect(exchanged.doublesPlayerNames == ["A1", "B1", "A2", "B2"])
+    #expect(exchanged.leftPoints == 2)
+    #expect(exchanged.rightPoints == 1)
+    #expect(exchanged.leftGames == 3)
+    #expect(exchanged.rightGames == 2)
+    #expect(exchanged.leftSets == 1)
+    #expect(exchanged.servingSide == .right)
+    #expect(exchanged.openingServerSide == .left)
+    #expect(exchanged.firstServerInSet == .left)
+
+    let screenLayout = TeamScreenLayout(sidesSwapped: exchanged.sidesSwapped)
+    #expect(screenLayout.engineSide(onScreen: .left) == .right)
+    #expect(screenLayout.engineSide(onScreen: .right) == .left)
+}
+
+@Test func tennisAutomaticSideExchangeMovesScreenPlacementOnly() {
+    let reducer = TennisMatchReducer()
+    var state = TennisMatchState(leftName: "A", rightName: "B", openingServer: .left)
+
+    for timestamp in 1 ... 4 {
+        state = reducer.reduce(
+            state: state,
+            intent: .pointWon(.left),
+            at: Int64(timestamp)
+        ).state
+    }
+
+    #expect(state.leftGames == 1)
+    #expect(state.rightGames == 0)
+    #expect(state.leftName == "A")
+    #expect(state.rightName == "B")
+    #expect(state.sidesSwapped)
+    #expect(state.servingSide == .right)
+    #expect(state.firstServerInSet == .left)
+
+    let screenLayout = TeamScreenLayout(sidesSwapped: state.sidesSwapped)
+    #expect(screenLayout.engineSide(onScreen: .left) == .right)
+}
+
+@Test func tennisResetAfterSideExchangePreservesConfiguredPlayers() {
+    let reducer = TennisMatchReducer()
+    var state = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        openingServer: .right,
+        doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+    )
+    state = reducer.reduce(state: state, intent: .exchangeSides, at: 1).state
+    state.leftGames = 2
+    state.rightPoints = 3
+
+    let reset = reducer.reduce(state: state, intent: .reset, at: 2).state
+
+    #expect(reset.leftName == "A")
+    #expect(reset.rightName == "B")
+    #expect(reset.doublesPlayerNames == ["A1", "B1", "A2", "B2"])
+    #expect(reset.openingServerSide == .right)
+    #expect(reset.servingSide == .right)
+    #expect(reset.firstServerInSet == .right)
+    #expect(reset.leftPoints == 0)
+    #expect(reset.rightPoints == 0)
+    #expect(reset.leftGames == 0)
+    #expect(reset.rightGames == 0)
+    #expect(!reset.sidesSwapped)
+}
+
 @Test func tennisFourGameAndTiebreakOnlyFormatsMatchMobileRules() throws {
     let reducer = TennisMatchReducer()
     var shortSet = TennisMatchState(

@@ -14,15 +14,18 @@ struct WatchBasketballTrainingView: View {
     @State private var recentShotID: String?
     @State private var scoreboardLayout = "horizontal"
     @State private var suppressTapAfterLongPress = false
+    @State private var showFreeGuide = false
+    @State private var isPaused = false
+    @State private var confirmation: WatchScoreboardConfirmation?
 
     var body: some View {
         ZStack {
             board
                 .contentShape(Rectangle())
                 .simultaneousGesture(
-                    LongPressGesture(minimumDuration: 0.55)
+                    LongPressGesture(minimumDuration: WatchTiming.longPressThreshold)
                         .onEnded { _ in
-                            guard !showMenu, !showEndDialog else { return }
+                            guard !showMenu, !showEndDialog, !isPaused, confirmation == nil else { return }
                             suppressTapAfterLongPress = true
                             WatchHaptics.shared.play(.strong)
                             showMenu = true
@@ -34,7 +37,7 @@ struct WatchBasketballTrainingView: View {
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 30)
                         .onEnded { value in
-                            guard !showMenu, !showEndDialog else { return }
+                            guard !showMenu, !showEndDialog, !isPaused, confirmation == nil else { return }
                             if value.translation.width > 55,
                                abs(value.translation.height) < 50 {
                                 dismiss()
@@ -45,10 +48,41 @@ struct WatchBasketballTrainingView: View {
                 )
 
             if showMenu {
-                menuOverlay
+                trainingMenuOverlay
             }
             if showEndDialog {
                 endOverlay
+            }
+            if showFreeGuide {
+                freeGuideOverlay
+            }
+            if isPaused {
+                WatchPausedOverlay(
+                    scoreText: "\(totalMade) / \(totalAttempts)",
+                    onContinue: { isPaused = false },
+                    onFinish: { confirmation = .finish }
+                )
+            }
+            if let confirmation {
+                WatchConfirmationOverlay(
+                    confirmation: confirmation,
+                    titleOverride: confirmation == .finish
+                        ? NSLocalizedString(
+                            "watch_training_finish_confirm_title",
+                            value: "结束训练？",
+                            comment: ""
+                        )
+                        : nil,
+                    messageOverride: confirmation == .finish
+                        ? NSLocalizedString(
+                            "watch_training_finish_confirm_message",
+                            value: "将结束并保存本次训练。",
+                            comment: ""
+                        )
+                        : nil,
+                    onCancel: { self.confirmation = nil },
+                    onConfirm: { confirmTraining(confirmation) }
+                )
             }
             if let toastMessage {
                 VStack {
@@ -62,6 +96,14 @@ struct WatchBasketballTrainingView: View {
         .ignoresSafeArea()
         .onAppear {
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
+            if mode == .free {
+                showFreeGuide = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        showFreeGuide = false
+                    }
+                }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
@@ -75,6 +117,55 @@ struct WatchBasketballTrainingView: View {
         } else {
             freeBoard
         }
+    }
+
+    private var trainingMenuOverlay: some View {
+        ZStack(alignment: .bottom) {
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+                .onTapGesture { showMenu = false }
+
+            LazyVGrid(
+                columns: [GridItem(.flexible()), GridItem(.flexible())],
+                spacing: WatchLayout.isCompactScreen ? 5 : 6
+            ) {
+                WatchMenuGridButton(
+                    title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                    systemImage: "arrow.uturn.backward"
+                ) {
+                    showMenu = false
+                    undo()
+                }
+                WatchMenuGridButton(
+                    title: isPaused
+                        ? NSLocalizedString("watch_continue_match", value: "继续训练", comment: "")
+                        : NSLocalizedString("watch_pause_match", value: "暂停训练", comment: ""),
+                    systemImage: isPaused ? "play.fill" : "pause.fill",
+                    background: isPaused ? WatchTheme.successGreen : WatchTheme.warningOrange
+                ) {
+                    showMenu = false
+                    if isPaused { isPaused = false } else { confirmation = .pause }
+                }
+                WatchMenuGridButton(
+                    title: NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: ""),
+                    systemImage: "flag.checkered",
+                    background: WatchTheme.dangerRed
+                ) {
+                    showMenu = false
+                    confirmation = .finish
+                }
+                WatchMenuGridButton(
+                    title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
+                    systemImage: "arrow.counterclockwise"
+                ) {
+                    showMenu = false
+                    confirmation = .reset
+                }
+            }
+            .padding(.horizontal, WatchLayout.isCompactScreen ? 20 : 26)
+            .padding(.bottom, WatchLayout.isCompactScreen ? 5 : 7)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func fixedBoard(points: Int) -> some View {
@@ -112,6 +203,24 @@ struct WatchBasketballTrainingView: View {
             }
             .frame(width: fullWidth, height: fullHeight)
             .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
+            .overlay(alignment: .top) {
+                if !showMenu && !showEndDialog {
+                    Text(
+                        String.localizedStringWithFormat(
+                            NSLocalizedString("watch_training_point_value", value: "%d分", comment: ""),
+                            points
+                        )
+                    )
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Color.black.opacity(0.62))
+                    .clipShape(Capsule())
+                    .padding(.top, 6)
+                    .allowsHitTesting(false)
+                }
+            }
         }
     }
 
@@ -128,12 +237,7 @@ struct WatchBasketballTrainingView: View {
                             trainingCell(points: 3, made: false, size: .init(width: fullWidth / 2, height: fullHeight / 3))
                         }
                         VStack(spacing: 0) {
-                            trainingCell(
-                                points: 1,
-                                made: true,
-                                size: .init(width: fullWidth / 2, height: fullHeight / 3),
-                                contentOffsetY: 22
-                            )
+                            trainingCell(points: 1, made: true, size: .init(width: fullWidth / 2, height: fullHeight / 3))
                             trainingCell(points: 2, made: true, size: .init(width: fullWidth / 2, height: fullHeight / 3))
                             trainingCell(points: 3, made: true, size: .init(width: fullWidth / 2, height: fullHeight / 3))
                         }
@@ -143,12 +247,7 @@ struct WatchBasketballTrainingView: View {
                         HStack(spacing: 0) {
                             trainingCell(points: 1, made: false, size: .init(width: fullWidth / 3, height: fullHeight / 2))
                             trainingCell(points: 2, made: false, size: .init(width: fullWidth / 3, height: fullHeight / 2))
-                            trainingCell(
-                                points: 3,
-                                made: false,
-                                size: .init(width: fullWidth / 3, height: fullHeight / 2),
-                                contentOffsetY: 22
-                            )
+                            trainingCell(points: 3, made: false, size: .init(width: fullWidth / 3, height: fullHeight / 2))
                         }
                         HStack(spacing: 0) {
                             trainingCell(points: 1, made: true, size: .init(width: fullWidth / 3, height: fullHeight / 2))
@@ -160,42 +259,41 @@ struct WatchBasketballTrainingView: View {
             }
             .frame(width: fullWidth, height: fullHeight)
             .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
+            .overlay {
+                freeDivisionLines
+                    .allowsHitTesting(false)
+            }
+            .overlay {
+                freePointBadges
+                    .allowsHitTesting(false)
+            }
         }
     }
 
     private func trainingCell(
         points: Int,
         made: Bool,
-        size: CGSize,
-        contentOffsetY: CGFloat = 0
+        size: CGSize
     ) -> some View {
         let count = shotCount(points: points, made: made)
         let isRecent = history.last?.id == recentShotID
             && history.last?.points == points
             && history.last?.made == made
         return VStack(spacing: 1) {
-            Text(
-                made
-                    ? NSLocalizedString("watch_training_made", value: "命中", comment: "")
-                    : NSLocalizedString("watch_training_miss", value: "未中", comment: "")
-            )
-            .font(.system(size: mode == .free ? 10 : 14, weight: .medium))
-            .foregroundStyle(.white.opacity(0.82))
+            if mode != .free {
+                Text(
+                    made
+                        ? NSLocalizedString("watch_training_made", value: "命中", comment: "")
+                        : NSLocalizedString("watch_training_miss", value: "未中", comment: "")
+                )
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(.white.opacity(0.82))
+            }
 
             Text("\(count)")
-                .font(.system(size: mode == .free ? 28 : 48, weight: .bold, design: .rounded))
+                .font(.system(size: mode == .free ? 30 : 64, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
-
-            Text(
-                String.localizedStringWithFormat(
-                    NSLocalizedString("watch_training_point_value", value: "%d分", comment: ""),
-                    points
-                )
-            )
-            .font(.system(size: mode == .free ? 9 : 12))
-            .foregroundStyle(.white.opacity(isRecent ? 1 : 0.64))
         }
-        .offset(y: contentOffsetY)
         .frame(width: size.width, height: size.height)
         .background(made ? WatchTheme.successGreen : Color(hex: 0xD84343))
         .overlay {
@@ -205,69 +303,10 @@ struct WatchBasketballTrainingView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            guard !showMenu, !showEndDialog, !suppressTapAfterLongPress else { return }
+            guard !showMenu, !showEndDialog, !isPaused, confirmation == nil,
+                  !suppressTapAfterLongPress else { return }
             addShot(points: points, made: made)
         }
-    }
-
-    private var menuOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.55)
-                .ignoresSafeArea()
-                .onTapGesture { showMenu = false }
-
-            VStack(spacing: 8) {
-                menuButton(
-                    title: NSLocalizedString("watch_undo", value: "撤销", comment: ""),
-                    color: WatchTheme.card
-                ) {
-                    showMenu = false
-                    undo()
-                }
-                menuButton(
-                    title: NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: ""),
-                    color: WatchTheme.warningOrange
-                ) {
-                    showMenu = false
-                    finishTraining()
-                }
-                menuButton(
-                    title: NSLocalizedString("watch_reset", value: "重置", comment: ""),
-                    color: Color(hex: 0x8E2430)
-                ) {
-                    reset()
-                    showMenu = false
-                }
-                menuButton(
-                    title: NSLocalizedString("watch_switch_layout", value: "切换布局", comment: ""),
-                    color: Color(hex: 0x334155)
-                ) {
-                    WatchPreferences.shared.scoreboardLayout =
-                        scoreboardLayout == "horizontal" ? "vertical" : "horizontal"
-                    scoreboardLayout = WatchPreferences.shared.scoreboardLayout
-                    showMenu = false
-                }
-            }
-            .padding(14)
-            .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        }
-    }
-
-    private func menuButton(
-        title: String,
-        color: Color,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 148, height: 36)
-                .background(color)
-                .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
     }
 
     private var endOverlay: some View {
@@ -280,6 +319,24 @@ struct WatchBasketballTrainingView: View {
                 Text(hitRateText)
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundStyle(WatchTheme.accent)
+                if mode == .free {
+                    VStack(spacing: 2) {
+                        ForEach(1...3, id: \.self) { points in
+                            Text(String.localizedStringWithFormat(
+                                NSLocalizedString(
+                                    "watch_training_breakdown_format",
+                                    value: "%d分  %d/%d",
+                                    comment: ""
+                                ),
+                                points,
+                                shotCount(points: points, made: true),
+                                shotCount(points: points, made: true) + shotCount(points: points, made: false)
+                            ))
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.78))
+                        }
+                    }
+                }
                 Button {
                     restartAfterFinish()
                 } label: {
@@ -328,7 +385,7 @@ struct WatchBasketballTrainingView: View {
         history.append(shot)
         recentShotID = shot.id
         WatchHaptics.shared.play(made ? .score : .strong)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             if recentShotID == shot.id {
                 recentShotID = nil
             }
@@ -345,6 +402,7 @@ struct WatchBasketballTrainingView: View {
     private func reset() {
         history = []
         recentShotID = nil
+        isPaused = false
     }
 
     private func restartAfterFinish() {
@@ -353,6 +411,7 @@ struct WatchBasketballTrainingView: View {
         savedRecordID = nil
         recentShotID = nil
         showEndDialog = false
+        isPaused = false
     }
 
     private func showToast(_ text: String) {
@@ -444,5 +503,116 @@ struct WatchBasketballTrainingView: View {
 
     private func trainingActionDescription(for shot: WatchBasketballTrainingShot) -> String {
         "training_\(shot.points)pt_\(shot.made ? "made" : "miss")"
+    }
+
+    private func confirmTraining(_ value: WatchScoreboardConfirmation) {
+        confirmation = nil
+        switch value {
+        case .pause:
+            isPaused = true
+        case .finish:
+            finishTraining()
+        case .reset:
+            reset()
+        }
+    }
+
+    private func pointBadge(_ points: Int) -> some View {
+        Text("\(points)")
+            .font(.system(size: 10, weight: .bold, design: .rounded))
+            .foregroundStyle(Color.black.opacity(0.75))
+            .frame(width: 18, height: 18)
+            .background(Color.white.opacity(0.95))
+            .clipShape(Circle())
+    }
+
+    @ViewBuilder
+    private var freePointBadges: some View {
+        if scoreboardLayout == "horizontal" {
+            VStack(spacing: 0) {
+                ForEach(1...3, id: \.self) { points in
+                    pointBadge(points)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+        } else {
+            HStack(spacing: 0) {
+                ForEach(1...3, id: \.self) { points in
+                    pointBadge(points)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var freeDivisionLines: some View {
+        if scoreboardLayout == "horizontal" {
+            VStack(spacing: 0) {
+                Spacer()
+                Rectangle()
+                    .fill(Color.white.opacity(0.20))
+                    .frame(height: 1)
+                Spacer()
+                Rectangle()
+                    .fill(Color.white.opacity(0.20))
+                    .frame(height: 1)
+                Spacer()
+            }
+        } else {
+            HStack(spacing: 0) {
+                Spacer()
+                Rectangle()
+                    .fill(Color.white.opacity(0.20))
+                    .frame(width: 1)
+                Spacer()
+                Rectangle()
+                    .fill(Color.white.opacity(0.20))
+                    .frame(width: 1)
+                Spacer()
+            }
+        }
+    }
+
+    private var freeGuideOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.50).ignoresSafeArea()
+
+            Group {
+                if scoreboardLayout == "horizontal" {
+                    HStack(spacing: 0) {
+                        freeGuideLabel(
+                            NSLocalizedString("watch_training_miss", value: "未中", comment: "")
+                        )
+                        Rectangle()
+                            .fill(Color.white.opacity(0.28))
+                            .frame(width: 1)
+                        freeGuideLabel(
+                            NSLocalizedString("watch_training_made", value: "命中", comment: "")
+                        )
+                    }
+                } else {
+                    VStack(spacing: 0) {
+                        freeGuideLabel(
+                            NSLocalizedString("watch_training_miss", value: "未中", comment: "")
+                        )
+                        Rectangle()
+                            .fill(Color.white.opacity(0.28))
+                            .frame(height: 1)
+                        freeGuideLabel(
+                            NSLocalizedString("watch_training_made", value: "命中", comment: "")
+                        )
+                    }
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private func freeGuideLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 14, weight: .medium))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

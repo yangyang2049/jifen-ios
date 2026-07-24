@@ -134,6 +134,8 @@
 "watch_bb_shot_first_toast" = "Record a shot first";
 "watch_bb_hit_rate" = "Hit rate";
 "watch_bb_end_training" = "End training";
+"watch_training_finish_confirm_title" = "End training?";
+"watch_training_finish_confirm_message" = "This training session will end and be saved.";
 "watch_bb_restart" = "Restart";
 
 /* Records */
@@ -233,3 +235,35 @@
 "watch_home_pin_hint" = "Long press to pin projects";
 "watch_home_pin_success" = "Pinned to top";
 "watch_home_unpin_success" = "Removed from pinned";
+"multi_score_player_default_format" = "Player %d";
+"nine_ball_big_gold" = "Big Gold";
+"nine_ball_small_gold" = "Small Gold";
+"nine_ball_golden_nine" = "Golden 9";
+"nine_ball_normal_win" = "Win";
+"nine_ball_ball_in_hand" = "Ball in Hand";
+"nine_ball_foul" = "Foul";
+"watch_archery_set_rest" = "End Break";
+"watch_eight_ball_handicap_format" = "Handicap +%d";
+"watch_pause_match" = "Pause";
+"watch_pause" = "Pause";
+"watch_pause_confirm_title" = "Pause match?";
+"watch_pause_confirm_message" = "Scoring will be locked until you continue.";
+"watch_finish_confirm_title" = "End match?";
+"watch_finish_confirm_message" = "This match will end and be saved.";
+"watch_reset_confirm_title" = "Restart match?";
+"watch_reset_confirm_message" = "The current score will be cleared.";
+"watch_match_paused" = "Match Paused";
+"watch_side_exchange" = "Change Ends";
+"watch_winner_format" = "%@ wins";
+"watch_snooker_break_format" = "Break %d";
+"watch_snooker_reds_format" = "Reds %d";
+"watch_snooker_foul" = "Foul";
+"watch_snooker_miss" = "Miss";
+"watch_snooker_handover" = "Handover";
+"watch_snooker_settle_frame" = "End Frame";
+"watch_snooker_choose_frame_winner" = "Choose frame winner";
+"watch_snooker_frame_finished" = "Frame Complete";
+"watch_snooker_next_frame" = "Next Frame";
+"watch_training_guide_title" = "Shot Training";
+"watch_training_guide_message" = "Tap misses on the left and makes on the right in the 1, 2, or 3 point zone.";
+"watch_training_breakdown_format" = "%d pt  %d/%d";

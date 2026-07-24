@@ -210,21 +210,13 @@ public struct TennisMatchReducer: DomainReducer {
             next.finished = true
             return .init(state: next, events: [.matchFinished(winner: matchWinner(for: next))])
         case .reset:
-            let leftName = state.sidesSwapped ? state.rightName : state.leftName
-            let rightName = state.sidesSwapped ? state.leftName : state.rightName
-            var doublesNames = state.doublesPlayerNames
-            if state.sidesSwapped, var names = doublesNames, names.count >= 4 {
-                names.swapAt(0, 1)
-                names.swapAt(2, 3)
-                doublesNames = names
-            }
             return .init(
                 state: .init(
-                    leftName: leftName,
-                    rightName: rightName,
+                    leftName: state.leftName,
+                    rightName: state.rightName,
                     rules: state.rules,
                     openingServer: state.openingServerSide,
-                    doublesPlayerNames: doublesNames
+                    doublesPlayerNames: state.doublesPlayerNames
                 ),
                 events: [.matchReset]
             )
@@ -353,18 +345,8 @@ public struct TennisMatchReducer: DomainReducer {
 
     private func exchanged(_ state: TennisMatchState) -> TennisMatchState {
         var next = state
-        swap(&next.leftName, &next.rightName)
-        swap(&next.leftPoints, &next.rightPoints)
-        swap(&next.leftGames, &next.rightGames)
-        swap(&next.leftSets, &next.rightSets)
-        if var names = next.doublesPlayerNames, names.count >= 4 {
-            names.swapAt(0, 1)
-            names.swapAt(2, 3)
-            next.doublesPlayerNames = names
-        }
-        next.servingSide = next.servingSide.opposite
-        next.openingServerSide = next.openingServerSide.opposite
-        next.firstServerInSet = next.firstServerInSet.opposite
+        // Engine left/right are stable team identities. A court exchange changes
+        // only their screen placement; views resolve geometry via TeamScreenLayout.
         next.sidesSwapped.toggle()
         return next
     }

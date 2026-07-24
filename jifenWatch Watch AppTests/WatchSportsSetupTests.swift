@@ -1,4 +1,5 @@
 import XCTest
+import ScoreCore
 @testable import jifenWatch_Watch_App
 
 final class WatchSportsSetupTests: XCTestCase {
@@ -21,6 +22,191 @@ final class WatchSportsSetupTests: XCTestCase {
 
     func testPickleballUsesTableTennisIcon() {
         XCTAssertEqual(WatchGameType.pickleball.icon, WatchGameType.pingpong.icon)
+    }
+
+    func testWatchRestPolicyMatchesCrossPlatformDurations() {
+        XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .pingpong), 60)
+        XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .pingpongDoubles), 60)
+        XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .badminton), 120)
+        XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .badmintonDoubles), 120)
+        XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .pickleball), 120)
+        XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .tennisDoubles), 120)
+        XCTAssertNil(WatchRestPolicy.betweenSetDuration(for: .eightBall))
+    }
+
+    func testBadmintonMidGameRestRoundsTargetUp() {
+        XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 21), 11)
+        XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 15), 8)
+        XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 1), 1)
+    }
+
+    func testRestCountdownClampsAtZero() {
+        let start = Date(timeIntervalSince1970: 1_000)
+        let state = WatchRestState(
+            kind: .betweenSets,
+            title: "Rest",
+            durationSeconds: 60,
+            startedAt: start,
+            triggerID: "set-1"
+        )
+        XCTAssertEqual(state.remainingSeconds(at: start), 60)
+        XCTAssertEqual(state.remainingSeconds(at: start.addingTimeInterval(14.9)), 46)
+        XCTAssertEqual(state.remainingSeconds(at: start.addingTimeInterval(60)), 0)
+        XCTAssertEqual(state.remainingSeconds(at: start.addingTimeInterval(120)), 0)
+    }
+
+    func testRestTriggerRegistryDoesNotRepeatUntilReleased() {
+        var registry = WatchRestTriggerRegistry()
+
+        XCTAssertTrue(registry.consume("set-1-point-11"))
+        XCTAssertFalse(registry.consume("set-1-point-11"))
+
+        registry.release("set-1-point-11")
+        XCTAssertTrue(registry.consume("set-1-point-11"))
+
+        registry.reset()
+        XCTAssertTrue(registry.consume("set-1-point-11"))
+    }
+
+    func testBadmintonDoublesDisplayFollowsConsecutiveServeRotation() {
+        let names = ["A", "C", "B", "D"]
+        var rotation = createBadmintonDoublesRotation(servingTeam0: true)
+        var doubles = RallyDoublesState(
+            playerNames: names,
+            rotation: .badminton(rotation)
+        )
+
+        let initial = WatchDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: .left,
+            screenSide: .left
+        )
+        XCTAssertEqual(initial.topPlayerIndex, 0)
+        XCTAssertEqual(initial.bottomPlayerIndex, 2)
+        XCTAssertEqual(initial.serverIsTop, false)
+
+        rotation = advanceBadmintonDoublesRotation(
+            current: rotation,
+            scoringTeam0: true,
+            nextTeam0Score: 1,
+            nextTeam1Score: 0
+        )
+        doubles.rotation = .badminton(rotation)
+        let afterFirstPoint = WatchDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: .left,
+            screenSide: .left
+        )
+        XCTAssertEqual(afterFirstPoint.topPlayerIndex, 2)
+        XCTAssertEqual(afterFirstPoint.bottomPlayerIndex, 0)
+        XCTAssertEqual(afterFirstPoint.serverIsTop, true)
+
+        rotation = advanceBadmintonDoublesRotation(
+            current: rotation,
+            scoringTeam0: true,
+            nextTeam0Score: 2,
+            nextTeam1Score: 0
+        )
+        doubles.rotation = .badminton(rotation)
+        let afterSecondPoint = WatchDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: .left,
+            screenSide: .left
+        )
+        XCTAssertEqual(afterSecondPoint.topPlayerIndex, 0)
+        XCTAssertEqual(afterSecondPoint.bottomPlayerIndex, 2)
+        XCTAssertEqual(afterSecondPoint.serverIsTop, false)
+    }
+
+    func testPickleballDoublesDisplaySwapsNamesAndMirrorsRightPanel() {
+        var rotation = createPickleballDoublesRotation(servingTeam0: true)
+        togglePickleballPartnerSwap(&rotation, servingTeam0: true)
+        refreshPickleballDoublesSlots(&rotation, servingTeam0: true)
+        let doubles = RallyDoublesState(
+            playerNames: ["A", "C", "B", "D"],
+            rotation: .pickleball(rotation)
+        )
+
+        let left = WatchDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: .left,
+            screenSide: .left
+        )
+        XCTAssertEqual(left.topPlayerIndex, 2)
+        XCTAssertEqual(left.bottomPlayerIndex, 0)
+        XCTAssertEqual(left.serverIsTop, false)
+
+        let right = WatchDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: .right,
+            screenSide: .right
+        )
+        XCTAssertEqual(right.topPlayerIndex, 3)
+        XCTAssertEqual(right.bottomPlayerIndex, 1)
+        XCTAssertNil(right.serverIsTop)
+    }
+
+    func testTennisDoublesServerSlotsForGamesAndTieBreak() {
+        XCTAssertEqual(
+            (0..<5).map {
+                WatchTennisDoublesServing.serverSlot(
+                    firstServer: .left,
+                    completedGames: $0,
+                    isTieBreak: false,
+                    tieBreakPointsPlayed: 0
+                )
+            },
+            [0, 1, 2, 3, 0]
+        )
+        XCTAssertEqual(
+            (0..<8).map {
+                WatchTennisDoublesServing.serverSlot(
+                    firstServer: .right,
+                    completedGames: 12,
+                    isTieBreak: true,
+                    tieBreakPointsPlayed: $0
+                )
+            },
+            [1, 2, 2, 3, 3, 0, 0, 1]
+        )
+    }
+
+    func testNineBallFoulAwardsOpponentForTwoPlayersAndDeductsForGroups() {
+        let reducer = NineBallChaseReducer()
+        let two = reducer.reduce(
+            state: .initial(config: .init(foul: 2), playerCount: 2),
+            intent: .chaseEvent(player: 0, kind: .foul),
+            at: 1
+        ).state
+        XCTAssertEqual(two.playerPoints[0], 0)
+        XCTAssertEqual(two.playerPoints[1], 2)
+
+        let four = reducer.reduce(
+            state: .initial(config: .init(foul: 2), playerCount: 4),
+            intent: .chaseEvent(player: 2, kind: .foul),
+            at: 1
+        ).state
+        XCTAssertEqual(four.playerPoints[2], -2)
+    }
+
+    func testSnookerPanelIntentsCoverPotFoulHandoverAndFrameSettlement() {
+        let reducer = SnookerReducer()
+        var state = SnookerState.initial(striker: .left, maxFrames: 3)
+        state = reducer.reduce(state: state, intent: .potBall(points: 1), at: 1).state
+        XCTAssertEqual(state.leftScore, 1)
+        XCTAssertEqual(state.redBallsRemaining, 14)
+        state = reducer.reduce(
+            state: state,
+            intent: .foul(pointsToOpponent: 4, switchTurn: true),
+            at: 2
+        ).state
+        XCTAssertEqual(state.rightScore, 4)
+        XCTAssertEqual(state.striker, .right)
+        state = reducer.reduce(state: state, intent: .handover, at: 3).state
+        XCTAssertEqual(state.striker, .left)
+        state = reducer.reduce(state: state, intent: .settleFrame(winner: .left), at: 4).state
+        XCTAssertEqual(state.leftFrames, 1)
+        XCTAssertEqual(state.currentFrame, 2)
     }
 
     func testWatchHomePinningKeepsPinnedOrderAndDefaultOrderForTheRest() {

@@ -43,10 +43,10 @@ private final class WatchRallySessionStore {
     func send(_ intent: RallyMatchIntent) {
         Task { [weak self, core] in
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard case .accepted(let session, _) = await core.dispatch(actorId: "watch", intent: intent, at: now), let self else { return }
+            guard case .accepted(let session, let events) = await core.dispatch(actorId: "watch", intent: intent, at: now), let self else { return }
             self.state = session.state
             try? await self.archiveRepository.save(session, source: .watchLocal)
-            self.onStateChanged?(session.state)
+            self.onStateChanged?(session.state, events)
         }
     }
 
@@ -56,11 +56,11 @@ private final class WatchRallySessionStore {
             let session = await core.snapshot()
             self.state = session.state
             try? await self.archiveRepository.save(session, source: .watchLocal)
-            self.onStateChanged?(session.state)
+            self.onStateChanged?(session.state, [])
         }
     }
 
-    var onStateChanged: ((RallyMatchState) -> Void)?
+    var onStateChanged: ((RallyMatchState, [RallyMatchEvent]) -> Void)?
 
     func persist() {
         Task { [core, archiveRepository] in
@@ -86,8 +86,18 @@ struct WatchRallyScoreView: View {
     @State private var matchStartTime = Date()
     @State private var didTransferFinishedRecord = false
     @State private var scoreboardLayout: String = "horizontal"
-    @State private var setBreakToast: String?
-    @State private var lastObservedSets: (Int, Int) = (0, 0)
+    @State private var restState: WatchRestState?
+    @State private var showSideExchangeToast = false
+    @State private var isPaused = false
+    @State private var confirmation: WatchScoreboardConfirmation?
+    @State private var showFinishedOverlay = false
+    @State private var finishUndoAvailable = false
+    @State private var didFinalizeFinish = false
+    @State private var finishTask: Task<Void, Never>?
+    @State private var suppressTapAfterLongPress = false
+    @State private var manualFinishRequested = false
+    @State private var restTriggers = WatchRestTriggerRegistry()
+    @State private var sideExchangeTask: Task<Void, Never>?
 
     init(
         gameType: GameType,
@@ -110,51 +120,89 @@ struct WatchRallyScoreView: View {
     var body: some View {
         ZStack {
             mainBoard
-            if showMenu { menuOverlay }
-            if let setBreakToast {
-                Text(setBreakToast)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color.black.opacity(0.82))
-                    .clipShape(Capsule())
+            if showSideExchangeToast {
+                WatchSideExchangeToast()
                     .transition(.opacity)
+            }
+            if showMenu {
+                WatchScoreboardMenuOverlay(
+                    isPaused: isPaused,
+                    onDismiss: { showMenu = false },
+                    onUndo: {
+                        store.undo()
+                        showMenu = false
+                    },
+                    onPause: {
+                        showMenu = false
+                        if isPaused {
+                            isPaused = false
+                        } else {
+                            confirmation = .pause
+                        }
+                    },
+                    onFinish: {
+                        showMenu = false
+                        confirmation = .finish
+                    },
+                    onReset: {
+                        showMenu = false
+                        confirmation = .reset
+                    }
+                )
+            }
+            if isPaused {
+                WatchPausedOverlay(
+                    scoreText: scoreLine,
+                    onContinue: { isPaused = false },
+                    onFinish: { confirmation = .finish }
+                )
+            }
+            if let restState {
+                WatchRestOverlay(
+                    state: restState,
+                    onContinue: { self.restState = nil },
+                    onUndo: {
+                        let triggerID = restState.triggerID
+                        self.restState = nil
+                        restTriggers.release(triggerID)
+                        store.undo()
+                    }
+                )
+            }
+            if showFinishedOverlay {
+                WatchFinishedOverlay(
+                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                    scoreText: scoreLine,
+                    winnerText: winnerText,
+                    undoAvailable: finishUndoAvailable,
+                    onUndo: undoFinish,
+                    onPlayAgain: playAgain,
+                    onExit: finishAndExit
+                )
+            }
+            if let confirmation {
+                WatchConfirmationOverlay(
+                    confirmation: confirmation,
+                    onCancel: { self.confirmation = nil },
+                    onConfirm: { confirm(confirmation) }
+                )
             }
         }
         .ignoresSafeArea()
-        .disabled(scoringLocked)
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
-            lastObservedSets = (store.state.leftSets, store.state.rightSets)
             matchStartTime = Date()
-            store.onStateChanged = { [linkService] state in
+            store.onStateChanged = { [linkService] state, events in
                 if linkedSessionId != nil {
                     guard linkService.isController else { return }
                     linkService.publishSnapshot(.rally(state))
-                    if state.finished {
-                        let winner: MatchSide? = state.leftSets == state.rightSets
-                            ? nil
-                            : (state.leftSets > state.rightSets ? .left : .right)
-                        linkService.publishMatchFinished(
-                            snapshot: .rally(state),
-                            recordId: "w_\(UUID().uuidString)",
-                            winnerSide: winner,
-                            manualEnd: false,
-                            startTime: matchStartTime,
-                            endTime: Date(),
-                            totalScoreChanges: max(1, state.leftPoints + state.rightPoints)
-                        )
-                    }
-                    return
                 }
-                if state.finished {
-                    transferLocalFinishedRecordIfNeeded(state)
-                }
+                handle(events: events, state: state)
+            }
+            if store.state.finished {
+                beginProvisionalFinish()
             }
         }
-        .onChange(of: store.state.leftSets) { _, _ in handlePossibleSetBreak() }
-        .onChange(of: store.state.rightSets) { _, _ in handlePossibleSetBreak() }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
@@ -164,8 +212,17 @@ struct WatchRallyScoreView: View {
                   update.sessionId == linkedSessionId else { return }
             guard let state = update.snapshot.rallyState else { return }
             store.replaceDisplayedState(state)
+            if state.finished {
+                showFinishedOverlay = true
+                finishUndoAvailable = false
+            }
         }
         .onDisappear {
+            finishTask?.cancel()
+            sideExchangeTask?.cancel()
+            if store.state.finished {
+                finalizeFinish()
+            }
             if !scoringLocked {
                 store.persist()
             }
@@ -173,28 +230,106 @@ struct WatchRallyScoreView: View {
     }
 
     private var mainBoard: some View {
-        GeometryReader { proxy in
-            let width = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
-            let height = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
-            Group {
-                if isHorizontal {
-                    HStack(spacing: 0) {
-                        side(.left, size: CGSize(width: width / 2, height: height))
-                        side(.right, size: CGSize(width: width / 2, height: height))
+        Group {
+            if store.state.doubles != nil {
+                doublesBoard
+            } else {
+                GeometryReader { proxy in
+                    let width = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
+                    let height = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+                    Group {
+                        if isHorizontal {
+                            HStack(spacing: 0) {
+                                side(.left, size: CGSize(width: width / 2, height: height))
+                                side(.right, size: CGSize(width: width / 2, height: height))
+                            }
+                            .frame(width: width, height: height)
+                        } else {
+                            VStack(spacing: 0) {
+                                side(.left, size: CGSize(width: width, height: height / 2))
+                                side(.right, size: CGSize(width: width, height: height / 2))
+                            }
+                            .frame(width: width, height: height)
+                        }
                     }
-                    .frame(width: width, height: height)
-                } else {
-                    VStack(spacing: 0) {
-                        side(.left, size: CGSize(width: width, height: height / 2))
-                        side(.right, size: CGSize(width: width, height: height / 2))
-                    }
-                    .frame(width: width, height: height)
+                    .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
                 }
+                .ignoresSafeArea()
             }
-            .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
         }
-        .ignoresSafeArea()
-        .gesture(boardGesture)
+        .watchScoreboardGestures(
+            suppressTapAfterLongPress: $suppressTapAfterLongPress,
+            enabled: interactionsEnabled,
+            onMenu: { showMenu = true },
+            onUndo: { store.undo() },
+            onExit: exitBoard
+        )
+    }
+
+    private var doublesBoard: some View {
+        let doubles = store.state.doubles
+        let names = doubles?.playerNames ?? [
+            store.state.leftName,
+            store.state.rightName,
+            store.state.leftName,
+            store.state.rightName
+        ]
+        let layout = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped)
+        let leftLogical = layout.engineSide(onScreen: .left)
+        let rightLogical = layout.engineSide(onScreen: .right)
+        return WatchDoublesBoard(
+            isHorizontal: isHorizontal,
+            left: doublesHalf(
+                screenSide: .left,
+                logicalSide: leftLogical,
+                names: names
+            ),
+            right: doublesHalf(
+                screenSide: .right,
+                logicalSide: rightLogical,
+                names: names
+            )
+        )
+    }
+
+    private func doublesHalf(
+        screenSide: MatchSide,
+        logicalSide: MatchSide,
+        names: [String]
+    ) -> WatchDoublesHalfModel {
+        let isLeft = logicalSide == .left
+        let fallbackTopIndex = isLeft ? 0 : 1
+        let fallbackBottomIndex = isLeft ? 2 : 3
+        let display = store.state.doubles.map {
+            WatchDoublesDisplayState.resolve(
+                doubles: $0,
+                logicalSide: logicalSide,
+                screenSide: screenSide
+            )
+        }
+        let topIndex = display?.topPlayerIndex ?? fallbackTopIndex
+        let bottomIndex = display?.bottomPlayerIndex ?? fallbackBottomIndex
+        let points = isLeft ? store.state.leftPoints : store.state.rightPoints
+        let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        let showSets = store.state.leftSets + store.state.rightSets > 0 || store.state.currentSet > 1
+        let servingPosition: WatchDoublesHalfModel.PlayerPosition? = {
+            guard store.state.servingSide == logicalSide,
+                  let serverIsTop = display?.serverIsTop else { return nil }
+            return serverIsTop ? .top : .bottom
+        }()
+        return WatchDoublesHalfModel(
+            topName: names.indices.contains(topIndex) ? names[topIndex] : "",
+            bottomName: names.indices.contains(bottomIndex) ? names[bottomIndex] : "",
+            score: "\(points)",
+            primaryMeta: showSets ? "\(sets)" : nil,
+            secondaryMeta: nil,
+            color: isLeft ? Color(hex: 0xD93A34) : Color(hex: 0x1F78D1),
+            servingPosition: servingPosition,
+            onTap: {
+                guard interactionsEnabled, !suppressTapAfterLongPress else { return }
+                store.score(logicalSide)
+            }
+        )
     }
 
     private func side(_ screenSide: MatchSide, size: CGSize) -> some View {
@@ -243,172 +378,247 @@ struct WatchRallyScoreView: View {
             }
 
             if isServing {
-                servingIndicator(screenSide: screenSide, isLeftTeam: isLeftTeam)
+                servingIndicator(screenSide: screenSide)
             }
         }
         .frame(width: size.width, height: size.height)
         .background(isLeftTeam ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
         .contentShape(Rectangle())
         .onTapGesture {
-            guard !scoringLocked else { return }
+            guard interactionsEnabled, !suppressTapAfterLongPress else { return }
             store.score(logicalSide)
         }
     }
 
     @ViewBuilder
-    private func servingIndicator(screenSide: MatchSide, isLeftTeam: Bool) -> some View {
+    private func servingIndicator(screenSide: MatchSide) -> some View {
         let direction: WatchServerIndicatorDirection = {
             if isHorizontal {
-                return screenSide == .left ? .right : .left
-            }
-            return isLeftTeam ? .bottom : .top
-        }()
-        let alignment: Alignment = {
-            if isHorizontal {
-                return screenSide == .left ? .leading : .trailing
+                return screenSide == .left ? .left : .right
             }
             return screenSide == .left ? .top : .bottom
         }()
+        let alignment: Alignment = {
+            if isHorizontal {
+                return screenSide == .left ? .trailing : .leading
+            }
+            return screenSide == .left ? .bottom : .top
+        }()
         WatchServerIndicator(direction: direction, size: 14, color: WatchTheme.accent)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
-            .padding(.top, alignment == .top ? 0 : 8)
-            .padding(.bottom, alignment == .bottom ? 0 : 8)
-            .padding(.leading, alignment == .leading ? 0 : 8)
-            .padding(.trailing, alignment == .trailing ? 0 : 8)
+            .padding(.vertical, isHorizontal ? 6 : 0)
+            .padding(.horizontal, isHorizontal ? 0 : 6)
             .allowsHitTesting(false)
-    }
-
-    private var boardGesture: some Gesture {
-        DragGesture(minimumDistance: 25, coordinateSpace: .local)
-            .onEnded { value in
-                guard !scoringLocked else { return }
-                let dx = value.translation.width
-                let dy = value.translation.height
-                if dx > 45, abs(dy) < 45 {
-                    if linkedSessionId != nil {
-                        linkService.leaveSession()
-                    }
-                    dismiss()
-                } else if dy > 35 {
-                    store.undo()
-                } else if dy < -35 {
-                    showMenu = true
-                }
-            }
-    }
-
-    private var menuOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { showMenu = false }
-
-            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 6 : 8
-                ) {
-                    menuGridButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        systemImage: "arrow.uturn.backward",
-                        background: WatchTheme.card
-                    ) {
-                        store.undo()
-                        showMenu = false
-                    }
-
-                    menuGridButton(
-                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
-                        systemImage: "flag.checkered",
-                        background: WatchTheme.dangerRed
-                    ) {
-                        store.send(.finish)
-                        showMenu = false
-                    }
-
-                    menuGridButton(
-                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                        systemImage: "arrow.counterclockwise",
-                        background: WatchTheme.card
-                    ) {
-                        store.send(.reset)
-                        showMenu = false
-                    }
-                }
-
-                Button {
-                    showMenu = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
-                        .foregroundStyle(WatchTheme.secondaryText)
-                        .frame(
-                            width: WatchLayout.isCompactScreen ? 32 : 38,
-                            height: WatchLayout.isCompactScreen ? 32 : 38
-                        )
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(WatchLayout.isCompactScreen ? 8 : 12)
-            .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(
-                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
-                style: .continuous
-            ))
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 12 : 18)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func menuGridButton(
-        title: String,
-        systemImage: String,
-        background: Color,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: systemImage)
-                    .font(.system(
-                        size: WatchLayout.isCompactScreen ? 18 : 21,
-                        weight: .medium
-                    ))
-                Text(title)
-                    .font(.system(
-                        size: WatchLayout.isCompactScreen ? 10 : 11,
-                        weight: .medium
-                    ))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: WatchLayout.isCompactScreen ? 48 : 54)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(.white)
-        .background(background)
-        .clipShape(RoundedRectangle(
-            cornerRadius: WatchLayout.isCompactScreen ? 10 : 12,
-            style: .continuous
-        ))
     }
 
     private func normalizedLayout(_ raw: String) -> String {
         raw == "vertical" ? "vertical" : "horizontal"
     }
 
-    private func handlePossibleSetBreak() {
-        let current = (store.state.leftSets, store.state.rightSets)
-        defer { lastObservedSets = current }
-        guard WatchPreferences.shared.setBreakEnabled else { return }
-        guard !store.state.finished else { return }
-        guard current != lastObservedSets else { return }
-        guard current.0 + current.1 > lastObservedSets.0 + lastObservedSets.1 else { return }
-        setBreakToast = NSLocalizedString("watch_set_break_toast", value: "局间休息", comment: "")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-            if setBreakToast != nil { setBreakToast = nil }
+    private var interactionsEnabled: Bool {
+        !scoringLocked
+            && !isPaused
+            && restState == nil
+            && !showFinishedOverlay
+            && confirmation == nil
+            && !showMenu
+    }
+
+    private var scoreLine: String {
+        if store.state.leftSets + store.state.rightSets > 0 {
+            return "\(store.state.leftSets) - \(store.state.rightSets)"
         }
+        return "\(store.state.leftPoints) : \(store.state.rightPoints)"
+    }
+
+    private var winnerText: String? {
+        guard store.state.leftSets != store.state.rightSets else { return nil }
+        let name = store.state.leftSets > store.state.rightSets
+            ? store.state.leftName
+            : store.state.rightName
+        return String(
+            format: NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
+            name
+        )
+    }
+
+    private func handle(events: [RallyMatchEvent], state: RallyMatchState) {
+        reconcileBadmintonMidGameRestTrigger(for: state)
+        for event in events {
+            switch event {
+            case .setCompleted(_, let setNumber, _, _, _, _):
+                guard !state.finished else { continue }
+                beginBetweenSetRest(setNumber: setNumber)
+            case .sidesExchanged, .sidesExchangeReminder:
+                showSideExchange()
+            case .pointScored:
+                beginBadmintonMidGameRestIfNeeded(state)
+            case .matchFinished:
+                beginProvisionalFinish()
+            default:
+                break
+            }
+        }
+        if state.finished {
+            beginProvisionalFinish()
+        }
+    }
+
+    private func beginBetweenSetRest(setNumber: Int) {
+        guard !scoringLocked,
+              WatchPreferences.shared.setBreakEnabled,
+              let duration = WatchRestPolicy.betweenSetDuration(for: gameType) else { return }
+        let triggerID = "set-\(setNumber)"
+        guard restTriggers.consume(triggerID) else { return }
+        restState = WatchRestState(
+            kind: .betweenSets,
+            title: NSLocalizedString("watch_rest_between_sets", value: "局间休息", comment: ""),
+            durationSeconds: duration,
+            triggerID: triggerID
+        )
+    }
+
+    private func beginBadmintonMidGameRestIfNeeded(_ state: RallyMatchState) {
+        guard !scoringLocked,
+              WatchPreferences.shared.setBreakEnabled,
+              gameType == .badminton || gameType == .badmintonDoubles else { return }
+        let point = WatchRestPolicy.badmintonMidGamePoint(
+            pointsToWinSet: state.rules.pointsToWinSet
+        )
+        guard max(state.leftPoints, state.rightPoints) == point else { return }
+        let triggerID = badmintonMidGameTriggerID(setNumber: state.currentSet, point: point)
+        guard restTriggers.consume(triggerID) else { return }
+        restState = WatchRestState(
+            kind: .midGame,
+            title: NSLocalizedString("watch_mid_game_rest", value: "局中休息", comment: ""),
+            durationSeconds: 60,
+            triggerID: triggerID
+        )
+    }
+
+    private func reconcileBadmintonMidGameRestTrigger(for state: RallyMatchState) {
+        guard gameType == .badminton || gameType == .badmintonDoubles else { return }
+        let point = WatchRestPolicy.badmintonMidGamePoint(
+            pointsToWinSet: state.rules.pointsToWinSet
+        )
+        guard max(state.leftPoints, state.rightPoints) < point else { return }
+        restTriggers.release(
+            badmintonMidGameTriggerID(setNumber: state.currentSet, point: point)
+        )
+    }
+
+    private func badmintonMidGameTriggerID(setNumber: Int, point: Int) -> String {
+        "set-\(setNumber)-point-\(point)"
+    }
+
+    private func showSideExchange() {
+        sideExchangeTask?.cancel()
+        showSideExchangeToast = true
+        sideExchangeTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            showSideExchangeToast = false
+        }
+    }
+
+    private func beginProvisionalFinish() {
+        guard !showFinishedOverlay else { return }
+        isPaused = false
+        restState = nil
+        showMenu = false
+        showFinishedOverlay = true
+        finishUndoAvailable = !scoringLocked
+        didFinalizeFinish = false
+        finishTask?.cancel()
+        guard !scoringLocked else { return }
+        finishTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            guard !Task.isCancelled else { return }
+            finishUndoAvailable = false
+            finalizeFinish()
+        }
+    }
+
+    private func finalizeFinish() {
+        guard store.state.finished, !didFinalizeFinish else { return }
+        didFinalizeFinish = true
+        if linkedSessionId != nil {
+            guard linkService.isController else { return }
+            let winner: MatchSide? = store.state.leftSets == store.state.rightSets
+                ? nil
+                : (store.state.leftSets > store.state.rightSets ? .left : .right)
+            linkService.publishMatchFinished(
+                snapshot: .rally(store.state),
+                recordId: "w_\(UUID().uuidString)",
+                winnerSide: winner,
+                manualEnd: manualFinishRequested,
+                startTime: matchStartTime,
+                endTime: Date(),
+                totalScoreChanges: max(1, store.state.leftPoints + store.state.rightPoints)
+            )
+        } else {
+            transferLocalFinishedRecordIfNeeded(store.state)
+        }
+    }
+
+    private func undoFinish() {
+        guard finishUndoAvailable else { return }
+        finishTask?.cancel()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didFinalizeFinish = false
+        store.undo()
+    }
+
+    private func playAgain() {
+        finalizeFinish()
+        finishTask?.cancel()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didTransferFinishedRecord = false
+        didFinalizeFinish = false
+        manualFinishRequested = false
+        restTriggers.reset()
+        sideExchangeTask?.cancel()
+        showSideExchangeToast = false
+        matchStartTime = Date()
+        store.send(.reset)
+    }
+
+    private func finishAndExit() {
+        finalizeFinish()
+        exitBoard()
+    }
+
+    private func confirm(_ value: WatchScoreboardConfirmation) {
+        confirmation = nil
+        switch value {
+        case .pause:
+            isPaused = true
+        case .finish:
+            manualFinishRequested = true
+            store.send(.finish)
+        case .reset:
+            finishTask?.cancel()
+            showFinishedOverlay = false
+            restState = nil
+            isPaused = false
+            didTransferFinishedRecord = false
+            didFinalizeFinish = false
+            manualFinishRequested = false
+            restTriggers.reset()
+            sideExchangeTask?.cancel()
+            showSideExchangeToast = false
+            matchStartTime = Date()
+            store.send(.reset)
+        }
+    }
+
+    private func exitBoard() {
+        if linkedSessionId != nil {
+            linkService.leaveSession()
+        }
+        dismiss()
     }
 
     private func transferLocalFinishedRecordIfNeeded(_ state: RallyMatchState) {

@@ -120,6 +120,16 @@ struct WatchBasketballScoreView: View {
     @State private var store: WatchBasketballSessionStore
     @State private var selectedSide: MatchSide?
     @State private var showMenu = false
+    @State private var isPaused = false
+    @State private var wasRunningBeforePause = false
+    @State private var confirmation: WatchScoreboardConfirmation?
+    @State private var showFinishedOverlay = false
+    @State private var finishUndoAvailable = false
+    @State private var finishTask: Task<Void, Never>?
+    @State private var didPublishFinish = false
+    @State private var matchStartTime = Date()
+    @State private var suppressTapAfterLongPress = false
+    @State private var manualFinishRequested = false
 
     init(
         gameMode: BasketballGameMode,
@@ -144,7 +154,7 @@ struct WatchBasketballScoreView: View {
                 .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
             }
             .ignoresSafeArea()
-            .gesture(boardGesture)
+            .disabled(!interactionsEnabled)
 
             VStack(spacing: 3) {
                 Text(periodTitle)
@@ -167,7 +177,58 @@ struct WatchBasketballScoreView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             if showMenu {
-                menuOverlay
+                WatchScoreboardMenuOverlay(
+                    isPaused: isPaused,
+                    onDismiss: { showMenu = false },
+                    onUndo: {
+                        store.undo()
+                        showMenu = false
+                    },
+                    onPause: {
+                        showMenu = false
+                        if isPaused {
+                            resumeBasketball()
+                        } else {
+                            confirmation = .pause
+                        }
+                    },
+                    onFinish: {
+                        showMenu = false
+                        confirmation = .finish
+                    },
+                    onReset: {
+                        showMenu = false
+                        confirmation = .reset
+                    }
+                )
+            }
+            if isPaused {
+                WatchPausedOverlay(
+                    scoreText: "\(store.state.leftScore) : \(store.state.rightScore)",
+                    onContinue: resumeBasketball,
+                    onFinish: { confirmation = .finish }
+                )
+            }
+            if showFinishedOverlay {
+                WatchFinishedOverlay(
+                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                    scoreText: "\(store.state.leftScore) : \(store.state.rightScore)",
+                    winnerText: basketballWinnerText,
+                    undoAvailable: finishUndoAvailable,
+                    onUndo: undoFinishedBasketball,
+                    onPlayAgain: restartBasketball,
+                    onExit: {
+                        finalizeBasketball()
+                        exitBasketball()
+                    }
+                )
+            }
+            if let confirmation {
+                WatchConfirmationOverlay(
+                    confirmation: confirmation,
+                    onCancel: { self.confirmation = nil },
+                    onConfirm: { confirmBasketball(confirmation) }
+                )
             }
         }
         .sheet(
@@ -187,6 +248,7 @@ struct WatchBasketballScoreView: View {
         .ignoresSafeArea()
         .disabled(isFollowingPhone)
         .onAppear {
+            matchStartTime = Date()
             if !isFollowingPhone {
                 store.startClock()
             }
@@ -198,14 +260,35 @@ struct WatchBasketballScoreView: View {
             guard let state = update.snapshot.basketballState else { return }
             guard state.gameMode == gameMode else { return }
             store.replaceDisplayedState(state)
+            if state.finished {
+                showFinishedOverlay = true
+                finishUndoAvailable = false
+            }
+        }
+        .onChange(of: store.state) { oldState, newState in
+            if linkedSessionId != nil, linkService.isController {
+                linkService.publishSnapshot(.basketball(newState))
+            }
+            if !oldState.finished, newState.finished {
+                beginBasketballFinish()
+            }
         }
         .onDisappear {
+            finishTask?.cancel()
+            if store.state.finished { finalizeBasketball() }
             if isFollowingPhone {
                 store.stopClock()
             } else {
                 store.stopClockAndPersist()
             }
         }
+        .watchScoreboardGestures(
+            suppressTapAfterLongPress: $suppressTapAfterLongPress,
+            enabled: interactionsEnabled,
+            onMenu: { showMenu = true },
+            onUndo: { store.undo() },
+            onExit: exitBasketball
+        )
     }
 
     private func side(_ screenSide: MatchSide, height: CGFloat) -> some View {
@@ -232,25 +315,9 @@ struct WatchBasketballScoreView: View {
         .background(isLeft ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
         .contentShape(Rectangle())
         .onTapGesture {
-            guard !isFollowingPhone else { return }
+            guard !isFollowingPhone, !suppressTapAfterLongPress else { return }
             selectedSide = logicalSide
         }
-    }
-
-    private var boardGesture: some Gesture {
-        DragGesture(minimumDistance: 25, coordinateSpace: .local)
-            .onEnded { value in
-                guard !isFollowingPhone else { return }
-                let dx = value.translation.width
-                let dy = value.translation.height
-                if dx > 45, abs(dy) < 45 {
-                    dismiss()
-                } else if dy > 35 {
-                    store.undo()
-                } else if dy < -35 {
-                    showMenu = true
-                }
-            }
     }
 
     private func scoreSheet(for side: MatchSide) -> some View {
@@ -273,68 +340,17 @@ struct WatchBasketballScoreView: View {
                 store.send(.useTimeout(side: side))
                 selectedSide = nil
             }
+            HStack {
+                ForEach(shotClockOptions, id: \.self) { seconds in
+                    Button("\(seconds)s") {
+                        store.send(.resetShotClock(seconds: seconds))
+                        selectedSide = nil
+                    }
+                }
+            }
             Button(NSLocalizedString("watch_bball_cancel", value: "取消", comment: ""), role: .cancel) { selectedSide = nil }
         }
         .padding()
-    }
-
-    private var menuOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { showMenu = false }
-
-            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 6 : 8
-                ) {
-                    ForEach(shotClockOptions, id: \.self) { seconds in
-                        WatchMenuGridButton(
-                            title: "\(seconds)s",
-                            systemImage: "timer"
-                        ) {
-                            store.send(.resetShotClock(seconds: seconds))
-                            showMenu = false
-                        }
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        systemImage: "arrow.uturn.backward"
-                    ) {
-                        store.undo()
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
-                        systemImage: "flag.checkered",
-                        background: WatchTheme.dangerRed
-                    ) {
-                        store.send(.finish)
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                        systemImage: "arrow.counterclockwise"
-                    ) {
-                        store.send(.reset)
-                        showMenu = false
-                    }
-                }
-
-                WatchMenuCloseButton {
-                    showMenu = false
-                }
-            }
-            .padding(WatchLayout.isCompactScreen ? 8 : 12)
-            .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(
-                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
-                style: .continuous
-            ))
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 12 : 18)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var periodTitle: String {
@@ -356,5 +372,108 @@ struct WatchBasketballScoreView: View {
 
     private func clockText(_ seconds: Int) -> String {
         String(format: "%02d:%02d", seconds / 60, seconds % 60)
+    }
+
+    private var interactionsEnabled: Bool {
+        !isFollowingPhone && !showMenu && selectedSide == nil && confirmation == nil
+            && !isPaused && !showFinishedOverlay
+    }
+
+    private var basketballWinnerText: String? {
+        guard store.state.leftScore != store.state.rightScore else { return nil }
+        let winner = store.state.leftScore > store.state.rightScore
+            ? store.state.leftName
+            : store.state.rightName
+        return String.localizedStringWithFormat(
+            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
+            winner
+        )
+    }
+
+    private func confirmBasketball(_ value: WatchScoreboardConfirmation) {
+        confirmation = nil
+        switch value {
+        case .pause:
+            pauseBasketball()
+        case .finish:
+            manualFinishRequested = true
+            store.send(.finish)
+        case .reset:
+            restartBasketball()
+        }
+    }
+
+    private func pauseBasketball() {
+        wasRunningBeforePause = store.state.gameRunning
+        store.send(.setClockRunning(false), recordsUndo: false)
+        isPaused = true
+    }
+
+    private func resumeBasketball() {
+        isPaused = false
+        if wasRunningBeforePause {
+            store.send(.setClockRunning(true), recordsUndo: false)
+        }
+    }
+
+    private func beginBasketballFinish() {
+        finishTask?.cancel()
+        isPaused = false
+        showFinishedOverlay = true
+        finishUndoAvailable = true
+        finishTask = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                finishUndoAvailable = false
+                finalizeBasketball()
+            }
+        }
+    }
+
+    private func finalizeBasketball() {
+        guard store.state.finished, !didPublishFinish else { return }
+        if linkedSessionId != nil, linkService.isController {
+            linkService.publishMatchFinished(
+                snapshot: .basketball(store.state),
+                recordId: "w_\(UUID().uuidString)",
+                winnerSide: store.state.leftScore == store.state.rightScore
+                    ? nil
+                    : (store.state.leftScore > store.state.rightScore ? .left : .right),
+                manualEnd: manualFinishRequested,
+                startTime: matchStartTime,
+                endTime: Date(),
+                totalScoreChanges: max(1, store.state.leftScore + store.state.rightScore)
+            )
+        }
+        didPublishFinish = true
+    }
+
+    private func undoFinishedBasketball() {
+        guard finishUndoAvailable else { return }
+        finishTask?.cancel()
+        store.undo()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didPublishFinish = false
+        manualFinishRequested = false
+    }
+
+    private func restartBasketball() {
+        finishTask?.cancel()
+        store.send(.reset)
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didPublishFinish = false
+        manualFinishRequested = false
+        isPaused = false
+        matchStartTime = Date()
+    }
+
+    private func exitBasketball() {
+        if linkedSessionId != nil {
+            linkService.leaveSession()
+        }
+        dismiss()
     }
 }

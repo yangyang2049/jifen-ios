@@ -28,11 +28,17 @@ private struct SetupDialogActionsHeightPreferenceKey: PreferenceKey {
 struct AdaptiveSetupDialogScrollView<Content: View>: View {
     let maxHeight: CGFloat
     private let content: Content
+    private let bottomClearance: CGFloat
 
     @State private var measuredContentHeight: CGFloat = 0
 
-    init(maxHeight: CGFloat, @ViewBuilder content: () -> Content) {
+    init(
+        maxHeight: CGFloat,
+        bottomClearance: CGFloat = 88,
+        @ViewBuilder content: () -> Content
+    ) {
         self.maxHeight = maxHeight
+        self.bottomClearance = bottomClearance
         self.content = content()
     }
 
@@ -44,6 +50,8 @@ struct AdaptiveSetupDialogScrollView<Content: View>: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: measuredContentHeight > maxHeight + 1) {
             content
+                // Keep the final setting comfortably above the fixed start actions.
+                .padding(.bottom, bottomClearance)
                 .fixedSize(horizontal: false, vertical: true)
                 .background {
                     GeometryReader { proxy in

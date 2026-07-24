@@ -77,17 +77,17 @@ struct WatchMenuGridButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            VStack(spacing: 3) {
                 Image(systemName: systemImage)
-                    .font(.system(size: WatchLayout.isCompactScreen ? 15 : 18, weight: .semibold))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 14 : 16, weight: .semibold))
                 Text(title)
-                    .font(.system(size: WatchLayout.isCompactScreen ? 10 : 11, weight: .medium))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 9 : 10, weight: .medium))
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: WatchLayout.isCompactScreen ? 48 : 56)
+            .frame(height: WatchLayout.isCompactScreen ? 42 : 46)
             .background(background)
             .clipShape(RoundedRectangle(
                 cornerRadius: WatchLayout.isCompactScreen ? 10 : 12,
@@ -105,11 +105,11 @@ struct WatchMenuCloseButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark.circle.fill")
-                .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
+                .font(.system(size: WatchLayout.isCompactScreen ? 18 : 20))
                 .foregroundStyle(WatchTheme.secondaryText)
                 .frame(
-                    width: WatchLayout.isCompactScreen ? 32 : 38,
-                    height: WatchLayout.isCompactScreen ? 32 : 38
+                    width: WatchLayout.isCompactScreen ? 28 : 30,
+                    height: WatchLayout.isCompactScreen ? 28 : 30
                 )
         }
         .buttonStyle(.plain)

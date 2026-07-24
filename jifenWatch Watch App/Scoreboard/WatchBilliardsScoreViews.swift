@@ -16,6 +16,12 @@ struct WatchEightBallScoreView: View {
     @State private var didSaveFinishedRecord = false
     @State private var scoreboardLayout: String = "horizontal"
     @State private var undoStack: [EightBallState] = []
+    @State private var isPaused = false
+    @State private var confirmation: WatchScoreboardConfirmation?
+    @State private var showFinishedOverlay = false
+    @State private var finishUndoAvailable = false
+    @State private var finishTask: Task<Void, Never>?
+    @State private var suppressTapAfterLongPress = false
 
     init(
         initialState: EightBallState? = nil,
@@ -38,14 +44,70 @@ struct WatchEightBallScoreView: View {
             dualBoard(
                 leftLabel: "\(state.leftPoints)",
                 rightLabel: "\(state.rightPoints)",
-                halfMeta: String(
-                    format: NSLocalizedString("watch_eight_ball_target_format", value: "抢 %d", comment: ""),
-                    state.targetPoints
-                ),
                 onLeft: { addRack(.left) },
                 onRight: { addRack(.right) }
             )
-            if showMenu { menuOverlay }
+            if !showMenu && !showFinishedOverlay {
+                Text("\(state.targetPoints)")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Color.black.opacity(0.62))
+                    .clipShape(Capsule())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, 6)
+            }
+            if showMenu {
+                WatchScoreboardMenuOverlay(
+                    isPaused: isPaused,
+                    onDismiss: { showMenu = false },
+                    onUndo: {
+                        undo()
+                        showMenu = false
+                    },
+                    onPause: {
+                        showMenu = false
+                        if isPaused { isPaused = false } else { confirmation = .pause }
+                    },
+                    onFinish: {
+                        showMenu = false
+                        confirmation = .finish
+                    },
+                    onReset: {
+                        showMenu = false
+                        confirmation = .reset
+                    }
+                )
+            }
+            if isPaused {
+                WatchPausedOverlay(
+                    scoreText: "\(state.leftPoints) : \(state.rightPoints)",
+                    onContinue: { isPaused = false },
+                    onFinish: { confirmation = .finish }
+                )
+            }
+            if showFinishedOverlay {
+                WatchFinishedOverlay(
+                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                    scoreText: "\(state.leftPoints) : \(state.rightPoints)",
+                    winnerText: eightBallWinnerText,
+                    undoAvailable: finishUndoAvailable,
+                    onUndo: undoFinishedEightBall,
+                    onPlayAgain: restartMatch,
+                    onExit: {
+                        finalizeEightBall()
+                        exitEightBall()
+                    }
+                )
+            }
+            if let confirmation {
+                WatchConfirmationOverlay(
+                    confirmation: confirmation,
+                    onCancel: { self.confirmation = nil },
+                    onConfirm: { confirmEightBall(confirmation) }
+                )
+            }
         }
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
@@ -59,57 +121,22 @@ struct WatchEightBallScoreView: View {
                   let remote = update.snapshot.eightBallState else { return }
             state = remote
             undoStack.removeAll()
-        }
-    }
-
-    private var menuOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { showMenu = false }
-
-            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 6 : 8
-                ) {
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        systemImage: "arrow.uturn.backward"
-                    ) {
-                        undo()
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
-                        systemImage: "flag.checkered",
-                        background: WatchTheme.dangerRed
-                    ) {
-                        finishMatch(manual: true)
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                        systemImage: "arrow.counterclockwise"
-                    ) {
-                        restartMatch()
-                        showMenu = false
-                    }
-                }
-
-                WatchMenuCloseButton {
-                    showMenu = false
-                }
+            if state.finished {
+                showFinishedOverlay = true
+                finishUndoAvailable = false
             }
-            .padding(WatchLayout.isCompactScreen ? 8 : 12)
-            .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(
-                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
-                style: .continuous
-            ))
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 12 : 18)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onDisappear {
+            finishTask?.cancel()
+            if state.finished { finalizeEightBall() }
+        }
+        .watchScoreboardGestures(
+            suppressTapAfterLongPress: $suppressTapAfterLongPress,
+            enabled: interactionsEnabled,
+            onMenu: { showMenu = true },
+            onUndo: undo,
+            onExit: exitEightBall
+        )
     }
 
     private func addRack(_ side: MatchSide) {
@@ -130,25 +157,12 @@ struct WatchEightBallScoreView: View {
             state.finished = true
         }
         publish(manualEnd: manual)
-        saveLocalRecordIfNeeded()
+        beginEightBallFinish(manualEnd: manual)
     }
 
     private func publish(manualEnd: Bool) {
         guard linkedSessionId != nil, linkService.isController else { return }
         linkService.publishSnapshot(.eightBall(state))
-        if state.finished {
-            linkService.publishMatchFinished(
-                snapshot: .eightBall(state),
-                recordId: "w_\(UUID().uuidString)",
-                winnerSide: state.leftPoints == state.rightPoints
-                    ? nil
-                    : (state.leftPoints > state.rightPoints ? .left : .right),
-                manualEnd: manualEnd,
-                startTime: matchStartTime,
-                endTime: Date(),
-                totalScoreChanges: max(1, state.leftPoints + state.rightPoints)
-            )
-        }
     }
 
     private func saveLocalRecordIfNeeded() {
@@ -188,61 +202,82 @@ struct WatchEightBallScoreView: View {
     private func dualBoard(
         leftLabel: String,
         rightLabel: String,
-        halfMeta: String,
         onLeft: @escaping () -> Void,
         onRight: @escaping () -> Void
     ) -> some View {
         Group {
             if isHorizontal {
                 HStack(spacing: 0) {
-                    scoreHalf(leftLabel, meta: halfMeta, color: Color(hex: 0xE53935), action: onLeft)
-                    scoreHalf(rightLabel, meta: halfMeta, color: Color(hex: 0x1E88E5), action: onRight)
+                    scoreHalf(
+                        leftLabel,
+                        name: leftName,
+                        handicap: handicapText(for: .left),
+                        color: Color(hex: 0xE53935),
+                        action: onLeft
+                    )
+                    scoreHalf(
+                        rightLabel,
+                        name: rightName,
+                        handicap: handicapText(for: .right),
+                        color: Color(hex: 0x1E88E5),
+                        action: onRight
+                    )
                 }
             } else {
                 VStack(spacing: 0) {
-                    scoreHalf(leftLabel, meta: halfMeta, color: Color(hex: 0xE53935), action: onLeft)
-                    scoreHalf(rightLabel, meta: halfMeta, color: Color(hex: 0x1E88E5), action: onRight)
+                    scoreHalf(
+                        leftLabel,
+                        name: leftName,
+                        handicap: handicapText(for: .left),
+                        color: Color(hex: 0xE53935),
+                        action: onLeft
+                    )
+                    scoreHalf(
+                        rightLabel,
+                        name: rightName,
+                        handicap: handicapText(for: .right),
+                        color: Color(hex: 0x1E88E5),
+                        action: onRight
+                    )
                 }
             }
         }
         .ignoresSafeArea()
-        .disabled(scoringLocked)
-        .gesture(boardGesture)
+        .disabled(!interactionsEnabled)
     }
 
-    private var boardGesture: some Gesture {
-        DragGesture(minimumDistance: 25, coordinateSpace: .local)
-            .onEnded { value in
-                guard !scoringLocked else { return }
-                let dx = value.translation.width
-                let dy = value.translation.height
-                if dx > 45, abs(dy) < 45 {
-                    if linkedSessionId != nil { linkService.leaveSession() }
-                    else { saveLocalRecordIfNeeded() }
-                    dismiss()
-                } else if dy > 35 {
-                    undo()
-                } else if dy < -35 {
-                    showMenu = true
-                }
-            }
-    }
-
-    private func scoreHalf(_ text: String, meta: String, color: Color, action: @escaping () -> Void) -> some View {
+    private func scoreHalf(
+        _ text: String,
+        name: String,
+        handicap: String?,
+        color: Color,
+        action: @escaping () -> Void
+    ) -> some View {
         ZStack {
             Text(text)
                 .font(.system(size: isHorizontal ? 56 : 62, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
-            Text(meta)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.7))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .padding(.bottom, isHorizontal ? 22 : 16)
+            VStack(spacing: 2) {
+                Text(name)
+                    .lineLimit(2)
+                if let handicap {
+                    Text(handicap)
+                }
+            }
+            .font(.system(size: 11, weight: .medium))
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.white.opacity(0.76))
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .padding(.horizontal, 4)
+            .padding(.bottom, isHorizontal ? 18 : 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(color)
         .contentShape(Rectangle())
-        .onTapGesture(perform: action)
+        .onTapGesture {
+            guard !suppressTapAfterLongPress else { return }
+            action()
+        }
     }
 
     private func normalizedLayout(_ raw: String) -> String {
@@ -257,13 +292,106 @@ struct WatchEightBallScoreView: View {
 
     private func restartMatch() {
         guard !scoringLocked else { return }
+        finishTask?.cancel()
         let result = EightBallReducer().reduce(state: state, intent: .reset, at: nowMs())
         guard result.accepted else { return }
-        undoStack.append(state)
+        undoStack.removeAll()
         state = result.state
         didSaveFinishedRecord = false
         matchStartTime = Date()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        isPaused = false
         publish(manualEnd: false)
+    }
+
+    private var interactionsEnabled: Bool {
+        !scoringLocked && !showMenu && confirmation == nil && !isPaused && !showFinishedOverlay
+    }
+
+    private var eightBallWinnerText: String? {
+        guard state.leftPoints != state.rightPoints else { return nil }
+        let winner = state.leftPoints > state.rightPoints ? leftName : rightName
+        return String.localizedStringWithFormat(
+            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
+            winner
+        )
+    }
+
+    private func handicapText(for side: MatchSide) -> String? {
+        guard state.handicapBeneficiary == side, state.handicapRacks > 0 else { return nil }
+        return String.localizedStringWithFormat(
+            NSLocalizedString("watch_eight_ball_handicap_format", value: "让局 +%d", comment: ""),
+            state.handicapRacks
+        )
+    }
+
+    private func confirmEightBall(_ value: WatchScoreboardConfirmation) {
+        confirmation = nil
+        switch value {
+        case .pause:
+            isPaused = true
+        case .finish:
+            finishMatch(manual: true)
+        case .reset:
+            restartMatch()
+        }
+    }
+
+    private func beginEightBallFinish(manualEnd: Bool) {
+        finishTask?.cancel()
+        showMenu = false
+        isPaused = false
+        showFinishedOverlay = true
+        finishUndoAvailable = !undoStack.isEmpty
+        finishTask = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                finishUndoAvailable = false
+                finalizeEightBall(manualEnd: manualEnd)
+            }
+        }
+    }
+
+    private func finalizeEightBall(manualEnd: Bool = false) {
+        guard state.finished, !didSaveFinishedRecord else { return }
+        if linkedSessionId != nil, linkService.isController {
+            linkService.publishMatchFinished(
+                snapshot: .eightBall(state),
+                recordId: "w_\(UUID().uuidString)",
+                winnerSide: state.leftPoints == state.rightPoints
+                    ? nil
+                    : (state.leftPoints > state.rightPoints ? .left : .right),
+                manualEnd: manualEnd,
+                startTime: matchStartTime,
+                endTime: Date(),
+                totalScoreChanges: max(1, state.leftPoints + state.rightPoints)
+            )
+            didSaveFinishedRecord = true
+        } else {
+            saveLocalRecordIfNeeded()
+        }
+    }
+
+    private func undoFinishedEightBall() {
+        guard finishUndoAvailable, let previous = undoStack.popLast() else { return }
+        finishTask?.cancel()
+        state = previous
+        state.finished = false
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didSaveFinishedRecord = false
+        publish(manualEnd: false)
+    }
+
+    private func exitEightBall() {
+        if linkedSessionId != nil {
+            linkService.leaveSession()
+        } else if !state.finished {
+            saveLocalRecordIfNeeded()
+        }
+        dismiss()
     }
 
     private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
@@ -280,6 +408,13 @@ struct WatchNineBallScoreView: View {
     @State private var didSaveFinishedRecord = false
     @State private var scoreboardLayout: String = "horizontal"
     @State private var undoStack: [NineBallChaseState] = []
+    @State private var eventPickerPlayer: Int?
+    @State private var isPaused = false
+    @State private var confirmation: WatchScoreboardConfirmation?
+    @State private var showFinishedOverlay = false
+    @State private var finishUndoAvailable = false
+    @State private var finishTask: Task<Void, Never>?
+    @State private var suppressTapAfterLongPress = false
 
     private static let playerColors: [Color] = [
         Color(hex: 0xE53935),
@@ -299,9 +434,61 @@ struct WatchNineBallScoreView: View {
     var body: some View {
         ZStack {
             playerLayout
-            if showMenu { menuOverlay }
+                .disabled(!interactionsEnabled)
+            if showMenu {
+                WatchScoreboardMenuOverlay(
+                    isPaused: isPaused,
+                    onDismiss: { showMenu = false },
+                    onUndo: {
+                        undo()
+                        showMenu = false
+                    },
+                    onPause: {
+                        showMenu = false
+                        if isPaused { isPaused = false } else { confirmation = .pause }
+                    },
+                    onFinish: {
+                        showMenu = false
+                        confirmation = .finish
+                    },
+                    onReset: {
+                        showMenu = false
+                        confirmation = .reset
+                    }
+                )
+            }
+            if let eventPickerPlayer {
+                nineBallEventPicker(for: eventPickerPlayer)
+            }
+            if isPaused {
+                WatchPausedOverlay(
+                    scoreText: compactNineBallScore,
+                    onContinue: { isPaused = false },
+                    onFinish: { confirmation = .finish }
+                )
+            }
+            if showFinishedOverlay {
+                WatchFinishedOverlay(
+                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                    scoreText: compactNineBallScore,
+                    winnerText: nineBallWinnerText,
+                    undoAvailable: finishUndoAvailable,
+                    onUndo: undoFinishedNineBall,
+                    onPlayAgain: restartMatch,
+                    onExit: {
+                        finalizeNineBall()
+                        exitNineBall()
+                    }
+                )
+            }
+            if let confirmation {
+                WatchConfirmationOverlay(
+                    confirmation: confirmation,
+                    onCancel: { self.confirmation = nil },
+                    onConfirm: { confirmNineBall(confirmation) }
+                )
+            }
         }
-        .disabled(scoringLocked)
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
             matchStartTime = Date()
@@ -309,81 +496,27 @@ struct WatchNineBallScoreView: View {
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .gesture(boardGesture)
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.nineBallState else { return }
             state = remote
             undoStack.removeAll()
-        }
-    }
-
-    private var menuOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { showMenu = false }
-
-            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 6 : 8
-                ) {
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        systemImage: "arrow.uturn.backward"
-                    ) {
-                        undo()
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
-                        systemImage: "flag.checkered",
-                        background: WatchTheme.dangerRed
-                    ) {
-                        finishMatch()
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                        systemImage: "arrow.counterclockwise"
-                    ) {
-                        restartMatch()
-                        showMenu = false
-                    }
-                }
-
-                WatchMenuCloseButton {
-                    showMenu = false
-                }
+            if state.finished {
+                showFinishedOverlay = true
+                finishUndoAvailable = false
             }
-            .padding(WatchLayout.isCompactScreen ? 8 : 12)
-            .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(
-                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
-                style: .continuous
-            ))
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 12 : 18)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private var boardGesture: some Gesture {
-        DragGesture(minimumDistance: 25, coordinateSpace: .local)
-            .onEnded { value in
-                guard !scoringLocked else { return }
-                let dx = value.translation.width
-                let dy = value.translation.height
-                if dx > 45, abs(dy) < 45 {
-                    if linkedSessionId != nil { linkService.leaveSession() }
-                    else { saveLocalRecordIfNeeded() }
-                    dismiss()
-                } else if dy > 35 {
-                    undo()
-                } else if dy < -35 {
-                    showMenu = true
-                }
-            }
+        .onDisappear {
+            finishTask?.cancel()
+            if state.finished { finalizeNineBall() }
+        }
+        .watchScoreboardGestures(
+            suppressTapAfterLongPress: $suppressTapAfterLongPress,
+            enabled: interactionsEnabled,
+            onMenu: { showMenu = true },
+            onUndo: undo,
+            onExit: exitNineBall
+        )
     }
 
     @ViewBuilder
@@ -446,7 +579,49 @@ struct WatchNineBallScoreView: View {
         .background(index < Self.playerColors.count ? Self.playerColors[index] : .gray)
         .contentShape(Rectangle())
         .onTapGesture {
-            apply(.deltaTotal(player: index, delta: 1))
+            guard !suppressTapAfterLongPress else { return }
+            eventPickerPlayer = index
+        }
+    }
+
+    private func nineBallEventPicker(for player: Int) -> some View {
+        ZStack {
+            Color.black.opacity(0.78)
+                .ignoresSafeArea()
+                .onTapGesture { eventPickerPlayer = nil }
+            VStack(spacing: WatchLayout.isCompactScreen ? 5 : 7) {
+                Text(displayName(at: player))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.8))
+                    .lineLimit(1)
+                LazyVGrid(
+                    columns: [GridItem(.flexible()), GridItem(.flexible())],
+                    spacing: WatchLayout.isCompactScreen ? 5 : 7
+                ) {
+                    ForEach(NineBallChaseKind.allCases, id: \.rawValue) { kind in
+                        Button {
+                            eventPickerPlayer = nil
+                            apply(.chaseEvent(player: player, kind: kind))
+                        } label: {
+                            VStack(spacing: 1) {
+                                Text(nineBallEventTitle(kind))
+                                    .font(.system(size: WatchLayout.isCompactScreen ? 11 : 12, weight: .semibold))
+                                Text(nineBallEventPointText(kind, playerCount: state.playerCount))
+                                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.72))
+                            }
+                            .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 30 : 36)
+                        }
+                        .buttonStyle(.plain)
+                        .background(kind == .foul ? WatchTheme.dangerRed : WatchTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    }
+                }
+            }
+            .padding(WatchLayout.isCompactScreen ? 8 : 12)
+            .background(WatchTheme.overlayCard)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .padding(.horizontal, 12)
         }
     }
 
@@ -459,36 +634,25 @@ struct WatchNineBallScoreView: View {
     }
 
     private func apply(_ intent: NineBallChaseIntent) {
-        guard !scoringLocked else { return }
+        guard !scoringLocked, !isPaused, !state.finished else { return }
         let result = NineBallChaseReducer().reduce(state: state, intent: intent, at: nowMs())
         guard result.accepted else { return }
         undoStack.append(state)
         state = result.state
         publish()
         if state.finished {
-            saveLocalRecordIfNeeded()
+            beginNineBallFinish(manualEnd: false)
         }
     }
 
     private func finishMatch() {
         guard !state.finished else {
-            saveLocalRecordIfNeeded()
+            beginNineBallFinish(manualEnd: true)
             return
         }
         state.finished = true
         publish()
-        if linkedSessionId != nil, linkService.isController {
-            linkService.publishMatchFinished(
-                snapshot: .nineBall(state),
-                recordId: "w_\(UUID().uuidString)",
-                winnerSide: winnerSide(),
-                manualEnd: true,
-                startTime: matchStartTime,
-                endTime: Date(),
-                totalScoreChanges: max(1, (0..<state.playerCount).reduce(0) { $0 + playerPoints(at: $1) })
-            )
-        }
-        saveLocalRecordIfNeeded()
+        beginNineBallFinish(manualEnd: true)
     }
 
     private func publish() {
@@ -557,12 +721,16 @@ struct WatchNineBallScoreView: View {
 
     private func restartMatch() {
         guard !scoringLocked else { return }
+        finishTask?.cancel()
         let result = NineBallChaseReducer().reduce(state: state, intent: .resetScores, at: nowMs())
         guard result.accepted else { return }
-        undoStack.append(state)
+        undoStack.removeAll()
         state = result.state
         didSaveFinishedRecord = false
         matchStartTime = Date()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        isPaused = false
         publish()
     }
 
@@ -571,6 +739,115 @@ struct WatchNineBallScoreView: View {
     private func playerPoints(at index: Int) -> Int {
         guard state.playerPoints.indices.contains(index) else { return 0 }
         return state.playerPoints[index]
+    }
+
+    private var interactionsEnabled: Bool {
+        !scoringLocked && !showMenu && eventPickerPlayer == nil && confirmation == nil
+            && !isPaused && !showFinishedOverlay
+    }
+
+    private var compactNineBallScore: String {
+        (0..<state.playerCount).map { "\(playerPoints(at: $0))" }.joined(separator: " · ")
+    }
+
+    private var nineBallWinnerText: String? {
+        let scores = (0..<state.playerCount).map { playerPoints(at: $0) }
+        guard let maximum = scores.max(),
+              scores.filter({ $0 == maximum }).count == 1,
+              let index = scores.firstIndex(of: maximum) else { return nil }
+        return String.localizedStringWithFormat(
+            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
+            displayName(at: index)
+        )
+    }
+
+    private func nineBallEventTitle(_ kind: NineBallChaseKind) -> String {
+        switch kind {
+        case .bigGold: NSLocalizedString("nine_ball_big_gold", value: "大金", comment: "")
+        case .smallGold: NSLocalizedString("nine_ball_small_gold", value: "小金", comment: "")
+        case .goldenNine: NSLocalizedString("nine_ball_golden_nine", value: "金九", comment: "")
+        case .normalWin: NSLocalizedString("nine_ball_normal_win", value: "普通胜", comment: "")
+        case .ballInHand: NSLocalizedString("nine_ball_ball_in_hand", value: "自由球", comment: "")
+        case .foul: NSLocalizedString("nine_ball_foul", value: "犯规", comment: "")
+        }
+    }
+
+    private func nineBallEventPointText(_ kind: NineBallChaseKind, playerCount: Int) -> String {
+        let value: Int
+        switch kind {
+        case .bigGold: value = state.config.bigGold
+        case .smallGold: value = state.config.smallGold
+        case .goldenNine: value = state.config.goldenNine
+        case .normalWin: value = state.config.normalWin
+        case .ballInHand: value = state.config.ballInHand
+        case .foul: value = state.config.foul
+        }
+        if kind == .foul, playerCount > 2 { return "-\(value)" }
+        return "+\(value)"
+    }
+
+    private func confirmNineBall(_ value: WatchScoreboardConfirmation) {
+        confirmation = nil
+        switch value {
+        case .pause: isPaused = true
+        case .finish: finishMatch()
+        case .reset: restartMatch()
+        }
+    }
+
+    private func beginNineBallFinish(manualEnd: Bool) {
+        finishTask?.cancel()
+        showMenu = false
+        eventPickerPlayer = nil
+        isPaused = false
+        showFinishedOverlay = true
+        finishUndoAvailable = !undoStack.isEmpty
+        finishTask = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                finishUndoAvailable = false
+                finalizeNineBall(manualEnd: manualEnd)
+            }
+        }
+    }
+
+    private func finalizeNineBall(manualEnd: Bool = false) {
+        guard state.finished, !didSaveFinishedRecord else { return }
+        if linkedSessionId != nil, linkService.isController {
+            linkService.publishMatchFinished(
+                snapshot: .nineBall(state),
+                recordId: "w_\(UUID().uuidString)",
+                winnerSide: winnerSide(),
+                manualEnd: manualEnd,
+                startTime: matchStartTime,
+                endTime: Date(),
+                totalScoreChanges: max(1, (0..<state.playerCount).reduce(0) { $0 + abs(playerPoints(at: $1)) })
+            )
+            didSaveFinishedRecord = true
+        } else {
+            saveLocalRecordIfNeeded()
+        }
+    }
+
+    private func undoFinishedNineBall() {
+        guard finishUndoAvailable, let previous = undoStack.popLast() else { return }
+        finishTask?.cancel()
+        state = previous
+        state.finished = false
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didSaveFinishedRecord = false
+        publish()
+    }
+
+    private func exitNineBall() {
+        if linkedSessionId != nil {
+            linkService.leaveSession()
+        } else if !state.finished {
+            saveLocalRecordIfNeeded()
+        }
+        dismiss()
     }
 }
 
@@ -587,6 +864,14 @@ struct WatchSnookerScoreView: View {
     @State private var didSaveFinishedRecord = false
     @State private var scoreboardLayout: String = "horizontal"
     @State private var undoStack: [SnookerState] = []
+    @State private var scoringSide: MatchSide?
+    @State private var showFrameSettlement = false
+    @State private var isPaused = false
+    @State private var confirmation: WatchScoreboardConfirmation?
+    @State private var showFinishedOverlay = false
+    @State private var finishUndoAvailable = false
+    @State private var finishTask: Task<Void, Never>?
+    @State private var suppressTapAfterLongPress = false
 
     init(
         initialState: SnookerState? = nil,
@@ -620,9 +905,70 @@ struct WatchSnookerScoreView: View {
                 }
             }
             .ignoresSafeArea()
-            if showMenu { menuOverlay }
+            .disabled(!interactionsEnabled)
+            if !showMenu && scoringSide == nil && !showFinishedOverlay {
+                snookerStatusBadge
+            }
+            if showMenu {
+                WatchScoreboardMenuOverlay(
+                    isPaused: isPaused,
+                    onDismiss: { showMenu = false },
+                    onUndo: {
+                        undo()
+                        showMenu = false
+                    },
+                    onPause: {
+                        showMenu = false
+                        if isPaused { isPaused = false } else { confirmation = .pause }
+                    },
+                    onFinish: {
+                        showMenu = false
+                        confirmation = .finish
+                    },
+                    onReset: {
+                        showMenu = false
+                        confirmation = .reset
+                    }
+                )
+            }
+            if let scoringSide {
+                snookerScoringPanel(for: scoringSide)
+            }
+            if showFrameSettlement {
+                snookerFrameSettlementPanel
+            }
+            if state.frameCompletePending {
+                snookerNextFramePanel
+            }
+            if isPaused {
+                WatchPausedOverlay(
+                    scoreText: "\(state.leftScore) : \(state.rightScore)",
+                    onContinue: { isPaused = false },
+                    onFinish: { confirmation = .finish }
+                )
+            }
+            if showFinishedOverlay {
+                WatchFinishedOverlay(
+                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                    scoreText: "\(state.leftFrames) : \(state.rightFrames)",
+                    winnerText: snookerWinnerText,
+                    undoAvailable: finishUndoAvailable,
+                    onUndo: undoFinishedSnooker,
+                    onPlayAgain: restartMatch,
+                    onExit: {
+                        finalizeSnooker()
+                        exitSnooker()
+                    }
+                )
+            }
+            if let confirmation {
+                WatchConfirmationOverlay(
+                    confirmation: confirmation,
+                    onCancel: { self.confirmation = nil },
+                    onConfirm: { confirmSnooker(confirmation) }
+                )
+            }
         }
-        .disabled(scoringLocked)
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
             matchStartTime = Date()
@@ -630,81 +976,27 @@ struct WatchSnookerScoreView: View {
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .gesture(boardGesture)
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.snookerState else { return }
             state = remote
             undoStack.removeAll()
-        }
-    }
-
-    private var menuOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { showMenu = false }
-
-            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 6 : 8
-                ) {
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        systemImage: "arrow.uturn.backward"
-                    ) {
-                        undo()
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
-                        systemImage: "flag.checkered",
-                        background: WatchTheme.dangerRed
-                    ) {
-                        finishMatch()
-                        showMenu = false
-                    }
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                        systemImage: "arrow.counterclockwise"
-                    ) {
-                        restartMatch()
-                        showMenu = false
-                    }
-                }
-
-                WatchMenuCloseButton {
-                    showMenu = false
-                }
+            if state.finished {
+                showFinishedOverlay = true
+                finishUndoAvailable = false
             }
-            .padding(WatchLayout.isCompactScreen ? 8 : 12)
-            .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(
-                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
-                style: .continuous
-            ))
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 12 : 18)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private var boardGesture: some Gesture {
-        DragGesture(minimumDistance: 25, coordinateSpace: .local)
-            .onEnded { value in
-                guard !scoringLocked else { return }
-                let dx = value.translation.width
-                let dy = value.translation.height
-                if dx > 45, abs(dy) < 45 {
-                    if linkedSessionId != nil { linkService.leaveSession() }
-                    else { saveLocalRecordIfNeeded() }
-                    dismiss()
-                } else if dy > 35 {
-                    undo()
-                } else if dy < -35 {
-                    showMenu = true
-                }
-            }
+        .onDisappear {
+            finishTask?.cancel()
+            if state.finished { finalizeSnooker() }
+        }
+        .watchScoreboardGestures(
+            suppressTapAfterLongPress: $suppressTapAfterLongPress,
+            enabled: interactionsEnabled,
+            onMenu: { showMenu = true },
+            onUndo: undo,
+            onExit: exitSnooker
+        )
     }
 
     private func scoreHalf(_ side: MatchSide) -> some View {
@@ -729,19 +1021,170 @@ struct WatchSnookerScoreView: View {
         .background(color)
         .contentShape(Rectangle())
         .onTapGesture {
-            apply(.potBallAsSide(side: side, points: 1))
+            guard !suppressTapAfterLongPress else { return }
+            scoringSide = side
+        }
+    }
+
+    private var snookerStatusBadge: some View {
+        VStack(spacing: 2) {
+            Text(state.striker == .left ? leftName : rightName)
+                .font(.system(size: 11, weight: .semibold))
+                .lineLimit(1)
+            Text(String.localizedStringWithFormat(
+                NSLocalizedString("watch_snooker_break_format", value: "单杆 %d", comment: ""),
+                state.striker == .left ? state.leftBreak : state.rightBreak
+            ))
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            Text(String.localizedStringWithFormat(
+                NSLocalizedString("watch_snooker_reds_format", value: "红球 %d", comment: ""),
+                state.redBallsRemaining
+            ))
+            .font(.system(size: 9, weight: .medium))
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color.black.opacity(0.62))
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+    }
+
+    private func snookerScoringPanel(for side: MatchSide) -> some View {
+        ZStack {
+            Color.black.opacity(0.84)
+                .ignoresSafeArea()
+                .onTapGesture { scoringSide = nil }
+            ScrollView {
+                VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
+                    Text(side == .left ? leftName : rightName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.8))
+                    LazyVGrid(
+                        columns: Array(repeating: GridItem(.flexible()), count: 4),
+                        spacing: 5
+                    ) {
+                        ForEach(SnookerBall.allCases, id: \.rawValue) { ball in
+                            Button {
+                                apply(.potBallAsSide(side: side, points: ball.rawValue))
+                                scoringSide = nil
+                            } label: {
+                                VStack(spacing: 1) {
+                                    Circle()
+                                        .frame(width: 13, height: 13)
+                                        .foregroundStyle(snookerBallColor(ball))
+                                    Text("\(ball.rawValue)")
+                                        .font(.system(size: 9, weight: .bold))
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 34)
+                            }
+                            .buttonStyle(.plain)
+                            .background(WatchTheme.card)
+                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        }
+                    }
+                    HStack(spacing: 5) {
+                        ForEach(4...7, id: \.self) { points in
+                            Button("\(NSLocalizedString("watch_snooker_foul", value: "犯规", comment: "")) \(points)") {
+                                apply(.foulFromSide(side: side, pointsToOpponent: points, switchTurn: true))
+                                scoringSide = nil
+                            }
+                            .font(.system(size: 9, weight: .semibold))
+                            .buttonStyle(.bordered)
+                            .tint(WatchTheme.dangerRed)
+                        }
+                    }
+                    HStack(spacing: 6) {
+                        Button(NSLocalizedString("watch_snooker_miss", value: "未进", comment: "")) {
+                            apply(.missFromPanel(side))
+                            scoringSide = nil
+                        }
+                        Button(NSLocalizedString("watch_snooker_handover", value: "交接", comment: "")) {
+                            apply(.handoverFromPanel(side))
+                            scoringSide = nil
+                        }
+                        Button(NSLocalizedString("watch_snooker_settle_frame", value: "结算本局", comment: "")) {
+                            scoringSide = nil
+                            showFrameSettlement = true
+                        }
+                    }
+                    .font(.system(size: 10, weight: .semibold))
+                    .buttonStyle(.bordered)
+                }
+                .padding(8)
+            }
+        }
+    }
+
+    private var snookerFrameSettlementPanel: some View {
+        ZStack {
+            Color.black.opacity(0.86).ignoresSafeArea()
+            VStack(spacing: 10) {
+                Text(NSLocalizedString("watch_snooker_choose_frame_winner", value: "选择本局胜者", comment: ""))
+                    .font(.headline)
+                Button(leftName) {
+                    showFrameSettlement = false
+                    apply(.settleFrame(winner: .left))
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color(hex: 0xE53935))
+                Button(rightName) {
+                    showFrameSettlement = false
+                    apply(.settleFrame(winner: .right))
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color(hex: 0x1E88E5))
+                Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                    showFrameSettlement = false
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(14)
+        }
+    }
+
+    private var snookerNextFramePanel: some View {
+        ZStack {
+            Color.black.opacity(0.86).ignoresSafeArea()
+            VStack(spacing: 9) {
+                Text(NSLocalizedString("watch_snooker_frame_finished", value: "本局结束", comment: ""))
+                    .font(.headline)
+                Text("\(state.leftFrames) : \(state.rightFrames)")
+                    .font(.title3.monospacedDigit().weight(.bold))
+                Button(NSLocalizedString("watch_snooker_next_frame", value: "下一局", comment: "")) {
+                    apply(.confirmNextFrame)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(WatchTheme.successGreen)
+                Button(NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: "")) {
+                    confirmation = .finish
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(14)
+        }
+    }
+
+    private func snookerBallColor(_ ball: SnookerBall) -> Color {
+        switch ball {
+        case .red: Color(hex: 0xE53935)
+        case .yellow: Color(hex: 0xFDD835)
+        case .green: Color(hex: 0x43A047)
+        case .brown: Color(hex: 0x795548)
+        case .blue: Color(hex: 0x1E88E5)
+        case .pink: Color(hex: 0xEC407A)
+        case .black: .black
         }
     }
 
     private func apply(_ intent: SnookerIntent) {
-        guard !scoringLocked else { return }
+        guard !scoringLocked, !isPaused, !showFinishedOverlay else { return }
         let result = SnookerReducer().reduce(state: state, intent: intent, at: nowMs())
         guard result.accepted else { return }
         undoStack.append(state)
         state = result.state
         publish()
         if state.finished {
-            saveLocalRecordIfNeeded()
+            beginSnookerFinish(manualEnd: false)
         }
     }
 
@@ -750,20 +1193,7 @@ struct WatchSnookerScoreView: View {
         state = result.state
         publish()
         if state.finished {
-            if linkedSessionId != nil, linkService.isController {
-                linkService.publishMatchFinished(
-                    snapshot: .snooker(state),
-                    recordId: "w_\(UUID().uuidString)",
-                    winnerSide: state.leftFrames == state.rightFrames
-                        ? nil
-                        : (state.leftFrames > state.rightFrames ? .left : .right),
-                    manualEnd: true,
-                    startTime: matchStartTime,
-                    endTime: Date(),
-                    totalScoreChanges: max(1, state.leftScore + state.rightScore)
-                )
-            }
-            saveLocalRecordIfNeeded()
+            beginSnookerFinish(manualEnd: true)
         }
     }
 
@@ -816,12 +1246,98 @@ struct WatchSnookerScoreView: View {
 
     private func restartMatch() {
         guard !scoringLocked else { return }
-        undoStack.append(state)
+        finishTask?.cancel()
+        undoStack.removeAll()
         state = .initial(striker: state.firstBreaker, maxFrames: state.maxFrames)
         didSaveFinishedRecord = false
         matchStartTime = Date()
+        scoringSide = nil
+        showFrameSettlement = false
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        isPaused = false
         publish()
     }
 
     private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
+
+    private var interactionsEnabled: Bool {
+        !scoringLocked && !showMenu && scoringSide == nil && !showFrameSettlement
+            && !state.frameCompletePending && confirmation == nil && !isPaused && !showFinishedOverlay
+    }
+
+    private var snookerWinnerText: String? {
+        guard state.leftFrames != state.rightFrames else { return nil }
+        let winner = state.leftFrames > state.rightFrames ? leftName : rightName
+        return String.localizedStringWithFormat(
+            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
+            winner
+        )
+    }
+
+    private func confirmSnooker(_ value: WatchScoreboardConfirmation) {
+        confirmation = nil
+        switch value {
+        case .pause: isPaused = true
+        case .finish: finishMatch()
+        case .reset: restartMatch()
+        }
+    }
+
+    private func beginSnookerFinish(manualEnd: Bool) {
+        finishTask?.cancel()
+        showMenu = false
+        scoringSide = nil
+        showFrameSettlement = false
+        isPaused = false
+        showFinishedOverlay = true
+        finishUndoAvailable = !undoStack.isEmpty
+        finishTask = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                finishUndoAvailable = false
+                finalizeSnooker(manualEnd: manualEnd)
+            }
+        }
+    }
+
+    private func finalizeSnooker(manualEnd: Bool = false) {
+        guard state.finished, !didSaveFinishedRecord else { return }
+        if linkedSessionId != nil, linkService.isController {
+            linkService.publishMatchFinished(
+                snapshot: .snooker(state),
+                recordId: "w_\(UUID().uuidString)",
+                winnerSide: state.leftFrames == state.rightFrames
+                    ? nil
+                    : (state.leftFrames > state.rightFrames ? .left : .right),
+                manualEnd: manualEnd,
+                startTime: matchStartTime,
+                endTime: Date(),
+                totalScoreChanges: max(1, state.leftScore + state.rightScore)
+            )
+            didSaveFinishedRecord = true
+        } else {
+            saveLocalRecordIfNeeded()
+        }
+    }
+
+    private func undoFinishedSnooker() {
+        guard finishUndoAvailable, let previous = undoStack.popLast() else { return }
+        finishTask?.cancel()
+        state = previous
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        didSaveFinishedRecord = false
+        publish()
+    }
+
+    private func exitSnooker() {
+        if linkedSessionId != nil {
+            linkService.leaveSession()
+        } else if !state.finished {
+            saveLocalRecordIfNeeded()
+        }
+        dismiss()
+    }
 }

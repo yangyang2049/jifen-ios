@@ -168,7 +168,6 @@ struct SportsSetupDialogView: View {
     @State private var eightBallHandicapRacks = 0
     @State private var isSendingSetupToWatch = false
     @State private var setupSendErrorText = ""
-    @State private var showWatchStartConfirm = false
     @State private var showExitWhileSendingConfirm = false
     @State private var showWatchStartGuide = !PreferencesManager.shared.linkedScoreWatchStartGuideShown
     @State private var team1Player1Name: String = ""
@@ -288,7 +287,8 @@ struct SportsSetupDialogView: View {
                             ))
 
                         Button {
-                            showWatchStartConfirm = true
+                            dismissWatchStartGuide()
+                            Task { await confirmSetup(startOnWatch: true) }
                         } label: {
                             Group {
                                 if isSendingSetupToWatch {
@@ -338,23 +338,6 @@ struct SportsSetupDialogView: View {
         .padding(.horizontal, 20)
         .padding(.top, 20)
         .padding(.bottom, 24)
-        .confirmationDialog(
-            NSLocalizedString("linked_score_start_confirm_title", value: "在手表开始？", comment: ""),
-            isPresented: $showWatchStartConfirm,
-            titleVisibility: .visible
-        ) {
-            Button(NSLocalizedString("linked_score_start_on_watch", value: "在手表开始", comment: "")) {
-                dismissWatchStartGuide()
-                Task { await confirmSetup(startOnWatch: true) }
-            }
-            Button(NSLocalizedString("cancel", comment: "Cancel button"), role: .cancel) {}
-        } message: {
-            Text(NSLocalizedString(
-                "linked_score_start_confirm_message",
-                value: "将向手表发送开局请求，请在手表上确认后开始计分；手机将跟随显示。",
-                comment: ""
-            ))
-        }
         .alert(
             NSLocalizedString("linked_score_setup_exit_title", value: "退出同步计分？", comment: ""),
             isPresented: $showExitWhileSendingConfirm
