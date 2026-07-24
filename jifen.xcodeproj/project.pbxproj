@@ -37,6 +37,7 @@
 		F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */; };
 		F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */; };
 		F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */; };
+		F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F60000000000000000000001 /* AppReviewPromptTests.swift */; };
 		FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000000000000000000001 /* RemodelFocusUITests.swift */; };
 /* End PBXBuildFile section */
 
@@ -115,6 +116,7 @@
 		F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardRecordV4Tests.swift; sourceTree = "<group>"; };
 		F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalScoreboardDisplayStateTests.swift; sourceTree = "<group>"; };
 		F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardMenuConfirmStateTests.swift; sourceTree = "<group>"; };
+		F60000000000000000000001 /* AppReviewPromptTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppReviewPromptTests.swift; sourceTree = "<group>"; };
 		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -235,6 +237,7 @@
 				F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */,
 				F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */,
 				F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */,
+				F60000000000000000000001 /* AppReviewPromptTests.swift */,
 			);
 			path = jifenTests;
 			sourceTree = "<group>";
@@ -608,6 +611,7 @@
 				F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */,
 				F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */,
 				F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */,
+				F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -85,6 +85,7 @@ struct jifenApp: App {
     init() {
         FontRegistrar.registerFonts()
         UITestRecordFixtures.installIfRequested()
+        AppReviewPrompt.recordLaunchIfAllowed()
         let hasAcceptedLegal = LegalConsent.hasAcceptedCurrentDocuments()
         _hasAcceptedLegal = State(initialValue: hasAcceptedLegal)
         if hasAcceptedLegal {
@@ -122,6 +123,7 @@ struct jifenApp: App {
     private var legalGatedContent: some View {
         if hasAcceptedLegal || shouldSkipLegalForUITests {
             ContentView()
+                .requestsReviewOnEligibleLaunch()
         } else {
             FirstLaunchLegalScreen {
                 LegalConsent.acceptCurrentDocuments()
