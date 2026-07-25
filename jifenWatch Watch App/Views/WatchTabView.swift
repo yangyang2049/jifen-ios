@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WatchTabView: View {
     @Binding var scoreboardRoute: WatchScoreboardRoute?
+    let onResume: (WatchResumeSession) -> Void
     @State private var selection: Int = 1
 
     var body: some View {
@@ -9,7 +10,10 @@ struct WatchTabView: View {
             WatchToolsTabView()
                 .tag(0)
 
-            WatchHomeTabView(scoreboardRoute: $scoreboardRoute)
+            WatchHomeTabView(
+                scoreboardRoute: $scoreboardRoute,
+                onResume: onResume
+            )
                 .tag(1)
 
             WatchRecordListView()

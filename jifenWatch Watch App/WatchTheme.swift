@@ -33,13 +33,13 @@ struct WatchLayout {
     static var archeryMenuButtonHeight: CGFloat { isCompactScreen ? 44 : 52 }
     /// 射箭菜单图标字号
     static var archeryMenuIconSize: CGFloat { isCompactScreen ? 18 : 22 }
-    /// 射箭暂停/结束 overlay 内边距
+    /// 射箭结束 overlay 内边距
     static var archeryStoppedOverlayPadding: CGFloat { isCompactScreen ? 14 : 24 }
-    /// 射箭暂停/结束 overlay 主按钮宽度
+    /// 射箭结束 overlay 主按钮宽度
     static var archeryStoppedButtonWidth: CGFloat { isCompactScreen ? 130 : 160 }
-    /// 射箭暂停/结束 overlay 次按钮宽度
+    /// 射箭结束 overlay 次按钮宽度
     static var archeryStoppedButtonWidthSmall: CGFloat { isCompactScreen ? 110 : 140 }
-    /// 射箭暂停/结束 overlay 按钮高度
+    /// 射箭结束 overlay 按钮高度
     static var archeryStoppedButtonHeight: CGFloat { isCompactScreen ? 38 : 44 }
     /// 记录列表行左右内边距（含 44mm 窄屏时缩小，避免第一行被截断）
     static var recordRowHorizontalPadding: CGFloat { isNarrowForContent ? 10 : 16 }

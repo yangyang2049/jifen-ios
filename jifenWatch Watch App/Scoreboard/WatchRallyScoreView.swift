@@ -9,29 +9,48 @@ import SwiftUI
 @MainActor
 @Observable
 private final class WatchRallySessionStore {
+    typealias ResumeBundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>
+
     private let core: ScoreSessionCore<RallyMatchReducer>
     private let archiveRepository: SessionArchiveRepository
 
     private(set) var state: RallyMatchState
 
-    init(gameType: GameType, rules: RallyRuleSet, initialState: RallyMatchState? = nil) {
+    init(
+        gameType: GameType,
+        rules: RallyRuleSet,
+        initialState: RallyMatchState? = nil,
+        resumeBundle: ResumeBundle? = nil
+    ) {
         let defaults = WatchDefaultTeamNames.resolve()
-        let initial = initialState ?? RallyMatchEngine.initial(
+        let initial = resumeBundle?.currentSession.state ?? initialState ?? RallyMatchEngine.initial(
             leftName: defaults.left,
             rightName: defaults.right,
             rules: rules
         )
-        let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
-            gameType: gameType,
-            ruleFamily: .s1,
-            reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
-            state: initial,
-            participants: [
-                .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
-                .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
-            ]
-        )
-        core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
+        if let resumeBundle {
+            core = ScoreSessionCore(
+                resumeBundle: resumeBundle,
+                reducer: RallyMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+        } else {
+            let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
+                gameType: gameType,
+                ruleFamily: .s1,
+                reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
+                state: initial,
+                participants: [
+                    .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
+                    .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
+                ]
+            )
+            core = ScoreSessionCore(
+                seedSession: session,
+                reducer: RallyMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+        }
         archiveRepository = SessionArchiveRepository()
         state = initial
     }
@@ -72,11 +91,16 @@ private final class WatchRallySessionStore {
     func replaceDisplayedState(_ state: RallyMatchState) {
         self.state = state
     }
+
+    func resumeBundle() async -> ResumeBundle {
+        await core.resumeBundle()
+    }
 }
 
 struct WatchRallyScoreView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchLinkService.self) private var linkService
+    @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let gameType: GameType
     let rules: RallyRuleSet
@@ -88,7 +112,6 @@ struct WatchRallyScoreView: View {
     @State private var scoreboardLayout: String = "horizontal"
     @State private var restState: WatchRestState?
     @State private var showSideExchangeToast = false
-    @State private var isPaused = false
     @State private var confirmation: WatchScoreboardConfirmation?
     @State private var showFinishedOverlay = false
     @State private var finishUndoAvailable = false
@@ -103,12 +126,22 @@ struct WatchRallyScoreView: View {
         gameType: GameType,
         rules: RallyRuleSet,
         initialState: RallyMatchState? = nil,
-        linkedSessionId: UUID? = nil
+        linkedSessionId: UUID? = nil,
+        resumeBundle: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>? = nil,
+        resumedStartTime: Date? = nil,
+        resumedRestState: WatchRestState? = nil
     ) {
         self.gameType = gameType
         self.rules = rules
         self.linkedSessionId = linkedSessionId
-        _store = State(initialValue: WatchRallySessionStore(gameType: gameType, rules: rules, initialState: initialState))
+        _store = State(initialValue: WatchRallySessionStore(
+            gameType: gameType,
+            rules: rules,
+            initialState: initialState,
+            resumeBundle: resumeBundle
+        ))
+        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        _restState = State(initialValue: resumedRestState)
     }
 
     private var scoringLocked: Bool {
@@ -126,19 +159,10 @@ struct WatchRallyScoreView: View {
             }
             if showMenu {
                 WatchScoreboardMenuOverlay(
-                    isPaused: isPaused,
                     onDismiss: { showMenu = false },
                     onUndo: {
                         store.undo()
                         showMenu = false
-                    },
-                    onPause: {
-                        showMenu = false
-                        if isPaused {
-                            isPaused = false
-                        } else {
-                            confirmation = .pause
-                        }
                     },
                     onFinish: {
                         showMenu = false
@@ -148,13 +172,6 @@ struct WatchRallyScoreView: View {
                         showMenu = false
                         confirmation = .reset
                     }
-                )
-            }
-            if isPaused {
-                WatchPausedOverlay(
-                    scoreText: scoreLine,
-                    onContinue: { isPaused = false },
-                    onFinish: { confirmation = .finish }
                 )
             }
             if let restState {
@@ -191,13 +208,13 @@ struct WatchRallyScoreView: View {
         .ignoresSafeArea()
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
-            matchStartTime = Date()
             store.onStateChanged = { [linkService] state, events in
                 if linkedSessionId != nil {
                     guard linkService.isController else { return }
                     linkService.publishSnapshot(.rally(state))
                 }
                 handle(events: events, state: state)
+                Task { await persistResumeSession() }
             }
             if store.state.finished {
                 beginProvisionalFinish()
@@ -226,6 +243,7 @@ struct WatchRallyScoreView: View {
             if !scoringLocked {
                 store.persist()
             }
+            Task { await persistResumeSession() }
         }
     }
 
@@ -354,12 +372,8 @@ struct WatchRallyScoreView: View {
             Text(name)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Color.black.opacity(0.28))
-                .clipShape(Capsule())
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: isHorizontal ? .top : .top)
                 .padding(.top, isHorizontal ? 28 : 8)
 
@@ -417,7 +431,6 @@ struct WatchRallyScoreView: View {
 
     private var interactionsEnabled: Bool {
         !scoringLocked
-            && !isPaused
             && restState == nil
             && !showFinishedOverlay
             && confirmation == nil
@@ -523,7 +536,6 @@ struct WatchRallyScoreView: View {
 
     private func beginProvisionalFinish() {
         guard !showFinishedOverlay else { return }
-        isPaused = false
         restState = nil
         showMenu = false
         showFinishedOverlay = true
@@ -541,6 +553,7 @@ struct WatchRallyScoreView: View {
 
     private func finalizeFinish() {
         guard store.state.finished, !didFinalizeFinish else { return }
+        resumeStore.clear()
         didFinalizeFinish = true
         if linkedSessionId != nil {
             guard linkService.isController else { return }
@@ -571,6 +584,7 @@ struct WatchRallyScoreView: View {
     }
 
     private func playAgain() {
+        resumeStore.clear()
         finalizeFinish()
         finishTask?.cancel()
         showFinishedOverlay = false
@@ -593,16 +607,14 @@ struct WatchRallyScoreView: View {
     private func confirm(_ value: WatchScoreboardConfirmation) {
         confirmation = nil
         switch value {
-        case .pause:
-            isPaused = true
         case .finish:
             manualFinishRequested = true
             store.send(.finish)
         case .reset:
+            resumeStore.clear()
             finishTask?.cancel()
             showFinishedOverlay = false
             restState = nil
-            isPaused = false
             didTransferFinishedRecord = false
             didFinalizeFinish = false
             manualFinishRequested = false
@@ -616,9 +628,44 @@ struct WatchRallyScoreView: View {
 
     private func exitBoard() {
         if linkedSessionId != nil {
-            linkService.leaveSession()
+            if store.state.finished {
+                linkService.leaveSession()
+            } else {
+                linkService.exitScoreboardToHome()
+            }
         }
         dismiss()
+    }
+
+    private func persistResumeSession() async {
+        let state = store.state
+        guard !state.finished,
+              state.leftPoints != 0 || state.rightPoints != 0
+                || state.leftSets != 0 || state.rightSets != 0 else {
+            resumeStore.clear()
+            return
+        }
+        let bundle = await store.resumeBundle()
+        resumeStore.save(WatchResumeSession(
+            startedAt: matchStartTime,
+            scoreLine: scoreLine,
+            emoji: resumeEmoji,
+            payload: .rally(
+                gameType: gameType,
+                bundle: bundle,
+                restState: restState
+            ),
+            link: linkService.resumeContext
+        ))
+    }
+
+    private var resumeEmoji: String {
+        switch gameType {
+        case .badminton, .badmintonDoubles: return "🏸"
+        case .pingpong, .pingpongDoubles: return "🏓"
+        case .pickleball, .pickleballDoubles: return "🏓"
+        default: return "🏆"
+        }
     }
 
     private func transferLocalFinishedRecordIfNeeded(_ state: RallyMatchState) {

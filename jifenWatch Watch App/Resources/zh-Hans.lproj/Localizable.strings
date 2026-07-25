@@ -74,7 +74,6 @@
 "menu_undo" = "撤销";
 "menu_reset" = "重置";
 "watch_continue" = "继续";
-"watch_stop" = "暂停";
 "watch_end_match" = "结束";
 "watch_layout_vertical" = "上下";
 "watch_layout_horizontal" = "左右";
@@ -163,6 +162,7 @@
 "watch_tiebreak_start" = "进入抢七";
 "watch_tiebreak_indicator" = "抢七";
 "watch_continue_match" = "继续比赛";
+"watch_resume_discard" = "放弃未完成比赛";
 "watch_set_start_format" = "第%d局开始";
 "watch_sets_generic" = "%d局";
 "watch_sets_generic_tennis" = "%d盘";
@@ -244,15 +244,10 @@
 "nine_ball_foul" = "犯规";
 "watch_archery_set_rest" = "组间休息";
 "watch_eight_ball_handicap_format" = "让局 +%d";
-"watch_pause_match" = "暂停比赛";
-"watch_pause" = "暂停";
-"watch_pause_confirm_title" = "暂停比赛？";
-"watch_pause_confirm_message" = "暂停后将停止计分，可随时继续。";
 "watch_finish_confirm_title" = "结束比赛？";
 "watch_finish_confirm_message" = "将结束并保存本场比赛。";
 "watch_reset_confirm_title" = "重新开始？";
 "watch_reset_confirm_message" = "当前比分将被清空。";
-"watch_match_paused" = "比赛已暂停";
 "watch_side_exchange" = "交换场地";
 "watch_winner_format" = "%@ 获胜";
 "watch_snooker_break_format" = "单杆 %d";

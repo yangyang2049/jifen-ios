@@ -28,6 +28,7 @@ private let scoreGrid: [[Int?]] = [
 struct WatchArcheryScoreView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchLinkService.self) private var linkService
+    @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
 
@@ -66,19 +67,41 @@ struct WatchArcheryScoreView: View {
     private var rightName: String { store.state.rightName }
     private var matchStartTime: Date { store.startedAt }
 
-    init(initialState: LinkedArcheryState? = nil, linkedSessionId: UUID? = nil) {
+    init(
+        initialState: LinkedArcheryState? = nil,
+        linkedSessionId: UUID? = nil,
+        resumedState: ArcheryMatchState? = nil,
+        resumedUndoStates: [ArcheryMatchState] = [],
+        resumedStartTime: Date? = nil,
+        resumedRestState: WatchRestState? = nil
+    ) {
         self.linkedSessionId = linkedSessionId
-        _store = State(initialValue: WatchArcherySessionStore(initialState: initialState))
-        if let initialState, initialState.finished {
-            _winner = State(initialValue: initialState.leftSetPoints == initialState.rightSetPoints
+        _store = State(initialValue: WatchArcherySessionStore(
+            initialState: initialState,
+            resumedState: resumedState,
+            resumedUndoStates: resumedUndoStates,
+            resumedStartTime: resumedStartTime
+        ))
+        _restState = State(initialValue: resumedRestState)
+        let restoredState = resumedState ?? {
+            guard let initialState else { return nil }
+            var state = ArcheryMatchState(
+                leftName: initialState.leftName,
+                rightName: initialState.rightName
+            )
+            initialState.applying(to: &state)
+            return state
+        }()
+        if let restoredState, restoredState.finished {
+            _winner = State(initialValue: restoredState.leftSetPoints == restoredState.rightSetPoints
                 ? nil
-                : (initialState.leftSetPoints > initialState.rightSetPoints))
+                : (restoredState.leftSetPoints > restoredState.rightSetPoints))
             _isStopped = State(initialValue: true)
         }
     }
 
     private var isMatchFinished: Bool {
-        winner != nil || isManualFinish
+        isStopped
     }
 
     private var scoringLocked: Bool {
@@ -108,19 +131,10 @@ struct WatchArcheryScoreView: View {
             }
             if showMenu {
                 WatchScoreboardMenuOverlay(
-                    isPaused: isStopped && !isMatchFinished,
                     onDismiss: { showMenu = false },
                     onUndo: {
                         undoScore()
                         showMenu = false
-                    },
-                    onPause: {
-                        showMenu = false
-                        if isStopped && !isMatchFinished {
-                            isStopped = false
-                        } else {
-                            confirmation = .pause
-                        }
                     },
                     onFinish: {
                         showMenu = false
@@ -162,11 +176,15 @@ struct WatchArcheryScoreView: View {
                   let remote = update.snapshot.archeryState else { return }
             applyRemote(remote)
         }
+        .onChange(of: store.state) { _, _ in
+            persistResumeSession()
+        }
         .onDisappear {
             undoHideTimer?.invalidate()
             if isMatchFinished {
                 finalizeArcheryFinish()
             }
+            persistResumeSession()
         }
         .watchScoreboardGestures(
             suppressTapAfterLongPress: $suppressTapAfterLongPress,
@@ -405,59 +423,39 @@ struct WatchArcheryScoreView: View {
     }
 
     private var stoppedOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.55)
+        ZStack(alignment: .bottom) {
+            Color.black.opacity(0.40)
                 .ignoresSafeArea()
             VStack(spacing: WatchLayout.isCompactScreen ? 10 : 16) {
                 VStack(spacing: 4) {
-                    Text(isMatchFinished ? "🏁" : "⏸")
-                        .font(.system(size: WatchLayout.isCompactScreen ? 22 : 28, weight: .bold))
-                    Text(isMatchFinished ? NSLocalizedString("watch_match_finished", comment: "Match finished") : NSLocalizedString("watch_stop", comment: "Stop"))
+                    Text(NSLocalizedString("watch_match_finished", comment: "Match finished"))
                         .font(.system(size: WatchLayout.isCompactScreen ? 16 : 20, weight: .bold))
                         .foregroundColor(.white)
-                    if isMatchFinished {
-                        Text("\(leftName) \(redSets) - \(blueSets) \(rightName)")
-                            .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
-                            .foregroundColor(WatchTheme.accent)
-                    }
+                    Text("\(leftName) \(redSets) - \(blueSets) \(rightName)")
+                        .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
+                        .foregroundColor(WatchTheme.accent)
                 }
 
                 VStack(spacing: 8) {
-                    if isMatchFinished {
-                        if undoButtonVisible {
-                            Button {
-                                undoScore()
-                                undoButtonVisible = false
-                            } label: {
-                                Text(NSLocalizedString("menu_undo", comment: "Undo"))
-                                    .frame(width: WatchLayout.archeryStoppedButtonWidth, height: WatchLayout.archeryStoppedButtonHeight)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .background(WatchTheme.card)
-                            .foregroundColor(.white)
-                            .cornerRadius(22)
-                        } else {
-                            Button {
-                                resetMatch()
-                            } label: {
-                                Text(NSLocalizedString("watch_play_again", value: "Play Again", comment: "Play again"))
-                                    .frame(width: WatchLayout.archeryStoppedButtonWidth, height: WatchLayout.archeryStoppedButtonHeight)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .background(WatchTheme.successGreen)
-                            .foregroundColor(.white)
-                            .cornerRadius(22)
-                        }
-                    }
-
-                    if !isMatchFinished {
+                    if undoButtonVisible {
                         Button {
-                            isStopped = false
+                            undoScore()
+                            undoButtonVisible = false
                         } label: {
-                            Text(NSLocalizedString("watch_continue", comment: "Continue"))
-                                .frame(width: WatchLayout.archeryStoppedButtonWidthSmall, height: WatchLayout.archeryStoppedButtonHeight)
+                            Text(NSLocalizedString("menu_undo", comment: "Undo"))
+                                .frame(width: WatchLayout.archeryStoppedButtonWidth, height: WatchLayout.archeryStoppedButtonHeight)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .background(WatchTheme.card)
+                        .foregroundColor(.white)
+                        .cornerRadius(22)
+                    } else {
+                        Button {
+                            resetMatch()
+                        } label: {
+                            Text(NSLocalizedString("watch_play_again", value: "Play Again", comment: "Play again"))
+                                .frame(width: WatchLayout.archeryStoppedButtonWidth, height: WatchLayout.archeryStoppedButtonHeight)
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -467,9 +465,7 @@ struct WatchArcheryScoreView: View {
                     }
 
                     Button {
-                        if isMatchFinished {
-                            finalizeArcheryFinish()
-                        }
+                        finalizeArcheryFinish()
                         exitArchery()
                     } label: {
                         Text(NSLocalizedString("exit", value: "Exit", comment: "Exit"))
@@ -483,10 +479,11 @@ struct WatchArcheryScoreView: View {
                 }
             }
             .padding(WatchLayout.archeryStoppedOverlayPadding)
-            .background(Color.black.opacity(0.65))
+            .background(Color.black.opacity(0.62))
             .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func addArrow(value: Int?) {
@@ -624,6 +621,7 @@ struct WatchArcheryScoreView: View {
     }
 
     private func resetMatch() {
+        resumeStore.clear()
         undoHideTimer?.invalidate()
         undoHideTimer = nil
         let result = store.apply(.reset, recordHistory: false)
@@ -649,9 +647,6 @@ struct WatchArcheryScoreView: View {
     private func confirmArchery(_ value: WatchScoreboardConfirmation) {
         confirmation = nil
         switch value {
-        case .pause:
-            isStopped = true
-            isManualFinish = false
         case .finish:
             endMatchFromMenu()
         case .reset:
@@ -661,11 +656,37 @@ struct WatchArcheryScoreView: View {
 
     private func exitArchery() {
         if linkedSessionId != nil {
-            linkService.leaveSession()
-        } else if !recordSaved && (redScore + blueScore + redSets + blueSets > 0) {
-            saveMatchRecord()
+            if store.state.finished {
+                linkService.leaveSession()
+            } else {
+                linkService.exitScoreboardToHome()
+            }
         }
+        persistResumeSession()
         dismiss()
+    }
+
+    private func persistResumeSession() {
+        guard !store.state.finished,
+              redScore + blueScore + redSets + blueSets > 0
+                || !store.resumeUndoStates().isEmpty else {
+            resumeStore.clear()
+            return
+        }
+        let score = redSets + blueSets > 0
+            ? "\(redSets) : \(blueSets)"
+            : "\(redScore) : \(blueScore)"
+        resumeStore.save(WatchResumeSession(
+            startedAt: matchStartTime,
+            scoreLine: score,
+            emoji: "🏹",
+            payload: .archery(
+                state: store.state,
+                undoStates: store.resumeUndoStates(),
+                restState: restState
+            ),
+            link: linkService.resumeContext
+        ))
     }
 
     private func showToast(_ text: String) {
@@ -700,6 +721,7 @@ struct WatchArcheryScoreView: View {
 
     private func finalizeArcheryFinish() {
         guard isMatchFinished, !finishCommitted else { return }
+        resumeStore.clear()
         if linkedSessionId != nil {
             publishLinked(finished: true, commitFinish: true)
         } else {

@@ -485,6 +485,8 @@ final class PhoneWatchLinkService {
         if handleSnapshotFromWatch(data) { return }
         if handleTakeoverRelated(data) { return }
         if handleMatchFinishedFromWatch(data) { return }
+        if handleScoreboardExitedToHome(data) { return }
+        if handleResumeDiscarded(data) { return }
         if handleSessionLeft(data) { return }
         _ = handleStatus(data)
     }
@@ -646,6 +648,29 @@ final class PhoneWatchLinkService {
               envelope.kind == .sessionLeft,
               envelope.sessionId == activeSession?.sessionId else { return false }
         clearSession()
+        return true
+    }
+
+    private func handleScoreboardExitedToHome(_ data: Data) -> Bool {
+        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: data),
+              envelope.sender == .watch,
+              envelope.kind == .scoreboardExitedToHome,
+              envelope.sessionId == activeSession?.sessionId else { return false }
+        // Keep the watch as controller while its resumable game is on the home screen.
+        return true
+    }
+
+    private func handleResumeDiscarded(_ data: Data) -> Bool {
+        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkResumeDiscardPayload>.self, from: data),
+              envelope.sender == .watch,
+              envelope.kind == .resumeDiscarded,
+              envelope.sessionId == activeSession?.sessionId else { return false }
+        if var session = activeSession {
+            session.revision = max(session.revision, envelope.sessionRevision)
+            session.role = .phoneController
+            activeSession = session
+        }
+        controlRole = .phoneController
         return true
     }
 

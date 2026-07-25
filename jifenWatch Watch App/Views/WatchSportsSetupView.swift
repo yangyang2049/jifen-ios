@@ -32,7 +32,7 @@ struct WatchSportsSetupView: View {
                 }
                 .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 14)
                 .padding(.top, 6)
-                .padding(.bottom, 8)
+                .padding(.bottom, formBottomPadding)
             }
             .offset(y: -10)
             .ignoresSafeArea(.container, edges: .bottom)
@@ -73,6 +73,11 @@ struct WatchSportsSetupView: View {
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+    }
+
+    /// Keeps the final form control scrollable above the overlaid start button.
+    private var formBottomPadding: CGFloat {
+        WatchLayout.isCompactScreen ? 72 : 80
     }
 
     @ViewBuilder

@@ -135,6 +135,55 @@ private struct CounterReducer: DomainReducer {
     #expect(try await session.replay().state.value == 2)
 }
 
+@Test func resumedSessionPreservesUndoHistoryAndTimeline() async throws {
+    let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
+        gameType: .badminton,
+        ruleFamily: .s1,
+        reducerType: "test/counter",
+        state: CounterReducer.State(value: 0)
+    )
+    let original = ScoreSessionCore(seedSession: seed, reducer: CounterReducer())
+    _ = await original.dispatch(actorId: "watch", intent: .add(2), at: 1)
+    _ = await original.dispatch(actorId: "watch", intent: .add(3), at: 2)
+
+    let encoded = try JSONEncoder().encode(await original.resumeBundle())
+    let bundle = try JSONDecoder().decode(
+        ScoreSessionResumeBundle<
+            CounterReducer.State,
+            CounterReducer.Event,
+            CounterReducer.Intent
+        >.self,
+        from: encoded
+    )
+    let resumed = ScoreSessionCore(resumeBundle: bundle, reducer: CounterReducer())
+
+    #expect(await resumed.snapshot().state.value == 5)
+    #expect(await resumed.undo(actorId: "watch"))
+    #expect(await resumed.snapshot().state.value == 2)
+    #expect(try await resumed.replay().state.value == 2)
+}
+
+@Test func resumeDiscardEnvelopeRoundTripsReason() throws {
+    let sessionId = UUID()
+    let envelope = LinkEnvelope(
+        sessionId: sessionId,
+        kind: .resumeDiscarded,
+        sender: .watch,
+        senderSequence: 5,
+        sessionRevision: 9,
+        sentAtEpochMilliseconds: 456,
+        payload: LinkResumeDiscardPayload(reason: .resumeBarClose)
+    )
+    let decoded = try JSONDecoder().decode(
+        LinkEnvelope<LinkResumeDiscardPayload>.self,
+        from: JSONEncoder().encode(envelope)
+    )
+
+    #expect(decoded.sessionId == sessionId)
+    #expect(decoded.kind == .resumeDiscarded)
+    #expect(decoded.payload.reason == .resumeBarClose)
+}
+
 @Test func standardBasketballClockOnlyAcceptsFourteenOrTwentyFour() {
     let reducer = BasketballClockReducer()
     let state = BasketballClockState(profile: .standard, gameClockSeconds: 600)

@@ -74,7 +74,6 @@
 "menu_undo" = "Undo";
 "menu_reset" = "Reset";
 "watch_continue" = "Continue";
-"watch_stop" = "Stop";
 "watch_end_match" = "End";
 "watch_layout_vertical" = "Por.";
 "watch_layout_horizontal" = "Hor.";
@@ -162,7 +161,8 @@
 "watch_swap_sides" = "Swap sides";
 "watch_tiebreak_start" = "Tiebreak start";
 "watch_tiebreak_indicator" = "Tiebreak";
-"watch_continue_match" = "Continue match";
+"watch_continue_match" = "Resume game";
+"watch_resume_discard" = "Discard unfinished game";
 "watch_set_start_format" = "Set %d start";
 "watch_sets_generic" = "%d sets";
 "watch_sets_generic_tennis" = "%d sets";
@@ -244,15 +244,10 @@
 "nine_ball_foul" = "Foul";
 "watch_archery_set_rest" = "End Break";
 "watch_eight_ball_handicap_format" = "Handicap +%d";
-"watch_pause_match" = "Pause";
-"watch_pause" = "Pause";
-"watch_pause_confirm_title" = "Pause match?";
-"watch_pause_confirm_message" = "Scoring will be locked until you continue.";
 "watch_finish_confirm_title" = "End match?";
 "watch_finish_confirm_message" = "This match will end and be saved.";
 "watch_reset_confirm_title" = "Restart match?";
 "watch_reset_confirm_message" = "The current score will be cleared.";
-"watch_match_paused" = "Match Paused";
 "watch_side_exchange" = "Change Ends";
 "watch_winner_format" = "%@ wins";
 "watch_snooker_break_format" = "Break %d";

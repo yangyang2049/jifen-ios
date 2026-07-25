@@ -33,6 +33,7 @@ final class WatchLinkService {
     private var activeSessionId: UUID?
     private var activeRevision: UInt64 = 0
     private var activeGameType: GameType?
+    private var activeSetup: LinkedScoreboardSetup?
     private var ackRetryTask: Task<Void, Never>?
     private let pendingWatchRecordsKey = "watch_pending_record_transfers_v1"
     private var pendingWatchRecords: [WatchRecordTransferPayload] = []
@@ -75,6 +76,18 @@ final class WatchLinkService {
 
     var isController: Bool {
         controlRole == .watchController
+    }
+
+    var resumeContext: WatchResumeLinkContext? {
+        guard let sessionId = activeSessionId,
+              let controlRole,
+              let setup = activeSetup else { return nil }
+        return WatchResumeLinkContext(
+            sessionId: sessionId,
+            revision: activeRevision,
+            controlRole: controlRole,
+            setup: setup
+        )
     }
 
     /// Auto-queue a finished local watch record to the phone.
@@ -170,6 +183,7 @@ final class WatchLinkService {
         activeSessionId = request.sessionId
         activeRevision = 0
         activeGameType = request.setup.gameType
+        activeSetup = request.setup
         controlRole = .watchController
         phoneTookOver = false
         acceptedSetup = request
@@ -212,6 +226,12 @@ final class WatchLinkService {
               let sessionId = activeSessionId,
               let gameType = activeGameType else { return }
         activeRevision += 1
+        activeSetup = LinkedScoreboardSetup(
+            gameType: gameType,
+            maxSets: maxSets(for: snapshot),
+            basketballThreeXThree: isThreeXThree(snapshot),
+            initialSnapshot: snapshot
+        )
         sequence += 1
         let messageId = UUID()
         let envelope = LinkEnvelope(
@@ -310,6 +330,54 @@ final class WatchLinkService {
         endLocalSession()
     }
 
+    /// Keep the linked match alive while the watch returns to its home screen.
+    func exitScoreboardToHome() {
+        guard let sessionId = activeSessionId else { return }
+        sequence += 1
+        let envelope = LinkEnvelope(
+            sessionId: sessionId,
+            kind: .scoreboardExitedToHome,
+            sender: .watch,
+            senderSequence: sequence,
+            sessionRevision: activeRevision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: EmptyLinkPayload()
+        )
+        Task { try? await send(envelope) }
+    }
+
+    /// Discard the watch resume entry and hand scoring control back to the phone.
+    func discardResumableSession(reason: LinkResumeDiscardReason) {
+        guard let sessionId = activeSessionId else { return }
+        sequence += 1
+        let envelope = LinkEnvelope(
+            sessionId: sessionId,
+            kind: .resumeDiscarded,
+            sender: .watch,
+            senderSequence: sequence,
+            sessionRevision: activeRevision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: LinkResumeDiscardPayload(reason: reason)
+        )
+        Task { try? await send(envelope) }
+        // Keep enough session state for status-query recovery if the immediate
+        // handoff message is lost while either device is unreachable.
+        controlRole = .watchFollower
+        phoneTookOver = true
+    }
+
+    func restoreSuspendedSession(_ context: WatchResumeLinkContext) {
+        _ = revisionGate.beginSession(context.sessionId, initialRevision: context.revision)
+        activeSessionId = context.sessionId
+        activeRevision = context.revision
+        activeGameType = context.setup.gameType
+        activeSetup = context.setup
+        controlRole = context.controlRole
+        phoneTookOver = context.controlRole == .watchFollower
+        latestSnapshot = nil
+        publishedFinishedRecordId = nil
+    }
+
     private func receive(_ data: Data) {
         if handleSetupRequest(data) { return }
         if handleAck(data) { return }
@@ -338,6 +406,7 @@ final class WatchLinkService {
             return true
         }
         if let existing = revisionGate.activeSessionId, existing != envelope.sessionId {
+            WatchResumeSessionStore.shared.clear()
             endLocalSession()
         }
         _ = revisionGate.beginSession(envelope.sessionId, initialRevision: envelope.sessionRevision)
@@ -373,11 +442,15 @@ final class WatchLinkService {
         guard disposition != .wrongSession else { return false }
         if disposition == .newer {
             activeRevision = max(activeRevision, envelope.sessionRevision)
+            activeSetup = envelope.payload
             latestSnapshot = .init(
                 sessionId: envelope.sessionId,
                 revision: envelope.sessionRevision,
                 snapshot: snapshot
             )
+            if let context = resumeContext {
+                WatchResumeSessionStore.shared.applyLinkedSnapshot(snapshot, context: context)
+            }
         }
         // ACK valid duplicates too: a retry usually means our prior ACK was lost.
         sendAck(sessionId: envelope.sessionId, messageId: envelope.messageId, revision: envelope.sessionRevision)
@@ -391,6 +464,9 @@ final class WatchLinkService {
               envelope.sessionId == activeSessionId else { return false }
         controlRole = .watchFollower
         phoneTookOver = true
+        if let context = resumeContext {
+            WatchResumeSessionStore.shared.refreshLinkContext(context)
+        }
         sendAck(
             sessionId: envelope.sessionId,
             messageId: envelope.messageId,
@@ -409,6 +485,7 @@ final class WatchLinkService {
             return true
         }
         guard envelope.sessionId == activeSessionId else { return false }
+        WatchResumeSessionStore.shared.clear()
         endLocalSession()
         return true
     }
@@ -478,6 +555,7 @@ final class WatchLinkService {
         activeSessionId = nil
         activeRevision = 0
         activeGameType = nil
+        activeSetup = nil
         controlRole = nil
         acceptedSetup = nil
         pendingConfirmRequest = nil

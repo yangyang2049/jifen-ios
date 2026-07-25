@@ -50,6 +50,41 @@ public struct SessionIntentRecord<Intent: Codable & Sendable>: Codable, Sendable
     }
 }
 
+public struct ScoreSessionResumeUndoFrame<State: Codable & Sendable, Event: Codable & Sendable>: Codable, Sendable {
+    public let session: ScoreSession<State, Event>
+    public let intentCount: Int
+
+    public init(session: ScoreSession<State, Event>, intentCount: Int = 1) {
+        self.session = session
+        self.intentCount = max(0, intentCount)
+    }
+}
+
+/// Complete in-progress session state used to resume a scoreboard without
+/// dropping its pre-exit undo history.
+public struct ScoreSessionResumeBundle<
+    State: Codable & Sendable,
+    Event: Codable & Sendable,
+    Intent: Codable & Sendable
+>: Codable, Sendable {
+    public let replaySeed: ScoreSession<State, Event>
+    public let currentSession: ScoreSession<State, Event>
+    public let undoFrames: [ScoreSessionResumeUndoFrame<State, Event>]
+    public let timeline: [SessionIntentRecord<Intent>]
+
+    public init(
+        replaySeed: ScoreSession<State, Event>,
+        currentSession: ScoreSession<State, Event>,
+        undoFrames: [ScoreSessionResumeUndoFrame<State, Event>],
+        timeline: [SessionIntentRecord<Intent>]
+    ) {
+        self.replaySeed = replaySeed
+        self.currentSession = currentSession
+        self.undoFrames = undoFrames
+        self.timeline = timeline
+    }
+}
+
 public enum DispatchResult<State: Codable & Sendable, Event: Codable & Sendable>: Sendable {
     case accepted(session: ScoreSession<State, Event>, events: [Event])
     case rejected(session: ScoreSession<State, Event>, reason: String)
@@ -100,8 +135,38 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         self.currentSession = seedSession
     }
 
+    public init(
+        resumeBundle: ScoreSessionResumeBundle<State, Event, Intent>,
+        reducer: Reducer,
+        canDispatch: @escaping @Sendable (String, Intent) -> Bool = { _, _ in true },
+        canUndo: @escaping @Sendable (String) -> Bool = { _ in true },
+        shouldFinish: @escaping @Sendable (Intent, State) -> Bool = { _, _ in false }
+    ) {
+        replaySeed = resumeBundle.replaySeed
+        self.reducer = reducer
+        self.canDispatch = canDispatch
+        self.canUndo = canUndo
+        self.shouldFinish = shouldFinish
+        currentSession = resumeBundle.currentSession
+        undoStack = resumeBundle.undoFrames.map {
+            UndoFrame(session: $0.session, intentCount: $0.intentCount)
+        }
+        timeline = resumeBundle.timeline
+    }
+
     public func snapshot() -> ScoreSession<State, Event> {
         currentSession
+    }
+
+    public func resumeBundle() -> ScoreSessionResumeBundle<State, Event, Intent> {
+        ScoreSessionResumeBundle(
+            replaySeed: replaySeed,
+            currentSession: currentSession,
+            undoFrames: undoStack.map {
+                ScoreSessionResumeUndoFrame(session: $0.session, intentCount: $0.intentCount)
+            },
+            timeline: timeline
+        )
     }
 
     public func intentTimeline() -> [SessionIntentRecord<Intent>] {

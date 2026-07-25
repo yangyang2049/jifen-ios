@@ -1,6 +1,7 @@
 import Foundation
 import LinkCore
 import ScoreCore
+import SessionCore
 
 enum WatchScoreboardRoute: Hashable, Identifiable {
     case setup(sport: WatchSetupSport, playerCount: Int)
@@ -43,6 +44,37 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
 }
 
 extension WatchScoreboardRoute {
+    init?(resumeSession: WatchResumeSession) {
+        switch resumeSession.payload {
+        case .rally(let gameType, let bundle, _):
+            let maxSets = bundle.currentSession.state.rules.maxSets
+            switch gameType {
+            case .pingpong: self = .pingpong(maxSets: maxSets)
+            case .pingpongDoubles: self = .pingpongDoubles(maxSets: maxSets)
+            case .badminton: self = .badminton(maxSets: maxSets)
+            case .badmintonDoubles: self = .badmintonDoubles(maxSets: maxSets)
+            case .pickleball: self = .pickleball(maxSets: maxSets)
+            case .pickleballDoubles: self = .pickleballDoubles(maxSets: maxSets)
+            default: return nil
+            }
+        case .tennis(let isDoubles, let bundle, _):
+            let maxSets = bundle.currentSession.state.rules.maxSets
+            self = isDoubles ? .tennisDoubles(maxSets: maxSets) : .tennis(maxSets: maxSets)
+        case .basketball(let gameMode, _):
+            self = .basketball(threeXThree: gameMode == .threeXThree)
+        case .archery:
+            self = .archery
+        case .eightBall:
+            self = .eightBall
+        case .nineBall:
+            self = .nineBall
+        case .snooker:
+            self = .snooker
+        case .basketballTraining(let mode, _):
+            self = .basketballTraining(mode: mode)
+        }
+    }
+
     init?(linkedSetup: LinkedScoreboardSetup) {
         switch linkedSetup.gameType {
         case .basketball:

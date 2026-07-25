@@ -1,4 +1,5 @@
 import XCTest
+import LinkCore
 import ScoreCore
 @testable import jifenWatch_Watch_App
 
@@ -242,6 +243,45 @@ final class WatchSportsSetupTests: XCTestCase {
             ),
             [.tennis, .pingpong]
         )
+    }
+
+    @MainActor
+    func testResumeSessionPersistsAndExpiresAfterTenMinutes() {
+        var currentDate = Date(timeIntervalSince1970: 10_000)
+        let store = WatchResumeSessionStore(defaults: defaults, now: { currentDate })
+        let sessionID = UUID()
+        let link = WatchResumeLinkContext(
+            sessionId: sessionID,
+            revision: 3,
+            controlRole: .watchController,
+            setup: LinkedScoreboardSetup(gameType: .basketball)
+        )
+        let shot = WatchBasketballTrainingShot(points: 2, made: true)
+        store.save(WatchResumeSession(
+            startedAt: currentDate.addingTimeInterval(-30),
+            scoreLine: "2 / 1",
+            emoji: "🏀",
+            payload: .basketballTraining(mode: .free, history: [shot]),
+            link: link
+        ))
+
+        let restored = WatchResumeSessionStore(defaults: defaults, now: { currentDate })
+        XCTAssertEqual(restored.session?.scoreLine, "2 / 1")
+        XCTAssertEqual(WatchScoreboardRoute(resumeSession: restored.session!)?.id, "basketballTraining-free")
+
+        currentDate = currentDate.addingTimeInterval(WatchResumeSessionStore.ttl + 1)
+        restored.reload()
+        XCTAssertNil(restored.session)
+        XCTAssertEqual(restored.consumeExpiredLinkContext()?.sessionId, sessionID)
+        XCTAssertNil(restored.consumeExpiredLinkContext())
+
+        restored.save(WatchResumeSession(
+            startedAt: currentDate,
+            scoreLine: "1 / 1",
+            emoji: "🏀",
+            payload: .basketballTraining(mode: .free, history: [shot])
+        ))
+        XCTAssertNil(restored.consumeExpiredLinkContext())
     }
 
     func testPinnedHomeItemsPersistAndIgnoreLegacyLastSelectedItem() {

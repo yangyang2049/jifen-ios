@@ -2,15 +2,14 @@ import ScoreCore
 import SwiftUI
 
 enum WatchScoreboardConfirmation: String, Identifiable {
-    case pause
     case finish
     case reset
 
     var id: String { rawValue }
 }
 
-struct WatchRestState: Equatable {
-    enum Kind: Equatable {
+struct WatchRestState: Codable, Equatable {
+    enum Kind: String, Codable, Equatable {
         case midGame
         case betweenSets
         case archerySet
@@ -95,15 +94,13 @@ enum WatchTennisDoublesServing {
 }
 
 struct WatchScoreboardMenuOverlay: View {
-    let isPaused: Bool
     let onDismiss: () -> Void
     let onUndo: () -> Void
-    let onPause: () -> Void
     let onFinish: () -> Void
     let onReset: () -> Void
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
                 .onTapGesture(perform: onDismiss)
@@ -119,37 +116,26 @@ struct WatchScoreboardMenuOverlay: View {
                         action: onUndo
                     )
                     WatchMenuGridButton(
-                        title: isPaused
-                            ? NSLocalizedString("watch_continue_match", value: "继续比赛", comment: "")
-                            : NSLocalizedString("watch_pause_match", value: "暂停比赛", comment: ""),
-                        systemImage: isPaused ? "play.fill" : "pause.fill",
-                        background: isPaused ? WatchTheme.successGreen : WatchTheme.warningOrange,
-                        action: onPause
-                    )
-                    WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
-                        systemImage: "flag.checkered",
-                        background: WatchTheme.dangerRed,
-                        action: onFinish
-                    )
-                    WatchMenuGridButton(
                         title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
                         systemImage: "arrow.counterclockwise",
                         action: onReset
                     )
                 }
 
+                WatchMenuGridButton(
+                    title: NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
+                    systemImage: "flag.checkered",
+                    background: WatchTheme.dangerRed,
+                    action: onFinish
+                )
+
                 WatchMenuCloseButton(action: onDismiss)
             }
-            .padding(WatchLayout.isCompactScreen ? 6 : 8)
-            .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(
-                cornerRadius: WatchLayout.isCompactScreen ? 12 : 16,
-                style: .continuous
-            ))
             .padding(.horizontal, WatchLayout.isCompactScreen ? 20 : 26)
+            .padding(.bottom, WatchLayout.isCompactScreen ? 4 : 6)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 }
 
@@ -157,14 +143,22 @@ struct WatchConfirmationOverlay: View {
     let confirmation: WatchScoreboardConfirmation
     var titleOverride: String?
     var messageOverride: String?
+    var backdropOpacity: Double? = nil
+    var cardOpacity: Double? = nil
     let onCancel: () -> Void
     let onConfirm: () -> Void
+
+    private var resolvedBackdropOpacity: Double {
+        backdropOpacity ?? (confirmation == .finish ? 0.40 : 0.72)
+    }
+
+    private var resolvedCardOpacity: Double {
+        cardOpacity ?? (confirmation == .finish ? 0.62 : 1.0)
+    }
 
     private var title: String {
         if let titleOverride { return titleOverride }
         return switch confirmation {
-        case .pause:
-            NSLocalizedString("watch_pause_confirm_title", value: "暂停比赛？", comment: "")
         case .finish:
             NSLocalizedString("watch_finish_confirm_title", value: "结束比赛？", comment: "")
         case .reset:
@@ -175,8 +169,6 @@ struct WatchConfirmationOverlay: View {
     private var message: String {
         if let messageOverride { return messageOverride }
         return switch confirmation {
-        case .pause:
-            NSLocalizedString("watch_pause_confirm_message", value: "暂停后将停止计分，可随时继续。", comment: "")
         case .finish:
             NSLocalizedString("watch_finish_confirm_message", value: "将结束并保存本场比赛。", comment: "")
         case .reset:
@@ -186,7 +178,7 @@ struct WatchConfirmationOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.72).ignoresSafeArea()
+            Color.black.opacity(resolvedBackdropOpacity).ignoresSafeArea()
             VStack(spacing: WatchLayout.isCompactScreen ? 8 : 12) {
                 Text(title)
                     .font(.headline)
@@ -205,21 +197,19 @@ struct WatchConfirmationOverlay: View {
                     )
                     confirmationIconButton(
                         systemImage: "checkmark",
-                        background: confirmation == .pause
-                            ? WatchTheme.warningOrange
-                            : WatchTheme.dangerRed,
-                        accessibilityLabel: confirmation == .pause
-                            ? NSLocalizedString("watch_pause", value: "暂停", comment: "")
-                            : NSLocalizedString("confirm", value: "确认", comment: ""),
+                        background: WatchTheme.dangerRed,
+                        accessibilityLabel: NSLocalizedString("confirm", value: "确认", comment: ""),
                         action: onConfirm
                     )
                 }
             }
             .padding(WatchLayout.isCompactScreen ? 12 : 18)
-            .background(WatchTheme.overlayCard)
+            .background(Color.black.opacity(resolvedCardOpacity))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.horizontal, 16)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func confirmationIconButton(
@@ -295,42 +285,6 @@ struct WatchRestOverlay: View {
     }
 }
 
-struct WatchPausedOverlay: View {
-    let scoreText: String
-    let onContinue: () -> Void
-    let onFinish: () -> Void
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.82).ignoresSafeArea()
-            VStack(spacing: WatchLayout.isCompactScreen ? 8 : 12) {
-                Image(systemName: "pause.fill")
-                    .font(.title2)
-                Text(NSLocalizedString("watch_match_paused", value: "比赛已暂停", comment: ""))
-                    .font(.headline)
-                Text(scoreText)
-                    .font(.title3.monospacedDigit().weight(.bold))
-                Button(
-                    NSLocalizedString("watch_continue_match", value: "继续比赛", comment: ""),
-                    action: onContinue
-                )
-                .buttonStyle(.borderedProminent)
-                .tint(WatchTheme.successGreen)
-                Button(
-                    NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""),
-                    role: .destructive,
-                    action: onFinish
-                )
-                .buttonStyle(.bordered)
-            }
-            .foregroundStyle(.white)
-            .padding(WatchLayout.isCompactScreen ? 12 : 18)
-            .background(Color.black.opacity(0.72))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        }
-    }
-}
-
 struct WatchFinishedOverlay: View {
     let title: String
     let scoreText: String
@@ -342,7 +296,7 @@ struct WatchFinishedOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.86).ignoresSafeArea()
+            Color.black.opacity(0.40).ignoresSafeArea()
             VStack(spacing: WatchLayout.isCompactScreen ? 7 : 10) {
                 Text(title)
                     .font(.headline)
@@ -378,9 +332,11 @@ struct WatchFinishedOverlay: View {
             .foregroundStyle(.white)
             .padding(WatchLayout.isCompactScreen ? 10 : 16)
             .frame(width: WatchLayout.isCompactScreen ? 154 : 176)
-            .background(Color.black.opacity(0.72))
+            .background(Color.black.opacity(0.62))
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 }
 

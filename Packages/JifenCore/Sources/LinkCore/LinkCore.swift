@@ -37,6 +37,8 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case reclaimDenied
     case matchFinished
     case recordAcknowledgement
+    case scoreboardExitedToHome
+    case resumeDiscarded
     case sessionLeft
 }
 
@@ -225,6 +227,20 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
 
 public struct EmptyLinkPayload: Codable, Equatable, Sendable {
     public init() {}
+}
+
+public enum LinkResumeDiscardReason: String, Codable, Sendable {
+    case resumeBarClose
+    case newScoreboardStart
+    case expired
+}
+
+public struct LinkResumeDiscardPayload: Codable, Equatable, Sendable {
+    public let reason: LinkResumeDiscardReason
+
+    public init(reason: LinkResumeDiscardReason) {
+        self.reason = reason
+    }
 }
 
 public struct LinkAcknowledgementPayload: Codable, Equatable, Sendable {

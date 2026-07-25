@@ -25,11 +25,18 @@ final class WatchArcherySessionStore {
         TeamScreenLayout(sidesSwapped: state.sidesSwapped)
     }
 
-    init(initialState: LinkedArcheryState? = nil) {
+    init(
+        initialState: LinkedArcheryState? = nil,
+        resumedState: ArcheryMatchState? = nil,
+        resumedUndoStates: [ArcheryMatchState] = [],
+        resumedStartTime: Date? = nil
+    ) {
         let descriptor = ScoreboardKernelRegistry.descriptor(for: .archeryDual)
         let defaults = WatchDefaultTeamNames.resolve()
         let seed: ArcheryMatchState
-        if let initialState {
+        if let resumedState {
+            seed = resumedState
+        } else if let initialState {
             var match = ArcheryMatchState(
                 leftName: initialState.leftName,
                 rightName: initialState.rightName,
@@ -53,13 +60,14 @@ final class WatchArcherySessionStore {
         }
         sessionId = UUID()
         state = seed
+        undoStack = resumedUndoStates
         ruleFamily = descriptor.ruleFamily
         reducerType = descriptor.reducerType
         participants = [
             .init(id: TeamID.team0.rawValue, name: seed.leftName, role: "team"),
             .init(id: TeamID.team1.rawValue, name: seed.rightName, role: "team")
         ]
-        startedAt = Date()
+        startedAt = resumedStartTime ?? Date()
     }
 
     @discardableResult
@@ -93,6 +101,10 @@ final class WatchArcherySessionStore {
 
     func clearHistory() {
         undoStack.removeAll()
+    }
+
+    func resumeUndoStates() -> [ArcheryMatchState] {
+        undoStack
     }
 
     func persistSnapshot() {

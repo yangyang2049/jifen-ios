@@ -9,29 +9,48 @@ import SwiftUI
 @MainActor
 @Observable
 private final class WatchTennisSessionStore {
+    typealias ResumeBundle = ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>
+
     private let core: ScoreSessionCore<TennisMatchReducer>
     private let archiveRepository = SessionArchiveRepository()
     private(set) var state: TennisMatchState
     var onStateChanged: ((TennisMatchState, [TennisMatchEvent]) -> Void)?
 
-    init(gameType: GameType, rules: TennisRuleSet, initialState: TennisMatchState? = nil) {
+    init(
+        gameType: GameType,
+        rules: TennisRuleSet,
+        initialState: TennisMatchState? = nil,
+        resumeBundle: ResumeBundle? = nil
+    ) {
         let defaults = WatchDefaultTeamNames.resolve()
-        let initial = initialState ?? TennisMatchState(
+        let initial = resumeBundle?.currentSession.state ?? initialState ?? TennisMatchState(
             leftName: defaults.left,
             rightName: defaults.right,
             rules: rules
         )
-        let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
-            gameType: gameType,
-            ruleFamily: .s1,
-            reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
-            state: initial,
-            participants: [
-                .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
-                .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
-            ]
-        )
-        core = ScoreSessionCore(seedSession: session, reducer: TennisMatchReducer(), shouldFinish: { _, state in state.finished })
+        if let resumeBundle {
+            core = ScoreSessionCore(
+                resumeBundle: resumeBundle,
+                reducer: TennisMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+        } else {
+            let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
+                gameType: gameType,
+                ruleFamily: .s1,
+                reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
+                state: initial,
+                participants: [
+                    .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
+                    .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
+                ]
+            )
+            core = ScoreSessionCore(
+                seedSession: session,
+                reducer: TennisMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+        }
         state = initial
     }
 
@@ -63,11 +82,16 @@ private final class WatchTennisSessionStore {
     func replaceDisplayedState(_ state: TennisMatchState) {
         self.state = state
     }
+
+    func resumeBundle() async -> ResumeBundle {
+        await core.resumeBundle()
+    }
 }
 
 struct WatchTennisScoreView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchLinkService.self) private var linkService
+    @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let maxSets: Int
     let linkedSessionId: UUID?
@@ -79,7 +103,6 @@ struct WatchTennisScoreView: View {
     @State private var scoreboardLayout: String = "horizontal"
     @State private var restState: WatchRestState?
     @State private var showSideExchangeToast = false
-    @State private var isPaused = false
     @State private var confirmation: WatchScoreboardConfirmation?
     @State private var showFinishedOverlay = false
     @State private var finishUndoAvailable = false
@@ -94,7 +117,10 @@ struct WatchTennisScoreView: View {
         maxSets: Int,
         initialState: TennisMatchState? = nil,
         linkedSessionId: UUID? = nil,
-        isDoubles: Bool = false
+        isDoubles: Bool = false,
+        resumeBundle: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>? = nil,
+        resumedStartTime: Date? = nil,
+        resumedRestState: WatchRestState? = nil
     ) {
         self.maxSets = maxSets
         self.linkedSessionId = linkedSessionId
@@ -104,8 +130,11 @@ struct WatchTennisScoreView: View {
         _store = State(initialValue: WatchTennisSessionStore(
             gameType: gameType,
             rules: initialState?.rules ?? rules,
-            initialState: initialState
+            initialState: initialState,
+            resumeBundle: resumeBundle
         ))
+        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        _restState = State(initialValue: resumedRestState)
     }
 
     private var scoringLocked: Bool {
@@ -131,15 +160,10 @@ struct WatchTennisScoreView: View {
             }
             if showMenu {
                 WatchScoreboardMenuOverlay(
-                    isPaused: isPaused,
                     onDismiss: { showMenu = false },
                     onUndo: {
                         store.undo()
                         showMenu = false
-                    },
-                    onPause: {
-                        showMenu = false
-                        if isPaused { isPaused = false } else { confirmation = .pause }
                     },
                     onFinish: {
                         showMenu = false
@@ -149,13 +173,6 @@ struct WatchTennisScoreView: View {
                         showMenu = false
                         confirmation = .reset
                     }
-                )
-            }
-            if isPaused {
-                WatchPausedOverlay(
-                    scoreText: scoreLine,
-                    onContinue: { isPaused = false },
-                    onFinish: { confirmation = .finish }
                 )
             }
             if let restState {
@@ -192,13 +209,13 @@ struct WatchTennisScoreView: View {
         .ignoresSafeArea()
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
-            matchStartTime = Date()
             store.onStateChanged = { [linkService] state, events in
                 if linkedSessionId != nil {
                     guard linkService.isController else { return }
                     linkService.publishSnapshot(.tennis(state))
                 }
                 handle(events: events, state: state)
+                Task { await persistResumeSession() }
             }
             if store.state.finished { beginProvisionalFinish() }
         }
@@ -218,6 +235,7 @@ struct WatchTennisScoreView: View {
             finishTask?.cancel()
             sideExchangeTask?.cancel()
             if store.state.finished { finalizeFinish() }
+            Task { await persistResumeSession() }
         }
     }
 
@@ -341,13 +359,8 @@ struct WatchTennisScoreView: View {
             Text(name)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
-                .lineLimit(2)
-                .minimumScaleFactor(0.7)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Color.black.opacity(0.28))
-                .clipShape(Capsule())
+                .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.top, isHorizontal ? 28 : 8)
 
@@ -446,7 +459,6 @@ struct WatchTennisScoreView: View {
 
     private var interactionsEnabled: Bool {
         !scoringLocked
-            && !isPaused
             && restState == nil
             && !showFinishedOverlay
             && confirmation == nil
@@ -525,7 +537,6 @@ struct WatchTennisScoreView: View {
 
     private func beginProvisionalFinish() {
         guard !showFinishedOverlay else { return }
-        isPaused = false
         restState = nil
         showMenu = false
         showFinishedOverlay = true
@@ -543,6 +554,7 @@ struct WatchTennisScoreView: View {
 
     private func finalizeFinish() {
         guard store.state.finished, !didFinalizeFinish else { return }
+        resumeStore.clear()
         didFinalizeFinish = true
         if linkedSessionId != nil {
             guard linkService.isController else { return }
@@ -583,6 +595,7 @@ struct WatchTennisScoreView: View {
     }
 
     private func playAgain() {
+        resumeStore.clear()
         finalizeFinish()
         finishTask?.cancel()
         showFinishedOverlay = false
@@ -605,16 +618,14 @@ struct WatchTennisScoreView: View {
     private func confirm(_ value: WatchScoreboardConfirmation) {
         confirmation = nil
         switch value {
-        case .pause:
-            isPaused = true
         case .finish:
             manualFinishRequested = true
             store.send(.finish)
         case .reset:
+            resumeStore.clear()
             finishTask?.cancel()
             showFinishedOverlay = false
             restState = nil
-            isPaused = false
             didTransferFinishedRecord = false
             didFinalizeFinish = false
             manualFinishRequested = false
@@ -628,9 +639,36 @@ struct WatchTennisScoreView: View {
 
     private func exitBoard() {
         if linkedSessionId != nil {
-            linkService.leaveSession()
+            if store.state.finished {
+                linkService.leaveSession()
+            } else {
+                linkService.exitScoreboardToHome()
+            }
         }
         dismiss()
+    }
+
+    private func persistResumeSession() async {
+        let state = store.state
+        guard !state.finished,
+              state.leftPoints != 0 || state.rightPoints != 0
+                || state.leftGames != 0 || state.rightGames != 0
+                || state.leftSets != 0 || state.rightSets != 0 else {
+            resumeStore.clear()
+            return
+        }
+        let bundle = await store.resumeBundle()
+        resumeStore.save(WatchResumeSession(
+            startedAt: matchStartTime,
+            scoreLine: scoreLine,
+            emoji: "🎾",
+            payload: .tennis(
+                isDoubles: isDoubles,
+                bundle: bundle,
+                restState: restState
+            ),
+            link: linkService.resumeContext
+        ))
     }
 
     private func transferLocalFinishedRecordIfNeeded(_ state: TennisMatchState) {

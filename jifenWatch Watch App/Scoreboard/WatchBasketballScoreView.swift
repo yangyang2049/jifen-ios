@@ -9,6 +9,12 @@ import SwiftUI
 @MainActor
 @Observable
 private final class WatchBasketballSessionStore {
+    typealias ResumeBundle = ScoreSessionResumeBundle<
+        BasketballMatchState,
+        BasketballMatchEvent,
+        BasketballMatchIntent
+    >
+
     private let core: ScoreSessionCore<BasketballMatchReducer>
     private let snapshotStore: AtomicJSONFileStore<ScoreSession<BasketballMatchState, BasketballMatchEvent>>
     private let archiveIndex: SessionArchiveIndex
@@ -16,13 +22,17 @@ private final class WatchBasketballSessionStore {
 
     private(set) var state: BasketballMatchState
 
-    init(gameMode: BasketballGameMode, initialState: BasketballMatchState? = nil) {
-        let initial = initialState ?? BasketballMatchEngine.initial(
+    init(
+        gameMode: BasketballGameMode,
+        initialState: BasketballMatchState? = nil,
+        resumeBundle: ResumeBundle? = nil
+    ) {
+        let initial = resumeBundle?.currentSession.state ?? initialState ?? BasketballMatchEngine.initial(
             leftName: NSLocalizedString("watch_team_red", value: "红方", comment: "Red"),
             rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "Blue"),
             gameMode: gameMode
         )
-        let session = ScoreSession<BasketballMatchState, BasketballMatchEvent>(
+        let session = resumeBundle?.currentSession ?? ScoreSession<BasketballMatchState, BasketballMatchEvent>(
             gameType: gameMode == .threeXThree ? .threeBasketball : .basketball,
             ruleFamily: .s2,
             reducerType: "basketball/v1",
@@ -32,11 +42,19 @@ private final class WatchBasketballSessionStore {
                 .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
             ]
         )
-        self.core = ScoreSessionCore(
-            seedSession: session,
-            reducer: BasketballMatchReducer(),
-            shouldFinish: { _, state in state.finished }
-        )
+        if let resumeBundle {
+            self.core = ScoreSessionCore(
+                resumeBundle: resumeBundle,
+                reducer: BasketballMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+        } else {
+            self.core = ScoreSessionCore(
+                seedSession: session,
+                reducer: BasketballMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+        }
         self.snapshotStore = AtomicJSONFileStore(fileURL: Self.snapshotURL(for: session.sessionId))
         self.archiveIndex = SessionArchiveIndex(fileURL: Self.archiveIndexURL())
         self.state = initial
@@ -99,6 +117,10 @@ private final class WatchBasketballSessionStore {
         self.state = state
     }
 
+    func resumeBundle() async -> ResumeBundle {
+        await core.resumeBundle()
+    }
+
     private static func snapshotURL(for sessionId: UUID) -> URL {
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("jifen-v2/watch-sessions", isDirectory: true)
@@ -114,14 +136,13 @@ private final class WatchBasketballSessionStore {
 struct WatchBasketballScoreView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchLinkService.self) private var linkService
+    @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let gameMode: BasketballGameMode
     let linkedSessionId: UUID?
     @State private var store: WatchBasketballSessionStore
     @State private var selectedSide: MatchSide?
     @State private var showMenu = false
-    @State private var isPaused = false
-    @State private var wasRunningBeforePause = false
     @State private var confirmation: WatchScoreboardConfirmation?
     @State private var showFinishedOverlay = false
     @State private var finishUndoAvailable = false
@@ -134,11 +155,22 @@ struct WatchBasketballScoreView: View {
     init(
         gameMode: BasketballGameMode,
         initialState: BasketballMatchState? = nil,
-        linkedSessionId: UUID? = nil
+        linkedSessionId: UUID? = nil,
+        resumeBundle: ScoreSessionResumeBundle<
+            BasketballMatchState,
+            BasketballMatchEvent,
+            BasketballMatchIntent
+        >? = nil,
+        resumedStartTime: Date? = nil
     ) {
         self.gameMode = gameMode
         self.linkedSessionId = linkedSessionId
-        _store = State(initialValue: WatchBasketballSessionStore(gameMode: gameMode, initialState: initialState))
+        _store = State(initialValue: WatchBasketballSessionStore(
+            gameMode: gameMode,
+            initialState: initialState,
+            resumeBundle: resumeBundle
+        ))
+        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
     }
 
     var body: some View {
@@ -178,19 +210,10 @@ struct WatchBasketballScoreView: View {
 
             if showMenu {
                 WatchScoreboardMenuOverlay(
-                    isPaused: isPaused,
                     onDismiss: { showMenu = false },
                     onUndo: {
                         store.undo()
                         showMenu = false
-                    },
-                    onPause: {
-                        showMenu = false
-                        if isPaused {
-                            resumeBasketball()
-                        } else {
-                            confirmation = .pause
-                        }
                     },
                     onFinish: {
                         showMenu = false
@@ -200,13 +223,6 @@ struct WatchBasketballScoreView: View {
                         showMenu = false
                         confirmation = .reset
                     }
-                )
-            }
-            if isPaused {
-                WatchPausedOverlay(
-                    scoreText: "\(store.state.leftScore) : \(store.state.rightScore)",
-                    onContinue: resumeBasketball,
-                    onFinish: { confirmation = .finish }
                 )
             }
             if showFinishedOverlay {
@@ -248,7 +264,6 @@ struct WatchBasketballScoreView: View {
         .ignoresSafeArea()
         .disabled(isFollowingPhone)
         .onAppear {
-            matchStartTime = Date()
             if !isFollowingPhone {
                 store.startClock()
             }
@@ -272,10 +287,12 @@ struct WatchBasketballScoreView: View {
             if !oldState.finished, newState.finished {
                 beginBasketballFinish()
             }
+            Task { await persistResumeSession() }
         }
         .onDisappear {
             finishTask?.cancel()
             if store.state.finished { finalizeBasketball() }
+            Task { await persistResumeSession() }
             if isFollowingPhone {
                 store.stopClock()
             } else {
@@ -376,7 +393,7 @@ struct WatchBasketballScoreView: View {
 
     private var interactionsEnabled: Bool {
         !isFollowingPhone && !showMenu && selectedSide == nil && confirmation == nil
-            && !isPaused && !showFinishedOverlay
+            && !showFinishedOverlay
     }
 
     private var basketballWinnerText: String? {
@@ -393,8 +410,6 @@ struct WatchBasketballScoreView: View {
     private func confirmBasketball(_ value: WatchScoreboardConfirmation) {
         confirmation = nil
         switch value {
-        case .pause:
-            pauseBasketball()
         case .finish:
             manualFinishRequested = true
             store.send(.finish)
@@ -403,22 +418,8 @@ struct WatchBasketballScoreView: View {
         }
     }
 
-    private func pauseBasketball() {
-        wasRunningBeforePause = store.state.gameRunning
-        store.send(.setClockRunning(false), recordsUndo: false)
-        isPaused = true
-    }
-
-    private func resumeBasketball() {
-        isPaused = false
-        if wasRunningBeforePause {
-            store.send(.setClockRunning(true), recordsUndo: false)
-        }
-    }
-
     private func beginBasketballFinish() {
         finishTask?.cancel()
-        isPaused = false
         showFinishedOverlay = true
         finishUndoAvailable = true
         finishTask = Task {
@@ -433,6 +434,7 @@ struct WatchBasketballScoreView: View {
 
     private func finalizeBasketball() {
         guard store.state.finished, !didPublishFinish else { return }
+        resumeStore.clear()
         if linkedSessionId != nil, linkService.isController {
             linkService.publishMatchFinished(
                 snapshot: .basketball(store.state),
@@ -466,14 +468,39 @@ struct WatchBasketballScoreView: View {
         finishUndoAvailable = false
         didPublishFinish = false
         manualFinishRequested = false
-        isPaused = false
         matchStartTime = Date()
+        resumeStore.clear()
     }
 
     private func exitBasketball() {
         if linkedSessionId != nil {
-            linkService.leaveSession()
+            if store.state.finished {
+                linkService.leaveSession()
+            } else {
+                linkService.exitScoreboardToHome()
+            }
         }
         dismiss()
+    }
+
+    private func persistResumeSession() async {
+        let state = store.state
+        let initial = BasketballMatchEngine.initial(
+            leftName: state.leftName,
+            rightName: state.rightName,
+            gameMode: gameMode
+        )
+        guard !state.finished, state != initial else {
+            resumeStore.clear()
+            return
+        }
+        let bundle = await store.resumeBundle()
+        resumeStore.save(WatchResumeSession(
+            startedAt: matchStartTime,
+            scoreLine: "\(state.leftScore) : \(state.rightScore)",
+            emoji: "🏀",
+            payload: .basketball(gameMode: gameMode, bundle: bundle),
+            link: linkService.resumeContext
+        ))
     }
 }

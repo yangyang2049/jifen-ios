@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WatchBasketballTrainingView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let mode: WatchBasketballTrainingMode
 
@@ -15,8 +16,17 @@ struct WatchBasketballTrainingView: View {
     @State private var scoreboardLayout = "horizontal"
     @State private var suppressTapAfterLongPress = false
     @State private var showFreeGuide = false
-    @State private var isPaused = false
     @State private var confirmation: WatchScoreboardConfirmation?
+
+    init(
+        mode: WatchBasketballTrainingMode,
+        resumedHistory: [WatchBasketballTrainingShot] = [],
+        resumedStartTime: Date? = nil
+    ) {
+        self.mode = mode
+        _history = State(initialValue: resumedHistory)
+        _startTime = State(initialValue: resumedStartTime ?? Date())
+    }
 
     var body: some View {
         ZStack {
@@ -25,7 +35,7 @@ struct WatchBasketballTrainingView: View {
                 .simultaneousGesture(
                     LongPressGesture(minimumDuration: WatchTiming.longPressThreshold)
                         .onEnded { _ in
-                            guard !showMenu, !showEndDialog, !isPaused, confirmation == nil else { return }
+                            guard !showMenu, !showEndDialog, confirmation == nil else { return }
                             suppressTapAfterLongPress = true
                             WatchHaptics.shared.play(.strong)
                             showMenu = true
@@ -37,7 +47,7 @@ struct WatchBasketballTrainingView: View {
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 30)
                         .onEnded { value in
-                            guard !showMenu, !showEndDialog, !isPaused, confirmation == nil else { return }
+                            guard !showMenu, !showEndDialog, confirmation == nil else { return }
                             if value.translation.width > 55,
                                abs(value.translation.height) < 50 {
                                 dismiss()
@@ -55,13 +65,6 @@ struct WatchBasketballTrainingView: View {
             }
             if showFreeGuide {
                 freeGuideOverlay
-            }
-            if isPaused {
-                WatchPausedOverlay(
-                    scoreText: "\(totalMade) / \(totalAttempts)",
-                    onContinue: { isPaused = false },
-                    onFinish: { confirmation = .finish }
-                )
             }
             if let confirmation {
                 WatchConfirmationOverlay(
@@ -108,6 +111,12 @@ struct WatchBasketballTrainingView: View {
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
         }
+        .onChange(of: history) { _, _ in
+            persistResumeSession()
+        }
+        .onDisappear {
+            persistResumeSession()
+        }
     }
 
     @ViewBuilder
@@ -125,26 +134,25 @@ struct WatchBasketballTrainingView: View {
                 .ignoresSafeArea()
                 .onTapGesture { showMenu = false }
 
-            LazyVGrid(
-                columns: [GridItem(.flexible()), GridItem(.flexible())],
-                spacing: WatchLayout.isCompactScreen ? 5 : 6
-            ) {
-                WatchMenuGridButton(
-                    title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                    systemImage: "arrow.uturn.backward"
+            VStack(spacing: WatchLayout.isCompactScreen ? 5 : 6) {
+                LazyVGrid(
+                    columns: [GridItem(.flexible()), GridItem(.flexible())],
+                    spacing: WatchLayout.isCompactScreen ? 5 : 6
                 ) {
-                    showMenu = false
-                    undo()
-                }
-                WatchMenuGridButton(
-                    title: isPaused
-                        ? NSLocalizedString("watch_continue_match", value: "继续训练", comment: "")
-                        : NSLocalizedString("watch_pause_match", value: "暂停训练", comment: ""),
-                    systemImage: isPaused ? "play.fill" : "pause.fill",
-                    background: isPaused ? WatchTheme.successGreen : WatchTheme.warningOrange
-                ) {
-                    showMenu = false
-                    if isPaused { isPaused = false } else { confirmation = .pause }
+                    WatchMenuGridButton(
+                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                        systemImage: "arrow.uturn.backward"
+                    ) {
+                        showMenu = false
+                        undo()
+                    }
+                    WatchMenuGridButton(
+                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
+                        systemImage: "arrow.counterclockwise"
+                    ) {
+                        showMenu = false
+                        confirmation = .reset
+                    }
                 }
                 WatchMenuGridButton(
                     title: NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: ""),
@@ -153,13 +161,6 @@ struct WatchBasketballTrainingView: View {
                 ) {
                     showMenu = false
                     confirmation = .finish
-                }
-                WatchMenuGridButton(
-                    title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                    systemImage: "arrow.counterclockwise"
-                ) {
-                    showMenu = false
-                    confirmation = .reset
                 }
             }
             .padding(.horizontal, WatchLayout.isCompactScreen ? 20 : 26)
@@ -303,7 +304,7 @@ struct WatchBasketballTrainingView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            guard !showMenu, !showEndDialog, !isPaused, confirmation == nil,
+            guard !showMenu, !showEndDialog, confirmation == nil,
                   !suppressTapAfterLongPress else { return }
             addShot(points: points, made: made)
         }
@@ -311,13 +312,17 @@ struct WatchBasketballTrainingView: View {
 
     private var endOverlay: some View {
         ZStack {
-            Color.black.opacity(0.62).ignoresSafeArea()
-            VStack(spacing: 10) {
+            Color.black.opacity(0.40).ignoresSafeArea()
+            VStack(spacing: WatchLayout.isCompactScreen ? 5 : 7) {
                 Text(NSLocalizedString("watch_bb_hit_rate", value: "命中率", comment: ""))
-                    .font(.system(size: 14))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
                     .foregroundStyle(WatchTheme.secondaryText)
                 Text(hitRateText)
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .font(.system(
+                        size: WatchLayout.isCompactScreen ? 17 : 19,
+                        weight: .bold,
+                        design: .rounded
+                    ))
                     .foregroundStyle(WatchTheme.accent)
                 if mode == .free {
                     VStack(spacing: 2) {
@@ -341,7 +346,10 @@ struct WatchBasketballTrainingView: View {
                     restartAfterFinish()
                 } label: {
                     Text(NSLocalizedString("watch_bb_restart", value: "再来一次", comment: ""))
-                        .frame(width: 144, height: 42)
+                        .frame(
+                            width: WatchLayout.isCompactScreen ? 134 : 144,
+                            height: WatchLayout.isCompactScreen ? 34 : 38
+                        )
                 }
                 .buttonStyle(.plain)
                 .background(WatchTheme.successGreen)
@@ -350,16 +358,21 @@ struct WatchBasketballTrainingView: View {
                     dismiss()
                 } label: {
                     Text(NSLocalizedString("exit", value: "退出", comment: ""))
-                        .frame(width: 144, height: 42)
+                        .frame(
+                            width: WatchLayout.isCompactScreen ? 134 : 144,
+                            height: WatchLayout.isCompactScreen ? 34 : 38
+                        )
                 }
                 .buttonStyle(.plain)
                 .background(WatchTheme.card)
                 .clipShape(Capsule())
             }
-            .padding(18)
-            .background(Color.black.opacity(0.82))
+            .padding(WatchLayout.isCompactScreen ? 10 : 12)
+            .background(Color.black.opacity(0.62))
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var totalAttempts: Int {
@@ -400,18 +413,18 @@ struct WatchBasketballTrainingView: View {
     }
 
     private func reset() {
+        resumeStore.clear()
         history = []
         recentShotID = nil
-        isPaused = false
     }
 
     private func restartAfterFinish() {
+        resumeStore.clear()
         history = []
         startTime = Date()
         savedRecordID = nil
         recentShotID = nil
         showEndDialog = false
-        isPaused = false
     }
 
     private func showToast(_ text: String) {
@@ -497,8 +510,25 @@ struct WatchBasketballTrainingView: View {
             basketballTrainingDetails: WatchBasketballTrainingDetails(mode: mode, shots: history)
         )
         WatchRecordManager.shared.saveRecord(record)
+        resumeStore.clear()
         savedRecordID = recordID
         showEndDialog = true
+    }
+
+    private func persistResumeSession() {
+        guard savedRecordID == nil, !history.isEmpty else {
+            resumeStore.clear()
+            return
+        }
+        resumeStore.save(WatchResumeSession(
+            startedAt: startTime,
+            scoreLine: hitRateText,
+            emoji: "🏀",
+            payload: .basketballTraining(
+                mode: mode,
+                history: history
+            )
+        ))
     }
 
     private func trainingActionDescription(for shot: WatchBasketballTrainingShot) -> String {
@@ -508,8 +538,6 @@ struct WatchBasketballTrainingView: View {
     private func confirmTraining(_ value: WatchScoreboardConfirmation) {
         confirmation = nil
         switch value {
-        case .pause:
-            isPaused = true
         case .finish:
             finishTraining()
         case .reset:

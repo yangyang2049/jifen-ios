@@ -123,22 +123,16 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0FA5BAD32F18F3EB00182375 /* jifen */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = jifen;
 			sourceTree = "<group>";
 		};
 		0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "jifenWatch Watch App";
 			sourceTree = "<group>";
 		};
 		D20000000000000000000002 /* jifenWatch Watch AppTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "jifenWatch Watch AppTests";
 			sourceTree = "<group>";
 		};
@@ -448,7 +442,7 @@
 			mainGroup = 0FA5BAC82F18F3EB00182375;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */,
+				D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0FA5BAD22F18F3EB00182375 /* Products */;
@@ -1143,7 +1137,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */ = {
+		D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/JifenCore;
 		};
@@ -1152,57 +1146,57 @@
 /* Begin XCSwiftPackageProductDependency section */
 		A10000000000000000000001 /* ScoreCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = ScoreCore;
 		};
 		A10000000000000000000002 /* SessionCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = SessionCore;
 		};
 		A10000000000000000000003 /* RecordCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = RecordCore;
 		};
 		A10000000000000000000004 /* PersistenceCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = PersistenceCore;
 		};
 		A10000000000000000000005 /* LinkCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = LinkCore;
 		};
 		A10000000000000000000006 /* TimerCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = TimerCore;
 		};
 		B10000000000000000000001 /* ScoreCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = ScoreCore;
 		};
 		B10000000000000000000002 /* SessionCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = SessionCore;
 		};
 		B10000000000000000000003 /* RecordCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = RecordCore;
 		};
 		B10000000000000000000004 /* PersistenceCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = PersistenceCore;
 		};
 		B10000000000000000000005 /* LinkCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "JifenCore" */;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = LinkCore;
 		};
 /* End XCSwiftPackageProductDependency section */

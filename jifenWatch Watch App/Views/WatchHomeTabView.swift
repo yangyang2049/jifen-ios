@@ -1,3 +1,4 @@
+import LinkCore
 import SwiftUI
 
 enum WatchHomeItem: String, CaseIterable {
@@ -68,7 +69,10 @@ private enum WatchHomePreflightPicker {
 struct WatchHomeTabView: View {
     private static let scrollTopAnchor = "watch-home-top"
 
+    @Environment(WatchResumeSessionStore.self) private var resumeStore
+    @Environment(WatchLinkService.self) private var linkService
     @Binding var scoreboardRoute: WatchScoreboardRoute?
+    let onResume: (WatchResumeSession) -> Void
     @State private var pinnedItems: [WatchHomeItem] = []
     @State private var preflightPicker: WatchHomePreflightPicker?
     @State private var pinDialogItem: WatchHomeItem?
@@ -82,7 +86,7 @@ struct WatchHomeTabView: View {
     }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 8) {
@@ -113,6 +117,7 @@ struct WatchHomeTabView: View {
                         .padding(.top, 4)
                     }
                     .padding(.horizontal, WatchLayout.tabHorizontalPadding)
+                    .padding(.top, resumeStore.session == nil ? 0 : WatchMetrics.pillHeight + 8)
                     .padding(.bottom, 12)
                 }
                 .onChange(of: scrollToTopRequest) { _, _ in
@@ -120,6 +125,26 @@ struct WatchHomeTabView: View {
                         proxy.scrollTo(Self.scrollTopAnchor, anchor: .top)
                     }
                 }
+            }
+
+            if let session = resumeStore.session {
+                WatchResumeGameBar(
+                    session: session,
+                    onResume: { onResume(session) },
+                    onClose: {
+                        WatchHaptics.shared.play(.light)
+                        if let context = session.link {
+                            if linkService.resumeContext == nil {
+                                linkService.restoreSuspendedSession(context)
+                            }
+                            linkService.discardResumableSession(reason: .resumeBarClose)
+                        }
+                        resumeStore.clear()
+                    }
+                )
+                .padding(.horizontal, WatchLayout.tabHorizontalPadding)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .zIndex(1)
             }
 
             if let preflightPicker {
@@ -139,7 +164,10 @@ struct WatchHomeTabView: View {
         .background(WatchTheme.background)
         .navigationTitle(NSLocalizedString("tab_score", comment: "Score"))
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { loadPinnedItems() }
+        .onAppear {
+            loadPinnedItems()
+            resumeStore.reload()
+        }
         .confirmationDialog(
             pinDialogTitle,
             isPresented: pinDialogPresented,
@@ -303,9 +331,16 @@ struct WatchHomeTabView: View {
     @ViewBuilder
     private func preflightOverlay(_ picker: WatchHomePreflightPicker) -> some View {
         ZStack {
-            Color.black.opacity(0.82)
-                .ignoresSafeArea()
-                .onTapGesture { preflightPicker = nil }
+            Button {
+                preflightPicker = nil
+            } label: {
+                Color.black.opacity(0.82)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
 
             VStack(spacing: WatchLayout.isCompactScreen ? 8 : 10) {
                 Text(
@@ -350,8 +385,24 @@ struct WatchHomeTabView: View {
             .frame(maxWidth: .infinity)
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(alignment: .topTrailing) {
+                Button {
+                    preflightPicker = nil
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(WatchTheme.secondaryText)
+                        .frame(width: 26, height: 26)
+                        .background(Color.white.opacity(0.08))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
+                .padding(6)
+            }
             .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 10)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func trainingModeButton(
