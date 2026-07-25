@@ -35,6 +35,17 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertNil(WatchRestPolicy.betweenSetDuration(for: .eightBall))
     }
 
+    func testWatchLayoutUsesTwoPagePaddingTiers() {
+        for width: CGFloat in [162, 176, 184, 187, 190] {
+            XCTAssertTrue(WatchLayout.isNarrowScreen(width: width))
+            XCTAssertEqual(WatchLayout.pageHorizontalPadding(for: width), 6)
+        }
+        for width: CGFloat in [198, 205, 208, 211] {
+            XCTAssertFalse(WatchLayout.isNarrowScreen(width: width))
+            XCTAssertEqual(WatchLayout.pageHorizontalPadding(for: width), 12)
+        }
+    }
+
     func testBadmintonMidGameRestRoundsTargetUp() {
         XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 21), 11)
         XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 15), 8)

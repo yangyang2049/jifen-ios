@@ -1,18 +1,34 @@
 import SwiftUI
 import WatchKit
 
-/// 小屏手表（42mm 及以下）布局常量，用于缩小边距与控件
+/// Apple Watch 两档布局：40/41/新款 42/44mm 为窄屏，45/46/49mm 为宽屏。
+/// 使用逻辑宽度判断，避免新款 42mm（187pt）比 44mm SE（184pt）更宽造成误判。
 struct WatchLayout {
-    /// 屏幕宽度 ≤ 180pt 视为窄屏（38/40/41/42mm，44mm 及以上为 184+）
+    static let narrowScreenMaximumWidth: CGFloat = 190
+
+    static func isNarrowScreen(width: CGFloat) -> Bool {
+        width <= narrowScreenMaximumWidth
+    }
+
+    static func pageHorizontalPadding(for width: CGFloat) -> CGFloat {
+        isNarrowScreen(width: width) ? 6 : 12
+    }
+
+    /// 屏幕宽度 ≤ 190pt 视为窄屏。
     static var isCompactScreen: Bool {
-        WKInterfaceDevice.current().screenBounds.size.width <= 180
+        isNarrowScreen(width: WKInterfaceDevice.current().screenBounds.size.width)
     }
-    /// 屏幕宽度 ≤ 184pt 视为「内容窄屏」（含 44mm），用于记录行等易挤满的列表
+
+    /// 记录行等易挤满的内容与页面使用同一套两档判断。
     static var isNarrowForContent: Bool {
-        WKInterfaceDevice.current().screenBounds.size.width <= 184
+        isCompactScreen
     }
-    /// Tab 内左右边距
-    static var tabHorizontalPadding: CGFloat { isCompactScreen ? 6 : 12 }
+
+    /// Tab、列表、表单和详情页统一左右边距。
+    static var pageHorizontalPadding: CGFloat {
+        pageHorizontalPadding(for: WKInterfaceDevice.current().screenBounds.size.width)
+    }
+
     /// 列表行（PillRow/PillButton）左右内边距
     static var pillRowHorizontalPadding: CGFloat { isCompactScreen ? 10 : 16 }
     /// 射箭加分面板外边距（上下左右一致，内容纵向居中）

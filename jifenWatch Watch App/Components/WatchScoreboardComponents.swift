@@ -203,10 +203,9 @@ struct WatchConfirmationOverlay: View {
                     )
                 }
             }
-            .padding(WatchLayout.isCompactScreen ? 12 : 18)
+            .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(resolvedCardOpacity))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .padding(.horizontal, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()

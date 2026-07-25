@@ -36,7 +36,7 @@ struct WatchSettingsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
             }
-            .padding(.horizontal, WatchLayout.tabHorizontalPadding)
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)

@@ -116,7 +116,7 @@ struct WatchHomeTabView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 4)
                     }
-                    .padding(.horizontal, WatchLayout.tabHorizontalPadding)
+                    .padding(.horizontal, WatchLayout.pageHorizontalPadding)
                     .padding(.top, resumeStore.session == nil ? 0 : WatchMetrics.pillHeight + 8)
                     .padding(.bottom, 12)
                 }
@@ -142,7 +142,7 @@ struct WatchHomeTabView: View {
                         resumeStore.clear()
                     }
                 )
-                .padding(.horizontal, WatchLayout.tabHorizontalPadding)
+                .padding(.horizontal, WatchLayout.pageHorizontalPadding)
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .zIndex(1)
             }
@@ -400,7 +400,7 @@ struct WatchHomeTabView: View {
                 .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
                 .padding(6)
             }
-            .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 10)
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

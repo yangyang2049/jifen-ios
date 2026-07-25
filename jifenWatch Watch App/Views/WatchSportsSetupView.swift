@@ -30,7 +30,7 @@ struct WatchSportsSetupView: View {
                     rulesSections
                     namesSection
                 }
-                .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 14)
+                .padding(.horizontal, WatchLayout.pageHorizontalPadding)
                 .padding(.top, 6)
                 .padding(.bottom, formBottomPadding)
             }
@@ -40,7 +40,7 @@ struct WatchSportsSetupView: View {
             VStack {
                 Spacer()
                 startButton
-                    .padding(.horizontal, WatchLayout.isCompactScreen ? 22 : 44)
+                    .padding(.horizontal, WatchLayout.pageHorizontalPadding)
                     .padding(.bottom, 6)
                     .offset(y: 28)
             }
@@ -196,22 +196,19 @@ struct WatchSportsSetupView: View {
     private var handicapBeneficiarySection: some View {
         VStack(spacing: 4) {
             sectionTitle(NSLocalizedString("watch_setup_handicap", value: "让局", comment: ""))
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 7) {
-                    handicapChip(
-                        .none,
-                        label: NSLocalizedString("watch_setup_handicap_none", value: "不让局", comment: "")
-                    )
-                    handicapChip(
-                        .team2,
-                        label: NSLocalizedString("watch_setup_handicap_red_gives_blue", value: "红让蓝", comment: "")
-                    )
-                    handicapChip(
-                        .team1,
-                        label: NSLocalizedString("watch_setup_handicap_blue_gives_red", value: "蓝让红", comment: "")
-                    )
-                }
-                .padding(.horizontal, 3)
+            adaptiveOptionRow {
+                handicapChip(
+                    .none,
+                    label: NSLocalizedString("watch_setup_handicap_none", value: "不让局", comment: "")
+                )
+                handicapChip(
+                    .team2,
+                    label: NSLocalizedString("watch_setup_handicap_red_gives_blue", value: "红让蓝", comment: "")
+                )
+                handicapChip(
+                    .team1,
+                    label: NSLocalizedString("watch_setup_handicap_blue_gives_red", value: "蓝让红", comment: "")
+                )
             }
         }
     }
@@ -349,18 +346,14 @@ struct WatchSportsSetupView: View {
     ) -> some View {
         VStack(spacing: 4) {
             sectionTitle(title)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 7) {
-                    if values.count > 3 { Spacer().frame(width: 18) }
-                    ForEach(values, id: \.self) { value in
-                        setupChip(
-                            label: String(value),
-                            selected: selection.wrappedValue == value
-                        ) {
-                            selection.wrappedValue = value
-                        }
+            adaptiveOptionRow {
+                ForEach(values, id: \.self) { value in
+                    setupChip(
+                        label: String(value),
+                        selected: selection.wrappedValue == value
+                    ) {
+                        selection.wrappedValue = value
                     }
-                    if values.count > 3 { Spacer().frame(width: 18) }
                 }
             }
         }
@@ -373,20 +366,33 @@ struct WatchSportsSetupView: View {
     ) -> some View {
         VStack(spacing: 4) {
             sectionTitle(title)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 7) {
-                    ForEach(values, id: \.0) { value, label in
-                        setupChip(
-                            label: label,
-                            selected: selection.wrappedValue == value,
-                            minimumWidth: 72
-                        ) {
-                            selection.wrappedValue = value
-                        }
+            adaptiveOptionRow {
+                ForEach(values, id: \.0) { value, label in
+                    setupChip(
+                        label: label,
+                        selected: selection.wrappedValue == value,
+                        minimumWidth: 72
+                    ) {
+                        selection.wrappedValue = value
                     }
                 }
             }
         }
+    }
+
+    private func adaptiveOptionRow<Content: View>(
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        GeometryReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 7) {
+                    content()
+                }
+                .padding(.horizontal, 3)
+                .frame(minWidth: proxy.size.width, alignment: .center)
+            }
+        }
+        .frame(height: 38)
     }
 
     private func toggleSection(title: String, isOn: Binding<Bool>) -> some View {

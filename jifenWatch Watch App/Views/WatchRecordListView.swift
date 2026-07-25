@@ -38,7 +38,7 @@ struct WatchRecordListView: View {
                         .padding(.top, 16)
                 }
             }
-            .padding(.horizontal, WatchLayout.tabHorizontalPadding)
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
             .padding(.bottom, 12)
         }
         .navigationTitle(NSLocalizedString("records", comment: "Records"))

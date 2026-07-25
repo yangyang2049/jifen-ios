@@ -38,7 +38,7 @@ struct WatchRecordDetailView: View {
                     .frame(maxWidth: .infinity, minHeight: 120)
                 }
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, WatchLayout.pageHorizontalPadding)
             .padding(.bottom, 12)
         }
         .background(WatchTheme.background)
