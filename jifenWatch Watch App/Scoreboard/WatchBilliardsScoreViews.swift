@@ -1,4 +1,5 @@
 import LinkCore
+import RecordCore
 import ScoreCore
 import SwiftUI
 
@@ -22,6 +23,7 @@ struct WatchEightBallScoreView: View {
     @State private var finishUndoAvailable = false
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
+    @State private var actionLog: WatchScoreActionLog
 
     init(
         initialState: EightBallState? = nil,
@@ -29,7 +31,8 @@ struct WatchEightBallScoreView: View {
         leftName: String? = nil,
         rightName: String? = nil,
         resumedUndoStates: [EightBallState] = [],
-        resumedStartTime: Date? = nil
+        resumedStartTime: Date? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         let defaults = WatchDefaultTeamNames.resolve()
         self.linkedSessionId = linkedSessionId
@@ -37,7 +40,9 @@ struct WatchEightBallScoreView: View {
         self.rightName = rightName ?? defaults.right
         _state = State(initialValue: initialState ?? .initial())
         _undoStack = State(initialValue: resumedUndoStates)
-        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        let startedAt = resumedStartTime ?? Date()
+        _matchStartTime = State(initialValue: startedAt)
+        _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
     }
 
     private var scoringLocked: Bool { linkedSessionId != nil && linkService.isFollower }
@@ -110,6 +115,7 @@ struct WatchEightBallScoreView: View {
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.eightBallState else { return }
+            actionLog.merge(detailedActions: update.detailedActions)
             state = remote
             undoStack.removeAll()
             if state.finished {
@@ -136,10 +142,18 @@ struct WatchEightBallScoreView: View {
 
     private func addRack(_ side: MatchSide) {
         guard !scoringLocked, !state.finished else { return }
-        let result = EightBallReducer().reduce(state: state, intent: .addRack(side), at: nowMs())
-        guard result.accepted else { return }
+        let timestamp = Date()
+        actionLog.beginUndoableMutation()
+        let result = EightBallReducer().reduce(state: state, intent: .addRack(side), at: Int64(timestamp.timeIntervalSince1970 * 1_000))
+        guard result.accepted else {
+            actionLog.rejectUndoableMutation()
+            return
+        }
         undoStack.append(state)
         state = result.state
+        actionLog.append(contentsOf: WatchScoreActionProjector.eightBall(
+            events: result.events, state: state, timestamp: timestamp
+        ))
         if state.finished {
             finishMatch(manual: false)
         } else {
@@ -149,7 +163,14 @@ struct WatchEightBallScoreView: View {
 
     private func finishMatch(manual: Bool) {
         if manual, !state.finished {
+            undoStack.append(state)
+            actionLog.beginUndoableMutation()
             state.finished = true
+            actionLog.appendGameEndIfNeeded(
+                team1Score: state.leftPoints,
+                team2Score: state.rightPoints,
+                winner: state.leftPoints == state.rightPoints ? nil : (state.leftPoints > state.rightPoints ? .team1 : .team2)
+            )
         }
         publish(manualEnd: manual)
         beginEightBallFinish(manualEnd: manual)
@@ -157,7 +178,7 @@ struct WatchEightBallScoreView: View {
 
     private func publish(manualEnd: Bool) {
         guard linkedSessionId != nil, linkService.isController else { return }
-        linkService.publishSnapshot(.eightBall(state))
+        linkService.publishSnapshot(.eightBall(state), detailedActions: actionLog.detailedActions)
     }
 
     private func saveLocalRecordIfNeeded() {
@@ -182,8 +203,8 @@ struct WatchEightBallScoreView: View {
             team1SetScore: state.leftPoints,
             team2SetScore: state.rightPoints,
             winner: winnerName,
-            actions: [],
-            totalScoreChanges: max(1, state.leftPoints + state.rightPoints),
+            actions: actionLog.actions,
+            totalScoreChanges: actionLog.scoreChangeCount,
             projectConfiguration: [
                 "targetRacks": String(state.targetPoints),
                 "handicapRacks": String(state.handicapRacks),
@@ -282,6 +303,7 @@ struct WatchEightBallScoreView: View {
     private func undo() {
         guard !scoringLocked, let previous = undoStack.popLast() else { return }
         state = previous
+        actionLog.undo(team1Score: state.leftPoints, team2Score: state.rightPoints)
         publish(manualEnd: false)
     }
 
@@ -293,8 +315,10 @@ struct WatchEightBallScoreView: View {
         guard result.accepted else { return }
         undoStack.removeAll()
         state = result.state
+        let restartedAt = Date()
+        actionLog.reset(at: restartedAt)
         didSaveFinishedRecord = false
-        matchStartTime = Date()
+        matchStartTime = restartedAt
         showFinishedOverlay = false
         finishUndoAvailable = false
         publish(manualEnd: false)
@@ -359,7 +383,8 @@ struct WatchEightBallScoreView: View {
                 manualEnd: manualEnd,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: max(1, state.leftPoints + state.rightPoints)
+                totalScoreChanges: actionLog.scoreChangeCount,
+                detailedActions: actionLog.detailedActions
             )
             didSaveFinishedRecord = true
         } else {
@@ -372,6 +397,7 @@ struct WatchEightBallScoreView: View {
         finishTask?.cancel()
         state = previous
         state.finished = false
+        actionLog.undo(team1Score: state.leftPoints, team2Score: state.rightPoints)
         showFinishedOverlay = false
         finishUndoAvailable = false
         didSaveFinishedRecord = false
@@ -407,6 +433,7 @@ struct WatchEightBallScoreView: View {
                 leftName: leftName,
                 rightName: rightName
             ),
+            actionLog: actionLog,
             link: linkService.resumeContext
         ))
     }
@@ -432,6 +459,7 @@ struct WatchNineBallScoreView: View {
     @State private var finishUndoAvailable = false
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
+    @State private var actionLog: WatchScoreActionLog
 
     private static let playerColors: [Color] = [
         Color(hex: 0xE53935),
@@ -440,16 +468,25 @@ struct WatchNineBallScoreView: View {
         Color(hex: 0x8E24AA)
     ]
 
+    private static let eventPickerOrder: [NineBallChaseKind] = [
+        .normalWin, .foul,
+        .bigGold, .smallGold,
+        .goldenNine, .ballInHand
+    ]
+
     init(
         initialState: NineBallChaseState? = nil,
         linkedSessionId: UUID? = nil,
         resumedUndoStates: [NineBallChaseState] = [],
-        resumedStartTime: Date? = nil
+        resumedStartTime: Date? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.linkedSessionId = linkedSessionId
         _state = State(initialValue: initialState ?? .initial())
         _undoStack = State(initialValue: resumedUndoStates)
-        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        let startedAt = resumedStartTime ?? Date()
+        _matchStartTime = State(initialValue: startedAt)
+        _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
     }
 
     private var scoringLocked: Bool { linkedSessionId != nil && linkService.isFollower }
@@ -510,6 +547,7 @@ struct WatchNineBallScoreView: View {
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.nineBallState else { return }
+            actionLog.merge(detailedActions: update.detailedActions)
             state = remote
             undoStack.removeAll()
             if state.finished {
@@ -613,7 +651,7 @@ struct WatchNineBallScoreView: View {
                     columns: [GridItem(.flexible()), GridItem(.flexible())],
                     spacing: WatchLayout.isCompactScreen ? 5 : 7
                 ) {
-                    ForEach(NineBallChaseKind.allCases, id: \.rawValue) { kind in
+                    ForEach(Self.eventPickerOrder, id: \.rawValue) { kind in
                         Button {
                             eventPickerPlayer = nil
                             apply(.chaseEvent(player: player, kind: kind))
@@ -625,7 +663,7 @@ struct WatchNineBallScoreView: View {
                                     .font(.system(size: 10, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.72))
                             }
-                            .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 30 : 36)
+                            .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 36 : 42)
                         }
                         .buttonStyle(.plain)
                         .background(kind == .foul ? WatchTheme.dangerRed : WatchTheme.card)
@@ -650,10 +688,22 @@ struct WatchNineBallScoreView: View {
 
     private func apply(_ intent: NineBallChaseIntent) {
         guard !scoringLocked, !state.finished else { return }
-        let result = NineBallChaseReducer().reduce(state: state, intent: intent, at: nowMs())
-        guard result.accepted else { return }
+        let timestamp = Date()
+        actionLog.beginUndoableMutation()
+        let result = NineBallChaseReducer().reduce(state: state, intent: intent, at: Int64(timestamp.timeIntervalSince1970 * 1_000))
+        guard result.accepted else {
+            actionLog.rejectUndoableMutation()
+            return
+        }
         undoStack.append(state)
         state = result.state
+        if case .resetScores = intent {
+            actionLog.reset(at: timestamp)
+        } else {
+            actionLog.append(contentsOf: WatchScoreActionProjector.nineBall(
+                events: result.events, state: state, timestamp: timestamp
+            ))
+        }
         publish()
         if state.finished {
             beginNineBallFinish(manualEnd: false)
@@ -665,14 +715,34 @@ struct WatchNineBallScoreView: View {
             beginNineBallFinish(manualEnd: true)
             return
         }
+        undoStack.append(state)
+        actionLog.beginUndoableMutation()
         state.finished = true
+        let scores = Array(state.playerPoints.prefix(state.playerCount))
+        let maximum = scores.max()
+        let winningIndex = maximum.flatMap { value in
+            scores.filter { $0 == value }.count == 1 ? scores.firstIndex(of: value) : nil
+        }
+        actionLog.appendGameEndIfNeeded(
+            team1Score: playerPoints(at: 0),
+            team2Score: playerPoints(at: 1),
+            winner: winningIndex.flatMap { index in
+                switch index {
+                case 0: .team1
+                case 1: .team2
+                case 2: .team3
+                case 3: .team4
+                default: nil
+                }
+            }
+        )
         publish()
         beginNineBallFinish(manualEnd: true)
     }
 
     private func publish() {
         guard linkedSessionId != nil, linkService.isController else { return }
-        linkService.publishSnapshot(.nineBall(state))
+        linkService.publishSnapshot(.nineBall(state), detailedActions: actionLog.detailedActions)
     }
 
     private func winnerSide() -> MatchSide? {
@@ -714,8 +784,8 @@ struct WatchNineBallScoreView: View {
             team1SetScore: leftScore,
             team2SetScore: rightScore,
             winner: winnerName,
-            actions: [],
-            totalScoreChanges: max(1, total),
+            actions: actionLog.actions,
+            totalScoreChanges: actionLog.scoreChangeCount,
             participants: (0..<state.playerCount).map {
                 WatchRecordParticipant(name: displayName(at: $0), score: playerPoints(at: $0))
             },
@@ -731,6 +801,7 @@ struct WatchNineBallScoreView: View {
     private func undo() {
         guard !scoringLocked, let previous = undoStack.popLast() else { return }
         state = previous
+        actionLog.undo(team1Score: playerPoints(at: 0), team2Score: playerPoints(at: 1))
         publish()
     }
 
@@ -742,8 +813,10 @@ struct WatchNineBallScoreView: View {
         guard result.accepted else { return }
         undoStack.removeAll()
         state = result.state
+        let restartedAt = Date()
+        actionLog.reset(at: restartedAt)
         didSaveFinishedRecord = false
-        matchStartTime = Date()
+        matchStartTime = restartedAt
         showFinishedOverlay = false
         finishUndoAvailable = false
         publish()
@@ -836,7 +909,8 @@ struct WatchNineBallScoreView: View {
                 manualEnd: manualEnd,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: max(1, (0..<state.playerCount).reduce(0) { $0 + abs(playerPoints(at: $1)) })
+                totalScoreChanges: actionLog.scoreChangeCount,
+                detailedActions: actionLog.detailedActions
             )
             didSaveFinishedRecord = true
         } else {
@@ -849,6 +923,7 @@ struct WatchNineBallScoreView: View {
         finishTask?.cancel()
         state = previous
         state.finished = false
+        actionLog.undo(team1Score: playerPoints(at: 0), team2Score: playerPoints(at: 1))
         showFinishedOverlay = false
         finishUndoAvailable = false
         didSaveFinishedRecord = false
@@ -882,6 +957,7 @@ struct WatchNineBallScoreView: View {
                 state: state,
                 undoStates: undoStack
             ),
+            actionLog: actionLog,
             link: linkService.resumeContext
         ))
     }
@@ -908,6 +984,7 @@ struct WatchSnookerScoreView: View {
     @State private var finishUndoAvailable = false
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
+    @State private var actionLog: WatchScoreActionLog
 
     init(
         initialState: SnookerState? = nil,
@@ -915,7 +992,8 @@ struct WatchSnookerScoreView: View {
         leftName: String? = nil,
         rightName: String? = nil,
         resumedUndoStates: [SnookerState] = [],
-        resumedStartTime: Date? = nil
+        resumedStartTime: Date? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         let defaults = WatchDefaultTeamNames.resolve()
         self.linkedSessionId = linkedSessionId
@@ -923,7 +1001,9 @@ struct WatchSnookerScoreView: View {
         self.rightName = rightName ?? defaults.right
         _state = State(initialValue: initialState ?? SnookerState.initial())
         _undoStack = State(initialValue: resumedUndoStates)
-        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        let startedAt = resumedStartTime ?? Date()
+        _matchStartTime = State(initialValue: startedAt)
+        _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
     }
 
     private var scoringLocked: Bool { linkedSessionId != nil && linkService.isFollower }
@@ -1006,6 +1086,7 @@ struct WatchSnookerScoreView: View {
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.snookerState else { return }
+            actionLog.merge(detailedActions: update.detailedActions)
             state = remote
             undoStack.removeAll()
             if state.finished {
@@ -1209,10 +1290,18 @@ struct WatchSnookerScoreView: View {
 
     private func apply(_ intent: SnookerIntent) {
         guard !scoringLocked, !showFinishedOverlay else { return }
-        let result = SnookerReducer().reduce(state: state, intent: intent, at: nowMs())
-        guard result.accepted else { return }
+        let timestamp = Date()
+        actionLog.beginUndoableMutation()
+        let result = SnookerReducer().reduce(state: state, intent: intent, at: Int64(timestamp.timeIntervalSince1970 * 1_000))
+        guard result.accepted else {
+            actionLog.rejectUndoableMutation()
+            return
+        }
         undoStack.append(state)
         state = result.state
+        actionLog.append(contentsOf: WatchScoreActionProjector.snooker(
+            intent: intent, events: result.events, state: state, timestamp: timestamp
+        ))
         publish()
         if state.finished {
             beginSnookerFinish(manualEnd: false)
@@ -1220,8 +1309,22 @@ struct WatchSnookerScoreView: View {
     }
 
     private func finishMatch() {
-        let result = SnookerReducer().reduce(state: state, intent: .finishMatch, at: nowMs())
+        let timestamp = Date()
+        actionLog.beginUndoableMutation()
+        let result = SnookerReducer().reduce(
+            state: state,
+            intent: .finishMatch,
+            at: Int64(timestamp.timeIntervalSince1970 * 1_000)
+        )
+        guard result.accepted else {
+            actionLog.rejectUndoableMutation()
+            return
+        }
+        undoStack.append(state)
         state = result.state
+        actionLog.append(contentsOf: WatchScoreActionProjector.snooker(
+            intent: .finishMatch, events: result.events, state: state, timestamp: timestamp
+        ))
         publish()
         if state.finished {
             beginSnookerFinish(manualEnd: true)
@@ -1230,7 +1333,7 @@ struct WatchSnookerScoreView: View {
 
     private func publish() {
         guard linkedSessionId != nil, linkService.isController else { return }
-        linkService.publishSnapshot(.snooker(state))
+        linkService.publishSnapshot(.snooker(state), detailedActions: actionLog.detailedActions)
     }
 
     private func saveLocalRecordIfNeeded() {
@@ -1258,8 +1361,8 @@ struct WatchSnookerScoreView: View {
             team1SetScore: state.leftFrames,
             team2SetScore: state.rightFrames,
             winner: winnerName,
-            actions: [],
-            totalScoreChanges: max(1, state.leftScore + state.rightScore),
+            actions: actionLog.actions,
+            totalScoreChanges: actionLog.scoreChangeCount,
             projectConfiguration: ["maxFrames": String(state.maxFrames)]
         )
         WatchRecordManager.shared.saveRecord(record)
@@ -1272,6 +1375,12 @@ struct WatchSnookerScoreView: View {
     private func undo() {
         guard !scoringLocked, let previous = undoStack.popLast() else { return }
         state = previous
+        actionLog.undo(
+            team1Score: state.leftScore,
+            team2Score: state.rightScore,
+            team1SetScore: state.leftFrames,
+            team2SetScore: state.rightFrames
+        )
         publish()
     }
 
@@ -1281,8 +1390,10 @@ struct WatchSnookerScoreView: View {
         finishTask?.cancel()
         undoStack.removeAll()
         state = .initial(striker: state.firstBreaker, maxFrames: state.maxFrames)
+        let restartedAt = Date()
+        actionLog.reset(at: restartedAt)
         didSaveFinishedRecord = false
-        matchStartTime = Date()
+        matchStartTime = restartedAt
         scoringSide = nil
         showFrameSettlement = false
         showFinishedOverlay = false
@@ -1344,7 +1455,8 @@ struct WatchSnookerScoreView: View {
                 manualEnd: manualEnd,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: max(1, state.leftScore + state.rightScore)
+                totalScoreChanges: actionLog.scoreChangeCount,
+                detailedActions: actionLog.detailedActions
             )
             didSaveFinishedRecord = true
         } else {
@@ -1356,6 +1468,12 @@ struct WatchSnookerScoreView: View {
         guard finishUndoAvailable, let previous = undoStack.popLast() else { return }
         finishTask?.cancel()
         state = previous
+        actionLog.undo(
+            team1Score: state.leftScore,
+            team2Score: state.rightScore,
+            team1SetScore: state.leftFrames,
+            team2SetScore: state.rightFrames
+        )
         showFinishedOverlay = false
         finishUndoAvailable = false
         didSaveFinishedRecord = false
@@ -1392,6 +1510,7 @@ struct WatchSnookerScoreView: View {
                 leftName: leftName,
                 rightName: rightName
             ),
+            actionLog: actionLog,
             link: linkService.resumeContext
         ))
     }

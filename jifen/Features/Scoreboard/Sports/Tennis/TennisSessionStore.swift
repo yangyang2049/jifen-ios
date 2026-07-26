@@ -14,6 +14,7 @@ final class TennisSessionStore {
     private var completedSetScores: [VoiceSetScore] = []
 
     private(set) var state: TennisMatchState
+    var actionTimeline: [DetailedScoreAction] { detailedActions }
 
     var teamScreenLayout: TeamScreenLayout {
         TeamScreenLayout(sidesSwapped: state.sidesSwapped)
@@ -131,6 +132,13 @@ final class TennisSessionStore {
 
     func replaceDisplayedState(_ state: TennisMatchState) {
         self.state = state
+    }
+
+    func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
+        guard !incoming.isEmpty else { return }
+        detailedActions = incoming.sorted {
+            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
+        }
     }
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {

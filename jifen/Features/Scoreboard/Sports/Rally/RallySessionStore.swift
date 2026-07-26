@@ -13,6 +13,7 @@ final class RallySessionStore {
     private var detailedActions: [DetailedScoreAction]
 
     private(set) var state: RallyMatchState
+    var actionTimeline: [DetailedScoreAction] { detailedActions }
     let gameType: ScoreCore.GameType
     let sessionId: UUID
     let startedAt: Date
@@ -138,6 +139,13 @@ final class RallySessionStore {
 
     func replaceDisplayedState(_ state: RallyMatchState) {
         self.state = state
+    }
+
+    func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
+        guard !incoming.isEmpty else { return }
+        detailedActions = incoming.sorted {
+            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
+        }
     }
 
     private func append(events: [RallyMatchEvent], at milliseconds: Int64, state: RallyMatchState) {

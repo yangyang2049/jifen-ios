@@ -51,6 +51,7 @@ final class WatchRecordManager {
             team2SetScore: record.team2SetScore,
             winner: record.winner,
             actions: record.actions.map(\.description),
+            detailedActions: record.actions.map(\.detailedAction),
             totalScoreChanges: record.totalScoreChanges,
             participants: record.participants?.map {
                 WatchRecordParticipantPayload(name: $0.name, score: $0.score)

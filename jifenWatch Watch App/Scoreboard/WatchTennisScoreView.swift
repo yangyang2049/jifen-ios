@@ -14,13 +14,16 @@ private final class WatchTennisSessionStore {
     private let core: ScoreSessionCore<TennisMatchReducer>
     private let archiveRepository = SessionArchiveRepository()
     private(set) var state: TennisMatchState
+    private(set) var actionLog: WatchScoreActionLog
     var onStateChanged: ((TennisMatchState, [TennisMatchEvent]) -> Void)?
 
     init(
         gameType: GameType,
         rules: TennisRuleSet,
         initialState: TennisMatchState? = nil,
-        resumeBundle: ResumeBundle? = nil
+        resumeBundle: ResumeBundle? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil,
+        startedAt: Date = Date()
     ) {
         let defaults = WatchDefaultTeamNames.resolve()
         let initial = resumeBundle?.currentSession.state ?? initialState ?? TennisMatchState(
@@ -52,6 +55,7 @@ private final class WatchTennisSessionStore {
             )
         }
         state = initial
+        actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
     }
 
     func score(_ side: MatchSide) {
@@ -61,9 +65,23 @@ private final class WatchTennisSessionStore {
     func send(_ intent: TennisMatchIntent) {
         Task { [weak self, core] in
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard case .accepted(let session, let events) = await core.dispatch(actorId: "watch", intent: intent, at: now),
-                  let self else { return }
+            guard let self else { return }
+            self.actionLog.beginUndoableMutation()
+            guard case .accepted(let session, let events) = await core.dispatch(actorId: "watch", intent: intent, at: now) else {
+                self.actionLog.rejectUndoableMutation()
+                return
+            }
             self.state = session.state
+            if case .reset = intent {
+                self.actionLog.reset(at: Date(timeIntervalSince1970: TimeInterval(now) / 1_000))
+            } else {
+                self.actionLog.append(contentsOf: WatchScoreActionProjector.tennis(
+                    intent: intent,
+                    events: events,
+                    state: session.state,
+                    timestamp: Date(timeIntervalSince1970: TimeInterval(now) / 1_000)
+                ))
+            }
             try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, events)
         }
@@ -74,6 +92,13 @@ private final class WatchTennisSessionStore {
             guard await core.undo(actorId: "watch"), let self else { return }
             let session = await core.snapshot()
             self.state = session.state
+            self.actionLog.undo(
+                at: Date(),
+                team1Score: session.state.leftPoints,
+                team2Score: session.state.rightPoints,
+                team1SetScore: session.state.leftSets,
+                team2SetScore: session.state.rightSets
+            )
             try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, [])
         }
@@ -81,6 +106,10 @@ private final class WatchTennisSessionStore {
 
     func replaceDisplayedState(_ state: TennisMatchState) {
         self.state = state
+    }
+
+    func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
+        actionLog.merge(detailedActions: actions)
     }
 
     func resumeBundle() async -> ResumeBundle {
@@ -120,20 +149,24 @@ struct WatchTennisScoreView: View {
         isDoubles: Bool = false,
         resumeBundle: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>? = nil,
         resumedStartTime: Date? = nil,
-        resumedRestState: WatchRestState? = nil
+        resumedRestState: WatchRestState? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.maxSets = maxSets
         self.linkedSessionId = linkedSessionId
         self.isDoubles = isDoubles
         let rules = TennisRuleSet(maxSets: maxSets)
         let gameType: GameType = isDoubles ? .tennisDoubles : .tennis
+        let startedAt = resumedStartTime ?? Date()
         _store = State(initialValue: WatchTennisSessionStore(
             gameType: gameType,
             rules: initialState?.rules ?? rules,
             initialState: initialState,
-            resumeBundle: resumeBundle
+            resumeBundle: resumeBundle,
+            resumedActionLog: resumedActionLog,
+            startedAt: startedAt
         ))
-        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        _matchStartTime = State(initialValue: startedAt)
         _restState = State(initialValue: resumedRestState)
     }
 
@@ -212,7 +245,7 @@ struct WatchTennisScoreView: View {
             store.onStateChanged = { [linkService] state, events in
                 if linkedSessionId != nil {
                     guard linkService.isController else { return }
-                    linkService.publishSnapshot(.tennis(state))
+                    linkService.publishSnapshot(.tennis(state), detailedActions: store.actionLog.detailedActions)
                 }
                 handle(events: events, state: state)
                 Task { await persistResumeSession() }
@@ -225,6 +258,7 @@ struct WatchTennisScoreView: View {
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let state = update.snapshot.tennisState else { return }
+            store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(state)
             if state.finished {
                 showFinishedOverlay = true
@@ -572,13 +606,8 @@ struct WatchTennisScoreView: View {
                 manualEnd: manualFinishRequested,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: max(
-                    1,
-                    store.state.leftPoints
-                        + store.state.rightPoints
-                        + store.state.leftGames
-                        + store.state.rightGames
-                )
+                totalScoreChanges: store.actionLog.scoreChangeCount,
+                detailedActions: store.actionLog.detailedActions
             )
         } else {
             transferLocalFinishedRecordIfNeeded(store.state)
@@ -667,6 +696,7 @@ struct WatchTennisScoreView: View {
                 bundle: bundle,
                 restState: restState
             ),
+            actionLog: store.actionLog,
             link: linkService.resumeContext
         ))
     }
@@ -694,8 +724,8 @@ struct WatchTennisScoreView: View {
             team1SetScore: state.leftSets,
             team2SetScore: state.rightSets,
             winner: winnerName,
-            actions: [],
-            totalScoreChanges: max(1, state.leftPoints + state.rightPoints),
+            actions: store.actionLog.actions,
+            totalScoreChanges: store.actionLog.scoreChangeCount,
             participants: state.doublesPlayerNames?.map {
                 WatchRecordParticipant(name: $0, score: 0)
             },

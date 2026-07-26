@@ -15,12 +15,15 @@ private final class WatchRallySessionStore {
     private let archiveRepository: SessionArchiveRepository
 
     private(set) var state: RallyMatchState
+    private(set) var actionLog: WatchScoreActionLog
 
     init(
         gameType: GameType,
         rules: RallyRuleSet,
         initialState: RallyMatchState? = nil,
-        resumeBundle: ResumeBundle? = nil
+        resumeBundle: ResumeBundle? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil,
+        startedAt: Date = Date()
     ) {
         let defaults = WatchDefaultTeamNames.resolve()
         let initial = resumeBundle?.currentSession.state ?? initialState ?? RallyMatchEngine.initial(
@@ -53,6 +56,7 @@ private final class WatchRallySessionStore {
         }
         archiveRepository = SessionArchiveRepository()
         state = initial
+        actionLog = WatchScoreActionLog(startedAt: startedAt, resumed: resumedActionLog)
     }
 
     func score(_ side: MatchSide) {
@@ -61,9 +65,25 @@ private final class WatchRallySessionStore {
 
     func send(_ intent: RallyMatchIntent) {
         Task { [weak self, core] in
-            let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard case .accepted(let session, let events) = await core.dispatch(actorId: "watch", intent: intent, at: now), let self else { return }
+            let timestamp = Date()
+            let now = Int64(timestamp.timeIntervalSince1970 * 1_000)
+            guard let self else { return }
+            self.actionLog.beginUndoableMutation()
+            guard case .accepted(let session, let events) = await core.dispatch(actorId: "watch", intent: intent, at: now) else {
+                self.actionLog.rejectUndoableMutation()
+                return
+            }
             self.state = session.state
+            if case .reset = intent {
+                self.actionLog.reset(at: timestamp)
+            } else {
+                self.actionLog.append(contentsOf: WatchScoreActionProjector.rally(
+                    intent: intent,
+                    events: events,
+                    state: session.state,
+                    timestamp: timestamp
+                ))
+            }
             try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, events)
         }
@@ -74,6 +94,12 @@ private final class WatchRallySessionStore {
             guard await core.undo(actorId: "watch"), let self else { return }
             let session = await core.snapshot()
             self.state = session.state
+            _ = self.actionLog.undo(
+                team1Score: session.state.leftPoints,
+                team2Score: session.state.rightPoints,
+                team1SetScore: session.state.leftSets,
+                team2SetScore: session.state.rightSets
+            )
             try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, [])
         }
@@ -90,6 +116,10 @@ private final class WatchRallySessionStore {
 
     func replaceDisplayedState(_ state: RallyMatchState) {
         self.state = state
+    }
+
+    func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
+        actionLog.merge(detailedActions: actions)
     }
 
     func resumeBundle() async -> ResumeBundle {
@@ -129,18 +159,22 @@ struct WatchRallyScoreView: View {
         linkedSessionId: UUID? = nil,
         resumeBundle: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>? = nil,
         resumedStartTime: Date? = nil,
-        resumedRestState: WatchRestState? = nil
+        resumedRestState: WatchRestState? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.gameType = gameType
         self.rules = rules
         self.linkedSessionId = linkedSessionId
+        let startedAt = resumedStartTime ?? Date()
         _store = State(initialValue: WatchRallySessionStore(
             gameType: gameType,
             rules: rules,
             initialState: initialState,
-            resumeBundle: resumeBundle
+            resumeBundle: resumeBundle,
+            resumedActionLog: resumedActionLog,
+            startedAt: startedAt
         ))
-        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        _matchStartTime = State(initialValue: startedAt)
         _restState = State(initialValue: resumedRestState)
     }
 
@@ -211,7 +245,7 @@ struct WatchRallyScoreView: View {
             store.onStateChanged = { [linkService] state, events in
                 if linkedSessionId != nil {
                     guard linkService.isController else { return }
-                    linkService.publishSnapshot(.rally(state))
+                    linkService.publishSnapshot(.rally(state), detailedActions: store.actionLog.detailedActions)
                 }
                 handle(events: events, state: state)
                 Task { await persistResumeSession() }
@@ -228,6 +262,7 @@ struct WatchRallyScoreView: View {
                   let update,
                   update.sessionId == linkedSessionId else { return }
             guard let state = update.snapshot.rallyState else { return }
+            store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(state)
             if state.finished {
                 showFinishedOverlay = true
@@ -567,7 +602,8 @@ struct WatchRallyScoreView: View {
                 manualEnd: manualFinishRequested,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: max(1, store.state.leftPoints + store.state.rightPoints)
+                totalScoreChanges: store.actionLog.scoreChangeCount,
+                detailedActions: store.actionLog.detailedActions
             )
         } else {
             transferLocalFinishedRecordIfNeeded(store.state)
@@ -655,6 +691,7 @@ struct WatchRallyScoreView: View {
                 bundle: bundle,
                 restState: restState
             ),
+            actionLog: store.actionLog,
             link: linkService.resumeContext
         ))
     }
@@ -689,8 +726,8 @@ struct WatchRallyScoreView: View {
             team1SetScore: state.leftSets,
             team2SetScore: state.rightSets,
             winner: winnerName,
-            actions: [],
-            totalScoreChanges: max(1, state.leftPoints + state.rightPoints),
+            actions: store.actionLog.actions,
+            totalScoreChanges: store.actionLog.scoreChangeCount,
             participants: state.doubles?.playerNames.map {
                 WatchRecordParticipant(name: $0, score: 0)
             },

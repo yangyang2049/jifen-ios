@@ -167,6 +167,47 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
     static func == (lhs: WatchScoreboardRecordSummary, rhs: WatchScoreboardRecordSummary) -> Bool {
         lhs.id == rhs.id
     }
+
+    var doublesTeamNames: (left: String, right: String)? {
+        watchDoublesTeamNames(gameType: gameType, participants: participants)
+    }
+
+    var listDisplayText: String {
+        let leftScore = gameType.usesPointScoreInList ? team1FinalScore : team1SetScore
+        let rightScore = gameType.usesPointScoreInList ? team2FinalScore : team2SetScore
+
+        if let doublesTeamNames {
+            return "\(doublesTeamNames.left) \(leftScore) - \(doublesTeamNames.right) \(rightScore)"
+        }
+        if let participants, participants.count > 2 {
+            return participants
+                .map { "\($0.name) \($0.score)" }
+                .joined(separator: " · ")
+        }
+        return "\(team1Name) \(leftScore) - \(rightScore) \(team2Name)"
+    }
+}
+
+extension WatchScoreboardRecord {
+    var doublesTeamNames: (left: String, right: String)? {
+        watchDoublesTeamNames(gameType: gameType, participants: participants)
+    }
+}
+
+private func watchDoublesTeamNames(
+    gameType: WatchGameType,
+    participants: [WatchRecordParticipant]?
+) -> (left: String, right: String)? {
+    guard gameType == .pingpong || gameType == .badminton ||
+            gameType == .tennis || gameType == .pickleball,
+          let participants,
+          participants.count >= 4 else {
+        return nil
+    }
+    return (
+        "\(participants[0].name)/\(participants[2].name)",
+        "\(participants[1].name)/\(participants[3].name)"
+    )
 }
 
 func watchFormatDuration(_ duration: TimeInterval) -> String {

@@ -221,7 +221,12 @@ struct TennisScoreboardView: View {
         .onChange(of: store.state) { _, state in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             if let watchSessionId, watchLinkService.isController {
-                watchLinkService.syncWatch(sessionId: watchSessionId, gameType: store.gameType, state: state)
+                watchLinkService.syncWatch(
+                    sessionId: watchSessionId,
+                    gameType: store.gameType,
+                    state: state,
+                    detailedActions: store.actionTimeline
+                )
             }
             if state.finished {
                 showGameOverDialog = true
@@ -242,6 +247,7 @@ struct TennisScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let tennis = update.snapshot.tennisState else { return }
+            store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(tennis)
         }
         .scoreboardDisplaySettingsOverlay(

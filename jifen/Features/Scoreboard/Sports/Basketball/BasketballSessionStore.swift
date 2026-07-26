@@ -14,6 +14,7 @@ final class BasketballSessionStore {
     private var detailedActions: [DetailedScoreAction]
 
     private(set) var state: BasketballMatchState
+    var actionTimeline: [DetailedScoreAction] { detailedActions }
     let sessionId: UUID
     let startedAt: Date
 
@@ -139,6 +140,13 @@ final class BasketballSessionStore {
 
     func replaceDisplayedState(_ state: BasketballMatchState) {
         self.state = state
+    }
+
+    func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
+        guard !incoming.isEmpty else { return }
+        detailedActions = incoming.sorted {
+            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
+        }
     }
 
     private func append(intent: BasketballMatchIntent, at milliseconds: Int64, state: BasketballMatchState) {

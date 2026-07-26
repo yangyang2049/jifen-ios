@@ -62,6 +62,8 @@ struct WatchResumeSession: Codable, Sendable {
     let scoreLine: String
     let emoji: String
     let payload: WatchResumePayload
+    /// Optional for backward-compatible decoding of schema-v1 resume data.
+    let actionLog: WatchScoreActionLog?
     let link: WatchResumeLinkContext?
 
     init(
@@ -70,6 +72,7 @@ struct WatchResumeSession: Codable, Sendable {
         scoreLine: String,
         emoji: String,
         payload: WatchResumePayload,
+        actionLog: WatchScoreActionLog? = nil,
         link: WatchResumeLinkContext? = nil
     ) {
         schemaVersion = Self.currentSchemaVersion
@@ -78,6 +81,7 @@ struct WatchResumeSession: Codable, Sendable {
         self.scoreLine = scoreLine
         self.emoji = emoji
         self.payload = payload
+        self.actionLog = actionLog
         self.link = link
     }
 }
@@ -133,11 +137,14 @@ final class WatchResumeSessionStore {
 
     func refreshLinkContext(_ context: WatchResumeLinkContext) {
         guard let value = session, value.link?.sessionId == context.sessionId else { return }
+        var actionLog = value.actionLog ?? WatchScoreActionLog(startedAt: value.startedAt)
+        actionLog.merge(detailedActions: context.setup.detailedActions ?? [])
         save(WatchResumeSession(
             startedAt: value.startedAt,
             scoreLine: value.scoreLine,
             emoji: value.emoji,
             payload: value.payload,
+            actionLog: actionLog,
             link: context
         ))
     }
@@ -211,11 +218,14 @@ final class WatchResumeSessionStore {
         }
 
         guard let updated else { return }
+        var actionLog = value.actionLog ?? WatchScoreActionLog(startedAt: value.startedAt)
+        actionLog.merge(detailedActions: context.setup.detailedActions ?? [])
         save(WatchResumeSession(
             startedAt: value.startedAt,
             scoreLine: updated.scoreLine,
             emoji: value.emoji,
             payload: updated.payload,
+            actionLog: actionLog,
             link: context
         ))
     }

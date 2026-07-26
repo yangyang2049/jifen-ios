@@ -18,6 +18,7 @@ final class WatchArcherySessionStore {
     private var participants: [SessionParticipant]
 
     private(set) var state: ArcheryMatchState
+    private(set) var actionLog: WatchScoreActionLog
     let sessionId: UUID
     let startedAt: Date
 
@@ -29,7 +30,8 @@ final class WatchArcherySessionStore {
         initialState: LinkedArcheryState? = nil,
         resumedState: ArcheryMatchState? = nil,
         resumedUndoStates: [ArcheryMatchState] = [],
-        resumedStartTime: Date? = nil
+        resumedStartTime: Date? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         let descriptor = ScoreboardKernelRegistry.descriptor(for: .archeryDual)
         let defaults = WatchDefaultTeamNames.resolve()
@@ -68,6 +70,7 @@ final class WatchArcherySessionStore {
             .init(id: TeamID.team1.rawValue, name: seed.rightName, role: "team")
         ]
         startedAt = resumedStartTime ?? Date()
+        actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
     }
 
     @discardableResult
@@ -76,13 +79,27 @@ final class WatchArcherySessionStore {
         if recordHistory {
             undoStack.append(state)
             if undoStack.count > 50 { undoStack.removeFirst() }
+            actionLog.beginUndoableMutation()
         }
         let result = reducer.reduce(state: state, intent: intent, at: now)
         guard result.accepted else {
-            if recordHistory { _ = undoStack.popLast() }
+            if recordHistory {
+                _ = undoStack.popLast()
+                actionLog.rejectUndoableMutation()
+            }
             return result
         }
         state = result.state
+        let timestamp = Date(timeIntervalSince1970: TimeInterval(now) / 1_000)
+        if case .reset = intent {
+            actionLog.reset(at: timestamp)
+        } else {
+            actionLog.append(contentsOf: WatchScoreActionProjector.archery(
+                events: result.events,
+                state: state,
+                timestamp: timestamp
+            ))
+        }
         persistSnapshot()
         return result
     }
@@ -91,12 +108,23 @@ final class WatchArcherySessionStore {
     func undo() -> Bool {
         guard let previous = undoStack.popLast() else { return false }
         state = previous
+        actionLog.undo(
+            at: Date(),
+            team1Score: state.leftArrowSum,
+            team2Score: state.rightArrowSum,
+            team1SetScore: state.leftSetPoints,
+            team2SetScore: state.rightSetPoints
+        )
         persistSnapshot()
         return true
     }
 
     func replaceDisplayedState(_ state: ArcheryMatchState) {
         self.state = state
+    }
+
+    func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
+        actionLog.merge(detailedActions: actions)
     }
 
     func clearHistory() {

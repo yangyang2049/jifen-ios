@@ -1,4 +1,6 @@
+import LinkCore
 import RecordCore
+import ScoreCore
 import XCTest
 @testable import jifen
 
@@ -68,12 +70,12 @@ final class ScoreboardRecordV4Tests: XCTestCase {
     }
 
     func testAll23ProjectPoliciesMatchDetailMatrix() {
-        let trend: Set<GameType> = [
+        let trend: Set<jifen.GameType> = [
             .pingpong, .badminton, .pickleball, .basketball, .threeBasketball,
             .volleyball, .beachVolleyball, .airVolleyball, .archery, .billiards,
             .nineBall, .snooker, .foosball, .simpleScore
         ]
-        let noTrend: Set<GameType> = [
+        let noTrend: Set<jifen.GameType> = [
             .tennis, .football, .boxing, .eightBall, .doudizhu, .guandan,
             .shengji, .uno, .multiScoreboard
         ]
@@ -99,6 +101,68 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         let presentation = ScoreboardRecordPresentation(record: record)
         XCTAssertEqual(presentation.trend.map(\.segment), [0, 0, 1, 1])
         XCTAssertTrue(presentation.canShowTrend)
+    }
+
+    func testStandaloneWatchIngestKeepsStructuredActions() throws {
+        let id = "watch-ingest-\(UUID().uuidString)"
+        let actions = [
+            DetailedScoreAction(type: .matchStarted, epochMilliseconds: 1_000, scores: [0, 0]),
+            DetailedScoreAction(type: .scoreChanged, epochMilliseconds: 2_000, team: .team1, scores: [1, 0], scoreChange: 1, operationCode: "point"),
+            DetailedScoreAction(type: .setFinished, epochMilliseconds: 3_000, scores: [21, 19], setScores: [1, 0], setNumber: 1, winner: .team1)
+        ]
+        let payload = WatchRecordTransferPayload(
+            id: id,
+            gameType: "badminton",
+            startTimeEpochMilliseconds: 1_000,
+            endTimeEpochMilliseconds: 4_000,
+            durationSeconds: 3,
+            team1Name: "甲",
+            team2Name: "乙",
+            team1FinalScore: 21,
+            team2FinalScore: 19,
+            team1SetScore: 1,
+            team2SetScore: 0,
+            winner: "甲",
+            actions: ["point"],
+            detailedActions: actions,
+            totalScoreChanges: 1
+        )
+
+        let record = try WatchStandaloneRecordIngestor.makeRecord(payload)
+        XCTAssertEqual(record.detailedActions, actions)
+        XCTAssertEqual(record.setResults?.first?.scores, [21, 19])
+        XCTAssertEqual(record.totalScoreChanges, 1)
+    }
+
+    func testLinkedWatchIngestKeepsSameTimeline() throws {
+        let id = "w_link_ingest_\(UUID().uuidString)"
+        let action = DetailedScoreAction(
+            type: .scoreChanged,
+            epochMilliseconds: 2_000,
+            team: .team2,
+            scores: [0, 1],
+            scoreChange: 1,
+            operationCode: "point"
+        )
+        var state = RallyMatchEngine.initial(leftName: "甲", rightName: "乙", rules: .badminton())
+        state.rightPoints = 1
+        let payload = LinkMatchFinishedPayload(
+            snapshot: .rally(state),
+            recordId: id,
+            winnerSide: .right,
+            startTimeEpochMilliseconds: 1_000,
+            endTimeEpochMilliseconds: 3_000,
+            durationSeconds: 2,
+            totalScoreChanges: 1,
+            detailedActions: [action]
+        )
+
+        let record = try LinkedMatchRecordIngestor.makeRecord(
+            payload: payload,
+            gameType: ScoreCore.GameType.badminton
+        )
+        XCTAssertEqual(record.detailedActions, [action])
+        XCTAssertEqual(record.totalScoreChanges, 1)
     }
 
     private func makeRecord(id: String = "record", schemaVersion: Int = 4, actions: [String] = []) -> ScoreboardRecord {

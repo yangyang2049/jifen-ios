@@ -320,7 +320,8 @@ struct WatchRootView: View {
                     linkedSessionId: linkedSessionId(for: route),
                     resumeBundle: rallyResumeBundle(for: route),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route)
+                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .badminton(let maxSets):
                 WatchBadmintonScoreView(
@@ -329,7 +330,8 @@ struct WatchRootView: View {
                     linkedSessionId: linkedSessionId(for: route),
                     resumeBundle: rallyResumeBundle(for: route),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route)
+                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .tennis(let maxSets):
                 WatchTennisScoreView(
@@ -338,7 +340,8 @@ struct WatchRootView: View {
                     linkedSessionId: linkedSessionId(for: route),
                     resumeBundle: tennisResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: tennisResumeRestState()
+                    resumedRestState: tennisResumeRestState(),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .pickleball(let maxSets):
                 WatchPickleballScoreView(
@@ -347,7 +350,8 @@ struct WatchRootView: View {
                     linkedSessionId: linkedSessionId(for: route),
                     resumeBundle: rallyResumeBundle(for: route),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route)
+                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .archery:
                 WatchArcheryScoreView(
@@ -356,7 +360,8 @@ struct WatchRootView: View {
                     resumedState: archeryResumeState(),
                     resumedUndoStates: archeryResumeUndoStates(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: archeryResumeRestState()
+                    resumedRestState: archeryResumeRestState(),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .basketball(let threeXThree):
                 WatchBasketballScoreView(
@@ -364,7 +369,8 @@ struct WatchRootView: View {
                     initialState: basketballInitialState(for: route),
                     linkedSessionId: linkedSessionId(for: route),
                     resumeBundle: basketballResumeBundle(),
-                    resumedStartTime: activeResumeSession?.startedAt
+                    resumedStartTime: activeResumeSession?.startedAt,
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .basketballTraining(let mode):
                 WatchBasketballTrainingView(
@@ -379,14 +385,16 @@ struct WatchRootView: View {
                     leftName: eightBallResumeNames()?.left,
                     rightName: eightBallResumeNames()?.right,
                     resumedUndoStates: eightBallResumeUndoStates(),
-                    resumedStartTime: activeResumeSession?.startedAt
+                    resumedStartTime: activeResumeSession?.startedAt,
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .nineBall:
                 WatchNineBallScoreView(
                     initialState: nineBallResumeState() ?? nineBallInitialState(),
                     linkedSessionId: linkedSessionId,
                     resumedUndoStates: nineBallResumeUndoStates(),
-                    resumedStartTime: activeResumeSession?.startedAt
+                    resumedStartTime: activeResumeSession?.startedAt,
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .snooker:
                 WatchSnookerScoreView(
@@ -405,7 +413,8 @@ struct WatchRootView: View {
                     doublesGameType: .pingpongDoubles,
                     resumeBundle: rallyResumeBundle(for: route),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route)
+                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .badmintonDoubles(let maxSets):
                 WatchBadmintonScoreView(
@@ -415,7 +424,8 @@ struct WatchRootView: View {
                     doublesGameType: .badmintonDoubles,
                     resumeBundle: rallyResumeBundle(for: route),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route)
+                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .tennisDoubles(let maxSets):
                 WatchTennisScoreView(
@@ -425,7 +435,8 @@ struct WatchRootView: View {
                     isDoubles: true,
                     resumeBundle: tennisResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: tennisResumeRestState()
+                    resumedRestState: tennisResumeRestState(),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .pickleballDoubles(let maxSets):
                 WatchPickleballScoreView(
@@ -435,7 +446,8 @@ struct WatchRootView: View {
                     doublesGameType: .pickleballDoubles,
                     resumeBundle: rallyResumeBundle(for: route),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route)
+                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
         }
     }

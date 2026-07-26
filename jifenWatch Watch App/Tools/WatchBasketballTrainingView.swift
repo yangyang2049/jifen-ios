@@ -1,3 +1,4 @@
+import RecordCore
 import SwiftUI
 
 struct WatchBasketballTrainingView: View {
@@ -451,6 +452,7 @@ struct WatchBasketballTrainingView: View {
                 description: "training_start",
                 team1Score: 0,
                 team2Score: 0,
+                operationCode: "training_start",
                 timestamp: startTime
             )
         ]
@@ -461,10 +463,13 @@ struct WatchBasketballTrainingView: View {
                 misses += 1
             }
             return WatchScoreAction(
-                actionType: .scoreAdd,
+                actionType: shot.made ? .scoreAdd : .stateChange,
                 description: trainingActionDescription(for: shot),
+                team: shot.made ? .team2 : .team1,
                 team1Score: misses,
                 team2Score: made,
+                scoreChange: shot.made ? shot.points : 0,
+                operationCode: trainingActionDescription(for: shot),
                 timestamp: shot.timestamp
             )
         })
@@ -477,6 +482,7 @@ struct WatchBasketballTrainingView: View {
                 description: "training_rate_\(percentage)",
                 team1Score: misses,
                 team2Score: made,
+                operationCode: "training_finished",
                 timestamp: endTime
             )
         )

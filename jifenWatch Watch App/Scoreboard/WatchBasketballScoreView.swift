@@ -21,11 +21,14 @@ private final class WatchBasketballSessionStore {
     private var clockTask: Task<Void, Never>?
 
     private(set) var state: BasketballMatchState
+    private(set) var actionLog: WatchScoreActionLog
 
     init(
         gameMode: BasketballGameMode,
         initialState: BasketballMatchState? = nil,
-        resumeBundle: ResumeBundle? = nil
+        resumeBundle: ResumeBundle? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil,
+        startedAt: Date = Date()
     ) {
         let initial = resumeBundle?.currentSession.state ?? initialState ?? BasketballMatchEngine.initial(
             leftName: NSLocalizedString("watch_team_red", value: "红方", comment: "Red"),
@@ -58,25 +61,48 @@ private final class WatchBasketballSessionStore {
         self.snapshotStore = AtomicJSONFileStore(fileURL: Self.snapshotURL(for: session.sessionId))
         self.archiveIndex = SessionArchiveIndex(fileURL: Self.archiveIndexURL())
         self.state = initial
+        self.actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
     }
 
     func send(_ intent: BasketballMatchIntent, recordsUndo: Bool = true) {
         Task { [weak self, core] in
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
+            guard let self else { return }
+            if recordsUndo { self.actionLog.beginUndoableMutation() }
             let result = if recordsUndo {
                 await core.dispatch(actorId: "watch", intent: intent, at: now)
             } else {
                 await core.dispatchNonUndoable(actorId: "watch", intent: intent, at: now)
             }
-            guard case .accepted(let session, _) = result, let self else { return }
+            guard case .accepted(let session, _) = result else {
+                if recordsUndo { self.actionLog.rejectUndoableMutation() }
+                return
+            }
             self.state = session.state
+            guard recordsUndo else { return }
+            let timestamp = Date(timeIntervalSince1970: TimeInterval(now) / 1_000)
+            if case .reset = intent {
+                self.actionLog.reset(at: timestamp)
+            } else {
+                self.actionLog.append(contentsOf: WatchScoreActionProjector.basketball(
+                    intent: intent,
+                    state: session.state,
+                    timestamp: timestamp
+                ))
+            }
         }
     }
 
     func undo() {
         Task { [weak self, core] in
             guard await core.undo(actorId: "watch"), let self else { return }
-            self.state = await core.snapshot().state
+            let state = await core.snapshot().state
+            self.state = state
+            self.actionLog.undo(
+                at: Date(),
+                team1Score: state.leftScore,
+                team2Score: state.rightScore
+            )
         }
     }
 
@@ -115,6 +141,10 @@ private final class WatchBasketballSessionStore {
 
     func replaceDisplayedState(_ state: BasketballMatchState) {
         self.state = state
+    }
+
+    func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
+        actionLog.merge(detailedActions: actions)
     }
 
     func resumeBundle() async -> ResumeBundle {
@@ -161,16 +191,20 @@ struct WatchBasketballScoreView: View {
             BasketballMatchEvent,
             BasketballMatchIntent
         >? = nil,
-        resumedStartTime: Date? = nil
+        resumedStartTime: Date? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.gameMode = gameMode
         self.linkedSessionId = linkedSessionId
+        let startedAt = resumedStartTime ?? Date()
         _store = State(initialValue: WatchBasketballSessionStore(
             gameMode: gameMode,
             initialState: initialState,
-            resumeBundle: resumeBundle
+            resumeBundle: resumeBundle,
+            resumedActionLog: resumedActionLog,
+            startedAt: startedAt
         ))
-        _matchStartTime = State(initialValue: resumedStartTime ?? Date())
+        _matchStartTime = State(initialValue: startedAt)
     }
 
     var body: some View {
@@ -274,6 +308,7 @@ struct WatchBasketballScoreView: View {
                   update.sessionId == linkedSessionId else { return }
             guard let state = update.snapshot.basketballState else { return }
             guard state.gameMode == gameMode else { return }
+            store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(state)
             if state.finished {
                 showFinishedOverlay = true
@@ -282,7 +317,7 @@ struct WatchBasketballScoreView: View {
         }
         .onChange(of: store.state) { oldState, newState in
             if linkedSessionId != nil, linkService.isController {
-                linkService.publishSnapshot(.basketball(newState))
+                linkService.publishSnapshot(.basketball(newState), detailedActions: store.actionLog.detailedActions)
             }
             if !oldState.finished, newState.finished {
                 beginBasketballFinish()
@@ -445,7 +480,8 @@ struct WatchBasketballScoreView: View {
                 manualEnd: manualFinishRequested,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: max(1, store.state.leftScore + store.state.rightScore)
+                totalScoreChanges: store.actionLog.scoreChangeCount,
+                detailedActions: store.actionLog.detailedActions
             )
         }
         didPublishFinish = true
@@ -500,6 +536,7 @@ struct WatchBasketballScoreView: View {
             scoreLine: "\(state.leftScore) : \(state.rightScore)",
             emoji: "🏀",
             payload: .basketball(gameMode: gameMode, bundle: bundle),
+            actionLog: store.actionLog,
             link: linkService.resumeContext
         ))
     }

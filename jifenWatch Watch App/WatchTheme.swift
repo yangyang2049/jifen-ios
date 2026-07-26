@@ -32,11 +32,11 @@ struct WatchLayout {
     /// 列表行（PillRow/PillButton）左右内边距
     static var pillRowHorizontalPadding: CGFloat { isCompactScreen ? 10 : 16 }
     /// 射箭加分面板外边距（上下左右一致，内容纵向居中）
-    static var archeryScorePanelPadding: CGFloat { isCompactScreen ? 12 : 20 }
+    static var archeryScorePanelPadding: CGFloat { isCompactScreen ? 6 : 10 }
     /// 射箭加分面板内 VStack 间距（标题/网格/关闭）
-    static var archeryScorePanelVStackSpacing: CGFloat { 12 }
+    static var archeryScorePanelVStackSpacing: CGFloat { isCompactScreen ? 4 : 6 }
     /// 射箭加分面板关闭按钮与网格的间距
-    static var archeryScorePanelCloseTopPadding: CGFloat { 8 }
+    static var archeryScorePanelCloseTopPadding: CGFloat { isCompactScreen ? 0 : 4 }
     /// 射箭加分面板按钮尺寸
     static var archeryScoreButtonSize: CGFloat { isCompactScreen ? 34 : 44 }
     /// 射箭加分面板数字字号
@@ -80,6 +80,7 @@ struct WatchTheme {
     static let listItemBackground = Color(hex: 0x222222)
     static let overlayCard = Color(hex: 0x1C1C1E)
     static let timerAccent = Color(hex: 0x39FF14)
+    static let resumeBar = Color(hex: 0x124A1E)
     static let successGreen = Color(hex: 0x4CAF50)
     static let warningOrange = Color(hex: 0xFF7043)
     static let dangerRed = Color(hex: 0xFF3B30)

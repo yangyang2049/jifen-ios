@@ -206,7 +206,11 @@ struct BasketballScoreboardView: View {
         .onChange(of: store.state) { _, state in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             if let watchSessionId, watchLinkService.isController {
-                watchLinkService.syncWatch(sessionId: watchSessionId, state: state)
+                watchLinkService.syncWatch(
+                    sessionId: watchSessionId,
+                    state: state,
+                    detailedActions: store.actionTimeline
+                )
             }
             if state.finished {
                 showGameOverDialog = true
@@ -218,6 +222,7 @@ struct BasketballScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let basketball = update.snapshot.basketballState else { return }
+            store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(basketball)
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
@@ -418,7 +423,11 @@ struct BasketballScoreboardView: View {
             if let id = watchSessionId {
                 Task {
                     try? await watchLinkService.takeover(sessionId: id)
-                    watchLinkService.syncWatch(sessionId: id, state: store.state)
+                    watchLinkService.syncWatch(
+                        sessionId: id,
+                        state: store.state,
+                        detailedActions: store.actionTimeline
+                    )
                 }
             }
             showMenu = false

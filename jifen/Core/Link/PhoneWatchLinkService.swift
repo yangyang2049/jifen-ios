@@ -1,6 +1,7 @@
 import Foundation
 import LinkCore
 import Observation
+import RecordCore
 import ScoreCore
 
 @MainActor
@@ -23,6 +24,7 @@ final class PhoneWatchLinkService {
     private var ackRetryTask: Task<Void, Never>?
     private var revisionGate = LinkRevisionGate()
     private var pendingTakeoverMessageId: UUID?
+    private var mergedDetailedActions: [DetailedScoreAction] = []
 
     private(set) var connectivityStatus: WatchConnectivityStatus
     private(set) var controlRole: LinkControlRole?
@@ -74,6 +76,7 @@ final class PhoneWatchLinkService {
         let sessionId: UUID
         let revision: UInt64
         let snapshot: LinkedScoreboardSnapshot
+        let detailedActions: [DetailedScoreAction]
     }
 
     init() {
@@ -225,17 +228,21 @@ final class PhoneWatchLinkService {
         )
     }
 
-    func syncWatch(sessionId: UUID, state: BasketballMatchState) {
+    func syncWatch(
+        sessionId: UUID,
+        state: BasketballMatchState,
+        detailedActions: [DetailedScoreAction]? = nil
+    ) {
         let gameType: ScoreCore.GameType = state.gameMode == .threeXThree ? .threeBasketball : .basketball
-        sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: .basketball(state))
+        sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: .basketball(state), detailedActions: detailedActions)
     }
 
-    func syncWatch(sessionId: UUID, gameType: ScoreCore.GameType, state: RallyMatchState) {
-        sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: .rally(state))
+    func syncWatch(sessionId: UUID, gameType: ScoreCore.GameType, state: RallyMatchState, detailedActions: [DetailedScoreAction]? = nil) {
+        sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: .rally(state), detailedActions: detailedActions)
     }
 
-    func syncWatch(sessionId: UUID, gameType: ScoreCore.GameType, state: TennisMatchState) {
-        sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: .tennis(state))
+    func syncWatch(sessionId: UUID, gameType: ScoreCore.GameType, state: TennisMatchState, detailedActions: [DetailedScoreAction]? = nil) {
+        sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: .tennis(state), detailedActions: detailedActions)
     }
 
     func syncWatch(sessionId: UUID, gameType: ScoreCore.GameType, snapshot: LinkedScoreboardSnapshot) {
@@ -332,7 +339,8 @@ final class PhoneWatchLinkService {
                 startTimeEpochMilliseconds: Int64(start.timeIntervalSince1970 * 1000),
                 endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
                 durationSeconds: duration,
-                totalScoreChanges: totalScoreChanges
+                totalScoreChanges: totalScoreChanges,
+                detailedActions: mergedDetailedActions
             )
         )
         Task {
@@ -441,13 +449,15 @@ final class PhoneWatchLinkService {
     private func sendSnapshotIfController(
         sessionId: UUID,
         gameType: ScoreCore.GameType,
-        snapshot: LinkedScoreboardSnapshot
+        snapshot: LinkedScoreboardSnapshot,
+        detailedActions: [DetailedScoreAction]? = nil
     ) {
         guard var session = activeSession,
               session.sessionId == sessionId,
               session.gameType == gameType,
               session.role == .phoneController else { return }
         session.revision += 1
+        mergeDetailedActions(detailedActions)
         activeSession = session
         sequence += 1
         let messageId = UUID()
@@ -463,7 +473,8 @@ final class PhoneWatchLinkService {
                 gameType: gameType,
                 maxSets: maxSets(for: snapshot),
                 basketballThreeXThree: isThreeXThree(snapshot),
-                initialSnapshot: snapshot
+                initialSnapshot: snapshot,
+                detailedActions: mergedDetailedActions
             )
         )
         Task {
@@ -557,10 +568,12 @@ final class PhoneWatchLinkService {
         if disposition == .newer, var session = activeSession {
             session.revision = max(session.revision, envelope.sessionRevision)
             activeSession = session
+            mergeDetailedActions(envelope.payload.detailedActions)
             latestRemoteSnapshot = LinkedSnapshotUpdate(
                 sessionId: envelope.sessionId,
                 revision: envelope.sessionRevision,
-                snapshot: snapshot
+                snapshot: snapshot,
+                detailedActions: mergedDetailedActions
             )
         }
         // ACK valid duplicates too: a retry usually means our prior ACK was lost.
@@ -602,10 +615,12 @@ final class PhoneWatchLinkService {
               envelope.kind == .matchFinished,
               envelope.sessionId == activeSession?.sessionId else { return false }
 
+        mergeDetailedActions(envelope.payload.detailedActions)
         latestRemoteSnapshot = LinkedSnapshotUpdate(
             sessionId: envelope.sessionId,
             revision: envelope.sessionRevision,
-            snapshot: envelope.payload.snapshot
+            snapshot: envelope.payload.snapshot,
+            detailedActions: mergedDetailedActions
         )
 
         // Once this session has been durably committed, acknowledge any retry
@@ -767,10 +782,18 @@ final class PhoneWatchLinkService {
         pendingTakeoverMessageId = nil
         pendingAck.clear()
         latestRemoteSnapshot = nil
+        mergedDetailedActions = []
     }
 
     private func nowMs() -> Int64 {
         Int64(Date().timeIntervalSince1970 * 1_000)
+    }
+
+    private func mergeDetailedActions(_ incoming: [DetailedScoreAction]?) {
+        guard let incoming, !incoming.isEmpty else { return }
+        mergedDetailedActions = incoming.sorted {
+            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
+        }
     }
 
     private func maxSets(for snapshot: LinkedScoreboardSnapshot) -> Int? {

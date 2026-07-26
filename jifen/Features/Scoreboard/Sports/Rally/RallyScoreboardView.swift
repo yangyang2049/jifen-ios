@@ -245,7 +245,12 @@ struct RallyScoreboardView: View {
             }
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             if let watchSessionId, watchLinkService.isController {
-                watchLinkService.syncWatch(sessionId: watchSessionId, gameType: gameType, state: state)
+                watchLinkService.syncWatch(
+                    sessionId: watchSessionId,
+                    gameType: gameType,
+                    state: state,
+                    detailedActions: store.actionTimeline
+                )
             }
             if state.finished {
                 showGameOverDialog = true
@@ -273,6 +278,7 @@ struct RallyScoreboardView: View {
                   update.sessionId == watchSessionId,
                   let rally = update.snapshot.rallyState else { return }
             // Follower applies watch-authored state.
+            store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(rally)
         }
         .onChange(of: showMenu) { _, isOpen in

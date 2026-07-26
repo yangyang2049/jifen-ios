@@ -1,4 +1,5 @@
 import Foundation
+import RecordCore
 import ScoreCore
 
 #if canImport(WatchConnectivity)
@@ -266,6 +267,8 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
     public var durationSeconds: Double?
     /// Approximate score-change count for record summaries.
     public var totalScoreChanges: Int?
+    /// Structured action timeline. Optional so protocol-v1 peers keep decoding.
+    public var detailedActions: [DetailedScoreAction]?
 
     public init(
         snapshot: LinkedScoreboardSnapshot,
@@ -275,7 +278,8 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
         startTimeEpochMilliseconds: Int64? = nil,
         endTimeEpochMilliseconds: Int64? = nil,
         durationSeconds: Double? = nil,
-        totalScoreChanges: Int? = nil
+        totalScoreChanges: Int? = nil,
+        detailedActions: [DetailedScoreAction]? = nil
     ) {
         self.snapshot = snapshot
         self.recordId = recordId
@@ -285,6 +289,7 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
         self.endTimeEpochMilliseconds = endTimeEpochMilliseconds
         self.durationSeconds = durationSeconds
         self.totalScoreChanges = totalScoreChanges
+        self.detailedActions = detailedActions
     }
 }
 
@@ -370,17 +375,21 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
     public let maxSets: Int?
     public let basketballThreeXThree: Bool
     public let initialSnapshot: LinkedScoreboardSnapshot?
+    /// Optional full action timeline. A newer snapshot replaces the previous timeline.
+    public let detailedActions: [DetailedScoreAction]?
 
     public init(
         gameType: GameType,
         maxSets: Int? = nil,
         basketballThreeXThree: Bool = false,
-        initialSnapshot: LinkedScoreboardSnapshot? = nil
+        initialSnapshot: LinkedScoreboardSnapshot? = nil,
+        detailedActions: [DetailedScoreAction]? = nil
     ) {
         self.gameType = gameType
         self.maxSets = maxSets
         self.basketballThreeXThree = basketballThreeXThree
         self.initialSnapshot = initialSnapshot
+        self.detailedActions = detailedActions
     }
 }
 

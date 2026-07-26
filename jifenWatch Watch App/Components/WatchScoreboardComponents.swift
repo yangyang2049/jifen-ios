@@ -270,11 +270,12 @@ struct WatchRestOverlay: View {
                     )
                     .buttonStyle(.bordered)
                 }
-                .frame(width: WatchLayout.isCompactScreen ? 148 : 172)
-                .padding(.vertical, WatchLayout.isCompactScreen ? 12 : 18)
+                .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.black.opacity(0.52))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea()
         }
     }
 

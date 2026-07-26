@@ -10,6 +10,7 @@ struct WatchBadmintonScoreView: View {
     let resumeBundle: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>?
     let resumedStartTime: Date?
     let resumedRestState: WatchRestState?
+    let resumedActionLog: WatchScoreActionLog?
 
     init(
         maxSets: Int,
@@ -18,7 +19,8 @@ struct WatchBadmintonScoreView: View {
         doublesGameType: GameType? = nil,
         resumeBundle: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>? = nil,
         resumedStartTime: Date? = nil,
-        resumedRestState: WatchRestState? = nil
+        resumedRestState: WatchRestState? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.maxSets = maxSets
         self.initialState = initialState
@@ -27,6 +29,7 @@ struct WatchBadmintonScoreView: View {
         self.resumeBundle = resumeBundle
         self.resumedStartTime = resumedStartTime
         self.resumedRestState = resumedRestState
+        self.resumedActionLog = resumedActionLog
     }
 
     var body: some View {
@@ -37,7 +40,8 @@ struct WatchBadmintonScoreView: View {
             linkedSessionId: linkedSessionId,
             resumeBundle: resumeBundle,
             resumedStartTime: resumedStartTime,
-            resumedRestState: resumedRestState
+            resumedRestState: resumedRestState,
+            resumedActionLog: resumedActionLog
         )
     }
 }

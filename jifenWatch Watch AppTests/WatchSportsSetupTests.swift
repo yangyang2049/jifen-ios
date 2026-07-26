@@ -1,5 +1,6 @@
 import XCTest
 import LinkCore
+import RecordCore
 import ScoreCore
 @testable import jifenWatch_Watch_App
 
@@ -295,6 +296,50 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertNil(restored.consumeExpiredLinkContext())
     }
 
+    @MainActor
+    func testResumeSessionRefreshUsesLatestLinkedActionTimeline() throws {
+        let now = Date(timeIntervalSince1970: 20_000)
+        let sessionID = UUID()
+        let store = WatchResumeSessionStore(defaults: defaults, now: { now })
+        store.save(WatchResumeSession(
+            startedAt: now,
+            scoreLine: "1 : 0",
+            emoji: "🏸",
+            payload: .basketballTraining(mode: .free, history: []),
+            actionLog: WatchScoreActionLog(startedAt: now),
+            link: WatchResumeLinkContext(
+                sessionId: sessionID,
+                revision: 1,
+                controlRole: .watchFollower,
+                setup: LinkedScoreboardSetup(gameType: .badminton)
+            )
+        ))
+
+        let remoteAction = DetailedScoreAction(
+            type: .scoreChanged,
+            epochMilliseconds: 20_500,
+            team: .team1,
+            scores: [1, 0],
+            scoreChange: 1,
+            operationCode: "point"
+        )
+        store.refreshLinkContext(WatchResumeLinkContext(
+            sessionId: sessionID,
+            revision: 2,
+            controlRole: .watchFollower,
+            setup: LinkedScoreboardSetup(
+                gameType: .badminton,
+                detailedActions: [remoteAction]
+            )
+        ))
+
+        let refreshedActions = try XCTUnwrap(store.session?.actionLog?.detailedActions)
+        XCTAssertEqual(refreshedActions.map(\.id), [remoteAction.id])
+        XCTAssertEqual(refreshedActions.map(\.type), [.scoreChanged])
+        XCTAssertEqual(refreshedActions.map(\.scores), [[1, 0]])
+        XCTAssertEqual(refreshedActions.map(\.operationCode), ["point"])
+    }
+
     func testPinnedHomeItemsPersistAndIgnoreLegacyLastSelectedItem() {
         preferences.setString(WatchHomeItem.snooker.rawValue, forKey: "watchLastSelectedGame")
         preferences.pinnedHomeItemIDs = [
@@ -512,6 +557,65 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(records[0].team1FinalScore, 10)
     }
 
+    func testDoublesRecordListGroupsPartnersByTeam() {
+        let record = WatchScoreboardRecord(
+            id: "doubles-record",
+            gameType: .badminton,
+            startTime: Date(timeIntervalSince1970: 1_000),
+            endTime: Date(timeIntervalSince1970: 1_060),
+            duration: 60,
+            team1Name: "红方",
+            team2Name: "蓝方",
+            team1FinalScore: 21,
+            team2FinalScore: 18,
+            team1SetScore: 2,
+            team2SetScore: 1,
+            actions: [],
+            totalScoreChanges: 39,
+            participants: [
+                WatchRecordParticipant(name: "红A", score: 0),
+                WatchRecordParticipant(name: "蓝A", score: 0),
+                WatchRecordParticipant(name: "红B", score: 0),
+                WatchRecordParticipant(name: "蓝B", score: 0)
+            ]
+        )
+
+        let summary = WatchScoreboardRecordSummary(from: record)
+
+        XCTAssertEqual(summary.doublesTeamNames?.left, "红A/红B")
+        XCTAssertEqual(summary.doublesTeamNames?.right, "蓝A/蓝B")
+        XCTAssertEqual(summary.listDisplayText, "红A/红B 2 - 蓝A/蓝B 1")
+    }
+
+    func testMultiplayerRecordListKeepsIndividualScores() {
+        let record = WatchScoreboardRecord(
+            id: "multi-record",
+            gameType: .nineBall,
+            startTime: Date(timeIntervalSince1970: 1_000),
+            endTime: Date(timeIntervalSince1970: 1_060),
+            duration: 60,
+            team1Name: "选手1",
+            team2Name: "选手2",
+            team1FinalScore: 8,
+            team2FinalScore: 5,
+            team1SetScore: 0,
+            team2SetScore: 0,
+            actions: [],
+            totalScoreChanges: 13,
+            participants: [
+                WatchRecordParticipant(name: "甲", score: 8),
+                WatchRecordParticipant(name: "乙", score: 5),
+                WatchRecordParticipant(name: "丙", score: 3),
+                WatchRecordParticipant(name: "丁", score: 1)
+            ]
+        )
+
+        let summary = WatchScoreboardRecordSummary(from: record)
+
+        XCTAssertNil(summary.doublesTeamNames)
+        XCTAssertEqual(summary.listDisplayText, "甲 8 · 乙 5 · 丙 3 · 丁 1")
+    }
+
     func testBasketballTrainingDetailsKeepSixAndroidStatsAndDecodeFirstVersion() throws {
         let shots = [
             WatchBasketballTrainingShot(points: 1, made: true),
@@ -554,5 +658,123 @@ final class WatchSportsSetupTests: XCTestCase {
         )
         XCTAssertNil(legacy.twoPointMade)
         XCTAssertEqual(legacy.count(points: 2, made: true), 1)
+    }
+
+    func testActionLogUndoRemovesEveryActionCreatedByOneMutation() {
+        let start = Date(timeIntervalSince1970: 1_000)
+        var log = WatchScoreActionLog(startedAt: start)
+        log.beginUndoableMutation()
+        log.append(contentsOf: [
+            WatchScoreAction(actionType: .scoreAdd, description: "point", team1Score: 1, team2Score: 0),
+            WatchScoreAction(actionType: .setEnd, description: "set_completed", team1Score: 1, team2Score: 0),
+            WatchScoreAction(actionType: .gameEnd, description: "game_end", team1Score: 1, team2Score: 0)
+        ])
+
+        XCTAssertTrue(log.undo(at: start.addingTimeInterval(2), team1Score: 0, team2Score: 0))
+        XCTAssertEqual(log.actions.map(\.actionType), [.gameStart, .undo])
+        XCTAssertEqual(log.scoreChangeCount, 0)
+    }
+
+    func testRemoteActionTimelineReplacesActionsRemovedByUndoOrReset() {
+        let start = Date(timeIntervalSince1970: 1_000)
+        var log = WatchScoreActionLog(startedAt: start)
+        log.beginUndoableMutation()
+        log.append(contentsOf: [
+            WatchScoreAction(
+                actionType: .scoreAdd,
+                description: "point",
+                team1Score: 1,
+                team2Score: 0,
+                scoreChange: 1,
+                operationCode: "point"
+            )
+        ])
+
+        let replacement = DetailedScoreAction(
+            type: .matchStarted,
+            epochMilliseconds: 2_000,
+            scores: [0, 0],
+            operationCode: "game_start"
+        )
+        log.merge(detailedActions: [replacement])
+
+        XCTAssertEqual(log.detailedActions.map(\.id), [replacement.id])
+        XCTAssertEqual(log.detailedActions.map(\.type), [.matchStarted])
+        XCTAssertEqual(log.detailedActions.map(\.scores), [[0, 0]])
+        XCTAssertEqual(log.detailedActions.map(\.operationCode), ["game_start"])
+        XCTAssertEqual(log.scoreChangeCount, 0)
+        XCTAssertFalse(log.undo(team1Score: 0, team2Score: 0))
+    }
+
+    func testRallyProjectionKeepsScoreSetAndFinishOrder() {
+        var state = RallyMatchEngine.initial(
+            leftName: "红A/红B",
+            rightName: "蓝A/蓝B",
+            rules: .badminton(maxSets: 1)
+        )
+        state.leftSets = 1
+        state.finished = true
+        let actions = WatchScoreActionProjector.rally(
+            intent: .pointWon(.left),
+            events: [
+                .pointScored(side: .left, leftPoints: 21, rightPoints: 19),
+                .setCompleted(winner: .left, setNumber: 1, leftPoints: 21, rightPoints: 19, leftSets: 1, rightSets: 0),
+                .matchFinished(winner: .left)
+            ],
+            state: state,
+            timestamp: Date(timeIntervalSince1970: 2_000)
+        )
+
+        XCTAssertEqual(actions.map(\.actionType), [.scoreAdd, .setEnd, .gameEnd])
+        XCTAssertEqual(actions.first?.team, .team1)
+        XCTAssertEqual(actions[1].setNumber, 1)
+    }
+
+    func testSpecializedProjectorsKeepMissFoulAndParticipantIdentity() {
+        let archery = WatchScoreActionProjector.archery(
+            events: [.arrowScored(side: .right, points: 0, leftArrowSum: 9, rightArrowSum: 0)],
+            state: ArcheryMatchState(leftName: "甲", rightName: "乙"),
+            timestamp: Date()
+        )
+        XCTAssertEqual(archery.first?.operationCode, "archery_miss")
+        XCTAssertEqual(archery.first?.team, .team2)
+
+        let seed = NineBallChaseState.initial(playerCount: 3, playerNames: ["甲", "乙", "丙"])
+        let result = NineBallChaseReducer().reduce(
+            state: seed,
+            intent: .chaseEvent(player: 2, kind: .foul),
+            at: 1
+        )
+        let nineBall = WatchScoreActionProjector.nineBall(
+            events: result.events,
+            state: result.state,
+            timestamp: Date()
+        )
+        XCTAssertEqual(nineBall.first?.actionType, .foul)
+        XCTAssertEqual(nineBall.first?.roundNumber, 3)
+        XCTAssertEqual(nineBall.first?.participants?[2].name, "丙")
+        XCTAssertLessThan(nineBall.first?.scoreChange ?? 0, 0)
+    }
+
+    func testOldResumeSessionWithoutActionLogStillDecodes() throws {
+        let session = WatchResumeSession(
+            startedAt: Date(timeIntervalSince1970: 1_000),
+            scoreLine: "1 : 0",
+            emoji: "🎱",
+            payload: .eightBall(
+                state: .initial(),
+                undoStates: [],
+                leftName: "甲",
+                rightName: "乙"
+            ),
+            actionLog: WatchScoreActionLog(startedAt: Date(timeIntervalSince1970: 1_000))
+        )
+        let encoded = try JSONEncoder().encode(session)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        object.removeValue(forKey: "actionLog")
+        let legacyData = try JSONSerialization.data(withJSONObject: object)
+
+        let decoded = try JSONDecoder().decode(WatchResumeSession.self, from: legacyData)
+        XCTAssertNil(decoded.actionLog)
     }
 }

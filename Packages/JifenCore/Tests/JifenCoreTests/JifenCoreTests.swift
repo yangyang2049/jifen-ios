@@ -64,6 +64,47 @@ private struct CounterReducer: DomainReducer {
     #expect(restored.gameTimeSeconds == 86)
 }
 
+@Test func linkedSetupAndFinishedPayloadPreserveOptionalDetailedActions() throws {
+    let action = DetailedScoreAction(
+        type: .scoreChanged,
+        epochMilliseconds: 123,
+        team: .team1,
+        scores: [1, 0],
+        scoreChange: 1,
+        operationCode: "point"
+    )
+    let state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton())
+    let setup = LinkedScoreboardSetup(
+        gameType: .badminton,
+        initialSnapshot: .rally(state),
+        detailedActions: [action]
+    )
+    let decodedSetup = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
+    #expect(decodedSetup.detailedActions == [action])
+
+    let finished = LinkMatchFinishedPayload(
+        snapshot: .rally(state),
+        recordId: "record",
+        detailedActions: [action]
+    )
+    let decodedFinished = try JSONDecoder().decode(
+        LinkMatchFinishedPayload.self,
+        from: JSONEncoder().encode(finished)
+    )
+    #expect(decodedFinished.detailedActions == [action])
+}
+
+@Test func oldLinkedSetupWithoutDetailedActionsStillDecodes() throws {
+    let json = """
+    {
+      "gameType": "badminton",
+      "basketballThreeXThree": false
+    }
+    """
+    let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: Data(json.utf8))
+    #expect(decoded.detailedActions == nil)
+}
+
 @Test func linkedRallySetupPreservesSetsAndServer() throws {
     var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .pingPong(maxSets: 7))
     state.leftPoints = 10

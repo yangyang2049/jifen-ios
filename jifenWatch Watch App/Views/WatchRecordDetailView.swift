@@ -1,3 +1,4 @@
+import RecordCore
 import SwiftUI
 
 struct WatchRecordDetailView: View {
@@ -20,12 +21,12 @@ struct WatchRecordDetailView: View {
                     if let details = record.basketballTrainingDetails {
                         basketballDetailsCard(details)
                     }
-                    if let participants = record.participants, participants.count > 2 {
+                    if record.doublesTeamNames == nil,
+                       let participants = record.participants,
+                       participants.count > 2 {
                         participantsCard(participants)
                     }
-                    if !record.actions.isEmpty {
-                        actionsCard(record)
-                    }
+                    actionsCard(record)
                     deleteButton
                 } else {
                     VStack(spacing: 8) {
@@ -107,10 +108,11 @@ struct WatchRecordDetailView: View {
         let usePoints = record.gameType.usesPointScoreInList
         let leftScore = usePoints ? record.team1FinalScore : record.team1SetScore
         let rightScore = usePoints ? record.team2FinalScore : record.team2SetScore
+        let teamNames = record.doublesTeamNames ?? (record.team1Name, record.team2Name)
         return VStack(spacing: 6) {
             HStack(spacing: 0) {
                 VStack(spacing: 2) {
-                    Text(record.team1Name)
+                    Text(teamNames.left)
                         .font(.system(size: 11))
                         .foregroundColor(WatchTheme.secondaryText)
                     Text("\(leftScore)")
@@ -122,7 +124,7 @@ struct WatchRecordDetailView: View {
                     .font(.system(size: 18))
                     .foregroundColor(WatchTheme.secondaryText)
                 VStack(spacing: 2) {
-                    Text(record.team2Name)
+                    Text(teamNames.right)
                         .font(.system(size: 11))
                         .foregroundColor(WatchTheme.secondaryText)
                     Text("\(rightScore)")
@@ -200,6 +202,18 @@ struct WatchRecordDetailView: View {
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(WatchTheme.primaryText)
 
+            if record.actions.isEmpty {
+                Text(NSLocalizedString(
+                    "watch_record_actions_unavailable",
+                    value: "此记录未保存动作详情",
+                    comment: ""
+                ))
+                .font(.system(size: 11))
+                .foregroundColor(WatchTheme.secondaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+            }
+
             ForEach(record.actions) { action in
                 HStack(spacing: 8) {
                     Text(formatRelativeTimestamp(actionTime: action.timestamp, startTime: record.startTime))
@@ -210,7 +224,7 @@ struct WatchRecordDetailView: View {
                     Text(displayActionDescription(action, record: record))
                         .font(.system(size: 12))
                         .foregroundColor(isSpecialAction(action) ? WatchTheme.accent : WatchTheme.primaryText)
-                        .lineLimit(1)
+                        .lineLimit(2)
                         .truncationMode(.tail)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -231,7 +245,7 @@ struct WatchRecordDetailView: View {
 
     /// Relative timestamp from match start (MM:SS or HH:MM:SS), aligned with HarmonyOS WatchRecordDetail formatRelativeTimestamp.
     private func formatRelativeTimestamp(actionTime: Date, startTime: Date) -> String {
-        let relativeSeconds = Int(actionTime.timeIntervalSince(startTime))
+        let relativeSeconds = max(0, Int(actionTime.timeIntervalSince(startTime)))
         let hours = relativeSeconds / 3600
         let minutes = (relativeSeconds % 3600) / 60
         let seconds = relativeSeconds % 60
@@ -296,8 +310,8 @@ struct WatchRecordDetailView: View {
         _ action: WatchScoreAction,
         record: WatchScoreboardRecord
     ) -> String {
-        guard record.gameType == .basketballTraining else {
-            return action.description
+        if record.gameType != .basketballTraining {
+            return structuredActionDescription(action, record: record)
         }
         if action.description == "training_start" {
             return NSLocalizedString("watch_training_start", value: "训练开始", comment: "")
@@ -327,6 +341,158 @@ struct WatchRecordDetailView: View {
             points,
             status
         )
+    }
+
+    private func structuredActionDescription(
+        _ action: WatchScoreAction,
+        record: WatchScoreboardRecord
+    ) -> String {
+        let actor = actionActorName(action, record: record)
+        let actorPrefix = actor.map { "\($0) " } ?? ""
+        let delta = action.scoreChange ?? 0
+        let code = action.operationCode ?? action.description
+        switch code {
+        case "game_start":
+            return NSLocalizedString("watch_match_start", value: "比赛开始", comment: "")
+        case "game_end":
+            return NSLocalizedString("watch_match_finished", value: "比赛结束", comment: "")
+        case "undo":
+            return NSLocalizedString("menu_undo", value: "撤销", comment: "")
+        case "point", "tennis_point", "basketball_score":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_score_format", value: "%@得分 +%d", comment: ""),
+                actorPrefix, delta
+            )
+        case "side_out":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_side_out_format", value: "%@获得发球权", comment: ""),
+                actor ?? ""
+            )
+        case "set_completed", "tennis_set_completed", "archery_set_completed":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_set_finished_format", value: "第 %d 局结束 · %@获胜", comment: ""),
+                action.setNumber ?? 0, actor ?? ""
+            )
+        case "game_completed", "tiebreak_completed":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_game_finished_format", value: "第 %d 盘结束 · %@获胜", comment: ""),
+                action.gameNumber ?? 0, actor ?? ""
+            )
+        case "exchange_sides":
+            return NSLocalizedString("watch_action_exchange_sides", value: "交换场地", comment: "")
+        case "side_change_reminder":
+            return NSLocalizedString("watch_action_exchange_sides_reminder", value: "提示交换场地", comment: "")
+        case "adjust_points", "adjust_sets", "edit_score", "basketball_adjust_score",
+             "archery_adjust_arrow_sum", "archery_adjust_set_points", "eight_ball_admin_adjust",
+             "nine_ball_adjust_total", "snooker_admin_correct":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_adjust_score_format", value: "%@调整比分", comment: ""),
+                actorPrefix
+            )
+        case "archery_arrow":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_archery_arrow_format", value: "%@命中 %d 环", comment: ""),
+                actorPrefix, delta
+            )
+        case "archery_miss":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_archery_miss_format", value: "%@脱靶", comment: ""),
+                actorPrefix
+            )
+        case "archery_set_ready":
+            return NSLocalizedString("watch_action_archery_set_ready", value: "本组射箭完成", comment: "")
+        case "archery_closest_to_center":
+            return NSLocalizedString("watch_action_archery_closest", value: "进入近心决胜", comment: "")
+        case "archery_shooter_changed":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_shooter_format", value: "%@开始射箭", comment: ""),
+                actor ?? ""
+            )
+        case "eight_ball_rack":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_rack_won_format", value: "%@赢得一局", comment: ""),
+                actor ?? ""
+            )
+        case let value where value.hasPrefix("eight_ball_pot_"):
+            let ball = value.replacingOccurrences(of: "eight_ball_pot_", with: "")
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_ball_potted_format", value: "%@打进 %@ 号球", comment: ""),
+                actor ?? "", ball
+            )
+        case let value where value.hasPrefix("nine_ball_"):
+            let event = nineBallActionName(String(value.dropFirst("nine_ball_".count)))
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_nine_ball_format", value: "%@ · %@ (%+d)", comment: ""),
+                actor ?? "", event, delta
+            )
+        case "snooker_pot":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_snooker_pot_format", value: "%@进球 +%d", comment: ""),
+                actorPrefix, delta
+            )
+        case "snooker_foul":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_snooker_foul_format", value: "%@犯规，对手 +%d", comment: ""),
+                actorPrefix, delta
+            )
+        case "snooker_miss":
+            return String.localizedStringWithFormat(NSLocalizedString("watch_action_snooker_miss_format", value: "%@未进", comment: ""), actorPrefix)
+        case "snooker_handover", "snooker_turn_changed":
+            return String.localizedStringWithFormat(NSLocalizedString("watch_action_snooker_handover_format", value: "交接给 %@", comment: ""), actor ?? "")
+        case "snooker_frame_settled":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_snooker_frame_format", value: "第 %d 局结算 · %@获胜", comment: ""),
+                action.roundNumber ?? 0, actor ?? ""
+            )
+        case "snooker_next_frame":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_snooker_next_frame_format", value: "开始第 %d 局", comment: ""),
+                action.roundNumber ?? 0
+            )
+        case "basketball_foul", "basketball_foul_adjust":
+            return String.localizedStringWithFormat(NSLocalizedString("watch_action_basketball_foul_format", value: "%@犯规", comment: ""), actorPrefix)
+        case "basketball_timeout", "basketball_timeout_adjust":
+            return String.localizedStringWithFormat(NSLocalizedString("watch_action_basketball_timeout_format", value: "%@暂停", comment: ""), actorPrefix)
+        case "basketball_period_changed":
+            return String.localizedStringWithFormat(NSLocalizedString("watch_action_basketball_period_format", value: "进入第 %d 节", comment: ""), action.periodNumber ?? 0)
+        case "basketball_overtime":
+            return NSLocalizedString("watch_bball_overtime", value: "进入加时", comment: "")
+        case "edit_name":
+            return NSLocalizedString("watch_action_edit_name", value: "修改名称", comment: "")
+        default:
+            return action.description
+        }
+    }
+
+    private func actionActorName(_ action: WatchScoreAction, record: WatchScoreboardRecord) -> String? {
+        if let index = action.roundNumber.map({ $0 - 1 }),
+           action.operationCode?.hasPrefix("nine_ball_") == true,
+           let participants = action.participants,
+           participants.indices.contains(index) {
+            return participants[index].name
+        }
+        let names = record.doublesTeamNames ?? (record.team1Name, record.team2Name)
+        switch action.team {
+        case .team1: return names.left
+        case .team2: return names.right
+        case .team3:
+            return action.participants?.indices.contains(2) == true ? action.participants?[2].name : nil
+        case .team4:
+            return action.participants?.indices.contains(3) == true ? action.participants?[3].name : nil
+        case nil: return nil
+        }
+    }
+
+    private func nineBallActionName(_ code: String) -> String {
+        switch code {
+        case "big_gold": NSLocalizedString("nine_ball_big_gold", value: "大金", comment: "")
+        case "small_gold": NSLocalizedString("nine_ball_small_gold", value: "小金", comment: "")
+        case "golden_nine": NSLocalizedString("nine_ball_golden_nine", value: "金九", comment: "")
+        case "normal_win": NSLocalizedString("nine_ball_normal_win", value: "普通胜", comment: "")
+        case "ball_in_hand": NSLocalizedString("nine_ball_ball_in_hand", value: "自由球", comment: "")
+        case "foul": NSLocalizedString("nine_ball_foul", value: "犯规", comment: "")
+        default: code
+        }
     }
 
     private func loadRecord() {

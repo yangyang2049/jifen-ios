@@ -62,7 +62,7 @@ struct WatchResumeGameBar: View {
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity)
         .frame(height: WatchMetrics.pillHeight)
-        .background(WatchTheme.timerAccent.opacity(0.22))
+        .background(WatchTheme.resumeBar)
         .clipShape(RoundedRectangle(cornerRadius: WatchMetrics.pillRadius, style: .continuous))
     }
 }

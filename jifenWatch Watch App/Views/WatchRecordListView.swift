@@ -123,21 +123,7 @@ struct WatchRecordListView: View {
     }
 
     private func recordDisplayText(_ record: WatchScoreboardRecordSummary) -> String {
-        if let participants = record.participants, participants.count > 2 {
-            return participants
-                .map { "\($0.name) \($0.score)" }
-                .joined(separator: " · ")
-        }
-        let left: Int
-        let right: Int
-        if record.gameType.usesPointScoreInList {
-            left = record.team1FinalScore
-            right = record.team2FinalScore
-        } else {
-            left = record.team1SetScore
-            right = record.team2SetScore
-        }
-        return "\(record.team1Name) \(left) - \(right) \(record.team2Name)"
+        record.listDisplayText
     }
 
     /// Relative time for list (e.g. "5分钟前", "2小时前", "3天前"), aligned with HarmonyOS SportsSetupDialog formatTime.

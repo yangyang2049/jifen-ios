@@ -73,14 +73,16 @@ struct WatchArcheryScoreView: View {
         resumedState: ArcheryMatchState? = nil,
         resumedUndoStates: [ArcheryMatchState] = [],
         resumedStartTime: Date? = nil,
-        resumedRestState: WatchRestState? = nil
+        resumedRestState: WatchRestState? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.linkedSessionId = linkedSessionId
         _store = State(initialValue: WatchArcherySessionStore(
             initialState: initialState,
             resumedState: resumedState,
             resumedUndoStates: resumedUndoStates,
-            resumedStartTime: resumedStartTime
+            resumedStartTime: resumedStartTime,
+            resumedActionLog: resumedActionLog
         ))
         _restState = State(initialValue: resumedRestState)
         let restoredState = resumedState ?? {
@@ -174,6 +176,7 @@ struct WatchArcheryScoreView: View {
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.archeryState else { return }
+            store.mergeRemoteActions(update.detailedActions)
             applyRemote(remote)
         }
         .onChange(of: store.state) { _, _ in
@@ -423,7 +426,7 @@ struct WatchArcheryScoreView: View {
     }
 
     private var stoppedOverlay: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             Color.black.opacity(0.40)
                 .ignoresSafeArea()
             VStack(spacing: WatchLayout.isCompactScreen ? 10 : 16) {
@@ -607,7 +610,7 @@ struct WatchArcheryScoreView: View {
         guard !isMatchFinished else { return }
         showScorePanel = false
         showClosestToCenter = false
-        let result = store.apply(.finish, recordHistory: false)
+        let result = store.apply(.finish)
         if result.accepted {
             applyMatch(result.state)
         }
@@ -685,6 +688,7 @@ struct WatchArcheryScoreView: View {
                 undoStates: store.resumeUndoStates(),
                 restState: restState
             ),
+            actionLog: store.actionLog,
             link: linkService.resumeContext
         ))
     }
@@ -705,7 +709,7 @@ struct WatchArcheryScoreView: View {
     private func publishLinked(finished: Bool = false, commitFinish: Bool = false) {
         guard linkedSessionId != nil, linkService.isController else { return }
         let snapshot = linkedSnapshot(finished: finished)
-        linkService.publishSnapshot(.archery(snapshot))
+        linkService.publishSnapshot(.archery(snapshot), detailedActions: store.actionLog.detailedActions)
         if snapshot.finished, commitFinish {
             linkService.publishMatchFinished(
                 snapshot: .archery(snapshot),
@@ -714,7 +718,8 @@ struct WatchArcheryScoreView: View {
                 manualEnd: isManualFinish,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: max(1, redScore + blueScore + redSets + blueSets)
+                totalScoreChanges: store.actionLog.scoreChangeCount,
+                detailedActions: store.actionLog.detailedActions
             )
         }
     }
@@ -762,8 +767,8 @@ struct WatchArcheryScoreView: View {
             team1SetScore: redSets,
             team2SetScore: blueSets,
             winner: winnerName,
-            actions: [WatchScoreAction(actionType: .gameStart, description: NSLocalizedString("watch_match_start", comment: ""))],
-            totalScoreChanges: max(redSets + blueSets, 1),
+            actions: store.actionLog.actions,
+            totalScoreChanges: store.actionLog.scoreChangeCount,
             participants: [
                 WatchRecordParticipant(name: redName, score: redSets),
                 WatchRecordParticipant(name: blueName, score: blueSets)

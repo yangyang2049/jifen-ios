@@ -1,4 +1,5 @@
 import Foundation
+import RecordCore
 
 /// Phone→watch common-names snapshot pushed via `WCSession.updateApplicationContext`.
 public struct CommonNamesSyncSnapshot: Codable, Equatable, Sendable {
@@ -82,6 +83,8 @@ public struct WatchRecordTransferPayload: Codable, Equatable, Sendable {
     public var team2SetScore: Int
     public var winner: String?
     public var actions: [String]
+    /// Schema-v4 compatible actions; nil for older watch payloads.
+    public var detailedActions: [DetailedScoreAction]?
     public var totalScoreChanges: Int
     public var participants: [WatchRecordParticipantPayload]?
     public var projectConfiguration: [String: String]?
@@ -100,6 +103,7 @@ public struct WatchRecordTransferPayload: Codable, Equatable, Sendable {
         team2SetScore: Int,
         winner: String?,
         actions: [String],
+        detailedActions: [DetailedScoreAction]? = nil,
         totalScoreChanges: Int,
         participants: [WatchRecordParticipantPayload]? = nil,
         projectConfiguration: [String: String]? = nil
@@ -117,6 +121,7 @@ public struct WatchRecordTransferPayload: Codable, Equatable, Sendable {
         self.team2SetScore = team2SetScore
         self.winner = winner
         self.actions = actions
+        self.detailedActions = detailedActions
         self.totalScoreChanges = totalScoreChanges
         self.participants = participants
         self.projectConfiguration = projectConfiguration

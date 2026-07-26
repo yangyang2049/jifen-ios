@@ -42,6 +42,17 @@ enum LinkedMatchRecordIngestor {
         gameType: ScoreCore.GameType,
         sessionId: UUID? = nil
     ) throws -> String {
+        let record = try makeRecord(payload: payload, gameType: gameType, sessionId: sessionId)
+        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        return record.id
+    }
+
+    @MainActor
+    static func makeRecord(
+        payload: LinkMatchFinishedPayload,
+        gameType: ScoreCore.GameType,
+        sessionId: UUID? = nil
+    ) throws -> ScoreboardRecord {
         guard let appType = GameType(scoreCoreGameType: gameType) else {
             throw LinkedRecordIngestError.unsupportedGameType(gameType.rawValue)
         }
@@ -51,7 +62,7 @@ enum LinkedMatchRecordIngestor {
         let start = Date(timeIntervalSince1970: Double(startMs) / 1000)
         let end = Date(timeIntervalSince1970: Double(endMs) / 1000)
         let duration = payload.durationSeconds ?? max(1, end.timeIntervalSince(start))
-        let scoreChanges = max(1, payload.totalScoreChanges ?? 1)
+        let scoreChanges = max(0, payload.totalScoreChanges ?? 0)
         var extra: [String: AnyCodable] = [
             "syncFrom": AnyCodable("watch"),
             "watchSyncTime": AnyCodable(Int64(Date().timeIntervalSince1970 * 1000))
@@ -94,6 +105,8 @@ enum LinkedMatchRecordIngestor {
             team2SetScore: projected.rightSets,
             winner: projected.winner,
             actions: ["watch_link_finish"],
+            detailedActions: payload.detailedActions,
+            setResults: payload.detailedActions.map(ScoreboardRecordActionAdapter.setResults),
             totalScoreChanges: scoreChanges,
             extraData: extra,
             status: .finished
@@ -101,8 +114,7 @@ enum LinkedMatchRecordIngestor {
         if let data = try? JSONEncoder().encode(payload.snapshot) {
             record.stateSnapshot = data
         }
-        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        return recordId
+        return record
     }
 
     private struct Projection {
@@ -227,6 +239,13 @@ enum WatchStandaloneRecordIngestor {
     @MainActor
     @discardableResult
     static func ingest(_ payload: WatchRecordTransferPayload) throws -> String {
+        let record = try makeRecord(payload)
+        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        return record.id
+    }
+
+    @MainActor
+    static func makeRecord(_ payload: WatchRecordTransferPayload) throws -> ScoreboardRecord {
         guard let gameType = mapGameType(payload.gameType) else {
             throw LinkedRecordIngestError.unsupportedGameType(payload.gameType)
         }
@@ -264,13 +283,14 @@ enum WatchStandaloneRecordIngestor {
             team2SetScore: payload.team2SetScore,
             winner: winnerSide,
             actions: payload.actions.isEmpty ? ["watch_auto_sync"] : payload.actions,
-            totalScoreChanges: max(1, payload.totalScoreChanges),
+            detailedActions: payload.detailedActions,
+            setResults: payload.detailedActions.map(ScoreboardRecordActionAdapter.setResults),
+            totalScoreChanges: max(0, payload.totalScoreChanges),
             extraData: extraData,
             projectConfiguration: projectConfiguration,
             status: .finished
         )
-        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        return rawId
+        return record
     }
 
     private static func mapGameType(_ raw: String) -> GameType? {

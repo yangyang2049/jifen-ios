@@ -1,6 +1,7 @@
 import Foundation
 import LinkCore
 import Observation
+import RecordCore
 import ScoreCore
 
 struct LinkedSetupRequest: Equatable {
@@ -12,6 +13,7 @@ struct LinkedSnapshotUpdate: Equatable {
     let sessionId: UUID
     let revision: UInt64
     let snapshot: LinkedScoreboardSnapshot
+    let detailedActions: [DetailedScoreAction]
 }
 
 @MainActor
@@ -34,6 +36,7 @@ final class WatchLinkService {
     private var activeRevision: UInt64 = 0
     private var activeGameType: GameType?
     private var activeSetup: LinkedScoreboardSetup?
+    private var mergedDetailedActions: [DetailedScoreAction] = []
     private var ackRetryTask: Task<Void, Never>?
     private let pendingWatchRecordsKey = "watch_pending_record_transfers_v1"
     private var pendingWatchRecords: [WatchRecordTransferPayload] = []
@@ -221,16 +224,21 @@ final class WatchLinkService {
         acceptedSetup = nil
     }
 
-    func publishSnapshot(_ snapshot: LinkedScoreboardSnapshot) {
+    func publishSnapshot(
+        _ snapshot: LinkedScoreboardSnapshot,
+        detailedActions: [DetailedScoreAction]? = nil
+    ) {
         guard isController,
               let sessionId = activeSessionId,
               let gameType = activeGameType else { return }
         activeRevision += 1
+        mergeDetailedActions(detailedActions)
         activeSetup = LinkedScoreboardSetup(
             gameType: gameType,
             maxSets: maxSets(for: snapshot),
             basketballThreeXThree: isThreeXThree(snapshot),
-            initialSnapshot: snapshot
+            initialSnapshot: snapshot,
+            detailedActions: mergedDetailedActions
         )
         sequence += 1
         let messageId = UUID()
@@ -246,7 +254,8 @@ final class WatchLinkService {
                 gameType: gameType,
                 maxSets: maxSets(for: snapshot),
                 basketballThreeXThree: isThreeXThree(snapshot),
-                initialSnapshot: snapshot
+                initialSnapshot: snapshot,
+                detailedActions: mergedDetailedActions
             )
         )
         Task {
@@ -269,12 +278,14 @@ final class WatchLinkService {
         manualEnd: Bool,
         startTime: Date? = nil,
         endTime: Date? = nil,
-        totalScoreChanges: Int? = nil
+        totalScoreChanges: Int? = nil,
+        detailedActions: [DetailedScoreAction]? = nil
     ) {
         guard let sessionId = activeSessionId else { return }
         // One finished record per linked session — keep a stable id for ACK retries.
         if publishedFinishedRecordId != nil { return }
         let stableRecordId = recordId.isEmpty ? "w_\(UUID().uuidString)" : recordId
+        mergeDetailedActions(detailedActions)
         publishedFinishedRecordId = stableRecordId
         activeRevision += 1
         sequence += 1
@@ -298,7 +309,8 @@ final class WatchLinkService {
                 startTimeEpochMilliseconds: Int64(start.timeIntervalSince1970 * 1000),
                 endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
                 durationSeconds: duration,
-                totalScoreChanges: totalScoreChanges
+                totalScoreChanges: totalScoreChanges,
+                detailedActions: mergedDetailedActions
             )
         )
         Task {
@@ -415,6 +427,7 @@ final class WatchLinkService {
         phoneTookOver = false
         controlRole = nil
         pendingConfirmRequest = .init(sessionId: envelope.sessionId, setup: envelope.payload)
+        mergeDetailedActions(envelope.payload.detailedActions)
         return true
     }
 
@@ -443,10 +456,12 @@ final class WatchLinkService {
         if disposition == .newer {
             activeRevision = max(activeRevision, envelope.sessionRevision)
             activeSetup = envelope.payload
+            mergeDetailedActions(envelope.payload.detailedActions)
             latestSnapshot = .init(
                 sessionId: envelope.sessionId,
                 revision: envelope.sessionRevision,
-                snapshot: snapshot
+                snapshot: snapshot,
+                detailedActions: mergedDetailedActions
             )
             if let context = resumeContext {
                 WatchResumeSessionStore.shared.applyLinkedSnapshot(snapshot, context: context)
@@ -560,6 +575,7 @@ final class WatchLinkService {
         acceptedSetup = nil
         pendingConfirmRequest = nil
         latestSnapshot = nil
+        mergedDetailedActions = []
         phoneTookOver = false
         publishedFinishedRecordId = nil
         pendingAck.clear()
@@ -567,6 +583,13 @@ final class WatchLinkService {
 
     private func nowMs() -> Int64 {
         Int64(Date().timeIntervalSince1970 * 1_000)
+    }
+
+    private func mergeDetailedActions(_ incoming: [DetailedScoreAction]?) {
+        guard let incoming, !incoming.isEmpty else { return }
+        mergedDetailedActions = incoming.sorted {
+            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
+        }
     }
 
     private func maxSets(for snapshot: LinkedScoreboardSnapshot) -> Int? {

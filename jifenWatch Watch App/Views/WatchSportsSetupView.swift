@@ -469,7 +469,7 @@ struct WatchSportsSetupView: View {
                     Text(NSLocalizedString("watch_common_names_no_records", value: "暂无常用名称", comment: ""))
                         .font(.system(size: 13))
                         .foregroundStyle(WatchTheme.secondaryText)
-                        .frame(height: 100)
+                        .frame(height: WatchLayout.isCompactScreen ? 72 : 100)
                 } else {
                     ScrollView {
                         VStack(spacing: 6) {
@@ -492,7 +492,7 @@ struct WatchSportsSetupView: View {
                             }
                         }
                     }
-                    .frame(height: 132)
+                    .frame(height: WatchLayout.isCompactScreen ? 92 : 132)
                 }
 
                 Button {
@@ -512,6 +512,7 @@ struct WatchSportsSetupView: View {
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func updateSnookerCustomFrames(_ rawValue: String) {
