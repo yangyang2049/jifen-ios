@@ -381,7 +381,7 @@ struct WatchHomeTabView: View {
                     }
                 }
             }
-            .padding(WatchLayout.isCompactScreen ? 10 : 12)
+            .padding(WatchLayout.cardContentPadding)
             .frame(maxWidth: .infinity)
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))

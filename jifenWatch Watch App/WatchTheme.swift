@@ -14,6 +14,18 @@ struct WatchLayout {
         isNarrowScreen(width: width) ? 6 : 12
     }
 
+    static func pillRowHorizontalPadding(for width: CGFloat) -> CGFloat {
+        isNarrowScreen(width: width) ? 12 : 16
+    }
+
+    static func recordRowHorizontalPadding(for width: CGFloat) -> CGFloat {
+        isNarrowScreen(width: width) ? 12 : 16
+    }
+
+    static func cardContentPadding(for width: CGFloat) -> CGFloat {
+        isNarrowScreen(width: width) ? 12 : 14
+    }
+
     /// 屏幕宽度 ≤ 190pt 视为窄屏。
     static var isCompactScreen: Bool {
         isNarrowScreen(width: WKInterfaceDevice.current().screenBounds.size.width)
@@ -30,7 +42,13 @@ struct WatchLayout {
     }
 
     /// 列表行（PillRow/PillButton）左右内边距
-    static var pillRowHorizontalPadding: CGFloat { isCompactScreen ? 10 : 16 }
+    static var pillRowHorizontalPadding: CGFloat {
+        pillRowHorizontalPadding(for: WKInterfaceDevice.current().screenBounds.size.width)
+    }
+    /// 二、三级页面普通内容卡片内边距。
+    static var cardContentPadding: CGFloat {
+        cardContentPadding(for: WKInterfaceDevice.current().screenBounds.size.width)
+    }
     /// 射箭加分面板外边距（上下左右一致，内容纵向居中）
     static var archeryScorePanelPadding: CGFloat { isCompactScreen ? 6 : 10 }
     /// 射箭加分面板内 VStack 间距（标题/网格/关闭）
@@ -58,7 +76,9 @@ struct WatchLayout {
     /// 射箭结束 overlay 按钮高度
     static var archeryStoppedButtonHeight: CGFloat { isCompactScreen ? 38 : 44 }
     /// 记录列表行左右内边距（含 44mm 窄屏时缩小，避免第一行被截断）
-    static var recordRowHorizontalPadding: CGFloat { isNarrowForContent ? 10 : 16 }
+    static var recordRowHorizontalPadding: CGFloat {
+        recordRowHorizontalPadding(for: WKInterfaceDevice.current().screenBounds.size.width)
+    }
     /// 记录列表行图标尺寸
     static var recordRowIconSize: CGFloat { isNarrowForContent ? 20 : 24 }
     /// 记录列表行图标与文字间距

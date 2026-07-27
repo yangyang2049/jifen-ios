@@ -41,6 +41,9 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case scoreboardExitedToHome
     case resumeDiscarded
     case sessionLeft
+    case commonNamesSyncRequest
+    case connectivityProbe
+    case connectivityProbeResponse
 }
 
 public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
@@ -476,6 +479,7 @@ public protocol LinkTransport: Sendable {
 #if canImport(WatchConnectivity)
 public enum WatchConnectivityTransportError: Error, Equatable, Sendable {
     case sessionNotActivated
+    case peerNotReachable
 }
 
 public struct WatchConnectivityStatus: Equatable, Sendable {
@@ -513,6 +517,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
     public static let commonNamesContextKey = "jifen.common_names.v1"
     public static let watchRecordUserInfoKey = "jifen.watch_record.v1"
     public static let commonNameUsageUserInfoKey = "jifen.common_name_usage.v1"
+    public static let commonNameMutationsUserInfoKey = "jifen.common_name_mutations.v1"
+    public static let commonNameMutationAckUserInfoKey = "jifen.common_name_mutation_ack.v1"
 
     private let session: WCSession
     public var onReceive: ReceiveHandler?
@@ -523,6 +529,10 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
     public var onWatchRecordData: ReceiveHandler?
     /// Queued watch→phone common-name usage events.
     public var onCommonNameUsageData: ReceiveHandler?
+    /// Offline-capable watch→phone common-name edit batches.
+    public var onCommonNameMutationsData: ReceiveHandler?
+    /// Offline-capable phone→watch canonical results for edit batches.
+    public var onCommonNameMutationAckData: ReceiveHandler?
 
     public init(session: WCSession = .default) {
         self.session = session
@@ -576,6 +586,17 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
         }
     }
 
+    /// Send only while the counterpart is currently reachable. Used by settings diagnostics.
+    public func sendInteractive(_ data: Data) throws {
+        guard session.activationState == .activated else {
+            throw WatchConnectivityTransportError.sessionNotActivated
+        }
+        guard session.isReachable else {
+            throw WatchConnectivityTransportError.peerNotReachable
+        }
+        session.sendMessageData(data, replyHandler: nil, errorHandler: nil)
+    }
+
     /// Push a small always-latest dictionary to the peer (used for common-names auto sync).
     public func updateApplicationContext(_ context: [String: Any]) throws {
         guard session.activationState == .activated else {
@@ -598,6 +619,20 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Li
             throw WatchConnectivityTransportError.sessionNotActivated
         }
         session.transferUserInfo([Self.commonNameUsageUserInfoKey: data])
+    }
+
+    public func transferCommonNameMutations(_ data: Data) throws {
+        guard session.activationState == .activated else {
+            throw WatchConnectivityTransportError.sessionNotActivated
+        }
+        session.transferUserInfo([Self.commonNameMutationsUserInfoKey: data])
+    }
+
+    public func transferCommonNameMutationAcknowledgement(_ data: Data) throws {
+        guard session.activationState == .activated else {
+            throw WatchConnectivityTransportError.sessionNotActivated
+        }
+        session.transferUserInfo([Self.commonNameMutationAckUserInfoKey: data])
     }
 
     private func reportStatus() {
@@ -626,6 +661,14 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     }
 
     public func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        if let mutationsData = userInfo[Self.commonNameMutationsUserInfoKey] as? Data {
+            onCommonNameMutationsData?(mutationsData)
+            return
+        }
+        if let acknowledgementData = userInfo[Self.commonNameMutationAckUserInfoKey] as? Data {
+            onCommonNameMutationAckData?(acknowledgementData)
+            return
+        }
         if let usageData = userInfo[Self.commonNameUsageUserInfoKey] as? Data {
             onCommonNameUsageData?(usageData)
             return

@@ -98,7 +98,7 @@ struct WatchRecordDetailView: View {
                 infoRow(label: NSLocalizedString("duration", comment: "Duration"), value: watchFormatDuration(record.duration))
             }
         }
-        .padding(10)
+        .padding(WatchLayout.cardContentPadding)
         .frame(maxWidth: .infinity)
         .background(WatchTheme.card)
         .cornerRadius(12)
@@ -170,7 +170,7 @@ struct WatchRecordDetailView: View {
                 .foregroundStyle(WatchTheme.secondaryText)
             }
         }
-        .padding(10)
+        .padding(WatchLayout.cardContentPadding)
         .frame(maxWidth: .infinity)
         .background(WatchTheme.card)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -190,7 +190,7 @@ struct WatchRecordDetailView: View {
                 .foregroundStyle(WatchTheme.primaryText)
             }
         }
-        .padding(10)
+        .padding(WatchLayout.cardContentPadding)
         .frame(maxWidth: .infinity)
         .background(WatchTheme.card)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -237,7 +237,7 @@ struct WatchRecordDetailView: View {
                 .padding(.vertical, 4)
             }
         }
-        .padding(10)
+        .padding(WatchLayout.cardContentPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(WatchTheme.card)
         .cornerRadius(12)

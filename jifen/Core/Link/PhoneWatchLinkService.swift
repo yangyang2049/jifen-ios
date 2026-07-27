@@ -101,6 +101,11 @@ final class PhoneWatchLinkService {
                 self?.handleCommonNameUsage(data)
             }
         }
+        transport.onCommonNameMutationsData = { [weak self] data in
+            DispatchQueue.main.async {
+                self?.handleCommonNameMutations(data)
+            }
+        }
         transport.activate()
         startAckRetryLoop()
         NotificationCenter.default.addObserver(
@@ -133,10 +138,7 @@ final class PhoneWatchLinkService {
               connectivityStatus.isActivated,
               connectivityStatus.isPaired,
               connectivityStatus.isWatchAppInstalled else { return }
-        let snapshot = CommonNamesSyncSnapshot(
-            teams: CommonNamesManager.shared.getNames(type: .team),
-            players: CommonNamesManager.shared.getNames(type: .player)
-        )
+        let snapshot = CommonNamesManager.shared.currentSyncSnapshot()
         let context: [String: Any] = [
             WatchConnectivityTransport.commonNamesContextKey: snapshot.applicationContextValue()
         ]
@@ -166,6 +168,21 @@ final class PhoneWatchLinkService {
                 await CommonNamesManager.shared.recordUsage(name, .player)
             }
             self?.pushCommonNamesToWatch()
+        }
+    }
+
+    private func handleCommonNameMutations(_ data: Data) {
+        guard let batch = try? JSONDecoder().decode(CommonNameMutationBatch.self, from: data),
+              !batch.mutations.isEmpty else { return }
+        let acknowledgement = CommonNamesManager.shared.applyWatchMutations(batch.mutations)
+        guard let acknowledgementData = try? JSONEncoder().encode(acknowledgement) else { return }
+        do {
+            try transport.transferCommonNameMutationAcknowledgement(acknowledgementData)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+        if !acknowledgement.results.contains(where: { $0.status == .applied }) {
+            pushCommonNamesToWatch()
         }
     }
 
@@ -491,6 +508,8 @@ final class PhoneWatchLinkService {
     }
 
     private func handleIncoming(_ data: Data) {
+        if handleCommonNamesSyncRequest(data) { return }
+        if handleConnectivityProbe(data) { return }
         if handleSetupResponse(data) { return }
         if handleAck(data) { return }
         if handleSnapshotFromWatch(data) { return }
@@ -500,6 +519,44 @@ final class PhoneWatchLinkService {
         if handleResumeDiscarded(data) { return }
         if handleSessionLeft(data) { return }
         _ = handleStatus(data)
+    }
+
+    private func handleCommonNamesSyncRequest(_ data: Data) -> Bool {
+        guard let envelope = try? JSONDecoder().decode(
+            LinkEnvelope<CommonNamesSyncRequestPayload>.self,
+            from: data
+        ), envelope.sender == .watch,
+           envelope.kind == .commonNamesSyncRequest,
+           envelope.protocolVersion == LinkProtocol.currentVersion else { return false }
+        pushCommonNamesToWatch()
+        return true
+    }
+
+    private func handleConnectivityProbe(_ data: Data) -> Bool {
+        guard let envelope = try? JSONDecoder().decode(
+            LinkEnvelope<ConnectivityProbePayload>.self,
+            from: data
+        ), envelope.sender == .watch,
+           envelope.kind == .connectivityProbe,
+           envelope.protocolVersion == LinkProtocol.currentVersion,
+           envelope.sessionId == envelope.payload.probeId else { return false }
+        sequence += 1
+        let response = LinkEnvelope(
+            sessionId: envelope.sessionId,
+            kind: .connectivityProbeResponse,
+            sender: .phone,
+            senderSequence: sequence,
+            sessionRevision: 0,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: envelope.payload
+        )
+        guard let responseData = try? JSONEncoder().encode(response) else { return true }
+        do {
+            try transport.sendInteractive(responseData)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+        return true
     }
 
     private func handleSetupResponse(_ data: Data) -> Bool {

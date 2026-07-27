@@ -14,6 +14,18 @@ struct WatchSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 8) {
+                navigationRow(
+                    title: NSLocalizedString("watch_common_names_title", value: "常用名称", comment: ""),
+                    systemImage: "person.text.rectangle"
+                ) {
+                    WatchCommonNamesView()
+                }
+                navigationRow(
+                    title: NSLocalizedString("watch_phone_link_title", value: "手机联动", comment: ""),
+                    systemImage: "iphone.and.arrow.forward"
+                ) {
+                    WatchPhoneLinkView()
+                }
                 settingRow(title: NSLocalizedString("vibration", comment: "Vibration"), isOn: $vibrationEnabled)
                 settingRow(title: NSLocalizedString("sound", comment: "Sound"), isOn: $soundEnabled)
                 settingRow(
@@ -88,6 +100,34 @@ struct WatchSettingsView: View {
                 comment: ""
             ))
         }
+    }
+
+    private func navigationRow<Destination: View>(
+        title: String,
+        systemImage: String,
+        @ViewBuilder destination: () -> Destination
+    ) -> some View {
+        NavigationLink(destination: destination()) {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(WatchTheme.secondaryText)
+                    .frame(width: 20)
+                Text(title)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(WatchTheme.primaryText)
+                    .lineLimit(1)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(WatchTheme.secondaryText)
+            }
+            .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
+            .frame(height: WatchMetrics.pillHeight)
+            .background(WatchTheme.listItemBackground)
+            .cornerRadius(WatchMetrics.pillRadius)
+        }
+        .buttonStyle(.plain)
     }
 
     private func usageGuideRow() -> some View {

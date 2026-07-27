@@ -16,6 +16,52 @@ struct LinkedSnapshotUpdate: Equatable {
     let detailedActions: [DetailedScoreAction]
 }
 
+enum WatchPhoneLinkTestState: Equatable {
+    case idle
+    case testing
+    case success
+    case failed
+}
+
+enum WatchPhoneLinkTestFailure: Equatable {
+    case inactive
+    case unreachable
+    case sendFailed
+    case timedOut
+}
+
+struct WatchPhoneLinkProbeTracker: Equatable {
+    static let timeoutSeconds: TimeInterval = 8
+    private(set) var activeProbeID: UUID?
+
+    mutating func start(_ probeID: UUID) {
+        activeProbeID = probeID
+    }
+
+    mutating func accept(_ probeID: UUID) -> Bool {
+        guard activeProbeID == probeID else { return false }
+        activeProbeID = nil
+        return true
+    }
+
+    mutating func accept(sessionID: UUID, probeID: UUID) -> Bool {
+        guard sessionID == probeID else { return false }
+        return accept(probeID)
+    }
+
+    mutating func timeout(_ probeID: UUID) -> Bool {
+        accept(probeID)
+    }
+
+    mutating func cancel() {
+        activeProbeID = nil
+    }
+
+    static func canStart(with status: WatchConnectivityStatus) -> Bool {
+        status.isActivated && status.isReachable
+    }
+}
+
 @MainActor
 @Observable
 final class WatchLinkService {
@@ -26,6 +72,11 @@ final class WatchLinkService {
     var latestSnapshot: LinkedSnapshotUpdate?
     var controlRole: LinkControlRole?
     var phoneTookOver: Bool = false
+    private(set) var connectivityStatus: WatchConnectivityStatus
+    private(set) var phoneLinkTestState: WatchPhoneLinkTestState = .idle
+    private(set) var phoneLinkTestFailure: WatchPhoneLinkTestFailure?
+    private(set) var lastCommunicationAtEpochMilliseconds: Int64
+    private(set) var commonNamesSyncFailed = false
 
     private let transport = WatchConnectivityTransport()
     private var revisionGate = LinkRevisionGate()
@@ -42,8 +93,16 @@ final class WatchLinkService {
     private var pendingWatchRecords: [WatchRecordTransferPayload] = []
     private let pendingCommonNameUsageKey = "watch_pending_common_name_usage_v1"
     private var pendingCommonNameUsage: [CommonNameUsagePayload] = []
+    private var lastQueuedCommonNameMutationIDs: [UUID] = []
+    private var probeTracker = WatchPhoneLinkProbeTracker()
+    private var probeTimeoutTask: Task<Void, Never>?
+    private let lastCommunicationAtKey = "watch_phone_link_last_communication_at_v1"
 
     init() {
+        connectivityStatus = transport.status
+        lastCommunicationAtEpochMilliseconds = Int64(
+            UserDefaults.standard.integer(forKey: lastCommunicationAtKey)
+        )
         if let data = UserDefaults.standard.data(forKey: pendingWatchRecordsKey),
            let payloads = try? JSONDecoder().decode([WatchRecordTransferPayload].self, from: data) {
             pendingWatchRecords = payloads
@@ -62,16 +121,27 @@ final class WatchLinkService {
                 self?.handleApplicationContext(context)
             }
         }
-        transport.onStatusChange = { [weak self] status in
-            guard status.isActivated else { return }
+        transport.onCommonNameMutationAckData = { [weak self] data in
             DispatchQueue.main.async {
+                self?.handleCommonNameMutationAcknowledgement(data)
+            }
+        }
+        transport.onStatusChange = { [weak self] status in
+            DispatchQueue.main.async {
+                self?.connectivityStatus = status
+                guard status.isActivated else { return }
                 self?.flushPendingWatchRecords()
                 self?.flushPendingCommonNameUsage()
+                self?.flushPendingCommonNameMutations(force: false)
+                if status.isReachable {
+                    self?.requestCommonNamesSnapshot()
+                }
             }
         }
         transport.activate()
         startAckRetryLoop()
         handleApplicationContext(transport.receivedApplicationContext)
+        flushPendingCommonNameMutations(force: false)
         WatchRecordManager.shared.recordTransferHandler = { [weak self] payload in
             self?.transferFinishedRecord(payload)
         }
@@ -170,6 +240,124 @@ final class WatchLinkService {
             context[WatchConnectivityTransport.commonNamesContextKey]
         ) else { return }
         WatchCommonNamesStore.shared.apply(snapshot)
+        commonNamesSyncFailed = false
+        markCommunication()
+    }
+
+    func refreshConnectivity() {
+        transport.refreshStatus()
+        connectivityStatus = transport.status
+    }
+
+    func commonNamesDidChange() {
+        lastQueuedCommonNameMutationIDs = []
+        flushPendingCommonNameMutations(force: false)
+    }
+
+    func syncCommonNamesNow() {
+        commonNamesSyncFailed = false
+        flushPendingCommonNameMutations(force: true)
+        requestCommonNamesSnapshot()
+    }
+
+    func startConnectivityTest() {
+        probeTimeoutTask?.cancel()
+        phoneLinkTestFailure = nil
+        refreshConnectivity()
+        guard connectivityStatus.isActivated else {
+            phoneLinkTestState = .failed
+            phoneLinkTestFailure = .inactive
+            return
+        }
+        guard connectivityStatus.isReachable else {
+            phoneLinkTestState = .failed
+            phoneLinkTestFailure = .unreachable
+            return
+        }
+        let probeID = UUID()
+        probeTracker.start(probeID)
+        phoneLinkTestState = .testing
+        sequence += 1
+        let envelope = LinkEnvelope(
+            sessionId: probeID,
+            kind: .connectivityProbe,
+            sender: .watch,
+            senderSequence: sequence,
+            sessionRevision: 0,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: ConnectivityProbePayload(probeId: probeID)
+        )
+        do {
+            try transport.sendInteractive(JSONEncoder().encode(envelope))
+        } catch {
+            probeTracker.cancel()
+            phoneLinkTestState = .failed
+            phoneLinkTestFailure = .sendFailed
+            return
+        }
+        probeTimeoutTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(WatchPhoneLinkProbeTracker.timeoutSeconds))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                guard let self, self.probeTracker.timeout(probeID) else { return }
+                self.phoneLinkTestState = .failed
+                self.phoneLinkTestFailure = .timedOut
+            }
+        }
+    }
+
+    private func requestCommonNamesSnapshot() {
+        guard connectivityStatus.isActivated, connectivityStatus.isReachable else {
+            commonNamesSyncFailed = true
+            return
+        }
+        let requestID = UUID()
+        sequence += 1
+        let envelope = LinkEnvelope(
+            sessionId: requestID,
+            kind: .commonNamesSyncRequest,
+            sender: .watch,
+            senderSequence: sequence,
+            sessionRevision: 0,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: CommonNamesSyncRequestPayload(requestId: requestID)
+        )
+        do {
+            try transport.sendInteractive(JSONEncoder().encode(envelope))
+        } catch {
+            commonNamesSyncFailed = true
+        }
+    }
+
+    private func flushPendingCommonNameMutations(force: Bool) {
+        guard transport.status.isActivated,
+              let batch = WatchCommonNamesStore.shared.pendingBatch() else { return }
+        let ids = batch.mutations.map(\.id)
+        guard force || ids != lastQueuedCommonNameMutationIDs else { return }
+        guard let data = try? JSONEncoder().encode(batch) else { return }
+        do {
+            try transport.transferCommonNameMutations(data)
+            lastQueuedCommonNameMutationIDs = ids
+        } catch {
+            commonNamesSyncFailed = true
+        }
+    }
+
+    private func handleCommonNameMutationAcknowledgement(_ data: Data) {
+        guard let acknowledgement = try? JSONDecoder().decode(
+            CommonNameMutationAcknowledgement.self,
+            from: data
+        ) else { return }
+        WatchCommonNamesStore.shared.apply(acknowledgement)
+        lastQueuedCommonNameMutationIDs = []
+        commonNamesSyncFailed = false
+        markCommunication()
+        flushPendingCommonNameMutations(force: false)
+    }
+
+    private func markCommunication() {
+        lastCommunicationAtEpochMilliseconds = nowMs()
+        UserDefaults.standard.set(Int(lastCommunicationAtEpochMilliseconds), forKey: lastCommunicationAtKey)
     }
 
     var isFollower: Bool {
@@ -391,12 +579,34 @@ final class WatchLinkService {
     }
 
     private func receive(_ data: Data) {
-        if handleSetupRequest(data) { return }
-        if handleAck(data) { return }
-        if handleSnapshotFromPhone(data) { return }
-        if handleTakeover(data) { return }
-        if handleSessionLeft(data) { return }
-        _ = handleStatusQuery(data)
+        let handled = handleConnectivityProbeResponse(data)
+            || handleSetupRequest(data)
+            || handleAck(data)
+            || handleSnapshotFromPhone(data)
+            || handleTakeover(data)
+            || handleSessionLeft(data)
+            || handleStatusQuery(data)
+        if handled {
+            markCommunication()
+        }
+    }
+
+    private func handleConnectivityProbeResponse(_ data: Data) -> Bool {
+        guard let envelope = try? JSONDecoder().decode(
+            LinkEnvelope<ConnectivityProbePayload>.self,
+            from: data
+        ), envelope.sender == .phone,
+           envelope.kind == .connectivityProbeResponse,
+           envelope.protocolVersion == LinkProtocol.currentVersion,
+           probeTracker.accept(
+               sessionID: envelope.sessionId,
+               probeID: envelope.payload.probeId
+           ) else { return false }
+        probeTimeoutTask?.cancel()
+        probeTimeoutTask = nil
+        phoneLinkTestFailure = nil
+        phoneLinkTestState = .success
+        return true
     }
 
     private func handleSetupRequest(_ data: Data) -> Bool {

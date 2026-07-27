@@ -40,10 +40,16 @@ final class WatchSportsSetupTests: XCTestCase {
         for width: CGFloat in [162, 176, 184, 187, 190] {
             XCTAssertTrue(WatchLayout.isNarrowScreen(width: width))
             XCTAssertEqual(WatchLayout.pageHorizontalPadding(for: width), 6)
+            XCTAssertEqual(WatchLayout.pillRowHorizontalPadding(for: width), 12)
+            XCTAssertEqual(WatchLayout.recordRowHorizontalPadding(for: width), 12)
+            XCTAssertEqual(WatchLayout.cardContentPadding(for: width), 12)
         }
         for width: CGFloat in [198, 205, 208, 211] {
             XCTAssertFalse(WatchLayout.isNarrowScreen(width: width))
             XCTAssertEqual(WatchLayout.pageHorizontalPadding(for: width), 12)
+            XCTAssertEqual(WatchLayout.pillRowHorizontalPadding(for: width), 16)
+            XCTAssertEqual(WatchLayout.recordRowHorizontalPadding(for: width), 16)
+            XCTAssertEqual(WatchLayout.cardContentPadding(for: width), 14)
         }
     }
 

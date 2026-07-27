@@ -3,32 +3,70 @@ import RecordCore
 
 /// Phone→watch common-names snapshot pushed via `WCSession.updateApplicationContext`.
 public struct CommonNamesSyncSnapshot: Codable, Equatable, Sendable {
+    public static let currentSchemaVersion = 2
+
+    public var schemaVersion: Int
     public var teams: [String]
     public var players: [String]
     public var updatedAtEpochMilliseconds: Int64
+    public var revision: UInt64
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case teams
+        case players
+        case updatedAtEpochMilliseconds
+        case revision
+    }
 
     public init(
         teams: [String],
         players: [String],
-        updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1000)
+        updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1000),
+        schemaVersion: Int = Self.currentSchemaVersion,
+        revision: UInt64 = 0
     ) {
+        self.schemaVersion = schemaVersion
         self.teams = teams
         self.players = players
         self.updatedAtEpochMilliseconds = updatedAtEpochMilliseconds
+        self.revision = revision
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        guard (1...Self.currentSchemaVersion).contains(schemaVersion) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .schemaVersion,
+                in: container,
+                debugDescription: "Unsupported common-name snapshot schema"
+            )
+        }
+        teams = try container.decode([String].self, forKey: .teams)
+        players = try container.decode([String].self, forKey: .players)
+        updatedAtEpochMilliseconds = try container.decode(Int64.self, forKey: .updatedAtEpochMilliseconds)
+        revision = try container.decodeIfPresent(UInt64.self, forKey: .revision) ?? 0
     }
 
     public func applicationContextValue() -> [String: Any] {
         [
+            "schemaVersion": schemaVersion,
             "teams": teams,
             "players": players,
-            "updatedAt": updatedAtEpochMilliseconds
+            "updatedAt": updatedAtEpochMilliseconds,
+            "revision": NSNumber(value: revision)
         ]
     }
 
     public static func fromApplicationContextValue(_ value: Any?) -> CommonNamesSyncSnapshot? {
         guard let dict = value as? [String: Any] else { return nil }
-        let teams = dict["teams"] as? [String] ?? []
-        let players = dict["players"] as? [String] ?? []
+        guard let teams = dict["teams"] as? [String],
+              let players = dict["players"] as? [String] else { return nil }
+        let schemaVersion = (dict["schemaVersion"] as? NSNumber)?.intValue
+            ?? (dict["schemaVersion"] as? Int)
+            ?? 1
+        guard (1...Self.currentSchemaVersion).contains(schemaVersion) else { return nil }
         let updatedAt: Int64
         if let number = dict["updatedAt"] as? NSNumber {
             updatedAt = number.int64Value
@@ -39,11 +77,111 @@ public struct CommonNamesSyncSnapshot: Codable, Equatable, Sendable {
         } else {
             updatedAt = Int64(Date().timeIntervalSince1970 * 1000)
         }
+        let revision: UInt64
+        if let number = dict["revision"] as? NSNumber {
+            guard number.int64Value >= 0 else { return nil }
+            revision = UInt64(number.int64Value)
+        } else if let value = dict["revision"] as? UInt64 {
+            revision = value
+        } else if let value = dict["revision"] as? Int, value >= 0 {
+            revision = UInt64(value)
+        } else {
+            revision = 0
+        }
         return CommonNamesSyncSnapshot(
             teams: teams,
             players: players,
-            updatedAtEpochMilliseconds: updatedAt
+            updatedAtEpochMilliseconds: updatedAt,
+            schemaVersion: schemaVersion,
+            revision: revision
         )
+    }
+}
+
+public enum CommonNameSyncType: String, Codable, Equatable, Sendable {
+    case team
+    case player
+}
+
+public enum CommonNameMutationKind: String, Codable, Equatable, Sendable {
+    case add
+    case rename
+    case delete
+}
+
+public struct CommonNameMutation: Codable, Equatable, Sendable, Identifiable {
+    public var id: UUID
+    public var kind: CommonNameMutationKind
+    public var nameType: CommonNameSyncType
+    public var originalName: String?
+    public var newName: String?
+    public var createdAtEpochMilliseconds: Int64
+
+    public init(
+        id: UUID = UUID(),
+        kind: CommonNameMutationKind,
+        nameType: CommonNameSyncType,
+        originalName: String? = nil,
+        newName: String? = nil,
+        createdAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1000)
+    ) {
+        self.id = id
+        self.kind = kind
+        self.nameType = nameType
+        self.originalName = originalName
+        self.newName = newName
+        self.createdAtEpochMilliseconds = createdAtEpochMilliseconds
+    }
+}
+
+public struct CommonNameMutationBatch: Codable, Equatable, Sendable {
+    public var mutations: [CommonNameMutation]
+
+    public init(mutations: [CommonNameMutation]) {
+        self.mutations = mutations
+    }
+}
+
+public enum CommonNameMutationResultStatus: String, Codable, Equatable, Sendable {
+    case applied
+    case noChange
+    case conflict
+    case invalid
+}
+
+public struct CommonNameMutationResult: Codable, Equatable, Sendable {
+    public var mutationId: UUID
+    public var status: CommonNameMutationResultStatus
+
+    public init(mutationId: UUID, status: CommonNameMutationResultStatus) {
+        self.mutationId = mutationId
+        self.status = status
+    }
+}
+
+public struct CommonNameMutationAcknowledgement: Codable, Equatable, Sendable {
+    public var snapshot: CommonNamesSyncSnapshot
+    public var results: [CommonNameMutationResult]
+
+    public init(snapshot: CommonNamesSyncSnapshot, results: [CommonNameMutationResult]) {
+        self.snapshot = snapshot
+        self.results = results
+    }
+}
+
+public struct CommonNamesSyncRequestPayload: Codable, Equatable, Sendable {
+    public var requestId: UUID
+
+    public init(requestId: UUID = UUID()) {
+        self.requestId = requestId
+    }
+}
+
+public struct ConnectivityProbePayload: Codable, Equatable, Sendable {
+    public var probeId: UUID
+
+    public init(probeId: UUID = UUID()) {
+        self.probeId = probeId
     }
 }
 
