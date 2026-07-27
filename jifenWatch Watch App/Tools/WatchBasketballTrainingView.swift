@@ -163,11 +163,16 @@ struct WatchBasketballTrainingView: View {
                     showMenu = false
                     confirmation = .finish
                 }
+                WatchMenuCloseButton { showMenu = false }
             }
             .padding(.horizontal, WatchLayout.isCompactScreen ? 20 : 26)
+            .padding(.top, WatchLayout.isCompactScreen ? 8 : 12)
             .padding(.bottom, WatchLayout.isCompactScreen ? 5 : 7)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .background(Color.black.opacity(0.62))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func fixedBoard(points: Int) -> some View {
@@ -369,8 +374,8 @@ struct WatchBasketballTrainingView: View {
                 .clipShape(Capsule())
             }
             .padding(WatchLayout.isCompactScreen ? 10 : 12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.62))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
@@ -640,6 +645,8 @@ struct WatchBasketballTrainingView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
         .allowsHitTesting(false)
     }
 

@@ -339,10 +339,11 @@ struct WatchArcheryScoreView: View {
                 .padding(.top, WatchLayout.archeryScorePanelCloseTopPadding)
             }
             .padding(panelPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.65))
-            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var setEndOverlay: some View {
@@ -353,23 +354,45 @@ struct WatchArcheryScoreView: View {
                 Text(String(format: NSLocalizedString("watch_set_end_format", comment: "Set end"), pendingSetNumber))
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color.white.opacity(0.95))
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     Text(leftName)
                         .font(.system(size: 14))
                         .foregroundColor(Color(hex: 0xE53935))
-                    Text("\(redScore) - \(blueScore)")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.55)
+                        .frame(maxWidth: .infinity)
+                    Text("—")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.65))
+                        .frame(width: 18)
                     Text(rightName)
                         .font(.system(size: 14))
                         .foregroundColor(Color(hex: 0x1E88E5))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.55)
+                        .frame(maxWidth: .infinity)
+                }
+                HStack(spacing: 6) {
+                    Text("\(redScore)")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                    Text("—")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.75))
+                        .frame(width: 18)
+                    Text("\(blueScore)")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
                 }
             }
             .padding(WatchLayout.isCompactScreen ? 14 : 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.65))
-            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var closestToCenterOverlay: some View {
@@ -418,11 +441,11 @@ struct WatchArcheryScoreView: View {
                 }
             }
             .padding(WatchLayout.isCompactScreen ? 12 : 16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.7))
-            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
-            .padding(.horizontal, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var stoppedOverlay: some View {
@@ -482,8 +505,8 @@ struct WatchArcheryScoreView: View {
                 }
             }
             .padding(WatchLayout.archeryStoppedOverlayPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.62))
-            .cornerRadius(WatchLayout.isCompactScreen ? 14 : 18)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()

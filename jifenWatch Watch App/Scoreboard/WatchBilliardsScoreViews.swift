@@ -670,12 +670,14 @@ struct WatchNineBallScoreView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                 }
+                WatchMenuCloseButton { eventPickerPlayer = nil }
             }
             .padding(WatchLayout.isCompactScreen ? 8 : 12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .padding(.horizontal, 12)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func displayName(at index: Int) -> String {
@@ -1221,10 +1223,15 @@ struct WatchSnookerScoreView: View {
                     }
                     .font(.system(size: 10, weight: .semibold))
                     .buttonStyle(.bordered)
+                    WatchMenuCloseButton { scoringSide = nil }
                 }
                 .padding(8)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(WatchTheme.overlayCard)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var snookerFrameSettlementPanel: some View {
@@ -1251,7 +1258,11 @@ struct WatchSnookerScoreView: View {
                 .buttonStyle(.bordered)
             }
             .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(WatchTheme.overlayCard)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var snookerNextFramePanel: some View {
@@ -1273,7 +1284,11 @@ struct WatchSnookerScoreView: View {
                 .buttonStyle(.bordered)
             }
             .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(WatchTheme.overlayCard)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private func snookerBallColor(_ ball: SnookerBall) -> Color {

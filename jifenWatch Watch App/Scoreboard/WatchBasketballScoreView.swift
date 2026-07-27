@@ -242,6 +242,9 @@ struct WatchBasketballScoreView: View {
             .background(Color.black.opacity(0.78))
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
+            if let selectedSide {
+                scoreOverlay(for: selectedSide)
+            }
             if showMenu {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
@@ -279,20 +282,6 @@ struct WatchBasketballScoreView: View {
                     onCancel: { self.confirmation = nil },
                     onConfirm: { confirmBasketball(confirmation) }
                 )
-            }
-        }
-        .sheet(
-            isPresented: Binding(
-                get: { selectedSide != nil },
-                set: { isPresented in
-                    if !isPresented {
-                        selectedSide = nil
-                    }
-                }
-            )
-        ) {
-            if let selectedSide {
-                scoreSheet(for: selectedSide)
             }
         }
         .ignoresSafeArea()
@@ -372,37 +361,53 @@ struct WatchBasketballScoreView: View {
         }
     }
 
-    private func scoreSheet(for side: MatchSide) -> some View {
-        VStack(spacing: 10) {
-            Text(side == .left ? store.state.leftName : store.state.rightName)
-                .font(.headline)
-            HStack {
-                ForEach(BasketballMatchEngine.scoringButtons(store.state), id: \.self) { points in
-                    Button("+\(points)") {
-                        store.send(.addPoints(side: side, points: points))
+    private func scoreOverlay(for side: MatchSide) -> some View {
+        ZStack {
+            Color.black.opacity(0.84)
+                .ignoresSafeArea()
+                .onTapGesture { selectedSide = nil }
+            ScrollView {
+                VStack(spacing: WatchLayout.isCompactScreen ? 7 : 10) {
+                    Text(side == .left ? store.state.leftName : store.state.rightName)
+                        .font(.headline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    HStack {
+                        ForEach(BasketballMatchEngine.scoringButtons(store.state), id: \.self) { points in
+                            Button("+\(points)") {
+                                store.send(.addPoints(side: side, points: points))
+                                selectedSide = nil
+                            }
+                        }
+                    }
+                    Button(NSLocalizedString("watch_bball_foul_plus", value: "犯规 +1", comment: "")) {
+                        store.send(.addFoul(side: side))
+                        selectedSide = nil
+                    }
+                    Button(NSLocalizedString("watch_bball_timeout", value: "暂停", comment: "")) {
+                        store.send(.useTimeout(side: side))
+                        selectedSide = nil
+                    }
+                    HStack {
+                        ForEach(shotClockOptions, id: \.self) { seconds in
+                            Button("\(seconds)s") {
+                                store.send(.resetShotClock(seconds: seconds))
+                                selectedSide = nil
+                            }
+                        }
+                    }
+                    Button(NSLocalizedString("watch_bball_cancel", value: "取消", comment: ""), role: .cancel) {
                         selectedSide = nil
                     }
                 }
+                .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 12)
+                .padding(.vertical, WatchLayout.isCompactScreen ? 10 : 14)
             }
-            Button(NSLocalizedString("watch_bball_foul_plus", value: "犯规 +1", comment: "")) {
-                store.send(.addFoul(side: side))
-                selectedSide = nil
-            }
-            Button(NSLocalizedString("watch_bball_timeout", value: "暂停", comment: "")) {
-                store.send(.useTimeout(side: side))
-                selectedSide = nil
-            }
-            HStack {
-                ForEach(shotClockOptions, id: \.self) { seconds in
-                    Button("\(seconds)s") {
-                        store.send(.resetShotClock(seconds: seconds))
-                        selectedSide = nil
-                    }
-                }
-            }
-            Button(NSLocalizedString("watch_bball_cancel", value: "取消", comment: ""), role: .cancel) { selectedSide = nil }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(WatchTheme.overlayCard)
         }
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var periodTitle: String {

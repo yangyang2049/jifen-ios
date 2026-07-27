@@ -132,7 +132,10 @@ struct WatchScoreboardMenuOverlay: View {
                 WatchMenuCloseButton(action: onDismiss)
             }
             .padding(.horizontal, WatchLayout.isCompactScreen ? 20 : 26)
+            .padding(.top, WatchLayout.isCompactScreen ? 8 : 12)
             .padding(.bottom, WatchLayout.isCompactScreen ? 4 : 6)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .background(Color.black.opacity(0.62))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
@@ -330,10 +333,10 @@ struct WatchFinishedOverlay: View {
                 .buttonStyle(.bordered)
             }
             .foregroundStyle(.white)
-            .padding(WatchLayout.isCompactScreen ? 10 : 16)
-            .frame(width: WatchLayout.isCompactScreen ? 154 : 176)
+            .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 16)
+            .padding(.vertical, WatchLayout.isCompactScreen ? 8 : 12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.62))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
