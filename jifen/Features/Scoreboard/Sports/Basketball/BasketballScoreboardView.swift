@@ -308,6 +308,7 @@ struct BasketballScoreboardView: View {
                 .background(Circle().fill(Color.black.opacity(0.25)))
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(systemName == "line.3.horizontal" ? "scoreboard_menu_button" : ScoreboardConstants.backButtonAccessibilityID)
         .modifier(ScoreboardBackButtonAccessibility(isBack: systemName == "chevron.left"))
     }
 

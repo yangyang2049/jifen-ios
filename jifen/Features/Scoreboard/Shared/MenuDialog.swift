@@ -274,6 +274,15 @@ struct MenuDialog: View {
                 .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: 12)
                 .contentShape(Rectangle())
                 .onTapGesture { }
+                .overlay(alignment: .topTrailing) {
+                    Text(" ")
+                        .font(.system(size: 1))
+                        .frame(width: 1, height: 1)
+                        .opacity(0.001)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Scoreboard menu")
+                        .accessibilityIdentifier("scoreboard_menu_dialog")
+                }
             }
             .sheet(isPresented: $showUsageHint) {
                 ScoreboardUsageHintView()
@@ -376,6 +385,9 @@ struct MenuDialog: View {
                 .background(Circle().fill(Color.white.opacity(0.12)))
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: "Close"))
+        .accessibilityIdentifier("scoreboard_menu_close_button")
         .padding(.trailing, 8)
     }
 
@@ -432,6 +444,9 @@ struct MenuDialog: View {
             .opacity(item.enabled ? 1 : 0.45)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(item.title)
+        .accessibilityIdentifier("scoreboard_menu_action_\(item.action)")
         .disabled(!item.enabled)
     }
 

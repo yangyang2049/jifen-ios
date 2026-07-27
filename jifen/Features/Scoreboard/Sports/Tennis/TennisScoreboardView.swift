@@ -112,16 +112,15 @@ struct TennisScoreboardView: View {
                     HStack {
                         Button(action: goBack) {
                             Image(systemName: "chevron.left")
-                                .padding(10)
+                                .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                                 .background(Circle().fill(Color.black.opacity(0.35)))
+                                .frame(width: 64, height: 64)
+                                .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                         .accessibilityIdentifier(ScoreboardConstants.backButtonAccessibilityID)
                         Spacer()
-                        Button { showMenu = true } label: {
-                            Image(systemName: "line.3.horizontal")
-                                .padding(10)
-                                .background(Circle().fill(Color.black.opacity(0.35)))
-                        }
                     }
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
@@ -136,6 +135,7 @@ struct TennisScoreboardView: View {
                             .padding(.bottom, 16)
                     }
                 }
+                .zIndex(2)
                 if store.state.isTieBreak {
                     Text(store.state.rules.tieBreakPoints == 10
                         ? NSLocalizedString("tennis_tiebreak_option_10", value: "抢十", comment: "")
@@ -195,6 +195,32 @@ struct TennisScoreboardView: View {
                     showEndGame: true,
                     items: menuItems
                 )
+                if !showMenu, !showGameOverDialog {
+                    // Match the common scoreboard chrome: the operation menu lives at bottom right.
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button {
+                                showMenu = true
+                            } label: {
+                                Image(systemName: "line.3.horizontal")
+                                    .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                    .foregroundStyle(.white)
+                                    .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                    .background(Circle().fill(Color.black.opacity(0.35)))
+                                    .frame(width: 64, height: 64)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(NSLocalizedString("menu", value: "菜单", comment: "Menu"))
+                            .accessibilityIdentifier("scoreboard_menu_button")
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
+                    .zIndex(100)
+                }
                 if let toastMessage {
                     VStack {
                         Spacer()

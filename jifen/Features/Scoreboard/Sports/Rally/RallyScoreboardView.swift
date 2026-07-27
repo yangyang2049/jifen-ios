@@ -961,7 +961,17 @@ struct RallyScoreboardView: View {
                 .background(Circle().fill(background))
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(scoreboardChromeAccessibilityID(systemName))
         .modifier(ScoreboardBackButtonAccessibility(isBack: systemName == "chevron.left"))
+    }
+
+    private func scoreboardChromeAccessibilityID(_ systemName: String) -> String {
+        switch systemName {
+        case "chevron.left": ScoreboardConstants.backButtonAccessibilityID
+        case "line.3.horizontal": "scoreboard_menu_button"
+        case "pencil", "checkmark": "scoreboard_edit_button"
+        default: "scoreboard_chrome_\(systemName.replacingOccurrences(of: ".", with: "_"))"
+        }
     }
 
     private var menuItems: [ScoreboardMenuItem] {

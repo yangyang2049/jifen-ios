@@ -198,7 +198,7 @@ final class MainFlowUITests: XCTestCase {
         app = launchChineseApp(arguments: ["-UITestOpenTools"])
         XCTAssertTrue(openToolsList(in: app))
         let barrage = app.descendants(matching: .any)["tool_card_fullscreen_barrage"]
-        XCTAssertTrue(barrage.waitForExistence(timeout: 5))
+        XCTAssertTrue(scrollUntilExists(barrage, in: app))
         barrage.tap()
         let message = app.textFields["barrage_message_field"]
         XCTAssertTrue(message.waitForExistence(timeout: 5))
@@ -235,7 +235,9 @@ final class MainFlowUITests: XCTestCase {
         app.terminate()
         app = launchLocalizedApp(language: "en", locale: "en_US", appearance: "dark", arguments: ["-UITestOpenTools"])
         XCTAssertTrue(openToolsList(in: app))
-        app.descendants(matching: .any)["tool_card_fullscreen_barrage"].tap()
+        let englishBarrage = app.descendants(matching: .any)["tool_card_fullscreen_barrage"]
+        XCTAssertTrue(scrollUntilExists(englishBarrage, in: app))
+        englishBarrage.tap()
         XCTAssertTrue(app.textFields["barrage_message_field"].waitForExistence(timeout: 5))
         addScreenshot("Fullscreen barrage editor - English dark")
     }
@@ -299,6 +301,7 @@ final class MainFlowUITests: XCTestCase {
         }
         app.launchArguments += arguments
         app.launch()
+        XCUIDevice.shared.orientation = .portrait
         return app
     }
 
@@ -317,6 +320,14 @@ final class MainFlowUITests: XCTestCase {
             app.swipeUp(velocity: .fast)
         }
         return false
+    }
+
+    private func scrollUntilExists(_ element: XCUIElement, in app: XCUIApplication) -> Bool {
+        for _ in 0..<8 {
+            if element.exists, element.isHittable { return true }
+            app.swipeUp()
+        }
+        return element.exists && element.isHittable
     }
 
     private func addScreenshot(_ name: String) {
@@ -411,39 +422,53 @@ final class MainFlowUITests: XCTestCase {
     @discardableResult
     private func tapAllSafeVisibleCandidates(in app: XCUIApplication, seenFingerprints: inout Set<String>) -> Int {
         var tapped = 0
-        let candidates = candidateElements(in: app)
+        // Recapture the accessibility tree after every navigation. Keeping a bound
+        // XCUIElement from the previous page can become ambiguous when both the
+        // navigation bar and a scoreboard expose a Back button.
+        for _ in 0..<30 {
+            var tappedOne = false
+            for element in candidateElements(in: app) {
+                guard isSafeToTap(element: element) else { continue }
+                guard element.exists, element.isHittable else { continue }
 
-        for element in candidates {
-            guard isVisiblyTapCandidate(element, in: app) else { continue }
-            guard isSafeToTap(element: element) else { continue }
+                let fingerprint = fingerprint(for: element)
+                guard !seenFingerprints.contains(fingerprint) else { continue }
 
-            let fingerprint = fingerprint(for: element)
-            guard !seenFingerprints.contains(fingerprint) else { continue }
+                seenFingerprints.insert(fingerprint)
+                let label = debugLabel(for: element)
+                var didTap = false
 
-            seenFingerprints.insert(fingerprint)
-            let label = debugLabel(for: element)
-            var didTap = false
+                XCTContext.runActivity(named: "Tap \(label)") { _ in
+                    element.tap()
+                    didTap = true
+                }
+                guard didTap else { continue }
+                tapped += 1
+                tappedOne = true
 
-            XCTContext.runActivity(named: "Tap \(label)") { _ in
-                didTap = safeTap(element, in: app)
+                dismissSystemAlertIfNeeded()
+                ensureReturnedToTabRoot(app)
+                break
             }
-            guard didTap else { continue }
-            tapped += 1
-
-            dismissSystemAlertIfNeeded()
-            ensureReturnedToTabRoot(app)
+            if !tappedOne { break }
         }
 
         return tapped
     }
 
     private func candidateElements(in app: XCUIApplication) -> [XCUIElement] {
-        app.buttons.allElementsBoundByIndex +
-            app.cells.allElementsBoundByIndex +
-            app.collectionViews.cells.allElementsBoundByIndex +
-            app.tables.cells.allElementsBoundByIndex +
-            app.segmentedControls.buttons.allElementsBoundByIndex +
-            app.switches.allElementsBoundByIndex
+        // Exclude navigation/scoreboard Back controls in the query itself. During a
+        // transition XCTest can otherwise re-resolve one bound element by label and
+        // find both Back buttons before our Swift-side safety filter can run.
+        let nonBackButtons = app.buttons.matching(NSPredicate(
+            format: "NOT (label CONTAINS[c] %@ OR identifier CONTAINS[c] %@)",
+            "back",
+            "back"
+        )).allElementsBoundByIndex
+        // SwiftUI list rows and segmented options already surface their actionable
+        // descendants as buttons. Adding cells here duplicates those controls and can
+        // re-resolve a stale cell query as either of two nested Back buttons.
+        return nonBackButtons + app.switches.allElementsBoundByIndex
     }
 
     private func isSafeToTap(element: XCUIElement) -> Bool {
@@ -457,29 +482,14 @@ final class MainFlowUITests: XCTestCase {
     }
 
     private func fingerprint(for element: XCUIElement) -> String {
-        let frame = element.frame
-        let x = Int(frame.minX.rounded())
-        let y = Int(frame.minY.rounded())
-        let w = Int(frame.width.rounded())
-        let h = Int(frame.height.rounded())
-        return "\(element.elementType.rawValue)|\(element.identifier)|\(element.label)|\(x)|\(y)|\(w)|\(h)"
+        "\(element.elementType.rawValue)|\(element.identifier)|\(element.label)"
     }
 
     @discardableResult
     private func performScroll(in app: XCUIApplication, up: Bool) -> Bool {
-        if app.scrollViews.firstMatch.exists {
-            up ? app.scrollViews.firstMatch.swipeUp() : app.scrollViews.firstMatch.swipeDown()
-            return true
-        }
-        if app.tables.firstMatch.exists {
-            up ? app.tables.firstMatch.swipeUp() : app.tables.firstMatch.swipeDown()
-            return true
-        }
-        if app.collectionViews.firstMatch.exists {
-            up ? app.collectionViews.firstMatch.swipeUp() : app.collectionViews.firstMatch.swipeDown()
-            return true
-        }
-
+        // The accessibility tree can retain an off-screen ScrollView from a
+        // dismissed page. Swiping the application lets XCTest hit-test the visible
+        // scroll container instead of failing on that stale zero-height element.
         up ? app.swipeUp() : app.swipeDown()
         return true
     }
@@ -517,26 +527,26 @@ final class MainFlowUITests: XCTestCase {
     private func debugLabel(for element: XCUIElement) -> String {
         if !element.identifier.isEmpty { return element.identifier }
         if !element.label.isEmpty { return element.label }
-        let frame = element.frame
-        if frame.minX.isFinite, frame.minY.isFinite {
-            return "\(element.elementType.rawValue)-\(Int(frame.minX))-\(Int(frame.minY))"
-        }
-        return "\(element.elementType.rawValue)-unknown-frame"
+        return ""
     }
 
     private func navigateBackIfNeeded(from app: XCUIApplication) {
         for _ in 0..<3 {
             if app.tabBars.firstMatch.exists { return }
 
-            let navBack = app.navigationBars.buttons.allElementsBoundByIndex.first {
-                isVisiblyTapCandidate($0, in: app) && isNonCancelButton($0)
-            }
-            if let navBack {
-                _ = safeTap(navBack, in: app)
-            } else if isVisiblyTapCandidate(app.buttons["Back"], in: app) {
-                _ = safeTap(app.buttons["Back"], in: app)
-            } else if isVisiblyTapCandidate(app.buttons["Done"], in: app) {
-                _ = safeTap(app.buttons["Done"], in: app)
+            let navBack = app.buttons.matching(identifier: "BackButton").firstMatch
+            let scoreboardBack = app.buttons.matching(identifier: "scoreboard_back_button").firstMatch
+            let done = app.buttons.matching(identifier: "Done").firstMatch
+            if navBack.exists, navBack.isHittable {
+                navBack.tap()
+            } else if scoreboardBack.exists {
+                // Scoreboards lock to landscape. Querying hittability while the
+                // crawler has just requested portrait produces an invalid frame.
+                XCUIDevice.shared.orientation = .landscapeLeft
+                RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+                scoreboardBack.tap()
+            } else if done.exists, done.isHittable {
+                done.tap()
             } else {
                 app.swipeRight()
             }
@@ -578,19 +588,12 @@ final class MainFlowUITests: XCTestCase {
         if tapPreferredDialogButton(in: app.alerts.firstMatch, app: app) { return true }
         if tapPreferredDialogButton(in: app.sheets.firstMatch, app: app) { return true }
 
-        let overlayButtons = ["xmark", "Close", "Done", "Back"]
+        let overlayButtons = ["xmark", "Close", "Done"]
         for title in overlayButtons {
             let button = app.buttons[title]
             if isVisiblyTapCandidate(button, in: app), safeTap(button, in: app) {
                 return true
             }
-        }
-
-        let navBack = app.navigationBars.buttons.allElementsBoundByIndex.first {
-            isVisiblyTapCandidate($0, in: app) && isNonCancelButton($0)
-        }
-        if let navBack {
-            return safeTap(navBack, in: app)
         }
 
         return false

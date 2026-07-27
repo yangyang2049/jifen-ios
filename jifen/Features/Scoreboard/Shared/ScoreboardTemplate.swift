@@ -100,6 +100,7 @@ struct ScoreboardTemplate: View {
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
+                        .accessibilityIdentifier("scoreboard_left_panel")
                         .contentShape(Rectangle())
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
                         .gesture(scoreTapGesture(isLeft: true, panelSize: panelSize))
@@ -165,6 +166,7 @@ struct ScoreboardTemplate: View {
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
+                        .accessibilityIdentifier("scoreboard_right_panel")
                         .contentShape(Rectangle())
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
                         .gesture(scoreTapGesture(isLeft: false, panelSize: panelSize))
@@ -221,6 +223,7 @@ struct ScoreboardTemplate: View {
                                         .fill(isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.25))
                                 )
                             }
+                            .accessibilityIdentifier("scoreboard_edit_button")
                             .padding(.trailing, ScoreboardConstants.buttonPadding)
                             .padding(.top, ScoreboardConstants.buttonPadding)
                         }
@@ -281,6 +284,7 @@ struct ScoreboardTemplate: View {
                                             .fill(Color.black.opacity(0.25))
                                     )
                             }
+                            .accessibilityIdentifier("scoreboard_menu_button")
                             .padding(.trailing, ScoreboardConstants.buttonPadding)
                             .padding(.bottom, ScoreboardConstants.buttonPadding)
 

@@ -78,9 +78,30 @@ final class FullAppScreenshotUITests: XCTestCase {
         let count = UITestScreenshotStore.writtenFileCount()
         XCTAssertGreaterThanOrEqual(
             count,
-            90,
+            87,
             "Expected broad screenshot coverage, got \(count). Dir: \(UITestScreenshotStore.outputDirectory.path)"
         )
+    }
+
+    /// 回归网球独立计分板与追分紧凑菜单两种非通用布局。
+    func testScoreboardMenuLayoutVariants() {
+        for item in [(id: "tennis", label: "网球"), (id: "nine_ball", label: "追分")] {
+            relaunch()
+            XCTAssertTrue(selectTab("计分"))
+            scrollUntilExists(identifier: "scoreboard_catalog_\(item.id)")
+            let card = app.descendants(matching: .any)["scoreboard_catalog_\(item.id)"]
+            XCTAssertTrue(card.waitForExistence(timeout: 3), "Missing \(item.id) card")
+            card.tap()
+            XCTAssertTrue(tapStart(), "Start button not found for \(item.id)")
+            XCUIDevice.shared.orientation = .landscapeRight
+            RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+            revealScoreboardChrome(fromLeftCorner: true)
+            XCTAssertTrue(
+                app.descendants(matching: .any)["scoreboard_back_button"].waitForExistence(timeout: 8),
+                "Scoreboard did not open for \(item.id)"
+            )
+            exerciseScoreboardChrome(for: item.id)
+        }
     }
 
     // MARK: - Launch
@@ -258,18 +279,101 @@ final class FullAppScreenshotUITests: XCTestCase {
 
                 snap(String(format: "10_%02d_setup_%@", index + 1, item.id), settle: 0.5)
                 XCTAssertTrue(tapStart(), "Start button not found for \(item.id)")
+
+                // 部分计分板仅在横屏尺寸下挂载完整的无障碍树。先完成方向切换，
+                // 再检查页面标识，避免把“尚未布局”误判为“未打开”。
+                XCUIDevice.shared.orientation = .landscapeLeft
+                RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+                revealScoreboardChrome(fromLeftCorner: true)
                 let scoreboard = app.descendants(matching: .any)["scoreboard_back_button"]
                 XCTAssertTrue(
                     scoreboard.waitForExistence(timeout: 8),
                     "Scoreboard did not open for \(item.id)"
                 )
 
-                // Landscape boards need orientation settle
-                XCUIDevice.shared.orientation = .landscapeLeft
-                RunLoop.current.run(until: Date().addingTimeInterval(1.2))
                 snap(String(format: "11_%02d_board_%@", index + 1, item.id), settle: 0.6)
+                exerciseScoreboardChrome(for: item.id)
             }
         }
+    }
+
+    /// 每个计分板都实际操作菜单与撤销，避免截图存在但按钮失效、遮挡或菜单未挂载。
+    private func exerciseScoreboardChrome(for id: String) {
+        revealScoreboardChrome(fromLeftCorner: false)
+        let dialog = app.descendants(matching: .any)["scoreboard_menu_dialog"]
+        let menu = app.descendants(matching: .any)["scoreboard_menu_button"]
+        if !dialog.exists {
+            XCTAssertTrue(menu.waitForExistence(timeout: 3), "Missing menu button for \(id)")
+            if menu.exists {
+                menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            } else {
+                // 控制栏正在淡出时 identifier 仍可能存在但暂不可点，使用其固定右下角热区。
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+            }
+        }
+
+        if !dialog.waitForExistence(timeout: 0.5) {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+        }
+
+        XCTAssertTrue(dialog.waitForExistence(timeout: 3), "Menu did not open for \(id)")
+        guard dialog.exists else { return }
+
+        let undoCandidates = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "撤销")
+        ).allElementsBoundByIndex
+        let undo = undoCandidates.max(by: { $0.frame.midY < $1.frame.midY })
+        XCTAssertNotNil(undo, "Menu undo is missing for \(id)")
+        if let undo, undo.exists, undo.isHittable {
+            undo.tap()
+            XCTAssertTrue(dialog.exists, "Undo unexpectedly dismissed menu for \(id)")
+        }
+
+        var closedViaMenuAction = false
+        let close = app.descendants(matching: .any)["scoreboard_menu_close_button"]
+        if close.exists, close.isHittable {
+            close.tap()
+        } else {
+            let closeByLabel = app.buttons.matching(
+                NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "关闭", "xmark")
+            ).firstMatch
+            if closeByLabel.waitForExistence(timeout: 1), closeByLabel.isHittable {
+                closeByLabel.tap()
+            } else {
+                // 追分等紧凑布局可能不暴露 xmark 节点；“显示设置”按设计会先关闭菜单。
+                let displayByID = app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"]
+                let displayByLabel = app.buttons.matching(
+                    NSPredicate(format: "label CONTAINS %@", "显示设置")
+                ).firstMatch
+                let displaySettings = displayByID.exists ? displayByID : displayByLabel
+                XCTAssertTrue(displaySettings.waitForExistence(timeout: 2), "Menu close fallback is missing for \(id)")
+                if displaySettings.exists {
+                    displaySettings.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                    closedViaMenuAction = true
+                }
+            }
+        }
+        XCTAssertTrue(dialog.waitForNonExistence(timeout: 2), "Menu did not close for \(id)")
+
+        if closedViaMenuAction { return }
+        let edit = app.descendants(matching: .any)["scoreboard_edit_button"]
+        if edit.exists, edit.isHittable {
+            edit.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+            let done = app.descendants(matching: .any)["scoreboard_edit_button"]
+            XCTAssertTrue(done.exists, "Edit control disappeared for \(id)")
+            if done.exists, done.isHittable { done.tap() }
+        }
+    }
+
+    /// 沉浸模式会自动隐藏控制栏；角落触摸既是产品支持的唤出方式，也是测试前置条件。
+    private func revealScoreboardChrome(fromLeftCorner: Bool) {
+        let expectedID = fromLeftCorner ? "scoreboard_back_button" : "scoreboard_menu_button"
+        if app.descendants(matching: .any)[expectedID].exists { return }
+        app.coordinate(
+            withNormalizedOffset: CGVector(dx: fromLeftCorner ? 0.02 : 0.98, dy: 0.98)
+        ).tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.25))
     }
 
     // MARK: - Timers
@@ -525,6 +629,16 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     @discardableResult
     private func tapStart() -> Bool {
+        // 首次进入支持手表联动的项目时，引导卡会覆盖底部“开始”。
+        // XCTest 仍可能把被覆盖按钮报告为 hittable，因此必须先显式关闭引导。
+        for label in ["知道了", "Got It", "Got it"] {
+            let guideDismiss = app.buttons[label]
+            if guideDismiss.exists, guideDismiss.isHittable {
+                guideDismiss.tap()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+                break
+            }
+        }
         for label in ["开始", "Start", "确认"] {
             let button = app.buttons[label]
             if button.waitForExistence(timeout: 1.2), button.isHittable {

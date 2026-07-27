@@ -346,6 +346,7 @@ struct DoudizhuScoreboardView: View {
                         .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
+                .accessibilityIdentifier("scoreboard_menu_button")
                 .padding(.trailing, ScoreboardConstants.buttonPadding)
                 .padding(.bottom, ScoreboardConstants.buttonPadding)
             }

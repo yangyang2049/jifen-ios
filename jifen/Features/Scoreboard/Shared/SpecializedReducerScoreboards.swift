@@ -70,6 +70,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         action: onLeftTap
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
+                    .accessibilityIdentifier("scoreboard_left_panel")
 
                     scorePanel(
                         isLeft: false,
@@ -81,6 +82,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         action: onRightTap
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
+                    .accessibilityIdentifier("scoreboard_right_panel")
                 }
 
                 if let seamOverlay {
@@ -298,7 +300,21 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 .background(Circle().fill(Color.black.opacity(0.25)))
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityIdentifier(for: systemName))
         .modifier(ScoreboardBackButtonAccessibility(isBack: systemName == "chevron.left"))
+    }
+
+    private func accessibilityIdentifier(for systemName: String) -> String {
+        switch systemName {
+        case "chevron.left":
+            return ScoreboardConstants.backButtonAccessibilityID
+        case "line.3.horizontal":
+            return "scoreboard_menu_button"
+        case "pencil", "checkmark":
+            return "scoreboard_edit_button"
+        default:
+            return "scoreboard_chrome_\(systemName.replacingOccurrences(of: ".", with: "_"))"
+        }
     }
 
     private func scorePanel(
@@ -953,6 +969,7 @@ struct NineBallChaseScoreboardView: View {
                                 .background(Circle().fill(Color.black.opacity(0.25)))
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("scoreboard_menu_button")
                         .padding(.trailing, ScoreboardConstants.buttonPadding)
                         .padding(.bottom, ScoreboardConstants.buttonPadding)
                     }
