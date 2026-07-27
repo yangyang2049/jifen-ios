@@ -87,7 +87,10 @@ struct WatchEightBallScoreView: View {
             if showFinishedOverlay {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreText: "\(state.leftPoints) : \(state.rightPoints)",
+                    scoreItems: [
+                        WatchFinishedScoreItem(name: leftName, score: String(state.leftPoints)),
+                        WatchFinishedScoreItem(name: rightName, score: String(state.rightPoints))
+                    ],
                     winnerText: eightBallWinnerText,
                     undoAvailable: finishUndoAvailable,
                     onUndo: undoFinishedEightBall,
@@ -269,9 +272,14 @@ struct WatchEightBallScoreView: View {
         color: Color,
         action: @escaping () -> Void
     ) -> some View {
-        ZStack {
+        let scoreFont = WatchScoreTypography.adaptiveFontSize(
+            baseSize: isHorizontal ? 56 : 62,
+            scoreText: text,
+            minimumSize: isHorizontal ? 40 : 44
+        )
+        return ZStack {
             Text(text)
-                .font(.system(size: isHorizontal ? 56 : 62, weight: .bold, design: .rounded))
+                .font(.system(size: scoreFont, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
             VStack(spacing: 2) {
                 Text(name)
@@ -519,7 +527,9 @@ struct WatchNineBallScoreView: View {
             if showFinishedOverlay {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreText: compactNineBallScore,
+                    scoreItems: (0..<state.playerCount).map {
+                        WatchFinishedScoreItem(name: displayName(at: $0), score: String(playerPoints(at: $0)))
+                    },
                     winnerText: nineBallWinnerText,
                     undoAvailable: finishUndoAvailable,
                     onUndo: undoFinishedNineBall,
@@ -613,7 +623,14 @@ struct WatchNineBallScoreView: View {
     }
 
     private func playerZone(_ index: Int) -> some View {
-        let scoreFont: CGFloat = state.playerCount == 4 ? 34 : (state.playerCount == 3 ? 40 : 56)
+        let scoreText = "\(playerPoints(at: index))"
+        let baseScoreFont: CGFloat = state.playerCount == 4 ? 34 : (state.playerCount == 3 ? 40 : 56)
+        let minimumScoreFont: CGFloat = state.playerCount == 4 ? 24 : (state.playerCount == 3 ? 28 : 38)
+        let scoreFont = WatchScoreTypography.adaptiveFontSize(
+            baseSize: baseScoreFont,
+            scoreText: scoreText,
+            minimumSize: minimumScoreFont
+        )
         let nameFont: CGFloat = state.playerCount > 2 ? 11 : 13
         return VStack(spacing: state.playerCount > 2 ? 4 : 6) {
             Text(displayName(at: index))
@@ -621,7 +638,7 @@ struct WatchNineBallScoreView: View {
                 .foregroundStyle(.white.opacity(0.75))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-            Text("\(playerPoints(at: index))")
+            Text(scoreText)
                 .font(.system(size: scoreFont, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
                 .minimumScaleFactor(0.5)
@@ -642,7 +659,7 @@ struct WatchNineBallScoreView: View {
             Color.black.opacity(0.78)
                 .ignoresSafeArea()
                 .onTapGesture { eventPickerPlayer = nil }
-            VStack(spacing: WatchLayout.isCompactScreen ? 5 : 7) {
+            VStack(spacing: WatchLayout.isCompactScreen ? 3 : 7) {
                 Text(displayName(at: player))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.8))
@@ -672,7 +689,8 @@ struct WatchNineBallScoreView: View {
                 }
                 WatchMenuCloseButton { eventPickerPlayer = nil }
             }
-            .padding(WatchLayout.isCompactScreen ? 8 : 12)
+            .padding(.horizontal, WatchLayout.isCompactScreen ? 8 : 12)
+            .padding(.vertical, WatchLayout.isCompactScreen ? 4 : 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
         }
@@ -965,6 +983,31 @@ struct WatchNineBallScoreView: View {
     }
 }
 
+enum WatchSnookerBallAvailability {
+    static func isAvailable(_ ball: SnookerBall, in state: SnookerState) -> Bool {
+        switch state.nextBallStage {
+        case .red:
+            return ball == .red && state.redBallsRemaining > 0
+        case .color:
+            return ball != .red
+        case .yellow:
+            return ball == .yellow
+        case .green:
+            return ball == .green
+        case .brown:
+            return ball == .brown
+        case .blue:
+            return ball == .blue
+        case .pink:
+            return ball == .pink
+        case .black:
+            return ball == .black
+        case .complete:
+            return false
+        }
+    }
+}
+
 struct WatchSnookerScoreView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchLinkService.self) private var linkService
@@ -1028,9 +1071,6 @@ struct WatchSnookerScoreView: View {
             }
             .ignoresSafeArea()
             .disabled(!interactionsEnabled)
-            if !showMenu && scoringSide == nil && !showFinishedOverlay {
-                snookerStatusBadge
-            }
             if showMenu {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
@@ -1060,7 +1100,10 @@ struct WatchSnookerScoreView: View {
             if showFinishedOverlay {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreText: "\(state.leftFrames) : \(state.rightFrames)",
+                    scoreItems: [
+                        WatchFinishedScoreItem(name: leftName, score: String(state.leftFrames)),
+                        WatchFinishedScoreItem(name: rightName, score: String(state.rightFrames))
+                    ],
                     winnerText: snookerWinnerText,
                     undoAvailable: finishUndoAvailable,
                     onUndo: undoFinishedSnooker,
@@ -1115,21 +1158,35 @@ struct WatchSnookerScoreView: View {
 
     private func scoreHalf(_ side: MatchSide) -> some View {
         let isLeft = side == .left
+        let name = isLeft ? leftName : rightName
         let score = isLeft ? state.leftScore : state.rightScore
+        let scoreText = "\(score)"
         let frames = isLeft ? state.leftFrames : state.rightFrames
         let color = isLeft ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5)
+        let scoreFont = WatchScoreTypography.adaptiveFontSize(
+            baseSize: isHorizontal ? 56 : 62,
+            scoreText: scoreText,
+            minimumSize: isHorizontal ? 40 : 44
+        )
         return ZStack {
-            Text("\(score)")
-                .font(.system(size: isHorizontal ? 56 : 62, weight: .bold, design: .rounded))
+            Text(scoreText)
+                .font(.system(size: scoreFont, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
-            Text(String(
-                format: NSLocalizedString("watch_snooker_frames_format", value: "局 %d", comment: ""),
-                frames
-            ))
-            .font(.system(size: 14, weight: .medium))
-            .foregroundStyle(.white.opacity(0.7))
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .padding(.bottom, isHorizontal ? 22 : 16)
+            Text(name)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, isHorizontal ? 28 : 8)
+            Text("\(frames)")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(.white.opacity(0.7))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, isHorizontal ? 22 : 16)
+            snookerServerIndicator(for: side)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(color)
@@ -1140,31 +1197,31 @@ struct WatchSnookerScoreView: View {
         }
     }
 
-    private var snookerStatusBadge: some View {
-        VStack(spacing: 2) {
-            Text(state.striker == .left ? leftName : rightName)
-                .font(.system(size: 11, weight: .semibold))
-                .lineLimit(1)
-            Text(String.localizedStringWithFormat(
-                NSLocalizedString("watch_snooker_break_format", value: "单杆 %d", comment: ""),
-                state.striker == .left ? state.leftBreak : state.rightBreak
-            ))
-            .font(.system(size: 10, weight: .medium, design: .rounded))
-            Text(String.localizedStringWithFormat(
-                NSLocalizedString("watch_snooker_reds_format", value: "红球 %d", comment: ""),
-                state.redBallsRemaining
-            ))
-            .font(.system(size: 9, weight: .medium))
-        }
-        .foregroundStyle(.white)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .background(Color.black.opacity(0.62))
-        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+    private func snookerServerIndicator(for side: MatchSide) -> some View {
+        let isLeft = side == .left
+        let direction: WatchServerIndicatorDirection = isHorizontal
+            ? (isLeft ? .right : .left)
+            : (isLeft ? .bottom : .top)
+        let alignment: Alignment = isHorizontal
+            ? (isLeft ? .leading : .trailing)
+            : (isLeft ? .top : .bottom)
+        let insets = EdgeInsets(
+            top: alignment == .top ? 0 : 12,
+            leading: alignment == .leading ? 0 : 12,
+            bottom: alignment == .bottom ? 0 : 12,
+            trailing: alignment == .trailing ? 0 : 12
+        )
+
+        return WatchServerIndicator(direction: direction, size: 14, color: WatchTheme.accent)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
+            .padding(insets)
+            .opacity(state.striker == side ? 1 : 0)
+            .allowsHitTesting(false)
     }
 
     private func snookerScoringPanel(for side: MatchSide) -> some View {
-        ZStack {
+        let closeButtonSize = WatchLayout.overlayCloseButtonSize
+        return ZStack(alignment: .bottom) {
             Color.black.opacity(0.84)
                 .ignoresSafeArea()
                 .onTapGesture { scoringSide = nil }
@@ -1178,22 +1235,31 @@ struct WatchSnookerScoreView: View {
                         spacing: 5
                     ) {
                         ForEach(SnookerBall.allCases, id: \.rawValue) { ball in
+                            let isAvailable = WatchSnookerBallAvailability.isAvailable(ball, in: state)
                             Button {
                                 apply(.potBallAsSide(side: side, points: ball.rawValue))
                                 scoringSide = nil
                             } label: {
-                                VStack(spacing: 1) {
+                                ZStack {
                                     Circle()
-                                        .frame(width: 13, height: 13)
-                                        .foregroundStyle(snookerBallColor(ball))
+                                        .fill(snookerBallColor(ball))
                                     Text("\(ball.rawValue)")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.system(
+                                            size: WatchLayout.isCompactScreen ? 14 : 16,
+                                            weight: .bold,
+                                            design: .rounded
+                                        ))
+                                        .foregroundStyle(snookerBallTextColor(ball))
                                 }
-                                .frame(maxWidth: .infinity, minHeight: 34)
+                                .frame(
+                                    width: WatchLayout.snookerBallButtonSize,
+                                    height: WatchLayout.snookerBallButtonSize
+                                )
+                                .frame(maxWidth: .infinity)
+                                .opacity(isAvailable ? 1 : 0.45)
                             }
                             .buttonStyle(.plain)
-                            .background(WatchTheme.card)
-                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            .disabled(!isAvailable)
                         }
                     }
                     HStack(spacing: 5) {
@@ -1208,27 +1274,33 @@ struct WatchSnookerScoreView: View {
                         }
                     }
                     HStack(spacing: 6) {
-                        Button(NSLocalizedString("watch_snooker_miss", value: "未进", comment: "")) {
-                            apply(.missFromPanel(side))
-                            scoringSide = nil
-                        }
-                        Button(NSLocalizedString("watch_snooker_handover", value: "交接", comment: "")) {
+                        Button {
                             apply(.handoverFromPanel(side))
                             scoringSide = nil
+                        } label: {
+                            Text(NSLocalizedString("watch_snooker_handover", value: "换手", comment: ""))
+                                .frame(maxWidth: .infinity, minHeight: 32)
                         }
-                        Button(NSLocalizedString("watch_snooker_settle_frame", value: "结算本局", comment: "")) {
+                        Button {
                             scoringSide = nil
                             showFrameSettlement = true
+                        } label: {
+                            Text(NSLocalizedString("watch_snooker_settle_frame", value: "结算本局", comment: ""))
+                                .frame(maxWidth: .infinity, minHeight: 32)
                         }
                     }
                     .font(.system(size: 10, weight: .semibold))
                     .buttonStyle(.bordered)
-                    WatchMenuCloseButton { scoringSide = nil }
                 }
-                .padding(8)
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
+                .padding(.bottom, closeButtonSize + 20)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
+
+            WatchMenuCloseButton { scoringSide = nil }
+                .padding(.bottom, WatchLayout.isCompactScreen ? 4 : 6)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
@@ -1300,6 +1372,13 @@ struct WatchSnookerScoreView: View {
         case .blue: Color(hex: 0x1E88E5)
         case .pink: Color(hex: 0xEC407A)
         case .black: .black
+        }
+    }
+
+    private func snookerBallTextColor(_ ball: SnookerBall) -> Color {
+        switch ball {
+        case .yellow, .green, .pink: .black
+        case .red, .brown, .blue, .black: .white
         }
     }
 

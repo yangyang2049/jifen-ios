@@ -295,7 +295,7 @@
 "nine_ball_normal_win" = "普通胜";
 "nine_ball_ball_in_hand" = "自由球";
 "nine_ball_foul" = "犯规";
-"watch_archery_set_rest" = "组间休息";
+"watch_archery_set_rest" = "局间休息";
 "watch_eight_ball_handicap_format" = "让局 +%d";
 "watch_finish_confirm_title" = "结束比赛？";
 "watch_finish_confirm_message" = "将结束并保存本场比赛。";
@@ -307,7 +307,7 @@
 "watch_snooker_reds_format" = "红球 %d";
 "watch_snooker_foul" = "犯规";
 "watch_snooker_miss" = "未进";
-"watch_snooker_handover" = "交接";
+"watch_snooker_handover" = "换手";
 "watch_snooker_settle_frame" = "结算本局";
 "watch_snooker_choose_frame_winner" = "选择本局胜者";
 "watch_snooker_frame_finished" = "本局结束";

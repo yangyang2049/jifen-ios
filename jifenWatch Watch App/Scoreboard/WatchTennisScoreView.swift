@@ -223,7 +223,20 @@ struct WatchTennisScoreView: View {
             if showFinishedOverlay {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreText: scoreLine,
+                    scoreItems: [
+                        WatchFinishedScoreItem(
+                            name: store.state.leftName,
+                            score: String(store.state.rules.setScoringMode == .tiebreakOnly
+                                ? store.state.leftPoints
+                                : store.state.leftSets)
+                        ),
+                        WatchFinishedScoreItem(
+                            name: store.state.rightName,
+                            score: String(store.state.rules.setScoringMode == .tiebreakOnly
+                                ? store.state.rightPoints
+                                : store.state.rightSets)
+                        )
+                    ],
                     winnerText: winnerText,
                     undoAvailable: finishUndoAvailable,
                     onUndo: undoFinish,
@@ -382,7 +395,13 @@ struct WatchTennisScoreView: View {
         let showMeta = store.state.rules.setScoringMode != .tiebreakOnly
         let hasSets = showMeta && store.state.leftSets + store.state.rightSets > 0
         let hasGames = showMeta && store.state.leftGames + store.state.rightGames > 0
-        let mainScoreFont: CGFloat = isHorizontal ? 48 : 52
+        let mainScoreFont = WatchScoreTypography.adaptiveFontSize(
+            baseSize: isHorizontal ? 48 : 52,
+            scoreText: pointText,
+            minimumSize: 34,
+            availableWidth: size.width,
+            horizontalPadding: 12
+        )
 
         return ZStack {
             Text(pointText)

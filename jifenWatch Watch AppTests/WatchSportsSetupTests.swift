@@ -37,12 +37,14 @@ final class WatchSportsSetupTests: XCTestCase {
     }
 
     func testWatchLayoutUsesTwoPagePaddingTiers() {
+        XCTAssertEqual(WatchLayout.overlayCloseButtonSize, 44)
         for width: CGFloat in [162, 176, 184, 187, 190] {
             XCTAssertTrue(WatchLayout.isNarrowScreen(width: width))
             XCTAssertEqual(WatchLayout.pageHorizontalPadding(for: width), 6)
             XCTAssertEqual(WatchLayout.pillRowHorizontalPadding(for: width), 12)
             XCTAssertEqual(WatchLayout.recordRowHorizontalPadding(for: width), 12)
             XCTAssertEqual(WatchLayout.cardContentPadding(for: width), 12)
+            XCTAssertEqual(WatchLayout.archeryScorePanelHorizontalPadding(for: width), 2)
         }
         for width: CGFloat in [198, 205, 208, 211] {
             XCTAssertFalse(WatchLayout.isNarrowScreen(width: width))
@@ -50,7 +52,19 @@ final class WatchSportsSetupTests: XCTestCase {
             XCTAssertEqual(WatchLayout.pillRowHorizontalPadding(for: width), 16)
             XCTAssertEqual(WatchLayout.recordRowHorizontalPadding(for: width), 16)
             XCTAssertEqual(WatchLayout.cardContentPadding(for: width), 14)
+            XCTAssertEqual(WatchLayout.archeryScorePanelHorizontalPadding(for: width), 4)
         }
+        XCTAssertEqual(WatchLayout.archeryScoreButtonSize(for: 162), 38)
+        XCTAssertEqual(WatchLayout.archeryScoreButtonSize(for: 176), 41)
+        XCTAssertEqual(WatchLayout.archeryScoreButtonSize(for: 184), 42)
+        XCTAssertEqual(WatchLayout.archeryScoreButtonSize(for: 187), 42)
+        XCTAssertEqual(WatchLayout.archeryScoreButtonSize(for: 198), 45)
+        XCTAssertEqual(WatchLayout.archeryScoreButtonSize(for: 205), 46)
+        XCTAssertEqual(WatchLayout.snookerBallButtonSize(for: 162), 32)
+        XCTAssertEqual(WatchLayout.snookerBallButtonSize(for: 176), 36)
+        XCTAssertEqual(WatchLayout.snookerBallButtonSize(for: 187), 38)
+        XCTAssertEqual(WatchLayout.snookerBallButtonSize(for: 198), 41)
+        XCTAssertEqual(WatchLayout.snookerBallButtonSize(for: 205), 42)
     }
 
     func testBadmintonMidGameRestRoundsTargetUp() {
@@ -226,6 +240,42 @@ final class WatchSportsSetupTests: XCTestCase {
         state = reducer.reduce(state: state, intent: .settleFrame(winner: .left), at: 4).state
         XCTAssertEqual(state.leftFrames, 1)
         XCTAssertEqual(state.currentFrame, 2)
+    }
+
+    func testSnookerBallAvailabilityAlternatesAndThenFollowsClearanceOrder() {
+        let reducer = SnookerReducer()
+        var state = SnookerState.initial(striker: .left, maxFrames: 3)
+
+        XCTAssertEqual(
+            SnookerBall.allCases.filter { WatchSnookerBallAvailability.isAvailable($0, in: state) },
+            [.red]
+        )
+
+        state = reducer.reduce(state: state, intent: .potBall(points: 1), at: 1).state
+        XCTAssertEqual(
+            SnookerBall.allCases.filter { WatchSnookerBallAvailability.isAvailable($0, in: state) },
+            [.yellow, .green, .brown, .blue, .pink, .black]
+        )
+
+        state = reducer.reduce(state: state, intent: .potBall(points: 7), at: 2).state
+        XCTAssertEqual(
+            SnookerBall.allCases.filter { WatchSnookerBallAvailability.isAvailable($0, in: state) },
+            [.red]
+        )
+
+        state.redBallsRemaining = 0
+        state.nextBallStage = .color
+        state = reducer.reduce(state: state, intent: .potBall(points: 7), at: 3).state
+        XCTAssertEqual(
+            SnookerBall.allCases.filter { WatchSnookerBallAvailability.isAvailable($0, in: state) },
+            [.yellow]
+        )
+
+        state = reducer.reduce(state: state, intent: .potBall(points: 2), at: 4).state
+        XCTAssertEqual(
+            SnookerBall.allCases.filter { WatchSnookerBallAvailability.isAvailable($0, in: state) },
+            [.green]
+        )
     }
 
     func testWatchHomePinningKeepsPinnedOrderAndDefaultOrderForTheRest() {
@@ -466,6 +516,73 @@ final class WatchSportsSetupTests: XCTestCase {
             state?.doubles?.playerNames,
             ["Red A", "Blue A", "Red B", "Blue B"]
         )
+    }
+
+    func testSetupPayloadsPreserveEnteredNamesForEveryScoreboard() throws {
+        func config(
+            _ sport: WatchSetupSport,
+            names: [String],
+            playerCount: Int? = nil
+        ) -> WatchScoreboardLaunchConfig {
+            var draft = WatchSportsSetupDraft(
+                sport: sport,
+                playerCount: playerCount,
+                preferences: preferences
+            )
+            for (index, name) in names.enumerated() where draft.playerNames.indices.contains(index) {
+                draft.playerNames[index] = name
+            }
+            return WatchScoreboardLaunchConfig(draft: draft)
+        }
+
+        for sport in [WatchSetupSport.badminton, .pingpong, .pickleball] {
+            let state = try XCTUnwrap(WatchSetupPayloadMapper.rallyState(
+                for: config(sport, names: ["甲", "乙"])
+            ))
+            XCTAssertEqual(state.leftName, "甲")
+            XCTAssertEqual(state.rightName, "乙")
+        }
+
+        for sport in [WatchSetupSport.badmintonDoubles, .pingpongDoubles, .pickleballDoubles] {
+            let state = try XCTUnwrap(WatchSetupPayloadMapper.rallyState(
+                for: config(sport, names: ["红A", "红B", "蓝A", "蓝B"])
+            ))
+            XCTAssertEqual(state.leftName, "红A/红B")
+            XCTAssertEqual(state.rightName, "蓝A/蓝B")
+            XCTAssertEqual(state.doubles?.playerNames, ["红A", "蓝A", "红B", "蓝B"])
+        }
+
+        let tennis = try XCTUnwrap(WatchSetupPayloadMapper.tennisState(
+            for: config(.tennis, names: ["甲", "乙"])
+        ))
+        XCTAssertEqual(tennis.leftName, "甲")
+        XCTAssertEqual(tennis.rightName, "乙")
+
+        let tennisDoubles = try XCTUnwrap(WatchSetupPayloadMapper.tennisState(
+            for: config(.tennisDoubles, names: ["红A", "红B", "蓝A", "蓝B"])
+        ))
+        XCTAssertEqual(tennisDoubles.leftName, "红A/红B")
+        XCTAssertEqual(tennisDoubles.rightName, "蓝A/蓝B")
+        XCTAssertEqual(tennisDoubles.doublesPlayerNames, ["红A", "蓝A", "红B", "蓝B"])
+
+        let archery = try XCTUnwrap(WatchSetupPayloadMapper.archeryState(
+            for: config(.archery, names: ["射手甲", "射手乙"])
+        ))
+        XCTAssertEqual(archery.leftName, "射手甲")
+        XCTAssertEqual(archery.rightName, "射手乙")
+
+        for sport in [WatchSetupSport.eightBall, .snooker] {
+            let names = WatchSetupPayloadMapper.twoSideNames(
+                for: config(sport, names: ["甲", "乙"])
+            )
+            XCTAssertEqual(names.left, "甲")
+            XCTAssertEqual(names.right, "乙")
+        }
+
+        let nineBall = try XCTUnwrap(WatchSetupPayloadMapper.nineBallState(
+            for: config(.nineBall, names: ["甲", "乙", "丙", "丁"], playerCount: 4)
+        ))
+        XCTAssertEqual(nineBall.playerNames, ["甲", "乙", "丙", "丁"])
     }
 
     func testEightBallHandicapResetsAndCaps() {
@@ -791,5 +908,44 @@ final class WatchSportsSetupTests: XCTestCase {
 
         let decoded = try JSONDecoder().decode(WatchResumeSession.self, from: legacyData)
         XCTAssertNil(decoded.actionLog)
+    }
+
+    func testAdaptiveScoreFontShrinksCompactAndThreeDigitScores() {
+        XCTAssertEqual(
+            WatchScoreTypography.adaptiveFontSize(
+                baseSize: 64,
+                scoreText: "29",
+                minimumSize: 42,
+                screenWidth: 187
+            ),
+            62
+        )
+        XCTAssertEqual(
+            WatchScoreTypography.adaptiveFontSize(
+                baseSize: 64,
+                scoreText: "100",
+                minimumSize: 42,
+                screenWidth: 187
+            ),
+            51
+        )
+        XCTAssertEqual(
+            WatchScoreTypography.adaptiveFontSize(
+                baseSize: 64,
+                scoreText: "1000",
+                minimumSize: 42,
+                screenWidth: 187
+            ),
+            42
+        )
+        XCTAssertEqual(
+            WatchScoreTypography.adaptiveFontSize(
+                baseSize: 64,
+                scoreText: "100",
+                minimumSize: 42,
+                screenWidth: 198
+            ),
+            52
+        )
     }
 }

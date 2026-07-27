@@ -501,7 +501,10 @@ struct WatchSportsSetupView: View {
                     Image(systemName: "xmark")
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(WatchTheme.accent)
-                        .frame(width: 36, height: 36)
+                        .frame(
+                            width: WatchLayout.overlayCloseButtonSize,
+                            height: WatchLayout.overlayCloseButtonSize
+                        )
                         .background(Color.white.opacity(0.15))
                         .clipShape(Circle())
                 }

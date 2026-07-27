@@ -226,11 +226,19 @@ struct WatchArcheryScoreView: View {
     private func side(isRed: Bool, size: CGSize) -> some View {
         let setPts = isRed ? redSets : blueSets
         let ringPts = isRed ? redScore : blueScore
-        let mainScoreFontSize: CGFloat = scoreboardLayout == "horizontal" ? 64 : 72
+        let name = isRed ? leftName : rightName
+        let scoreText = "\(ringPts)"
+        let mainScoreFontSize = WatchScoreTypography.adaptiveFontSize(
+            baseSize: scoreboardLayout == "horizontal" ? 64 : 72,
+            scoreText: scoreText,
+            minimumSize: scoreboardLayout == "horizontal" ? 42 : 48,
+            availableWidth: size.width,
+            horizontalPadding: 12
+        )
         let setScoreYOffset: CGFloat = 56
         return ZStack {
             if scoreboardLayout == "horizontal" {
-                Text("\(ringPts)")
+                Text(scoreText)
                     .font(.system(size: mainScoreFontSize, weight: .bold))
                     .foregroundColor(.white)
 
@@ -248,11 +256,21 @@ struct WatchArcheryScoreView: View {
                             .font(.system(size: 24, weight: .medium))
                             .foregroundColor(Color.white.opacity(0.65))
                     }
-                    Text("\(ringPts)")
+                    Text(scoreText)
                         .font(.system(size: mainScoreFontSize, weight: .bold))
                         .foregroundColor(.white)
                 }
             }
+
+            Text(name)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, scoreboardLayout == "horizontal" ? 28 : 8)
 
             serverIndicatorOverlay(isRed: isRed)
         }
@@ -292,15 +310,15 @@ struct WatchArcheryScoreView: View {
         let btnSize = WatchLayout.archeryScoreButtonSize
         let fontSize = WatchLayout.archeryScoreButtonFontSize
         let gridSpacing = WatchLayout.archeryScoreGridSpacing
-        let panelPadding = WatchLayout.archeryScorePanelPadding
         return ZStack {
             Color.black.opacity(0.55)
                 .ignoresSafeArea()
                 .onTapGesture { showScorePanel = false }
             VStack(spacing: WatchLayout.archeryScorePanelVStackSpacing) {
                 Text(currentShooter ? leftName : rightName)
-                    .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14, weight: .bold))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 14 : 16, weight: .bold))
                     .foregroundColor(currentShooter ? Color(hex: 0xE53935) : Color(hex: 0x1E88E5))
+                    .padding(.bottom, WatchLayout.archeryScoreTitleBottomPadding)
                 VStack(spacing: gridSpacing) {
                     ForEach(0..<3, id: \.self) { row in
                         HStack(spacing: gridSpacing) {
@@ -327,18 +345,11 @@ struct WatchArcheryScoreView: View {
                         }
                     }
                 }
-                Button {
-                    showScorePanel = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: WatchLayout.isCompactScreen ? 20 : 24))
-                        .foregroundColor(WatchTheme.secondaryText)
-                }
-                .buttonStyle(.plain)
-                .frame(width: WatchLayout.isCompactScreen ? 36 : 44, height: WatchLayout.isCompactScreen ? 36 : 44)
+                WatchMenuCloseButton { showScorePanel = false }
                 .padding(.top, WatchLayout.archeryScorePanelCloseTopPadding)
             }
-            .padding(panelPadding)
+            .padding(.horizontal, WatchLayout.archeryScorePanelHorizontalPadding)
+            .padding(.vertical, WatchLayout.archeryScorePanelVerticalPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black.opacity(0.65))
         }
@@ -355,36 +366,32 @@ struct WatchArcheryScoreView: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color.white.opacity(0.95))
                 HStack(spacing: 6) {
-                    Text(leftName)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color(hex: 0xE53935))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.55)
-                        .frame(maxWidth: .infinity)
-                    Text("—")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.65))
-                        .frame(width: 18)
-                    Text(rightName)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color(hex: 0x1E88E5))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.55)
-                        .frame(maxWidth: .infinity)
-                }
-                HStack(spacing: 6) {
-                    Text("\(redScore)")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: 4) {
+                        Text(leftName)
+                            .font(.system(size: 14))
+                            .foregroundColor(Color(hex: 0xE53935))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.55)
+                        Text("\(redScore)")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .frame(maxWidth: .infinity)
                     Text("—")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white.opacity(0.75))
                         .frame(width: 18)
-                    Text("\(blueScore)")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: 4) {
+                        Text(rightName)
+                            .font(.system(size: 14))
+                            .foregroundColor(Color(hex: 0x1E88E5))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.55)
+                        Text("\(blueScore)")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
             .padding(WatchLayout.isCompactScreen ? 14 : 20)
@@ -453,13 +460,38 @@ struct WatchArcheryScoreView: View {
             Color.black.opacity(0.40)
                 .ignoresSafeArea()
             VStack(spacing: WatchLayout.isCompactScreen ? 10 : 16) {
-                VStack(spacing: 4) {
-                    Text(NSLocalizedString("watch_match_finished", comment: "Match finished"))
-                        .font(.system(size: WatchLayout.isCompactScreen ? 16 : 20, weight: .bold))
-                        .foregroundColor(.white)
-                    Text("\(leftName) \(redSets) - \(blueSets) \(rightName)")
-                        .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
-                        .foregroundColor(WatchTheme.accent)
+                Text(NSLocalizedString("watch_match_finished", comment: "Match finished"))
+                    .font(.system(size: WatchLayout.isCompactScreen ? 16 : 20, weight: .bold))
+                    .foregroundColor(.white)
+                HStack(spacing: 6) {
+                    VStack(spacing: 4) {
+                        Text(leftName)
+                            .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
+                            .foregroundColor(Color(hex: 0xE53935))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.55)
+                        Text("\(redSets)")
+                            .font(.system(size: WatchLayout.isCompactScreen ? 22 : 24, weight: .bold))
+                            .foregroundColor(.white)
+                            .monospacedDigit()
+                    }
+                    .frame(maxWidth: .infinity)
+                    Text("—")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.75))
+                        .frame(width: 18)
+                    VStack(spacing: 4) {
+                        Text(rightName)
+                            .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
+                            .foregroundColor(Color(hex: 0x1E88E5))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.55)
+                        Text("\(blueSets)")
+                            .font(.system(size: WatchLayout.isCompactScreen ? 22 : 24, weight: .bold))
+                            .foregroundColor(.white)
+                            .monospacedDigit()
+                    }
+                    .frame(maxWidth: .infinity)
                 }
 
                 VStack(spacing: 8) {
@@ -495,7 +527,7 @@ struct WatchArcheryScoreView: View {
                         exitArchery()
                     } label: {
                         Text(NSLocalizedString("exit", value: "Exit", comment: "Exit"))
-                            .frame(width: WatchLayout.archeryStoppedButtonWidthSmall, height: WatchLayout.archeryStoppedButtonHeight)
+                            .frame(width: WatchLayout.archeryStoppedButtonWidth, height: WatchLayout.archeryStoppedButtonHeight)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -594,7 +626,7 @@ struct WatchArcheryScoreView: View {
         if WatchPreferences.shared.setBreakEnabled {
             restState = WatchRestState(
                 kind: .archerySet,
-                title: NSLocalizedString("watch_archery_set_rest", value: "组间休息", comment: ""),
+                title: NSLocalizedString("watch_archery_set_rest", value: "局间休息", comment: ""),
                 durationSeconds: 60,
                 triggerID: "archery-\(max(1, state.currentSet - 1))"
             )

@@ -295,7 +295,7 @@
 "nine_ball_normal_win" = "Win";
 "nine_ball_ball_in_hand" = "Ball in Hand";
 "nine_ball_foul" = "Foul";
-"watch_archery_set_rest" = "End Break";
+"watch_archery_set_rest" = "Set Break";
 "watch_eight_ball_handicap_format" = "Handicap +%d";
 "watch_finish_confirm_title" = "End match?";
 "watch_finish_confirm_message" = "This match will end and be saved.";
@@ -307,7 +307,7 @@
 "watch_snooker_reds_format" = "Reds %d";
 "watch_snooker_foul" = "Foul";
 "watch_snooker_miss" = "Miss";
-"watch_snooker_handover" = "Handover";
+"watch_snooker_handover" = "Switch Turn";
 "watch_snooker_settle_frame" = "End Frame";
 "watch_snooker_choose_frame_winner" = "Choose frame winner";
 "watch_snooker_frame_finished" = "Frame Complete";

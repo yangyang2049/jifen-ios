@@ -386,19 +386,9 @@ struct WatchHomeTabView: View {
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(alignment: .topTrailing) {
-                Button {
-                    preflightPicker = nil
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(WatchTheme.secondaryText)
-                        .frame(width: 26, height: 26)
-                        .background(Color.white.opacity(0.08))
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
+                WatchMenuCloseButton { preflightPicker = nil }
                 .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
-                .padding(6)
+                .padding(2)
             }
             .padding(.horizontal, WatchLayout.pageHorizontalPadding)
         }

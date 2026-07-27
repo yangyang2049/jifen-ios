@@ -265,7 +265,10 @@ struct WatchBasketballScoreView: View {
             if showFinishedOverlay {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreText: "\(store.state.leftScore) : \(store.state.rightScore)",
+                    scoreItems: [
+                        WatchFinishedScoreItem(name: store.state.leftName, score: String(store.state.leftScore)),
+                        WatchFinishedScoreItem(name: store.state.rightName, score: String(store.state.rightScore))
+                    ],
                     winnerText: basketballWinnerText,
                     undoAvailable: finishUndoAvailable,
                     onUndo: undoFinishedBasketball,
@@ -339,13 +342,19 @@ struct WatchBasketballScoreView: View {
         let fouls = isLeft ? store.state.leftFouls : store.state.rightFouls
         let timeouts = isLeft ? store.state.leftTimeouts : store.state.rightTimeouts
         let name = isLeft ? store.state.leftName : store.state.rightName
+        let scoreText = "\(score)"
+        let scoreFont = WatchScoreTypography.adaptiveFontSize(
+            baseSize: 58,
+            scoreText: scoreText,
+            minimumSize: 40
+        )
 
         return VStack(spacing: 2) {
             Text(name)
                 .font(.caption.weight(.semibold))
                 .lineLimit(1)
-            Text("\(score)")
-                .font(.system(size: 58, weight: .bold, design: .rounded))
+            Text(scoreText)
+                .font(.system(size: scoreFont, weight: .bold, design: .rounded))
                 .monospacedDigit()
             Text(String(format: NSLocalizedString("watch_bball_fouls_timeouts_format", value: "犯规 %d  暂停 %d", comment: ""), fouls, timeouts))
                 .font(.caption2)

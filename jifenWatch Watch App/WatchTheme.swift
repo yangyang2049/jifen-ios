@@ -5,6 +5,7 @@ import WatchKit
 /// 使用逻辑宽度判断，避免新款 42mm（187pt）比 44mm SE（184pt）更宽造成误判。
 struct WatchLayout {
     static let narrowScreenMaximumWidth: CGFloat = 190
+    static let overlayCloseButtonSize: CGFloat = 44
 
     static func isNarrowScreen(width: CGFloat) -> Bool {
         width <= narrowScreenMaximumWidth
@@ -24,6 +25,24 @@ struct WatchLayout {
 
     static func cardContentPadding(for width: CGFloat) -> CGFloat {
         isNarrowScreen(width: width) ? 12 : 14
+    }
+
+    static func archeryScorePanelHorizontalPadding(for width: CGFloat) -> CGFloat {
+        isNarrowScreen(width: width) ? 2 : 4
+    }
+
+    static func archeryScoreButtonSize(for width: CGFloat) -> CGFloat {
+        let horizontalPadding = archeryScorePanelHorizontalPadding(for: width)
+        let gridSpacing: CGFloat = isNarrowScreen(width: width) ? 2 : 3
+        let availableWidth = width - horizontalPadding * 2 - gridSpacing * 3
+        let maximumSize: CGFloat = isNarrowScreen(width: width) ? 42 : 46
+        return min(maximumSize, floor(availableWidth / 4))
+    }
+
+    static func snookerBallButtonSize(for width: CGFloat) -> CGFloat {
+        let availableWidth = width - 16 - 5 * 3
+        let maximumSize: CGFloat = isNarrowScreen(width: width) ? 38 : 42
+        return min(maximumSize, floor(availableWidth / 4))
     }
 
     /// 屏幕宽度 ≤ 190pt 视为窄屏。
@@ -49,18 +68,36 @@ struct WatchLayout {
     static var cardContentPadding: CGFloat {
         cardContentPadding(for: WKInterfaceDevice.current().screenBounds.size.width)
     }
-    /// 射箭加分面板外边距（上下左右一致，内容纵向居中）
-    static var archeryScorePanelPadding: CGFloat { isCompactScreen ? 6 : 10 }
+    /// 射箭加分 Overlay 独立使用极小横向边距，不跟随普通页面边距。
+    static var archeryScorePanelHorizontalPadding: CGFloat {
+        archeryScorePanelHorizontalPadding(for: WKInterfaceDevice.current().screenBounds.size.width)
+    }
+    /// 射箭加分面板纵向留白。
+    static var archeryScorePanelVerticalPadding: CGFloat {
+        WKInterfaceDevice.current().screenBounds.size.width <= 176 ? 2 : (isCompactScreen ? 4 : 6)
+    }
     /// 射箭加分面板内 VStack 间距（标题/网格/关闭）
-    static var archeryScorePanelVStackSpacing: CGFloat { isCompactScreen ? 4 : 6 }
+    static var archeryScorePanelVStackSpacing: CGFloat {
+        WKInterfaceDevice.current().screenBounds.size.width <= 176 ? 2 : (isCompactScreen ? 4 : 6)
+    }
+    /// 射箭加分面板名称与分数网格的额外间距。
+    static var archeryScoreTitleBottomPadding: CGFloat {
+        WKInterfaceDevice.current().screenBounds.size.width <= 176 ? 6 : (isCompactScreen ? 8 : 10)
+    }
     /// 射箭加分面板关闭按钮与网格的间距
     static var archeryScorePanelCloseTopPadding: CGFloat { isCompactScreen ? 0 : 4 }
     /// 射箭加分面板按钮尺寸
-    static var archeryScoreButtonSize: CGFloat { isCompactScreen ? 34 : 44 }
+    static var archeryScoreButtonSize: CGFloat {
+        archeryScoreButtonSize(for: WKInterfaceDevice.current().screenBounds.size.width)
+    }
     /// 射箭加分面板数字字号
-    static var archeryScoreButtonFontSize: CGFloat { isCompactScreen ? 13 : 16 }
+    static var archeryScoreButtonFontSize: CGFloat { isCompactScreen ? 15 : 17 }
     /// 射箭加分面板网格间距
-    static var archeryScoreGridSpacing: CGFloat { isCompactScreen ? 1 : 2 }
+    static var archeryScoreGridSpacing: CGFloat { isCompactScreen ? 2 : 3 }
+    /// 斯诺克进球按钮直径，尽量填满四列网格。
+    static var snookerBallButtonSize: CGFloat {
+        snookerBallButtonSize(for: WKInterfaceDevice.current().screenBounds.size.width)
+    }
     /// 射箭菜单 overlay 内边距
     static var archeryMenuPadding: CGFloat { isCompactScreen ? 8 : 12 }
     /// 射箭菜单按钮高度
@@ -71,8 +108,6 @@ struct WatchLayout {
     static var archeryStoppedOverlayPadding: CGFloat { isCompactScreen ? 14 : 24 }
     /// 射箭结束 overlay 主按钮宽度
     static var archeryStoppedButtonWidth: CGFloat { isCompactScreen ? 130 : 160 }
-    /// 射箭结束 overlay 次按钮宽度
-    static var archeryStoppedButtonWidthSmall: CGFloat { isCompactScreen ? 110 : 140 }
     /// 射箭结束 overlay 按钮高度
     static var archeryStoppedButtonHeight: CGFloat { isCompactScreen ? 38 : 44 }
     /// 记录列表行左右内边距（含 44mm 窄屏时缩小，避免第一行被截断）
@@ -89,6 +124,57 @@ struct WatchLayout {
     static var recordRowSubtitleFontSize: CGFloat { isNarrowForContent ? 10 : 12 }
     /// 记录列表行首行与第二行间距，窄屏两行都变小时加大避免挤在一起
     static var recordRowLineSpacing: CGFloat { isNarrowForContent ? 5 : 1 }
+}
+
+/// Main scoreboard number sizing shared by every sport.
+/// Mirrors the HarmonyOS rule: compact screens lose 2pt, then text with three
+/// or more characters shrinks by 18% for every character after the second.
+struct WatchScoreTypography {
+    static let compactBaseReduction: CGFloat = 2
+    static let extraCharacterScale: CGFloat = 0.82
+    static let averageCharacterWidthRatio: CGFloat = 0.66
+
+    static func adaptiveFontSize(
+        baseSize: CGFloat,
+        scoreText: String,
+        minimumSize: CGFloat,
+        screenWidth: CGFloat,
+        availableWidth: CGFloat? = nil,
+        horizontalPadding: CGFloat = 12
+    ) -> CGFloat {
+        let compactBase = baseSize - (WatchLayout.isNarrowScreen(width: screenWidth) ? compactBaseReduction : 0)
+        let characterCount = max(scoreText.count, 1)
+        var result = compactBase
+
+        if characterCount >= 3 {
+            result *= CGFloat(pow(Double(extraCharacterScale), Double(characterCount - 2)))
+        }
+
+        if let availableWidth, availableWidth > horizontalPadding {
+            let widthLimitedSize = (availableWidth - horizontalPadding)
+                / (CGFloat(characterCount) * averageCharacterWidthRatio)
+            result = min(result, widthLimitedSize)
+        }
+
+        return max(minimumSize, result).rounded()
+    }
+
+    static func adaptiveFontSize(
+        baseSize: CGFloat,
+        scoreText: String,
+        minimumSize: CGFloat,
+        availableWidth: CGFloat? = nil,
+        horizontalPadding: CGFloat = 12
+    ) -> CGFloat {
+        adaptiveFontSize(
+            baseSize: baseSize,
+            scoreText: scoreText,
+            minimumSize: minimumSize,
+            screenWidth: WKInterfaceDevice.current().screenBounds.size.width,
+            availableWidth: availableWidth,
+            horizontalPadding: horizontalPadding
+        )
+    }
 }
 
 struct WatchTheme {
@@ -142,12 +228,13 @@ struct WatchMenuCloseButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark.circle.fill")
-                .font(.system(size: WatchLayout.isCompactScreen ? 18 : 20))
+                .font(.system(size: WatchLayout.overlayCloseButtonSize))
                 .foregroundStyle(WatchTheme.secondaryText)
                 .frame(
-                    width: WatchLayout.isCompactScreen ? 28 : 30,
-                    height: WatchLayout.isCompactScreen ? 28 : 30
+                    width: WatchLayout.overlayCloseButtonSize,
+                    height: WatchLayout.overlayCloseButtonSize
                 )
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
     }

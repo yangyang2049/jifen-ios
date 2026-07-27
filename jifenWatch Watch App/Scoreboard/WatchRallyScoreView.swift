@@ -223,7 +223,20 @@ struct WatchRallyScoreView: View {
             if showFinishedOverlay {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreText: scoreLine,
+                    scoreItems: [
+                        WatchFinishedScoreItem(
+                            name: store.state.leftName,
+                            score: String(store.state.leftSets + store.state.rightSets > 0
+                                ? store.state.leftSets
+                                : store.state.leftPoints)
+                        ),
+                        WatchFinishedScoreItem(
+                            name: store.state.rightName,
+                            score: String(store.state.leftSets + store.state.rightSets > 0
+                                ? store.state.rightSets
+                                : store.state.rightPoints)
+                        )
+                    ],
                     winnerText: winnerText,
                     undoAvailable: finishUndoAvailable,
                     onUndo: undoFinish,
@@ -394,11 +407,18 @@ struct WatchRallyScoreView: View {
         let sets = isLeftTeam ? store.state.leftSets : store.state.rightSets
         let isServing = store.state.servingSide == logicalSide
         let showSets = store.state.leftSets + store.state.rightSets > 0 || store.state.currentSet > 1
-        let mainScoreFont: CGFloat = isHorizontal ? 64 : 62
+        let scoreText = "\(points)"
+        let mainScoreFont = WatchScoreTypography.adaptiveFontSize(
+            baseSize: isHorizontal ? 64 : 62,
+            scoreText: scoreText,
+            minimumSize: 42,
+            availableWidth: size.width,
+            horizontalPadding: 12
+        )
 
         return ZStack {
             // Main point score (Harmony-style: no helper caption).
-            Text("\(points)")
+            Text(scoreText)
                 .font(.system(size: mainScoreFont, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(.white)

@@ -312,9 +312,14 @@ struct WatchRestOverlay: View {
     }
 }
 
+struct WatchFinishedScoreItem {
+    let name: String
+    let score: String
+}
+
 struct WatchFinishedOverlay: View {
     let title: String
-    let scoreText: String
+    let scoreItems: [WatchFinishedScoreItem]
     let winnerText: String?
     let undoAvailable: Bool
     let onUndo: () -> Void
@@ -324,11 +329,10 @@ struct WatchFinishedOverlay: View {
     var body: some View {
         ZStack {
             Color.black.opacity(0.40).ignoresSafeArea()
-            VStack(spacing: WatchLayout.isCompactScreen ? 7 : 10) {
+            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 9) {
                 Text(title)
                     .font(.headline)
-                Text(scoreText)
-                    .font(.title3.monospacedDigit().weight(.bold))
+                finishedScoreRow
                 if let winnerText, !winnerText.isEmpty {
                     Text(winnerText)
                         .font(.caption)
@@ -336,25 +340,23 @@ struct WatchFinishedOverlay: View {
                         .lineLimit(2)
                 }
                 if undoAvailable {
-                    Button(
-                        NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                    finishedActionButton(
+                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                        background: WatchTheme.card,
                         action: onUndo
                     )
-                    .buttonStyle(.borderedProminent)
-                    .tint(WatchTheme.card)
                 } else {
-                    Button(
-                        NSLocalizedString("watch_play_again", value: "再来一局", comment: ""),
+                    finishedActionButton(
+                        title: NSLocalizedString("watch_play_again", value: "再来一局", comment: ""),
+                        background: WatchTheme.successGreen,
                         action: onPlayAgain
                     )
-                    .buttonStyle(.borderedProminent)
-                    .tint(WatchTheme.successGreen)
                 }
-                Button(
-                    NSLocalizedString("watch_exit", value: "退出", comment: ""),
+                finishedActionButton(
+                    title: NSLocalizedString("watch_exit", value: "退出", comment: ""),
+                    background: WatchTheme.card,
                     action: onExit
                 )
-                .buttonStyle(.bordered)
             }
             .foregroundStyle(.white)
             .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 16)
@@ -364,6 +366,60 @@ struct WatchFinishedOverlay: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
+    }
+
+    private var finishedScoreRow: some View {
+        HStack(spacing: scoreItems.count > 2 ? 3 : 6) {
+            ForEach(scoreItems.indices, id: \.self) { index in
+                let item = scoreItems[index]
+                VStack(spacing: WatchLayout.isCompactScreen ? 2 : 3) {
+                    Text(item.name)
+                        .font(.system(
+                            size: scoreItems.count > 2 ? 9 : 12,
+                            weight: .medium
+                        ))
+                        .foregroundStyle(.white.opacity(0.78))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.55)
+                    Text(item.score)
+                        .font(.system(
+                            size: scoreItems.count > 2 ? 18 : 22,
+                            weight: .bold,
+                            design: .rounded
+                        ))
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+                .frame(maxWidth: .infinity)
+
+                if scoreItems.count == 2 && index == 0 {
+                    Text("—")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.72))
+                        .frame(width: 16)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func finishedActionButton(
+        title: String,
+        background: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: WatchLayout.isCompactScreen ? 13 : 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: WatchLayout.isCompactScreen ? 36 : 40)
+                .background(background)
+                .clipShape(Capsule())
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -551,11 +607,17 @@ struct WatchDoublesBoard: View {
     }
 
     private func mainScore(_ score: String) -> some View {
-        Text(score)
+        let baseSize: CGFloat = isHorizontal
+            ? (WatchLayout.isCompactScreen ? 42 : 52)
+            : (WatchLayout.isCompactScreen ? 38 : 46)
+        let scoreFont = WatchScoreTypography.adaptiveFontSize(
+            baseSize: baseSize,
+            scoreText: score,
+            minimumSize: 28
+        )
+        return Text(score)
             .font(.system(
-                size: isHorizontal
-                    ? (WatchLayout.isCompactScreen ? 42 : 52)
-                    : (WatchLayout.isCompactScreen ? 38 : 46),
+                size: scoreFont,
                 weight: .bold,
                 design: .rounded
             ))
