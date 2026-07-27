@@ -2,7 +2,7 @@
 //  WatchArcheryScoreView.swift
 //  jifenWatch Watch App
 //
-//  Set points: first to 6. Each set: 3 arrows each (1 at 5-5). Tap side to open score grid (0-10, M).
+//  Set points: first to 6. Each set: 3 arrows each (1 at 5-5). Tap side to open score grid (1-10, M).
 //  Shoot-off: win +1; same rings → closest-to-centre; next set first shooter via ArcheryShooterRules.
 //
 
@@ -21,7 +21,7 @@ private let setEndDelay: TimeInterval = 3.5
 private let scoreGrid: [[Int?]] = [
     [10, 9, 8, 7],
     [6, 5, 4, 3],
-    [2, 1, 0, -1]
+    [2, 1, -1]
 ]
 // -1 means M (miss)
 
@@ -135,17 +135,24 @@ struct WatchArcheryScoreView: View {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
                     onUndo: {
+                        guard !scoringLocked else { return }
                         undoScore()
                         showMenu = false
                     },
                     onFinish: {
+                        guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .finish
                     },
                     onReset: {
+                        guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .reset
-                    }
+                    },
+                    onReclaim: scoringLocked ? {
+                        linkService.requestReclaim()
+                        showMenu = false
+                    } : nil
                 )
             }
             if let confirmation {
@@ -179,6 +186,13 @@ struct WatchArcheryScoreView: View {
             store.mergeRemoteActions(update.detailedActions)
             applyRemote(remote)
         }
+        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
+            guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
+                  let remote = pending.snapshot.archeryState else { return }
+            store.mergeRemoteActions(pending.detailedActions)
+            applyRemote(remote)
+            linkService.completeReclaimAcceptance(messageId: pending.messageId)
+        }
         .onChange(of: store.state) { _, _ in
             persistResumeSession()
         }
@@ -191,7 +205,7 @@ struct WatchArcheryScoreView: View {
         }
         .watchScoreboardGestures(
             suppressTapAfterLongPress: $suppressTapAfterLongPress,
-            enabled: !scoringLocked && !showScorePanel && !setEnding && !showClosestToCenter
+            enabled: !showScorePanel && !setEnding && !showClosestToCenter
                 && !isStopped && !showMenu && restState == nil && confirmation == nil,
             onMenu: { showMenu = true },
             onUndo: undoScore,
@@ -326,7 +340,7 @@ struct WatchArcheryScoreView: View {
                 VStack(spacing: gridSpacing) {
                     ForEach(0..<3, id: \.self) { row in
                         HStack(spacing: gridSpacing) {
-                            ForEach(0..<4, id: \.self) { col in
+                            ForEach(scoreGrid[row].indices, id: \.self) { col in
                                 let val = scoreGrid[row][col]
                                 let isMiss = val == nil || val == -1
                                 Button {
@@ -450,6 +464,18 @@ struct WatchArcheryScoreView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                Button {
+                    repeatShootOff()
+                } label: {
+                    Text(NSLocalizedString("archery_repeat_shoot_off", value: "距离相同，继续加赛", comment: ""))
+                        .font(.system(size: WatchLayout.isCompactScreen ? 11 : 12, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: WatchLayout.isCompactScreen ? 34 : 38)
+                        .background(Color.white.opacity(0.14))
+                        .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
             }
             .padding(WatchLayout.isCompactScreen ? 12 : 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -579,6 +605,10 @@ struct WatchArcheryScoreView: View {
     private func endSetFromPending() {
         setEnding = true
         DispatchQueue.main.asyncAfter(deadline: .now() + setEndDelay) {
+            if matchState.closestToCenterPending && redScore == 0 && blueScore == 0 {
+                repeatShootOff()
+                return
+            }
             applySetEnd()
         }
     }
@@ -599,6 +629,7 @@ struct WatchArcheryScoreView: View {
     }
 
     private func applyClosestToCenter(redWins: Bool) {
+        guard !scoringLocked else { return }
         showClosestToCenter = false
         if !store.state.closestToCenterPending {
             var pending = store.state
@@ -613,6 +644,16 @@ struct WatchArcheryScoreView: View {
         guard result.accepted else { return }
         applyMatch(result.state)
         finishAfterReducer(result.state)
+    }
+
+    private func repeatShootOff() {
+        guard !scoringLocked else { return }
+        let result = store.apply(.repeatShootOff, recordHistory: false)
+        guard result.accepted else { return }
+        setEnding = false
+        showClosestToCenter = false
+        applyMatch(result.state)
+        publishLinked()
     }
 
     private func finishAfterReducer(_ state: ArcheryMatchState) {
@@ -639,6 +680,7 @@ struct WatchArcheryScoreView: View {
     }
 
     private func undoScore() {
+        guard !scoringLocked else { return }
         guard store.undo() else { return }
         showClosestToCenter = store.state.closestToCenterPending
         setEnding = false
@@ -666,7 +708,7 @@ struct WatchArcheryScoreView: View {
     }
 
     private func endMatchFromMenu() {
-        guard !isMatchFinished else { return }
+        guard !scoringLocked, !isMatchFinished else { return }
         showScorePanel = false
         showClosestToCenter = false
         let result = store.apply(.finish)
@@ -683,6 +725,7 @@ struct WatchArcheryScoreView: View {
     }
 
     private func resetMatch() {
+        guard !scoringLocked else { return }
         resumeStore.clear()
         undoHideTimer?.invalidate()
         undoHideTimer = nil
@@ -797,7 +840,13 @@ struct WatchArcheryScoreView: View {
     private func applyRemote(_ remote: LinkedArcheryState) {
         var state = store.state
         remote.applying(to: &state)
+        store.rebase(to: state)
         applyMatch(state)
+        showScorePanel = false
+        confirmation = nil
+        restState = nil
+        setEnding = state.setCompletionPending && !state.closestToCenterPending
+        showClosestToCenter = state.closestToCenterPending
         if remote.finished {
             winner = remote.leftSetPoints == remote.rightSetPoints
                 ? nil

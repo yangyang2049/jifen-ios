@@ -110,6 +110,10 @@ struct QuickStartConfig: Codable, Equatable {
 
     // A default configuration for phone, similar to DEFAULT_QUICK_START_CONFIG_PHONE
     static let defaultPhoneConfig = QuickStartConfig(primarySport: .badminton, secondarySport: .pingpong)
+    static let defaultTabletConfig = QuickStartConfig(primarySport: .basketball, secondarySport: .badminton)
+    // iOS has no tertiary quick-start card yet, so the 2-in-1 default currently
+    // shares the two visible sports with the tablet configuration.
+    static let default2In1Config = QuickStartConfig(primarySport: .basketball, secondarySport: .badminton)
 }
 
 // MARK: - ScoreboardSetupItem (for sheet(item:) so content is never empty)

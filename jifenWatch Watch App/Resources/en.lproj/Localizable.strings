@@ -70,6 +70,8 @@
 /* Settings / About */
 "version" = "Version";
 "company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Feedback";
+"watch_contact_us" = "Contact Us";
 
 /* Scoreboard menu */
 "menu_undo" = "Undo";
@@ -107,6 +109,8 @@
 "linked_score_sport_pickleball_doubles" = "🏓 Pickleball Doubles";
 "linked_score_sport_basketball" = "🏀 Basketball";
 "linked_score_sport_three_basketball" = "🏀 3x3 Basketball";
+"game_basketball" = "Basketball";
+"game_three_basketball" = "3x3 Basketball";
 "linked_score_sport_archery" = "🏹 Archery";
 "linked_score_sport_eight_ball" = "🎱 Eight-ball";
 "linked_score_sport_nine_ball" = "🎱 Nine-ball Chase";

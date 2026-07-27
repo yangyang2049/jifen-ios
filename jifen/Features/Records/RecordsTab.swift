@@ -10,7 +10,6 @@ import ScoreCore
 import SwiftUI
 
 struct RecordsTab: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
     @State private var v2RecordsVM = SessionRecordsViewModel()
@@ -103,7 +102,7 @@ struct RecordsTab: View {
     }
 
     private var usesPadLayout: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .regular
+        Theme.usesPadLayout
     }
 
     private var recordsFilterSheet: some View {

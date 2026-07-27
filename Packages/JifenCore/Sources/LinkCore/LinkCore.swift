@@ -22,6 +22,18 @@ public enum LinkControlRole: String, Codable, Sendable {
     case watchFollower
 }
 
+/// Manual score resync is intentionally one-way: the phone follower asks and
+/// the authoritative Watch controller answers with a fresh full snapshot.
+public enum LinkManualResyncPolicy {
+    public static func phoneCanRequest(role: LinkControlRole?) -> Bool {
+        role == .phoneFollower
+    }
+
+    public static func watchCanRespond(role: LinkControlRole?) -> Bool {
+        role == .watchController
+    }
+}
+
 public enum LinkMessageKind: String, Codable, Sendable {
     case setupRequest
     case setupAccepted
@@ -39,6 +51,7 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case matchFinished
     case recordAcknowledgement
     case scoreboardExitedToHome
+    case watchBackgrounded
     case resumeDiscarded
     case sessionLeft
     case commonNamesSyncRequest
@@ -171,6 +184,16 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
     public var setNumber: Int
     public var finished: Bool
     public var sidesSwapped: Bool
+    /// Optional protocol-v1 extensions. Missing fields retain the receiver's legacy defaults.
+    public var arrowsLeftThisSet: Int?
+    public var arrowsRightThisSet: Int?
+    public var arrowsPerSet: Int?
+    public var openingShooterIsLeft: Bool?
+    public var pendingSetNumber: Int?
+    public var pendingSetWinnerIsLeft: Bool?
+    public var pendingLeftSetPoints: Int?
+    public var pendingRightSetPoints: Int?
+    public var closestToCenterPending: Bool?
 
     public init(
         leftName: String = "红方",
@@ -182,7 +205,16 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         currentShooterIsLeft: Bool = true,
         setNumber: Int = 1,
         finished: Bool = false,
-        sidesSwapped: Bool = false
+        sidesSwapped: Bool = false,
+        arrowsLeftThisSet: Int? = nil,
+        arrowsRightThisSet: Int? = nil,
+        arrowsPerSet: Int? = nil,
+        openingShooterIsLeft: Bool? = nil,
+        pendingSetNumber: Int? = nil,
+        pendingSetWinnerIsLeft: Bool? = nil,
+        pendingLeftSetPoints: Int? = nil,
+        pendingRightSetPoints: Int? = nil,
+        closestToCenterPending: Bool? = nil
     ) {
         self.leftName = leftName
         self.rightName = rightName
@@ -194,6 +226,15 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         self.setNumber = setNumber
         self.finished = finished
         self.sidesSwapped = sidesSwapped
+        self.arrowsLeftThisSet = arrowsLeftThisSet
+        self.arrowsRightThisSet = arrowsRightThisSet
+        self.arrowsPerSet = arrowsPerSet
+        self.openingShooterIsLeft = openingShooterIsLeft
+        self.pendingSetNumber = pendingSetNumber
+        self.pendingSetWinnerIsLeft = pendingSetWinnerIsLeft
+        self.pendingLeftSetPoints = pendingLeftSetPoints
+        self.pendingRightSetPoints = pendingRightSetPoints
+        self.closestToCenterPending = closestToCenterPending
     }
 
     public init(match: ArcheryMatchState) {
@@ -207,7 +248,16 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
             currentShooterIsLeft: match.currentShooterIsLeft,
             setNumber: match.currentSet,
             finished: match.finished,
-            sidesSwapped: match.sidesSwapped
+            sidesSwapped: match.sidesSwapped,
+            arrowsLeftThisSet: match.arrowsLeftThisSet,
+            arrowsRightThisSet: match.arrowsRightThisSet,
+            arrowsPerSet: match.arrowsPerSet,
+            openingShooterIsLeft: match.openingShooterIsLeft,
+            pendingSetNumber: match.pendingSetNumber,
+            pendingSetWinnerIsLeft: match.pendingSetWinnerIsLeft,
+            pendingLeftSetPoints: match.pendingLeftSetPoints,
+            pendingRightSetPoints: match.pendingRightSetPoints,
+            closestToCenterPending: match.closestToCenterPending
         )
     }
 
@@ -222,6 +272,17 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         match.currentSet = max(1, setNumber)
         match.finished = finished
         match.sidesSwapped = sidesSwapped
+        if let arrowsLeftThisSet { match.arrowsLeftThisSet = max(0, arrowsLeftThisSet) }
+        if let arrowsRightThisSet { match.arrowsRightThisSet = max(0, arrowsRightThisSet) }
+        if let arrowsPerSet { match.arrowsPerSet = max(1, arrowsPerSet) }
+        if let openingShooterIsLeft { match.openingShooterIsLeft = openingShooterIsLeft }
+        if let pendingSetNumber {
+            match.pendingSetNumber = max(0, pendingSetNumber)
+            match.pendingSetWinnerIsLeft = pendingSetWinnerIsLeft
+        }
+        if let pendingLeftSetPoints { match.pendingLeftSetPoints = max(0, pendingLeftSetPoints) }
+        if let pendingRightSetPoints { match.pendingRightSetPoints = max(0, pendingRightSetPoints) }
+        if let closestToCenterPending { match.closestToCenterPending = closestToCenterPending }
         if finished {
             match.pendingSetNumber = 0
             match.closestToCenterPending = false
@@ -302,6 +363,9 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
     public var totalScoreChanges: Int?
     /// Structured action timeline. Optional so protocol-v1 peers keep decoding.
     public var detailedActions: [DetailedScoreAction]?
+    /// Display names for snapshots whose score state does not embed participants
+    /// (for example eight-ball and snooker). Optional for protocol-v1 peers.
+    public var participantNames: [String]?
 
     public init(
         snapshot: LinkedScoreboardSnapshot,
@@ -312,7 +376,8 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
         endTimeEpochMilliseconds: Int64? = nil,
         durationSeconds: Double? = nil,
         totalScoreChanges: Int? = nil,
-        detailedActions: [DetailedScoreAction]? = nil
+        detailedActions: [DetailedScoreAction]? = nil,
+        participantNames: [String]? = nil
     ) {
         self.snapshot = snapshot
         self.recordId = recordId
@@ -323,6 +388,7 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
         self.durationSeconds = durationSeconds
         self.totalScoreChanges = totalScoreChanges
         self.detailedActions = detailedActions
+        self.participantNames = participantNames
     }
 }
 
@@ -419,19 +485,24 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
     public let initialSnapshot: LinkedScoreboardSnapshot?
     /// Optional full action timeline. A newer snapshot replaces the previous timeline.
     public let detailedActions: [DetailedScoreAction]?
+    /// Optional participant display names for score states that do not carry names.
+    /// Missing on older protocol-v1 messages and therefore backward compatible.
+    public let participantNames: [String]?
 
     public init(
         gameType: GameType,
         maxSets: Int? = nil,
         basketballThreeXThree: Bool = false,
         initialSnapshot: LinkedScoreboardSnapshot? = nil,
-        detailedActions: [DetailedScoreAction]? = nil
+        detailedActions: [DetailedScoreAction]? = nil,
+        participantNames: [String]? = nil
     ) {
         self.gameType = gameType
         self.maxSets = maxSets
         self.basketballThreeXThree = basketballThreeXThree
         self.initialSnapshot = initialSnapshot
         self.detailedActions = detailedActions
+        self.participantNames = participantNames
     }
 }
 

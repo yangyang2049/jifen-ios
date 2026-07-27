@@ -261,27 +261,12 @@ struct BasketballScoreboardView: View {
     }
 
     private var basketballMenuItems: [ScoreboardMenuItem] {
-        var extras: [ScoreboardMenuItem] = []
-        if AppFeatureFlags.watchLinkEntryEnabled, watchSessionId != nil {
-            if watchLinkService.isFollower {
-                extras.append(
-                    ScoreboardMenuItem(
-                        title: NSLocalizedString("linked_score_takeover", value: "接管计分", comment: ""),
-                        action: "takeover",
-                        group: .sync,
-                        icon: "applewatch"
-                    )
-                )
-            }
-            extras.append(
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("linked_score_end", value: "结束联动", comment: ""),
-                    action: "endLink",
-                    group: .sync,
-                    icon: "xmark.circle"
-                )
-            )
-        }
+        let extras = WatchLinkMenuSupport.extraItems(
+            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+            sessionId: watchSessionId,
+            isFollower: watchLinkService.isFollower,
+            watchBackgrounded: watchLinkService.watchBackgrounded
+        )
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: true,
@@ -419,6 +404,9 @@ struct BasketballScoreboardView: View {
             showMenu = false
         case "whistle":
             break
+        case "resync":
+            watchLinkService.requestScoreResync()
+            showMenu = false
         case "takeover":
             if let id = watchSessionId {
                 Task {
@@ -562,7 +550,12 @@ private struct BasketballTeamPanel: View {
 
             VStack {
                 Text(name)
-                    .font(.system(size: ScoreboardLayoutMetrics.defaultTeamNameFontSize, weight: .bold))
+                    .font(.system(
+                        size: ScoreboardLayoutMetrics.defaultTeamNameFontSize(
+                            usesPadLayout: Theme.usesPadLayout
+                        ),
+                        weight: .bold
+                    ))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)

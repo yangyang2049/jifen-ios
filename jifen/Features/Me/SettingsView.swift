@@ -15,7 +15,6 @@ private enum AppSupportURLs {
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.requestReview) private var requestReview
     @Environment(AppAppearanceStore.self) private var appearance
     var isTabRoot: Bool = false
@@ -126,7 +125,7 @@ struct SettingsView: View {
     }
 
     private var usesPadLayout: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .regular
+        Theme.usesPadLayout
     }
 }
 
@@ -192,7 +191,6 @@ private struct SettingsNavigationRow: View {
 }
 
 private struct ScoreboardSettingsView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedTheme = ScoreboardTheme(rawValue: PreferencesManager.shared.scoreboardTheme) ?? .defaultTheme
     @State private var selectedFont = ScoreboardFont(rawValue: PreferencesManager.shared.scoreboardFont) ?? .default
     @State private var forceIPadLandscape = PreferencesManager.shared.forceIPadLandscape
@@ -261,7 +259,7 @@ private struct ScoreboardSettingsView: View {
                     }
                 }
             }
-            .frame(maxWidth: horizontalSizeClass == .regular ? 680 : .infinity)
+            .frame(maxWidth: Theme.usesPadLayout ? 680 : .infinity)
             .padding(.horizontal, Theme.md)
             .padding(.top, Theme.lg)
             .padding(.bottom, Theme.lg + 72)

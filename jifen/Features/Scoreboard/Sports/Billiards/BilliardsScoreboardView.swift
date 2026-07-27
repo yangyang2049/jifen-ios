@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct BilliardsScoreboardView: View {
     @Environment(\.dismiss) var dismiss
@@ -117,7 +116,11 @@ struct BilliardsScoreboardView: View {
                 onSetupConsumed?()
             }
             restoreDraftIfNeeded()
-            responsiveScoreFontSize = calculateResponsiveScoreFontSize()
+        }
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            min(proxy.size.width, proxy.size.height)
+        } action: { shortSide in
+            responsiveScoreFontSize = calculateResponsiveScoreFontSize(containerShortSide: shortSide)
         }
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
@@ -150,9 +153,8 @@ struct BilliardsScoreboardView: View {
         if viewModel.rightTeam.name.isEmpty { viewModel.rightTeam.name = blue }
     }
 
-    private func calculateResponsiveScoreFontSize() -> CGFloat {
-        let halfH = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
-        return ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: halfH)
+    private func calculateResponsiveScoreFontSize(containerShortSide: CGFloat) -> CGFloat {
+        ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: containerShortSide)
     }
 
     private func restoreDraftIfNeeded() {

@@ -667,7 +667,7 @@ struct RallyScoreboardView: View {
     }
 
     private func doublesNameFontSize(panelHeight: CGFloat) -> CGFloat {
-        (ScoreboardLayoutMetrics.isPad ? 28 : 22) * nameMultiplier
+        (Theme.usesPadLayout ? 28 : 22) * nameMultiplier
     }
 
     private func doublesTopSlot(screenSide: MatchSide) -> Int {
@@ -966,26 +966,12 @@ struct RallyScoreboardView: View {
 
     private var menuItems: [ScoreboardMenuItem] {
         var extras: [ScoreboardMenuItem] = []
-        if AppFeatureFlags.watchLinkEntryEnabled, watchSessionId != nil {
-            if watchLinkService.isFollower {
-                extras.append(
-                    ScoreboardMenuItem(
-                        title: NSLocalizedString("linked_score_takeover", value: "接管计分", comment: ""),
-                        action: "takeover",
-                        group: .sync,
-                        icon: "applewatch"
-                    )
-                )
-            }
-            extras.append(
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("linked_score_end", value: "结束联动", comment: ""),
-                    action: "endLink",
-                    group: .sync,
-                    icon: "xmark.circle"
-                )
-            )
-        }
+        extras.append(contentsOf: WatchLinkMenuSupport.extraItems(
+            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+            sessionId: watchSessionId,
+            isFollower: watchLinkService.isFollower,
+            watchBackgrounded: watchLinkService.watchBackgrounded
+        ))
         if VoiceAnnouncementSupport.isSupported(gameType) {
             extras.append(
                 ScoreboardMenuItem(
@@ -1015,7 +1001,7 @@ struct RallyScoreboardView: View {
     }
 
     private func handleMenuAction(_ action: String) {
-        if scoringLocked, action != "takeover", action != "endLink", action != "displaySettings", action != "exit" {
+        if scoringLocked, action != "resync", action != "takeover", action != "endLink", action != "displaySettings", action != "exit" {
             showToast(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
             return
         }
@@ -1066,6 +1052,9 @@ struct RallyScoreboardView: View {
                 ScoreVoiceAnnouncer.shared.stop()
             }
             scheduleDraftPersist(finished: store.state.finished)
+        case "resync":
+            watchLinkService.requestScoreResync()
+            showMenu = false
         case "takeover":
             Task {
                 if let id = watchSessionId {

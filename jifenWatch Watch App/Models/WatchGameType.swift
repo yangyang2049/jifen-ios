@@ -3,6 +3,11 @@ import RecordCore
 import ScoreCore
 
 enum WatchGameType: String, Codable, CaseIterable {
+    /// Regulation basketball scoreboards are retained for phone-initiated linkage only.
+    /// These cases exist so linked matches can be represented in local Watch records;
+    /// they must not be added to `WatchHomeItem` or `WatchSetupSport`.
+    case basketball
+    case threeBasketball = "three_basketball"
     case pingpong
     case badminton
     case tennis
@@ -16,6 +21,10 @@ enum WatchGameType: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
+        case .basketball:
+            return NSLocalizedString("game_basketball", value: "篮球", comment: "Basketball")
+        case .threeBasketball:
+            return NSLocalizedString("game_three_basketball", value: "三人篮球", comment: "3x3 Basketball")
         case .pingpong:
             return NSLocalizedString("game_pingpong", comment: "Ping Pong")
         case .badminton:
@@ -39,6 +48,8 @@ enum WatchGameType: String, Codable, CaseIterable {
 
     var icon: String {
         switch self {
+        case .basketball, .threeBasketball:
+            return "🏀"
         case .pingpong:
             return "🏓"
         case .badminton:
@@ -58,6 +69,8 @@ enum WatchGameType: String, Codable, CaseIterable {
 
     var scoreCoreGameType: GameType? {
         switch self {
+        case .basketball: .basketball
+        case .threeBasketball: .threeBasketball
         case .pingpong: .pingpong
         case .badminton: .badminton
         case .tennis: .tennis
@@ -73,7 +86,7 @@ enum WatchGameType: String, Codable, CaseIterable {
     /// Uses point totals (not set scores) when rendering watch record list rows.
     var usesPointScoreInList: Bool {
         switch self {
-        case .basketballTraining, .eightBall, .nineBall, .snooker:
+        case .basketball, .threeBasketball, .basketballTraining, .eightBall, .nineBall, .snooker:
             return true
         default:
             return false

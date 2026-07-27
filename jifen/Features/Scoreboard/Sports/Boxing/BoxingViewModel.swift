@@ -13,14 +13,25 @@ class BoxingViewModel: BaseScoreViewModel {
     private let reducer = BoxingMatchReducer()
     var currentRound: Int = 1
     var maxRounds: Int = 3
-    private var fullStateHistory: [BoxingState] = []
+    private var fullStateHistory: [BoxingHistoryEntry] = []
+    private var sidesSwapped = false
 
     private struct BoxingState {
+        let leftName: String
+        let rightName: String
         let leftScore: Int
         let rightScore: Int
         let leftSets: Int
         let rightSets: Int
         let currentRound: Int
+        let maxRounds: Int
+        let sidesSwapped: Bool
+        let gameFinished: Bool
+    }
+
+    private struct BoxingHistoryEntry {
+        let state: BoxingState
+        let restoresNames: Bool
     }
 
     override init(controller: BaseScoreboardController? = nil) {
@@ -139,21 +150,29 @@ class BoxingViewModel: BaseScoreViewModel {
     }
 
     override func exchangeSides() {
-        saveFullStateToHistory()
+        saveFullStateToHistory(restoresNames: true)
         apply(reduce(.exchangeSides).state)
         controller?.performVibration(type: .medium)
     }
 
     override func undo() -> Bool {
         guard controller?.undoEnabled ?? true else { return false }
-        guard let state = fullStateHistory.popLast() else { return false }
+        guard let entry = fullStateHistory.popLast() else { return false }
+        let state = entry.state
 
         _ = controller?.popHistory()
+        if entry.restoresNames {
+            leftTeam.name = state.leftName
+            rightTeam.name = state.rightName
+        }
         leftTeam.score = state.leftScore
         rightTeam.score = state.rightScore
         leftTeam.sets = state.leftSets
         rightTeam.sets = state.rightSets
         currentRound = state.currentRound
+        maxRounds = state.maxRounds
+        sidesSwapped = state.sidesSwapped
+        gameFinished = state.gameFinished
 
         controller?.performVibration(type: .light)
         return true
@@ -170,14 +189,22 @@ class BoxingViewModel: BaseScoreViewModel {
         apply(reduce(.finish).state)
     }
 
-    private func saveFullStateToHistory() {
+    private func saveFullStateToHistory(restoresNames: Bool = false) {
         fullStateHistory.append(
-            BoxingState(
-                leftScore: leftTeam.score,
-                rightScore: rightTeam.score,
-                leftSets: leftTeam.sets ?? 0,
-                rightSets: rightTeam.sets ?? 0,
-                currentRound: currentRound
+            BoxingHistoryEntry(
+                state: BoxingState(
+                    leftName: leftTeam.name,
+                    rightName: rightTeam.name,
+                    leftScore: leftTeam.score,
+                    rightScore: rightTeam.score,
+                    leftSets: leftTeam.sets ?? 0,
+                    rightSets: rightTeam.sets ?? 0,
+                    currentRound: currentRound,
+                    maxRounds: maxRounds,
+                    sidesSwapped: sidesSwapped,
+                    gameFinished: gameFinished
+                ),
+                restoresNames: restoresNames
             )
         )
         if fullStateHistory.count > 50 {
@@ -206,6 +233,7 @@ class BoxingViewModel: BaseScoreViewModel {
             leftRoundsWon: leftTeam.sets ?? 0,
             rightRoundsWon: rightTeam.sets ?? 0,
             currentRound: currentRound,
+            sidesSwapped: sidesSwapped,
             finished: gameFinished
         )
     }
@@ -219,6 +247,7 @@ class BoxingViewModel: BaseScoreViewModel {
         rightTeam.sets = state.rightRoundsWon
         currentRound = state.currentRound
         maxRounds = state.maxRounds
+        sidesSwapped = state.sidesSwapped
         gameFinished = state.finished
     }
 }

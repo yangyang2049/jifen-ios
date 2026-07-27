@@ -103,6 +103,13 @@ final class ArcherySessionStore {
         self.state = state
     }
 
+    /// Applies a remote authority snapshot and establishes a new local undo boundary.
+    func rebase(to state: ArcheryMatchState) {
+        self.state = state
+        undoStack.removeAll()
+        persistSnapshot()
+    }
+
     func clearHistory() {
         undoStack.removeAll()
     }

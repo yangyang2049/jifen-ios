@@ -26,31 +26,28 @@ struct TimerTab: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { proxy in
-                let usesPadLayout = UIDevice.current.userInterfaceIdiom == .pad
-                    && proxy.size.width >= 760
+            let usesPadLayout = Theme.usesPadLayout
 
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: Theme.lg) {
-                        timerSectionGroup(
-                            title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
-                            items: GameCatalog.timerBoardGameItems,
-                            usesPadLayout: usesPadLayout
-                        )
-                        timerSectionGroup(
-                            title: NSLocalizedString("timer_section_other", value: "其他", comment: ""),
-                            items: GameCatalog.timerOtherItems,
-                            usesPadLayout: usesPadLayout
-                        )
-                    }
-                    .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, usesPadLayout ? Theme.xl : Theme.padding)
-                    .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
-                    .padding(.bottom, Theme.lg + 56)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: Theme.lg) {
+                    timerSectionGroup(
+                        title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
+                        items: GameCatalog.timerBoardGameItems,
+                        usesPadLayout: usesPadLayout
+                    )
+                    timerSectionGroup(
+                        title: NSLocalizedString("timer_section_other", value: "其他", comment: ""),
+                        items: GameCatalog.timerOtherItems,
+                        usesPadLayout: usesPadLayout
+                    )
                 }
-                .background(Theme.backgroundColor)
+                .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, usesPadLayout ? Theme.xl : Theme.padding)
+                .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
+                .padding(.bottom, Theme.lg + 56)
             }
+            .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_timer", value: "计时", comment: "Timer tab"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $selectedDestination) { dest in
@@ -170,10 +167,6 @@ struct TimerTab: View {
             CubeTimerView()
         case .timeout:
             TimeoutCountdownView()
-        case .basketball24:
-            BasketballCountdownView(duration: 24)
-        case .basketball12:
-            BasketballCountdownView(duration: 12)
         }
     }
 

@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct Theme {
+    /// Use the system-reported device idiom for iPad-specific layouts.
+    /// Window dimensions and size classes intentionally do not affect this decision.
+    static var usesPadLayout: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
     // System semantic colors automatically follow appearance and accessibility contrast.
     static let backgroundColor = Color(uiColor: .systemGroupedBackground)
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)

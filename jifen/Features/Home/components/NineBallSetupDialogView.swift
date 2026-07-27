@@ -28,12 +28,12 @@ struct NineBallSetupDialogView: View {
     @State private var isSendingSetupToWatch = false
     @State private var setupSendErrorText = ""
     @State private var showExitWhileSendingConfirm = false
+    @State private var showWatchNotForegroundAlert = false
     @State private var showWatchStartGuide = !PreferencesManager.shared.linkedScoreWatchStartGuideShown
 
     private var canStartOnWatch: Bool {
         AppFeatureFlags.watchLinkEntryEnabled
             && AppFeatureFlags.isWatchLinkSupportedProject(.nineBall)
-            && watchLinkService.canStartInteractiveSession
             && (2...4).contains(playerCount)
     }
 
@@ -177,6 +177,22 @@ struct NineBallSetupDialogView: View {
                             value: "在手表开始",
                             comment: ""
                         ))
+                        .alert(
+                            NSLocalizedString(
+                                "linked_score_watch_not_foreground_title",
+                                value: "请打开手表 App",
+                                comment: ""
+                            ),
+                            isPresented: $showWatchNotForegroundAlert
+                        ) {
+                            Button(NSLocalizedString(
+                                "watch_sync_comm_failure_help_confirm",
+                                value: "知道了",
+                                comment: ""
+                            ), role: .cancel) {}
+                        } message: {
+                            Text(PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription)
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .clipShape(Capsule())
@@ -352,7 +368,13 @@ struct NineBallSetupDialogView: View {
                 result.startOnWatch = true
             } catch {
                 isSendingSetupToWatch = false
-                setupSendErrorText = error.localizedDescription
+                if let startError = error as? PhoneWatchLinkService.InteractiveStartError,
+                   case .watchAppNotForeground = startError {
+                    setupSendErrorText = ""
+                    showWatchNotForegroundAlert = true
+                } else {
+                    setupSendErrorText = error.localizedDescription
+                }
                 return
             }
             isSendingSetupToWatch = false

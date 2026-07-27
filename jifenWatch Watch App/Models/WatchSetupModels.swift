@@ -3,6 +3,8 @@ import LinkCore
 import ScoreCore
 
 enum WatchSetupSport: String, CaseIterable, Hashable {
+    // Keep regulation basketball out of local setup. The Watch implementation
+    // is retained solely for phone-initiated 3x3/5v5 linked sessions.
     case badminton
     case badmintonDoubles
     case pingpong

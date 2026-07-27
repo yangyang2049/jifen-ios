@@ -102,17 +102,21 @@ struct ScoreboardTab: View {
     }
 
     private var gridSpacing: CGFloat {
-        UIDevice.current.userInterfaceIdiom == .pad ? 8 : 6
+        usesPadLayout ? 8 : 6
     }
 
     private func gridColumns(availableWidth: CGFloat) -> [GridItem] {
         let count: Int
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if usesPadLayout {
             count = min(6, max(1, Int((availableWidth + gridSpacing) / (150 + gridSpacing))))
         } else {
             count = availableWidth + Theme.padding * 2 < 360 ? 2 : 3
         }
         return Array(repeating: GridItem(.flexible(), spacing: gridSpacing), count: count)
+    }
+
+    private var usesPadLayout: Bool {
+        Theme.usesPadLayout
     }
 
     /// 设置弹窗默认名称：与鸿蒙一致，选手/单方用红方蓝方，队伍用红队蓝队或主队客队。

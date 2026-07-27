@@ -169,6 +169,7 @@ struct SportsSetupDialogView: View {
     @State private var isSendingSetupToWatch = false
     @State private var setupSendErrorText = ""
     @State private var showExitWhileSendingConfirm = false
+    @State private var showWatchNotForegroundAlert = false
     @State private var showWatchStartGuide = !PreferencesManager.shared.linkedScoreWatchStartGuideShown
     @State private var team1Player1Name: String = ""
     @State private var team1Player2Name: String = ""
@@ -316,6 +317,22 @@ struct SportsSetupDialogView: View {
                             value: "在手表开始",
                             comment: "Start scoreboard on watch"
                         ))
+                        .alert(
+                            NSLocalizedString(
+                                "linked_score_watch_not_foreground_title",
+                                value: "请打开手表 App",
+                                comment: ""
+                            ),
+                            isPresented: $showWatchNotForegroundAlert
+                        ) {
+                            Button(NSLocalizedString(
+                                "watch_sync_comm_failure_help_confirm",
+                                value: "知道了",
+                                comment: ""
+                            ), role: .cancel) {}
+                        } message: {
+                            Text(PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription)
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .clipShape(Capsule())
@@ -608,7 +625,6 @@ struct SportsSetupDialogView: View {
     private var canStartOnWatch: Bool {
         AppFeatureFlags.watchLinkEntryEnabled
             && supportsWatchProject
-            && watchLinkService.canStartInteractiveSession
     }
 
     @ViewBuilder
@@ -1707,7 +1723,13 @@ struct SportsSetupDialogView: View {
                 finalConfig.startOnWatch = true
             } catch {
                 isSendingSetupToWatch = false
-                setupSendErrorText = error.localizedDescription
+                if let startError = error as? PhoneWatchLinkService.InteractiveStartError,
+                   case .watchAppNotForeground = startError {
+                    setupSendErrorText = ""
+                    showWatchNotForegroundAlert = true
+                } else {
+                    setupSendErrorText = error.localizedDescription
+                }
                 return
             }
             isSendingSetupToWatch = false
@@ -1826,7 +1848,8 @@ struct SportsSetupDialogView: View {
             )
             return try await watchLinkService.startInteractiveOnWatch(
                 snapshot: .eightBall(eight),
-                gameType: .eightBall
+                gameType: .eightBall,
+                participantNames: [config.team1Name, config.team2Name]
             )
         case .nineBall:
             let nineConfig = NineBallChaseConfig(
@@ -1853,7 +1876,8 @@ struct SportsSetupDialogView: View {
             )
             return try await watchLinkService.startInteractiveOnWatch(
                 snapshot: .snooker(snooker),
-                gameType: .snooker
+                gameType: .snooker,
+                participantNames: [config.team1Name, config.team2Name]
             )
         default:
             throw PhoneWatchLinkService.InteractiveStartError.watchUnavailable

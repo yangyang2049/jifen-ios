@@ -5,11 +5,9 @@ import ScoreCore
 @MainActor
 final class ScoreboardCatalogTests: XCTestCase {
     func testTimerAndToolCatalogCountsIncludeNewParityFeatures() {
-        XCTAssertEqual(GameCatalog.timerAllItems.count, 9)
-        XCTAssertEqual(Set(GameCatalog.timerAllItems).count, 9)
+        XCTAssertEqual(GameCatalog.timerAllItems.count, 7)
+        XCTAssertEqual(Set(GameCatalog.timerAllItems).count, 7)
         XCTAssertTrue(GameCatalog.timerAllItems.contains(.checkers))
-        XCTAssertTrue(GameCatalog.timerAllItems.contains(.basketball24))
-        XCTAssertTrue(GameCatalog.timerAllItems.contains(.basketball12))
         XCTAssertEqual(ToolItem.allTools.count, 10)
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "random_team" })
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "fullscreen_barrage" })
@@ -137,5 +135,102 @@ final class ScoreboardCatalogTests: XCTestCase {
         )
         XCTAssertEqual(record.displayMatchTitle, "红A/红B vs 蓝A/蓝B")
         XCTAssertEqual(record.displayScore(), "2 : 1")
+    }
+
+    func testFootballBoundariesExchangeUndoResetAndFinishLock() {
+        let controller = FootballController()
+        let viewModel = FootballViewModel(controller: controller)
+        viewModel.leftTeam.name = "主队"
+        viewModel.rightTeam.name = "客队"
+
+        viewModel.subtractScore(isLeft: true, points: 1)
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        viewModel.addScore(isLeft: true, points: 2)
+        viewModel.addScore(isLeft: false, points: 1)
+
+        viewModel.exchangeSides()
+        XCTAssertEqual(viewModel.leftTeam.name, "客队")
+        XCTAssertEqual(viewModel.leftTeam.score, 1)
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.name, "主队")
+        XCTAssertEqual(viewModel.leftTeam.score, 2)
+
+        viewModel.exchangeSides()
+        viewModel.reset()
+        XCTAssertEqual(viewModel.leftTeam.name, "主队")
+        XCTAssertEqual(viewModel.rightTeam.name, "客队")
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        XCTAssertEqual(viewModel.rightTeam.score, 0)
+
+        viewModel.endGame()
+        viewModel.addScore(isLeft: true, points: 1)
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertFalse(viewModel.gameFinished)
+    }
+
+    func testBoxingFinalRoundUndoRestoresAnEditableMatch() {
+        let controller = BoxingScoreboardController()
+        let viewModel = BoxingViewModel(controller: controller)
+        viewModel.leftTeam.name = "红方"
+        viewModel.rightTeam.name = "蓝方"
+        viewModel.setMaxRounds(2)
+
+        viewModel.addRoundScore(leftPoints: 10, rightPoints: 10)
+        XCTAssertEqual(viewModel.currentRound, 2)
+        XCTAssertEqual(viewModel.leftTeam.sets, 0)
+        XCTAssertEqual(viewModel.rightTeam.sets, 0)
+
+        viewModel.addRoundScore(leftPoints: 10, rightPoints: 9)
+        XCTAssertTrue(viewModel.gameFinished)
+        XCTAssertEqual(viewModel.leftTeam.score, 20)
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertFalse(viewModel.gameFinished)
+        XCTAssertEqual(viewModel.currentRound, 2)
+        XCTAssertEqual(viewModel.leftTeam.score, 10)
+        XCTAssertEqual(viewModel.rightTeam.score, 10)
+
+        viewModel.exchangeSides()
+        XCTAssertEqual(viewModel.leftTeam.name, "蓝方")
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.name, "红方")
+        XCTAssertEqual(viewModel.rightTeam.name, "蓝方")
+    }
+
+    func testGenericBilliardsScoreBoundariesAndUndo() {
+        let controller = BilliardsScoreboardController()
+        let viewModel = BaseScoreViewModel(controller: controller, scoreRange: 0 ... 9999)
+
+        XCTAssertEqual(controller.getScoringOptions(), [])
+        viewModel.subtractScore(isLeft: true, points: 1)
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        viewModel.adjustScore(isLeft: true, delta: 20_000)
+        XCTAssertEqual(viewModel.leftTeam.score, 9999)
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+    }
+
+    func testSimpleScoreAllowsNegativeValuesButRespectsHardBounds() {
+        let controller = SimpleScoreboardController()
+        let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
+
+        viewModel.adjustScore(isLeft: true, delta: -20_000)
+        XCTAssertEqual(viewModel.leftTeam.score, -9999)
+        viewModel.adjustScore(isLeft: true, delta: 40_000)
+        XCTAssertEqual(viewModel.leftTeam.score, 9999)
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.score, -9999)
+    }
+
+    func testMultiScorePlayerScoreAndWinnerBoundaries() {
+        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(1, gameType: .multiScoreboard), 3)
+        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(12, gameType: .multiScoreboard), 9)
+        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(1, gameType: .uno), 2)
+        XCTAssertEqual(MultiScoreRules.normalizedPlayerCount(12, gameType: .uno), 10)
+        XCTAssertEqual(MultiScoreRules.adjustedScore(9990, delta: 100), 9999)
+        XCTAssertEqual(MultiScoreRules.adjustedScore(-9990, delta: -100), -9999)
+        XCTAssertNil(MultiScoreRules.uniqueLeaderIndex(scores: [8, 8, 3]))
+        XCTAssertEqual(MultiScoreRules.uniqueLeaderIndex(scores: [8, 6, 3]), 0)
+        XCTAssertEqual(MultiScoreRules.targetWinnerIndex(scores: [499, 500, 700], target: 500), 1)
     }
 }

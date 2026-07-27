@@ -50,6 +50,7 @@ final class PhoneWatchLinkService {
     private(set) var controlRole: LinkControlRole?
     private(set) var latestRemoteSnapshot: LinkedSnapshotUpdate?
     private(set) var finishedRecordId: String?
+    private(set) var watchBackgrounded: Bool = false
     private(set) var lastErrorMessage: String?
     /// Last watch record id auto-synced into phone records (for toast / UI).
     private(set) var lastSyncedWatchRecordId: String?
@@ -66,6 +67,7 @@ final class PhoneWatchLinkService {
 
     enum InteractiveStartError: LocalizedError {
         case watchUnavailable
+        case watchAppNotForeground
         case setupRejected
         case setupTimedOut
         case notController
@@ -76,6 +78,12 @@ final class PhoneWatchLinkService {
                 return NSLocalizedString(
                     "linked_score_watch_unavailable",
                     value: "Apple Watch 未连接，请打开手表端全能计分器后重试。",
+                    comment: ""
+                )
+            case .watchAppNotForeground:
+                return NSLocalizedString(
+                    "linked_score_watch_not_foreground_message",
+                    value: "请先在 Apple Watch 上打开「全能计分器」，保持应用在前台，然后再试一次。",
                     comment: ""
                 )
             case .setupRejected:
@@ -165,6 +173,23 @@ final class PhoneWatchLinkService {
         pushCommonNamesToWatch()
     }
 
+    /// Interactive setup cannot wake the Watch app. Refresh immediately before
+    /// creating a linked session so an unavailable Watch never receives a queued
+    /// setup request that appears later without the user's context.
+    func validateInteractiveWatchAvailability() throws {
+        transport.refreshStatus()
+        connectivityStatus = transport.status
+        guard connectivityStatus.isSupported,
+              connectivityStatus.isActivated,
+              connectivityStatus.isPaired,
+              connectivityStatus.isWatchAppInstalled else {
+            throw InteractiveStartError.watchUnavailable
+        }
+        guard connectivityStatus.isReachable else {
+            throw InteractiveStartError.watchAppNotForeground
+        }
+    }
+
     /// Push current phone common names to the watch via application context (always-latest).
     func pushCommonNamesToWatch() {
         guard connectivityStatus.isSupported,
@@ -245,6 +270,34 @@ final class PhoneWatchLinkService {
         activeSession?.sessionId
     }
 
+    /// Ask the authoritative Watch controller to resend its latest full state.
+    /// This is user initiated and deliberately does not change control roles.
+    @discardableResult
+    func requestScoreResync() -> Bool {
+        guard let session = activeSession,
+              LinkManualResyncPolicy.phoneCanRequest(role: session.role) else {
+            return false
+        }
+        sequence += 1
+        let envelope = LinkEnvelope(
+            sessionId: session.sessionId,
+            kind: .resyncRequest,
+            sender: .phone,
+            senderSequence: sequence,
+            sessionRevision: session.revision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: EmptyLinkPayload()
+        )
+        Task {
+            do {
+                try await sendEnvelope(envelope)
+            } catch {
+                lastErrorMessage = error.localizedDescription
+            }
+        }
+        return true
+    }
+
     func startInteractiveOnWatch(state: BasketballMatchState) async throws -> UUID {
         try await startInteractiveSession(
             gameType: state.gameMode == .threeXThree ? .threeBasketball : .basketball,
@@ -269,12 +322,17 @@ final class PhoneWatchLinkService {
         )
     }
 
-    func startInteractiveOnWatch(snapshot: LinkedScoreboardSnapshot, gameType: ScoreCore.GameType) async throws -> UUID {
+    func startInteractiveOnWatch(
+        snapshot: LinkedScoreboardSnapshot,
+        gameType: ScoreCore.GameType,
+        participantNames: [String]? = nil
+    ) async throws -> UUID {
         try await startInteractiveSession(
             gameType: gameType,
             maxSets: maxSets(for: snapshot),
             basketballThreeXThree: isThreeXThree(snapshot),
-            initialSnapshot: snapshot
+            initialSnapshot: snapshot,
+            participantNames: participantNames
         )
     }
 
@@ -295,8 +353,18 @@ final class PhoneWatchLinkService {
         sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: .tennis(state), detailedActions: detailedActions)
     }
 
-    func syncWatch(sessionId: UUID, gameType: ScoreCore.GameType, snapshot: LinkedScoreboardSnapshot) {
-        sendSnapshotIfController(sessionId: sessionId, gameType: gameType, snapshot: snapshot)
+    func syncWatch(
+        sessionId: UUID,
+        gameType: ScoreCore.GameType,
+        snapshot: LinkedScoreboardSnapshot,
+        participantNames: [String]? = nil
+    ) {
+        sendSnapshotIfController(
+            sessionId: sessionId,
+            gameType: gameType,
+            snapshot: snapshot,
+            participantNames: participantNames
+        )
     }
 
     func takeover(sessionId: UUID) async throws {
@@ -413,6 +481,7 @@ final class PhoneWatchLinkService {
             detailedActions: pending.detailedActions
         )
         controlRole = .phoneController
+        watchBackgrounded = false
     }
 
     func leaveSession(_ sessionId: UUID) {
@@ -453,7 +522,8 @@ final class PhoneWatchLinkService {
         manualEnd: Bool,
         startTime: Date? = nil,
         endTime: Date? = nil,
-        totalScoreChanges: Int? = nil
+        totalScoreChanges: Int? = nil,
+        participantNames: [String]? = nil
     ) {
         guard var session = activeSession,
               session.sessionId == sessionId,
@@ -484,7 +554,8 @@ final class PhoneWatchLinkService {
                 endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
                 durationSeconds: duration,
                 totalScoreChanges: totalScoreChanges,
-                detailedActions: mergedDetailedActions
+                detailedActions: mergedDetailedActions,
+                participantNames: participantNames
             )
         )
         Task {
@@ -507,11 +578,10 @@ final class PhoneWatchLinkService {
         gameType: ScoreCore.GameType,
         maxSets: Int? = nil,
         basketballThreeXThree: Bool = false,
-        initialSnapshot: LinkedScoreboardSnapshot
+        initialSnapshot: LinkedScoreboardSnapshot,
+        participantNames: [String]? = nil
     ) async throws -> UUID {
-        guard canStartInteractiveSession else {
-            throw InteractiveStartError.watchUnavailable
-        }
+        try validateInteractiveWatchAvailability()
         if setupContinuation != nil {
             let continuation = setupContinuation
             setupContinuation = nil
@@ -529,7 +599,8 @@ final class PhoneWatchLinkService {
             gameType: gameType,
             maxSets: maxSets,
             basketballThreeXThree: basketballThreeXThree,
-            initialSnapshot: initialSnapshot
+            initialSnapshot: initialSnapshot,
+            participantNames: participantNames
         )
         if let existing = activeSession?.sessionId {
             leaveSession(existing)
@@ -581,7 +652,8 @@ final class PhoneWatchLinkService {
             Task { [weak self] in
                 guard let self else { return }
                 do {
-                    try await self.sendEnvelope(envelope)
+                    let data = try JSONEncoder().encode(envelope)
+                    try self.transport.sendInteractive(data)
                 } catch {
                     guard self.activeSession?.sessionId == sessionId,
                           let cont = self.setupContinuation else { return }
@@ -589,7 +661,11 @@ final class PhoneWatchLinkService {
                     self.setupTimeoutTask?.cancel()
                     self.setupTimeoutTask = nil
                     self.clearSession()
-                    cont.resume(throwing: error)
+                    if error as? WatchConnectivityTransportError == .peerNotReachable {
+                        cont.resume(throwing: InteractiveStartError.watchAppNotForeground)
+                    } else {
+                        cont.resume(throwing: error)
+                    }
                 }
             }
         }
@@ -599,7 +675,8 @@ final class PhoneWatchLinkService {
         sessionId: UUID,
         gameType: ScoreCore.GameType,
         snapshot: LinkedScoreboardSnapshot,
-        detailedActions: [DetailedScoreAction]? = nil
+        detailedActions: [DetailedScoreAction]? = nil,
+        participantNames: [String]? = nil
     ) {
         guard var session = activeSession,
               session.sessionId == sessionId,
@@ -607,6 +684,14 @@ final class PhoneWatchLinkService {
               session.role == .phoneController else { return }
         session.revision += 1
         mergeDetailedActions(detailedActions)
+        session.setup = LinkedScoreboardSetup(
+            gameType: gameType,
+            maxSets: maxSets(for: snapshot),
+            basketballThreeXThree: isThreeXThree(snapshot),
+            initialSnapshot: snapshot,
+            detailedActions: mergedDetailedActions,
+            participantNames: participantNames ?? session.setup.participantNames
+        )
         activeSession = session
         sequence += 1
         let messageId = UUID()
@@ -623,7 +708,8 @@ final class PhoneWatchLinkService {
                 maxSets: maxSets(for: snapshot),
                 basketballThreeXThree: isThreeXThree(snapshot),
                 initialSnapshot: snapshot,
-                detailedActions: mergedDetailedActions
+                detailedActions: mergedDetailedActions,
+                participantNames: session.setup.participantNames
             )
         )
         Task {
@@ -648,6 +734,7 @@ final class PhoneWatchLinkService {
         if handleTakeoverRelated(data) { return }
         if handleMatchFinishedFromWatch(data) { return }
         if handleScoreboardExitedToHome(data) { return }
+        if handleWatchBackgrounded(data) { return }
         if handleResumeDiscarded(data) { return }
         if handleSessionLeft(data) { return }
         _ = handleStatus(data)
@@ -743,7 +830,9 @@ final class PhoneWatchLinkService {
            session.sessionId == envelope.sessionId {
             pendingTakeoverMessageId = nil
             if let snapshot = envelope.payload.authoritativeSnapshot,
-               snapshot.rallyState != nil || snapshot.tennisState != nil {
+               snapshot.rallyState != nil || snapshot.tennisState != nil
+                    || snapshot.eightBallState != nil || snapshot.nineBallState != nil
+                    || snapshot.snookerState != nil || snapshot.archeryState != nil {
                 session.revision = max(session.revision, envelope.payload.acknowledgedRevision)
                 activeSession = session
                 mergeDetailedActions(envelope.payload.detailedActions)
@@ -787,6 +876,7 @@ final class PhoneWatchLinkService {
         guard disposition != .wrongSession else { return false }
         if disposition == .newer, var session = activeSession {
             session.revision = max(session.revision, envelope.sessionRevision)
+            session.setup = envelope.payload
             activeSession = session
             mergeDetailedActions(envelope.payload.detailedActions)
             latestRemoteSnapshot = LinkedSnapshotUpdate(
@@ -795,6 +885,8 @@ final class PhoneWatchLinkService {
                 snapshot: snapshot,
                 detailedActions: mergedDetailedActions
             )
+            // Watch resumed scoring — clear the background-interruption flag.
+            watchBackgrounded = false
         }
         // ACK valid duplicates too: a retry usually means our prior ACK was lost.
         sendAck(
@@ -938,6 +1030,15 @@ final class PhoneWatchLinkService {
         return true
     }
 
+    private func handleWatchBackgrounded(_ data: Data) -> Bool {
+        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: data),
+              envelope.sender == .watch,
+              envelope.kind == .watchBackgrounded,
+              envelope.sessionId == activeSession?.sessionId else { return false }
+        watchBackgrounded = true
+        return true
+    }
+
     private func handleResumeDiscarded(_ data: Data) -> Bool {
         guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkResumeDiscardPayload>.self, from: data),
               envelope.sender == .watch,
@@ -1065,6 +1166,7 @@ final class PhoneWatchLinkService {
         latestRemoteSnapshot = nil
         mergedDetailedActions = []
         publishedFinishedRecordId = nil
+        watchBackgrounded = false
         if terminalPendingAck.pending == nil {
             pendingLeaveAfterFinish = false
         }

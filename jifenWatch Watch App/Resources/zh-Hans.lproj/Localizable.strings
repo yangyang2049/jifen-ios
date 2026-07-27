@@ -70,6 +70,8 @@
 /* Settings / About */
 "version" = "版本";
 "company_name" = "重庆豆花科技有限公司";
+"watch_feedback" = "意见反馈";
+"watch_contact_us" = "联系我们";
 
 /* Scoreboard menu */
 "menu_undo" = "撤销";
@@ -107,6 +109,8 @@
 "linked_score_sport_pickleball_doubles" = "🏓 匹克球双打";
 "linked_score_sport_basketball" = "🏀 篮球";
 "linked_score_sport_three_basketball" = "🏀 三人篮球";
+"game_basketball" = "篮球";
+"game_three_basketball" = "三人篮球";
 "linked_score_sport_archery" = "🏹 射箭";
 "linked_score_sport_eight_ball" = "🎱 黑八";
 "linked_score_sport_nine_ball" = "🎱 追分";

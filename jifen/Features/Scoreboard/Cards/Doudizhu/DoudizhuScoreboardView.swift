@@ -178,7 +178,7 @@ struct DoudizhuScoreboardView: View {
                 }
 
                 if showScorePanel {
-                    doudizhuBottomSettleOverlay
+                    doudizhuBottomSettleOverlay(containerWidth: w)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .zIndex(20)
                 }
@@ -355,7 +355,9 @@ struct DoudizhuScoreboardView: View {
 
     private func doudizhuPlayerPanel(index: Int, player: DoudizhuPlayerItem, width: CGFloat, height: CGFloat) -> some View {
         let scoreSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: height) * 0.85
-        let nameSize = ScoreboardLayoutMetrics.defaultTeamNameFontSize
+        let nameSize = ScoreboardLayoutMetrics.defaultTeamNameFontSize(
+            usesPadLayout: Theme.usesPadLayout
+        )
         return ZStack {
             panelColors[index % 3]
             VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: height)) {
@@ -417,7 +419,7 @@ struct DoudizhuScoreboardView: View {
     }
 
     /// HOS-style 320pt bottom settle overlay (not a system sheet).
-    private var doudizhuBottomSettleOverlay: some View {
+    private func doudizhuBottomSettleOverlay(containerWidth: CGFloat) -> some View {
         ZStack(alignment: .bottom) {
             Color.black.opacity(0.35)
                 .ignoresSafeArea()
@@ -497,7 +499,7 @@ struct DoudizhuScoreboardView: View {
                     Text(String(format: NSLocalizedString("doudizhu_confirm_with_score", value: "确认 (底分: %d)", comment: ""), selectedBaseScore * (1 << selectedMultiplierPower)))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
-                        .frame(width: UIScreen.main.bounds.width * 0.45, height: 50)
+                        .frame(width: containerWidth * 0.45, height: 50)
                         .background(Capsule().fill(doudizhuWinnerSelectionValid ? Color(hex: "007AFF") : Color.white.opacity(0.2)))
                 }
                 .buttonStyle(.plain)

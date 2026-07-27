@@ -65,6 +65,54 @@ struct ArcheryMatchReducerTests {
     }
 
     @Test
+    func tiedShootOffCanRepeatUntilResolved() {
+        var state = ArcheryMatchState(
+            leftName: "A",
+            rightName: "B",
+            leftSetPoints: 5,
+            rightSetPoints: 5,
+            arrowsPerSet: 1
+        )
+        state = reduce(state, .recordArrow(side: nil, value: nil))
+        state = reduce(state, .recordArrow(side: nil, value: nil))
+        #expect(state.closestToCenterPending)
+        state = reduce(state, .repeatShootOff)
+        #expect(state.leftSetPoints == 5)
+        #expect(state.rightSetPoints == 5)
+        #expect(state.leftArrowSum == 0)
+        #expect(state.rightArrowSum == 0)
+        #expect(state.arrowsLeftThisSet == 0)
+        #expect(state.arrowsRightThisSet == 0)
+        #expect(state.arrowsPerSet == 1)
+        #expect(!state.setCompletionPending)
+
+        state = reduce(state, .recordArrow(side: nil, value: 9))
+        state = reduce(state, .recordArrow(side: nil, value: 9))
+        state = reduce(state, .repeatShootOff)
+        state = reduce(state, .recordArrow(side: nil, value: 10))
+        state = reduce(state, .recordArrow(side: nil, value: 9))
+        state = reduce(state, .completeSet(closestToCenterWinner: nil))
+        #expect(state.finished)
+        #expect(state.winnerSide == .left)
+    }
+
+    @Test
+    func resetAfterSideExchangeRestoresNamesAndOpeningShooterIdentity() {
+        var state = ArcheryMatchState(
+            leftName: "A",
+            rightName: "B",
+            currentShooterIsLeft: true,
+            openingShooterIsLeft: true
+        )
+        state = reduce(state, .exchangeSides)
+        state = reduce(state, .reset)
+        #expect(state.leftName == "A")
+        #expect(state.rightName == "B")
+        #expect(state.openingShooterIsLeft)
+        #expect(state.currentShooterIsLeft)
+    }
+
+    @Test
     func firstToSixFinishesMatch() {
         var state = ArcheryMatchState(
             leftName: "A",

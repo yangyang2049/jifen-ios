@@ -11,7 +11,7 @@ final class WatchRecordManager {
 
     private init() {}
 
-    func saveRecord(_ record: WatchScoreboardRecord) {
+    func saveRecord(_ record: WatchScoreboardRecord, transferToPhone: Bool = true) {
         var records = loadAllRecords()
         records.removeAll { $0.id == record.id }
         records.append(record)
@@ -31,7 +31,9 @@ final class WatchRecordManager {
             #endif
         }
 
-        autoTransferToPhoneIfNeeded(record)
+        if transferToPhone {
+            autoTransferToPhoneIfNeeded(record)
+        }
     }
 
     private func autoTransferToPhoneIfNeeded(_ record: WatchScoreboardRecord) {

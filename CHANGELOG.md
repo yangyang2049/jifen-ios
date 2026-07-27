@@ -3,14 +3,16 @@
 ## [Unreleased]
 
 ### Fixed
+- **手表联动中断通知（P1-2）**：手表被系统中断（来电/通知/Siri）进入后台时，通过 `scenePhase` 监听自动向手机发送 `watchBackgrounded` 消息。手机端收到后在 follower 菜单中显示「⚠️ 手表已进入后台，建议接管计分」提示，用户可直接点击「接管计分」。手表恢复操作（发送新快照）或手机接管成功后自动清除提示。新增 LinkMessageKind.watchBackgrounded、WatchLinkService.notifyBackgrounded()、PhoneWatchLinkService.watchBackgrounded 属性、linked_watch_backgrounded 本地化。
 - **设置弹窗常用名称空状态说明**：CommonNameSelectorDialog 在无常用名称时增加说明文案，引导用户在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称；新增 common_names_empty_hint 中英文本地化（对齐鸿蒙常用名称选择器体验）。
 - **射箭/简单计分/多人计分英文显示**：主应用英文本地化新增 `project_archery` = "Archery"；Types.displayName 中射箭、简单计分、多人计分的 NSLocalizedString 回退值改为英文（"Archery"、"Simple Score"、"Multi-Score"），ArcheryScoreboardView 导航标题回退值改为 "Archery"，英文环境下显示英文名称。
-- **计时 Tab「其他」分组顺序**：改为 魔方、正计时、暂停、篮球 24 秒、篮球 12 秒（GameCatalog.timerOtherItems）。
+- **计时 Tab「其他」分组顺序**：改为 魔方、正计时、暂停（GameCatalog.timerOtherItems）。
 - **简易计分名称统一为「简单计分」**：zh-Hans 本地化 `game_simple_score` 及 Types.displayName 回退值、相关注释与占位页注释均改为「简单计分」，与 qa/SimulationStubs 等一致。
 - **计分 Tab 跳转**：射箭、匹克球、斗地主、掼蛋、简易计分（及拳击、台球、多人计分）从计分 Tab 进入后返回时未清除 `selectedSport`，导致导航状态错乱。上述计分板增加可选 `onNavigationBack`，ScoreboardTab 的 `getScoreboardView` 传入 `onBack`，返回时先执行回调再 `dismiss()`，保证 `selectedSport = nil` 与栈一致。
 - **OrientationLock UIKit 警告**：`requestGeometryUpdate` 失败时的 fallback 不再调用 `UIDevice.current.setValue(_, forKey: "orientation")` 与 `attemptRotationToDeviceOrientation()`（系统不支持），仅重置 `isPortraitUpdateInFlight`，依赖 `supportedInterfaceOrientations` 更新后由系统处理旋转，消除 "Setting UIDevice.orientation is not supported" 控制台报错。
 
 ### Removed
+- **篮球 24 秒/12 秒进攻计时器**：移除独立的篮球进攻计时器（BasketballCountdownView）及其在计时 Tab 的入口、GameCatalog 枚举 case、本地化文案（timer_basketball_24s/12s）和相关测试。篮球计分板内嵌的 shot clock 不受影响。与鸿蒙、安卓三端同步删除。
 - **Watch 隐私协议与退出流程**：移除 Watch 端独立隐私协议页与「退出」逻辑（原抄自鸿蒙，Apple 未强制要求）。删除 WatchPrivacyAgreementView、WatchAppExit 及 WatchPreferences.privacyAccepted；Watch 启动后直接进入 WatchTabView。
 - **新比赛弹窗中移除秒表**：GameCatalog.newGameDialogGameTypes 过滤掉 .stopwatch，新比赛弹窗不再展示秒表；秒表仍在计时 Tab 与工具中使用。
 - **新比赛对话框计分/计时双 Tab（对齐鸿蒙）**：NewGameDialogView 顶部增加分段选择「计分」「计时」；计分 Tab 展示全部计分项目（scoreboardGameTypes），计时 Tab 展示可选计时项目（不含秒表）；沿用 scoreboard_title、tab_timer 本地化。
@@ -73,7 +75,7 @@
 - **工具页面网格**：工具列表（ToolsListPageView）内 ToolSectionView 的 LazyVGrid 由每行 2 列改为每行 3 列，至少 3 个 item 一行。
 - **记录 Tab 条目纵向内边距**：记录页计分/计时条目的行内容（scoreboardRowContent、timerRowContent）由 `.padding(.vertical, Theme.sm)` 改为 `.padding(.vertical, Theme.md)`（16pt），纵向留白加大。
 - **首页最近记录条目纵向内边距**：RecentRecordsSectionView 内计时/计分条目的行内容由 `.padding(.vertical, Theme.sm)` 改为 `.padding(.vertical, Theme.md)`（16pt），与记录 Tab 一致。
-- **所有 Tab 隐藏滚动条**：首页、记录、计分、计时、工具五个 Tab 的主 ScrollView 增加 `showsIndicators: false`，不再显示滚动条。
+- **所有 Tab 隐藏滚动条**：首页、记录、计分、计时、我五个 Tab 的主 ScrollView 增加 `showsIndicators: false`，不再显示滚动条。
 - **记录 Tab 搜索栏与分类 Tab 对比度**：搜索栏背景改为 `.ultraThinMaterial` 并加 `Theme.homeOverlayBorder` 描边，图标改为更高对比度；全部/计分/计时芯片未选态背景改为 `Theme.surface`、文字改为 `Theme.textPrimary`，并加描边与略增纵向 padding，选中态保持 accent 色并加字重，整体更突出。
 - **计分/计时 Tab 首 section 上边距**：计分 Tab 与计时 Tab 内容区 `.padding(.top)` 由 `Theme.sm` 改为 `Theme.md`（16pt），第一个 section 上方留白增加。
 - **计分 Tab 分区标题**：第一分区「体育」改为「运动」（scoreboard_sports 中文文案与 fallback）。
@@ -102,7 +104,7 @@
 - **记录 Tab 编辑模式**：进入编辑模式后，「完成」按钮改为显示在右侧（.topBarTrailing），编辑时右侧仅显示「完成」、隐藏菜单按钮，避免误触菜单。
 - **新比赛弹窗支持全部项目**：NewGameDialogView 由 6 项改为 GameType.allCases，可选所有计分与计时类型；选择计时类型时调用 onTimerGameSelected 跳转计时 Tab，其余通过 path 进入计分。HomeTab getScoreboardView 补全 guandan、doudizhu、simpleScore、multiScoreboard、counter（计数器用 SimpleScoreboardView）。弹窗增加 .large 高度以便浏览全部项。
 - **Quick Start 配置支持全部项目与计时**：快速开始编辑页（QuickStartEditView）可选范围由 6 项扩展为全部 GameType（availableSports = GameType.allCases），包含所有计分项目与计时类型（围棋/象棋/国际象棋/通用计时等）；主卡/副卡点击时，计时类型（stopwatch/go/xiangqi/chess）跳转计时 Tab 并自动打开对应计时页，其余跳转计分 Tab。MainTabView 新增 pendingTimerGameType，TimerTab 支持 Binding 入参并在 onChange 时打开对应目的地后清空。
-- **首页与 Tab 顺序（对齐鸿蒙）**：记录 Tab 调整为第二位（首页 → 记录 → 计分 → 计时 → 工具），手机与 iPad 一致；首页「工具」section 扩展为抛硬币、骰子、哨子、红黄牌、积分表、计时器、时间、AA 计算器、十秒挑战等入口，点击仍通过 path 进入对应工具页，工具 Tab 保留完整列表。
+- **首页与 Tab 顺序（对齐鸿蒙）**：记录 Tab 调整为第二位（首页 → 记录 → 计分 → 计时 → 我），手机与 iPad 一致；首页「工具」section 扩展为抛硬币、骰子、哨子、红黄牌、积分表、计时器、时间、AA 计算器、十秒挑战等入口，点击仍通过 path 进入对应工具页，工具 Tab 保留完整列表。
 - **Watch 使用说明**：「使用说明」从计分 Tab 移至设置 Tab；计分页不再显示使用说明入口与首次进入提示，设置内新增「使用说明」行，点击弹出说明弹窗。
 
 ### Fixed

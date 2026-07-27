@@ -579,28 +579,12 @@ struct TennisScoreboardView: View {
                 keepDialogOpen: true
             )
         ]
-        if AppFeatureFlags.watchLinkEntryEnabled, watchSessionId != nil {
-            if watchLinkService.isFollower {
-                extras.insert(
-                    ScoreboardMenuItem(
-                        title: NSLocalizedString("linked_score_takeover", value: "接管计分", comment: ""),
-                        action: "takeover",
-                        group: .sync,
-                        icon: "applewatch"
-                    ),
-                    at: 0
-                )
-            }
-            extras.insert(
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("linked_score_end", value: "结束联动", comment: ""),
-                    action: "endLink",
-                    group: .sync,
-                    icon: "xmark.circle"
-                ),
-                at: 0
-            )
-        }
+        extras.insert(contentsOf: WatchLinkMenuSupport.extraItems(
+            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+            sessionId: watchSessionId,
+            isFollower: watchLinkService.isFollower,
+            watchBackgrounded: watchLinkService.watchBackgrounded
+        ), at: 0)
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             resetConfirming: menuConfirm.resetConfirming,
@@ -611,7 +595,7 @@ struct TennisScoreboardView: View {
     }
 
     private func handleMenu(_ action: String) {
-        if scoringLocked, action != "takeover", action != "endLink", action != "displaySettings", action != "exit" {
+        if scoringLocked, action != "resync", action != "takeover", action != "endLink", action != "displaySettings", action != "exit" {
             toastMessage = NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: "")
             return
         }
@@ -650,6 +634,9 @@ struct TennisScoreboardView: View {
             }
         case "displaySettings":
             showDisplaySettings = true
+            showMenu = false
+        case "resync":
+            watchLinkService.requestScoreResync()
             showMenu = false
         case "takeover":
             Task {

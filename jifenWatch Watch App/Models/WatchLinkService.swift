@@ -435,6 +435,10 @@ final class WatchLinkService {
         controlRole == .watchFollower
     }
 
+    var activeParticipantNames: [String]? {
+        activeSetup?.participantNames
+    }
+
     func clearRequestedSetup() {
         pendingConfirmRequest = nil
     }
@@ -485,7 +489,8 @@ final class WatchLinkService {
 
     func publishSnapshot(
         _ snapshot: LinkedScoreboardSnapshot,
-        detailedActions: [DetailedScoreAction]? = nil
+        detailedActions: [DetailedScoreAction]? = nil,
+        participantNames: [String]? = nil
     ) {
         guard isController,
               let sessionId = activeSessionId,
@@ -497,7 +502,8 @@ final class WatchLinkService {
             maxSets: maxSets(for: snapshot),
             basketballThreeXThree: isThreeXThree(snapshot),
             initialSnapshot: snapshot,
-            detailedActions: mergedDetailedActions
+            detailedActions: mergedDetailedActions,
+            participantNames: participantNames ?? activeSetup?.participantNames
         )
         sequence += 1
         let messageId = UUID()
@@ -514,7 +520,8 @@ final class WatchLinkService {
                 maxSets: maxSets(for: snapshot),
                 basketballThreeXThree: isThreeXThree(snapshot),
                 initialSnapshot: snapshot,
-                detailedActions: mergedDetailedActions
+                detailedActions: mergedDetailedActions,
+                participantNames: activeSetup?.participantNames
             )
         )
         Task {
@@ -538,7 +545,8 @@ final class WatchLinkService {
         startTime: Date? = nil,
         endTime: Date? = nil,
         totalScoreChanges: Int? = nil,
-        detailedActions: [DetailedScoreAction]? = nil
+        detailedActions: [DetailedScoreAction]? = nil,
+        participantNames: [String]? = nil
     ) {
         guard let sessionId = activeSessionId else { return }
         // One finished record per linked session — keep a stable id for ACK retries.
@@ -570,7 +578,8 @@ final class WatchLinkService {
                 endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
                 durationSeconds: duration,
                 totalScoreChanges: totalScoreChanges,
-                detailedActions: mergedDetailedActions
+                detailedActions: mergedDetailedActions,
+                participantNames: participantNames ?? activeSetup?.participantNames
             )
         )
         Task {
@@ -629,6 +638,24 @@ final class WatchLinkService {
         Task { try? await send(envelope) }
     }
 
+    /// Notify the phone that the watch entered the background (e.g. system
+    /// interruption such as an incoming call). The phone can then prompt the
+    /// user to take over scoring control.
+    func notifyBackgrounded() {
+        guard let sessionId = activeSessionId, isController else { return }
+        sequence += 1
+        let envelope = LinkEnvelope(
+            sessionId: sessionId,
+            kind: .watchBackgrounded,
+            sender: .watch,
+            senderSequence: sequence,
+            sessionRevision: activeRevision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: EmptyLinkPayload()
+        )
+        Task { try? await send(envelope) }
+    }
+
     /// Discard the watch resume entry and hand scoring control back to the phone.
     func discardResumableSession(reason: LinkResumeDiscardReason) {
         guard let sessionId = activeSessionId else { return }
@@ -674,6 +701,7 @@ final class WatchLinkService {
             || handleReclaimResponse(data)
             || handleMatchFinishedFromPhone(data)
             || handleSessionLeft(data)
+            || handleResyncRequest(data)
             || handleStatusQuery(data)
         if handled {
             markCommunication()
@@ -914,6 +942,22 @@ final class WatchLinkService {
             payload: LinkStatusPayload(role: role, revision: activeRevision)
         )
         Task { try? await send(response) }
+        return true
+    }
+
+    private func handleResyncRequest(_ data: Data) -> Bool {
+        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: data),
+              envelope.sender == .phone,
+              envelope.kind == .resyncRequest,
+              envelope.sessionId == activeSessionId,
+              LinkManualResyncPolicy.watchCanRespond(role: controlRole),
+              let setup = activeSetup,
+              let snapshot = setup.initialSnapshot else { return false }
+        publishSnapshot(
+            snapshot,
+            detailedActions: mergedDetailedActions,
+            participantNames: setup.participantNames
+        )
         return true
     }
 

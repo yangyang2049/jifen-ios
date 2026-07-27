@@ -7,11 +7,30 @@ enum WatchLinkMenuSupport {
     static func extraItems(
         entryEnabled: Bool,
         sessionId: UUID?,
-        isFollower: Bool
+        isFollower: Bool,
+        watchBackgrounded: Bool = false
     ) -> [ScoreboardMenuItem] {
         guard entryEnabled, sessionId != nil else { return [] }
         var items: [ScoreboardMenuItem] = []
         if isFollower {
+            if watchBackgrounded {
+                items.append(
+                    ScoreboardMenuItem(
+                        title: NSLocalizedString("linked_watch_backgrounded", value: "⚠️ 手表已进入后台，建议接管计分", comment: ""),
+                        action: "watchBackgroundedHint",
+                        group: .sync,
+                        icon: "exclamationmark.triangle"
+                    )
+                )
+            }
+            items.append(
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("linked_score_resync", value: "同步积分", comment: ""),
+                    action: "resync",
+                    group: .sync,
+                    icon: "arrow.triangle.2.circlepath"
+                )
+            )
             items.append(
                 ScoreboardMenuItem(
                     title: NSLocalizedString("linked_score_takeover", value: "接管计分", comment: ""),
@@ -56,7 +75,12 @@ enum LinkedMatchRecordIngestor {
         guard let appType = GameType(scoreCoreGameType: gameType) else {
             throw LinkedRecordIngestError.unsupportedGameType(gameType.rawValue)
         }
-        let projected = project(snapshot: payload.snapshot, gameType: appType, winnerSide: payload.winnerSide)
+        let projected = project(
+            snapshot: payload.snapshot,
+            gameType: appType,
+            winnerSide: payload.winnerSide,
+            participantNames: payload.participantNames
+        )
         let endMs = payload.endTimeEpochMilliseconds ?? Int64(Date().timeIntervalSince1970 * 1000)
         let startMs = payload.startTimeEpochMilliseconds ?? (endMs - 60_000)
         let start = Date(timeIntervalSince1970: Double(startMs) / 1000)
@@ -130,7 +154,8 @@ enum LinkedMatchRecordIngestor {
     private static func project(
         snapshot: LinkedScoreboardSnapshot,
         gameType: GameType,
-        winnerSide: MatchSide?
+        winnerSide: MatchSide?,
+        participantNames: [String]?
     ) -> Projection {
         let winner: String? = {
             switch winnerSide {
@@ -182,8 +207,16 @@ enum LinkedMatchRecordIngestor {
             )
         case .eightBall(let state):
             return .init(
-                leftName: NSLocalizedString("watch_team_red", value: "红方", comment: ""),
-                rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: ""),
+                leftName: resolvedParticipantName(
+                    participantNames,
+                    index: 0,
+                    fallback: NSLocalizedString("watch_team_red", value: "红方", comment: "")
+                ),
+                rightName: resolvedParticipantName(
+                    participantNames,
+                    index: 1,
+                    fallback: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+                ),
                 leftScore: state.leftPoints,
                 rightScore: state.rightPoints,
                 leftSets: nil,
@@ -222,8 +255,16 @@ enum LinkedMatchRecordIngestor {
             )
         case .snooker(let state):
             return .init(
-                leftName: NSLocalizedString("watch_team_red", value: "红方", comment: ""),
-                rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: ""),
+                leftName: resolvedParticipantName(
+                    participantNames,
+                    index: 0,
+                    fallback: NSLocalizedString("watch_team_red", value: "红方", comment: "")
+                ),
+                rightName: resolvedParticipantName(
+                    participantNames,
+                    index: 1,
+                    fallback: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+                ),
                 leftScore: state.leftScore,
                 rightScore: state.rightScore,
                 leftSets: state.leftFrames,
@@ -231,6 +272,16 @@ enum LinkedMatchRecordIngestor {
                 winner: winner
             )
         }
+    }
+
+    private static func resolvedParticipantName(
+        _ names: [String]?,
+        index: Int,
+        fallback: String
+    ) -> String {
+        guard let names, names.indices.contains(index) else { return fallback }
+        let value = names[index].trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? fallback : value
     }
 }
 

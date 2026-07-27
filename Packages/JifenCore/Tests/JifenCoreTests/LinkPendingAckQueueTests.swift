@@ -22,6 +22,31 @@ import Testing
     #expect(queue.pending == nil)
 }
 
+@Test func manualResyncOnlyFlowsFromPhoneFollowerToWatchController() throws {
+    #expect(LinkManualResyncPolicy.phoneCanRequest(role: .phoneFollower))
+    #expect(!LinkManualResyncPolicy.phoneCanRequest(role: .phoneController))
+    #expect(!LinkManualResyncPolicy.phoneCanRequest(role: nil))
+    #expect(LinkManualResyncPolicy.watchCanRespond(role: .watchController))
+    #expect(!LinkManualResyncPolicy.watchCanRespond(role: .watchFollower))
+
+    let envelope = LinkEnvelope(
+        sessionId: UUID(),
+        kind: .resyncRequest,
+        sender: .phone,
+        senderSequence: 2,
+        sessionRevision: 7,
+        sentAtEpochMilliseconds: 1_000,
+        payload: EmptyLinkPayload()
+    )
+    let decoded = try JSONDecoder().decode(
+        LinkEnvelope<EmptyLinkPayload>.self,
+        from: JSONEncoder().encode(envelope)
+    )
+    #expect(decoded.kind == .resyncRequest)
+    #expect(decoded.sender == .phone)
+    #expect(decoded.sessionRevision == 7)
+}
+
 @Test func linkPendingAckQueueAcknowledgeClears() {
     var queue = LinkPendingAckQueue()
     let messageId = UUID()
@@ -136,11 +161,50 @@ import Testing
 
 @Test func linkedScoreboardSnapshotRoundTripTennisAndArchery() throws {
     let tennis = TennisMatchState(leftName: "A", rightName: "B")
-    let archery = LinkedArcheryState(leftName: "L", rightName: "R", leftSetPoints: 2, rightSetPoints: 1)
+    let archeryMatch = ArcheryMatchState(
+        leftName: "L",
+        rightName: "R",
+        leftArrowSum: 18,
+        rightArrowSum: 17,
+        leftSetPoints: 5,
+        rightSetPoints: 5,
+        currentSet: 6,
+        currentShooterIsLeft: true,
+        openingShooterIsLeft: false,
+        arrowsLeftThisSet: 1,
+        arrowsRightThisSet: 1,
+        arrowsPerSet: 1,
+        pendingSetNumber: 6,
+        pendingLeftSetPoints: 5,
+        pendingRightSetPoints: 5,
+        closestToCenterPending: true
+    )
+    let archery = LinkedArcheryState(match: archeryMatch)
     let encodedTennis = try JSONEncoder().encode(LinkedScoreboardSnapshot.tennis(tennis))
     let encodedArchery = try JSONEncoder().encode(LinkedScoreboardSnapshot.archery(archery))
     let decodedTennis = try JSONDecoder().decode(LinkedScoreboardSnapshot.self, from: encodedTennis)
     let decodedArchery = try JSONDecoder().decode(LinkedScoreboardSnapshot.self, from: encodedArchery)
     #expect(decodedTennis.tennisState?.leftName == "A")
-    #expect(decodedArchery.archeryState?.rightSetPoints == 1)
+    #expect(decodedArchery.archeryState?.rightSetPoints == 5)
+    #expect(decodedArchery.archeryState?.arrowsLeftThisSet == 1)
+    #expect(decodedArchery.archeryState?.arrowsPerSet == 1)
+    #expect(decodedArchery.archeryState?.openingShooterIsLeft == false)
+    #expect(decodedArchery.archeryState?.pendingSetNumber == 6)
+    #expect(decodedArchery.archeryState?.closestToCenterPending == true)
+}
+
+@Test func legacyLinkedArcheryStateWithoutExtendedFieldsStillDecodes() throws {
+    let json = """
+    {
+        "leftName":"L","rightName":"R","leftSetPoints":2,"rightSetPoints":0,
+        "leftArrowSum":27,"rightArrowSum":25,"currentShooterIsLeft":false,
+        "setNumber":2,"finished":false,"sidesSwapped":false
+    }
+    """
+    let data = Data(json.utf8)
+    let decoded = try JSONDecoder().decode(LinkedArcheryState.self, from: data)
+    #expect(decoded.leftSetPoints == 2)
+    #expect(decoded.arrowsLeftThisSet == nil)
+    #expect(decoded.openingShooterIsLeft == nil)
+    #expect(decoded.closestToCenterPending == nil)
 }

@@ -125,6 +125,8 @@ public enum ArcheryMatchIntent: Codable, Equatable, Sendable {
     case recordArrow(side: MatchSide?, value: Int?)
     /// Apply pending set end. For CTC shootoff ties, pass the winner.
     case completeSet(closestToCenterWinner: MatchSide?)
+    /// Continue a 5:5 shoot-off when both arrows miss or remain exactly equidistant.
+    case repeatShootOff
     case adjustArrowSum(side: MatchSide, delta: Int)
     case adjustSetPoints(side: MatchSide, delta: Int)
     case setNames(left: String, right: String)
@@ -139,6 +141,7 @@ public enum ArcheryMatchEvent: Codable, Equatable, Sendable {
     case arrowScored(side: MatchSide, points: Int, leftArrowSum: Int, rightArrowSum: Int)
     case setReady(setNumber: Int, leftArrowSum: Int, rightArrowSum: Int, pendingLeftSetPoints: Int, pendingRightSetPoints: Int)
     case closestToCenterRequired(setNumber: Int, tiedArrowSum: Int)
+    case shootOffRepeated(setNumber: Int)
     case setCompleted(setNumber: Int, winner: MatchSide?, leftSetPoints: Int, rightSetPoints: Int)
     case matchFinished(winner: MatchSide?)
     case arrowSumAdjusted(side: MatchSide, delta: Int)
@@ -174,6 +177,8 @@ public struct ArcheryMatchReducer: DomainReducer {
             return recordArrow(state: state, side: side, value: value)
         case .completeSet(let closestWinner):
             return completeSet(state: state, closestToCenterWinner: closestWinner)
+        case .repeatShootOff:
+            return repeatShootOff(state: state)
         case .adjustArrowSum(let side, let delta):
             if side == .left {
                 next.leftArrowSum = max(0, next.leftArrowSum + delta)
@@ -226,11 +231,14 @@ public struct ArcheryMatchReducer: DomainReducer {
         case .reset:
             let leftName = state.sidesSwapped ? state.rightName : state.leftName
             let rightName = state.sidesSwapped ? state.leftName : state.rightName
+            let openingShooterIsLeft = state.sidesSwapped
+                ? !state.openingShooterIsLeft
+                : state.openingShooterIsLeft
             next = .init(
                 leftName: leftName,
                 rightName: rightName,
-                currentShooterIsLeft: state.openingShooterIsLeft,
-                openingShooterIsLeft: state.openingShooterIsLeft,
+                currentShooterIsLeft: openingShooterIsLeft,
+                openingShooterIsLeft: openingShooterIsLeft,
                 rules: state.rules
             )
             return .init(state: next, events: [.matchReset])
@@ -391,6 +399,24 @@ public struct ArcheryMatchReducer: DomainReducer {
         )
         clearPending(&next)
         return .init(state: next, events: events)
+    }
+
+    private func repeatShootOff(
+        state: ArcheryMatchState
+    ) -> ReduceResult<ArcheryMatchState, ArcheryMatchEvent> {
+        guard state.isShootOffSet, state.closestToCenterPending, state.setCompletionPending else {
+            return .rejected(state: state, reason: "No tied shoot-off to repeat")
+        }
+        var next = state
+        let setNumber = next.pendingSetNumber
+        next.leftArrowSum = 0
+        next.rightArrowSum = 0
+        next.arrowsLeftThisSet = 0
+        next.arrowsRightThisSet = 0
+        next.arrowsPerSet = next.rules.shootOffArrowsPerSet
+        next.currentShooterIsLeft = next.openingShooterIsLeft
+        clearPending(&next)
+        return .init(state: next, events: [.shootOffRepeated(setNumber: setNumber)])
     }
 
     private func clearPending(_ state: inout ArcheryMatchState) {

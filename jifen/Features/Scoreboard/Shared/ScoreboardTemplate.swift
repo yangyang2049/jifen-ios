@@ -825,7 +825,9 @@ struct TeamSection: View {
     @State private var showCommonNameSelector = false
     private let commonNamesManager = CommonNamesManager.shared
 
-    private var isTablet: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+    private var isTablet: Bool {
+        Theme.usesPadLayout
+    }
     /// 编辑态队名输入框：缩短宽度并左右留白居中
     private var nameEditMaxWidth: CGFloat { isTablet ? 240 : 148 }
     private var nameEditSideInset: CGFloat { isTablet ? 40 : 28 }

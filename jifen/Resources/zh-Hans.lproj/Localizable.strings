@@ -83,8 +83,6 @@
 "timer_go" = "围棋";
 "timer_xiangqi" = "象棋";
 "timer_chess" = "国际象棋";
-"timer_basketball_24s" = "篮球24秒";
-"timer_basketball_12s" = "篮球12秒";
 "timer_cube" = "魔方";
 "timer_timeout" = "倒计时";
 "timer_section_board_games" = "棋类";
@@ -691,6 +689,8 @@
 "stopwatch_lap_segment" = "本段";
 "stopwatch_lap_total" = "总时长";
 "linked_score_watch_unavailable" = "Apple Watch 未连接，请打开手表端全能计分器后重试。";
+"linked_score_watch_not_foreground_title" = "请打开手表 App";
+"linked_score_watch_not_foreground_message" = "请先在 Apple Watch 上打开「全能计分器」，保持应用在前台，然后再试一次。";
 "linked_score_start_on_watch" = "在手表开始";
 "linked_score_start_confirm_title" = "在手表开始？";
 "linked_score_start_confirm_message" = "将向手表发送开局请求，请在手表上确认后开始计分；手机将跟随显示。";
@@ -702,7 +702,9 @@
 "linked_score_watch_rejected" = "手表拒绝了联动开局。";
 "linked_score_watch_timeout" = "等待手表确认超时，请重试。";
 "linked_score_takeover" = "接管计分";
+"linked_score_resync" = "同步积分";
 "linked_score_end" = "结束联动";
+"linked_watch_backgrounded" = "⚠️ 手表已进入后台，建议接管计分";
 "linked_score_watch_reclaim_title" = "手表请求重新接管";
 "linked_score_watch_reclaim_message" = "是否允许手表在 5 秒内重新接管计分？";
 "linked_score_phone_follower" = "当前由手表计分";

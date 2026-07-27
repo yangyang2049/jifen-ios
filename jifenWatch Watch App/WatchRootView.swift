@@ -7,6 +7,7 @@ import WatchKit
 struct WatchRootView: View {
     @Environment(WatchLinkService.self) private var linkService
     @Environment(WatchResumeSessionStore.self) private var resumeStore
+    @Environment(\.scenePhase) private var scenePhase
     @State private var scoreboardRoute: WatchScoreboardRoute? = nil
     @State private var activeResumeSession: WatchResumeSession?
     @State private var linkedSetup: LinkedScoreboardSetup?
@@ -68,6 +69,11 @@ struct WatchRootView: View {
         .onChange(of: scoreboardRoute) { _, route in
             if route == nil {
                 activeResumeSession = nil
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background {
+                linkService.notifyBackgrounded()
             }
         }
         .onAppear {
@@ -383,8 +389,8 @@ struct WatchRootView: View {
                 WatchEightBallScoreView(
                     initialState: eightBallResumeState() ?? eightBallInitialState(),
                     linkedSessionId: linkedSessionId,
-                    leftName: eightBallResumeNames()?.left,
-                    rightName: eightBallResumeNames()?.right,
+                    leftName: eightBallResumeNames()?.left ?? linkedBilliardsNames()?.left,
+                    rightName: eightBallResumeNames()?.right ?? linkedBilliardsNames()?.right,
                     resumedUndoStates: eightBallResumeUndoStates(),
                     resumedStartTime: activeResumeSession?.startedAt,
                     resumedActionLog: activeResumeSession?.actionLog
@@ -401,8 +407,8 @@ struct WatchRootView: View {
                 WatchSnookerScoreView(
                     initialState: snookerResumeState() ?? snookerInitialState(),
                     linkedSessionId: linkedSessionId,
-                    leftName: snookerResumeNames()?.left,
-                    rightName: snookerResumeNames()?.right,
+                    leftName: snookerResumeNames()?.left ?? linkedBilliardsNames()?.left,
+                    rightName: snookerResumeNames()?.right ?? linkedBilliardsNames()?.right,
                     resumedUndoStates: snookerResumeUndoStates(),
                     resumedStartTime: activeResumeSession?.startedAt
                 )
@@ -621,6 +627,14 @@ struct WatchRootView: View {
         return history
     }
 
+    private func linkedBilliardsNames() -> (left: String, right: String)? {
+        guard let names = linkedSetup?.participantNames, names.count >= 2 else { return nil }
+        let left = names[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        let right = names[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !left.isEmpty, !right.isEmpty else { return nil }
+        return (left, right)
+    }
+
     private func basketballInitialState(for route: WatchScoreboardRoute) -> BasketballMatchState? {
         guard case .basketball(let threeXThree) = route,
               let linkedSetup,
@@ -761,7 +775,13 @@ private enum LinkedSetupConfirmCopy {
             return (0..<state.playerCount)
                 .map { state.resolvedName(at: $0, fallback: "P\($0 + 1)") }
                 .joined(separator: " · ")
-        case .eightBall, .snooker, .none:
+        case .eightBall, .snooker:
+            return participantName(
+                setup,
+                index: 0,
+                fallback: NSLocalizedString("watch_team_red", value: "红方", comment: "")
+            )
+        case .none:
             return NSLocalizedString("watch_team_red", value: "红方", comment: "")
         }
     }
@@ -794,7 +814,13 @@ private enum LinkedSetupConfirmCopy {
                 format: NSLocalizedString("watch_nine_ball_players_format", value: "追分 · %d人", comment: ""),
                 state.playerCount
             )
-        case .eightBall, .snooker, .none:
+        case .eightBall, .snooker:
+            return participantName(
+                setup,
+                index: 1,
+                fallback: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+            )
+        case .none:
             return NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
         }
     }
@@ -806,6 +832,16 @@ private enum LinkedSetupConfirmCopy {
         if !a.isEmpty { return a }
         if !b.isEmpty { return b }
         return fallback
+    }
+
+    private static func participantName(
+        _ setup: LinkedScoreboardSetup,
+        index: Int,
+        fallback: String
+    ) -> String {
+        guard let names = setup.participantNames, names.indices.contains(index) else { return fallback }
+        let name = names[index].trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? fallback : name
     }
 
     static func rulesText(from setup: LinkedScoreboardSetup?) -> String? {

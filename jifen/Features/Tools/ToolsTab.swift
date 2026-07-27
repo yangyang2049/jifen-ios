@@ -19,33 +19,29 @@ struct ToolsTab: View {
 /// 工具列表内容页，无内层 NavigationStack，用于从首页 push 时避免嵌套导致自动退出。
 struct ToolsListPageView: View {
     var onToolTap: ((ToolItem) -> Void)? = nil
-
     var body: some View {
-        GeometryReader { proxy in
-            let usesPadLayout = UIDevice.current.userInterfaceIdiom == .pad
-                && proxy.size.width >= 760
+        let usesPadLayout = Theme.usesPadLayout
 
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: usesPadLayout ? Theme.xl : Theme.lg) {
-                    ToolSectionView(
-                        title: NSLocalizedString("match_tools", comment: "Match Tools"),
-                        tools: ToolItem.competitionTools,
-                        usesPadLayout: usesPadLayout
-                    ) { tool in
-                        onToolTap?(tool)
-                    }
-                    ToolSectionView(
-                        title: NSLocalizedString("other_tools", comment: "Other Tools"),
-                        tools: ToolItem.otherTools,
-                        usesPadLayout: usesPadLayout
-                    ) { tool in
-                        onToolTap?(tool)
-                    }
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: usesPadLayout ? Theme.xl : Theme.lg) {
+                ToolSectionView(
+                    title: NSLocalizedString("match_tools", comment: "Match Tools"),
+                    tools: ToolItem.competitionTools,
+                    usesPadLayout: usesPadLayout
+                ) { tool in
+                    onToolTap?(tool)
                 }
-                .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
-                .frame(maxWidth: .infinity)
-                .padding(usesPadLayout ? Theme.xl : Theme.lg)
+                ToolSectionView(
+                    title: NSLocalizedString("other_tools", comment: "Other Tools"),
+                    tools: ToolItem.otherTools,
+                    usesPadLayout: usesPadLayout
+                ) { tool in
+                    onToolTap?(tool)
+                }
             }
+            .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+            .frame(maxWidth: .infinity)
+            .padding(usesPadLayout ? Theme.xl : Theme.lg)
         }
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))

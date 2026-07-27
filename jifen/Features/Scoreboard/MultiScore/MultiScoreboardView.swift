@@ -14,6 +14,28 @@ private func defaultMultiPlayerNames(count: Int) -> [String] {
     return (1...count).map { "\(base) \($0)" }
 }
 
+enum MultiScoreRules {
+    static let scoreRange = -9999 ... 9999
+
+    static func normalizedPlayerCount(_ requested: Int, gameType: GameType) -> Int {
+        let range = gameType == .uno ? 2 ... 10 : 3 ... 9
+        return min(range.upperBound, max(range.lowerBound, requested))
+    }
+
+    static func adjustedScore(_ current: Int, delta: Int) -> Int {
+        scoreRange.clamp(current + delta)
+    }
+
+    static func uniqueLeaderIndex(scores: [Int]) -> Int? {
+        guard let best = scores.max(), scores.filter({ $0 == best }).count == 1 else { return nil }
+        return scores.firstIndex(of: best)
+    }
+
+    static func targetWinnerIndex(scores: [Int], target: Int) -> Int? {
+        scores.firstIndex { $0 >= target }
+    }
+}
+
 struct MultiPlayerItem: Identifiable {
     let id: Int
     var name: String
@@ -71,7 +93,6 @@ struct MultiScoreboardView: View {
     @State private var useLandscapeLayout: Bool
 
     private let commonNamesManager = CommonNamesManager.shared
-    private static let scoreRange = -9999 ... 9999
     private let doubleTapWindow: TimeInterval = 0.24
 
     init(
@@ -84,9 +105,7 @@ struct MultiScoreboardView: View {
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.gameType = gameType
-        let maxPlayers = gameType == .uno ? 10 : 9
-        let minPlayers = gameType == .uno ? 2 : 3
-        let safeCount = min(maxPlayers, max(minPlayers, defaultPlayerCount))
+        let safeCount = MultiScoreRules.normalizedPlayerCount(defaultPlayerCount, gameType: gameType)
         self.defaultPlayerCount = safeCount
         self.targetScore = targetScore
         self.initialSetup = initialSetup
@@ -611,10 +630,8 @@ struct MultiScoreboardView: View {
     private func markFinished() {
         guard !gameFinished else { return }
         gameFinished = true
-        if let best = players.map(\.score).max(),
-           players.filter({ $0.score == best }).count == 1,
-           let winner = players.first(where: { $0.score == best }) {
-            finishedWinnerName = winner.name
+        if let winnerIndex = MultiScoreRules.uniqueLeaderIndex(scores: players.map(\.score)) {
+            finishedWinnerName = players[winnerIndex].name
         } else {
             finishedWinnerName = ""
         }
@@ -689,7 +706,7 @@ struct MultiScoreboardView: View {
             Task { await commonNamesManager.recordUsage(name, .player) }
         }
         if let score = Int(editScoreText.trimmingCharacters(in: .whitespacesAndNewlines)) {
-            players[index].score = Self.scoreRange.clamp(score)
+            players[index].score = MultiScoreRules.scoreRange.clamp(score)
         }
         editingIndex = nil
         editName = ""
@@ -895,8 +912,9 @@ struct MultiScoreboardView: View {
         }
         history.append(players.map(\.score))
         if history.count > 50 { history.removeFirst() }
-        players[unoSelectedWinnerIndex].score = Self.scoreRange.clamp(
-            players[unoSelectedWinnerIndex].score + delta
+        players[unoSelectedWinnerIndex].score = MultiScoreRules.adjustedScore(
+            players[unoSelectedWinnerIndex].score,
+            delta: delta
         )
         unoRoundCount += 1
         appendRecordAction("uno_round:\(unoSelectedWinnerIndex):+\(delta)")
@@ -913,7 +931,7 @@ struct MultiScoreboardView: View {
         guard !gameFinished, players.indices.contains(index), delta != 0 else { return }
         history.append(players.map(\.score))
         if history.count > 50 { history.removeFirst() }
-        players[index].score = Self.scoreRange.clamp(players[index].score + delta)
+        players[index].score = MultiScoreRules.adjustedScore(players[index].score, delta: delta)
         appendRecordAction("adjust:\(index):\(delta > 0 ? "+" : "")\(delta)")
         checkTargetReached(for: index)
         VibrationManager.shared.vibrateLight()
@@ -923,9 +941,12 @@ struct MultiScoreboardView: View {
 
     private func checkTargetReached(for index: Int) {
         guard gameType == .uno else { return }
-        if let winner = players.first(where: { $0.score >= effectiveTargetScore }) {
+        if let winnerIndex = MultiScoreRules.targetWinnerIndex(
+            scores: players.map(\.score),
+            target: effectiveTargetScore
+        ) {
             gameFinished = true
-            finishedWinnerName = winner.name
+            finishedWinnerName = players[winnerIndex].name
             VibrationManager.shared.vibrateHeavy()
             persistRecord(finished: true)
         }
@@ -1096,7 +1117,7 @@ struct MultiScoreboardView: View {
                 return MultiPlayerItem(
                     id: index,
                     name: (name?.isEmpty == false ? name! : playerPlaceholder(index)),
-                    score: Self.scoreRange.clamp(score)
+                    score: MultiScoreRules.scoreRange.clamp(score)
                 )
             }
             if !restored.isEmpty {
@@ -1162,9 +1183,7 @@ struct MultiScoreboardView: View {
 
         var winner: String?
         if finished || gameFinished {
-            if let best = players.map(\.score).max(),
-               players.filter({ $0.score == best }).count == 1,
-               let index = players.firstIndex(where: { $0.score == best }) {
+            if let index = MultiScoreRules.uniqueLeaderIndex(scores: players.map(\.score)) {
                 winner = "\(index)"
             }
         }

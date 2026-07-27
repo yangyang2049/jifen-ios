@@ -123,6 +123,13 @@ final class WatchArcherySessionStore {
         self.state = state
     }
 
+    /// Applies a remote authority snapshot and prevents undo across devices.
+    func rebase(to state: ArcheryMatchState) {
+        self.state = state
+        undoStack.removeAll()
+        persistSnapshot()
+    }
+
     func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
         actionLog.merge(detailedActions: actions)
     }

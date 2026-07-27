@@ -312,7 +312,9 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     ) -> some View {
         let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: halfHeight)
             * (score.count >= 3 ? 0.72 : 1)
-        let nameSize = ScoreboardLayoutMetrics.defaultTeamNameFontSize
+        let nameSize = ScoreboardLayoutMetrics.defaultTeamNameFontSize(
+            usesPadLayout: Theme.usesPadLayout
+        )
         let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: halfHeight)
         let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: halfHeight)
 
@@ -414,6 +416,7 @@ struct EightBallScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var watchSessionId: UUID?
+    @State private var manualFinishRequested = false
     private let reducer = EightBallReducer()
 
     init(
@@ -464,7 +467,10 @@ struct EightBallScoreboardView: View {
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
-    private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
+    private var scoringLocked: Bool {
+        watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+    }
 
     var body: some View {
         ZStack {
@@ -492,7 +498,8 @@ struct EightBallScoreboardView: View {
                 extraMenuItems: WatchLinkMenuSupport.extraItems(
                     entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
                     sessionId: watchSessionId,
-                    isFollower: watchLinkService.isFollower
+                    isFollower: watchLinkService.isFollower,
+                    watchBackgrounded: watchLinkService.watchBackgrounded
                 ),
                 onMenuAction: handleWatchMenu,
                 topCenter: { AnyView(eightBallTargetPill) }
@@ -516,11 +523,13 @@ struct EightBallScoreboardView: View {
                     leftScore: state.leftPoints,
                     rightScore: state.rightPoints,
                     onNewGame: {
+                        guard !scoringLocked else { return }
                         showGameOverDialog = false
+                        manualFinishRequested = false
                         send(.reset)
                     },
                     onRecords: {
-                        saveRecord()
+                        if !scoringLocked { saveRecord() }
                         showFinishedRecordDetail = true
                     },
                     onShare: {
@@ -544,7 +553,10 @@ struct EightBallScoreboardView: View {
         }
         .onAppear { onSetupConsumed?(); registerSync() }
         .onChange(of: state.finished) { _, finished in
-            if finished { showGameOverDialog = true }
+            if finished {
+                showGameOverDialog = true
+                notifyLinkedFinishIfNeeded()
+            }
         }
         .onChange(of: state) { _, newState in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -553,7 +565,13 @@ struct EightBallScoreboardView: View {
         .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
             guard let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.eightBallState else { return }
-            state = remote
+            applyAuthoritativeEightBall(remote)
+        }
+        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
+            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
+                  let remote = pending.snapshot.eightBallState else { return }
+            applyAuthoritativeEightBall(remote)
+            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
@@ -562,10 +580,29 @@ struct EightBallScoreboardView: View {
             if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
             if !skipSave { saveRecord() }
         }
+        .alert(
+            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
+            isPresented: reclaimAlertPresented
+        ) {
+            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                watchLinkService.resolveReclaimRequest(
+                    accepted: true,
+                    snapshot: .eightBall(state),
+                    detailedActions: []
+                )
+            }
+            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                rejectWatchReclaim()
+            }
+        } message: {
+            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
+        }
     }
 
     private func handleWatchMenu(_ action: String) {
         switch action {
+        case "resync":
+            watchLinkService.requestScoreResync()
         case "takeover":
             if let id = watchSessionId {
                 Task {
@@ -585,7 +622,12 @@ struct EightBallScoreboardView: View {
 
     private func publishWatchIfNeeded(_ state: EightBallState) {
         guard let watchSessionId, watchLinkService.isController else { return }
-        watchLinkService.syncWatch(sessionId: watchSessionId, gameType: .eightBall, snapshot: .eightBall(state))
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: .eightBall,
+            snapshot: .eightBall(state),
+            participantNames: [leftName, rightName]
+        )
     }
 
     private var finishedWinnerName: String {
@@ -611,16 +653,19 @@ struct EightBallScoreboardView: View {
         TeamScreenLayout(sidesSwapped: state.sidesSwapped).engineSide(onScreen: screen)
     }
     private func send(_ intent: EightBallIntent) {
+        guard !scoringLocked else { return }
         let result = reducer.reduce(state: state, intent: intent, at: nowMilliseconds())
         guard result.accepted else { return }
         history.append(state); state = result.state; actionCount += 1
         actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftPoints, state.rightPoints]))
         if result.state.finished {
+            manualFinishRequested = false
             showGameOverDialog = true
         }
     }
     private func markFinished() {
-        guard !state.finished else { return }
+        guard !scoringLocked, !state.finished else { return }
+        manualFinishRequested = true
         history.append(state)
         var next = state
         next.finished = true
@@ -630,6 +675,7 @@ struct EightBallScoreboardView: View {
         showGameOverDialog = true
     }
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
+        guard !scoringLocked else { return }
         if !left.isEmpty { leftName = left }
         if !right.isEmpty { rightName = right }
         if let leftValue = Int(leftScore), let rightValue = Int(rightScore) {
@@ -638,6 +684,7 @@ struct EightBallScoreboardView: View {
         }
     }
     private func undo() -> Bool {
+        guard !scoringLocked else { return false }
         guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
@@ -648,6 +695,7 @@ struct EightBallScoreboardView: View {
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
     private func registerSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { intent in
+            guard !scoringLocked else { return }
             switch intent {
             case .addLeft: send(.addRack(screenSide(.left)))
             case .addRight: send(.addRack(screenSide(.right)))
@@ -656,6 +704,46 @@ struct EightBallScoreboardView: View {
             case .requestSnapshot: break
             }
         }
+    }
+
+    private var reclaimAlertPresented: Binding<Bool> {
+        Binding(
+            get: { watchLinkService.pendingReclaimRequest != nil },
+            set: { presented in
+                if !presented, watchLinkService.pendingReclaimRequest != nil {
+                    rejectWatchReclaim()
+                }
+            }
+        )
+    }
+
+    private func rejectWatchReclaim() {
+        watchLinkService.resolveReclaimRequest(accepted: false, snapshot: nil, detailedActions: [])
+    }
+
+    private func applyAuthoritativeEightBall(_ remote: EightBallState) {
+        state = remote
+        history.removeAll()
+        showGameOverDialog = remote.finished
+        manualFinishRequested = false
+    }
+
+    private func notifyLinkedFinishIfNeeded() {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let winner: MatchSide? = state.leftPoints == state.rightPoints
+            ? nil
+            : (state.leftPoints > state.rightPoints ? .left : .right)
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: .eightBall(state),
+            recordId: recordID,
+            winnerSide: winner,
+            manualEnd: manualFinishRequested,
+            startTime: startedAt,
+            endTime: Date(),
+            totalScoreChanges: actionCount,
+            participantNames: [leftName, rightName]
+        )
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
         .init(gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: GameType.eightBall.displayName,
@@ -706,9 +794,13 @@ struct NineBallChaseScoreboardView: View {
     @State private var previousIdleTimerDisabled: Bool?
     @State private var watchSessionId: UUID?
     @State private var useLandscapeLayout: Bool
+    @State private var manualFinishRequested = false
     private let reducer = NineBallChaseReducer()
 
-    private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
+    private var scoringLocked: Bool {
+        watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+    }
 
     private var shouldShowChrome: Bool {
         !appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu || showEditPanel
@@ -811,11 +903,19 @@ struct NineBallChaseScoreboardView: View {
                 // Top undo / edit
                 VStack {
                     HStack {
-                        Button(action: { _ = undo(); revealImmersiveChrome() }) {
+                        Button(action: {
+                            guard !scoringLocked else { return }
+                            _ = undo()
+                            revealImmersiveChrome()
+                        }) {
                             Image(systemName: "arrow.uturn.backward")
                         }
                         Spacer()
-                        Button(action: { openEditPanel(); revealImmersiveChrome() }) {
+                        Button(action: {
+                            guard !scoringLocked else { return }
+                            openEditPanel()
+                            revealImmersiveChrome()
+                        }) {
                             Image(systemName: "pencil")
                         }
                     }
@@ -874,11 +974,13 @@ struct NineBallChaseScoreboardView: View {
                     multiNames: (0..<state.playerCount).map { playerName($0) },
                     multiScores: Array(state.playerPoints.prefix(state.playerCount)),
                     onNewGame: {
+                        guard !scoringLocked else { return }
                         showGameOverDialog = false
+                        manualFinishRequested = false
                         send(.resetScores)
                     },
                     onRecords: {
-                        saveRecord()
+                        if !scoringLocked { saveRecord() }
                         showFinishedRecordDetail = true
                     },
                     onShare: {
@@ -898,6 +1000,12 @@ struct NineBallChaseScoreboardView: View {
                     showMenu = false
                 },
                 onMenuItemClick: { action in
+                    if scoringLocked,
+                       action != "resync", action != "takeover", action != "endLink",
+                       action != "displaySettings", action != "layout" {
+                        showMenu = false
+                        return
+                    }
                     menuConfirm.prepare(forMenuAction: action)
                     switch action {
                     case "undo":
@@ -911,6 +1019,9 @@ struct NineBallChaseScoreboardView: View {
                     case "settleMatch": confirmSettle()
                     case "displaySettings": showDisplaySettings = true; showMenu = false
                     case "layout": toggleLayout()
+                    case "resync":
+                        watchLinkService.requestScoreResync()
+                        showMenu = false
                     case "takeover":
                         if let id = watchSessionId {
                             Task {
@@ -949,7 +1060,8 @@ struct NineBallChaseScoreboardView: View {
                     ] + WatchLinkMenuSupport.extraItems(
                         entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
                         sessionId: watchSessionId,
-                        isFollower: watchLinkService.isFollower
+                        isFollower: watchLinkService.isFollower,
+                        watchBackgrounded: watchLinkService.watchBackgrounded
                     )
                 )
             )
@@ -973,7 +1085,12 @@ struct NineBallChaseScoreboardView: View {
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showEditPanel) { _, _ in updateImmersiveForBlocking() }
-        .onChange(of: state.finished) { _, finished in if finished { showGameOverDialog = true } }
+        .onChange(of: state.finished) { _, finished in
+            if finished {
+                showGameOverDialog = true
+                notifyLinkedFinishIfNeeded()
+            }
+        }
         .onChange(of: state) { _, newState in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             publishWatchIfNeeded(newState)
@@ -981,10 +1098,13 @@ struct NineBallChaseScoreboardView: View {
         .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
             guard let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.nineBallState else { return }
-            state = remote
-            if remote.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
-                playerNames = (0..<4).map { remote.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
-            }
+            applyAuthoritativeNineBall(remote)
+        }
+        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
+            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
+                  let remote = pending.snapshot.nineBallState else { return }
+            applyAuthoritativeNineBall(remote)
+            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
@@ -1008,6 +1128,25 @@ struct NineBallChaseScoreboardView: View {
             }
         }
         .sheet(isPresented: $showEditPanel) { nineBallEditSheet }
+        .alert(
+            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
+            isPresented: reclaimAlertPresented
+        ) {
+            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                var snapshot = state
+                snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
+                watchLinkService.resolveReclaimRequest(
+                    accepted: true,
+                    snapshot: .nineBall(snapshot),
+                    detailedActions: []
+                )
+            }
+            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                rejectWatchReclaim()
+            }
+        } message: {
+            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
+        }
     }
 
     private func publishWatchIfNeeded(_ state: NineBallChaseState) {
@@ -1120,6 +1259,10 @@ struct NineBallChaseScoreboardView: View {
         }
     }
     private func applyPlayerEdits() {
+        guard !scoringLocked else {
+            showEditPanel = false
+            return
+        }
         history.append(state)
         for index in 0..<state.playerCount {
             if editPlayerNames.indices.contains(index) {
@@ -1137,13 +1280,15 @@ struct NineBallChaseScoreboardView: View {
         showEditPanel = false
     }
     private func send(_ intent: NineBallChaseIntent) {
+        guard !scoringLocked else { return }
         let result = reducer.reduce(state: state, intent: intent, at: nowMilliseconds())
         guard result.accepted else { return }
         history.append(state); state = result.state; actionCount += 1
         actionLog.append(recordSnapshot(code: String(describing: intent), scores: state.playerPoints))
     }
     private func markFinished() {
-        guard !state.finished else { return }
+        guard !scoringLocked, !state.finished else { return }
+        manualFinishRequested = true
         history.append(state)
         var next = state
         next.finished = true
@@ -1179,6 +1324,7 @@ struct NineBallChaseScoreboardView: View {
         showNineBallToast(ScoreboardMenuConfirmAction.settleMatch.localizedToast)
     }
     private func undo() -> Bool {
+        guard !scoringLocked else { return false }
         guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
@@ -1242,6 +1388,7 @@ struct NineBallChaseScoreboardView: View {
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
     private func registerSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { intent in
+            guard !scoringLocked else { return }
             switch intent {
             case .addLeft: send(.chaseEvent(player: 0, kind: .normalWin))
             case .addRight: send(.chaseEvent(player: 1, kind: .normalWin))
@@ -1249,6 +1396,52 @@ struct NineBallChaseScoreboardView: View {
             default: break
             }
         }
+    }
+
+    private var reclaimAlertPresented: Binding<Bool> {
+        Binding(
+            get: { watchLinkService.pendingReclaimRequest != nil },
+            set: { presented in
+                if !presented, watchLinkService.pendingReclaimRequest != nil {
+                    rejectWatchReclaim()
+                }
+            }
+        )
+    }
+
+    private func rejectWatchReclaim() {
+        watchLinkService.resolveReclaimRequest(accepted: false, snapshot: nil, detailedActions: [])
+    }
+
+    private func applyAuthoritativeNineBall(_ remote: NineBallChaseState) {
+        state = remote
+        history.removeAll()
+        if remote.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
+            playerNames = (0..<4).map { remote.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
+        }
+        showGameOverDialog = remote.finished
+        manualFinishRequested = false
+    }
+
+    private func notifyLinkedFinishIfNeeded() {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let activeScores = Array(state.playerPoints.prefix(state.playerCount))
+        let winner: MatchSide? = state.playerCount == 2 && activeScores.count >= 2 && activeScores[0] != activeScores[1]
+            ? (activeScores[0] > activeScores[1] ? .left : .right)
+            : nil
+        var snapshot = state
+        snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: .nineBall(snapshot),
+            recordId: recordID,
+            winnerSide: winner,
+            manualEnd: manualFinishRequested,
+            startTime: startedAt,
+            endTime: Date(),
+            totalScoreChanges: actionCount,
+            participantNames: (0..<state.playerCount).map { playerName($0) }
+        )
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
         .init(
@@ -1299,6 +1492,7 @@ struct SnookerReducerScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var watchSessionId: UUID?
+    @State private var manualFinishRequested = false
     private let reducer = SnookerReducer()
 
     private let balls: [(points: Int, color: Color, label: String)] = [
@@ -1356,7 +1550,10 @@ struct SnookerReducerScoreboardView: View {
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
-    private var scoringLocked: Bool { watchSessionId != nil && watchLinkService.isFollower }
+    private var scoringLocked: Bool {
+        watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+    }
 
     var body: some View {
         ZStack {
@@ -1376,7 +1573,11 @@ struct SnookerReducerScoreboardView: View {
                 onExchange: nil,
                 onBack: exit,
                 showEndGame: true,
-                onEndGame: { guard !scoringLocked else { return }; send(.finishMatch) },
+                onEndGame: {
+                    guard !scoringLocked else { return }
+                    manualFinishRequested = true
+                    send(.finishMatch)
+                },
                 onEditCommit: { left, right, leftScore, rightScore in
                     guard !scoringLocked else { return }
                     applyEdit(left: left, right: right, leftScore: leftScore, rightScore: rightScore)
@@ -1391,7 +1592,8 @@ struct SnookerReducerScoreboardView: View {
                 ] + WatchLinkMenuSupport.extraItems(
                     entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
                     sessionId: watchSessionId,
-                    isFollower: watchLinkService.isFollower
+                    isFollower: watchLinkService.isFollower,
+                    watchBackgrounded: watchLinkService.watchBackgrounded
                 ),
                 onMenuAction: { action in
                     switch action {
@@ -1399,6 +1601,8 @@ struct SnookerReducerScoreboardView: View {
                         guard !scoringLocked else { return }
                         settleWinner = state.leftScore >= state.rightScore ? .left : .right
                         showSettlePanel = true
+                    case "resync":
+                        watchLinkService.requestScoreResync()
                     case "takeover":
                         if let id = watchSessionId {
                             Task {
@@ -1420,7 +1624,7 @@ struct SnookerReducerScoreboardView: View {
                         GeometryReader { geo in
                             CenterLineServeIndicator(
                                 isLeftServing: state.striker == .left,
-                                triangleSize: ScoreboardLayoutMetrics.isPad ? 42 : 36
+                                triangleSize: Theme.usesPadLayout ? 42 : 36
                             )
                             .position(x: geo.size.width / 2, y: geo.size.height / 2)
                         }
@@ -1450,11 +1654,12 @@ struct SnookerReducerScoreboardView: View {
                     leftScore: state.maxFrames > 1 ? state.leftFrames : state.leftScore,
                     rightScore: state.maxFrames > 1 ? state.rightFrames : state.rightScore,
                     onNewGame: {
+                        guard !scoringLocked else { return }
                         showGameOverDialog = false
                         resetMatch()
                     },
                     onRecords: {
-                        saveRecord()
+                        if !scoringLocked { saveRecord() }
                         showFinishedRecordDetail = true
                     },
                     onShare: {
@@ -1479,7 +1684,12 @@ struct SnookerReducerScoreboardView: View {
             }
         }
         .onAppear { onSetupConsumed?(); registerSync() }
-        .onChange(of: state.finished) { _, finished in if finished { showGameOverDialog = true } }
+        .onChange(of: state.finished) { _, finished in
+            if finished {
+                showGameOverDialog = true
+                notifyLinkedFinishIfNeeded()
+            }
+        }
         .onChange(of: state) { _, newState in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             publishWatchIfNeeded(newState)
@@ -1487,7 +1697,13 @@ struct SnookerReducerScoreboardView: View {
         .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
             guard let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.snookerState else { return }
-            state = remote
+            applyAuthoritativeSnooker(remote)
+        }
+        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
+            guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
+                  let remote = pending.snapshot.snookerState else { return }
+            applyAuthoritativeSnooker(remote)
+            watchLinkService.completePhoneTakeover(messageId: pending.messageId)
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
@@ -1498,11 +1714,33 @@ struct SnookerReducerScoreboardView: View {
         }
         .sheet(isPresented: $showFoulPanel) { foulSheet }
         .sheet(isPresented: $showSettlePanel) { settleSheet }
+        .alert(
+            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
+            isPresented: reclaimAlertPresented
+        ) {
+            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                watchLinkService.resolveReclaimRequest(
+                    accepted: true,
+                    snapshot: .snooker(state),
+                    detailedActions: []
+                )
+            }
+            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                rejectWatchReclaim()
+            }
+        } message: {
+            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
+        }
     }
 
     private func publishWatchIfNeeded(_ state: SnookerState) {
         guard let watchSessionId, watchLinkService.isController else { return }
-        watchLinkService.syncWatch(sessionId: watchSessionId, gameType: .snooker, snapshot: .snooker(state))
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: .snooker,
+            snapshot: .snooker(state),
+            participantNames: [leftName, rightName]
+        )
     }
 
     private var finishedWinnerName: String {
@@ -1536,7 +1774,7 @@ struct SnookerReducerScoreboardView: View {
             ForEach(balls, id: \.points) { ball in
                 let legal = isLegalSnookerBall(ball.points)
                 Button {
-                    guard legal else { return }
+                    guard !scoringLocked, legal else { return }
                     send(.potBall(points: ball.points))
                 } label: {
                     Group {
@@ -1559,9 +1797,10 @@ struct SnookerReducerScoreboardView: View {
                     .opacity(legal ? 1 : 0.45)
                 }
                 .buttonStyle(.plain)
-                .disabled(state.finished || !legal)
+                .disabled(scoringLocked || state.finished || !legal)
             }
             Button {
+                guard !scoringLocked else { return }
                 foulSwitchTurn = true
                 showFoulPanel = true
             } label: {
@@ -1573,8 +1812,11 @@ struct SnookerReducerScoreboardView: View {
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
-            .disabled(state.finished)
-            Button { send(.handover) } label: {
+            .disabled(scoringLocked || state.finished)
+            Button {
+                guard !scoringLocked else { return }
+                send(.handover)
+            } label: {
                 Text(NSLocalizedString("snooker_handover", value: "交杆", comment: ""))
                     .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(.white)
@@ -1583,7 +1825,7 @@ struct SnookerReducerScoreboardView: View {
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
-            .disabled(state.finished)
+            .disabled(scoringLocked || state.finished)
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 8)
@@ -1615,6 +1857,7 @@ struct SnookerReducerScoreboardView: View {
                 HStack(spacing: 12) {
                     ForEach([4, 5, 6, 7], id: \.self) { pts in
                         Button("\(pts)") {
+                            guard !scoringLocked else { return }
                             send(.foul(pointsToOpponent: pts, switchTurn: foulSwitchTurn))
                             showFoulPanel = false
                         }
@@ -1654,6 +1897,7 @@ struct SnookerReducerScoreboardView: View {
                 }
                 .pickerStyle(.segmented)
                 Button(NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: "")) {
+                    guard !scoringLocked else { return }
                     send(.settleFrame(winner: settleWinner))
                     showSettlePanel = false
                 }
@@ -1673,6 +1917,7 @@ struct SnookerReducerScoreboardView: View {
     }
 
     private func send(_ intent: SnookerIntent) {
+        guard !scoringLocked else { return }
         let result = reducer.reduce(state: state, intent: intent, at: nowMilliseconds())
         guard result.accepted else { return }
         history.append(state)
@@ -1682,6 +1927,7 @@ struct SnookerReducerScoreboardView: View {
         if state.finished { showGameOverDialog = true }
     }
     private func undo() -> Bool {
+        guard !scoringLocked else { return false }
         guard let previous = history.popLast() else { return false }
         state = previous
         actionCount = max(0, actionCount - 1)
@@ -1692,6 +1938,7 @@ struct SnookerReducerScoreboardView: View {
     private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
     private func registerSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { intent in
+            guard !scoringLocked else { return }
             switch intent {
             case .addLeft: send(.potBallAsSide(side: .left, points: 1))
             case .addRight: send(.potBallAsSide(side: .right, points: 1))
@@ -1717,6 +1964,7 @@ struct SnookerReducerScoreboardView: View {
         )
     }
     private func resetMatch() {
+        guard !scoringLocked else { return }
         history.append(state)
         state = .initial(striker: state.firstBreaker, maxFrames: state.maxFrames)
         actionCount += 1
@@ -1725,14 +1973,58 @@ struct SnookerReducerScoreboardView: View {
         showSettlePanel = false
         showFoulPanel = false
         showGameOverDialog = false
+        manualFinishRequested = false
     }
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
+        guard !scoringLocked else { return }
         if !left.isEmpty { leftName = left }
         if !right.isEmpty { rightName = right }
         if let leftValue = Int(leftScore), let rightValue = Int(rightScore) {
             send(.adminCorrect(left: max(0, leftValue), right: max(0, rightValue), striker: state.striker))
             showGameOverDialog = false
         }
+    }
+
+    private var reclaimAlertPresented: Binding<Bool> {
+        Binding(
+            get: { watchLinkService.pendingReclaimRequest != nil },
+            set: { presented in
+                if !presented, watchLinkService.pendingReclaimRequest != nil {
+                    rejectWatchReclaim()
+                }
+            }
+        )
+    }
+
+    private func rejectWatchReclaim() {
+        watchLinkService.resolveReclaimRequest(accepted: false, snapshot: nil, detailedActions: [])
+    }
+
+    private func applyAuthoritativeSnooker(_ remote: SnookerState) {
+        state = remote
+        history.removeAll()
+        showFoulPanel = false
+        showSettlePanel = false
+        showGameOverDialog = remote.finished
+        manualFinishRequested = false
+    }
+
+    private func notifyLinkedFinishIfNeeded() {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let left = state.maxFrames > 1 ? state.leftFrames : state.leftScore
+        let right = state.maxFrames > 1 ? state.rightFrames : state.rightScore
+        let winner: MatchSide? = left == right ? nil : (left > right ? .left : .right)
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: .snooker(state),
+            recordId: recordID,
+            winnerSide: winner,
+            manualEnd: manualFinishRequested,
+            startTime: startedAt,
+            endTime: Date(),
+            totalScoreChanges: actionCount,
+            participantNames: [leftName, rightName]
+        )
     }
     private func saveRecord() {
         saveSpecializedRecord(

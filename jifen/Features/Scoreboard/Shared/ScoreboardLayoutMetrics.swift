@@ -1,5 +1,4 @@
 import CoreGraphics
-import UIKit
 
 /// Font/spacing curves aligned with HOS `helpers/baseMainScoreFontSize.ts`.
 enum ScoreboardLayoutMetrics {
@@ -31,8 +30,6 @@ enum ScoreboardLayoutMetrics {
     static let playerGridScoreFontFillRatio: CGFloat = 0.85
     static let playerGridNameMaxSize: CGFloat = 72
     static let playerGridScoreMaxSize: CGFloat = 480
-
-    static var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
     static func clampRound(_ value: CGFloat, min: CGFloat, max: CGFloat) -> CGFloat {
         Swift.min(max, Swift.max(min, value.rounded()))
@@ -66,8 +63,8 @@ enum ScoreboardLayoutMetrics {
     }
 
     /// Phone template default when height curve isn't available yet.
-    static var defaultTeamNameFontSize: CGFloat {
-        isPad ? ScoreboardConstants.teamNameFontSizePad : ScoreboardConstants.teamNameFontSizePhone
+    static func defaultTeamNameFontSize(usesPadLayout: Bool) -> CGFloat {
+        usesPadLayout ? ScoreboardConstants.teamNameFontSizePad : ScoreboardConstants.teamNameFontSizePhone
     }
 
     static func nameToMainSpacing(halfViewportHeight: CGFloat) -> CGFloat {

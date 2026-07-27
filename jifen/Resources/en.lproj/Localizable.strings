@@ -83,8 +83,6 @@
 "timer_go" = "Go";
 "timer_xiangqi" = "Xiangqi";
 "timer_chess" = "Chess";
-"timer_basketball_24s" = "Basketball 24s";
-"timer_basketball_12s" = "Basketball 12s";
 "timer_cube" = "Cube";
 "timer_timeout" = "Countdown";
 "timer_section_board_games" = "Board Games";
@@ -691,6 +689,8 @@
 "stopwatch_lap_segment" = "Lap";
 "stopwatch_lap_total" = "Total";
 "linked_score_watch_unavailable" = "Apple Watch is not connected. Open ScoreKeeper on your watch and try again.";
+"linked_score_watch_not_foreground_title" = "Open the Watch App";
+"linked_score_watch_not_foreground_message" = "Open All-in-one Scorekeeper on your Apple Watch and keep it in the foreground, then try again.";
 "linked_score_start_on_watch" = "Start on Apple Watch";
 "linked_score_start_confirm_title" = "Start on Apple Watch?";
 "linked_score_start_confirm_message" = "A start request will be sent to your watch. Confirm on the watch to begin; the phone will follow the score.";
@@ -702,7 +702,9 @@
 "linked_score_watch_rejected" = "The watch rejected the linked session.";
 "linked_score_watch_timeout" = "Timed out waiting for watch confirmation.";
 "linked_score_takeover" = "Take over scoring";
+"linked_score_resync" = "Sync Score";
 "linked_score_end" = "End link";
+"linked_watch_backgrounded" = "⚠️ Watch backgrounded, take over?";
 "linked_score_watch_reclaim_title" = "Watch requests control";
 "linked_score_watch_reclaim_message" = "Allow the watch to take over scoring within 5 seconds?";
 "linked_score_phone_follower" = "Scoring is controlled by the watch";

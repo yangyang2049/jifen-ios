@@ -40,8 +40,6 @@ final class FullAppScreenshotUITests: XCTestCase {
         ("cube", "魔方", false),
         ("stopwatch", "秒表", false),
         ("timeout", "倒计时", false),
-        ("basketball24", "篮球24秒", false),
-        ("basketball12", "篮球12秒", false),
     ]
 
     private let tools: [(id: String, label: String)] = [

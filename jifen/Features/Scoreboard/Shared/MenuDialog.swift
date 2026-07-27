@@ -197,6 +197,7 @@ struct MenuDialog: View {
     var resetConfirming: Bool = false
     var items: [ScoreboardMenuItem]? = nil
     @State private var showUsageHint = false
+    @State private var containerSize: CGSize = .zero
 
     private let dialogBackground = Color(hex: "2C2C2E")
     private let cardBackground = Color(hex: "3A3A3C")
@@ -224,14 +225,18 @@ struct MenuDialog: View {
         resolvedItems.filter { $0.group == .tools }
     }
 
+    private var containerShortSide: CGFloat {
+        let shortSide = min(containerSize.width, containerSize.height)
+        return shortSide > 0 ? shortSide : 320
+    }
+
     private var isCompact: Bool {
-        min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) < 400
+        containerShortSide < 400
     }
 
     private var dialogWidth: CGFloat {
-        let shortSide = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
-        let maxWidth: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 420 : 320
-        return min(maxWidth, max(280, shortSide - 32))
+        let maxWidth: CGFloat = Theme.usesPadLayout ? 420 : 320
+        return min(maxWidth, max(280, containerShortSide - 32))
     }
 
     private var syncCardHeight: CGFloat { isCompact ? 44 : 48 }
@@ -272,6 +277,11 @@ struct MenuDialog: View {
             }
             .sheet(isPresented: $showUsageHint) {
                 ScoreboardUsageHintView()
+            }
+            .onGeometryChange(for: CGSize.self) { proxy in
+                proxy.size
+            } action: { size in
+                containerSize = size
             }
         }
     }

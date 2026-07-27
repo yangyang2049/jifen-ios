@@ -39,6 +39,16 @@ struct WatchSettingsView: View {
                 )
                 layoutRow()
                 usageGuideRow()
+                navigationRow(
+                    title: NSLocalizedString("watch_feedback", value: "意见反馈", comment: "")
+                ) {
+                    WatchFeedbackView()
+                }
+                navigationRow(
+                    title: NSLocalizedString("watch_contact_us", value: "联系我们", comment: "")
+                ) {
+                    WatchContactView()
+                }
 
                 Spacer(minLength: 16)
 

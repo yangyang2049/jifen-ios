@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct BoxingScoreboardView: View {
     @Environment(\.dismiss) var dismiss
@@ -126,7 +125,11 @@ struct BoxingScoreboardView: View {
                 onSetupConsumed?()
             }
             restoreDraftIfNeeded()
-            responsiveScoreFontSize = calculateResponsiveScoreFontSize()
+        }
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.size.width
+        } action: { width in
+            responsiveScoreFontSize = calculateResponsiveScoreFontSize(containerWidth: width)
         }
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
@@ -172,11 +175,10 @@ struct BoxingScoreboardView: View {
         .opacity(viewModel.gameFinished ? 0.45 : 1)
     }
 
-    private func calculateResponsiveScoreFontSize() -> CGFloat {
+    private func calculateResponsiveScoreFontSize(containerWidth: CGFloat) -> CGFloat {
         let base: CGFloat = 120
-        let w = UIScreen.main.bounds.width
-        if w <= 0 { return base }
-        return min(240, max(base, base + (CGFloat(w) - 400) * 0.15))
+        guard containerWidth > 0 else { return base }
+        return min(240, max(base, base + (containerWidth - 400) * 0.15))
     }
 
     private func restoreDraftIfNeeded() {

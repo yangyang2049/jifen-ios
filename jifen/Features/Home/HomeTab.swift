@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import PersistenceCore
 import ScoreCore
+import UIKit
 
 struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
@@ -53,9 +54,6 @@ struct HomeTab: View {
         case bookingDetail(bookingId: String)
     }
 
-    /// 与鸿蒙 HomeTab.ets 一致：屏幕宽度 >= 768 时使用两栏布局
-    private let wideLayoutThreshold: CGFloat = 768
-
     private var isDarkTheme: Bool {
         colorScheme == .dark
     }
@@ -63,7 +61,7 @@ struct HomeTab: View {
     var body: some View {
         NavigationStack(path: $path) {
             GeometryReader { geo in
-                let isWide = geo.size.width >= wideLayoutThreshold
+                let isWide = Theme.usesPadLayout
                 let contentWidth = geo.size.width - Theme.lg * 2
                 // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
                 VStack(spacing: 0) {
@@ -210,7 +208,7 @@ struct HomeTab: View {
         }
         .onAppear {
             loadData()
-            quickStartManager.loadConfig(isLargeScreen: false, is2in1: false)
+            loadQuickStartConfigForCurrentLayout()
             // Refresh records when view appears
             updateRecentActivities()
             loadUpcomingBookings()
@@ -227,6 +225,21 @@ struct HomeTab: View {
             updateRecentActivities()
             loadUnfinishedRecord()
         }
+    }
+
+    private func loadQuickStartConfigForCurrentLayout() {
+        quickStartManager.loadConfig(
+            isLargeScreen: Theme.usesPadLayout,
+            is2in1: isRunningAsMacApp
+        )
+    }
+
+    private var isRunningAsMacApp: Bool {
+        #if targetEnvironment(macCatalyst)
+        true
+        #else
+        false
+        #endif
     }
 
     // MARK: - Setup dialog support (aligned with HarmonyOS)

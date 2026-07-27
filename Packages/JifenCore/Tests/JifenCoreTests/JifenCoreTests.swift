@@ -77,21 +77,25 @@ private struct CounterReducer: DomainReducer {
     let setup = LinkedScoreboardSetup(
         gameType: .badminton,
         initialSnapshot: .rally(state),
-        detailedActions: [action]
+        detailedActions: [action],
+        participantNames: ["Alice", "Bob"]
     )
     let decodedSetup = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
     #expect(decodedSetup.detailedActions == [action])
+    #expect(decodedSetup.participantNames == ["Alice", "Bob"])
 
     let finished = LinkMatchFinishedPayload(
         snapshot: .rally(state),
         recordId: "record",
-        detailedActions: [action]
+        detailedActions: [action],
+        participantNames: ["Alice", "Bob"]
     )
     let decodedFinished = try JSONDecoder().decode(
         LinkMatchFinishedPayload.self,
         from: JSONEncoder().encode(finished)
     )
     #expect(decodedFinished.detailedActions == [action])
+    #expect(decodedFinished.participantNames == ["Alice", "Bob"])
 }
 
 @Test func oldLinkedSetupWithoutDetailedActionsStillDecodes() throws {
@@ -103,6 +107,7 @@ private struct CounterReducer: DomainReducer {
     """
     let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: Data(json.utf8))
     #expect(decoded.detailedActions == nil)
+    #expect(decoded.participantNames == nil)
 }
 
 @Test func linkedRallySetupPreservesSetsAndServer() throws {

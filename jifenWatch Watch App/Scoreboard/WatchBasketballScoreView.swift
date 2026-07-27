@@ -506,21 +506,61 @@ struct WatchBasketballScoreView: View {
     private func finalizeBasketball() {
         guard store.state.finished, !didPublishFinish else { return }
         resumeStore.clear()
-        if linkedSessionId != nil, linkService.isController {
+        let recordId = "w_\(UUID().uuidString)"
+        let endTime = Date()
+        if linkedSessionId != nil {
+            // A follower receives the authoritative finished record from the
+            // phone. Only the Watch controller owns the linked result.
+            guard linkService.isController else {
+                didPublishFinish = true
+                return
+            }
+            // Keep a durable Watch-side fallback even if the link disappears
+            // before the terminal message is acknowledged. The linked terminal
+            // message owns phone ingestion, so do not enqueue a duplicate
+            // standalone-record transfer here.
+            saveLocalBasketballRecord(
+                id: recordId,
+                endTime: endTime,
+                transferToPhone: false
+            )
             linkService.publishMatchFinished(
                 snapshot: .basketball(store.state),
-                recordId: "w_\(UUID().uuidString)",
+                recordId: recordId,
                 winnerSide: store.state.leftScore == store.state.rightScore
                     ? nil
                     : (store.state.leftScore > store.state.rightScore ? .left : .right),
                 manualEnd: manualFinishRequested,
                 startTime: matchStartTime,
-                endTime: Date(),
+                endTime: endTime,
                 totalScoreChanges: store.actionLog.scoreChangeCount,
-                detailedActions: store.actionLog.detailedActions
+                detailedActions: store.actionLog.detailedActions,
+                participantNames: [store.state.leftName, store.state.rightName]
+            )
+        } else {
+            saveLocalBasketballRecord(
+                id: recordId,
+                endTime: endTime,
+                transferToPhone: true
             )
         }
         didPublishFinish = true
+    }
+
+    private func saveLocalBasketballRecord(
+        id: String,
+        endTime: Date,
+        transferToPhone: Bool
+    ) {
+        let record = WatchBasketballRecordFactory.make(
+            id: id,
+            state: store.state,
+            startTime: matchStartTime,
+            endTime: endTime,
+            actionLog: store.actionLog,
+            manualEnd: manualFinishRequested
+        )
+        WatchRecordManager.shared.saveRecord(record, transferToPhone: transferToPhone)
     }
 
     private func undoFinishedBasketball() {

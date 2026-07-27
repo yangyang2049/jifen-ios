@@ -2,6 +2,7 @@ import XCTest
 import LinkCore
 import RecordCore
 import ScoreCore
+import SessionCore
 @testable import jifenWatch_Watch_App
 
 final class WatchSportsSetupTests: XCTestCase {
@@ -24,6 +25,92 @@ final class WatchSportsSetupTests: XCTestCase {
 
     func testPickleballUsesTableTennisIcon() {
         XCTAssertEqual(WatchGameType.pickleball.icon, WatchGameType.pingpong.icon)
+    }
+
+    func testRegulationBasketballIsLinkedOnlyButHasRecordMappings() {
+        XCTAssertFalse(WatchHomeItem.allCases.map(\.rawValue).contains("basketball"))
+        XCTAssertFalse(WatchHomeItem.allCases.map(\.rawValue).contains("three_basketball"))
+        XCTAssertFalse(WatchSetupSport.allCases.map(\.rawValue).contains("basketball"))
+        XCTAssertFalse(WatchSetupSport.allCases.map(\.rawValue).contains("three_basketball"))
+        XCTAssertEqual(WatchGameType.basketball.scoreCoreGameType, .basketball)
+        XCTAssertEqual(WatchGameType.threeBasketball.scoreCoreGameType, .threeBasketball)
+        XCTAssertTrue(WatchGameType.basketball.usesPointScoreInList)
+        XCTAssertTrue(WatchGameType.threeBasketball.usesPointScoreInList)
+    }
+
+    func testBasketballRecordFactoryKeepsLinkedResultLocally() {
+        var state = BasketballMatchEngine.initial(
+            leftName: "甲队",
+            rightName: "乙队",
+            gameMode: .threeXThree
+        )
+        state.leftScore = 21
+        state.rightScore = 18
+        state.finished = true
+        let start = Date(timeIntervalSince1970: 1_000)
+        let end = start.addingTimeInterval(600)
+        let record = WatchBasketballRecordFactory.make(
+            id: "w_test",
+            state: state,
+            startTime: start,
+            endTime: end,
+            actionLog: WatchScoreActionLog(startedAt: start),
+            manualEnd: false
+        )
+
+        XCTAssertEqual(record.gameType, .threeBasketball)
+        XCTAssertEqual(record.team1FinalScore, 21)
+        XCTAssertEqual(record.team2FinalScore, 18)
+        XCTAssertEqual(record.winner, "甲队")
+        XCTAssertEqual(record.duration, 600)
+        XCTAssertEqual(record.projectConfiguration?["gameMode"], BasketballGameMode.threeXThree.rawValue)
+    }
+
+    func testBilliardsSnapshotsUseSharedSessionArchiveSchema() {
+        let start = Date(timeIntervalSince1970: 1_000)
+        let participants = [
+            SessionParticipant(id: TeamID.team0.rawValue, name: "甲", role: "player"),
+            SessionParticipant(id: TeamID.team1.rawValue, name: "乙", role: "player")
+        ]
+        let eightBall: ScoreSession<EightBallState, EightBallEvent> = WatchSessionArchiveSupport.makeSession(
+            sessionId: UUID(),
+            gameType: .eightBall,
+            state: .initial(),
+            eventType: EightBallEvent.self,
+            finished: false,
+            participants: participants,
+            startedAt: start
+        )
+        let nineBall: ScoreSession<NineBallChaseState, NineBallChaseEvent> = WatchSessionArchiveSupport.makeSession(
+            sessionId: UUID(),
+            gameType: .nineBall,
+            state: .initial(playerNames: ["甲", "乙"]),
+            eventType: NineBallChaseEvent.self,
+            finished: false,
+            participants: participants,
+            startedAt: start
+        )
+        let snooker: ScoreSession<SnookerState, SnookerEvent> = WatchSessionArchiveSupport.makeSession(
+            sessionId: UUID(),
+            gameType: .snooker,
+            state: .initial(),
+            eventType: SnookerEvent.self,
+            finished: true,
+            participants: participants,
+            startedAt: start
+        )
+
+        XCTAssertEqual(eightBall.reducerType, "eight_ball/v1")
+        XCTAssertEqual(nineBall.reducerType, "nine_ball/v1")
+        XCTAssertEqual(snooker.reducerType, "snooker/v1")
+        XCTAssertEqual(eightBall.status, .live)
+        XCTAssertEqual(snooker.status, .finished)
+        XCTAssertEqual(nineBall.participants, participants)
+    }
+
+    func testGenericTimerRemainsOutsideWatchLocalCatalog() {
+        XCTAssertFalse(WatchHomeItem.allCases.contains { $0.rawValue.localizedCaseInsensitiveContains("timer") })
+        XCTAssertFalse(WatchSetupSport.allCases.contains { $0.rawValue.localizedCaseInsensitiveContains("timer") })
     }
 
     func testPickleballSinglesAndDoublesAlternateOpeningServerBetweenSets() throws {

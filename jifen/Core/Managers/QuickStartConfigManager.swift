@@ -32,8 +32,12 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
                 return config
             }
         }
-        // Fallback to default
-        return QuickStartConfig.defaultPhoneConfig
+        if is2in1 {
+            return QuickStartConfig.default2In1Config
+        }
+        return isLargeScreen
+            ? QuickStartConfig.defaultTabletConfig
+            : QuickStartConfig.defaultPhoneConfig
     }
 
     // Public method to load config and update the published property

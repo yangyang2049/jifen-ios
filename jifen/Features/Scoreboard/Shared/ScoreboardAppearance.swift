@@ -183,7 +183,9 @@ struct ScoreboardDisplaySettingsView: View {
         _draftValues = State(initialValue: values)
     }
 
-    private var isLargeScreen: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+    private var isLargeScreen: Bool {
+        Theme.usesPadLayout
+    }
 
     var body: some View {
         // 1:1 HarmonyOS ScoreboardDisplaySettingsPanel:

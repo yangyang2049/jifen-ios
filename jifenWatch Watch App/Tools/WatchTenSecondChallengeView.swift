@@ -1,5 +1,8 @@
 import SwiftUI
 
+/// A deliberately standalone Watch utility. The Watch target does not link
+/// TimerCore because it does not expose a generic count-up/countdown tool;
+/// this challenge owns only its short-lived local display timer.
 struct WatchTenSecondChallengeView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isRunning = false
@@ -13,51 +16,38 @@ struct WatchTenSecondChallengeView: View {
     @State private var timer: Timer? = nil
     @State private var startTimestamp: Date = Date()
 
+    private let historyRowHeight: CGFloat = 34
+
     var body: some View {
         ZStack {
             WatchTheme.background.ignoresSafeArea()
 
-            VStack {
+            VStack(spacing: 0) {
+                Color.clear
+                    .frame(height: historyRowHeight)
+
+                Spacer()
+
                 if isRunning {
                     Text(formatTime(currentTime))
-                        .font(.system(size: 60, weight: .bold, design: .monospaced))
+                        .font(.system(
+                            size: WatchLayout.isCompactScreen ? 42 : 48,
+                            weight: .bold,
+                            design: .monospaced
+                        ))
                         .foregroundColor(WatchTheme.accent)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 } else {
                     Text("👆")
                         .font(.system(size: 40))
                         .scaleEffect(tapHintPulse)
                 }
-            }
 
-            if !showHistoryOverlay, !history.isEmpty {
-                VStack {
-                    Spacer()
-                    HStack(spacing: 8) {
-                        ForEach(recentHistory.indices, id: \.self) { idx in
-                            let value = recentHistory[idx]
-                            Text(formatShortTime(value))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.white.opacity(0.12))
-                                .cornerRadius(12)
-                                .font(.system(size: 10))
-                                .foregroundColor(Color(hex: 0xD0D0D0))
-                        }
-                        if history.count > 2 {
-                            Text("···")
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.white.opacity(0.12))
-                                .cornerRadius(12)
-                                .font(.system(size: 10))
-                                .foregroundColor(Color(hex: 0xD0D0D0))
-                        }
-                    }
-                    .padding(.bottom, 20)
-                    .onTapGesture {
-                        showHistoryOverlay = true
-                    }
-                }
+                Spacer()
+
+                historyRow
+                    .frame(height: historyRowHeight)
             }
 
             if showHistoryOverlay {
@@ -111,6 +101,37 @@ struct WatchTenSecondChallengeView: View {
 
     private var recentHistory: [TimeInterval] {
         Array(history.suffix(2))
+    }
+
+    private var historyRow: some View {
+        Group {
+            if !showHistoryOverlay, !history.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(recentHistory.indices, id: \.self) { idx in
+                        historyChip(formatShortTime(recentHistory[idx]))
+                    }
+                    if history.count > 2 {
+                        historyChip("···")
+                    }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    showHistoryOverlay = true
+                }
+            } else {
+                Color.clear
+            }
+        }
+    }
+
+    private func historyChip(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 10))
+            .foregroundColor(Color(hex: 0xD0D0D0))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.white.opacity(0.12))
+            .cornerRadius(12)
     }
 
     private func startTapHintPulse() {

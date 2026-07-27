@@ -2,6 +2,8 @@ import LinkCore
 import SwiftUI
 
 enum WatchHomeItem: String, CaseIterable {
+    // Regulation 3x3/5v5 basketball is intentionally absent: its retained
+    // scoreboard can only be opened by a phone-initiated linked session.
     case badminton
     case badmintonDoubles
     case tennis
