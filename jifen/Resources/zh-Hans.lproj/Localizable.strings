@@ -703,6 +703,9 @@
 "linked_score_watch_timeout" = "等待手表确认超时，请重试。";
 "linked_score_takeover" = "接管计分";
 "linked_score_end" = "结束联动";
+"linked_score_watch_reclaim_title" = "手表请求重新接管";
+"linked_score_watch_reclaim_message" = "是否允许手表在 5 秒内重新接管计分？";
+"linked_score_phone_follower" = "当前由手表计分";
 "linked_score_confirm_title" = "手机请求联动计分";
 "linked_score_phone_started_scoreboard" = "手机已发起计分";
 "linked_score_accept" = "接受";
@@ -864,6 +867,8 @@
 "sync_match_finished" = "比赛已结束";
 "sync_sets_format" = "%d 局";
 "sync_games_format" = "%d 盘";
+"tennis_sync_sets_format" = "%d 盘";
+"tennis_sync_games_format" = "%d 局";
 "sync_players_format" = "共 %d 人";
 "approve" = "允许";
 "reject" = "拒绝";

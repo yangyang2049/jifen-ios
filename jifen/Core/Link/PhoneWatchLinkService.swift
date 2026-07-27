@@ -7,6 +7,20 @@ import ScoreCore
 @MainActor
 @Observable
 final class PhoneWatchLinkService {
+    struct ReclaimConfirmationRequest: Equatable {
+        let messageId: UUID
+        let sessionId: UUID
+        let revision: UInt64
+    }
+
+    struct PendingPhoneTakeoverApplication: Equatable {
+        let messageId: UUID
+        let sessionId: UUID
+        let revision: UInt64
+        let snapshot: LinkedScoreboardSnapshot
+        let detailedActions: [DetailedScoreAction]
+    }
+
     private struct ActiveSession {
         let sessionId: UUID
         let gameType: ScoreCore.GameType
@@ -19,12 +33,18 @@ final class PhoneWatchLinkService {
     private var sequence: UInt64 = 0
     private var activeSession: ActiveSession?
     private var pendingAck = LinkPendingAckQueue()
+    private var terminalPendingAck = LinkPendingAckQueue()
     private var setupContinuation: CheckedContinuation<UUID, Error>?
     private var setupTimeoutTask: Task<Void, Never>?
     private var ackRetryTask: Task<Void, Never>?
     private var revisionGate = LinkRevisionGate()
     private var pendingTakeoverMessageId: UUID?
+    private var pendingReclaimGrantMessageId: UUID?
+    private var reclaimTimeoutTask: Task<Void, Never>?
     private var mergedDetailedActions: [DetailedScoreAction] = []
+    private var publishedFinishedRecordId: String?
+    private let terminalOutboxKey = "phone_link_terminal_outbox_v1"
+    private var pendingLeaveAfterFinish = false
 
     private(set) var connectivityStatus: WatchConnectivityStatus
     private(set) var controlRole: LinkControlRole?
@@ -33,6 +53,14 @@ final class PhoneWatchLinkService {
     private(set) var lastErrorMessage: String?
     /// Last watch record id auto-synced into phone records (for toast / UI).
     private(set) var lastSyncedWatchRecordId: String?
+    private(set) var pendingReclaimRequest: ReclaimConfirmationRequest?
+    private(set) var pendingTakeoverApplication: PendingPhoneTakeoverApplication?
+
+    var isAuthorityTransferPending: Bool {
+        pendingTakeoverMessageId != nil
+            || pendingReclaimGrantMessageId != nil
+            || pendingTakeoverApplication != nil
+    }
 
     static let setupTimeoutSeconds: TimeInterval = 20
 
@@ -81,6 +109,11 @@ final class PhoneWatchLinkService {
 
     init() {
         connectivityStatus = transport.status
+        if let data = UserDefaults.standard.data(forKey: terminalOutboxKey),
+           let item = try? JSONDecoder().decode(LinkPendingAckQueue.PendingItem.self, from: data) {
+            terminalPendingAck.enqueue(item)
+            pendingLeaveAfterFinish = true
+        }
         transport.onStatusChange = { [weak self] status in
             DispatchQueue.main.async {
                 self?.handleConnectivityStatusChange(status)
@@ -274,6 +307,7 @@ final class PhoneWatchLinkService {
         }
         sequence += 1
         let messageId = UUID()
+        let update = latestRemoteSnapshot
         let envelope = LinkEnvelope(
             messageId: messageId,
             sessionId: sessionId,
@@ -282,7 +316,11 @@ final class PhoneWatchLinkService {
             senderSequence: sequence,
             sessionRevision: session.revision,
             sentAtEpochMilliseconds: nowMs(),
-            payload: EmptyLinkPayload()
+            payload: LinkAuthorityTransferPayload(
+                snapshot: update?.sessionId == sessionId ? update?.snapshot : nil,
+                detailedActions: update?.sessionId == sessionId ? update?.detailedActions : nil,
+                baseRevision: session.revision
+            )
         )
         let data = try JSONEncoder().encode(envelope)
         pendingTakeoverMessageId = messageId
@@ -302,8 +340,91 @@ final class PhoneWatchLinkService {
         }
     }
 
+    func resolveReclaimRequest(
+        accepted: Bool,
+        snapshot: LinkedScoreboardSnapshot?,
+        detailedActions: [DetailedScoreAction]
+    ) {
+        guard let request = pendingReclaimRequest,
+              var session = activeSession,
+              session.sessionId == request.sessionId,
+              session.role == .phoneController else { return }
+        reclaimTimeoutTask?.cancel()
+        reclaimTimeoutTask = nil
+        pendingReclaimRequest = nil
+        sequence += 1
+
+        if !accepted || snapshot == nil {
+            let envelope = LinkEnvelope(
+                sessionId: request.sessionId,
+                kind: .reclaimDenied,
+                sender: .phone,
+                senderSequence: sequence,
+                sessionRevision: session.revision,
+                sentAtEpochMilliseconds: nowMs(),
+                payload: LinkAuthorityTransferPayload(baseRevision: session.revision)
+            )
+            Task { try? await sendEnvelope(envelope) }
+            return
+        }
+
+        session.revision += 1
+        activeSession = session
+        let messageId = UUID()
+        let envelope = LinkEnvelope(
+            messageId: messageId,
+            sessionId: request.sessionId,
+            kind: .reclaimAccepted,
+            sender: .phone,
+            senderSequence: sequence,
+            sessionRevision: session.revision,
+            sentAtEpochMilliseconds: nowMs(),
+            payload: LinkAuthorityTransferPayload(
+                snapshot: snapshot,
+                detailedActions: detailedActions,
+                baseRevision: session.revision
+            )
+        )
+        guard let data = try? JSONEncoder().encode(envelope) else { return }
+        pendingReclaimGrantMessageId = messageId
+        pendingAck.enqueue(.init(
+            messageId: messageId,
+            sessionId: request.sessionId,
+            revision: session.revision,
+            data: data,
+            lastSentAtEpochMilliseconds: nowMs()
+        ))
+        Task { try? await transport.send(data) }
+    }
+
+    func completePhoneTakeover(messageId: UUID) {
+        guard let pending = pendingTakeoverApplication,
+              pending.messageId == messageId,
+              var session = activeSession,
+              session.sessionId == pending.sessionId else { return }
+        pendingTakeoverApplication = nil
+        session.revision = max(session.revision, pending.revision)
+        session.role = .phoneController
+        activeSession = session
+        latestRemoteSnapshot = .init(
+            sessionId: pending.sessionId,
+            revision: pending.revision,
+            snapshot: pending.snapshot,
+            detailedActions: pending.detailedActions
+        )
+        controlRole = .phoneController
+    }
+
     func leaveSession(_ sessionId: UUID) {
         guard activeSession?.sessionId == sessionId else { return }
+        if terminalPendingAck.pending?.sessionId == sessionId {
+            pendingLeaveAfterFinish = true
+            return
+        }
+        sendSessionLeftAndClear(sessionId)
+    }
+
+    private func sendSessionLeftAndClear(_ sessionId: UUID) {
         sequence += 1
         let envelope = LinkEnvelope(
             sessionId: sessionId,
@@ -315,7 +436,9 @@ final class PhoneWatchLinkService {
             payload: EmptyLinkPayload()
         )
         Task { try? await sendEnvelope(envelope) }
-        clearSession()
+        if activeSession?.sessionId == sessionId {
+            clearSession()
+        }
     }
 
     func endWatchSession(_ sessionId: UUID) {
@@ -332,7 +455,11 @@ final class PhoneWatchLinkService {
         endTime: Date? = nil,
         totalScoreChanges: Int? = nil
     ) {
-        guard var session = activeSession, session.sessionId == sessionId else { return }
+        guard var session = activeSession,
+              session.sessionId == sessionId,
+              publishedFinishedRecordId == nil,
+              terminalPendingAck.pending?.sessionId != sessionId else { return }
+        publishedFinishedRecordId = recordId
         session.revision += 1
         activeSession = session
         sequence += 1
@@ -362,13 +489,14 @@ final class PhoneWatchLinkService {
         )
         Task {
             guard let data = try? JSONEncoder().encode(envelope) else { return }
-            pendingAck.enqueue(.init(
+            terminalPendingAck.enqueue(.init(
                 messageId: messageId,
                 sessionId: sessionId,
                 revision: session.revision,
                 data: data,
                 lastSentAtEpochMilliseconds: nowMs()
             ))
+            persistTerminalOutbox()
             try? await transport.send(data)
         }
     }
@@ -416,6 +544,10 @@ final class PhoneWatchLinkService {
         controlRole = .phoneFollower
         latestRemoteSnapshot = nil
         finishedRecordId = nil
+        publishedFinishedRecordId = nil
+        if terminalPendingAck.pending == nil {
+            pendingLeaveAfterFinish = false
+        }
         lastErrorMessage = nil
         _ = revisionGate.beginSession(sessionId, initialRevision: 0)
         sequence += 1
@@ -597,13 +729,44 @@ final class PhoneWatchLinkService {
         }
         let acknowledgedMessageId = envelope.payload.acknowledgedMessageId
         _ = pendingAck.acknowledge(messageId: acknowledgedMessageId)
+        let terminalSessionId = terminalPendingAck.pending?.sessionId
+        let terminalAcknowledged = terminalPendingAck.acknowledge(messageId: acknowledgedMessageId)
+        if terminalAcknowledged {
+            persistTerminalOutbox()
+            if pendingLeaveAfterFinish, let sessionId = terminalSessionId {
+                pendingLeaveAfterFinish = false
+                sendSessionLeftAndClear(sessionId)
+            }
+        }
         if acknowledgedMessageId == pendingTakeoverMessageId,
            var session = activeSession,
            session.sessionId == envelope.sessionId {
             pendingTakeoverMessageId = nil
-            session.role = .phoneController
+            if let snapshot = envelope.payload.authoritativeSnapshot,
+               snapshot.rallyState != nil || snapshot.tennisState != nil {
+                session.revision = max(session.revision, envelope.payload.acknowledgedRevision)
+                activeSession = session
+                mergeDetailedActions(envelope.payload.detailedActions)
+                pendingTakeoverApplication = .init(
+                    messageId: acknowledgedMessageId,
+                    sessionId: envelope.sessionId,
+                    revision: envelope.payload.acknowledgedRevision,
+                    snapshot: snapshot,
+                    detailedActions: mergedDetailedActions
+                )
+            } else {
+                session.role = .phoneController
+                activeSession = session
+                controlRole = .phoneController
+            }
+        }
+        if acknowledgedMessageId == pendingReclaimGrantMessageId,
+           var session = activeSession,
+           session.sessionId == envelope.sessionId {
+            pendingReclaimGrantMessageId = nil
+            session.role = .phoneFollower
             activeSession = session
-            controlRole = .phoneController
+            controlRole = .phoneFollower
         }
         return true
     }
@@ -643,23 +806,46 @@ final class PhoneWatchLinkService {
     }
 
     private func handleTakeoverRelated(_ data: Data) -> Bool {
-        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: data),
+        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkAuthorityTransferPayload>.self, from: data),
               envelope.sender == .watch,
               envelope.sessionId == activeSession?.sessionId else { return false }
         switch envelope.kind {
-        case .reclaimAccepted:
-            if var session = activeSession {
-                session.role = .phoneFollower
-                activeSession = session
+        case .reclaimRequest:
+            guard activeSession?.role == .phoneController else {
+                sequence += 1
+                let denied = LinkEnvelope(
+                    sessionId: envelope.sessionId,
+                    kind: .reclaimDenied,
+                    sender: .phone,
+                    senderSequence: sequence,
+                    sessionRevision: activeSession?.revision ?? envelope.sessionRevision,
+                    sentAtEpochMilliseconds: nowMs(),
+                    payload: LinkAuthorityTransferPayload(baseRevision: activeSession?.revision)
+                )
+                Task { try? await sendEnvelope(denied) }
+                return true
             }
-            controlRole = .phoneFollower
-            return true
-        case .reclaimDenied:
-            lastErrorMessage = NSLocalizedString(
-                "linked_score_reclaim_denied",
-                value: "手表拒绝交还控制权。",
-                comment: ""
+            pendingReclaimRequest = .init(
+                messageId: envelope.messageId,
+                sessionId: envelope.sessionId,
+                revision: envelope.sessionRevision
             )
+            reclaimTimeoutTask?.cancel()
+            reclaimTimeoutTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(5))
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    self?.resolveReclaimRequest(
+                        accepted: false,
+                        snapshot: nil,
+                        detailedActions: []
+                    )
+                }
+            }
+            return true
+        case .reclaimAccepted, .reclaimDenied:
+            // Legacy direction used these cases. Do not change authority without
+            // a locally initiated, acknowledged transfer.
             return true
         default:
             return false
@@ -671,6 +857,26 @@ final class PhoneWatchLinkService {
               envelope.sender == .watch,
               envelope.kind == .matchFinished,
               envelope.sessionId == activeSession?.sessionId else { return false }
+
+        let latestBefore = revisionGate.latestRevision ?? 0
+        let disposition = revisionGate.classify(
+            sessionId: envelope.sessionId,
+            revision: envelope.sessionRevision
+        )
+        guard disposition != .wrongSession else { return false }
+        if envelope.sessionRevision < latestBefore {
+            sendAck(
+                sessionId: envelope.sessionId,
+                messageId: envelope.messageId,
+                revision: envelope.sessionRevision,
+                recordAck: true
+            )
+            return true
+        }
+        if var session = activeSession {
+            session.revision = max(session.revision, envelope.sessionRevision)
+            activeSession = session
+        }
 
         mergeDetailedActions(envelope.payload.detailedActions)
         latestRemoteSnapshot = LinkedSnapshotUpdate(
@@ -822,7 +1028,20 @@ final class PhoneWatchLinkService {
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
                 await MainActor.run {
                     guard let self else { return }
-                    if let data = self.pendingAck.retryIfDue(nowEpochMilliseconds: self.nowMs()) {
+                    let pendingMessageId = self.pendingAck.pending?.messageId
+                    let authorityTransferPending = pendingMessageId == self.pendingTakeoverMessageId
+                        || pendingMessageId == self.pendingReclaimGrantMessageId
+                    if let data = self.pendingAck.retryIfDue(
+                        nowEpochMilliseconds: self.nowMs(),
+                        retainAfterExhaustion: authorityTransferPending
+                    ) {
+                        Task { try? await self.transport.send(data) }
+                    }
+                    if let data = self.terminalPendingAck.retryIfDue(
+                        nowEpochMilliseconds: self.nowMs(),
+                        retainAfterExhaustion: true
+                    ) {
+                        self.persistTerminalOutbox()
                         Task { try? await self.transport.send(data) }
                     }
                 }
@@ -837,13 +1056,32 @@ final class PhoneWatchLinkService {
         activeSession = nil
         controlRole = nil
         pendingTakeoverMessageId = nil
+        pendingReclaimGrantMessageId = nil
+        pendingReclaimRequest = nil
+        pendingTakeoverApplication = nil
+        reclaimTimeoutTask?.cancel()
+        reclaimTimeoutTask = nil
         pendingAck.clear()
         latestRemoteSnapshot = nil
         mergedDetailedActions = []
+        publishedFinishedRecordId = nil
+        if terminalPendingAck.pending == nil {
+            pendingLeaveAfterFinish = false
+        }
     }
 
     private func nowMs() -> Int64 {
         Int64(Date().timeIntervalSince1970 * 1_000)
+    }
+
+    private func persistTerminalOutbox() {
+        guard let item = terminalPendingAck.pending else {
+            UserDefaults.standard.removeObject(forKey: terminalOutboxKey)
+            return
+        }
+        if let data = try? JSONEncoder().encode(item) {
+            UserDefaults.standard.set(data, forKey: terminalOutboxKey)
+        }
     }
 
     private func mergeDetailedActions(_ incoming: [DetailedScoreAction]?) {

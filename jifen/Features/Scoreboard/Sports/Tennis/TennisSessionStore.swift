@@ -12,6 +12,7 @@ final class TennisSessionStore {
     private let archiveRepository: SessionArchiveRepository
     private var detailedActions: [DetailedScoreAction]
     private var completedSetScores: [VoiceSetScore] = []
+    private var lastAppliedRemoteRevision: UInt64?
 
     private(set) var state: TennisMatchState
     var actionTimeline: [DetailedScoreAction] { detailedActions }
@@ -130,8 +131,26 @@ final class TennisSessionStore {
         }
     }
 
-    func replaceDisplayedState(_ state: TennisMatchState) {
-        self.state = state
+    @discardableResult
+    func applyAuthoritativeState(
+        _ state: TennisMatchState,
+        detailedActions incoming: [DetailedScoreAction],
+        revision: UInt64
+    ) async -> Bool {
+        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
+            return false
+        }
+        lastAppliedRemoteRevision = revision
+        let session = await core.rebase(
+            to: state,
+            status: state.finished ? .finished : .live
+        )
+        guard lastAppliedRemoteRevision == revision else { return false }
+        self.state = session.state
+        mergeRemoteActions(incoming)
+        try? await archiveRepository.save(session)
+        persistRecord(session)
+        return true
     }
 
     func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {

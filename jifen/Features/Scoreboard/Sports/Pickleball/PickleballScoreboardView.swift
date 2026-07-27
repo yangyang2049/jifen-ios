@@ -40,7 +40,7 @@ struct PickleballScoreboardView: View {
         rules.winByTwo = initialSetup?.winByTwo ?? true
         rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
         rules.useRallyScoring = initialSetup?.useRallyScoring ?? false
-        rules.nextSetServerModel = isDoubles ? .alternateFromOpening : .opening
+        rules.nextSetServerModel = .alternateFromOpening
         return rules
     }
 

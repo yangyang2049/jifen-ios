@@ -703,6 +703,9 @@
 "linked_score_watch_timeout" = "Timed out waiting for watch confirmation.";
 "linked_score_takeover" = "Take over scoring";
 "linked_score_end" = "End link";
+"linked_score_watch_reclaim_title" = "Watch requests control";
+"linked_score_watch_reclaim_message" = "Allow the watch to take over scoring within 5 seconds?";
+"linked_score_phone_follower" = "Scoring is controlled by the watch";
 "linked_score_confirm_title" = "Phone requests linked scoring";
 "linked_score_phone_started_scoreboard" = "Phone started scoring";
 "linked_score_accept" = "Accept";
@@ -864,6 +867,8 @@
 "sync_match_finished" = "Match finished";
 "sync_sets_format" = "%d sets";
 "sync_games_format" = "%d games";
+"tennis_sync_sets_format" = "%d sets";
+"tennis_sync_games_format" = "%d games";
 "sync_players_format" = "%d players";
 "approve" = "Allow";
 "reject" = "Reject";

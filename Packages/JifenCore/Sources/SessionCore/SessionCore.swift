@@ -100,7 +100,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         let intentCount: Int
     }
 
-    private let replaySeed: ScoreSession<State, Event>
+    private var replaySeed: ScoreSession<State, Event>
     private let reducer: Reducer
     private let canDispatch: @Sendable (String, Intent) -> Bool
     private let canUndo: @Sendable (String) -> Bool
@@ -171,6 +171,31 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
 
     public func intentTimeline() -> [SessionIntentRecord<Intent>] {
         timeline
+    }
+
+    /// Replaces the local reducer baseline with an authoritative state received
+    /// from another controller. Authority hand-offs are an undo/replay boundary:
+    /// remote intents are not available locally, so neither undo nor replay may
+    /// cross back into the previous controller's history.
+    @discardableResult
+    public func rebase(to state: State, status: SessionStatus) -> ScoreSession<State, Event> {
+        let rebased: ScoreSession<State, Event> = ScoreSession(
+            sessionId: currentSession.sessionId,
+            gameType: currentSession.gameType,
+            ruleFamily: currentSession.ruleFamily,
+            reducerType: currentSession.reducerType,
+            version: currentSession.version + 1,
+            state: state,
+            events: [],
+            status: status,
+            participants: currentSession.participants,
+            metadata: currentSession.metadata
+        )
+        replaySeed = rebased
+        currentSession = rebased
+        undoStack.removeAll(keepingCapacity: true)
+        timeline.removeAll(keepingCapacity: true)
+        return rebased
     }
 
     public func dispatch(

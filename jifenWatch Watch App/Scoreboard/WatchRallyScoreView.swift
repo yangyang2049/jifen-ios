@@ -16,6 +16,7 @@ private final class WatchRallySessionStore {
 
     private(set) var state: RallyMatchState
     private(set) var actionLog: WatchScoreActionLog
+    private var lastAppliedRemoteRevision: UInt64?
 
     init(
         gameType: GameType,
@@ -114,8 +115,25 @@ private final class WatchRallySessionStore {
         }
     }
 
-    func replaceDisplayedState(_ state: RallyMatchState) {
-        self.state = state
+    @discardableResult
+    func applyAuthoritativeState(
+        _ state: RallyMatchState,
+        detailedActions: [DetailedScoreAction],
+        revision: UInt64
+    ) async -> Bool {
+        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
+            return false
+        }
+        lastAppliedRemoteRevision = revision
+        let session = await core.rebase(
+            to: state,
+            status: state.finished ? .finished : .live
+        )
+        guard lastAppliedRemoteRevision == revision else { return false }
+        self.state = session.state
+        actionLog.merge(detailedActions: detailedActions)
+        try? await archiveRepository.save(session, source: .watchLocal)
+        return true
     }
 
     func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
@@ -197,17 +215,24 @@ struct WatchRallyScoreView: View {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
                     onUndo: {
+                        guard !scoringLocked else { return }
                         store.undo()
                         showMenu = false
                     },
                     onFinish: {
+                        guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .finish
                     },
                     onReset: {
+                        guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .reset
-                    }
+                    },
+                    onReclaim: scoringLocked ? {
+                        linkService.requestReclaim()
+                        showMenu = false
+                    } : nil
                 )
             }
             if let restState {
@@ -215,6 +240,7 @@ struct WatchRallyScoreView: View {
                     state: restState,
                     onContinue: { self.restState = nil },
                     onUndo: {
+                        guard !scoringLocked else { return }
                         let triggerID = restState.triggerID
                         self.restState = nil
                         restTriggers.release(triggerID)
@@ -280,18 +306,37 @@ struct WatchRallyScoreView: View {
                   let update,
                   update.sessionId == linkedSessionId else { return }
             guard let state = update.snapshot.rallyState else { return }
-            store.mergeRemoteActions(update.detailedActions)
-            store.replaceDisplayedState(state)
-            if state.finished {
-                beginRemoteFinishPresentation()
-            } else {
-                completedScoreTask?.cancel()
-                completedScoreTask = nil
-                completedSetPresentation = nil
-                finishTask?.cancel()
-                showFinishedOverlay = false
-                finishUndoAvailable = false
-                didFinalizeFinish = false
+            Task {
+                guard await store.applyAuthoritativeState(
+                    state,
+                    detailedActions: update.detailedActions,
+                    revision: update.revision
+                ) else { return }
+                if state.finished {
+                    beginRemoteFinishPresentation()
+                } else {
+                    completedScoreTask?.cancel()
+                    completedScoreTask = nil
+                    completedSetPresentation = nil
+                    finishTask?.cancel()
+                    showFinishedOverlay = false
+                    finishUndoAvailable = false
+                    didFinalizeFinish = false
+                }
+            }
+        }
+        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
+            guard let linkedSessionId,
+                  let pending,
+                  pending.sessionId == linkedSessionId,
+                  let state = pending.snapshot.rallyState else { return }
+            Task {
+                guard await store.applyAuthoritativeState(
+                    state,
+                    detailedActions: pending.detailedActions,
+                    revision: pending.revision
+                ) else { return }
+                linkService.completeReclaimAcceptance(messageId: pending.messageId)
             }
         }
         .onDisappear {
@@ -340,7 +385,10 @@ struct WatchRallyScoreView: View {
             suppressTapAfterLongPress: $suppressTapAfterLongPress,
             enabled: interactionsEnabled,
             onMenu: { showMenu = true },
-            onUndo: { store.undo() },
+            onUndo: {
+                guard !scoringLocked else { return }
+                store.undo()
+            },
             onExit: exitBoard
         )
     }
@@ -714,7 +762,7 @@ struct WatchRallyScoreView: View {
     }
 
     private func undoFinish() {
-        guard finishUndoAvailable else { return }
+        guard finishUndoAvailable, !scoringLocked else { return }
         completedScoreTask?.cancel()
         completedScoreTask = nil
         completedSetPresentation = nil
@@ -726,6 +774,7 @@ struct WatchRallyScoreView: View {
     }
 
     private func playAgain() {
+        guard !scoringLocked else { return }
         resumeStore.clear()
         finalizeFinish()
         finishTask?.cancel()
@@ -750,6 +799,10 @@ struct WatchRallyScoreView: View {
     }
 
     private func confirm(_ value: WatchScoreboardConfirmation) {
+        guard !scoringLocked else {
+            confirmation = nil
+            return
+        }
         confirmation = nil
         switch value {
         case .finish:

@@ -74,6 +74,9 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
     public var finished: Bool
     /// Doubles only. Slot order matches Rally: [team0A, team1A, team0B, team1B].
     public var doublesPlayerNames: [String]?
+    /// Doubles only. First server for the current set in A1, B1, A2, B2 order.
+    /// Optional so protocol-v1 snapshots decode without migration.
+    public var doublesFirstServerSlotInSet: Int?
 
     public init(
         leftName: String,
@@ -98,6 +101,9 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
         sidesSwapped = false
         finished = false
         self.doublesPlayerNames = Self.normalizedDoublesNames(doublesPlayerNames)
+        doublesFirstServerSlotInSet = self.doublesPlayerNames == nil
+            ? nil
+            : (openingServer == .left ? 0 : 1)
     }
 
     /// Team display preferring individual doubles names when present.
@@ -138,6 +144,47 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
         case 2: return "30"
         default: return "40"
         }
+    }
+}
+
+public enum TennisDoublesServing {
+    public static func firstServerSlot(in state: TennisMatchState) -> Int? {
+        guard state.doublesPlayerNames != nil else { return nil }
+        return normalized(
+            state.doublesFirstServerSlotInSet
+                ?? (state.firstServerInSet == .left ? 0 : 1)
+        )
+    }
+
+    public static func currentServerSlot(in state: TennisMatchState) -> Int? {
+        guard let firstSlot = firstServerSlot(in: state) else { return nil }
+        return serverSlot(
+            firstServerSlot: firstSlot,
+            completedGames: state.leftGames + state.rightGames,
+            isTieBreak: state.isTieBreak,
+            tieBreakPointsPlayed: state.leftPoints + state.rightPoints
+        )
+    }
+
+    public static func serverSlot(
+        firstServerSlot: Int,
+        completedGames: Int,
+        isTieBreak: Bool,
+        tieBreakPointsPlayed: Int
+    ) -> Int {
+        let openingSlot = normalized(firstServerSlot + max(0, completedGames))
+        guard isTieBreak else { return openingSlot }
+        let played = max(0, tieBreakPointsPlayed)
+        guard played > 0 else { return openingSlot }
+        return normalized(openingSlot + 1 + (played - 1) / 2)
+    }
+
+    public static func side(for slot: Int) -> MatchSide {
+        normalized(slot).isMultiple(of: 2) ? .left : .right
+    }
+
+    private static func normalized(_ slot: Int) -> Int {
+        ((slot % 4) + 4) % 4
     }
 }
 
@@ -182,18 +229,33 @@ public struct TennisMatchReducer: DomainReducer {
         switch intent {
         case .pointWon(let side): return scorePoint(state: state, side: side)
         case .adjustPoints(let side, let delta):
-            return adjust(state: state, side: side, delta: delta, keyPath: side == .left ? \.leftPoints : \.rightPoints, range: 0 ... (state.isTieBreak ? 999 : 4))
+            let result = adjust(state: state, side: side, delta: delta, keyPath: side == .left ? \.leftPoints : \.rightPoints, range: 0 ... (state.isTieBreak ? 999 : 4))
+            guard result.accepted else { return result }
+            var next = result.state
+            if next.isTieBreak { synchronizeServingState(&next) }
+            return .init(state: next, events: result.events)
         case .adjustGames(let side, let delta):
             guard state.rules.setScoringMode != .tiebreakOnly else {
                 return .rejected(state: state, reason: "Games are fixed in tiebreak-only format")
             }
-            return adjust(
+            let result = adjust(
                 state: state,
                 side: side,
                 delta: delta,
                 keyPath: side == .left ? \.leftGames : \.rightGames,
                 range: 0 ... (state.rules.gamesPerSet + 1)
             )
+            guard result.accepted else { return result }
+            var next = result.state
+            let shouldUseTieBreak = next.rules.setScoringMode == .tiebreakOnly
+                || (next.leftGames == next.rules.gamesPerSet && next.rightGames == next.rules.gamesPerSet)
+            if shouldUseTieBreak != state.isTieBreak {
+                next.leftPoints = 0
+                next.rightPoints = 0
+            }
+            next.isTieBreak = shouldUseTieBreak
+            synchronizeServingState(&next)
+            return .init(state: next, events: result.events)
         case .adjustSets(let side, let delta):
             let maximum = max(1, state.rules.maxSets)
             return adjust(state: state, side: side, delta: delta, keyPath: side == .left ? \.leftSets : \.rightSets, range: 0 ... maximum)
@@ -250,7 +312,7 @@ public struct TennisMatchReducer: DomainReducer {
                 events.append(.pointScored(side: side, left: next.leftPoints, right: next.rightPoints))
                 let crossedSixPointBoundary = pointsBefore > 0 && pointsBefore / 6 != (next.leftPoints + next.rightPoints) / 6
                 if crossedSixPointBoundary { applySideChange(state: &next, events: &events) }
-                next.servingSide = tieBreakServer(first: next.firstServerInSet, pointsPlayed: next.leftPoints + next.rightPoints)
+                synchronizeServingState(&next)
             }
             return .init(state: next, events: events)
         }
@@ -275,14 +337,12 @@ public struct TennisMatchReducer: DomainReducer {
         } else if next.leftGames == next.rules.gamesPerSet,
                   next.rightGames == next.rules.gamesPerSet {
             next.isTieBreak = true
-            next.servingSide = next.firstServerInSet
+            synchronizeServingState(&next)
         } else {
             if (next.leftGames + next.rightGames).isMultiple(of: 2) == false {
                 applySideChange(state: &next, events: &events)
             }
-            next.servingSide = (next.leftGames + next.rightGames).isMultiple(of: 2)
-                ? next.firstServerInSet
-                : next.firstServerInSet.opposite
+            synchronizeServingState(&next)
         }
         return .init(state: next, events: events)
     }
@@ -310,7 +370,13 @@ public struct TennisMatchReducer: DomainReducer {
             return
         }
         let completedGames = completedLeftGames + completedRightGames
-        state.firstServerInSet = completedGames.isMultiple(of: 2) ? state.firstServerInSet : state.firstServerInSet.opposite
+        if let firstSlot = TennisDoublesServing.firstServerSlot(in: state) {
+            let nextFirstSlot = (firstSlot + completedGames) % 4
+            state.doublesFirstServerSlotInSet = nextFirstSlot
+            state.firstServerInSet = TennisDoublesServing.side(for: nextFirstSlot)
+        } else {
+            state.firstServerInSet = completedGames.isMultiple(of: 2) ? state.firstServerInSet : state.firstServerInSet.opposite
+        }
         state.leftGames = 0
         state.rightGames = 0
         state.leftPoints = 0
@@ -369,6 +435,21 @@ public struct TennisMatchReducer: DomainReducer {
     private func tieBreakServer(first: MatchSide, pointsPlayed: Int) -> MatchSide {
         let block = (pointsPlayed + 1) / 2
         return block.isMultiple(of: 2) ? first : first.opposite
+    }
+
+    private func synchronizeServingState(_ state: inout TennisMatchState) {
+        if let slot = TennisDoublesServing.currentServerSlot(in: state) {
+            state.servingSide = TennisDoublesServing.side(for: slot)
+        } else if state.isTieBreak {
+            state.servingSide = tieBreakServer(
+                first: state.firstServerInSet,
+                pointsPlayed: state.leftPoints + state.rightPoints
+            )
+        } else {
+            state.servingSide = (state.leftGames + state.rightGames).isMultiple(of: 2)
+                ? state.firstServerInSet
+                : state.firstServerInSet.opposite
+        }
     }
 
     private func matchWinner(left: Int, right: Int) -> MatchSide? {

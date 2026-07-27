@@ -90,6 +90,7 @@
 "linked_score_phone_started_scoreboard" = "Phone started scoring";
 "linked_score_accept" = "Accept";
 "linked_score_reject" = "Decline";
+"linked_score_watch_reclaim" = "Take Control";
 "linked_score_setup_rules" = "%d sets | %d pts";
 "linked_score_setup_rules_sets" = "%d sets";
 "linked_score_setup_rules_3x3" = "3x3";

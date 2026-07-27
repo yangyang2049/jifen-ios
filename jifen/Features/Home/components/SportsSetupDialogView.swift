@@ -1778,7 +1778,7 @@ struct SportsSetupDialogView: View {
             configured.winByTwo = config.winByTwo ?? true
             configured.autoChangeSides = config.autoChangeSides ?? true
             configured.useRallyScoring = config.useRallyScoring ?? false
-            configured.nextSetServerModel = config.isSingles == false ? .alternateFromOpening : .opening
+            configured.nextSetServerModel = .alternateFromOpening
             rules = configured
         case .tennis:
             let tennisType: ScoreCore.GameType = config.isSingles == false ? .tennisDoubles : .tennis

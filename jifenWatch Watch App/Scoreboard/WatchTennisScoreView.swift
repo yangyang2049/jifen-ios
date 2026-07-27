@@ -15,6 +15,7 @@ private final class WatchTennisSessionStore {
     private let archiveRepository = SessionArchiveRepository()
     private(set) var state: TennisMatchState
     private(set) var actionLog: WatchScoreActionLog
+    private var lastAppliedRemoteRevision: UInt64?
     var onStateChanged: ((TennisMatchState, [TennisMatchEvent]) -> Void)?
 
     init(
@@ -104,8 +105,25 @@ private final class WatchTennisSessionStore {
         }
     }
 
-    func replaceDisplayedState(_ state: TennisMatchState) {
-        self.state = state
+    @discardableResult
+    func applyAuthoritativeState(
+        _ state: TennisMatchState,
+        detailedActions: [DetailedScoreAction],
+        revision: UInt64
+    ) async -> Bool {
+        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
+            return false
+        }
+        lastAppliedRemoteRevision = revision
+        let session = await core.rebase(
+            to: state,
+            status: state.finished ? .finished : .live
+        )
+        guard lastAppliedRemoteRevision == revision else { return false }
+        self.state = session.state
+        actionLog.merge(detailedActions: detailedActions)
+        try? await archiveRepository.save(session, source: .watchLocal)
+        return true
     }
 
     func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
@@ -197,17 +215,24 @@ struct WatchTennisScoreView: View {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
                     onUndo: {
+                        guard !scoringLocked else { return }
                         store.undo()
                         showMenu = false
                     },
                     onFinish: {
+                        guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .finish
                     },
                     onReset: {
+                        guard !scoringLocked else { return }
                         showMenu = false
                         confirmation = .reset
-                    }
+                    },
+                    onReclaim: scoringLocked ? {
+                        linkService.requestReclaim()
+                        showMenu = false
+                    } : nil
                 )
             }
             if let restState {
@@ -215,6 +240,7 @@ struct WatchTennisScoreView: View {
                     state: restState,
                     onContinue: { self.restState = nil },
                     onUndo: {
+                        guard !scoringLocked else { return }
                         let triggerID = restState.triggerID
                         self.restState = nil
                         restTriggers.release(triggerID)
@@ -276,18 +302,37 @@ struct WatchTennisScoreView: View {
         .onChange(of: linkService.latestSnapshot) { _, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let state = update.snapshot.tennisState else { return }
-            store.mergeRemoteActions(update.detailedActions)
-            store.replaceDisplayedState(state)
-            if state.finished {
-                beginAutomaticFinishPresentation()
-            } else {
-                completedScoreTask?.cancel()
-                completedScoreTask = nil
-                completedSetPresentation = nil
-                finishTask?.cancel()
-                showFinishedOverlay = false
-                finishUndoAvailable = false
-                didFinalizeFinish = false
+            Task {
+                guard await store.applyAuthoritativeState(
+                    state,
+                    detailedActions: update.detailedActions,
+                    revision: update.revision
+                ) else { return }
+                if state.finished {
+                    beginAutomaticFinishPresentation()
+                } else {
+                    completedScoreTask?.cancel()
+                    completedScoreTask = nil
+                    completedSetPresentation = nil
+                    finishTask?.cancel()
+                    showFinishedOverlay = false
+                    finishUndoAvailable = false
+                    didFinalizeFinish = false
+                }
+            }
+        }
+        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
+            guard let linkedSessionId,
+                  let pending,
+                  pending.sessionId == linkedSessionId,
+                  let state = pending.snapshot.tennisState else { return }
+            Task {
+                guard await store.applyAuthoritativeState(
+                    state,
+                    detailedActions: pending.detailedActions,
+                    revision: pending.revision
+                ) else { return }
+                linkService.completeReclaimAcceptance(messageId: pending.messageId)
             }
         }
         .onDisappear {
@@ -331,7 +376,10 @@ struct WatchTennisScoreView: View {
             suppressTapAfterLongPress: $suppressTapAfterLongPress,
             enabled: interactionsEnabled,
             onMenu: { showMenu = true },
-            onUndo: { store.undo() },
+            onUndo: {
+                guard !scoringLocked else { return }
+                store.undo()
+            },
             onExit: exitBoard
         )
     }
@@ -347,11 +395,13 @@ struct WatchTennisScoreView: View {
         let serverSlot = tennisDoublesServerSlot(state: store.state)
         return WatchDoublesBoard(
             left: tennisDoublesHalf(
+                screenSide: .left,
                 logicalSide: layout.engineSide(onScreen: .left),
                 names: names,
                 serverSlot: serverSlot
             ),
             right: tennisDoublesHalf(
+                screenSide: .right,
                 logicalSide: layout.engineSide(onScreen: .right),
                 names: names,
                 serverSlot: serverSlot
@@ -360,13 +410,17 @@ struct WatchTennisScoreView: View {
     }
 
     private func tennisDoublesHalf(
+        screenSide: MatchSide,
         logicalSide: MatchSide,
         names: [String],
         serverSlot: Int
     ) -> WatchDoublesHalfModel {
         let isLeft = logicalSide == .left
-        let topIndex = isLeft ? 0 : 1
-        let bottomIndex = isLeft ? 2 : 3
+        var topIndex = isLeft ? 0 : 1
+        var bottomIndex = isLeft ? 2 : 3
+        if screenSide == .right {
+            swap(&topIndex, &bottomIndex)
+        }
         let hasGames = store.state.rules.setScoringMode != .tiebreakOnly
             && presentedGamesTotal > 0
         let hasSets = store.state.rules.setScoringMode != .tiebreakOnly
@@ -560,12 +614,8 @@ struct WatchTennisScoreView: View {
     }
 
     private func tennisDoublesServerSlot(state: TennisMatchState) -> Int {
-        WatchTennisDoublesServing.serverSlot(
-            firstServer: state.firstServerInSet,
-            completedGames: state.leftGames + state.rightGames,
-            isTieBreak: state.isTieBreak,
-            tieBreakPointsPlayed: state.leftPoints + state.rightPoints
-        )
+        TennisDoublesServing.currentServerSlot(in: state)
+            ?? (state.servingSide == .left ? 0 : 1)
     }
 
     private func handle(events: [TennisMatchEvent], state: TennisMatchState) {
@@ -737,7 +787,7 @@ struct WatchTennisScoreView: View {
     }
 
     private func undoFinish() {
-        guard finishUndoAvailable else { return }
+        guard finishUndoAvailable, !scoringLocked else { return }
         completedScoreTask?.cancel()
         completedScoreTask = nil
         completedSetPresentation = nil
@@ -749,6 +799,7 @@ struct WatchTennisScoreView: View {
     }
 
     private func playAgain() {
+        guard !scoringLocked else { return }
         resumeStore.clear()
         finalizeFinish()
         finishTask?.cancel()
@@ -773,6 +824,10 @@ struct WatchTennisScoreView: View {
     }
 
     private func confirm(_ value: WatchScoreboardConfirmation) {
+        guard !scoringLocked else {
+            confirmation = nil
+            return
+        }
         confirmation = nil
         switch value {
         case .finish:

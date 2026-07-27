@@ -191,13 +191,12 @@ enum WatchTennisDoublesServing {
         isTieBreak: Bool,
         tieBreakPointsPlayed: Int
     ) -> Int {
-        let openingSlot = firstServer == .left ? 0 : 1
-        if isTieBreak {
-            let played = max(0, tieBreakPointsPlayed)
-            guard played > 0 else { return openingSlot }
-            return (openingSlot + 1 + (played - 1) / 2) % 4
-        }
-        return (openingSlot + max(0, completedGames)) % 4
+        TennisDoublesServing.serverSlot(
+            firstServerSlot: firstServer == .left ? 0 : 1,
+            completedGames: completedGames,
+            isTieBreak: isTieBreak,
+            tieBreakPointsPlayed: tieBreakPointsPlayed
+        )
     }
 }
 
@@ -206,6 +205,7 @@ struct WatchScoreboardMenuOverlay: View {
     let onUndo: () -> Void
     let onFinish: () -> Void
     let onReset: () -> Void
+    var onReclaim: (() -> Void)? = nil
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -236,6 +236,15 @@ struct WatchScoreboardMenuOverlay: View {
                     background: WatchTheme.dangerRed,
                     action: onFinish
                 )
+
+                if let onReclaim {
+                    WatchMenuGridButton(
+                        title: NSLocalizedString("linked_score_watch_reclaim", value: "手表接管", comment: ""),
+                        systemImage: "applewatch.radiowaves.left.and.right",
+                        background: WatchTheme.successGreen,
+                        action: onReclaim
+                    )
+                }
 
                 WatchMenuCloseButton(action: onDismiss)
             }

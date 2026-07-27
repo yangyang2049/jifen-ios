@@ -26,6 +26,15 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(WatchGameType.pickleball.icon, WatchGameType.pingpong.icon)
     }
 
+    func testPickleballSinglesAndDoublesAlternateOpeningServerBetweenSets() throws {
+        for sport in [WatchSetupSport.pickleball, .pickleballDoubles] {
+            let draft = WatchSportsSetupDraft(sport: sport, preferences: preferences)
+            let config = WatchScoreboardLaunchConfig(draft: draft)
+            let state = try XCTUnwrap(WatchSetupPayloadMapper.rallyState(for: config))
+            XCTAssertEqual(state.rules.nextSetServerModel, .alternateFromOpening)
+        }
+    }
+
     func testWatchRestPolicyMatchesCrossPlatformDurations() {
         XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .pingpong), 60)
         XCTAssertEqual(WatchRestPolicy.betweenSetDuration(for: .pingpongDoubles), 60)

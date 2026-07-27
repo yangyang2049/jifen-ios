@@ -154,6 +154,105 @@ import SessionCore
     #expect(!reset.sidesSwapped)
 }
 
+@Test func tennisDoublesServerRotationContinuesAcrossSetBoundaries() {
+    let reducer = TennisMatchReducer()
+
+    func completedSet(leftGames: Int, rightGames: Int, tieBreak: Bool = false) -> TennisMatchState {
+        var state = TennisMatchState(
+            leftName: "A",
+            rightName: "B",
+            rules: .init(maxSets: 3),
+            openingServer: .left,
+            doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+        )
+        state.leftGames = leftGames
+        state.rightGames = rightGames
+        state.isTieBreak = tieBreak
+        state.leftPoints = tieBreak ? 6 : 3
+        state.rightPoints = tieBreak ? 5 : 0
+        return reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    }
+
+    let sixFour = completedSet(leftGames: 5, rightGames: 4)
+    #expect(sixFour.doublesFirstServerSlotInSet == 2)
+    #expect(TennisDoublesServing.currentServerSlot(in: sixFour) == 2)
+
+    let sevenFive = completedSet(leftGames: 6, rightGames: 5)
+    #expect(sevenFive.doublesFirstServerSlotInSet == 0)
+    #expect(TennisDoublesServing.currentServerSlot(in: sevenFive) == 0)
+
+    let sevenSix = completedSet(leftGames: 6, rightGames: 6, tieBreak: true)
+    #expect(sevenSix.doublesFirstServerSlotInSet == 1)
+    #expect(TennisDoublesServing.currentServerSlot(in: sevenSix) == 1)
+}
+
+@Test func tennisTieBreakAdminAdjustmentRecomputesTeamAndPlayerServer() {
+    let reducer = TennisMatchReducer()
+    var state = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        openingServer: .left,
+        doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+    )
+    state.leftGames = 6
+    state.rightGames = 6
+    state.isTieBreak = true
+    state.leftPoints = 2
+    state.rightPoints = 1
+    #expect(TennisDoublesServing.currentServerSlot(in: state) == 2)
+
+    let adjusted = reducer.reduce(
+        state: state,
+        intent: .adjustPoints(side: .left, delta: -1),
+        at: 1
+    ).state
+    #expect(TennisDoublesServing.currentServerSlot(in: adjusted) == 1)
+    #expect(adjusted.servingSide == .right)
+}
+
+@Test func tennisGameAdjustmentNormalizesTieBreakPointsAndServingSlot() {
+    let reducer = TennisMatchReducer()
+    var state = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        openingServer: .left,
+        doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+    )
+    state.leftGames = 6
+    state.rightGames = 6
+    state.isTieBreak = true
+    state.leftPoints = 4
+    state.rightPoints = 3
+
+    let adjusted = reducer.reduce(
+        state: state,
+        intent: .adjustGames(side: .right, delta: -1),
+        at: 1
+    ).state
+    #expect(!adjusted.isTieBreak)
+    #expect(adjusted.leftPoints == 0)
+    #expect(adjusted.rightPoints == 0)
+    #expect(TennisDoublesServing.currentServerSlot(in: adjusted) == 3)
+    #expect(adjusted.servingSide == .right)
+}
+
+@Test func legacyTennisDoublesSnapshotInfersAPlayerForFirstServingTeam() throws {
+    let state = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        openingServer: .right,
+        doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+    )
+    let encoded = try JSONEncoder().encode(state)
+    var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    object.removeValue(forKey: "doublesFirstServerSlotInSet")
+    let legacy = try JSONSerialization.data(withJSONObject: object)
+    let decoded = try JSONDecoder().decode(TennisMatchState.self, from: legacy)
+
+    #expect(decoded.doublesFirstServerSlotInSet == nil)
+    #expect(TennisDoublesServing.firstServerSlot(in: decoded) == 1)
+}
+
 @Test func tennisFourGameAndTiebreakOnlyFormatsMatchMobileRules() throws {
     let reducer = TennisMatchReducer()
     var shortSet = TennisMatchState(

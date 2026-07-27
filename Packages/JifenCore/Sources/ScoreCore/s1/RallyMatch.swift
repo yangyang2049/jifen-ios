@@ -70,7 +70,7 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
     public var servingModel: RallyServingModel
     public var useRallyScoring: Bool
     public var matchCompletionMode: MatchCompletionMode
-    /// Pickleball: singles `.opening`, doubles `.alternateFromOpening`.
+    /// Pickleball and alternating-serve sports use `.alternateFromOpening`.
     public var nextSetServerModel: RallyNextSetServerModel
 
     public init(
@@ -205,7 +205,7 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
             pointCap: nil,
             useRallyScoring: false,
             matchCompletionMode: matchCompletionMode,
-            nextSetServerModel: .opening
+            nextSetServerModel: .alternateFromOpening
         )
     }
 
@@ -378,8 +378,8 @@ public struct RallyMatchReducer: DomainReducer {
 
     private func usesPickleballServeRules(_ state: RallyMatchState) -> Bool {
         if case .pickleball = state.doubles?.rotation { return true }
-        // Singles pickleball only (factory uses `.opening`); volleyball uses `.alternateFromOpening`.
-        return state.rules.nextSetServerModel == .opening
+        // Pickleball is the only singles rally-family ruleset using side-out scoring.
+        return !state.rules.useRallyScoring
     }
 
     /// Aligns with Android `PickleballMatchEngine.recordRally`.

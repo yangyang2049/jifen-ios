@@ -37,6 +37,7 @@ struct RallyScoreboardView: View {
     @State private var draftSaveGeneration = 0
     @State private var completedSetScores: [VoiceSetScore] = []
     @State private var didSpeakOpeningAnnouncement = false
+    @State private var manualFinishRequested = false
 
     init(
         leftName: String,
@@ -91,6 +92,10 @@ struct RallyScoreboardView: View {
     }
 
     private var isDoubles: Bool { store.state.doubles != nil }
+    private var scoringLocked: Bool {
+        watchSessionId != nil
+            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+    }
     private var palette: ScoreboardPalette { appearance.theme.palette }
 
     /// 桌上足球无发球模型（对齐鸿蒙/安卓）。
@@ -162,6 +167,7 @@ struct RallyScoreboardView: View {
                             : store.state.rightPoints,
                         onNewGame: {
                             showGameOverDialog = false
+                            manualFinishRequested = false
                             dispatch(.reset)
                             showToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
                         },
@@ -263,7 +269,7 @@ struct RallyScoreboardView: View {
                         snapshot: .rally(state),
                         recordId: store.sessionId.uuidString,
                         winnerSide: winner,
-                        manualEnd: false
+                        manualEnd: manualFinishRequested
                     )
                 }
             }
@@ -277,9 +283,27 @@ struct RallyScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let rally = update.snapshot.rallyState else { return }
-            // Follower applies watch-authored state.
-            store.mergeRemoteActions(update.detailedActions)
-            store.replaceDisplayedState(rally)
+            Task {
+                _ = await store.applyAuthoritativeState(
+                    rally,
+                    detailedActions: update.detailedActions,
+                    revision: update.revision
+                )
+            }
+        }
+        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
+            guard let watchSessionId,
+                  let pending,
+                  pending.sessionId == watchSessionId,
+                  let state = pending.snapshot.rallyState else { return }
+            Task {
+                _ = await store.applyAuthoritativeState(
+                    state,
+                    detailedActions: pending.detailedActions,
+                    revision: pending.revision
+                )
+                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
+            }
         }
         .onChange(of: showMenu) { _, isOpen in
             if !isOpen { menuConfirm.clear() }
@@ -311,6 +335,38 @@ struct RallyScoreboardView: View {
             }
         }
         .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: appGameType)
+        .alert(
+            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
+            isPresented: Binding(
+                get: { watchLinkService.pendingReclaimRequest != nil },
+                set: { presented in
+                    if !presented, watchLinkService.pendingReclaimRequest != nil {
+                        watchLinkService.resolveReclaimRequest(
+                            accepted: false,
+                            snapshot: nil,
+                            detailedActions: []
+                        )
+                    }
+                }
+            )
+        ) {
+            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                watchLinkService.resolveReclaimRequest(
+                    accepted: true,
+                    snapshot: .rally(store.state),
+                    detailedActions: store.actionTimeline
+                )
+            }
+            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                watchLinkService.resolveReclaimRequest(
+                    accepted: false,
+                    snapshot: nil,
+                    detailedActions: []
+                )
+            }
+        } message: {
+            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
+        }
     }
 
     // MARK: - Singles
@@ -416,8 +472,8 @@ struct RallyScoreboardView: View {
                 fontSize: mainSize,
                 useSecondaryColor: false,
                 canDecrement: score > 0,
-                onDecrement: { store.send(.adjustPoints(side: side, delta: -1)) },
-                onIncrement: { store.send(.adjustPoints(side: side, delta: 1)) }
+                onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
+                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
             )
 
             Spacer().frame(height: mainToSet)
@@ -427,8 +483,8 @@ struct RallyScoreboardView: View {
                 fontSize: setSize,
                 useSecondaryColor: true,
                 canDecrement: sets > 0,
-                onDecrement: { store.send(.adjustSets(side: side, delta: -1)) },
-                onIncrement: { store.send(.adjustSets(side: side, delta: 1)) }
+                onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
+                onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -538,16 +594,16 @@ struct RallyScoreboardView: View {
                 fontSize: mainSize,
                 useSecondaryColor: false,
                 canDecrement: score > 0,
-                onDecrement: { store.send(.adjustPoints(side: side, delta: -1)) },
-                onIncrement: { store.send(.adjustPoints(side: side, delta: 1)) }
+                onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
+                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
             )
             editAdjustRow(
                 value: sets,
                 fontSize: setSize,
                 useSecondaryColor: true,
                 canDecrement: sets > 0,
-                onDecrement: { store.send(.adjustSets(side: side, delta: -1)) },
-                onIncrement: { store.send(.adjustSets(side: side, delta: 1)) }
+                onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
+                onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
             )
         }
         .frame(maxWidth: .infinity)
@@ -583,7 +639,8 @@ struct RallyScoreboardView: View {
                             editDoublesNames[slot] = newValue
                             let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                             if !trimmed.isEmpty {
-                                store.send(.setDoublesPlayerName(slot: slot, name: trimmed))
+                                guard !scoringLocked else { return }
+                                dispatch(.setDoublesPlayerName(slot: slot, name: trimmed))
                             }
                         }
                     )
@@ -610,25 +667,38 @@ struct RallyScoreboardView: View {
     }
 
     private func doublesTopSlot(screenSide: MatchSide) -> Int {
-        let side = logicalSide(forScreen: screenSide)
-        return side == .left ? 0 : 1
+        doublesDisplaySlots(screenSide: screenSide).top
     }
 
     private func doublesBottomSlot(screenSide: MatchSide) -> Int {
-        let side = logicalSide(forScreen: screenSide)
-        return side == .left ? 2 : 3
+        doublesDisplaySlots(screenSide: screenSide).bottom
     }
 
     private func doublesCornerNames(screenSide: MatchSide) -> (String, String) {
         guard let doubles = store.state.doubles else { return ("", "") }
-        var top = doubles.playerName(at: doublesTopSlot(screenSide: screenSide)) ?? ""
-        var bottom = doubles.playerName(at: doublesBottomSlot(screenSide: screenSide)) ?? ""
-        if !isEditMode, let swapped = doubles.pickleballPartnersSwapped {
-            let logical = logicalSide(forScreen: screenSide)
-            let partnersSwapped = logical == .left ? swapped.team0 : swapped.team1
-            if partnersSwapped {
-                swap(&top, &bottom)
-            }
+        let slots = doublesDisplaySlots(screenSide: screenSide)
+        return (
+            doubles.playerName(at: slots.top) ?? "",
+            doubles.playerName(at: slots.bottom) ?? ""
+        )
+    }
+
+    private func doublesDisplaySlots(screenSide: MatchSide) -> (top: Int, bottom: Int) {
+        let logical = logicalSide(forScreen: screenSide)
+        var top = logical == .left ? 0 : 1
+        var bottom = logical == .left ? 2 : 3
+        guard let doubles = store.state.doubles,
+              case .pickleball(let rotation) = doubles.rotation else {
+            return (top, bottom)
+        }
+        let partnersSwapped = logical == .left
+            ? rotation.team0PartnersSwapped
+            : rotation.team1PartnersSwapped
+        if !isEditMode, partnersSwapped {
+            swap(&top, &bottom)
+        }
+        if screenSide == .right {
+            swap(&top, &bottom)
         }
         return (top, bottom)
     }
@@ -680,7 +750,8 @@ struct RallyScoreboardView: View {
         let right = editRightName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !left.isEmpty, !right.isEmpty else { return }
         if left != store.state.leftName || right != store.state.rightName {
-            store.send(.setNames(left: left, right: right))
+            guard !scoringLocked else { return }
+            dispatch(.setNames(left: left, right: right))
         }
     }
 
@@ -897,6 +968,10 @@ struct RallyScoreboardView: View {
     }
 
     private func handleMenuAction(_ action: String) {
+        if scoringLocked, action != "takeover", action != "endLink", action != "displaySettings", action != "exit" {
+            showToast(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
+            return
+        }
         menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
@@ -910,6 +985,7 @@ struct RallyScoreboardView: View {
         case "reset":
             if menuConfirm.armOrConfirm(.reset) {
                 showGameOverDialog = false
+                manualFinishRequested = false
                 dispatch(.reset)
                 showToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
                 showMenu = false
@@ -918,6 +994,7 @@ struct RallyScoreboardView: View {
             }
         case "endGame":
             if menuConfirm.armOrConfirm(.finish) {
+                manualFinishRequested = true
                 finishMatch()
                 showMenu = false
             } else {
@@ -925,6 +1002,7 @@ struct RallyScoreboardView: View {
             }
         case "settleMatch":
             if menuConfirm.armOrConfirm(.settleMatch) {
+                manualFinishRequested = true
                 finishMatch()
                 showMenu = false
             } else {
@@ -944,6 +1022,15 @@ struct RallyScoreboardView: View {
         case "takeover":
             Task {
                 if let id = watchSessionId {
+                    if let update = watchLinkService.latestRemoteSnapshot,
+                       update.sessionId == id,
+                       let state = update.snapshot.rallyState {
+                        _ = await store.applyAuthoritativeState(
+                            state,
+                            detailedActions: update.detailedActions,
+                            revision: update.revision
+                        )
+                    }
                     try? await watchLinkService.takeover(sessionId: id)
                 }
                 showMenu = false
@@ -1099,6 +1186,7 @@ struct RallyScoreboardView: View {
     }
 
     private func dispatch(_ intent: RallyMatchIntent) {
+        guard !scoringLocked else { return }
         let before = store.state
         store.send(intent) { events in
             handleVoiceAnnouncement(before: before, events: events)
@@ -1265,6 +1353,7 @@ struct RallyScoreboardView: View {
     }
 
     private func performUndo() {
+        guard !scoringLocked else { return }
         store.undo { success in
             if success {
                 scheduleDraftPersist(finished: store.state.finished)

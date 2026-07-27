@@ -204,6 +204,25 @@ private struct CounterReducer: DomainReducer {
     #expect(try await resumed.replay().state.value == 2)
 }
 
+@Test func authoritativeRebaseClearsUndoAndReplayBoundary() async throws {
+    let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
+        gameType: .tennis,
+        ruleFamily: .s1,
+        reducerType: "test/counter",
+        state: CounterReducer.State(value: 0)
+    )
+    let session = ScoreSessionCore(seedSession: seed, reducer: CounterReducer())
+    _ = await session.dispatch(actorId: "watch", intent: .add(2), at: 1)
+
+    _ = await session.rebase(to: .init(value: 30), status: .live)
+    #expect(!(await session.undo(actorId: "phone")))
+    #expect(try await session.replay().state.value == 30)
+
+    _ = await session.dispatch(actorId: "phone", intent: .add(15), at: 2)
+    #expect(await session.snapshot().state.value == 45)
+    #expect(try await session.replay().state.value == 45)
+}
+
 @Test func resumeDiscardEnvelopeRoundTripsReason() throws {
     let sessionId = UUID()
     let envelope = LinkEnvelope(
@@ -361,10 +380,10 @@ private struct CounterReducer: DomainReducer {
 
 @Test func pickleballFactoryHasNoDefaultPointCap() {
     #expect(RallyRuleSet.pickleball().pointCap == nil)
-    #expect(RallyRuleSet.pickleball().nextSetServerModel == .opening)
+    #expect(RallyRuleSet.pickleball().nextSetServerModel == .alternateFromOpening)
 }
 
-@Test func pickleballSinglesNextSetUsesOpeningServer() {
+@Test func pickleballSinglesNextSetAlternatesFromOpeningServer() {
     let reducer = RallyMatchReducer()
     var rules = RallyRuleSet.pickleball(maxSets: 3)
     rules.pointsToWinSet = 2
@@ -380,8 +399,8 @@ private struct CounterReducer: DomainReducer {
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
     #expect(state.leftSets == 1)
     #expect(state.leftPoints == 0)
-    #expect(state.servingSide == .left)
-    #expect(state.firstServerInSet == .left)
+    #expect(state.servingSide == .right)
+    #expect(state.firstServerInSet == .right)
 }
 
 @Test func pickleballDoublesStartsAtServerTwoAndRotates() {

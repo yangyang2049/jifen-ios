@@ -90,6 +90,7 @@
 "linked_score_phone_started_scoreboard" = "手机已发起计分";
 "linked_score_accept" = "接受";
 "linked_score_reject" = "拒绝";
+"linked_score_watch_reclaim" = "手表接管";
 "linked_score_setup_rules" = "%d局 | %d分";
 "linked_score_setup_rules_sets" = "%d盘";
 "linked_score_setup_rules_3x3" = "3x3";

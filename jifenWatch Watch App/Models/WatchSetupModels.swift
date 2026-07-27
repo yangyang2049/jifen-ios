@@ -325,7 +325,7 @@ enum WatchSetupPayloadMapper {
             rules = .pickleball(maxSets: config.maxSets)
             rules.pointsToWinSet = config.pickleballTargetScore
             rules.useRallyScoring = config.pickleballUseRallyScoring
-            rules.nextSetServerModel = config.sport.isDoubles ? .alternateFromOpening : .opening
+            rules.nextSetServerModel = .alternateFromOpening
             doubles = config.sport.isDoubles
                 ? .pickleball(playerNames: interleavedDoublesNames(names), servingTeam0: true)
                 : nil

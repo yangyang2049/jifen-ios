@@ -38,6 +38,58 @@ import Testing
     #expect(queue.retryIfDue(nowEpochMilliseconds: 10_000) == nil)
 }
 
+@Test func terminalAckQueueRetainsStableEnvelopeAfterRetryBudget() {
+    var queue = LinkPendingAckQueue()
+    let messageId = UUID()
+    let data = Data([4, 5, 6])
+    queue.enqueue(.init(
+        messageId: messageId,
+        sessionId: UUID(),
+        revision: 3,
+        data: data,
+        lastSentAtEpochMilliseconds: 0
+    ))
+
+    #expect(queue.retryIfDue(nowEpochMilliseconds: 3_000, retainAfterExhaustion: true) == data)
+    #expect(queue.retryIfDue(nowEpochMilliseconds: 6_000, retainAfterExhaustion: true) == data)
+    #expect(queue.retryIfDue(nowEpochMilliseconds: 9_000, retainAfterExhaustion: true) == data)
+    #expect(queue.pending?.messageId == messageId)
+}
+
+@Test func emptyAuthorityTransferPayloadRemainsProtocolV1Compatible() throws {
+    let decoded = try JSONDecoder().decode(
+        LinkAuthorityTransferPayload.self,
+        from: Data("{}".utf8)
+    )
+    #expect(decoded.snapshot == nil)
+    #expect(decoded.detailedActions == nil)
+    #expect(decoded.baseRevision == nil)
+}
+
+@Test func takeoverAcknowledgementCarriesFinalSnapshotAndDecodesLegacyPayload() throws {
+    var state = TennisMatchState(leftName: "A", rightName: "B")
+    state.leftPoints = 2
+    state.rightPoints = 1
+    let messageId = UUID()
+    let payload = LinkAcknowledgementPayload(
+        acknowledgedMessageId: messageId,
+        acknowledgedRevision: 9,
+        authoritativeSnapshot: .tennis(state)
+    )
+    let decoded = try JSONDecoder().decode(
+        LinkAcknowledgementPayload.self,
+        from: JSONEncoder().encode(payload)
+    )
+    #expect(decoded.authoritativeSnapshot?.tennisState?.leftPoints == 2)
+
+    let legacy = Data(
+        "{\"acknowledgedMessageId\":\"\(messageId.uuidString)\",\"acknowledgedRevision\":8}".utf8
+    )
+    let legacyDecoded = try JSONDecoder().decode(LinkAcknowledgementPayload.self, from: legacy)
+    #expect(legacyDecoded.authoritativeSnapshot == nil)
+    #expect(legacyDecoded.detailedActions == nil)
+}
+
 @Test func revisionGateClassifiesRetriesWithoutAdvancingState() {
     let sessionId = UUID()
     let otherSessionId = UUID()

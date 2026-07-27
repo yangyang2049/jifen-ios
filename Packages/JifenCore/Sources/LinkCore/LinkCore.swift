@@ -233,6 +233,25 @@ public struct EmptyLinkPayload: Codable, Equatable, Sendable {
     public init() {}
 }
 
+/// Optional authority-transfer state carried by takeover/reclaim messages.
+/// Every field is optional so protocol-v1 peers that sent/expect `{}` remain
+/// source and wire compatible.
+public struct LinkAuthorityTransferPayload: Codable, Equatable, Sendable {
+    public var snapshot: LinkedScoreboardSnapshot?
+    public var detailedActions: [DetailedScoreAction]?
+    public var baseRevision: UInt64?
+
+    public init(
+        snapshot: LinkedScoreboardSnapshot? = nil,
+        detailedActions: [DetailedScoreAction]? = nil,
+        baseRevision: UInt64? = nil
+    ) {
+        self.snapshot = snapshot
+        self.detailedActions = detailedActions
+        self.baseRevision = baseRevision
+    }
+}
+
 public enum LinkResumeDiscardReason: String, Codable, Sendable {
     case resumeBarClose
     case newScoreboardStart
@@ -250,10 +269,21 @@ public struct LinkResumeDiscardPayload: Codable, Equatable, Sendable {
 public struct LinkAcknowledgementPayload: Codable, Equatable, Sendable {
     public var acknowledgedMessageId: UUID
     public var acknowledgedRevision: UInt64
+    /// Optional final authority snapshot for a takeover ACK. Older v1 peers
+    /// omit these fields and continue to decode normally.
+    public var authoritativeSnapshot: LinkedScoreboardSnapshot?
+    public var detailedActions: [DetailedScoreAction]?
 
-    public init(acknowledgedMessageId: UUID, acknowledgedRevision: UInt64) {
+    public init(
+        acknowledgedMessageId: UUID,
+        acknowledgedRevision: UInt64,
+        authoritativeSnapshot: LinkedScoreboardSnapshot? = nil,
+        detailedActions: [DetailedScoreAction]? = nil
+    ) {
         self.acknowledgedMessageId = acknowledgedMessageId
         self.acknowledgedRevision = acknowledgedRevision
+        self.authoritativeSnapshot = authoritativeSnapshot
+        self.detailedActions = detailedActions
     }
 }
 
@@ -310,7 +340,7 @@ public struct LinkStatusPayload: Codable, Equatable, Sendable {
 
 /// Single-pending ACK queue: Harmony-aligned ~3s retry, max 2 retries.
 public struct LinkPendingAckQueue: Equatable, Sendable {
-    public struct PendingItem: Equatable, Sendable {
+    public struct PendingItem: Codable, Equatable, Sendable {
         public var messageId: UUID
         public var sessionId: UUID
         public var revision: UInt64
@@ -357,12 +387,21 @@ public struct LinkPendingAckQueue: Equatable, Sendable {
     }
 
     /// Returns data to resend when due; nil if nothing pending or still within interval / exhausted.
-    public mutating func retryIfDue(nowEpochMilliseconds: Int64) -> Data? {
+    public mutating func retryIfDue(
+        nowEpochMilliseconds: Int64,
+        retainAfterExhaustion: Bool = false
+    ) -> Data? {
         guard var item = pending else { return nil }
         guard nowEpochMilliseconds - item.lastSentAtEpochMilliseconds >= Self.retryIntervalMilliseconds else {
             return nil
         }
         guard item.attempts < Self.maxRetries else {
+            if retainAfterExhaustion {
+                item.attempts = 0
+                item.lastSentAtEpochMilliseconds = nowEpochMilliseconds
+                pending = item
+                return item.data
+            }
             pending = nil
             return nil
         }
