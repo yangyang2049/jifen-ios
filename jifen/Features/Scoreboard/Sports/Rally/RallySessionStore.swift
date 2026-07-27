@@ -174,6 +174,8 @@ final class RallySessionStore {
             switch event {
             case .pointScored(let side, let left, let right):
                 detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, scoreChange: 1, operationCode: "point"))
+            case .pointsAdjusted(let side, let delta, let left, let right):
+                detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, scoreChange: delta, operationCode: "adjust"))
             case .sideOut(_, let left, let right):
                 detailedActions.append(.init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, operationCode: "side_out"))
             case .setCompleted(let winner, let number, let left, let right, let leftSets, let rightSets):
@@ -241,7 +243,8 @@ final class RallySessionStore {
             return .pingPong(
                 playerNames: names,
                 openingServerSlotIndex: openingServer == .left ? 0 : 1,
-                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
+                openingReceiverSlotIndex: openingServer == .left ? 1 : 0,
+                requiresOpeningConfirmation: true
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)

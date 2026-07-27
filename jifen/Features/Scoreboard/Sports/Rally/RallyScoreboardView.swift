@@ -135,6 +135,10 @@ struct RallyScoreboardView: View {
                     )
                 }
 
+                if let opening = pendingPingPongDoublesOpening {
+                    pingPongDoublesOpeningOverlay(opening)
+                }
+
                 if shouldShowChrome {
                     chromeOverlay
                 }
@@ -685,22 +689,65 @@ struct RallyScoreboardView: View {
 
     private func doublesDisplaySlots(screenSide: MatchSide) -> (top: Int, bottom: Int) {
         let logical = logicalSide(forScreen: screenSide)
-        var top = logical == .left ? 0 : 1
-        var bottom = logical == .left ? 2 : 3
-        guard let doubles = store.state.doubles,
-              case .pickleball(let rotation) = doubles.rotation else {
-            return (top, bottom)
+        guard let doubles = store.state.doubles else {
+            return logical == .left ? (0, 2) : (1, 3)
         }
-        let partnersSwapped = logical == .left
-            ? rotation.team0PartnersSwapped
-            : rotation.team1PartnersSwapped
-        if !isEditMode, partnersSwapped {
-            swap(&top, &bottom)
+        let display = RallyDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: logical,
+            screenSide: screenSide,
+            appliesCourtOrder: !isEditMode
+        )
+        return (display.topPlayerIndex, display.bottomPlayerIndex)
+    }
+
+    private var pendingPingPongDoublesOpening: PingPongDoublesGameOpening? {
+        guard case .pingPong(let rotation) = store.state.doubles?.rotation else { return nil }
+        return rotation.pendingGameOpening
+    }
+
+    @ViewBuilder
+    private func pingPongDoublesOpeningOverlay(_ opening: PingPongDoublesGameOpening) -> some View {
+        let serverSlots = opening.servingTeam0 ? [0, 2] : [1, 3]
+        let receiverSlots = opening.servingTeam0 ? [1, 3] : [0, 2]
+        VStack(spacing: 14) {
+            Text(NSLocalizedString("pingpong_doubles_confirm_opening", value: "确认本局首发顺序", comment: ""))
+                .font(.title2.bold())
+            if scoringLocked {
+                Text(NSLocalizedString("linked_score_waiting_controller", value: "等待控制端确认", comment: ""))
+                    .foregroundStyle(.secondary)
+            } else if opening.isFirstGame {
+                ForEach(serverSlots, id: \.self) { server in
+                    HStack(spacing: 10) {
+                        ForEach(receiverSlots, id: \.self) { receiver in
+                            openingChoiceButton(server: server, receiver: receiver)
+                        }
+                    }
+                }
+            } else {
+                HStack(spacing: 12) {
+                    ForEach(serverSlots, id: \.self) { server in
+                        openingChoiceButton(server: server, receiver: nil)
+                    }
+                }
+            }
         }
-        if screenSide == .right {
-            swap(&top, &bottom)
+        .padding(24)
+        .foregroundStyle(.white)
+        .background(.black.opacity(0.88), in: RoundedRectangle(cornerRadius: 20))
+        .padding(40)
+        .allowsHitTesting(!scoringLocked)
+    }
+
+    private func openingChoiceButton(server: Int, receiver: Int?) -> some View {
+        let names = store.state.doubles?.playerNames ?? []
+        let serverName = names.indices.contains(server) ? names[server] : ""
+        let receiverName = receiver.flatMap { names.indices.contains($0) ? names[$0] : nil }
+        let title = receiverName.map { "\(serverName) → \($0)" } ?? serverName
+        return Button(title) {
+            dispatch(.confirmPingPongDoublesOpening(serverSlot: server, receiverSlot: receiver))
         }
-        return (top, bottom)
+        .buttonStyle(.borderedProminent)
     }
 
     // MARK: - Edit helpers
@@ -1216,7 +1263,7 @@ struct RallyScoreboardView: View {
                 sideToast = NSLocalizedString("please_change_sides_manually", value: "请手动换边", comment: "")
             case .matchFinished:
                 matchFinished = true
-            case .pointScored, .sideOut:
+            case .pointScored, .pointsAdjusted, .sideOut:
                 break
             case .matchReset:
                 completedSetScores = []

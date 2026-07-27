@@ -107,6 +107,8 @@ final class SessionRecordsViewModel {
                 switch event {
                 case .pointScored(let side, let left, let right):
                     actions.append(.init(type: .scoreChanged, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: sets, setNumber: sets[0] + sets[1] + 1, scoreChange: 1, operationCode: "point"))
+                case .pointsAdjusted(let side, let delta, let left, let right):
+                    actions.append(.init(type: .scoreChanged, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: sets, setNumber: sets[0] + sets[1] + 1, scoreChange: delta, operationCode: "adjust"))
                 case .sideOut(_, let left, let right):
                     actions.append(.init(type: .stateChanged, scores: [left, right], setScores: sets, setNumber: sets[0] + sets[1] + 1, operationCode: "side_out"))
                 case .setCompleted(let winner, let number, let left, let right, let leftSets, let rightSets):

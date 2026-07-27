@@ -317,7 +317,8 @@ enum WatchSetupPayloadMapper {
                 ? .pingPong(
                     playerNames: interleavedDoublesNames(names),
                     openingServerSlotIndex: 0,
-                    openingReceiverSlotIndex: 1
+                    openingReceiverSlotIndex: 1,
+                    requiresOpeningConfirmation: true
                 )
                 : nil
         case .pickleball, .pickleballDoubles:

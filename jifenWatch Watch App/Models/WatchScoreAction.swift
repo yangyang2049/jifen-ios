@@ -294,6 +294,13 @@ enum WatchScoreActionProjector {
                     scores: (left, right), sets: (state.leftSets, state.rightSets),
                     delta: 1, setNumber: state.currentSet, timestamp: timestamp
                 ))
+            case .pointsAdjusted(let side, let delta, let left, let right):
+                projected.append(action(
+                    delta < 0 ? .scoreSubtract : .scoreAdd,
+                    code: "adjust", side: side,
+                    scores: (left, right), sets: (state.leftSets, state.rightSets),
+                    delta: delta, setNumber: state.currentSet, timestamp: timestamp
+                ))
             case .sideOut(let servingSide, let left, let right):
                 projected.append(action(
                     .serveChange, code: "side_out", side: servingSide,

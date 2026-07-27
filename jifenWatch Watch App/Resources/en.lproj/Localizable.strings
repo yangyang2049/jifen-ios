@@ -91,6 +91,8 @@
 "linked_score_accept" = "Accept";
 "linked_score_reject" = "Decline";
 "linked_score_watch_reclaim" = "Take Control";
+"pingpong_doubles_confirm_opening" = "Confirm Serve";
+"linked_score_waiting_controller" = "Waiting for phone";
 "linked_score_setup_rules" = "%d sets | %d pts";
 "linked_score_setup_rules_sets" = "%d sets";
 "linked_score_setup_rules_3x3" = "3x3";

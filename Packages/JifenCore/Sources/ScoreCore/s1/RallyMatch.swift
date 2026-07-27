@@ -259,8 +259,44 @@ public struct RallyMatchState: Codable, Equatable, Sendable {
     public var finished: Bool
     public var sidesSwapped: Bool
     public var doubles: RallyDoublesState?
+    /// Optional for backward compatibility with drafts and linked snapshots
+    /// written before score-correction replay was introduced.
+    public var currentSetReplay: RallyCurrentSetReplay?
 
     public var currentSet: Int { leftSets + rightSets + 1 }
+}
+
+public enum RallyCurrentSetReplayAction: Codable, Equatable, Sendable {
+    case pointWon(MatchSide)
+    case exchangeSides
+}
+
+public struct RallyCurrentSetReplay: Codable, Equatable, Sendable {
+    public let baselineLeftPoints: Int
+    public let baselineRightPoints: Int
+    public let baselineServingSide: MatchSide
+    public let baselineFirstServerInSet: MatchSide
+    public let baselineSidesSwapped: Bool
+    public let baselineDoubles: RallyDoublesState?
+    public var actions: [RallyCurrentSetReplayAction]
+
+    public init(
+        baselineLeftPoints: Int,
+        baselineRightPoints: Int,
+        baselineServingSide: MatchSide,
+        baselineFirstServerInSet: MatchSide,
+        baselineSidesSwapped: Bool,
+        baselineDoubles: RallyDoublesState?,
+        actions: [RallyCurrentSetReplayAction] = []
+    ) {
+        self.baselineLeftPoints = baselineLeftPoints
+        self.baselineRightPoints = baselineRightPoints
+        self.baselineServingSide = baselineServingSide
+        self.baselineFirstServerInSet = baselineFirstServerInSet
+        self.baselineSidesSwapped = baselineSidesSwapped
+        self.baselineDoubles = baselineDoubles
+        self.actions = actions
+    }
 }
 
 public enum RallyMatchIntent: Codable, Sendable {
@@ -269,6 +305,7 @@ public enum RallyMatchIntent: Codable, Sendable {
     case adjustPoints(side: MatchSide, delta: Int)
     case adjustSets(side: MatchSide, delta: Int)
     case setDoublesPlayerName(slot: Int, name: String)
+    case confirmPingPongDoublesOpening(serverSlot: Int, receiverSlot: Int?)
     case exchangeSides
     case finish
     case reset
@@ -276,6 +313,7 @@ public enum RallyMatchIntent: Codable, Sendable {
 
 public enum RallyMatchEvent: Codable, Equatable, Sendable {
     case pointScored(side: MatchSide, leftPoints: Int, rightPoints: Int)
+    case pointsAdjusted(side: MatchSide, delta: Int, leftPoints: Int, rightPoints: Int)
     /// Traditional pickleball side-out: serve changes without a point.
     case sideOut(servingSide: MatchSide, leftPoints: Int, rightPoints: Int)
     case setCompleted(winner: MatchSide, setNumber: Int, leftPoints: Int, rightPoints: Int, leftSets: Int, rightSets: Int)
@@ -293,7 +331,7 @@ public enum RallyMatchEngine {
         openingServer: MatchSide = .left,
         doubles: RallyDoublesState? = nil
     ) -> RallyMatchState {
-        RallyMatchState(
+        var state = RallyMatchState(
             rules: rules,
             leftName: leftName,
             rightName: rightName,
@@ -306,8 +344,18 @@ public enum RallyMatchEngine {
             firstServerInSet: openingServer,
             finished: false,
             sidesSwapped: false,
-            doubles: doubles
+            doubles: doubles,
+            currentSetReplay: nil
         )
+        state.currentSetReplay = RallyCurrentSetReplay(
+            baselineLeftPoints: 0,
+            baselineRightPoints: 0,
+            baselineServingSide: openingServer,
+            baselineFirstServerInSet: openingServer,
+            baselineSidesSwapped: false,
+            baselineDoubles: doubles
+        )
+        return state
     }
 
     public static func score(for side: MatchSide, in state: RallyMatchState) -> Int {
@@ -334,8 +382,14 @@ public struct RallyMatchReducer: DomainReducer {
             return adjustSets(side: side, delta: delta, state: state)
         case .setDoublesPlayerName(let slot, let name):
             return setDoublesPlayerName(slot: slot, name: name, state: state)
+        case .confirmPingPongDoublesOpening(let serverSlot, let receiverSlot):
+            return confirmPingPongDoublesOpening(
+                serverSlot: serverSlot,
+                receiverSlot: receiverSlot,
+                state: state
+            )
         case .exchangeSides:
-            return .init(state: exchanged(state), events: [.sidesExchanged])
+            return .init(state: exchanged(state, recordsReplay: true), events: [.sidesExchanged])
         case .finish:
             guard !state.finished else { return .rejected(state: state, reason: "Match is already finished") }
             return .init(state: finished(state), events: [.matchFinished(winner: winner(of: state))])
@@ -351,29 +405,45 @@ public struct RallyMatchReducer: DomainReducer {
         }
     }
 
-    private func pointWon(_ side: MatchSide, state: RallyMatchState) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+    private func pointWon(
+        _ side: MatchSide,
+        state: RallyMatchState,
+        recordsReplay: Bool = true
+    ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
         guard !state.finished else { return .rejected(state: state, reason: "Match is already finished") }
-
-        if usesPickleballServeRules(state) {
-            return pickleballPointWon(side, state: state)
+        if case .pingPong(let rotation) = state.doubles?.rotation,
+           rotation.pendingGameOpening != nil {
+            return .rejected(state: state, reason: "Ping-pong doubles opening order requires confirmation")
         }
 
-        if !state.rules.useRallyScoring,
-           state.rules.servingModel == .scorerServes,
-           side != state.servingSide {
-            var next = state
+        var prepared = state
+        if recordsReplay, state.rules.useRallyScoring {
+            if prepared.currentSetReplay == nil {
+                prepared.currentSetReplay = makeCurrentSetReplayBaseline(from: prepared)
+            }
+            prepared.currentSetReplay?.actions.append(.pointWon(side))
+        }
+
+        if usesPickleballServeRules(prepared) {
+            return pickleballPointWon(side, state: prepared)
+        }
+
+        if !prepared.rules.useRallyScoring,
+           prepared.rules.servingModel == .scorerServes,
+           side != prepared.servingSide {
+            var next = prepared
             next.servingSide = side
             return .init(state: next)
         }
-        var next = state
+        var next = prepared
         if side == .left { next.leftPoints += 1 } else { next.rightPoints += 1 }
         if let cap = effectivePointCap(in: state, setNumber: state.currentSet) {
             next.leftPoints = min(next.leftPoints, cap)
             next.rightPoints = min(next.rightPoints, cap)
         }
-        next.doubles = advanceDoubles(previous: state, next: next, scorer: side)
+        next.doubles = advanceDoubles(previous: prepared, next: next, scorer: side)
         next.servingSide = nextServer(after: side, state: next)
-        return finalizePointResult(previous: state, next: next, scoredSide: side)
+        return finalizePointResult(previous: prepared, next: next, scoredSide: side)
     }
 
     private func usesPickleballServeRules(_ state: RallyMatchState) -> Bool {
@@ -513,15 +583,16 @@ public struct RallyMatchReducer: DomainReducer {
             next.servingSide = next.firstServerInSet
             next.doubles = startNextSetDoubles(next.doubles, servingSide: next.firstServerInSet)
             if next.rules.autoChangeSides {
-                next = exchanged(next)
+                next = exchanged(next, recordsReplay: false)
                 events.append(.sidesExchanged)
             }
+            next.currentSetReplay = makeCurrentSetReplayBaseline(from: next)
             return .init(state: next, events: events)
         }
 
         if shouldRemindSideChange(previous: previous, next: next) {
             if next.rules.autoChangeSides {
-                next = exchanged(next)
+                next = exchanged(next, recordsReplay: false)
                 events.append(.sidesExchanged)
             } else {
                 events.append(.sidesExchangeReminder)
@@ -636,11 +707,21 @@ public struct RallyMatchReducer: DomainReducer {
     ) -> RallyDoublesState? {
         guard var doubles else { return nil }
         switch doubles.rotation {
-        case .pingPong:
+        case .pingPong(let rotation):
             let server = servingSide == .left ? 0 : 1
+            let receiver = pingPongDoublesReceiverForNextGame(
+                chosenServerSlotIndex: server,
+                previousOpeningServerSlotIndex: rotation.openingServerSlotIndex,
+                previousOpeningReceiverSlotIndex: rotation.openingReceiverSlotIndex
+            ) ?? (server == 0 ? 1 : 0)
             doubles.rotation = .pingPong(createPingPongDoublesRotation(
                 openingServerSlotIndex: server,
-                openingReceiverSlotIndex: server == 0 ? 1 : 0
+                openingReceiverSlotIndex: receiver,
+                pendingGameOpening: .init(
+                    servingTeam0: servingSide == .left,
+                    previousOpeningServerSlotIndex: rotation.openingServerSlotIndex,
+                    previousOpeningReceiverSlotIndex: rotation.openingReceiverSlotIndex
+                )
             ))
         case .badminton(let rotation):
             let servingTeam0 = servingSide == .left
@@ -681,7 +762,8 @@ public struct RallyMatchReducer: DomainReducer {
             return .pingPong(
                 playerNames: doubles.playerNames,
                 openingServerSlotIndex: server,
-                openingReceiverSlotIndex: server == 0 ? 1 : 0
+                openingReceiverSlotIndex: server == 0 ? 1 : 0,
+                requiresOpeningConfirmation: true
             )
         case .badminton:
             return .badminton(playerNames: doubles.playerNames, servingTeam0: openingServer == .left)
@@ -694,19 +776,177 @@ public struct RallyMatchReducer: DomainReducer {
 
     private func adjustPoints(side: MatchSide, delta: Int, state: RallyMatchState) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
         guard delta != 0 else { return .rejected(state: state, reason: "Zero delta") }
-        var next = state
-        if side == .left {
-            next.leftPoints = max(0, next.leftPoints + delta)
+        guard !state.finished else { return .rejected(state: state, reason: "Match is already finished") }
+        if delta > 0 {
+            var current = state
+            var events: [RallyMatchEvent] = []
+            for _ in 0..<delta {
+                let result = pointWon(side, state: current)
+                guard result.accepted else { return result }
+                current = result.state
+                events.append(contentsOf: result.events)
+            }
+            return .init(state: current, events: events)
+        }
+
+        guard delta == -1 else {
+            return .rejected(state: state, reason: "Only single-point decrements are supported")
+        }
+        let availableReplay = state.currentSetReplay ?? legacyPingPongReplay(from: state)
+        guard var replay = availableReplay,
+              let removalIndex = replay.actions.lastIndex(where: {
+                  if case .pointWon(let scorer) = $0 { return scorer == side }
+                  return false
+              }) else {
+            return .rejected(state: state, reason: "Rotation correction required")
+        }
+        replay.actions.remove(at: removalIndex)
+        let corrected = replayCurrentSet(state: state, replay: replay)
+        guard corrected.accepted else { return corrected }
+        return .init(
+            state: corrected.state,
+            events: [.pointsAdjusted(
+                side: side,
+                delta: -1,
+                leftPoints: corrected.state.leftPoints,
+                rightPoints: corrected.state.rightPoints
+            )]
+        )
+    }
+
+    /// Old table-tennis drafts did not persist rally history. Its serving and
+    /// doubles receiving order depend on total points rather than who won each
+    /// rally, so an aggregate-score replay is deterministic and safe.
+    private func legacyPingPongReplay(from state: RallyMatchState) -> RallyCurrentSetReplay? {
+        guard state.rules.servingModel == .pingPongTwoServes else { return nil }
+        let baselineDoubles: RallyDoublesState?
+        if let doubles = state.doubles, case .pingPong(let rotation) = doubles.rotation {
+            baselineDoubles = .init(
+                playerNames: doubles.playerNames,
+                rotation: .pingPong(createPingPongDoublesRotation(
+                    openingServerSlotIndex: rotation.openingServerSlotIndex,
+                    openingReceiverSlotIndex: rotation.openingReceiverSlotIndex
+                ))
+            )
         } else {
-            next.rightPoints = max(0, next.rightPoints + delta)
+            baselineDoubles = state.doubles
         }
-        if let cap = effectivePointCap(in: state, setNumber: state.currentSet) {
-            next.leftPoints = min(next.leftPoints, cap)
-            next.rightPoints = min(next.rightPoints, cap)
+        var actions: [RallyCurrentSetReplayAction] = []
+        let pairedPoints = min(state.leftPoints, state.rightPoints)
+        for _ in 0..<pairedPoints {
+            actions.append(.pointWon(.left))
+            actions.append(.pointWon(.right))
         }
-        guard next.leftPoints != state.leftPoints || next.rightPoints != state.rightPoints else {
-            return .rejected(state: state, reason: "No change")
+        if state.leftPoints > pairedPoints {
+            actions.append(contentsOf: Array(
+                repeating: .pointWon(.left),
+                count: state.leftPoints - pairedPoints
+            ))
         }
+        if state.rightPoints > pairedPoints {
+            actions.append(contentsOf: Array(
+                repeating: .pointWon(.right),
+                count: state.rightPoints - pairedPoints
+            ))
+        }
+        return RallyCurrentSetReplay(
+            baselineLeftPoints: 0,
+            baselineRightPoints: 0,
+            baselineServingSide: state.firstServerInSet,
+            baselineFirstServerInSet: state.firstServerInSet,
+            baselineSidesSwapped: state.sidesSwapped,
+            baselineDoubles: baselineDoubles,
+            actions: actions
+        )
+    }
+
+    private func replayCurrentSet(
+        state: RallyMatchState,
+        replay: RallyCurrentSetReplay
+    ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+        var next = state
+        next.leftPoints = replay.baselineLeftPoints
+        next.rightPoints = replay.baselineRightPoints
+        next.servingSide = replay.baselineServingSide
+        next.firstServerInSet = replay.baselineFirstServerInSet
+        next.sidesSwapped = replay.baselineSidesSwapped
+        next.doubles = replay.baselineDoubles
+        next.currentSetReplay = RallyCurrentSetReplay(
+            baselineLeftPoints: replay.baselineLeftPoints,
+            baselineRightPoints: replay.baselineRightPoints,
+            baselineServingSide: replay.baselineServingSide,
+            baselineFirstServerInSet: replay.baselineFirstServerInSet,
+            baselineSidesSwapped: replay.baselineSidesSwapped,
+            baselineDoubles: replay.baselineDoubles
+        )
+        for action in replay.actions {
+            switch action {
+            case .pointWon(let scorer):
+                let result = pointWon(scorer, state: next, recordsReplay: false)
+                guard result.accepted else { return result }
+                next = result.state
+            case .exchangeSides:
+                next = exchanged(next, recordsReplay: false)
+            }
+        }
+        next.currentSetReplay = replay
+        return .init(state: next)
+    }
+
+    private func makeCurrentSetReplayBaseline(from state: RallyMatchState) -> RallyCurrentSetReplay {
+        RallyCurrentSetReplay(
+            baselineLeftPoints: state.leftPoints,
+            baselineRightPoints: state.rightPoints,
+            baselineServingSide: state.servingSide,
+            baselineFirstServerInSet: state.firstServerInSet,
+            baselineSidesSwapped: state.sidesSwapped,
+            baselineDoubles: state.doubles
+        )
+    }
+
+    private func confirmPingPongDoublesOpening(
+        serverSlot: Int,
+        receiverSlot: Int?,
+        state: RallyMatchState
+    ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+        guard var doubles = state.doubles,
+              case .pingPong(let rotation) = doubles.rotation,
+              let pending = rotation.pendingGameOpening,
+              (0..<4).contains(serverSlot),
+              isTeam0DoublesSlot(serverSlot) == pending.servingTeam0 else {
+            return .rejected(state: state, reason: "Invalid ping-pong doubles opening server")
+        }
+
+        let resolvedReceiver: Int?
+        if pending.isFirstGame {
+            resolvedReceiver = receiverSlot.flatMap { candidate in
+                (0..<4).contains(candidate) && isTeam0DoublesSlot(candidate) != pending.servingTeam0
+                    ? candidate
+                    : nil
+            }
+        } else if let previousServer = pending.previousOpeningServerSlotIndex,
+                  let previousReceiver = pending.previousOpeningReceiverSlotIndex {
+            resolvedReceiver = pingPongDoublesReceiverForNextGame(
+                chosenServerSlotIndex: serverSlot,
+                previousOpeningServerSlotIndex: previousServer,
+                previousOpeningReceiverSlotIndex: previousReceiver
+            )
+        } else {
+            resolvedReceiver = nil
+        }
+        guard let resolvedReceiver else {
+            return .rejected(state: state, reason: "Invalid ping-pong doubles opening receiver")
+        }
+
+        doubles.rotation = .pingPong(createPingPongDoublesRotation(
+            openingServerSlotIndex: serverSlot,
+            openingReceiverSlotIndex: resolvedReceiver
+        ))
+        var next = state
+        next.doubles = doubles
+        next.servingSide = pending.servingTeam0 ? .left : .right
+        next.firstServerInSet = next.servingSide
+        next.currentSetReplay = makeCurrentSetReplayBaseline(from: next)
         return .init(state: next)
     }
 
@@ -752,9 +992,15 @@ public struct RallyMatchReducer: DomainReducer {
         return next
     }
 
-    private func exchanged(_ state: RallyMatchState) -> RallyMatchState {
+    private func exchanged(_ state: RallyMatchState, recordsReplay: Bool) -> RallyMatchState {
         var next = state
         next.sidesSwapped.toggle()
+        if recordsReplay {
+            if next.currentSetReplay == nil {
+                next.currentSetReplay = makeCurrentSetReplayBaseline(from: state)
+            }
+            next.currentSetReplay?.actions.append(.exchangeSides)
+        }
         return next
     }
 

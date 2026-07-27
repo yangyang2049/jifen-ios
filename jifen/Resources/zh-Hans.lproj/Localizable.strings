@@ -771,6 +771,8 @@
 "watch_sync_comm_failure_help_confirm" = "知道了";
 "linked_score_not_controller" = "当前不是主控端，无法执行该操作。";
 "linked_score_reclaim_denied" = "手表拒绝交还控制权。";
+"pingpong_doubles_confirm_opening" = "确认本局首发顺序";
+"linked_score_waiting_controller" = "等待控制端确认";
 "linked_score_unsupported_record_type" = "无法同步不支持的手表记录类型：%@";
 "record_detail_synced_from_watch_hint" = "这条记录已从手表同步到手机";
 "record_detail_synced_from_watch_badge" = "手表记录已同步";

@@ -211,6 +211,9 @@ struct WatchRallyScoreView: View {
                 WatchSideExchangeToast()
                     .transition(.opacity)
             }
+            if let opening = pendingPingPongDoublesOpening {
+                pingPongDoublesOpeningOverlay(opening)
+            }
             if showMenu {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
@@ -391,6 +394,57 @@ struct WatchRallyScoreView: View {
             },
             onExit: exitBoard
         )
+    }
+
+    private var pendingPingPongDoublesOpening: PingPongDoublesGameOpening? {
+        guard case .pingPong(let rotation) = store.state.doubles?.rotation else { return nil }
+        return rotation.pendingGameOpening
+    }
+
+    @ViewBuilder
+    private func pingPongDoublesOpeningOverlay(_ opening: PingPongDoublesGameOpening) -> some View {
+        let serverSlots = opening.servingTeam0 ? [0, 2] : [1, 3]
+        let receiverSlots = opening.servingTeam0 ? [1, 3] : [0, 2]
+        VStack(spacing: 7) {
+            Text(NSLocalizedString("pingpong_doubles_confirm_opening", value: "确认首发", comment: ""))
+                .font(.system(size: 14, weight: .bold))
+            if scoringLocked {
+                Text(NSLocalizedString("linked_score_waiting_controller", value: "等待手机确认", comment: ""))
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            } else if opening.isFirstGame {
+                ForEach(serverSlots, id: \.self) { server in
+                    HStack(spacing: 6) {
+                        ForEach(receiverSlots, id: \.self) { receiver in
+                            watchOpeningChoiceButton(server: server, receiver: receiver)
+                        }
+                    }
+                }
+            } else {
+                HStack(spacing: 8) {
+                    ForEach(serverSlots, id: \.self) { server in
+                        watchOpeningChoiceButton(server: server, receiver: nil)
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .foregroundStyle(.white)
+        .background(.black.opacity(0.9), in: RoundedRectangle(cornerRadius: 14))
+        .padding(10)
+        .allowsHitTesting(!scoringLocked)
+    }
+
+    private func watchOpeningChoiceButton(server: Int, receiver: Int?) -> some View {
+        let names = store.state.doubles?.playerNames ?? []
+        let serverName = names.indices.contains(server) ? names[server] : ""
+        let receiverName = receiver.flatMap { names.indices.contains($0) ? names[$0] : nil }
+        let title = receiverName.map { "\(serverName)→\($0)" } ?? serverName
+        return Button(title) {
+            store.send(.confirmPingPongDoublesOpening(serverSlot: server, receiverSlot: receiver))
+        }
+        .font(.system(size: 10, weight: .semibold))
+        .buttonStyle(.borderedProminent)
     }
 
     private var doublesBoard: some View {

@@ -557,52 +557,15 @@ struct WatchDoublesDisplayState: Equatable {
         logicalSide: MatchSide,
         screenSide: MatchSide
     ) -> WatchDoublesDisplayState {
-        let team0 = logicalSide == .left
-        var topIndex = team0 ? 0 : 1
-        var bottomIndex = team0 ? 2 : 3
-        var serverIsTop: Bool?
-
-        switch doubles.rotation {
-        case .badminton(let rotation):
-            let orderSwapped = team0
-                ? rotation.team0CourtOrderSwapped
-                : rotation.team1CourtOrderSwapped
-            if orderSwapped {
-                swap(&topIndex, &bottomIndex)
-            }
-            if isTeam0DoublesSlot(rotation.serverSlotIndex) == team0 {
-                serverIsTop = rotation.serverSlotIndex == topIndex
-            }
-
-        case .pickleball(let rotation):
-            let partnersSwapped = team0
-                ? rotation.team0PartnersSwapped
-                : rotation.team1PartnersSwapped
-            if partnersSwapped {
-                swap(&topIndex, &bottomIndex)
-            }
-            if screenSide == .right {
-                swap(&topIndex, &bottomIndex)
-            }
-            if isTeam0DoublesSlot(rotation.serverSlotIndex) == team0 {
-                let logicalServerOnTop = rotation.serverNumber == 2
-                let displayLogicalTop = logicalServerOnTop != partnersSwapped
-                serverIsTop = screenSide == .right ? !displayLogicalTop : displayLogicalTop
-            }
-
-        case .pingPong(let rotation):
-            if isTeam0DoublesSlot(rotation.serverSlotIndex) == team0 {
-                serverIsTop = rotation.serverSlotIndex == topIndex
-            }
-
-        case .foosball:
-            break
-        }
-
+        let resolved = RallyDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: logicalSide,
+            screenSide: screenSide
+        )
         return WatchDoublesDisplayState(
-            topPlayerIndex: topIndex,
-            bottomPlayerIndex: bottomIndex,
-            serverIsTop: serverIsTop
+            topPlayerIndex: resolved.topPlayerIndex,
+            bottomPlayerIndex: resolved.bottomPlayerIndex,
+            serverIsTop: resolved.serverIsTop
         )
     }
 }

@@ -911,6 +911,177 @@ import SessionCore
     #expect(await session.snapshot().state.doubles?.receiverSlotIndex == 1)
 }
 
+@Test func badmintonAdministrativeDecrementReplaysSelectedTeamsLatestPoint() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .badminton(),
+        doubles: .badminton(playerNames: ["R1", "B1", "R2", "B2"])
+    )
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 3).state
+    let corrected = reducer.reduce(state: state, intent: .adjustPoints(side: .right, delta: -1), at: 4)
+
+    #expect(corrected.state.leftPoints == 2)
+    #expect(corrected.state.rightPoints == 0)
+    #expect(corrected.state.servingSide == .left)
+    #expect(corrected.state.doubles?.serverSlotIndex == 2)
+    #expect(corrected.state.doubles?.receiverSlotIndex == 1)
+    #expect(corrected.events == [.pointsAdjusted(side: .right, delta: -1, leftPoints: 2, rightPoints: 0)])
+}
+
+@Test func pingPongAdministrativeDecrementRecomputesServeFromReplay() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
+    #expect(state.servingSide == .right)
+
+    state = reducer.reduce(state: state, intent: .adjustPoints(side: .left, delta: -1), at: 3).state
+    #expect(state.leftPoints == 1)
+    #expect(state.rightPoints == 0)
+    #expect(state.servingSide == .left)
+}
+
+@Test func rallyCorrectionHistorySurvivesAuthorityRebaseWithoutRestoringUndo() async {
+    let reducer = RallyMatchReducer()
+    var authoritative = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
+    authoritative = reducer.reduce(state: authoritative, intent: .pointWon(.left), at: 1).state
+    authoritative = reducer.reduce(state: authoritative, intent: .pointWon(.left), at: 2).state
+    let seed = ScoreSession<RallyMatchState, RallyMatchEvent>(
+        gameType: .pingpong,
+        ruleFamily: .s1,
+        reducerType: "rally/v1",
+        state: RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
+    )
+    let session = ScoreSessionCore(seedSession: seed, reducer: reducer)
+
+    _ = await session.rebase(to: authoritative, status: .live)
+    #expect(!(await session.undo(actorId: "phone")))
+    _ = await session.dispatch(actorId: "phone", intent: .adjustPoints(side: .left, delta: -1), at: 3)
+    let corrected = await session.snapshot().state
+    #expect(corrected.leftPoints == 1)
+    #expect(corrected.servingSide == .left)
+}
+
+@Test func legacyRallySnapshotWithoutReplayStillDecodes() throws {
+    let state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton())
+    let encoded = try JSONEncoder().encode(state)
+    var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    object.removeValue(forKey: "currentSetReplay")
+    let legacy = try JSONSerialization.data(withJSONObject: object)
+    let decoded = try JSONDecoder().decode(RallyMatchState.self, from: legacy)
+    #expect(decoded.currentSetReplay == nil)
+    #expect(decoded.leftPoints == 0)
+}
+
+@Test func pingPongDoublesRequiresOpeningConfirmationAndDerivesNextReceiver() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pingPong(),
+        doubles: .pingPong(
+            playerNames: ["R1", "B1", "R2", "B2"],
+            requiresOpeningConfirmation: true
+        )
+    )
+    #expect(!reducer.reduce(state: state, intent: .pointWon(.left), at: 1).accepted)
+    state = reducer.reduce(
+        state: state,
+        intent: .confirmPingPongDoublesOpening(serverSlot: 2, receiverSlot: 3),
+        at: 2
+    ).state
+    #expect(state.doubles?.serverSlotIndex == 2)
+    #expect(state.doubles?.receiverSlotIndex == 3)
+
+    for point in 0..<11 {
+        state = reducer.reduce(state: state, intent: .pointWon(.left), at: Int64(point + 3)).state
+    }
+
+    guard case .pingPong(let pendingRotation) = state.doubles?.rotation else {
+        Issue.record("Expected ping-pong doubles rotation")
+        return
+    }
+    #expect(pendingRotation.pendingGameOpening != nil)
+    #expect(!reducer.reduce(state: state, intent: .pointWon(.right), at: 20).accepted)
+
+    state = reducer.reduce(
+        state: state,
+        intent: .confirmPingPongDoublesOpening(serverSlot: 1, receiverSlot: nil),
+        at: 21
+    ).state
+    #expect(state.doubles?.serverSlotIndex == 1)
+    #expect(state.doubles?.receiverSlotIndex == 0)
+}
+
+@Test func legacyPingPongSnapshotWithoutReplayCanRecomputeAfterDecrement() {
+    var state = RallyMatchEngine.initial(
+        leftName: "A",
+        rightName: "B",
+        rules: .pingPong(maxSets: 5),
+        openingServer: .left
+    )
+    state.leftPoints = 2
+    state.rightPoints = 0
+    state.servingSide = .right
+    state.currentSetReplay = nil
+
+    let result = RallyMatchReducer().reduce(
+        state: state,
+        intent: .adjustPoints(side: .left, delta: -1),
+        at: 1
+    )
+
+    #expect(result.accepted)
+    #expect(result.state.leftPoints == 1)
+    #expect(result.state.rightPoints == 0)
+    #expect(result.state.servingSide == .left)
+    #expect(result.state.currentSetReplay != nil)
+}
+
+@Test func legacyPingPongDeuceSnapshotRebuildDoesNotPrematurelyCompleteSet() {
+    var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
+    state.leftPoints = 11
+    state.rightPoints = 11
+    state.currentSetReplay = nil
+
+    let result = RallyMatchReducer().reduce(
+        state: state,
+        intent: .adjustPoints(side: .left, delta: -1),
+        at: 1
+    )
+
+    #expect(result.accepted)
+    #expect(result.state.leftPoints == 10)
+    #expect(result.state.rightPoints == 11)
+    #expect(result.state.leftSets == 0)
+    #expect(result.state.rightSets == 0)
+}
+
+@Test func rallyDoublesDisplayUsesBadmintonCourtOrderOnPhoneAndWatch() {
+    var doubles = RallyDoublesState.badminton(
+        playerNames: ["R1", "B1", "R2", "B2"],
+        servingTeam0: true
+    )
+    doubles.rotation = .badminton(.init(
+        serverSlotIndex: 2,
+        receiverSlotIndex: 3,
+        team0CourtOrderSwapped: true,
+        team1CourtOrderSwapped: true
+    ))
+    let left = RallyDoublesDisplayState.resolve(doubles: doubles, logicalSide: .left, screenSide: .left)
+    let right = RallyDoublesDisplayState.resolve(doubles: doubles, logicalSide: .right, screenSide: .right)
+    #expect(left.topPlayerIndex == 2)
+    #expect(left.bottomPlayerIndex == 0)
+    #expect(left.serverIsTop == true)
+    #expect(right.topPlayerIndex == 3)
+    #expect(right.bottomPlayerIndex == 1)
+    #expect(right.receiverIsTop == true)
+}
+
 @Test func linkedRallySnapshotPreservesDoublesNamesAndRotation() throws {
     let reducer = RallyMatchReducer()
     var state = RallyMatchEngine.initial(

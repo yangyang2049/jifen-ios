@@ -1887,7 +1887,8 @@ struct SportsSetupDialogView: View {
             return .pingPong(
                 playerNames: names,
                 openingServerSlotIndex: openingServer == .left ? 0 : 1,
-                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
+                openingReceiverSlotIndex: openingServer == .left ? 1 : 0,
+                requiresOpeningConfirmation: true
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)

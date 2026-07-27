@@ -8,19 +8,44 @@ public struct PingPongDoublesRotationState: Codable, Equatable, Sendable {
     public let openingServerSlotIndex: DoublesPlayerSlotIndex
     public let openingReceiverSlotIndex: DoublesPlayerSlotIndex
     public var decidingReceiverOrderChanged: Bool
+    /// Non-nil while the next game's individual opening order must be
+    /// confirmed by the active controller before another point is scored.
+    public var pendingGameOpening: PingPongDoublesGameOpening?
 
     public init(
         serverSlotIndex: DoublesPlayerSlotIndex,
         receiverSlotIndex: DoublesPlayerSlotIndex,
         openingServerSlotIndex: DoublesPlayerSlotIndex,
         openingReceiverSlotIndex: DoublesPlayerSlotIndex,
-        decidingReceiverOrderChanged: Bool = false
+        decidingReceiverOrderChanged: Bool = false,
+        pendingGameOpening: PingPongDoublesGameOpening? = nil
     ) {
         self.serverSlotIndex = serverSlotIndex
         self.receiverSlotIndex = receiverSlotIndex
         self.openingServerSlotIndex = openingServerSlotIndex
         self.openingReceiverSlotIndex = openingReceiverSlotIndex
         self.decidingReceiverOrderChanged = decidingReceiverOrderChanged
+        self.pendingGameOpening = pendingGameOpening
+    }
+}
+
+public struct PingPongDoublesGameOpening: Codable, Equatable, Sendable {
+    public let servingTeam0: Bool
+    public let previousOpeningServerSlotIndex: DoublesPlayerSlotIndex?
+    public let previousOpeningReceiverSlotIndex: DoublesPlayerSlotIndex?
+
+    public init(
+        servingTeam0: Bool,
+        previousOpeningServerSlotIndex: DoublesPlayerSlotIndex? = nil,
+        previousOpeningReceiverSlotIndex: DoublesPlayerSlotIndex? = nil
+    ) {
+        self.servingTeam0 = servingTeam0
+        self.previousOpeningServerSlotIndex = previousOpeningServerSlotIndex
+        self.previousOpeningReceiverSlotIndex = previousOpeningReceiverSlotIndex
+    }
+
+    public var isFirstGame: Bool {
+        previousOpeningServerSlotIndex == nil || previousOpeningReceiverSlotIndex == nil
     }
 }
 
@@ -104,13 +129,17 @@ public struct RallyDoublesState: Codable, Equatable, Sendable {
     public static func pingPong(
         playerNames: [String],
         openingServerSlotIndex: DoublesPlayerSlotIndex = 0,
-        openingReceiverSlotIndex: DoublesPlayerSlotIndex = 1
+        openingReceiverSlotIndex: DoublesPlayerSlotIndex = 1,
+        requiresOpeningConfirmation: Bool = false
     ) -> Self {
         .init(
             playerNames: playerNames,
             rotation: .pingPong(createPingPongDoublesRotation(
                 openingServerSlotIndex: openingServerSlotIndex,
-                openingReceiverSlotIndex: openingReceiverSlotIndex
+                openingReceiverSlotIndex: openingReceiverSlotIndex,
+                pendingGameOpening: requiresOpeningConfirmation
+                    ? .init(servingTeam0: isTeam0DoublesSlot(openingServerSlotIndex))
+                    : nil
             ))
         )
     }
@@ -193,14 +222,87 @@ public func isTeam0DoublesSlot(_ slot: DoublesPlayerSlotIndex) -> Bool {
 
 public func createPingPongDoublesRotation(
     openingServerSlotIndex: DoublesPlayerSlotIndex,
-    openingReceiverSlotIndex: DoublesPlayerSlotIndex
+    openingReceiverSlotIndex: DoublesPlayerSlotIndex,
+    pendingGameOpening: PingPongDoublesGameOpening? = nil
 ) -> PingPongDoublesRotationState {
     PingPongDoublesRotationState(
         serverSlotIndex: openingServerSlotIndex,
         receiverSlotIndex: openingReceiverSlotIndex,
         openingServerSlotIndex: openingServerSlotIndex,
-        openingReceiverSlotIndex: openingReceiverSlotIndex
+        openingReceiverSlotIndex: openingReceiverSlotIndex,
+        pendingGameOpening: pendingGameOpening
     )
+}
+
+public func pingPongDoublesReceiverForNextGame(
+    chosenServerSlotIndex: DoublesPlayerSlotIndex,
+    previousOpeningServerSlotIndex: DoublesPlayerSlotIndex,
+    previousOpeningReceiverSlotIndex: DoublesPlayerSlotIndex
+) -> DoublesPlayerSlotIndex? {
+    if chosenServerSlotIndex == previousOpeningReceiverSlotIndex {
+        return previousOpeningServerSlotIndex
+    }
+    if chosenServerSlotIndex == doublesPartnerSlot(previousOpeningReceiverSlotIndex) {
+        return doublesPartnerSlot(previousOpeningServerSlotIndex)
+    }
+    return nil
+}
+
+public struct RallyDoublesDisplayState: Equatable, Sendable {
+    public let topPlayerIndex: Int
+    public let bottomPlayerIndex: Int
+    public let serverIsTop: Bool?
+    public let receiverIsTop: Bool?
+
+    public init(
+        topPlayerIndex: Int,
+        bottomPlayerIndex: Int,
+        serverIsTop: Bool?,
+        receiverIsTop: Bool?
+    ) {
+        self.topPlayerIndex = topPlayerIndex
+        self.bottomPlayerIndex = bottomPlayerIndex
+        self.serverIsTop = serverIsTop
+        self.receiverIsTop = receiverIsTop
+    }
+
+    public static func resolve(
+        doubles: RallyDoublesState,
+        logicalSide: MatchSide,
+        screenSide: MatchSide,
+        appliesCourtOrder: Bool = true
+    ) -> Self {
+        let team0 = logicalSide == .left
+        var topIndex = team0 ? 0 : 1
+        var bottomIndex = team0 ? 2 : 3
+        var resolvedServerIsTop: Bool?
+
+        switch doubles.rotation {
+        case .badminton(let rotation):
+            let swapped = team0 ? rotation.team0CourtOrderSwapped : rotation.team1CourtOrderSwapped
+            if appliesCourtOrder, swapped { swap(&topIndex, &bottomIndex) }
+        case .pickleball(let rotation):
+            let swapped = team0 ? rotation.team0PartnersSwapped : rotation.team1PartnersSwapped
+            if appliesCourtOrder, swapped { swap(&topIndex, &bottomIndex) }
+            if screenSide == .right { swap(&topIndex, &bottomIndex) }
+            if isTeam0DoublesSlot(rotation.serverSlotIndex) == team0 {
+                let logicalServerOnTop = rotation.serverNumber == 2
+                let displayLogicalTop = logicalServerOnTop != swapped
+                resolvedServerIsTop = screenSide == .right ? !displayLogicalTop : displayLogicalTop
+            }
+        case .pingPong, .foosball:
+            break
+        }
+
+        let server = doubles.serverSlotIndex
+        let receiver = doubles.receiverSlotIndex
+        return .init(
+            topPlayerIndex: topIndex,
+            bottomPlayerIndex: bottomIndex,
+            serverIsTop: resolvedServerIsTop ?? (isTeam0DoublesSlot(server) == team0 ? server == topIndex : nil),
+            receiverIsTop: isTeam0DoublesSlot(receiver) == team0 ? receiver == topIndex : nil
+        )
+    }
 }
 
 public func advancePingPongDoublesRotation(

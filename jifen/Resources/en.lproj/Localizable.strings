@@ -771,6 +771,8 @@
 "watch_sync_comm_failure_help_confirm" = "Got it";
 "linked_score_not_controller" = "This device is not the controller, so that action can’t be performed.";
 "linked_score_reclaim_denied" = "The watch declined to return control.";
+"pingpong_doubles_confirm_opening" = "Confirm opening order";
+"linked_score_waiting_controller" = "Waiting for the controller";
 "linked_score_unsupported_record_type" = "Unsupported watch record type: %@";
 "record_detail_synced_from_watch_hint" = "This record was synced from the watch to this phone.";
 "record_detail_synced_from_watch_badge" = "Watch record synced";
