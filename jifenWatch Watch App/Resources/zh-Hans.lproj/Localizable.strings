@@ -44,6 +44,7 @@
 "setup" = "设置";
 "vibration" = "振动";
 "sound" = "声音";
+"watch_scoreboard_keep_screen_on" = "计分时屏幕常亮";
 
 /* Ping Pong / Tennis Sets */
 "pingpong_sets" = "乒乓球局数";

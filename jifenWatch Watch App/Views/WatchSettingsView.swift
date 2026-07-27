@@ -4,6 +4,7 @@ struct WatchSettingsView: View {
     @AppStorage("watch_vibration_enabled") private var vibrationEnabled: Bool = true
     @AppStorage("watch_sound_enabled") private var soundEnabled: Bool = true
     @AppStorage("watch_set_break_enabled") private var setBreakEnabled: Bool = true
+    @AppStorage(WatchPreferences.scoreboardKeepScreenOnKey) private var scoreboardKeepScreenOn: Bool = true
     @State private var scoreboardLayout: String = "horizontal"
     @State private var showUsageAlert: Bool = false
     @State private var showRecordSyncHelp: Bool = false
@@ -15,6 +16,14 @@ struct WatchSettingsView: View {
             VStack(spacing: 8) {
                 settingRow(title: NSLocalizedString("vibration", comment: "Vibration"), isOn: $vibrationEnabled)
                 settingRow(title: NSLocalizedString("sound", comment: "Sound"), isOn: $soundEnabled)
+                settingRow(
+                    title: NSLocalizedString(
+                        "watch_scoreboard_keep_screen_on",
+                        value: "计分时屏幕常亮",
+                        comment: ""
+                    ),
+                    isOn: $scoreboardKeepScreenOn
+                )
                 settingRow(
                     title: NSLocalizedString("watch_rest_between_sets", value: "局间休息", comment: ""),
                     isOn: $setBreakEnabled
@@ -51,9 +60,13 @@ struct WatchSettingsView: View {
         .onChange(of: setBreakEnabled) { _, newValue in
             WatchPreferences.shared.setBreakEnabled = newValue
         }
+        .onChange(of: scoreboardKeepScreenOn) { _, newValue in
+            WatchPreferences.shared.scoreboardKeepScreenOn = newValue
+        }
         .onAppear {
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
             setBreakEnabled = WatchPreferences.shared.setBreakEnabled
+            scoreboardKeepScreenOn = WatchPreferences.shared.scoreboardKeepScreenOn
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
@@ -154,10 +167,14 @@ struct WatchSettingsView: View {
             Text(title)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(WatchTheme.primaryText)
+                .lineLimit(2)
+                .minimumScaleFactor(0.72)
+                .layoutPriority(1)
             Spacer()
             Toggle("", isOn: isOn)
                 .labelsHidden()
                 .tint(WatchTheme.accent)
+                .fixedSize()
         }
         .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
         .frame(height: WatchMetrics.pillHeight)

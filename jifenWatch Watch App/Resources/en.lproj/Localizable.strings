@@ -44,6 +44,7 @@
 "setup" = "Setup";
 "vibration" = "Vibration";
 "sound" = "Sound";
+"watch_scoreboard_keep_screen_on" = "Keep screen on";
 
 /* Ping Pong / Tennis Sets */
 "pingpong_sets" = "Ping Pong Sets";

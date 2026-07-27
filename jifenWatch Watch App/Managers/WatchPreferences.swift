@@ -7,6 +7,7 @@ extension Notification.Name {
 final class WatchPreferences {
     static let shared = WatchPreferences()
     static let pinnedHomeItemIDsKey = "watch_pinned_home_item_ids"
+    static let scoreboardKeepScreenOnKey = "watch_scoreboard_keep_screen_on"
 
     private let defaults: UserDefaults
 
@@ -28,6 +29,12 @@ final class WatchPreferences {
     var setBreakEnabled: Bool {
         get { defaults.object(forKey: "watch_set_break_enabled") as? Bool ?? true }
         set { defaults.set(newValue, forKey: "watch_set_break_enabled") }
+    }
+
+    /// Keep the scoreboard visible while watchOS is in the Always On state. Default on.
+    var scoreboardKeepScreenOn: Bool {
+        get { defaults.object(forKey: Self.scoreboardKeepScreenOnKey) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Self.scoreboardKeepScreenOnKey) }
     }
 
     /// Scoreboard layout: "horizontal" (left-right) or "vertical" (top-bottom). Default is horizontal.

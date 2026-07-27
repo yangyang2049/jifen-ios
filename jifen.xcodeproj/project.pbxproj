@@ -120,6 +120,16 @@
 		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D30000000000000000000001 /* Exceptions for "jifenWatch Watch App" folder in "jifenWatch Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0FA5BAE22F18F43E00182375 /* jifenWatch Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0FA5BAD32F18F3EB00182375 /* jifen */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -128,6 +138,9 @@
 		};
 		0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D30000000000000000000001 /* Exceptions for "jifenWatch Watch App" folder in "jifenWatch Watch App" target */,
+			);
 			path = "jifenWatch Watch App";
 			sourceTree = "<group>";
 		};
@@ -896,6 +909,7 @@
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "jifenWatch Watch App/Info.plist";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.douhua.jifen.ios;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -928,6 +942,7 @@
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "jifenWatch Watch App/Info.plist";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.douhua.jifen.ios;
 				LD_RUNPATH_SEARCH_PATHS = (

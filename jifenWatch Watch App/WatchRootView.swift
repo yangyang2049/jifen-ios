@@ -300,6 +300,7 @@ struct WatchRootView: View {
             }
         } else {
             scoreDestination(for: route)
+                .watchScoreboardAlwaysOn()
                 .ignoresSafeArea()
                 .navigationBarBackButtonHidden(true)
                 .toolbar(.hidden, for: .navigationBar)

@@ -1,6 +1,30 @@
 import ScoreCore
 import SwiftUI
 
+private struct WatchScoreboardAlwaysOnModifier: ViewModifier {
+    @AppStorage(WatchPreferences.scoreboardKeepScreenOnKey) private var keepScreenOn = true
+    @Environment(\.isLuminanceReduced) private var isLuminanceReduced
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if !keepScreenOn && isLuminanceReduced {
+                    Color.black
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .onTapGesture { }
+                        .accessibilityHidden(true)
+                }
+            }
+    }
+}
+
+extension View {
+    func watchScoreboardAlwaysOn() -> some View {
+        modifier(WatchScoreboardAlwaysOnModifier())
+    }
+}
+
 enum WatchScoreboardConfirmation: String, Identifiable {
     case finish
     case reset

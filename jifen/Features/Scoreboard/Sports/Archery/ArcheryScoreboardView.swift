@@ -322,17 +322,23 @@ struct ArcheryScoreboardView: View {
                 Text(String(format: NSLocalizedString("watch_set_end_format", value: "第 %d 局结束", comment: ""), pendingSetNumber))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
-                HStack(spacing: 8) {
-                    Text(viewModel.leftTeam.name)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "DC143C"))
-                    Text("\(pendingSetLeftScore) - \(pendingSetRightScore)")
-                        .font(.system(size: 26, weight: .bold))
-                        .foregroundColor(.white)
-                    Text(viewModel.rightTeam.name)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "1E90FF"))
-                }
+                TwoSideScoreResultRow(
+                    leftName: viewModel.leftTeam.name,
+                    rightName: viewModel.rightTeam.name,
+                    leftScore: "\(pendingSetLeftScore)",
+                    rightScore: "\(pendingSetRightScore)",
+                    leftNameColor: Color(hex: "DC143C"),
+                    rightNameColor: Color(hex: "1E90FF"),
+                    leftScoreColor: .white,
+                    rightScoreColor: .white,
+                    separatorColor: .white.opacity(0.7),
+                    nameFont: .system(size: 14),
+                    scoreFont: .system(size: 26, weight: .bold),
+                    separatorFont: .system(size: 20, weight: .bold),
+                    sideSpacing: 3,
+                    columnSpacing: 12
+                )
+                .frame(width: 280)
             }
             .padding(24)
             .background(Color.black.opacity(0.7))

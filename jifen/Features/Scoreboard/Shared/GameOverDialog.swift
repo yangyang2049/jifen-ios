@@ -10,6 +10,51 @@ import Photos
 import SwiftUI
 import UIKit
 
+/// Two participants are rendered as two name/score groups with one centered separator.
+struct TwoSideScoreResultRow: View {
+    let leftName: String
+    let rightName: String
+    let leftScore: String
+    let rightScore: String
+    var leftNameColor: Color = .primary
+    var rightNameColor: Color = .primary
+    var leftScoreColor: Color = .primary
+    var rightScoreColor: Color = .primary
+    var separatorColor: Color = .secondary
+    var nameFont: Font = .subheadline
+    var scoreFont: Font = .system(size: 36, weight: .bold, design: .rounded)
+    var separatorFont: Font = .title2.weight(.bold)
+    var sideSpacing: CGFloat = 4
+    var columnSpacing: CGFloat = 12
+
+    var body: some View {
+        HStack(alignment: .center, spacing: columnSpacing) {
+            scoreSide(name: leftName, score: leftScore, nameColor: leftNameColor, scoreColor: leftScoreColor)
+
+            Text("-")
+                .font(separatorFont)
+                .foregroundStyle(separatorColor)
+
+            scoreSide(name: rightName, score: rightScore, nameColor: rightNameColor, scoreColor: rightScoreColor)
+        }
+    }
+
+    private func scoreSide(name: String, score: String, nameColor: Color, scoreColor: Color) -> some View {
+        VStack(spacing: sideSpacing) {
+            Text(name)
+                .font(nameFont)
+                .foregroundStyle(nameColor)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .truncationMode(.tail)
+            Text(score)
+                .font(scoreFont)
+                .foregroundStyle(scoreColor)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 enum ScoreboardShareSupport {
     /// Capture the key window and save to Photos (same path as menu screenshot).
     static func present(text: String = "") {
@@ -162,13 +207,14 @@ struct GameOverDialog: View {
             }
             .padding(.vertical, 4)
         } else if let leftName, let rightName, let leftScore, let rightScore {
-            HStack(spacing: 12) {
-                scoreSide(leftName, score: leftScore, highlight: !winnerName.isEmpty && winnerName == leftName)
-                Text("-")
-                    .font(.title2.weight(.bold))
-                    .foregroundStyle(.secondary)
-                scoreSide(rightName, score: rightScore, highlight: !winnerName.isEmpty && winnerName == rightName)
-            }
+            TwoSideScoreResultRow(
+                leftName: leftName,
+                rightName: rightName,
+                leftScore: "\(leftScore)",
+                rightScore: "\(rightScore)",
+                leftScoreColor: scoreColor(name: leftName),
+                rightScoreColor: scoreColor(name: rightName)
+            )
         } else {
             Text(
                 winnerName.isEmpty
@@ -190,16 +236,8 @@ struct GameOverDialog: View {
         }
     }
 
-    private func scoreSide(_ name: String, score: Int, highlight: Bool) -> some View {
-        VStack(spacing: 4) {
-            Text(name)
-                .font(.subheadline)
-                .lineLimit(1)
-            Text("\(score)")
-                .font(.system(size: 36, weight: .bold, design: .rounded))
-                .foregroundStyle(highlight ? Color.green : Color.primary)
-        }
-        .frame(maxWidth: .infinity)
+    private func scoreColor(name: String) -> Color {
+        !winnerName.isEmpty && winnerName == name ? .green : .primary
     }
 
     private func secondaryButton(title: String, action: @escaping () -> Void) -> some View {

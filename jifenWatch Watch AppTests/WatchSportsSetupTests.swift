@@ -356,6 +356,15 @@ final class WatchSportsSetupTests: XCTestCase {
         )
     }
 
+    func testScoreboardKeepScreenOnDefaultsOnAndPersists() {
+        XCTAssertTrue(preferences.scoreboardKeepScreenOn)
+
+        preferences.scoreboardKeepScreenOn = false
+
+        let reloaded = WatchPreferences(defaults: defaults)
+        XCTAssertFalse(reloaded.scoreboardKeepScreenOn)
+    }
+
     func testAndroid29Defaults() {
         let badminton = WatchSportsSetupDraft(sport: .badminton, preferences: preferences)
         XCTAssertEqual(badminton.maxSets, 3)
