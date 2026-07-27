@@ -1766,19 +1766,7 @@ struct SportsSetupDialogView: View {
             rules = configured
         case .badminton:
             coreGameType = config.isSingles == false ? .badmintonDoubles : .badminton
-            var configured = RallyRuleSet.badminton(
-                maxSets: config.maxSets ?? 3,
-                matchCompletionMode: config.matchCompletionMode ?? .bestOf
-            )
-            let target = max(1, config.pointsPerSet ?? 21)
-            configured.pointsToWinSet = target
-            configured.pointCap = RallyRuleSet.badmintonPointCap(for: target)
-            configured.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(
-                for: coreGameType,
-                pointsPerSet: target
-            )
-            configured.autoChangeSides = config.autoChangeSides ?? true
-            rules = configured
+            rules = config.badmintonRules
         case .pickleball:
             coreGameType = config.isSingles == false ? .pickleballDoubles : .pickleball
             var configured = RallyRuleSet.pickleball(

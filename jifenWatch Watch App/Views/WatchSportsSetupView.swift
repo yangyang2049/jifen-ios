@@ -499,7 +499,7 @@ struct WatchSportsSetupView: View {
                     selectedNameIndex = nil
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.system(size: WatchLayout.dialogCloseIconSize, weight: .bold))
                         .foregroundStyle(WatchTheme.accent)
                         .frame(
                             width: WatchLayout.overlayCloseButtonSize,

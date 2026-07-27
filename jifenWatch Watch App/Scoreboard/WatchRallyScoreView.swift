@@ -151,6 +151,8 @@ struct WatchRallyScoreView: View {
     @State private var manualFinishRequested = false
     @State private var restTriggers = WatchRestTriggerRegistry()
     @State private var sideExchangeTask: Task<Void, Never>?
+    @State private var completedSetPresentation: WatchRallyCompletedSetPresentation?
+    @State private var completedScoreTask: Task<Void, Never>?
 
     init(
         gameType: GameType,
@@ -254,7 +256,9 @@ struct WatchRallyScoreView: View {
         }
         .ignoresSafeArea()
         .onAppear {
-            scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+            if store.state.doubles == nil {
+                scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+            }
             store.onStateChanged = { [linkService] state, events in
                 if linkedSessionId != nil {
                     guard linkService.isController else { return }
@@ -268,6 +272,7 @@ struct WatchRallyScoreView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
+            guard store.state.doubles == nil else { return }
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot) { _, update in
@@ -278,13 +283,21 @@ struct WatchRallyScoreView: View {
             store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(state)
             if state.finished {
-                showFinishedOverlay = true
+                beginRemoteFinishPresentation()
+            } else {
+                completedScoreTask?.cancel()
+                completedScoreTask = nil
+                completedSetPresentation = nil
+                finishTask?.cancel()
+                showFinishedOverlay = false
                 finishUndoAvailable = false
+                didFinalizeFinish = false
             }
         }
         .onDisappear {
             finishTask?.cancel()
             sideExchangeTask?.cancel()
+            completedScoreTask?.cancel()
             if store.state.finished {
                 finalizeFinish()
             }
@@ -340,11 +353,10 @@ struct WatchRallyScoreView: View {
             store.state.leftName,
             store.state.rightName
         ]
-        let layout = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped)
+        let layout = TeamScreenLayout(sidesSwapped: presentedSidesSwapped)
         let leftLogical = layout.engineSide(onScreen: .left)
         let rightLogical = layout.engineSide(onScreen: .right)
         return WatchDoublesBoard(
-            isHorizontal: isHorizontal,
             left: doublesHalf(
                 screenSide: .left,
                 logicalSide: leftLogical,
@@ -375,11 +387,12 @@ struct WatchRallyScoreView: View {
         }
         let topIndex = display?.topPlayerIndex ?? fallbackTopIndex
         let bottomIndex = display?.bottomPlayerIndex ?? fallbackBottomIndex
-        let points = isLeft ? store.state.leftPoints : store.state.rightPoints
-        let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        let points = presentedPoints(for: logicalSide)
+        let sets = presentedSets(for: logicalSide)
         let showSets = store.state.leftSets + store.state.rightSets > 0 || store.state.currentSet > 1
         let servingPosition: WatchDoublesHalfModel.PlayerPosition? = {
-            guard store.state.servingSide == logicalSide,
+            guard completedSetPresentation == nil,
+                  store.state.servingSide == logicalSide,
                   let serverIsTop = display?.serverIsTop else { return nil }
             return serverIsTop ? .top : .bottom
         }()
@@ -399,13 +412,13 @@ struct WatchRallyScoreView: View {
     }
 
     private func side(_ screenSide: MatchSide, size: CGSize) -> some View {
-        let layout = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped)
+        let layout = TeamScreenLayout(sidesSwapped: presentedSidesSwapped)
         let logicalSide = layout.engineSide(onScreen: screenSide)
         let isLeftTeam = logicalSide == .left
         let name = isLeftTeam ? store.state.leftName : store.state.rightName
-        let points = isLeftTeam ? store.state.leftPoints : store.state.rightPoints
-        let sets = isLeftTeam ? store.state.leftSets : store.state.rightSets
-        let isServing = store.state.servingSide == logicalSide
+        let points = presentedPoints(for: logicalSide)
+        let sets = presentedSets(for: logicalSide)
+        let isServing = completedSetPresentation == nil && store.state.servingSide == logicalSide
         let showSets = store.state.leftSets + store.state.rightSets > 0 || store.state.currentSet > 1
         let scoreText = "\(points)"
         let mainScoreFont = WatchScoreTypography.adaptiveFontSize(
@@ -463,17 +476,21 @@ struct WatchRallyScoreView: View {
     private func servingIndicator(screenSide: MatchSide) -> some View {
         let direction: WatchServerIndicatorDirection = {
             if isHorizontal {
-                return screenSide == .left ? .left : .right
-            }
-            return screenSide == .left ? .top : .bottom
-        }()
-        let alignment: Alignment = {
-            if isHorizontal {
-                return screenSide == .left ? .trailing : .leading
+                return screenSide == .left ? .right : .left
             }
             return screenSide == .left ? .bottom : .top
         }()
-        WatchServerIndicator(direction: direction, size: 14, color: WatchTheme.accent)
+        let alignment: Alignment = {
+            if isHorizontal {
+                return screenSide == .left ? .leading : .trailing
+            }
+            return screenSide == .left ? .top : .bottom
+        }()
+        WatchServerIndicator(
+            direction: direction,
+            size: WatchLayout.serverIndicatorSize,
+            color: WatchTheme.accent
+        )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
             .padding(.vertical, isHorizontal ? 6 : 0)
             .padding(.horizontal, isHorizontal ? 0 : 6)
@@ -486,6 +503,8 @@ struct WatchRallyScoreView: View {
 
     private var interactionsEnabled: Bool {
         !scoringLocked
+            && !store.state.finished
+            && completedSetPresentation == nil
             && restState == nil
             && !showFinishedOverlay
             && confirmation == nil
@@ -512,6 +531,13 @@ struct WatchRallyScoreView: View {
 
     private func handle(events: [RallyMatchEvent], state: RallyMatchState) {
         reconcileBadmintonMidGameRestTrigger(for: state)
+        if let completed = WatchRallyCompletedSetPresentation.resolve(
+            events: events,
+            currentSidesSwapped: state.sidesSwapped
+        ) {
+            beginCompletedSetPresentation(completed, state: state)
+            return
+        }
         for event in events {
             switch event {
             case .setCompleted(_, let setNumber, _, _, _, _):
@@ -528,6 +554,63 @@ struct WatchRallyScoreView: View {
             }
         }
         if state.finished {
+            beginProvisionalFinish()
+        }
+    }
+
+    private var presentedSidesSwapped: Bool {
+        completedSetPresentation?.sidesSwapped ?? store.state.sidesSwapped
+    }
+
+    private func presentedPoints(for side: MatchSide) -> Int {
+        if let completedSetPresentation {
+            return side == .left
+                ? completedSetPresentation.leftPoints
+                : completedSetPresentation.rightPoints
+        }
+        return side == .left ? store.state.leftPoints : store.state.rightPoints
+    }
+
+    private func presentedSets(for side: MatchSide) -> Int {
+        if let completedSetPresentation {
+            return side == .left
+                ? completedSetPresentation.leftSets
+                : completedSetPresentation.rightSets
+        }
+        return side == .left ? store.state.leftSets : store.state.rightSets
+    }
+
+    private func beginCompletedSetPresentation(
+        _ presentation: WatchRallyCompletedSetPresentation,
+        state: RallyMatchState
+    ) {
+        completedScoreTask?.cancel()
+        restState = nil
+        showSideExchangeToast = false
+        completedSetPresentation = presentation
+        completedScoreTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+            guard !Task.isCancelled else { return }
+            let didExchangeSides = presentation.sidesSwapped != state.sidesSwapped
+            completedSetPresentation = nil
+            completedScoreTask = nil
+            if state.finished {
+                beginProvisionalFinish()
+            } else {
+                beginBetweenSetRest(setNumber: presentation.setNumber)
+                if restState == nil, didExchangeSides {
+                    showSideExchange()
+                }
+            }
+        }
+    }
+
+    private func beginRemoteFinishPresentation() {
+        guard completedScoreTask == nil, !showFinishedOverlay else { return }
+        completedScoreTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+            guard !Task.isCancelled else { return }
+            completedScoreTask = nil
             beginProvisionalFinish()
         }
     }
@@ -632,6 +715,9 @@ struct WatchRallyScoreView: View {
 
     private func undoFinish() {
         guard finishUndoAvailable else { return }
+        completedScoreTask?.cancel()
+        completedScoreTask = nil
+        completedSetPresentation = nil
         finishTask?.cancel()
         showFinishedOverlay = false
         finishUndoAvailable = false
@@ -650,6 +736,9 @@ struct WatchRallyScoreView: View {
         manualFinishRequested = false
         restTriggers.reset()
         sideExchangeTask?.cancel()
+        completedScoreTask?.cancel()
+        completedScoreTask = nil
+        completedSetPresentation = nil
         showSideExchangeToast = false
         matchStartTime = Date()
         store.send(.reset)
@@ -676,6 +765,9 @@ struct WatchRallyScoreView: View {
             manualFinishRequested = false
             restTriggers.reset()
             sideExchangeTask?.cancel()
+            completedScoreTask?.cancel()
+            completedScoreTask = nil
+            completedSetPresentation = nil
             showSideExchangeToast = false
             matchStartTime = Date()
             store.send(.reset)

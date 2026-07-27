@@ -154,9 +154,6 @@
 "watch_score_add_format" = "%@ scored";
 "watch_mid_game_rest" = "Mid-game rest";
 "watch_rest_between_sets" = "Rest between sets";
-"watch_record_auto_sync_title" = "Auto sync records";
-"watch_record_auto_sync_on" = "On";
-"watch_record_auto_sync_help" = "Finished matches for rally sports, archery, and billiards sync to the phone automatically. Basketball training stays on the watch only.";
 "watch_set_break_toast" = "Rest between sets";
 "watch_deciding_set_swap" = "Deciding set swap";
 "watch_swap_sides" = "Swap sides";
@@ -306,6 +303,11 @@
 "watch_snooker_break_format" = "Break %d";
 "watch_snooker_reds_format" = "Reds %d";
 "watch_snooker_foul" = "Foul";
+"watch_snooker_foul_selected_format" = "Foul +%d";
+"watch_snooker_foul_next_turn" = "Next turn";
+"watch_snooker_foul_switch_turn" = "Switch Turn";
+"watch_snooker_foul_continue" = "Continue Playing";
+"watch_action_snooker_foul_continue_format" = "%@ foul, opponent +%d, continues";
 "watch_snooker_miss" = "Miss";
 "watch_snooker_handover" = "Switch Turn";
 "watch_snooker_settle_frame" = "End Frame";

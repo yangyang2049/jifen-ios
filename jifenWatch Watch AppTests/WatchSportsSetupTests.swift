@@ -37,7 +37,11 @@ final class WatchSportsSetupTests: XCTestCase {
     }
 
     func testWatchLayoutUsesTwoPagePaddingTiers() {
+        XCTAssertEqual(WatchLayout.serverIndicatorSize, 10)
         XCTAssertEqual(WatchLayout.overlayCloseButtonSize, 44)
+        XCTAssertEqual(WatchLayout.dialogCloseIconSize, 20)
+        XCTAssertEqual(WatchLayout.overlayActionButtonWidth(for: 187), 134)
+        XCTAssertEqual(WatchLayout.overlayActionButtonWidth(for: 198), 144)
         for width: CGFloat in [162, 176, 184, 187, 190] {
             XCTAssertTrue(WatchLayout.isNarrowScreen(width: width))
             XCTAssertEqual(WatchLayout.pageHorizontalPadding(for: width), 6)
@@ -71,6 +75,92 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 21), 11)
         XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 15), 8)
         XCTAssertEqual(WatchRestPolicy.badmintonMidGamePoint(pointsToWinSet: 1), 1)
+    }
+
+    func testRallyCompletedSetPresentationKeepsFinalPointForEveryBadmintonFormat() {
+        for target in [11, 15, 21] {
+            var rules = RallyRuleSet.badminton(maxSets: 3)
+            rules.pointsToWinSet = target
+            rules.pointCap = RallyRuleSet.badmintonPointCap(for: target)
+            var state = RallyMatchEngine.initial(
+                leftName: "A",
+                rightName: "B",
+                rules: rules
+            )
+            state.leftPoints = target - 1
+            state.rightPoints = target - 2
+
+            let result = RallyMatchReducer().reduce(
+                state: state,
+                intent: .pointWon(.left),
+                at: 0
+            )
+            let presentation = WatchRallyCompletedSetPresentation.resolve(
+                events: result.events,
+                currentSidesSwapped: result.state.sidesSwapped
+            )
+
+            XCTAssertEqual(presentation?.leftPoints, target)
+            XCTAssertEqual(presentation?.rightPoints, target - 2)
+            XCTAssertEqual(presentation?.leftSets, 1)
+            XCTAssertEqual(result.state.leftPoints, 0)
+            XCTAssertEqual(result.state.rightPoints, 0)
+        }
+    }
+
+    func testRallyCompletedMatchPresentationKeepsFinalPointBeforeFinishedOverlay() {
+        var rules = RallyRuleSet.badminton(maxSets: 3)
+        rules.pointsToWinSet = 15
+        rules.pointCap = RallyRuleSet.badmintonPointCap(for: 15)
+        var state = RallyMatchEngine.initial(
+            leftName: "A",
+            rightName: "B",
+            rules: rules
+        )
+        state.leftSets = 1
+        state.leftPoints = 14
+        state.rightPoints = 13
+
+        let result = RallyMatchReducer().reduce(
+            state: state,
+            intent: .pointWon(.left),
+            at: 0
+        )
+        let presentation = WatchRallyCompletedSetPresentation.resolve(
+            events: result.events,
+            currentSidesSwapped: result.state.sidesSwapped
+        )
+
+        XCTAssertTrue(result.state.finished)
+        XCTAssertEqual(presentation?.leftPoints, 15)
+        XCTAssertEqual(presentation?.rightPoints, 13)
+        XCTAssertEqual(presentation?.leftSets, 2)
+    }
+
+    func testTennisCompletedSetPresentationKeepsFinalGameScore() {
+        let events: [TennisMatchEvent] = [
+            .pointScored(side: .left, left: 4, right: 0),
+            .gameCompleted(winner: .left, leftGames: 6, rightGames: 2, tieBreak: false),
+            .setCompleted(
+                winner: .left,
+                setNumber: 1,
+                leftGames: 6,
+                rightGames: 2,
+                leftSets: 1,
+                rightSets: 0
+            ),
+            .sidesExchanged
+        ]
+
+        let presentation = WatchTennisCompletedSetPresentation.resolve(
+            events: events,
+            currentSidesSwapped: true
+        )
+
+        XCTAssertEqual(presentation?.leftGames, 6)
+        XCTAssertEqual(presentation?.rightGames, 2)
+        XCTAssertEqual(presentation?.leftSets, 1)
+        XCTAssertEqual(presentation?.sidesSwapped, false)
     }
 
     func testRestCountdownClampsAtZero() {
@@ -240,6 +330,33 @@ final class WatchSportsSetupTests: XCTestCase {
         state = reducer.reduce(state: state, intent: .settleFrame(winner: .left), at: 4).state
         XCTAssertEqual(state.leftFrames, 1)
         XCTAssertEqual(state.currentFrame, 2)
+    }
+
+    func testSnookerFoulCanKeepFoulingSideAtTableAndRecordsChoice() {
+        let reducer = SnookerReducer()
+        let before = SnookerState.initial(striker: .left, maxFrames: 3)
+        let intent = SnookerIntent.foulFromSide(
+            side: .left,
+            pointsToOpponent: 5,
+            switchTurn: false
+        )
+        let result = reducer.reduce(state: before, intent: intent, at: 1)
+
+        XCTAssertTrue(result.accepted)
+        XCTAssertEqual(result.state.rightScore, 5)
+        XCTAssertEqual(result.state.striker, .left)
+        XCTAssertFalse(result.events.contains { event in
+            if case .turnChanged = event { return true }
+            return false
+        })
+
+        let actions = WatchScoreActionProjector.snooker(
+            intent: intent,
+            events: result.events,
+            state: result.state,
+            timestamp: Date(timeIntervalSince1970: 1)
+        )
+        XCTAssertEqual(actions.first?.operationCode, "snooker_foul_continue")
     }
 
     func testSnookerBallAvailabilityAlternatesAndThenFollowsClearanceOrder() {
@@ -631,6 +748,20 @@ final class WatchSportsSetupTests: XCTestCase {
         )
         XCTAssertEqual(badmintonState?.rules.maxSets, 5)
         XCTAssertEqual(badmintonState?.rules.pointsToWinSet, 15)
+        XCTAssertEqual(badmintonState?.rules.pointCap, 21)
+
+        for sport in [WatchSetupSport.badminton, .badmintonDoubles] {
+            for (target, cap) in [(11, 15), (15, 21), (21, 30)] {
+                var draft = WatchSportsSetupDraft(sport: sport, preferences: preferences)
+                draft.pointsPerSet = target
+                let state = WatchSetupPayloadMapper.rallyState(
+                    for: WatchScoreboardLaunchConfig(draft: draft)
+                )
+                XCTAssertEqual(state?.rules.pointsToWinSet, target)
+                XCTAssertEqual(state?.rules.pointCap, cap)
+                XCTAssertEqual(state?.doubles != nil, sport == .badmintonDoubles)
+            }
+        }
 
         var pickleball = WatchSportsSetupDraft(sport: .pickleball, preferences: preferences)
         pickleball.pickleballTargetScore = 21

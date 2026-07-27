@@ -19,8 +19,6 @@ struct WatchCommonNamesView: View {
 
     var body: some View {
         List {
-            syncCard
-                .watchCommonNamesListRow()
             categoryPicker
                 .watchCommonNamesListRow()
 
@@ -33,6 +31,9 @@ struct WatchCommonNamesView: View {
                         .watchCommonNamesListRow()
                 }
             }
+
+            syncCard
+                .watchCommonNamesListRow()
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -40,14 +41,16 @@ struct WatchCommonNamesView: View {
         .navigationTitle(NSLocalizedString("watch_common_names_title", value: "常用名称", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    editorText = ""
-                    editorContext = .init(originalName: nil)
-                } label: {
-                    Image(systemName: "plus")
+            if !currentNames.isEmpty {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        editorText = ""
+                        editorContext = .init(originalName: nil)
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel(NSLocalizedString("watch_common_names_add", value: "添加名称", comment: ""))
                 }
-                .accessibilityLabel(NSLocalizedString("watch_common_names_add", value: "添加名称", comment: ""))
             }
         }
         .sheet(item: $editorContext) { context in

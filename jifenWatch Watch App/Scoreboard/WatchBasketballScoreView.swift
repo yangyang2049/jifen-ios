@@ -303,8 +303,12 @@ struct WatchBasketballScoreView: View {
             store.mergeRemoteActions(update.detailedActions)
             store.replaceDisplayedState(state)
             if state.finished {
-                showFinishedOverlay = true
+                beginRemoteBasketballFinishPresentation()
+            } else {
+                finishTask?.cancel()
+                showFinishedOverlay = false
                 finishUndoAvailable = false
+                didPublishFinish = false
             }
         }
         .onChange(of: store.state) { oldState, newState in
@@ -312,7 +316,11 @@ struct WatchBasketballScoreView: View {
                 linkService.publishSnapshot(.basketball(newState), detailedActions: store.actionLog.detailedActions)
             }
             if !oldState.finished, newState.finished {
-                beginBasketballFinish()
+                if isFollowingPhone {
+                    beginRemoteBasketballFinishPresentation()
+                } else {
+                    beginBasketballFinish()
+                }
             }
             Task { await persistResumeSession() }
         }
@@ -441,7 +449,7 @@ struct WatchBasketballScoreView: View {
     }
 
     private var interactionsEnabled: Bool {
-        !isFollowingPhone && !showMenu && selectedSide == nil && confirmation == nil
+        !isFollowingPhone && !store.state.finished && !showMenu && selectedSide == nil && confirmation == nil
             && !showFinishedOverlay
     }
 
@@ -469,15 +477,29 @@ struct WatchBasketballScoreView: View {
 
     private func beginBasketballFinish() {
         finishTask?.cancel()
-        showFinishedOverlay = true
         finishUndoAvailable = true
-        finishTask = Task {
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                finishUndoAvailable = false
-                finalizeBasketball()
+        showFinishedOverlay = manualFinishRequested
+        finishTask = Task { @MainActor in
+            if !manualFinishRequested {
+                try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+                guard !Task.isCancelled else { return }
+                showFinishedOverlay = true
             }
+            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            guard !Task.isCancelled else { return }
+            finishUndoAvailable = false
+            finalizeBasketball()
+        }
+    }
+
+    private func beginRemoteBasketballFinishPresentation() {
+        finishTask?.cancel()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        finishTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+            guard !Task.isCancelled else { return }
+            showFinishedOverlay = true
         }
     }
 

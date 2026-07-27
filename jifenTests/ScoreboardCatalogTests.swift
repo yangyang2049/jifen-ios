@@ -70,6 +70,21 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(rules.pointCap, nil)
     }
 
+    func testPhoneBadmintonSinglesAndDoublesUseConfiguredPointCaps() {
+        for isSingles in [true, false] {
+            for (target, cap) in [(11, 15), (15, 21), (21, 30)] {
+                let setup = SportsSetupResult(
+                    team1Name: "A",
+                    team2Name: "B",
+                    pointsPerSet: target,
+                    isSingles: isSingles
+                )
+                XCTAssertEqual(setup.badmintonRules.pointsToWinSet, target)
+                XCTAssertEqual(setup.badmintonRules.pointCap, cap)
+            }
+        }
+    }
+
     func testNineBallSetupFieldsRoundTripWithoutDroppingPlayersOrPoints() throws {
         let setup = SportsSetupResult(
             team1Name: "A", team2Name: "B", team3Name: "C", team4Name: "D",

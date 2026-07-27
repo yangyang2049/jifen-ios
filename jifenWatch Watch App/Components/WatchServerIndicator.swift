@@ -16,7 +16,7 @@ enum WatchServerIndicatorDirection {
 
 struct WatchServerIndicator: View {
     var direction: WatchServerIndicatorDirection = .left
-    var size: CGFloat = 14
+    var size: CGFloat = WatchLayout.serverIndicatorSize
     var color: Color = Color.white
 
     var body: some View {

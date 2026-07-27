@@ -555,12 +555,35 @@ import SessionCore
     #expect(RallyRuleSet.decidingSetSideSwitchPoint(for: .volleyball, pointsPerSet: 25) == nil)
 }
 
-@Test func badmintonPointCapHelperMatchesAndroidMatrix() {
-    #expect(RallyRuleSet.badmintonPointCap(for: 11) == 21)
+@Test func badmintonPointCapHelperMatchesIOSFormats() {
+    #expect(RallyRuleSet.badmintonPointCap(for: 11) == 15)
     #expect(RallyRuleSet.badmintonPointCap(for: 15) == 21)
     #expect(RallyRuleSet.badmintonPointCap(for: 21) == 30)
     #expect(RallyRuleSet.badmintonPointCap(for: 25) == nil)
     #expect(RallyRuleSet.badmintonPointCap(for: 999) == nil)
+}
+
+@Test func badmintonSupportedFormatsEndAtTheirCaps() {
+    let reducer = RallyMatchReducer()
+    for (target, cap) in [(11, 15), (15, 21), (21, 30)] {
+        var rules = RallyRuleSet.badminton()
+        rules.pointsToWinSet = target
+        rules.pointCap = RallyRuleSet.badmintonPointCap(for: target)
+        var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+        state.leftPoints = cap - 1
+        state.rightPoints = cap - 1
+
+        let result = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+        #expect(result.state.leftSets == 1)
+        #expect(result.events.contains(.setCompleted(
+            winner: .left,
+            setNumber: 1,
+            leftPoints: cap,
+            rightPoints: cap - 1,
+            leftSets: 1,
+            rightSets: 0
+        )))
+    }
 }
 
 @Test func badmintonFifteenPointSetCapsAtTwentyOne() {

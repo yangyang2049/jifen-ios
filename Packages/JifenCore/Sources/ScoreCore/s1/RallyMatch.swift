@@ -168,11 +168,12 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         }
     }
 
-    /// Aligns with Android/Harmony `resolveBadmintonPointCap`:
-    /// target < 21 → cap 21; target == 21 → cap 30; target > 21 → no cap.
+    /// iOS badminton formats: 11 → 15, 15 → 21, 21 → 30.
+    /// Values between the supported presets follow the next higher cap.
     public static func badmintonPointCap(for pointsPerSet: Int) -> Int? {
         let points = max(1, pointsPerSet)
         if points > 21 { return nil }
+        if points <= 11 { return 15 }
         if points < 21 { return 21 }
         return 30
     }

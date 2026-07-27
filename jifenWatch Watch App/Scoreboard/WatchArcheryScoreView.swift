@@ -299,7 +299,11 @@ struct WatchArcheryScoreView: View {
                 trailing: alignment == .trailing ? 0 : 12
             )
 
-            WatchServerIndicator(direction: direction, size: 14, color: WatchTheme.accent)
+            WatchServerIndicator(
+                direction: direction,
+                size: WatchLayout.serverIndicatorSize,
+                color: WatchTheme.accent
+            )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
                 .padding(insets)
                 .allowsHitTesting(false)

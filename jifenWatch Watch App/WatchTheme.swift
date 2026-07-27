@@ -5,7 +5,16 @@ import WatchKit
 /// 使用逻辑宽度判断，避免新款 42mm（187pt）比 44mm SE（184pt）更宽造成误判。
 struct WatchLayout {
     static let narrowScreenMaximumWidth: CGFloat = 190
+    /// 计分板发球/当前选手的三角指示器尺寸，单打和双打统一。
+    static let serverIndicatorSize: CGFloat = 10
+    /// 计分板全屏 Overlay 的可见关闭按钮尺寸。
     static let overlayCloseButtonSize: CGFloat = 44
+    /// 首页等非全屏 Dialog 的可见关闭图标尺寸。
+    static let dialogCloseIconSize: CGFloat = 20
+
+    static func overlayActionButtonWidth(for width: CGFloat) -> CGFloat {
+        isNarrowScreen(width: width) ? 134 : 144
+    }
 
     static func isNarrowScreen(width: CGFloat) -> Bool {
         width <= narrowScreenMaximumWidth
@@ -53,6 +62,11 @@ struct WatchLayout {
     /// 记录行等易挤满的内容与页面使用同一套两档判断。
     static var isNarrowForContent: Bool {
         isCompactScreen
+    }
+
+    /// Overlay 主操作按钮使用明确宽度，避免随屏幕宽度被横向拉满。
+    static var overlayActionButtonWidth: CGFloat {
+        overlayActionButtonWidth(for: WKInterfaceDevice.current().screenBounds.size.width)
     }
 
     /// Tab、列表、表单和详情页统一左右边距。
@@ -240,6 +254,24 @@ struct WatchMenuCloseButton: View {
     }
 }
 
+struct WatchDialogCloseButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: WatchLayout.dialogCloseIconSize))
+                .foregroundStyle(WatchTheme.secondaryText)
+                .frame(
+                    width: WatchLayout.overlayCloseButtonSize,
+                    height: WatchLayout.overlayCloseButtonSize
+                )
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct WatchMetrics {
     static let pagePadding = EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
     static let navBarHeight: CGFloat = 32
@@ -262,6 +294,8 @@ struct WatchAnimations {
 struct WatchTiming {
     static let longPressThreshold: Double = 0.5
     static let hintDelay: Double = 1.2
+    /// Keep the just-scored result visible before a rest or finished overlay replaces the board.
+    static let completedScoreVisibility: Double = 0.8
     static let undoCountdown: Double = 5.0
 }
 

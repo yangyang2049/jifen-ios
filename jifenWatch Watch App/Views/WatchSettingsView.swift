@@ -7,7 +7,6 @@ struct WatchSettingsView: View {
     @AppStorage(WatchPreferences.scoreboardKeepScreenOnKey) private var scoreboardKeepScreenOn: Bool = true
     @State private var scoreboardLayout: String = "horizontal"
     @State private var showUsageAlert: Bool = false
-    @State private var showRecordSyncHelp: Bool = false
 
     private let appVersion = "v2.0.0"
 
@@ -15,14 +14,12 @@ struct WatchSettingsView: View {
         ScrollView {
             VStack(spacing: 8) {
                 navigationRow(
-                    title: NSLocalizedString("watch_common_names_title", value: "常用名称", comment: ""),
-                    systemImage: "person.text.rectangle"
+                    title: NSLocalizedString("watch_common_names_title", value: "常用名称", comment: "")
                 ) {
                     WatchCommonNamesView()
                 }
                 navigationRow(
-                    title: NSLocalizedString("watch_phone_link_title", value: "手机联动", comment: ""),
-                    systemImage: "iphone.and.arrow.forward"
+                    title: NSLocalizedString("watch_phone_link_title", value: "手机联动", comment: "")
                 ) {
                     WatchPhoneLinkView()
                 }
@@ -31,7 +28,7 @@ struct WatchSettingsView: View {
                 settingRow(
                     title: NSLocalizedString(
                         "watch_scoreboard_keep_screen_on",
-                        value: "计分时屏幕常亮",
+                        value: "计分时常亮",
                         comment: ""
                     ),
                     isOn: $scoreboardKeepScreenOn
@@ -41,7 +38,6 @@ struct WatchSettingsView: View {
                     isOn: $setBreakEnabled
                 )
                 layoutRow()
-                recordSyncInfoRow()
                 usageGuideRow()
 
                 Spacer(minLength: 16)
@@ -88,31 +84,14 @@ struct WatchSettingsView: View {
         } message: {
             Text(NSLocalizedString("usage_prompt_message", comment: "Usage prompt message"))
         }
-        .alert(
-            NSLocalizedString("watch_record_auto_sync_title", value: "记录自动回传", comment: ""),
-            isPresented: $showRecordSyncHelp
-        ) {
-            Button(NSLocalizedString("got_it", comment: "Got it"), role: .cancel) { }
-        } message: {
-            Text(NSLocalizedString(
-                "watch_record_auto_sync_help",
-                value: "羽/乒/网/匹、射箭、黑八/追分/斯诺克完赛后自动回传到手机；投篮训练仅保存在手表。",
-                comment: ""
-            ))
-        }
     }
 
     private func navigationRow<Destination: View>(
         title: String,
-        systemImage: String,
         @ViewBuilder destination: () -> Destination
     ) -> some View {
         NavigationLink(destination: destination()) {
-            HStack(spacing: 8) {
-                Image(systemName: systemImage)
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(WatchTheme.secondaryText)
-                    .frame(width: 20)
+            HStack {
                 Text(title)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(WatchTheme.primaryText)
@@ -141,32 +120,6 @@ struct WatchSettingsView: View {
                 Spacer()
                 Image(systemName: "info.circle")
                     .font(.system(size: 16))
-                    .foregroundColor(WatchTheme.secondaryText)
-            }
-            .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
-            .frame(height: WatchMetrics.pillHeight)
-            .background(WatchTheme.listItemBackground)
-            .cornerRadius(WatchMetrics.pillRadius)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func recordSyncInfoRow() -> some View {
-        Button {
-            showRecordSyncHelp = true
-        } label: {
-            HStack {
-                Text(NSLocalizedString("watch_record_auto_sync_title", value: "记录自动回传", comment: ""))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(WatchTheme.primaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Spacer()
-                Text(NSLocalizedString("watch_record_auto_sync_on", value: "已开启", comment: ""))
-                    .font(.system(size: 14))
-                    .foregroundColor(WatchTheme.secondaryText)
-                Image(systemName: "questionmark.circle")
-                    .font(.system(size: 14))
                     .foregroundColor(WatchTheme.secondaryText)
             }
             .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)

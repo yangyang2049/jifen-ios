@@ -690,7 +690,13 @@ enum WatchScoreActionProjector {
                               sets: (state.leftFrames, state.rightFrames), delta: points,
                               roundNumber: state.currentFrame, timestamp: timestamp)
             case .foul(let points):
-                return action(.foul, code: "snooker_foul", side: actor,
+                let code: String = switch intent {
+                case .foulFromSide(_, _, let switchTurn), .foul(_, let switchTurn):
+                    switchTurn ? "snooker_foul" : "snooker_foul_continue"
+                default:
+                    "snooker_foul"
+                }
+                return action(.foul, code: code, side: actor,
                               scores: (state.leftScore, state.rightScore),
                               sets: (state.leftFrames, state.rightFrames), delta: points,
                               roundNumber: state.currentFrame, timestamp: timestamp)

@@ -84,6 +84,90 @@ enum WatchRestPolicy {
     }
 }
 
+struct WatchRallyCompletedSetPresentation: Equatable {
+    let setNumber: Int
+    let leftPoints: Int
+    let rightPoints: Int
+    let leftSets: Int
+    let rightSets: Int
+    let sidesSwapped: Bool
+
+    static func resolve(
+        events: [RallyMatchEvent],
+        currentSidesSwapped: Bool
+    ) -> Self? {
+        guard let completed = events.reversed().compactMap({ event -> Self? in
+            guard case let .setCompleted(
+                _, setNumber, leftPoints, rightPoints, leftSets, rightSets
+            ) = event else { return nil }
+            return Self(
+                setNumber: setNumber,
+                leftPoints: leftPoints,
+                rightPoints: rightPoints,
+                leftSets: leftSets,
+                rightSets: rightSets,
+                sidesSwapped: currentSidesSwapped
+            )
+        }).first else { return nil }
+
+        let exchangedAfterSet = events.contains { event in
+            if case .sidesExchanged = event { return true }
+            return false
+        }
+        guard exchangedAfterSet else { return completed }
+        return Self(
+            setNumber: completed.setNumber,
+            leftPoints: completed.leftPoints,
+            rightPoints: completed.rightPoints,
+            leftSets: completed.leftSets,
+            rightSets: completed.rightSets,
+            sidesSwapped: !currentSidesSwapped
+        )
+    }
+}
+
+struct WatchTennisCompletedSetPresentation: Equatable {
+    let setNumber: Int
+    let leftGames: Int
+    let rightGames: Int
+    let leftSets: Int
+    let rightSets: Int
+    let sidesSwapped: Bool
+
+    static func resolve(
+        events: [TennisMatchEvent],
+        currentSidesSwapped: Bool
+    ) -> Self? {
+        guard let completed = events.reversed().compactMap({ event -> Self? in
+            guard case let .setCompleted(
+                _, setNumber, leftGames, rightGames, leftSets, rightSets
+            ) = event else { return nil }
+            return Self(
+                setNumber: setNumber,
+                leftGames: leftGames,
+                rightGames: rightGames,
+                leftSets: leftSets,
+                rightSets: rightSets,
+                sidesSwapped: currentSidesSwapped
+            )
+        }).first else { return nil }
+
+        let exchangedAfterSet = events.contains { event in
+            if case .sidesExchanged = event { return true }
+            return false
+        }
+        guard exchangedAfterSet else { return completed }
+        return Self(
+            setNumber: completed.setNumber,
+            leftGames: completed.leftGames,
+            rightGames: completed.rightGames,
+            leftSets: completed.leftSets,
+            rightSets: completed.rightSets,
+            sidesSwapped: !currentSidesSwapped
+        )
+    }
+}
+
 struct WatchRestTriggerRegistry: Equatable {
     private(set) var consumedTriggerIDs: Set<String> = []
 
@@ -289,13 +373,15 @@ struct WatchRestOverlay: View {
                         action: onContinue
                     )
                     .buttonStyle(.borderedProminent)
-                    .tint(remaining == 0 ? WatchTheme.successGreen : WatchTheme.card)
+                    .tint(WatchTheme.accent)
+                    .frame(width: WatchLayout.overlayActionButtonWidth)
 
                     Button(
                         NSLocalizedString("menu_undo", value: "撤销", comment: ""),
                         action: onUndo
                     )
                     .buttonStyle(.bordered)
+                    .frame(width: WatchLayout.overlayActionButtonWidth)
                 }
                 .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 14)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -394,10 +480,10 @@ struct WatchFinishedOverlay: View {
                 .frame(maxWidth: .infinity)
 
                 if scoreItems.count == 2 && index == 0 {
-                    Text("—")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.72))
-                        .frame(width: 16)
+                    Text("-")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.45))
+                        .frame(width: 12)
                 }
             }
         }
@@ -420,6 +506,7 @@ struct WatchFinishedOverlay: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .frame(width: WatchLayout.overlayActionButtonWidth)
     }
 }
 
@@ -512,7 +599,6 @@ struct WatchDoublesDisplayState: Equatable {
 }
 
 struct WatchDoublesBoard: View {
-    let isHorizontal: Bool
     let left: WatchDoublesHalfModel
     let right: WatchDoublesHalfModel
 
@@ -520,18 +606,9 @@ struct WatchDoublesBoard: View {
         GeometryReader { proxy in
             let width = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
             let height = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
-            Group {
-                if isHorizontal {
-                    HStack(spacing: 0) {
-                        half(left, size: .init(width: width / 2, height: height), isFirst: true)
-                        half(right, size: .init(width: width / 2, height: height), isFirst: false)
-                    }
-                } else {
-                    VStack(spacing: 0) {
-                        half(left, size: .init(width: width, height: height / 2), isFirst: true)
-                        half(right, size: .init(width: width, height: height / 2), isFirst: false)
-                    }
-                }
+            HStack(spacing: 0) {
+                half(left, size: .init(width: width / 2, height: height), isFirst: true)
+                half(right, size: .init(width: width / 2, height: height), isFirst: false)
             }
             .frame(width: width, height: height)
             .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
@@ -547,26 +624,15 @@ struct WatchDoublesBoard: View {
         ZStack {
             scoreRow(model, isFirst: isFirst)
 
-            if isHorizontal {
-                playerName(model.topName, alignment: .top)
-                    .padding(.top, WatchLayout.isCompactScreen ? 24 : 32)
-                playerName(model.bottomName, alignment: .bottom)
-                    .padding(.bottom, WatchLayout.isCompactScreen ? 24 : 32)
-            } else {
-                HStack {
-                    playerName(model.topName, alignment: .leading)
-                    Spacer(minLength: 50)
-                    playerName(model.bottomName, alignment: .trailing)
-                }
-                .padding(.horizontal, 8)
-            }
+            playerName(model.topName, alignment: .top)
+                .padding(.top, WatchLayout.isCompactScreen ? 24 : 32)
+            playerName(model.bottomName, alignment: .bottom)
+                .padding(.bottom, WatchLayout.isCompactScreen ? 24 : 32)
 
             if let servingPosition = model.servingPosition {
                 WatchServerIndicator(
-                    direction: isHorizontal
-                        ? (isFirst ? .left : .right)
-                        : (isFirst ? .top : .bottom),
-                    size: 14,
+                    direction: isFirst ? .left : .right,
+                    size: WatchLayout.serverIndicatorSize,
                     color: WatchTheme.accent
                 )
                 .frame(
@@ -577,11 +643,7 @@ struct WatchDoublesBoard: View {
                         isFirst: isFirst
                     )
                 )
-                .padding(.vertical, isHorizontal
-                    ? (WatchLayout.isCompactScreen ? 24 : 32)
-                    : 0
-                )
-                .padding(.horizontal, isHorizontal ? 0 : 8)
+                .padding(.vertical, WatchLayout.isCompactScreen ? 24 : 32)
             }
         }
         .frame(width: size.width, height: size.height)
@@ -607,9 +669,7 @@ struct WatchDoublesBoard: View {
     }
 
     private func mainScore(_ score: String) -> some View {
-        let baseSize: CGFloat = isHorizontal
-            ? (WatchLayout.isCompactScreen ? 42 : 52)
-            : (WatchLayout.isCompactScreen ? 38 : 46)
+        let baseSize: CGFloat = WatchLayout.isCompactScreen ? 42 : 52
         let scoreFont = WatchScoreTypography.adaptiveFontSize(
             baseSize: baseSize,
             scoreText: score,
@@ -670,20 +730,11 @@ struct WatchDoublesBoard: View {
         _ position: WatchDoublesHalfModel.PlayerPosition,
         isFirst: Bool
     ) -> Alignment {
-        if isHorizontal {
-            switch (isFirst, position) {
-            case (true, .top): .topTrailing
-            case (true, .bottom): .bottomTrailing
-            case (false, .top): .topLeading
-            case (false, .bottom): .bottomLeading
-            }
-        } else {
-            switch (isFirst, position) {
-            case (true, .top): .bottomLeading
-            case (true, .bottom): .bottomTrailing
-            case (false, .top): .topLeading
-            case (false, .bottom): .topTrailing
-            }
+        switch (isFirst, position) {
+        case (true, .top): .topTrailing
+        case (true, .bottom): .bottomTrailing
+        case (false, .top): .topLeading
+        case (false, .bottom): .bottomLeading
         }
     }
 }

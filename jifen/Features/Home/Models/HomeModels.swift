@@ -168,6 +168,23 @@ struct SportsSetupResult: Codable, Hashable {
 }
 
 extension SportsSetupResult {
+    var badmintonRules: RallyRuleSet {
+        var rules = RallyRuleSet.badminton(
+            maxSets: maxSets ?? 3,
+            matchCompletionMode: matchCompletionMode ?? .bestOf
+        )
+        let target = max(1, pointsPerSet ?? 21)
+        let coreType: ScoreCore.GameType = isSingles == false ? .badmintonDoubles : .badminton
+        rules.pointsToWinSet = target
+        rules.pointCap = RallyRuleSet.badmintonPointCap(for: target)
+        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(
+            for: coreType,
+            pointsPerSet: target
+        )
+        rules.autoChangeSides = autoChangeSides ?? true
+        return rules
+    }
+
     var foosballRules: RallyRuleSet {
         var rules = RallyRuleSet.foosball(maxSets: maxSets ?? 3)
         rules.matchCompletionMode = matchCompletionMode ?? .bestOf

@@ -44,7 +44,7 @@
 "setup" = "设置";
 "vibration" = "振动";
 "sound" = "声音";
-"watch_scoreboard_keep_screen_on" = "计分时屏幕常亮";
+"watch_scoreboard_keep_screen_on" = "计分时常亮";
 
 /* Ping Pong / Tennis Sets */
 "pingpong_sets" = "乒乓球局数";
@@ -154,9 +154,6 @@
 "watch_score_add_format" = "%@得分";
 "watch_mid_game_rest" = "局中休息";
 "watch_rest_between_sets" = "局间休息";
-"watch_record_auto_sync_title" = "记录自动回传";
-"watch_record_auto_sync_on" = "已开启";
-"watch_record_auto_sync_help" = "羽/乒/网/匹、射箭、黑八/追分/斯诺克完赛后自动回传到手机；投篮训练仅保存在手表。";
 "watch_set_break_toast" = "局间休息";
 "watch_deciding_set_swap" = "决胜局换边";
 "watch_swap_sides" = "换边";
@@ -306,6 +303,11 @@
 "watch_snooker_break_format" = "单杆 %d";
 "watch_snooker_reds_format" = "红球 %d";
 "watch_snooker_foul" = "犯规";
+"watch_snooker_foul_selected_format" = "犯规 +%d";
+"watch_snooker_foul_next_turn" = "下一杆";
+"watch_snooker_foul_switch_turn" = "换手";
+"watch_snooker_foul_continue" = "继续击球";
+"watch_action_snooker_foul_continue_format" = "%@犯规，对手 +%d，继续击球";
 "watch_snooker_miss" = "未进";
 "watch_snooker_handover" = "换手";
 "watch_snooker_settle_frame" = "结算本局";

@@ -31,17 +31,7 @@ struct BadmintonScoreboardView: View {
     }
 
     private var rules: RallyRuleSet {
-        var rules = RallyRuleSet.badminton(
-            maxSets: initialSetup?.maxSets ?? 3,
-            matchCompletionMode: initialSetup?.matchCompletionMode ?? .bestOf
-        )
-        rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
-        let target = max(1, initialSetup?.pointsPerSet ?? 21)
-        let coreType: ScoreCore.GameType = initialSetup?.isSingles == false ? .badmintonDoubles : .badminton
-        rules.pointsToWinSet = target
-        rules.pointCap = RallyRuleSet.badmintonPointCap(for: target)
-        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(for: coreType, pointsPerSet: target)
-        return rules
+        (initialSetup ?? SportsSetupResult(team1Name: "", team2Name: "")).badmintonRules
     }
 
     private var openingServer: MatchSide {

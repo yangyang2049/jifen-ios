@@ -435,6 +435,11 @@ struct WatchRecordDetailView: View {
                 NSLocalizedString("watch_action_snooker_foul_format", value: "%@犯规，对手 +%d", comment: ""),
                 actorPrefix, delta
             )
+        case "snooker_foul_continue":
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_action_snooker_foul_continue_format", value: "%@犯规，对手 +%d，继续击球", comment: ""),
+                actorPrefix, delta
+            )
         case "snooker_miss":
             return String.localizedStringWithFormat(NSLocalizedString("watch_action_snooker_miss_format", value: "%@未进", comment: ""), actorPrefix)
         case "snooker_handover", "snooker_turn_changed":

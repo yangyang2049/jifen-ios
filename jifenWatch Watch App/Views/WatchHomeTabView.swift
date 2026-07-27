@@ -386,7 +386,7 @@ struct WatchHomeTabView: View {
             .background(WatchTheme.listItemBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(alignment: .topTrailing) {
-                WatchMenuCloseButton { preflightPicker = nil }
+                WatchDialogCloseButton { preflightPicker = nil }
                 .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
                 .padding(2)
             }
@@ -427,6 +427,7 @@ struct WatchHomeTabView: View {
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
     }
 
     private func pinActionTitle(for item: WatchHomeItem) -> String {

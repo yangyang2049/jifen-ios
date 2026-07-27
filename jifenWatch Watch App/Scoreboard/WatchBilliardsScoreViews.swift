@@ -122,8 +122,12 @@ struct WatchEightBallScoreView: View {
             state = remote
             undoStack.removeAll()
             if state.finished {
-                showFinishedOverlay = true
+                beginEightBallRemoteFinishPresentation()
+            } else {
+                finishTask?.cancel()
+                showFinishedOverlay = false
                 finishUndoAvailable = false
+                didSaveFinishedRecord = false
             }
         }
         .onChange(of: state) { _, _ in
@@ -333,7 +337,7 @@ struct WatchEightBallScoreView: View {
     }
 
     private var interactionsEnabled: Bool {
-        !scoringLocked && !showMenu && confirmation == nil && !showFinishedOverlay
+        !scoringLocked && !state.finished && !showMenu && confirmation == nil && !showFinishedOverlay
     }
 
     private var eightBallWinnerText: String? {
@@ -366,15 +370,29 @@ struct WatchEightBallScoreView: View {
     private func beginEightBallFinish(manualEnd: Bool) {
         finishTask?.cancel()
         showMenu = false
-        showFinishedOverlay = true
         finishUndoAvailable = !undoStack.isEmpty
-        finishTask = Task {
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                finishUndoAvailable = false
-                finalizeEightBall(manualEnd: manualEnd)
+        showFinishedOverlay = manualEnd
+        finishTask = Task { @MainActor in
+            if !manualEnd {
+                try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+                guard !Task.isCancelled else { return }
+                showFinishedOverlay = true
             }
+            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            guard !Task.isCancelled else { return }
+            finishUndoAvailable = false
+            finalizeEightBall(manualEnd: manualEnd)
+        }
+    }
+
+    private func beginEightBallRemoteFinishPresentation() {
+        finishTask?.cancel()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        finishTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+            guard !Task.isCancelled else { return }
+            showFinishedOverlay = true
         }
     }
 
@@ -549,9 +567,12 @@ struct WatchNineBallScoreView: View {
             }
         }
         .onAppear {
-            scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+            if state.playerCount == 2 {
+                scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
+            guard state.playerCount == 2 else { return }
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot) { _, update in
@@ -561,8 +582,12 @@ struct WatchNineBallScoreView: View {
             state = remote
             undoStack.removeAll()
             if state.finished {
-                showFinishedOverlay = true
+                beginNineBallRemoteFinishPresentation()
+            } else {
+                finishTask?.cancel()
+                showFinishedOverlay = false
                 finishUndoAvailable = false
+                didSaveFinishedRecord = false
             }
         }
         .onChange(of: state) { _, _ in
@@ -664,6 +689,7 @@ struct WatchNineBallScoreView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.8))
                     .lineLimit(1)
+                    .padding(.bottom, 8)
                 LazyVGrid(
                     columns: [GridItem(.flexible()), GridItem(.flexible())],
                     spacing: WatchLayout.isCompactScreen ? 5 : 7
@@ -850,7 +876,7 @@ struct WatchNineBallScoreView: View {
     }
 
     private var interactionsEnabled: Bool {
-        !scoringLocked && !showMenu && eventPickerPlayer == nil && confirmation == nil
+        !scoringLocked && !state.finished && !showMenu && eventPickerPlayer == nil && confirmation == nil
             && !showFinishedOverlay
     }
 
@@ -906,15 +932,29 @@ struct WatchNineBallScoreView: View {
         finishTask?.cancel()
         showMenu = false
         eventPickerPlayer = nil
-        showFinishedOverlay = true
         finishUndoAvailable = !undoStack.isEmpty
-        finishTask = Task {
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                finishUndoAvailable = false
-                finalizeNineBall(manualEnd: manualEnd)
+        showFinishedOverlay = manualEnd
+        finishTask = Task { @MainActor in
+            if !manualEnd {
+                try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+                guard !Task.isCancelled else { return }
+                showFinishedOverlay = true
             }
+            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            guard !Task.isCancelled else { return }
+            finishUndoAvailable = false
+            finalizeNineBall(manualEnd: manualEnd)
+        }
+    }
+
+    private func beginNineBallRemoteFinishPresentation() {
+        finishTask?.cancel()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        finishTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+            guard !Task.isCancelled else { return }
+            showFinishedOverlay = true
         }
     }
 
@@ -1008,6 +1048,11 @@ enum WatchSnookerBallAvailability {
     }
 }
 
+private struct PendingSnookerFoul: Equatable {
+    let side: MatchSide
+    let points: Int
+}
+
 struct WatchSnookerScoreView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchLinkService.self) private var linkService
@@ -1023,6 +1068,7 @@ struct WatchSnookerScoreView: View {
     @State private var scoreboardLayout: String = "horizontal"
     @State private var undoStack: [SnookerState] = []
     @State private var scoringSide: MatchSide?
+    @State private var pendingFoul: PendingSnookerFoul?
     @State private var showFrameSettlement = false
     @State private var confirmation: WatchScoreboardConfirmation?
     @State private var showFinishedOverlay = false
@@ -1091,6 +1137,9 @@ struct WatchSnookerScoreView: View {
             if let scoringSide {
                 snookerScoringPanel(for: scoringSide)
             }
+            if let pendingFoul {
+                snookerFoulTurnPanel(pendingFoul)
+            }
             if showFrameSettlement {
                 snookerFrameSettlementPanel
             }
@@ -1134,9 +1183,15 @@ struct WatchSnookerScoreView: View {
             actionLog.merge(detailedActions: update.detailedActions)
             state = remote
             undoStack.removeAll()
+            pendingFoul = nil
+            scoringSide = nil
             if state.finished {
-                showFinishedOverlay = true
+                beginSnookerRemoteFinishPresentation()
+            } else {
+                finishTask?.cancel()
+                showFinishedOverlay = false
                 finishUndoAvailable = false
+                didSaveFinishedRecord = false
             }
         }
         .onChange(of: state) { _, _ in
@@ -1181,11 +1236,13 @@ struct WatchSnookerScoreView: View {
                 .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.top, isHorizontal ? 28 : 8)
-            Text("\(frames)")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.white.opacity(0.7))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .padding(.bottom, isHorizontal ? 22 : 16)
+            if state.maxFrames > 1 {
+                Text("\(frames)")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .padding(.bottom, isHorizontal ? 22 : 16)
+            }
             snookerServerIndicator(for: side)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1212,7 +1269,11 @@ struct WatchSnookerScoreView: View {
             trailing: alignment == .trailing ? 0 : 12
         )
 
-        return WatchServerIndicator(direction: direction, size: 14, color: WatchTheme.accent)
+        return WatchServerIndicator(
+            direction: direction,
+            size: WatchLayout.serverIndicatorSize,
+            color: WatchTheme.accent
+        )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
             .padding(insets)
             .opacity(state.striker == side ? 1 : 0)
@@ -1265,8 +1326,7 @@ struct WatchSnookerScoreView: View {
                     HStack(spacing: 5) {
                         ForEach(4...7, id: \.self) { points in
                             Button("\(NSLocalizedString("watch_snooker_foul", value: "犯规", comment: "")) \(points)") {
-                                apply(.foulFromSide(side: side, pointsToOpponent: points, switchTurn: true))
-                                scoringSide = nil
+                                pendingFoul = PendingSnookerFoul(side: side, points: points)
                             }
                             .font(.system(size: 9, weight: .semibold))
                             .buttonStyle(.bordered)
@@ -1306,8 +1366,66 @@ struct WatchSnookerScoreView: View {
         .ignoresSafeArea()
     }
 
+    private func snookerFoulTurnPanel(_ foul: PendingSnookerFoul) -> some View {
+        ZStack(alignment: .bottom) {
+            WatchTheme.overlayCard
+                .ignoresSafeArea()
+
+            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
+                Text(String.localizedStringWithFormat(
+                    NSLocalizedString("watch_snooker_foul_selected_format", value: "犯规 +%d", comment: ""),
+                    foul.points
+                ))
+                .font(.headline)
+                .foregroundStyle(.white)
+
+                Text(NSLocalizedString("watch_snooker_foul_next_turn", value: "下一杆", comment: ""))
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.72))
+
+                Button {
+                    commitFoul(foul, switchTurn: true)
+                } label: {
+                    Text(NSLocalizedString("watch_snooker_foul_switch_turn", value: "换手", comment: ""))
+                        .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 36 : 42)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(WatchTheme.dangerRed)
+                .frame(width: WatchLayout.overlayActionButtonWidth)
+
+                Button {
+                    commitFoul(foul, switchTurn: false)
+                } label: {
+                    Text(NSLocalizedString("watch_snooker_foul_continue", value: "继续击球", comment: ""))
+                        .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 36 : 42)
+                }
+                .buttonStyle(.bordered)
+                .frame(width: WatchLayout.overlayActionButtonWidth)
+            }
+            .padding(.horizontal, 8)
+            .padding(.bottom, WatchLayout.overlayCloseButtonSize + 8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            WatchMenuCloseButton { pendingFoul = nil }
+                .padding(.bottom, WatchLayout.isCompactScreen ? 4 : 6)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+
+    private func commitFoul(_ foul: PendingSnookerFoul, switchTurn: Bool) {
+        guard !scoringLocked, !state.finished else {
+            pendingFoul = nil
+            scoringSide = nil
+            return
+        }
+        apply(.foulFromSide(side: foul.side, pointsToOpponent: foul.points, switchTurn: switchTurn))
+        pendingFoul = nil
+        scoringSide = nil
+    }
+
     private var snookerFrameSettlementPanel: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             Color.black.opacity(0.86).ignoresSafeArea()
             VStack(spacing: 10) {
                 Text(NSLocalizedString("watch_snooker_choose_frame_winner", value: "选择本局胜者", comment: ""))
@@ -1318,20 +1436,22 @@ struct WatchSnookerScoreView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color(hex: 0xE53935))
+                .frame(width: WatchLayout.overlayActionButtonWidth)
                 Button(rightName) {
                     showFrameSettlement = false
                     apply(.settleFrame(winner: .right))
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color(hex: 0x1E88E5))
-                Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
-                    showFrameSettlement = false
-                }
-                .buttonStyle(.bordered)
+                .frame(width: WatchLayout.overlayActionButtonWidth)
             }
             .padding(14)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WatchTheme.overlayCard)
+
+            WatchMenuCloseButton { showFrameSettlement = false }
+                .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
+                .padding(4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
@@ -1350,10 +1470,12 @@ struct WatchSnookerScoreView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(WatchTheme.successGreen)
+                .frame(width: WatchLayout.overlayActionButtonWidth)
                 Button(NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: "")) {
                     confirmation = .finish
                 }
                 .buttonStyle(.bordered)
+                .frame(width: WatchLayout.overlayActionButtonWidth)
             }
             .padding(14)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1488,6 +1610,7 @@ struct WatchSnookerScoreView: View {
         actionLog.reset(at: restartedAt)
         didSaveFinishedRecord = false
         matchStartTime = restartedAt
+        pendingFoul = nil
         scoringSide = nil
         showFrameSettlement = false
         showFinishedOverlay = false
@@ -1498,7 +1621,7 @@ struct WatchSnookerScoreView: View {
     private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
 
     private var interactionsEnabled: Bool {
-        !scoringLocked && !showMenu && scoringSide == nil && !showFrameSettlement
+        !scoringLocked && !state.finished && !showMenu && scoringSide == nil && !showFrameSettlement
             && !state.frameCompletePending && confirmation == nil && !showFinishedOverlay
     }
 
@@ -1522,17 +1645,32 @@ struct WatchSnookerScoreView: View {
     private func beginSnookerFinish(manualEnd: Bool) {
         finishTask?.cancel()
         showMenu = false
+        pendingFoul = nil
         scoringSide = nil
         showFrameSettlement = false
-        showFinishedOverlay = true
         finishUndoAvailable = !undoStack.isEmpty
-        finishTask = Task {
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                finishUndoAvailable = false
-                finalizeSnooker(manualEnd: manualEnd)
+        showFinishedOverlay = manualEnd
+        finishTask = Task { @MainActor in
+            if !manualEnd {
+                try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+                guard !Task.isCancelled else { return }
+                showFinishedOverlay = true
             }
+            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            guard !Task.isCancelled else { return }
+            finishUndoAvailable = false
+            finalizeSnooker(manualEnd: manualEnd)
+        }
+    }
+
+    private func beginSnookerRemoteFinishPresentation() {
+        finishTask?.cancel()
+        showFinishedOverlay = false
+        finishUndoAvailable = false
+        finishTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
+            guard !Task.isCancelled else { return }
+            showFinishedOverlay = true
         }
     }
 
