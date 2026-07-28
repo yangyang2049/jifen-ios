@@ -181,7 +181,8 @@ struct WatchSportsSetupDraft: Hashable {
             return
         }
         let maximum = Self.maxEightBallHandicap(for: eightBallTargetRacks)
-        eightBallHandicapRacks = min(maximum, max(0, eightBallHandicapRacks))
+        let minimum = eightBallHandicapBeneficiary == .none ? 0 : 1
+        eightBallHandicapRacks = min(maximum, max(minimum, eightBallHandicapRacks))
     }
 
     func namesAreValid(whenExpanded namesExpanded: Bool) -> Bool {

@@ -300,7 +300,6 @@
 "nine_ball_ball_in_hand" = "自由球";
 "nine_ball_foul" = "犯规";
 "watch_archery_set_rest" = "局间休息";
-"watch_eight_ball_handicap_format" = "让局 +%d";
 "watch_finish_confirm_title" = "结束比赛？";
 "watch_finish_confirm_message" = "将结束并保存本场比赛。";
 "watch_reset_confirm_title" = "重新开始？";

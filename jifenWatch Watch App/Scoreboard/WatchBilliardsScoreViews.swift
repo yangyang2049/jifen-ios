@@ -4,6 +4,19 @@ import RecordCore
 import ScoreCore
 import SwiftUI
 
+enum WatchEightBallScorePresentation {
+    static func earnedRacks(state: EightBallState, side: MatchSide) -> Int {
+        let total = side == .left ? state.leftPoints : state.rightPoints
+        let handicap = state.handicapBeneficiary == side ? state.handicapRacks : 0
+        return max(0, total - handicap)
+    }
+
+    static func handicapText(state: EightBallState, side: MatchSide) -> String? {
+        guard state.handicapBeneficiary == side, state.handicapRacks > 0 else { return nil }
+        return "+\(state.handicapRacks)"
+    }
+}
+
 /// Compact dual-side board for eight-ball / snooker-style rack or frame scoring on Watch.
 struct WatchEightBallScoreView: View {
     @Environment(\.dismiss) private var dismiss
@@ -54,8 +67,8 @@ struct WatchEightBallScoreView: View {
     var body: some View {
         ZStack {
             dualBoard(
-                leftLabel: "\(state.leftPoints)",
-                rightLabel: "\(state.rightPoints)",
+                leftLabel: "\(WatchEightBallScorePresentation.earnedRacks(state: state, side: .left))",
+                rightLabel: "\(WatchEightBallScorePresentation.earnedRacks(state: state, side: .right))",
                 onLeft: { addRack(.left) },
                 onRight: { addRack(.right) }
             )
@@ -299,19 +312,23 @@ struct WatchEightBallScoreView: View {
             Text(text)
                 .font(.system(size: scoreFont, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
-            VStack(spacing: 2) {
-                Text(name)
-                    .lineLimit(2)
-                if let handicap {
-                    Text(handicap)
-                }
+
+            Text(name)
+                .font(.system(size: 11, weight: .semibold))
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white.opacity(0.9))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.horizontal, 8)
+                .padding(.top, isHorizontal ? 28 : 8)
+
+            if let handicap {
+                Text(handicap)
+                    .font(.system(size: isHorizontal ? 20 : 22, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.65))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .padding(.bottom, isHorizontal ? 28 : 12)
             }
-            .font(.system(size: 11, weight: .medium))
-            .multilineTextAlignment(.center)
-            .foregroundStyle(.white.opacity(0.76))
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .padding(.horizontal, 4)
-            .padding(.bottom, isHorizontal ? 18 : 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(color)
@@ -391,11 +408,7 @@ struct WatchEightBallScoreView: View {
     }
 
     private func handicapText(for side: MatchSide) -> String? {
-        guard state.handicapBeneficiary == side, state.handicapRacks > 0 else { return nil }
-        return String.localizedStringWithFormat(
-            NSLocalizedString("watch_eight_ball_handicap_format", value: "让局 +%d", comment: ""),
-            state.handicapRacks
-        )
+        WatchEightBallScorePresentation.handicapText(state: state, side: side)
     }
 
     private func confirmEightBall(_ value: WatchScoreboardConfirmation) {

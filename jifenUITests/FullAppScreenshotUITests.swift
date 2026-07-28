@@ -83,6 +83,84 @@ final class FullAppScreenshotUITests: XCTestCase {
         )
     }
 
+    /// 重点项目截图矩阵：三种球类分别覆盖单打/双打，并补齐掼蛋的真实操作状态。
+    /// 每个场景都保留设置、初始计分板、操作后和菜单 Overlay 四张截图，方便人工复核。
+    func testCapturePrioritySportsVariants() {
+        let variants: [(id: String, label: String, doubles: Bool)] = [
+            ("pingpong", "乒乓球", false),
+            ("pingpong", "乒乓球", true),
+            ("badminton", "羽毛球", false),
+            ("badminton", "羽毛球", true),
+            ("tennis", "网球", false),
+            ("tennis", "网球", true),
+        ]
+
+        for (offset, variant) in variants.enumerated() {
+            let index = offset + 1
+            let mode = variant.doubles ? "doubles" : "singles"
+            XCTContext.runActivity(named: "Priority \(variant.id) \(mode)") { _ in
+                XCTAssertTrue(openPriorityScoreboardSetup(id: variant.id, label: variant.label))
+                XCTAssertTrue(
+                    selectSinglesDoublesMode(doubles: variant.doubles),
+                    "Cannot select \(mode) for \(variant.id)"
+                )
+                snap(String(format: "70_%02d_setup_%@_%@", index, variant.id, mode), settle: 0.5)
+
+                XCTAssertTrue(tapStart(), "Start button not found for \(variant.id) \(mode)")
+                XCTAssertTrue(waitForPriorityScoreboard(), "Scoreboard did not open for \(variant.id) \(mode)")
+
+                if variant.doubles {
+                    assertDoublesPlayersVisible(for: variant.id)
+                }
+                snap(String(format: "71_%02d_board_%@_%@", index, variant.id, mode), settle: 0.6)
+
+                if variant.id == "pingpong", variant.doubles {
+                    let openingChoice = app.buttons.matching(
+                        NSPredicate(format: "label CONTAINS %@", "→")
+                    ).firstMatch
+                    XCTAssertTrue(
+                        openingChoice.waitForExistence(timeout: 4),
+                        "Ping-pong doubles opening-order selector is missing"
+                    )
+                    if openingChoice.exists { openingChoice.tap() }
+                    RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+                }
+
+                tapPriorityScorePanels()
+                snap(String(format: "72_%02d_scored_%@_%@", index, variant.id, mode), settle: 0.6)
+                XCTAssertTrue(openPriorityScoreboardMenu(), "Menu did not open for \(variant.id) \(mode)")
+                snap(String(format: "73_%02d_menu_%@_%@", index, variant.id, mode), settle: 0.4)
+            }
+        }
+
+        XCTContext.runActivity(named: "Priority guandan") { _ in
+            let index = variants.count + 1
+            XCTAssertTrue(openPriorityScoreboardSetup(id: "guandan", label: "掼蛋"))
+            snap(String(format: "70_%02d_setup_guandan", index), settle: 0.5)
+            XCTAssertTrue(tapStart(), "Start button not found for guandan")
+            XCTAssertTrue(waitForPriorityScoreboard(), "Guandan scoreboard did not open")
+            snap(String(format: "71_%02d_board_guandan", index), settle: 0.6)
+
+            let leftPanel = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "identifier == %@", "scoreboard_left_panel"))
+                .firstMatch
+            XCTAssertTrue(leftPanel.waitForExistence(timeout: 3), "Guandan left score panel is missing")
+            if leftPanel.exists {
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            }
+            XCTAssertTrue(
+                app.staticTexts["选择升几级"].waitForExistence(timeout: 3),
+                "Guandan round settlement controls did not appear"
+            )
+            snap(String(format: "72_%02d_round_result_guandan", index), settle: 0.5)
+
+            let cancel = app.buttons["取消"]
+            if cancel.waitForExistence(timeout: 2), cancel.isHittable { cancel.tap() }
+            XCTAssertTrue(openPriorityScoreboardMenu(), "Menu did not open for guandan")
+            snap(String(format: "73_%02d_menu_guandan", index), settle: 0.4)
+        }
+    }
+
     /// 回归网球独立计分板与追分紧凑菜单两种非通用布局。
     func testScoreboardMenuLayoutVariants() {
         for item in [(id: "tennis", label: "网球"), (id: "nine_ball", label: "追分")] {
@@ -295,6 +373,99 @@ final class FullAppScreenshotUITests: XCTestCase {
                 exerciseScoreboardChrome(for: item.id)
             }
         }
+    }
+
+    private func openPriorityScoreboardSetup(id: String, label: String) -> Bool {
+        relaunch()
+        guard selectTab("计分") else { return false }
+        scrollUntilExists(identifier: "scoreboard_catalog_\(id)")
+
+        let card = app.descendants(matching: .any)["scoreboard_catalog_\(id)"]
+        if card.waitForExistence(timeout: 3), card.isHittable {
+            card.tap()
+        } else {
+            let byLabel = app.buttons.matching(
+                NSPredicate(format: "label CONTAINS %@", label)
+            ).firstMatch
+            guard byLabel.waitForExistence(timeout: 3), byLabel.isHittable else { return false }
+            byLabel.tap()
+        }
+
+        dismissWatchStartGuideIfNeeded()
+        return app.buttons["开始"].waitForExistence(timeout: 4)
+            || app.buttons["Start"].waitForExistence(timeout: 1)
+            || app.buttons["确认"].waitForExistence(timeout: 1)
+    }
+
+    private func dismissWatchStartGuideIfNeeded() {
+        for label in ["知道了", "Got It", "Got it"] {
+            let button = app.buttons[label]
+            if button.waitForExistence(timeout: 0.4), button.isHittable {
+                button.tap()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+                return
+            }
+        }
+    }
+
+    private func selectSinglesDoublesMode(doubles: Bool) -> Bool {
+        let picker = app.segmentedControls["singles_doubles_picker"]
+        guard picker.waitForExistence(timeout: 4) else { return false }
+
+        let optionID = doubles ? "doubles_option" : "singles_option"
+        let option = app.buttons[optionID]
+        if option.exists, option.isHittable {
+            option.tap()
+        } else {
+            picker.coordinate(
+                withNormalizedOffset: CGVector(dx: doubles ? 0.75 : 0.25, dy: 0.5)
+            ).tap()
+        }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+
+        let expected = doubles ? "双打" : "单打"
+        return (picker.value as? String) == expected
+    }
+
+    private func waitForPriorityScoreboard() -> Bool {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(0.45))
+        revealScoreboardChrome(fromLeftCorner: true)
+        return app.descendants(matching: .any)["scoreboard_back_button"]
+            .waitForExistence(timeout: 8)
+    }
+
+    private func assertDoublesPlayersVisible(for id: String) {
+        for name in ["红A", "红B", "蓝A", "蓝B"] {
+            let player = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS %@", name))
+                .firstMatch
+            XCTAssertTrue(player.waitForExistence(timeout: 4), "\(id) doubles player is missing: \(name)")
+        }
+    }
+
+    private func tapPriorityScorePanels() {
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+    }
+
+    private func openPriorityScoreboardMenu() -> Bool {
+        let dialog = app.descendants(matching: .any)["scoreboard_menu_dialog"]
+        if dialog.exists { return true }
+
+        revealScoreboardChrome(fromLeftCorner: false)
+        let menu = app.descendants(matching: .any)["scoreboard_menu_button"]
+        if menu.waitForExistence(timeout: 2), menu.isHittable {
+            menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        } else {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+        }
+        if !dialog.waitForExistence(timeout: 1) {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+        }
+        return dialog.waitForExistence(timeout: 3)
     }
 
     /// 每个计分板都实际操作菜单与撤销，避免截图存在但按钮失效、遮挡或菜单未挂载。

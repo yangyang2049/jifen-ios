@@ -812,7 +812,7 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(draft.eightBallHandicapRacks, 0)
     }
 
-    func testEightBallKeepsAndroidHandicapDraftWhenBeneficiaryIsNone() {
+    func testEightBallKeepsAndroidHandicapDraftAndDefaultsChosenBeneficiaryToOne() {
         var draft = WatchSportsSetupDraft(sport: .eightBall, preferences: preferences)
         draft.eightBallTargetRacks = 5
         draft.eightBallHandicapBeneficiary = .none
@@ -823,7 +823,30 @@ final class WatchSportsSetupTests: XCTestCase {
         draft.eightBallHandicapBeneficiary = .team1
         draft.eightBallHandicapRacks = 0
         draft.normalizeEightBallHandicap()
-        XCTAssertEqual(draft.eightBallHandicapRacks, 0)
+        XCTAssertEqual(draft.eightBallHandicapRacks, 1)
+    }
+
+    func testEightBallPresentationSeparatesHandicapFromEarnedRacks() throws {
+        var state = EightBallState.initial(
+            targetPoints: 5,
+            handicapRacks: 2,
+            handicapBeneficiary: .right
+        )
+
+        XCTAssertEqual(WatchEightBallScorePresentation.earnedRacks(state: state, side: .left), 0)
+        XCTAssertEqual(WatchEightBallScorePresentation.earnedRacks(state: state, side: .right), 0)
+        XCTAssertNil(WatchEightBallScorePresentation.handicapText(state: state, side: .left))
+        XCTAssertEqual(WatchEightBallScorePresentation.handicapText(state: state, side: .right), "+2")
+
+        let result = EightBallReducer().reduce(
+            state: state,
+            intent: .addRack(.right),
+            at: 1
+        )
+        XCTAssertTrue(result.accepted)
+        state = result.state
+        XCTAssertEqual(WatchEightBallScorePresentation.earnedRacks(state: state, side: .right), 1)
+        XCTAssertEqual(WatchEightBallScorePresentation.handicapText(state: state, side: .right), "+2")
     }
 
     func testSnookerEvenFramesNormalizeUpInCore() {

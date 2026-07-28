@@ -24,10 +24,11 @@ run_device() {
 
   echo "Running screenshot UI tests for $label"
   if ! xcodebuild "$test_action" \
-    -project "$repo_dir/jifen.xcodeproj" \
+    -workspace "$repo_dir/jifen.xcworkspace" \
     -scheme jifen \
     -destination "$destination" \
     -only-testing:jifenUITests/FullAppScreenshotUITests/testCaptureFullAppScreenshots \
+    -only-testing:jifenUITests/FullAppScreenshotUITests/testCapturePrioritySportsVariants \
     -resultBundlePath "$result_bundle" \
     > "$log_file" 2>&1; then
     tail -120 "$log_file" >&2
@@ -65,6 +66,12 @@ run_device "iPhone" "$iphone_destination" "test"
 # second full build and avoids unrelated embedded-Watch recompilation.
 run_device "iPad" "$ipad_destination" "test-without-building"
 
+node "$repo_dir/scripts/generate_ui_review_document.js" \
+  "$output_dir" \
+  "$output_dir" \
+  "$result_dir/iPhone-attachments" \
+  "$result_dir/iPad-attachments"
+
 iphone_count="$(find "$output_dir" -maxdepth 1 -type f -name 'iPhone_*.png' | wc -l | tr -d ' ')"
 ipad_count="$(find "$output_dir" -maxdepth 1 -type f -name 'iPad_*.png' | wc -l | tr -d ' ')"
 total_count="$((iphone_count + ipad_count))"
@@ -79,7 +86,7 @@ total_count="$((iphone_count + ipad_count))"
   find "$output_dir" -maxdepth 1 -type f -name '*.png' -exec basename {} \; | sort
 } > "$output_dir/INDEX.txt"
 
-if [[ "$iphone_count" -lt 89 || "$ipad_count" -lt 89 ]]; then
+if [[ "$iphone_count" -lt 117 || "$ipad_count" -lt 117 ]]; then
   echo "Screenshot coverage incomplete: iPhone=$iphone_count, iPad=$ipad_count" >&2
   exit 1
 fi

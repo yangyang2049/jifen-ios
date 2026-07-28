@@ -300,7 +300,6 @@
 "nine_ball_ball_in_hand" = "Ball in Hand";
 "nine_ball_foul" = "Foul";
 "watch_archery_set_rest" = "Set Break";
-"watch_eight_ball_handicap_format" = "Handicap +%d";
 "watch_finish_confirm_title" = "End match?";
 "watch_finish_confirm_message" = "This match will end and be saved.";
 "watch_reset_confirm_title" = "Restart match?";
