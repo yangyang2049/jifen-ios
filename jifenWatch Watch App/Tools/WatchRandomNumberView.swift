@@ -86,7 +86,7 @@ struct WatchRandomNumberView: View {
         Group {
             if !showHistoryOverlay, !history.isEmpty {
                 HStack(spacing: 8) {
-                    ForEach(recentHistory, id: \.self) { value in
+                    ForEach(Array(recentHistory.enumerated()), id: \.offset) { _, value in
                         historyBubble(text: "\(value)")
                     }
                     if history.count > 4 {

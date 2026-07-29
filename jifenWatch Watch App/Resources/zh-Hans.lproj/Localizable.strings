@@ -58,7 +58,7 @@
 
 /* Usage Guide */
 "usage_guide" = "使用说明";
-"usage_prompt_message" = "1. 点击对应半区加分\n2. 下滑撤销\n3. 上滑打开菜单";
+"usage_prompt_message" = "1. 点击对应半区加分\n2. 下滑撤销\n3. 长按打开菜单";
 "got_it" = "知道了";
 
 /* Privacy */
@@ -161,6 +161,14 @@
 "watch_score_add_format" = "%@得分";
 "watch_mid_game_rest" = "局中休息";
 "watch_rest_between_sets" = "局间休息";
+"watch_score_event_set_title" = "第%d局结束";
+"watch_score_event_set_detail" = "%@胜 %d:%d · 局分 %d:%d";
+"watch_score_event_mid_game_title" = "第%d局 · 局中间歇";
+"watch_score_event_mid_game_detail" = "%@领先 %d:%d · 局分 %d:%d";
+"watch_score_event_tennis_game_title" = "第%d局结束";
+"watch_score_event_tennis_game_detail" = "%@胜 · 局分 %d:%d";
+"watch_score_event_tennis_set_title" = "第%d盘结束";
+"watch_score_event_tennis_set_detail" = "%@胜 %d:%d · 盘分 %d:%d";
 "watch_set_break_toast" = "局间休息";
 "watch_deciding_set_swap" = "决胜局换边";
 "watch_swap_sides" = "换边";
@@ -226,6 +234,11 @@
 "watch_common_names_error_missing" = "原名称已不存在，请刷新后重试";
 "watch_common_names_error_generic" = "保存失败，请重试";
 "watch_common_names_sync_now" = "立即同步";
+"watch_common_names_actions" = "名称操作";
+"watch_common_names_sync_requested" = "已发起同步";
+"watch_common_names_sync_queued" = "手机未连接，连接后自动同步";
+"watch_common_names_sync_inactive" = "请先连接手机";
+"watch_common_names_sync_failed" = "同步发送失败，请稍后重试";
 "watch_common_names_sync_conflict" = "部分修改未同步";
 "watch_common_names_sync_pending" = "等待同步";
 "watch_common_names_sync_unavailable" = "手机暂不可用";

@@ -132,9 +132,36 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertNil(WatchRestPolicy.betweenSetDuration(for: .eightBall))
     }
 
+    func testFinishedUndoCountdownIsThreeSecondsAndProgressTracksRemainingTime() {
+        XCTAssertEqual(WatchTiming.finishedUndoCountdown, 3)
+        let start = Date(timeIntervalSince1970: 100)
+        let deadline = start.addingTimeInterval(3)
+        XCTAssertEqual(
+            WatchUndoCountdownStroke.remainingFraction(deadline: deadline, now: start, duration: 3),
+            1,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            WatchUndoCountdownStroke.remainingFraction(
+                deadline: deadline,
+                now: start.addingTimeInterval(1.5),
+                duration: 3
+            ),
+            0.5,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            WatchUndoCountdownStroke.remainingFraction(deadline: deadline, now: deadline, duration: 3),
+            0,
+            accuracy: 0.001
+        )
+    }
+
     func testWatchLayoutUsesTwoPagePaddingTiers() {
         XCTAssertEqual(WatchLayout.serverIndicatorSize, 10)
-        XCTAssertEqual(WatchLayout.overlayCloseButtonSize, 44)
+        XCTAssertEqual(WatchLayout.serverIndicatorVerticalOffset(isHorizontal: true), 8)
+        XCTAssertEqual(WatchLayout.serverIndicatorVerticalOffset(isHorizontal: false), 0)
+        XCTAssertEqual(WatchLayout.overlayCloseButtonSize, 40)
         XCTAssertEqual(WatchLayout.dialogCloseIconSize, 20)
         XCTAssertEqual(WatchLayout.overlayActionButtonWidth(for: 187), 134)
         XCTAssertEqual(WatchLayout.overlayActionButtonWidth(for: 198), 144)
@@ -812,6 +839,12 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(draft.eightBallHandicapRacks, 0)
     }
 
+    func testEightBallHandicapMaximumTracksTargetRacks() {
+        XCTAssertEqual(WatchSportsSetupDraft.maxEightBallHandicap(for: 1), 0)
+        XCTAssertEqual(WatchSportsSetupDraft.maxEightBallHandicap(for: 5), 4)
+        XCTAssertEqual(WatchSportsSetupDraft.maxEightBallHandicap(for: 9), 8)
+    }
+
     func testEightBallKeepsAndroidHandicapDraftAndDefaultsChosenBeneficiaryToOne() {
         var draft = WatchSportsSetupDraft(sport: .eightBall, preferences: preferences)
         draft.eightBallTargetRacks = 5
@@ -826,15 +859,15 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(draft.eightBallHandicapRacks, 1)
     }
 
-    func testEightBallPresentationSeparatesHandicapFromEarnedRacks() throws {
+    func testEightBallPresentationIncludesHandicapInDisplayedRacks() throws {
         var state = EightBallState.initial(
             targetPoints: 5,
             handicapRacks: 2,
             handicapBeneficiary: .right
         )
 
-        XCTAssertEqual(WatchEightBallScorePresentation.earnedRacks(state: state, side: .left), 0)
-        XCTAssertEqual(WatchEightBallScorePresentation.earnedRacks(state: state, side: .right), 0)
+        XCTAssertEqual(WatchEightBallScorePresentation.displayedRacks(state: state, side: .left), 0)
+        XCTAssertEqual(WatchEightBallScorePresentation.displayedRacks(state: state, side: .right), 2)
         XCTAssertNil(WatchEightBallScorePresentation.handicapText(state: state, side: .left))
         XCTAssertEqual(WatchEightBallScorePresentation.handicapText(state: state, side: .right), "+2")
 
@@ -845,7 +878,7 @@ final class WatchSportsSetupTests: XCTestCase {
         )
         XCTAssertTrue(result.accepted)
         state = result.state
-        XCTAssertEqual(WatchEightBallScorePresentation.earnedRacks(state: state, side: .right), 1)
+        XCTAssertEqual(WatchEightBallScorePresentation.displayedRacks(state: state, side: .right), 3)
         XCTAssertEqual(WatchEightBallScorePresentation.handicapText(state: state, side: .right), "+2")
     }
 
@@ -1114,11 +1147,14 @@ final class WatchSportsSetupTests: XCTestCase {
 
     func testSpecializedProjectorsKeepMissFoulAndParticipantIdentity() {
         let archery = WatchScoreActionProjector.archery(
-            events: [.arrowScored(side: .right, points: 0, leftArrowSum: 9, rightArrowSum: 0)],
+            events: [
+                .arrowScored(side: .right, points: 0, leftArrowSum: 9, rightArrowSum: 0),
+                .arrowMissed(side: .right, leftArrowSum: 9, rightArrowSum: 0)
+            ],
             state: ArcheryMatchState(leftName: "甲", rightName: "乙"),
             timestamp: Date()
         )
-        XCTAssertEqual(archery.first?.operationCode, "archery_miss")
+        XCTAssertEqual(archery.map(\.operationCode), ["archery_arrow", "archery_miss"])
         XCTAssertEqual(archery.first?.team, .team2)
 
         let seed = NineBallChaseState.initial(playerCount: 3, playerNames: ["甲", "乙", "丙"])

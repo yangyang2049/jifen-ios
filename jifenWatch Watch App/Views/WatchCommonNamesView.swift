@@ -13,30 +13,52 @@ struct WatchCommonNamesView: View {
     @State private var editorContext: WatchCommonNameEditorContext?
     @State private var editorText = ""
     @State private var pendingDeleteName: String?
+    @State private var actionMenuName: String?
     @State private var errorMessage: String?
+    @State private var syncFeedbackMessage: String?
+    @State private var syncFeedbackToken = UUID()
 
     private var currentNames: [String] { store.names(for: selectedType) }
 
     var body: some View {
-        List {
-            categoryPicker
-                .watchCommonNamesListRow()
-
-            if currentNames.isEmpty {
-                emptyState
+        ZStack {
+            List {
+                categoryPicker
                     .watchCommonNamesListRow()
-            } else {
-                ForEach(currentNames, id: \.self) { name in
-                    nameRow(name)
+
+                if currentNames.isEmpty {
+                    emptyState
                         .watchCommonNamesListRow()
+                } else {
+                    ForEach(currentNames, id: \.self) { name in
+                        nameRow(name)
+                            .watchCommonNamesListRow()
+                    }
                 }
+
+                syncCard
+                    .watchCommonNamesListRow()
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(WatchTheme.background)
+
+            if let syncFeedbackMessage {
+                VStack {
+                    Spacer()
+                    WatchToastView(message: syncFeedbackMessage)
+                        .padding(.bottom, 10)
+                }
+                .allowsHitTesting(false)
+                .transition(.opacity)
             }
 
-            syncCard
-                .watchCommonNamesListRow()
+            if let actionMenuName {
+                actionMenu(for: actionMenuName)
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
         .background(WatchTheme.background)
         .navigationTitle(NSLocalizedString("watch_common_names_title", value: "常用名称", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
@@ -115,7 +137,7 @@ struct WatchCommonNamesView: View {
                 .lineLimit(2)
 
             Button {
-                linkService.syncCommonNamesNow()
+                syncCommonNamesNow()
             } label: {
                 Text(NSLocalizedString("watch_common_names_sync_now", value: "立即同步", comment: ""))
                     .font(.system(size: 13, weight: .semibold))
@@ -161,37 +183,103 @@ struct WatchCommonNamesView: View {
     }
 
     private func nameRow(_ name: String) -> some View {
-        Button {
-            editorText = name
-            editorContext = .init(originalName: name)
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: selectedType == .team ? "person.2" : "person")
-                    .font(.system(size: 14, weight: .medium))
+        HStack(spacing: 8) {
+            Image(systemName: selectedType == .team ? "person.2" : "person")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(WatchTheme.secondaryText)
+                .frame(width: 20)
+            Text(name)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(WatchTheme.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+            Spacer(minLength: 2)
+            Button {
+                withAnimation {
+                    actionMenuName = name
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(WatchTheme.secondaryText)
-                    .frame(width: 20)
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 32, height: 36)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString(
+                "watch_common_names_actions",
+                value: "名称操作",
+                comment: ""
+            ))
+        }
+        .padding(.leading, WatchLayout.pillRowHorizontalPadding)
+        .padding(.trailing, 8)
+        .frame(height: 48)
+        .background(WatchTheme.listItemBackground)
+        .clipShape(Capsule())
+    }
+
+    private func actionMenu(for name: String) -> some View {
+        ZStack {
+            Color.black.opacity(0.58)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    closeActionMenu()
+                }
+
+            VStack(spacing: 8) {
                 Text(name)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(WatchTheme.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
-                Spacer(minLength: 2)
-                Image(systemName: "pencil")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(WatchTheme.secondaryText)
+
+                Button {
+                    closeActionMenu()
+                    editorText = name
+                    editorContext = .init(originalName: name)
+                } label: {
+                    Label(
+                        NSLocalizedString("edit", value: "编辑", comment: ""),
+                        systemImage: "pencil"
+                    )
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(WatchTheme.primaryText)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 40)
+                    .background(Color.white.opacity(0.10))
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    closeActionMenu()
+                    pendingDeleteName = name
+                } label: {
+                    Label(
+                        NSLocalizedString("delete", value: "删除", comment: ""),
+                        systemImage: "trash"
+                    )
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 40)
+                    .background(Color.red.opacity(0.78))
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, WatchLayout.pillRowHorizontalPadding)
-            .frame(height: 48)
-            .background(WatchTheme.listItemBackground)
-            .clipShape(Capsule())
+            .padding(12)
+            .background(Color(hex: 0x222222))
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .padding(.horizontal, 12)
         }
-        .buttonStyle(.plain)
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive) {
-                pendingDeleteName = name
-            } label: {
-                Label(NSLocalizedString("delete", value: "删除", comment: ""), systemImage: "trash")
-            }
+    }
+
+    private func closeActionMenu() {
+        withAnimation {
+            actionMenuName = nil
         }
     }
 
@@ -287,6 +375,53 @@ struct WatchCommonNamesView: View {
             linkService.commonNamesDidChange()
         } catch {
             errorMessage = localizedError(error)
+        }
+    }
+
+    private func syncCommonNamesNow() {
+        WatchHaptics.shared.play(.light)
+        let message: String
+        switch linkService.syncCommonNamesNow() {
+        case .requested:
+            message = NSLocalizedString(
+                "watch_common_names_sync_requested",
+                value: "已发起同步",
+                comment: ""
+            )
+        case .queuedUntilPhoneAvailable:
+            message = NSLocalizedString(
+                "watch_common_names_sync_queued",
+                value: "手机未连接，连接后自动同步",
+                comment: ""
+            )
+        case .connectionInactive:
+            message = NSLocalizedString(
+                "watch_common_names_sync_inactive",
+                value: "请先连接手机",
+                comment: ""
+            )
+        case .failed:
+            message = NSLocalizedString(
+                "watch_common_names_sync_failed",
+                value: "同步发送失败，请稍后重试",
+                comment: ""
+            )
+        }
+        showSyncFeedback(message)
+    }
+
+    private func showSyncFeedback(_ message: String) {
+        let token = UUID()
+        syncFeedbackToken = token
+        withAnimation {
+            syncFeedbackMessage = message
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard syncFeedbackToken == token else { return }
+            withAnimation {
+                syncFeedbackMessage = nil
+            }
         }
     }
 

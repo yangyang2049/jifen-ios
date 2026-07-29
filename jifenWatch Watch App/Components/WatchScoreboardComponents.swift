@@ -412,6 +412,42 @@ struct WatchFinishedScoreItem {
     let score: String
 }
 
+struct WatchUndoCountdownStroke: View {
+    let deadline: Date
+    let duration: TimeInterval
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 0.05)) { context in
+            let remaining = Self.remainingFraction(
+                deadline: deadline,
+                now: context.date,
+                duration: duration
+            )
+            ZStack {
+                Capsule()
+                    .stroke(Color.white.opacity(0.18), lineWidth: 2)
+                Capsule()
+                    .trim(from: 0, to: remaining)
+                    .stroke(
+                        WatchTheme.timerAccent,
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                    )
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    static func remainingFraction(
+        deadline: Date,
+        now: Date,
+        duration: TimeInterval
+    ) -> Double {
+        guard duration > 0 else { return 0 }
+        return min(1, max(0, deadline.timeIntervalSince(now) / duration))
+    }
+}
+
 struct WatchFinishedOverlay: View {
     let title: String
     let scoreItems: [WatchFinishedScoreItem]
@@ -420,6 +456,7 @@ struct WatchFinishedOverlay: View {
     let onUndo: () -> Void
     let onPlayAgain: () -> Void
     let onExit: () -> Void
+    @State private var undoDeadline: Date = .distantPast
 
     var body: some View {
         ZStack {
@@ -438,6 +475,7 @@ struct WatchFinishedOverlay: View {
                     finishedActionButton(
                         title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
                         background: WatchTheme.card,
+                        countdownDeadline: undoDeadline,
                         action: onUndo
                     )
                 } else {
@@ -461,6 +499,14 @@ struct WatchFinishedOverlay: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
+        .onAppear {
+            resetUndoDeadlineIfNeeded()
+        }
+        .onChange(of: undoAvailable) { _, isAvailable in
+            if isAvailable {
+                resetUndoDeadlineIfNeeded()
+            }
+        }
     }
 
     private var finishedScoreRow: some View {
@@ -477,10 +523,8 @@ struct WatchFinishedOverlay: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.55)
                     Text(item.score)
-                        .font(.system(
-                            size: scoreItems.count > 2 ? 18 : 22,
-                            weight: .bold,
-                            design: .rounded
+                        .font(WatchScoreTypography.primaryScore(
+                            size: scoreItems.count > 2 ? 18 : 22
                         ))
                         .monospacedDigit()
                         .lineLimit(1)
@@ -502,6 +546,7 @@ struct WatchFinishedOverlay: View {
     private func finishedActionButton(
         title: String,
         background: Color,
+        countdownDeadline: Date? = nil,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -516,6 +561,20 @@ struct WatchFinishedOverlay: View {
         }
         .buttonStyle(.plain)
         .frame(width: WatchLayout.overlayActionButtonWidth)
+        .overlay {
+            if let countdownDeadline {
+                WatchUndoCountdownStroke(
+                    deadline: countdownDeadline,
+                    duration: WatchTiming.finishedUndoCountdown
+                )
+                .padding(1)
+            }
+        }
+    }
+
+    private func resetUndoDeadlineIfNeeded() {
+        guard undoAvailable else { return }
+        undoDeadline = Date().addingTimeInterval(WatchTiming.finishedUndoCountdown)
     }
 }
 
@@ -528,6 +587,35 @@ struct WatchSideExchangeToast: View {
             .padding(.vertical, 8)
             .background(WatchTheme.successGreen.opacity(0.72))
             .clipShape(Capsule())
+    }
+}
+
+struct WatchScoreEventToastState: Equatable {
+    let title: String
+    let detail: String
+}
+
+struct WatchScoreEventToast: View {
+    let state: WatchScoreEventToastState
+
+    var body: some View {
+        VStack(spacing: 3) {
+            Text(state.title)
+                .font(.system(size: 14, weight: .semibold))
+            Text(state.detail)
+                .font(.system(size: 11, weight: .medium))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+        }
+        .foregroundStyle(.white)
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.black.opacity(0.78))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.horizontal, 10)
+        .allowsHitTesting(false)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -598,8 +686,10 @@ struct WatchDoublesBoard: View {
 
             playerName(model.topName, alignment: .top)
                 .padding(.top, WatchLayout.isCompactScreen ? 24 : 32)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
             playerName(model.bottomName, alignment: .bottom)
                 .padding(.bottom, WatchLayout.isCompactScreen ? 24 : 32)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
 
             if let servingPosition = model.servingPosition {
                 WatchServerIndicator(
@@ -616,6 +706,7 @@ struct WatchDoublesBoard: View {
                     )
                 )
                 .padding(.vertical, WatchLayout.isCompactScreen ? 24 : 32)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
             }
         }
         .frame(width: size.width, height: size.height)
@@ -648,11 +739,7 @@ struct WatchDoublesBoard: View {
             minimumSize: 28
         )
         return Text(score)
-            .font(.system(
-                size: scoreFont,
-                weight: .bold,
-                design: .rounded
-            ))
+            .font(WatchScoreTypography.primaryScore(size: scoreFont))
             .monospacedDigit()
             .foregroundStyle(.white)
             .lineLimit(1)
@@ -665,25 +752,24 @@ struct WatchDoublesBoard: View {
             VStack(spacing: 2) {
                 if let primary {
                     Text(primary)
-                        .font(.system(size: secondary == nil ? 24 : 28, weight: .medium))
+                        .font(WatchScoreTypography.secondaryScore(size: secondary == nil ? 24 : 20))
+                        .monospacedDigit()
                         .foregroundStyle(.white.opacity(0.75))
                         .lineLimit(1)
                 }
                 if let secondary {
                     Text(secondary)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(WatchScoreTypography.secondaryScore(size: 13))
+                        .monospacedDigit()
                         .foregroundStyle(.white.opacity(0.85))
                         .frame(minWidth: 22, minHeight: 22)
                         .padding(.horizontal, 2)
                         .background(Color.black.opacity(0.16))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .stroke(Color.white.opacity(0.42), lineWidth: 1)
-                        }
                         .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
                 }
             }
             .frame(width: secondary == nil ? 30 : 40)
+            .offset(y: secondary == nil ? WatchLayout.scoreboardMetaVerticalOffset : 0)
         }
     }
 
@@ -748,6 +834,37 @@ struct WatchScoreboardGestureModifier: ViewModifier {
     }
 }
 
+struct WatchUndoToastModifier: ViewModifier {
+    @Binding var token: UUID?
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .bottom) {
+                if token != nil {
+                    WatchToastView(
+                        message: NSLocalizedString(
+                            "watch_undo_toast",
+                            value: "已撤销",
+                            comment: "Undo toast"
+                        )
+                    )
+                    .padding(.bottom, 16)
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+                }
+            }
+            .onChange(of: token) { _, newToken in
+                guard let newToken else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    guard token == newToken else { return }
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        token = nil
+                    }
+                }
+            }
+    }
+}
+
 extension View {
     func watchScoreboardGestures(
         suppressTapAfterLongPress: Binding<Bool>,
@@ -763,5 +880,9 @@ extension View {
             onUndo: onUndo,
             onExit: onExit
         ))
+    }
+
+    func watchUndoToast(token: Binding<UUID?>) -> some View {
+        modifier(WatchUndoToastModifier(token: token))
     }
 }

@@ -121,7 +121,7 @@ public struct ArcheryMatchState: Codable, Equatable, Sendable {
 }
 
 public enum ArcheryMatchIntent: Codable, Equatable, Sendable {
-    /// Record one arrow. `side` nil = current shooter; `value` nil = miss (0).
+    /// Record one arrow. `side` nil = current shooter; `value` nil = miss, while `0` is a zero-ring arrow.
     case recordArrow(side: MatchSide?, value: Int?)
     /// Apply pending set end. For CTC shootoff ties, pass the winner.
     case completeSet(closestToCenterWinner: MatchSide?)
@@ -139,6 +139,7 @@ public enum ArcheryMatchIntent: Codable, Equatable, Sendable {
 
 public enum ArcheryMatchEvent: Codable, Equatable, Sendable {
     case arrowScored(side: MatchSide, points: Int, leftArrowSum: Int, rightArrowSum: Int)
+    case arrowMissed(side: MatchSide, leftArrowSum: Int, rightArrowSum: Int)
     case setReady(setNumber: Int, leftArrowSum: Int, rightArrowSum: Int, pendingLeftSetPoints: Int, pendingRightSetPoints: Int)
     case closestToCenterRequired(setNumber: Int, tiedArrowSum: Int)
     case shootOffRepeated(setNumber: Int)
@@ -270,14 +271,21 @@ public struct ArcheryMatchReducer: DomainReducer {
         }
         next.currentShooterIsLeft = shooter == .left ? false : true
 
-        var events: [ArcheryMatchEvent] = [
+        let arrowEvent: ArcheryMatchEvent = if value == nil {
+            .arrowMissed(
+                side: shooter,
+                leftArrowSum: next.leftArrowSum,
+                rightArrowSum: next.rightArrowSum
+            )
+        } else {
             .arrowScored(
                 side: shooter,
                 points: points,
                 leftArrowSum: next.leftArrowSum,
                 rightArrowSum: next.rightArrowSum
             )
-        ]
+        }
+        var events: [ArcheryMatchEvent] = [arrowEvent]
 
         if next.arrowsLeftThisSet >= next.arrowsPerSet && next.arrowsRightThisSet >= next.arrowsPerSet {
             prepareSetEnd(&next, events: &events)

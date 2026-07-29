@@ -137,10 +137,13 @@ struct WatchFlipCoinView: View {
         let isShowingTails = normalizedAngle > 90 && normalizedAngle < 270
 
         if isShowingTails {
-            // Tails: flower symbol
-            Text("❀")
-                .font(.system(size: 52))
-                .foregroundColor(Color(hex: 0x8B6914))
+            // Tails: coin-style laurel and star mark.
+            Image("watch_coin_tails")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 54, height: 54)
+                .foregroundStyle(Color(hex: 0x8B6914))
                 .shadow(color: Color(hex: 0x6B5210).opacity(0.3), radius: 1, x: 1, y: 1)
                 .rotationEffect(.degrees(180))
         } else {

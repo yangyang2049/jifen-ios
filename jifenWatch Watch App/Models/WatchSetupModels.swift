@@ -171,7 +171,7 @@ struct WatchSportsSetupDraft: Hashable {
     static let snookerFrameOptions = [1, 3, 5, 7, 9, 11, 15, 17, 19, 25, 33, 35]
 
     static func maxEightBallHandicap(for targetRacks: Int) -> Int {
-        min(5, max(0, targetRacks - 1))
+        max(0, targetRacks - 1)
     }
 
     mutating func normalizeEightBallHandicap() {

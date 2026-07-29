@@ -2,7 +2,7 @@
 //  WatchArcheryScoreView.swift
 //  jifenWatch Watch App
 //
-//  Set points: first to 6. Each set: 3 arrows each (1 at 5-5). Tap side to open score grid (1-10, M).
+//  Set points: first to 6. Each set: 3 arrows each (1 at 5-5). Tap side to open score grid (0-10, M).
 //  Shoot-off: win +1; same rings → closest-to-centre; next set first shooter via ArcheryShooterRules.
 //
 
@@ -21,7 +21,7 @@ private let setEndDelay: TimeInterval = 3.5
 private let scoreGrid: [[Int?]] = [
     [10, 9, 8, 7],
     [6, 5, 4, 3],
-    [2, 1, -1]
+    [2, 1, 0, -1]
 ]
 // -1 means M (miss)
 
@@ -42,6 +42,7 @@ struct WatchArcheryScoreView: View {
     @State private var isManualFinish: Bool = false
     @State private var undoButtonVisible: Bool = false
     @State private var undoHideTimer: Timer? = nil
+    @State private var undoDeadline: Date = .distantPast
     @State private var recordSaved: Bool = false
     @State private var toastMessage: String? = nil
     @State private var scoreboardLayout: String = "horizontal"
@@ -249,16 +250,18 @@ struct WatchArcheryScoreView: View {
             availableWidth: size.width,
             horizontalPadding: 12
         )
-        let setScoreYOffset: CGFloat = 56
+        let setScoreYOffset: CGFloat = 56 + WatchLayout.scoreboardMetaVerticalOffset
         return ZStack {
             if scoreboardLayout == "horizontal" {
                 Text(scoreText)
-                    .font(.system(size: mainScoreFontSize, weight: .bold))
+                    .font(WatchScoreTypography.primaryScore(size: mainScoreFontSize))
+                    .monospacedDigit()
                     .foregroundColor(.white)
 
                 if redSets + blueSets > 0 {
                     Text("\(setPts)")
-                        .font(.system(size: 24, weight: .medium))
+                        .font(WatchScoreTypography.secondaryScore(size: 24))
+                        .monospacedDigit()
                         .foregroundColor(Color.white.opacity(0.65))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .offset(y: setScoreYOffset)
@@ -267,11 +270,14 @@ struct WatchArcheryScoreView: View {
                 VStack(spacing: 4) {
                     if redSets + blueSets > 0 {
                         Text("\(setPts)")
-                            .font(.system(size: 24, weight: .medium))
+                            .font(WatchScoreTypography.secondaryScore(size: 24))
+                            .monospacedDigit()
                             .foregroundColor(Color.white.opacity(0.65))
+                            .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
                     }
                     Text(scoreText)
-                        .font(.system(size: mainScoreFontSize, weight: .bold))
+                        .font(WatchScoreTypography.primaryScore(size: mainScoreFontSize))
+                        .monospacedDigit()
                         .foregroundColor(.white)
                 }
             }
@@ -285,6 +291,7 @@ struct WatchArcheryScoreView: View {
                 .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.top, scoreboardLayout == "horizontal" ? 28 : 8)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
 
             serverIndicatorOverlay(isRed: isRed)
         }
@@ -320,6 +327,7 @@ struct WatchArcheryScoreView: View {
             )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
                 .padding(insets)
+                .offset(y: WatchLayout.serverIndicatorVerticalOffset(isHorizontal: scoreboardLayout == "horizontal"))
                 .allowsHitTesting(false)
         }
     }
@@ -391,7 +399,8 @@ struct WatchArcheryScoreView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.55)
                         Text("\(redScore)")
-                            .font(.system(size: 24, weight: .bold))
+                            .font(WatchScoreTypography.primaryScore(size: 24))
+                            .monospacedDigit()
                             .foregroundColor(.white)
                     }
                     .frame(maxWidth: .infinity)
@@ -406,7 +415,8 @@ struct WatchArcheryScoreView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.55)
                         Text("\(blueScore)")
-                            .font(.system(size: 24, weight: .bold))
+                            .font(WatchScoreTypography.primaryScore(size: 24))
+                            .monospacedDigit()
                             .foregroundColor(.white)
                     }
                     .frame(maxWidth: .infinity)
@@ -501,7 +511,7 @@ struct WatchArcheryScoreView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.55)
                         Text("\(redSets)")
-                            .font(.system(size: WatchLayout.isCompactScreen ? 22 : 24, weight: .bold))
+                            .font(WatchScoreTypography.primaryScore(size: WatchLayout.isCompactScreen ? 22 : 24))
                             .foregroundColor(.white)
                             .monospacedDigit()
                     }
@@ -517,7 +527,7 @@ struct WatchArcheryScoreView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.55)
                         Text("\(blueSets)")
-                            .font(.system(size: WatchLayout.isCompactScreen ? 22 : 24, weight: .bold))
+                            .font(WatchScoreTypography.primaryScore(size: WatchLayout.isCompactScreen ? 22 : 24))
                             .foregroundColor(.white)
                             .monospacedDigit()
                     }
@@ -538,6 +548,13 @@ struct WatchArcheryScoreView: View {
                         .background(WatchTheme.card)
                         .foregroundColor(.white)
                         .cornerRadius(22)
+                        .overlay {
+                            WatchUndoCountdownStroke(
+                                deadline: undoDeadline,
+                                duration: WatchTiming.finishedUndoCountdown
+                            )
+                            .padding(1)
+                        }
                     } else {
                         Button {
                             resetMatch()
@@ -700,8 +717,9 @@ struct WatchArcheryScoreView: View {
     private func showUndoButton() {
         isManualFinish = false
         undoButtonVisible = true
+        undoDeadline = Date().addingTimeInterval(WatchTiming.finishedUndoCountdown)
         undoHideTimer?.invalidate()
-        undoHideTimer = Timer.scheduledTimer(withTimeInterval: WatchTiming.undoCountdown, repeats: false) { _ in
+        undoHideTimer = Timer.scheduledTimer(withTimeInterval: WatchTiming.finishedUndoCountdown, repeats: false) { _ in
             undoButtonVisible = false
             finalizeArcheryFinish()
         }

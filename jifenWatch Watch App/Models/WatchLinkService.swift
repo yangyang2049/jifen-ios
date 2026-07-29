@@ -38,6 +38,13 @@ enum WatchPhoneLinkTestFailure: Equatable {
     case timedOut
 }
 
+enum WatchCommonNamesSyncRequestResult: Equatable {
+    case requested
+    case queuedUntilPhoneAvailable
+    case connectionInactive
+    case failed
+}
+
 struct WatchPhoneLinkProbeTracker: Equatable {
     static let timeoutSeconds: TimeInterval = 8
     private(set) var activeProbeID: UUID?
@@ -276,9 +283,19 @@ final class WatchLinkService {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         guard !normalized.isEmpty else { return }
+
+        let store = WatchCommonNamesStore.shared
+        var addedLocally = false
+        for name in normalized where store.recordUsage(name, type: .player) {
+            addedLocally = true
+        }
+
         pendingCommonNameUsage.append(CommonNameUsagePayload(names: normalized))
         persistPendingCommonNameUsage()
         flushPendingCommonNameUsage()
+        if addedLocally {
+            commonNamesDidChange()
+        }
     }
 
     private func flushPendingCommonNameUsage() {
@@ -325,10 +342,21 @@ final class WatchLinkService {
         flushPendingCommonNameMutations(force: false)
     }
 
-    func syncCommonNamesNow() {
+    @discardableResult
+    func syncCommonNamesNow() -> WatchCommonNamesSyncRequestResult {
+        refreshConnectivity()
         commonNamesSyncFailed = false
         flushPendingCommonNameMutations(force: true)
+        guard connectivityStatus.isActivated else {
+            commonNamesSyncFailed = true
+            return .connectionInactive
+        }
+        guard connectivityStatus.isReachable else {
+            commonNamesSyncFailed = true
+            return .queuedUntilPhoneAvailable
+        }
         requestCommonNamesSnapshot()
+        return commonNamesSyncFailed ? .failed : .requested
     }
 
     func startConnectivityTest() {

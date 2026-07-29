@@ -90,7 +90,7 @@ private final class WatchRallySessionStore {
         }
     }
 
-    func undo() {
+    func undo(onSuccess: @escaping () -> Void = {}) {
         Task { [weak self, core] in
             guard await core.undo(actorId: "watch"), let self else { return }
             let session = await core.snapshot()
@@ -103,6 +103,7 @@ private final class WatchRallySessionStore {
             )
             try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, [])
+            onSuccess()
         }
     }
 
@@ -171,6 +172,9 @@ struct WatchRallyScoreView: View {
     @State private var sideExchangeTask: Task<Void, Never>?
     @State private var completedSetPresentation: WatchRallyCompletedSetPresentation?
     @State private var completedScoreTask: Task<Void, Never>?
+    @State private var scoreEventToast: WatchScoreEventToastState?
+    @State private var scoreEventToastTask: Task<Void, Never>?
+    @State private var undoToastToken: UUID?
 
     init(
         gameType: GameType,
@@ -211,6 +215,10 @@ struct WatchRallyScoreView: View {
                 WatchSideExchangeToast()
                     .transition(.opacity)
             }
+            if let scoreEventToast {
+                WatchScoreEventToast(state: scoreEventToast)
+                    .transition(.opacity)
+            }
             if let opening = pendingPingPongDoublesOpening {
                 pingPongDoublesOpeningOverlay(opening)
             }
@@ -219,7 +227,7 @@ struct WatchRallyScoreView: View {
                     onDismiss: { showMenu = false },
                     onUndo: {
                         guard !scoringLocked else { return }
-                        store.undo()
+                        undoScoreboard()
                         showMenu = false
                     },
                     onFinish: {
@@ -247,7 +255,7 @@ struct WatchRallyScoreView: View {
                         let triggerID = restState.triggerID
                         self.restState = nil
                         restTriggers.release(triggerID)
-                        store.undo()
+                        undoScoreboard()
                     }
                 )
             }
@@ -346,6 +354,7 @@ struct WatchRallyScoreView: View {
             finishTask?.cancel()
             sideExchangeTask?.cancel()
             completedScoreTask?.cancel()
+            scoreEventToastTask?.cancel()
             if store.state.finished {
                 finalizeFinish()
             }
@@ -390,10 +399,11 @@ struct WatchRallyScoreView: View {
             onMenu: { showMenu = true },
             onUndo: {
                 guard !scoringLocked else { return }
-                store.undo()
+                undoScoreboard()
             },
             onExit: exitBoard
         )
+        .watchUndoToast(token: $undoToastToken)
     }
 
     private var pendingPingPongDoublesOpening: PingPongDoublesGameOpening? {
@@ -534,7 +544,7 @@ struct WatchRallyScoreView: View {
         return ZStack {
             // Main point score (Harmony-style: no helper caption).
             Text(scoreText)
-                .font(.system(size: mainScoreFont, weight: .bold, design: .rounded))
+                .font(WatchScoreTypography.primaryScore(size: mainScoreFont))
                 .monospacedDigit()
                 .foregroundStyle(.white)
 
@@ -546,11 +556,13 @@ struct WatchRallyScoreView: View {
                 .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: isHorizontal ? .top : .top)
                 .padding(.top, isHorizontal ? 28 : 8)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
 
             // Set score on each half (no floating center card).
             if showSets {
                 Text("\(sets)")
-                    .font(.system(size: isHorizontal ? 20 : 22, weight: .medium))
+                    .font(WatchScoreTypography.secondaryScore(size: isHorizontal ? 20 : 22))
+                    .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.65))
                     .frame(
                         maxWidth: .infinity,
@@ -559,6 +571,7 @@ struct WatchRallyScoreView: View {
                     )
                     .padding(.bottom, isHorizontal ? 28 : 0)
                     .padding(.leading, isHorizontal ? 0 : 16)
+                    .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
 
             if isServing {
@@ -596,6 +609,7 @@ struct WatchRallyScoreView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
             .padding(.vertical, isHorizontal ? 6 : 0)
             .padding(.horizontal, isHorizontal ? 0 : 6)
+            .offset(y: WatchLayout.serverIndicatorVerticalOffset(isHorizontal: isHorizontal))
             .allowsHitTesting(false)
     }
 
@@ -640,15 +654,29 @@ struct WatchRallyScoreView: View {
             beginCompletedSetPresentation(completed, state: state)
             return
         }
+        let sideExchangeRequested = events.contains { event in
+            if case .sidesExchanged = event { return true }
+            if case .sidesExchangeReminder = event { return true }
+            return false
+        }
+        let handledMidGameBreak = events.contains { event in
+            if case .pointScored = event { return true }
+            return false
+        } && beginBadmintonMidGameRestIfNeeded(
+            state,
+            followWithSideExchange: sideExchangeRequested
+        )
         for event in events {
             switch event {
             case .setCompleted(_, let setNumber, _, _, _, _):
                 guard !state.finished else { continue }
                 beginBetweenSetRest(setNumber: setNumber)
             case .sidesExchanged, .sidesExchangeReminder:
-                showSideExchange()
+                if !handledMidGameBreak {
+                    showSideExchange()
+                }
             case .pointScored:
-                beginBadmintonMidGameRestIfNeeded(state)
+                break
             case .matchFinished:
                 beginProvisionalFinish()
             default:
@@ -687,8 +715,12 @@ struct WatchRallyScoreView: View {
         state: RallyMatchState
     ) {
         completedScoreTask?.cancel()
+        sideExchangeTask?.cancel()
+        scoreEventToastTask?.cancel()
         restState = nil
         showSideExchangeToast = false
+        scoreEventToast = nil
+        scoreEventToastTask = nil
         completedSetPresentation = presentation
         completedScoreTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
@@ -699,9 +731,17 @@ struct WatchRallyScoreView: View {
             if state.finished {
                 beginProvisionalFinish()
             } else {
-                beginBetweenSetRest(setNumber: presentation.setNumber)
-                if restState == nil, didExchangeSides {
-                    showSideExchange()
+                if WatchPreferences.shared.setBreakEnabled {
+                    beginBetweenSetRest(setNumber: presentation.setNumber)
+                    if restState == nil, didExchangeSides {
+                        showSideExchange()
+                    }
+                } else {
+                    showCompletedSetToast(
+                        presentation,
+                        state: state,
+                        followWithSideExchange: didExchangeSides
+                    )
                 }
             }
         }
@@ -731,22 +771,101 @@ struct WatchRallyScoreView: View {
         )
     }
 
-    private func beginBadmintonMidGameRestIfNeeded(_ state: RallyMatchState) {
+    @discardableResult
+    private func beginBadmintonMidGameRestIfNeeded(
+        _ state: RallyMatchState,
+        followWithSideExchange: Bool
+    ) -> Bool {
         guard !scoringLocked,
-              WatchPreferences.shared.setBreakEnabled,
-              gameType == .badminton || gameType == .badmintonDoubles else { return }
+              gameType == .badminton || gameType == .badmintonDoubles else { return false }
         let point = WatchRestPolicy.badmintonMidGamePoint(
             pointsToWinSet: state.rules.pointsToWinSet
         )
-        guard max(state.leftPoints, state.rightPoints) == point else { return }
+        guard max(state.leftPoints, state.rightPoints) == point else { return false }
         let triggerID = badmintonMidGameTriggerID(setNumber: state.currentSet, point: point)
-        guard restTriggers.consume(triggerID) else { return }
-        restState = WatchRestState(
-            kind: .midGame,
-            title: NSLocalizedString("watch_mid_game_rest", value: "局中休息", comment: ""),
-            durationSeconds: 60,
-            triggerID: triggerID
+        guard restTriggers.consume(triggerID) else { return false }
+        if WatchPreferences.shared.setBreakEnabled {
+            restState = WatchRestState(
+                kind: .midGame,
+                title: NSLocalizedString("watch_mid_game_rest", value: "局中休息", comment: ""),
+                durationSeconds: 60,
+                triggerID: triggerID
+            )
+        } else {
+            let leader: MatchSide = state.leftPoints > state.rightPoints ? .left : .right
+            let leaderName = rallyDisplayName(for: leader, state: state)
+            showScoreEventToast(
+                WatchScoreEventToastState(
+                    title: String.localizedStringWithFormat(
+                        NSLocalizedString(
+                            "watch_score_event_mid_game_title",
+                            value: "第%d局 · 局中间歇",
+                            comment: ""
+                        ),
+                        state.currentSet
+                    ),
+                    detail: String.localizedStringWithFormat(
+                        NSLocalizedString(
+                            "watch_score_event_mid_game_detail",
+                            value: "%@领先 %d:%d · 局分 %d:%d",
+                            comment: ""
+                        ),
+                        leaderName,
+                        state.leftPoints,
+                        state.rightPoints,
+                        state.leftSets,
+                        state.rightSets
+                    )
+                ),
+                followWithSideExchange: followWithSideExchange
+            )
+        }
+        return true
+    }
+
+    private func showCompletedSetToast(
+        _ presentation: WatchRallyCompletedSetPresentation,
+        state: RallyMatchState,
+        followWithSideExchange: Bool
+    ) {
+        let winner: MatchSide = presentation.leftPoints > presentation.rightPoints ? .left : .right
+        let winnerName = rallyDisplayName(for: winner, state: state)
+        showScoreEventToast(
+            WatchScoreEventToastState(
+                title: String.localizedStringWithFormat(
+                    NSLocalizedString(
+                        "watch_score_event_set_title",
+                        value: "第%d局结束",
+                        comment: ""
+                    ),
+                    presentation.setNumber
+                ),
+                detail: String.localizedStringWithFormat(
+                    NSLocalizedString(
+                        "watch_score_event_set_detail",
+                        value: "%@胜 %d:%d · 局分 %d:%d",
+                        comment: ""
+                    ),
+                    winnerName,
+                    presentation.leftPoints,
+                    presentation.rightPoints,
+                    presentation.leftSets,
+                    presentation.rightSets
+                )
+            ),
+            followWithSideExchange: followWithSideExchange
         )
+    }
+
+    private func rallyDisplayName(for side: MatchSide, state: RallyMatchState) -> String {
+        guard let names = state.doubles?.playerNames, names.count >= 4 else {
+            return side == .left ? state.leftName : state.rightName
+        }
+        let indices = side == .left ? [0, 2] : [1, 3]
+        let playerNames = indices.map { names[$0] }.filter { !$0.isEmpty }
+        return playerNames.isEmpty
+            ? (side == .left ? state.leftName : state.rightName)
+            : playerNames.joined(separator: " / ")
     }
 
     private func reconcileBadmintonMidGameRestTrigger(for state: RallyMatchState) {
@@ -765,6 +884,9 @@ struct WatchRallyScoreView: View {
     }
 
     private func showSideExchange() {
+        scoreEventToastTask?.cancel()
+        scoreEventToastTask = nil
+        scoreEventToast = nil
         sideExchangeTask?.cancel()
         showSideExchangeToast = true
         sideExchangeTask = Task { @MainActor in
@@ -774,17 +896,41 @@ struct WatchRallyScoreView: View {
         }
     }
 
+    private func showScoreEventToast(
+        _ toast: WatchScoreEventToastState,
+        followWithSideExchange: Bool
+    ) {
+        sideExchangeTask?.cancel()
+        showSideExchangeToast = false
+        scoreEventToastTask?.cancel()
+        scoreEventToast = toast
+        scoreEventToastTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            scoreEventToast = nil
+            scoreEventToastTask = nil
+            if followWithSideExchange {
+                showSideExchange()
+            }
+        }
+    }
+
     private func beginProvisionalFinish() {
         guard !showFinishedOverlay else { return }
+        sideExchangeTask?.cancel()
+        scoreEventToastTask?.cancel()
         restState = nil
         showMenu = false
+        showSideExchangeToast = false
+        scoreEventToast = nil
+        scoreEventToastTask = nil
         showFinishedOverlay = true
         finishUndoAvailable = !scoringLocked
         didFinalizeFinish = false
         finishTask?.cancel()
         guard !scoringLocked else { return }
         finishTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
             finalizeFinish()
@@ -824,7 +970,13 @@ struct WatchRallyScoreView: View {
         showFinishedOverlay = false
         finishUndoAvailable = false
         didFinalizeFinish = false
-        store.undo()
+        undoScoreboard()
+    }
+
+    private func undoScoreboard() {
+        store.undo {
+            undoToastToken = UUID()
+        }
     }
 
     private func playAgain() {
@@ -839,10 +991,12 @@ struct WatchRallyScoreView: View {
         manualFinishRequested = false
         restTriggers.reset()
         sideExchangeTask?.cancel()
+        scoreEventToastTask?.cancel()
         completedScoreTask?.cancel()
         completedScoreTask = nil
         completedSetPresentation = nil
         showSideExchangeToast = false
+        scoreEventToast = nil
         matchStartTime = Date()
         store.send(.reset)
     }
@@ -872,10 +1026,12 @@ struct WatchRallyScoreView: View {
             manualFinishRequested = false
             restTriggers.reset()
             sideExchangeTask?.cancel()
+            scoreEventToastTask?.cancel()
             completedScoreTask?.cancel()
             completedScoreTask = nil
             completedSetPresentation = nil
             showSideExchangeToast = false
+            scoreEventToast = nil
             matchStartTime = Date()
             store.send(.reset)
         }

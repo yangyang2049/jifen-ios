@@ -218,7 +218,7 @@ struct WatchBasketballTrainingView: View {
                             points
                         )
                     )
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(WatchScoreTypography.secondaryScore(size: 17, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
@@ -226,6 +226,26 @@ struct WatchBasketballTrainingView: View {
                     .clipShape(Capsule())
                     .padding(.top, 6)
                     .allowsHitTesting(false)
+                }
+            }
+            .overlay(alignment: .bottom) {
+                if !showMenu && !showEndDialog && confirmation == nil {
+                    Button {
+                        WatchHaptics.shared.play(.light)
+                        confirmation = .finish
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(WatchTheme.successGreen)
+                            .frame(width: 40, height: 40)
+                            .background(Color.black.opacity(0.62))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(
+                        NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: "")
+                    )
+                    .padding(.bottom, 8)
                 }
             }
         }
@@ -298,7 +318,7 @@ struct WatchBasketballTrainingView: View {
             }
 
             Text("\(count)")
-                .font(.system(size: mode == .free ? 30 : 64, weight: .bold, design: .rounded))
+                .font(WatchScoreTypography.primaryScore(size: mode == .free ? 30 : 64))
                 .foregroundStyle(.white)
         }
         .frame(width: size.width, height: size.height)
@@ -324,10 +344,9 @@ struct WatchBasketballTrainingView: View {
                     .font(.system(size: WatchLayout.isCompactScreen ? 12 : 14))
                     .foregroundStyle(WatchTheme.secondaryText)
                 Text(hitRateText)
-                    .font(.system(
+                    .font(WatchScoreTypography.secondaryScore(
                         size: WatchLayout.isCompactScreen ? 17 : 19,
-                        weight: .bold,
-                        design: .rounded
+                        weight: .bold
                     ))
                     .foregroundStyle(WatchTheme.accent)
                 if mode == .free {
@@ -343,7 +362,7 @@ struct WatchBasketballTrainingView: View {
                                 shotCount(points: points, made: true),
                                 shotCount(points: points, made: true) + shotCount(points: points, made: false)
                             ))
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .font(WatchScoreTypography.secondaryScore(size: 10))
                             .foregroundStyle(.white.opacity(0.78))
                         }
                     }
@@ -558,7 +577,7 @@ struct WatchBasketballTrainingView: View {
 
     private func pointBadge(_ points: Int) -> some View {
         Text("\(points)")
-            .font(.system(size: 10, weight: .bold, design: .rounded))
+            .font(WatchScoreTypography.secondaryScore(size: 10, weight: .bold))
             .foregroundStyle(Color.black.opacity(0.75))
             .frame(width: 18, height: 18)
             .background(Color.white.opacity(0.95))

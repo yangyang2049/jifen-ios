@@ -116,7 +116,8 @@ struct WatchRecordDetailView: View {
                         .font(.system(size: 11))
                         .foregroundColor(WatchTheme.secondaryText)
                     Text("\(leftScore)")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(WatchScoreTypography.primaryScore(size: 24))
+                        .monospacedDigit()
                         .foregroundColor(record.winner == record.team1Name ? WatchTheme.accent : WatchTheme.primaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -128,7 +129,8 @@ struct WatchRecordDetailView: View {
                         .font(.system(size: 11))
                         .foregroundColor(WatchTheme.secondaryText)
                     Text("\(rightScore)")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(WatchScoreTypography.primaryScore(size: 24))
+                        .monospacedDigit()
                         .foregroundColor(record.winner == record.team2Name ? WatchTheme.accent : WatchTheme.primaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
@@ -181,12 +183,13 @@ struct WatchRecordDetailView: View {
             ForEach(Array(participants.enumerated()), id: \.offset) { _, participant in
                 HStack {
                     Text(participant.name)
+                        .font(.system(size: 12))
                         .lineLimit(1)
                     Spacer()
                     Text("\(participant.score)")
-                        .fontWeight(.bold)
+                        .font(WatchScoreTypography.secondaryScore(size: 12))
+                        .monospacedDigit()
                 }
-                .font(.system(size: 12))
                 .foregroundStyle(WatchTheme.primaryText)
             }
         }

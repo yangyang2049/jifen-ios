@@ -4,7 +4,6 @@ import SwiftUI
 struct WatchLinkSettingsView: View {
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     @State private var isRefreshing = false
-    @State private var showOpenWatchHelp = false
     @State private var selectedUsageTab: WatchLinkUsageTab = .liveScoring
 
     private enum WatchLinkUsageTab: String, CaseIterable, Identifiable {
@@ -53,7 +52,6 @@ struct WatchLinkSettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 heroCard
-                connectionStatusCard
                 usageCard
             }
             .padding(.horizontal, Theme.md)
@@ -63,18 +61,6 @@ struct WatchLinkSettingsView: View {
         .navigationTitle(NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .alert(
-            NSLocalizedString("watch_sync_open_watch_help_title", value: "打开手表应用", comment: ""),
-            isPresented: $showOpenWatchHelp
-        ) {
-            Button(NSLocalizedString("watch_sync_comm_failure_help_confirm", value: "知道了", comment: ""), role: .cancel) {}
-        } message: {
-            Text(NSLocalizedString(
-                "watch_sync_open_watch_help_message",
-                value: "请在 Apple Watch 上打开「全能计分器」。保持手表解锁且应用在前台，手机端「可达」为是后即可联动开局。",
-                comment: ""
-            ))
-        }
     }
 
     // MARK: - Hero
@@ -129,79 +115,29 @@ struct WatchLinkSettingsView: View {
                     .clipShape(Capsule())
             }
 
-            HStack(spacing: 12) {
-                Button {
-                    refreshConnection()
-                } label: {
-                    HStack(spacing: 8) {
-                        if isRefreshing {
-                            ProgressView()
-                        }
-                        Text(NSLocalizedString("watch_sync_action_refresh", value: "刷新连接", comment: ""))
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Theme.textPrimary)
+            Button {
+                refreshConnection()
+            } label: {
+                HStack(spacing: 8) {
+                    if isRefreshing {
+                        ProgressView()
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .background(Theme.controlBackground)
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .disabled(isRefreshing)
-
-                Button {
-                    showOpenWatchHelp = true
-                } label: {
-                    Text(NSLocalizedString("watch_sync_action_test", value: "打开手表应用", comment: ""))
+                    Text(NSLocalizedString("watch_sync_action_refresh", value: "刷新连接", comment: ""))
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(canPromptOpenWatch ? Theme.textOnPrimary : Theme.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(canPromptOpenWatch ? Theme.primary : Theme.controlBackground)
-                        .clipShape(Capsule())
+                        .foregroundStyle(Theme.textPrimary)
                 }
-                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .background(Theme.controlBackground)
+                .clipShape(Capsule())
             }
+            .buttonStyle(.plain)
+            .disabled(isRefreshing)
         }
         .padding(Theme.md)
         .frame(maxWidth: .infinity)
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    // MARK: - Connection status
-
-    private var connectionStatusCard: some View {
-        SettingsSection(title: NSLocalizedString("watch_link_status", value: "连接状态", comment: "")) {
-            VStack(spacing: 0) {
-                statusRow(
-                    NSLocalizedString("watch_link_entry_enabled", value: "联动入口", comment: ""),
-                    AppFeatureFlags.watchLinkEntryEnabled
-                        ? NSLocalizedString("yes", value: "是", comment: "")
-                        : NSLocalizedString("no", value: "否", comment: "")
-                )
-                Divider().overlay(Theme.divider)
-                statusRow(
-                    NSLocalizedString("watch_link_paired", value: "已配对", comment: ""),
-                    boolLabel(watchLinkService.connectivityStatus.isPaired)
-                )
-                Divider().overlay(Theme.divider)
-                statusRow(
-                    NSLocalizedString("watch_link_installed", value: "手表 App 已安装", comment: ""),
-                    boolLabel(watchLinkService.connectivityStatus.isWatchAppInstalled)
-                )
-                Divider().overlay(Theme.divider)
-                statusRow(
-                    NSLocalizedString("watch_link_reachable", value: "可达", comment: ""),
-                    boolLabel(watchLinkService.connectivityStatus.isReachable)
-                )
-                Divider().overlay(Theme.divider)
-                statusRow(
-                    NSLocalizedString("watch_link_role", value: "当前角色", comment: ""),
-                    roleLabel
-                )
-            }
-        }
     }
 
     // MARK: - Usage
@@ -275,24 +211,6 @@ struct WatchLinkSettingsView: View {
 
     // MARK: - Helpers
 
-    private var roleLabel: String {
-        switch watchLinkService.controlRole {
-        case .phoneController:
-            return NSLocalizedString("watch_link_role_phone_controller", value: "手机主控", comment: "")
-        case .phoneFollower:
-            return NSLocalizedString("watch_link_role_phone_follower", value: "手机跟随", comment: "")
-        case .none:
-            return NSLocalizedString("watch_link_role_idle", value: "空闲", comment: "")
-        default:
-            return "—"
-        }
-    }
-
-    private var canPromptOpenWatch: Bool {
-        watchLinkService.connectivityStatus.isPaired
-            && watchLinkService.connectivityStatus.isWatchAppInstalled
-    }
-
     private var installStatusText: String {
         let status = watchLinkService.connectivityStatus
         if !status.isPaired {
@@ -341,26 +259,6 @@ struct WatchLinkSettingsView: View {
             return Theme.warningText
         }
         return Theme.textSecondary
-    }
-
-    private func boolLabel(_ value: Bool) -> String {
-        value
-            ? NSLocalizedString("yes", value: "是", comment: "")
-            : NSLocalizedString("no", value: "否", comment: "")
-    }
-
-    private func statusRow(_ title: String, _ value: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 16))
-                .foregroundStyle(Theme.textPrimary)
-            Spacer()
-            Text(value)
-                .font(.system(size: 14))
-                .foregroundStyle(Theme.textSecondary)
-        }
-        .padding(.horizontal, Theme.md)
-        .frame(minHeight: 52)
     }
 
     private func refreshConnection() {

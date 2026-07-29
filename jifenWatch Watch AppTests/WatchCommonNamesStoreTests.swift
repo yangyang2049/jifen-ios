@@ -112,6 +112,21 @@ final class WatchCommonNamesStoreTests: XCTestCase {
         XCTAssertThrowsError(try store.addName("红方", type: .player))
     }
 
+    func testRecordUsagePersistsNewManualNameAndIgnoresExistingOrPresetNames() {
+        var store = WatchCommonNamesStore(defaults: defaults)
+        store.apply(.init(teams: [], players: ["Alice"], revision: 1))
+
+        XCTAssertTrue(store.recordUsage("  Bob  ", type: .player))
+        XCTAssertFalse(store.recordUsage("bob", type: .player))
+        XCTAssertFalse(store.recordUsage("红方", type: .player))
+        XCTAssertEqual(store.players, ["Bob", "Alice"])
+        XCTAssertEqual(store.pendingCount, 1)
+
+        store = WatchCommonNamesStore(defaults: defaults)
+        XCTAssertEqual(store.players, ["Bob", "Alice"])
+        XCTAssertEqual(store.pendingCount, 1)
+    }
+
     func testPhoneLinkProbePolicyAndTrackerRejectWrongResponses() {
         let inactive = WatchConnectivityStatus(
             isSupported: true,

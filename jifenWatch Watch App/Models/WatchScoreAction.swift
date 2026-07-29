@@ -250,7 +250,9 @@ struct WatchScoreActionLog: Codable, Sendable, Equatable {
         actions.reduce(into: 0) { count, action in
             switch action.actionType {
             case .scoreAdd, .scoreSubtract:
-                if action.scoreChange != 0 || action.operationCode == "archery_miss" {
+                if action.scoreChange != 0
+                    || action.operationCode == "archery_arrow"
+                    || action.operationCode == "archery_miss" {
                     count += 1
                 }
             case .editScore:
@@ -547,9 +549,17 @@ enum WatchScoreActionProjector {
             case .arrowScored(let side, let points, let left, let right):
                 return action(
                     .scoreAdd,
-                    code: points == 0 ? "archery_miss" : "archery_arrow",
+                    code: "archery_arrow",
                     side: side, scores: (left, right),
                     sets: (state.leftSetPoints, state.rightSetPoints), delta: points,
+                    setNumber: state.currentSet, timestamp: timestamp
+                )
+            case .arrowMissed(let side, let left, let right):
+                return action(
+                    .scoreAdd,
+                    code: "archery_miss",
+                    side: side, scores: (left, right),
+                    sets: (state.leftSetPoints, state.rightSetPoints), delta: 0,
                     setNumber: state.currentSet, timestamp: timestamp
                 )
             case .setReady(let number, let left, let right, _, _):

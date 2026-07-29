@@ -88,7 +88,7 @@ private final class WatchTennisSessionStore {
         }
     }
 
-    func undo() {
+    func undo(onSuccess: @escaping () -> Void = {}) {
         Task { [weak self, core] in
             guard await core.undo(actorId: "watch"), let self else { return }
             let session = await core.snapshot()
@@ -102,6 +102,7 @@ private final class WatchTennisSessionStore {
             )
             try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, [])
+            onSuccess()
         }
     }
 
@@ -161,6 +162,9 @@ struct WatchTennisScoreView: View {
     @State private var sideExchangeTask: Task<Void, Never>?
     @State private var completedSetPresentation: WatchTennisCompletedSetPresentation?
     @State private var completedScoreTask: Task<Void, Never>?
+    @State private var scoreEventToast: WatchScoreEventToastState?
+    @State private var scoreEventToastTask: Task<Void, Never>?
+    @State private var undoToastToken: UUID?
 
     init(
         maxSets: Int,
@@ -211,12 +215,16 @@ struct WatchTennisScoreView: View {
             if showSideExchangeToast {
                 WatchSideExchangeToast()
             }
+            if let scoreEventToast {
+                WatchScoreEventToast(state: scoreEventToast)
+                    .transition(.opacity)
+            }
             if showMenu {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
                     onUndo: {
                         guard !scoringLocked else { return }
-                        store.undo()
+                        undoScoreboard()
                         showMenu = false
                     },
                     onFinish: {
@@ -244,7 +252,7 @@ struct WatchTennisScoreView: View {
                         let triggerID = restState.triggerID
                         self.restState = nil
                         restTriggers.release(triggerID)
-                        store.undo()
+                        undoScoreboard()
                     }
                 )
             }
@@ -339,6 +347,7 @@ struct WatchTennisScoreView: View {
             finishTask?.cancel()
             sideExchangeTask?.cancel()
             completedScoreTask?.cancel()
+            scoreEventToastTask?.cancel()
             if store.state.finished { finalizeFinish() }
             Task { await persistResumeSession() }
         }
@@ -378,10 +387,11 @@ struct WatchTennisScoreView: View {
             onMenu: { showMenu = true },
             onUndo: {
                 guard !scoringLocked else { return }
-                store.undo()
+                undoScoreboard()
             },
             onExit: exitBoard
         )
+        .watchUndoToast(token: $undoToastToken)
     }
 
     private var doublesBoard: some View {
@@ -472,7 +482,7 @@ struct WatchTennisScoreView: View {
 
         return ZStack {
             Text(pointText)
-                .font(.system(size: mainScoreFont, weight: .bold, design: .rounded))
+                .font(WatchScoreTypography.primaryScore(size: mainScoreFont))
                 .monospacedDigit()
                 .foregroundStyle(.white)
 
@@ -483,6 +493,7 @@ struct WatchTennisScoreView: View {
                 .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.top, isHorizontal ? 28 : 8)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
 
             if isHorizontal {
                 if hasSets {
@@ -492,17 +503,20 @@ struct WatchTennisScoreView: View {
                 }
                 if hasGames {
                     Text("\(games)")
-                        .font(.system(size: 20, weight: .medium))
+                        .font(WatchScoreTypography.secondaryScore(size: 20))
+                        .monospacedDigit()
                         .foregroundStyle(.white.opacity(0.78))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                         .padding(.bottom, 40)
+                        .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
                 }
             } else if hasSets || hasGames {
                 HStack {
                     Group {
                         if hasGames {
                             Text("\(games)")
-                                .font(.system(size: 24, weight: .medium))
+                                .font(WatchScoreTypography.secondaryScore(size: 24))
+                                .monospacedDigit()
                         } else {
                             Color.clear.frame(width: 24, height: 24)
                         }
@@ -516,6 +530,7 @@ struct WatchTennisScoreView: View {
                 }
                 .foregroundStyle(.white.opacity(0.78))
                 .padding(.horizontal, 40)
+                .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
 
             if isServing {
@@ -553,6 +568,7 @@ struct WatchTennisScoreView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
             .padding(.vertical, isHorizontal ? 6 : 0)
             .padding(.horizontal, isHorizontal ? 0 : 6)
+            .offset(y: WatchLayout.serverIndicatorVerticalOffset(isHorizontal: isHorizontal))
             .allowsHitTesting(false)
     }
 
@@ -626,13 +642,31 @@ struct WatchTennisScoreView: View {
             beginCompletedSetPresentation(completed, state: state)
             return
         }
+        let sideExchangeRequested = events.contains { event in
+            if case .sidesExchanged = event { return true }
+            if case .sidesExchangeReminder = event { return true }
+            return false
+        }
+        var handledGameCompletion = false
         for event in events {
             switch event {
             case .setCompleted(_, let setNumber, _, _, _, _):
                 guard !state.finished else { continue }
                 beginBetweenSetRest(setNumber: setNumber)
+            case .gameCompleted(let winner, let leftGames, let rightGames, _):
+                guard !WatchPreferences.shared.setBreakEnabled else { continue }
+                handledGameCompletion = true
+                showCompletedGameToast(
+                    winner: winner,
+                    leftGames: leftGames,
+                    rightGames: rightGames,
+                    state: state,
+                    followWithSideExchange: sideExchangeRequested
+                )
             case .sidesExchanged, .sidesExchangeReminder:
-                showSideExchange()
+                if !handledGameCompletion {
+                    showSideExchange()
+                }
             case .matchFinished:
                 if manualFinishRequested {
                     beginProvisionalFinish()
@@ -689,8 +723,12 @@ struct WatchTennisScoreView: View {
         state: TennisMatchState
     ) {
         completedScoreTask?.cancel()
+        sideExchangeTask?.cancel()
+        scoreEventToastTask?.cancel()
         restState = nil
         showSideExchangeToast = false
+        scoreEventToast = nil
+        scoreEventToastTask = nil
         completedSetPresentation = presentation
         completedScoreTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(WatchTiming.completedScoreVisibility))
@@ -701,9 +739,17 @@ struct WatchTennisScoreView: View {
             if state.finished {
                 beginProvisionalFinish()
             } else {
-                beginBetweenSetRest(setNumber: presentation.setNumber)
-                if restState == nil, didExchangeSides {
-                    showSideExchange()
+                if WatchPreferences.shared.setBreakEnabled {
+                    beginBetweenSetRest(setNumber: presentation.setNumber)
+                    if restState == nil, didExchangeSides {
+                        showSideExchange()
+                    }
+                } else {
+                    showCompletedSetToast(
+                        presentation,
+                        state: state,
+                        followWithSideExchange: didExchangeSides
+                    )
                 }
             }
         }
@@ -731,7 +777,75 @@ struct WatchTennisScoreView: View {
         )
     }
 
+    private func showCompletedGameToast(
+        winner: MatchSide,
+        leftGames: Int,
+        rightGames: Int,
+        state: TennisMatchState,
+        followWithSideExchange: Bool
+    ) {
+        showScoreEventToast(
+            WatchScoreEventToastState(
+                title: String.localizedStringWithFormat(
+                    NSLocalizedString(
+                        "watch_score_event_tennis_game_title",
+                        value: "第%d局结束",
+                        comment: ""
+                    ),
+                    leftGames + rightGames
+                ),
+                detail: String.localizedStringWithFormat(
+                    NSLocalizedString(
+                        "watch_score_event_tennis_game_detail",
+                        value: "%@胜 · 局分 %d:%d",
+                        comment: ""
+                    ),
+                    state.doublesTeamDisplayName(for: winner),
+                    leftGames,
+                    rightGames
+                )
+            ),
+            followWithSideExchange: followWithSideExchange
+        )
+    }
+
+    private func showCompletedSetToast(
+        _ presentation: WatchTennisCompletedSetPresentation,
+        state: TennisMatchState,
+        followWithSideExchange: Bool
+    ) {
+        let winner: MatchSide = presentation.leftGames > presentation.rightGames ? .left : .right
+        showScoreEventToast(
+            WatchScoreEventToastState(
+                title: String.localizedStringWithFormat(
+                    NSLocalizedString(
+                        "watch_score_event_tennis_set_title",
+                        value: "第%d盘结束",
+                        comment: ""
+                    ),
+                    presentation.setNumber
+                ),
+                detail: String.localizedStringWithFormat(
+                    NSLocalizedString(
+                        "watch_score_event_tennis_set_detail",
+                        value: "%@胜 %d:%d · 盘分 %d:%d",
+                        comment: ""
+                    ),
+                    state.doublesTeamDisplayName(for: winner),
+                    presentation.leftGames,
+                    presentation.rightGames,
+                    presentation.leftSets,
+                    presentation.rightSets
+                )
+            ),
+            followWithSideExchange: followWithSideExchange
+        )
+    }
+
     private func showSideExchange() {
+        scoreEventToastTask?.cancel()
+        scoreEventToastTask = nil
+        scoreEventToast = nil
         sideExchangeTask?.cancel()
         showSideExchangeToast = true
         sideExchangeTask = Task { @MainActor in
@@ -741,17 +855,41 @@ struct WatchTennisScoreView: View {
         }
     }
 
+    private func showScoreEventToast(
+        _ toast: WatchScoreEventToastState,
+        followWithSideExchange: Bool
+    ) {
+        sideExchangeTask?.cancel()
+        showSideExchangeToast = false
+        scoreEventToastTask?.cancel()
+        scoreEventToast = toast
+        scoreEventToastTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            scoreEventToast = nil
+            scoreEventToastTask = nil
+            if followWithSideExchange {
+                showSideExchange()
+            }
+        }
+    }
+
     private func beginProvisionalFinish() {
         guard !showFinishedOverlay else { return }
+        sideExchangeTask?.cancel()
+        scoreEventToastTask?.cancel()
         restState = nil
         showMenu = false
+        showSideExchangeToast = false
+        scoreEventToast = nil
+        scoreEventToastTask = nil
         showFinishedOverlay = true
         finishUndoAvailable = !scoringLocked
         didFinalizeFinish = false
         finishTask?.cancel()
         guard !scoringLocked else { return }
         finishTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
             finalizeFinish()
@@ -795,7 +933,13 @@ struct WatchTennisScoreView: View {
         showFinishedOverlay = false
         finishUndoAvailable = false
         didFinalizeFinish = false
-        store.undo()
+        undoScoreboard()
+    }
+
+    private func undoScoreboard() {
+        store.undo {
+            undoToastToken = UUID()
+        }
     }
 
     private func playAgain() {
@@ -810,10 +954,12 @@ struct WatchTennisScoreView: View {
         manualFinishRequested = false
         restTriggers.reset()
         sideExchangeTask?.cancel()
+        scoreEventToastTask?.cancel()
         completedScoreTask?.cancel()
         completedScoreTask = nil
         completedSetPresentation = nil
         showSideExchangeToast = false
+        scoreEventToast = nil
         matchStartTime = Date()
         store.send(.reset)
     }
@@ -843,10 +989,12 @@ struct WatchTennisScoreView: View {
             manualFinishRequested = false
             restTriggers.reset()
             sideExchangeTask?.cancel()
+            scoreEventToastTask?.cancel()
             completedScoreTask?.cancel()
             completedScoreTask = nil
             completedSetPresentation = nil
             showSideExchangeToast = false
+            scoreEventToast = nil
             matchStartTime = Date()
             store.send(.reset)
         }

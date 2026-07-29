@@ -32,8 +32,8 @@ struct WatchCounterView: View {
                             WatchHaptics.shared.play(.light)
                         }
                     Text("\(count)")
-                        .font(.system(size: 72, weight: .bold, design: .rounded))
-                        .foregroundColor(WatchTheme.primaryText)
+                        .font(WatchScoreTypography.primaryScore(size: 72))
+                        .foregroundColor(WatchTheme.accent)
                         .contentTransition(.numericText())
                         .allowsHitTesting(false)
                 }

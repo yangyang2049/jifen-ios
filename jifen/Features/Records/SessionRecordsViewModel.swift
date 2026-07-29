@@ -14,6 +14,9 @@ final class SessionRecordsViewModel {
 
         var id: UUID { entry.sessionId }
         var gameName: String { entry.gameType.v2DisplayName }
+        var gameEmoji: String {
+            GameType(scoreCoreGameType: entry.gameType)?.icon ?? "🏆"
+        }
         var teamsText: String {
             let names = entry.participants.map(\.name).filter { !$0.isEmpty }
             return names.count >= 2 ? "\(names[0]) vs \(names[1])" : names.joined(separator: " vs ")

@@ -72,7 +72,12 @@ struct RecordsTab: View {
                             Button(role: .destructive) {
                                 showClearConfirm = true
                             } label: {
-                                Label(NSLocalizedString("clear_all_records", comment: "Clear all"), systemImage: "trash")
+                                Label {
+                                    Text(NSLocalizedString("clear_all_records", comment: "Clear all"))
+                                } icon: {
+                                    Image(systemName: "trash")
+                                        .foregroundStyle(.red)
+                                }
                             }
                             .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty && v2RecordsVM.records.isEmpty)
                         } label: {
@@ -515,9 +520,8 @@ struct RecordsTab: View {
 
     private func v2RowContent(_ record: SessionRecordsViewModel.Record) -> some View {
         HStack(spacing: 0) {
-            Image(systemName: "sportscourt.fill")
-                .font(.system(size: 22))
-                .foregroundColor(Theme.accentColor)
+            Text(record.gameEmoji)
+                .font(.system(size: 26))
                 .frame(width: 40, height: 40)
                 .padding(.trailing, Theme.sm)
 

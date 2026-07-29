@@ -97,6 +97,33 @@ struct ArcheryMatchReducerTests {
     }
 
     @Test
+    func zeroRingAndMissProduceDistinctEvents() {
+        let zero = reducer.reduce(
+            state: initial(),
+            intent: .recordArrow(side: nil, value: 0),
+            at: 0
+        )
+        let miss = reducer.reduce(
+            state: initial(),
+            intent: .recordArrow(side: nil, value: nil),
+            at: 0
+        )
+
+        #expect(zero.accepted)
+        #expect(miss.accepted)
+        #expect(zero.state.leftArrowSum == 0)
+        #expect(miss.state.leftArrowSum == 0)
+        #expect(zero.state.arrowsLeftThisSet == 1)
+        #expect(miss.state.arrowsLeftThisSet == 1)
+        #expect(zero.events == [
+            .arrowScored(side: .left, points: 0, leftArrowSum: 0, rightArrowSum: 0)
+        ])
+        #expect(miss.events == [
+            .arrowMissed(side: .left, leftArrowSum: 0, rightArrowSum: 0)
+        ])
+    }
+
+    @Test
     func resetAfterSideExchangeRestoresNamesAndOpeningShooterIdentity() {
         var state = ArcheryMatchState(
             leftName: "A",

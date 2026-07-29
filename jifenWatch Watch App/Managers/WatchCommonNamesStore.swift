@@ -113,6 +113,22 @@ final class WatchCommonNamesStore {
         return name
     }
 
+    /// Remembers a name entered while starting a game, matching the HarmonyOS
+    /// watch behavior. Existing and preset names are intentionally ignored.
+    @discardableResult
+    func recordUsage(_ raw: String, type: CommonNameSyncType) -> Bool {
+        do {
+            _ = try addName(raw, type: type)
+            return true
+        } catch WatchCommonNamesError.emptyName,
+                WatchCommonNamesError.duplicateName,
+                WatchCommonNamesError.presetName {
+            return false
+        } catch {
+            return false
+        }
+    }
+
     @discardableResult
     func updateName(_ originalName: String, newName raw: String, type: CommonNameSyncType) throws -> String {
         let currentNames = names(for: type)

@@ -7,8 +7,16 @@ struct WatchLayout {
     static let narrowScreenMaximumWidth: CGFloat = 190
     /// 计分板发球/当前选手的三角指示器尺寸，单打和双打统一。
     static let serverIndicatorSize: CGFloat = 10
+    /// Avoid the system clock by moving scoreboard names down consistently.
+    static let scoreboardNameVerticalOffset: CGFloat = 8
+    /// Horizontal indicators follow the lowered names; vertical indicators stay flush to the top/bottom edge.
+    static func serverIndicatorVerticalOffset(isHorizontal: Bool) -> CGFloat {
+        isHorizontal ? scoreboardNameVerticalOffset : 0
+    }
+    /// Balance the name adjustment by moving set/frame metadata upward.
+    static let scoreboardMetaVerticalOffset: CGFloat = -8
     /// 计分板全屏 Overlay 的可见关闭按钮尺寸。
-    static let overlayCloseButtonSize: CGFloat = 44
+    static let overlayCloseButtonSize: CGFloat = 40
     /// 首页等非全屏 Dialog 的可见关闭图标尺寸。
     static let dialogCloseIconSize: CGFloat = 20
 
@@ -148,6 +156,16 @@ struct WatchScoreTypography {
     static let extraCharacterScale: CGFloat = 0.82
     static let averageCharacterWidthRatio: CGFloat = 0.66
 
+    /// Primary standalone scoreboard values.
+    static func primaryScore(size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        .system(size: size, weight: weight, design: .rounded).monospacedDigit()
+    }
+
+    /// Supporting values such as sets, games, frames and handicaps.
+    static func secondaryScore(size: CGFloat, weight: Font.Weight = .medium) -> Font {
+        .system(size: size, weight: weight, design: .rounded).monospacedDigit()
+    }
+
     static func adaptiveFontSize(
         baseSize: CGFloat,
         scoreText: String,
@@ -280,8 +298,7 @@ struct WatchMetrics {
     static let inactiveIndicator: CGFloat = 4
     static let cardRadius: CGFloat = 12
     static let pillRadius: CGFloat = 30
-    static let pillHeight: CGFloat = 60
-    static let recordPillHeight: CGFloat = 72
+    static let pillHeight: CGFloat = 52
 }
 
 struct WatchAnimations {
@@ -296,7 +313,7 @@ struct WatchTiming {
     static let hintDelay: Double = 1.2
     /// Keep the just-scored result visible before a rest or finished overlay replaces the board.
     static let completedScoreVisibility: Double = 0.8
-    static let undoCountdown: Double = 5.0
+    static let finishedUndoCountdown: Double = 3.0
 }
 
 extension Color {

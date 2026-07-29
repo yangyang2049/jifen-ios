@@ -93,7 +93,7 @@ private final class WatchBasketballSessionStore {
         }
     }
 
-    func undo() {
+    func undo(onSuccess: @escaping () -> Void = {}) {
         Task { [weak self, core] in
             guard await core.undo(actorId: "watch"), let self else { return }
             let state = await core.snapshot().state
@@ -103,6 +103,7 @@ private final class WatchBasketballSessionStore {
                 team1Score: state.leftScore,
                 team2Score: state.rightScore
             )
+            onSuccess()
         }
     }
 
@@ -181,6 +182,7 @@ struct WatchBasketballScoreView: View {
     @State private var matchStartTime = Date()
     @State private var suppressTapAfterLongPress = false
     @State private var manualFinishRequested = false
+    @State private var undoToastToken: UUID?
 
     init(
         gameMode: BasketballGameMode,
@@ -249,7 +251,7 @@ struct WatchBasketballScoreView: View {
                 WatchScoreboardMenuOverlay(
                     onDismiss: { showMenu = false },
                     onUndo: {
-                        store.undo()
+                        undoScoreboard()
                         showMenu = false
                     },
                     onFinish: {
@@ -338,9 +340,10 @@ struct WatchBasketballScoreView: View {
             suppressTapAfterLongPress: $suppressTapAfterLongPress,
             enabled: interactionsEnabled,
             onMenu: { showMenu = true },
-            onUndo: { store.undo() },
+            onUndo: undoScoreboard,
             onExit: exitBasketball
         )
+        .watchUndoToast(token: $undoToastToken)
     }
 
     private func side(_ screenSide: MatchSide, height: CGFloat) -> some View {
@@ -362,7 +365,7 @@ struct WatchBasketballScoreView: View {
                 .font(.caption.weight(.semibold))
                 .lineLimit(1)
             Text(scoreText)
-                .font(.system(size: scoreFont, weight: .bold, design: .rounded))
+                .font(WatchScoreTypography.primaryScore(size: scoreFont))
                 .monospacedDigit()
             Text(String(format: NSLocalizedString("watch_bball_fouls_timeouts_format", value: "犯规 %d  暂停 %d", comment: ""), fouls, timeouts))
                 .font(.caption2)
@@ -485,7 +488,7 @@ struct WatchBasketballScoreView: View {
                 guard !Task.isCancelled else { return }
                 showFinishedOverlay = true
             }
-            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
             finalizeBasketball()
@@ -566,11 +569,17 @@ struct WatchBasketballScoreView: View {
     private func undoFinishedBasketball() {
         guard finishUndoAvailable else { return }
         finishTask?.cancel()
-        store.undo()
+        undoScoreboard()
         showFinishedOverlay = false
         finishUndoAvailable = false
         didPublishFinish = false
         manualFinishRequested = false
+    }
+
+    private func undoScoreboard() {
+        store.undo {
+            undoToastToken = UUID()
+        }
     }
 
     private func restartBasketball() {

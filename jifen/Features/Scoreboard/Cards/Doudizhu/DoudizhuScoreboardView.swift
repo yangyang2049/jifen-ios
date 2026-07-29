@@ -363,7 +363,7 @@ struct DoudizhuScoreboardView: View {
             panelColors[index % 3]
             VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: height)) {
                 Text("\(player.score)")
-                    .font(.system(size: scoreSize, weight: .bold))
+                    .font(appearance.font.swiftUIFont(size: scoreSize))
                     .monospacedDigit()
                     .foregroundColor(.white)
                     .minimumScaleFactor(0.4)

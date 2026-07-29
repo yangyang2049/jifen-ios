@@ -19,7 +19,7 @@ private let archerySetEndOverlayDelay: TimeInterval = 1.2
 private let archeryScoreGrid: [[Int?]] = [
     [10, 9, 8, 7],
     [6, 5, 4, 3],
-    [2, 1, -1]
+    [2, 1, 0, -1]
 ]
 
 struct ArcheryScoreboardView: View {

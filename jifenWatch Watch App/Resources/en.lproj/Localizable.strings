@@ -58,7 +58,7 @@
 
 /* Usage Guide */
 "usage_guide" = "Usage Guide";
-"usage_prompt_message" = "1. Tap the corresponding half to add points\n2. Swipe down to undo\n3. Swipe up to open menu";
+"usage_prompt_message" = "1. Tap the corresponding half to add points\n2. Swipe down to undo\n3. Long press to open menu";
 "got_it" = "Got it";
 
 /* Privacy */
@@ -161,6 +161,14 @@
 "watch_score_add_format" = "%@ scored";
 "watch_mid_game_rest" = "Mid-game rest";
 "watch_rest_between_sets" = "Rest between sets";
+"watch_score_event_set_title" = "Set %d finished";
+"watch_score_event_set_detail" = "%@ won %d:%d · Sets %d:%d";
+"watch_score_event_mid_game_title" = "Set %d · Mid-game rest";
+"watch_score_event_mid_game_detail" = "%@ leads %d:%d · Sets %d:%d";
+"watch_score_event_tennis_game_title" = "Game %d finished";
+"watch_score_event_tennis_game_detail" = "%@ won · Games %d:%d";
+"watch_score_event_tennis_set_title" = "Set %d finished";
+"watch_score_event_tennis_set_detail" = "%@ won %d:%d · Sets %d:%d";
 "watch_set_break_toast" = "Rest between sets";
 "watch_deciding_set_swap" = "Deciding set swap";
 "watch_swap_sides" = "Swap sides";
@@ -226,6 +234,11 @@
 "watch_common_names_error_missing" = "The original name no longer exists. Sync and try again.";
 "watch_common_names_error_generic" = "Couldn't save. Try again.";
 "watch_common_names_sync_now" = "Sync Now";
+"watch_common_names_actions" = "Name actions";
+"watch_common_names_sync_requested" = "Sync requested";
+"watch_common_names_sync_queued" = "Phone disconnected. Will sync when connected.";
+"watch_common_names_sync_inactive" = "Connect the phone first";
+"watch_common_names_sync_failed" = "Couldn't send. Try again later.";
 "watch_common_names_sync_conflict" = "Some changes weren't synced";
 "watch_common_names_sync_pending" = "Waiting to sync";
 "watch_common_names_sync_unavailable" = "Phone unavailable";

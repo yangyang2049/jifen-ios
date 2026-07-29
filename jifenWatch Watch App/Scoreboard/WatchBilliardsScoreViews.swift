@@ -5,10 +5,8 @@ import ScoreCore
 import SwiftUI
 
 enum WatchEightBallScorePresentation {
-    static func earnedRacks(state: EightBallState, side: MatchSide) -> Int {
-        let total = side == .left ? state.leftPoints : state.rightPoints
-        let handicap = state.handicapBeneficiary == side ? state.handicapRacks : 0
-        return max(0, total - handicap)
+    static func displayedRacks(state: EightBallState, side: MatchSide) -> Int {
+        side == .left ? state.leftPoints : state.rightPoints
     }
 
     static func handicapText(state: EightBallState, side: MatchSide) -> String? {
@@ -39,6 +37,7 @@ struct WatchEightBallScoreView: View {
     @State private var suppressTapAfterLongPress = false
     @State private var actionLog: WatchScoreActionLog
     @State private var archiveSessionId = UUID()
+    @State private var undoToastToken: UUID?
     private let archiveRepository = SessionArchiveRepository()
 
     init(
@@ -67,14 +66,15 @@ struct WatchEightBallScoreView: View {
     var body: some View {
         ZStack {
             dualBoard(
-                leftLabel: "\(WatchEightBallScorePresentation.earnedRacks(state: state, side: .left))",
-                rightLabel: "\(WatchEightBallScorePresentation.earnedRacks(state: state, side: .right))",
+                leftLabel: "\(WatchEightBallScorePresentation.displayedRacks(state: state, side: .left))",
+                rightLabel: "\(WatchEightBallScorePresentation.displayedRacks(state: state, side: .right))",
                 onLeft: { addRack(.left) },
                 onRight: { addRack(.right) }
             )
             if !showMenu && !showFinishedOverlay {
                 Text("\(state.targetPoints)")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(WatchScoreTypography.secondaryScore(size: 17))
+                    .monospacedDigit()
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
@@ -168,6 +168,7 @@ struct WatchEightBallScoreView: View {
             onUndo: undo,
             onExit: exitEightBall
         )
+        .watchUndoToast(token: $undoToastToken)
     }
 
     private func addRack(_ side: MatchSide) {
@@ -310,7 +311,8 @@ struct WatchEightBallScoreView: View {
         )
         return ZStack {
             Text(text)
-                .font(.system(size: scoreFont, weight: .bold, design: .rounded))
+                .font(WatchScoreTypography.primaryScore(size: scoreFont))
+                .monospacedDigit()
                 .foregroundStyle(.white)
 
             Text(name)
@@ -321,13 +323,16 @@ struct WatchEightBallScoreView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.horizontal, 8)
                 .padding(.top, isHorizontal ? 28 : 8)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
 
             if let handicap {
                 Text(handicap)
-                    .font(.system(size: isHorizontal ? 20 : 22, weight: .medium))
+                    .font(WatchScoreTypography.secondaryScore(size: isHorizontal ? 20 : 22))
+                    .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.65))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                     .padding(.bottom, isHorizontal ? 28 : 12)
+                    .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -348,6 +353,7 @@ struct WatchEightBallScoreView: View {
         state = previous
         actionLog.undo(team1Score: state.leftPoints, team2Score: state.rightPoints)
         publish(manualEnd: false)
+        undoToastToken = UUID()
     }
 
     private func restartMatch() {
@@ -432,7 +438,7 @@ struct WatchEightBallScoreView: View {
                 guard !Task.isCancelled else { return }
                 showFinishedOverlay = true
             }
-            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
             finalizeEightBall(manualEnd: manualEnd)
@@ -483,6 +489,7 @@ struct WatchEightBallScoreView: View {
         finishUndoAvailable = false
         didSaveFinishedRecord = false
         publish(manualEnd: false)
+        undoToastToken = UUID()
     }
 
     private func exitEightBall() {
@@ -562,6 +569,7 @@ struct WatchNineBallScoreView: View {
     @State private var suppressTapAfterLongPress = false
     @State private var actionLog: WatchScoreActionLog
     @State private var archiveSessionId = UUID()
+    @State private var undoToastToken: UUID?
     private let archiveRepository = SessionArchiveRepository()
 
     private static let playerColors: [Color] = [
@@ -689,6 +697,7 @@ struct WatchNineBallScoreView: View {
             onUndo: undo,
             onExit: exitNineBall
         )
+        .watchUndoToast(token: $undoToastToken)
     }
 
     @ViewBuilder
@@ -751,19 +760,24 @@ struct WatchNineBallScoreView: View {
             minimumSize: minimumScoreFont
         )
         let nameFont: CGFloat = state.playerCount > 2 ? 11 : 13
-        return VStack(spacing: state.playerCount > 2 ? 4 : 6) {
+        return ZStack {
+            Text(scoreText)
+                .font(WatchScoreTypography.primaryScore(size: scoreFont))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+
             Text(displayName(at: index))
                 .font(.system(size: nameFont, weight: .medium))
                 .foregroundStyle(.white.opacity(0.75))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-            Text(scoreText)
-                .font(.system(size: scoreFont, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.horizontal, state.playerCount > 2 ? 4 : 8)
+                .padding(.top, state.playerCount == 4 ? 8 : (isHorizontal ? 28 : 8))
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
         }
-        .offset(y: state.playerCount == 4 && index == 1 ? 18 : 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(index < Self.playerColors.count ? Self.playerColors[index] : .gray)
         .contentShape(Rectangle())
@@ -797,7 +811,8 @@ struct WatchNineBallScoreView: View {
                                 Text(nineBallEventTitle(kind))
                                     .font(.system(size: WatchLayout.isCompactScreen ? 11 : 12, weight: .semibold))
                                 Text(nineBallEventPointText(kind, playerCount: state.playerCount))
-                                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                                    .font(WatchScoreTypography.secondaryScore(size: 10))
+                                    .monospacedDigit()
                                     .foregroundStyle(.white.opacity(0.72))
                             }
                             .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 36 : 42)
@@ -943,6 +958,7 @@ struct WatchNineBallScoreView: View {
         state = previous
         actionLog.undo(team1Score: playerPoints(at: 0), team2Score: playerPoints(at: 1))
         publish()
+        undoToastToken = UUID()
     }
 
     private func restartMatch() {
@@ -1057,7 +1073,7 @@ struct WatchNineBallScoreView: View {
                 guard !Task.isCancelled else { return }
                 showFinishedOverlay = true
             }
-            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
             finalizeNineBall(manualEnd: manualEnd)
@@ -1106,6 +1122,7 @@ struct WatchNineBallScoreView: View {
         finishUndoAvailable = false
         didSaveFinishedRecord = false
         publish()
+        undoToastToken = UUID()
     }
 
     private func exitNineBall() {
@@ -1215,6 +1232,7 @@ struct WatchSnookerScoreView: View {
     @State private var suppressTapAfterLongPress = false
     @State private var actionLog: WatchScoreActionLog
     @State private var archiveSessionId = UUID()
+    @State private var undoToastToken: UUID?
     private let archiveRepository = SessionArchiveRepository()
 
     init(
@@ -1354,6 +1372,7 @@ struct WatchSnookerScoreView: View {
             onUndo: undo,
             onExit: exitSnooker
         )
+        .watchUndoToast(token: $undoToastToken)
     }
 
     private func scoreHalf(_ side: MatchSide) -> some View {
@@ -1370,7 +1389,8 @@ struct WatchSnookerScoreView: View {
         )
         return ZStack {
             Text(scoreText)
-                .font(.system(size: scoreFont, weight: .bold, design: .rounded))
+                .font(WatchScoreTypography.primaryScore(size: scoreFont))
+                .monospacedDigit()
                 .foregroundStyle(.white)
             Text(name)
                 .font(.system(size: 11, weight: .semibold))
@@ -1381,12 +1401,15 @@ struct WatchSnookerScoreView: View {
                 .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.top, isHorizontal ? 28 : 8)
+                .offset(y: WatchLayout.scoreboardNameVerticalOffset)
             if state.maxFrames > 1 {
                 Text("\(frames)")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(WatchScoreTypography.secondaryScore(size: 14))
+                    .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.7))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                     .padding(.bottom, isHorizontal ? 22 : 16)
+                    .offset(y: WatchLayout.scoreboardMetaVerticalOffset)
             }
             snookerServerIndicator(for: side)
         }
@@ -1423,6 +1446,7 @@ struct WatchSnookerScoreView: View {
         )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
             .padding(insets)
+            .offset(y: WatchLayout.serverIndicatorVerticalOffset(isHorizontal: isHorizontal))
             .opacity(state.striker == side ? 1 : 0)
             .allowsHitTesting(false)
     }
@@ -1611,7 +1635,8 @@ struct WatchSnookerScoreView: View {
                 Text(NSLocalizedString("watch_snooker_frame_finished", value: "本局结束", comment: ""))
                     .font(.headline)
                 Text("\(state.leftFrames) : \(state.rightFrames)")
-                    .font(.title3.monospacedDigit().weight(.bold))
+                    .font(WatchScoreTypography.primaryScore(size: 20))
+                    .monospacedDigit()
                 Button(NSLocalizedString("watch_snooker_next_frame", value: "下一局", comment: "")) {
                     apply(.confirmNextFrame)
                 }
@@ -1749,6 +1774,7 @@ struct WatchSnookerScoreView: View {
             team2SetScore: state.rightFrames
         )
         publish()
+        undoToastToken = UUID()
     }
 
     private func restartMatch() {
@@ -1838,7 +1864,7 @@ struct WatchSnookerScoreView: View {
                 guard !Task.isCancelled else { return }
                 showFinishedOverlay = true
             }
-            try? await Task.sleep(for: .seconds(WatchTiming.undoCountdown))
+            try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
             finalizeSnooker(manualEnd: manualEnd)
@@ -1893,6 +1919,7 @@ struct WatchSnookerScoreView: View {
         finishUndoAvailable = false
         didSaveFinishedRecord = false
         publish()
+        undoToastToken = UUID()
     }
 
     private func exitSnooker() {

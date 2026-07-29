@@ -87,7 +87,7 @@ struct WatchRecordListView: View {
         loading = false
     }
 
-    /// 圆角胶囊行，与鸿蒙 WatchRecordTab 一致：高 56、圆角 30、背景 #222222；窄屏（含 44mm）缩小边距与图标，标题可缩放防截断
+    /// 圆角胶囊行：与其他主 Tab 统一为 52pt 高，圆角 30、背景 #222222。
     private func recordRow(_ record: WatchScoreboardRecordSummary) -> some View {
         let iconSize = WatchLayout.recordRowIconSize
         let rowSpacing = WatchLayout.recordRowSpacing
@@ -116,7 +116,7 @@ struct WatchRecordListView: View {
         }
         .padding(.leading, rowPadding)
         .padding(.trailing, rowPadding)
-        .frame(height: 56)
+        .frame(height: WatchMetrics.pillHeight)
         .frame(maxWidth: .infinity)
         .background(WatchTheme.listItemBackground)
         .cornerRadius(30)

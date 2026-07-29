@@ -155,7 +155,6 @@ struct SportsSetupDialogView: View {
     @State private var basketballRuleSet: String = "fiba"
     @State private var snookerShowMoreFrames = false
     @State private var customFoosballScoreCapText = ""
-    @State private var customEightBallHandicapText = ""
     @State private var tennisDeuceMode: String = "advantage"
     @State private var servingSide: MatchSide = .left
     @State private var voiceAnnouncement = false
@@ -239,12 +238,15 @@ struct SportsSetupDialogView: View {
             )
             syncPickleballTargetForSets()
         }
-        .onChange(of: selectedMaxSets) { _, _ in
+        .onChange(of: selectedMaxSets) { _, newValue in
             syncPickleballTargetForSets()
-            if gameType == .eightBall, selectedMaxSets <= 1 {
-                eightBallHandicapMode = "none"
-                eightBallHandicapRacks = 0
-                customEightBallHandicapText = ""
+            if gameType == .eightBall {
+                if newValue <= 1 {
+                    eightBallHandicapMode = "none"
+                    eightBallHandicapRacks = 0
+                } else if eightBallHandicapMode != "none" {
+                    eightBallHandicapRacks = min(max(1, eightBallHandicapRacks), newValue - 1)
+                }
             }
         }
         .sheet(item: $activeNameInputTarget) { target in
@@ -481,7 +483,9 @@ struct SportsSetupDialogView: View {
         customFoosballScoreCapText = ""
         eightBallHandicapMode = setup?.eightBallHandicapBeneficiary ?? "none"
         eightBallHandicapRacks = setup?.eightBallHandicapRacks ?? 0
-        customEightBallHandicapText = ""
+        if gameType == .eightBall, selectedMaxSets > 1, eightBallHandicapMode != "none" {
+            eightBallHandicapRacks = min(max(1, eightBallHandicapRacks), selectedMaxSets - 1)
+        }
         snookerShowMoreFrames = false
         isSingles = setup?.isSingles ?? (gameType != .foosball)
         team1Player1Name = setup?.team1Player1Name ?? team1Player1Name
@@ -1061,22 +1065,16 @@ struct SportsSetupDialogView: View {
                     }
                 }
                 if eightBallHandicapMode != "none" {
-                    HStack(spacing: 8) {
-                        ForEach([1, 2, 3], id: \.self) { racks in
-                            numberChip(racks, selection: $eightBallHandicapRacks) {
-                                customEightBallHandicapText = ""
-                            }
+                    LazyVGrid(
+                        columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4),
+                        spacing: 8
+                    ) {
+                        ForEach(Array(1..<selectedMaxSets), id: \.self) { racks in
+                            numberChip(racks, selection: $eightBallHandicapRacks)
                         }
-                        customNumberChip(
-                            selection: $eightBallHandicapRacks,
-                            text: $customEightBallHandicapText,
-                            maxValue: max(1, selectedMaxSets - 1)
-                        )
                     }
                     .onAppear {
-                        if eightBallHandicapRacks < 1 {
-                            eightBallHandicapRacks = 1
-                        }
+                        eightBallHandicapRacks = min(max(1, eightBallHandicapRacks), selectedMaxSets - 1)
                     }
                 }
             }
