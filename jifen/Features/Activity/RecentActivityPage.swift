@@ -18,6 +18,8 @@ struct RecentActivityPage: View {
                         recordsList
                     }
                 }
+                .frame(maxWidth: Theme.secondaryPageContentMaxWidth, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .navigationTitle(NSLocalizedString("recent_records", comment: ""))
             .navigationBarTitleDisplayMode(.inline)

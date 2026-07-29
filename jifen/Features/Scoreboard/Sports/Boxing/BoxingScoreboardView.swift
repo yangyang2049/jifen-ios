@@ -21,6 +21,7 @@ struct BoxingScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
+    @State private var isEditing = false
 
     private var recordID: String {
         initialRecordId ?? "boxing_\(Int(controller.gameStartTime.timeIntervalSince1970))"
@@ -36,6 +37,7 @@ struct BoxingScoreboardView: View {
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .team,
                     scoreTextProvider: { _, team in "\(team.score)" },
+                    onEditModeChange: { isEditing = $0 },
                     showEndGame: true
                 ),
                 onBack: {
@@ -48,6 +50,7 @@ struct BoxingScoreboardView: View {
             if showGameOverDialog {
                 GameOverDialog(
                     winnerName: viewModel.getWinnerName(),
+                    gameType: .boxing,
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,
                     leftScore: viewModel.leftTeam.score,
@@ -74,12 +77,14 @@ struct BoxingScoreboardView: View {
                 )
             }
 
-            VStack(spacing: 0) {
-                roundTitle
-                    .padding(.top, ScoreboardConstants.buttonPadding + 4)
-                Spacer()
-                centerAddRoundButton
-                    .padding(.bottom, 96)
+            if !isEditing {
+                VStack(spacing: 0) {
+                    roundTitle
+                        .padding(.top, ScoreboardConstants.buttonPadding + 4)
+                    Spacer()
+                    centerAddRoundButton
+                        .padding(.bottom, 96)
+                }
             }
 
             if showRoundDialog {

@@ -46,6 +46,7 @@ struct FootballScoreboardView: View {
             if showGameOverDialog {
                 GameOverDialog(
                     winnerName: viewModel.getWinnerName(),
+                    gameType: .football,
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,
                     leftScore: viewModel.leftTeam.score,

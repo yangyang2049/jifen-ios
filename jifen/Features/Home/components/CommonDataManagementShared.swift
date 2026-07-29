@@ -4,32 +4,48 @@ import SwiftUI
 enum CommonDataManagementChrome {
     static let listSpacing: CGFloat = 12
     static let floatingButtonHeight: CGFloat = 48
+    static var contentMaxWidth: CGFloat { Theme.meTabContentMaxWidth }
 }
 
-struct CommonDataSearchField: View {
+private struct ConditionalSystemSearchModifier: ViewModifier {
     @Binding var text: String
-    let placeholder: String
+    let prompt: String
+    let isEnabled: Bool
+    let isAlwaysVisible: Bool
 
-    var body: some View {
-        HStack(spacing: Theme.sm) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(Theme.textSecondary)
-            TextField(placeholder, text: $text)
-                .foregroundColor(Theme.textPrimary)
-            if !text.isEmpty {
-                Button {
-                    text = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(Theme.textSecondary)
-                }
-                .buttonStyle(.plain)
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isEnabled {
+            if isAlwaysVisible {
+                content.searchable(
+                    text: $text,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: Text(prompt)
+                )
+            } else {
+                content.searchable(text: $text, prompt: Text(prompt))
             }
+        } else {
+            content
         }
-        .padding(.horizontal, Theme.md)
-        .frame(height: 40)
-        .background(Theme.controlBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+}
+
+extension View {
+    func systemSearchable(
+        text: Binding<String>,
+        prompt: String,
+        isEnabled: Bool = true,
+        isAlwaysVisible: Bool = false
+    ) -> some View {
+        modifier(
+            ConditionalSystemSearchModifier(
+                text: text,
+                prompt: prompt,
+                isEnabled: isEnabled,
+                isAlwaysVisible: isAlwaysVisible
+            )
+        )
     }
 }
 

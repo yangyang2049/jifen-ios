@@ -21,18 +21,18 @@ struct ScoreboardTab: View {
         NavigationStack {
             GeometryReader { proxy in
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: Theme.lg) {
+                    VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
                         ForEach(ScoreboardCatalogSection.allCases) { section in
                             sectionGroup(
                                 title: section.title,
                                 items: GameCatalog.scoreboardItems(in: section),
-                                availableWidth: max(0, proxy.size.width - Theme.padding * 2)
+                                availableWidth: max(0, proxy.size.width - Theme.pageHorizontalInset * 2)
                             )
                         }
                     }
-                    .padding(.horizontal, Theme.padding)
+                    .padding(.horizontal, Theme.pageHorizontalInset)
                     .padding(.top, Theme.md)
-                    .padding(.bottom, Theme.lg + 56)
+                    .padding(.bottom, Theme.tabContentBottomPadding)
                 }
                 .background(Theme.backgroundColor)
             }
@@ -86,7 +86,7 @@ struct ScoreboardTab: View {
     }
 
     private func sectionGroup(title: String, items: [ScoreboardCatalogItem], availableWidth: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: Theme.spacing) {
+        VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
             Text(title)
                 .font(.system(size: Theme.fontH5, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
@@ -102,7 +102,7 @@ struct ScoreboardTab: View {
     }
 
     private var gridSpacing: CGFloat {
-        usesPadLayout ? 8 : 6
+        Theme.gridSpacing
     }
 
     private func gridColumns(availableWidth: CGFloat) -> [GridItem] {
@@ -276,7 +276,7 @@ struct SportCardView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .padding(.vertical, Theme.md)
+            .padding(.vertical, Theme.cardPadding)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 92)
             .background {

@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import LinkCore
+import PersistenceCore
 import ScoreCore
 import SessionCore
 
@@ -152,6 +153,60 @@ import SessionCore
     #expect(reset.leftGames == 0)
     #expect(reset.rightGames == 0)
     #expect(!reset.sidesSwapped)
+}
+
+@Test func tennisDoublesPlayerEditRebuildsJoinedNamesAndSurvivesReset() throws {
+    let reducer = TennisMatchReducer()
+    let state = TennisMatchState(
+        leftName: "A1/A2",
+        rightName: "B1/B2",
+        doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+    )
+
+    let edited = reducer.reduce(
+        state: state,
+        intent: .setDoublesPlayerName(slot: 2, name: " A3 "),
+        at: 1
+    )
+    #expect(edited.accepted)
+    #expect(edited.state.doublesPlayerNames == ["A1", "B1", "A3", "B2"])
+    #expect(edited.state.leftName == "A1 / A3")
+    #expect(edited.state.rightName == "B1 / B2")
+
+    let decoded = try JSONDecoder().decode(
+        TennisMatchState.self,
+        from: JSONEncoder().encode(edited.state)
+    )
+    let reset = reducer.reduce(state: decoded, intent: .reset, at: 2).state
+    #expect(reset.doublesPlayerNames == ["A1", "B1", "A3", "B2"])
+    #expect(reset.leftName == "A1 / A3")
+    #expect(reset.rightName == "B1 / B2")
+}
+
+@Test func tennisDoublesDerivedReceiverTracksPointParityAndLogicalSides() {
+    let reducer = TennisMatchReducer()
+    var state = TennisMatchState(
+        leftName: "A",
+        rightName: "B",
+        openingServer: .left,
+        doublesPlayerNames: ["A1", "B1", "A2", "B2"]
+    )
+    #expect(TennisDoublesServing.currentServerSlot(in: state) == 0)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 1)
+
+    state.leftPoints = 1
+    #expect(TennisDoublesServing.currentServerSlot(in: state) == 0)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
+
+    state = reducer.reduce(state: state, intent: .exchangeSides, at: 1).state
+    #expect(state.sidesSwapped)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
+
+    state.isTieBreak = true
+    state.leftPoints = 1
+    state.rightPoints = 0
+    #expect(TennisDoublesServing.currentServerSlot(in: state) == 1)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 2)
 }
 
 @Test func tennisDoublesServerRotationContinuesAcrossSetBoundaries() {
@@ -366,6 +421,36 @@ import SessionCore
     #expect(four.playerCounts[2][5] == 1)
 }
 
+@Test func nineBallTwoPlayerExchangeOnlyChangesScreenPlacement() {
+    let reducer = NineBallChaseReducer()
+    var state = NineBallChaseState.initial(
+        playerCount: 2,
+        playerNames: ["甲", "乙"]
+    )
+    state.playerPoints[0] = 12
+    state.playerPoints[1] = 7
+    state.playerCounts[0][0] = 3
+
+    let exchanged = reducer.reduce(state: state, intent: .exchangeSides, at: 1)
+    #expect(exchanged.accepted)
+    #expect(exchanged.state.sidesSwapped)
+    #expect(exchanged.state.playerNames[0] == "甲")
+    #expect(exchanged.state.playerPoints[0] == 12)
+    #expect(exchanged.state.playerCounts[0][0] == 3)
+
+    let fourPlayer = NineBallChaseState.initial(playerCount: 4)
+    #expect(!reducer.reduce(state: fourPlayer, intent: .exchangeSides, at: 2).accepted)
+}
+
+@Test func legacyNineBallSnapshotDefaultsToUnswappedPlacement() throws {
+    let state = NineBallChaseState.initial(playerCount: 2)
+    let encoded = try JSONEncoder().encode(state)
+    var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    object.removeValue(forKey: "sidesSwapped")
+    let legacy = try JSONSerialization.data(withJSONObject: object)
+    #expect(try JSONDecoder().decode(NineBallChaseState.self, from: legacy).sidesSwapped == false)
+}
+
 @Test func shengjiTierReducerMatchesAndroidFixture() {
     let result = ShengjiTierReducer().reduce(
         state: ShengjiTierState(),
@@ -389,6 +474,27 @@ import SessionCore
     #expect(state.dealer == .left)
 }
 
+@Test func shengjiAdministrativeTransitionsStayInsideReducer() {
+    let reducer = ShengjiTierReducer()
+    let seed = ShengjiTierState(leftIndex: 2, rightIndex: 4, maxTierIndex: 12, dealer: .right)
+    let corrected = reducer.reduce(
+        state: seed,
+        intent: .adminCorrect(left: 12, right: 3),
+        at: 1
+    )
+    #expect(corrected.accepted)
+    #expect(corrected.state.leftIndex == 12)
+    #expect(corrected.state.finished)
+
+    let reset = reducer.reduce(state: corrected.state, intent: .reset, at: 2)
+    #expect(reset.accepted)
+    #expect(reset.state == ShengjiTierState(maxTierIndex: 12))
+
+    let finished = reducer.reduce(state: reset.state, intent: .finish, at: 3)
+    #expect(finished.accepted)
+    #expect(finished.state.finished)
+}
+
 @Test func guandanUpgradeAndPassAFinishMatch() {
     let reducer = GuandanSessionReducer()
     var state = GuandanMatchState.initial(redName: "红", blueName: "蓝")
@@ -409,6 +515,31 @@ import SessionCore
     state = reducer.reduce(state: state, intent: .applyRoundSettlement(step: 2), at: 101).state
     #expect(state.phase == .finished)
     #expect(state.finalWinner == .red)
+}
+
+@Test func guandanAdministrativeTransitionsStayInsideReducer() {
+    let reducer = GuandanSessionReducer()
+    var state = GuandanMatchState.initial(redName: "红", blueName: "蓝")
+    state = reducer.reduce(state: state, intent: .startMatch, at: 1).state
+    state = reducer.reduce(
+        state: state,
+        intent: .adminCorrect(redName: "红队", blueName: "蓝队", redRank: "A", blueRank: "K"),
+        at: 2
+    ).state
+    #expect(state.redTeam.name == "红队")
+    #expect(state.redTeam.currentRank == "A")
+    #expect(state.phase == .playing)
+
+    let finished = reducer.reduce(state: state, intent: .finish, at: 3)
+    #expect(finished.accepted)
+    #expect(finished.state.phase == .finished)
+    #expect(finished.state.finalWinner == .red)
+
+    let reset = reducer.reduce(state: finished.state, intent: .reset, at: 4)
+    #expect(reset.accepted)
+    #expect(reset.state.phase == .playing)
+    #expect(reset.state.redTeam.name == "红队")
+    #expect(reset.state.redTeam.currentRank == "2")
 }
 
 @Test func guandanTripleAFailsFallbackToConfiguredRank() {
@@ -516,6 +647,160 @@ import SessionCore
     #expect(state.rightScore == 4)
     #expect(state.striker == .right)
     #expect(state.leftBreak == 0)
+}
+
+@Test func snookerClearanceRequiresExplicitFrameSettlement() {
+    let reducer = SnookerReducer()
+    var state = SnookerState.initial(maxFrames: 3)
+    state.redBallsRemaining = 0
+    state.nextBallStage = .black
+    state.leftScore = 50
+    state.rightScore = 40
+
+    state = reducer.reduce(state: state, intent: .potBall(points: 7), at: 1).state
+    #expect(state.nextBallStage == .complete)
+    #expect(state.leftFrames == 0)
+    #expect(state.currentFrame == 1)
+    #expect(!state.finished)
+
+    state = reducer.reduce(state: state, intent: .settleFrame(winner: .left), at: 2).state
+    #expect(state.leftFrames == 1)
+    #expect(state.currentFrame == 2)
+    #expect(state.leftScore == 0)
+    #expect(state.striker == .right)
+}
+
+@Test func legacySnookerPendingFrameSnapshotNormalizesOnRestore() throws {
+    var state = SnookerState.initial(maxFrames: 3)
+    state.frameCompletePending = true
+    state.pendingFrameWinner = .left
+    let restored = try JSONDecoder().decode(SnookerState.self, from: JSONEncoder().encode(state))
+    #expect(!restored.frameCompletePending)
+    #expect(restored.pendingFrameWinner == nil)
+}
+
+@Test func specializedBilliardsAdministrativeTransitionsStayInsideReducers() {
+    let eightReducer = EightBallReducer()
+    let eightInitial = EightBallState.initial(targetPoints: 5, handicapRacks: 2, handicapBeneficiary: .right)
+    let eightFinished = eightReducer.reduce(
+        state: eightInitial,
+        intent: .finishMatch,
+        at: 1
+    )
+    #expect(eightFinished.accepted)
+    #expect(eightFinished.state.finished)
+    #expect(eightFinished.events == [.matchFinished])
+
+    let chaseReducer = NineBallChaseReducer()
+    let chaseInitial = NineBallChaseState.initial(playerCount: 3, playerNames: ["A", "B", "C"])
+    let chaseEdited = chaseReducer.reduce(
+        state: chaseInitial,
+        intent: .adminCorrect(
+            playerNames: ["甲", "乙", "丙"],
+            playerPoints: [-10_500, 22, 10_500]
+        ),
+        at: 2
+    )
+    #expect(chaseEdited.accepted)
+    #expect(Array(chaseEdited.state.playerNames.prefix(3)) == ["甲", "乙", "丙"])
+    #expect(Array(chaseEdited.state.playerPoints.prefix(3)) == [-9_999, 22, 9_999])
+    let chaseFinished = chaseReducer.reduce(
+        state: chaseEdited.state,
+        intent: .finishMatch,
+        at: 3
+    )
+    #expect(chaseFinished.accepted)
+    #expect(chaseFinished.state.finished)
+    #expect(chaseFinished.events == [.matchFinished])
+
+    let snookerReducer = SnookerReducer()
+    var snooker = SnookerState.initial(striker: .right, maxFrames: 5)
+    snooker = snookerReducer.reduce(state: snooker, intent: .potBall(points: 7), at: 4).state
+    let reset = snookerReducer.reduce(state: snooker, intent: .reset, at: 5)
+    #expect(reset.accepted)
+    #expect(reset.state == .initial(striker: .right, maxFrames: 5))
+    #expect(reset.events == [.reset])
+}
+
+@Test func threeSpecializedBilliardsSessionsUseCoreUndoAndRebaseBoundaries() async {
+    let eightSeed = ScoreSession<EightBallState, EightBallEvent>(
+        gameType: .eightBall,
+        ruleFamily: .s2,
+        reducerType: "eight_ball/v1",
+        state: .initial(targetPoints: 5)
+    )
+    let eightCore = ScoreSessionCore(
+        seedSession: eightSeed,
+        reducer: EightBallReducer(),
+        shouldFinish: { _, state in state.finished }
+    )
+    _ = await eightCore.dispatch(actorId: "phone", intent: .addRack(.left), at: 1)
+    _ = await eightCore.updateParticipants([
+        .init(id: "team_0", name: "新红方", role: "team"),
+        .init(id: "team_1", name: "新蓝方", role: "team")
+    ])
+    #expect(await eightCore.snapshot().state.leftPoints == 1)
+    #expect(await eightCore.undo(actorId: "phone"))
+    #expect(await eightCore.snapshot().state.leftPoints == 0)
+    #expect(await eightCore.snapshot().participants.map(\.name) == ["新红方", "新蓝方"])
+
+    let chaseSeed = ScoreSession<NineBallChaseState, NineBallChaseEvent>(
+        gameType: .nineBall,
+        ruleFamily: .s2,
+        reducerType: "nine_ball/v1",
+        state: .initial(playerCount: 3, playerNames: ["A", "B", "C"])
+    )
+    let chaseCore = ScoreSessionCore(
+        seedSession: chaseSeed,
+        reducer: NineBallChaseReducer(),
+        shouldFinish: { _, state in state.finished }
+    )
+    _ = await chaseCore.dispatch(actorId: "phone", intent: .chaseEvent(player: 2, kind: .foul), at: 2)
+    #expect(await chaseCore.snapshot().state.playerPoints[2] == -1)
+    var authoritativeChase = await chaseCore.snapshot().state
+    authoritativeChase.playerPoints[2] = 88
+    _ = await chaseCore.rebase(to: authoritativeChase, status: .live)
+    #expect(!(await chaseCore.undo(actorId: "phone")))
+    #expect(await chaseCore.snapshot().state.playerPoints[2] == 88)
+
+    let snookerSeed = ScoreSession<SnookerState, SnookerEvent>(
+        gameType: .snooker,
+        ruleFamily: .s2,
+        reducerType: "snooker/v1",
+        state: .initial(striker: .left, maxFrames: 3)
+    )
+    let snookerCore = ScoreSessionCore(
+        seedSession: snookerSeed,
+        reducer: SnookerReducer(),
+        shouldFinish: { _, state in state.finished }
+    )
+    _ = await snookerCore.dispatch(actorId: "phone", intent: .potBall(points: 1), at: 3)
+    #expect(await snookerCore.snapshot().state.leftScore == 1)
+    #expect(await snookerCore.undo(actorId: "phone"))
+    #expect(await snookerCore.snapshot().state.redBallsRemaining == 15)
+}
+
+@Test func specializedBilliardsResumeBundleRepositoryPreservesTypedUndoTimeline() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    let repository = SessionArchiveRepository(rootURL: root)
+    let seed = ScoreSession<EightBallState, EightBallEvent>(
+        gameType: .eightBall,
+        ruleFamily: .s2,
+        reducerType: "eight_ball/v1",
+        state: .initial(targetPoints: 7)
+    )
+    let core = ScoreSessionCore(seedSession: seed, reducer: EightBallReducer())
+    _ = await core.dispatch(actorId: "phone", intent: .addRack(.right), at: 10)
+    let bundle = await core.resumeBundle()
+
+    try await repository.saveResumeBundle(bundle, updatedAtEpochMilliseconds: 20)
+    let restored: ScoreSessionResumeBundle<EightBallState, EightBallEvent, EightBallIntent>? =
+        try await repository.loadResumeBundle(sessionId: seed.sessionId, as: ScoreSessionResumeBundle<EightBallState, EightBallEvent, EightBallIntent>.self)
+
+    #expect(restored?.currentSession.state.rightPoints == 1)
+    #expect(restored?.undoFrames.count == 1)
+    #expect(restored?.timeline.count == 1)
 }
 
 @Test func pingPongCompletesASetAndResetsPointsLikeHarmony() {

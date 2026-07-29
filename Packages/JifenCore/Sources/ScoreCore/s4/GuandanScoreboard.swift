@@ -138,6 +138,9 @@ public enum GuandanSessionIntent: Codable, Sendable {
     case setRedTeamName(String)
     case setBlueTeamName(String)
     case adjustRank(side: GuandanSide, delta: Int)
+    case adminCorrect(redName: String, blueName: String, redRank: String, blueRank: String)
+    case reset
+    case finish
 }
 
 public enum GuandanSessionEvent: Codable, Equatable, Sendable {
@@ -165,6 +168,35 @@ public struct GuandanSessionReducer: DomainReducer {
             return .init(state: next)
         case .adjustRank(let side, let delta):
             return .init(state: adjustRank(state: state, side: side, delta: delta))
+        case .adminCorrect(let redName, let blueName, let redRank, let blueRank):
+            var next = state
+            if !redName.isEmpty { next.redTeam.name = redName }
+            if !blueName.isEmpty { next.blueTeam.name = blueName }
+            if guandanRankOrder.contains(redRank) { next.redTeam.currentRank = redRank }
+            if guandanRankOrder.contains(blueRank) { next.blueTeam.currentRank = blueRank }
+            next.phase = .playing
+            next.finalWinner = nil
+            return .init(state: next)
+        case .reset:
+            var next = GuandanMatchState.initial(
+                redName: state.redTeam.name,
+                blueName: state.blueTeam.name,
+                aStageMode: state.aStageMode,
+                passACondition: state.passACondition,
+                tripleAFallbackRank: state.tripleAFallbackRank
+            )
+            next.phase = .playing
+            return .init(state: next)
+        case .finish:
+            guard state.phase != .finished else {
+                return .rejected(state: state, reason: "Match is already finished")
+            }
+            var next = state
+            let redScore = GuandanMatchState.rankDisplayScore(next.redTeam.currentRank)
+            let blueScore = GuandanMatchState.rankDisplayScore(next.blueTeam.currentRank)
+            next.finalWinner = redScore == blueScore ? nil : (redScore > blueScore ? .red : .blue)
+            next.phase = .finished
+            return .init(state: next)
         default:
             break
         }
@@ -182,7 +214,7 @@ public struct GuandanSessionReducer: DomainReducer {
             next = applyRoundSettlement(next, step: step)
         case .recordPassA(let success):
             next = recordPassA(next, success: success)
-        case .setRedTeamName, .setBlueTeamName, .adjustRank:
+        case .setRedTeamName, .setBlueTeamName, .adjustRank, .adminCorrect, .reset, .finish:
             break
         }
         return .init(state: next, events: buildEvents(before: before, intent: intent, next: next))

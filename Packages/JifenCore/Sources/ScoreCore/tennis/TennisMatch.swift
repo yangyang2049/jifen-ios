@@ -166,6 +166,16 @@ public enum TennisDoublesServing {
         )
     }
 
+    public static func currentReceiverSlot(in state: TennisMatchState) -> Int? {
+        guard let serverSlot = currentServerSlot(in: state) else { return nil }
+        return resolveTennisDoublesReceiverSlot(
+            serverSlotIndex: serverSlot,
+            pointIndexInGame: max(0, state.leftPoints + state.rightPoints),
+            team0FirstReceiverSlotIndex: 0,
+            team1FirstReceiverSlotIndex: 1
+        )
+    }
+
     public static func serverSlot(
         firstServerSlot: Int,
         completedGames: Int,
@@ -194,6 +204,7 @@ public enum TennisMatchIntent: Codable, Equatable, Sendable {
     case adjustGames(side: MatchSide, delta: Int)
     case adjustSets(side: MatchSide, delta: Int)
     case setNames(left: String, right: String)
+    case setDoublesPlayerName(slot: Int, name: String)
     case exchangeSides
     case finish
     case reset
@@ -263,6 +274,22 @@ public struct TennisMatchReducer: DomainReducer {
             var next = state
             next.leftName = left.trimmingCharacters(in: .whitespacesAndNewlines)
             next.rightName = right.trimmingCharacters(in: .whitespacesAndNewlines)
+            return .init(state: next, events: [.namesChanged])
+        case .setDoublesPlayerName(let slot, let name):
+            guard var names = state.doublesPlayerNames,
+                  names.count >= 4,
+                  names.indices.contains(slot) else {
+                return .rejected(state: state, reason: "Invalid doubles slot")
+            }
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else {
+                return .rejected(state: state, reason: "Empty name")
+            }
+            names[slot] = trimmed
+            var next = state
+            next.doublesPlayerNames = names
+            next.leftName = next.doublesTeamDisplayName(for: .left)
+            next.rightName = next.doublesTeamDisplayName(for: .right)
             return .init(state: next, events: [.namesChanged])
         case .exchangeSides:
             let next = exchanged(state)

@@ -64,7 +64,7 @@ struct RecentRowView: View {
             }
             .contentShape(Rectangle()) // Make entire area tappable
             .padding(.horizontal, Theme.xs) // padding({ left: 4, right: 4
-            .padding(.vertical, Theme.md) // 与记录 Tab 一致，加大纵向留白
+            .padding(.vertical, Theme.recordRowVerticalPadding)
         }
         .buttonStyle(CardButtonStyle()) // Use custom button style for interaction feedback
     }
@@ -141,7 +141,7 @@ struct RecentRowView: View {
             }
             .contentShape(Rectangle()) // Make entire area tappable
             .padding(.horizontal, 0) // padding({ left: 0, right: 0
-            .padding(.vertical, Theme.md) // 与记录 Tab 一致，加大纵向留白
+            .padding(.vertical, Theme.recordRowVerticalPadding)
         }
         .buttonStyle(CardButtonStyle()) // Use custom button style for interaction feedback
     }

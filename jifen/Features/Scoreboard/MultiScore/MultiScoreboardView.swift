@@ -60,12 +60,12 @@ struct MultiScoreboardView: View {
     @State private var gameFinished = false
     @State private var finishedWinnerName = ""
     @State private var showMenu = false
-    @State private var isEditMode = false
-    @State private var editingIndex: Int? = nil
-    @State private var editName = ""
-    @State private var editScoreText = ""
+    @State private var playerEditIndex: Int? = nil
+    @State private var playerEditName = ""
+    @State private var playerEditScore = 0
     @State private var initialSetupApplied = false
-    @State private var activeCommonNameIndex: Int? = nil
+    @State private var suppressedTapIndex: Int? = nil
+    @State private var suppressedTapUntil: Date = .distantPast
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var exitClickTime: TimeInterval = 0
     @State private var toastMessage: String? = nil
@@ -150,13 +150,18 @@ struct MultiScoreboardView: View {
 
                 scoreboardGrid(geo: geo)
 
-                if gameType == .uno, !isEditMode, !showUnoRoundPanel, shouldShowChrome {
+                if gameType == .uno,
+                   !showUnoRoundPanel,
+                   playerEditIndex == nil,
+                   customAdjustIndex == nil,
+                   shouldShowChrome {
                     unoTargetBadge
                 }
 
-                if shouldShowChrome { topTrailingEditButton }
-
-                if !isEditMode && shouldShowChrome && !showUnoRoundPanel {
+                if shouldShowChrome,
+                   !showUnoRoundPanel,
+                   playerEditIndex == nil,
+                   customAdjustIndex == nil {
                     bottomControls
                 }
 
@@ -183,6 +188,10 @@ struct MultiScoreboardView: View {
                     )
                 }
 
+                if let index = playerEditIndex, players.indices.contains(index) {
+                    playerEditOverlay(index: index)
+                }
+
                 if showUnoRoundPanel {
                     unoRoundOverlay
                 }
@@ -199,6 +208,7 @@ struct MultiScoreboardView: View {
                 if gameFinished {
                     GameOverDialog(
                         winnerName: finishedWinnerName,
+                        gameType: gameType,
                         multiNames: players.map(\.name),
                         multiScores: players.map(\.score),
                         onNewGame: {
@@ -232,6 +242,27 @@ struct MultiScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.55)
+                .onEnded { _ in
+                    guard playerEditIndex == nil,
+                          customAdjustIndex == nil,
+                          !showUnoRoundPanel else { return }
+                    showMenu = true
+                    revealImmersiveChrome()
+                }
+        )
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 50)
+                .onEnded { value in
+                    guard playerEditIndex == nil,
+                          customAdjustIndex == nil,
+                          !showUnoRoundPanel,
+                          value.translation.width < -50,
+                          abs(value.translation.width) > abs(value.translation.height) else { return }
+                    undoLast()
+                }
+        )
         .onAppear {
             applySetupIfNeeded()
             restoreDraftIfNeeded()
@@ -262,21 +293,6 @@ struct MultiScoreboardView: View {
                             }
                         }
                     }
-            }
-        }
-        .sheet(isPresented: Binding(
-            get: { activeCommonNameIndex != nil },
-            set: { if !$0 { activeCommonNameIndex = nil } }
-        )) {
-            CommonNameSelectorDialog(nameType: .player) { selectedName in
-                if let index = activeCommonNameIndex, players.indices.contains(index) {
-                    players[index].name = selectedName
-                    if editingIndex == index {
-                        editName = selectedName
-                    }
-                    scheduleDraftPersist()
-                }
-                activeCommonNameIndex = nil
             }
         }
     }
@@ -316,35 +332,6 @@ struct MultiScoreboardView: View {
         .frame(maxWidth: .infinity)
         .frame(height: height)
         .background(Color.white.opacity(0.08))
-    }
-
-    private var topTrailingEditButton: some View {
-        VStack {
-            HStack {
-                Spacer()
-                Button {
-                    if isEditMode {
-                        confirmEditIfNeeded()
-                        editingIndex = nil
-                    }
-                    isEditMode.toggle()
-                    customAdjustIndex = nil
-                    VibrationManager.shared.vibrateMedium()
-                } label: {
-                    Image(systemName: isEditMode ? "checkmark" : "pencil")
-                        .font(.system(size: ScoreboardConstants.buttonIconSize))
-                        .foregroundColor(.white)
-                        .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
-                        .background(
-                            Circle().fill(isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.25))
-                        )
-                }
-                .padding(.trailing, ScoreboardConstants.buttonPadding)
-                .padding(.top, ScoreboardConstants.buttonPadding)
-            }
-            Spacer()
-        }
-        .ignoresSafeArea(.all, edges: .top)
     }
 
     private var bottomControls: some View {
@@ -417,60 +404,27 @@ struct MultiScoreboardView: View {
                 fontScale: scoreMultiplier
             )
             VStack(spacing: Theme.sm) {
-                if isEditMode && editingIndex == index {
-                    HStack(spacing: 8) {
-                        TextField(playerPlaceholder(index), text: $editName)
-                            .font(.system(size: min(nameFont, 22), weight: .medium))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .textFieldStyle(.plain)
-
-                        Button {
-                            activeCommonNameIndex = index
-                        } label: {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
-                                .frame(width: 24, height: 24)
-                        }
-                        .buttonStyle(.plain)
-                    }
+                Text(player.name)
+                    .font(.system(size: nameFont, weight: .medium))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .padding(.horizontal, Theme.sm)
-                    .padding(.vertical, Theme.xs)
-                    .background(Color.black.opacity(0.15))
-                    .cornerRadius(8)
 
-                    TextField("0", text: $editScoreText)
-                        .keyboardType(.numbersAndPunctuation)
-                        .font(appearance.font.swiftUIFont(size: min(scoreFont, 42)))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .textFieldStyle(.plain)
-                        .padding(.horizontal, Theme.sm)
-                        .onSubmit { confirmEdit(index: index) }
-                } else {
-                    Text(player.name)
-                        .font(.system(size: nameFont, weight: .medium))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .padding(.horizontal, Theme.sm)
+                Text("\(player.score)")
+                    .font(appearance.font.swiftUIFont(size: scoreFont))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
 
-                    Text("\(player.score)")
-                        .font(appearance.font.swiftUIFont(size: scoreFont))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-
-                    if gameType == .uno, !gameFinished {
-                        let gap = max(0, effectiveTargetScore - player.score)
-                        Text(String(
-                            format: NSLocalizedString("uno_gap_format", value: "差 %d", comment: ""),
-                            gap
-                        ))
-                        .font(.system(size: max(10, nameFont * 0.55)))
-                        .foregroundStyle(.white.opacity(0.75))
-                    }
+                if gameType == .uno, !gameFinished {
+                    let gap = max(0, effectiveTargetScore - player.score)
+                    Text(String(
+                        format: NSLocalizedString("uno_gap_format", value: "差 %d", comment: ""),
+                        gap
+                    ))
+                    .font(.system(size: max(10, nameFont * 0.55)))
+                    .foregroundStyle(.white.opacity(0.75))
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -481,13 +435,16 @@ struct MultiScoreboardView: View {
         .onTapGesture {
             handlePlayerTap(index: index)
         }
+        .onLongPressGesture(minimumDuration: 0.45) {
+            openPlayerEdit(index: index)
+        }
         .simultaneousGesture(playerGesture(index: index))
     }
 
     private func playerGesture(index: Int) -> some Gesture {
         DragGesture(minimumDistance: 40)
             .onEnded { value in
-                guard !isEditMode, !gameFinished, gameType != .uno, !customAdjustEnabled else { return }
+                guard !gameFinished, gameType != .uno, !customAdjustEnabled, playerEditIndex == nil else { return }
                 if value.translation.height < -40, abs(value.translation.width) < 60 {
                     adjustScore(index: index, delta: 1)
                 } else if value.translation.height > 40, abs(value.translation.width) < 60 {
@@ -498,8 +455,7 @@ struct MultiScoreboardView: View {
 
     private func handlePlayerTap(index: Int) {
         revealImmersiveChrome()
-        if isEditMode {
-            beginEdit(index: index)
+        if suppressedTapIndex == index, Date() < suppressedTapUntil {
             return
         }
         guard !gameFinished else { return }
@@ -694,32 +650,139 @@ struct MultiScoreboardView: View {
         return "\(base) \(index + 1)"
     }
 
-    private func beginEdit(index: Int) {
-        editingIndex = index
-        editName = players[index].name
-        editScoreText = "\(players[index].score)"
+    private func openPlayerEdit(index: Int) {
+        guard players.indices.contains(index), !gameFinished else { return }
+        pendingTapIndex = nil
+        customAdjustIndex = nil
+        suppressedTapIndex = index
+        suppressedTapUntil = Date().addingTimeInterval(0.5)
+        playerEditName = players[index].name
+        playerEditScore = players[index].score
+        playerEditIndex = index
+        VibrationManager.shared.vibrateMedium()
+        revealImmersiveChrome()
     }
 
-    private func confirmEdit(index: Int) {
-        let name = editName.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !name.isEmpty {
-            players[index].name = name
-            Task { await commonNamesManager.recordUsage(name, .player) }
+    private func cancelPlayerEdit() {
+        playerEditIndex = nil
+        playerEditName = ""
+    }
+
+    private func confirmPlayerEdit(index: Int) {
+        guard players.indices.contains(index) else {
+            cancelPlayerEdit()
+            return
         }
-        if let score = Int(editScoreText.trimmingCharacters(in: .whitespacesAndNewlines)) {
-            players[index].score = MultiScoreRules.scoreRange.clamp(score)
+        let name = playerEditName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else {
+            showTransientToast(NSLocalizedString(
+                "multi_score_rename_warning",
+                value: "请输入玩家名称",
+                comment: ""
+            ))
+            return
         }
-        editingIndex = nil
-        editName = ""
-        editScoreText = ""
-        scheduleDraftPersist()
+
+        let old = players[index]
+        let newScore = MultiScoreRules.scoreRange.clamp(playerEditScore)
+        guard old.name != name || old.score != newScore else {
+            cancelPlayerEdit()
+            return
+        }
+
+        if old.score != newScore {
+            history.append(players.map(\.score))
+            if history.count > 50 { history.removeFirst() }
+            appendRecordAction("edit:\(index):\(newScore - old.score)")
+        }
+        players[index].name = name
+        players[index].score = newScore
+        Task { await commonNamesManager.saveNameIfNeeded(name, .player) }
+        cancelPlayerEdit()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        scheduleDraftPersist()
     }
 
-    private func confirmEditIfNeeded() {
-        if let index = editingIndex {
-            confirmEdit(index: index)
+    private func playerEditAdjustButton(systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.white.opacity(0.8))
+                .frame(width: 56, height: 44)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.1)))
         }
+        .buttonStyle(.plain)
+    }
+
+    private func playerEditOverlay(index: Int) -> some View {
+        ZStack {
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+                .onTapGesture { cancelPlayerEdit() }
+
+            VStack(spacing: 16) {
+                Text(NSLocalizedString("multi_score_edit_title", value: "编辑玩家", comment: ""))
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(.white)
+
+                TextField(
+                    NSLocalizedString("multi_score_rename_placeholder", value: "玩家名称", comment: ""),
+                    text: $playerEditName
+                )
+                .font(.system(size: 16))
+                .foregroundStyle(.white)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, 12)
+                .frame(height: 44)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+                .onSubmit { confirmPlayerEdit(index: index) }
+
+                VStack(spacing: 8) {
+                    Text(NSLocalizedString("multi_score_edit_score_label", value: "分数", comment: ""))
+                        .font(.system(size: 14))
+                        .foregroundStyle(.white.opacity(0.65))
+
+                    HStack(spacing: 12) {
+                        playerEditAdjustButton(systemName: "minus") {
+                            playerEditScore = MultiScoreRules.adjustedScore(playerEditScore, delta: -1)
+                        }
+                        Text("\(playerEditScore)")
+                            .font(appearance.font.swiftUIFont(size: 30))
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
+                            .monospacedDigit()
+                            .frame(maxWidth: .infinity)
+                        playerEditAdjustButton(systemName: "plus") {
+                            playerEditScore = MultiScoreRules.adjustedScore(playerEditScore, delta: 1)
+                        }
+                    }
+                }
+
+                HStack(spacing: 16) {
+                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                        cancelPlayerEdit()
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
+
+                    Button(NSLocalizedString("confirm", value: "确定", comment: "")) {
+                        confirmPlayerEdit(index: index)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.primary))
+                }
+            }
+            .padding(24)
+            .frame(width: 320)
+            .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.88)))
+        }
+        .zIndex(20)
     }
 
     private var effectiveTargetScore: Int {
@@ -785,7 +848,7 @@ struct MultiScoreboardView: View {
                                     .frame(height: 36)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                            .fill(unoSelectedWinnerIndex == index ? Theme.primary : Theme.homeCardDark)
+                                            .fill(unoSelectedWinnerIndex == index ? Theme.primary : Theme.dialogControlBackground)
                                     )
                             }
                             .buttonStyle(.plain)
@@ -800,7 +863,7 @@ struct MultiScoreboardView: View {
                         .font(.system(size: 22, weight: .semibold))
                         .padding(.horizontal, 12)
                         .frame(height: 44)
-                        .background(Theme.homeCardDark)
+                        .background(Theme.dialogControlBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                     unoCountStepper(
@@ -828,7 +891,7 @@ struct MultiScoreboardView: View {
                                 .foregroundStyle(Theme.textSecondary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
-                                .background(Theme.homeCardDark)
+                                .background(Theme.dialogControlBackground)
                                 .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
@@ -999,21 +1062,21 @@ struct MultiScoreboardView: View {
     }
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showUnoRoundPanel
+        !appearance.immersiveMode || chromeVisible || showMenu || showDisplaySettings || showUnoRoundPanel || playerEditIndex != nil
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !isEditMode, !showMenu, !showDisplaySettings, !showUnoRoundPanel else { return }
+        guard appearance.immersiveMode, !showMenu, !showDisplaySettings, !showUnoRoundPanel, playerEditIndex == nil else { return }
         let generation = immersiveGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
-                  !isEditMode,
                   !showMenu,
                   !showDisplaySettings,
-                  !showUnoRoundPanel else { return }
+                  !showUnoRoundPanel,
+                  playerEditIndex == nil else { return }
             chromeVisible = false
         }
     }
@@ -1041,6 +1104,11 @@ struct MultiScoreboardView: View {
                 )
             },
             handleIntent: { intent in
+                guard LocalScoreboardMutationPolicy.allowsMutation(
+                    isEditing: playerEditIndex != nil,
+                    finished: gameFinished,
+                    scoringLocked: false
+                ) else { return }
                 switch intent {
                 case .addLeft: if !players.isEmpty { adjustScore(index: 0, delta: 1) }
                 case .addRight: if players.count > 1 { adjustScore(index: 1, delta: 1) }
@@ -1211,6 +1279,10 @@ struct MultiScoreboardView: View {
             try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
             ScoreboardRecordsViewModel.shared.refreshRecords()
         } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to save \(gameType.rawValue) record \(recordId)"
+            )
             #if DEBUG
             print("[MultiScoreboardView] Failed to save record: \(error)")
             #endif
@@ -1222,7 +1294,7 @@ struct MultiScoreboardView: View {
             if menuConfirm.armOrConfirm(.exit) {
                 toastMessage = nil
                 showMenu = false
-                confirmEditIfNeeded()
+                cancelPlayerEdit()
                 persistRecord(finished: gameFinished)
                 OrientationLock.shared.unlock()
                 onNavigationBack?()
@@ -1237,7 +1309,7 @@ struct MultiScoreboardView: View {
         if currentTime - exitClickTime < 2000 && exitClickTime > 0 {
             exitClickTime = 0
             toastMessage = nil
-            confirmEditIfNeeded()
+            cancelPlayerEdit()
             persistRecord(finished: gameFinished)
             OrientationLock.shared.unlock()
             onNavigationBack?()

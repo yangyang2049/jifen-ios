@@ -11,6 +11,16 @@ import PersistenceCore
 import ScoreCore
 import UIKit
 
+enum HomeLayoutPolicy {
+    static let minimumWideWidth: CGFloat = 768
+
+    static func usesWideLayout(size: CGSize, isPad: Bool) -> Bool {
+        isPad
+            && size.width >= minimumWideWidth
+            && size.width > size.height
+    }
+}
+
 struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
@@ -20,7 +30,10 @@ struct HomeTab: View {
     @State private var unfinishedRecord: UnfinishedGameSummary?
     @State private var showNewGameDialog = false
     @State private var showQuickStartEditSheet = false
-    @State private var showDiscardUnfinishedAlert = false
+    @State private var isDiscardConfirmationPending = false
+    @State private var showDiscardConfirmationToast = false
+    @State private var discardConfirmationToken = UUID()
+    @AppStorage("home_discard_chip_shown_count") private var discardConfirmationToastShownCount = 0
     @State private var showCreateBookingSheet = false
     @State private var path = NavigationPath()
     @State private var didHandleUITestRoute = false
@@ -37,6 +50,9 @@ struct HomeTab: View {
     @State private var headerDate = ""
     @StateObject private var quickStartManager = QuickStartConfigManager.shared
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
+
+    private static let discardConfirmationDuration: TimeInterval = 3
+    private static let discardConfirmationToastMaximumShownCount = 3
 
     struct ScoreboardNavigationTarget: Hashable {
         let gameType: GameType
@@ -61,18 +77,21 @@ struct HomeTab: View {
     var body: some View {
         NavigationStack(path: $path) {
             GeometryReader { geo in
-                let isWide = Theme.usesPadLayout
-                let contentWidth = geo.size.width - Theme.lg * 2
+                let isWide = HomeLayoutPolicy.usesWideLayout(
+                    size: geo.size,
+                    isPad: Theme.usesPadLayout
+                )
+                let contentWidth = geo.size.width - Theme.pageHorizontalInset * 2
                 // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
                 VStack(spacing: 0) {
                     HomeHeaderView(headerDate: headerDate)
-                        .padding(.horizontal, Theme.lg)
+                        .padding(.horizontal, Theme.pageHorizontalInset)
 
                     ScrollView(showsIndicators: false) {
                         buildContent(isWide: isWide, contentWidth: contentWidth)
-                            .padding(.horizontal, Theme.lg)
-                            .padding(.top, Theme.lg)
-                            .padding(.bottom, Theme.lg)
+                            .padding(.horizontal, Theme.pageHorizontalInset)
+                            .padding(.top, Theme.sectionSpacing)
+                            .padding(.bottom, Theme.tabContentBottomPadding)
                     }
                 }
             }
@@ -89,7 +108,7 @@ struct HomeTab: View {
                         }
                     }
                 )
-                .presentationBackground(Theme.backgroundColor)
+                .presentationBackground(Theme.dialogSurfaceBackground)
             }
             .sheet(isPresented: $showNewGameDialog) {
                 NewGameDialogView(
@@ -180,31 +199,29 @@ struct HomeTab: View {
         }
         .safeAreaInset(edge: .bottom) {
             if let unfinishedRecord {
-                HStack {
-                    Spacer(minLength: 0)
-                    UnfinishedGameBarView(
-                        record: unfinishedRecord,
-                        onContinue: { continueUnfinishedGame() },
-                        onClose: { showDiscardUnfinishedAlert = true }
-                    )
-                    .frame(maxWidth: 400)
-                    Spacer(minLength: 0)
+                VStack(spacing: Theme.sm) {
+                    if showDiscardConfirmationToast {
+                        UnfinishedGameDiscardToast()
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+
+                    HStack {
+                        Spacer(minLength: 0)
+                        UnfinishedGameBarView(
+                            record: unfinishedRecord,
+                            isClosePending: isDiscardConfirmationPending,
+                            onContinue: { continueUnfinishedGame() },
+                            onClose: { handleDiscardUnfinishedGameTap() }
+                        )
+                        .frame(maxWidth: 400)
+                        Spacer(minLength: 0)
+                    }
                 }
-                .padding(.horizontal, Theme.sm)
+                .padding(.horizontal, Theme.pageHorizontalInset)
                 .padding(.bottom, Theme.sm)
                 .background(Color.clear)
+                .animation(.easeInOut(duration: 0.2), value: showDiscardConfirmationToast)
             }
-        }
-        .alert(
-            NSLocalizedString("unfinished_discard_title", value: "放弃未完成比赛", comment: ""),
-            isPresented: $showDiscardUnfinishedAlert
-        ) {
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-            Button(NSLocalizedString("unfinished_discard_button", value: "放弃", comment: "放弃未完成比赛弹窗的确定按钮"), role: .destructive) {
-                discardUnfinishedGame()
-            }
-        } message: {
-            Text(NSLocalizedString("unfinished_discard_message", value: "确认放弃当前未完成比赛？", comment: ""))
         }
         .onAppear {
             loadData()
@@ -224,6 +241,9 @@ struct HomeTab: View {
         .onChange(of: scoreboardVM.records) { _, _ in
             updateRecentActivities()
             loadUnfinishedRecord()
+        }
+        .onChange(of: unfinishedRecord?.recordIdentifier) { _, _ in
+            resetDiscardConfirmation()
         }
     }
 
@@ -357,6 +377,7 @@ struct HomeTab: View {
 
     private func continueUnfinishedGame() {
         guard let unfinishedRecord else { return }
+        resetDiscardConfirmation()
         path.append(
             NavigationDestination.scoreboard(
                 ScoreboardNavigationTarget(
@@ -366,6 +387,45 @@ struct HomeTab: View {
                 )
             )
         )
+    }
+
+    private func handleDiscardUnfinishedGameTap() {
+        guard unfinishedRecord != nil else {
+            resetDiscardConfirmation()
+            return
+        }
+
+        if isDiscardConfirmationPending {
+            resetDiscardConfirmation()
+            discardUnfinishedGame()
+            return
+        }
+
+        isDiscardConfirmationPending = true
+        let clampedShownCount = max(
+            0,
+            min(Self.discardConfirmationToastMaximumShownCount, discardConfirmationToastShownCount)
+        )
+        if clampedShownCount < Self.discardConfirmationToastMaximumShownCount {
+            discardConfirmationToastShownCount = clampedShownCount + 1
+            showDiscardConfirmationToast = true
+        } else {
+            discardConfirmationToastShownCount = clampedShownCount
+            showDiscardConfirmationToast = false
+        }
+
+        let token = UUID()
+        discardConfirmationToken = token
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.discardConfirmationDuration) {
+            guard discardConfirmationToken == token else { return }
+            resetDiscardConfirmation()
+        }
+    }
+
+    private func resetDiscardConfirmation() {
+        discardConfirmationToken = UUID()
+        isDiscardConfirmationPending = false
+        showDiscardConfirmationToast = false
     }
 
     private func discardUnfinishedGame() {
@@ -500,78 +560,40 @@ struct HomeTab: View {
     @ViewBuilder
     private func buildContent(isWide: Bool, contentWidth: CGFloat = 0) -> some View {
         if isWide {
-            // 两栏布局：左 2/3、右 1/3 宽；快速开始与最近记录标题同一行顶部对齐
-            let spacing = Theme.lg
-            let rightWidth = contentWidth > 0 ? (contentWidth - spacing) / 3 : 0
-            let leftWidth = contentWidth > 0 ? (contentWidth - spacing) * 2 / 3 : 0
-            VStack(alignment: .leading, spacing: 0) {
-                // 同一行：快速开始 | 最近记录，顶部对齐
-                HStack(alignment: .center, spacing: spacing) {
-                    HStack {
-                        Text(NSLocalizedString("home_quick_start", comment: ""))
-                            .font(.system(size: Theme.fontH5, weight: .medium))
-                            .foregroundColor(Theme.textPrimary)
-                        Spacer()
-                        Button(action: { showQuickStartEditSheet = true }) {
-                            Image(systemName: "pencil")
-                                .foregroundColor(Theme.textPrimary)
-                                .frame(width: 20, height: 20)
+            let spacing = Theme.sectionSpacing
+            let columnWidth = contentWidth > 0 ? max(0, (contentWidth - spacing) / 2) : 0
+
+            HStack(alignment: .top, spacing: spacing) {
+                VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
+                    buildQuickStartSection()
+                    ProToolsSectionView(
+                        isWide: true,
+                        isDarkTheme: isDarkTheme,
+                        availableWidth: columnWidth,
+                        onToolClick: { tool in
+                            path.append(NavigationDestination.tool(tool))
                         }
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                    }
-                    .frame(width: leftWidth > 0 ? leftWidth : nil)
-
-                    Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
-                        .font(.system(size: Theme.fontH5, weight: .medium))
-                        .foregroundColor(Theme.textPrimary)
-                        .frame(width: rightWidth > 0 ? rightWidth : nil, alignment: .leading)
+                    )
                 }
-                .frame(height: 44)
-                .padding(.bottom, Theme.md)
+                .frame(width: columnWidth, alignment: .topLeading)
 
-                HStack(alignment: .top, spacing: spacing) {
-                    VStack(spacing: Theme.lg) {
-                        buildQuickStartSection(showSectionTitle: false)
-                        buildScheduleSection()
-                        buildCommonDataSection()
-                        ProToolsSectionView(
-                            isWide: true,
-                            isDarkTheme: isDarkTheme,
-                            onToolClick: { toolId in
-                                if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
-                                    path.append(NavigationDestination.tool(tool))
-                                }
-                            },
-                            onEnterToolsPage: {
-                                path.append(NavigationDestination.toolsList)
-                            }
-                        )
-                    }
-                    .frame(width: leftWidth > 0 ? leftWidth : nil, alignment: .leading)
-
-                    VStack(alignment: .leading, spacing: Theme.md) {
-                        RecentRecordsSectionView(
-                            records: recentActivities,
-                            isDarkTheme: isDarkTheme,
-                            onViewAllTapped: { onNavigateToTab?(1, nil) }
-                        )
-                    }
-                    .frame(width: rightWidth > 0 ? rightWidth : nil, alignment: .leading)
+                VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
+                    buildCommonDataSection()
+                    buildScheduleSection()
+                    buildRecentRecordsSection()
                 }
+                .frame(width: columnWidth, alignment: .topLeading)
             }
         } else {
-            VStack(spacing: Theme.lg) {
+            VStack(spacing: Theme.sectionSpacing) {
                 buildQuickStartSection()
                 buildScheduleSection()
                 buildCommonDataSection()
                 ProToolsSectionView(
                     isWide: false,
                     isDarkTheme: isDarkTheme,
-                    onToolClick: { toolId in
-                        if let tool = ToolItem.allTools.first(where: { $0.id == toolId }) {
-                            path.append(NavigationDestination.tool(tool))
-                        }
+                    onToolClick: { tool in
+                        path.append(NavigationDestination.tool(tool))
                     },
                     onEnterToolsPage: {
                         path.append(NavigationDestination.toolsList)
@@ -617,7 +639,7 @@ struct HomeTab: View {
 
     @ViewBuilder
     private func buildRecentRecordsSection() -> some View {
-        VStack(alignment: .leading, spacing: Theme.md) {
+        VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
             Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
                 .font(.system(size: Theme.fontH5, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
@@ -632,7 +654,7 @@ struct HomeTab: View {
 
     @ViewBuilder
     private func buildScheduleSection() -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
             HStack {
                 Text(NSLocalizedString("schedule_title", value: "我的球局", comment: ""))
                     .font(.system(size: Theme.fontH5, weight: .medium))
@@ -674,8 +696,7 @@ struct HomeTab: View {
                     .padding(.top, 4)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 26)
+                .padding(Theme.cardPadding)
                 .background(Theme.homeNeutralCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
             } else {
@@ -702,8 +723,8 @@ struct HomeTab: View {
 
                             scheduleTimeStatusTag(for: booking.dateTime)
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, Theme.compactCardPadding)
+                        .padding(.vertical, Theme.compactCardPadding)
                         .frame(maxWidth: .infinity)
                         .background(Theme.homeNeutralCardBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 20))

@@ -49,6 +49,46 @@ public struct SnookerState: Codable, Equatable, Sendable {
     public var frameCompletePending: Bool
     public var pendingFrameWinner: MatchSide?
 
+    private enum CodingKeys: String, CodingKey {
+        case leftScore, rightScore, striker, leftBreak, rightBreak, finished
+        case leftFrames, rightFrames, currentFrame, maxFrames, firstBreaker
+        case redBallsRemaining, nextBallStage, frameCompletePending, pendingFrameWinner
+    }
+
+    public init(
+        leftScore: Int,
+        rightScore: Int,
+        striker: MatchSide,
+        leftBreak: Int,
+        rightBreak: Int,
+        finished: Bool,
+        leftFrames: Int,
+        rightFrames: Int,
+        currentFrame: Int,
+        maxFrames: Int,
+        firstBreaker: MatchSide,
+        redBallsRemaining: Int,
+        nextBallStage: SnookerStage,
+        frameCompletePending: Bool = false,
+        pendingFrameWinner: MatchSide? = nil
+    ) {
+        self.leftScore = leftScore
+        self.rightScore = rightScore
+        self.striker = striker
+        self.leftBreak = leftBreak
+        self.rightBreak = rightBreak
+        self.finished = finished
+        self.leftFrames = leftFrames
+        self.rightFrames = rightFrames
+        self.currentFrame = currentFrame
+        self.maxFrames = Self.normalizedMaxFrames(maxFrames)
+        self.firstBreaker = firstBreaker
+        self.redBallsRemaining = min(15, max(0, redBallsRemaining))
+        self.nextBallStage = nextBallStage
+        self.frameCompletePending = frameCompletePending
+        self.pendingFrameWinner = pendingFrameWinner
+    }
+
     public static func normalizedMaxFrames(_ value: Int) -> Int {
         let bounded = min(99, max(1, value))
         return bounded.isMultiple(of: 2) ? min(99, bounded + 1) : bounded
@@ -66,6 +106,28 @@ public struct SnookerState: Codable, Equatable, Sendable {
             frameCompletePending: false, pendingFrameWinner: nil
         )
     }
+
+    /// Legacy iOS snapshots may contain an automatically-settled frame waiting
+    /// for confirmation. HarmonyOS uses explicit manual frame settlement, so
+    /// restored snapshots keep their score/frame and drop that obsolete gate.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        leftScore = try container.decode(Int.self, forKey: .leftScore)
+        rightScore = try container.decode(Int.self, forKey: .rightScore)
+        striker = try container.decode(MatchSide.self, forKey: .striker)
+        leftBreak = try container.decode(Int.self, forKey: .leftBreak)
+        rightBreak = try container.decode(Int.self, forKey: .rightBreak)
+        finished = try container.decode(Bool.self, forKey: .finished)
+        leftFrames = try container.decode(Int.self, forKey: .leftFrames)
+        rightFrames = try container.decode(Int.self, forKey: .rightFrames)
+        currentFrame = try container.decode(Int.self, forKey: .currentFrame)
+        maxFrames = Self.normalizedMaxFrames(try container.decode(Int.self, forKey: .maxFrames))
+        firstBreaker = try container.decode(MatchSide.self, forKey: .firstBreaker)
+        redBallsRemaining = min(15, max(0, try container.decode(Int.self, forKey: .redBallsRemaining)))
+        nextBallStage = try container.decode(SnookerStage.self, forKey: .nextBallStage)
+        frameCompletePending = false
+        pendingFrameWinner = nil
+    }
 }
 
 public enum SnookerIntent: Codable, Sendable {
@@ -81,6 +143,7 @@ public enum SnookerIntent: Codable, Sendable {
     case settleFrame(winner: MatchSide)
     case confirmNextFrame
     case finishMatch
+    case reset
     case adminCorrect(left: Int, right: Int, striker: MatchSide)
 }
 
@@ -91,6 +154,7 @@ public enum SnookerEvent: Codable, Equatable, Sendable {
     case frameSettled(winner: MatchSide, frame: Int)
     case nextFrameStarted(Int)
     case matchFinished
+    case reset
     case adminCorrected
 }
 
@@ -99,12 +163,11 @@ public struct SnookerReducer: DomainReducer {
 
     public func reduce(state: SnookerState, intent: SnookerIntent, at epochMilliseconds: Int64) -> ReduceResult<SnookerState, SnookerEvent> {
         if state.finished {
-            if case .adminCorrect = intent {} else { return .rejected(state: state, reason: "Already finished") }
-        }
-        if state.frameCompletePending {
             switch intent {
-            case .confirmNextFrame, .adminCorrect: break
-            default: return .rejected(state: state, reason: "Frame pending confirmation")
+            case .adminCorrect, .reset:
+                break
+            default:
+                return .rejected(state: state, reason: "Already finished")
             }
         }
         switch intent {
@@ -129,17 +192,18 @@ public struct SnookerReducer: DomainReducer {
         case .settleFrame(let winner):
             return settle(state: state, winner: winner)
         case .confirmNextFrame:
-            guard state.frameCompletePending else { return .rejected(state: state, reason: "No pending frame") }
-            var next = freshFrame(from: state, frame: state.currentFrame + 1)
-            next.frameCompletePending = false
-            next.pendingFrameWinner = nil
-            return .init(state: next, events: [.nextFrameStarted(next.currentFrame)])
+            return .rejected(state: state, reason: "Frames advance when explicitly settled")
         case .finishMatch:
             var next = state
             next.finished = true
             next.leftBreak = 0
             next.rightBreak = 0
             return .init(state: next, events: [.matchFinished])
+        case .reset:
+            return .init(
+                state: .initial(striker: state.firstBreaker, maxFrames: state.maxFrames),
+                events: [.reset]
+            )
         case .adminCorrect(let left, let right, let striker):
             var next = state
             next.leftScore = max(0, left)
@@ -165,15 +229,6 @@ public struct SnookerReducer: DomainReducer {
             next.leftBreak = 0
         }
         advanceBallFlow(&next, ball: ball)
-        if next.nextBallStage == .complete {
-            if next.leftScore == next.rightScore {
-                next.nextBallStage = .black
-            } else {
-                let winner: MatchSide = next.leftScore > next.rightScore ? .left : .right
-                let settled = settle(state: next, winner: winner, automatic: true)
-                return .init(state: settled.state, events: [.potted(points)] + settled.events)
-            }
-        }
         return .init(state: next, events: [.potted(points)])
     }
 
@@ -200,7 +255,7 @@ public struct SnookerReducer: DomainReducer {
         return .init(state: next, events: [.turnChanged(side)])
     }
 
-    private func settle(state: SnookerState, winner: MatchSide, automatic: Bool = false) -> ReduceResult<SnookerState, SnookerEvent> {
+    private func settle(state: SnookerState, winner: MatchSide) -> ReduceResult<SnookerState, SnookerEvent> {
         var next = state
         if winner == .left { next.leftFrames += 1 } else { next.rightFrames += 1 }
         let frame = state.currentFrame
@@ -211,11 +266,6 @@ public struct SnookerReducer: DomainReducer {
             next.leftBreak = 0
             next.rightBreak = 0
             events.append(.matchFinished)
-        } else if automatic {
-            next.leftBreak = 0
-            next.rightBreak = 0
-            next.frameCompletePending = true
-            next.pendingFrameWinner = winner
         } else {
             next = freshFrame(from: next, frame: frame + 1)
         }

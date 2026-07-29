@@ -5,7 +5,7 @@ struct ScoreboardKeyPointBadgeLayer: View {
     let status: KeyPointStatus?
     let gameType: ScoreCore.GameType
     let sidesSwapped: Bool
-    /// nil = singles above the centre triangle; non-nil = doubles fixed at vertical centre.
+    /// nil keeps a doubles badge centred; non-nil aligns it to the active player row.
     var doublesTopRow: Bool? = nil
 
     var body: some View {
@@ -25,11 +25,13 @@ struct ScoreboardKeyPointBadgeLayer: View {
                     .background(background(for: status.kind), in: RoundedRectangle(cornerRadius: 7))
                     .position(
                         x: midX + (screenSide == .left ? -(innerGap + badgeHalfWidth) : innerGap + badgeHalfWidth),
-                        y: ScoreboardServeGeometry.keyPointBadgeCenterY(
-                            height: proxy.size.height,
-                            doublesTopRow: usesDoublesLayout ? (doublesTopRow ?? false) : nil,
-                            largeWindow: largeWindow
-                        )
+                        y: usesDoublesLayout && doublesTopRow == nil
+                            ? proxy.size.height / 2
+                            : ScoreboardServeGeometry.keyPointBadgeCenterY(
+                                height: proxy.size.height,
+                                doublesTopRow: doublesTopRow,
+                                largeWindow: largeWindow
+                            )
                     )
             }
         }

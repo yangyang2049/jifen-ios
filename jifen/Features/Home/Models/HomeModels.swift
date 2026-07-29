@@ -171,6 +171,62 @@ struct SportsSetupResult: Codable, Hashable {
     var guandanTripleAFallbackRank: String? = nil
 }
 
+/// Typed projection used by every billiards entry path (fresh setup, draft,
+/// replay and Watch setup). `SportsSetupResult` remains the compatibility
+/// payload for existing records and navigation state.
+enum BilliardsSetupConfiguration: Codable, Equatable {
+    case billiards
+    case eightBall(targetRacks: Int, handicapRacks: Int, beneficiary: MatchSide?)
+    case nineBall(playerNames: [String], points: NineBallChaseConfig)
+    case snooker(maxFrames: Int, firstBreaker: MatchSide)
+}
+
+extension SportsSetupResult {
+    func billiardsConfiguration(for gameType: GameType) -> BilliardsSetupConfiguration? {
+        switch gameType {
+        case .billiards:
+            return .billiards
+        case .eightBall:
+            let target = min(99, max(1, maxSets ?? 9))
+            let handicap = min(max(0, eightBallHandicapRacks ?? 0), max(0, target - 1))
+            let beneficiary: MatchSide? = eightBallHandicapBeneficiary == "team1" ? .left
+                : (eightBallHandicapBeneficiary == "team2" ? .right : nil)
+            return .eightBall(
+                targetRacks: target,
+                handicapRacks: beneficiary == nil ? 0 : handicap,
+                beneficiary: beneficiary
+            )
+        case .nineBall:
+            let candidates = playerNames ?? [team1Name, team2Name, team3Name, team4Name].compactMap { $0 }
+            let count = min(4, max(2, playerCount ?? candidates.count))
+            let names = (0..<count).map { index in
+                let trimmed = index < candidates.count
+                    ? candidates[index].trimmingCharacters(in: .whitespacesAndNewlines)
+                    : ""
+                return trimmed.isEmpty ? "P\(index + 1)" : trimmed
+            }
+            return .nineBall(
+                playerNames: names,
+                points: NineBallChaseConfig(
+                    bigGold: min(99, max(0, nineBallBigGold ?? 10)),
+                    smallGold: min(99, max(0, nineBallSmallGold ?? 7)),
+                    goldenNine: min(99, max(0, nineBallGoldenNine ?? 8)),
+                    normalWin: min(99, max(0, nineBallNormalWin ?? 4)),
+                    ballInHand: min(99, max(0, nineBallBallInHand ?? 1)),
+                    foul: min(99, max(0, nineBallFoul ?? 1))
+                )
+            )
+        case .snooker:
+            return .snooker(
+                maxFrames: SnookerState.normalizedMaxFrames(maxSets ?? 3),
+                firstBreaker: servingSide == MatchSide.right.rawValue ? .right : .left
+            )
+        default:
+            return nil
+        }
+    }
+}
+
 extension SportsSetupResult {
     var badmintonRules: RallyRuleSet {
         var rules = RallyRuleSet.badminton(

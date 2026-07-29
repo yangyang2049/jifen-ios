@@ -115,6 +115,7 @@ enum LinkedMatchRecordIngestor {
         let recordId = payload.recordId.isEmpty
             ? (sessionId.map { "w_\($0.uuidString)" } ?? "w_\(UUID().uuidString)")
             : payload.recordId
+        let projectConfiguration = recordConfiguration(snapshot: payload.snapshot, gameType: gameType)
         var record = ScoreboardRecord(
             id: recordId,
             gameType: appType,
@@ -133,12 +134,48 @@ enum LinkedMatchRecordIngestor {
             setResults: payload.detailedActions.map(ScoreboardRecordActionAdapter.setResults),
             totalScoreChanges: scoreChanges,
             extraData: extra,
+            projectConfiguration: projectConfiguration,
             status: .finished
         )
-        if let data = try? JSONEncoder().encode(payload.snapshot) {
-            record.stateSnapshot = data
-        }
+        record.stateSnapshot = try JSONEncoder().encode(payload.snapshot)
         return record
+    }
+
+    private static func recordConfiguration(
+        snapshot: LinkedScoreboardSnapshot,
+        gameType: ScoreCore.GameType
+    ) -> [String: AnyCodable] {
+        var configuration: [String: AnyCodable] = [
+            ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(gameType.rawValue),
+            ScoreboardRecordConfiguration.Key.isSingles: AnyCodable(!gameType.isDoublesScoreboard)
+        ]
+        switch snapshot {
+        case .rally(let state):
+            configuration.merge(
+                ScoreboardRecordConfiguration.rally(
+                    gameType: gameType,
+                    state: state,
+                    voiceAnnouncement: false
+                ),
+                uniquingKeysWith: { _, latest in latest }
+            )
+        case .tennis(let state):
+            configuration.merge(
+                ScoreboardRecordConfiguration.tennis(
+                    gameType: gameType,
+                    state: state,
+                    voiceAnnouncement: false
+                ),
+                uniquingKeysWith: { _, latest in latest }
+            )
+        case .nineBall(let state):
+            configuration["playerCount"] = AnyCodable(state.playerCount)
+        case .snooker(let state):
+            configuration["maxFrames"] = AnyCodable(state.maxFrames)
+        case .basketball, .archery, .eightBall:
+            break
+        }
+        return configuration
     }
 
     private struct Projection {
@@ -319,7 +356,15 @@ enum WatchStandaloneRecordIngestor {
                 ["name": $0.name, "finalScore": $0.score] as [String: Any]
             })
         }
-        let projectConfiguration = payload.projectConfiguration?.mapValues(AnyCodable.init)
+        var projectConfiguration = payload.projectConfiguration?.mapValues(AnyCodable.init) ?? [:]
+        if let exactType = exactScoreCoreGameType(
+            rawGameType: payload.gameType,
+            appGameType: gameType,
+            projectConfiguration: projectConfiguration
+        ) {
+            projectConfiguration[ScoreboardRecordConfiguration.Key.scoreCoreGameType] = AnyCodable(exactType.rawValue)
+            projectConfiguration[ScoreboardRecordConfiguration.Key.isSingles] = AnyCodable(!exactType.isDoublesScoreboard)
+        }
         let record = ScoreboardRecord(
             id: rawId,
             gameType: gameType,
@@ -338,7 +383,7 @@ enum WatchStandaloneRecordIngestor {
             setResults: payload.detailedActions.map(ScoreboardRecordActionAdapter.setResults),
             totalScoreChanges: max(0, payload.totalScoreChanges),
             extraData: extraData,
-            projectConfiguration: projectConfiguration,
+            projectConfiguration: projectConfiguration.isEmpty ? nil : projectConfiguration,
             status: .finished
         )
         return record
@@ -347,9 +392,13 @@ enum WatchStandaloneRecordIngestor {
     private static func mapGameType(_ raw: String) -> GameType? {
         switch raw {
         case "pingpong": return .pingpong
+        case "pingpong_doubles": return .pingpong
         case "badminton": return .badminton
+        case "badminton_doubles": return .badminton
         case "tennis": return .tennis
+        case "tennis_doubles": return .tennis
         case "pickleball": return .pickleball
+        case "pickleball_doubles": return .pickleball
         case "archery", "archery_dual": return .archery
         case "eight_ball", "eightBall": return .eightBall
         case "nine_ball", "nineBall": return .nineBall
@@ -359,6 +408,33 @@ enum WatchStandaloneRecordIngestor {
         default:
             return GameType(rawValue: raw)
         }
+    }
+
+    private static func exactScoreCoreGameType(
+        rawGameType: String,
+        appGameType: GameType,
+        projectConfiguration: [String: AnyCodable]
+    ) -> ScoreCore.GameType? {
+        if let configuredRaw = projectConfiguration[ScoreboardRecordConfiguration.Key.scoreCoreGameType]?.value as? String,
+           let configured = ScoreCore.GameType(rawValue: configuredRaw) {
+            return configured
+        }
+        if let rawType = ScoreCore.GameType(rawValue: rawGameType) {
+            let hasLegacyDoublesFlag = projectConfiguration["isDoubles"] != nil
+            if !appGameType.supportsSinglesAndDoubles || rawType.isDoublesScoreboard || !hasLegacyDoublesFlag {
+                return rawType
+            }
+        }
+        let legacyDoubles: Bool? = {
+            guard let value = projectConfiguration["isDoubles"]?.value else { return nil }
+            if let bool = value as? Bool { return bool }
+            if let string = value as? String { return (string as NSString).boolValue }
+            return nil
+        }()
+        if let legacyDoubles {
+            return appGameType.scoreCoreGameType(isSingles: !legacyDoubles)
+        }
+        return appGameType.supportsSinglesAndDoubles ? nil : appGameType.scoreCoreGameType
     }
 }
 

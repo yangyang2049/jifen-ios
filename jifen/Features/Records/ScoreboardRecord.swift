@@ -8,6 +8,7 @@
 import Foundation
 import RecordCore
 import ScoreCore
+import SessionCore
 
 enum ScoreboardRecordStatus: String, Codable {
     case draft
@@ -161,6 +162,10 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
     var team2SetScore: Int?
     var winner: String?
     var extraData: [String: AnyCodable]?
+    var projectConfiguration: [String: AnyCodable]?
+    /// Exact ScoreCore type for mode-aware labels and filters. App `GameType`
+    /// intentionally keeps its historical family-level raw values.
+    var scoreCoreGameTypeRawValue: String?
     
     // Convert from full record
     init(from record: ScoreboardRecord) {
@@ -191,6 +196,8 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
         self.team2SetScore = record.team2SetScore
         self.winner = record.winner
         self.extraData = record.extraData
+        self.projectConfiguration = record.projectConfiguration
+        self.scoreCoreGameTypeRawValue = record.resolvedScoreCoreGameType?.rawValue
     }
     
     // Equatable conformance
@@ -228,6 +235,36 @@ extension ScoreboardRecord {
         scoreboardRecordParticipants(gameType: gameType, from: extraData)
     }
 
+    var mergedProjectConfiguration: [String: AnyCodable] {
+        var result = extraData ?? [:]
+        for (key, value) in projectConfiguration ?? [:] {
+            result[key] = value
+        }
+        return result
+    }
+
+    var resolvedScoreCoreGameType: ScoreCore.GameType? {
+        let configuration = mergedProjectConfiguration
+        if let raw = scoreboardString(configuration[ScoreboardRecordConfiguration.Key.scoreCoreGameType]),
+           let type = ScoreCore.GameType(rawValue: raw) {
+            return type
+        }
+        if let singles = scoreboardBool(configuration[ScoreboardRecordConfiguration.Key.isSingles]) {
+            return gameType.scoreCoreGameType(isSingles: singles)
+        }
+        if let doubles = scoreboardBool(configuration["isDoubles"]) {
+            return gameType.scoreCoreGameType(isSingles: !doubles)
+        }
+        if let stateSnapshot, let inferred = Self.inferScoreCoreGameType(from: stateSnapshot, family: gameType) {
+            return inferred
+        }
+        return gameType.supportsSinglesAndDoubles ? nil : gameType.scoreCoreGameType
+    }
+
+    var competitionDisplayName: String {
+        resolvedScoreCoreGameType?.scoreboardDisplayName ?? gameType.displayName
+    }
+
     var displayMatchTitle: String {
         let names = displayParticipants.map(\.name)
         return names.isEmpty ? "\(team1Name) vs \(team2Name)" : names.joined(separator: " vs ")
@@ -251,6 +288,37 @@ extension ScoreboardRecordSummary {
         scoreboardRecordParticipants(gameType: gameType, from: extraData)
     }
 
+    var mergedProjectConfiguration: [String: AnyCodable] {
+        var result = extraData ?? [:]
+        for (key, value) in projectConfiguration ?? [:] {
+            result[key] = value
+        }
+        return result
+    }
+
+    var resolvedScoreCoreGameType: ScoreCore.GameType? {
+        let configuration = mergedProjectConfiguration
+        if let scoreCoreGameTypeRawValue,
+           let type = ScoreCore.GameType(rawValue: scoreCoreGameTypeRawValue) {
+            return type
+        }
+        if let raw = scoreboardString(configuration[ScoreboardRecordConfiguration.Key.scoreCoreGameType]),
+           let type = ScoreCore.GameType(rawValue: raw) {
+            return type
+        }
+        if let singles = scoreboardBool(configuration[ScoreboardRecordConfiguration.Key.isSingles]) {
+            return gameType.scoreCoreGameType(isSingles: singles)
+        }
+        if let doubles = scoreboardBool(configuration["isDoubles"]) {
+            return gameType.scoreCoreGameType(isSingles: !doubles)
+        }
+        return gameType.supportsSinglesAndDoubles ? nil : gameType.scoreCoreGameType
+    }
+
+    var competitionDisplayName: String {
+        resolvedScoreCoreGameType?.scoreboardDisplayName ?? gameType.displayName
+    }
+
     var displayMatchTitle: String {
         let names = displayParticipants.map(\.name)
         return names.isEmpty ? "\(team1Name) vs \(team2Name)" : names.joined(separator: " vs ")
@@ -260,6 +328,219 @@ extension ScoreboardRecordSummary {
         let scores = displayParticipants.map { String($0.score) }
         return scores.isEmpty ? "\(team1FinalScore)\(separator)\(team2FinalScore)" : scores.joined(separator: separator)
     }
+}
+
+enum ScoreboardRecordConfiguration {
+    enum Key {
+        static let scoreCoreGameType = "scoreCoreGameType"
+        static let isSingles = "isSingles"
+    }
+
+    static func rally(
+        gameType: ScoreCore.GameType,
+        state: RallyMatchState,
+        voiceAnnouncement: Bool
+    ) -> [String: AnyCodable] {
+        let rules = state.rules
+        var result: [String: AnyCodable] = [
+            Key.scoreCoreGameType: AnyCodable(gameType.rawValue),
+            Key.isSingles: AnyCodable(!gameType.isDoublesScoreboard),
+            "maxSets": AnyCodable(rules.maxSets),
+            "matchCompletionMode": AnyCodable(rules.matchCompletionMode.rawValue),
+            "pointsPerSet": AnyCodable(rules.pointsToWinSet),
+            "autoChangeSides": AnyCodable(rules.autoChangeSides),
+            "servingSide": AnyCodable(state.openingServerSide.rawValue),
+            "voiceAnnouncement": AnyCodable(voiceAnnouncement),
+            "targetScore": AnyCodable(rules.pointsToWinSet),
+            "winByTwo": AnyCodable(rules.finalSetWinByTwo ?? rules.winByTwo),
+            "useRallyScoring": AnyCodable(rules.useRallyScoring)
+        ]
+        if let cap = rules.finalSetPointCap ?? rules.pointCap {
+            result["scoreCap"] = AnyCodable(cap)
+        }
+        if let names = state.doubles?.playerNames, names.count >= 4 {
+            result["team1Player1Name"] = AnyCodable(names[0])
+            result["team2Player1Name"] = AnyCodable(names[1])
+            result["team1Player2Name"] = AnyCodable(names[2])
+            result["team2Player2Name"] = AnyCodable(names[3])
+        }
+        return result
+    }
+
+    static func tennis(
+        gameType: ScoreCore.GameType,
+        state: TennisMatchState,
+        voiceAnnouncement: Bool
+    ) -> [String: AnyCodable] {
+        let rules = state.rules
+        var result: [String: AnyCodable] = [
+            Key.scoreCoreGameType: AnyCodable(gameType.rawValue),
+            Key.isSingles: AnyCodable(gameType != .tennisDoubles),
+            "maxSets": AnyCodable(rules.maxSets),
+            "matchCompletionMode": AnyCodable(rules.matchCompletionMode.rawValue),
+            "tieBreakPoints": AnyCodable(rules.tieBreakPoints),
+            "gamesPerSet": AnyCodable(rules.gamesPerSet),
+            "setScoringMode": AnyCodable(rules.setScoringMode.rawValue),
+            "autoChangeSides": AnyCodable(rules.autoChangeSides),
+            "tennisDeuceMode": AnyCodable(rules.usesNoAdScoring ? "no_ad" : "advantage"),
+            "servingSide": AnyCodable(state.openingServerSide.rawValue),
+            "voiceAnnouncement": AnyCodable(voiceAnnouncement)
+        ]
+        if let names = state.doublesPlayerNames, names.count >= 4 {
+            result["team1Player1Name"] = AnyCodable(names[0])
+            result["team2Player1Name"] = AnyCodable(names[1])
+            result["team1Player2Name"] = AnyCodable(names[2])
+            result["team2Player2Name"] = AnyCodable(names[3])
+        }
+        return result
+    }
+
+    static func setup(from record: ScoreboardRecord) -> SportsSetupResult {
+        let data = record.mergedProjectConfiguration
+        var setup = SportsSetupResult(team1Name: record.team1Name, team2Name: record.team2Name)
+        setup.maxSets = scoreboardInt(data["maxSets"])
+        setup.pointsPerSet = scoreboardInt(data["pointsPerSet"] ?? data["targetScore"])
+        setup.tieBreakPoints = scoreboardInt(data["tieBreakPoints"])
+        setup.gamesPerSet = scoreboardInt(data["gamesPerSet"])
+        setup.setScoringMode = scoreboardString(data["setScoringMode"])
+        if let completion = scoreboardString(data["matchCompletionMode"]) {
+            setup.matchCompletionMode = MatchCompletionMode(rawValue: completion)
+        }
+        setup.autoChangeSides = scoreboardBool(data["autoChangeSides"])
+        setup.isSingles = scoreboardBool(data[Key.isSingles])
+        if setup.isSingles == nil, let doubles = scoreboardBool(data["isDoubles"]) {
+            setup.isSingles = !doubles
+        }
+        if setup.isSingles == nil, let type = record.resolvedScoreCoreGameType {
+            setup.isSingles = !type.isDoublesScoreboard
+        }
+        setup.team1Player1Name = scoreboardString(data["team1Player1Name"])
+        setup.team1Player2Name = scoreboardString(data["team1Player2Name"])
+        setup.team2Player1Name = scoreboardString(data["team2Player1Name"])
+        setup.team2Player2Name = scoreboardString(data["team2Player2Name"])
+        setup.basketballMode = scoreboardString(data["basketballMode"])
+        setup.basketballRuleSet = scoreboardString(data["basketballRuleSet"])
+        setup.tennisDeuceMode = scoreboardString(data["tennisDeuceMode"])
+        setup.servingSide = scoreboardString(data["servingSide"])
+        setup.voiceAnnouncement = scoreboardBool(data["voiceAnnouncement"])
+        setup.targetScore = scoreboardInt(data["targetScore"] ?? data["unoTargetScore"])
+        setup.winByTwo = scoreboardBool(data["winByTwo"])
+        setup.scoreCap = scoreboardInt(data["scoreCap"])
+        setup.useRallyScoring = scoreboardBool(data["useRallyScoring"])
+        setup.maxRounds = scoreboardInt(data["maxRounds"])
+        setup.eightBallHandicapRacks = scoreboardInt(data["eightBallHandicapRacks"])
+        setup.eightBallHandicapBeneficiary = scoreboardString(data["eightBallHandicapBeneficiary"])
+        setup.multiScoreCustomAdjustEnabled = scoreboardBool(data["multiScoreCustomAdjustEnabled"])
+        setup.guandanTripleA = scoreboardBool(data["guandanTripleA"])
+        setup.guandanPassACondition = scoreboardString(data["guandanPassACondition"])
+        setup.guandanTripleAFallbackRank = scoreboardString(data["guandanTripleAFallbackRank"])
+        setup.playerNames = record.displayParticipants.map(\.name)
+        setup.playerCount = setup.playerNames?.isEmpty == false ? setup.playerNames?.count : scoreboardInt(data["playerCount"])
+        setup.nineBallBigGold = scoreboardInt(data["nineBallBigGold"])
+        setup.nineBallSmallGold = scoreboardInt(data["nineBallSmallGold"])
+        setup.nineBallGoldenNine = scoreboardInt(data["nineBallGoldenNine"])
+        setup.nineBallNormalWin = scoreboardInt(data["nineBallNormalWin"])
+        setup.nineBallBallInHand = scoreboardInt(data["nineBallBallInHand"])
+        setup.nineBallFoul = scoreboardInt(data["nineBallFoul"])
+        return setup
+    }
+}
+
+extension GameType {
+    var supportsSinglesAndDoubles: Bool {
+        switch self {
+        case .pingpong, .badminton, .tennis, .pickleball, .foosball: return true
+        default: return false
+        }
+    }
+
+    func scoreCoreGameType(isSingles: Bool) -> ScoreCore.GameType? {
+        switch self {
+        case .pingpong: return isSingles ? .pingpong : .pingpongDoubles
+        case .badminton: return isSingles ? .badminton : .badmintonDoubles
+        case .tennis: return isSingles ? .tennis : .tennisDoubles
+        case .pickleball: return isSingles ? .pickleball : .pickleballDoubles
+        case .foosball: return isSingles ? .foosball : .foosballDoubles
+        default: return scoreCoreGameType
+        }
+    }
+}
+
+extension ScoreCore.GameType {
+    var isDoublesScoreboard: Bool {
+        switch self {
+        case .pingpongDoubles, .badmintonDoubles, .tennisDoubles, .pickleballDoubles, .foosballDoubles:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var scoreboardDisplayName: String {
+        switch self {
+        case .pingpong: return NSLocalizedString("game_pingpong_singles", value: "乒乓球单打", comment: "")
+        case .pingpongDoubles: return NSLocalizedString("game_pingpong_doubles", value: "乒乓球双打", comment: "")
+        case .badminton: return NSLocalizedString("game_badminton_singles", value: "羽毛球单打", comment: "")
+        case .badmintonDoubles: return NSLocalizedString("game_badminton_doubles", value: "羽毛球双打", comment: "")
+        case .tennis: return NSLocalizedString("game_tennis_singles", value: "网球单打", comment: "")
+        case .tennisDoubles: return NSLocalizedString("game_tennis_doubles", value: "网球双打", comment: "")
+        case .pickleball: return NSLocalizedString("game_pickleball_singles", value: "匹克球单打", comment: "")
+        case .pickleballDoubles: return NSLocalizedString("game_pickleball_doubles", value: "匹克球双打", comment: "")
+        case .foosball: return NSLocalizedString("game_foosball_singles", value: "桌上足球单打", comment: "")
+        case .foosballDoubles: return NSLocalizedString("game_foosball_doubles", value: "桌上足球双打", comment: "")
+        default: return scoreboardAppGameType(for: self)?.displayName ?? rawValue
+        }
+    }
+}
+
+private extension ScoreboardRecord {
+    static func inferScoreCoreGameType(from data: Data, family: GameType) -> ScoreCore.GameType? {
+        if family == .tennis {
+            if let bundle = try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self,
+                from: data
+            ) {
+                return bundle.currentSession.gameType
+            }
+            if let session = try? JSONDecoder().decode(ScoreSession<TennisMatchState, TennisMatchEvent>.self, from: data) {
+                return session.gameType
+            }
+        }
+        if [.pingpong, .badminton, .pickleball, .foosball].contains(family) {
+            if let bundle = try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self,
+                from: data
+            ) {
+                return bundle.currentSession.gameType
+            }
+            if let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data) {
+                return session.gameType
+            }
+        }
+        return nil
+    }
+}
+
+private func scoreboardString(_ value: AnyCodable?) -> String? {
+    value?.value as? String
+}
+
+private func scoreboardBool(_ value: AnyCodable?) -> Bool? {
+    if let bool = value?.value as? Bool { return bool }
+    if let int = value?.value as? Int { return int != 0 }
+    if let string = value?.value as? String { return (string as NSString).boolValue }
+    return nil
+}
+
+private func scoreboardInt(_ value: AnyCodable?) -> Int? {
+    if let int = value?.value as? Int { return int }
+    if let double = value?.value as? Double { return Int(double) }
+    if let string = value?.value as? String { return Int(string) }
+    return nil
+}
+
+private func scoreboardAppGameType(for type: ScoreCore.GameType) -> GameType? {
+    GameType(scoreCoreGameType: type)
 }
 
 private func scoreboardRecordParticipants(gameType: GameType, from extraData: [String: AnyCodable]?) -> [ScoreboardRecordParticipant] {

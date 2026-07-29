@@ -1,6 +1,17 @@
 import LinkCore
 import ScoreCore
+import SessionCore
 import SwiftUI
+
+func decodeRallyStateSnapshot(_ data: Data) -> RallyMatchState? {
+    let decoder = JSONDecoder()
+    return (try? decoder.decode(RallyMatchState.self, from: data))
+        ?? (try? decoder.decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data))?.state
+        ?? (try? decoder.decode(
+            ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self,
+            from: data
+        ))?.currentSession.state
+}
 import UIKit
 
 struct RallyScoreboardView: View {
@@ -38,6 +49,7 @@ struct RallyScoreboardView: View {
     @State private var completedSetScores: [VoiceSetScore] = []
     @State private var didSpeakOpeningAnnouncement = false
     @State private var manualFinishRequested = false
+    @State private var isStartingNewMatch = false
 
     init(
         leftName: String,
@@ -70,7 +82,8 @@ struct RallyScoreboardView: View {
             _store = State(initialValue: RallySessionStore(
                 gameType: draft.coreGameType ?? gameType,
                 state: draft.state,
-                participants: participants
+                participants: participants,
+                voiceAnnouncementEnabled: draft.voiceAnnouncementEnabled
             ))
             _legacyRecordId = State(initialValue: initialRecordId)
             _voiceAnnouncementEnabled = State(initialValue: draft.voiceAnnouncementEnabled)
@@ -83,7 +96,8 @@ struct RallyScoreboardView: View {
                 gameType: gameType,
                 rules: rules,
                 participants: participants,
-                openingServer: openingServer
+                openingServer: openingServer,
+                voiceAnnouncementEnabled: voiceAnnouncementEnabled
             )
             _store = State(initialValue: newStore)
             _legacyRecordId = State(initialValue: nil)
@@ -92,11 +106,23 @@ struct RallyScoreboardView: View {
     }
 
     private var isDoubles: Bool { store.state.doubles != nil }
+    private var isFoosballDoubles: Bool {
+        guard let doubles = store.state.doubles else { return false }
+        if case .foosball = doubles.rotation { return true }
+        return gameType == .foosballDoubles
+    }
     private var scoringLocked: Bool {
         watchSessionId != nil
             && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
     }
     private var palette: ScoreboardPalette { appearance.theme.palette }
+    private var linkedNewGameLabel: String {
+        NSLocalizedString(
+            "game_over_new_game_on_watch",
+            value: "再来一场\n（请在手表端操作）",
+            comment: ""
+        )
+    }
 
     /// 桌上足球无发球模型（对齐鸿蒙/安卓）。
     private var showsServeIndicator: Bool {
@@ -113,7 +139,10 @@ struct RallyScoreboardView: View {
                 palette.background.ignoresSafeArea()
 
                 HStack(spacing: 0) {
-                    if isDoubles {
+                    if isFoosballDoubles {
+                        foosballDoublesHalf(screenSide: .left, size: CGSize(width: proxy.size.width / 2, height: halfH))
+                        foosballDoublesHalf(screenSide: .right, size: CGSize(width: proxy.size.width / 2, height: halfH))
+                    } else if isDoubles {
                         doublesHalf(screenSide: .left, size: CGSize(width: proxy.size.width / 2, height: halfH))
                         doublesHalf(screenSide: .right, size: CGSize(width: proxy.size.width / 2, height: halfH))
                     } else {
@@ -135,7 +164,7 @@ struct RallyScoreboardView: View {
                     )
                 }
 
-                if let opening = pendingPingPongDoublesOpening {
+                if !isEditMode, let opening = pendingPingPongDoublesOpening {
                     pingPongDoublesOpeningOverlay(opening)
                 }
 
@@ -161,6 +190,7 @@ struct RallyScoreboardView: View {
                 if showGameOverDialog {
                     GameOverDialog(
                         winnerName: finishedWinnerName,
+                        gameType: GameType(scoreCoreGameType: store.gameType) ?? .simpleScore,
                         leftName: store.state.leftName,
                         rightName: store.state.rightName,
                         leftScore: store.state.leftSets > 0 || store.state.rightSets > 0
@@ -169,25 +199,28 @@ struct RallyScoreboardView: View {
                         rightScore: store.state.leftSets > 0 || store.state.rightSets > 0
                             ? store.state.rightSets
                             : store.state.rightPoints,
+                        newGameLabel: scoringLocked ? linkedNewGameLabel : nil,
+                        newGameDisabled: scoringLocked || isStartingNewMatch,
                         onNewGame: {
-                            showGameOverDialog = false
-                            manualFinishRequested = false
-                            dispatch(.reset)
-                            showToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+                            startNewMatch()
                         },
                         onRecords: {
-                            store.persistSnapshot()
-                            showFinishedRecordDetail = true
+                            store.persistSnapshot { success in
+                                guard success else { return }
+                                showFinishedRecordDetail = true
+                            }
                         },
                         onShare: {
                             shareFinishedMatch()
                         },
                         onExit: {
-                            store.persistSnapshot()
-                            if let onNavigationBack {
-                                onNavigationBack()
-                            } else {
-                                dismiss()
+                            store.persistSnapshot { success in
+                                guard success else { return }
+                                if let onNavigationBack {
+                                    onNavigationBack()
+                                } else {
+                                    dismiss()
+                                }
                             }
                         }
                     )
@@ -221,13 +254,11 @@ struct RallyScoreboardView: View {
             }
         }
         .simultaneousGesture(
-            DragGesture(minimumDistance: 50)
-                .onEnded { value in
+            LongPressGesture(minimumDuration: 0.55)
+                .onEnded { _ in
                     guard !isEditMode else { return }
-                    if value.translation.height < -50 && abs(value.translation.width) < 50 {
-                        showMenu.toggle()
-                        revealImmersiveChrome()
-                    }
+                    showMenu = true
+                    revealImmersiveChrome()
                 }
         )
         .onAppear {
@@ -313,11 +344,19 @@ struct RallyScoreboardView: View {
             if !isOpen { menuConfirm.clear() }
             updateImmersiveForBlocking()
         }
+        .onChange(of: store.persistenceFailureSignal) { _, signal in
+            guard signal > 0 else { return }
+            showToast(NSLocalizedString(
+                "scoreboard_save_failed",
+                value: "保存失败，请稍后重试",
+                comment: "Scoreboard persistence failed"
+            ))
+        }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: isEditMode) { _, editing in
             if editing {
                 syncEditNamesFromState()
-            } else {
+            } else if !isFoosballDoubles {
                 commitSinglesNamesIfNeeded()
             }
             updateImmersiveForBlocking()
@@ -413,7 +452,7 @@ struct RallyScoreboardView: View {
 
     private func singlesPlayContent(side: MatchSide, size: CGSize) -> some View {
         let isLeft = side == .left
-        let name = isLeft ? store.state.leftName : store.state.rightName
+        let name = scoreboardDisplayName(for: side)
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
         let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height) * scoreMultiplier
@@ -425,7 +464,7 @@ struct RallyScoreboardView: View {
         return VStack(spacing: 0) {
             Text(name)
                 .font(.system(size: nameSize, weight: .bold))
-                .lineLimit(1)
+                .lineLimit(isFoosballDoubles ? 2 : 1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 8)
             Spacer().frame(height: nameToMain)
@@ -447,7 +486,9 @@ struct RallyScoreboardView: View {
         let isLeft = side == .left
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height) * scoreMultiplier * 0.7
+        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
+            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height) * scoreMultiplier
+        )
         let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height) * secondaryMultiplier
         let nameSize = ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: size.height) * nameMultiplier
         let nameToMain = ScoreboardLayoutMetrics.nameToMainSpacing(halfViewportHeight: size.height)
@@ -492,7 +533,129 @@ struct RallyScoreboardView: View {
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height, isEditMode: true))
+        .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: size.height))
+    }
+
+    // MARK: - Foosball doubles
+
+    /// Foosball 2V2 keeps the normal two-panel scoreboard in play mode. Only
+    /// edit mode expands each joined team name into its two player fields.
+    private func foosballDoublesHalf(screenSide: MatchSide, size: CGSize) -> some View {
+        let side = logicalSide(forScreen: screenSide)
+        let color = side == .left ? palette.left : palette.right
+
+        return ZStack {
+            color
+            if isEditMode {
+                foosballDoublesEditContent(side: side, size: size)
+            } else {
+                singlesPlayContent(side: side, size: size)
+            }
+        }
+        .foregroundStyle(palette.foreground)
+        .frame(width: size.width, height: size.height)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard !isEditMode, !store.state.finished else { return }
+            handlePointWon(side)
+        }
+        .gesture(
+            DragGesture(minimumDistance: 50)
+                .onEnded { value in
+                    guard !isEditMode else { return }
+                    if value.translation.width < -50 && abs(value.translation.height) < 50 {
+                        performUndo()
+                    } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
+                        guard !store.state.finished else { return }
+                        let points = side == .left ? store.state.leftPoints : store.state.rightPoints
+                        guard points > 0 else { return }
+                        dispatch(.adjustPoints(side: side, delta: -1))
+                    }
+                }
+        )
+    }
+
+    private func foosballDoublesEditContent(side: MatchSide, size: CGSize) -> some View {
+        let isLeft = side == .left
+        let score = isLeft ? store.state.leftPoints : store.state.rightPoints
+        let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        let slots = isLeft ? (0, 2) : (1, 3)
+        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
+            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height) * scoreMultiplier
+        )
+        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height) * secondaryMultiplier
+        let nameSize = doublesNameFontSize(panelHeight: size.height)
+        let nameToMain = ScoreboardLayoutMetrics.nameToMainSpacing(halfViewportHeight: size.height)
+        let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
+
+        return VStack(spacing: 0) {
+            VStack(spacing: 6) {
+                foosballDoublesEditNameField(slot: slots.0, fontSize: nameSize)
+                foosballDoublesEditNameField(slot: slots.1, fontSize: nameSize)
+            }
+            .padding(.horizontal, 16)
+
+            Spacer().frame(height: nameToMain)
+
+            editAdjustRow(
+                value: score,
+                fontSize: mainSize,
+                useSecondaryColor: false,
+                canDecrement: score > 0,
+                onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
+                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
+            )
+
+            Spacer().frame(height: mainToSet)
+
+            editAdjustRow(
+                value: sets,
+                fontSize: setSize,
+                useSecondaryColor: true,
+                canDecrement: sets > 0,
+                onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
+                onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
+            )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: size.height))
+    }
+
+    private func foosballDoublesEditNameField(slot: Int, fontSize: CGFloat) -> some View {
+        let fallback = store.state.doubles?.playerName(at: slot) ?? ""
+        return TextField(
+            NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
+            text: Binding(
+                get: {
+                    guard editDoublesNames.indices.contains(slot) else { return fallback }
+                    return editDoublesNames[slot]
+                },
+                set: { newValue in
+                    guard editDoublesNames.indices.contains(slot) else { return }
+                    editDoublesNames[slot] = newValue
+                    let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmed.isEmpty, !scoringLocked else { return }
+                    dispatch(.setDoublesPlayerName(slot: slot, name: trimmed))
+                }
+            )
+        )
+        .font(.system(size: fontSize, weight: .bold))
+        .multilineTextAlignment(.center)
+        .textFieldStyle(.plain)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+    }
+
+    private func scoreboardDisplayName(for side: MatchSide) -> String {
+        guard isFoosballDoubles, let doubles = store.state.doubles else {
+            return side == .left ? store.state.leftName : store.state.rightName
+        }
+        let slots = side == .left ? (0, 2) : (1, 3)
+        return FoosballScoreboardView.joinFoosballNames(
+            doubles.playerName(at: slots.0) ?? "",
+            doubles.playerName(at: slots.1) ?? ""
+        )
     }
 
     // MARK: - Doubles
@@ -501,7 +664,17 @@ struct RallyScoreboardView: View {
         let side = logicalSide(forScreen: screenSide)
         let isLeft = side == .left
         let color = isLeft ? palette.left : palette.right
-        let rowH = size.height / 3
+        let editTopInset = isEditMode
+            ? ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height, isEditMode: true)
+            : 0
+        let availableHeight = max(0, size.height - editTopInset)
+        let preferredEditScoreHeight = min(160, max(120, availableHeight * 0.48))
+        let scoreRowHeight = isEditMode
+            ? min(availableHeight, preferredEditScoreHeight)
+            : size.height / 3
+        let nameRowHeight = isEditMode
+            ? max(0, availableHeight - scoreRowHeight) / 2
+            : size.height / 3
         let (topName, bottomName) = doublesCornerNames(screenSide: screenSide)
         let topSlot = doublesTopSlot(screenSide: screenSide)
         let bottomSlot = doublesBottomSlot(screenSide: screenSide)
@@ -513,20 +686,32 @@ struct RallyScoreboardView: View {
                     name: topName,
                     slot: topSlot,
                     fontSize: doublesNameFontSize(panelHeight: size.height),
-                    height: rowH
+                    height: nameRowHeight
                 )
                 if isEditMode {
-                    doublesEditScoreRow(screenSide: screenSide, side: side, height: rowH, panelHeight: size.height)
+                    doublesEditScoreRow(
+                        screenSide: screenSide,
+                        side: side,
+                        height: scoreRowHeight,
+                        panelHeight: size.height
+                    )
                 } else {
-                    doublesPlayScoreRow(screenSide: screenSide, side: side, height: rowH, panelHeight: size.height)
+                    doublesPlayScoreRow(
+                        screenSide: screenSide,
+                        side: side,
+                        height: scoreRowHeight,
+                        panelHeight: size.height
+                    )
                 }
                 doublesNameCell(
                     name: bottomName,
                     slot: bottomSlot,
                     fontSize: doublesNameFontSize(panelHeight: size.height),
-                    height: rowH
+                    height: nameRowHeight
                 )
             }
+            .padding(.top, editTopInset)
+            .frame(height: size.height, alignment: .top)
         }
         .foregroundStyle(palette.foreground)
         .frame(width: size.width, height: size.height)
@@ -589,8 +774,15 @@ struct RallyScoreboardView: View {
         let isLeft = side == .left
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelHeight) * scoreMultiplier * 0.7
-        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: panelHeight) * secondaryMultiplier
+        let mainSize = ScoreboardLayoutMetrics.compactEditMainScoreFontSize(
+            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelHeight) * scoreMultiplier,
+            rowHeight: height
+        )
+        let setSize = ScoreboardLayoutMetrics.compactEditSecondaryScoreFontSize(
+            regularSize: ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: panelHeight) * secondaryMultiplier,
+            rowHeight: height
+        )
+        let controlSize = ScoreboardLayoutMetrics.compactEditControlSize(rowHeight: height)
 
         return VStack(spacing: 8) {
             editAdjustRow(
@@ -598,6 +790,7 @@ struct RallyScoreboardView: View {
                 fontSize: mainSize,
                 useSecondaryColor: false,
                 canDecrement: score > 0,
+                controlSize: controlSize,
                 onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
                 onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
             )
@@ -606,6 +799,7 @@ struct RallyScoreboardView: View {
                 fontSize: setSize,
                 useSecondaryColor: true,
                 canDecrement: sets > 0,
+                controlSize: controlSize,
                 onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
                 onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
             )
@@ -757,27 +951,43 @@ struct RallyScoreboardView: View {
         fontSize: CGFloat,
         useSecondaryColor: Bool,
         canDecrement: Bool,
+        controlSize: CGFloat = 50,
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) -> some View {
         HStack(spacing: 16) {
-            editCircleButton(systemName: "minus", enabled: canDecrement, action: onDecrement)
+            editCircleButton(
+                systemName: "minus",
+                enabled: canDecrement,
+                size: controlSize,
+                action: onDecrement
+            )
             Text("\(value)")
                 .font(appearance.font.swiftUIFont(size: fontSize))
                 .monospacedDigit()
                 .foregroundStyle(useSecondaryColor ? palette.secondary : palette.foreground)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
-            editCircleButton(systemName: "plus", enabled: true, action: onIncrement)
+            editCircleButton(
+                systemName: "plus",
+                enabled: true,
+                size: controlSize,
+                action: onIncrement
+            )
         }
     }
 
-    private func editCircleButton(systemName: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+    private func editCircleButton(
+        systemName: String,
+        enabled: Bool,
+        size: CGFloat = 50,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: Swift.min(20, size * 0.4), weight: .bold))
                 .foregroundStyle(enabled ? palette.foreground.opacity(0.75) : palette.foreground.opacity(0.3))
-                .frame(width: 50, height: 50)
+                .frame(width: size, height: size)
                 .background(Circle().fill(Color.white.opacity(0.08)))
         }
         .disabled(!enabled)
@@ -913,7 +1123,7 @@ struct RallyScoreboardView: View {
                         systemName: isEditMode ? "checkmark" : "pencil",
                         background: isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.25)
                     ) {
-                        if isEditMode {
+                        if isEditMode && !isFoosballDoubles {
                             commitSinglesNamesIfNeeded()
                         }
                         isEditMode.toggle()
@@ -1006,12 +1216,14 @@ struct RallyScoreboardView: View {
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,
             settleConfirming: menuConfirm.settleConfirming,
+            scoringEnabled: !scoringLocked,
             extraItems: extras
         )
     }
 
     private func handleMenuAction(_ action: String) {
-        if scoringLocked, action != "resync", action != "takeover", action != "endLink", action != "displaySettings", action != "exit" {
+        if scoringLocked,
+           !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
             showToast(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
             return
         }
@@ -1056,6 +1268,7 @@ struct RallyScoreboardView: View {
             showMenu = false
         case "voiceAnnouncement":
             voiceAnnouncementEnabled.toggle()
+            store.voiceAnnouncementEnabled = voiceAnnouncementEnabled
             if voiceAnnouncementEnabled {
                 speakOpeningAnnouncementIfNeeded()
             } else {
@@ -1184,6 +1397,11 @@ struct RallyScoreboardView: View {
                 )
             },
             handleIntent: { intent in
+                guard LocalScoreboardMutationPolicy.allowsMutation(
+                    isEditing: isEditMode,
+                    finished: store.state.finished,
+                    scoringLocked: scoringLocked
+                ) else { return }
                 switch intent {
                 case .addLeft: dispatch(.pointWon(logicalSide(forScreen: .left)))
                 case .addRight: dispatch(.pointWon(logicalSide(forScreen: .right)))
@@ -1220,10 +1438,12 @@ struct RallyScoreboardView: View {
     }
 
     private func back() {
-        if let onNavigationBack {
-            onNavigationBack()
-        } else {
-            dismiss()
+        store.flush {
+            if let onNavigationBack {
+                onNavigationBack()
+            } else {
+                dismiss()
+            }
         }
     }
 
@@ -1338,6 +1558,44 @@ struct RallyScoreboardView: View {
         )
     }
 
+    private func startNewMatch() {
+        guard !scoringLocked, !isStartingNewMatch else { return }
+        isStartingNewMatch = true
+        let finishedStore = store
+        finishedStore.persistSnapshot { success in
+            guard success else {
+                isStartingNewMatch = false
+                return
+            }
+            let freshStore = finishedStore.makeFreshMatchStore()
+            freshStore.persistSnapshot { freshSaved in
+                isStartingNewMatch = false
+                guard freshSaved else { return }
+                store = freshStore
+                legacyRecordId = nil
+                manualFinishRequested = false
+                completedSetScores = []
+                didSpeakOpeningAnnouncement = false
+                pendingDoublesFlash = nil
+                flashSlots.removeAll()
+                showGameOverDialog = false
+                syncEditNamesFromState()
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                if let watchSessionId {
+                    let participantNames = freshStore.state.doubles?.playerNames
+                        ?? [freshStore.state.leftName, freshStore.state.rightName]
+                    watchLinkService.prepareControllerForNewMatch(
+                        sessionId: watchSessionId,
+                        gameType: gameType,
+                        snapshot: .rally(freshStore.state),
+                        participantNames: participantNames
+                    )
+                }
+                speakOpeningAnnouncementIfNeeded()
+            }
+        }
+    }
+
     private var hasMatchProgress: Bool {
         store.state.leftPoints > 0
             || store.state.rightPoints > 0
@@ -1375,13 +1633,16 @@ struct RallyScoreboardView: View {
     private static func loadDraft(recordId: String) -> DraftLoad? {
         guard let record = ScoreboardRecordManager.shared.getRecordById(recordId),
               record.status == .draft,
-              let data = record.stateSnapshot,
-              let state = try? JSONDecoder().decode(RallyMatchState.self, from: data) else {
+              let data = record.stateSnapshot else {
             return nil
         }
-        let coreRaw = record.extraData?["coreGameType"]?.value as? String
+        guard let state = decodeRallyStateSnapshot(data) else { return nil }
+        let coreRaw = (record.projectConfiguration?[ScoreboardRecordConfiguration.Key.scoreCoreGameType]?.value as? String)
+            ?? (record.extraData?["coreGameType"]?.value as? String)
         let coreGameType = coreRaw.flatMap { ScoreCore.GameType(rawValue: $0) }
-        let voiceAnnouncementEnabled = record.extraData?["voiceAnnouncement"]?.value as? Bool ?? false
+        let voiceAnnouncementEnabled = (record.projectConfiguration?["voiceAnnouncement"]?.value as? Bool)
+            ?? (record.extraData?["voiceAnnouncement"]?.value as? Bool)
+            ?? false
         return DraftLoad(
             state: state,
             coreGameType: coreGameType,
@@ -1399,7 +1660,7 @@ struct RallyScoreboardView: View {
     }
 
     private func performUndo() {
-        guard !scoringLocked else { return }
+        guard !isEditMode, !scoringLocked, !store.state.finished else { return }
         store.undo { success in
             if success {
                 scheduleDraftPersist(finished: store.state.finished)

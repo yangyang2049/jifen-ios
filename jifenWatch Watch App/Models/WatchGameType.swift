@@ -3,9 +3,9 @@ import RecordCore
 import ScoreCore
 
 enum WatchGameType: String, Codable, CaseIterable {
-    /// Regulation basketball scoreboards are retained for phone-initiated linkage only.
-    /// These cases exist so linked matches can be represented in local Watch records;
-    /// they must not be added to `WatchHomeItem` or `WatchSetupSport`.
+    /// Regulation basketball cases are retained only to decode legacy link sessions and records.
+    /// New phone-initiated linkage must not originate these cases, and they must not be added
+    /// to `WatchHomeItem` or `WatchSetupSport`.
     case basketball
     case threeBasketball = "three_basketball"
     case pingpong

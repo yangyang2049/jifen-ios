@@ -166,6 +166,9 @@
 "doudizhu_player_chris" = "Chris";
 "shengji_claim_dealer_left" = "Red Claims";
 "shengji_claim_dealer_right" = "Blue Claims";
+"shengji_claim_dealer" = "Claim";
+"guandan_edit_level_wrap_confirm_title" = "Return rank to 2?";
+"guandan_edit_level_wrap_confirm_message" = "Increasing again will reset this team's rank to 2.";
 "shengji_take_dealer" = "Take Dealer";
 "guandan_select_upgrade" = "Choose upgrade";
 "guandan_upgrade_step_format" = "+%d";
@@ -181,6 +184,10 @@
 "score_custom_adjust_apply" = "Apply";
 "game_multi_scoreboard" = "Multi-Score";
 "multi_score_player_default" = "Player";
+"multi_score_edit_title" = "Edit Player";
+"multi_score_rename_placeholder" = "Player name";
+"multi_score_edit_score_label" = "Score";
+"multi_score_rename_warning" = "Enter a player name";
 "game_counter" = "Counter";
 "project_archery" = "Archery";
 
@@ -302,6 +309,8 @@
 "screenshot_saved" = "Screenshot saved";
 "unknown_error" = "Unknown error";
 "please_allow_photo_access" = "Please allow photo access in Settings";
+"open_settings" = "Settings";
+"retry" = "Retry";
 "save_failed" = "Save failed: %@";
 "font_changed" = "Font changed";
 
@@ -479,6 +488,7 @@
 
 /* Records Tab */
 "clear_all_records" = "Clear All Records";
+"clear_records_tab_message" = "Score and timer records in the Records tab will be deleted. This cannot be undone. Common names, common places, and bookings will not be deleted.";
 "clear_all_records_message" = "Match records, timer records, bookings, common names, and common places will be deleted. This cannot be undone.";
 "clear_data" = "Clear data";
 
@@ -510,7 +520,8 @@
 "common_names_clear_current_message" = "All common names in %@ will be deleted. This cannot be undone.";
 "common_names_title" = "Common Names";
 "common_names_empty" = "No common names";
-"common_names_empty_hint" = "Add team or player names from Common Names on Home, then reuse them here.";
+"common_names_empty_hint" = "Add team or player names in Settings > Data > Common Names, then reuse them here.";
+"common_names_management_empty_hint" = "Team and player names entered while scoring are saved here for quick selection next time.";
 "common_names_search_placeholder" = "Search names";
 "common_names_no_search_results" = "No Results";
 "common_names_batch_delete_confirm" = "Delete %d selected names?";
@@ -582,8 +593,6 @@
 "faq_answer_2" = "Match and timer records are stored locally on this device and appear in Records.";
 "faq_question_3" = "How do I undo a mistake?";
 "faq_answer_3" = "Use Undo on the scoreboard to restore the most recent score or state change.";
-"faq_question_4" = "How do I change appearance?";
-"faq_answer_4" = "Open Appearance in Me and choose Light, Dark, or System. Light is the default.";
 "faq_question_5" = "What are Classic and Play All?";
 "faq_answer_5" = "Classic ends after a player wins a majority of sets. Play All completes every scheduled set and may end in a draw.";
 "faq_question_6" = "What are common names and places for?";
@@ -670,9 +679,8 @@
 "schedule_status_completed" = "Completed";
 "schedule_status_cancelled" = "Cancelled";
 "tomorrow" = "Tomorrow";
-"unfinished_discard_title" = "Discard Unfinished Game";
-"unfinished_discard_message" = "Discard the current unfinished game?";
 "unfinished_discard_button" = "Discard";
+"unfinished_abandon_confirm" = "Tap again to discard the game";
 
 /* Record detail / Boxing */
 "record_action_team_scored" = "%@ scored";
@@ -878,7 +886,6 @@
 "player_a" = "Player A";
 "player_b" = "Player B";
 "snooker_frames" = "Frames";
-"snooker_frames_more" = "More";
 "eight_ball_race_to" = "Race To";
 "eight_ball_frames" = "Frames";
 "eight_ball_handicap" = "Handicap";
@@ -1015,5 +1022,22 @@
 "record_state_changed" = "State changed";
 "continue_game" = "Continue Match";
 "play_again" = "Play Again";
+"archive_record_read_only_message" = "This archived record is read-only and cannot be resumed.";
+"scoreboard_save_failed" = "Could not save. Please try again.";
+"game_over_new_game_on_watch" = "New Game\n(Use watch)";
+"game_pingpong_singles" = "Table Tennis Singles";
+"game_badminton_singles" = "Badminton Singles";
+"game_tennis_singles" = "Tennis Singles";
+"game_pickleball_singles" = "Pickleball Singles";
+"game_foosball_singles" = "Foosball Singles";
+"game_foosball_doubles" = "Foosball Doubles";
 "unfinished" = "Unfinished";
 "finished" = "Finished";
+"snooker_foul_row_title" = "Foul points";
+"snooker_foul_current_side" = "Current side: %@";
+"snooker_foul_label_4" = "R/Y/G/Br";
+"snooker_foul_label_5" = "Blue";
+"snooker_foul_label_6" = "Pink";
+"snooker_foul_label_7" = "Black";
+"snooker_foul_switch_turn" = "Switch turn";
+"snooker_foul_continue" = "Offender continues";

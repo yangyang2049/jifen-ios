@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CommonPlacesManagementView: View {
     @FocusState private var isEditorFocused: Bool
@@ -46,16 +47,6 @@ struct CommonPlacesManagementView: View {
             Theme.backgroundColor.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                if !isEditMode {
-                    CommonDataSearchField(
-                        text: $searchText,
-                        placeholder: NSLocalizedString("common_places_search_placeholder", value: "搜索地点", comment: "")
-                    )
-                    .padding(.horizontal, Theme.md)
-                    .padding(.top, Theme.sm)
-                    .padding(.bottom, Theme.sm)
-                }
-
                 if filteredPlaces.isEmpty {
                     emptyState
                 } else {
@@ -77,6 +68,11 @@ struct CommonPlacesManagementView: View {
                     }
                 }
             }
+            .frame(
+                maxWidth: CommonDataManagementChrome.contentMaxWidth,
+                maxHeight: .infinity
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if showToast {
                 VStack {
@@ -89,6 +85,11 @@ struct CommonPlacesManagementView: View {
         }
         .navigationTitle(NSLocalizedString("common_places_title", value: "常用地点", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .systemSearchable(
+            text: $searchText,
+            prompt: NSLocalizedString("common_places_search_placeholder", value: "搜索地点", comment: ""),
+            isEnabled: !isEditMode
+        )
         .toolbar { toolbarContent }
         .onAppear(perform: reload)
         .onChange(of: isEditMode) { _, editing in
@@ -153,16 +154,26 @@ struct CommonPlacesManagementView: View {
                     Button(role: .destructive) {
                         showClearConfirm = true
                     } label: {
-                        Label(
-                            NSLocalizedString("common_places_clear", value: "清空地点", comment: ""),
-                            systemImage: "trash"
-                        )
+                        Label {
+                            Text(NSLocalizedString("common_places_clear", value: "清空地点", comment: ""))
+                        } icon: {
+                            destructiveTrashMenuIcon
+                        }
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
             }
         }
+    }
+
+    /// Keep the destructive menu icon red instead of inheriting the app's green tint.
+    private var destructiveTrashMenuIcon: Image {
+        guard let image = UIImage(systemName: "trash")?
+            .withTintColor(.systemRed, renderingMode: .alwaysOriginal) else {
+            return Image(systemName: "trash")
+        }
+        return Image(uiImage: image)
     }
 
     private var emptyState: some View {
@@ -227,29 +238,15 @@ struct CommonPlacesManagementView: View {
                     openEditSheet(place)
                 }
             } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 10) {
-                        Text(place.name)
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundColor(Theme.textPrimary)
-                            .lineLimit(1)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        if !isEditMode, place.useCount > 0 {
-                            Text("×\(place.useCount)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Theme.textSecondary)
-                        }
-                    }
-                    if !isEditMode, place.useCount > 0 {
-                        Text(String(format: NSLocalizedString("common_places_use_count", value: "使用 %d 次", comment: ""), place.useCount))
-                            .font(.caption)
-                            .foregroundColor(Theme.textSecondary)
-                    }
-                }
-                .padding(.leading, isEditMode ? 8 : 16)
-                .padding(.trailing, 8)
-                .padding(.vertical, 14)
-                .contentShape(Rectangle())
+                Text(place.name)
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundColor(Theme.textPrimary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, isEditMode ? 8 : 16)
+                    .padding(.trailing, 8)
+                    .padding(.vertical, 14)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
@@ -272,7 +269,7 @@ struct CommonPlacesManagementView: View {
     private var addSheet: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundColor.ignoresSafeArea()
+                Theme.dialogSurfaceBackground.ignoresSafeArea()
                 VStack(spacing: 16) {
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $addInput)
@@ -282,7 +279,7 @@ struct CommonPlacesManagementView: View {
                             .padding(8)
                             .frame(minHeight: 160)
                             .scrollContentBackground(.hidden)
-                            .background(Theme.homeCardDark)
+                            .background(Theme.dialogControlBackground)
                             .cornerRadius(10)
 
                         if addInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -311,7 +308,7 @@ struct CommonPlacesManagementView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(NSLocalizedString("common_places_add", value: "添加地点", comment: "")) {
+                    Button(NSLocalizedString("add", value: "添加", comment: "")) {
                         submitAddAndContinue()
                     }
                 }
@@ -324,12 +321,13 @@ struct CommonPlacesManagementView: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private var editSheet: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundColor.ignoresSafeArea()
+                Theme.dialogSurfaceBackground.ignoresSafeArea()
                 VStack(spacing: 16) {
                     TextField(
                         NSLocalizedString("common_places_placeholder", value: "输入地点", comment: ""),
@@ -340,7 +338,7 @@ struct CommonPlacesManagementView: View {
                     .focused($isEditorFocused)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 12)
-                    .background(Theme.homeCardDark)
+                    .background(Theme.dialogControlBackground)
                     .cornerRadius(10)
                     Spacer()
                 }
@@ -366,6 +364,7 @@ struct CommonPlacesManagementView: View {
                 }
             }
         }
+        .presentationBackground(Theme.dialogSurfaceBackground)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }
@@ -501,7 +500,6 @@ struct CommonPlacePickerView: View {
                 } else {
                     List(places) { place in
                         Button {
-                            CommonPlacesManager.shared.recordUsage(place.name)
                             onSelect(place)
                         } label: {
                             Label(place.name, systemImage: "mappin.circle")

@@ -6,9 +6,7 @@
 //  (top sync strip / middle match large cards / bottom tools small cards).
 //
 
-import Photos
 import SwiftUI
-import UIKit
 
 // MARK: - Model
 
@@ -36,6 +34,21 @@ struct ScoreboardMenuItem: Identifiable, Equatable {
     var enabled: Bool = true
 }
 
+enum ScoreboardMenuActionPolicy {
+    private static let actionsAllowedWhileScoringLocked: Set<String> = [
+        "resync",
+        "takeover",
+        "endLink",
+        "displaySettings",
+        "screenshot",
+        "exit"
+    ]
+
+    static func isAllowedWhileScoringLocked(_ action: String) -> Bool {
+        actionsAllowedWhileScoringLocked.contains(action)
+    }
+}
+
 // MARK: - Default items (aligned with HarmonyOS groups)
 
 enum ScoreboardMenuItemBuilder {
@@ -50,6 +63,7 @@ enum ScoreboardMenuItemBuilder {
         exchangeConfirming: Bool = false,
         finishConfirming: Bool = false,
         settleConfirming: Bool = false,
+        scoringEnabled: Bool = true,
         extraItems: [ScoreboardMenuItem] = []
     ) -> [ScoreboardMenuItem] {
         var items: [ScoreboardMenuItem] = []
@@ -60,7 +74,8 @@ enum ScoreboardMenuItemBuilder {
                 action: "undo",
                 group: .match,
                 icon: "arrow.uturn.backward",
-                keepDialogOpen: true
+                keepDialogOpen: true,
+                enabled: scoringEnabled
             )
         )
 
@@ -72,12 +87,19 @@ enum ScoreboardMenuItemBuilder {
                     group: .match,
                     icon: "arrow.left.arrow.right",
                     keepDialogOpen: true,
-                    confirming: exchangeConfirming
+                    confirming: exchangeConfirming,
+                    enabled: scoringEnabled
                 )
             )
         }
 
-        let matchExtras = extraItems.filter { $0.group == .match }
+        let matchExtras = extraItems.filter { $0.group == .match }.map { item in
+            var copy = item
+            if item.action != "frameRecord" {
+                copy.enabled = item.enabled && scoringEnabled
+            }
+            return copy
+        }
         items.append(contentsOf: matchExtras)
 
         items.append(
@@ -87,7 +109,8 @@ enum ScoreboardMenuItemBuilder {
                 group: .match,
                 icon: "arrow.counterclockwise",
                 keepDialogOpen: true,
-                confirming: resetConfirming
+                confirming: resetConfirming,
+                enabled: scoringEnabled
             )
         )
 
@@ -99,7 +122,8 @@ enum ScoreboardMenuItemBuilder {
                     group: .match,
                     icon: "checkmark.seal",
                     keepDialogOpen: true,
-                    confirming: settleConfirming
+                    confirming: settleConfirming,
+                    enabled: scoringEnabled
                 )
             )
         }
@@ -112,7 +136,8 @@ enum ScoreboardMenuItemBuilder {
                     group: .match,
                     icon: "flag.checkered",
                     keepDialogOpen: true,
-                    confirming: finishConfirming
+                    confirming: finishConfirming,
+                    enabled: scoringEnabled
                 )
             )
         }
@@ -170,11 +195,12 @@ enum ScoreboardMenuItemBuilder {
     static func orderedMatchItems(_ items: [ScoreboardMenuItem]) -> [ScoreboardMenuItem] {
         let undo = items.filter { $0.action == "undo" }
         let settle = items.filter {
-            $0.action.hasPrefix("settle") ||
+            ($0.action.hasPrefix("settle") && $0.action != "settleFrame") ||
             $0.action == "endGame" ||
             $0.action == "finish" ||
             $0.action == "exit"
         }
+        let finalFrameSettlement = items.filter { $0.action == "settleFrame" }
         let middle = items.filter {
             $0.action != "undo" &&
             !$0.action.hasPrefix("settle") &&
@@ -182,7 +208,7 @@ enum ScoreboardMenuItemBuilder {
             $0.action != "finish" &&
             $0.action != "exit"
         }
-        return undo + middle + settle
+        return undo + middle + settle + finalFrameSettlement
     }
 }
 
@@ -408,6 +434,7 @@ struct MenuDialog: View {
                 return
             }
             if item.action == "screenshot" {
+                ScreenshotSaveCoordinator.shared.prepareForCapture()
                 onClose()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     captureScoreboardScreenshot()
@@ -510,107 +537,7 @@ struct ScoreboardUsageHintView: View {
 }
 
 private func captureScoreboardScreenshot() {
-    guard let scene = UIApplication.shared.connectedScenes
-        .compactMap({ $0 as? UIWindowScene })
-        .first(where: { $0.activationState == .foregroundActive }),
-          let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else {
-        ScoreboardScreenshotToast.show(NSLocalizedString("screenshot_failed", value: "截图失败", comment: ""))
-        return
-    }
-    let renderer = UIGraphicsImageRenderer(bounds: window.bounds)
-    let image = renderer.image { _ in
-        window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
-    }
-    saveScoreboardScreenshotToPhotoLibrary(image)
-}
-
-private func saveScoreboardScreenshotToPhotoLibrary(_ image: UIImage) {
-    let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
-
-    switch status {
-    case .authorized, .limited:
-        performScoreboardScreenshotSave(image)
-    case .notDetermined:
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { newStatus in
-            DispatchQueue.main.async {
-                if newStatus == .authorized || newStatus == .limited {
-                    performScoreboardScreenshotSave(image)
-                } else {
-                    ScoreboardScreenshotToast.show(
-                        NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: "")
-                    )
-                }
-            }
-        }
-    case .denied, .restricted:
-        ScoreboardScreenshotToast.show(
-            NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: "")
-        )
-    @unknown default:
-        ScoreboardScreenshotToast.show(
-            NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: "")
-        )
-    }
-}
-
-private func performScoreboardScreenshotSave(_ image: UIImage) {
-    PHPhotoLibrary.shared().performChanges({
-        PHAssetChangeRequest.creationRequestForAsset(from: image)
-    }) { success, error in
-        DispatchQueue.main.async {
-            if success {
-                ScoreboardScreenshotToast.show(
-                    NSLocalizedString("screenshot_saved", value: "截图已保存", comment: "")
-                )
-            } else {
-                let errorMessage = error?.localizedDescription
-                    ?? NSLocalizedString("unknown_error", value: "未知错误", comment: "")
-                ScoreboardScreenshotToast.show(
-                    String(format: NSLocalizedString("save_failed", value: "保存失败: %@", comment: ""), errorMessage)
-                )
-            }
-        }
-    }
-}
-
-@MainActor
-private enum ScoreboardScreenshotToast {
-    private static var hostingController: UIHostingController<ToastView>?
-    private static var hideWorkItem: DispatchWorkItem?
-
-    static func show(_ message: String, duration: TimeInterval = 2.0) {
-        guard let scene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first(where: { $0.activationState == .foregroundActive }),
-              let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return }
-
-        hideWorkItem?.cancel()
-        hostingController?.view.removeFromSuperview()
-        hostingController = nil
-
-        let toast = ToastView(message: message)
-        let hosting = UIHostingController(rootView: toast)
-        hosting.view.backgroundColor = .clear
-        hosting.view.isUserInteractionEnabled = false
-        hosting.view.translatesAutoresizingMaskIntoConstraints = false
-        window.addSubview(hosting.view)
-        NSLayoutConstraint.activate([
-            hosting.view.leadingAnchor.constraint(equalTo: window.leadingAnchor),
-            hosting.view.trailingAnchor.constraint(equalTo: window.trailingAnchor),
-            hosting.view.topAnchor.constraint(equalTo: window.topAnchor),
-            hosting.view.bottomAnchor.constraint(equalTo: window.bottomAnchor),
-        ])
-        hostingController = hosting
-
-        let workItem = DispatchWorkItem {
-            hosting.view.removeFromSuperview()
-            if hostingController === hosting {
-                hostingController = nil
-            }
-        }
-        hideWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
-    }
+    ScreenshotSaveCoordinator.shared.captureCurrentWindowAndSubmit()
 }
 
 #Preview {

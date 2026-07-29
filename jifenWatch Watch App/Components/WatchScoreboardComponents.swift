@@ -480,7 +480,7 @@ struct WatchFinishedOverlay: View {
                     )
                 } else {
                     finishedActionButton(
-                        title: NSLocalizedString("watch_play_again", value: "再来一局", comment: ""),
+                        title: NSLocalizedString("watch_play_again", value: "再来一场", comment: ""),
                         background: WatchTheme.successGreen,
                         action: onPlayAgain
                     )

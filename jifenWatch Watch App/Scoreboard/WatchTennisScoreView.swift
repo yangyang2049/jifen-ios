@@ -1064,6 +1064,8 @@ struct WatchTennisScoreView: View {
                 WatchRecordParticipant(name: $0, score: 0)
             },
             projectConfiguration: [
+                "scoreCoreGameType": (isDoubles ? GameType.tennisDoubles : .tennis).rawValue,
+                "isSingles": String(state.doublesPlayerNames == nil),
                 "maxSets": String(state.rules.maxSets),
                 "usesNoAdScoring": String(state.rules.usesNoAdScoring),
                 "isDoubles": String(state.doublesPlayerNames != nil)

@@ -55,6 +55,9 @@ struct SimpleScoreboardView: View {
                     scoreFontSize: responsiveScoreFontSize,
                     nameType: .team,
                     scoreTextProvider: { _, team in "\(team.score)" },
+                    onEditModeChange: { editing in
+                        if editing { adjustTargetIsLeft = nil }
+                    },
                     showEndGame: true,
                     showSettleMatch: true,
                     onScorePanelTap: customAdjustEnabled
@@ -86,6 +89,7 @@ struct SimpleScoreboardView: View {
             if showGameOverDialog {
                 GameOverDialog(
                     winnerName: winnerName,
+                    gameType: .simpleScore,
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,
                     leftScore: viewModel.leftTeam.score,

@@ -25,6 +25,10 @@ enum ScoreboardLayoutMetrics {
     private static let mainToSetGapScale: CGFloat = 0.025
     private static let mainToSetGapMax: CGFloat = 24
 
+    /// HarmonyOS uses the displayed main-score size as the source of truth and
+    /// renders it at 70% while the inline +/- controls are visible.
+    private static let editMainScoreScale: CGFloat = 0.7
+
     static let playerGridNameHeightRatio: CGFloat = 0.075
     static let playerGridScoreRegionHeightRatio: CGFloat = 0.75
     static let playerGridScoreFontFillRatio: CGFloat = 0.85
@@ -41,6 +45,32 @@ enum ScoreboardLayoutMetrics {
         let accelerated = 1 + extra / mainScoreAccelerationReferenceHeight
         let responsive = mainScoreBaseSize + extra * mainScoreViewportHeightScale * accelerated
         return clampRound(responsive, min: mainScoreBaseSize, max: mainScoreMaxSize)
+    }
+
+    static func editMainScoreFontSize(regularSize: CGFloat) -> CGFloat {
+        (regularSize * editMainScoreScale).rounded()
+    }
+
+    /// Three-row doubles layouts have substantially less vertical room than
+    /// the standard two-panel template. Keep the phone result near 40/28,
+    /// while allowing larger windows to scale up without exceeding the normal
+    /// editing sizes.
+    static func compactEditMainScoreFontSize(regularSize: CGFloat, rowHeight: CGFloat) -> CGFloat {
+        Swift.min(
+            editMainScoreFontSize(regularSize: regularSize),
+            clampRound(rowHeight * 0.38, min: 40, max: 64)
+        )
+    }
+
+    static func compactEditSecondaryScoreFontSize(regularSize: CGFloat, rowHeight: CGFloat) -> CGFloat {
+        Swift.min(
+            regularSize,
+            clampRound(rowHeight * 0.27, min: 28, max: 44)
+        )
+    }
+
+    static func compactEditControlSize(rowHeight: CGFloat) -> CGFloat {
+        clampRound((rowHeight - 8) / 2, min: 36, max: 50)
     }
 
     static func setScoreFontSize(halfViewportHeight: CGFloat) -> CGFloat {
@@ -92,6 +122,14 @@ enum ScoreboardLayoutMetrics {
             return Swift.max(76, clamped)
         }
         return clamped
+    }
+
+    /// Moves the complete edit-content group by the same amount as the team
+    /// name. This preserves the normal name-to-score relationship while the
+    /// top-right confirmation button is being avoided.
+    static func editContentVerticalOffset(panelHeight: CGFloat) -> CGFloat {
+        nameTopPadding(panelHeight: panelHeight, isEditMode: true)
+            - nameTopPadding(panelHeight: panelHeight)
     }
 
     static func playerGridNameFontSize(cellHeight: CGFloat, baseSize: CGFloat = 16) -> CGFloat {

@@ -12,8 +12,8 @@ enum ScoreboardServeGeometry {
         doublesTopRow: Bool?,
         largeWindow: Bool
     ) -> CGFloat {
-        if doublesTopRow != nil {
-            return height / 2
+        if let doublesTopRow {
+            return doublesAnchorY(height: height, topRow: doublesTopRow)
         }
         let triangleCenterY = height / 2
         let gap: CGFloat = largeWindow ? 14 : 10

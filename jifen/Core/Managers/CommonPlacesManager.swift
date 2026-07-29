@@ -3,14 +3,10 @@ import Foundation
 struct CommonPlace: Codable, Hashable, Identifiable {
     let id: UUID
     var name: String
-    var useCount: Int
-    var lastUsedAt: Date?
 
-    init(id: UUID = UUID(), name: String, useCount: Int = 0, lastUsedAt: Date? = nil) {
+    init(id: UUID = UUID(), name: String) {
         self.id = id
         self.name = name
-        self.useCount = useCount
-        self.lastUsedAt = lastUsedAt
     }
 }
 
@@ -34,21 +30,17 @@ final class CommonPlacesManager {
               let places = try? JSONDecoder().decode([CommonPlace].self, from: data) else {
             return []
         }
-        return sorted(places)
+        return places
     }
 
-    func recordUsage(_ rawName: String) {
+    /// Automatically save a newly entered place without tracking usage or reordering existing places.
+    func savePlaceIfNeeded(_ rawName: String) {
         let name = normalize(rawName)
         guard !name.isEmpty else { return }
         var places = getAllPlaces()
-        if let index = places.firstIndex(where: { normalizedKey($0.name) == normalizedKey(name) }) {
-            places[index].name = name
-            places[index].useCount += 1
-            places[index].lastUsedAt = Date()
-        } else {
-            places.append(CommonPlace(name: name, useCount: 1, lastUsedAt: Date()))
-        }
-        save(Array(sorted(places).prefix(maxPlaces)))
+        guard !places.contains(where: { normalizedKey($0.name) == normalizedKey(name) }) else { return }
+        places.insert(CommonPlace(name: name), at: 0)
+        save(Array(places.prefix(maxPlaces)))
     }
 
     @discardableResult
@@ -123,10 +115,4 @@ final class CommonPlacesManager {
         normalize(raw).lowercased()
     }
 
-    private func sorted(_ places: [CommonPlace]) -> [CommonPlace] {
-        places.sorted {
-            if $0.useCount != $1.useCount { return $0.useCount > $1.useCount }
-            return ($0.lastUsedAt ?? .distantPast) > ($1.lastUsedAt ?? .distantPast)
-        }
-    }
 }

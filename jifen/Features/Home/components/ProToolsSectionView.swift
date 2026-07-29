@@ -1,18 +1,45 @@
 import SwiftUI
 
-// MARK: - ToolDef
-struct ToolDef: Identifiable {
-    let id: String
-    var name: String // Will be localized
-    let icon: String
-    let color: Color
+enum HomeToolsLayoutPolicy {
+    static let minimumWideColumns = 4
+    static let maximumWideColumns = 8
+    static let wideItemMinimumWidth: CGFloat = 92
+    static let wideColumnSpacing: CGFloat = 8
+
+    private static let compactToolIDs = [
+        "flip_coin", "dice", "whistle", "red_yellow_card",
+        "points_table", "time", "aa_calculator", "ten_second"
+    ]
+
+    static func tools(isWide: Bool) -> [ToolItem] {
+        if isWide {
+            return ToolItem.allTools
+        }
+
+        let toolsByID = Dictionary(uniqueKeysWithValues: ToolItem.allTools.map { ($0.id, $0) })
+        return compactToolIDs.compactMap { toolsByID[$0] }
+    }
+
+    static func wideColumnCount(forWidth width: CGFloat, toolCount: Int) -> Int {
+        guard toolCount > 0 else { return 1 }
+
+        let estimated = Int(
+            (max(0, width) + wideColumnSpacing)
+                / (wideItemMinimumWidth + wideColumnSpacing)
+        )
+        let minimum = min(minimumWideColumns, toolCount)
+        return min(
+            min(maximumWideColumns, toolCount),
+            max(minimum, estimated)
+        )
+    }
 }
 
 // MARK: - ToolItemView
 struct ToolItemView: View {
-    let name: String
-    let icon: String
+    let tool: ToolItem
     let iconColor: Color
+    let isWide: Bool
     var isDarkTheme: Bool
     var onClickCallback: (() -> Void)? = nil
 
@@ -23,7 +50,7 @@ struct ToolItemView: View {
             VStack(spacing: Theme.sm) {
                 // Icon Container
                 ZStack {
-                    Text(icon)
+                    Text(tool.emoji)
                         .font(.system(size: 32))
                         .foregroundColor(iconColor)
                 }
@@ -37,15 +64,19 @@ struct ToolItemView: View {
                 .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1)
 
                 // Label
-                Text(name)
+                Text(tool.title)
                     .font(.system(size: Theme.fontBody2, weight: .bold))
                     .foregroundColor(isDarkTheme ? Theme.textSecondary : Theme.textSecondary)
                     .lineLimit(1)
                     .truncationMode(.tail)
+                    .minimumScaleFactor(0.8)
             }
-            .frame(width: 84)
+            .frame(maxWidth: isWide ? .infinity : nil)
+            .frame(width: isWide ? nil : 84)
         }
         .buttonStyle(CardButtonStyle()) // Using the custom button style for animations
+        .accessibilityIdentifier("home_tool_\(tool.id)")
+        .accessibilityLabel(tool.title)
     }
 }
 
@@ -53,39 +84,32 @@ struct ToolItemView: View {
 struct ProToolsSectionView: View {
     var isWide: Bool = false
     var isDarkTheme: Bool = true
-    var onToolClick: ((String) -> Void)? = nil
+    var availableWidth: CGFloat = 0
+    var onToolClick: ((ToolItem) -> Void)? = nil
     var onEnterToolsPage: (() -> Void)? = nil
 
-    @State private var tools: [ToolDef] = []
-    @State private var homeToolsText: String = NSLocalizedString("home_tools", comment: "Tools section title")
+    private let homeToolsText = NSLocalizedString("home_tools", comment: "Tools section title")
 
-    init(isWide: Bool = false, isDarkTheme: Bool = true, onToolClick: ((String) -> Void)? = nil, onEnterToolsPage: (() -> Void)? = nil) {
+    init(
+        isWide: Bool = false,
+        isDarkTheme: Bool = true,
+        availableWidth: CGFloat = 0,
+        onToolClick: ((ToolItem) -> Void)? = nil,
+        onEnterToolsPage: (() -> Void)? = nil
+    ) {
         self.isWide = isWide
         self.isDarkTheme = isDarkTheme
+        self.availableWidth = availableWidth
         self.onToolClick = onToolClick
         self.onEnterToolsPage = onEnterToolsPage
-        _tools = State(initialValue: Self.initialTools())
     }
 
-    /// 按可用宽度计算列数 6～8，单格约 84pt + spacing，避免过疏或过密
-    private static func columnCount(forWidth width: CGFloat) -> Int {
-        let spacing = Theme.md
-        let minCellWidth: CGFloat = 84
-        let fit = Int((width + spacing) / (minCellWidth + spacing))
-        return min(8, max(6, fit))
+    private var tools: [ToolItem] {
+        HomeToolsLayoutPolicy.tools(isWide: isWide)
     }
 
-    private static func initialTools() -> [ToolDef] {
-        return [
-            ToolDef(id: "flip_coin", name: NSLocalizedString("tool_flip_coin", comment: "Flip Coin"), icon: "🪙", color: Theme.toolGray),
-            ToolDef(id: "dice", name: NSLocalizedString("tool_dice", comment: "Dice"), icon: "🎲", color: Theme.toolGray),
-            ToolDef(id: "whistle", name: NSLocalizedString("home_tool_whistle", comment: "Whistle"), icon: "🔊", color: Theme.toolWhistleRed),
-            ToolDef(id: "red_yellow_card", name: NSLocalizedString("tool_red_yellow_card", comment: "Red Yellow Card"), icon: "🟨", color: Theme.toolGray),
-            ToolDef(id: "points_table", name: NSLocalizedString("points_table_title", value: "积分表", comment: ""), icon: "📊", color: Theme.toolGray),
-            ToolDef(id: "time", name: NSLocalizedString("tool_time", value: "翻页时钟", comment: "Flip Clock"), icon: "🕐", color: Theme.toolGray),
-            ToolDef(id: "aa_calculator", name: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), icon: "💰", color: Theme.toolGray),
-            ToolDef(id: "ten_second", name: NSLocalizedString("tool_ten_second", comment: "Ten Second Challenge"), icon: "⏱️", color: Theme.toolGray),
-        ]
+    private func iconColor(for tool: ToolItem) -> Color {
+        tool.id == "whistle" ? Theme.toolWhistleRed : Theme.toolGray
     }
 
     var body: some View {
@@ -96,7 +120,7 @@ struct ProToolsSectionView: View {
                     .font(.system(size: Theme.fontH5, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
                 Spacer()
-                if let onEnterToolsPage = onEnterToolsPage {
+                if !isWide, let onEnterToolsPage = onEnterToolsPage {
                     Button(action: onEnterToolsPage) {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 14, weight: .medium))
@@ -107,39 +131,44 @@ struct ProToolsSectionView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.bottom, Theme.md)
+            .padding(.bottom, Theme.sectionContentSpacing)
 
             if isWide {
-                // Desktop/Tablet: 按宽度算列数 6～8，避免过疏或过密
-                GeometryReader { geo in
-                    let columns = Self.columnCount(forWidth: geo.size.width)
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Theme.md), count: columns), spacing: Theme.md) {
-                        ForEach(tools) { tool in
-                            ToolItemView(
-                                name: tool.name,
-                                icon: tool.icon,
-                                iconColor: tool.color,
-                                isDarkTheme: isDarkTheme,
-                                onClickCallback: {
-                                    onToolClick?(tool.id)
-                                }
-                            )
-                        }
+                let columnCount = HomeToolsLayoutPolicy.wideColumnCount(
+                    forWidth: availableWidth,
+                    toolCount: tools.count
+                )
+                LazyVGrid(
+                    columns: Array(
+                        repeating: GridItem(.flexible(), spacing: HomeToolsLayoutPolicy.wideColumnSpacing),
+                        count: columnCount
+                    ),
+                    spacing: 20
+                ) {
+                    ForEach(tools) { tool in
+                        ToolItemView(
+                            tool: tool,
+                            iconColor: iconColor(for: tool),
+                            isWide: true,
+                            isDarkTheme: isDarkTheme,
+                            onClickCallback: {
+                                onToolClick?(tool)
+                            }
+                        )
                     }
                 }
-                .frame(minHeight: 200)
             } else {
                 // Mobile: Horizontal Scroll List
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 0) { // List({ space: 0 }), listDirection(Axis.Horizontal)
                         ForEach(tools) { tool in
                             ToolItemView(
-                                name: tool.name,
-                                icon: tool.icon,
-                                iconColor: tool.color,
+                                tool: tool,
+                                iconColor: iconColor(for: tool),
+                                isWide: false,
                                 isDarkTheme: isDarkTheme,
                                 onClickCallback: {
-                                    onToolClick?(tool.id)
+                                    onToolClick?(tool)
                                 }
                             )
                         }

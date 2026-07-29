@@ -91,7 +91,7 @@ struct FullscreenBarrageView: View {
                     HStack(spacing: 12) {
                         displayButton(
                             NSLocalizedString("barrage_scroll_display", value: "滚动显示", comment: ""),
-                            color: Color(hex: "2563EB"),
+                            color: Theme.primary,
                             mode: .scroll
                         )
                         displayButton(
@@ -212,7 +212,7 @@ struct FullscreenBarrageView: View {
                     mode = .scroll
                     scrollStartedAt = Date()
                 }
-                .buttonStyle(BarrageModeButtonStyle(color: Color(hex: "2563EB")))
+                .buttonStyle(BarrageModeButtonStyle(color: Theme.primary))
                 .frame(maxWidth: .infinity)
 
                 Button(NSLocalizedString("barrage_static_mode", value: "静态", comment: "")) {
@@ -283,7 +283,7 @@ struct FullscreenBarrageView: View {
             Text("\(title): \(Int(value.wrappedValue))")
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.8))
-            Slider(value: value, in: range).tint(.blue)
+            Slider(value: value, in: range).tint(Theme.primary)
         }
         .frame(maxWidth: .infinity)
     }

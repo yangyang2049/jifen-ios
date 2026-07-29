@@ -1107,8 +1107,11 @@ struct WatchRallyScoreView: View {
                 WatchRecordParticipant(name: $0, score: 0)
             },
             projectConfiguration: [
+                "scoreCoreGameType": gameType.rawValue,
+                "isSingles": String(state.doubles == nil),
                 "maxSets": String(state.rules.maxSets),
                 "pointsPerSet": String(state.rules.pointsToWinSet),
+                "useRallyScoring": String(state.rules.useRallyScoring),
                 "rallyScoring": String(state.rules.useRallyScoring),
                 "isDoubles": String(state.doubles != nil)
             ]

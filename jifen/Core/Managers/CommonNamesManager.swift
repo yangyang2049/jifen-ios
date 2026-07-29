@@ -56,17 +56,15 @@ class CommonNamesManager {
         Self.presetNameKeys.contains(normalized.lowercased())
     }
 
-    // Record usage of a name, moving it to the top of the list.
-    func recordUsage(_ name: String, _ type: NameType) async {
+    /// Automatically save a newly entered name without tracking usage or reordering existing names.
+    func saveNameIfNeeded(_ name: String, _ type: NameType) async {
         let normalized = normalizeName(name)
         guard !normalized.isEmpty else { return }
         if isPresetName(normalized) { return }
 
         var names = getNames(type: type)
         let key = normalizedKey(normalized)
-
-        // Remove existing entry to move it to the top.
-        names.removeAll { normalizedKey($0) == key }
+        guard !names.contains(where: { normalizedKey($0) == key }) else { return }
         names.insert(normalized, at: 0)
 
         if names.count > maxNames {

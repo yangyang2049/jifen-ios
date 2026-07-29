@@ -173,6 +173,43 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         timeline
     }
 
+    /// Updates participant display information without forking score state.
+    /// Existing undo frames are rewritten with the same participant metadata so
+    /// undoing a score never resurrects stale names in resume/session indexes.
+    @discardableResult
+    public func updateParticipants(_ participants: [SessionParticipant]) -> ScoreSession<State, Event> {
+        func replacingParticipants(
+            in session: ScoreSession<State, Event>,
+            version: UInt64? = nil
+        ) -> ScoreSession<State, Event> {
+            ScoreSession(
+                sessionId: session.sessionId,
+                gameType: session.gameType,
+                ruleFamily: session.ruleFamily,
+                reducerType: session.reducerType,
+                version: version ?? session.version,
+                state: session.state,
+                events: session.events,
+                status: session.status,
+                participants: participants,
+                metadata: session.metadata
+            )
+        }
+
+        replaySeed = replacingParticipants(in: replaySeed)
+        currentSession = replacingParticipants(
+            in: currentSession,
+            version: currentSession.version + 1
+        )
+        undoStack = undoStack.map {
+            UndoFrame(
+                session: replacingParticipants(in: $0.session),
+                intentCount: $0.intentCount
+            )
+        }
+        return currentSession
+    }
+
     /// Replaces the local reducer baseline with an authoritative state received
     /// from another controller. Authority hand-offs are an undo/replay boundary:
     /// remote intents are not available locally, so neither undo nor replay may
@@ -232,7 +269,10 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         if recordsUndo {
             undoStack.append(UndoFrame(session: currentSession, intentCount: 1))
         }
-        let status: SessionStatus = shouldFinish(intent, result.state) ? .finished : currentSession.status
+        // Reducer state is the source of truth for the session lifecycle. A
+        // successful reset/admin correction can legitimately move a finished
+        // match back to a live state.
+        let status: SessionStatus = shouldFinish(intent, result.state) ? .finished : .live
         currentSession = ScoreSession(
             sessionId: currentSession.sessionId,
             gameType: currentSession.gameType,
@@ -281,7 +321,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
                 version: session.version + 1,
                 state: result.state,
                 events: session.events + result.events,
-                status: shouldFinish(record.intent, result.state) ? .finished : session.status,
+                status: shouldFinish(record.intent, result.state) ? .finished : .live,
                 participants: session.participants,
                 metadata: session.metadata
             )

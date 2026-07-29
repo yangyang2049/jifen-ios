@@ -43,7 +43,7 @@ struct QuickStartGridView: View {
                     .cornerRadius(22) // borderRadius(22)
                 }
                 .frame(maxWidth: .infinity) // width('100%')
-                .padding(.bottom, Theme.md) // margin({ bottom: 16 })
+                .padding(.bottom, Theme.sectionContentSpacing)
             }
 
             // Grid (using SwiftUI's native Grid for iOS 16+)
@@ -114,7 +114,7 @@ struct QuickStartGridView: View {
                                             .clipShape(Circle())
                                     }
                                 }
-                                .padding(Theme.md)
+                                .padding(Theme.cardPadding)
                             }
                         }
                         .buttonStyle(.plain)

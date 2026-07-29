@@ -147,7 +147,8 @@ struct DualPlayerTimerView: View {
         let timeColor = clock.inByoyomi ? Color(hex: "FF3B30") : fgColor
 
         let panelWidth = geo.size.width / 2
-        let timeFontSize = min(max(76, panelWidth * 0.24), 190)
+        let clockText = formatClockText(clock)
+        let timeFontSize = clockFontSize(text: clockText, panelWidth: panelWidth)
 
         return Button {
             onPlayerAreaTapped(playerID)
@@ -158,7 +159,7 @@ struct DualPlayerTimerView: View {
                 VStack(spacing: 10) {
                     Spacer(minLength: 0)
 
-                    Text(formatClockText(clock))
+                    Text(clockText)
                         .font(.system(size: timeFontSize, weight: .bold, design: .monospaced))
                         .foregroundColor(timeColor)
                         .lineLimit(1)
@@ -781,6 +782,12 @@ struct DualPlayerTimerView: View {
             return String(format: "%02d:%02d:%02d", hours, minutes, secs)
         }
         return String(format: "%02d:%02d", minutes, secs)
+    }
+
+    private func clockFontSize(text: String, panelWidth: CGFloat) -> CGFloat {
+        let standardSize = min(max(76, panelWidth * 0.24), 190)
+        guard text.count > 5 else { return standardSize }
+        return max(54, standardSize * 0.72)
     }
 
     private func displaySeconds(for clock: PlayerClockState) -> Double {

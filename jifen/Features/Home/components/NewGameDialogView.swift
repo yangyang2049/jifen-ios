@@ -61,7 +61,7 @@ struct NewGameDialogView: View {
                     }
                 }
             }
-            .background(Color.clear)
+            .background(Theme.dialogSurfaceBackground)
             .navigationTitle(NSLocalizedString("dialog_new_game_title", comment: "New Game"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -77,6 +77,7 @@ struct NewGameDialogView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private func gameItem(gameType: GameType) -> some View {

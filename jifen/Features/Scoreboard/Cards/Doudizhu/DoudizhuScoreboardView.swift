@@ -34,8 +34,7 @@ struct DoudizhuScoreboardView: View {
     @State private var recordID: String
     @State private var showMenu = false
     @State private var isEditMode = false
-    @State private var editingIndex: Int? = nil
-    @State private var editName = ""
+    @State private var editNames: [String]
     @State private var activeCommonNameIndex: Int? = nil
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var exitClickTime: TimeInterval = 0
@@ -114,11 +113,13 @@ struct DoudizhuScoreboardView: View {
         _gameFinished = State(initialValue: finished)
         _showGameOverDialog = State(initialValue: finished)
         _actions = State(initialValue: restoredActions)
+        _editNames = State(initialValue: initialPlayers.map(\.name))
     }
 
-    /// HOS: left red / center success green (black in retro) / right blue
+    /// HOS: left/right follow the scoreboard theme; the center stays success
+    /// green except in retro, where all three panels are black.
     private var panelColors: [Color] {
-        let center: Color = appearance.theme == .retro ? .black : Color(hex: "4CAF50")
+        let center = appearance.theme == .retro ? Color.black : Color(hex: "4CAF50")
         return [
             appearance.theme.palette.left,
             center,
@@ -131,7 +132,7 @@ struct DoudizhuScoreboardView: View {
             let w = geo.size.width
             let h = geo.size.height
             ZStack {
-                Color.black.ignoresSafeArea()
+                appearance.theme.palette.background.ignoresSafeArea()
                 HStack(spacing: 0) {
                     ForEach(Array(players.enumerated()), id: \.element.id) { index, p in
                         doudizhuPlayerPanel(index: index, player: p, width: w / 3, height: h)
@@ -144,21 +145,6 @@ struct DoudizhuScoreboardView: View {
 
                 if !isEditMode && !showScorePanel && shouldShowChrome {
                     bottomControls
-                    // Center + button opens HOS-style settle panel
-                    VStack {
-                        Spacer()
-                        Button {
-                            showScorePanel = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: 60, height: 60)
-                                .background(Circle().fill(Color.black.opacity(0.35)))
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.bottom, 100)
-                    }
                 }
 
                 if appearance.immersiveMode && !chromeVisible && !isEditMode && !showScorePanel {
@@ -186,6 +172,7 @@ struct DoudizhuScoreboardView: View {
                 if showGameOverDialog {
                     GameOverDialog(
                         winnerName: finishedWinnerName,
+                        gameType: .doudizhu,
                         multiNames: players.map(\.name),
                         multiScores: players.map(\.score),
                         onNewGame: {
@@ -228,6 +215,24 @@ struct DoudizhuScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.55)
+                .onEnded { _ in
+                    guard !isEditMode, !showScorePanel else { return }
+                    showMenu = true
+                    revealImmersiveChrome()
+                }
+        )
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 50)
+                .onEnded { value in
+                    guard !isEditMode,
+                          !showScorePanel,
+                          value.translation.width < -50,
+                          abs(value.translation.width) > abs(value.translation.height) else { return }
+                    undoLast()
+                }
+        )
         .onAppear {
             if let setup = initialSetup {
                 if let names = setup.playerNames, !names.isEmpty {
@@ -258,9 +263,10 @@ struct DoudizhuScoreboardView: View {
         )) {
             CommonNameSelectorDialog(nameType: .player) { selectedName in
                 if let index = activeCommonNameIndex, players.indices.contains(index) {
-                    players[index].name = selectedName
-                    if editingIndex == index {
-                        editName = selectedName
+                    if isEditMode, editNames.indices.contains(index) {
+                        editNames[index] = selectedName
+                    } else {
+                        players[index].name = selectedName
                     }
                 }
                 activeCommonNameIndex = nil
@@ -296,8 +302,9 @@ struct DoudizhuScoreboardView: View {
                 Spacer()
                 Button {
                     if isEditMode {
-                        confirmEditIfNeeded()
-                        editingIndex = nil
+                        commitDoudizhuEditNames()
+                    } else {
+                        editNames = players.map(\.name)
                     }
                     isEditMode.toggle()
                     VibrationManager.shared.vibrateMedium()
@@ -307,7 +314,7 @@ struct DoudizhuScoreboardView: View {
                         .foregroundColor(.white)
                         .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                         .background(
-                            Circle().fill(isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.25))
+                            Circle().fill(isEditMode ? Theme.primary : Color.black.opacity(0.25))
                         )
                 }
                 .padding(.trailing, ScoreboardConstants.buttonPadding)
@@ -338,6 +345,21 @@ struct DoudizhuScoreboardView: View {
                 Spacer()
 
                 Button {
+                    showScorePanel = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: ScoreboardConstants.buttonIconSize, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                        .background(Circle().fill(Color.black.opacity(0.35)))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("add_score", value: "加分", comment: ""))
+                .padding(.bottom, ScoreboardConstants.buttonPadding)
+
+                Spacer()
+
+                Button {
                     showMenu = true
                 } label: {
                     Image(systemName: "line.3.horizontal")
@@ -361,67 +383,130 @@ struct DoudizhuScoreboardView: View {
         )
         return ZStack {
             panelColors[index % 3]
-            VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: height)) {
-                Text("\(player.score)")
-                    .font(appearance.font.swiftUIFont(size: scoreSize))
-                    .monospacedDigit()
-                    .foregroundColor(.white)
-                    .minimumScaleFactor(0.4)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            if isEditMode {
+                let editOffset = ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: height)
+                ZStack {
+                    HStack(spacing: 16) {
+                        doudizhuEditCircleButton(systemName: "minus") {
+                            adjustDoudizhuEditScore(index: index, delta: -1)
+                        }
+                        Text("\(player.score)")
+                            .font(appearance.font.swiftUIFont(
+                                size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: scoreSize)
+                            ))
+                            .monospacedDigit()
+                            .foregroundColor(appearance.theme.palette.foreground)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                        doudizhuEditCircleButton(systemName: "plus") {
+                            adjustDoudizhuEditScore(index: index, delta: 1)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .offset(y: editOffset)
 
-            VStack {
-                if isEditMode && editingIndex == index {
-                    HStack(spacing: 6) {
-                        TextField(NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""), text: $editName)
+                    VStack(spacing: 0) {
+                        HStack(spacing: 6) {
+                            TextField(
+                                NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
+                                text: playerNameBinding(index)
+                            )
                             .font(.system(size: nameSize, weight: .bold))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .textFieldStyle(.plain)
-                            .onSubmit { confirmEdit(index: index) }
-                        Button { activeCommonNameIndex = index } label: {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
-                                .frame(width: 28, height: 28)
+                            Button { activeCommonNameIndex = index } label: {
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.white.opacity(0.9))
+                                    .frame(width: 28, height: 28)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
+                        .padding(8)
+                        .background(Color.black.opacity(0.12))
+                        .cornerRadius(8)
+                        .padding(.horizontal, 16)
+                        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: height))
+                        Spacer(minLength: 0)
                     }
-                    .padding(8)
-                    .background(Color.black.opacity(0.12))
-                    .cornerRadius(8)
-                    .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: height, isEditMode: true))
-                } else {
+                    .offset(y: editOffset)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: height)) {
+                    Text("\(player.score)")
+                        .font(appearance.font.swiftUIFont(size: scoreSize))
+                        .monospacedDigit()
+                        .foregroundColor(appearance.theme.palette.foreground)
+                        .minimumScaleFactor(0.4)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                VStack {
                     Text(player.name)
                         .font(.system(size: nameSize, weight: .bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                         .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: height))
-                        .onTapGesture {
-                            if isEditMode {
-                                editingIndex = index
-                                editName = player.name
-                            }
-                        }
+                    Spacer()
                 }
-                Spacer()
             }
         }
         .frame(width: width, height: height)
         .contentShape(Rectangle())
-        .onTapGesture {
-            if isEditMode {
-                editingIndex = index
-                editName = player.name
+    }
+
+    private func playerNameBinding(_ index: Int) -> Binding<String> {
+        Binding(
+            get: { editNames.indices.contains(index) ? editNames[index] : "" },
+            set: { value in
+                guard editNames.indices.contains(index) else { return }
+                editNames[index] = value
             }
+        )
+    }
+
+    private func commitDoudizhuEditNames() {
+        for index in players.indices where editNames.indices.contains(index) {
+            let name = editNames[index].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty else {
+                editNames[index] = players[index].name
+                continue
+            }
+            guard name != players[index].name else { continue }
+            players[index].name = name
+            Task { await commonNamesManager.saveNameIfNeeded(name, .player) }
         }
+    }
+
+    private func doudizhuEditCircleButton(systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(Color.white.opacity(0.75))
+                .frame(width: 50, height: 50)
+                .background(Circle().fill(Color.white.opacity(0.08)))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func adjustDoudizhuEditScore(index: Int, delta: Int) {
+        guard players.indices.contains(index) else { return }
+        let (next, overflow) = players[index].score.addingReportingOverflow(delta)
+        guard !overflow else { return }
+        history.append(players.map(\.score))
+        if history.count > 50 { history.removeFirst() }
+        players[index].score = next
+        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|editScore|\(index),\(delta)")
+        VibrationManager.shared.vibrateLight()
     }
 
     /// HOS-style 320pt bottom settle overlay (not a system sheet).
     private func doudizhuBottomSettleOverlay(containerWidth: CGFloat) -> some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .bottomLeading) {
             Color.black.opacity(0.35)
                 .ignoresSafeArea()
                 .onTapGesture { showScorePanel = false }
@@ -474,7 +559,7 @@ struct DoudizhuScoreboardView: View {
                                         .frame(maxWidth: .infinity, minHeight: 46)
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .fill(selectedWinners[index] ? Color(hex: "007AFF") : Color.white.opacity(0.2))
+                                                .fill(selectedWinners[index] ? Theme.primary : Color.white.opacity(0.2))
                                         )
                                 }
                                 .buttonStyle(.plain)
@@ -501,25 +586,12 @@ struct DoudizhuScoreboardView: View {
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: containerWidth * 0.45, height: 50)
-                        .background(Capsule().fill(doudizhuWinnerSelectionValid ? Color(hex: "007AFF") : Color.white.opacity(0.2)))
+                        .background(Capsule().fill(doudizhuWinnerSelectionValid ? Theme.primary : Color.white.opacity(0.2)))
                 }
                 .buttonStyle(.plain)
                 .disabled(!doudizhuWinnerSelectionValid)
                 .padding(.vertical, 16)
 
-                HStack {
-                    Button { showScorePanel = false } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(.white)
-                            .frame(width: 48, height: 48)
-                            .background(Circle().fill(Color.black.opacity(0.35)))
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.leading, 20)
-                    .padding(.bottom, 16)
-                    Spacer()
-                }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 320)
@@ -529,17 +601,30 @@ struct DoudizhuScoreboardView: View {
                     selectedWinners = [true, false, false]
                 }
             }
+
+            Button { showScorePanel = false } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: ScoreboardConstants.buttonIconSize, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                    .background(Circle().fill(Color.black.opacity(0.35)))
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, ScoreboardConstants.buttonPadding)
+            .padding(.bottom, ScoreboardConstants.buttonPadding)
         }
         .ignoresSafeArea()
     }
 
     private func settleColumn<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .center, spacing: 10) {
             Text(title)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
+                .frame(maxWidth: .infinity, alignment: .center)
             content()
         }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private func settleChip(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
@@ -548,7 +633,7 @@ struct DoudizhuScoreboardView: View {
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(width: 60, height: 45)
-                .background(RoundedRectangle(cornerRadius: 12).fill(selected ? Color(hex: "007AFF") : Color.white.opacity(0.2)))
+                .background(RoundedRectangle(cornerRadius: 12).fill(selected ? Theme.primary : Color.white.opacity(0.2)))
         }
         .buttonStyle(.plain)
     }
@@ -738,24 +823,6 @@ struct DoudizhuScoreboardView: View {
         }
     }
 
-    private func confirmEdit(index: Int) {
-        let name = editName.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !name.isEmpty {
-            players[index].name = name
-            Task {
-                await commonNamesManager.recordUsage(name, .player)
-            }
-        }
-        editingIndex = nil
-        editName = ""
-    }
-
-    private func confirmEditIfNeeded() {
-        if let index = editingIndex {
-            confirmEdit(index: index)
-        }
-    }
-
     private func saveRecord(finished: Bool = false) {
         let totalChanges = history.count
         let hasProgress = totalChanges > 0 || players.contains(where: { $0.score != 0 }) || finished || gameFinished
@@ -770,7 +837,13 @@ struct DoudizhuScoreboardView: View {
             scores: players.map(\.score),
             finished: isFinished
         )
-        let snapshotData = try? JSONEncoder().encode(draft)
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(draft)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode doudizhu record \(recordID)")
+            return
+        }
         var winner: String?
         if isFinished {
             let scores = players.map(\.score)
@@ -802,8 +875,12 @@ struct DoudizhuScoreboardView: View {
             stateSnapshot: snapshotData,
             status: isFinished ? .finished : .draft
         )
-        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        ScoreboardRecordsViewModel.shared.refreshRecords()
+        do {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+            ScoreboardRecordsViewModel.shared.refreshRecords()
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save doudizhu record \(recordID)")
+        }
     }
 
     private func handleExitAttempt(fromMenu: Bool) {
@@ -811,7 +888,6 @@ struct DoudizhuScoreboardView: View {
             if menuConfirm.armOrConfirm(.exit) {
                 toastMessage = nil
                 showMenu = false
-                confirmEditIfNeeded()
                 saveRecord(finished: gameFinished)
                 OrientationLock.shared.unlock()
                 onNavigationBack?()
@@ -826,7 +902,6 @@ struct DoudizhuScoreboardView: View {
         if currentTime - exitClickTime < 2000 && exitClickTime > 0 {
             exitClickTime = 0
             toastMessage = nil
-            confirmEditIfNeeded()
             saveRecord(finished: gameFinished)
             OrientationLock.shared.unlock()
             onNavigationBack?()

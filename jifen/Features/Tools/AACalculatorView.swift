@@ -258,9 +258,10 @@ struct AACalculatorView: View {
                     }
                     .padding(.top, 16)
                 }
-                .frame(maxWidth: 600)
+                .frame(maxWidth: Theme.focusedContentMaxWidth)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 24)
+                .frame(maxWidth: .infinity)
             }
             .scrollIndicators(.hidden)
         }

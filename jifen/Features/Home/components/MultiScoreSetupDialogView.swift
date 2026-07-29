@@ -62,6 +62,7 @@ struct MultiScoreSetupDialogView: View {
         defaultTeam1Name: String = "",
         defaultTeam2Name: String = "",
         initialTargetScore: Int = 500,
+        initialSetup: SportsSetupResult? = nil,
         titleEmoji: String = "👥",
         titleKey: String = "game_multi_scoreboard",
         titleFallback: String = "多人计分",
@@ -120,7 +121,7 @@ struct MultiScoreSetupDialogView: View {
             : defaultTeam2Name)
         let validTargets = [300, 500, 700, 1000]
         _unoTargetScore = State(initialValue: validTargets.contains(initialTargetScore) ? initialTargetScore : 500)
-        let initialCustomAdjust: Bool = {
+        let initialCustomAdjust: Bool = initialSetup?.multiScoreCustomAdjustEnabled ?? {
             switch mode {
             case .multiScore:
                 return PreferencesManager.shared.multiScoreboardCustomAdjustEnabled
@@ -131,9 +132,9 @@ struct MultiScoreSetupDialogView: View {
             }
         }()
         _customAdjustEnabled = State(initialValue: initialCustomAdjust)
-        _guandanTripleA = State(initialValue: PreferencesManager.shared.guandanSetupTripleA)
-        _guandanPassACondition = State(initialValue: PreferencesManager.shared.guandanSetupPassACondition)
-        _guandanFallbackRank = State(initialValue: PreferencesManager.shared.guandanSetupTripleAFallbackRank)
+        _guandanTripleA = State(initialValue: initialSetup?.guandanTripleA ?? PreferencesManager.shared.guandanSetupTripleA)
+        _guandanPassACondition = State(initialValue: initialSetup?.guandanPassACondition ?? PreferencesManager.shared.guandanSetupPassACondition)
+        _guandanFallbackRank = State(initialValue: initialSetup?.guandanTripleAFallbackRank ?? PreferencesManager.shared.guandanSetupTripleAFallbackRank)
     }
 
     private static func defaultDoudizhuNames() -> [String] {
@@ -168,11 +169,10 @@ struct MultiScoreSetupDialogView: View {
                     + NSLocalizedString("setup_suffix", value: " 设置", comment: ""))
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
-                Spacer(minLength: 0)
             }
-            .padding(.horizontal, Theme.lg)
-            .padding(.top, Theme.sm)
-            .padding(.vertical, Theme.md)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .padding(.horizontal, Theme.md)
         } content: { maxContentHeight in
             AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(alignment: .leading, spacing: Theme.md) {
@@ -208,7 +208,7 @@ struct MultiScoreSetupDialogView: View {
                         .font(.system(size: 16))
                         .foregroundColor(Theme.textSecondary)
                         .frame(width: 100, height: 44)
-                        .background(Theme.homeCardDark)
+                        .background(Theme.dialogControlBackground)
                         .cornerRadius(.infinity)
                 }
                 .buttonStyle(.plain)
@@ -260,7 +260,7 @@ struct MultiScoreSetupDialogView: View {
                             .foregroundColor(selectedPlayerCount == count ? .white : Theme.textPrimary)
                             .padding(.horizontal, Theme.sm)
                             .padding(.vertical, Theme.xs)
-                            .background(selectedPlayerCount == count ? Theme.primary : Theme.homeCardDark)
+                            .background(selectedPlayerCount == count ? Theme.primary : Theme.dialogControlBackground)
                             .cornerRadius(Theme.sm)
                     }
                     .buttonStyle(.plain)
@@ -358,7 +358,7 @@ struct MultiScoreSetupDialogView: View {
                                 .font(.system(size: 14, weight: guandanFallbackRank == rank ? .medium : .regular))
                                 .foregroundStyle(guandanFallbackRank == rank ? Color.white : Theme.textPrimary)
                                 .frame(width: 44, height: 36)
-                                .background(guandanFallbackRank == rank ? Theme.primary : Theme.homeCardDark)
+                                .background(guandanFallbackRank == rank ? Theme.primary : Theme.dialogControlBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                         .buttonStyle(.plain)
@@ -377,7 +377,7 @@ struct MultiScoreSetupDialogView: View {
                 .foregroundStyle(guandanPassACondition == id ? Color.white : Theme.textPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
-                .background(guandanPassACondition == id ? Theme.primary : Theme.homeCardDark)
+                .background(guandanPassACondition == id ? Theme.primary : Theme.dialogControlBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -399,7 +399,7 @@ struct MultiScoreSetupDialogView: View {
                             .foregroundStyle(unoTargetScore == score ? Color.white : Theme.textPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
-                            .background(unoTargetScore == score ? Theme.primary : Theme.homeCardDark)
+                            .background(unoTargetScore == score ? Theme.primary : Theme.dialogControlBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .buttonStyle(.plain)
@@ -454,8 +454,8 @@ struct MultiScoreSetupDialogView: View {
             let final1 = t1.isEmpty ? fallback1 : t1
             let final2 = t2.isEmpty ? fallback2 : t2
             Task {
-                await commonNamesManager.recordUsage(final1, .team)
-                await commonNamesManager.recordUsage(final2, .team)
+                await commonNamesManager.saveNameIfNeeded(final1, .team)
+                await commonNamesManager.saveNameIfNeeded(final2, .team)
             }
             var result = SportsSetupResult(team1Name: final1, team2Name: final2)
             if gameType == .simpleScore {
@@ -502,7 +502,7 @@ struct MultiScoreSetupDialogView: View {
             }
             Task {
                 for name in finalNames {
-                    await commonNamesManager.recordUsage(name, .player)
+                    await commonNamesManager.saveNameIfNeeded(name, .player)
                 }
             }
             onConfirm?(result)

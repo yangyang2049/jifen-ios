@@ -223,7 +223,7 @@ final class PhoneWatchLinkService {
               payload.nameType == "player" else { return }
         Task { @MainActor [weak self] in
             for name in payload.names {
-                await CommonNamesManager.shared.recordUsage(name, .player)
+                await CommonNamesManager.shared.saveNameIfNeeded(name, .player)
             }
             self?.pushCommonNamesToWatch()
         }
@@ -298,14 +298,6 @@ final class PhoneWatchLinkService {
         return true
     }
 
-    func startInteractiveOnWatch(state: BasketballMatchState) async throws -> UUID {
-        try await startInteractiveSession(
-            gameType: state.gameMode == .threeXThree ? .threeBasketball : .basketball,
-            basketballThreeXThree: state.gameMode == .threeXThree,
-            initialSnapshot: .basketball(state)
-        )
-    }
-
     func startInteractiveOnWatch(gameType: ScoreCore.GameType, state: RallyMatchState) async throws -> UUID {
         try await startInteractiveSession(
             gameType: gameType,
@@ -357,12 +349,37 @@ final class PhoneWatchLinkService {
         sessionId: UUID,
         gameType: ScoreCore.GameType,
         snapshot: LinkedScoreboardSnapshot,
+        detailedActions: [DetailedScoreAction]? = nil,
         participantNames: [String]? = nil
     ) {
         sendSnapshotIfController(
             sessionId: sessionId,
             gameType: gameType,
             snapshot: snapshot,
+            detailedActions: detailedActions,
+            participantNames: participantNames
+        )
+    }
+
+    /// Reuses the current phone-controller link for a distinct match while
+    /// clearing match-scoped terminal and action state from the previous one.
+    func prepareControllerForNewMatch(
+        sessionId: UUID,
+        gameType: ScoreCore.GameType,
+        snapshot: LinkedScoreboardSnapshot,
+        participantNames: [String]? = nil
+    ) {
+        guard activeSession?.sessionId == sessionId,
+              activeSession?.gameType == gameType,
+              activeSession?.role == .phoneController else { return }
+        publishedFinishedRecordId = nil
+        finishedRecordId = nil
+        mergedDetailedActions.removeAll()
+        sendSnapshotIfController(
+            sessionId: sessionId,
+            gameType: gameType,
+            snapshot: snapshot,
+            detailedActions: [],
             participantNames: participantNames
         )
     }
@@ -581,6 +598,9 @@ final class PhoneWatchLinkService {
         initialSnapshot: LinkedScoreboardSnapshot,
         participantNames: [String]? = nil
     ) async throws -> UUID {
+        guard Self.phoneInteractiveStartSupported(gameType) else {
+            throw InteractiveStartError.watchUnavailable
+        }
         try validateInteractiveWatchAvailability()
         if setupContinuation != nil {
             let continuation = setupContinuation
@@ -668,6 +688,19 @@ final class PhoneWatchLinkService {
                     }
                 }
             }
+        }
+    }
+
+    private static func phoneInteractiveStartSupported(_ gameType: ScoreCore.GameType) -> Bool {
+        switch gameType {
+        case .pingpong, .pingpongDoubles,
+             .badminton, .badmintonDoubles,
+             .tennis, .tennisDoubles,
+             .pickleball, .pickleballDoubles,
+             .archeryDual, .eightBall, .nineBall, .snooker:
+            return true
+        default:
+            return false
         }
     }
 

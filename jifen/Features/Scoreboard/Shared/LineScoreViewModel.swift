@@ -6,7 +6,7 @@ import ScoreCore
 /// the legacy template while those screens are migrated.
 @Observable
 class LineScoreViewModel: BaseScoreViewModel {
-    private struct HistoryEntry {
+    struct HistoryEntry: Codable {
         let state: LineScoreState
         let restoresNames: Bool
     }
@@ -15,6 +15,18 @@ class LineScoreViewModel: BaseScoreViewModel {
     private let rules: LineScoreRuleSet
     private var stateHistory: [HistoryEntry] = []
     private var sidesSwapped = false
+
+    var sessionState: LineScoreState { state }
+    var resumeHistory: [HistoryEntry] { stateHistory }
+
+    func restoreSession(state: LineScoreState, history: [HistoryEntry]) {
+        stateHistory = Array(history.suffix(50))
+        apply(state)
+        controller?.clearHistory()
+        for entry in stateHistory {
+            controller?.pushHistory(left: entry.state.leftScore, right: entry.state.rightScore)
+        }
+    }
 
     init(controller: BaseScoreboardController?, rules: LineScoreRuleSet) {
         self.rules = rules
@@ -36,6 +48,19 @@ class LineScoreViewModel: BaseScoreViewModel {
     override func exchangeSides() { dispatch(.exchangeSides) }
     override func endGame() { dispatch(.finish) }
     override func reset() { dispatch(.reset) }
+
+    override func confirmEditName(isLeft: Bool) {
+        guard editState.editingSide == (isLeft ? .left : .right) else { return }
+        let input = editState.currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        let fallback = NSLocalizedString(isLeft ? "red_team" : "blue_team", comment: "")
+        let resolved = input.isEmpty ? fallback : input
+        dispatch(.setNames(
+            left: isLeft ? resolved : leftTeam.name,
+            right: isLeft ? rightTeam.name : resolved
+        ))
+        editState.editingSide = nil
+        editState.currentInput = ""
+    }
 
     override func undo() -> Bool {
         guard controller?.undoEnabled ?? false,

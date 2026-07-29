@@ -24,6 +24,8 @@ struct TimerRecordDetailPage: View {
                         basicInfoCard(r)
                         actionsCard(r)
                     }
+                    .frame(maxWidth: Theme.focusedContentMaxWidth)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, Theme.padding)
                     .padding(.top, Theme.sm)
                     .padding(.bottom, Theme.lg)
@@ -37,6 +39,7 @@ struct TimerRecordDetailPage: View {
         .background(Theme.backgroundColor)
         .navigationTitle(record?.title ?? NSLocalizedString("tab_timer_record", value: "计时记录", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .onAppear {
             timerVM.loadFromStorage()
         }

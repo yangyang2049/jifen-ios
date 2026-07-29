@@ -6,6 +6,7 @@ import SwiftUI
 /// 根据页面默认值二次猜测，和鸿蒙/安卓的 setup -> reducer 契约保持一致。
 struct NineBallSetupDialogView: View {
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
+    private let commonNamesManager = CommonNamesManager.shared
 
     var initialSetup: SportsSetupResult? = nil
     var maxDialogHeight: CGFloat = 680
@@ -133,7 +134,7 @@ struct NineBallSetupDialogView: View {
                     Text(NSLocalizedString("cancel", comment: ""))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(width: 100, height: 44)
-                        .background(Theme.homeCardDark)
+                        .background(Theme.dialogControlBackground)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -329,6 +330,12 @@ struct NineBallSetupDialogView: View {
         }
         guard Set(names).count == names.count else { return }
 
+        // Manual names follow the same path as the common-name selector so a
+        // name entered here is immediately available in later setups.
+        for (index, name) in names.enumerated() where name != playerLabel(index) {
+            await commonNamesManager.saveNameIfNeeded(name, .player)
+        }
+
         var result = SportsSetupResult(
             team1Name: names[0],
             team2Name: names[1],
@@ -352,15 +359,14 @@ struct NineBallSetupDialogView: View {
             isSendingSetupToWatch = true
             setupSendErrorText = ""
             do {
-                let nineConfig = NineBallChaseConfig(
-                    bigGold: bigGold,
-                    smallGold: smallGold,
-                    goldenNine: goldenNine,
-                    normalWin: normalWin,
-                    ballInHand: ballInHand,
-                    foul: foul
+                guard case let .some(.nineBall(projectedNames, nineConfig)) = result.billiardsConfiguration(for: .nineBall) else {
+                    return
+                }
+                let nine = NineBallChaseState.initial(
+                    config: nineConfig,
+                    playerCount: projectedNames.count,
+                    playerNames: projectedNames
                 )
-                let nine = NineBallChaseState.initial(config: nineConfig, playerCount: playerCount, playerNames: names)
                 result.linkedWatchSessionId = try await watchLinkService.startInteractiveOnWatch(
                     snapshot: .nineBall(nine),
                     gameType: .nineBall

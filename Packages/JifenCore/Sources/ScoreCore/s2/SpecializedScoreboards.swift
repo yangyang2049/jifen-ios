@@ -36,6 +36,7 @@ public enum EightBallIntent: Codable, Sendable {
     case adminAdjust(left: Int, right: Int)
     case exchangeSides
     case reset
+    case finishMatch
 }
 
 public enum EightBallEvent: Codable, Equatable, Sendable {
@@ -44,6 +45,7 @@ public enum EightBallEvent: Codable, Equatable, Sendable {
     case adminAdjusted
     case sidesExchanged
     case reset
+    case matchFinished
 }
 
 public struct EightBallReducer: DomainReducer {
@@ -86,6 +88,9 @@ public struct EightBallReducer: DomainReducer {
             return .init(state: next, events: [.sidesExchanged])
         case .reset:
             return .init(state: .initial(targetPoints: state.targetPoints, handicapRacks: state.handicapRacks, handicapBeneficiary: state.handicapBeneficiary), events: [.reset])
+        case .finishMatch:
+            next.finished = true
+            return .init(state: next, events: [.matchFinished])
         }
     }
 }
@@ -127,6 +132,9 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
     public var finished: Bool
     /// Display names for up to 4 players. Empty slots use UI defaults.
     public var playerNames: [String]
+    /// Presentation-only side placement for two-player chase. Player identity,
+    /// scores and event counts always remain in logical player order.
+    public var sidesSwapped: Bool
 
     public init(
         playerCount: Int,
@@ -134,7 +142,8 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
         playerCounts: [[Int]],
         config: NineBallChaseConfig,
         finished: Bool,
-        playerNames: [String] = []
+        playerNames: [String] = [],
+        sidesSwapped: Bool = false
     ) {
         self.playerCount = min(4, max(2, playerCount))
         self.playerPoints = Array((playerPoints + Array(repeating: 0, count: 4)).prefix(4))
@@ -145,6 +154,7 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
         self.config = config
         self.finished = finished
         self.playerNames = Self.normalizedNames(playerNames)
+        self.sidesSwapped = sidesSwapped
     }
 
     public static func initial(
@@ -180,7 +190,7 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case playerCount, playerPoints, playerCounts, config, finished, playerNames
+        case playerCount, playerPoints, playerCounts, config, finished, playerNames, sidesSwapped
     }
 
     public init(from decoder: Decoder) throws {
@@ -191,7 +201,8 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
             playerCounts: try container.decode([[Int]].self, forKey: .playerCounts),
             config: try container.decode(NineBallChaseConfig.self, forKey: .config),
             finished: try container.decode(Bool.self, forKey: .finished),
-            playerNames: try container.decodeIfPresent([String].self, forKey: .playerNames) ?? []
+            playerNames: try container.decodeIfPresent([String].self, forKey: .playerNames) ?? [],
+            sidesSwapped: try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false
         )
     }
 }
@@ -200,12 +211,17 @@ public enum NineBallChaseIntent: Codable, Sendable {
     case chaseEvent(player: Int, kind: NineBallChaseKind)
     case deltaTotal(player: Int, delta: Int)
     case adminSetTotals(left: Int, right: Int)
+    case adminCorrect(playerNames: [String], playerPoints: [Int])
+    case exchangeSides
     case resetScores
+    case finishMatch
 }
 
 public enum NineBallChaseEvent: Codable, Equatable, Sendable {
     case chaseApplied(player: Int, scorePlayer: Int, kind: NineBallChaseKind, delta: Int)
     case totalsAdjusted
+    case sidesExchanged
+    case matchFinished
 }
 
 public struct NineBallChaseReducer: DomainReducer {
@@ -245,6 +261,27 @@ public struct NineBallChaseReducer: DomainReducer {
             next.playerPoints[0] = max(0, left)
             next.playerPoints[1] = max(0, right)
             return .init(state: next, events: [.totalsAdjusted])
+        case .adminCorrect(let playerNames, let playerPoints):
+            for index in 0 ..< next.playerCount {
+                let trimmed = playerNames[safe: index]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                if !trimmed.isEmpty {
+                    next.playerNames[index] = trimmed
+                }
+                if let points = playerPoints[safe: index] {
+                    next.playerPoints[index] = min(9_999, max(-9_999, points))
+                }
+            }
+            next.finished = false
+            return .init(state: next, events: [.totalsAdjusted])
+        case .exchangeSides:
+            guard next.playerCount == 2 else {
+                return .rejected(state: state, reason: "Exchange sides is only available for two players")
+            }
+            next.sidesSwapped.toggle()
+            return .init(state: next, events: [.sidesExchanged])
+        case .finishMatch:
+            next.finished = true
+            return .init(state: next, events: [.matchFinished])
         }
     }
 
@@ -297,11 +334,17 @@ public enum ShengjiTierIntent: Codable, Sendable {
     case subtractLevels(side: MatchSide, delta: Int)
     case claimDealer(MatchSide)
     case resolveRound(winner: MatchSide, delta: Int)
+    case adminCorrect(left: Int, right: Int)
+    case reset
+    case finish
 }
 
 public enum ShengjiTierEvent: Codable, Equatable, Sendable {
     case tierAdjusted(add: Bool, side: MatchSide, delta: Int, left: Int, right: Int)
     case dealerClaimed(side: MatchSide, initial: Bool)
+    case administrativeCorrection(left: Int, right: Int)
+    case matchReset
+    case matchFinished
 }
 
 public struct ShengjiTierReducer: DomainReducer {
@@ -312,9 +355,31 @@ public struct ShengjiTierReducer: DomainReducer {
         let cap = max(0, current.maxTierIndex)
         current.finished = current.finished || current.leftIndex >= cap || current.rightIndex >= cap
         if current.finished {
-            if case .subtractLevels = intent {} else { return .rejected(state: current, reason: "Already finished") }
+            switch intent {
+            case .subtractLevels, .adminCorrect, .reset:
+                break
+            default:
+                return .rejected(state: current, reason: "Already finished")
+            }
         }
         switch intent {
+        case .adminCorrect(let left, let right):
+            current.leftIndex = min(max(0, left), cap)
+            current.rightIndex = min(max(0, right), cap)
+            current.finished = current.leftIndex >= cap || current.rightIndex >= cap
+            return .init(
+                state: current,
+                events: [.administrativeCorrection(left: current.leftIndex, right: current.rightIndex)]
+            )
+        case .reset:
+            return .init(
+                state: ShengjiTierState(maxTierIndex: current.maxTierIndex),
+                events: [.matchReset]
+            )
+        case .finish:
+            guard !current.finished else { return .rejected(state: current, reason: "Already finished") }
+            current.finished = true
+            return .init(state: current, events: [.matchFinished])
         case .claimDealer(let side):
             guard current.dealer == nil else { return .rejected(state: current, reason: "Dealer already selected") }
             current.dealer = side

@@ -30,31 +30,118 @@ struct UnfinishedGameSummary {
 
     init?(session entry: SessionArchiveEntry) {
         guard let appGameType = GameType(scoreCoreGameType: entry.gameType) else { return nil }
-        let names = entry.participants.map(\.name).filter { !$0.isEmpty }
         source = .session(entry.sessionId)
         gameType = appGameType
-        matchTitle = names.count >= 2 ? "\(names[0]) vs \(names[1])" : names.joined(separator: " vs ")
+        matchTitle = Self.matchTitle(participants: entry.participants, gameType: entry.gameType)
 
         let url = SessionArchiveRepository.defaultRootURL().appendingPathComponent(entry.snapshotPath)
         guard let data = try? Data(contentsOf: url) else { return nil }
         switch entry.gameType {
         case .basketball, .threeBasketball:
-            guard let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: data) else { return nil }
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<BasketballMatchState, BasketballMatchEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
             scoreText = "\(session.state.leftScore) : \(session.state.rightScore)"
         case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles, .pickleball, .pickleballDoubles,
              .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
-            guard let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data) else { return nil }
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<RallyMatchState, RallyMatchEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
             scoreText = session.state.leftSets > 0 || session.state.rightSets > 0
                 ? "\(session.state.leftSets) : \(session.state.rightSets)"
                 : "\(session.state.leftPoints) : \(session.state.rightPoints)"
+        case .tennis, .tennisDoubles:
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<TennisMatchState, TennisMatchEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
+            scoreText = "\(session.state.leftSets) : \(session.state.rightSets)"
+        case .eightBall:
+            guard let bundle = try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<EightBallState, EightBallEvent, EightBallIntent>.self,
+                from: data
+            ) else { return nil }
+            scoreText = "\(bundle.currentSession.state.leftPoints) : \(bundle.currentSession.state.rightPoints)"
+        case .nineBall:
+            guard let bundle = try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<NineBallChaseState, NineBallChaseEvent, NineBallChaseIntent>.self,
+                from: data
+            ) else { return nil }
+            scoreText = bundle.currentSession.state.playerPoints
+                .prefix(bundle.currentSession.state.playerCount)
+                .map(String.init)
+                .joined(separator: " : ")
+        case .snooker:
+            guard let bundle = try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<SnookerState, SnookerEvent, SnookerIntent>.self,
+                from: data
+            ) else { return nil }
+            let state = bundle.currentSession.state
+            scoreText = state.maxFrames > 1
+                ? "\(state.leftFrames) : \(state.rightFrames)"
+                : "\(state.leftScore) : \(state.rightScore)"
         default:
             return nil
         }
     }
+
+    static func matchTitle(
+        participants: [SessionParticipant],
+        gameType: ScoreCore.GameType
+    ) -> String {
+        let nonemptyName: (SessionParticipant) -> String? = { participant in
+            let name = participant.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            return name.isEmpty ? nil : name
+        }
+        let doublesTypes: Set<ScoreCore.GameType> = [
+            .pingpongDoubles, .badmintonDoubles, .tennisDoubles,
+            .pickleballDoubles, .foosballDoubles
+        ]
+
+        if doublesTypes.contains(gameType) {
+            var namesByID: [String: String] = [:]
+            for participant in participants {
+                if let name = nonemptyName(participant) {
+                    // Tolerate malformed legacy snapshots that reused a slot ID.
+                    namesByID[participant.id] = name
+                }
+            }
+            let left = [namesByID["left-top"], namesByID["left-bottom"]].compactMap { $0 }
+            let right = [namesByID["right-top"], namesByID["right-bottom"]].compactMap { $0 }
+            if !left.isEmpty, !right.isEmpty {
+                return "\(left.joined(separator: "/")) vs \(right.joined(separator: "/"))"
+            }
+
+            let names = participants.compactMap(nonemptyName)
+            if names.count >= 4 {
+                return "\(names[0])/\(names[2]) vs \(names[1])/\(names[3])"
+            }
+        }
+
+        let names = participants.compactMap(nonemptyName)
+        return names.count >= 2 ? "\(names[0]) vs \(names[1])" : names.joined(separator: " vs ")
+    }
 }
 
 struct UnfinishedGameBarView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let record: UnfinishedGameSummary
+    var isClosePending = false
     var onContinue: () -> Void
     var onClose: () -> Void
 
@@ -96,13 +183,18 @@ struct UnfinishedGameBarView: View {
             Button(action: onClose) {
                 Image(systemName: "xmark")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Theme.homeNeutralCardTextSecondary)
+                    .foregroundColor(isClosePending ? .white : Theme.homeNeutralCardTextSecondary)
                     .frame(width: 36, height: 36)
                     .background(closeButtonBackgroundColor)
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
             .padding(.trailing, closeButtonGap)
+            .accessibilityLabel(
+                isClosePending
+                    ? NSLocalizedString("unfinished_abandon_confirm", value: "再点击一次丢弃比赛", comment: "")
+                    : NSLocalizedString("unfinished_discard_button", value: "放弃", comment: "")
+            )
 
             Button(action: onContinue) {
                 Image(systemName: "play.fill")
@@ -118,15 +210,19 @@ struct UnfinishedGameBarView: View {
         .frame(height: barHeight)
         .background(Theme.homeNeutralCardBackground)
         .clipShape(Capsule())
-        .overlay(
-            Capsule()
-                .stroke(Color(red: 34 / 255, green: 197 / 255, blue: 94 / 255).opacity(0.85), lineWidth: 1)
-        )
-        .shadow(color: Color(red: 34 / 255, green: 197 / 255, blue: 94 / 255).opacity(0.22), radius: 8, x: 0, y: 0)
+        .shadow(color: shadowColor, radius: 8, x: 0, y: 0)
+        .animation(.easeInOut(duration: 0.2), value: isClosePending)
+    }
+
+    private var shadowColor: Color {
+        (colorScheme == .dark ? Color.white : Color.black).opacity(0.22)
     }
 
     private var closeButtonBackgroundColor: Color {
-        Color(uiColor: UIColor { traits in
+        if isClosePending {
+            return Color(uiColor: .systemRed)
+        }
+        return Color(uiColor: UIColor { traits in
             if traits.userInterfaceStyle == .dark {
                 return UIColor.white.withAlphaComponent(0.12)
             }
@@ -140,5 +236,25 @@ struct UnfinishedGameBarView: View {
 
     private var displayScore: String {
         record.scoreText
+    }
+}
+
+struct UnfinishedGameDiscardToast: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        Text(NSLocalizedString("unfinished_abandon_confirm", value: "再点击一次丢弃比赛", comment: ""))
+            .font(.system(size: 13, weight: .medium))
+            .foregroundColor(Theme.homeNeutralCardTextPrimary)
+            .lineLimit(1)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(Theme.homeNeutralCardBackground)
+            .clipShape(Capsule())
+            .shadow(color: shadowColor, radius: 4, x: 0, y: -2)
+    }
+
+    private var shadowColor: Color {
+        (colorScheme == .dark ? Color.white : Color.black).opacity(0.1)
     }
 }

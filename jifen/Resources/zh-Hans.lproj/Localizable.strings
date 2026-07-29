@@ -167,6 +167,9 @@
 "doudizhu_player_chris" = "张飞";
 "shengji_claim_dealer_left" = "红方抢庄";
 "shengji_claim_dealer_right" = "蓝方抢庄";
+"shengji_claim_dealer" = "抢庄";
+"guandan_edit_level_wrap_confirm_title" = "级牌回到 2？";
+"guandan_edit_level_wrap_confirm_message" = "继续增加会将该队级牌重置为 2。";
 "shengji_take_dealer" = "上台";
 "guandan_select_upgrade" = "选择升几级";
 "guandan_upgrade_step_format" = "升%d";
@@ -182,6 +185,10 @@
 "score_custom_adjust_apply" = "应用";
 "game_multi_scoreboard" = "多人计分";
 "multi_score_player_default" = "玩家";
+"multi_score_edit_title" = "编辑玩家";
+"multi_score_rename_placeholder" = "玩家名称";
+"multi_score_edit_score_label" = "分数";
+"multi_score_rename_warning" = "请输入玩家名称";
 "game_counter" = "计数器";
 
 /* Setup Titles */
@@ -302,6 +309,8 @@
 "screenshot_saved" = "截图已保存";
 "unknown_error" = "未知错误";
 "please_allow_photo_access" = "请在设置中允许访问相册";
+"open_settings" = "去设置";
+"retry" = "重试";
 "save_failed" = "保存失败: %@";
 "font_changed" = "字体已更改";
 
@@ -479,6 +488,7 @@
 
 /* Records Tab */
 "clear_all_records" = "删除全部记录";
+"clear_records_tab_message" = "将删除“记录”中的计分记录和计时记录，此操作无法撤销。不会删除常用名称、常用地点或预约记录。";
 "clear_all_records_message" = "将删除比赛记录、计时记录、球局预约及常用名称和地点，此操作无法撤销。";
 "clear_data" = "清除数据";
 
@@ -510,7 +520,8 @@
 "common_names_clear_current_message" = "将清空%@的所有常用名称，此操作无法撤销。";
 "common_names_title" = "常用名称";
 "common_names_empty" = "暂无常用名称";
-"common_names_empty_hint" = "可在首页的「常用名称」中添加队伍或选手名称，下次即可快速选择。";
+"common_names_empty_hint" = "可在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称，下次即可快速选择。";
+"common_names_management_empty_hint" = "计分时输入的队伍或选手名称会自动保存在这里，下次可以快速选择。";
 "common_names_search_placeholder" = "搜索名称";
 "common_names_no_search_results" = "无搜索结果";
 "common_names_batch_delete_confirm" = "确认删除选中的 %d 个名称？";
@@ -520,7 +531,7 @@
 
 "settings_features" = "功能设置";
 "settings_help_support" = "帮助与支持";
-"scoreboard_settings_title" = "计分器设置";
+"scoreboard_settings_title" = "计分设置";
 "sound" = "声音";
 "settings_rate_app" = "给个好评";
 "settings_share_app" = "分享给朋友";
@@ -582,8 +593,6 @@
 "faq_answer_2" = "比赛与计时记录保存在当前设备本地，可在记录页查看。";
 "faq_question_3" = "如何撤销误操作？";
 "faq_answer_3" = "计分页面提供撤销操作，可恢复最近一次比分或比赛状态变化。";
-"faq_question_4" = "如何切换浅色或深色模式？";
-"faq_answer_4" = "在我的页面打开外观，可选择浅色、深色或跟随系统。默认使用浅色。";
 "faq_question_5" = "什么是经典和打满模式？";
 "faq_answer_5" = "经典模式在一方取得过半胜局时结束；打满模式会完成设定的全部局数，可能出现平局。";
 "faq_question_6" = "常用名称和地点有什么用？";
@@ -670,9 +679,8 @@
 "schedule_status_completed" = "已完成";
 "schedule_status_cancelled" = "已取消";
 "tomorrow" = "明天";
-"unfinished_discard_title" = "放弃未完成比赛";
-"unfinished_discard_message" = "确认放弃当前未完成比赛？";
 "unfinished_discard_button" = "放弃";
+"unfinished_abandon_confirm" = "再点击一次丢弃比赛";
 
 /* Record detail / Boxing */
 "record_action_team_scored" = "%@ 得分";
@@ -878,7 +886,6 @@
 "player_a" = "选手A";
 "player_b" = "选手B";
 "snooker_frames" = "局数";
-"snooker_frames_more" = "更多";
 "eight_ball_race_to" = "抢局";
 "eight_ball_frames" = "局数";
 "eight_ball_handicap" = "让局";
@@ -1014,6 +1021,23 @@
 "record_serve_changed" = "交换发球";
 "record_state_changed" = "状态变化";
 "continue_game" = "继续比赛";
-"play_again" = "再来一局";
+"play_again" = "再来一场";
+"game_over_new_game_on_watch" = "再来一场\n（请在手表端操作）";
+"archive_record_read_only_message" = "这条归档记录仅可查看，无法继续比赛。";
+"scoreboard_save_failed" = "保存失败，请稍后重试";
+"game_pingpong_singles" = "乒乓球单打";
+"game_badminton_singles" = "羽毛球单打";
+"game_tennis_singles" = "网球单打";
+"game_pickleball_singles" = "匹克球单打";
+"game_foosball_singles" = "桌上足球单打";
+"game_foosball_doubles" = "桌上足球双打";
 "unfinished" = "未结束";
 "finished" = "已结束";
+"snooker_foul_row_title" = "犯规罚分";
+"snooker_foul_current_side" = "当前方：%@";
+"snooker_foul_label_4" = "红/黄/绿/棕";
+"snooker_foul_label_5" = "蓝";
+"snooker_foul_label_6" = "粉";
+"snooker_foul_label_7" = "黑";
+"snooker_foul_switch_turn" = "换手";
+"snooker_foul_continue" = "犯规方继续";

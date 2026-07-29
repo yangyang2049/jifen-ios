@@ -93,7 +93,7 @@ struct DualTimerSetupView: View {
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(Theme.textSecondary)
                         .frame(width: 32, height: 32)
-                        .background(Theme.controlBackground)
+                        .background(Theme.dialogControlBackground)
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -252,7 +252,7 @@ struct DualTimerSetupView: View {
             .foregroundColor(Theme.textPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
-            .background(Theme.controlBackground)
+            .background(Theme.dialogControlBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
             Text(suffix)

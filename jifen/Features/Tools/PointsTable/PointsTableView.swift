@@ -52,6 +52,8 @@ struct PointsTableView: View {
                 .scrollContentBackground(.hidden)
             }
         }
+        .frame(maxWidth: Theme.focusedContentMaxWidth, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("points_table_title", value: "积分表", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
@@ -150,7 +152,7 @@ struct PointsTableDetailView: View {
                     addTeamButton
                 }
             }
-            .frame(maxWidth: 600)
+            .frame(maxWidth: Theme.focusedContentMaxWidth)
             .padding(.horizontal, 16)
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity)

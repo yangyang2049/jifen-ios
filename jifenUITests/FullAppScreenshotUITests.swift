@@ -133,29 +133,35 @@ final class FullAppScreenshotUITests: XCTestCase {
             }
         }
 
+        capturePriorityGuandan(index: variants.count + 1)
+    }
+
+    func testGuandanDirectUpgradeFlow() {
+        capturePriorityGuandan(index: 7)
+    }
+
+    private func capturePriorityGuandan(index: Int) {
         XCTContext.runActivity(named: "Priority guandan") { _ in
-            let index = variants.count + 1
             XCTAssertTrue(openPriorityScoreboardSetup(id: "guandan", label: "掼蛋"))
             snap(String(format: "70_%02d_setup_guandan", index), settle: 0.5)
             XCTAssertTrue(tapStart(), "Start button not found for guandan")
             XCTAssertTrue(waitForPriorityScoreboard(), "Guandan scoreboard did not open")
             snap(String(format: "71_%02d_board_guandan", index), settle: 0.6)
 
-            let leftPanel = app.descendants(matching: .any)
-                .matching(NSPredicate(format: "identifier == %@", "scoreboard_left_panel"))
-                .firstMatch
-            XCTAssertTrue(leftPanel.waitForExistence(timeout: 3), "Guandan left score panel is missing")
-            if leftPanel.exists {
-                app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
-            }
+            let identifiedUpgrade = app.descendants(matching: .any)["guandan_round_red_plus_1"]
+            let labeledUpgrade = app.buttons.matching(
+                NSPredicate(format: "label == %@", "+1")
+            ).firstMatch
+            let directUpgrade = identifiedUpgrade.exists ? identifiedUpgrade : labeledUpgrade
+            XCTAssertTrue(directUpgrade.waitForExistence(timeout: 3), "Guandan direct +1 control is missing")
+            if directUpgrade.exists, directUpgrade.isHittable { directUpgrade.tap() }
+            XCTAssertFalse(app.staticTexts["选择升几级"].exists, "Legacy Guandan settlement panel should not appear")
             XCTAssertTrue(
-                app.staticTexts["选择升几级"].waitForExistence(timeout: 3),
-                "Guandan round settlement controls did not appear"
+                app.staticTexts["3"].waitForExistence(timeout: 2),
+                "Guandan direct +1 should advance the red rank from 2 to 3"
             )
             snap(String(format: "72_%02d_round_result_guandan", index), settle: 0.5)
 
-            let cancel = app.buttons["取消"]
-            if cancel.waitForExistence(timeout: 2), cancel.isHittable { cancel.tap() }
             XCTAssertTrue(openPriorityScoreboardMenu(), "Menu did not open for guandan")
             snap(String(format: "73_%02d_menu_guandan", index), settle: 0.4)
         }

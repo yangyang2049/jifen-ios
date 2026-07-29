@@ -25,7 +25,7 @@ struct SportOptionView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .aspectRatio(1, contentMode: .fit)
-            .background(Theme.controlBackground)
+            .background(Theme.dialogControlBackground)
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)

@@ -3,6 +3,29 @@ import ScoreCore
 @testable import jifen
 
 final class LocalScoreboardDisplayStateTests: XCTestCase {
+    func testMutationPolicyBlocksEditingFinishedAndFollowerStates() {
+        XCTAssertTrue(LocalScoreboardMutationPolicy.allowsMutation(
+            isEditing: false,
+            finished: false,
+            scoringLocked: false
+        ))
+        XCTAssertFalse(LocalScoreboardMutationPolicy.allowsMutation(
+            isEditing: true,
+            finished: false,
+            scoringLocked: false
+        ))
+        XCTAssertFalse(LocalScoreboardMutationPolicy.allowsMutation(
+            isEditing: false,
+            finished: true,
+            scoringLocked: false
+        ))
+        XCTAssertFalse(LocalScoreboardMutationPolicy.allowsMutation(
+            isEditing: false,
+            finished: false,
+            scoringLocked: true
+        ))
+    }
+
     @MainActor
     func testLegacySnapshotWithoutKeyPointStillDecodes() throws {
         let json = #"{"gameID":"badminton","title":"羽毛球","leftName":"A","rightName":"B","leftScore":"20","rightScore":"18","themeID":"default","fontID":"default","finished":false,"revision":3}"#
@@ -122,7 +145,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         )
     }
 
-    func testDoublesBadgeStaysVerticallyCenteredForBothServingRows() {
+    func testDoublesBadgeFollowsTheActiveServingRow() {
         let topAnchor = ScoreboardServeGeometry.doublesAnchorY(height: 600, topRow: true)
         let bottomAnchor = ScoreboardServeGeometry.doublesAnchorY(height: 600, topRow: false)
 
@@ -134,7 +157,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
                 doublesTopRow: true,
                 largeWindow: true
             ),
-            300
+            100
         )
         XCTAssertEqual(
             ScoreboardServeGeometry.keyPointBadgeCenterY(
@@ -142,7 +165,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
                 doublesTopRow: false,
                 largeWindow: true
             ),
-            300
+            500
         )
     }
 }

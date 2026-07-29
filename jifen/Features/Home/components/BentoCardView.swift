@@ -46,7 +46,7 @@ struct BentoCardView: View {
                         .padding(.bottom, Theme.sm)
                 }
             }
-            .padding(Theme.md)
+            .padding(Theme.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .cornerRadius(Theme.xxl)

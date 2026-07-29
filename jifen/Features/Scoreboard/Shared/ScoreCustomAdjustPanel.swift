@@ -88,7 +88,7 @@ struct ScoreCustomAdjustPanel: View {
                                     .foregroundStyle(Theme.textPrimary)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: buttonHeight)
-                                    .background(Theme.homeCardDark)
+                                    .background(Theme.dialogControlBackground)
                                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             }
                             .buttonStyle(.plain)
@@ -101,7 +101,7 @@ struct ScoreCustomAdjustPanel: View {
                                 .foregroundStyle(Theme.textPrimary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: buttonHeight)
-                                .background(Theme.homeCardDark)
+                                .background(Theme.dialogControlBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
                         .buttonStyle(.plain)
@@ -121,7 +121,7 @@ struct ScoreCustomAdjustPanel: View {
                             .textFieldStyle(.plain)
                             .padding(.horizontal, 14)
                             .frame(height: 50)
-                            .background(Theme.homeCardDark)
+                            .background(Theme.dialogControlBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                             Button(action: applyCustomInput) {
@@ -172,7 +172,7 @@ struct ScoreCustomAdjustPanel: View {
             .foregroundStyle(selected ? Color.white : Theme.textPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .background(selected ? selectedColor : Theme.homeCardDark)
+            .background(selected ? selectedColor : Theme.dialogControlBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .buttonStyle(.plain)

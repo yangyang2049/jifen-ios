@@ -29,7 +29,7 @@ struct TimerTab: View {
             let usesPadLayout = Theme.usesPadLayout
 
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: Theme.lg) {
+                VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
                     timerSectionGroup(
                         title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
                         items: GameCatalog.timerBoardGameItems,
@@ -43,9 +43,9 @@ struct TimerTab: View {
                 }
                 .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, usesPadLayout ? Theme.xl : Theme.padding)
+                .padding(.horizontal, Theme.pageHorizontalInset)
                 .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
-                .padding(.bottom, Theme.lg + 56)
+                .padding(.bottom, Theme.tabContentBottomPadding)
             }
             .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_timer", value: "计时", comment: "Timer tab"))
@@ -102,16 +102,16 @@ struct TimerTab: View {
     ) -> some View {
         let columnCount = usesPadLayout ? 4 : 3
         let columns = Array(
-            repeating: GridItem(.flexible(), spacing: Theme.spacing),
+            repeating: GridItem(.flexible(), spacing: Theme.gridSpacing),
             count: columnCount
         )
 
-        return VStack(alignment: .leading, spacing: Theme.spacing) {
+        return VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
             Text(title)
-                .font(.system(size: usesPadLayout ? Theme.fontH4 : Theme.fontH5, weight: .medium))
+                .font(.system(size: Theme.fontH5, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
 
-            LazyVGrid(columns: columns, spacing: Theme.spacing) {
+            LazyVGrid(columns: columns, spacing: Theme.gridSpacing) {
                 ForEach(items, id: \.self) { dest in
                     Button {
                         VibrationManager.shared.vibrateLight()
@@ -130,7 +130,7 @@ struct TimerTab: View {
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
                         }
-                        .padding(.vertical, Theme.md)
+                        .padding(.vertical, Theme.cardPadding)
                         .frame(maxWidth: .infinity)
                         .frame(minHeight: usesPadLayout ? 124 : 92)
                         .background {

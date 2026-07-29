@@ -8,6 +8,7 @@
 import PersistenceCore
 import ScoreCore
 import SwiftUI
+import UIKit
 
 struct RecordsTab: View {
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
@@ -19,7 +20,7 @@ struct RecordsTab: View {
     @State private var showClearConfirm = false
     @State private var isEditMode = false
     @State private var selectedTimeFilter: RecordsTimeFilter = .all
-    @State private var selectedGameType: GameType? = nil
+    @State private var selectedProjectFilter: RecordsProjectFilter? = nil
     @State private var showFilterSheet = false
 
     private enum RecordsTimeFilter: String, CaseIterable, Identifiable {
@@ -36,78 +37,88 @@ struct RecordsTab: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                if !isEditMode {
-                    searchBar
-                }
-                tabChips
-                content
-            }
-            .frame(maxWidth: usesPadLayout ? 920 : .infinity, maxHeight: .infinity)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Theme.backgroundColor)
-            .navigationTitle(NSLocalizedString("tab_records", comment: "Records"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    if isEditMode {
-                        Button(NSLocalizedString("done", comment: "Done")) {
-                            isEditMode = false
-                        }
-                        .foregroundColor(Theme.accentColor)
-                    } else {
-                        Menu {
-                            Button {
-                                showFilterSheet = true
-                            } label: {
-                                Label(NSLocalizedString("filter", value: "筛选", comment: ""), systemImage: "line.3.horizontal.decrease.circle")
-                            }
-                            Button {
-                                searchText = ""
-                                isEditMode = true
-                            } label: {
-                                Label(NSLocalizedString("edit", comment: "Edit"), systemImage: "pencil")
-                            }
-                            Button(role: .destructive) {
-                                showClearConfirm = true
-                            } label: {
-                                Label {
-                                    Text(NSLocalizedString("clear_all_records", comment: "Clear all"))
-                                } icon: {
-                                    Image(systemName: "trash")
-                                        .foregroundStyle(.red)
-                                }
-                            }
-                            .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty && v2RecordsVM.records.isEmpty)
+        VStack(spacing: 0) {
+            tabChips
+            content
+        }
+        .frame(maxWidth: usesPadLayout ? 920 : .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.backgroundColor)
+        .navigationTitle(NSLocalizedString("tab_records", comment: "Records"))
+        .navigationBarTitleDisplayMode(.inline)
+        .systemSearchable(
+            text: $searchText,
+            prompt: NSLocalizedString("search_team_or_game", value: "搜索队伍或项目", comment: "Search placeholder"),
+            isEnabled: !isEditMode
+        )
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if isEditMode {
+                    Button(NSLocalizedString("done", comment: "Done")) {
+                        isEditMode = false
+                    }
+                    .foregroundColor(Theme.accentColor)
+                } else {
+                    Menu {
+                        Button {
+                            showFilterSheet = true
                         } label: {
-                            Image(systemName: "ellipsis.circle")
+                            Label(NSLocalizedString("filter", value: "筛选", comment: ""), systemImage: "line.3.horizontal.decrease.circle")
                         }
+                        Button {
+                            searchText = ""
+                            isEditMode = true
+                        } label: {
+                            Label(NSLocalizedString("edit", comment: "Edit"), systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            showClearConfirm = true
+                        } label: {
+                            Label {
+                                Text(NSLocalizedString("clear_all_records", comment: "Clear all"))
+                            } icon: {
+                                destructiveTrashMenuIcon
+                            }
+                        }
+                        .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty && v2RecordsVM.records.isEmpty)
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
                 }
             }
-            .sheet(isPresented: $showFilterSheet) {
-                recordsFilterSheet
+        }
+        .sheet(isPresented: $showFilterSheet) {
+            recordsFilterSheet
+        }
+        .onAppear {
+            scoreboardVM.refreshRecords()
+            timerVM.loadFromStorage()
+            v2RecordsVM.reload()
+        }
+        .alert(NSLocalizedString("clear_all_records", comment: ""), isPresented: $showClearConfirm) {
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
+            Button(NSLocalizedString("clear_all_records", comment: ""), role: .destructive) {
+                clearRecordTabRecords()
             }
-            .onAppear {
-                scoreboardVM.refreshRecords()
-                timerVM.loadFromStorage()
-                v2RecordsVM.reload()
-            }
-            .alert(NSLocalizedString("clear_all_records", comment: ""), isPresented: $showClearConfirm) {
-                Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
-                Button(NSLocalizedString("clear_all_records", comment: ""), role: .destructive) {
-                    clearAllRecords()
-                }
-            } message: {
-                Text(NSLocalizedString("clear_all_records_message", comment: ""))
-            }
+        } message: {
+            Text(NSLocalizedString("clear_records_tab_message", comment: ""))
         }
         .tint(Theme.accentColor)
     }
 
     private var usesPadLayout: Bool {
         Theme.usesPadLayout
+    }
+
+    /// Native menus inherit the app's green tint for template symbols, even on
+    /// destructive actions. Preserve the system destructive red in the image so
+    /// the trash icon matches the menu item's destructive text color.
+    private var destructiveTrashMenuIcon: Image {
+        guard let image = UIImage(systemName: "trash")?
+            .withTintColor(.systemRed, renderingMode: .alwaysOriginal) else {
+            return Image(systemName: "trash")
+        }
+        return Image(uiImage: image)
     }
 
     private var recordsFilterSheet: some View {
@@ -132,27 +143,27 @@ struct RecordsTab: View {
                 }
                 Section(NSLocalizedString("game_type_filter", value: "项目", comment: "")) {
                     Button {
-                        selectedGameType = nil
+                        selectedProjectFilter = nil
                     } label: {
                         HStack {
                             Text(NSLocalizedString("all", value: "全部", comment: ""))
                                 .foregroundStyle(Theme.textPrimary)
                             Spacer()
-                            if selectedGameType == nil {
+                            if selectedProjectFilter == nil {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(Theme.accentColor)
                             }
                         }
                     }
-                    ForEach(GameType.scoreboardFilterTypes, id: \.self) { type in
+                    ForEach(RecordsProjectFilter.allOptions) { filter in
                         Button {
-                            selectedGameType = type
+                            selectedProjectFilter = filter
                         } label: {
                             HStack {
-                                Text("\(type.icon) \(type.displayName)")
+                                Text("\(filter.icon) \(filter.title)")
                                     .foregroundStyle(Theme.textPrimary)
                                 Spacer()
-                                if selectedGameType == type {
+                                if selectedProjectFilter == filter {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(Theme.accentColor)
                                 }
@@ -161,6 +172,8 @@ struct RecordsTab: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.dialogSurfaceBackground)
             .navigationTitle(NSLocalizedString("filter", value: "筛选", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -172,33 +185,13 @@ struct RecordsTab: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(NSLocalizedString("reset", value: "重置", comment: "")) {
                         selectedTimeFilter = .all
-                        selectedGameType = nil
+                        selectedProjectFilter = nil
                     }
                 }
             }
         }
         .presentationDetents([.medium, .large])
-    }
-
-    private var searchBar: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(Theme.textPrimary.opacity(0.8))
-            TextField(NSLocalizedString("search_team_or_game", value: "搜索队伍或项目", comment: "Search placeholder"), text: $searchText)
-                .font(.system(size: Theme.fontBody2))
-                .foregroundColor(Theme.textPrimary)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.cornerRadius)
-                .stroke(Theme.homeOverlayBorder, lineWidth: 1)
-        )
-        .cornerRadius(Theme.cornerRadius)
-        .padding(.horizontal, Theme.padding)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
+        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private var tabChips: some View {
@@ -207,7 +200,7 @@ struct RecordsTab: View {
             chip(title: NSLocalizedString("scoreboard", value: "计分", comment: "Scoreboard"), selected: currentTab == 1) { currentTab = 1 }
             chip(title: NSLocalizedString("timer", value: "计时", comment: "Timer"), selected: currentTab == 2) { currentTab = 2 }
         }
-        .padding(.horizontal, Theme.padding)
+        .padding(.horizontal, Theme.pageHorizontalInset)
         .padding(.bottom, 12)
     }
 
@@ -216,7 +209,7 @@ struct RecordsTab: View {
             Text(title)
                 .font(.system(size: Theme.fontBody2, weight: selected ? .semibold : .medium))
                 .foregroundColor(selected ? .white : Theme.textPrimary)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Theme.cardPadding)
                 .padding(.vertical, 8)
                 .background(selected ? Theme.accentColor : Theme.surface)
                 .overlay(
@@ -258,15 +251,15 @@ struct RecordsTab: View {
             items.sort { $0.timestamp > $1.timestamp }
         }
         items = items.filter { matchesTimeFilter($0) }
-        if let selectedGameType {
-            items = items.filter { matchesGameType($0, selectedGameType) }
+        if let selectedProjectFilter {
+            items = items.filter { matchesProjectFilter($0, selectedProjectFilter) }
         }
         if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
             let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
             items = items.filter { item in
                 switch item {
                 case .scoreboard(let r):
-                    return r.displayMatchTitle.lowercased().contains(q) || r.gameType.displayName.lowercased().contains(q)
+                    return r.displayMatchTitle.lowercased().contains(q) || r.competitionDisplayName.lowercased().contains(q)
                 case .timer(let r):
                     return r.gameType.displayName.lowercased().contains(q)
                 case .v2(let r):
@@ -297,14 +290,14 @@ struct RecordsTab: View {
         }
     }
 
-    private func matchesGameType(_ item: RecordsTabRecordItem, _ type: GameType) -> Bool {
+    private func matchesProjectFilter(_ item: RecordsTabRecordItem, _ filter: RecordsProjectFilter) -> Bool {
         switch item {
         case .scoreboard(let r):
-            return r.gameType == type
+            return filter.matches(scoreboard: r)
         case .timer(let r):
-            return r.gameType == type
+            return filter.matches(timerGameType: r.gameType)
         case .v2(let r):
-            return r.gameName.lowercased().contains(type.displayName.lowercased())
+            return filter.matches(scoreCoreGameType: r.entry.gameType)
         }
     }
 
@@ -336,15 +329,15 @@ struct RecordsTab: View {
                     }
                 }
             }
-            .padding(.horizontal, Theme.lg)
-            .padding(.bottom, Theme.lg)
+            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.bottom, Theme.tabContentBottomPadding)
         }
     }
 
     private func sectionHeader(displayDate: String, count: Int) -> some View {
         HStack {
             Text(displayDate)
-                .font(.system(size: Theme.fontCaption, weight: .semibold))
+                .font(.system(size: Theme.fontBody1, weight: .medium))
                 .foregroundColor(Theme.textSecondary)
             Spacer()
             Text(String(format: NSLocalizedString("match_count", value: "%d 场", comment: "Match count"), count))
@@ -352,7 +345,6 @@ struct RecordsTab: View {
                 .foregroundColor(Theme.textSecondary)
         }
         .padding(.vertical, Theme.sm)
-        .padding(.horizontal, Theme.xs)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.backgroundColor)
     }
@@ -409,7 +401,10 @@ struct RecordsTab: View {
                     }
                 }
             } else {
-                v2RowContent(record)
+                NavigationLink(destination: SessionArchiveDetailPage(record: record)) {
+                    v2RowContent(record)
+                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -426,6 +421,9 @@ struct RecordsTab: View {
                     .lineLimit(1)
                 HStack(spacing: 6) {
                     Text(record.time)
+                        .font(.system(size: Theme.fontCaption))
+                        .foregroundColor(Theme.textSecondary)
+                    Text(record.competitionDisplayName)
                         .font(.system(size: Theme.fontCaption))
                         .foregroundColor(Theme.textSecondary)
                     if record.isSyncedFromWatch {
@@ -454,7 +452,7 @@ struct RecordsTab: View {
             }
         }
         .contentShape(Rectangle())
-        .padding(.vertical, Theme.md)
+        .padding(.vertical, Theme.recordRowVerticalPadding)
         .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
     }
 
@@ -515,7 +513,7 @@ struct RecordsTab: View {
             }
         }
         .contentShape(Rectangle())
-        .padding(.vertical, Theme.md)
+        .padding(.vertical, Theme.recordRowVerticalPadding)
     }
 
     private func v2RowContent(_ record: SessionRecordsViewModel.Record) -> some View {
@@ -550,7 +548,7 @@ struct RecordsTab: View {
             }
         }
         .contentShape(Rectangle())
-        .padding(.vertical, Theme.md)
+        .padding(.vertical, Theme.recordRowVerticalPadding)
     }
 
     private func deleteRecord(_ item: RecordsTabRecordItem) {
@@ -594,7 +592,9 @@ struct RecordsTab: View {
         return f.string(from: y)
     }
 
-    private func clearAllRecords() {
+    /// Clears only the score and timer data surfaced by the Records tab.
+    /// Common names, common places, and booking records belong to other features.
+    private func clearRecordTabRecords() {
         ScoreboardRecordManager.shared.clearAllRecords()
         _ = TimerRecordManager.shared.clearAllRecords()
         scoreboardVM.refreshRecordsImmediately()
@@ -623,6 +623,150 @@ struct RecordsTab: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct SessionArchiveDetailPage: View {
+    let record: SessionRecordsViewModel.Record
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: Theme.lg) {
+                Text(record.gameEmoji)
+                    .font(.system(size: 64))
+
+                VStack(spacing: Theme.xs) {
+                    Text(record.gameName)
+                        .font(.system(size: Theme.fontH3, weight: .bold))
+                        .foregroundStyle(Theme.textPrimary)
+                    if !record.teamsText.isEmpty {
+                        Text(record.teamsText)
+                            .font(.system(size: Theme.fontBody1, weight: .medium))
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                }
+
+                if let scoreText = record.scoreText {
+                    Text(scoreText)
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .foregroundStyle(Theme.accentColor)
+                }
+
+                VStack(spacing: Theme.sm) {
+                    archiveDetailRow(
+                        title: NSLocalizedString("record_date", value: "比赛日期", comment: ""),
+                        value: record.dateString
+                    )
+                    archiveDetailRow(
+                        title: NSLocalizedString("record_time", value: "比赛时间", comment: ""),
+                        value: record.timeText
+                    )
+                }
+                .padding(Theme.cardPadding)
+                .background(Theme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+
+                Text(NSLocalizedString(
+                    "archive_record_read_only_message",
+                    value: "这条归档记录仅可查看，无法继续比赛。",
+                    comment: "Archive-only record cannot be resumed"
+                ))
+                .font(.system(size: Theme.fontBody2))
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Theme.lg)
+            }
+            .frame(maxWidth: Theme.usesPadLayout ? 640 : .infinity)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.vertical, Theme.lg)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.backgroundColor)
+        .navigationTitle(NSLocalizedString("record_detail", value: "记录详情", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+    }
+
+    private func archiveDetailRow(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundStyle(Theme.textSecondary)
+            Spacer()
+            Text(value)
+                .foregroundStyle(Theme.textPrimary)
+        }
+        .font(.system(size: Theme.fontBody2))
+    }
+}
+
+struct RecordsProjectFilter: Identifiable, Hashable {
+    enum Scope: Hashable {
+        case family
+        case exact(ScoreCore.GameType)
+    }
+
+    let gameType: GameType
+    let scope: Scope
+
+    var scoreCoreGameType: ScoreCore.GameType? {
+        guard case .exact(let gameType) = scope else { return nil }
+        return gameType
+    }
+    var id: String {
+        switch scope {
+        case .family: "family:\(gameType.rawValue)"
+        case .exact(let gameType): "exact:\(gameType.rawValue)"
+        }
+    }
+    var icon: String { gameType.icon }
+    var title: String {
+        switch scope {
+        case .family:
+            return "\(gameType.displayName) · \(NSLocalizedString("all", value: "全部", comment: ""))"
+        case .exact(let gameType):
+            return gameType.scoreboardDisplayName
+        }
+    }
+
+    func matches(scoreboard record: ScoreboardRecordSummary) -> Bool {
+        switch scope {
+        case .family:
+            return record.gameType == gameType
+        case .exact(let gameType):
+            return record.resolvedScoreCoreGameType == gameType
+        }
+    }
+
+    func matches(timerGameType: GameType) -> Bool {
+        if case .family = scope { return timerGameType == gameType }
+        return false
+    }
+
+    func matches(scoreCoreGameType: ScoreCore.GameType) -> Bool {
+        switch scope {
+        case .family:
+            return GameType(scoreCoreGameType: scoreCoreGameType) == gameType
+        case .exact(let gameType):
+            return scoreCoreGameType == gameType
+        }
+    }
+
+    static let allOptions: [Self] = GameType.scoreboardFilterTypes.flatMap { type -> [Self] in
+        switch type {
+        case .pingpong:
+            return [.init(gameType: type, scope: .family), .init(gameType: type, scope: .exact(.pingpong)), .init(gameType: type, scope: .exact(.pingpongDoubles))]
+        case .badminton:
+            return [.init(gameType: type, scope: .family), .init(gameType: type, scope: .exact(.badminton)), .init(gameType: type, scope: .exact(.badmintonDoubles))]
+        case .tennis:
+            return [.init(gameType: type, scope: .family), .init(gameType: type, scope: .exact(.tennis)), .init(gameType: type, scope: .exact(.tennisDoubles))]
+        case .pickleball:
+            return [.init(gameType: type, scope: .family), .init(gameType: type, scope: .exact(.pickleball)), .init(gameType: type, scope: .exact(.pickleballDoubles))]
+        case .foosball:
+            return [.init(gameType: type, scope: .family), .init(gameType: type, scope: .exact(.foosball)), .init(gameType: type, scope: .exact(.foosballDoubles))]
+        default:
+            return [.init(gameType: type, scope: .family)]
+        }
     }
 }
 
@@ -657,5 +801,7 @@ private enum RecordsTabRecordItem: Identifiable {
 }
 
 #Preview {
-    RecordsTab()
+    NavigationStack {
+        RecordsTab()
+    }
 }

@@ -107,7 +107,7 @@ struct ScoreboardRecordDetailPage: View {
         VStack(spacing: 16) {
             HStack(spacing: 8) {
                 Text(record.gameType.icon).font(.title)
-                Text(record.gameType.displayName).font(.headline)
+                Text(record.competitionDisplayName).font(.headline)
                 Spacer()
                 if record.isSyncedFromWatch {
                     Label(
@@ -178,7 +178,7 @@ struct ScoreboardRecordDetailPage: View {
         HStack(spacing: 10) {
             Button { handleReplay(record, presentation: presentation) } label: {
                 Label(
-                    record.status == .draft ? NSLocalizedString("continue_game", value: "继续比赛", comment: "") : NSLocalizedString("play_again", value: "再来一局", comment: ""),
+                    record.status == .draft ? NSLocalizedString("continue_game", value: "继续比赛", comment: "") : NSLocalizedString("play_again", value: "再来一场", comment: ""),
                     systemImage: record.status == .draft ? "play.fill" : "arrow.clockwise"
                 )
                 .frame(maxWidth: .infinity)
@@ -303,7 +303,7 @@ struct ScoreboardRecordDetailPage: View {
 
     @ViewBuilder
     private func replaySetupSheet(_ record: ScoreboardRecord) -> some View {
-        let setup = setupResult(from: record)
+        let setup = ScoreboardRecordConfiguration.setup(from: record)
         NavigationStack {
             GeometryReader { proxy in
                 let maxDialogHeight = max(280, proxy.size.height - 32)
@@ -324,6 +324,7 @@ struct ScoreboardRecordDetailPage: View {
                             defaultTeam1Name: setup.team1Name,
                             defaultTeam2Name: setup.team2Name,
                             initialTargetScore: setup.targetScore ?? 500,
+                            initialSetup: setup,
                             titleEmoji: record.gameType.icon,
                             titleKey: localizationKey(for: record.gameType),
                             titleFallback: record.gameType.displayName,
@@ -372,42 +373,8 @@ struct ScoreboardRecordDetailPage: View {
         }
     }
 
-    private func setupResult(from record: ScoreboardRecord) -> SportsSetupResult {
-        let data = record.projectConfiguration ?? record.extraData ?? [:]
-        var setup = SportsSetupResult(team1Name: record.team1Name, team2Name: record.team2Name)
-        setup.maxSets = intValue(data["maxSets"])
-        setup.pointsPerSet = intValue(data["pointsPerSet"] ?? data["targetScore"])
-        setup.tieBreakPoints = intValue(data["tieBreakPoints"])
-        setup.gamesPerSet = intValue(data["gamesPerSet"])
-        setup.setScoringMode = stringValue(data["setScoringMode"])
-        if let completion = stringValue(data["matchCompletionMode"]) {
-            setup.matchCompletionMode = MatchCompletionMode(rawValue: completion)
-        }
-        setup.autoChangeSides = boolValue(data["autoChangeSides"])
-        setup.isSingles = boolValue(data["isSingles"])
-        setup.basketballMode = stringValue(data["basketballMode"])
-        setup.basketballRuleSet = stringValue(data["basketballRuleSet"])
-        setup.tennisDeuceMode = stringValue(data["tennisDeuceMode"])
-        setup.servingSide = stringValue(data["servingSide"])
-        setup.targetScore = intValue(data["targetScore"] ?? data["unoTargetScore"])
-        setup.winByTwo = boolValue(data["winByTwo"])
-        setup.scoreCap = intValue(data["scoreCap"])
-        setup.useRallyScoring = boolValue(data["useRallyScoring"])
-        setup.eightBallHandicapRacks = intValue(data["eightBallHandicapRacks"])
-        setup.eightBallHandicapBeneficiary = stringValue(data["eightBallHandicapBeneficiary"])
-        setup.playerNames = record.displayParticipants.map(\.name)
-        setup.playerCount = setup.playerNames?.isEmpty == false ? setup.playerNames?.count : intValue(data["playerCount"])
-        setup.nineBallBigGold = intValue(data["nineBallBigGold"])
-        setup.nineBallSmallGold = intValue(data["nineBallSmallGold"])
-        setup.nineBallGoldenNine = intValue(data["nineBallGoldenNine"])
-        setup.nineBallNormalWin = intValue(data["nineBallNormalWin"])
-        setup.nineBallBallInHand = intValue(data["nineBallBallInHand"])
-        setup.nineBallFoul = intValue(data["nineBallFoul"])
-        return setup
-    }
-
     private func tennisFormatDescription(_ record: ScoreboardRecord) -> String {
-        let data = record.projectConfiguration ?? record.extraData ?? [:]
+        let data = record.mergedProjectConfiguration
         let tieBreakPoints = intValue(data["tieBreakPoints"]) == 10 ? 10 : 7
         if stringValue(data["setScoringMode"]) == "tiebreak_only" {
             return NSLocalizedString(
@@ -520,7 +487,7 @@ private struct RecordDetailShareCardView: View {
     var body: some View {
         VStack(spacing: 24) {
             Text(record.gameType.icon).font(.system(size: 56))
-            Text(record.gameType.displayName).font(.largeTitle.bold())
+            Text(record.competitionDisplayName).font(.largeTitle.bold())
             Text(record.displayMatchTitle).font(.title3).multilineTextAlignment(.center)
             Text(record.displayScore()).font(.system(size: 64, weight: .bold, design: .rounded)).foregroundStyle(Theme.primary)
             if let duration = record.duration { Label(formatScoreboardDuration(duration), systemImage: "clock") }

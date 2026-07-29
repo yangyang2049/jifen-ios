@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Photos
 
 struct CubeTimerView: View {
     @Environment(\.dismiss) private var dismiss
@@ -24,17 +23,11 @@ struct CubeTimerView: View {
     @State private var startReference: Date?
 
     @State private var hideButtons = false
-    @State private var screenshotImage: UIImage?
-    @State private var showSaveDialog = false
-    @State private var dialogProgress: Double = 1.0
-    @State private var dialogTimer: Timer?
 
     @State private var exitClickTime: Date?
     @State private var toastMessage: String?
     /// 一次性操作提示：进入页面时弹一次，点「确定」后不再显示，避免常驻文案盖住手掌
     @State private var showInitialHintDialog = true
-
-    private let dialogAutoCloseTime: TimeInterval = 5.0
 
     private var isTablet: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
@@ -147,65 +140,6 @@ struct CubeTimerView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal, 40)
                     .zIndex(1)
-                }
-
-                if showSaveDialog {
-                    Color.black.opacity(0.5)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            closeDialog()
-                        }
-
-                    VStack(spacing: 0) {
-                        VStack(spacing: 0) {
-                            if let screenshotImage {
-                                Image(uiImage: screenshotImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 238, height: 120)
-                                    .cornerRadius(6)
-                                    .padding(.top, 16)
-                                    .padding(.bottom, 12)
-                                    .onTapGesture {
-                                        stopDialogCountdown()
-                                    }
-                            }
-
-                            HStack(spacing: 10) {
-                                Button(NSLocalizedString("cancel", comment: "")) {
-                                    closeDialog()
-                                }
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color(hex: "333333"))
-                                .frame(width: 90, height: 36)
-                                .background(Color(hex: "F5F5F5"))
-                                .clipShape(Capsule())
-
-                                Button(NSLocalizedString("save", comment: "")) {
-                                    saveScreenshot()
-                                }
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(width: 90, height: 36)
-                                .background(Theme.primary)
-                                .clipShape(Capsule())
-                            }
-                            .padding(.bottom, 16)
-                        }
-                        .frame(width: 280)
-                        .background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(alignment: .bottom) {
-                            ProgressView(value: dialogProgress, total: 1.0)
-                                .tint(Theme.primary)
-                                .frame(height: 3)
-                                .background(Theme.primary.opacity(0.2))
-                                .padding(.top, 1)
-                        }
-                    }
-                    .onTapGesture {
-                        stopDialogCountdown()
-                    }
                 }
 
             }
@@ -430,7 +364,6 @@ struct CubeTimerView: View {
         stopTimer()
         handDownTimer?.invalidate()
         handDownTimer = nil
-        stopDialogCountdown()
     }
 
     private func handleExitClick() {
@@ -459,106 +392,18 @@ struct CubeTimerView: View {
     }
 
     private func prepareScreenshot() {
+        ScreenshotSaveCoordinator.shared.prepareForCapture()
         hideButtons = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            let image = captureScreenshot()
+            let image = ScreenshotSaveCoordinator.shared.captureCurrentWindowImage()
             hideButtons = false
 
             guard let image else {
-                showToast(NSLocalizedString("screenshot_failed", value: "截图失败", comment: ""), duration: 1.5)
+                ScreenshotSaveCoordinator.shared.showCaptureFailure()
                 return
             }
 
-            screenshotImage = image
-            showSaveDialog = true
-            startDialogCountdown()
-        }
-    }
-
-    private func captureScreenshot() -> UIImage? {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first(where: { $0.activationState == .foregroundActive }),
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
-            return nil
-        }
-
-        let renderer = UIGraphicsImageRenderer(size: window.bounds.size)
-        return renderer.image { _ in
-            window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
-        }
-    }
-
-    private func startDialogCountdown() {
-        stopDialogCountdown()
-        dialogProgress = 1.0
-        let start = Date()
-        dialogTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
-            let elapsed = Date().timeIntervalSince(start)
-            let remaining = dialogAutoCloseTime - elapsed
-            if remaining <= 0 {
-                dialogProgress = 0
-                closeDialog()
-            } else {
-                dialogProgress = remaining / dialogAutoCloseTime
-            }
-        }
-        if let dialogTimer {
-            RunLoop.current.add(dialogTimer, forMode: .common)
-        }
-    }
-
-    private func stopDialogCountdown() {
-        dialogTimer?.invalidate()
-        dialogTimer = nil
-    }
-
-    private func closeDialog() {
-        stopDialogCountdown()
-        showSaveDialog = false
-        screenshotImage = nil
-    }
-
-    private func saveScreenshot() {
-        guard let screenshotImage else {
-            showToast(NSLocalizedString("save_screenshot_failed", value: "保存截图失败", comment: ""), duration: 2.0)
-            return
-        }
-
-        let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
-        if status == .authorized || status == .limited {
-            writeImageToPhotoLibrary(screenshotImage)
-            return
-        }
-
-        if status == .notDetermined {
-            PHPhotoLibrary.requestAuthorization(for: .addOnly) { newStatus in
-                DispatchQueue.main.async {
-                    if newStatus == .authorized || newStatus == .limited {
-                        writeImageToPhotoLibrary(screenshotImage)
-                    } else {
-                        showToast(NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: ""), duration: 2.0)
-                    }
-                }
-            }
-            return
-        }
-
-        showToast(NSLocalizedString("please_allow_photo_access", value: "请在设置中允许访问相册", comment: ""), duration: 2.0)
-    }
-
-    private func writeImageToPhotoLibrary(_ image: UIImage) {
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAsset(from: image)
-        }) { success, _ in
-            DispatchQueue.main.async {
-                if success {
-                    showToast(NSLocalizedString("screenshot_saved", value: "截图已保存", comment: ""), duration: 2.0)
-                    closeDialog()
-                } else {
-                    showToast(NSLocalizedString("save_screenshot_failed", value: "保存截图失败", comment: ""), duration: 2.0)
-                }
-            }
+            ScreenshotSaveCoordinator.shared.submitCapturedImage(image)
         }
     }
 }

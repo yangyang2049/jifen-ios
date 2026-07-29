@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import OSLog
 import PersistenceCore
 import RecordCore
 import ScoreCore
@@ -8,6 +9,10 @@ import SessionCore
 @MainActor
 @Observable
 final class SessionRecordsViewModel {
+    private static let logger = Logger(
+        subsystem: "com.douhua.jifen.ios",
+        category: "ArchiveMigration"
+    )
     struct Record: Identifiable {
         let entry: SessionArchiveEntry
         let scoreText: String?
@@ -85,12 +90,72 @@ final class SessionRecordsViewModel {
 
         switch entry.gameType {
         case .basketball, .threeBasketball:
-            guard let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: data) else { return nil }
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<BasketballMatchState, BasketballMatchEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
             return "\(session.state.leftScore) : \(session.state.rightScore)"
         case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles, .pickleball, .pickleballDoubles,
              .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
-            guard let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data) else { return nil }
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<RallyMatchState, RallyMatchEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
             return "\(session.state.leftPoints) : \(session.state.rightPoints)"
+        case .tennis, .tennisDoubles:
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<TennisMatchState, TennisMatchEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
+            return "\(session.state.leftSets) : \(session.state.rightSets)"
+        case .eightBall:
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<EightBallState, EightBallEvent, EightBallIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<EightBallState, EightBallEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
+            return "\(session.state.leftPoints) : \(session.state.rightPoints)"
+        case .nineBall:
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<NineBallChaseState, NineBallChaseEvent, NineBallChaseIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<NineBallChaseState, NineBallChaseEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
+            return session.state.playerPoints
+                .prefix(session.state.playerCount)
+                .map(String.init)
+                .joined(separator: " : ")
+        case .snooker:
+            let session = (try? JSONDecoder().decode(
+                ScoreSessionResumeBundle<SnookerState, SnookerEvent, SnookerIntent>.self,
+                from: data
+            ))?.currentSession ?? (try? JSONDecoder().decode(
+                ScoreSession<SnookerState, SnookerEvent>.self,
+                from: data
+            ))
+            guard let session else { return nil }
+            let state = session.state
+            return state.maxFrames > 1
+                ? "\(state.leftFrames) : \(state.rightFrames)"
+                : "\(state.leftScore) : \(state.rightScore)"
         default:
             return nil
         }
@@ -102,8 +167,9 @@ final class SessionRecordsViewModel {
               let gameType = GameType(scoreCoreGameType: entry.gameType) else { return }
         let url = applicationSupport.appendingPathComponent("jifen-v2").appendingPathComponent(entry.snapshotPath)
         guard let data = try? Data(contentsOf: url) else { return }
+        let sessionData = normalizedSessionData(for: entry.gameType, archiveData: data) ?? data
 
-        if let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data) {
+        if let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: sessionData) {
             var actions: [DetailedScoreAction] = []
             var sets = [0, 0]
             for event in session.events {
@@ -127,8 +193,23 @@ final class SessionRecordsViewModel {
                     actions.append(.init(type: .reset, scores: [0, 0], setScores: [0, 0], operationCode: "reset"))
                 }
             }
-            saveMigratedRecord(id: id, gameType: gameType, started: startDate(session.metadata), names: (session.state.leftName, session.state.rightName), scores: (session.state.leftPoints, session.state.rightPoints), sets: (session.state.leftSets, session.state.rightSets), finished: session.state.finished, actions: actions, snapshot: data)
-        } else if let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: data) {
+            saveMigratedRecord(
+                id: id,
+                gameType: gameType,
+                started: startDate(session.metadata),
+                names: (session.state.leftName, session.state.rightName),
+                scores: (session.state.leftPoints, session.state.rightPoints),
+                sets: (session.state.leftSets, session.state.rightSets),
+                finished: session.state.finished,
+                actions: actions,
+                snapshot: data,
+                projectConfiguration: ScoreboardRecordConfiguration.rally(
+                    gameType: session.gameType,
+                    state: session.state,
+                    voiceAnnouncement: false
+                )
+            )
+        } else if let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: sessionData) {
             let actions = session.events.compactMap { event -> DetailedScoreAction? in
                 guard case .stateChanged(let at, let intent, let before, let after) = event, intent != .tickClock else { return nil }
                 if before.leftScore != after.leftScore || before.rightScore != after.rightScore {
@@ -145,11 +226,112 @@ final class SessionRecordsViewModel {
                 default: return .init(type: .stateChanged, epochMilliseconds: at, scores: [after.leftScore, after.rightScore], periodNumber: after.currentPeriod, operationCode: String(describing: intent))
                 }
             }
-            saveMigratedRecord(id: id, gameType: gameType, started: startDate(session.metadata), names: (session.state.leftName, session.state.rightName), scores: (session.state.leftScore, session.state.rightScore), sets: nil, finished: session.state.finished, actions: actions, snapshot: data)
+            saveMigratedRecord(
+                id: id,
+                gameType: gameType,
+                started: startDate(session.metadata),
+                names: (session.state.leftName, session.state.rightName),
+                scores: (session.state.leftScore, session.state.rightScore),
+                sets: nil,
+                finished: session.state.finished,
+                actions: actions,
+                snapshot: data,
+                projectConfiguration: [ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(session.gameType.rawValue)]
+            )
+        } else if let session = try? JSONDecoder().decode(ScoreSession<TennisMatchState, TennisMatchEvent>.self, from: sessionData) {
+            let state = session.state
+            let pointOnly = state.rules.setScoringMode == .tiebreakOnly
+            saveMigratedRecord(
+                id: id,
+                gameType: gameType,
+                started: startDate(session.metadata),
+                names: (state.leftName, state.rightName),
+                scores: (pointOnly ? state.leftPoints : state.leftGames, pointOnly ? state.rightPoints : state.rightGames),
+                sets: (state.leftSets, state.rightSets),
+                finished: state.finished,
+                actions: [],
+                snapshot: data,
+                projectConfiguration: ScoreboardRecordConfiguration.tennis(
+                    gameType: session.gameType,
+                    state: state,
+                    voiceAnnouncement: false
+                )
+            )
+        } else if let session = try? JSONDecoder().decode(ScoreSession<EightBallState, EightBallEvent>.self, from: sessionData) {
+            let state = session.state
+            let names = migratedNames(session.participants)
+            var configuration: [String: AnyCodable] = [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(session.gameType.rawValue),
+                "maxSets": AnyCodable(state.targetPoints),
+                "eightBallHandicapRacks": AnyCodable(state.handicapRacks),
+                "eightBallHandicapBeneficiary": AnyCodable(state.handicapBeneficiary == .left ? "team1" : (state.handicapBeneficiary == .right ? "team2" : "none"))
+            ]
+            configuration["targetScore"] = AnyCodable(state.targetPoints)
+            saveMigratedRecord(id: id, gameType: gameType, started: startDate(session.metadata), names: names, scores: (state.leftPoints, state.rightPoints), sets: nil, finished: state.finished, actions: [], snapshot: data, projectConfiguration: configuration)
+        } else if let session = try? JSONDecoder().decode(ScoreSession<NineBallChaseState, NineBallChaseEvent>.self, from: sessionData) {
+            let state = session.state
+            let names = (0..<state.playerCount).map { state.resolvedName(at: $0) }
+            let players = names.enumerated().map { index, name in
+                AnyCodable(["name": AnyCodable(name), "finalScore": AnyCodable(state.playerPoints[index])])
+            }
+            let configuration: [String: AnyCodable] = [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(session.gameType.rawValue),
+                "playerCount": AnyCodable(state.playerCount),
+                "nineBallBigGold": AnyCodable(state.config.bigGold),
+                "nineBallSmallGold": AnyCodable(state.config.smallGold),
+                "nineBallGoldenNine": AnyCodable(state.config.goldenNine),
+                "nineBallNormalWin": AnyCodable(state.config.normalWin),
+                "nineBallBallInHand": AnyCodable(state.config.ballInHand),
+                "nineBallFoul": AnyCodable(state.config.foul)
+            ]
+            saveMigratedRecord(
+                id: id,
+                gameType: gameType,
+                started: startDate(session.metadata),
+                names: (names.first ?? "P1", names.dropFirst().first ?? "P2"),
+                scores: (state.leftPoints, state.rightPoints),
+                sets: nil,
+                finished: state.finished,
+                actions: [],
+                snapshot: data,
+                extraData: ["players": AnyCodable(players), "playerCount": AnyCodable(state.playerCount)],
+                projectConfiguration: configuration
+            )
+        } else if let session = try? JSONDecoder().decode(ScoreSession<SnookerState, SnookerEvent>.self, from: sessionData) {
+            let state = session.state
+            let names = migratedNames(session.participants)
+            saveMigratedRecord(
+                id: id,
+                gameType: gameType,
+                started: startDate(session.metadata),
+                names: names,
+                scores: (state.maxFrames > 1 ? state.leftFrames : state.leftScore, state.maxFrames > 1 ? state.rightFrames : state.rightScore),
+                sets: state.maxFrames > 1 ? (state.leftFrames, state.rightFrames) : nil,
+                finished: state.finished,
+                actions: [],
+                snapshot: data,
+                projectConfiguration: [
+                    ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(session.gameType.rawValue),
+                    "maxSets": AnyCodable(state.maxFrames),
+                    "servingSide": AnyCodable(state.firstBreaker.rawValue)
+                ]
+            )
         }
     }
 
-    private static func saveMigratedRecord(id: String, gameType: GameType, started: Date, names: (String, String), scores: (Int, Int), sets: (Int, Int)?, finished: Bool, actions: [DetailedScoreAction], snapshot: Data) {
+    private static func saveMigratedRecord(
+        id: String,
+        gameType: GameType,
+        started: Date,
+        names: (String, String),
+        scores: (Int, Int),
+        sets: (Int, Int)?,
+        finished: Bool,
+        actions: [DetailedScoreAction],
+        snapshot: Data,
+        extraData: [String: AnyCodable]? = nil,
+        projectConfiguration: [String: AnyCodable]? = nil
+    ) {
         let winner = finished && scores.0 != scores.1 ? (scores.0 > scores.1 ? "left" : "right") : nil
         let record = ScoreboardRecord(
             id: id,
@@ -167,10 +349,49 @@ final class SessionRecordsViewModel {
             detailedActions: actions,
             setResults: ScoreboardRecordActionAdapter.setResults(from: actions),
             totalScoreChanges: actions.count,
+            extraData: extraData,
+            projectConfiguration: projectConfiguration,
             stateSnapshot: snapshot,
             status: finished ? .finished : .draft
         )
-        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        do {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        } catch {
+            logger.error("Failed to migrate archive \(id, privacy: .public): \(String(describing: error), privacy: .public)")
+        }
+    }
+
+    static func normalizedSessionData(for gameType: ScoreCore.GameType, archiveData: Data) -> Data? {
+        let decoder = JSONDecoder()
+        let encoder = JSONEncoder()
+        switch gameType {
+        case .basketball, .threeBasketball:
+            return (try? decoder.decode(ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>.self, from: archiveData))
+                .flatMap { try? encoder.encode($0.currentSession) }
+        case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles, .pickleball, .pickleballDoubles,
+             .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
+            return (try? decoder.decode(ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self, from: archiveData))
+                .flatMap { try? encoder.encode($0.currentSession) }
+        case .tennis, .tennisDoubles:
+            return (try? decoder.decode(ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self, from: archiveData))
+                .flatMap { try? encoder.encode($0.currentSession) }
+        case .eightBall:
+            return (try? decoder.decode(ScoreSessionResumeBundle<EightBallState, EightBallEvent, EightBallIntent>.self, from: archiveData))
+                .flatMap { try? encoder.encode($0.currentSession) }
+        case .nineBall:
+            return (try? decoder.decode(ScoreSessionResumeBundle<NineBallChaseState, NineBallChaseEvent, NineBallChaseIntent>.self, from: archiveData))
+                .flatMap { try? encoder.encode($0.currentSession) }
+        case .snooker:
+            return (try? decoder.decode(ScoreSessionResumeBundle<SnookerState, SnookerEvent, SnookerIntent>.self, from: archiveData))
+                .flatMap { try? encoder.encode($0.currentSession) }
+        default:
+            return nil
+        }
+    }
+
+    private static func migratedNames(_ participants: [SessionParticipant]) -> (String, String) {
+        let names = participants.map(\.name).filter { !$0.isEmpty }
+        return (names.first ?? "红方", names.dropFirst().first ?? "蓝方")
     }
 
     private static func startDate(_ metadata: SessionMetadata) -> Date {
@@ -184,13 +405,13 @@ private extension ScoreCore.GameType {
         switch self {
         case .basketball: return "篮球"
         case .threeBasketball: return "篮球 3x3"
-        case .pingpong, .pingpongDoubles: return "乒乓球"
-        case .badminton, .badmintonDoubles: return "羽毛球"
-        case .pickleball, .pickleballDoubles: return "匹克球"
+        case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles,
+             .pickleball, .pickleballDoubles, .tennis, .tennisDoubles,
+             .foosball, .foosballDoubles:
+            return scoreboardDisplayName
         case .volleyball: return "排球"
         case .airVolleyball: return "气排球"
         case .beachVolleyball: return "沙滩排球"
-        case .tennis, .tennisDoubles: return "网球"
         default: return rawValue
         }
     }

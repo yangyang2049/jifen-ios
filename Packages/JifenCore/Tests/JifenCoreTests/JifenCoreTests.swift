@@ -776,7 +776,7 @@ private struct CounterReducer: DomainReducer {
     #expect(cappedSet.rightSets == 2)
 }
 
-@Test func foosballDoublesKeepsFourFixedCornerNames() {
+@Test func foosballDoublesKeepsFourPlayerIdentities() {
     let names = ["红A", "蓝A", "红B", "蓝B"]
     let doubles = RallyDoublesState.foosball(playerNames: names)
     var state = RallyMatchEngine.initial(
@@ -794,6 +794,27 @@ private struct CounterReducer: DomainReducer {
     #expect(retainsFoosballIdentity)
     state = reducer.reduce(state: state, intent: .reset, at: 2).state
     #expect(state.doubles?.playerNames == names)
+}
+
+@Test func foosballDoublesPlayerEditRebuildsJoinedTeamName() {
+    let doubles = RallyDoublesState.foosball(playerNames: ["红A", "蓝A", "红B", "蓝B"])
+    let initial = RallyMatchEngine.initial(
+        leftName: "红A/红B",
+        rightName: "蓝A/蓝B",
+        rules: .foosball(),
+        doubles: doubles
+    )
+    let reducer = RallyMatchReducer()
+
+    let state = reducer.reduce(
+        state: initial,
+        intent: .setDoublesPlayerName(slot: 2, name: "红C"),
+        at: 1
+    ).state
+
+    #expect(state.doubles?.playerNames == ["红A", "蓝A", "红C", "蓝B"])
+    #expect(state.leftName == "红A/红C")
+    #expect(state.rightName == "蓝A/蓝B")
 }
 
 @Test func sessionArchiveRepositoryOwnsSnapshotIndexAndDeletion() async throws {
@@ -855,4 +876,32 @@ private struct CounterReducer: DomainReducer {
     // Finished saves must not discard the remaining live resume.
     #expect(try await repository.liveEntries().map(\.sessionId) == [second.sessionId])
     #expect(Set(try await repository.entries().map(\.sessionId)) == Set([first.sessionId, second.sessionId]))
+}
+
+@Test func finishedSessionBecomesLiveWhenReducerAcceptsReset() async {
+    let initial = SnookerState.initial(striker: .right, maxFrames: 3)
+    let seed = ScoreSession<SnookerState, SnookerEvent>(
+        gameType: .snooker,
+        ruleFamily: .s2,
+        reducerType: "snooker/v1",
+        state: initial
+    )
+    let core = ScoreSessionCore(
+        seedSession: seed,
+        reducer: SnookerReducer(),
+        shouldFinish: { _, state in state.finished }
+    )
+
+    _ = await core.dispatch(actorId: "phone", intent: .finishMatch, at: 1)
+    #expect(await core.snapshot().status == .finished)
+
+    let reset = await core.dispatch(actorId: "phone", intent: .reset, at: 2)
+    guard case .accepted(let session, _) = reset else {
+        Issue.record("Snooker reset should be accepted after finish")
+        return
+    }
+    #expect(session.status == .live)
+    #expect(!session.state.finished)
+    #expect(session.state.firstBreaker == .right)
+    #expect(session.state.maxFrames == 3)
 }

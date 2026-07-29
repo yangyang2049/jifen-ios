@@ -10,7 +10,13 @@ import SwiftUI
 // Helper class for orientation lock
 class OrientationLock {
     static let shared = OrientationLock()
-    private var lockedOrientation: UIInterfaceOrientationMask = .all
+    /// Mirrors Android/HarmonyOS normal-page policy: phones return to portrait,
+    /// while iPad keeps following the device orientation.
+    private static var defaultOrientation: UIInterfaceOrientationMask {
+        UIDevice.current.userInterfaceIdiom == .pad ? .all : .portrait
+    }
+
+    private var lockedOrientation: UIInterfaceOrientationMask = OrientationLock.defaultOrientation
     private var isPortraitUpdateInFlight: Bool = false
     /// Monotonic token to invalidate stale async orientation requests.
     private var requestToken: Int = 0
@@ -27,22 +33,23 @@ class OrientationLock {
     }
     
     func unlock() {
-        if lockedOrientation == .portrait && !isPortraitUpdateInFlight {
+        let defaultOrientation = OrientationLock.defaultOrientation
+        if lockedOrientation == defaultOrientation && !isPortraitUpdateInFlight {
             return
         }
+        guard !isPortraitUpdateInFlight else { return }
         requestToken += 1
         let tokenAtRequest = requestToken
-        guard !isPortraitUpdateInFlight else { return }
         isPortraitUpdateInFlight = true
 
-        // Apply portrait unlock only if request is still current.
+        // Restore the device-specific normal-page orientation only if this request is still current.
         DispatchQueue.main.async {
             // If lock state changed after scheduling, cancel this outdated unlock.
             guard self.requestToken == tokenAtRequest else {
                 self.isPortraitUpdateInFlight = false
                 return
             }
-            self.lockedOrientation = .portrait
+            self.lockedOrientation = defaultOrientation
             let windowScene = UIApplication.shared.connectedScenes
                 .compactMap { $0 as? UIWindowScene }
                 .first { $0.activationState == .foregroundActive }
@@ -53,7 +60,7 @@ class OrientationLock {
                     .rootViewController?
                     .setNeedsUpdateOfSupportedInterfaceOrientations()
 
-                if #available(iOS 16.0, *) {
+                if defaultOrientation == .portrait, #available(iOS 16.0, *) {
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait)) { error in
                         #if DEBUG
                         print("[OrientationLock] Geometry update fallback due to error: \(error.localizedDescription)")
@@ -81,6 +88,8 @@ struct jifenApp: App {
     @State private var appearance = AppAppearanceStore()
     @State private var watchLinkService = PhoneWatchLinkService()
     @State private var hasAcceptedLegal: Bool
+    @State private var showPersistenceFailure = false
+    @StateObject private var screenshotSaveCoordinator = ScreenshotSaveCoordinator.shared
 
     init() {
         FontRegistrar.registerFonts()
@@ -95,10 +104,25 @@ struct jifenApp: App {
     
     var body: some Scene {
         WindowGroup {
-            rootView
-                .environment(appearance)
-                .environment(watchLinkService)
-                .preferredColorScheme(appearance.mode.preferredColorScheme)
+            ZStack {
+                rootView
+                ScreenshotSaveOverlay(coordinator: screenshotSaveCoordinator)
+                    .zIndex(10_000)
+            }
+            .environment(appearance)
+            .environment(watchLinkService)
+            .preferredColorScheme(appearance.mode.preferredColorScheme)
+            .onReceive(NotificationCenter.default.publisher(for: .scoreboardPersistenceFailed)) { _ in
+                showPersistenceFailure = true
+            }
+            .alert(
+                NSLocalizedString("save_failed", value: "保存失败", comment: ""),
+                isPresented: $showPersistenceFailure
+            ) {
+                Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) { }
+            } message: {
+                Text(NSLocalizedString("scoreboard_save_failed", value: "保存失败，请稍后重试", comment: ""))
+            }
         }
     }
 

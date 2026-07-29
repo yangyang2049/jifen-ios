@@ -133,14 +133,15 @@ enum GameType: String, Codable, CaseIterable {
         }
     }
 
-    /// Scoreboard/timer types shown in Records filter (excludes counter).
+    /// Record-producing scoreboard/timer types shown in Records filter.
+    /// Counter and stopwatch are tools and do not belong in this list.
     static var scoreboardFilterTypes: [GameType] {
         [
             .pingpong, .badminton, .tennis, .pickleball, .football, .basketball, .threeBasketball,
             .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .guandan, .shengji, .uno, .foosball, .simpleScore, .multiScoreboard,
-            .xiangqi, .go, .chess, .checkers, .stopwatch
+            .xiangqi, .go, .chess, .checkers
         ]
     }
 
@@ -274,9 +275,6 @@ protocol BaseScoreboardControllerProtocol {
     func handleExitClick() -> Bool
     /// Seconds remaining in the double-tap exit confirm window, if armed.
     var exitConfirmRemainingSeconds: TimeInterval? { get }
-    func captureScreenshot(of view: UIView) -> UIImage?
-    func saveScreenshotToPhotoLibrary(_ image: UIImage, completion: @escaping (Bool, Error?) -> Void)
-    func generateScreenshotFileName() -> String
 }
 
 // MARK: - Score ViewModel Protocol
@@ -321,6 +319,8 @@ struct TemplateConfig {
     let onEndGame: (() -> Void)?
     let extraMenuItemsProvider: (() -> [ScoreboardMenuItem])?
     let onMenuAction: ((String) -> Void)?
+    /// Shared mutation gate for linked/follower scoreboards hosted by the template.
+    let scoringEnabledProvider: (() -> Bool)?
     /// Optional semantic key-point state for local display snapshots.
     let syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)?
     /// When set, replaces default tap-to-+1 / double-tap scoring for that panel side.
@@ -342,6 +342,7 @@ struct TemplateConfig {
         onEndGame: (() -> Void)? = nil,
         extraMenuItemsProvider: (() -> [ScoreboardMenuItem])? = nil,
         onMenuAction: ((String) -> Void)? = nil,
+        scoringEnabledProvider: (() -> Bool)? = nil,
         syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)? = nil,
         onScorePanelTap: ((Bool) -> Void)? = nil
     ) {
@@ -360,6 +361,7 @@ struct TemplateConfig {
         self.onEndGame = onEndGame
         self.extraMenuItemsProvider = extraMenuItemsProvider
         self.onMenuAction = onMenuAction
+        self.scoringEnabledProvider = scoringEnabledProvider
         self.syncKeyPointProvider = syncKeyPointProvider
         self.onScorePanelTap = onScorePanelTap
     }

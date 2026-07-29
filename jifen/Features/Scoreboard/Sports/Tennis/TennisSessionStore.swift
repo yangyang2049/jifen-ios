@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import OSLog
 import PersistenceCore
 import RecordCore
 import ScoreCore
@@ -8,13 +9,19 @@ import SessionCore
 @MainActor
 @Observable
 final class TennisSessionStore {
+    private typealias ResumeBundle = ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>
+
     private let core: ScoreSessionCore<TennisMatchReducer>
     private let archiveRepository: SessionArchiveRepository
     private var detailedActions: [DetailedScoreAction]
     private var completedSetScores: [VoiceSetScore] = []
     private var lastAppliedRemoteRevision: UInt64?
+    private var operationTask: Task<Void, Never>?
+    private var lastPersistenceErrorPresentationAt: Date?
+    private let logger = Logger(subsystem: "com.douhua.jifen.ios", category: "TennisPersistence")
 
     private(set) var state: TennisMatchState
+    private(set) var persistenceFailureSignal = 0
     var actionTimeline: [DetailedScoreAction] { detailedActions }
 
     var teamScreenLayout: TeamScreenLayout {
@@ -60,10 +67,7 @@ final class TennisSessionStore {
             ruleFamily: .s1,
             reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
             state: state,
-            participants: [
-                .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
-                .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
-            ],
+            participants: Self.participants(for: state),
             metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
         )
         self.init(session: session, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
@@ -85,41 +89,91 @@ final class TennisSessionStore {
         self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
     }
 
+    private init(resumeBundle: ResumeBundle, voiceAnnouncementEnabled: Bool) {
+        let session = resumeBundle.currentSession
+        gameType = session.gameType
+        sessionId = session.sessionId
+        let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
+        startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
+        core = ScoreSessionCore(
+            resumeBundle: resumeBundle,
+            reducer: TennisMatchReducer(),
+            shouldFinish: { _, state in state.finished }
+        )
+        archiveRepository = SessionArchiveRepository()
+        state = session.state
+        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+        self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
+    }
+
     convenience init?(restoring sessionId: UUID) {
         let url = SessionArchiveRepository.snapshotURL(sessionId: sessionId)
-        guard let data = try? Data(contentsOf: url),
-              let session = try? JSONDecoder().decode(ScoreSession<TennisMatchState, TennisMatchEvent>.self, from: data),
-              session.status == .live else {
+        guard let data = try? Data(contentsOf: url) else {
             return nil
         }
-        self.init(session: session, voiceAnnouncementEnabled: false)
+        let voiceAnnouncementEnabled = (ScoreboardRecordManager.shared
+            .getRecordById(sessionId.uuidString)?
+            .projectConfiguration?["voiceAnnouncement"]?.value as? Bool) ?? false
+        if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
+           bundle.currentSession.status == .live {
+            self.init(resumeBundle: bundle, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
+        } else if let session = try? JSONDecoder().decode(ScoreSession<TennisMatchState, TennisMatchEvent>.self, from: data),
+                  session.status == .live {
+            self.init(session: session, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
+        } else {
+            return nil
+        }
+    }
+
+    func makeFreshMatchStore() -> TennisSessionStore {
+        let resetState = TennisMatchReducer().reduce(
+            state: state,
+            intent: .reset,
+            at: Int64(Date().timeIntervalSince1970 * 1_000)
+        ).state
+        return TennisSessionStore(
+            gameType: gameType,
+            state: resetState,
+            voiceAnnouncementEnabled: voiceAnnouncementEnabled
+        )
     }
 
     func send(_ intent: TennisMatchIntent, onEvents: (([TennisMatchEvent]) -> Void)? = nil) {
-        Task { [weak self, core] in
+        let previousTask = operationTask
+        operationTask = Task { [weak self, core] in
+            _ = await previousTask?.value
             guard let self else { return }
             let before = self.state
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
             guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now) else { return }
             self.state = session.state
             onEvents?(events)
-            try? await self.archiveRepository.save(session)
+            await self.synchronizeParticipants(for: session.state)
+            let bundle = await core.resumeBundle()
             self.append(events: events, at: now, state: session.state)
-            self.persistRecord(session)
+            do {
+                try await self.archiveRepository.saveResumeBundle(bundle)
+                try self.persistRecord(bundle.currentSession)
+            } catch {
+                self.reportPersistenceFailure(error)
+            }
             self.speak(intent: intent, before: before, after: session.state, events: events)
         }
     }
 
     func undo(completion: ((Bool) -> Void)? = nil) {
-        Task { [weak self, core] in
+        let previousTask = operationTask
+        operationTask = Task { [weak self, core] in
+            _ = await previousTask?.value
             guard await core.undo(actorId: "phone"), let self else {
                 completion?(false)
                 return
             }
             let session = await core.snapshot()
             self.state = session.state
+            await self.synchronizeParticipants(for: session.state)
             completion?(true)
-            try? await self.archiveRepository.save(session)
+            let bundle = await core.resumeBundle()
             self.detailedActions.append(.init(
                 type: .undo,
                 epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
@@ -127,7 +181,12 @@ final class TennisSessionStore {
                 setScores: [session.state.leftSets, session.state.rightSets],
                 operationCode: "undo"
             ))
-            self.persistRecord(session)
+            do {
+                try await self.archiveRepository.saveResumeBundle(bundle)
+                try self.persistRecord(session)
+            } catch {
+                self.reportPersistenceFailure(error)
+            }
         }
     }
 
@@ -141,6 +200,7 @@ final class TennisSessionStore {
             return false
         }
         lastAppliedRemoteRevision = revision
+        _ = await operationTask?.value
         let session = await core.rebase(
             to: state,
             status: state.finished ? .finished : .live
@@ -148,8 +208,14 @@ final class TennisSessionStore {
         guard lastAppliedRemoteRevision == revision else { return false }
         self.state = session.state
         mergeRemoteActions(incoming)
-        try? await archiveRepository.save(session)
-        persistRecord(session)
+        await synchronizeParticipants(for: session.state)
+        let bundle = await core.resumeBundle()
+        do {
+            try await archiveRepository.saveResumeBundle(bundle)
+            try persistRecord(bundle.currentSession)
+        } catch {
+            reportPersistenceFailure(error)
+        }
         return true
     }
 
@@ -161,16 +227,46 @@ final class TennisSessionStore {
     }
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
-        Task { [core, archiveRepository] in
-            let session = await core.snapshot()
+        let previousTask = operationTask
+        operationTask = Task { [core, archiveRepository] in
+            _ = await previousTask?.value
+            let bundle = await core.resumeBundle()
             do {
-                try await archiveRepository.save(session)
-                self.persistRecord(session)
+                try await archiveRepository.saveResumeBundle(bundle)
+                try self.persistRecord(bundle.currentSession)
                 completion?(true)
             } catch {
+                self.reportPersistenceFailure(error, forcePresentation: true)
                 completion?(false)
             }
         }
+    }
+
+    func flush(completion: @escaping () -> Void) {
+        let pending = operationTask
+        Task {
+            _ = await pending?.value
+            completion()
+        }
+    }
+
+    private func synchronizeParticipants(for state: TennisMatchState) async {
+        let participants = Self.participants(for: state)
+        guard await core.snapshot().participants != participants else { return }
+        _ = await core.updateParticipants(participants)
+    }
+
+    private static func participants(for state: TennisMatchState) -> [SessionParticipant] {
+        if let names = state.doublesPlayerNames, names.count == 4 {
+            let ids = ["left-top", "right-top", "left-bottom", "right-bottom"]
+            return names.indices.map {
+                .init(id: ids[$0], name: names[$0], role: "player")
+            }
+        }
+        return [
+            .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
+            .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
+        ]
     }
 
     private func speak(
@@ -278,9 +374,9 @@ final class TennisSessionStore {
         }
     }
 
-    private func persistRecord(_ session: ScoreSession<TennisMatchState, TennisMatchEvent>) {
+    private func persistRecord(_ session: ScoreSession<TennisMatchState, TennisMatchEvent>) throws {
         guard let appGameType = GameType(scoreCoreGameType: gameType) else { return }
-        let snapshot = try? JSONEncoder().encode(session)
+        let snapshot = try JSONEncoder().encode(session)
         let usePointScore = state.rules.setScoringMode == .tiebreakOnly
         let leftFinalScore = usePointScore ? state.leftPoints : state.leftGames
         let rightFinalScore = usePointScore ? state.rightPoints : state.rightGames
@@ -305,17 +401,25 @@ final class TennisSessionStore {
             detailedActions: detailedActions,
             setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
             totalScoreChanges: detailedActions.count,
-            projectConfiguration: [
-                "maxSets": AnyCodable(state.rules.maxSets),
-                "tieBreakPoints": AnyCodable(state.rules.tieBreakPoints),
-                "gamesPerSet": AnyCodable(state.rules.gamesPerSet),
-                "setScoringMode": AnyCodable(state.rules.setScoringMode.rawValue),
-                "voiceAnnouncement": AnyCodable(voiceAnnouncementEnabled)
-            ],
+            projectConfiguration: ScoreboardRecordConfiguration.tennis(
+                gameType: gameType,
+                state: state,
+                voiceAnnouncement: voiceAnnouncementEnabled
+            ),
             stateSnapshot: snapshot,
             status: state.finished ? .finished : .draft
         )
-        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
         ScoreboardRecordsViewModel.shared.refreshRecords()
+    }
+
+    private func reportPersistenceFailure(_ error: Error, forcePresentation: Bool = false) {
+        logger.error("Failed to persist tennis session \(self.sessionId.uuidString, privacy: .public): \(String(describing: error), privacy: .public)")
+        let now = Date()
+        if forcePresentation
+            || lastPersistenceErrorPresentationAt.map({ now.timeIntervalSince($0) >= 5 }) != false {
+            lastPersistenceErrorPresentationAt = now
+            persistenceFailureSignal &+= 1
+        }
     }
 }

@@ -1,9 +1,73 @@
 import XCTest
 import ScoreCore
+import UIKit
 @testable import jifen
 
 @MainActor
 final class ScoreboardCatalogTests: XCTestCase {
+    func testUnfinishedDoublesTitleGroupsPlayersByTeam() {
+        let participants: [SessionParticipant] = [
+            .init(id: "left-top", name: "红A"),
+            .init(id: "right-top", name: "蓝A"),
+            .init(id: "left-bottom", name: "红B"),
+            .init(id: "right-bottom", name: "蓝B")
+        ]
+        XCTAssertEqual(
+            UnfinishedGameSummary.matchTitle(participants: participants, gameType: .tennisDoubles),
+            "红A/红B vs 蓝A/蓝B"
+        )
+
+        let legacy = participants.map { SessionParticipant(id: UUID().uuidString, name: $0.name) }
+        XCTAssertEqual(
+            UnfinishedGameSummary.matchTitle(participants: legacy, gameType: .foosballDoubles),
+            "红A/红B vs 蓝A/蓝B"
+        )
+        XCTAssertEqual(
+            UnfinishedGameSummary.matchTitle(participants: legacy, gameType: .nineBall),
+            "红A vs 蓝A"
+        )
+    }
+
+    func testFamilyRecordFilterKeepsLegacyUnclassifiedRecordsVisible() {
+        let legacyRecord = ScoreboardRecord(
+            id: "legacy-unclassified",
+            gameType: .tennis,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "A",
+            team2Name: "B",
+            team1FinalScore: 1,
+            team2FinalScore: 0,
+            totalScoreChanges: 1
+        )
+        let summary = ScoreboardRecordSummary(from: legacyRecord)
+        let family = RecordsProjectFilter(gameType: .tennis, scope: .family)
+        let singles = RecordsProjectFilter(gameType: .tennis, scope: .exact(.tennis))
+        let doubles = RecordsProjectFilter(gameType: .tennis, scope: .exact(.tennisDoubles))
+
+        XCTAssertTrue(family.matches(scoreboard: summary))
+        XCTAssertFalse(singles.matches(scoreboard: summary))
+        XCTAssertFalse(doubles.matches(scoreboard: summary))
+        XCTAssertTrue(family.matches(scoreCoreGameType: .tennisDoubles))
+        XCTAssertFalse(singles.matches(scoreCoreGameType: .tennisDoubles))
+    }
+
+    func testDialogControlGrayMatchesSegmentedControlFillInLightMode() {
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
+        let darkTraits = UITraitCollection(userInterfaceStyle: .dark)
+        let actual = UIColor(Theme.dialogControlBackground)
+
+        XCTAssertTrue(
+            actual.resolvedColor(with: lightTraits).isEqual(
+                UIColor.tertiarySystemFill.resolvedColor(with: lightTraits)
+            )
+        )
+        XCTAssertTrue(
+            actual.resolvedColor(with: darkTraits).isEqual(
+                UIColor.secondarySystemFill.resolvedColor(with: darkTraits)
+            )
+        )
+    }
+
     func testTimerAndToolCatalogCountsIncludeNewParityFeatures() {
         XCTAssertEqual(GameCatalog.timerAllItems.count, 7)
         XCTAssertEqual(Set(GameCatalog.timerAllItems).count, 7)
@@ -11,6 +75,53 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(ToolItem.allTools.count, 10)
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "random_team" })
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "fullscreen_barrage" })
+    }
+
+    func testHomeUsesWideLayoutOnlyForWideIPadWindows() {
+        XCTAssertTrue(
+            HomeLayoutPolicy.usesWideLayout(
+                size: CGSize(width: 1_366, height: 1_024),
+                isPad: true
+            )
+        )
+        XCTAssertFalse(
+            HomeLayoutPolicy.usesWideLayout(
+                size: CGSize(width: 1_024, height: 1_366),
+                isPad: true
+            )
+        )
+        XCTAssertFalse(
+            HomeLayoutPolicy.usesWideLayout(
+                size: CGSize(width: 700, height: 500),
+                isPad: true
+            )
+        )
+        XCTAssertFalse(
+            HomeLayoutPolicy.usesWideLayout(
+                size: CGSize(width: 932, height: 430),
+                isPad: false
+            )
+        )
+    }
+
+    func testWideHomeToolsUseCompleteCatalogAndCompactHomeKeepsCuratedTools() {
+        XCTAssertEqual(
+            HomeToolsLayoutPolicy.tools(isWide: true).map(\.id),
+            ToolItem.allTools.map(\.id)
+        )
+
+        let compactIDs = HomeToolsLayoutPolicy.tools(isWide: false).map(\.id)
+        XCTAssertEqual(compactIDs.count, 8)
+        XCTAssertFalse(compactIDs.contains("random_team"))
+        XCTAssertFalse(compactIDs.contains("fullscreen_barrage"))
+    }
+
+    func testWideHomeToolGridUsesFourToEightColumns() {
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 348, toolCount: 10), 4)
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 476, toolCount: 10), 4)
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 647, toolCount: 10), 6)
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 900, toolCount: 10), 8)
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 900, toolCount: 3), 3)
     }
 
     func testVisibleCatalogMatchesReferenceOrder() {
@@ -22,6 +133,39 @@ final class ScoreboardCatalogTests: XCTestCase {
             .foosball, .simpleScore, .multiScoreboard
         ])
         XCTAssertEqual(GameCatalog.scoreboardItems.count, 23)
+    }
+
+    func testPhoneWatchStartScopeMatchesExistingWatchMatchProjectsOnly() {
+        let supported: Set<jifen.GameType> = [
+            .pingpong, .badminton, .tennis, .pickleball,
+            .archery, .eightBall, .nineBall, .snooker
+        ]
+        let actual = Set(GameCatalog.scoreboardItems.map(\.gameType).filter {
+            AppFeatureFlags.isWatchLinkSupportedProject($0)
+        })
+        XCTAssertEqual(actual, supported)
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.basketball))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.threeBasketball))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.foosball))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: true))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: false))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 2))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 4))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 5))
+    }
+
+    func testTwentyNineModeAuditMatrixIncludesWatchOnlyBasketballTraining() throws {
+        let phoneModes = GameCatalog.scoreboardItems.count
+            + GameCatalog.scoreboardItems.map(\.gameType).filter(\.supportsSinglesAndDoubles).count
+        XCTAssertEqual(phoneModes, 28)
+
+        let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let managerSource = try String(
+            contentsOf: repositoryRoot.appendingPathComponent("jifenWatch Watch App/Managers/WatchRecordManager.swift"),
+            encoding: .utf8
+        )
+        XCTAssertTrue(managerSource.contains("guard record.gameType != .basketballTraining else { return }"))
+        XCTAssertEqual(phoneModes + 1, 29, "第 29 个实际模式是仅手表端的投篮训练，不参与手机联动")
     }
 
     func testPickleballUsesTableTennisIcon() throws {
@@ -97,6 +241,41 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(restored.nineBallFoul, 3)
     }
 
+    func testTypedBilliardsSetupProjectionNormalizesEverySpecializedRule() throws {
+        let eight = SportsSetupResult(
+            team1Name: "A",
+            team2Name: "B",
+            maxSets: 5,
+            eightBallHandicapRacks: 9,
+            eightBallHandicapBeneficiary: "team2"
+        )
+        guard case let .eightBall(target, handicap, beneficiary) = eight.billiardsConfiguration(for: .eightBall) else {
+            return XCTFail("missing eight-ball projection")
+        }
+        XCTAssertEqual(target, 5)
+        XCTAssertEqual(handicap, 4)
+        XCTAssertEqual(beneficiary, .right)
+
+        let nine = SportsSetupResult(
+            team1Name: "A", team2Name: "B", team3Name: "C",
+            nineBallBigGold: 120, nineBallFoul: -1,
+            playerCount: 3, playerNames: ["A", "B", "C"]
+        )
+        guard case let .nineBall(names, points) = nine.billiardsConfiguration(for: .nineBall) else {
+            return XCTFail("missing nine-ball projection")
+        }
+        XCTAssertEqual(names, ["A", "B", "C"])
+        XCTAssertEqual(points.bigGold, 99)
+        XCTAssertEqual(points.foul, 0)
+
+        let snooker = SportsSetupResult(team1Name: "A", team2Name: "B", maxSets: 4, servingSide: "right")
+        guard case let .snooker(frames, breaker) = snooker.billiardsConfiguration(for: .snooker) else {
+            return XCTFail("missing snooker projection")
+        }
+        XCTAssertEqual(frames, 5)
+        XCTAssertEqual(breaker, .right)
+    }
+
 
     func testMultiParticipantRecordDisplayUsesEveryStoredPlayer() {
         let record = ScoreboardRecord(
@@ -119,6 +298,25 @@ final class ScoreboardCatalogTests: XCTestCase {
         let summary = ScoreboardRecordSummary(from: record)
         XCTAssertEqual(summary.displayMatchTitle, "甲 vs 乙 vs 丙")
         XCTAssertEqual(summary.displayScore(), "1 : 2 : 3")
+    }
+
+    func testNineBallRecordDisplayUsesAllFourPlayers() {
+        let players: [[String: Any]] = (0..<4).map { index in
+            ["name": "P\(index + 1)", "finalScore": index * 3]
+        }
+        let record = ScoreboardRecord(
+            id: "nine-four",
+            gameType: .nineBall,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "P1",
+            team2Name: "P2",
+            team1FinalScore: 0,
+            team2FinalScore: 3,
+            totalScoreChanges: 1,
+            extraData: ["players": AnyCodable(players)]
+        )
+        XCTAssertEqual(record.displayParticipants.map(\.name), ["P1", "P2", "P3", "P4"])
+        XCTAssertEqual(record.displayParticipants.map(\.score), [0, 3, 6, 9])
     }
 
     func testDoublesMetadataDoesNotReplaceTwoTeamRecordDisplay() {

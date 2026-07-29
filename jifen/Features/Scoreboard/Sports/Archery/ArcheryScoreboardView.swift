@@ -86,6 +86,13 @@ struct ArcheryScoreboardView: View {
                             scoringLocked: scoringLocked
                         ))
                     },
+                    onEditModeChange: { editing in
+                        if editing {
+                            showArrowPicker = false
+                            showSetEndOverlay = false
+                            showClosestToCenter = false
+                        }
+                    },
                     showEndGame: true,
                     onEndGame: {
                         guard !scoringLocked else { return }
@@ -119,7 +126,8 @@ struct ArcheryScoreboardView: View {
                         default:
                             break
                         }
-                    }
+                    },
+                    scoringEnabledProvider: { !viewModel.mutationLocked }
                 ),
                 onBack: {
                     saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
@@ -127,12 +135,6 @@ struct ArcheryScoreboardView: View {
                     dismiss()
                 }
             )
-
-            VStack(spacing: 0) {
-                archeryTopBadge
-                    .padding(.top, ScoreboardConstants.buttonPadding + 2)
-                Spacer()
-            }
 
             if showArrowPicker {
                 archeryScorePicker
@@ -149,10 +151,17 @@ struct ArcheryScoreboardView: View {
             if showGameOverDialog {
                 GameOverDialog(
                     winnerName: viewModel.getWinnerName(),
+                    gameType: .archery,
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,
                     leftScore: viewModel.leftTeam.sets ?? 0,
                     rightScore: viewModel.rightTeam.sets ?? 0,
+                    newGameLabel: scoringLocked ? NSLocalizedString(
+                        "game_over_new_game_on_watch",
+                        value: "再来一场\n（请在手表端操作）",
+                        comment: ""
+                    ) : nil,
+                    newGameDisabled: scoringLocked,
                     onNewGame: {
                         guard !scoringLocked else { return }
                         showGameOverDialog = false
@@ -274,21 +283,6 @@ struct ArcheryScoreboardView: View {
         } message: {
             Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
         }
-    }
-
-    private var archeryTopBadge: some View {
-        VStack(spacing: 2) {
-            Text(String(format: NSLocalizedString("watch_set_title_format", value: "第 %d 局", comment: ""), viewModel.currentSet))
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
-            Text("\(viewModel.leftTeam.sets ?? 0) - \(viewModel.rightTeam.sets ?? 0)")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Theme.accentColor)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color.black.opacity(0.35))
-        .cornerRadius(12)
     }
 
     private var centerShooterIndicator: some View {

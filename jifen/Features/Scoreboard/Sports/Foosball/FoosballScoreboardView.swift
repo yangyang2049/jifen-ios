@@ -1,7 +1,7 @@
 import ScoreCore
 import SwiftUI
 
-/// 桌上足球：复用 Rally 抢分内核；2V2 使用四角球员布局且无发球轮转。
+/// 桌上足球：复用 Rally 抢分内核；2V2 正常计分时合并显示同队姓名，编辑时拆分为两位球员。
 struct FoosballScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil

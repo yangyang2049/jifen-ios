@@ -98,7 +98,7 @@ struct SchedulePage: View {
         }
     }
 
-    private let scheduleMaxContentWidth: CGFloat = 600
+    private let scheduleMaxContentWidth = Theme.focusedContentMaxWidth
 
     @ViewBuilder
     private func scheduleContentWidth<Content: View>(@ViewBuilder content: () -> Content) -> some View {

@@ -8,10 +8,14 @@ import SessionCore
 @MainActor
 @Observable
 final class BasketballSessionStore {
+    private typealias ResumeBundle = ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>
+
     private let core: ScoreSessionCore<BasketballMatchReducer>
     private let archiveRepository: SessionArchiveRepository
     private var clockTask: Task<Void, Never>?
     private var detailedActions: [DetailedScoreAction]
+    private var operationTask: Task<Void, Never>?
+    private var lastAppliedRemoteRevision: UInt64?
 
     private(set) var state: BasketballMatchState
     var actionTimeline: [DetailedScoreAction] { detailedActions }
@@ -71,18 +75,50 @@ final class BasketballSessionStore {
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
     }
 
+    private init(resumeBundle: ResumeBundle) {
+        let session = resumeBundle.currentSession
+        sessionId = session.sessionId
+        let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
+        startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
+        core = ScoreSessionCore(
+            resumeBundle: resumeBundle,
+            reducer: BasketballMatchReducer(),
+            shouldFinish: { _, state in state.finished }
+        )
+        archiveRepository = SessionArchiveRepository()
+        state = session.state
+        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+    }
+
     convenience init?(restoring sessionId: UUID) {
         let url = SessionArchiveRepository.snapshotURL(sessionId: sessionId)
-        guard let data = try? Data(contentsOf: url),
-              let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: data),
-              session.status == .live else {
+        guard let data = try? Data(contentsOf: url) else {
             return nil
         }
-        self.init(session: session)
+        if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
+           bundle.currentSession.status == .live {
+            self.init(resumeBundle: bundle)
+        } else if let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: data),
+                  session.status == .live {
+            self.init(session: session)
+        } else {
+            return nil
+        }
+    }
+
+    func makeFreshMatchStore() -> BasketballSessionStore {
+        BasketballSessionStore(
+            leftName: state.leftName,
+            rightName: state.rightName,
+            gameMode: state.gameMode,
+            ruleSet: state.ruleSet
+        )
     }
 
     func send(_ intent: BasketballMatchIntent, recordsUndo: Bool = true) {
-        Task { [weak self, core] in
+        let previousTask = operationTask
+        operationTask = Task { [weak self, core] in
+            _ = await previousTask?.value
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
             let result = if recordsUndo {
                 await core.dispatch(actorId: "phone", intent: intent, at: now)
@@ -91,26 +127,46 @@ final class BasketballSessionStore {
             }
             guard case .accepted(let session, _) = result, let self else { return }
             self.state = session.state
-            try? await self.archiveRepository.save(session)
-            if intent != .tickClock {
-                self.append(intent: intent, at: now, state: session.state)
-                self.persistRecord(session)
+            await self.synchronizeParticipants(for: session.state)
+            let bundle = await core.resumeBundle()
+            do {
+                try await self.archiveRepository.saveResumeBundle(bundle)
+                if intent != .tickClock {
+                    self.append(intent: intent, at: now, state: session.state)
+                    try self.persistRecord(bundle.currentSession)
+                }
+            } catch {
+                ScoreboardPersistenceFailureReporter.report(
+                    error,
+                    context: "Failed to persist basketball session \(self.sessionId.uuidString)"
+                )
             }
         }
     }
 
     func undo(completion: ((Bool) -> Void)? = nil) {
-        Task { [weak self, core] in
+        let previousTask = operationTask
+        operationTask = Task { [weak self, core] in
+            _ = await previousTask?.value
             guard await core.undo(actorId: "phone"), let self else {
                 completion?(false)
                 return
             }
             let session = await core.snapshot()
             self.state = session.state
+            await self.synchronizeParticipants(for: session.state)
             completion?(true)
-            try? await self.archiveRepository.save(session)
+            let bundle = await core.resumeBundle()
             self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftScore, session.state.rightScore], periodNumber: session.state.currentPeriod, operationCode: "undo"))
-            self.persistRecord(session)
+            do {
+                try await self.archiveRepository.saveResumeBundle(bundle)
+                try self.persistRecord(session)
+            } catch {
+                ScoreboardPersistenceFailureReporter.report(
+                    error,
+                    context: "Failed to persist basketball undo \(self.sessionId.uuidString)"
+                )
+            }
         }
     }
 
@@ -130,16 +186,32 @@ final class BasketballSessionStore {
         clockTask = nil
     }
 
-    func persistSnapshot() {
-        Task { [core, archiveRepository] in
-            let session = await core.snapshot()
-            try? await archiveRepository.save(session)
-            self.persistRecord(session)
+    func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
+        let previousTask = operationTask
+        operationTask = Task { [core, archiveRepository] in
+            _ = await previousTask?.value
+            let bundle = await core.resumeBundle()
+            do {
+                try await archiveRepository.saveResumeBundle(bundle)
+                try self.persistRecord(bundle.currentSession)
+                completion?(true)
+            } catch {
+                ScoreboardPersistenceFailureReporter.report(
+                    error,
+                    context: "Failed to persist final basketball snapshot \(self.sessionId.uuidString)",
+                    forcePresentation: true
+                )
+                completion?(false)
+            }
         }
     }
 
-    func replaceDisplayedState(_ state: BasketballMatchState) {
-        self.state = state
+    func flush(completion: @escaping () -> Void) {
+        let pending = operationTask
+        Task {
+            _ = await pending?.value
+            completion()
+        }
     }
 
     func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
@@ -147,6 +219,47 @@ final class BasketballSessionStore {
         detailedActions = incoming.sorted {
             ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
         }
+    }
+
+    @discardableResult
+    func applyAuthoritativeState(
+        _ state: BasketballMatchState,
+        detailedActions incoming: [DetailedScoreAction],
+        revision: UInt64
+    ) async -> Bool {
+        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
+            return false
+        }
+        lastAppliedRemoteRevision = revision
+        _ = await operationTask?.value
+        let session = await core.rebase(
+            to: state,
+            status: state.finished ? .finished : .live
+        )
+        guard lastAppliedRemoteRevision == revision else { return false }
+        self.state = session.state
+        mergeRemoteActions(incoming)
+        await synchronizeParticipants(for: session.state)
+        let bundle = await core.resumeBundle()
+        do {
+            try await archiveRepository.saveResumeBundle(bundle)
+            try persistRecord(bundle.currentSession)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to persist linked basketball state \(sessionId.uuidString)"
+            )
+        }
+        return true
+    }
+
+    private func synchronizeParticipants(for state: BasketballMatchState) async {
+        let participants: [SessionParticipant] = [
+            .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
+            .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
+        ]
+        guard await core.snapshot().participants != participants else { return }
+        _ = await core.updateParticipants(participants)
     }
 
     private func append(intent: BasketballMatchIntent, at milliseconds: Int64, state: BasketballMatchState) {
@@ -174,9 +287,9 @@ final class BasketballSessionStore {
         detailedActions.append(action)
     }
 
-    private func persistRecord(_ session: ScoreSession<BasketballMatchState, BasketballMatchEvent>) {
+    private func persistRecord(_ session: ScoreSession<BasketballMatchState, BasketballMatchEvent>) throws {
         let appGameType: GameType = state.gameMode == .threeXThree ? .threeBasketball : .basketball
-        let snapshot = try? JSONEncoder().encode(session)
+        let snapshot = try JSONEncoder().encode(session)
         let winner = state.finished && state.leftScore != state.rightScore ? (state.leftScore > state.rightScore ? "left" : "right") : nil
         let record = ScoreboardRecord(
             id: sessionId.uuidString,
@@ -199,7 +312,7 @@ final class BasketballSessionStore {
             stateSnapshot: snapshot,
             status: state.finished ? .finished : .draft
         )
-        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
         ScoreboardRecordsViewModel.shared.refreshRecords()
     }
 }

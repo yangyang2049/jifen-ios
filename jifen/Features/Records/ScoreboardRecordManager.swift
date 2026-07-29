@@ -8,7 +8,35 @@
 //
 
 import Foundation
+import OSLog
 import PersistenceCore
+
+extension Notification.Name {
+    static let scoreboardPersistenceFailed = Notification.Name("scoreboardPersistenceFailed")
+}
+
+enum ScoreboardPersistenceFailureReporter {
+    private static let logger = Logger(
+        subsystem: "com.douhua.jifen.ios",
+        category: "ScoreboardPersistence"
+    )
+    private static let lock = NSLock()
+    private nonisolated(unsafe) static var lastPresentationAt: Date?
+
+    static func report(_ error: Error, context: String, forcePresentation: Bool = false) {
+        logger.error("\(context, privacy: .public): \(String(describing: error), privacy: .public)")
+        lock.lock()
+        let now = Date()
+        let shouldPresent = forcePresentation
+            || lastPresentationAt.map { now.timeIntervalSince($0) >= 5 } != false
+        if shouldPresent { lastPresentationAt = now }
+        lock.unlock()
+        guard shouldPresent else { return }
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .scoreboardPersistenceFailed, object: nil)
+        }
+    }
+}
 
 struct ScoreboardRecordIndexEntry: Codable, Equatable {
     let id: String

@@ -27,11 +27,11 @@ struct SettingsView: View {
                 Theme.backgroundColor.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: Theme.lg) {
+                    VStack(spacing: Theme.sectionSpacing) {
                         SettingsSection(title: NSLocalizedString("settings_features", value: "功能设置", comment: "")) {
                             VStack(spacing: 0) {
                                 NavigationLink { ScoreboardSettingsView() } label: {
-                                    SettingsNavigationRow(title: NSLocalizedString("scoreboard_settings_title", value: "计分器设置", comment: ""))
+                                    SettingsNavigationRow(title: NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: ""))
                                 }
                                 if AppFeatureFlags.watchLinkEntryEnabled {
                                     Divider().overlay(Theme.divider)
@@ -77,10 +77,10 @@ struct SettingsView: View {
                             }
                         }
                     }
-                    .frame(maxWidth: usesPadLayout ? 760 : .infinity)
+                    .frame(maxWidth: Theme.meTabContentMaxWidth)
                     .frame(maxWidth: .infinity)
-                    .padding(.horizontal, Theme.md)
-                    .padding(.vertical, Theme.lg)
+                    .padding(.horizontal, Theme.pageHorizontalInset)
+                    .padding(.vertical, Theme.tabContentBottomPadding)
                 }
             }
             .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
@@ -124,9 +124,6 @@ struct SettingsView: View {
         }
     }
 
-    private var usesPadLayout: Bool {
-        Theme.usesPadLayout
-    }
 }
 
 struct MeTab: View {
@@ -147,18 +144,18 @@ struct SettingsSection<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
             Text(title)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: Theme.fontBody2, weight: .regular))
                 .foregroundColor(Theme.textSecondary)
                 .padding(.horizontal, 4)
 
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Theme.cardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
                 .overlay {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous)
                         .stroke(Theme.divider.opacity(0.7), lineWidth: 0.5)
                 }
         }
@@ -184,7 +181,7 @@ private struct SettingsNavigationRow: View {
                 .font(.caption.weight(.semibold))
                 .foregroundColor(Theme.textSecondary)
         }
-        .padding(.horizontal, Theme.md)
+        .padding(.horizontal, Theme.cardPadding)
         .frame(minHeight: 56)
         .contentShape(Rectangle())
     }
@@ -259,13 +256,14 @@ private struct ScoreboardSettingsView: View {
                     }
                 }
             }
-            .frame(maxWidth: Theme.usesPadLayout ? 680 : .infinity)
-            .padding(.horizontal, Theme.md)
+            .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, Theme.pageHorizontalInset)
             .padding(.top, Theme.lg)
             .padding(.bottom, Theme.lg + 72)
         }
         .background(Theme.backgroundColor)
-        .navigationTitle(NSLocalizedString("scoreboard_settings_title", value: "计分器设置", comment: ""))
+        .navigationTitle(NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .onChange(of: selectedTheme) { _, value in PreferencesManager.shared.scoreboardTheme = value.rawValue }
@@ -442,7 +440,7 @@ private struct FAQView: View {
     @State private var expandedID: Int?
 
     private var items: [FAQItem] {
-        (1...8).map { index in
+        [1, 2, 3, 5, 6, 7, 8].map { index in
             FAQItem(
                 id: index,
                 question: NSLocalizedString("faq_question_\(index)", value: "", comment: ""),
@@ -481,7 +479,10 @@ private struct FAQView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(Theme.md)
+            .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.vertical, Theme.md)
         }
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
@@ -543,7 +544,9 @@ private struct AboutUsView: View {
                         .padding(.top, 40)
                         .padding(.bottom, Theme.lg)
                 }
-                .padding(.horizontal, Theme.md)
+                .frame(maxWidth: Theme.meTabContentMaxWidth)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Theme.pageHorizontalInset)
                 .padding(.vertical, Theme.md)
             }
 

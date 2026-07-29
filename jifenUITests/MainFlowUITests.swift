@@ -264,7 +264,7 @@ final class MainFlowUITests: XCTestCase {
                 "-UITestRecordFixtures", "-UITestRecordDetail", project
             ]
             app.launch()
-            XCTAssertTrue(app.buttons["再来一局"].waitForExistence(timeout: 5), "Missing replay for \(project)")
+            XCTAssertTrue(app.buttons["再来一场"].waitForExistence(timeout: 5), "Missing replay for \(project)")
             XCTAssertTrue(app.buttons["复盘"].exists || app.staticTexts["复盘"].exists, "Missing recap for \(project)")
             XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "fixture")).firstMatch.exists, "Internal fixture text leaked for \(project)")
             let hasTrend = app.staticTexts["比分趋势"].exists

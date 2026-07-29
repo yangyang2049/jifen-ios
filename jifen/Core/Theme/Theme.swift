@@ -17,6 +17,14 @@ struct Theme {
     // System semantic colors automatically follow appearance and accessibility contrast.
     static let backgroundColor = Color(uiColor: .systemGroupedBackground)
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
+    /// 自适应 Dialog / Sheet 底色；需要与弹层灰色控件形成稳定层级。
+    static let dialogSurfaceBackground = Color(uiColor: .systemBackground)
+    /// Dialog / Sheet 内选项格、输入区、取消按钮的统一灰色。
+    /// 浅色跟随系统分段 Toggle 的 tertiary fill；深色继续保留现有 secondary fill 对比度。
+    static let dialogControlBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark ? .secondarySystemFill : .tertiarySystemFill
+    })
+    /// 普通页面控件仍保留 secondary gray；Dialog / Sheet 请使用 dialogControlBackground。
     static let controlBackground = Color(uiColor: .secondarySystemFill)
     static let textPrimary = Color(uiColor: .label)
     static let textSecondary = Color(uiColor: .secondaryLabel)
@@ -44,7 +52,6 @@ struct Theme {
     static let homeButtonShadow = Color.black.opacity(0.2) // Approximated
     static let homePrimaryCardOrange = Color(hex: "#F97316")
     static let homeSecondaryCardGreen = Color(hex: "#30D158") // Approximated, used in HarmonyOS quickStart config
-    static let homeSecondaryCardBlue = Color(hex: "#007AFF") // Custom blue for secondary card
     static let homeEditButtonGreen = Color(hex: "#30D158") // Used for save button
     static let homeCardDark = controlBackground
     static let homeCardLight = cardBackground
@@ -71,7 +78,8 @@ struct Theme {
     static let homeNeutralCardTextTertiary = Color(uiColor: .tertiaryLabel)
     static let homeNeutralCardDivider = Color(uiColor: .separator)
     static let homeBackgroundLight = backgroundColor
-    static let homeDialogBackground = cardBackground
+    /// Setup dialogs and modal panels share the same white/dark system surface.
+    static let homeDialogBackground = dialogSurfaceBackground
 
     static let toolWhistleRed = Color(hex: "#EF4444") // Example tool color
     static let toolRankingsIndigo = Color(hex: "#6366F1") // Example tool color
@@ -86,6 +94,22 @@ struct Theme {
     static let sm: CGFloat = 8 // Small spacing
     static let md: CGFloat = 16 // Medium spacing
     static let lg: CGFloat = 24 // Large spacing
+
+    // Main-tab layout metrics. Keep semantic roles separate from the generic spacing scale.
+    static var pageHorizontalInset: CGFloat { usesPadLayout ? 24 : 16 }
+    /// 普通二、三级列表页在 iPad 上的正文宽度。
+    static var secondaryPageContentMaxWidth: CGFloat { usesPadLayout ? 760 : .infinity }
+    /// 表单、记录详情、积分表等需要保持阅读聚焦的内容宽度。
+    static let focusedContentMaxWidth: CGFloat = 600
+    /// “我的”Tab 及其下级页面共用的正文宽度，避免 iPad 导航时内容宽度跳变。
+    static var meTabContentMaxWidth: CGFloat { secondaryPageContentMaxWidth }
+    static let sectionSpacing: CGFloat = 24
+    static let sectionContentSpacing: CGFloat = 12
+    static let gridSpacing: CGFloat = 12
+    static let cardPadding: CGFloat = 16
+    static let compactCardPadding: CGFloat = 12
+    static let recordRowVerticalPadding: CGFloat = 12
+    static let tabContentBottomPadding: CGFloat = 24
 
     // Corner Radius
     static let cornerRadius: CGFloat = 12

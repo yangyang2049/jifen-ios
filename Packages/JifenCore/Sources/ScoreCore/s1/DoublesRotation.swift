@@ -108,7 +108,7 @@ public enum RallyDoublesRotationState: Codable, Equatable, Sendable {
     case pingPong(PingPongDoublesRotationState)
     case badminton(BadmintonDoublesRotationState)
     case pickleball(PickleballDoublesRotationState)
-    /// Foosball 2V2 has four fixed corner participants and no serving rotation.
+    /// Foosball 2V2 keeps four player identities and has no serving rotation.
     case foosball
 }
 

@@ -80,6 +80,16 @@ enum LocalScoreboardIntent: String, Codable, CaseIterable {
     case requestSnapshot = "request_snapshot"
 }
 
+enum LocalScoreboardMutationPolicy {
+    static func allowsMutation(
+        isEditing: Bool,
+        finished: Bool,
+        scoringLocked: Bool
+    ) -> Bool {
+        !isEditing && !finished && !scoringLocked
+    }
+}
+
 /// Bridges the transport-neutral sync protocol to the currently visible scoreboard.
 /// The host owns all score mutation; remote controllers only submit intents.
 @MainActor

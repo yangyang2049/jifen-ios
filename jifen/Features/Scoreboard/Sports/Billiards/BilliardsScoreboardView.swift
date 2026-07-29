@@ -6,6 +6,15 @@
 //
 
 import SwiftUI
+import RecordCore
+import ScoreCore
+
+private struct LineScoreSessionArchive: Codable {
+    var schemaVersion = 1
+    let state: LineScoreState
+    let undoHistory: [LineScoreViewModel.HistoryEntry]
+    let intentTimeline: [String]
+}
 
 struct BilliardsScoreboardView: View {
     @Environment(\.dismiss) var dismiss
@@ -15,12 +24,10 @@ struct BilliardsScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
 
     @State private var controller: BilliardsScoreboardController
-    @State private var viewModel: BaseScoreViewModel
+    @State private var viewModel: LineScoreViewModel
     @State private var responsiveScoreFontSize: CGFloat = ScoreboardConstants.baseMainScoreFontSize
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
-
-    private static let scoreRange = 0 ... 9999
 
     private var recordID: String {
         initialRecordId ?? "billiards_\(Int(controller.gameStartTime.timeIntervalSince1970))"
@@ -38,7 +45,7 @@ struct BilliardsScoreboardView: View {
         self.onNavigationBack = onNavigationBack
         let c = BilliardsScoreboardController()
         _controller = State(initialValue: c)
-        _viewModel = State(initialValue: BaseScoreViewModel(controller: c, scoreRange: Self.scoreRange))
+        _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .nonNegative))
     }
 
     var body: some View {
@@ -64,6 +71,7 @@ struct BilliardsScoreboardView: View {
             if showGameOverDialog {
                 GameOverDialog(
                     winnerName: winnerName,
+                    gameType: .billiards,
                     leftName: viewModel.leftTeam.name,
                     rightName: viewModel.rightTeam.name,
                     leftScore: viewModel.leftTeam.score,
@@ -168,6 +176,13 @@ struct BilliardsScoreboardView: View {
         controller.gameActions = record.actions
         controller.gameRecordSaved = false
 
+        if let data = record.stateSnapshot,
+           let archive = try? JSONDecoder().decode(LineScoreSessionArchive.self, from: data) {
+            controller.gameActions = archive.intentTimeline
+            viewModel.restoreSession(state: archive.state, history: archive.undoHistory)
+            return
+        }
+
         viewModel.leftTeam.name = record.team1Name
         viewModel.rightTeam.name = record.team2Name
         viewModel.leftTeam.score = record.team1FinalScore
@@ -194,8 +209,22 @@ struct BilliardsScoreboardView: View {
             }
         }
 
-        controller.saveScoreboardRecord(
+        let archive = LineScoreSessionArchive(
+            state: viewModel.sessionState,
+            undoHistory: viewModel.resumeHistory,
+            intentTimeline: controller.getGameActions()
+        )
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(archive)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode billiards record \(recordID)")
+            return
+        }
+        var record = ScoreboardRecord(
             id: recordID,
+            gameType: .billiards,
+            startTime: start,
             endTime: endTime,
             duration: endTime.timeIntervalSince(start),
             team1Name: viewModel.leftTeam.name,
@@ -203,10 +232,28 @@ struct BilliardsScoreboardView: View {
             team1FinalScore: viewModel.leftTeam.score,
             team2FinalScore: viewModel.rightTeam.score,
             winner: winner,
+            actions: controller.getGameActions(),
             totalScoreChanges: controller.getGameActions().count,
-            extraData: [:],
+            extraData: [
+                "schemaVersion": AnyCodable(4),
+                "canonicalGameType": AnyCodable(GameType.billiards.canonicalScoreboardIdentifier)
+            ],
+            projectConfiguration: [
+                "minimumScore": AnyCodable(0),
+                "maximumScore": AnyCodable(9_999)
+            ],
+            stateSnapshot: snapshotData,
             status: finished ? .finished : .draft
         )
+        let detailed = ScoreboardRecordActionAdapter.actions(for: record)
+        record.detailedActions = detailed
+        record.setResults = ScoreboardRecordActionAdapter.setResults(from: detailed)
+        do {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+            ScoreboardRecordsViewModel.shared.refreshRecords()
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save billiards record \(recordID)")
+        }
     }
 }
 

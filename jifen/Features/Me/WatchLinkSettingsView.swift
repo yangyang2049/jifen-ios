@@ -54,7 +54,9 @@ struct WatchLinkSettingsView: View {
                 heroCard
                 usageCard
             }
-            .padding(.horizontal, Theme.md)
+            .frame(maxWidth: Theme.meTabContentMaxWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, Theme.pageHorizontalInset)
             .padding(.vertical, Theme.lg)
         }
         .background(Theme.backgroundColor)

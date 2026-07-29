@@ -17,6 +17,7 @@ struct GuandanScoreboardView: View {
     @State private var recordID: String
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
+    @State private var pendingEditWrapSide: GuandanSide?
 
     private let reducer = GuandanSessionReducer()
 
@@ -73,6 +74,7 @@ struct GuandanScoreboardView: View {
         _actionCount = State(initialValue: actions)
         _showGameOverDialog = State(initialValue: showFinished)
         _actionLog = State(initialValue: restoredActions)
+        _pendingEditWrapSide = State(initialValue: nil)
     }
 
     var body: some View {
@@ -83,11 +85,11 @@ struct GuandanScoreboardView: View {
                 rightName: state.blueTeam.name,
                 leftScore: state.displayRank(for: .red),
                 rightScore: state.displayRank(for: .blue),
-                leftDetail: leftDetail,
-                rightDetail: rightDetail,
+                leftDetail: nil,
+                rightDetail: nil,
                 finished: state.phase == .finished,
-                onLeftTap: { handleSideTap(.red) },
-                onRightTap: { handleSideTap(.blue) },
+                onLeftTap: {},
+                onRightTap: {},
                 onUndo: undo,
                 onReset: resetMatch,
                 onExchange: nil,
@@ -99,9 +101,24 @@ struct GuandanScoreboardView: View {
                 showEndGame: true,
                 onEndGame: finishMatch,
                 onEditCommit: applyEdit,
-                bottomBar: state.phase == .roundResult ? { AnyView(stepButtonsBar) } : nil,
-                topCenter: {
-                    AnyView(statusPill)
+                onEditAdjust: { isLeft, delta in
+                    adjustRankInEditMode(side: isLeft ? .red : .blue, delta: delta)
+                },
+                seamOverlay: state.lastRoundWinner == nil ? nil : {
+                    AnyView(
+                        GeometryReader { geo in
+                            CenterLineServeIndicator(
+                                isLeftServing: state.lastRoundWinner == .red,
+                                triangleSize: Theme.usesPadLayout ? 42 : 36,
+                                color: ScoreboardTheme.serverIndicatorColor
+                            )
+                            .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                        }
+                        .allowsHitTesting(false)
+                    )
+                },
+                panelAccessory: { isLeft in
+                    AnyView(guandanPanelActions(side: isLeft ? .red : .blue))
                 },
                 center: {
                     EmptyView()
@@ -111,10 +128,11 @@ struct GuandanScoreboardView: View {
             if showGameOverDialog, let winner = state.finalWinner {
                 GameOverDialog(
                     winnerName: winner == .red ? state.redTeam.name : state.blueTeam.name,
+                    gameType: .guandan,
                     leftName: state.redTeam.name,
                     rightName: state.blueTeam.name,
-                    leftScore: GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
-                    rightScore: GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank),
+                    leftScoreText: state.displayRank(for: .red),
+                    rightScoreText: state.displayRank(for: .blue),
                     onNewGame: {
                         resetMatch()
                     },
@@ -161,83 +179,103 @@ struct GuandanScoreboardView: View {
         .onDisappear {
             saveRecord()
         }
-    }
-
-    private var leftDetail: String? {
-        guard state.isInAStage, state.aStageTeam == .red else { return nil }
-        if state.aStageMode == .tripleA {
-            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), state.redAFailCount)
-        }
-        return NSLocalizedString("guandan_a_stage", value: "闯A中", comment: "")
-    }
-
-    private var rightDetail: String? {
-        guard state.isInAStage, state.aStageTeam == .blue else { return nil }
-        if state.aStageMode == .tripleA {
-            return String(format: NSLocalizedString("guandan_a_fail_format", value: "闯A失败 %d/3", comment: ""), state.blueAFailCount)
-        }
-        return NSLocalizedString("guandan_a_stage", value: "闯A中", comment: "")
-    }
-
-    private var statusPill: some View {
-        Group {
-            if state.phase == .roundResult {
-                Text(NSLocalizedString("guandan_select_upgrade", value: "选择升几级", comment: ""))
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.black.opacity(0.45))
-                    .clipShape(Capsule())
-            } else if state.isInAStage, let side = state.aStageTeam {
-                Text(String(
-                    format: NSLocalizedString("guandan_a_stage_team_format", value: "%@ 闯A", comment: ""),
-                    side == .red ? state.redTeam.name : state.blueTeam.name
-                ))
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.orange.opacity(0.85))
-                .clipShape(Capsule())
+        .alert(
+            NSLocalizedString("guandan_edit_level_wrap_confirm_title", value: "级牌回到 2？", comment: ""),
+            isPresented: Binding(
+                get: { pendingEditWrapSide != nil },
+                set: { if !$0 { pendingEditWrapSide = nil } }
+            )
+        ) {
+            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) {
+                pendingEditWrapSide = nil
             }
+            Button(NSLocalizedString("confirm", value: "确认", comment: ""), role: .destructive) {
+                guard let side = pendingEditWrapSide else { return }
+                pendingEditWrapSide = nil
+                send(.adjustRank(side: side, delta: 1))
+            }
+        } message: {
+            Text(NSLocalizedString(
+                "guandan_edit_level_wrap_confirm_message",
+                value: "继续增加会将该队级牌重置为 2。",
+                comment: ""
+            ))
         }
     }
 
-    private var stepButtonsBar: some View {
-        HStack(spacing: 10) {
-            ForEach([1, 2, 3], id: \.self) { step in
-                Button {
-                    send(.applyRoundSettlement(step: step))
-                } label: {
-                    Text(String(format: NSLocalizedString("guandan_upgrade_step_format", value: "升%d", comment: ""), step))
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(width: 72, height: 44)
-                        .background(Theme.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    @ViewBuilder
+    private func guandanPanelActions(side: GuandanSide) -> some View {
+        if state.phase != .finished {
+            HStack(spacing: 12) {
+                ForEach([1, 2, 3], id: \.self) { step in
+                    scoreboardCardActionButton("+\(step)") {
+                        applyGuandanRound(side: side, step: step)
+                    }
+                    .accessibilityIdentifier("guandan_round_\(side.rawValue)_plus_\(step)")
                 }
-                .buttonStyle(.plain)
             }
-            Button {
-                send(.cancelRoundResult)
-            } label: {
-                Text(NSLocalizedString("cancel", value: "取消", comment: ""))
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white.opacity(0.9))
-                    .padding(.horizontal, 14)
-                    .frame(height: 44)
-                    .background(Color.black.opacity(0.45))
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-            }
-            .buttonStyle(.plain)
         }
-        .padding(.bottom, 18)
     }
 
-    private func handleSideTap(_ side: GuandanSide) {
-        guard state.phase == .playing else { return }
-        send(.beginRoundResult(winner: side))
+    private func applyGuandanRound(side: GuandanSide, step: Int) {
+        guard state.phase != .finished else { return }
+        let before = state
+        var working = state
+        if working.phase == .roundResult {
+            if working.roundWinner != side {
+                working = reducer.reduce(
+                    state: working,
+                    intent: .cancelRoundResult,
+                    at: Int64(Date().timeIntervalSince1970 * 1000)
+                ).state
+            }
+        }
+        if working.phase != .roundResult {
+            let begin = reducer.reduce(
+                state: working,
+                intent: .beginRoundResult(winner: side),
+                at: Int64(Date().timeIntervalSince1970 * 1000)
+            )
+            guard begin.accepted else { return }
+            working = begin.state
+        }
+        let settled = reducer.reduce(
+            state: working,
+            intent: .applyRoundSettlement(step: step),
+            at: Int64(Date().timeIntervalSince1970 * 1000)
+        )
+        guard settled.accepted else { return }
+        history.append(before)
+        if history.count > 80 { history.removeFirst() }
+        state = settled.state
+        actionCount += 1
+        appendSnapshot("round_\(side.rawValue)_plus_\(step)")
+        VibrationManager.shared.vibrateMedium()
+        if state.phase == .finished { showGameOverDialog = true }
+    }
+
+    private func adjustRankInEditMode(side: GuandanSide, delta: Int) {
+        guard delta != 0 else { return }
+        if delta > 0, shouldConfirmRankWrap(side: side, delta: delta) {
+            pendingEditWrapSide = side
+            return
+        }
+        send(.adjustRank(side: side, delta: delta))
+    }
+
+    private func shouldConfirmRankWrap(side: GuandanSide, delta: Int) -> Bool {
+        guard delta > 0 else { return false }
+        let rank = side == .red ? state.redTeam.currentRank : state.blueTeam.currentRank
+        let maxRankIndex = guandanRankOrder.count - 1
+        let rankIndex = max(0, guandanRankOrder.firstIndex(of: rank) ?? 0)
+        let currentDisplayIndex: Int
+        if state.aStageMode == .tripleA, rankIndex == maxRankIndex {
+            currentDisplayIndex = maxRankIndex + min(max(state.aFailCount(for: side), 0), 2)
+        } else {
+            currentDisplayIndex = rankIndex
+        }
+        let maxDisplayIndex = state.aStageMode == .tripleA ? maxRankIndex + 2 : maxRankIndex
+        return currentDisplayIndex + delta > maxDisplayIndex
     }
 
     private func send(_ intent: GuandanSessionIntent) {
@@ -264,47 +302,32 @@ struct GuandanScoreboardView: View {
     }
 
     private func resetMatch() {
-        history.append(state)
-        state = .initial(
-            redName: state.redTeam.name,
-            blueName: state.blueTeam.name,
-            aStageMode: state.aStageMode,
-            passACondition: state.passACondition,
-            tripleAFallbackRank: state.tripleAFallbackRank
-        )
-        state.phase = .playing
-        actionCount += 1
-        appendSnapshot("reset")
+        send(.reset)
         showGameOverDialog = false
     }
 
     private func finishMatch() {
-        guard state.phase != .finished else { return }
-        history.append(state)
-        let redScore = GuandanMatchState.rankDisplayScore(state.redTeam.currentRank)
-        let blueScore = GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank)
-        state.finalWinner = redScore == blueScore ? nil : (redScore > blueScore ? .red : .blue)
-        state.phase = .finished
-        actionCount += 1
-        appendSnapshot("finish")
-        showGameOverDialog = true
+        send(.finish)
     }
 
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
-        history.append(state)
-        if !left.isEmpty { state.redTeam.name = left }
-        if !right.isEmpty { state.blueTeam.name = right }
+        let previous = state
         let redRank = leftScore.uppercased().replacingOccurrences(of: "A1", with: "A")
             .replacingOccurrences(of: "A2", with: "A")
             .replacingOccurrences(of: "A3", with: "A")
         let blueRank = rightScore.uppercased().replacingOccurrences(of: "A1", with: "A")
             .replacingOccurrences(of: "A2", with: "A")
             .replacingOccurrences(of: "A3", with: "A")
-        if guandanRankOrder.contains(redRank) { state.redTeam.currentRank = redRank }
-        if guandanRankOrder.contains(blueRank) { state.blueTeam.currentRank = blueRank }
-        state.phase = .playing
-        state.finalWinner = nil
+        let result = reducer.reduce(
+            state: state,
+            intent: .adminCorrect(redName: left, blueName: right, redRank: redRank, blueRank: blueRank),
+            at: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        guard result.accepted, result.state != previous else { return }
+        history.append(previous)
+        state = result.state
         actionCount += 1
+        appendSnapshot("adminCorrect")
         showGameOverDialog = false
     }
 
@@ -315,7 +338,13 @@ struct GuandanScoreboardView: View {
             guard let winner = state.finalWinner else { return nil }
             return winner == .red ? state.redTeam.name : state.blueTeam.name
         }()
-        let snapshotData = try? JSONEncoder().encode(state)
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(state)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode guandan record \(recordID)")
+            return
+        }
         let finished = state.phase == .finished
         let record = ScoreboardRecord(
             id: recordID,
@@ -339,7 +368,11 @@ struct GuandanScoreboardView: View {
             stateSnapshot: snapshotData,
             status: finished ? .finished : .draft
         )
-        try? ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        do {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save guandan record \(recordID)")
+        }
     }
 
     private func appendSnapshot(_ code: String) {

@@ -52,7 +52,7 @@ struct CommonNameSelectorDialog: View {
                     .listStyle(.plain)
                 }
             }
-            .background(Theme.backgroundColor)
+            .background(Theme.dialogSurfaceBackground)
             .navigationTitle(NSLocalizedString("common_names_title", value: "常用名称", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -64,6 +64,7 @@ struct CommonNameSelectorDialog: View {
                 }
             }
         }
+        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 }
 
@@ -82,7 +83,7 @@ struct InlineCommonNameTextField: View {
     var font: Font = .system(size: 16)
     var textColor: Color = Theme.textPrimary
     var iconColor: Color = Theme.textSecondary
-    var backgroundColor: Color = Theme.homeCardDark
+    var backgroundColor: Color = Theme.dialogControlBackground
     var height: CGFloat = 44
     var cornerRadius: CGFloat = Theme.sm
 
@@ -153,7 +154,6 @@ struct SportsSetupDialogView: View {
     @State private var autoChangeSides: Bool = true // 默认开启自动换边
     @State private var isSingles: Bool = true // 乒乓球/羽毛球/网球：单打/双打；足球机默认 2V2
     @State private var basketballRuleSet: String = "fiba"
-    @State private var snookerShowMoreFrames = false
     @State private var customFoosballScoreCapText = ""
     @State private var tennisDeuceMode: String = "advantage"
     @State private var servingSide: MatchSide = .left
@@ -274,7 +274,7 @@ struct SportsSetupDialogView: View {
                         .font(.system(size: 16))
                         .foregroundColor(Theme.textSecondary)
                         .frame(width: 100, height: 44)
-                        .background(Theme.controlBackground)
+                        .background(Theme.dialogControlBackground)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -486,7 +486,6 @@ struct SportsSetupDialogView: View {
         if gameType == .eightBall, selectedMaxSets > 1, eightBallHandicapMode != "none" {
             eightBallHandicapRacks = min(max(1, eightBallHandicapRacks), selectedMaxSets - 1)
         }
-        snookerShowMoreFrames = false
         isSingles = setup?.isSingles ?? (gameType != .foosball)
         team1Player1Name = setup?.team1Player1Name ?? team1Player1Name
         team1Player2Name = setup?.team1Player2Name ?? team1Player2Name
@@ -577,7 +576,7 @@ struct SportsSetupDialogView: View {
     }
 
     private func getChipBackgroundColor(selected: Bool) -> Color {
-        return selected ? Theme.primary : Theme.homeCardDark // Using homeCardDark as rgba(255,255,255,0.12)
+        return selected ? Theme.primary : Theme.dialogControlBackground
     }
 
     private func getChipTextColor(selected: Bool) -> Color {
@@ -1084,35 +1083,12 @@ struct SportsSetupDialogView: View {
     @ViewBuilder
     private func buildSnookerSettings() -> some View {
         let primaryPresets = [1, 3, 5, 7]
-        let morePresets = [9, 11, 15, 17, 19, 25, 33, 35]
         VStack(alignment: .leading, spacing: 8) {
             Text(NSLocalizedString("snooker_frames", value: "局数", comment: "")).settingsLabelStyle()
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                 ForEach(primaryPresets, id: \.self) { count in
                     numberChip(count, selection: $selectedMaxSets) {
                         customMaxSetsText = ""
-                        snookerShowMoreFrames = false
-                    }
-                }
-                Button {
-                    snookerShowMoreFrames.toggle()
-                } label: {
-                    Text(NSLocalizedString("snooker_frames_more", value: "更多", comment: ""))
-                        .font(.system(size: 14, weight: snookerShowMoreFrames ? .medium : .regular))
-                        .foregroundStyle(getChipTextColor(selected: snookerShowMoreFrames))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 40)
-                        .background(getChipBackgroundColor(selected: snookerShowMoreFrames))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                }
-                .buttonStyle(.plain)
-
-                if snookerShowMoreFrames || morePresets.contains(selectedMaxSets) {
-                    ForEach(morePresets, id: \.self) { count in
-                        numberChip(count, selection: $selectedMaxSets) {
-                            customMaxSetsText = ""
-                            snookerShowMoreFrames = true
-                        }
                     }
                 }
                 customNumberChip(selection: $selectedMaxSets, text: $customMaxSetsText, maxValue: 99)
@@ -1209,7 +1185,7 @@ struct SportsSetupDialogView: View {
             .font(.system(size: 14))
             .frame(maxWidth: .infinity)
             .frame(minWidth: 58, minHeight: 36)
-            .background(Theme.controlBackground)
+            .background(Theme.dialogControlBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         } else {
             Button {
@@ -1220,7 +1196,7 @@ struct SportsSetupDialogView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(minWidth: 58, minHeight: 36)
-                    .background(Theme.controlBackground)
+                    .background(Theme.dialogControlBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(.plain)
@@ -1273,7 +1249,7 @@ struct SportsSetupDialogView: View {
             .font(.system(size: 14))
             .frame(maxWidth: .infinity)
             .frame(minWidth: 58, minHeight: 36)
-            .background(Theme.controlBackground)
+            .background(Theme.dialogControlBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         } else {
             Button {
@@ -1286,7 +1262,7 @@ struct SportsSetupDialogView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(minWidth: 58, minHeight: 36)
-                    .background(Theme.controlBackground)
+                    .background(Theme.dialogControlBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(.plain)
@@ -1368,7 +1344,7 @@ struct SportsSetupDialogView: View {
                             .frame(maxWidth: .infinity)
                             .frame(height: 62)
                             .padding(.horizontal, 14)
-                            .background(mode == matchCompletionMode ? Theme.primary : Theme.controlBackground)
+                            .background(mode == matchCompletionMode ? Theme.primary : Theme.dialogControlBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
                         .buttonStyle(.plain)
@@ -1743,23 +1719,23 @@ struct SportsSetupDialogView: View {
             for name in playerNames {
                 let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmed.isEmpty {
-                    await commonNamesManager.recordUsage(trimmed, .player)
+                    await commonNamesManager.saveNameIfNeeded(trimmed, .player)
                 }
             }
         } else if shouldShowSinglesDoublesAtTop() {
             if !finalConfig.team1Name.isEmpty && finalConfig.team1Name != defaultTeam1Name {
-                await commonNamesManager.recordUsage(finalConfig.team1Name, .player)
+                await commonNamesManager.saveNameIfNeeded(finalConfig.team1Name, .player)
             }
             if !finalConfig.team2Name.isEmpty && finalConfig.team2Name != defaultTeam2Name {
-                await commonNamesManager.recordUsage(finalConfig.team2Name, .player)
+                await commonNamesManager.saveNameIfNeeded(finalConfig.team2Name, .player)
             }
         } else {
             let nameKind: NameType = usesPlayerCommonNames ? .player : .team
             if !finalConfig.team1Name.isEmpty && finalConfig.team1Name != defaultTeam1Name {
-                await commonNamesManager.recordUsage(finalConfig.team1Name, nameKind)
+                await commonNamesManager.saveNameIfNeeded(finalConfig.team1Name, nameKind)
             }
             if !finalConfig.team2Name.isEmpty && finalConfig.team2Name != defaultTeam2Name {
-                await commonNamesManager.recordUsage(finalConfig.team2Name, nameKind)
+                await commonNamesManager.saveNameIfNeeded(finalConfig.team2Name, nameKind)
             }
         }
 

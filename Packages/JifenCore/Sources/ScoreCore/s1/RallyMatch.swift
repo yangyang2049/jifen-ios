@@ -982,6 +982,14 @@ public struct RallyMatchReducer: DomainReducer {
         doubles.playerNames[slot] = trimmed
         var next = state
         next.doubles = doubles
+        if case .foosball = doubles.rotation {
+            next.leftName = [doubles.playerName(at: 0), doubles.playerName(at: 2)]
+                .compactMap { $0 }
+                .joined(separator: "/")
+            next.rightName = [doubles.playerName(at: 1), doubles.playerName(at: 3)]
+                .compactMap { $0 }
+                .joined(separator: "/")
+        }
         return .init(state: next)
     }
 

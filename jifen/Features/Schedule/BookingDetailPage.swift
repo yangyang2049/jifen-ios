@@ -107,6 +107,8 @@ struct BookingDetailPage: View {
                 }
             }
         }
+        .frame(maxWidth: Theme.focusedContentMaxWidth)
+        .frame(maxWidth: .infinity)
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(Theme.backgroundColor)

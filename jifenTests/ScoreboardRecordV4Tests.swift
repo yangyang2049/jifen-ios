@@ -1,6 +1,7 @@
 import LinkCore
 import RecordCore
 import ScoreCore
+import SessionCore
 import XCTest
 @testable import jifen
 
@@ -69,6 +70,15 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(store.loadRecords().map(\.id), ["healthy"])
     }
 
+    func testRecordStorePropagatesSaveFailureInsteadOfSilentlyDroppingRecord() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("record-save-failure-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        try Data("not-a-directory".utf8).write(to: root, options: .atomic)
+        let store = ScoreboardRecordFileStore(rootURL: root)
+
+        XCTAssertThrowsError(try store.save(makeRecord(id: "must-not-disappear")))
+    }
+
     func testAll23ProjectPoliciesMatchDetailMatrix() {
         let trend: Set<jifen.GameType> = [
             .pingpong, .badminton, .pickleball, .basketball, .threeBasketball,
@@ -125,13 +135,16 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             winner: "甲",
             actions: ["point"],
             detailedActions: actions,
-            totalScoreChanges: 1
+            totalScoreChanges: 1,
+            projectConfiguration: ["isDoubles": "true"]
         )
 
         let record = try WatchStandaloneRecordIngestor.makeRecord(payload)
         XCTAssertEqual(record.detailedActions, actions)
         XCTAssertEqual(record.setResults?.first?.scores, [21, 19])
         XCTAssertEqual(record.totalScoreChanges, 1)
+        XCTAssertEqual(record.resolvedScoreCoreGameType, .badmintonDoubles)
+        XCTAssertEqual(ScoreboardRecordConfiguration.setup(from: record).isSingles, false)
     }
 
     func testLinkedWatchIngestKeepsSameTimeline() throws {
@@ -159,10 +172,250 @@ final class ScoreboardRecordV4Tests: XCTestCase {
 
         let record = try LinkedMatchRecordIngestor.makeRecord(
             payload: payload,
-            gameType: ScoreCore.GameType.badminton
+            gameType: ScoreCore.GameType.badmintonDoubles
         )
         XCTAssertEqual(record.detailedActions, [action])
         XCTAssertEqual(record.totalScoreChanges, 1)
+        XCTAssertEqual(record.resolvedScoreCoreGameType, .badmintonDoubles)
+    }
+
+    func testAllTenSinglesAndDoublesModesRoundTripStableIdentityAndSetup() throws {
+        let rallyModes: [(ScoreCore.GameType, RallyRuleSet)] = [
+            (.pingpong, .pingPong(maxSets: 5, matchCompletionMode: .playAll)),
+            (.pingpongDoubles, .pingPong(maxSets: 5, matchCompletionMode: .playAll)),
+            (.badminton, .badminton(maxSets: 5, matchCompletionMode: .playAll)),
+            (.badmintonDoubles, .badminton(maxSets: 5, matchCompletionMode: .playAll)),
+            (.pickleball, .pickleball(maxSets: 5, matchCompletionMode: .playAll)),
+            (.pickleballDoubles, .pickleball(maxSets: 5, matchCompletionMode: .playAll)),
+            (.foosball, .foosball(maxSets: 5)),
+            (.foosballDoubles, .foosball(maxSets: 5))
+        ]
+        let doublesParticipants: [SessionParticipant] = [
+            .init(id: "left-top", name: "红A", role: "player"),
+            .init(id: "left-bottom", name: "红B", role: "player"),
+            .init(id: "right-top", name: "蓝A", role: "player"),
+            .init(id: "right-bottom", name: "蓝B", role: "player")
+        ]
+
+        for (coreType, rules) in rallyModes {
+            let appType = try XCTUnwrap(jifen.GameType(scoreCoreGameType: coreType))
+            let store = RallySessionStore(
+                leftName: "红队",
+                rightName: "蓝队",
+                gameType: coreType,
+                rules: rules,
+                participants: coreType.isDoublesScoreboard ? doublesParticipants : nil,
+                openingServer: .right,
+                voiceAnnouncementEnabled: true
+            )
+            let configuration = ScoreboardRecordConfiguration.rally(
+                gameType: coreType,
+                state: store.state,
+                voiceAnnouncement: true
+            )
+            let record = makeConfigurationRecord(gameType: appType, configuration: configuration)
+            let setup = ScoreboardRecordConfiguration.setup(from: record)
+
+            XCTAssertEqual(record.resolvedScoreCoreGameType, coreType, coreType.rawValue)
+            XCTAssertEqual(setup.isSingles, !coreType.isDoublesScoreboard, coreType.rawValue)
+            XCTAssertEqual(setup.maxSets, rules.maxSets, coreType.rawValue)
+            XCTAssertEqual(setup.pointsPerSet, rules.pointsToWinSet, coreType.rawValue)
+            XCTAssertEqual(setup.servingSide, MatchSide.right.rawValue, coreType.rawValue)
+            XCTAssertEqual(setup.voiceAnnouncement, true, coreType.rawValue)
+            if coreType.isDoublesScoreboard {
+                XCTAssertEqual(
+                    [setup.team1Player1Name, setup.team2Player1Name, setup.team1Player2Name, setup.team2Player2Name],
+                    ["红A", "蓝A", "红B", "蓝B"],
+                    coreType.rawValue
+                )
+            }
+        }
+
+        for coreType in [ScoreCore.GameType.tennis, .tennisDoubles] {
+            let doublesNames = coreType == .tennisDoubles ? ["红A", "蓝A", "红B", "蓝B"] : nil
+            let rules = TennisRuleSet(
+                maxSets: 5,
+                tieBreakPoints: 10,
+                gamesPerSet: 4,
+                matchCompletionMode: .playAll,
+                usesNoAdScoring: true,
+                autoChangeSides: false
+            )
+            let state = TennisMatchState(
+                leftName: "红队",
+                rightName: "蓝队",
+                rules: rules,
+                openingServer: .right,
+                doublesPlayerNames: doublesNames
+            )
+            let appType = try XCTUnwrap(jifen.GameType(scoreCoreGameType: coreType))
+            let record = makeConfigurationRecord(
+                gameType: appType,
+                configuration: ScoreboardRecordConfiguration.tennis(
+                    gameType: coreType,
+                    state: state,
+                    voiceAnnouncement: true
+                )
+            )
+            let setup = ScoreboardRecordConfiguration.setup(from: record)
+
+            XCTAssertEqual(record.resolvedScoreCoreGameType, coreType)
+            XCTAssertEqual(setup.isSingles, coreType == .tennis)
+            XCTAssertEqual(setup.maxSets, 5)
+            XCTAssertEqual(setup.tieBreakPoints, 10)
+            XCTAssertEqual(setup.gamesPerSet, 4)
+            XCTAssertEqual(setup.matchCompletionMode, .playAll)
+            XCTAssertEqual(setup.tennisDeuceMode, "no_ad")
+            XCTAssertEqual(setup.autoChangeSides, false)
+            XCTAssertEqual(setup.servingSide, MatchSide.right.rawValue)
+            if coreType == .tennisDoubles {
+                XCTAssertEqual(
+                    [setup.team1Player1Name, setup.team2Player1Name, setup.team1Player2Name, setup.team2Player2Name],
+                    ["红A", "蓝A", "红B", "蓝B"]
+                )
+            }
+        }
+    }
+
+    func testOldRecordModeInferenceSupportsRawSessionAndResumeBundleButLeavesUnknownUnclassified() throws {
+        let state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton())
+        let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
+            gameType: .badmintonDoubles,
+            ruleFamily: .s1,
+            reducerType: ScoreboardKernelRegistry.descriptor(for: .badmintonDoubles).reducerType,
+            state: state
+        )
+        var rawRecord = makeConfigurationRecord(gameType: .badminton, configuration: nil)
+        rawRecord.stateSnapshot = try JSONEncoder().encode(session)
+        XCTAssertEqual(rawRecord.resolvedScoreCoreGameType, .badmintonDoubles)
+
+        let bundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>(
+            replaySeed: session,
+            currentSession: session,
+            undoFrames: [],
+            timeline: []
+        )
+        var bundleRecord = makeConfigurationRecord(gameType: .badminton, configuration: nil)
+        bundleRecord.stateSnapshot = try JSONEncoder().encode(bundle)
+        XCTAssertEqual(bundleRecord.resolvedScoreCoreGameType, .badmintonDoubles)
+
+        let unknown = makeConfigurationRecord(gameType: .badminton, configuration: nil)
+        XCTAssertNil(unknown.resolvedScoreCoreGameType)
+        XCTAssertEqual(unknown.competitionDisplayName, jifen.GameType.badminton.displayName)
+    }
+
+    func testArchiveResumeBundleNormalizationCoversAllMigratedFamilies() throws {
+        try assertArchiveNormalization(
+            gameType: .badmintonDoubles,
+            state: RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton()),
+            eventType: RallyMatchEvent.self,
+            intentType: RallyMatchIntent.self
+        )
+        try assertArchiveNormalization(
+            gameType: .basketball,
+            state: BasketballMatchState(leftName: "A", rightName: "B", gameMode: .fiveVFive),
+            eventType: BasketballMatchEvent.self,
+            intentType: BasketballMatchIntent.self
+        )
+        try assertArchiveNormalization(
+            gameType: .tennisDoubles,
+            state: TennisMatchState(leftName: "A", rightName: "B", doublesPlayerNames: ["A1", "B1", "A2", "B2"]),
+            eventType: TennisMatchEvent.self,
+            intentType: TennisMatchIntent.self
+        )
+        try assertArchiveNormalization(
+            gameType: .eightBall,
+            state: EightBallState.initial(targetPoints: 7),
+            eventType: EightBallEvent.self,
+            intentType: EightBallIntent.self
+        )
+        try assertArchiveNormalization(
+            gameType: .nineBall,
+            state: NineBallChaseState.initial(playerCount: 4, playerNames: ["A", "B", "C", "D"]),
+            eventType: NineBallChaseEvent.self,
+            intentType: NineBallChaseIntent.self
+        )
+        try assertArchiveNormalization(
+            gameType: .snooker,
+            state: SnookerState.initial(striker: .right, maxFrames: 5),
+            eventType: SnookerEvent.self,
+            intentType: SnookerIntent.self
+        )
+    }
+
+    func testGuandanUnoAndCustomAdjustmentConfigurationRestoresFromRecord() {
+        let record = ScoreboardRecord(
+            id: "configuration-special",
+            gameType: .guandan,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "甲",
+            team2Name: "乙",
+            team1FinalScore: 2,
+            team2FinalScore: 1,
+            totalScoreChanges: 1,
+            extraData: [
+                "guandanTripleA": AnyCodable(true),
+                "guandanPassACondition": AnyCodable("double_up"),
+                "guandanTripleAFallbackRank": AnyCodable("K"),
+                "multiScoreCustomAdjustEnabled": AnyCodable(true),
+                "unoTargetScore": AnyCodable(700)
+            ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.guandan.rawValue)
+            ]
+        )
+        let setup = ScoreboardRecordConfiguration.setup(from: record)
+        XCTAssertEqual(setup.guandanTripleA, true)
+        XCTAssertEqual(setup.guandanPassACondition, "double_up")
+        XCTAssertEqual(setup.guandanTripleAFallbackRank, "K")
+        XCTAssertEqual(setup.multiScoreCustomAdjustEnabled, true)
+        XCTAssertEqual(setup.targetScore, 700)
+    }
+
+    func testWinnerResolutionUsesPositionsForDuplicateNamesAndSupportsMultipleWinners() {
+        XCTAssertEqual(
+            GameOverWinnerResolver.indices(
+                explicit: nil,
+                multiScores: [],
+                leftScore: "11",
+                rightScore: "7",
+                participantNames: ["同名", "同名"],
+                winnerName: "同名"
+            ),
+            [0]
+        )
+        XCTAssertEqual(
+            GameOverWinnerResolver.indices(
+                explicit: nil,
+                multiScores: [12, 12, 5],
+                leftScore: nil,
+                rightScore: nil,
+                participantNames: [],
+                winnerName: ""
+            ),
+            [0, 1]
+        )
+        XCTAssertEqual(
+            GameOverWinnerResolver.indices(
+                explicit: nil,
+                multiScores: [8, 8, 8],
+                leftScore: nil,
+                rightScore: nil,
+                participantNames: [],
+                winnerName: ""
+            ),
+            []
+        )
+    }
+
+    func testCompletedMatchChineseResourcesUsePlayAnotherMatchWording() throws {
+        let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let phone = try String(contentsOf: repositoryRoot.appendingPathComponent("jifen/Resources/zh-Hans.lproj/Localizable.strings"), encoding: .utf8)
+        let watch = try String(contentsOf: repositoryRoot.appendingPathComponent("jifenWatch Watch App/Resources/zh-Hans.lproj/Localizable.strings"), encoding: .utf8)
+        XCTAssertTrue(phone.contains(#""play_again" = "再来一场";"#))
+        XCTAssertFalse(phone.contains(#""play_again" = "再来一局";"#))
+        XCTAssertTrue(watch.contains(#""watch_play_again" = "再来一场";"#))
+        XCTAssertFalse(watch.contains(#""watch_play_again" = "再来一局";"#))
     }
 
     private func makeRecord(id: String = "record", schemaVersion: Int = 4, actions: [String] = []) -> ScoreboardRecord {
@@ -182,6 +435,56 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         )
         record.schemaVersion = schemaVersion
         return record
+    }
+
+    private func makeConfigurationRecord(
+        gameType: jifen.GameType,
+        configuration: [String: AnyCodable]?
+    ) -> ScoreboardRecord {
+        ScoreboardRecord(
+            id: UUID().uuidString,
+            gameType: gameType,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "红队",
+            team2Name: "蓝队",
+            team1FinalScore: 0,
+            team2FinalScore: 0,
+            totalScoreChanges: 0,
+            projectConfiguration: configuration
+        )
+    }
+
+    private func assertArchiveNormalization<State, Event, Intent>(
+        gameType: ScoreCore.GameType,
+        state: State,
+        eventType: Event.Type,
+        intentType: Intent.Type
+    ) throws where State: Codable & Equatable & Sendable,
+                   Event: Codable & Sendable,
+                   Intent: Codable & Sendable {
+        _ = eventType
+        _ = intentType
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: gameType)
+        let session = ScoreSession<State, Event>(
+            gameType: gameType,
+            ruleFamily: descriptor.ruleFamily,
+            reducerType: descriptor.reducerType,
+            state: state
+        )
+        let bundle = ScoreSessionResumeBundle<State, Event, Intent>(
+            replaySeed: session,
+            currentSession: session,
+            undoFrames: [],
+            timeline: []
+        )
+        let archiveData = try JSONEncoder().encode(bundle)
+        let normalized = try XCTUnwrap(
+            SessionRecordsViewModel.normalizedSessionData(for: gameType, archiveData: archiveData),
+            gameType.rawValue
+        )
+        let decoded = try JSONDecoder().decode(ScoreSession<State, Event>.self, from: normalized)
+        XCTAssertEqual(decoded.gameType, gameType)
+        XCTAssertEqual(decoded.state, state)
     }
 
     private func encode<T: Encodable>(_ value: T) throws -> Data {

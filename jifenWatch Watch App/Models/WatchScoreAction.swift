@@ -76,7 +76,7 @@ struct WatchScoreAction: Codable, Identifiable, Sendable, Equatable {
         self.operationCode = operationCode
     }
 
-    init(detailedAction: DetailedScoreAction) {
+    nonisolated init(detailedAction: DetailedScoreAction) {
         id = detailedAction.id.uuidString
         timestamp = detailedAction.epochMilliseconds.map {
             Date(timeIntervalSince1970: TimeInterval($0) / 1_000)
@@ -641,6 +641,13 @@ enum WatchScoreActionProjector {
                               scores: (state.leftPoints, state.rightPoints), timestamp: timestamp)
             case .reset:
                 return nil
+            case .matchFinished:
+                return action(
+                    .gameEnd, code: "game_end",
+                    scores: (state.leftPoints, state.rightPoints),
+                    winner: state.leftPoints == state.rightPoints ? nil : (state.leftPoints > state.rightPoints ? .left : .right),
+                    timestamp: timestamp
+                )
             }
         }
         if state.finished, !projected.contains(where: { $0.actionType == .gameEnd }) {
@@ -689,6 +696,24 @@ enum WatchScoreActionProjector {
                     ),
                     participants: participants, timestamp: timestamp
                 )
+            case .sidesExchanged:
+                return action(
+                    .sideChange, code: "exchange_sides",
+                    scores: (
+                        state.playerPoints.indices.contains(0) ? state.playerPoints[0] : 0,
+                        state.playerPoints.indices.contains(1) ? state.playerPoints[1] : 0
+                    ),
+                    participants: participants, timestamp: timestamp
+                )
+            case .matchFinished:
+                return action(
+                    .gameEnd, code: "game_end",
+                    scores: (
+                        state.playerPoints.indices.contains(0) ? state.playerPoints[0] : 0,
+                        state.playerPoints.indices.contains(1) ? state.playerPoints[1] : 0
+                    ),
+                    participants: participants, timestamp: timestamp
+                )
             }
         }
     }
@@ -705,7 +730,7 @@ enum WatchScoreActionProjector {
              .handoverFromPanel(let side): side
         case .potBall, .foul, .miss, .handover: state.striker
         case .settleFrame(let winner): winner
-        case .confirmNextFrame, .finishMatch, .adminCorrect: nil
+        case .confirmNextFrame, .finishMatch, .reset, .adminCorrect: nil
         }
         return events.map { event in
             switch event {
@@ -753,6 +778,11 @@ enum WatchScoreActionProjector {
                               timestamp: timestamp)
             case .adminCorrected:
                 return action(.editScore, code: "snooker_admin_correct",
+                              scores: (state.leftScore, state.rightScore),
+                              sets: (state.leftFrames, state.rightFrames),
+                              roundNumber: state.currentFrame, timestamp: timestamp)
+            case .reset:
+                return action(.reset, code: "reset",
                               scores: (state.leftScore, state.rightScore),
                               sets: (state.leftFrames, state.rightFrames),
                               roundNumber: state.currentFrame, timestamp: timestamp)

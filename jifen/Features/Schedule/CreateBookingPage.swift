@@ -116,6 +116,9 @@ struct CreateBookingPage: View {
                         .frame(minHeight: 80)
                 }
             }
+            .frame(maxWidth: Theme.focusedContentMaxWidth)
+            .frame(maxWidth: .infinity)
+            .background(Theme.backgroundColor)
             .navigationTitle(
                 initialBooking == nil
                 ? NSLocalizedString("schedule_create_title", value: "预约新球局", comment: "")
@@ -184,7 +187,7 @@ struct CreateBookingPage: View {
                 .frame(height: 44)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(enabled ? (selected ? Theme.primaryDark : Theme.controlBackground) : Theme.controlBackground)
+                        .fill(enabled ? (selected ? Theme.primaryDark : Theme.dialogControlBackground) : Theme.dialogControlBackground)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
@@ -224,7 +227,7 @@ struct CreateBookingPage: View {
             updatedAt: Date()
         )
         _ = LocalBookingManager.shared.upsertBooking(booking)
-        CommonPlacesManager.shared.recordUsage(trimmedLocation)
+        CommonPlacesManager.shared.savePlaceIfNeeded(trimmedLocation)
         onCreated?()
         dismiss()
     }

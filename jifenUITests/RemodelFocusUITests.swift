@@ -61,11 +61,37 @@ final class RemodelFocusUITests: XCTestCase {
             defer { app.terminate() }
 
             XCTAssertTrue(
-                app.buttons["再来一局"].waitForExistence(timeout: 8),
+                app.buttons["再来一场"].waitForExistence(timeout: 8),
                 "Record detail missing replay for remodeled project \(project)"
             )
             attachScreenshot("remodel_record_\(project)")
         }
+    }
+
+    func testRecordDetailIsSecondaryPageAndHidesTabBar() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestRecordFixtures"
+        ]
+        app.launch()
+        defer {
+            app.terminate()
+            clearRecordFixtures()
+        }
+
+        XCTAssertTrue(selectTab("记录", in: app))
+        let record = app.buttons["record_row_pingpong"].firstMatch
+        XCTAssertTrue(record.waitForExistence(timeout: 8))
+        record.tap()
+
+        XCTAssertTrue(app.buttons["再来一场"].waitForExistence(timeout: 8))
+        let tabBar = app.tabBars.firstMatch
+        let tabBarHidden = expectation(
+            for: NSPredicate(format: "exists == false"),
+            evaluatedWith: tabBar
+        )
+        wait(for: [tabBarHidden], timeout: 3)
     }
 
     func testMeTabSettingsSurviveFolderMove() {
@@ -122,8 +148,16 @@ final class RemodelFocusUITests: XCTestCase {
 
     private func selectTab(_ name: String, in app: XCUIApplication) -> Bool {
         let tab = app.tabBars.buttons[name]
-        guard tab.waitForExistence(timeout: 8) else { return false }
-        tab.tap()
+        if tab.waitForExistence(timeout: 4) {
+            tab.tap()
+            return true
+        }
+
+        // iPad can expose SwiftUI's tab presentation as ordinary buttons
+        // instead of an XCUI tab-bar container.
+        let regularButton = app.buttons[name].firstMatch
+        guard regularButton.waitForExistence(timeout: 4) else { return false }
+        regularButton.tap()
         return true
     }
 

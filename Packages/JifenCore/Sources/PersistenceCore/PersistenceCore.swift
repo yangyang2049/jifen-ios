@@ -144,11 +144,56 @@ public actor SessionArchiveRepository {
         }
     }
 
+    /// Persists the complete resumable session, including reducer intent
+    /// timeline and undo frames. Specialized scoreboards use this instead of
+    /// maintaining a second UI-owned history stack.
+    public func saveResumeBundle<
+        State: Codable & Sendable,
+        Event: Codable & Sendable,
+        Intent: Codable & Sendable
+    >(
+        _ bundle: ScoreSessionResumeBundle<State, Event, Intent>,
+        source: RecordSource = .phoneLocal,
+        updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1_000)
+    ) async throws {
+        let session = bundle.currentSession
+        let snapshotPath = "sessions/\(session.sessionId.uuidString).json"
+        let store = AtomicJSONFileStore<ScoreSessionResumeBundle<State, Event, Intent>>(
+            fileURL: rootURL.appendingPathComponent(snapshotPath)
+        )
+        try await store.save(bundle)
+        try await index.upsert(.init(
+            sessionId: session.sessionId,
+            gameType: session.gameType,
+            source: source,
+            snapshotPath: snapshotPath,
+            participants: session.participants,
+            status: session.status,
+            updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
+        ))
+        if session.status == .live {
+            try await discardOtherLiveSessions(except: session.sessionId)
+        }
+    }
+
     public func load<State: Codable & Sendable, Event: Codable & Sendable>(
         sessionId: UUID,
         as type: ScoreSession<State, Event>.Type = ScoreSession<State, Event>.self
     ) async throws -> ScoreSession<State, Event>? {
         try await AtomicJSONFileStore<ScoreSession<State, Event>>(
+            fileURL: Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
+        ).load()
+    }
+
+    public func loadResumeBundle<
+        State: Codable & Sendable,
+        Event: Codable & Sendable,
+        Intent: Codable & Sendable
+    >(
+        sessionId: UUID,
+        as type: ScoreSessionResumeBundle<State, Event, Intent>.Type
+    ) async throws -> ScoreSessionResumeBundle<State, Event, Intent>? {
+        try await AtomicJSONFileStore<ScoreSessionResumeBundle<State, Event, Intent>>(
             fileURL: Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
         ).load()
     }

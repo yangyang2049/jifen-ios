@@ -36,7 +36,7 @@ struct QuickStartEditView: View {
         var tint: Color {
             switch self {
             case .primary: return Theme.homePrimaryCardOrange
-            case .secondary: return Theme.homeSecondaryCardBlue
+            case .secondary: return Theme.homeSecondaryCardGreen
             }
         }
     }
@@ -125,12 +125,12 @@ struct QuickStartEditView: View {
                     .padding(.top, 12)
                     .padding(.bottom, 20)
             }
-            .background(Theme.backgroundColor)
+            .background(Theme.dialogSurfaceBackground)
             .navigationTitle(
                 NSLocalizedString("home_customize_quick_start", value: "自定义快捷入口", comment: "")
             )
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Theme.backgroundColor, for: .navigationBar)
+            .toolbarBackground(Theme.dialogSurfaceBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -143,7 +143,7 @@ struct QuickStartEditView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Theme.backgroundColor)
+        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private func slotCard(_ slot: Slot, sport: GameType) -> some View {
@@ -187,13 +187,18 @@ struct QuickStartEditView: View {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .stroke(isSelected ? Theme.homeEditButtonGreen : .clear, lineWidth: 2)
             )
+            .shadow(
+                color: colorScheme == .light && !isSelected ? Color.black.opacity(0.08) : .clear,
+                radius: 8,
+                y: 2
+            )
         }
         .buttonStyle(.plain)
     }
 
     private func slotCardBackground(isSelected: Bool) -> Color {
         if colorScheme == .dark {
-            return Theme.controlBackground
+            return Theme.dialogControlBackground
         }
         return isSelected
             ? Color(hex: "4CAF50").opacity(0.12)
@@ -210,7 +215,7 @@ struct QuickStartEditView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
-                    .background(Theme.controlBackground)
+                    .background(Theme.dialogControlBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .buttonStyle(.plain)

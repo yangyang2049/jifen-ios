@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Photos // For PHPhotoLibrary
 import UIKit
 
 struct ScoreboardTemplate: View {
@@ -24,8 +23,6 @@ struct ScoreboardTemplate: View {
     @State private var toastMessage: String = ""
     @State private var hideButtonsForScreenshot: Bool = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
-    @State private var screenshotPreviewImage: UIImage? = nil // Screenshot preview image
-    @State private var showScreenshotPreview: Bool = false // Show screenshot preview
     @State private var pendingTapSide: Bool?
     @State private var pendingTapAt: Date = .distantPast
     @State private var tapGeneration = 0
@@ -36,6 +33,7 @@ struct ScoreboardTemplate: View {
     @State private var previousIdleTimerDisabled: Bool?
     @State private var showDisplaySettings = false
     private let doubleTapWindow: TimeInterval = 0.24
+    private var scoringEnabled: Bool { config.scoringEnabledProvider?() ?? true }
     
     var body: some View {
         GeometryReader { geometry in
@@ -108,12 +106,15 @@ struct ScoreboardTemplate: View {
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
-                                    if value.translation.width < -50 && abs(value.translation.height) < 50 {
+                                    if scoringEnabled,
+                                       value.translation.width < -50 && abs(value.translation.height) < 50 {
                                         if !isEditMode {
                                             let success = config.viewModel.undo()
                                             if success {
                                                 config.controller.performVibration(type: .light)
                                                 showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
+                                            } else {
+                                                showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
                                     }
@@ -174,12 +175,15 @@ struct ScoreboardTemplate: View {
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
-                                    if value.translation.width < -50 && abs(value.translation.height) < 50 {
+                                    if scoringEnabled,
+                                       value.translation.width < -50 && abs(value.translation.height) < 50 {
                                         if !isEditMode {
                                             let success = config.viewModel.undo()
                                             if success {
                                                 config.controller.performVibration(type: .light)
                                                 showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
+                                            } else {
+                                                showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
                                     }
@@ -189,7 +193,7 @@ struct ScoreboardTemplate: View {
                 }
                 
                 // Edit button (top right) - close to screen edge
-                if shouldShowChromeButtons {
+                if shouldShowChromeButtons && (scoringEnabled || isEditMode) {
                     VStack {
                         HStack {
                             Spacer()
@@ -201,7 +205,7 @@ struct ScoreboardTemplate: View {
                                         .trimmingCharacters(in: .whitespacesAndNewlines)
                                     if !pendingName.isEmpty {
                                         Task {
-                                            await CommonNamesManager.shared.recordUsage(pendingName, config.nameType)
+                                            await CommonNamesManager.shared.saveNameIfNeeded(pendingName, config.nameType)
                                         }
                                     }
                                     baseViewModel.confirmEditName(isLeft: true)
@@ -294,7 +298,7 @@ struct ScoreboardTemplate: View {
                 }
 
                 // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用
-                if let provider = config.contentOverlayProvider {
+                if !isEditMode, let provider = config.contentOverlayProvider {
                     provider(isEditMode)
                 }
 
@@ -328,6 +332,7 @@ struct ScoreboardTemplate: View {
                         exchangeConfirming: menuConfirm.exchangeConfirming,
                         finishConfirming: menuConfirm.finishConfirming,
                         settleConfirming: menuConfirm.settleConfirming,
+                        scoringEnabled: scoringEnabled,
                         extraItems: config.extraMenuItemsProvider?() ?? []
                     )
                 )
@@ -339,11 +344,6 @@ struct ScoreboardTemplate: View {
                         .allowsHitTesting(false)
                 }
                 
-                // Screenshot preview (floating at bottom)
-                if showScreenshotPreview, let previewImage = screenshotPreviewImage {
-                    ScreenshotPreviewView(image: previewImage)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
             }
             .ignoresSafeArea(.all) // Ignore safe area for entire ZStack
             .background(
@@ -355,14 +355,12 @@ struct ScoreboardTemplate: View {
                     }
                 )
             )
-            .gesture(
-                DragGesture(minimumDistance: 50, coordinateSpace: .local)
-                    .onEnded { value in
-                        if value.translation.height < -50 && abs(value.translation.width) < 50 {
-                            // Swipe up
-                            showMenu.toggle()
-                            config.controller.performVibration(type: .medium)
-                        }
+            .simultaneousGesture(
+                LongPressGesture(minimumDuration: 0.55)
+                    .onEnded { _ in
+                        guard !isEditMode else { return }
+                        showMenu = true
+                        config.controller.performVibration(type: .medium)
                     }
             )
         }
@@ -405,6 +403,11 @@ struct ScoreboardTemplate: View {
     // MARK: - Menu Item Handlers
     
     private func handleMenuItemClick(_ action: String) {
+        if !scoringEnabled,
+           !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
+            showToastMessage(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
+            return
+        }
         config.controller.performVibration(type: .medium)
         menuConfirm.prepare(forMenuAction: action)
 
@@ -484,6 +487,7 @@ struct ScoreboardTemplate: View {
         guard !isEditMode && config.controller.swipeScreenshotEnabled else { return }
         
         config.controller.performVibration(type: .medium)
+        ScreenshotSaveCoordinator.shared.prepareForCapture()
         
         // Hide buttons before screenshot
         hideButtonsForScreenshot = true
@@ -495,90 +499,13 @@ struct ScoreboardTemplate: View {
     }
     
     private func captureScreenshot() {
-        // Get the window to capture the screen
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
+        guard let image = ScreenshotSaveCoordinator.shared.captureCurrentWindowImage() else {
             hideButtonsForScreenshot = false
-            showToastMessage(NSLocalizedString("screenshot_failed", comment: ""))
+            ScreenshotSaveCoordinator.shared.showCaptureFailure()
             return
         }
-        
-        // Capture screenshot of the window directly
-        let renderer = UIGraphicsImageRenderer(bounds: window.bounds)
-        let image = renderer.image { context in
-            window.layer.render(in: context.cgContext)
-        }
-        
-        // Store preview image and show preview
-        screenshotPreviewImage = image
-        showScreenshotPreview = true
-        
-        // Check permission status before saving
-        let currentStatus = PHPhotoLibrary.authorizationStatus(for: .addOnly)
-        
-        if currentStatus == .authorized {
-            // Permission already granted - show preview for 1500ms then save and show toast
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                self.hideButtonsForScreenshot = false
-                self.saveScreenshot(image: image, fileName: self.config.controller.generateScreenshotFileName(), showPreview: false)
-            }
-        } else {
-            // Permission not determined or denied - save and show preview until permission is granted/rejected
-            hideButtonsForScreenshot = false
-            saveScreenshot(image: image, fileName: config.controller.generateScreenshotFileName(), showPreview: true)
-        }
-    }
-    
-    private func saveScreenshot(image: UIImage, fileName: String, showPreview: Bool) {
-        config.controller.saveScreenshotToPhotoLibrary(image) { success, error in
-            if success {
-                if showPreview {
-                    // Hide preview after save success
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            self.showScreenshotPreview = false
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            self.screenshotPreviewImage = nil
-                        }
-                    }
-                } else {
-                    // Hide preview immediately if already shown for 1500ms
-                    withAnimation {
-                        self.showScreenshotPreview = false
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        self.screenshotPreviewImage = nil
-                    }
-                }
-                self.showToastMessage(NSLocalizedString("screenshot_saved", comment: ""))
-            } else {
-                let errorMessage = error?.localizedDescription ?? NSLocalizedString("unknown_error", comment: "")
-                if errorMessage.contains("Settings") {
-                    // Permission denied - hide preview after showing error
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        withAnimation {
-                            self.showScreenshotPreview = false
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            self.screenshotPreviewImage = nil
-                        }
-                    }
-                    self.showToastMessage(NSLocalizedString("please_allow_photo_access", comment: ""))
-                } else {
-                    // Other error - hide preview
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        withAnimation {
-                            self.showScreenshotPreview = false
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            self.screenshotPreviewImage = nil
-                        }
-                    }
-                    self.showToastMessage(String(format: NSLocalizedString("save_failed", comment: ""), errorMessage))
-                }
-            }
-        }
+        hideButtonsForScreenshot = false
+        ScreenshotSaveCoordinator.shared.submitCapturedImage(image)
     }
     
     private func showToastMessage(_ message: String) {
@@ -617,7 +544,10 @@ struct ScoreboardTemplate: View {
     private func scoreTapGesture(isLeft: Bool, panelSize: CGSize) -> some Gesture {
         SpatialTapGesture(count: 1)
             .onEnded { value in
-                guard !isEditMode, config.tapToAddEnabled, config.gameType != .boxing else { return }
+                guard scoringEnabled,
+                      !isEditMode,
+                      config.tapToAddEnabled,
+                      config.gameType != .boxing else { return }
                 guard isScoreTouchAllowed(location: value.location, panelSize: panelSize) else { return }
                 if let onScorePanelTap = config.onScorePanelTap {
                     pendingTapSide = nil
@@ -663,6 +593,11 @@ struct ScoreboardTemplate: View {
         LocalScoreboardSyncCoordinator.shared.registerHost(
             snapshot: { makeSyncDisplayState() },
             handleIntent: { intent in
+                guard LocalScoreboardMutationPolicy.allowsMutation(
+                    isEditing: isEditMode,
+                    finished: config.viewModel.gameFinished,
+                    scoringLocked: !scoringEnabled
+                ) else { return }
                 switch intent {
                 case .addLeft: config.viewModel.addScore(isLeft: true, points: 1)
                 case .addRight: config.viewModel.addScore(isLeft: false, points: 1)
@@ -846,7 +781,10 @@ struct TeamSection: View {
             let effectiveScoreSize = max(mainScoreSize, scoreFontSize * scoreMultiplier * (isTablet ? min(1.5, 200 / max(scoreFontSize, 1)) : 1))
             let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: halfH) * secondaryMultiplier
             let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: halfH)
-            let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: halfH, isEditMode: isEditMode)
+            let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: halfH)
+            let editOffset = isEditMode
+                ? ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: halfH)
+                : 0
 
             ZStack {
                 (isLeft ? palette.left : palette.right)
@@ -858,6 +796,7 @@ struct TeamSection: View {
                     secondaryScoresBlock(fontSize: setSize)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .offset(y: editOffset)
 
                 // Name pinned to top.
                 VStack(spacing: 0) {
@@ -865,6 +804,7 @@ struct TeamSection: View {
                         .padding(.top, topPad)
                     Spacer(minLength: 0)
                 }
+                .offset(y: editOffset)
 
                 // Side controls pinned near bottom (HOS translateY: -72).
                 VStack(spacing: 0) {
@@ -977,12 +917,14 @@ struct TeamSection: View {
     @ViewBuilder
     private func scoreBlock(fontSize: CGFloat) -> some View {
         if isEditMode, let onScoreAdjust {
+            let canDecrement = gameType == .simpleScore || team.score > 0
+            let editFontSize = ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: fontSize)
             HStack(spacing: 16) {
-                adjustCircleButton(enabled: team.score > 0, systemName: "minus") {
-                    if team.score > 0 { onScoreAdjust(isLeft, -1) }
+                adjustCircleButton(enabled: canDecrement, systemName: "minus") {
+                    if canDecrement { onScoreAdjust(isLeft, -1) }
                 }
                 Text(scoreText)
-                    .font(getFont(size: fontSize))
+                    .font(getFont(size: editFontSize))
                     .monospacedDigit()
                     .foregroundColor(palette.foreground)
                     .minimumScaleFactor(0.5)
@@ -1065,7 +1007,7 @@ struct TeamSection: View {
         let trimmed = editState.currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty {
             Task {
-                await commonNamesManager.recordUsage(trimmed, nameType)
+                await commonNamesManager.saveNameIfNeeded(trimmed, nameType)
             }
         }
         onConfirmEditName()
@@ -1076,7 +1018,7 @@ struct TeamSection: View {
         onStartEditName()
         onUpdateInput(selectedName)
         Task {
-            await commonNamesManager.recordUsage(selectedName, nameType)
+            await commonNamesManager.saveNameIfNeeded(selectedName, nameType)
         }
         onConfirmEditName()
         isNameFocused = false
@@ -1166,96 +1108,6 @@ struct TwoFingerSwipeDownView: UIViewRepresentable {
     }
 }
 
-// MARK: - UIView Extension for Finding Scoreboard View
-
-extension UIView {
-    func findScoreboardView() -> UIView? {
-        // Look for a view with a specific identifier or tag
-        // For now, we'll return self if it's large enough to be the main view
-        if self.bounds.width > 500 && self.bounds.height > 300 {
-            return self
-        }
-        
-        for subview in subviews {
-            if let found = subview.findScoreboardView() {
-                return found
-            }
-        }
-        
-        return nil
-    }
-}
-
-// MARK: - Screenshot Save Dialog
-
-struct ScreenshotSaveDialog: View {
-    let image: UIImage
-    let fileName: String
-    let onSave: (String) -> Void
-    let onCancel: () -> Void
-    
-    @State private var inputFileName: String = ""
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                // Preview
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxHeight: 300)
-                    .cornerRadius(12)
-                
-                // File name input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(NSLocalizedString("screenshot_filename", value: "文件名", comment: ""))
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    TextField("", text: $inputFileName)
-                        .textFieldStyle(.roundedBorder)
-                        .autocapitalization(.none)
-                }
-                .padding(.horizontal)
-                
-                Spacer()
-                
-                // Buttons
-                HStack(spacing: 16) {
-                    Button(NSLocalizedString("cancel", comment: "")) {
-                        onCancel()
-                        dismiss()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.gray.opacity(0.3))
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                    
-                    Button(NSLocalizedString("save", comment: "")) {
-                        let finalFileName = inputFileName.isEmpty ? fileName : inputFileName
-                        onSave(finalFileName)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
-            }
-            .background(Color.black)
-            .navigationTitle(NSLocalizedString("save_screenshot_title", value: "保存截图", comment: ""))
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                inputFileName = fileName
-            }
-        }
-    }
-}
-
 // MARK: - Toast View
 
 struct ToastView: View {
@@ -1279,36 +1131,5 @@ struct ToastView: View {
                 .padding(.bottom, Self.bottomPadding)
         }
         .animation(.easeInOut(duration: 0.2), value: message)
-    }
-}
-
-// MARK: - Screenshot Preview View
-
-struct ScreenshotPreviewView: View {
-    let image: UIImage
-    
-    var body: some View {
-        VStack {
-            Spacer()
-            
-            HStack {
-                Spacer()
-                
-                // Preview image
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 120, height: 80)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                
-                Spacer()
-            }
-            .padding(.bottom, 100) // Position above bottom buttons
-        }
     }
 }

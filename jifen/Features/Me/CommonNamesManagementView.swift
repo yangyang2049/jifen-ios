@@ -67,16 +67,10 @@ struct CommonNamesManagementView: View {
 
             VStack(spacing: 0) {
                 if !isEditMode {
-                    VStack(spacing: Theme.sm) {
-                        CommonDataSearchField(
-                            text: $searchText,
-                            placeholder: NSLocalizedString("common_names_search_placeholder", value: "搜索名称", comment: "")
-                        )
-                        categoryChips
-                    }
-                    .padding(.horizontal, Theme.md)
-                    .padding(.top, Theme.sm)
-                    .padding(.bottom, Theme.sm)
+                    categoryChips
+                        .padding(.horizontal, Theme.md)
+                        .padding(.top, Theme.sm)
+                        .padding(.bottom, Theme.sm)
                 }
 
                 if filteredNames.isEmpty {
@@ -100,6 +94,11 @@ struct CommonNamesManagementView: View {
                     }
                 }
             }
+            .frame(
+                maxWidth: CommonDataManagementChrome.contentMaxWidth,
+                maxHeight: .infinity
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if showToast {
                 VStack {
@@ -112,6 +111,12 @@ struct CommonNamesManagementView: View {
         }
         .navigationTitle(NSLocalizedString("common_names_manage", value: "常用名称管理", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .systemSearchable(
+            text: $searchText,
+            prompt: NSLocalizedString("common_names_search_placeholder", value: "搜索名称", comment: ""),
+            isEnabled: !isEditMode,
+            isAlwaysVisible: true
+        )
         .toolbar { toolbarContent }
         .onAppear(perform: reload)
         .onChange(of: selectedType) { _, _ in
@@ -225,8 +230,8 @@ struct CommonNamesManagementView: View {
                 .foregroundColor(Theme.textSecondary)
             if currentNames.isEmpty && !isEditMode {
                 Text(NSLocalizedString(
-                    "common_names_empty_hint",
-                    value: "可在首页的「常用名称」中添加队伍或选手名称，下次即可快速选择。",
+                    "common_names_management_empty_hint",
+                    value: "计分时输入的队伍或选手名称会自动保存在这里，下次可以快速选择。",
                     comment: ""
                 ))
                 .font(.system(size: 13))
@@ -310,7 +315,7 @@ struct CommonNamesManagementView: View {
     private var addSheet: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundColor.ignoresSafeArea()
+                Theme.dialogSurfaceBackground.ignoresSafeArea()
                 VStack(spacing: 16) {
                     Picker("", selection: $addType) {
                         Text(NSLocalizedString("common_names_player", value: "选手名称", comment: ""))
@@ -328,7 +333,7 @@ struct CommonNamesManagementView: View {
                             .padding(8)
                             .frame(minHeight: 160)
                             .scrollContentBackground(.hidden)
-                            .background(Theme.homeCardDark)
+                            .background(Theme.dialogControlBackground)
                             .cornerRadius(10)
 
                         if addInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -374,12 +379,13 @@ struct CommonNamesManagementView: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private var editSheet: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundColor.ignoresSafeArea()
+                Theme.dialogSurfaceBackground.ignoresSafeArea()
                 VStack(spacing: 16) {
                     TextField(
                         selectedType == .team
@@ -392,7 +398,7 @@ struct CommonNamesManagementView: View {
                     .focused($isEditorFocused)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 12)
-                    .background(Theme.homeCardDark)
+                    .background(Theme.dialogControlBackground)
                     .cornerRadius(10)
                     Spacer()
                 }
@@ -418,6 +424,7 @@ struct CommonNamesManagementView: View {
                 }
             }
         }
+        .presentationBackground(Theme.dialogSurfaceBackground)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }

@@ -84,7 +84,7 @@ final class ScheduleModelTests: XCTestCase {
         XCTAssertEqual(results.map(\.id), ["b", "d"])
     }
 
-    func testCommonPlacesNormalizeDeduplicateAndTrackUsage() throws {
+    func testCommonPlacesNormalizeDeduplicateAndSaveNewPlacesOnly() throws {
         let manager = CommonPlacesManager.shared
         try manager.addPlace("  Center   Court  ")
 
@@ -94,25 +94,40 @@ final class ScheduleModelTests: XCTestCase {
             }
         }
 
-        manager.recordUsage("Center Court")
-        manager.recordUsage("West Gym")
-        manager.recordUsage("West Gym")
+        manager.savePlaceIfNeeded("Center Court")
+        manager.savePlaceIfNeeded("West Gym")
+        manager.savePlaceIfNeeded("West Gym")
 
         let places = manager.getAllPlaces()
         XCTAssertEqual(places.map(\.name), ["West Gym", "Center Court"])
-        XCTAssertEqual(places.map(\.useCount), [2, 1])
+        XCTAssertEqual(places.count, 2)
     }
 
-    func testCommonPlacesKeepNewestUsedPlaceAtCapacity() throws {
+    func testCommonPlacesKeepNewestSavedPlaceAtCapacity() throws {
         let manager = CommonPlacesManager.shared
         for index in 0..<50 {
             try manager.addPlace("Court \(index)")
         }
 
-        manager.recordUsage("New Court")
+        manager.savePlaceIfNeeded("New Court")
 
         let places = manager.getAllPlaces()
         XCTAssertEqual(places.count, 50)
         XCTAssertEqual(places.first?.name, "New Court")
+    }
+
+    func testCommonNamesSaveNewNamesWithoutReorderingExistingNames() async throws {
+        let suiteName = "ScheduleModelTests.commonNames.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            return XCTFail("Unable to create isolated defaults")
+        }
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let manager = CommonNamesManager(userDefaults: defaults)
+        try manager.addName("Alice", type: .player)
+        await manager.saveNameIfNeeded("Bob", .player)
+        await manager.saveNameIfNeeded("Alice", .player)
+
+        XCTAssertEqual(manager.getNames(type: .player), ["Bob", "Alice"])
     }
 }
