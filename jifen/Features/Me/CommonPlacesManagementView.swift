@@ -42,36 +42,44 @@ struct CommonPlacesManagementView: View {
         !isEditMode && !isSearchActive && !showAddSheet && !showEditSheet
     }
 
+    private var showsBatchEditBar: Bool {
+        isEditMode && !filteredPlaces.isEmpty && !isSearchActive
+    }
+
     var body: some View {
         ZStack {
             Theme.backgroundColor.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                if filteredPlaces.isEmpty {
-                    emptyState
-                } else {
-                    placesList
-                }
+                VStack(spacing: 0) {
+                    if filteredPlaces.isEmpty {
+                        emptyState
+                    } else {
+                        placesList
+                    }
 
-                if isEditMode && !filteredPlaces.isEmpty && !isSearchActive {
+                    if showFloatingAdd {
+                        CommonDataFloatingAddButton(
+                            title: NSLocalizedString("common_places_add", value: "添加地点", comment: "")
+                        ) {
+                            openAddSheet()
+                        }
+                    }
+                }
+                .frame(
+                    maxWidth: CommonDataManagementChrome.contentMaxWidth,
+                    maxHeight: .infinity
+                )
+
+                if showsBatchEditBar {
                     CommonDataBatchEditBar(
                         allSelected: allFilteredSelected,
                         selectedCount: selectedIds.count,
                         onToggleSelectAll: toggleSelectAll,
                         onDelete: { showBatchDeleteConfirm = true }
                     )
-                } else if showFloatingAdd {
-                    CommonDataFloatingAddButton(
-                        title: NSLocalizedString("common_places_add", value: "添加地点", comment: "")
-                    ) {
-                        openAddSheet()
-                    }
                 }
             }
-            .frame(
-                maxWidth: CommonDataManagementChrome.contentMaxWidth,
-                maxHeight: .infinity
-            )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if showToast {
@@ -79,7 +87,7 @@ struct CommonPlacesManagementView: View {
                     Spacer()
                     ToastView(message: toastMessage)
                         .transition(.opacity)
-                        .padding(.bottom, showFloatingAdd ? 96 : 28)
+                        .padding(.bottom, showFloatingAdd || showsBatchEditBar ? 96 : 28)
                 }
             }
         }

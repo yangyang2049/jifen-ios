@@ -104,24 +104,53 @@ final class ScoreboardCatalogTests: XCTestCase {
         )
     }
 
-    func testWideHomeToolsUseCompleteCatalogAndCompactHomeKeepsCuratedTools() {
-        XCTAssertEqual(
-            HomeToolsLayoutPolicy.tools(isWide: true).map(\.id),
-            ToolItem.allTools.map(\.id)
-        )
+    func testNormalPageOrientationPolicyAllowsIPadRotationButLocksPhonePortrait() {
+        XCTAssertEqual(OrientationLock.defaultOrientation(for: .pad), .all)
+        XCTAssertEqual(OrientationLock.defaultOrientation(for: .phone), .portrait)
+    }
 
-        let compactIDs = HomeToolsLayoutPolicy.tools(isWide: false).map(\.id)
+    func testPadHomeShowsAtMostTenToolsAndPhoneKeepsCuratedTools() {
+        XCTAssertEqual(
+            HomeToolsLayoutPolicy.tools(isPad: true).map(\.id),
+            Array(ToolItem.allTools.prefix(10)).map(\.id)
+        )
+        XCTAssertLessThanOrEqual(HomeToolsLayoutPolicy.tools(isPad: true).count, 10)
+
+        let compactIDs = HomeToolsLayoutPolicy.tools(isPad: false).map(\.id)
         XCTAssertEqual(compactIDs.count, 8)
         XCTAssertFalse(compactIDs.contains("random_team"))
         XCTAssertFalse(compactIDs.contains("fullscreen_barrage"))
     }
 
-    func testWideHomeToolGridUsesFourToEightColumns() {
+    func testWideHomeToolGridUsesFourToTenColumns() {
         XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 348, toolCount: 10), 4)
         XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 476, toolCount: 10), 4)
         XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 647, toolCount: 10), 6)
-        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 900, toolCount: 10), 8)
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 900, toolCount: 10), 9)
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 1_200, toolCount: 10), 10)
+        XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 2_000, toolCount: 20), 10)
         XCTAssertEqual(HomeToolsLayoutPolicy.wideColumnCount(forWidth: 900, toolCount: 3), 3)
+    }
+
+    func testExpandedWhistleCardsUseUpToEightHundredPointsOfContentWidth() {
+        XCTAssertEqual(
+            WhistleLayoutPolicy.expandedCardSize(
+                in: CGSize(width: 1_366, height: 1_024)
+            ),
+            388
+        )
+        XCTAssertEqual(
+            WhistleLayoutPolicy.expandedCardSize(
+                in: CGSize(width: 768, height: 1_024)
+            ),
+            340
+        )
+        XCTAssertEqual(
+            WhistleLayoutPolicy.expandedCardSize(
+                in: CGSize(width: 1_366, height: 300)
+            ),
+            236
+        )
     }
 
     func testVisibleCatalogMatchesReferenceOrder() {

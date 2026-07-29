@@ -261,8 +261,12 @@ struct MenuDialog: View {
     }
 
     private var dialogWidth: CGFloat {
-        let maxWidth: CGFloat = Theme.usesPadLayout ? 420 : 320
-        return min(maxWidth, max(280, containerShortSide - 32))
+        Theme.dialogWidth(
+            availableWidth: containerSize.width > 0
+                ? containerSize.width
+                : (Theme.usesPadLayout ? 1_024 : 430),
+            role: .scoreboardMenu
+        )
     }
 
     private var syncCardHeight: CGFloat { isCompact ? 44 : 48 }

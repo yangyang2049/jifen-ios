@@ -224,6 +224,9 @@ struct HomeTab: View {
             }
         }
         .onAppear {
+            // Home is a normal page: iPad follows the physical device in all
+            // directions, while iPhone returns to portrait.
+            OrientationLock.shared.unlock()
             loadData()
             loadQuickStartConfigForCurrentLayout()
             // Refresh records when view appears
@@ -237,6 +240,11 @@ struct HomeTab: View {
                 path.append(NavigationDestination.toolsList)
             }
             #endif
+        }
+        .onChange(of: path.count) { _, count in
+            if count == 0 {
+                OrientationLock.shared.unlock()
+            }
         }
         .onChange(of: scoreboardVM.records) { _, _ in
             updateRecentActivities()
@@ -567,6 +575,7 @@ struct HomeTab: View {
                 VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
                     buildQuickStartSection()
                     ProToolsSectionView(
+                        isPad: Theme.usesPadLayout,
                         isWide: true,
                         isDarkTheme: isDarkTheme,
                         availableWidth: columnWidth,
@@ -590,6 +599,7 @@ struct HomeTab: View {
                 buildScheduleSection()
                 buildCommonDataSection()
                 ProToolsSectionView(
+                    isPad: Theme.usesPadLayout,
                     isWide: false,
                     isDarkTheme: isDarkTheme,
                     onToolClick: { tool in

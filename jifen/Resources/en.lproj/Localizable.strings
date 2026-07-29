@@ -115,6 +115,10 @@
 "timer_stop_confirm_message" = "Stopping will end this game.";
 "timer_game_over" = "Game Over";
 "timer_restart" = "Restart";
+"timer_manual_end" = "Ended manually";
+"timer_first_player_format" = "%@ moves first";
+"timer_thinking_format" = "%@ is thinking…";
+"timer_tap_to_switch" = "Tap to switch";
 "timer_black_player" = "Black";
 "timer_white_player" = "White";
 "timer_red_player" = "Red";

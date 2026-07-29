@@ -83,7 +83,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         )
     }
 
-    /// 重点项目截图矩阵：三种球类分别覆盖单打/双打，并补齐掼蛋的真实操作状态。
+    /// 重点项目截图矩阵：四种球类分别覆盖单打/双打，并补齐掼蛋的真实操作状态。
     /// 每个场景都保留设置、初始计分板、操作后和菜单 Overlay 四张截图，方便人工复核。
     func testCapturePrioritySportsVariants() {
         let variants: [(id: String, label: String, doubles: Bool)] = [
@@ -93,6 +93,8 @@ final class FullAppScreenshotUITests: XCTestCase {
             ("badminton", "羽毛球", true),
             ("tennis", "网球", false),
             ("tennis", "网球", true),
+            ("pickleball", "匹克球", false),
+            ("pickleball", "匹克球", true),
         ]
 
         for (offset, variant) in variants.enumerated() {

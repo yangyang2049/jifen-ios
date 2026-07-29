@@ -115,6 +115,10 @@
 "timer_stop_confirm_message" = "停止后将结束本局。";
 "timer_game_over" = "比赛结束";
 "timer_restart" = "重新开始";
+"timer_manual_end" = "手动结束";
+"timer_first_player_format" = "%@先手";
+"timer_thinking_format" = "%@思考中…";
+"timer_tap_to_switch" = "点击切换";
 "timer_black_player" = "黑方";
 "timer_white_player" = "白方";
 "timer_red_player" = "红方";

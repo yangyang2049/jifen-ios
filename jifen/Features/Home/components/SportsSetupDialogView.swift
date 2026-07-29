@@ -191,7 +191,10 @@ struct SportsSetupDialogView: View {
             .frame(height: 56)
             .padding(.horizontal, Theme.md)
         } content: { maxContentHeight in
-            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
+            AdaptiveSetupDialogScrollView(
+                maxHeight: maxContentHeight,
+                bottomClearance: canStartOnWatch && showWatchStartGuide ? 88 : 12
+            ) {
                 VStack(spacing: 20) {
                     if shouldShowSinglesDoublesAtTop() {
                         buildSinglesDoublesSection()

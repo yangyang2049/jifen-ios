@@ -1,8 +1,9 @@
 import SwiftUI
 
 enum HomeToolsLayoutPolicy {
+    static let maximumPadToolCount = 10
     static let minimumWideColumns = 4
-    static let maximumWideColumns = 8
+    static let maximumWideColumns = 10
     static let wideItemMinimumWidth: CGFloat = 92
     static let wideColumnSpacing: CGFloat = 8
 
@@ -11,9 +12,9 @@ enum HomeToolsLayoutPolicy {
         "points_table", "time", "aa_calculator", "ten_second"
     ]
 
-    static func tools(isWide: Bool) -> [ToolItem] {
-        if isWide {
-            return ToolItem.allTools
+    static func tools(isPad: Bool) -> [ToolItem] {
+        if isPad {
+            return Array(ToolItem.allTools.prefix(maximumPadToolCount))
         }
 
         let toolsByID = Dictionary(uniqueKeysWithValues: ToolItem.allTools.map { ($0.id, $0) })
@@ -82,6 +83,7 @@ struct ToolItemView: View {
 
 // MARK: - ProToolsSectionView
 struct ProToolsSectionView: View {
+    var isPad: Bool = false
     var isWide: Bool = false
     var isDarkTheme: Bool = true
     var availableWidth: CGFloat = 0
@@ -91,12 +93,14 @@ struct ProToolsSectionView: View {
     private let homeToolsText = NSLocalizedString("home_tools", comment: "Tools section title")
 
     init(
+        isPad: Bool = false,
         isWide: Bool = false,
         isDarkTheme: Bool = true,
         availableWidth: CGFloat = 0,
         onToolClick: ((ToolItem) -> Void)? = nil,
         onEnterToolsPage: (() -> Void)? = nil
     ) {
+        self.isPad = isPad
         self.isWide = isWide
         self.isDarkTheme = isDarkTheme
         self.availableWidth = availableWidth
@@ -105,7 +109,7 @@ struct ProToolsSectionView: View {
     }
 
     private var tools: [ToolItem] {
-        HomeToolsLayoutPolicy.tools(isWide: isWide)
+        HomeToolsLayoutPolicy.tools(isPad: isPad)
     }
 
     private func iconColor(for tool: ToolItem) -> Color {

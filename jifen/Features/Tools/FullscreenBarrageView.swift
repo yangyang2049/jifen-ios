@@ -18,6 +18,13 @@ struct FullscreenBarrageView: View {
     @State private var backgroundColor = Color.black
     @State private var scrollStartedAt = Date()
     @State private var entryOrientation: UIInterfaceOrientationMask = .portrait
+    /// iPad windowed modes (Stage Manager / resizable windows) reject scene
+    /// orientation requests. Rotate the full display surface in that case so
+    /// the user-facing rotate action still works for both barrage modes.
+    @State private var usesContentRotationFallback = false
+    /// Invalidates UIKit geometry callbacks after another rotate request or
+    /// after this screen begins restoring its entry orientation.
+    @State private var orientationRequestGeneration = 0
 
     private let textColors: [Color] = [
         .white, Color(hex: "FF3B30"), Color(hex: "FFD60A"), Color(hex: "30D158"),
@@ -125,37 +132,50 @@ struct FullscreenBarrageView: View {
     }
 
     private var runningDisplay: some View {
-        GeometryReader { geometry in
-            let fullWidth = geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing
-            ZStack {
-                backgroundColor.ignoresSafeArea()
+        GeometryReader { container in
+            let displaySize = usesContentRotationFallback
+                ? CGSize(width: container.size.height, height: container.size.width)
+                : container.size
 
-                if mode == .static {
-                    Text(message)
-                        .font(.system(size: fontSize, weight: .bold))
-                        .foregroundStyle(textColor)
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(0.2)
-                        .padding(24)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .ignoresSafeArea()
+            runningDisplaySurface(width: displaySize.width)
+                .frame(width: displaySize.width, height: displaySize.height)
+                .rotationEffect(.degrees(usesContentRotationFallback ? 90 : 0))
+                .position(x: container.size.width / 2, y: container.size.height / 2)
+                .animation(.easeInOut(duration: 0.25), value: usesContentRotationFallback)
+        }
+        .ignoresSafeArea()
+        .accessibilityIdentifier("barrage_running")
+        .accessibilityValue(usesContentRotationFallback ? "content_rotated" : "window_orientation")
+    }
+
+    private func runningDisplaySurface(width: CGFloat) -> some View {
+        ZStack {
+            backgroundColor.ignoresSafeArea()
+
+            if mode == .static {
+                Text(message)
+                    .font(.system(size: fontSize, weight: .bold))
+                    .foregroundStyle(textColor)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.2)
+                    .padding(24)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            } else {
+                scrollingText(width: width)
+                    .ignoresSafeArea()
+            }
+
+            VStack(spacing: 0) {
+                if showEditor {
+                    runningEditor
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 } else {
-                    scrollingText(width: fullWidth)
-                        .ignoresSafeArea()
+                    runningOverlayButtons
                 }
-
-                VStack(spacing: 0) {
-                    if showEditor {
-                        runningEditor
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                    } else {
-                        runningOverlayButtons
-                    }
-                    Spacer(minLength: 0)
-                }
+                Spacer(minLength: 0)
             }
         }
-        .accessibilityIdentifier("barrage_running")
     }
 
     private func scrollingText(width: CGFloat) -> some View {
@@ -181,6 +201,7 @@ struct FullscreenBarrageView: View {
         HStack(spacing: 12) {
             overlayButton(systemName: "chevron.left", label: NSLocalizedString("back", value: "返回", comment: "")) {
                 // Exit fullscreen display back to settings (replaces removed close button).
+                invalidateOrientationRequests()
                 isRunning = false
                 showEditor = false
             }
@@ -366,6 +387,7 @@ struct FullscreenBarrageView: View {
     }
 
     private func prepareOrientation() {
+        invalidateOrientationRequests()
         if let scene = activeWindowScene {
             entryOrientation = scene.interfaceOrientation.isLandscape
                 ? (scene.interfaceOrientation == .landscapeLeft ? .landscapeLeft : .landscapeRight)
@@ -377,28 +399,75 @@ struct FullscreenBarrageView: View {
 
     private func rotateScreen() {
         guard let scene = activeWindowScene else { return }
+        let requestGeneration = nextOrientationRequestGeneration()
+
+        if usesContentRotationFallback {
+            usesContentRotationFallback = false
+            return
+        }
+
+        // A resizable iPad window cannot change the scene's interface
+        // orientation programmatically. Swapping and rotating the complete
+        // display surface produces the same result without issuing a request
+        // that the system is guaranteed to reject.
+        if UIDevice.current.userInterfaceIdiom == .pad, !scene.isFullScreen {
+            OrientationLock.shared.lock(.all)
+            updateSupportedOrientations(in: scene)
+            usesContentRotationFallback = true
+            return
+        }
+
         let target: UIInterfaceOrientationMask = scene.interfaceOrientation.isPortrait ? .landscapeRight : .portrait
         OrientationLock.shared.lock(target)
         updateSupportedOrientations(in: scene)
-        scene.requestGeometryUpdate(.iOS(interfaceOrientations: target)) { error in
-            #if DEBUG
-            print("[FullscreenBarrage] Rotation failed: \(error.localizedDescription)")
-            #endif
+        scene.requestGeometryUpdate(.iOS(interfaceOrientations: target)) { _ in
+            // Windowing state can change between the button tap and UIKit
+            // handling the request. Fall back to rotating the content instead
+            // of leaving the button with no visible effect.
+            DispatchQueue.main.async {
+                guard orientationRequestGeneration == requestGeneration, isRunning else { return }
+                OrientationLock.shared.lock(
+                    UIDevice.current.userInterfaceIdiom == .pad ? .all : .allButUpsideDown
+                )
+                updateSupportedOrientations(in: scene)
+                usesContentRotationFallback = true
+            }
         }
     }
 
     private func restoreOrientation() {
+        let requestGeneration = nextOrientationRequestGeneration()
+        usesContentRotationFallback = false
         guard let scene = activeWindowScene else {
             OrientationLock.shared.unlock()
             return
         }
+
+        if UIDevice.current.userInterfaceIdiom == .pad, !scene.isFullScreen {
+            OrientationLock.shared.unlock()
+            updateSupportedOrientations(in: scene)
+            return
+        }
+
         OrientationLock.shared.lock(entryOrientation)
         updateSupportedOrientations(in: scene)
-        scene.requestGeometryUpdate(.iOS(interfaceOrientations: entryOrientation)) { error in
-            #if DEBUG
-            print("[FullscreenBarrage] Restore orientation failed: \(error.localizedDescription)")
-            #endif
+        scene.requestGeometryUpdate(.iOS(interfaceOrientations: entryOrientation)) { _ in
+            DispatchQueue.main.async {
+                guard orientationRequestGeneration == requestGeneration else { return }
+                OrientationLock.shared.unlock()
+                updateSupportedOrientations(in: scene)
+            }
         }
+    }
+
+    @discardableResult
+    private func nextOrientationRequestGeneration() -> Int {
+        orientationRequestGeneration &+= 1
+        return orientationRequestGeneration
+    }
+
+    private func invalidateOrientationRequests() {
+        orientationRequestGeneration &+= 1
     }
 
     private func updateSupportedOrientations(in scene: UIWindowScene? = nil) {

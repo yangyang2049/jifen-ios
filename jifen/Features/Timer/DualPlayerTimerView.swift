@@ -2,7 +2,7 @@
 //  DualPlayerTimerView.swift
 //  jifen
 //
-//  Harmony-style board-game timer view for Go / Xiangqi / Chess.
+//  Harmony-style board-game timer view for Go / Xiangqi / Chess / Checkers.
 //
 
 import SwiftUI
@@ -51,7 +51,23 @@ struct DualPlayerTimerView: View {
     @State private var showExitConfirm = false
     @State private var showStopConfirm = false
     @State private var hasLockedOrientation = false
-    @State private var autoPausedForExitConfirm = false
+    @State private var previousIdleTimerDisabled: Bool?
+
+    @State private var endReason: DualTimerEndReason?
+    @State private var showGameOverResult = false
+    @State private var gameOverPresentationTask: Task<Void, Never>?
+    @State private var hideFloatingControls = false
+
+    @State private var toastMessage: String?
+    @State private var toastTask: Task<Void, Never>?
+    @State private var firstIndicatorPulsing = false
+    @State private var pendingTapHintPlayer: Int?
+    @State private var hasShownPlayer1TapHint = false
+    @State private var hasShownPlayer2TapHint = false
+
+    private var isPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
 
     init(gameType: GameType, config: BoardTimerConfig) {
         self.gameType = gameType
@@ -73,52 +89,80 @@ struct DualPlayerTimerView: View {
                     playerPanel(for: displayedPlayerID(isLeftSide: false), in: geo)
                 }
 
-                floatingControls
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, 34)
+                if !hideFloatingControls {
+                    floatingControls
+                        .frame(maxHeight: .infinity, alignment: .bottom)
+                        .padding(.bottom, 80)
+                }
 
-                if gameState == .finished {
+                if showGameOverResult {
                     gameOverOverlay
+                }
+
+                if let toastMessage {
+                    ToastView(message: toastMessage)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                        .allowsHitTesting(false)
+                        .accessibilityIdentifier("board_timer_toast")
                 }
             }
             .background(Color.black)
             .ignoresSafeArea()
+            .background(
+                TwoFingerSwipeDownView(
+                    enabled: gameState == .paused
+                        && !hideFloatingControls
+                        && !showExitConfirm
+                        && !showStopConfirm,
+                    onSwipeDown: preparePausedScreenshot
+                )
+            )
         }
         .navigationTitle(gameType.displayName)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .persistentSystemOverlays(.hidden)
         .onAppear {
-            guard !hasLockedOrientation else { return }
-            OrientationLock.shared.lock(.landscape)
-            hasLockedOrientation = true
+            if previousIdleTimerDisabled == nil {
+                previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
+            }
+            UIApplication.shared.isIdleTimerDisabled = true
+
+            if !isPad, !hasLockedOrientation {
+                OrientationLock.shared.lock(.landscape)
+                hasLockedOrientation = true
+            }
+
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                firstIndicatorPulsing = true
+            }
         }
         .onDisappear {
             if hasLockedOrientation {
                 OrientationLock.shared.unlock()
                 hasLockedOrientation = false
             }
+            if let previousIdleTimerDisabled {
+                UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
+                self.previousIdleTimerDisabled = nil
+            }
             stopTicker()
             BoardTimerVoiceAnnouncer.shared.cancelScheduled()
+            gameOverPresentationTask?.cancel()
+            toastTask?.cancel()
             if gameState != .notStarted {
-                saveRecordIfNeeded(winnerLabel: winnerPlayerName)
+                finalizeForExitIfNeeded()
             }
         }
         .alert(
             NSLocalizedString("timer_exit_confirm_title", value: "确认退出", comment: "Confirm exit title"),
             isPresented: $showExitConfirm
         ) {
-            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) {
-                if autoPausedForExitConfirm {
-                    autoPausedForExitConfirm = false
-                    resumeGame(logAction: false)
-                }
-            }
+            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) {}
             Button(NSLocalizedString("exit", value: "退出", comment: ""), role: .destructive) {
-                autoPausedForExitConfirm = false
-                stopTicker()
-                saveRecordIfNeeded(winnerLabel: winnerPlayerName)
+                finalizeForExitIfNeeded()
                 dismiss()
             }
         } message: {
@@ -150,41 +194,115 @@ struct DualPlayerTimerView: View {
         let clockText = formatClockText(clock)
         let timeFontSize = clockFontSize(text: clockText, panelWidth: panelWidth)
 
-        return Button {
-            onPlayerAreaTapped(playerID)
-        } label: {
-            ZStack {
-                bgColor
+        return ZStack {
+            bgColor
 
-                VStack(spacing: 10) {
-                    Spacer(minLength: 0)
+            VStack(spacing: 10) {
+                Spacer(minLength: 0)
 
-                    Text(clockText)
-                        .font(.system(size: timeFontSize, weight: .bold, design: .monospaced))
-                        .foregroundColor(timeColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
+                Text(clockText)
+                    .font(.system(size: timeFontSize, weight: .bold, design: .monospaced))
+                    .foregroundColor(timeColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
 
-                    modeSubtitle(for: clock, fgColor: fgColor)
+                modeSubtitle(for: clock, fgColor: fgColor)
 
-                    Spacer(minLength: 0)
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 20)
+
+            roleIcon(for: playerID)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: iconAlignment(for: playerID))
+                .padding(20)
+
+            statusIndicator(for: playerID)
+                .position(x: panelWidth / 2, y: geo.size.height * 0.3)
+
+            if gameState == .running, pendingTapHintPlayer == playerID {
+                Button {
+                    onPlayerAreaTapped(playerID)
+                } label: {
+                    Text(NSLocalizedString("timer_tap_to_switch", value: "点击切换", comment: "First turn tap hint"))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.black.opacity(0.35))
+                        .clipShape(Capsule())
                 }
-                .padding(.vertical, 20)
-
-                roleIcon(for: playerID)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: iconAlignment(for: playerID))
-                    .padding(20)
-
-                if gameState == .notStarted && playerID == 1 {
-                    Circle()
-                        .fill(gameType == .chess ? Color.black.opacity(0.6) : .white)
-                        .frame(width: 12, height: 12)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                }
+                .buttonStyle(.plain)
+                .position(x: panelWidth / 2, y: geo.size.height * 0.85)
+                .accessibilityIdentifier("board_timer_tap_hint_player_\(playerID)")
             }
         }
-        .buttonStyle(.plain)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onPlayerAreaTapped(playerID)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("board_timer_player_\(playerID)")
+    }
+
+    @ViewBuilder
+    private func statusIndicator(for playerID: Int) -> some View {
+        if gameState == .notStarted, playerID == 1 {
+            Button {
+                showToast(
+                    String(
+                        format: NSLocalizedString("timer_first_player_format", value: "%@先手", comment: "First player toast"),
+                        playerName(for: playerID)
+                    ),
+                    duration: 2
+                )
+            } label: {
+                Circle()
+                    .fill(statusIndicatorForegroundColor(for: playerID))
+                    .frame(width: 12, height: 12)
+                    .scaleEffect(firstIndicatorPulsing ? 1.25 : 0.85)
+                    .shadow(color: statusIndicatorForegroundColor(for: playerID).opacity(0.35), radius: 4)
+                    .frame(width: 40, height: 40)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(
+                format: NSLocalizedString("timer_first_player_format", value: "%@先手", comment: "First player accessibility label"),
+                playerName(for: playerID)
+            ))
+            .accessibilityIdentifier("board_timer_first_indicator_player_1")
+        } else if gameState == .paused, activePlayer == playerID {
+            Button {
+                showToast(
+                    String(
+                        format: NSLocalizedString("timer_thinking_format", value: "%@思考中…", comment: "Thinking toast"),
+                        playerName(for: playerID)
+                    ),
+                    duration: 3
+                )
+            } label: {
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 40, height: 40)
+                    .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                    .overlay {
+                        Image("board_timer_thinking")
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.black)
+                            .frame(width: 24, height: 24)
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(
+                format: NSLocalizedString("timer_thinking_format", value: "%@思考中…", comment: "Thinking accessibility label"),
+                playerName(for: playerID)
+            ))
+            .accessibilityIdentifier("board_timer_thinking_indicator_player_\(playerID)")
+        } else {
+            Color.clear.frame(width: 40, height: 40)
+        }
     }
 
     private func roleIcon(for playerID: Int) -> some View {
@@ -214,59 +332,99 @@ struct DualPlayerTimerView: View {
                         .font(.system(size: 22, weight: .bold))
                         .foregroundColor(playerID == 1 ? .black : .white)
                 }
+            case .checkers:
+                Circle()
+                    .fill(playerID == 1 ? Color(hex: "C0392B") : Color(hex: "2C2723"))
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(playerID == 1 ? 0.35 : 0.25), lineWidth: 3)
+                            .padding(5)
+                    )
             default:
                 Circle().fill(Color.white)
             }
         }
         .frame(width: 34, height: 34)
-        .rotationEffect(.degrees(shouldRotateIcon(for: playerID) ? 180 : 0))
     }
 
     // MARK: - Floating Controls
 
     private var floatingControls: some View {
-        Group {
+        let spacing: CGFloat = isPad ? 60 : 40
+
+        return Group {
             switch gameState {
             case .notStarted:
-                HStack(spacing: 40) {
-                    circleIconButton(icon: "chevron.left", size: 56, background: Color.black.opacity(0.8)) {
-                        presentExitConfirm()
+                HStack(spacing: spacing) {
+                    circleIconButton(
+                        icon: "chevron.left",
+                        size: 56,
+                        background: Color.black.opacity(0.8),
+                        accessibilityID: "board_timer_back_button"
+                    ) {
+                        dismiss()
                     }
 
                     Button {
                         startGame()
                     } label: {
                         Text(NSLocalizedString("start_game", value: "开始", comment: ""))
-                            .font(.system(size: 26, weight: .bold))
+                            .font(.system(size: 18, weight: .bold))
                             .foregroundColor(.white)
-                            .frame(width: 96, height: 96)
+                            .frame(width: 80, height: 80)
                             .background(Theme.accentColor)
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("board_timer_start_button")
 
-                    circleIconButton(icon: "arrow.left.arrow.right", size: 56, background: Color.black.opacity(0.8)) {
+                    circleIconButton(
+                        icon: "arrow.left.arrow.right",
+                        size: 56,
+                        background: Color.black.opacity(0.8),
+                        accessibilityID: "board_timer_swap_button"
+                    ) {
                         isPlayerPositionSwapped.toggle()
                         vibrateIfEnabled(heavy: false)
                     }
                 }
 
             case .running:
-                circleIconButton(icon: "pause.fill", size: 96, background: Color.black.opacity(0.8)) {
+                circleIconButton(
+                    icon: "pause.fill",
+                    size: 80,
+                    background: Color.black.opacity(0.8),
+                    accessibilityID: "board_timer_pause_button"
+                ) {
                     pauseGame()
                 }
 
             case .paused:
-                HStack(spacing: 40) {
-                    circleIconButton(icon: "chevron.left", size: 56, background: Color.black.opacity(0.8)) {
+                HStack(spacing: spacing) {
+                    circleIconButton(
+                        icon: "chevron.left",
+                        size: 56,
+                        background: Color.black.opacity(0.8),
+                        accessibilityID: "board_timer_back_button"
+                    ) {
                         presentExitConfirm()
                     }
 
-                    circleIconButton(icon: "play.fill", size: 96, background: Color.black.opacity(0.8)) {
+                    circleIconButton(
+                        icon: "play.fill",
+                        size: 80,
+                        background: Color.black.opacity(0.8),
+                        accessibilityID: "board_timer_resume_button"
+                    ) {
                         resumeGame()
                     }
 
-                    circleIconButton(icon: "stop.fill", size: 56, background: Color(hex: "FF3B30").opacity(0.92)) {
+                    circleIconButton(
+                        icon: "stop.fill",
+                        size: 56,
+                        background: Color(hex: "FF3B30").opacity(0.92),
+                        accessibilityID: "board_timer_stop_button"
+                    ) {
                         showStopConfirm = true
                     }
                 }
@@ -277,16 +435,23 @@ struct DualPlayerTimerView: View {
         }
     }
 
-    private func circleIconButton(icon: String, size: CGFloat, background: Color, action: @escaping () -> Void) -> some View {
+    private func circleIconButton(
+        icon: String,
+        size: CGFloat,
+        background: Color,
+        accessibilityID: String,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: size >= 90 ? 36 : 28, weight: .semibold))
+                .font(.system(size: size >= 80 ? 32 : 24, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(width: size, height: size)
                 .background(background)
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityID)
     }
 
     private var gameOverOverlay: some View {
@@ -297,11 +462,16 @@ struct DualPlayerTimerView: View {
                 Text(NSLocalizedString("timer_game_over", value: "比赛结束", comment: ""))
                     .font(.system(size: 26, weight: .bold))
                     .foregroundColor(.white)
+                    .accessibilityIdentifier("board_timer_game_over_result")
 
                 if let winnerPlayerName {
                     Text(String(format: NSLocalizedString("winner_wins", value: "%@ 获胜", comment: ""), winnerPlayerName))
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(Theme.accentColor)
+                } else if case .manualStop? = endReason {
+                    Text(NSLocalizedString("timer_manual_end", value: "手动结束", comment: "Manual timer end result"))
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(.white)
                 }
 
                 HStack(spacing: 12) {
@@ -316,9 +486,11 @@ struct DualPlayerTimerView: View {
                             .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("board_timer_restart_button")
 
                     Button {
-                        presentExitConfirm()
+                        finalizeForExitIfNeeded()
+                        dismiss()
                     } label: {
                         Text(NSLocalizedString("exit", value: "退出", comment: ""))
                             .font(.system(size: 16, weight: .semibold))
@@ -328,6 +500,7 @@ struct DualPlayerTimerView: View {
                             .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("board_timer_result_exit_button")
                 }
             }
             .padding(.horizontal, 24)
@@ -385,9 +558,12 @@ struct DualPlayerTimerView: View {
     }
 
     private func startGame() {
+        gameOverPresentationTask?.cancel()
         resetClocks()
         totalMoves = 0
         winnerPlayer = nil
+        endReason = nil
+        showGameOverResult = false
         recordSaved = false
         actionTimeline = []
         gameStartAt = Date()
@@ -395,12 +571,15 @@ struct DualPlayerTimerView: View {
         lastTickAt = Date()
         startTicker()
         appendAction(.start)
+        revealTapHintIfNeeded(for: 1)
         vibrateIfEnabled(heavy: false)
         speakStartIfEnabled()
     }
 
     private func pauseGame(logAction: Bool = true) {
+        guard gameState == .running else { return }
         consumeElapsedTime()
+        guard gameState == .running else { return }
         gameState = .paused
         stopTicker()
         if logAction {
@@ -423,17 +602,7 @@ struct DualPlayerTimerView: View {
     }
 
     private func stopCurrentGame() {
-        consumeElapsedTime()
-
-        let p1 = displaySeconds(for: player1Clock)
-        let p2 = displaySeconds(for: player2Clock)
-        if p1 > p2 {
-            finishGame(winner: 1, reason: .manualStop)
-        } else if p2 > p1 {
-            finishGame(winner: 2, reason: .manualStop)
-        } else {
-            finishGame(winner: nil, reason: .manualStop)
-        }
+        finishGame(winner: nil, reason: .manualStop)
     }
 
     private func finishGame(winner: Int?, reason: DualTimerEndReason) {
@@ -451,18 +620,36 @@ struct DualPlayerTimerView: View {
         }
 
         winnerPlayer = winner
+        endReason = reason
         appendAction(.gameEnd, actor: winner.flatMap { playerName(for: $0) })
         gameState = .finished
+        pendingTapHintPlayer = nil
+        showGameOverResult = false
         saveRecordIfNeeded(winnerLabel: winnerPlayerName)
         vibrateIfEnabled(heavy: true)
+
+        gameOverPresentationTask?.cancel()
+        gameOverPresentationTask = Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled, gameState == .finished else { return }
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showGameOverResult = true
+            }
+        }
     }
 
     private func restartGame() {
+        gameOverPresentationTask?.cancel()
         BoardTimerVoiceAnnouncer.shared.cancelScheduled()
         resetClocks()
         activePlayer = 1
         winnerPlayer = nil
+        endReason = nil
         gameState = .notStarted
+        showGameOverResult = false
+        hideFloatingControls = false
+        isPlayerPositionSwapped = false
+        pendingTapHintPlayer = nil
         totalMoves = 0
         lastTickAt = nil
         gameStartAt = nil
@@ -472,10 +659,7 @@ struct DualPlayerTimerView: View {
 
     private func presentExitConfirm() {
         if gameState == .running {
-            autoPausedForExitConfirm = true
-            pauseGame(logAction: false)
-        } else {
-            autoPausedForExitConfirm = false
+            pauseGame(logAction: true)
         }
         showExitConfirm = true
     }
@@ -628,6 +812,7 @@ struct DualPlayerTimerView: View {
     private func onPlayerAreaTapped(_ playerID: Int) {
         guard gameState == .running else { return }
         guard activePlayer == playerID else { return }
+        pendingTapHintPlayer = nil
 
         consumeElapsedTime()
         guard gameState == .running else { return }
@@ -670,6 +855,7 @@ struct DualPlayerTimerView: View {
         appendAction(.move, actor: playerName(for: playerID))
         vibrateIfEnabled(heavy: false)
         speakPlayerColorIfEnabled(playerID: nextPlayer)
+        revealTapHintIfNeeded(for: nextPlayer)
     }
 
     // MARK: - Helpers
@@ -735,14 +921,9 @@ struct DualPlayerTimerView: View {
         return playerID == leftID ? .topLeading : .topTrailing
     }
 
-    private func shouldRotateIcon(for playerID: Int) -> Bool {
-        let leftID = displayedPlayerID(isLeftSide: true)
-        return playerID != leftID
-    }
-
     private func panelBackgroundColor(for playerID: Int, isCurrent: Bool) -> Color {
         if gameState == .running {
-            return isCurrent ? Theme.primary : Color(hex: "333333")
+            return isCurrent ? Theme.primary : .black
         }
 
         switch gameType {
@@ -752,6 +933,8 @@ struct DualPlayerTimerView: View {
             return playerID == 1 ? Color(hex: "A1262A") : .black
         case .chess:
             return playerID == 1 ? .white : .black
+        case .checkers:
+            return playerID == 1 ? .black : .white
         default:
             return .black
         }
@@ -767,6 +950,8 @@ struct DualPlayerTimerView: View {
             return .white
         case .chess:
             return playerID == 1 ? .black : .white
+        case .checkers:
+            return playerID == 1 ? .white : .black
         default:
             return .white
         }
@@ -813,9 +998,76 @@ struct DualPlayerTimerView: View {
             return playerID == 1
                 ? NSLocalizedString("timer_white_player", value: "白方", comment: "")
                 : NSLocalizedString("timer_black_player", value: "黑方", comment: "")
+        case .checkers:
+            return playerID == 1
+                ? NSLocalizedString("timer_red_player", value: "红方", comment: "")
+                : NSLocalizedString("timer_black_player", value: "黑方", comment: "")
         default:
             return NSLocalizedString("dual_timer_player", value: "玩家", comment: "") + " \(playerID)"
         }
+    }
+
+    private func statusIndicatorForegroundColor(for playerID: Int) -> Color {
+        panelTextColor(for: playerID)
+    }
+
+    private func revealTapHintIfNeeded(for playerID: Int) {
+        guard playerID == 1 || playerID == 2 else { return }
+
+        if playerID == 1 {
+            guard !hasShownPlayer1TapHint else { return }
+            hasShownPlayer1TapHint = true
+        } else {
+            guard !hasShownPlayer2TapHint else { return }
+            hasShownPlayer2TapHint = true
+        }
+        pendingTapHintPlayer = playerID
+    }
+
+    private func showToast(_ message: String, duration: TimeInterval) {
+        toastTask?.cancel()
+        withAnimation(.easeInOut(duration: 0.18)) {
+            toastMessage = message
+        }
+        toastTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(duration))
+            guard !Task.isCancelled, toastMessage == message else { return }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                toastMessage = nil
+            }
+        }
+    }
+
+    private func preparePausedScreenshot() {
+        guard gameState == .paused, !hideFloatingControls else { return }
+        ScreenshotSaveCoordinator.shared.prepareForCapture()
+        hideFloatingControls = true
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(100))
+            let image = ScreenshotSaveCoordinator.shared.captureCurrentWindowImage()
+            hideFloatingControls = false
+
+            guard let image else {
+                ScreenshotSaveCoordinator.shared.showCaptureFailure()
+                return
+            }
+            ScreenshotSaveCoordinator.shared.submitCapturedImage(image)
+        }
+    }
+
+    private func finalizeForExitIfNeeded() {
+        if gameState == .running {
+            consumeElapsedTime()
+        }
+        stopTicker()
+        BoardTimerVoiceAnnouncer.shared.cancelScheduled()
+        guard !recordSaved, gameStartAt != nil else { return }
+
+        if actionTimeline.last?.type.rawValue != TimerActionType.gameEnd.rawValue {
+            appendAction(.gameEnd)
+        }
+        saveRecordIfNeeded(winnerLabel: nil)
     }
 
     private func appendAction(_ type: TimerActionType, actor: String? = nil) {

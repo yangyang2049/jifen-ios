@@ -715,72 +715,80 @@ struct MultiScoreboardView: View {
     }
 
     private func playerEditOverlay(index: Int) -> some View {
-        ZStack {
-            Color.black.opacity(0.55)
-                .ignoresSafeArea()
-                .onTapGesture { cancelPlayerEdit() }
+        GeometryReader { proxy in
+            let dialogWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                phonePreferredWidth: 320,
+                padPreferredWidth: 420
+            )
 
-            VStack(spacing: 16) {
-                Text(NSLocalizedString("multi_score_edit_title", value: "编辑玩家", comment: ""))
-                    .font(.system(size: 18, weight: .medium))
+            ZStack {
+                Color.black.opacity(0.55)
+                    .ignoresSafeArea()
+                    .onTapGesture { cancelPlayerEdit() }
+
+                VStack(spacing: 16) {
+                    Text(NSLocalizedString("multi_score_edit_title", value: "编辑玩家", comment: ""))
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(.white)
+
+                    TextField(
+                        NSLocalizedString("multi_score_rename_placeholder", value: "玩家名称", comment: ""),
+                        text: $playerEditName
+                    )
+                    .font(.system(size: 16))
                     .foregroundStyle(.white)
+                    .textFieldStyle(.plain)
+                    .padding(.horizontal, 12)
+                    .frame(height: 44)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+                    .onSubmit { confirmPlayerEdit(index: index) }
 
-                TextField(
-                    NSLocalizedString("multi_score_rename_placeholder", value: "玩家名称", comment: ""),
-                    text: $playerEditName
-                )
-                .font(.system(size: 16))
-                .foregroundStyle(.white)
-                .textFieldStyle(.plain)
-                .padding(.horizontal, 12)
-                .frame(height: 44)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
-                .onSubmit { confirmPlayerEdit(index: index) }
+                    VStack(spacing: 8) {
+                        Text(NSLocalizedString("multi_score_edit_score_label", value: "分数", comment: ""))
+                            .font(.system(size: 14))
+                            .foregroundStyle(.white.opacity(0.65))
 
-                VStack(spacing: 8) {
-                    Text(NSLocalizedString("multi_score_edit_score_label", value: "分数", comment: ""))
-                        .font(.system(size: 14))
-                        .foregroundStyle(.white.opacity(0.65))
-
-                    HStack(spacing: 12) {
-                        playerEditAdjustButton(systemName: "minus") {
-                            playerEditScore = MultiScoreRules.adjustedScore(playerEditScore, delta: -1)
+                        HStack(spacing: 12) {
+                            playerEditAdjustButton(systemName: "minus") {
+                                playerEditScore = MultiScoreRules.adjustedScore(playerEditScore, delta: -1)
+                            }
+                            Text("\(playerEditScore)")
+                                .font(appearance.font.swiftUIFont(size: 30))
+                                .fontWeight(.bold)
+                                .foregroundStyle(.white)
+                                .monospacedDigit()
+                                .frame(maxWidth: .infinity)
+                            playerEditAdjustButton(systemName: "plus") {
+                                playerEditScore = MultiScoreRules.adjustedScore(playerEditScore, delta: 1)
+                            }
                         }
-                        Text("\(playerEditScore)")
-                            .font(appearance.font.swiftUIFont(size: 30))
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                            .monospacedDigit()
-                            .frame(maxWidth: .infinity)
-                        playerEditAdjustButton(systemName: "plus") {
-                            playerEditScore = MultiScoreRules.adjustedScore(playerEditScore, delta: 1)
+                    }
+
+                    HStack(spacing: 16) {
+                        Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                            cancelPlayerEdit()
                         }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
+
+                        Button(NSLocalizedString("confirm", value: "确定", comment: "")) {
+                            confirmPlayerEdit(index: index)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.primary))
                     }
                 }
-
-                HStack(spacing: 16) {
-                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
-                        cancelPlayerEdit()
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.white.opacity(0.6))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
-
-                    Button(NSLocalizedString("confirm", value: "确定", comment: "")) {
-                        confirmPlayerEdit(index: index)
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.primary))
-                }
+                .padding(24)
+                .frame(width: dialogWidth)
+                .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.88)))
             }
-            .padding(24)
-            .frame(width: 320)
-            .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.88)))
         }
         .zIndex(20)
     }

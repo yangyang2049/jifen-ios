@@ -290,7 +290,22 @@ struct ArcheryScoreboardView: View {
     }
 
     private var archeryScorePicker: some View {
-        ZStack {
+        GeometryReader { proxy in
+            let dialogWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                phonePreferredWidth: 380,
+                padPreferredWidth: 500
+            )
+            let scoreButtonSize = ScoreboardLayoutMetrics.fittedGridItemSize(
+                containerWidth: dialogWidth,
+                columns: 4,
+                spacing: 10,
+                horizontalPadding: 16,
+                preferredSize: 60,
+                minimumSize: 36
+            )
+
+            ZStack {
             Color.black.opacity(0.55)
                 .ignoresSafeArea()
                 .onTapGesture { showArrowPicker = false }
@@ -332,7 +347,7 @@ struct ArcheryScoreboardView: View {
                                     Text(value == -1 ? "M" : "\(value ?? 0)")
                                         .font(.system(size: 24, weight: .bold))
                                         .foregroundColor(value == -1 ? .white : .black)
-                                        .frame(width: 60, height: 60)
+                                        .frame(width: scoreButtonSize, height: scoreButtonSize)
                                         .background(value == -1 ? Color.orange : Color.white.opacity(0.9))
                                         .clipShape(Circle())
                                 }
@@ -344,7 +359,7 @@ struct ArcheryScoreboardView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             }
-            .frame(width: 380)
+            .frame(width: dialogWidth)
             .background(Color.black.opacity(0.95))
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -354,10 +369,18 @@ struct ArcheryScoreboardView: View {
             .shadow(color: Color.black.opacity(0.3), radius: 32, x: 0, y: 12)
             .onTapGesture { }
         }
+        }
     }
 
     private var setEndOverlay: some View {
-        ZStack {
+        GeometryReader { proxy in
+            let dialogWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                phonePreferredWidth: 328,
+                padPreferredWidth: 420
+            )
+
+            ZStack {
             Color.black.opacity(0.55)
                 .ignoresSafeArea()
             VStack(spacing: 12) {
@@ -380,16 +403,24 @@ struct ArcheryScoreboardView: View {
                     sideSpacing: 3,
                     columnSpacing: 12
                 )
-                .frame(width: 280)
+                .frame(width: max(0, dialogWidth - 48))
             }
             .padding(24)
             .background(Color.black.opacity(0.7))
             .cornerRadius(16)
         }
+        }
     }
 
     private var closestToCenterOverlay: some View {
-        ZStack {
+        GeometryReader { proxy in
+            let dialogWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                phonePreferredWidth: max(0, proxy.size.width - 80),
+                padPreferredWidth: 500
+            )
+
+            ZStack {
             Color.black.opacity(0.55)
                 .ignoresSafeArea()
             VStack(spacing: 16) {
@@ -446,9 +477,10 @@ struct ArcheryScoreboardView: View {
                 .buttonStyle(.plain)
             }
             .padding(24)
+            .frame(width: dialogWidth)
             .background(Color.black.opacity(0.85))
             .cornerRadius(16)
-            .padding(.horizontal, 40)
+        }
         }
     }
 

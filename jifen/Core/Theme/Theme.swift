@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct Theme {
+    enum DialogWidthRole {
+        case setup
+        case scoreboardMenu
+        case gameOver
+    }
+
     /// Use the system-reported device idiom for iPad-specific layouts.
     /// Window dimensions and size classes intentionally do not affect this decision.
     static var usesPadLayout: Bool {
@@ -103,6 +109,45 @@ struct Theme {
     static let focusedContentMaxWidth: CGFloat = 600
     /// “我的”Tab 及其下级页面共用的正文宽度，避免 iPad 导航时内容宽度跳变。
     static var meTabContentMaxWidth: CGFloat { secondaryPageContentMaxWidth }
+
+    /// Custom card dialogs keep their compact phone proportions, while iPad
+    /// gets a wider reading/control area. The available-width clamp also keeps
+    /// them usable in iPad Split View and Stage Manager narrow windows.
+    static func dialogWidth(
+        availableWidth: CGFloat,
+        role: DialogWidthRole
+    ) -> CGFloat {
+        let widths: (phone: CGFloat, pad: CGFloat) = switch role {
+        case .setup: (340, 500)
+        case .scoreboardMenu: (320, 500)
+        case .gameOver: (360, 500)
+        }
+        return dialogWidth(
+            availableWidth: availableWidth,
+            phonePreferredWidth: widths.phone,
+            padPreferredWidth: widths.pad
+        )
+    }
+
+    static func dialogWidth(
+        availableWidth: CGFloat,
+        phonePreferredWidth: CGFloat,
+        padPreferredWidth: CGFloat
+    ) -> CGFloat {
+        let preferredWidth = usesPadLayout ? padPreferredWidth : phonePreferredWidth
+        let horizontalInset: CGFloat = usesPadLayout && availableWidth >= 600 ? 40 : 16
+        return max(0, min(preferredWidth, availableWidth - horizontalInset * 2))
+    }
+
+    static func dialogPreferredWidth(role: DialogWidthRole) -> CGFloat {
+        switch (usesPadLayout, role) {
+        case (false, .setup): 340
+        case (false, .scoreboardMenu): 320
+        case (false, .gameOver): 360
+        case (true, _): 500
+        }
+    }
+
     static let sectionSpacing: CGFloat = 24
     static let sectionContentSpacing: CGFloat = 12
     static let gridSpacing: CGFloat = 12

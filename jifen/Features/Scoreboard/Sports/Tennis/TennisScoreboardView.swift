@@ -22,6 +22,10 @@ struct TennisScoreboardView: View {
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var preferences = PreferencesManager.shared
     @State private var toastMessage: String?
+    @State private var previousIdleTimerDisabled: Bool?
+    @State private var chromeVisible = true
+    @State private var immersiveGeneration = 0
+    @State private var exitConfirmDeadline: Date?
     @State private var manualFinishRequested = false
     @State private var isEditMode = false
     @State private var editLeftName = ""
@@ -116,6 +120,9 @@ struct TennisScoreboardView: View {
     var body: some View {
         GeometryReader { proxy in
             let size = proxy.size
+            let serveIndicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                halfViewportSize: CGSize(width: size.width / 2, height: size.height)
+            )
             ZStack {
                 HStack(spacing: 0) {
                     half(.left, size: size)
@@ -126,49 +133,37 @@ struct TennisScoreboardView: View {
                    store.state.doublesPlayerNames == nil {
                     CenterLineServeIndicator(
                         isLeftServing: logicalSide(forScreen: .left) == store.state.servingSide,
-                        triangleSize: ScoreboardServeGeometry.triangleSize
+                        triangleSize: serveIndicatorSize
                     )
                     .position(x: size.width / 2, y: size.height / 2)
                 }
-                VStack {
-                    HStack {
-                        if !isEditMode {
-                            Button(action: goBack) {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: ScoreboardConstants.buttonIconSize))
-                                    .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
-                                    .background(Circle().fill(Color.black.opacity(0.35)))
-                                    .frame(width: 64, height: 64)
-                                    .contentShape(Rectangle())
+                if shouldShowChrome {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            if (isEditMode || !store.state.finished), !scoringLocked {
+                                Button(action: toggleEditMode) {
+                                    Image(systemName: isEditMode ? "checkmark" : "pencil")
+                                        .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                        .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                        .background(Circle().fill(
+                                            isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.35)
+                                        ))
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(isEditMode
+                                    ? NSLocalizedString("done", value: "完成", comment: "")
+                                    : NSLocalizedString("edit", value: "编辑", comment: ""))
+                                .accessibilityIdentifier("tennis_scoreboard_edit_button")
                             }
-                            .buttonStyle(.plain)
-                            .accessibilityIdentifier(ScoreboardConstants.backButtonAccessibilityID)
                         }
+                        .foregroundStyle(.white)
+                        .padding(.trailing, ScoreboardConstants.buttonPadding)
+                        .padding(.top, ScoreboardConstants.buttonPadding)
                         Spacer()
-                        if (isEditMode || !store.state.finished), !scoringLocked {
-                            Button(action: toggleEditMode) {
-                                Image(systemName: isEditMode ? "checkmark" : "pencil")
-                                    .font(.system(size: ScoreboardConstants.buttonIconSize))
-                                    .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
-                                    .background(Circle().fill(
-                                        isEditMode ? Color(hex: "00C853") : Color.black.opacity(0.35)
-                                    ))
-                                    .frame(width: 64, height: 64)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(isEditMode
-                                ? NSLocalizedString("done", value: "完成", comment: "")
-                                : NSLocalizedString("edit", value: "编辑", comment: ""))
-                            .accessibilityIdentifier("tennis_scoreboard_edit_button")
-                        }
                     }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-                    Spacer()
+                    .zIndex(2)
                 }
-                .zIndex(2)
                 if store.state.isTieBreak {
                     Text(store.state.rules.tieBreakPoints == 10
                         ? NSLocalizedString("tennis_tiebreak_option_10", value: "抢十", comment: "")
@@ -183,7 +178,8 @@ struct TennisScoreboardView: View {
                         status: KeyPointResolver.tennis(snapshot: tennisKeyPointSnapshot(store.state)),
                         gameType: store.gameType,
                         sidesSwapped: store.state.sidesSwapped,
-                        doublesTopRow: store.gameType == .tennisDoubles ? tennisDoublesServerIsTopRow : nil
+                        doublesTopRow: store.gameType == .tennisDoubles ? tennisDoublesServerIsTopRow : nil,
+                        serveIndicatorSize: serveIndicatorSize
                     )
                 }
                 if showGameOverDialog {
@@ -233,31 +229,46 @@ struct TennisScoreboardView: View {
                     showEndGame: true,
                     items: menuItems
                 )
-                if !isEditMode, !showMenu, !showGameOverDialog {
-                    // Match the common scoreboard chrome: the operation menu lives at bottom right.
+                if shouldShowChrome, !isEditMode, !showMenu, !showGameOverDialog {
                     VStack {
                         Spacer()
                         HStack {
+                            Button(action: requestBack) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                    .foregroundStyle(.white)
+                                    .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                    .background(Circle().fill(Color.black.opacity(0.35)))
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier(ScoreboardConstants.backButtonAccessibilityID)
+                            .padding(.leading, ScoreboardConstants.buttonPadding)
+                            .padding(.bottom, ScoreboardConstants.buttonPadding)
                             Spacer()
                             Button {
                                 showMenu = true
+                                revealImmersiveChrome()
                             } label: {
                                 Image(systemName: "line.3.horizontal")
                                     .font(.system(size: ScoreboardConstants.buttonIconSize))
                                     .foregroundStyle(.white)
                                     .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                                     .background(Circle().fill(Color.black.opacity(0.35)))
-                                    .frame(width: 64, height: 64)
-                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel(NSLocalizedString("menu", value: "菜单", comment: "Menu"))
                             .accessibilityIdentifier("scoreboard_menu_button")
+                            .padding(.trailing, ScoreboardConstants.buttonPadding)
+                            .padding(.bottom, ScoreboardConstants.buttonPadding)
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 8)
                     .zIndex(100)
+                }
+                if appearance.immersiveMode,
+                   !chromeVisible,
+                   !isEditMode,
+                   !showGameOverDialog {
+                    ImmersiveCornerRevealZones(onReveal: revealImmersiveChrome)
                 }
                 if let toastMessage {
                     VStack {
@@ -269,12 +280,15 @@ struct TennisScoreboardView: View {
             }
         }
         .ignoresSafeArea()
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .simultaneousGesture(
             LongPressGesture(minimumDuration: 0.55)
                 .onEnded { _ in
                     guard !isEditMode else { return }
                     showMenu = true
+                    revealImmersiveChrome()
                 }
         )
         .simultaneousGesture(
@@ -288,6 +302,8 @@ struct TennisScoreboardView: View {
         )
         .onAppear {
             appearance = .current()
+            previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
+            UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             onSetupConsumed?()
             if let id = initialRecordId, let uuid = UUID(uuidString: id),
                let restored = TennisSessionStore(restoring: uuid) {
@@ -295,10 +311,13 @@ struct TennisScoreboardView: View {
             }
             syncEditNamesFromState()
             registerScoreboardSync()
+            revealImmersiveChrome()
             if store.state.finished { showGameOverDialog = true }
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
+            UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            revealImmersiveChrome()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: store.state) { _, state in
@@ -351,6 +370,19 @@ struct TennisScoreboardView: View {
                 )
                 watchLinkService.completePhoneTakeover(messageId: pending.messageId)
             }
+        }
+        .onChange(of: showMenu) { _, isOpen in
+            if !isOpen { menuConfirm.clear() }
+            updateImmersiveForBlocking()
+        }
+        .onChange(of: showDisplaySettings) { _, _ in
+            updateImmersiveForBlocking()
+        }
+        .onChange(of: isEditMode) { _, _ in
+            updateImmersiveForBlocking()
+        }
+        .onChange(of: showGameOverDialog) { _, _ in
+            updateImmersiveForBlocking()
         }
         .scoreboardDisplaySettingsOverlay(
             isPresented: $showDisplaySettings,
@@ -410,6 +442,9 @@ struct TennisScoreboardView: View {
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            if let previousIdleTimerDisabled {
+                UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
+            }
             let skipPersist = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
@@ -476,7 +511,7 @@ struct TennisScoreboardView: View {
                 screenSide: screenSide,
                 side: side,
                 height: size.height * 0.56,
-                panelHeight: size.height
+                panelSize: size
             )
             Spacer(minLength: 0)
         }
@@ -548,7 +583,12 @@ struct TennisScoreboardView: View {
             ? nil
             : TennisDoublesServing.currentReceiverSlot(in: store.state)
         let rowHeight = size.height / 3
-        let nameFontSize = (Theme.usesPadLayout ? 28.0 : 22.0) * tennisNameMultiplier
+        let nameFontSize = ScoreboardLayoutMetrics.teamNameFontSize(
+            halfViewportHeight: size.height
+        ) * tennisNameMultiplier
+        let serveIndicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+            halfViewportSize: size
+        )
 
         return ZStack {
             isLeft ? appearance.theme.palette.left : appearance.theme.palette.right
@@ -567,13 +607,14 @@ struct TennisScoreboardView: View {
                         isReceiver: receiverSlot == slots.top,
                         screenSide: screenSide,
                         fontSize: nameFontSize,
+                        serveIndicatorSize: serveIndicatorSize,
                         height: rowHeight
                     )
                     tennisScoreRow(
                         screenSide: screenSide,
                         side: side,
                         height: rowHeight,
-                        panelHeight: size.height
+                        panelSize: size
                     )
                     tennisDoublesNameRow(
                         name: names.indices.contains(slots.bottom) ? names[slots.bottom] : "",
@@ -581,6 +622,7 @@ struct TennisScoreboardView: View {
                         isReceiver: receiverSlot == slots.bottom,
                         screenSide: screenSide,
                         fontSize: nameFontSize,
+                        serveIndicatorSize: serveIndicatorSize,
                         height: rowHeight
                     )
                 }
@@ -610,57 +652,88 @@ struct TennisScoreboardView: View {
         let points = store.state.scoreDisplay(for: side)
         let games = isLeft ? store.state.leftGames : store.state.rightGames
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.compactEditMainScoreFontSize(
+        let usesCompactHeight = size.height < 420
+        let regularMainSize = ScoreboardLayoutMetrics.compactEditMainScoreFontSize(
             regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height)
                 * tennisScoreMultiplier,
             rowHeight: size.height / 3
         )
-        let secondarySize = ScoreboardLayoutMetrics.compactEditSecondaryScoreFontSize(
+        let regularSecondarySize = ScoreboardLayoutMetrics.compactEditSecondaryScoreFontSize(
             regularSize: ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height)
                 * tennisSecondaryMultiplier,
             rowHeight: size.height / 3
         )
-        let nameSize = (Theme.usesPadLayout ? 28.0 : 22.0) * tennisNameMultiplier
+        let regularNameSize = ScoreboardLayoutMetrics.teamNameFontSize(
+            halfViewportHeight: size.height
+        ) * tennisNameMultiplier
+        let mainSize = usesCompactHeight ? min(34, regularMainSize) : regularMainSize
+        let secondarySize = usesCompactHeight ? min(24, regularSecondarySize) : regularSecondarySize
+        let nameSize = usesCompactHeight
+            ? min(28, max(20, (size.height * 0.07).rounded()))
+            : regularNameSize
+        let contentSpacing: CGFloat = usesCompactHeight ? 4 : (Theme.usesPadLayout ? 16 : 8)
+        let nameSpacing: CGFloat = usesCompactHeight ? 3 : (Theme.usesPadLayout ? 10 : 6)
+        let fieldVerticalPadding: CGFloat = usesCompactHeight ? 2 : (Theme.usesPadLayout ? 10 : 6)
+        let controlSize: CGFloat? = usesCompactHeight ? 30 : nil
+        let topPadding = usesCompactHeight
+            ? CGFloat(52)
+            : ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height, isEditMode: true)
+        let bottomPadding: CGFloat = usesCompactHeight ? 4 : (Theme.usesPadLayout ? 36 : 12)
 
-        return VStack(spacing: Theme.usesPadLayout ? 16 : 8) {
-            VStack(spacing: Theme.usesPadLayout ? 10 : 6) {
-                tennisDoublesEditNameField(slot: slots.top, fontSize: nameSize)
-                tennisDoublesEditNameField(slot: slots.bottom, fontSize: nameSize)
-            }
+        return ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: contentSpacing) {
+                VStack(spacing: nameSpacing) {
+                    tennisDoublesEditNameField(
+                        slot: slots.top,
+                        fontSize: nameSize,
+                        verticalPadding: fieldVerticalPadding
+                    )
+                    tennisDoublesEditNameField(
+                        slot: slots.bottom,
+                        fontSize: nameSize,
+                        verticalPadding: fieldVerticalPadding
+                    )
+                }
 
-            tennisEditAdjustRow(
-                label: NSLocalizedString("tennis_point_score", value: "小分", comment: ""),
-                value: points,
-                fontSize: mainSize,
-                canDecrement: (isLeft ? store.state.leftPoints : store.state.rightPoints) > 0,
-                onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
-            )
-
-            if store.state.rules.setScoringMode != .tiebreakOnly {
                 tennisEditAdjustRow(
-                    label: NSLocalizedString("tennis_game_score", value: "局分", comment: ""),
-                    value: "\(games)",
-                    fontSize: secondarySize,
-                    canDecrement: games > 0,
-                    useSecondaryColor: true,
-                    onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
-                    onIncrement: { dispatch(.adjustGames(side: side, delta: 1)) }
+                    label: NSLocalizedString("tennis_point_score", value: "小分", comment: ""),
+                    value: points,
+                    fontSize: mainSize,
+                    canDecrement: (isLeft ? store.state.leftPoints : store.state.rightPoints) > 0,
+                    controlSize: controlSize,
+                    onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
+                    onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
                 )
-                tennisEditAdjustRow(
-                    label: NSLocalizedString("tennis_set_score", value: "盘分", comment: ""),
-                    value: "\(sets)",
-                    fontSize: secondarySize,
-                    canDecrement: sets > 0,
-                    useSecondaryColor: true,
-                    onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                    onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
-                )
+
+                if store.state.rules.setScoringMode != .tiebreakOnly {
+                    tennisEditAdjustRow(
+                        label: NSLocalizedString("tennis_game_score", value: "局分", comment: ""),
+                        value: "\(games)",
+                        fontSize: secondarySize,
+                        canDecrement: games > 0,
+                        useSecondaryColor: true,
+                        controlSize: controlSize,
+                        onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
+                        onIncrement: { dispatch(.adjustGames(side: side, delta: 1)) }
+                    )
+                    tennisEditAdjustRow(
+                        label: NSLocalizedString("tennis_set_score", value: "盘分", comment: ""),
+                        value: "\(sets)",
+                        fontSize: secondarySize,
+                        canDecrement: sets > 0,
+                        useSecondaryColor: true,
+                        controlSize: controlSize,
+                        onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
+                        onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
+                    )
+                }
             }
+            .padding(.horizontal, Theme.usesPadLayout ? 36 : 16)
+            .padding(.top, topPadding)
+            .padding(.bottom, bottomPadding)
+            .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, Theme.usesPadLayout ? 36 : 16)
-        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height, isEditMode: true))
-        .padding(.bottom, Theme.usesPadLayout ? 36 : 12)
+        .scrollDisabled(!usesCompactHeight)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .accessibilityIdentifier(screenSide == .left
             ? "tennis_doubles_left_edit_panel"
@@ -683,7 +756,11 @@ struct TennisScoreboardView: View {
             : "tennis_right_name_edit")
     }
 
-    private func tennisDoublesEditNameField(slot: Int, fontSize: CGFloat) -> some View {
+    private func tennisDoublesEditNameField(
+        slot: Int,
+        fontSize: CGFloat,
+        verticalPadding: CGFloat
+    ) -> some View {
         let fallback = store.state.doublesPlayerNames?.indices.contains(slot) == true
             ? store.state.doublesPlayerNames?[slot] ?? ""
             : ""
@@ -704,7 +781,7 @@ struct TennisScoreboardView: View {
         .multilineTextAlignment(.center)
         .textFieldStyle(.plain)
         .padding(.horizontal, 12)
-        .padding(.vertical, Theme.usesPadLayout ? 10 : 6)
+        .padding(.vertical, verticalPadding)
         .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.12)))
         .accessibilityIdentifier("tennis_doubles_player_\(slot)_edit")
     }
@@ -715,6 +792,7 @@ struct TennisScoreboardView: View {
         fontSize: CGFloat,
         canDecrement: Bool,
         useSecondaryColor: Bool = false,
+        controlSize: CGFloat? = nil,
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) -> some View {
@@ -723,7 +801,12 @@ struct TennisScoreboardView: View {
                 .font(.caption.bold())
                 .foregroundStyle(appearance.theme.palette.secondary)
             HStack(spacing: Theme.usesPadLayout ? 20 : 10) {
-                tennisEditControl(systemName: "minus", enabled: canDecrement, action: onDecrement)
+                tennisEditControl(
+                    systemName: "minus",
+                    enabled: canDecrement,
+                    size: controlSize,
+                    action: onDecrement
+                )
                 Text(value)
                     .font(appearance.font.swiftUIFont(size: fontSize, weight: .bold))
                     .foregroundStyle(useSecondaryColor
@@ -733,7 +816,12 @@ struct TennisScoreboardView: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .frame(minWidth: Theme.usesPadLayout ? 100 : 70)
-                tennisEditControl(systemName: "plus", enabled: true, action: onIncrement)
+                tennisEditControl(
+                    systemName: "plus",
+                    enabled: true,
+                    size: controlSize,
+                    action: onIncrement
+                )
             }
         }
     }
@@ -741,9 +829,10 @@ struct TennisScoreboardView: View {
     private func tennisEditControl(
         systemName: String,
         enabled: Bool,
+        size: CGFloat? = nil,
         action: @escaping () -> Void
     ) -> some View {
-        let controlSize: CGFloat = Theme.usesPadLayout ? 48 : 36
+        let controlSize = size ?? (Theme.usesPadLayout ? 48 : 36)
         return Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: Theme.usesPadLayout ? 22 : 17, weight: .bold))
@@ -761,13 +850,16 @@ struct TennisScoreboardView: View {
         screenSide: MatchSide,
         side: MatchSide,
         height: CGFloat,
-        panelHeight: CGFloat
+        panelSize: CGSize
     ) -> some View {
         let isLeft = side == .left
         let games = isLeft ? store.state.leftGames : store.state.rightGames
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelHeight)
+        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelSize.height)
             * tennisScoreMultiplier * 0.85
+        let scoreSpacing = ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(
+            halfViewportWidth: panelSize.width
+        )
 
         if store.state.rules.setScoringMode == .tiebreakOnly {
             tennisMainScore(side: side, fontSize: mainSize)
@@ -778,11 +870,13 @@ struct TennisScoreboardView: View {
                 if screenSide == .left {
                     tennisMainScore(side: side, fontSize: mainSize)
                         .frame(maxWidth: .infinity)
-                    tennisInnerScoreColumn(games: games, sets: sets, panelHeight: panelHeight)
+                    Color.clear.frame(width: scoreSpacing)
+                    tennisInnerScoreColumn(games: games, sets: sets, panelHeight: panelSize.height)
                     Color.clear.frame(width: Theme.usesPadLayout ? 56 : 42)
                 } else {
                     Color.clear.frame(width: Theme.usesPadLayout ? 56 : 42)
-                    tennisInnerScoreColumn(games: games, sets: sets, panelHeight: panelHeight)
+                    tennisInnerScoreColumn(games: games, sets: sets, panelHeight: panelSize.height)
+                    Color.clear.frame(width: scoreSpacing)
                     tennisMainScore(side: side, fontSize: mainSize)
                         .frame(maxWidth: .infinity)
                 }
@@ -877,6 +971,7 @@ struct TennisScoreboardView: View {
         isReceiver: Bool,
         screenSide: MatchSide,
         fontSize: CGFloat,
+        serveIndicatorSize: CGFloat,
         height: CGFloat
     ) -> some View {
         ZStack {
@@ -889,15 +984,16 @@ struct TennisScoreboardView: View {
                 .minimumScaleFactor(0.65)
                 .padding(.horizontal, 36)
             if isServer {
-                Image(systemName: "arrowtriangle.right.fill")
-                    .font(.caption.bold())
-                    .foregroundStyle(Color(hex: "30D158"))
-                    .rotationEffect(.degrees(screenSide == .left ? 0 : 180))
+                ServeTriangleIndicator(
+                    direction: screenSide == .left ? .right : .left,
+                    triangleSize: serveIndicatorSize,
+                    color: Color(hex: "30D158")
+                )
                     .frame(
                         maxWidth: .infinity,
                         alignment: screenSide == .left ? .trailing : .leading
                     )
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, max(10, serveIndicatorSize * 0.3))
             }
         }
         .frame(maxWidth: .infinity)
@@ -914,6 +1010,46 @@ struct TennisScoreboardView: View {
 
     private var tennisSecondaryMultiplier: CGFloat {
         CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: .tennis)[ScoreboardFontMetric.secondary.rawValue] ?? 1)
+    }
+
+    private var shouldShowChrome: Bool {
+        !appearance.immersiveMode || chromeVisible || isEditMode || showDisplaySettings || showMenu
+    }
+
+    private func revealImmersiveChrome() {
+        chromeVisible = true
+        immersiveGeneration += 1
+        guard appearance.immersiveMode,
+              !isEditMode,
+              !showDisplaySettings,
+              !showMenu,
+              !showGameOverDialog else { return }
+        let hideDelay: TimeInterval
+        if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
+            hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
+        } else {
+            hideDelay = 1.5
+        }
+        let generation = immersiveGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideDelay) {
+            guard generation == immersiveGeneration,
+                  appearance.immersiveMode,
+                  !isEditMode,
+                  !showDisplaySettings,
+                  !showMenu,
+                  !showGameOverDialog else { return }
+            if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
+            chromeVisible = false
+        }
+    }
+
+    private func updateImmersiveForBlocking() {
+        if showMenu || showDisplaySettings || isEditMode || showGameOverDialog || !appearance.immersiveMode {
+            immersiveGeneration += 1
+            chromeVisible = true
+        } else {
+            revealImmersiveChrome()
+        }
     }
 
     private func toggleEditMode() {
@@ -933,6 +1069,7 @@ struct TennisScoreboardView: View {
         }
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         VibrationManager.shared.vibrateMedium()
+        revealImmersiveChrome()
     }
 
     private func syncEditNamesFromState() {
@@ -978,6 +1115,7 @@ struct TennisScoreboardView: View {
         store.send(intent) { events in
             handleSideChangeToasts(events)
         }
+        revealImmersiveChrome()
     }
 
     private func handleSideChangeToasts(_ events: [TennisMatchEvent]) {
@@ -1201,12 +1339,33 @@ struct TennisScoreboardView: View {
         }
     }
 
+    private func requestBack() {
+        let now = Date()
+        if exitConfirmDeadline.map({ now <= $0 }) != true {
+            exitConfirmDeadline = now.addingTimeInterval(2)
+            showToast(NSLocalizedString("press_again_to_exit", value: "再按一次退出", comment: ""))
+            revealImmersiveChrome()
+            return
+        }
+        goBack()
+    }
+
     private func performUndo() {
         guard !isEditMode, !scoringLocked else { return }
+        revealImmersiveChrome()
         store.undo { success in
-            toastMessage = success
+            showToast(success
                 ? NSLocalizedString("undone", value: "已撤销", comment: "Undo done")
-                : NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: "")
+                : NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
+        }
+    }
+
+    private func showToast(_ message: String) {
+        toastMessage = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if toastMessage == message {
+                toastMessage = nil
+            }
         }
     }
 

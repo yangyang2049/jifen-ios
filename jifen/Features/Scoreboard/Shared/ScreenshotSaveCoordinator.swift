@@ -83,7 +83,7 @@ final class ScreenshotSaveCoordinator: ObservableObject {
     @Published private(set) var overlayMode: ScreenshotSaveOverlayMode = .hidden
     @Published private(set) var image: UIImage?
     @Published private(set) var dialogProgress: Double = 1
-    @Published private(set) var savedFeedbackOffset: CGFloat = 0
+    @Published private(set) var savedFeedbackProgress: CGFloat = 0
     @Published private(set) var savedFeedbackOpacity: Double = 1
     @Published private(set) var toastMessage: String?
 
@@ -114,7 +114,7 @@ final class ScreenshotSaveCoordinator: ObservableObject {
         photoLibrary: ScreenshotPhotoLibraryServing,
         dialogAutoCloseTime: TimeInterval = 5,
         feedbackHoldTime: TimeInterval = 0.35,
-        feedbackAnimationTime: TimeInterval = 0.45,
+        feedbackAnimationTime: TimeInterval = 0.9,
         settingsOpener: @escaping @MainActor () -> Void
     ) {
         self.photoLibrary = photoLibrary
@@ -310,7 +310,7 @@ final class ScreenshotSaveCoordinator: ObservableObject {
         guard generation == operationGeneration else { return }
         pauseDialogCountdown()
         overlayMode = .saved
-        savedFeedbackOffset = 0
+        savedFeedbackProgress = 0
         savedFeedbackOpacity = 1
 
         feedbackTask?.cancel()
@@ -318,11 +318,21 @@ final class ScreenshotSaveCoordinator: ObservableObject {
             guard let self else { return }
             try? await Task.sleep(for: .seconds(self.feedbackHoldTime))
             guard !Task.isCancelled, generation == self.operationGeneration else { return }
-            withAnimation(.easeInOut(duration: self.feedbackAnimationTime)) {
-                self.savedFeedbackOffset = 28
+
+            let totalDuration = max(0.01, self.feedbackAnimationTime)
+            let moveDuration = totalDuration * 0.8
+            let fadeDuration = totalDuration - moveDuration
+
+            withAnimation(.easeInOut(duration: moveDuration)) {
+                self.savedFeedbackProgress = 1
+            }
+            try? await Task.sleep(for: .seconds(moveDuration))
+            guard !Task.isCancelled, generation == self.operationGeneration else { return }
+
+            withAnimation(.easeOut(duration: fadeDuration)) {
                 self.savedFeedbackOpacity = 0
             }
-            try? await Task.sleep(for: .seconds(self.feedbackAnimationTime))
+            try? await Task.sleep(for: .seconds(fadeDuration))
             guard !Task.isCancelled, generation == self.operationGeneration else { return }
             self.overlayMode = .hidden
             self.image = nil
@@ -350,7 +360,7 @@ final class ScreenshotSaveCoordinator: ObservableObject {
     }
 
     private func resetSavedFeedback() {
-        savedFeedbackOffset = 0
+        savedFeedbackProgress = 0
         savedFeedbackOpacity = 1
     }
 }
@@ -398,9 +408,16 @@ struct ScreenshotSaveOverlay: View {
                 }
 
             GeometryReader { proxy in
-                let cardWidth: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 360 : 280
-                let previewWidth = cardWidth - 42
-                let previewHeight: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 170 : 120
+                let cardWidth = Theme.dialogWidth(
+                    availableWidth: proxy.size.width,
+                    phonePreferredWidth: 280,
+                    padPreferredWidth: 420
+                )
+                let previewWidth = max(0, cardWidth - 42)
+                let previewHeight = min(
+                    Theme.usesPadLayout ? 200 : 120,
+                    previewWidth * 0.56
+                )
 
                 VStack(spacing: 0) {
                     Image(uiImage: image)
@@ -479,21 +496,38 @@ struct ScreenshotSaveOverlay: View {
     }
 
     private func savedThumbnail(image: UIImage) -> some View {
-        VStack {
-            Spacer()
+        GeometryReader { proxy in
+            let progress = reduceMotion
+                ? CGFloat(1)
+                : min(max(coordinator.savedFeedbackProgress, 0), 1)
+            let targetWidth: CGFloat = 120
+            let targetHeight: CGFloat = 80
+            let preferredInitialWidth: CGFloat = Theme.usesPadLayout ? 320 : 240
+            let availableWidth = max(targetWidth, proxy.size.width - 48)
+            let availableHeight = max(targetHeight, proxy.size.height - 48)
+            let unconstrainedInitialWidth = min(preferredInitialWidth, availableWidth)
+            let unconstrainedInitialHeight = unconstrainedInitialWidth * targetHeight / targetWidth
+            let initialScale = min(1, availableHeight / unconstrainedInitialHeight)
+            let initialWidth = max(targetWidth, unconstrainedInitialWidth * initialScale)
+            let initialHeight = max(targetHeight, unconstrainedInitialHeight * initialScale)
+            let currentWidth = initialWidth + (targetWidth - initialWidth) * progress
+            let currentHeight = initialHeight + (targetHeight - initialHeight) * progress
+            let centerY = proxy.size.height / 2
+            let targetCenterY = max(targetHeight / 2, proxy.size.height - 100 - targetHeight / 2)
+            let currentCenterY = centerY + (targetCenterY - centerY) * progress
+
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 120, height: 80)
+                .frame(width: currentWidth, height: currentHeight)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(Color.white.opacity(0.3), lineWidth: 1)
                 }
                 .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                .offset(y: reduceMotion ? 0 : coordinator.savedFeedbackOffset)
+                .position(x: proxy.size.width / 2, y: currentCenterY)
                 .opacity(coordinator.savedFeedbackOpacity)
-                .padding(.bottom, 100)
                 .accessibilityIdentifier("screenshot_saved_feedback")
         }
     }

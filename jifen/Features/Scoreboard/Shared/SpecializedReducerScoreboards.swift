@@ -2600,7 +2600,11 @@ struct SnookerReducerScoreboardView: View {
 
     private var snookerFoulOverlay: some View {
         GeometryReader { proxy in
-            let panelWidth = min(Theme.usesPadLayout ? 360 : 320, max(280, proxy.size.width - 32))
+            let panelWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                phonePreferredWidth: 320,
+                padPreferredWidth: 420
+            )
 
             ZStack {
                 Color.black.opacity(0.38)

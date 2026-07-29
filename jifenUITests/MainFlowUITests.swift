@@ -242,6 +242,113 @@ final class MainFlowUITests: XCTestCase {
         addScreenshot("Fullscreen barrage editor - English dark")
     }
 
+    func testBoardTimerPauseAndManualEndFlow() {
+        let app = launchChineseApp()
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(app.tabBars.buttons["计时"].waitForExistence(timeout: 8))
+        app.tabBars.buttons["计时"].tap()
+        let checkers = app.descendants(matching: .any)["timer_dest_checkers"]
+        XCTAssertTrue(scrollUntilExists(checkers, in: app))
+        checkers.tap()
+
+        let setupStart = app.buttons["开始"].firstMatch
+        XCTAssertTrue(setupStart.waitForExistence(timeout: 5))
+        setupStart.tap()
+
+        let boardStart = app.buttons["board_timer_start_button"]
+        XCTAssertTrue(boardStart.waitForExistence(timeout: 8))
+        let firstIndicator = app.buttons["board_timer_first_indicator_player_1"]
+        XCTAssertTrue(firstIndicator.exists)
+        firstIndicator.tap()
+        let boardToast = app.descendants(matching: .any)["board_timer_toast"]
+        XCTAssertTrue(boardToast.waitForExistence(timeout: 2))
+        XCTAssertTrue(boardToast.label.contains("红方先手"))
+
+        let initialIndicatorFrame = firstIndicator.frame
+        app.buttons["board_timer_swap_button"].tap()
+        XCTAssertTrue(firstIndicator.waitForExistence(timeout: 2))
+        XCTAssertNotEqual(firstIndicator.frame.midX, initialIndicatorFrame.midX)
+
+        boardStart.tap()
+        let player1Hint = app.buttons["board_timer_tap_hint_player_1"]
+        XCTAssertTrue(player1Hint.waitForExistence(timeout: 3))
+
+        app.descendants(matching: .any)["board_timer_player_2"].tap()
+        XCTAssertTrue(player1Hint.exists, "Tapping the inactive player must not change turns")
+        player1Hint.tap()
+
+        let player2Hint = app.buttons["board_timer_tap_hint_player_2"]
+        XCTAssertTrue(player2Hint.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["board_timer_pause_button"].exists)
+        app.buttons["board_timer_pause_button"].tap()
+
+        let thinkingIndicator = app.buttons["board_timer_thinking_indicator_player_2"]
+        XCTAssertTrue(thinkingIndicator.waitForExistence(timeout: 3))
+        thinkingIndicator.tap()
+        XCTAssertTrue(boardToast.waitForExistence(timeout: 2))
+        XCTAssertTrue(boardToast.label.contains("黑方思考中"))
+        app.buttons["board_timer_back_button"].tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
+        app.alerts.firstMatch.buttons["取消"].tap()
+
+        XCTAssertTrue(app.buttons["board_timer_resume_button"].exists)
+        XCTAssertTrue(app.buttons["board_timer_thinking_indicator_player_2"].exists)
+        app.buttons["board_timer_stop_button"].tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
+        app.alerts.firstMatch.buttons["确定"].tap()
+
+        XCTAssertTrue(app.descendants(matching: .any)["board_timer_game_over_result"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["手动结束"].exists)
+        XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "获胜")).firstMatch.exists)
+
+        app.buttons["board_timer_restart_button"].tap()
+        XCTAssertTrue(firstIndicator.waitForExistence(timeout: 3))
+        XCTAssertEqual(firstIndicator.frame.midX, initialIndicatorFrame.midX, accuracy: 2)
+    }
+
+    func testFullscreenBarrageRotateButtonWorks() {
+        let app = launchChineseApp(arguments: ["-UITestOpenTools"])
+        defer { app.terminate() }
+
+        XCTAssertTrue(openToolsList(in: app))
+        let barrage = app.descendants(matching: .any)["tool_card_fullscreen_barrage"]
+        XCTAssertTrue(scrollUntilExists(barrage, in: app))
+        barrage.tap()
+
+        let message = app.textFields["barrage_message_field"]
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        message.tap()
+        message.typeText("旋转测试")
+        app.buttons["barrage_start_static"].tap()
+
+        let runningBarrage = app.descendants(matching: .any)["barrage_running"].firstMatch
+        XCTAssertTrue(runningBarrage.waitForExistence(timeout: 5))
+        let rotateButton = app.buttons["旋转屏幕"]
+        XCTAssertTrue(rotateButton.waitForExistence(timeout: 5))
+        let initialWindowFrame = app.windows.firstMatch.frame
+        rotateButton.tap()
+
+        let rotationDeadline = Date().addingTimeInterval(3)
+        var rotationApplied = false
+        repeat {
+            let usedContentFallback = (runningBarrage.value as? String) == "content_rotated"
+            let currentWindowFrame = app.windows.firstMatch.frame
+            let sceneRotated = (initialWindowFrame.width > initialWindowFrame.height)
+                != (currentWindowFrame.width > currentWindowFrame.height)
+            rotationApplied = usedContentFallback || sceneRotated
+            if !rotationApplied {
+                RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+            }
+        } while !rotationApplied && Date() < rotationDeadline
+
+        XCTAssertTrue(rotationApplied, "Rotate button should rotate either the scene or the fallback display surface")
+        XCTAssertTrue(runningBarrage.exists)
+    }
+
     func testAll23RecordDetailFixturesUseProjectMatrix() {
         defer { clearRecordFixtures() }
         let trendProjects: Set<String> = [

@@ -34,7 +34,7 @@ struct AdaptiveSetupDialogScrollView<Content: View>: View {
 
     init(
         maxHeight: CGFloat,
-        bottomClearance: CGFloat = 88,
+        bottomClearance: CGFloat = 12,
         @ViewBuilder content: () -> Content
     ) {
         self.maxHeight = maxHeight
@@ -159,7 +159,10 @@ struct CenteredSetupDialogContainer<Content: View>: View {
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
-            let cardWidth = max(0, min(340, proxy.size.width - 32))
+            let cardWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                role: .setup
+            )
 
             ZStack {
                 Color.black.opacity(0.48)
@@ -206,7 +209,10 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
-            let cardWidth = max(0, min(340, proxy.size.width - 32))
+            let cardWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                role: .setup
+            )
 
             ZStack {
                 if let visibleItem {

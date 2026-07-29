@@ -269,11 +269,17 @@ final class RallySessionStoreTests: XCTestCase {
     }
 
     func testUndoAfterRenameKeepsParticipantsAlignedWithRestoredState() async throws {
+        let archiveRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("rally-participant-undo-\(UUID().uuidString)", isDirectory: true)
+        let archiveRepository = SessionArchiveRepository(rootURL: archiveRoot)
+        defer { try? FileManager.default.removeItem(at: archiveRoot) }
+
         let rally = RallySessionStore(
             leftName: "Before Left",
             rightName: "Before Right",
             gameType: .pingpong,
-            rules: .pingPong()
+            rules: .pingPong(),
+            archiveRepository: archiveRepository
         )
         let renamed = expectation(description: "rally renamed")
         rally.send(.setNames(left: "After Left", right: "After Right")) { _ in renamed.fulfill() }
@@ -284,14 +290,18 @@ final class RallySessionStoreTests: XCTestCase {
         let rallyFlushed = expectation(description: "rally undo persisted")
         rally.flush { rallyFlushed.fulfill() }
         await fulfillment(of: [rallyFlushed], timeout: 2)
-        let rallyBundle = try await SessionArchiveRepository().loadResumeBundle(
+        let rallyBundle = try await archiveRepository.loadResumeBundle(
             sessionId: rally.sessionId,
             as: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self
         )
         XCTAssertEqual(rally.state.leftName, "Before Left")
         XCTAssertEqual(rallyBundle?.currentSession.participants.map(\.name), ["Before Left", "Before Right"])
 
-        let tennis = TennisSessionStore(leftName: "Before Left", rightName: "Before Right")
+        let tennis = TennisSessionStore(
+            leftName: "Before Left",
+            rightName: "Before Right",
+            archiveRepository: archiveRepository
+        )
         let tennisRenamed = expectation(description: "tennis renamed")
         tennis.send(.setNames(left: "After Left", right: "After Right")) { _ in tennisRenamed.fulfill() }
         await fulfillment(of: [tennisRenamed], timeout: 2)
@@ -301,14 +311,18 @@ final class RallySessionStoreTests: XCTestCase {
         let tennisFlushed = expectation(description: "tennis undo persisted")
         tennis.flush { tennisFlushed.fulfill() }
         await fulfillment(of: [tennisFlushed], timeout: 2)
-        let tennisBundle = try await SessionArchiveRepository().loadResumeBundle(
+        let tennisBundle = try await archiveRepository.loadResumeBundle(
             sessionId: tennis.sessionId,
             as: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self
         )
         XCTAssertEqual(tennis.state.leftName, "Before Left")
         XCTAssertEqual(tennisBundle?.currentSession.participants.map(\.name), ["Before Left", "Before Right"])
 
-        let basketball = BasketballSessionStore(leftName: "Before Left", rightName: "Before Right")
+        let basketball = BasketballSessionStore(
+            leftName: "Before Left",
+            rightName: "Before Right",
+            archiveRepository: archiveRepository
+        )
         basketball.send(.rename(side: .left, name: "After Left"))
         let basketballFlushed = expectation(description: "basketball renamed")
         basketball.flush { basketballFlushed.fulfill() }
@@ -319,7 +333,7 @@ final class RallySessionStoreTests: XCTestCase {
         let basketballUndoFlushed = expectation(description: "basketball undo persisted")
         basketball.flush { basketballUndoFlushed.fulfill() }
         await fulfillment(of: [basketballUndoFlushed], timeout: 2)
-        let basketballBundle = try await SessionArchiveRepository().loadResumeBundle(
+        let basketballBundle = try await archiveRepository.loadResumeBundle(
             sessionId: basketball.sessionId,
             as: ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>.self
         )

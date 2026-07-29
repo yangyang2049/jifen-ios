@@ -281,7 +281,7 @@ struct GameOverDialog: View {
                     .padding(.horizontal, usesTabletSpacing ? 28 : 20)
                     .padding(.bottom, usesTabletSpacing ? 28 : 16)
                 }
-                .frame(maxWidth: usesTabletSpacing ? 420 : 360)
+                .frame(maxWidth: Theme.dialogPreferredWidth(role: .gameOver))
                 .background(dialogBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .accessibilityIdentifier("game_over_dialog")

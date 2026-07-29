@@ -49,7 +49,10 @@ struct NineBallSetupDialogView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
         } content: { maxContentHeight in
-            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
+            AdaptiveSetupDialogScrollView(
+                maxHeight: maxContentHeight,
+                bottomClearance: canStartOnWatch && showWatchStartGuide ? 88 : 12
+            ) {
                 VStack(spacing: 18) {
                     Picker("", selection: $playerCount) {
                         ForEach(2...4, id: \.self) { count in

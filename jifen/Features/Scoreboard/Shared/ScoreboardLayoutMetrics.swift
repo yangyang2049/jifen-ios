@@ -25,6 +25,15 @@ enum ScoreboardLayoutMetrics {
     private static let mainToSetGapScale: CGFloat = 0.025
     private static let mainToSetGapMax: CGFloat = 24
 
+    private static let inlineScoreGapBase: CGFloat = 24
+    private static let inlineScoreGapBaseViewportWidth: CGFloat = 320
+    private static let inlineScoreGapViewportWidthScale: CGFloat = 0.08
+    private static let inlineScoreGapMax: CGFloat = 64
+
+    private static let serveIndicatorBaseSize: CGFloat = 36
+    private static let serveIndicatorViewportScale: CGFloat = 0.10
+    private static let serveIndicatorMaxSize: CGFloat = 64
+
     /// HarmonyOS uses the displayed main-score size as the source of truth and
     /// renders it at 70% while the inline +/- controls are visible.
     private static let editMainScoreScale: CGFloat = 0.7
@@ -37,6 +46,23 @@ enum ScoreboardLayoutMetrics {
 
     static func clampRound(_ value: CGFloat, min: CGFloat, max: CGFloat) -> CGFloat {
         Swift.min(max, Swift.max(min, value.rounded()))
+    }
+
+    /// Fits fixed-column controls inside a responsive card. The minimum is a
+    /// compact-window fallback; normal phone and tablet widths keep the
+    /// preferred visual size.
+    static func fittedGridItemSize(
+        containerWidth: CGFloat,
+        columns: Int,
+        spacing: CGFloat,
+        horizontalPadding: CGFloat,
+        preferredSize: CGFloat,
+        minimumSize: CGFloat
+    ) -> CGFloat {
+        guard columns > 0 else { return 0 }
+        let totalSpacing = CGFloat(max(0, columns - 1)) * spacing
+        let fitted = (containerWidth - horizontalPadding * 2 - totalSpacing) / CGFloat(columns)
+        return Swift.min(preferredSize, Swift.max(minimumSize, fitted.rounded(.down)))
     }
 
     /// `halfViewportHeight` = one side panel's measured height (full height in landscape).
@@ -112,6 +138,29 @@ enum ScoreboardLayoutMetrics {
             mainToSetGapBase + extra * mainToSetGapScale,
             min: mainToSetGapBase,
             max: mainToSetGapMax
+        )
+    }
+
+    /// Horizontal spacing for layouts that place the main score and the
+    /// set/game score on the same row. The measured half-panel width is used
+    /// so iPad, Split View and resizable windows do not depend on device pixels.
+    static func inlineMainToSecondarySpacing(halfViewportWidth: CGFloat) -> CGFloat {
+        let extra = Swift.max(0, halfViewportWidth - inlineScoreGapBaseViewportWidth)
+        return clampRound(
+            inlineScoreGapBase + extra * inlineScoreGapViewportWidthScale,
+            min: inlineScoreGapBase,
+            max: inlineScoreGapMax
+        )
+    }
+
+    /// Serving triangle size derived from one side panel's measured viewport.
+    /// Phones keep the existing 36pt size while tablets scale up smoothly.
+    static func serveIndicatorSize(halfViewportSize: CGSize) -> CGFloat {
+        let shortEdge = Swift.min(halfViewportSize.width, halfViewportSize.height)
+        return clampRound(
+            shortEdge * serveIndicatorViewportScale,
+            min: serveIndicatorBaseSize,
+            max: serveIndicatorMaxSize
         )
     }
 

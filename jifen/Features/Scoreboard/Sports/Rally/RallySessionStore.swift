@@ -48,7 +48,8 @@ final class RallySessionStore {
         rules: RallyRuleSet,
         participants: [SessionParticipant]? = nil,
         openingServer: MatchSide = .left,
-        voiceAnnouncementEnabled: Bool = false
+        voiceAnnouncementEnabled: Bool = false,
+        archiveRepository: SessionArchiveRepository? = nil
     ) {
         let providedParticipants = participants?.filter { !$0.name.isEmpty }
         let initial = RallyMatchEngine.initial(
@@ -66,7 +67,8 @@ final class RallySessionStore {
             gameType: gameType,
             state: initial,
             participants: providedParticipants,
-            voiceAnnouncementEnabled: voiceAnnouncementEnabled
+            voiceAnnouncementEnabled: voiceAnnouncementEnabled,
+            archiveRepository: archiveRepository
         )
     }
 
@@ -74,7 +76,8 @@ final class RallySessionStore {
         gameType: ScoreCore.GameType,
         state: RallyMatchState,
         participants: [SessionParticipant]? = nil,
-        voiceAnnouncementEnabled: Bool = false
+        voiceAnnouncementEnabled: Bool = false,
+        archiveRepository: SessionArchiveRepository? = nil
     ) {
         let sessionParticipants = participants ?? [
             .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
@@ -88,19 +91,24 @@ final class RallySessionStore {
             participants: sessionParticipants,
             metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
         )
-        self.init(session: session, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
+        self.init(
+            session: session,
+            voiceAnnouncementEnabled: voiceAnnouncementEnabled,
+            archiveRepository: archiveRepository
+        )
     }
 
     private init(
         session: ScoreSession<RallyMatchState, RallyMatchEvent>,
-        voiceAnnouncementEnabled: Bool
+        voiceAnnouncementEnabled: Bool,
+        archiveRepository: SessionArchiveRepository? = nil
     ) {
         gameType = session.gameType
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
         startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
         core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
-        archiveRepository = SessionArchiveRepository()
+        self.archiveRepository = archiveRepository ?? SessionArchiveRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
         self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
@@ -152,7 +160,8 @@ final class RallySessionStore {
             gameType: gameType,
             state: resetState,
             participants: Self.participants(for: resetState),
-            voiceAnnouncementEnabled: voiceAnnouncementEnabled
+            voiceAnnouncementEnabled: voiceAnnouncementEnabled,
+            archiveRepository: archiveRepository
         )
     }
 

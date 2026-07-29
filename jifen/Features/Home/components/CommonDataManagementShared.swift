@@ -11,20 +11,11 @@ private struct ConditionalSystemSearchModifier: ViewModifier {
     @Binding var text: String
     let prompt: String
     let isEnabled: Bool
-    let isAlwaysVisible: Bool
 
     @ViewBuilder
     func body(content: Content) -> some View {
         if isEnabled {
-            if isAlwaysVisible {
-                content.searchable(
-                    text: $text,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: Text(prompt)
-                )
-            } else {
-                content.searchable(text: $text, prompt: Text(prompt))
-            }
+            content.searchable(text: $text, prompt: Text(prompt))
         } else {
             content
         }
@@ -35,15 +26,13 @@ extension View {
     func systemSearchable(
         text: Binding<String>,
         prompt: String,
-        isEnabled: Bool = true,
-        isAlwaysVisible: Bool = false
+        isEnabled: Bool = true
     ) -> some View {
         modifier(
             ConditionalSystemSearchModifier(
                 text: text,
                 prompt: prompt,
-                isEnabled: isEnabled,
-                isAlwaysVisible: isAlwaysVisible
+                isEnabled: isEnabled
             )
         )
     }
@@ -128,7 +117,10 @@ struct CommonDataBatchEditBar: View {
         }
         .padding(.horizontal, Theme.md)
         .frame(height: 52)
-        .background(Theme.cardBackground)
+        .background(
+            Theme.cardBackground
+                .ignoresSafeArea(edges: .bottom)
+        )
     }
 }
 

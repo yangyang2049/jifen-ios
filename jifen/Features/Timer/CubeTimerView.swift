@@ -114,12 +114,12 @@ struct CubeTimerView: View {
                         }
                     VStack(spacing: 16) {
                         Text(NSLocalizedString("cube_timer_place_hands", value: "双手放在屏幕上准备", comment: ""))
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(size: isTablet ? 20 : 18, weight: .semibold))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                         Text(NSLocalizedString("cube_timer_release_to_start", value: "松开双手开始计时", comment: ""))
-                            .font(.system(size: 15))
-                            .foregroundColor(.white.opacity(0.85))
+                            .font(.system(size: isTablet ? 16 : 15))
+                            .foregroundColor(.white.opacity(0.82))
                             .multilineTextAlignment(.center)
                         Button {
                             showInitialHintDialog = false
@@ -127,7 +127,10 @@ struct CubeTimerView: View {
                             Text(NSLocalizedString("confirm", comment: ""))
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.white)
-                                .frame(minWidth: 200, minHeight: 52)
+                                .frame(
+                                    minWidth: isTablet ? 240 : 200,
+                                    minHeight: isTablet ? 56 : 52
+                                )
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -135,9 +138,17 @@ struct CubeTimerView: View {
                         .clipShape(Capsule())
                         .padding(.top, 8)
                     }
-                    .padding(24)
-                    .background(Color.black.opacity(0.75))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .padding(.horizontal, isTablet ? 36 : 24)
+                    .padding(.vertical, isTablet ? 30 : 24)
+                    .background {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(Color.white.opacity(0.14))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .stroke(Color.white.opacity(0.24), lineWidth: 1)
+                            }
+                    }
+                    .shadow(color: Color.white.opacity(0.08), radius: 18)
                     .padding(.horizontal, 40)
                     .zIndex(1)
                 }

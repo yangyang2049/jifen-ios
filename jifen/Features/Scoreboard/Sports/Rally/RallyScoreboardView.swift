@@ -135,6 +135,9 @@ struct RallyScoreboardView: View {
     var body: some View {
         GeometryReader { proxy in
             let halfH = proxy.size.height
+            let serveIndicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                halfViewportSize: CGSize(width: proxy.size.width / 2, height: halfH)
+            )
             ZStack {
                 palette.background.ignoresSafeArea()
 
@@ -152,7 +155,7 @@ struct RallyScoreboardView: View {
                 }
 
                 if !isEditMode && showsServeIndicator {
-                    serveIndicatorOverlay(size: proxy.size)
+                    serveIndicatorOverlay(size: proxy.size, triangleSize: serveIndicatorSize)
                 }
 
                 if !isEditMode && !store.state.finished {
@@ -160,7 +163,8 @@ struct RallyScoreboardView: View {
                         status: KeyPointResolver.rally(state: store.state),
                         gameType: gameType,
                         sidesSwapped: store.state.sidesSwapped,
-                        doublesTopRow: keyPointDoublesTopRow
+                        doublesTopRow: keyPointDoublesTopRow,
+                        serveIndicatorSize: serveIndicatorSize
                     )
                 }
 
@@ -700,7 +704,7 @@ struct RallyScoreboardView: View {
                         screenSide: screenSide,
                         side: side,
                         height: scoreRowHeight,
-                        panelHeight: size.height
+                        panelSize: size
                     )
                 }
                 doublesNameCell(
@@ -736,14 +740,17 @@ struct RallyScoreboardView: View {
         )
     }
 
-    private func doublesPlayScoreRow(screenSide: MatchSide, side: MatchSide, height: CGFloat, panelHeight: CGFloat) -> some View {
+    private func doublesPlayScoreRow(screenSide: MatchSide, side: MatchSide, height: CGFloat, panelSize: CGSize) -> some View {
         let isLeft = side == .left
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelHeight) * scoreMultiplier * 0.85
-        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: panelHeight) * secondaryMultiplier
+        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelSize.height) * scoreMultiplier * 0.85
+        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: panelSize.height) * secondaryMultiplier
+        let scoreSpacing = ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(
+            halfViewportWidth: panelSize.width
+        )
 
-        return HStack(spacing: 8) {
+        return HStack(spacing: scoreSpacing) {
             if screenSide == .left {
                 Text("\(score)")
                     .font(appearance.font.swiftUIFont(size: mainSize))
@@ -861,7 +868,7 @@ struct RallyScoreboardView: View {
     }
 
     private func doublesNameFontSize(panelHeight: CGFloat) -> CGFloat {
-        (Theme.usesPadLayout ? 28 : 22) * nameMultiplier
+        ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: panelHeight) * nameMultiplier
     }
 
     private func doublesTopSlot(screenSide: MatchSide) -> Int {
@@ -1072,7 +1079,7 @@ struct RallyScoreboardView: View {
     }
 
     @ViewBuilder
-    private func serveIndicatorOverlay(size: CGSize) -> some View {
+    private func serveIndicatorOverlay(size: CGSize, triangleSize: CGFloat) -> some View {
         let servingIsLeftScreen: Bool = {
             let serving = store.state.servingSide
             let leftLogical = logicalSide(forScreen: .left)
@@ -1085,7 +1092,7 @@ struct RallyScoreboardView: View {
             ZStack {
                 CenterLineServeIndicator(
                     isLeftServing: servingIsLeftScreen,
-                    triangleSize: ScoreboardServeGeometry.triangleSize
+                    triangleSize: triangleSize
                 )
                 if let serverNumber = doubles.pickleballServerNumber {
                     Text("\(serverNumber)")
@@ -1105,7 +1112,7 @@ struct RallyScoreboardView: View {
         } else {
             CenterLineServeIndicator(
                 isLeftServing: servingIsLeftScreen,
-                triangleSize: ScoreboardServeGeometry.triangleSize
+                triangleSize: triangleSize
             )
                 .position(x: size.width / 2, y: size.height / 2)
                 .allowsHitTesting(false)

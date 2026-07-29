@@ -61,43 +61,51 @@ struct CommonNamesManagementView: View {
         !isEditMode && !isSearchActive && !showAddSheet && !showEditSheet
     }
 
+    private var showsBatchEditBar: Bool {
+        isEditMode && !filteredNames.isEmpty && !isSearchActive
+    }
+
     var body: some View {
         ZStack {
             Theme.backgroundColor.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                if !isEditMode {
-                    categoryChips
-                        .padding(.horizontal, Theme.md)
-                        .padding(.top, Theme.sm)
-                        .padding(.bottom, Theme.sm)
-                }
+                VStack(spacing: 0) {
+                    if !isEditMode {
+                        categoryChips
+                            .padding(.horizontal, Theme.md)
+                            .padding(.top, Theme.sm)
+                            .padding(.bottom, Theme.sm)
+                    }
 
-                if filteredNames.isEmpty {
-                    emptyState
-                } else {
-                    namesList
-                }
+                    if filteredNames.isEmpty {
+                        emptyState
+                    } else {
+                        namesList
+                    }
 
-                if isEditMode && !filteredNames.isEmpty && !isSearchActive {
+                    if showFloatingAdd {
+                        CommonDataFloatingAddButton(
+                            title: NSLocalizedString("common_names_add", value: "添加", comment: "")
+                        ) {
+                            openAddSheet()
+                        }
+                    }
+                }
+                .frame(
+                    maxWidth: CommonDataManagementChrome.contentMaxWidth,
+                    maxHeight: .infinity
+                )
+
+                if showsBatchEditBar {
                     CommonDataBatchEditBar(
                         allSelected: allFilteredSelected,
                         selectedCount: selectedNames.count,
                         onToggleSelectAll: toggleSelectAll,
                         onDelete: { showBatchDeleteConfirm = true }
                     )
-                } else if showFloatingAdd {
-                    CommonDataFloatingAddButton(
-                        title: NSLocalizedString("common_names_add", value: "添加", comment: "")
-                    ) {
-                        openAddSheet()
-                    }
                 }
             }
-            .frame(
-                maxWidth: CommonDataManagementChrome.contentMaxWidth,
-                maxHeight: .infinity
-            )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if showToast {
@@ -105,7 +113,7 @@ struct CommonNamesManagementView: View {
                     Spacer()
                     ToastView(message: toastMessage)
                         .transition(.opacity)
-                        .padding(.bottom, showFloatingAdd ? 96 : 28)
+                        .padding(.bottom, showFloatingAdd || showsBatchEditBar ? 96 : 28)
                 }
             }
         }
@@ -114,8 +122,7 @@ struct CommonNamesManagementView: View {
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("common_names_search_placeholder", value: "搜索名称", comment: ""),
-            isEnabled: !isEditMode,
-            isAlwaysVisible: true
+            isEnabled: !isEditMode
         )
         .toolbar { toolbarContent }
         .onAppear(perform: reload)

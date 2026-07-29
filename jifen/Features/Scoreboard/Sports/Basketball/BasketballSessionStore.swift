@@ -39,7 +39,8 @@ final class BasketballSessionStore {
         leftName: String,
         rightName: String,
         gameMode: BasketballGameMode = .fiveVFive,
-        ruleSet: BasketballRuleSet = .fiba
+        ruleSet: BasketballRuleSet = .fiba,
+        archiveRepository: SessionArchiveRepository? = nil
     ) {
         let initial = BasketballMatchEngine.initial(
             leftName: leftName,
@@ -58,10 +59,13 @@ final class BasketballSessionStore {
             ],
             metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
         )
-        self.init(session: session)
+        self.init(session: session, archiveRepository: archiveRepository)
     }
 
-    private init(session: ScoreSession<BasketballMatchState, BasketballMatchEvent>) {
+    private init(
+        session: ScoreSession<BasketballMatchState, BasketballMatchEvent>,
+        archiveRepository: SessionArchiveRepository? = nil
+    ) {
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
         startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
@@ -70,7 +74,7 @@ final class BasketballSessionStore {
             reducer: BasketballMatchReducer(),
             shouldFinish: { _, state in state.finished }
         )
-        archiveRepository = SessionArchiveRepository()
+        self.archiveRepository = archiveRepository ?? SessionArchiveRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
     }
@@ -111,7 +115,8 @@ final class BasketballSessionStore {
             leftName: state.leftName,
             rightName: state.rightName,
             gameMode: state.gameMode,
-            ruleSet: state.ruleSet
+            ruleSet: state.ruleSet,
+            archiveRepository: archiveRepository
         )
     }
 

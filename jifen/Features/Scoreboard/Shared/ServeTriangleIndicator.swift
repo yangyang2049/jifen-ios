@@ -7,10 +7,21 @@ enum ScoreboardServeGeometry {
         height * (topRow ? 1 / 6 : 5 / 6)
     }
 
+    static func keyPointBadgeHorizontalOffset(
+        doublesTopRow: Bool?,
+        triangleSize: CGFloat,
+        innerGap: CGFloat = 12,
+        badgeHalfWidth: CGFloat = 28
+    ) -> CGFloat {
+        guard doublesTopRow != nil else { return innerGap + badgeHalfWidth }
+        return triangleSize + innerGap + badgeHalfWidth
+    }
+
     static func keyPointBadgeCenterY(
         height: CGFloat,
         doublesTopRow: Bool?,
-        largeWindow: Bool
+        largeWindow: Bool,
+        triangleSize: CGFloat
     ) -> CGFloat {
         if let doublesTopRow {
             return doublesAnchorY(height: height, topRow: doublesTopRow)

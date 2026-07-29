@@ -233,7 +233,22 @@ private struct BoxingRoundDialog: View {
     private let scoreBottomRow = [7, 6]
 
     var body: some View {
-        ZStack {
+        GeometryReader { proxy in
+            let dialogWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                phonePreferredWidth: 480,
+                padPreferredWidth: 560
+            )
+            let scoreButtonSize = ScoreboardLayoutMetrics.fittedGridItemSize(
+                containerWidth: dialogWidth / 2,
+                columns: 3,
+                spacing: 6,
+                horizontalPadding: 4,
+                preferredSize: 56,
+                minimumSize: 28
+            )
+
+            ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
                 .onTapGesture { onCancel() }
@@ -261,13 +276,15 @@ private struct BoxingRoundDialog: View {
                 HStack(spacing: 0) {
                     teamScoreSelector(
                         name: leftTeamName.isEmpty ? NSLocalizedString("watch_team_red", value: "红方", comment: "Red") : leftTeamName,
-                        selected: $leftScore
+                        selected: $leftScore,
+                        buttonSize: scoreButtonSize
                     )
                     .frame(maxWidth: .infinity)
 
                     teamScoreSelector(
                         name: rightTeamName.isEmpty ? NSLocalizedString("watch_team_blue", value: "蓝方", comment: "Blue") : rightTeamName,
-                        selected: $rightScore
+                        selected: $rightScore,
+                        buttonSize: scoreButtonSize
                     )
                     .frame(maxWidth: .infinity)
                 }
@@ -288,7 +305,7 @@ private struct BoxingRoundDialog: View {
                 .padding(.horizontal, 12)
                 .padding(.bottom, 12)
             }
-            .frame(width: 480, height: 320)
+            .frame(width: dialogWidth, height: 320)
             .background(Color.black.opacity(0.95))
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -298,10 +315,11 @@ private struct BoxingRoundDialog: View {
             .shadow(color: Color.black.opacity(0.35), radius: 32, x: 0, y: 12)
             .onTapGesture { }
         }
+        }
     }
 
     @ViewBuilder
-    private func teamScoreSelector(name: String, selected: Binding<Int>) -> some View {
+    private func teamScoreSelector(name: String, selected: Binding<Int>, buttonSize: CGFloat) -> some View {
         VStack(spacing: 8) {
             Text(name)
                 .font(.system(size: 14, weight: .medium))
@@ -312,12 +330,12 @@ private struct BoxingRoundDialog: View {
             VStack(spacing: 6) {
                 HStack(spacing: 6) {
                     ForEach(scoreTopRow, id: \.self) { value in
-                        scoreButton(value: value, selected: selected)
+                        scoreButton(value: value, selected: selected, size: buttonSize)
                     }
                 }
                 HStack(spacing: 6) {
                     ForEach(scoreBottomRow, id: \.self) { value in
-                        scoreButton(value: value, selected: selected)
+                        scoreButton(value: value, selected: selected, size: buttonSize)
                     }
                 }
             }
@@ -325,14 +343,14 @@ private struct BoxingRoundDialog: View {
         .padding(.horizontal, 4)
     }
 
-    private func scoreButton(value: Int, selected: Binding<Int>) -> some View {
+    private func scoreButton(value: Int, selected: Binding<Int>, size: CGFloat) -> some View {
         Button {
             selected.wrappedValue = value
         } label: {
             Text("\(value)")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.white)
-                .frame(width: 56, height: 56)
+                .frame(width: size, height: size)
                 .background(selected.wrappedValue == value ? Color(hex: "00C853") : Color.white.opacity(0.1))
                 .clipShape(Circle())
         }

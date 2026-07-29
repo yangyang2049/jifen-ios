@@ -7,6 +7,27 @@
 
 import SwiftUI
 
+enum WhistleLayoutPolicy {
+    static let expandedLayoutThreshold: CGFloat = 600
+    static let expandedContentMaxWidth: CGFloat = 800
+    static let expandedOuterPadding: CGFloat = 32
+    static let cardSpacing: CGFloat = 24
+    static let compactCardSize: CGFloat = 240
+
+    static func expandedCardSize(in containerSize: CGSize) -> CGFloat {
+        let availableWidth = max(
+            0,
+            min(
+                expandedContentMaxWidth,
+                containerSize.width - expandedOuterPadding * 2
+            )
+        )
+        let widthBasedSize = max(0, (availableWidth - cardSpacing) / 2)
+        let heightBasedSize = max(0, containerSize.height - expandedOuterPadding * 2)
+        return min(widthBasedSize, heightBasedSize)
+    }
+}
+
 struct WhistleToolView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isPlayingShort = false
@@ -18,16 +39,19 @@ struct WhistleToolView: View {
                 Theme.backgroundColor.ignoresSafeArea()
                 
                 // Content based on device type
-                if geometry.size.width > 600 {
+                if geometry.size.width > WhistleLayoutPolicy.expandedLayoutThreshold {
+                    let cardSize = WhistleLayoutPolicy.expandedCardSize(in: geometry.size)
+
                     // Tablet: Horizontal layout
-                    HStack(spacing: 24) {
-                        buildShortWhistleCard()
-                        buildLongWhistleCard()
+                    HStack(spacing: WhistleLayoutPolicy.cardSpacing) {
+                        buildShortWhistleCard(cardSize: cardSize)
+                        buildLongWhistleCard(cardSize: cardSize)
                     }
-                    .padding(32)
+                    .frame(maxWidth: WhistleLayoutPolicy.expandedContentMaxWidth)
+                    .padding(WhistleLayoutPolicy.expandedOuterPadding)
                 } else {
                     // Phone: Vertical layout - centered cards
-                    VStack(spacing: 24) {
+                    VStack(spacing: WhistleLayoutPolicy.cardSpacing) {
                         Spacer()
                         buildShortWhistleCard()
                         buildLongWhistleCard()
@@ -42,7 +66,9 @@ struct WhistleToolView: View {
     }
     
     @ViewBuilder
-    private func buildShortWhistleCard() -> some View {
+    private func buildShortWhistleCard(
+        cardSize: CGFloat = WhistleLayoutPolicy.compactCardSize
+    ) -> some View {
         Button(action: playShortWhistle) {
             VStack(spacing: 12) {
                 Image(systemName: "bell.fill")
@@ -56,8 +82,9 @@ struct WhistleToolView: View {
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
             }
-            .frame(width: 200, height: 200)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(20)
+            .frame(width: cardSize, height: cardSize)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(
@@ -76,7 +103,9 @@ struct WhistleToolView: View {
     }
     
     @ViewBuilder
-    private func buildLongWhistleCard() -> some View {
+    private func buildLongWhistleCard(
+        cardSize: CGFloat = WhistleLayoutPolicy.compactCardSize
+    ) -> some View {
         Button(action: playLongWhistle) {
             VStack(spacing: 12) {
                 Text("📯")
@@ -89,8 +118,9 @@ struct WhistleToolView: View {
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
             }
-            .frame(width: 200, height: 200)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(20)
+            .frame(width: cardSize, height: cardSize)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(

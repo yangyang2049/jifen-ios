@@ -131,7 +131,8 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             ScoreboardServeGeometry.keyPointBadgeCenterY(
                 height: 360,
                 doublesTopRow: nil,
-                largeWindow: false
+                largeWindow: false,
+                triangleSize: 36
             ),
             138
         )
@@ -139,7 +140,8 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             ScoreboardServeGeometry.keyPointBadgeCenterY(
                 height: 640,
                 doublesTopRow: nil,
-                largeWindow: true
+                largeWindow: true,
+                triangleSize: 36
             ),
             274
         )
@@ -155,7 +157,8 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             ScoreboardServeGeometry.keyPointBadgeCenterY(
                 height: 600,
                 doublesTopRow: true,
-                largeWindow: true
+                largeWindow: true,
+                triangleSize: 64
             ),
             100
         )
@@ -163,9 +166,97 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             ScoreboardServeGeometry.keyPointBadgeCenterY(
                 height: 600,
                 doublesTopRow: false,
-                largeWindow: true
+                largeWindow: true,
+                triangleSize: 64
             ),
             500
+        )
+    }
+
+    func testBadgeSpacingUsesTheRenderedServeIndicatorSize() {
+        XCTAssertEqual(
+            ScoreboardServeGeometry.keyPointBadgeCenterY(
+                height: 640,
+                doublesTopRow: nil,
+                largeWindow: true,
+                triangleSize: 64
+            ),
+            260
+        )
+        XCTAssertEqual(
+            ScoreboardServeGeometry.keyPointBadgeHorizontalOffset(
+                doublesTopRow: nil,
+                triangleSize: 64
+            ),
+            40
+        )
+        XCTAssertEqual(
+            ScoreboardServeGeometry.keyPointBadgeHorizontalOffset(
+                doublesTopRow: true,
+                triangleSize: 64
+            ),
+            104
+        )
+    }
+
+    func testResponsiveInlineGapAndServeIndicatorStayWithinBounds() {
+        XCTAssertEqual(ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: 320), 24)
+        XCTAssertEqual(ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: 600), 46)
+        XCTAssertEqual(ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: 1_000), 64)
+
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.serveIndicatorSize(
+                halfViewportSize: CGSize(width: 320, height: 360)
+            ),
+            36
+        )
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.serveIndicatorSize(
+                halfViewportSize: CGSize(width: 500, height: 700)
+            ),
+            50
+        )
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.serveIndicatorSize(
+                halfViewportSize: CGSize(width: 900, height: 700)
+            ),
+            64
+        )
+    }
+
+    func testDialogGridControlsFitNarrowAndRegularWidths() {
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.fittedGridItemSize(
+                containerWidth: 288,
+                columns: 4,
+                spacing: 10,
+                horizontalPadding: 16,
+                preferredSize: 60,
+                minimumSize: 36
+            ),
+            56
+        )
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.fittedGridItemSize(
+                containerWidth: 144,
+                columns: 3,
+                spacing: 6,
+                horizontalPadding: 4,
+                preferredSize: 56,
+                minimumSize: 28
+            ),
+            41
+        )
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.fittedGridItemSize(
+                containerWidth: 250,
+                columns: 4,
+                spacing: 10,
+                horizontalPadding: 16,
+                preferredSize: 60,
+                minimumSize: 36
+            ),
+            47
         )
     }
 }

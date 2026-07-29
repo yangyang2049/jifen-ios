@@ -7,6 +7,7 @@ struct ScoreboardKeyPointBadgeLayer: View {
     let sidesSwapped: Bool
     /// nil keeps a doubles badge centred; non-nil aligns it to the active player row.
     var doublesTopRow: Bool? = nil
+    var serveIndicatorSize: CGFloat = ScoreboardServeGeometry.triangleSize
 
     var body: some View {
         GeometryReader { proxy in
@@ -15,8 +16,10 @@ struct ScoreboardKeyPointBadgeLayer: View {
                     .screenSide(of: TeamScreenLayout.teamID(forEngine: status.side))
                 let midX = proxy.size.width / 2
                 let largeWindow = min(proxy.size.width, proxy.size.height) >= 600
-                let innerGap: CGFloat = 12
-                let badgeHalfWidth: CGFloat = 28
+                let horizontalOffset = ScoreboardServeGeometry.keyPointBadgeHorizontalOffset(
+                    doublesTopRow: doublesTopRow,
+                    triangleSize: serveIndicatorSize
+                )
                 Text(label(for: status.kind))
                     .font(.system(size: 12, weight: .heavy, design: .rounded))
                     .tracking(0.8)
@@ -24,13 +27,14 @@ struct ScoreboardKeyPointBadgeLayer: View {
                     .frame(width: 56, height: 28)
                     .background(background(for: status.kind), in: RoundedRectangle(cornerRadius: 7))
                     .position(
-                        x: midX + (screenSide == .left ? -(innerGap + badgeHalfWidth) : innerGap + badgeHalfWidth),
+                        x: midX + (screenSide == .left ? -horizontalOffset : horizontalOffset),
                         y: usesDoublesLayout && doublesTopRow == nil
                             ? proxy.size.height / 2
                             : ScoreboardServeGeometry.keyPointBadgeCenterY(
                                 height: proxy.size.height,
                                 doublesTopRow: doublesTopRow,
-                                largeWindow: largeWindow
+                                largeWindow: largeWindow,
+                                triangleSize: serveIndicatorSize
                             )
                     )
             }
