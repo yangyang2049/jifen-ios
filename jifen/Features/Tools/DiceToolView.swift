@@ -153,6 +153,11 @@ struct DiceToolView: View {
         let isSelected = diceCount == count
         return Button {
             diceCount = count
+            AppAnalytics.track(.toolSettingChange, parameters: [
+                .toolID: .string("dice"),
+                .settingName: .string("dice_count"),
+                .settingValue: .string(String(count))
+            ])
             withAnimation(.easeInOut(duration: 0.2)) {
                 showDiceCountDialog = false
             }
@@ -195,6 +200,16 @@ struct DiceToolView: View {
         if !hasRolled {
             hasRolled = true
         }
+        AppAnalytics.track(.toolAction, parameters: [
+            .toolID: .string("dice"),
+            .actionName: .string("roll"),
+            .diceCount: .int(diceCount)
+        ])
+        AppAnalytics.track(.toolResult, parameters: [
+            .toolID: .string("dice"),
+            .diceCount: .int(diceCount),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
     }
 }
 
@@ -233,9 +248,7 @@ struct DiceWebView: UIViewRepresentable {
         webView.scrollView.isScrollEnabled = false
         webView.scrollView.bounces = false
         webView.isHidden = true
-        if #available(iOS 15.0, *) {
-            webView.underPageBackgroundColor = .black
-        }
+        webView.underPageBackgroundColor = .black
 
         if let htmlURL = Bundle.main.url(forResource: "dice", withExtension: "html") {
             context.coordinator.load(htmlURL, in: webView)

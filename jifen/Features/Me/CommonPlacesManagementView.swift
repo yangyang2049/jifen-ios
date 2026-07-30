@@ -93,6 +93,7 @@ struct CommonPlacesManagementView: View {
         }
         .navigationTitle(NSLocalizedString("common_places_title", value: "常用地点", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .analyticsScreen(.commonPlacesPage, source: .homeTab)
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("common_places_search_placeholder", value: "搜索地点", comment: ""),
@@ -114,6 +115,7 @@ struct CommonPlacesManagementView: View {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
             Button(NSLocalizedString("clear", value: "清空", comment: ""), role: .destructive) {
                 manager.clearAll()
+                trackPlaceForm(action: "clear", result: .success)
                 reload()
                 selectedIds.removeAll()
                 isEditMode = false
@@ -403,6 +405,12 @@ struct CommonPlacesManagementView: View {
             return
         }
         let result = manager.addPlacesBatch(values)
+        AppAnalytics.track(.submitForm, parameters: [
+            .contentType: .string("common_place"),
+            .actionName: .string("create"),
+            .participantCount: .int(result.added),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
         reload()
         addInput = ""
         if result.added == 1 && result.skipped == 0 {
@@ -433,14 +441,18 @@ struct CommonPlacesManagementView: View {
         guard let editingPlace else { return }
         do {
             try manager.updatePlace(id: editingPlace.id, name: editInput)
+            trackPlaceForm(action: "update", result: .success)
             reload()
             closeEditSheet()
             showMessage(NSLocalizedString("common_places_updated", value: "已更新", comment: ""))
         } catch CommonPlacesError.emptyName {
+            trackPlaceForm(action: "update", result: .failed)
             showMessage(NSLocalizedString("common_places_empty_name", value: "地点不能为空", comment: ""))
         } catch CommonPlacesError.duplicateName {
+            trackPlaceForm(action: "update", result: .failed)
             showMessage(NSLocalizedString("common_places_already_exists", value: "该地点已存在", comment: ""))
         } catch {
+            trackPlaceForm(action: "update", result: .failed)
             showMessage(NSLocalizedString("common_places_save_failed", value: "保存失败", comment: ""))
         }
     }
@@ -469,12 +481,26 @@ struct CommonPlacesManagementView: View {
         for id in toDelete {
             manager.deletePlace(id: id)
         }
+        AppAnalytics.track(.submitForm, parameters: [
+            .contentType: .string("common_place"),
+            .actionName: .string("delete"),
+            .participantCount: .int(toDelete.count),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
         selectedIds.removeAll()
         reload()
         if wasSelectAll {
             isEditMode = false
         }
         showMessage(NSLocalizedString("common_places_deleted", value: "已删除", comment: ""))
+    }
+
+    private func trackPlaceForm(action: String, result: AnalyticsResult) {
+        AppAnalytics.track(.submitForm, parameters: [
+            .contentType: .string("common_place"),
+            .actionName: .string(action),
+            .result: .string(result.rawValue)
+        ])
     }
 
     private func showMessage(_ message: String) {

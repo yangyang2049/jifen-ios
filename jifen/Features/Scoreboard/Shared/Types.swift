@@ -314,6 +314,16 @@ extension ScoreViewModelProtocol {
     }
 }
 
+protocol ScoreEditGuarding: AnyObject {
+    func canAdjustMainScore(isLeft: Bool, delta: Int) -> Bool
+    func canAdjustSetScore(isLeft: Bool, delta: Int) -> Bool
+}
+
+extension ScoreEditGuarding {
+    func canAdjustMainScore(isLeft: Bool, delta: Int) -> Bool { true }
+    func canAdjustSetScore(isLeft: Bool, delta: Int) -> Bool { true }
+}
+
 // MARK: - Template Config
 
 struct TemplateConfig {

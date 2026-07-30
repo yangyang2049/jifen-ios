@@ -50,6 +50,12 @@ struct BookingDetailPage: View {
                         VStack(spacing: 12) {
                             Button {
                                 if let gameType = currentBooking.sportType.gameType {
+                                    AppAnalytics.track(.selectContent, parameters: [
+                                        .contentType: .string("booking"),
+                                        .actionName: .string("start_game"),
+                                        .gameType: .string(gameType.analyticsIdentifier),
+                                        .entryPoint: .string(AnalyticsEntryPoint.bookingDetail.rawValue)
+                                    ])
                                     _ = LocalBookingManager.shared.markCompleted(currentBooking.id)
                                     booking = LocalBookingManager.shared.getBooking(by: bookingId)
                                     onChanged?()
@@ -70,6 +76,10 @@ struct BookingDetailPage: View {
 
                             HStack(spacing: 10) {
                                 Button {
+                                    AppAnalytics.track(.selectContent, parameters: [
+                                        .contentType: .string("booking"),
+                                        .actionName: .string("edit")
+                                    ])
                                     showEditPage = true
                                 } label: {
                                     Text(NSLocalizedString("schedule_edit", value: "编辑", comment: ""))
@@ -83,6 +93,7 @@ struct BookingDetailPage: View {
                                 .buttonStyle(.plain)
 
                                 Button {
+                                    AppAnalytics.openDialog("cancel_booking_confirm", source: .bookingDetailPage)
                                     showCancelConfirm = true
                                 } label: {
                                     Text(NSLocalizedString("schedule_cancel_booking", value: "取消预约", comment: ""))
@@ -115,6 +126,7 @@ struct BookingDetailPage: View {
         .navigationTitle(NSLocalizedString("schedule_detail_title", value: "球局详情", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: reload)
+        .analyticsScreen(.bookingDetailPage, source: .scheduleList)
         .sheet(isPresented: $showEditPage) {
             if let booking {
                 CreateBookingPage(initialBooking: booking) {
@@ -141,7 +153,12 @@ struct BookingDetailPage: View {
     }
 
     private func cancelBooking() {
-        _ = LocalBookingManager.shared.cancelBooking(bookingId)
+        let cancelled = LocalBookingManager.shared.cancelBooking(bookingId)
+        AppAnalytics.track(.selectContent, parameters: [
+            .contentType: .string("booking"),
+            .actionName: .string("delete"),
+            .result: .string(cancelled ? AnalyticsResult.success.rawValue : AnalyticsResult.failed.rawValue)
+        ])
         onChanged?()
         dismiss()
     }

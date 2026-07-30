@@ -9,7 +9,7 @@ import Foundation
 import ScoreCore
 
 @Observable
-class BoxingViewModel: BaseScoreViewModel {
+class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     private let reducer = BoxingMatchReducer()
     var currentRound: Int = 1
     var maxRounds: Int = 3
@@ -113,15 +113,24 @@ class BoxingViewModel: BaseScoreViewModel {
     }
 
     func adjustSets(isLeft: Bool, delta: Int) {
-        saveFullStateToHistory()
-        apply(reduce(.adjust(
+        let result = reduce(.adjust(
             leftTotal: leftTeam.score,
             rightTotal: rightTeam.score,
             currentRound: currentRound,
             leftRoundsWon: max(0, (leftTeam.sets ?? 0) + (isLeft ? delta : 0)),
             rightRoundsWon: max(0, (rightTeam.sets ?? 0) + (isLeft ? 0 : delta))
-        )).state)
+        ))
+        guard result.accepted else { return }
+        saveFullStateToHistory()
+        apply(result.state)
         controller?.recordScoreAction(action: (isLeft ? "left" : "right") + " sets \(delta > 0 ? "+" : "")\(delta)")
+    }
+
+    func canAdjustSetScore(isLeft: Bool, delta: Int) -> Bool {
+        let state = coreState
+        let left = state.leftRoundsWon + (isLeft ? delta : 0)
+        let right = state.rightRoundsWon + (isLeft ? 0 : delta)
+        return state.allowsRoundsWon(left: left, right: right)
     }
 
     override func addScore(isLeft: Bool, points: Int) {

@@ -259,7 +259,8 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                     finishConfirming: menuConfirm.finishConfirming,
                     scoringEnabled: scoringEnabled,
                     extraItems: extraMenuItems
-                )
+                ),
+                analyticsGameType: gameType
             )
         }
         .scoreboardDisplaySettingsOverlay(
@@ -573,6 +574,7 @@ struct EightBallScoreboardView: View {
     @State private var manualFinishRequested = false
     @State private var isStartingNewMatch = false
     @State private var scoreboardEditing = false
+    @State private var overflowToastMessage: String?
     @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
         for: ScoreboardStyleID(gameType: .eightBall)
     )
@@ -782,6 +784,15 @@ struct EightBallScoreboardView: View {
                     },
                     onExit: exit
                 )
+            }
+
+            if let overflowToastMessage {
+                VStack {
+                    Spacer()
+                    ToastView(message: overflowToastMessage)
+                        .padding(.bottom, 72)
+                }
+                .allowsHitTesting(false)
             }
         }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
@@ -997,10 +1008,23 @@ struct EightBallScoreboardView: View {
 
     private func adjustScore(onScreen screen: MatchSide, delta: Int) {
         let side = screenSide(screen)
+        guard state.canAdjustRacks(side: side, delta: delta) else {
+            if delta > 0 {
+                showOverflowToast(NSLocalizedString("scoreboard_set_score_overflow", value: "局分超限", comment: ""))
+            }
+            return
+        }
         let left = state.leftPoints + (side == .left ? delta : 0)
         let right = state.rightPoints + (side == .right ? delta : 0)
         send(.adminAdjust(left: left, right: right))
         showGameOverDialog = false
+    }
+
+    private func showOverflowToast(_ message: String) {
+        overflowToastMessage = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if overflowToastMessage == message { overflowToastMessage = nil }
+        }
     }
     private func undo() -> Bool {
         guard !scoringLocked else { return false }
@@ -1566,7 +1590,8 @@ struct NineBallChaseScoreboardView: View {
                         isFollower: watchLinkService.isFollower,
                         watchBackgrounded: watchLinkService.watchBackgrounded
                     )
-                )
+                ),
+                analyticsGameType: .nineBall
             )
         }
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })

@@ -81,11 +81,7 @@ struct ScoreboardTemplate: View {
                                 config.viewModel.subtractScore(isLeft: true, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
-                                if delta > 0 {
-                                    config.viewModel.addScore(isLeft: isLeft, points: delta)
-                                } else {
-                                    config.viewModel.subtractScore(isLeft: isLeft, points: -delta)
-                                }
+                                applyScoreAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
                             onSetsAdjust: { (isLeft, delta) in
                                 applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
@@ -150,11 +146,7 @@ struct ScoreboardTemplate: View {
                                 config.viewModel.subtractScore(isLeft: false, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
-                                if delta > 0 {
-                                    config.viewModel.addScore(isLeft: isLeft, points: delta)
-                                } else {
-                                    config.viewModel.subtractScore(isLeft: isLeft, points: -delta)
-                                }
+                                applyScoreAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
                             },
                             onSetsAdjust: { (isLeft, delta) in
                                 applySetsAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
@@ -342,7 +334,8 @@ struct ScoreboardTemplate: View {
                         settleConfirming: menuConfirm.settleConfirming,
                         scoringEnabled: scoringEnabled,
                         extraItems: config.extraMenuItemsProvider?() ?? []
-                    )
+                    ),
+                    analyticsGameType: config.gameType
                 )
                 
                 // Toast message
@@ -729,7 +722,31 @@ struct ScoreboardTemplate: View {
     }
 
     /// 编辑模式下局分 ±：显式按具体 ViewModel 类型调用 adjustSets，避免协议默认实现被误派发导致局分不改（与射箭修复一致）。
+    private func applyScoreAdjust(viewModel: ScoreViewModelProtocol, isLeft: Bool, delta: Int) {
+        if delta > 0,
+           let guarder = viewModel as? ScoreEditGuarding,
+           !guarder.canAdjustMainScore(isLeft: isLeft, delta: delta) {
+            showToastMessage(NSLocalizedString("scoreboard_main_score_overflow", value: "大分超限", comment: ""))
+            return
+        }
+        if let archery = viewModel as? ArcheryViewModel {
+            archery.adjustScore(isLeft: isLeft, delta: delta)
+            return
+        }
+        if delta > 0 {
+            viewModel.addScore(isLeft: isLeft, points: delta)
+        } else {
+            viewModel.subtractScore(isLeft: isLeft, points: -delta)
+        }
+    }
+
     private func applySetsAdjust(viewModel: ScoreViewModelProtocol, isLeft: Bool, delta: Int) {
+        if delta > 0,
+           let guarder = viewModel as? ScoreEditGuarding,
+           !guarder.canAdjustSetScore(isLeft: isLeft, delta: delta) {
+            showToastMessage(NSLocalizedString("scoreboard_set_score_overflow", value: "局分超限", comment: ""))
+            return
+        }
         if let vm = viewModel as? ArcheryViewModel {
             vm.adjustSets(isLeft: isLeft, delta: delta)
         } else if let vm = viewModel as? BoxingViewModel {

@@ -17,10 +17,10 @@ struct PointsTableView: View {
             if records.isEmpty {
                 VStack(spacing: Theme.sm) {
                     EmptyStateCourtIcon(size: 44)
-                    Text(NSLocalizedString("points_table_empty", value: "暂无积分表", comment: ""))
+                    Text(NSLocalizedString("points_table_empty", value: "No standings yet", comment: ""))
                         .font(.system(size: Theme.fontBody1, weight: .medium))
                         .foregroundColor(Theme.textSecondary)
-                    Text(NSLocalizedString("points_table_empty_hint", value: "点击右上角 + 创建", comment: ""))
+                    Text(NSLocalizedString("points_table_empty_hint", value: "Tap + in the top right to create one", comment: ""))
                         .font(.system(size: Theme.fontBody2))
                         .foregroundColor(Theme.textSecondary.opacity(0.9))
                 }
@@ -29,6 +29,10 @@ struct PointsTableView: View {
                 List {
                     ForEach(records) { record in
                         Button {
+                            AppAnalytics.track(.toolAction, parameters: [
+                                .toolID: .string("points_table"),
+                                .actionName: .string("open")
+                            ])
                             selectedRecord = record
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
@@ -43,7 +47,7 @@ struct PointsTableView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .listRowBackground(Theme.cardBackground)
+                        .listRowBackground(Theme.appCardBackground)
                         .listRowSeparatorTint(Theme.textSecondary.opacity(0.3))
                     }
                     .onDelete(perform: deleteRecords)
@@ -55,13 +59,13 @@ struct PointsTableView: View {
         .frame(maxWidth: Theme.focusedContentMaxWidth, maxHeight: .infinity)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.backgroundColor)
-        .navigationTitle(NSLocalizedString("points_table_title", value: "积分表", comment: ""))
+        .navigationTitle(NSLocalizedString("points_table_title", value: "Standings", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     let newRecord = PointsTableRecord(
-                        name: NSLocalizedString("points_table_new_name", value: "新积分表", comment: ""),
+                        name: NSLocalizedString("points_table_new_name", value: "New Standings", comment: ""),
                         teams: [
                             PointsTableTeam(name: NSLocalizedString("points_table_team_a", value: "甲", comment: "")),
                             PointsTableTeam(name: NSLocalizedString("points_table_team_b", value: "乙", comment: "")),
@@ -70,6 +74,11 @@ struct PointsTableView: View {
                     )
                     records.append(newRecord)
                     save()
+                    AppAnalytics.track(.toolAction, parameters: [
+                        .toolID: .string("points_table"),
+                        .actionName: .string("create"),
+                        .teamCount: .int(newRecord.teams.count)
+                    ])
                     selectedRecord = newRecord
                 } label: {
                     Image(systemName: "plus.circle.fill")
@@ -82,6 +91,11 @@ struct PointsTableView: View {
                 onDelete: {
                     records.removeAll { $0.id == record.id }
                     save()
+                    AppAnalytics.track(.toolAction, parameters: [
+                        .toolID: .string("points_table"),
+                        .actionName: .string("delete"),
+                        .result: .string(AnalyticsResult.success.rawValue)
+                    ])
                     selectedRecord = nil
                 }
             )
@@ -104,8 +118,16 @@ struct PointsTableView: View {
     }
 
     private func deleteRecords(at offsets: IndexSet) {
+        let count = offsets.count
         records.remove(atOffsets: offsets)
         save()
+        if count > 0 {
+            AppAnalytics.track(.toolAction, parameters: [
+                .toolID: .string("points_table"),
+                .actionName: .string("delete"),
+                .result: .string(AnalyticsResult.success.rawValue)
+            ])
+        }
     }
 
     private func save() {
@@ -158,6 +180,7 @@ struct PointsTableDetailView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
+        .analyticsScreen(.pointsTableDetail, source: .pointsTable)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -234,7 +257,7 @@ struct PointsTableDetailView: View {
                 )
                 .font(.system(size: 17, weight: .medium))
                 .padding(14)
-                .background(Theme.cardBackground)
+                .background(Theme.appCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             } else {
                 Text(record.name)
@@ -242,7 +265,7 @@ struct PointsTableDetailView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(14)
-                    .background(Theme.cardBackground)
+                    .background(Theme.appCardBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
         }
@@ -273,7 +296,7 @@ struct PointsTableDetailView: View {
                 }
             }
         }
-        .background(Theme.cardBackground)
+        .background(Theme.appCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
@@ -466,6 +489,12 @@ struct PointsTableDetailView: View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         pendingDeleteTeamID = nil
         isEditMode = false
+        AppAnalytics.track(.toolResult, parameters: [
+            .toolID: .string("points_table"),
+            .actionName: .string("save"),
+            .teamCount: .int(record.teams.count),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
     }
 
     private func addTeam() {
@@ -482,6 +511,11 @@ struct PointsTableDetailView: View {
             name = "\(NSLocalizedString("points_table_new_team", value: "新队伍", comment: "")) \(index + 1)"
         }
         record.teams = record.teams + [PointsTableTeam(name: name)]
+        AppAnalytics.track(.toolAction, parameters: [
+            .toolID: .string("points_table"),
+            .actionName: .string("add_team"),
+            .teamCount: .int(record.teams.count)
+        ])
     }
 
     private func requestDeleteTeam(id: UUID) {

@@ -38,6 +38,12 @@ struct RedYellowCardView: View {
         }
         .navigationTitle(NSLocalizedString("red_yellow_card_title", comment: "Red Yellow Card title"))
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: currentIndex) { _, value in
+            AppAnalytics.track(.toolAction, parameters: [
+                .toolID: .string("red_yellow_card"),
+                .actionName: .string(value == 0 ? "show_yellow" : "show_red")
+            ])
+        }
     }
 }
 

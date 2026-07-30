@@ -304,7 +304,8 @@ struct BasketballScoreboardView: View {
                 onMenuItemClick: handleMenuAction,
                 showEndGame: true,
                 resetConfirming: menuConfirm.resetConfirming,
-                items: basketballMenuItems
+                items: basketballMenuItems,
+                analyticsGameType: store.state.gameMode == .threeXThree ? .threeBasketball : .basketball
             )
         }
         // Keep above MenuDialog so the side panel is not covered.
@@ -646,8 +647,8 @@ struct BasketballScoreboardView: View {
                     rightName: displayName(for: .right),
                     leftScore: "\(displayScore(for: .left))",
                     rightScore: "\(displayScore(for: .right))",
-                    leftDetail: "\(displayFouls(for: .left)) 犯规 · \(displayTimeouts(for: .left)) 暂停",
-                    rightDetail: "\(displayFouls(for: .right)) 犯规 · \(displayTimeouts(for: .right)) 暂停",
+                    leftDetail: basketballDetail(for: .left),
+                    rightDetail: basketballDetail(for: .right),
                     themeID: appearance.theme.rawValue,
                     fontID: typographyPreference.font.rawValue,
                     scoreMultiplier: typographyPreference.scoreMultiplier,
@@ -672,6 +673,18 @@ struct BasketballScoreboardView: View {
                 }
             }
         )
+    }
+
+    private func basketballDetail(for side: MatchSide) -> String {
+        let fouls = String.localizedStringWithFormat(
+            NSLocalizedString("basketball_fouls_count", value: "Fouls %d", comment: ""),
+            displayFouls(for: side)
+        )
+        let timeouts = String.localizedStringWithFormat(
+            NSLocalizedString("basketball_timeout_remaining", value: "Timeout (%d)", comment: ""),
+            displayTimeouts(for: side)
+        )
+        return "\(fouls) · \(timeouts)"
     }
 
     private func requestBack() {
@@ -925,7 +938,10 @@ private struct BasketballTeamPanel: View {
                 HStack {
                     if isLeftSide { Spacer() }
                     Button(action: onTimeout) {
-                        Text("暂停 \(timeouts)")
+                        Text(String.localizedStringWithFormat(
+                            NSLocalizedString("basketball_timeout_remaining", value: "Timeout (%d)", comment: ""),
+                            timeouts
+                        ))
                             .font(typography.font.swiftUIFont(
                                 size: max(12, resolvedTypography.secondaryFontSize * 0.34),
                                 weight: .semibold
@@ -962,7 +978,10 @@ private struct BasketballTeamPanel: View {
 
     private var foulRow: some View {
         HStack(spacing: 8) {
-            Text("犯规 \(fouls)")
+            Text(String.localizedStringWithFormat(
+                NSLocalizedString("basketball_fouls_count", value: "Fouls %d", comment: ""),
+                fouls
+            ))
                 .font(typography.font.swiftUIFont(
                     size: max(12, resolvedTypography.secondaryFontSize * 0.4),
                     weight: .semibold
@@ -1094,13 +1113,25 @@ private struct BasketballCenterPanel: View {
             .buttonStyle(.plain)
 
             if state.canAdvancePeriod && !state.isOvertime {
-                periodActionButton(title: "下一节", color: actionAccent, action: onAdvancePeriod)
+                periodActionButton(
+                    title: NSLocalizedString("basketball_next_period", value: "Next Period", comment: ""),
+                    color: actionAccent,
+                    action: onAdvancePeriod
+                )
             }
             if state.canAdvancePeriod && state.isOvertime {
-                periodActionButton(title: "再加时", color: overtimePurple, action: onAdvancePeriod)
+                periodActionButton(
+                    title: NSLocalizedString("basketball_extra_overtime", value: "Extra OT", comment: ""),
+                    color: overtimePurple,
+                    action: onAdvancePeriod
+                )
             }
             if shouldShowEnterOvertime {
-                periodActionButton(title: "进入加时", color: overtimePurple, action: onEnterOvertime)
+                periodActionButton(
+                    title: NSLocalizedString("basketball_enter_overtime", value: "Overtime", comment: ""),
+                    color: overtimePurple,
+                    action: onEnterOvertime
+                )
             }
 
             Button(action: onToggleClock) {

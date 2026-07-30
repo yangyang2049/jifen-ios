@@ -26,6 +26,11 @@ struct SchedulePage: View {
             } else {
                 ForEach(filteredBookings) { booking in
                     Button {
+                        AppAnalytics.track(.selectContent, parameters: [
+                            .contentType: .string("booking"),
+                            .actionName: .string("view"),
+                            .sourcePage: .string(AnalyticsScreen.scheduleList.rawValue)
+                        ])
                         selectedBooking = booking
                     } label: {
                         bookingRow(booking)
@@ -50,6 +55,7 @@ struct SchedulePage: View {
         .safeAreaInset(edge: .bottom) {
             scheduleContentWidth {
                 Button {
+                    AppAnalytics.openPage(from: .scheduleList, to: .createBookingPage, entryPoint: .scheduleList)
                     showCreatePage = true
                 } label: {
                     Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
@@ -76,6 +82,13 @@ struct SchedulePage: View {
             .background(Theme.backgroundColor)
         }
         .onAppear(perform: reload)
+        .analyticsScreen(.scheduleList, source: .homeTab)
+        .onChange(of: selectedStatus) { _, value in
+            AppAnalytics.track(.applyFilter, parameters: [
+                .contentType: .string("booking"),
+                .settingValue: .string(value.rawValue)
+            ])
+        }
         .sheet(isPresented: $showCreatePage) {
             CreateBookingPage {
                 reload()
@@ -182,7 +195,7 @@ struct SchedulePage: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 13)
-        .background(Theme.cardBackground)
+        .background(Theme.appCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 

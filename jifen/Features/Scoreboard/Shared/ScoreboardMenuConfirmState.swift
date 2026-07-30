@@ -37,18 +37,8 @@ enum ScoreboardMenuConfirmAction: String, Equatable {
         }
     }
 
-    var toastFallback: String {
-        switch self {
-        case .reset: return "再次点击重置"
-        case .finish: return "再点一次结束比赛"
-        case .settleMatch: return "再点一次结算比赛"
-        case .exchangeSide: return "再次点击确认换边"
-        case .exit: return "再按一次退出"
-        }
-    }
-
     var localizedToast: String {
-        NSLocalizedString(toastKey, value: toastFallback, comment: "")
+        NSLocalizedString(toastKey, comment: "Scoreboard menu confirmation toast")
     }
 }
 

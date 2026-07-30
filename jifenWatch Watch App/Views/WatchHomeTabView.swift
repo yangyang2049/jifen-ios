@@ -284,7 +284,7 @@ struct WatchHomeTabView: View {
         case .pickleballDoubles: return NSLocalizedString("game_pickleball_doubles", value: "匹克球双打", comment: "")
         case .archery: return NSLocalizedString("game_archery", comment: "")
         case .eightBall: return NSLocalizedString("game_eight_ball", value: "黑八", comment: "")
-        case .nineBall: return NSLocalizedString("game_nine_ball", value: "九球", comment: "")
+        case .nineBall: return NSLocalizedString("game_nine_ball", value: "Chase", comment: "")
         case .snooker: return NSLocalizedString("game_snooker", value: "斯诺克", comment: "")
         case .basketball_training: return NSLocalizedString("tool_basketball_training", comment: "")
         }

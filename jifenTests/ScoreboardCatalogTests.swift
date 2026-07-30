@@ -68,6 +68,140 @@ final class ScoreboardCatalogTests: XCTestCase {
         )
     }
 
+    func testDialogSurfaceUsesElevatedDarkBackgroundAndWhiteLightBackground() {
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
+        let darkTraits = UITraitCollection(userInterfaceStyle: .dark)
+        let actual = UIColor(Theme.dialogSurfaceBackground)
+
+        XCTAssertTrue(
+            actual.resolvedColor(with: lightTraits).isEqual(
+                UIColor.systemBackground.resolvedColor(with: lightTraits)
+            )
+        )
+        XCTAssertTrue(
+            actual.resolvedColor(with: darkTraits).isEqual(
+                UIColor.secondarySystemBackground.resolvedColor(with: darkTraits)
+            )
+        )
+    }
+
+    func testPrimaryPageCardsShareTheSameStableSurfaceColor() {
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
+        let darkTraits = UITraitCollection(userInterfaceStyle: .dark)
+        let standard = UIColor(Theme.appCardBackground)
+        let expectedDark = UIColor(red: 32 / 255, green: 32 / 255, blue: 34 / 255, alpha: 1)
+
+        XCTAssertTrue(standard.resolvedColor(with: lightTraits).isEqual(UIColor.white))
+        XCTAssertTrue(standard.resolvedColor(with: darkTraits).isEqual(expectedDark))
+
+        for cardColor in [Theme.homeNeutralCardBackground, Theme.homeCardDark, Theme.surface] {
+            let actual = UIColor(cardColor)
+            XCTAssertTrue(
+                actual.resolvedColor(with: lightTraits).isEqual(
+                    standard.resolvedColor(with: lightTraits)
+                )
+            )
+            XCTAssertTrue(
+                actual.resolvedColor(with: darkTraits).isEqual(
+                    standard.resolvedColor(with: darkTraits)
+                )
+            )
+        }
+    }
+
+    func testTennisInlineScoresReserveCenterLineSpaceAndUseASmallerMainScore() {
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.tennisMainScoreScale(hasInlineSecondary: true),
+            0.78,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.tennisMainScoreScale(hasInlineSecondary: false),
+            1,
+            accuracy: 0.001
+        )
+
+        let halfPanel = CGSize(width: 912, height: 1_365)
+        let indicator = ScoreboardLayoutMetrics.serveIndicatorSize(halfViewportSize: halfPanel)
+        let clearance = ScoreboardLayoutMetrics.tennisCenterLineClearance(halfViewportSize: halfPanel)
+        XCTAssertGreaterThan(clearance, indicator)
+
+        let nameRegion = ScoreboardLayoutMetrics.tennisSinglesNameRegionHeight(
+            panelHeight: halfPanel.height,
+            nameFontSize: 72
+        )
+        XCTAssertGreaterThan(nameRegion, 72)
+    }
+
+    func testThreeDigitRallyScoresCompactOnTopOfTheUserMultiplier() {
+        XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "99"), 1)
+        XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "100"), 0.75)
+        XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "1,000"), 0.75)
+
+        let preference = ScoreboardTypographyPreference(
+            font: .default,
+            scoreMultiplier: 1.4,
+            nameMultiplier: 1,
+            secondaryMultiplier: 1
+        )
+        let twoDigit = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .rally,
+                containerSize: CGSize(width: 2_000, height: 720),
+                nameText: "",
+                scoreText: "99",
+                preference: preference,
+                isLargeScreen: true
+            )
+        )
+        let threeDigit = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .rally,
+                containerSize: CGSize(width: 2_000, height: 720),
+                nameText: "",
+                scoreText: "100",
+                preference: preference,
+                scoreBaseScale: ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "100"),
+                isLargeScreen: true
+            )
+        )
+
+        XCTAssertEqual(
+            threeDigit.scoreFontSize,
+            (twoDigit.scoreFontSize * 0.75).rounded(),
+            accuracy: 1
+        )
+    }
+
+    func testFullscreenBarrageControlsClearSafeAreasInPortraitAndLandscape() {
+        let portrait = FullscreenBarrageOverlayLayout.padding(
+            for: UIEdgeInsets(top: 59, left: 0, bottom: 34, right: 0),
+            rotatesContentClockwise: false
+        )
+        XCTAssertEqual(portrait.top, 65)
+        XCTAssertEqual(portrait.leading, 16)
+        XCTAssertEqual(portrait.trailing, 16)
+
+        let landscape = FullscreenBarrageOverlayLayout.padding(
+            for: UIEdgeInsets(top: 0, left: 59, bottom: 21, right: 59),
+            rotatesContentClockwise: false
+        )
+        XCTAssertEqual(landscape.top, 6)
+        XCTAssertEqual(landscape.leading, 65)
+        XCTAssertEqual(landscape.trailing, 65)
+    }
+
+    func testFullscreenBarrageControlsRemapSafeAreasForRotatedWindowContent() {
+        let rotated = FullscreenBarrageOverlayLayout.padding(
+            for: UIEdgeInsets(top: 24, left: 8, bottom: 20, right: 12),
+            rotatesContentClockwise: true
+        )
+
+        XCTAssertEqual(rotated.top, 18)
+        XCTAssertEqual(rotated.leading, 30)
+        XCTAssertEqual(rotated.trailing, 26)
+    }
+
     func testTimerAndToolCatalogCountsIncludeNewParityFeatures() {
         XCTAssertEqual(GameCatalog.timerAllItems.count, 7)
         XCTAssertEqual(Set(GameCatalog.timerAllItems).count, 7)
@@ -181,6 +315,13 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 2))
         XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 4))
         XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 5))
+    }
+
+    func testWatchLinkEntryIsAvailableOnlyOnPhone() {
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedHostDevice(.phone))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.pad))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.mac))
+        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.tv))
     }
 
     func testTwentyNineModeAuditMatrixIncludesWatchOnlyBasketballTraining() throws {

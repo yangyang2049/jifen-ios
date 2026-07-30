@@ -192,7 +192,8 @@ struct RallyScoreboardView: View {
                     },
                     onMenuItemClick: handleMenuAction,
                     showEndGame: true,
-                    items: menuItems
+                    items: menuItems,
+                    analyticsGameType: GameType(scoreCoreGameType: store.gameType) ?? .simpleScore
                 )
 
                 if showGameOverDialog {
@@ -548,7 +549,7 @@ struct RallyScoreboardView: View {
                 useSecondaryColor: false,
                 canDecrement: score > 0,
                 onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
+                onIncrement: { adjustPointsInEdit(side: side, delta: 1) }
             )
 
             Spacer().frame(height: mainToSet)
@@ -559,7 +560,7 @@ struct RallyScoreboardView: View {
                 useSecondaryColor: true,
                 canDecrement: sets > 0,
                 onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
+                onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -641,7 +642,7 @@ struct RallyScoreboardView: View {
                 useSecondaryColor: false,
                 canDecrement: score > 0,
                 onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
+                onIncrement: { adjustPointsInEdit(side: side, delta: 1) }
             )
 
             Spacer().frame(height: mainToSet)
@@ -652,7 +653,7 @@ struct RallyScoreboardView: View {
                 useSecondaryColor: true,
                 canDecrement: sets > 0,
                 onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
+                onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -867,7 +868,7 @@ struct RallyScoreboardView: View {
                 canDecrement: score > 0,
                 controlSize: controlSize,
                 onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
+                onIncrement: { adjustPointsInEdit(side: side, delta: 1) }
             )
             editAdjustRow(
                 value: sets,
@@ -876,7 +877,7 @@ struct RallyScoreboardView: View {
                 canDecrement: sets > 0,
                 controlSize: controlSize,
                 onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
+                onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
             )
         }
         .frame(maxWidth: .infinity)
@@ -1412,6 +1413,17 @@ struct RallyScoreboardView: View {
         typographySession.effectivePreference
     }
 
+    private var usesThreeDigitMainScoreCompaction: Bool {
+        switch gameType {
+        case .pingpong, .pingpongDoubles,
+             .badminton, .badmintonDoubles,
+             .pickleball, .pickleballDoubles:
+            true
+        default:
+            false
+        }
+    }
+
     private func resolvedTypography(
         name: String,
         score: String,
@@ -1423,7 +1435,10 @@ struct RallyScoreboardView: View {
         secondaryIsInline: Bool = false,
         referenceHeight: CGFloat? = nil
     ) -> ScoreboardTypographyResult {
-        ScoreboardTypographyResolver.resolve(
+        let contentScale = usesThreeDigitMainScoreCompaction
+            ? ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: score)
+            : 1
+        return ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
                 profile: .rally,
                 containerSize: size,
@@ -1433,7 +1448,7 @@ struct RallyScoreboardView: View {
                 preference: typographyPreference,
                 horizontalPadding: 16,
                 reservedHeight: reservedHeight,
-                scoreBaseScale: scoreBaseScale,
+                scoreBaseScale: scoreBaseScale * contentScale,
                 secondaryBaseScale: secondaryBaseScale,
                 secondaryIsInline: secondaryIsInline,
                 referenceHeight: referenceHeight,
@@ -1575,6 +1590,35 @@ struct RallyScoreboardView: View {
 
     private func finishMatch() {
         dispatch(.finish)
+    }
+
+    private func adjustPointsInEdit(side: MatchSide, delta: Int) {
+        let current = side == .left ? store.state.leftPoints : store.state.rightPoints
+        let opponent = side == .left ? store.state.rightPoints : store.state.leftPoints
+        guard store.state.rules.allowsPointAdjustment(
+            currentScore: current,
+            opponentScore: opponent,
+            setNumber: store.state.currentSet,
+            delta: delta
+        ) else {
+            showToast(NSLocalizedString("scoreboard_main_score_overflow", value: "大分超限", comment: ""))
+            return
+        }
+        dispatch(.adjustPoints(side: side, delta: delta))
+    }
+
+    private func adjustSetsInEdit(side: MatchSide, delta: Int) {
+        let left = store.state.leftSets + (side == .left ? delta : 0)
+        let right = store.state.rightSets + (side == .right ? delta : 0)
+        guard store.state.rules.matchCompletionMode.allowsSetScore(
+            maxSets: store.state.rules.maxSets,
+            leftSets: left,
+            rightSets: right
+        ) else {
+            showToast(NSLocalizedString("scoreboard_set_score_overflow", value: "局分超限", comment: ""))
+            return
+        }
+        dispatch(.adjustSets(side: side, delta: delta))
     }
 
     private func dispatch(_ intent: RallyMatchIntent) {

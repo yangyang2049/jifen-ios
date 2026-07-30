@@ -6,6 +6,7 @@ struct MainTabView: View {
     @State private var selectedGame: GameType? = nil
     @State private var navigatingFromTab: Int? = nil
     @State private var pendingTimerGameType: GameType? = nil
+    @State private var didTrackAppShell = false
 
     var body: some View {
         ZStack {
@@ -20,9 +21,18 @@ struct MainTabView: View {
         .tint(Theme.accentColor)
         .onAppear {
             configureTabBarPresentation()
+            guard !didTrackAppShell else { return }
+            didTrackAppShell = true
+            AppAnalytics.screenView(.appShell, screenClass: "app_shell")
+            AppAnalytics.tabView(analyticsScreen(for: selectedTab))
         }
-        .onChange(of: selectedTab) { _, _ in
+        .onChange(of: selectedTab) { oldValue, newValue in
             configureTabBarPresentation()
+            guard oldValue != newValue else { return }
+            AppAnalytics.tabView(
+                analyticsScreen(for: newValue),
+                source: analyticsScreen(for: oldValue)
+            )
         }
     }
 
@@ -34,7 +44,7 @@ struct MainTabView: View {
         pendingTimerGameType: Binding<GameType?>
     ) -> some View {
         TabView(selection: selectedTab) {
-            tabItem(tag: 0, titleKey: "tab_home", systemImage: "house.fill") {
+            tabItem(tag: 0, titleKey: "tab_home", systemImage: "house.fill", screen: .homeTab) {
                 HomeTab(onNavigateToTab: { index, game in
                     navigatingFromTab.wrappedValue = selectedTab.wrappedValue
                     selectedTab.wrappedValue = index
@@ -47,10 +57,10 @@ struct MainTabView: View {
                     }
                 })
             }
-            tabItem(tag: 1, titleKey: "tab_records", systemImage: "list.bullet.clipboard.fill") {
+            tabItem(tag: 1, titleKey: "tab_records", systemImage: "list.bullet.clipboard.fill", screen: .recordsTab) {
                 RecordsTab()
             }
-            tabItem(tag: 2, titleKey: "tab_score", systemImage: "sportscourt.fill") {
+            tabItem(tag: 2, titleKey: "tab_score", systemImage: "sportscourt.fill", screen: .scoreTab) {
                 ScoreboardTab(selectedGame: selectedGame, onDismiss: {
                     if let source = navigatingFromTab.wrappedValue {
                         selectedTab.wrappedValue = source
@@ -58,10 +68,11 @@ struct MainTabView: View {
                     }
                 })
             }
-            tabItem(tag: 3, titleKey: "tab_timer", systemImage: "timer") {
+            tabItem(tag: 3, titleKey: "tab_timer", systemImage: "timer", screen: .timerTab) {
                 TimerTab(pendingTimerGameType: pendingTimerGameType)
             }
             MeTab()
+                .analyticsScreen(.meTab, screenClass: "me_tab")
                 .tag(4)
                 .tabItem {
                     Label(NSLocalizedString("tab_me", comment: ""), systemImage: "person.fill")
@@ -74,14 +85,26 @@ struct MainTabView: View {
         tag: Int,
         titleKey: String,
         systemImage: String,
+        screen: AnalyticsScreen,
         @ViewBuilder content: () -> Content
     ) -> some View {
         NavigationStack {
             content()
+                .analyticsScreen(screen, screenClass: screen.rawValue)
         }
         .tag(tag)
         .tabItem {
             Label(NSLocalizedString(titleKey, comment: ""), systemImage: systemImage)
+        }
+    }
+
+    private func analyticsScreen(for tab: Int) -> AnalyticsScreen {
+        switch tab {
+        case 1: return .recordsTab
+        case 2: return .scoreTab
+        case 3: return .timerTab
+        case 4: return .meTab
+        default: return .homeTab
         }
     }
 
@@ -98,10 +121,8 @@ struct MainTabView: View {
                 return
             }
 
-            if #available(iOS 18.0, *) {
-                tabBarController.mode = .tabBar
-                tabBarController.setTabBarHidden(false, animated: false)
-            }
+            tabBarController.mode = .tabBar
+            tabBarController.setTabBarHidden(false, animated: false)
             if #available(iOS 26.0, *) {
                 tabBarController.tabBarMinimizeBehavior = .never
             }

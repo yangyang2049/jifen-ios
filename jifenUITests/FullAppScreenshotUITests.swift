@@ -83,6 +83,24 @@ final class FullAppScreenshotUITests: XCTestCase {
         )
     }
 
+    func testCaptureMeSecondaryScreenshots() {
+        captureMeSecondaryPages()
+        for name in [
+            "40_me_root",
+            "41_me_scoreboard_settings",
+            "42_me_appearance",
+            "43_me_faq",
+            "44_me_about"
+        ] {
+            let url = UITestScreenshotStore.outputDirectory
+                .appendingPathComponent("\(UITestScreenshotStore.devicePrefix)_\(name).png")
+            XCTAssertTrue(
+                FileManager.default.fileExists(atPath: url.path),
+                "Expected focused Me screenshot: \(url.lastPathComponent)"
+            )
+        }
+    }
+
     /// 重点项目截图矩阵：四种球类分别覆盖单打/双打，并补齐掼蛋的真实操作状态。
     /// 每个场景都保留设置、初始计分板、操作后和菜单 Overlay 四张截图，方便人工复核。
     func testCapturePrioritySportsVariants() {
@@ -696,10 +714,10 @@ final class FullAppScreenshotUITests: XCTestCase {
         selectTab("我的")
         snap("40_me_root")
 
-        tapRow("计分器设置")
+        tapSettingsEntry("settings_scoreboard_entry", fallback: "计分设置")
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         snap("41_me_scoreboard_settings")
-        navigateBack()
+        closeMeDestination("settings_scoreboard_sheet_close")
 
         selectTab("我的")
         if app.staticTexts["手表联动"].exists || app.buttons["手表联动"].exists
@@ -721,16 +739,16 @@ final class FullAppScreenshotUITests: XCTestCase {
         dismissDialog()
 
         selectTab("我的")
-        tapRow("常见问题")
+        tapSettingsEntry("settings_faq_entry", fallback: "常见问题")
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         snap("43_me_faq")
-        navigateBack()
+        closeMeDestination("settings_faq_sheet_close")
 
         selectTab("我的")
-        tapRow("关于我们")
+        tapSettingsEntry("settings_about_entry", fallback: "关于我们")
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         snap("44_me_about")
-        navigateBack()
+        closeMeDestination("settings_about_sheet_close")
     }
 
     // MARK: - Schedule / records / sync
@@ -860,6 +878,33 @@ final class FullAppScreenshotUITests: XCTestCase {
             el.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             return
         }
+    }
+
+    private func tapSettingsEntry(_ identifier: String, fallback: String) {
+        let entry = app.descendants(matching: .any)[identifier]
+        if entry.waitForExistence(timeout: 3) {
+            entry.tap()
+            return
+        }
+        tapRow(fallback)
+    }
+
+    private func closeMeDestination(_ sheetCloseIdentifier: String) {
+        guard UITestScreenshotStore.devicePrefix == "iPad" else {
+            navigateBack()
+            return
+        }
+
+        let closeButton = app.buttons[sheetCloseIdentifier]
+        XCTAssertTrue(
+            closeButton.waitForExistence(timeout: 3),
+            "Missing iPad settings sheet close button: \(sheetCloseIdentifier)"
+        )
+        closeButton.tap()
+
+        let sheetIdentifier = String(sheetCloseIdentifier.dropLast("_close".count))
+        let sheet = app.descendants(matching: .any)[sheetIdentifier]
+        XCTAssertTrue(sheet.waitForNonExistence(timeout: 5), "iPad settings sheet did not close")
     }
 
     private func navigateBack() {

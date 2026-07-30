@@ -130,6 +130,42 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
 
     public var currentSet: Int { leftSets + rightSets + 1 }
 
+    public func canAdjustPoints(side: MatchSide, delta: Int) -> Bool {
+        guard delta != 0 else { return false }
+        let current = side == .left ? leftPoints : rightPoints
+        let opponent = side == .left ? rightPoints : leftPoints
+        let maximum: Int
+        if isTieBreak {
+            let deuceEdge = max(0, rules.tieBreakPoints - 1)
+            maximum = opponent < deuceEdge ? deuceEdge : opponent + 1
+        } else {
+            maximum = 4
+        }
+        let next = current + delta
+        return next >= 0 && next <= maximum
+    }
+
+    public func canAdjustGames(side: MatchSide, delta: Int) -> Bool {
+        guard delta != 0, rules.setScoringMode != .tiebreakOnly else { return false }
+        let nextLeft = leftGames + (side == .left ? delta : 0)
+        let nextRight = rightGames + (side == .right ? delta : 0)
+        let maximum = rules.gamesPerSet + 1
+        return nextLeft >= 0 && nextRight >= 0
+            && nextLeft <= maximum && nextRight <= maximum
+            && nextLeft + nextRight <= rules.gamesPerSet * 2 + 1
+    }
+
+    public func canAdjustSets(side: MatchSide, delta: Int) -> Bool {
+        guard delta != 0 else { return false }
+        let nextLeft = leftSets + (side == .left ? delta : 0)
+        let nextRight = rightSets + (side == .right ? delta : 0)
+        return rules.matchCompletionMode.allowsSetScore(
+            maxSets: rules.maxSets,
+            leftSets: nextLeft,
+            rightSets: nextRight
+        )
+    }
+
     public func scoreDisplay(for side: MatchSide) -> String {
         let own = side == .left ? leftPoints : rightPoints
         let other = side == .left ? rightPoints : leftPoints
@@ -232,7 +268,7 @@ public struct TennisMatchReducer: DomainReducer {
     ) -> ReduceResult<TennisMatchState, TennisMatchEvent> {
         if state.finished {
             switch intent {
-            case .reset: break
+            case .adjustSets, .reset: break
             default: return .rejected(state: state, reason: "Already finished")
             }
         }
@@ -240,14 +276,17 @@ public struct TennisMatchReducer: DomainReducer {
         switch intent {
         case .pointWon(let side): return scorePoint(state: state, side: side)
         case .adjustPoints(let side, let delta):
-            let result = adjust(state: state, side: side, delta: delta, keyPath: side == .left ? \.leftPoints : \.rightPoints, range: 0 ... (state.isTieBreak ? 999 : 4))
+            guard state.canAdjustPoints(side: side, delta: delta) else {
+                return .rejected(state: state, reason: "Point score overflow")
+            }
+            let result = adjust(state: state, side: side, delta: delta, keyPath: side == .left ? \.leftPoints : \.rightPoints, range: 0 ... Int.max)
             guard result.accepted else { return result }
             var next = result.state
             if next.isTieBreak { synchronizeServingState(&next) }
             return .init(state: next, events: result.events)
         case .adjustGames(let side, let delta):
-            guard state.rules.setScoringMode != .tiebreakOnly else {
-                return .rejected(state: state, reason: "Games are fixed in tiebreak-only format")
+            guard state.canAdjustGames(side: side, delta: delta) else {
+                return .rejected(state: state, reason: "Game score overflow")
             }
             let result = adjust(
                 state: state,
@@ -268,8 +307,14 @@ public struct TennisMatchReducer: DomainReducer {
             synchronizeServingState(&next)
             return .init(state: next, events: result.events)
         case .adjustSets(let side, let delta):
-            let maximum = max(1, state.rules.maxSets)
-            return adjust(state: state, side: side, delta: delta, keyPath: side == .left ? \.leftSets : \.rightSets, range: 0 ... maximum)
+            guard state.canAdjustSets(side: side, delta: delta) else {
+                return .rejected(state: state, reason: "Set score overflow")
+            }
+            let result = adjust(state: state, side: side, delta: delta, keyPath: side == .left ? \.leftSets : \.rightSets, range: 0 ... Int.max)
+            guard result.accepted else { return result }
+            var next = result.state
+            next.finished = next.rules.isMatchFinished(leftSets: next.leftSets, rightSets: next.rightSets)
+            return .init(state: next, events: result.events)
         case .setNames(let left, let right):
             var next = state
             next.leftName = left.trimmingCharacters(in: .whitespacesAndNewlines)

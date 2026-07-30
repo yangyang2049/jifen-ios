@@ -94,6 +94,11 @@ struct DateTimeToolView: View {
 
         let isPortrait = windowScene.interfaceOrientation.isPortrait
         let targetMask: UIInterfaceOrientationMask = isPortrait ? .landscapeRight : .portrait
+        AppAnalytics.track(.toolSettingChange, parameters: [
+            .toolID: .string("time"),
+            .settingName: .string("display_orientation"),
+            .settingValue: .string(isPortrait ? "landscape" : "portrait")
+        ])
         OrientationLock.shared.lock(targetMask)
         updateSupportedOrientations(in: windowScene)
 

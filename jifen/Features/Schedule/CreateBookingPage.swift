@@ -141,6 +141,7 @@ struct CreateBookingPage: View {
             .onAppear {
                 applyInitialBookingIfNeeded()
             }
+            .analyticsScreen(.createBookingPage, source: initialBooking == nil ? .scheduleList : .bookingDetailPage)
             .alert(NSLocalizedString("schedule_reminder_help_title", value: "提醒说明", comment: ""), isPresented: $showReminderHelp) {
                 Button(NSLocalizedString("confirm", comment: ""), role: .cancel) { }
             } message: {
@@ -226,7 +227,12 @@ struct CreateBookingPage: View {
             createdAt: initialBooking?.createdAt ?? Date(),
             updatedAt: Date()
         )
-        _ = LocalBookingManager.shared.upsertBooking(booking)
+        let saved = LocalBookingManager.shared.upsertBooking(booking)
+        AppAnalytics.track(.submitForm, parameters: [
+            .contentType: .string(initialBooking == nil ? "booking_create" : "booking_update"),
+            .gameType: .string(sportType.analyticsGameTypeIdentifier),
+            .result: .string(saved ? AnalyticsResult.success.rawValue : AnalyticsResult.failed.rawValue)
+        ])
         CommonPlacesManager.shared.savePlaceIfNeeded(trimmedLocation)
         onCreated?()
         dismiss()

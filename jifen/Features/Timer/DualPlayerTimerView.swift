@@ -46,6 +46,7 @@ struct DualPlayerTimerView: View {
     @State private var lastTickAt: Date?
     @State private var gameStartAt: Date?
     @State private var recordSaved: Bool = false
+    @State private var didTrackExit: Bool = false
     @State private var actionTimeline: [TimerActionRecord] = []
 
     @State private var showExitConfirm = false
@@ -574,6 +575,10 @@ struct DualPlayerTimerView: View {
         revealTapHintIfNeeded(for: 1)
         vibrateIfEnabled(heavy: false)
         speakStartIfEnabled()
+        AppAnalytics.track(.timerStart, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .presetType: .string(config.timeMode.rawValue)
+        ])
     }
 
     private func pauseGame(logAction: Bool = true) {
@@ -587,6 +592,11 @@ struct DualPlayerTimerView: View {
         }
         vibrateIfEnabled(heavy: false)
         speakPauseIfEnabled()
+        if logAction {
+            AppAnalytics.track(.timerPause, parameters: [
+                .gameType: .string(gameType.analyticsIdentifier)
+            ])
+        }
     }
 
     private func resumeGame(logAction: Bool = true) {
@@ -599,6 +609,11 @@ struct DualPlayerTimerView: View {
         }
         vibrateIfEnabled(heavy: false)
         speakResumeIfEnabled()
+        if logAction {
+            AppAnalytics.track(.timerResume, parameters: [
+                .gameType: .string(gameType.analyticsIdentifier)
+            ])
+        }
     }
 
     private func stopCurrentGame() {
@@ -626,6 +641,13 @@ struct DualPlayerTimerView: View {
         pendingTapHintPlayer = nil
         showGameOverResult = false
         saveRecordIfNeeded(winnerLabel: winnerPlayerName)
+        let elapsedMilliseconds = Int(max(0, gameStartAt.map { Date().timeIntervalSince($0) } ?? 0) * 1_000)
+        AppAnalytics.track(.timerFinish, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .elapsedMS: .int(elapsedMilliseconds),
+            .winner: .string(winner == 1 ? AnalyticsWinner.sideA.rawValue : (winner == 2 ? AnalyticsWinner.sideB.rawValue : AnalyticsWinner.unknown.rawValue)),
+            .endReason: .string(reason.analyticsEndReason.rawValue)
+        ])
         vibrateIfEnabled(heavy: true)
 
         gameOverPresentationTask?.cancel()
@@ -856,6 +878,11 @@ struct DualPlayerTimerView: View {
         vibrateIfEnabled(heavy: false)
         speakPlayerColorIfEnabled(playerID: nextPlayer)
         revealTapHintIfNeeded(for: nextPlayer)
+        AppAnalytics.track(.timerSwitchPlayer, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .fromPlayer: .string("player_\(playerID)"),
+            .toPlayer: .string("player_\(nextPlayer)")
+        ])
     }
 
     // MARK: - Helpers
@@ -1068,6 +1095,13 @@ struct DualPlayerTimerView: View {
             appendAction(.gameEnd)
         }
         saveRecordIfNeeded(winnerLabel: nil)
+        if gameState != .finished, !didTrackExit {
+            didTrackExit = true
+            AppAnalytics.track(.timerExit, parameters: [
+                .gameType: .string(gameType.analyticsIdentifier),
+                .result: .string(AnalyticsResult.cancelled.rawValue)
+            ])
+        }
     }
 
     private func appendAction(_ type: TimerActionType, actor: String? = nil) {
@@ -1111,6 +1145,20 @@ struct DualPlayerTimerView: View {
 
         TimerRecordsViewModel.shared.addRecord(record)
         recordSaved = true
+        AppAnalytics.track(.saveRecord, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .recordType: .string("timer"),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
+    }
+}
+
+private extension DualTimerEndReason {
+    var analyticsEndReason: AnalyticsEndReason {
+        switch self {
+        case .timeout: return .ruleCompleted
+        case .manualStop: return .manualFinish
+        }
     }
 }
 

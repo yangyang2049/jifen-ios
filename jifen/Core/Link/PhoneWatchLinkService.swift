@@ -36,6 +36,8 @@ final class PhoneWatchLinkService {
     private var terminalPendingAck = LinkPendingAckQueue()
     private var setupContinuation: CheckedContinuation<UUID, Error>?
     private var setupTimeoutTask: Task<Void, Never>?
+    private var setupAnalyticsGameType: String?
+    private var didTrackSetupAnalyticsResult = false
     private var ackRetryTask: Task<Void, Never>?
     private var revisionGate = LinkRevisionGate()
     private var pendingTakeoverMessageId: UUID?
@@ -255,6 +257,7 @@ final class PhoneWatchLinkService {
         } else {
             clearSession()
         }
+        trackSetupAnalyticsResult(.rejected)
         continuation?.resume(throwing: InteractiveStartError.setupRejected)
     }
 
@@ -598,10 +601,27 @@ final class PhoneWatchLinkService {
         initialSnapshot: LinkedScoreboardSnapshot,
         participantNames: [String]? = nil
     ) async throws -> UUID {
+        if setupContinuation != nil {
+            trackSetupAnalyticsResult(.timeout)
+        }
+        setupAnalyticsGameType = GameType(scoreCoreGameType: gameType)?.analyticsIdentifier
+            ?? String(describing: gameType).lowercased()
+        didTrackSetupAnalyticsResult = false
+        AppAnalytics.track(.watchLinkStart, parameters: [
+            .gameType: .string(setupAnalyticsGameType ?? "unknown"),
+            .entryPoint: .string(AnalyticsEntryPoint.watchLink.rawValue),
+            .sourceSurface: .string(AnalyticsSourceSurface.phone.rawValue)
+        ])
         guard Self.phoneInteractiveStartSupported(gameType) else {
+            trackSetupAnalyticsResult(.notReachable)
             throw InteractiveStartError.watchUnavailable
         }
-        try validateInteractiveWatchAvailability()
+        do {
+            try validateInteractiveWatchAvailability()
+        } catch {
+            trackSetupAnalyticsResult(.notReachable)
+            throw error
+        }
         if setupContinuation != nil {
             let continuation = setupContinuation
             setupContinuation = nil
@@ -665,6 +685,7 @@ final class PhoneWatchLinkService {
                           let cont = self.setupContinuation else { return }
                     self.setupContinuation = nil
                     self.setupTimeoutTask = nil
+                    self.trackSetupAnalyticsResult(.timeout)
                     self.leaveSession(sessionId)
                     cont.resume(throwing: InteractiveStartError.setupTimedOut)
                 }
@@ -682,8 +703,10 @@ final class PhoneWatchLinkService {
                     self.setupTimeoutTask = nil
                     self.clearSession()
                     if error as? WatchConnectivityTransportError == .peerNotReachable {
+                        self.trackSetupAnalyticsResult(.notReachable)
                         cont.resume(throwing: InteractiveStartError.watchAppNotForeground)
                     } else {
+                        self.trackSetupAnalyticsResult(.failed)
                         cont.resume(throwing: error)
                     }
                 }
@@ -823,6 +846,7 @@ final class PhoneWatchLinkService {
                 activeSession = session
             }
             controlRole = .phoneFollower
+            trackSetupAnalyticsResult(.success)
             setupContinuation?.resume(returning: accepted.sessionId)
             setupContinuation = nil
             return true
@@ -834,6 +858,7 @@ final class PhoneWatchLinkService {
             setupTimeoutTask?.cancel()
             setupTimeoutTask = nil
             clearSession()
+            trackSetupAnalyticsResult(.rejected)
             setupContinuation?.resume(throwing: InteractiveStartError.setupRejected)
             setupContinuation = nil
             return true
@@ -1203,6 +1228,17 @@ final class PhoneWatchLinkService {
         if terminalPendingAck.pending == nil {
             pendingLeaveAfterFinish = false
         }
+    }
+
+    private func trackSetupAnalyticsResult(_ result: AnalyticsResult) {
+        guard !didTrackSetupAnalyticsResult else { return }
+        didTrackSetupAnalyticsResult = true
+        AppAnalytics.track(.watchLinkResult, parameters: [
+            .gameType: .string(setupAnalyticsGameType ?? "unknown"),
+            .entryPoint: .string(AnalyticsEntryPoint.watchLink.rawValue),
+            .sourceSurface: .string(AnalyticsSourceSurface.phone.rawValue),
+            .result: .string(result.rawValue)
+        ])
     }
 
     private func nowMs() -> Int64 {

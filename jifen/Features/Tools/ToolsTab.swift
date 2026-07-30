@@ -8,6 +8,7 @@ struct ToolsTab: View {
             ToolsListPageView(onToolTap: { path.append($0) })
             .navigationDestination(for: ToolItem.self) { tool in
                 tool.view
+                    .analyticsScreen(AnalyticsScreen.tool(id: tool.id) ?? .toolsPage, source: .toolsPage)
                     .navigationTitle(tool.title)
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar(.hidden, for: .tabBar)
@@ -46,6 +47,7 @@ struct ToolsListPageView: View {
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))
         .navigationBarTitleDisplayMode(.inline)
+        .analyticsScreen(.toolsPage, source: .homeTab)
     }
 }
 
@@ -91,6 +93,11 @@ struct ToolCardView: View {
     var body: some View {
         Button(action: {
             VibrationManager.shared.vibrateLight()
+            AppAnalytics.track(.toolItemSelect, parameters: [
+                .toolID: .string(tool.id),
+                .sourcePage: .string(AnalyticsScreen.toolsPage.rawValue),
+                .entryPoint: .string(AnalyticsEntryPoint.toolsPage.rawValue)
+            ])
             action()
         }) {
             VStack(spacing: 12) {
@@ -103,7 +110,7 @@ struct ToolCardView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: usesPadLayout ? 144 : 120)
-            .background(Theme.cardBackground)
+            .background(Theme.appCardBackground)
             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous)

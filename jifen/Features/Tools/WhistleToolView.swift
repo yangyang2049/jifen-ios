@@ -90,7 +90,7 @@ struct WhistleToolView: View {
                     .fill(
                         isPlayingShort
                             ? Color(uiColor: .systemGreen).opacity(0.18)
-                            : Theme.cardBackground
+                            : Theme.appCardBackground
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
@@ -126,7 +126,7 @@ struct WhistleToolView: View {
                     .fill(
                         isPlayingLong
                             ? Color(uiColor: .systemRed).opacity(0.18)
-                            : Theme.cardBackground
+                            : Theme.appCardBackground
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
@@ -140,6 +140,10 @@ struct WhistleToolView: View {
     
     private func playShortWhistle() {
         guard !isPlayingShort && !isPlayingLong else { return }
+        AppAnalytics.track(.toolAction, parameters: [
+            .toolID: .string("whistle"),
+            .actionName: .string("short_whistle")
+        ])
         
         isPlayingShort = true
         VibrationManager.shared.vibrateLight()
@@ -152,6 +156,10 @@ struct WhistleToolView: View {
     
     private func playLongWhistle() {
         guard !isPlayingShort && !isPlayingLong else { return }
+        AppAnalytics.track(.toolAction, parameters: [
+            .toolID: .string("whistle"),
+            .actionName: .string("long_whistle")
+        ])
         
         isPlayingLong = true
         VibrationManager.shared.vibrateHeavy()

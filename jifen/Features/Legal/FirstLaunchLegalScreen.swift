@@ -67,7 +67,7 @@ struct FirstLaunchLegalScreen: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(Theme.cardBackground)
+        .background(Theme.appCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 

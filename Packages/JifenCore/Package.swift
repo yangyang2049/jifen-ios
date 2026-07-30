@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "JifenCore",
     platforms: [
-        .iOS(.v17),
+        .iOS(.v18),
         .watchOS(.v10),
         .macOS(.v13)
     ],

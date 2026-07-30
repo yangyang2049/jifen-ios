@@ -60,6 +60,11 @@ enum ScoreboardShareSupport {
         guard let image = captureKeyWindowImage() else {
             if !text.isEmpty {
                 presentActivity([text])
+            } else {
+                AppAnalytics.track(.shareResult, parameters: [
+                    .contentType: .string("score_record"),
+                    .result: .string(AnalyticsResult.failed.rawValue)
+                ])
             }
             return
         }
@@ -87,7 +92,24 @@ enum ScoreboardShareSupport {
     private static func presentActivity(_ items: [Any]) {
         let activity = UIActivityViewController(activityItems: items, applicationActivities: nil)
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController else { return }
+              let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController else {
+            AppAnalytics.track(.shareResult, parameters: [
+                .contentType: .string("score_record"),
+                .result: .string(AnalyticsResult.failed.rawValue)
+            ])
+            return
+        }
+        AppAnalytics.track(.shareStart, parameters: [.contentType: .string("score_record")])
+        var didComplete = false
+        activity.completionWithItemsHandler = { _, completed, _, error in
+            guard !didComplete else { return }
+            didComplete = true
+            let result: AnalyticsResult = error != nil ? .failed : (completed ? .success : .cancelled)
+            AppAnalytics.track(.shareResult, parameters: [
+                .contentType: .string("score_record"),
+                .result: .string(result.rawValue)
+            ])
+        }
         var presenter = root
         while let presented = presenter.presentedViewController {
             presenter = presented
@@ -249,7 +271,7 @@ struct GameOverDialog: View {
                         .padding(.bottom, usesTabletSpacing ? 20 : 10)
 
                     VStack(spacing: usesTabletSpacing ? 18 : 10) {
-                        Button(action: onNewGame) {
+                        Button(action: trackNewGame) {
                             Text(newGameLabel ?? NSLocalizedString("play_again", value: "再来一场", comment: ""))
                                 .font(.system(size: newGameDisabled ? (usesTabletSpacing ? 14 : 13) : 16, weight: .medium))
                                 .foregroundStyle(newGameDisabled ? secondaryText : Color.white)
@@ -266,15 +288,15 @@ struct GameOverDialog: View {
                         HStack(spacing: usesTabletSpacing ? 12 : 8) {
                             secondaryButton(
                                 title: NSLocalizedString("game_over_records", value: "查看记录", comment: ""),
-                                action: onRecords
+                                action: trackRecords
                             )
                             secondaryButton(
                                 title: NSLocalizedString("share", value: "分享", comment: ""),
-                                action: onShare
+                                action: trackShare
                             )
                             secondaryButton(
                                 title: NSLocalizedString("exit", value: "退出", comment: ""),
-                                action: onExit
+                                action: trackExit
                             )
                         }
                     }
@@ -286,7 +308,7 @@ struct GameOverDialog: View {
                 .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .accessibilityIdentifier("game_over_dialog")
 
-                Button(action: onExit) {
+                Button(action: trackExit) {
                     Image(systemName: "xmark")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(primaryText)
@@ -301,6 +323,48 @@ struct GameOverDialog: View {
             .padding(.horizontal, 20)
         }
         .environment(\.colorScheme, .dark)
+        .onAppear {
+            AppAnalytics.openDialog(
+                "game_over",
+                source: AnalyticsScreen.scoreboard(for: gameType, setup: nil)
+            )
+        }
+    }
+
+    private func trackNewGame() {
+        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .actionName: .string("play_again"),
+            .result: .string(AnalyticsResult.requested.rawValue)
+        ])
+        onNewGame()
+    }
+
+    private func trackRecords() {
+        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .actionName: .string("view_records"),
+            .result: .string(AnalyticsResult.requested.rawValue)
+        ])
+        onRecords()
+    }
+
+    private func trackShare() {
+        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .actionName: .string("share"),
+            .result: .string(AnalyticsResult.requested.rawValue)
+        ])
+        onShare()
+    }
+
+    private func trackExit() {
+        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+            .gameType: .string(gameType.analyticsIdentifier),
+            .actionName: .string("exit"),
+            .result: .string(AnalyticsResult.requested.rawValue)
+        ])
+        onExit()
     }
 
     @ViewBuilder

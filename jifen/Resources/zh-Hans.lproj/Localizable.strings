@@ -18,7 +18,7 @@
 "scoreboard_sports" = "运动";
 "scoreboard_board_games" = "棋牌";
 "scoreboard_cards" = "计分";
-"search_team_or_game" = "搜索队伍或项目";
+"search_team_or_game" = "搜索队伍或比赛";
 "match_count" = "%d 场";
 
 /* Home Screen */
@@ -50,7 +50,7 @@
 "home_tool_team" = "随机分组";
 
 /* Dialog */
-"dialog_new_game_title" = "新比赛";
+"dialog_new_game_title" = "选择比赛";
 
 /* Default Team Names */
 "red_team" = "红队";
@@ -254,7 +254,7 @@
 
 /* Common */
 "cancel" = "取消";
-"confirm" = "确定";
+"confirm" = "确认";
 "delete" = "删除";
 "save" = "保存";
 "reset" = "重置";
@@ -281,6 +281,7 @@
 "advanced_filter" = "高级筛选";
 "edit" = "编辑";
 "done" = "完成";
+"close" = "关闭";
 "no_recent_records" = "暂无最近记录";
 "items" = "项";
 
@@ -344,7 +345,7 @@
 "tool_whistle" = "哨子";
 "tool_random_team" = "随机分组";
 "tool_red_yellow_card" = "红黄牌";
-"tool_points_table" = "积分表";
+"tool_points_table" = "积分榜";
 "tool_time" = "翻页时钟";
 "tool_aa_calculator" = "AA计算器";
 "tool_ten_second" = "十秒挑战";
@@ -386,11 +387,11 @@
 "dice_count_3" = "3颗";
 
 /* Points Table Tool */
-"points_table_title" = "积分表";
-"points_table_empty" = "暂无积分表";
+"points_table_title" = "积分榜";
+"points_table_empty" = "暂无积分榜";
 "points_table_empty_hint" = "点击右上角 + 创建";
 "points_table_teams" = "支队伍";
-"points_table_new_name" = "新积分表";
+"points_table_new_name" = "新积分榜";
 "points_table_team_a" = "甲";
 "points_table_team_b" = "乙";
 "points_table_team_c" = "丙";
@@ -406,7 +407,7 @@
 "points_table_team_name" = "队伍名称";
 "points_table_team_suffix" = "队";
 "points_table_new_team" = "新队伍";
-"points_table_delete_confirm_title" = "删除此积分表？";
+"points_table_delete_confirm_title" = "删除此积分榜？";
 "points_table_delete_confirm_message" = "删除后无法恢复";
 "points_table_min_teams" = "至少保留 2 支队伍";
 "points_table_tap_again_to_delete_team" = "再点一次删除该队伍";
@@ -771,6 +772,7 @@
 "watch_sync_status_no_connection" = "未连接";
 "watch_sync_status_app_not_installed" = "未安装应用";
 "watch_sync_comm_failure_help_confirm" = "知道了";
+"got_it" = "知道了";
 "linked_score_not_controller" = "当前不是主控端，无法执行该操作。";
 "linked_score_reclaim_denied" = "手表拒绝交还控制权。";
 "pingpong_doubles_confirm_opening" = "确认本局首发顺序";
@@ -840,6 +842,9 @@
 "scoreboard_font_metric_nine_ball_secondary" = "追分详情";
 "scoreboard_font_metric_uno_secondary" = "目标/分差";
 "scoreboard_font_metric_boxing_secondary" = "回合信息";
+"scoreboard_main_score_overflow" = "大分超限";
+"scoreboard_set_score_overflow" = "局分超限";
+"scoreboard_game_score_overflow" = "盘分超限";
 "scoreboard_show_controls" = "显示计分板控制按钮";
 "apply" = "应用";
 "scoreboard_billiards" = "台球";
@@ -1050,3 +1055,58 @@
 "snooker_foul_label_7" = "黑";
 "snooker_foul_switch_turn" = "换手";
 "snooker_foul_continue" = "犯规方继续";
+
+/* 本地化专项补齐 */
+"aa_enter_valid_amount" = "请输入有效的金额";
+"add_score" = "加分";
+"archery_repeat_shoot_off" = "距离相同，继续加赛";
+"boxing_end_round" = "结束回合";
+"custom" = "自定义";
+"doudizhu_base_score" = "底分";
+"doudizhu_confirm_with_score" = "确认（底分：%d）";
+"doudizhu_multiplier" = "番数";
+"doudizhu_winner" = "获胜者";
+"draw_result" = "平局";
+"filter" = "筛选";
+"flip_coin_recent" = "最近抛掷";
+"foul" = "犯规";
+"game_over_draw" = "平局";
+"game_over_records" = "查看记录";
+"game_over_title" = "比赛结束";
+"game_stopwatch" = "秒表";
+"game_type_filter" = "比赛类型";
+"menu" = "菜单";
+"menu_end_game" = "结束比赛";
+"nine_ball_foul_opponent_points" = "对手 +%d";
+"record" = "记录";
+"record_date" = "比赛日期";
+"record_detail" = "记录详情";
+"record_empty" = "暂无记录";
+"record_time" = "比赛时间";
+"schedule_notification_body" = "%@ %@ 即将开始";
+"schedule_notification_body_with_location" = "%@ %@ 即将开始，地点：%@";
+"schedule_notification_title" = "约球提醒";
+"snooker_current_frame_short" = "第 %d/%d 局";
+"snooker_foul_button" = "犯规";
+"snooker_record_pot" = "进球";
+"tab_timer_record" = "计时记录";
+"team_name" = "队名";
+"ten_second_error_label" = "误差";
+"ten_second_start" = "开始";
+"ten_second_stop" = "停止";
+"tennis_game_score" = "局分";
+"tennis_point_score" = "小分";
+"tennis_set_score" = "盘分";
+"this_month" = "本月";
+"this_week" = "本周";
+"time_filter" = "时间";
+"timeout" = "暂停";
+"timer_record_time" = "记录时间";
+"undo" = "撤销";
+"watch_set_end_format" = "第 %d 局结束";
+"winner_named_format" = "%@ 获胜";
+"basketball_fouls_count" = "犯规 %d";
+"basketball_timeout_remaining" = "暂停（%d）";
+"basketball_next_period" = "下一节";
+"basketball_extra_overtime" = "再加时";
+"basketball_enter_overtime" = "进入加时";

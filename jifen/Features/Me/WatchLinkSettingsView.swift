@@ -63,6 +63,7 @@ struct WatchLinkSettingsView: View {
         .navigationTitle(NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .analyticsScreen(.watchLinkPage, source: .meTab)
     }
 
     // MARK: - Hero
@@ -138,7 +139,7 @@ struct WatchLinkSettingsView: View {
         }
         .padding(Theme.md)
         .frame(maxWidth: .infinity)
-        .background(Theme.cardBackground)
+        .background(Theme.appCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
@@ -168,7 +169,7 @@ struct WatchLinkSettingsView: View {
         }
         .padding(Theme.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.cardBackground)
+        .background(Theme.appCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 

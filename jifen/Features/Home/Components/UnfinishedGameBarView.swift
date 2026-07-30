@@ -215,7 +215,7 @@ struct UnfinishedGameBarView: View {
     }
 
     private var shadowColor: Color {
-        (colorScheme == .dark ? Color.white : Color.black).opacity(0.22)
+        colorScheme == .dark ? .clear : Color.black.opacity(0.22)
     }
 
     private var closeButtonBackgroundColor: Color {

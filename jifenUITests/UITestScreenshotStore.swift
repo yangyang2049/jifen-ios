@@ -43,7 +43,7 @@ enum UITestScreenshotStore {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
         let screenshot = XCUIScreen.main.screenshot()
-        let data = reviewReadyPNGData(from: screenshot)
+        let data = reviewReadyPNGData(from: screenshot, appFrame: app.frame)
         let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.png")
         attachment.name = reviewName
         attachment.lifetime = .keepAlways
@@ -54,15 +54,21 @@ enum UITestScreenshotStore {
         return fileURL
     }
 
-    /// XCTest can return portrait-sized PNG data while the app is in landscape.
-    /// Flatten the device orientation into the bitmap so Finder/Preview shows
-    /// scoreboard and timer screenshots upright.
-    private static func reviewReadyPNGData(from screenshot: XCUIScreenshot) -> Data {
+    /// XCTest can return portrait-sized PNG data while a landscape app is active.
+    /// Only rotate when the app frame and bitmap aspect ratios disagree: device
+    /// orientation alone can remain stale briefly after relaunching in portrait.
+    private static func reviewReadyPNGData(from screenshot: XCUIScreenshot, appFrame: CGRect) -> Data {
         let originalData = screenshot.pngRepresentation
         guard
             let source = UIImage(data: originalData),
             let cgImage = source.cgImage
         else {
+            return originalData
+        }
+
+        let appIsLandscape = appFrame.width > appFrame.height
+        let bitmapIsPortrait = cgImage.height > cgImage.width
+        guard appIsLandscape, bitmapIsPortrait else {
             return originalData
         }
 
@@ -79,9 +85,10 @@ enum UITestScreenshotStore {
         let oriented = UIImage(cgImage: cgImage, scale: source.scale, orientation: orientation)
         let format = UIGraphicsImageRendererFormat()
         format.scale = source.scale
-        let renderer = UIGraphicsImageRenderer(size: oriented.size, format: format)
+        let targetSize = CGSize(width: source.size.height, height: source.size.width)
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
         let flattened = renderer.image { _ in
-            oriented.draw(in: CGRect(origin: .zero, size: oriented.size))
+            oriented.draw(in: CGRect(origin: .zero, size: targetSize))
         }
         return flattened.pngData() ?? originalData
     }

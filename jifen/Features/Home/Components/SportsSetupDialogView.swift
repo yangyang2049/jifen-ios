@@ -630,6 +630,7 @@ struct SportsSetupDialogView: View {
 
     private var canStartOnWatch: Bool {
         AppFeatureFlags.watchLinkEntryEnabled
+            && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice
             && supportsWatchProject
     }
 

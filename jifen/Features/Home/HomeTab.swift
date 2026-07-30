@@ -39,6 +39,7 @@ struct HomeTab: View {
     @State private var didHandleUITestRoute = false
     /// When user selects a scoreboard game from New Game or Quick Start, show setup first for supported sports.
     @State private var pendingScoreboardSetupItem: ScoreboardSetupItem? = nil
+    @State private var pendingScoreboardEntryPoint: AnalyticsEntryPoint = .homeNewGame
 
     // Navigation back handler for scoreboard views
     private func navigateBack() {
@@ -58,6 +59,7 @@ struct HomeTab: View {
         let gameType: GameType
         let recordId: String?
         let setupResult: SportsSetupResult?
+        let analyticsEntryPoint: AnalyticsEntryPoint
     }
 
     enum NavigationDestination: Hashable {
@@ -102,6 +104,11 @@ struct HomeTab: View {
                     initialPrimary: quickStartManager.quickStartConfig.primarySport,
                     initialSecondary: quickStartManager.quickStartConfig.secondarySport,
                     onSave: { primary, secondary in
+                        AppAnalytics.track(.saveQuickStart, parameters: [
+                            .contentType: .string("quick_start"),
+                            .itemID: .string("\(primary.analyticsIdentifier),\(secondary.analyticsIdentifier)"),
+                            .result: .string(AnalyticsResult.success.rawValue)
+                        ])
                         Task {
                             try? await quickStartManager.setPrimarySport(primary)
                             try? await quickStartManager.setSecondarySport(secondary)
@@ -114,6 +121,12 @@ struct HomeTab: View {
                 NewGameDialogView(
                     onSelect: { type, source, gameType in
                         if type == .scoreboard, let gameType = gameType {
+                            pendingScoreboardEntryPoint = .homeNewGame
+                            AppAnalytics.track(.scoreItemSelect, parameters: [
+                                .gameType: .string(gameType.analyticsIdentifier),
+                                .sourcePage: .string(AnalyticsScreen.homeTab.rawValue),
+                                .entryPoint: .string(AnalyticsEntryPoint.homeNewGame.rawValue)
+                            ])
                             // 所有计分项目均先展示 setup（至少输入名字）
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                                 pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
@@ -131,6 +144,11 @@ struct HomeTab: View {
                         for: item.gameType,
                         maxDialogHeight: maxDialogHeight,
                         onConfirm: { result in
+                            AppAnalytics.scoreSetupConfirmed(
+                                gameType: item.gameType,
+                                setup: result,
+                                entryPoint: pendingScoreboardEntryPoint
+                            )
                             pendingScoreboardSetupItem = nil
                             navigateToScoreboardAfterSetupDismiss(item.gameType, setupResult: result)
                         },
@@ -150,6 +168,7 @@ struct HomeTab: View {
                 switch destination {
                 case .tool(let tool):
                     tool.view
+                        .analyticsScreen(AnalyticsScreen.tool(id: tool.id) ?? .toolsPage, source: .homeTab)
                         .navigationTitle(tool.title)
                         .toolbar(.hidden, for: .tabBar)
                 case .scoreboard(let target):
@@ -157,6 +176,7 @@ struct HomeTab: View {
                         for: target.gameType,
                         setupResult: target.setupResult,
                         initialRecordId: target.recordId,
+                        analyticsEntryPoint: target.analyticsEntryPoint,
                         onSetupConsumed: {}
                     )
                 case .toolsList:
@@ -165,6 +185,7 @@ struct HomeTab: View {
                 case .schedule:
                     SchedulePage(
                         onStartGame: { gameType in
+                            pendingScoreboardEntryPoint = .bookingDetail
                             pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
                         },
                         onChanged: {
@@ -182,6 +203,7 @@ struct HomeTab: View {
                     BookingDetailPage(
                         bookingId: bookingId,
                         onStartGame: { gameType in
+                            pendingScoreboardEntryPoint = .bookingDetail
                             pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
                         },
                         onChanged: {
@@ -388,10 +410,11 @@ struct HomeTab: View {
         resetDiscardConfirmation()
         path.append(
             NavigationDestination.scoreboard(
-                ScoreboardNavigationTarget(
-                    gameType: unfinishedRecord.gameType,
-                    recordId: unfinishedRecord.recordIdentifier,
-                    setupResult: nil
+                    ScoreboardNavigationTarget(
+                        gameType: unfinishedRecord.gameType,
+                        recordId: unfinishedRecord.recordIdentifier,
+                        setupResult: nil,
+                        analyticsEntryPoint: .unfinishedBar
                 )
             )
         )
@@ -438,6 +461,11 @@ struct HomeTab: View {
 
     private func discardUnfinishedGame() {
         guard let unfinishedRecord else { return }
+        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+            .gameType: .string(unfinishedRecord.gameType.analyticsIdentifier),
+            .actionName: .string("discard_unfinished"),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
         switch unfinishedRecord.source {
         case .legacy:
             _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
@@ -471,7 +499,8 @@ struct HomeTab: View {
                     ScoreboardNavigationTarget(
                         gameType: gameType,
                         recordId: nil,
-                        setupResult: setupResult
+                        setupResult: setupResult,
+                        analyticsEntryPoint: pendingScoreboardEntryPoint
                     )
                 )
             )
@@ -540,12 +569,14 @@ struct HomeTab: View {
         for gameType: GameType,
         setupResult: SportsSetupResult? = nil,
         initialRecordId: String? = nil,
+        analyticsEntryPoint: AnalyticsEntryPoint = .homeNewGame,
         onSetupConsumed: @escaping () -> Void = {}
     ) -> some View {
         ScoreboardLaunchView(
             gameType: gameType,
             setupResult: setupResult,
             initialRecordId: initialRecordId,
+            analyticsEntryPoint: analyticsEntryPoint,
             onSetupConsumed: onSetupConsumed,
             onBack: navigateBack
         )
@@ -580,6 +611,7 @@ struct HomeTab: View {
                         isDarkTheme: isDarkTheme,
                         availableWidth: columnWidth,
                         onToolClick: { tool in
+                            trackHomeToolSelection(tool)
                             path.append(NavigationDestination.tool(tool))
                         }
                     )
@@ -603,9 +635,11 @@ struct HomeTab: View {
                     isWide: false,
                     isDarkTheme: isDarkTheme,
                     onToolClick: { tool in
+                        trackHomeToolSelection(tool)
                         path.append(NavigationDestination.tool(tool))
                     },
                     onEnterToolsPage: {
+                        AppAnalytics.openPage(from: .homeTab, to: .toolsPage, entryPoint: .homeTools)
                         path.append(NavigationDestination.toolsList)
                     }
                 )
@@ -617,9 +651,23 @@ struct HomeTab: View {
     @ViewBuilder
     private func buildCommonDataSection() -> some View {
         CommonDataSectionView(
-            onNamesTapped: { path.append(NavigationDestination.commonNames) },
-            onPlacesTapped: { path.append(NavigationDestination.commonPlaces) }
+            onNamesTapped: {
+                AppAnalytics.openPage(from: .homeTab, to: .commonNamesPage)
+                path.append(NavigationDestination.commonNames)
+            },
+            onPlacesTapped: {
+                AppAnalytics.openPage(from: .homeTab, to: .commonPlacesPage)
+                path.append(NavigationDestination.commonPlaces)
+            }
         )
+    }
+
+    private func trackHomeToolSelection(_ tool: ToolItem) {
+        AppAnalytics.track(.toolItemSelect, parameters: [
+            .toolID: .string(tool.id),
+            .sourcePage: .string(AnalyticsScreen.homeTab.rawValue),
+            .entryPoint: .string(AnalyticsEntryPoint.homeTools.rawValue)
+        ])
     }
 
     @ViewBuilder
@@ -632,6 +680,12 @@ struct HomeTab: View {
                 if quickStartTimerTypes.contains(gameType) {
                     onNavigateToTab?(3, gameType)
                 } else {
+                    pendingScoreboardEntryPoint = .homeQuickStartPrimary
+                    AppAnalytics.track(.scoreItemSelect, parameters: [
+                        .gameType: .string(gameType.analyticsIdentifier),
+                        .sourcePage: .string(AnalyticsScreen.homeTab.rawValue),
+                        .entryPoint: .string(AnalyticsEntryPoint.homeQuickStartPrimary.rawValue)
+                    ])
                     pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
                 }
             },
@@ -639,11 +693,23 @@ struct HomeTab: View {
                 if quickStartTimerTypes.contains(gameType) {
                     onNavigateToTab?(3, gameType)
                 } else {
+                    pendingScoreboardEntryPoint = .homeQuickStartSecondary
+                    AppAnalytics.track(.scoreItemSelect, parameters: [
+                        .gameType: .string(gameType.analyticsIdentifier),
+                        .sourcePage: .string(AnalyticsScreen.homeTab.rawValue),
+                        .entryPoint: .string(AnalyticsEntryPoint.homeQuickStartSecondary.rawValue)
+                    ])
                     pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
                 }
             },
-            onNewGameClick: { showNewGameDialog = true },
-            onEditClick: { showQuickStartEditSheet = true }
+            onNewGameClick: {
+                AppAnalytics.openDialog("new_game", source: .homeTab)
+                showNewGameDialog = true
+            },
+            onEditClick: {
+                AppAnalytics.openDialog("quick_start_edit", source: .homeTab)
+                showQuickStartEditSheet = true
+            }
         )
     }
 
@@ -671,6 +737,7 @@ struct HomeTab: View {
                     .foregroundColor(Theme.textPrimary)
                 Spacer()
                 Button {
+                    AppAnalytics.openPage(from: .homeTab, to: .scheduleList, entryPoint: .scheduleList)
                     path.append(NavigationDestination.schedule)
                 } label: {
                     Image(systemName: "chevron.right")
@@ -692,6 +759,7 @@ struct HomeTab: View {
                         .multilineTextAlignment(.center)
 
                     Button {
+                        AppAnalytics.openPage(from: .homeTab, to: .createBookingPage, entryPoint: .scheduleList)
                         showCreateBookingSheet = true
                     } label: {
                         Text(NSLocalizedString("schedule_new_booking", value: "预约新球局", comment: ""))
@@ -712,6 +780,11 @@ struct HomeTab: View {
             } else {
                 ForEach(upcomingBookings) { booking in
                     Button {
+                        AppAnalytics.openPage(from: .homeTab, to: .bookingDetailPage, entryPoint: .scheduleList)
+                        AppAnalytics.track(.selectContent, parameters: [
+                            .contentType: .string("booking"),
+                            .actionName: .string("view")
+                        ])
                         path.append(NavigationDestination.bookingDetail(bookingId: booking.id))
                     } label: {
                         HStack(spacing: 12) {

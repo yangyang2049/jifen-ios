@@ -10,6 +10,7 @@ import SwiftUI
 struct TimerRecordDetailPage: View {
     let recordId: String
     @StateObject private var timerVM = TimerRecordsViewModel.shared
+    @State private var didTrackRecordView = false
 
     private var record: GameRecordSummary? {
         timerVM.records.first { $0.id == recordId }
@@ -42,6 +43,13 @@ struct TimerRecordDetailPage: View {
         .toolbar(.hidden, for: .tabBar)
         .onAppear {
             timerVM.loadFromStorage()
+            guard let record, !didTrackRecordView else { return }
+            didTrackRecordView = true
+            AppAnalytics.screenView(.timerRecordDetail, source: .recordsTab)
+            AppAnalytics.track(.recordView, parameters: [
+                .recordType: .string("timer"),
+                .gameType: .string(record.gameType.analyticsIdentifier)
+            ])
         }
     }
 
@@ -67,7 +75,7 @@ struct TimerRecordDetailPage: View {
             Spacer()
         }
         .padding(Theme.padding)
-        .background(Theme.homeCardDark)
+        .background(Theme.appCardBackground)
         .cornerRadius(Theme.cornerRadius)
     }
 
@@ -79,7 +87,7 @@ struct TimerRecordDetailPage: View {
             }
         }
         .padding(Theme.padding)
-        .background(Theme.homeCardDark)
+        .background(Theme.appCardBackground)
         .cornerRadius(Theme.cornerRadius)
     }
 
@@ -108,7 +116,7 @@ struct TimerRecordDetailPage: View {
             }
         }
         .padding(Theme.padding)
-        .background(Theme.homeCardDark)
+        .background(Theme.appCardBackground)
         .cornerRadius(Theme.cornerRadius)
     }
 

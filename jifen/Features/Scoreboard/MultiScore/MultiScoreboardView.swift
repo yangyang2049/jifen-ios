@@ -177,7 +177,8 @@ struct MultiScoreboardView: View {
                             showMenu = false
                         },
                         onMenuItemClick: handleMultiScoreMenuAction,
-                        items: multiScoreMenuItems
+                        items: multiScoreMenuItems,
+                        analyticsGameType: gameType
                     )
                 }
 

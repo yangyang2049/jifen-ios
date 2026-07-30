@@ -118,6 +118,24 @@ public struct ArcheryMatchState: Codable, Equatable, Sendable {
     public var currentShooter: MatchSide {
         currentShooterIsLeft ? .left : .right
     }
+
+    public func canAdjustArrowSum(side: MatchSide, delta: Int) -> Bool {
+        guard delta != 0 else { return false }
+        let current = side == .left ? leftArrowSum : rightArrowSum
+        let maximum = max(0, arrowsPerSet * 10)
+        let next = current + delta
+        return next >= 0 && next <= maximum
+    }
+
+    public func canAdjustSetPoints(side: MatchSide, delta: Int) -> Bool {
+        guard delta != 0 else { return false }
+        let current = side == .left ? leftSetPoints : rightSetPoints
+        let next = current + delta
+        // Administrative edits must not settle a match without running the
+        // normal set-completion flow, which also updates `finished` and emits
+        // the corresponding completion events.
+        return next >= 0 && next < rules.setPointsToWin
+    }
 }
 
 public enum ArcheryMatchIntent: Codable, Equatable, Sendable {
@@ -181,6 +199,9 @@ public struct ArcheryMatchReducer: DomainReducer {
         case .repeatShootOff:
             return repeatShootOff(state: state)
         case .adjustArrowSum(let side, let delta):
+            guard state.canAdjustArrowSum(side: side, delta: delta) else {
+                return .rejected(state: state, reason: "Arrow score overflow")
+            }
             if side == .left {
                 next.leftArrowSum = max(0, next.leftArrowSum + delta)
             } else {
@@ -188,6 +209,9 @@ public struct ArcheryMatchReducer: DomainReducer {
             }
             return .init(state: next, events: [.arrowSumAdjusted(side: side, delta: delta)])
         case .adjustSetPoints(let side, let delta):
+            guard state.canAdjustSetPoints(side: side, delta: delta) else {
+                return .rejected(state: state, reason: "Set score overflow")
+            }
             if side == .left {
                 next.leftSetPoints = max(0, next.leftSetPoints + delta)
             } else {

@@ -14,7 +14,9 @@ private let defaultDoudizhuNames = [
     NSLocalizedString("doudizhu_player_bob", value: "关羽", comment: ""),
     NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: "")
 ]
-private let doudizhuTitle = "斗地主"
+private var doudizhuTitle: String {
+    NSLocalizedString("game_doudizhu", value: "Doudizhu", comment: "")
+}
 
 struct DoudizhuPlayerItem: Identifiable {
     let id: Int
@@ -166,7 +168,8 @@ struct DoudizhuScoreboardView: View {
                             showMenu = false
                         },
                         onMenuItemClick: handleDoudizhuMenuAction,
-                        items: doudizhuMenuItems
+                        items: doudizhuMenuItems,
+                        analyticsGameType: .doudizhu
                     )
                 }
 

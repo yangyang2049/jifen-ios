@@ -160,18 +160,27 @@ final class RallySessionStoreTests: XCTestCase {
     }
 
     func testTennisDoublesArchiveKeepsAllFourPlayerIdentities() async throws {
+        let archiveRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("tennis-doubles-archive-\(UUID().uuidString)", isDirectory: true)
+        let archiveRepository = SessionArchiveRepository(rootURL: archiveRoot)
+        defer { try? FileManager.default.removeItem(at: archiveRoot) }
+
         let state = TennisMatchState(
             leftName: "红队",
             rightName: "蓝队",
             doublesPlayerNames: ["红A", "蓝A", "红B", "蓝B"]
         )
-        let store = TennisSessionStore(gameType: .tennisDoubles, state: state)
+        let store = TennisSessionStore(
+            gameType: .tennisDoubles,
+            state: state,
+            archiveRepository: archiveRepository
+        )
         store.persistSnapshot()
         let flushed = expectation(description: "tennis doubles archive flushed")
         store.flush { flushed.fulfill() }
         await fulfillment(of: [flushed], timeout: 2)
 
-        let bundle = try await SessionArchiveRepository().loadResumeBundle(
+        let bundle = try await archiveRepository.loadResumeBundle(
             sessionId: store.sessionId,
             as: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self
         )
@@ -281,6 +290,7 @@ final class RallySessionStoreTests: XCTestCase {
             rules: .pingPong(),
             archiveRepository: archiveRepository
         )
+        defer { _ = ScoreboardRecordManager.shared.deleteRecord(rally.sessionId.uuidString) }
         let renamed = expectation(description: "rally renamed")
         rally.send(.setNames(left: "After Left", right: "After Right")) { _ in renamed.fulfill() }
         await fulfillment(of: [renamed], timeout: 2)
@@ -302,6 +312,7 @@ final class RallySessionStoreTests: XCTestCase {
             rightName: "Before Right",
             archiveRepository: archiveRepository
         )
+        defer { _ = ScoreboardRecordManager.shared.deleteRecord(tennis.sessionId.uuidString) }
         let tennisRenamed = expectation(description: "tennis renamed")
         tennis.send(.setNames(left: "After Left", right: "After Right")) { _ in tennisRenamed.fulfill() }
         await fulfillment(of: [tennisRenamed], timeout: 2)
@@ -323,6 +334,7 @@ final class RallySessionStoreTests: XCTestCase {
             rightName: "Before Right",
             archiveRepository: archiveRepository
         )
+        defer { _ = ScoreboardRecordManager.shared.deleteRecord(basketball.sessionId.uuidString) }
         basketball.send(.rename(side: .left, name: "After Left"))
         let basketballFlushed = expectation(description: "basketball renamed")
         basketball.flush { basketballFlushed.fulfill() }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 // Helper class for orientation lock
 class OrientationLock {
@@ -49,7 +50,7 @@ class OrientationLock {
                     .rootViewController?
                     .setNeedsUpdateOfSupportedInterfaceOrientations()
 
-                if defaultOrientation == .portrait, #available(iOS 16.0, *) {
+                if defaultOrientation == .portrait {
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait)) { error in
                         #if DEBUG
                         print("[OrientationLock] Geometry update fallback due to error: \(error.localizedDescription)")
@@ -151,6 +152,10 @@ struct jifenApp: App {
             FirstLaunchLegalScreen {
                 LegalConsent.acceptCurrentDocuments()
                 UmengAnalytics.initializeIfConsented()
+                AppAnalytics.track(.submitForm, parameters: [
+                    .contentType: .string("legal_consent"),
+                    .result: .string(AnalyticsResult.success.rawValue)
+                ])
                 hasAcceptedLegal = true
             }
         }
@@ -166,7 +171,15 @@ struct jifenApp: App {
 }
 
 // AppDelegate for orientation lock
-class ScoreboardAppDelegate: NSObject, UIApplicationDelegate {
+class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return OrientationLock.shared.currentOrientation
     }
@@ -180,5 +193,20 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate {
             LocalPeerRoomManager.shared.setPaused(false)
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        if response.notification.request.content.userInfo["bookingId"] != nil {
+            AppAnalytics.track(.notificationOpen, parameters: [
+                .contentType: .string("booking_reminder"),
+                .entryPoint: .string(AnalyticsEntryPoint.bookingNotification.rawValue),
+                .actionName: .string("open")
+            ])
+        }
+        completionHandler()
     }
 }

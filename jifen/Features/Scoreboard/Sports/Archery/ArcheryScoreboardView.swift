@@ -685,7 +685,7 @@ private class ArcheryScoreboardController: BaseScoreboardController {
 
 /// 需为 internal 以便 ScoreboardTemplate 通过 ScoreViewModelProtocol 派发调用 adjustSets（private 时协议走默认空实现，局分 +/- 不生效）
 @Observable
-class ArcheryViewModel: BaseScoreViewModel {
+class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     private let sessionStore: ArcherySessionStore
     private var onSetEndCallback: ((SetEndCallbackData) -> Void)? = nil
     private var lastEvents: [ArcheryMatchEvent] = []
@@ -755,6 +755,14 @@ class ArcheryViewModel: BaseScoreViewModel {
     override func adjustScore(isLeft: Bool, delta: Int) {
         guard !mutationLocked else { return }
         _ = apply(.adjustArrowSum(side: isLeft ? .left : .right, delta: delta))
+    }
+
+    func canAdjustMainScore(isLeft: Bool, delta: Int) -> Bool {
+        match.canAdjustArrowSum(side: isLeft ? .left : .right, delta: delta)
+    }
+
+    func canAdjustSetScore(isLeft: Bool, delta: Int) -> Bool {
+        match.canAdjustSetPoints(side: isLeft ? .left : .right, delta: delta)
     }
 
     func adjustSetPoints(isLeft: Bool, delta: Int) {

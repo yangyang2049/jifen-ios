@@ -6,16 +6,14 @@ final class jifenUITests: XCTestCase {
     }
 
     func testLaunchPerformance() throws {
-        if #available(iOS 13.0, *) {
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                let app = XCUIApplication()
-                app.launchArguments += [
-                    "-AppleLanguages", "(en)",
-                    "-AppleLocale", "en_US",
-                    "-UITestSkipLegalConsent"
-                ]
-                app.launch()
-            }
+        measure(metrics: [XCTApplicationLaunchMetric()]) {
+            let app = XCUIApplication()
+            app.launchArguments += [
+                "-AppleLanguages", "(en)",
+                "-AppleLocale", "en_US",
+                "-UITestSkipLegalConsent"
+            ]
+            app.launch()
         }
     }
 }

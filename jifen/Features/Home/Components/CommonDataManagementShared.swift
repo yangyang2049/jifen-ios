@@ -118,7 +118,7 @@ struct CommonDataBatchEditBar: View {
         .padding(.horizontal, Theme.md)
         .frame(height: 52)
         .background(
-            Theme.cardBackground
+            Theme.appCardBackground
                 .ignoresSafeArea(edges: .bottom)
         )
     }
@@ -127,7 +127,7 @@ struct CommonDataBatchEditBar: View {
 struct CommonDataListCardBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background(Theme.cardBackground)
+            .background(Theme.appCardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

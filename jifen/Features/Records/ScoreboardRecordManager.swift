@@ -235,6 +235,7 @@ final class ScoreboardRecordManager {
         }
 
         var records = store.loadRecords()
+        let previousRecord = records.first { $0.id == record.id }
         if record.status == .draft {
             if let previousDraftId = getUnfinishedRecordId(), previousDraftId != record.id {
                 _ = store.delete(id: previousDraftId)
@@ -247,7 +248,12 @@ final class ScoreboardRecordManager {
             defaults.removeObject(forKey: unfinishedRecordIdKey)
         }
 
-        try store.save(record)
+        do {
+            try store.save(record)
+        } catch {
+            AppAnalytics.scoreboardRecordSaveFailed(record)
+            throw error
+        }
         records.removeAll { $0.id == record.id }
         records.append(record)
         records.sort { $0.startTime > $1.startTime }
@@ -255,6 +261,7 @@ final class ScoreboardRecordManager {
             store.removeRecords(Array(records.dropFirst(maxRecords)))
         }
         RecordSyncOutbox.shared.enqueueUpsert(record)
+        AppAnalytics.scoreboardRecordSaved(record, previous: previousRecord)
     }
 
     func loadAllRecords() -> [ScoreboardRecord] {
@@ -304,6 +311,10 @@ final class ScoreboardRecordManager {
         guard store.delete(id: id) else { return false }
         RecordSyncOutbox.shared.enqueueDelete(recordID: id)
         if getUnfinishedRecordId() == id { defaults.removeObject(forKey: unfinishedRecordIdKey) }
+        AppAnalytics.track(.deleteRecords, parameters: [
+            .recordType: .string("scoreboard"),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
         return true
     }
 
@@ -314,6 +325,13 @@ final class ScoreboardRecordManager {
         records.forEach { RecordSyncOutbox.shared.enqueueDelete(recordID: $0.id) }
         store.removeRecords(records)
         defaults.removeObject(forKey: unfinishedRecordIdKey)
+        if !records.isEmpty {
+            AppAnalytics.track(.deleteRecords, parameters: [
+                .recordType: .string("scoreboard"),
+                .actionName: .string("clear_all"),
+                .result: .string(AnalyticsResult.success.rawValue)
+            ])
+        }
     }
 
     private func discardConflictingLiveSessions(keeping sessionId: UUID?) {

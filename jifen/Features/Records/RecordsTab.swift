@@ -61,6 +61,7 @@ struct RecordsTab: View {
                 } else {
                     Menu {
                         Button {
+                            AppAnalytics.openDialog("record_filter", source: .recordsTab)
                             showFilterSheet = true
                         } label: {
                             Label(NSLocalizedString("filter", value: "筛选", comment: ""), systemImage: "line.3.horizontal.decrease.circle")
@@ -68,6 +69,9 @@ struct RecordsTab: View {
                         Button {
                             searchText = ""
                             isEditMode = true
+                            AppAnalytics.track(.enterEditMode, parameters: [
+                                .contentType: .string("records")
+                            ])
                         } label: {
                             Label(NSLocalizedString("edit", comment: "Edit"), systemImage: "pencil")
                         }
@@ -179,6 +183,15 @@ struct RecordsTab: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(NSLocalizedString("done", comment: "Done")) {
+                        var parameters: AnalyticsParameters = [
+                            .contentType: .string("records"),
+                            .settingName: .string("time_range"),
+                            .settingValue: .string(selectedTimeFilter.rawValue)
+                        ]
+                        if let gameType = selectedProjectFilter?.gameType {
+                            parameters[.gameType] = .string(gameType.analyticsIdentifier)
+                        }
+                        AppAnalytics.track(.applyFilter, parameters: parameters)
                         showFilterSheet = false
                     }
                 }
@@ -186,6 +199,9 @@ struct RecordsTab: View {
                     Button(NSLocalizedString("reset", value: "重置", comment: "")) {
                         selectedTimeFilter = .all
                         selectedProjectFilter = nil
+                        AppAnalytics.track(.resetFilter, parameters: [
+                            .contentType: .string("records")
+                        ])
                     }
                 }
             }

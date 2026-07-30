@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// Compile-always capability gates controlled by Info.plist (not `#if DEBUG`).
 /// Set `JifenWatchLinkEntryEnabled` to `false` in Info.plist to hide Watch-link
@@ -19,6 +20,16 @@ enum AppFeatureFlags {
         }
         // Default open when the key is absent (dev / older builds).
         return true
+    }
+
+    /// Apple Watch pairs with an iPhone, so phone-initiated WatchConnectivity
+    /// entry points must not be offered by the iPad app.
+    static var isWatchLinkSupportedOnCurrentDevice: Bool {
+        isWatchLinkSupportedHostDevice(UIDevice.current.userInterfaceIdiom)
+    }
+
+    static func isWatchLinkSupportedHostDevice(_ idiom: UIUserInterfaceIdiom) -> Bool {
+        idiom == .phone
     }
 
     static func isWatchLinkSupportedProject(_ gameType: GameType) -> Bool {

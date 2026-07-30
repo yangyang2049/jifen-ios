@@ -151,6 +151,10 @@ struct TenSecondChallengeView: View {
             
             let startTime = Date()
             startTimestamp = startTime
+            AppAnalytics.track(.toolAction, parameters: [
+                .toolID: .string("ten_second"),
+                .actionName: .string("start")
+            ])
             
             timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [self] timer in
                 guard let start = startTimestamp else {
@@ -195,6 +199,12 @@ struct TenSecondChallengeView: View {
         }
 
         showResult = true
+        AppAnalytics.track(.toolResult, parameters: [
+            .toolID: .string("ten_second"),
+            .elapsedMS: .int(Int(finalTime)),
+            .deltaMS: .int(Int(difference)),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
     }
     
     private func stopTimerIfNeeded() {

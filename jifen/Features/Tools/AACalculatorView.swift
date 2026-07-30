@@ -224,7 +224,7 @@ struct AACalculatorView: View {
                             .padding(16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Theme.cardBackground)
+                                    .fill(Theme.appCardBackground)
                             )
                         }
                     }
@@ -301,6 +301,11 @@ struct AACalculatorView: View {
         amountPerPerson = amount / Double(participants)
         showResult = true
         VibrationManager.shared.vibrateLight()
+        AppAnalytics.track(.toolResult, parameters: [
+            .toolID: .string("aa_calculator"),
+            .participantCount: .int(participants),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
     }
 
     private func showToastMessage(_ message: String) {
@@ -326,6 +331,9 @@ struct AACalculatorView: View {
         amountPerPerson = 0
         showResult = false
         isAmountFocused = false
+        AppAnalytics.track(.toolReset, parameters: [
+            .toolID: .string("aa_calculator")
+        ])
     }
 }
 

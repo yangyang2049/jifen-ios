@@ -15,7 +15,7 @@ enum PointsTableStorage {
               let decoded = try? JSONDecoder().decode([PointsTableRecord].self, from: data) else {
             return []
         }
-        return decoded
+        return decoded.map { $0.localizingLegacyDefaults() }
     }
 
     static func save(_ records: [PointsTableRecord]) {

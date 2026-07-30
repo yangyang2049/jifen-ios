@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Fixed
+- **iOS 本地化专项修复与校验升级**：以 Android、鸿蒙 2.9 术语为参考，补齐 iPhone/iPad 端 48 个、Apple Watch 端 36 个静态本地化键，清理篮球、斗地主、菜单、记录详情、通知与 Watch 记录动作中的用户可见硬编码；统一“选择比赛 / Select Game”“积分榜 / Standings”“确认 / Confirm”“搜索队伍或比赛 / Search team or game”、追分及“跳棋 / Checkers”术语，并兼容历史系统默认“新积分表”在英文环境下的显示。新增中英文资源键、重复键、占位符、静态/动态键族、英文中文泄漏和关键 UI 原始键名检查。
+- **iPad Setup 手表入口**：Apple Watch 仅与 iPhone 配对，iPad 上的运动与追分 Setup 对话框不再显示「在手表开始」按钮，只保留本机「开始游戏」；行为与鸿蒙端仅手机开放手表联动的设备判断一致。
 - **手表联动中断通知（P1-2）**：手表被系统中断（来电/通知/Siri）进入后台时，通过 `scenePhase` 监听自动向手机发送 `watchBackgrounded` 消息。手机端收到后在 follower 菜单中显示「⚠️ 手表已进入后台，建议接管计分」提示，用户可直接点击「接管计分」。手表恢复操作（发送新快照）或手机接管成功后自动清除提示。新增 LinkMessageKind.watchBackgrounded、WatchLinkService.notifyBackgrounded()、PhoneWatchLinkService.watchBackgrounded 属性、linked_watch_backgrounded 本地化。
 - **设置弹窗常用名称空状态说明**：CommonNameSelectorDialog 在无常用名称时增加说明文案，引导用户在「设置」-「数据」-「常用名称管理」中添加队伍或选手名称；新增 common_names_empty_hint 中英文本地化（对齐鸿蒙常用名称选择器体验）。
 - **射箭/简单计分/多人计分英文显示**：主应用英文本地化新增 `project_archery` = "Archery"；Types.displayName 中射箭、简单计分、多人计分的 NSLocalizedString 回退值改为英文（"Archery"、"Simple Score"、"Multi-Score"），ArcheryScoreboardView 导航标题回退值改为 "Archery"，英文环境下显示英文名称。
@@ -28,6 +30,12 @@
 - **Watch 工具：计数器**：工具 Tab 新增「计数器」（WatchCounterView）。点击屏幕 +1、底部「重置」按钮二次确认清零；移除底部「计数器」副标题，保留导航栏标题。Watch 本地化 game_counter、press_again_to_reset。
 
 ### Changed
+- **三位数球类比分自适应**：乒乓球、羽毛球和匹克球的单双打主分达到三位数及以上时，在当前用户字号倍率基础上自动缩小至 75%，两位数保持原字号，并继续使用现有宽高约束防止极端分数溢出。
+- **网球单双打计分板布局**：单打使用等高的顶部名称区和底部占位区保持主分垂直居中；存在局分/盘分时降低网球主分默认字号，并为中线发球指示保留随窗口缩放的净空，双打同步采用相同的字号与中线间距规则。
+- **主页面卡片背景统一**：以计分/计时 Tab 的 Grid item 深色视觉层级为标准，首页与 Resume Game Bar、计分/计时 Grid、记录列表及详情、我的与手表联动、球局预约、常用数据管理、工具列表及积分榜/AA/随机分组/硬币/秒表/口哨等页面卡片统一使用不透明的自适应卡片色（深色 `#202022`、浅色白色）；移除页面卡片对 `.ultraThinMaterial` 的依赖，避免 iPad Stage Manager 小窗口下背景撞色或变黑。Setup/Dialog、输入区、分段控件及计分板弹层继续保留各自语义层级。
+- **全屏弹幕顶部控制按钮安全区**：正在显示弹幕时，返回、旋转与编辑按钮按当前横竖屏安全区避让，并额外保留 6pt 小间距；横屏同时避开左右侧安全区，iPad 窗口内旋转时同步映射对应边缘，避免按钮贴近状态栏、刘海或屏幕边缘。
+- **Setup/Dialog 深色背景层级**：统一弹层表面色在浅色模式保持系统白色、深色模式改用 `secondarySystemBackground`，避免 Setup Dialog 与纯黑页面背景融在一起；同步作用于新比赛、筛选及复用该主题色的其他 Dialog/Sheet。
+- **Resume Game Bar 深色模式阴影**：深色模式下移除悬浮比赛条的外发光阴影，依靠卡片背景与页面自然分层；浅色模式继续保留黑色阴影。
 - **设置弹窗默认名称统一（对齐鸿蒙）**：按项目类型区分选手/单方与队伍。主队/客队：篮球。红队/蓝队：足球、排球、掼蛋、简易计分、计数器等。红方/蓝方：射箭、拳击、乒乓球、羽毛球、网球、台球、匹克球。HomeTab 与 ScoreboardTab 的 defaultTeamNames(for:) 改为 switch 分支；主应用本地化已有 watch_team_red、watch_team_blue。拳击计分板回合结束弹窗空名称回退由 red_team/blue_team 改为 watch_team_red/watch_team_blue。
 - **乒/羽/网双打自动填入**：切换到双打时，若两侧名称均不含 "/"，则自动填入 红A、红B、蓝A、蓝B；若含 "/" 则仍按 "/" 拆分为两人。新增本地化 doubles_red_a、doubles_red_b、doubles_blue_a、doubles_blue_b。
 - **设置弹窗名称区域（对齐鸿蒙）**：名称区域改为左右对半、中间「vs」隔开的样式，移除「选手名称」「队伍名称」「主队名称」「客队名称」等标题。单打/非双打为一行 [左名] vs [右名]；双打为左半两格、vs、右半两格。

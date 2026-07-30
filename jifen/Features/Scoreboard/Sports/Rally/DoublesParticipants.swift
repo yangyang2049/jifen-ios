@@ -3,7 +3,12 @@ import ScoreCore
 
 func doublesParticipants(_ setup: SportsSetupResult?) -> [SessionParticipant] {
     let setup = setup
-    let defaults = ["红A", "红B", "蓝A", "蓝B"]
+    let defaults = [
+        NSLocalizedString("doubles_red_a", value: "Red A", comment: ""),
+        NSLocalizedString("doubles_red_b", value: "Red B", comment: ""),
+        NSLocalizedString("doubles_blue_a", value: "Blue A", comment: ""),
+        NSLocalizedString("doubles_blue_b", value: "Blue B", comment: "")
+    ]
     let names = [
         setup?.team1Player1Name,
         setup?.team1Player2Name,

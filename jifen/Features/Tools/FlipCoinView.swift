@@ -159,7 +159,7 @@ struct FlipCoinView: View {
                             .padding(.vertical, 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(Theme.cardBackground)
+                                    .fill(Theme.appCardBackground)
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -264,6 +264,11 @@ struct FlipCoinView: View {
     private func flipCoin() {
         guard !isFlipping else { return }
 
+        AppAnalytics.track(.toolAction, parameters: [
+            .toolID: .string("flip_coin"),
+            .actionName: .string("flip")
+        ])
+
         isFlipping = true
         VibrationManager.shared.vibrateMedium()
         SoundManager.shared.playSound("flip_coin")
@@ -320,6 +325,11 @@ struct FlipCoinView: View {
                 if flipHistory.count > 20 {
                     flipHistory = Array(flipHistory.prefix(20))
                 }
+                AppAnalytics.track(.toolResult, parameters: [
+                    .toolID: .string("flip_coin"),
+                    .result: .string(AnalyticsResult.success.rawValue),
+                    .outcome: .string(isHeads ? "heads" : "tails")
+                ])
             }
         }
     }
@@ -329,6 +339,9 @@ struct FlipCoinView: View {
         headsCount = 0
         tailsCount = 0
         VibrationManager.shared.vibrateLight()
+        AppAnalytics.track(.toolReset, parameters: [
+            .toolID: .string("flip_coin")
+        ])
     }
 }
 

@@ -35,6 +35,16 @@ public struct BoxingMatchState: Codable, Equatable, Sendable {
         self.sidesSwapped = sidesSwapped
         self.finished = finished
     }
+
+    public var completedRounds: Int {
+        min(maxRounds, max(0, finished ? currentRound : currentRound - 1))
+    }
+
+    public func allowsRoundsWon(left: Int, right: Int) -> Bool {
+        left >= 0 && right >= 0
+            && left <= completedRounds && right <= completedRounds
+            && left + right <= completedRounds
+    }
 }
 
 public enum BoxingMatchIntent: Codable, Equatable, Sendable {
@@ -101,6 +111,9 @@ public struct BoxingMatchReducer: DomainReducer {
             if side == .left { next.leftTotal += value } else { next.rightTotal += value }
             return .init(state: next, events: [.pointsAdded(side: side, points: value)])
         case .adjust(let leftTotal, let rightTotal, let currentRound, let leftRoundsWon, let rightRoundsWon):
+            guard state.allowsRoundsWon(left: leftRoundsWon, right: rightRoundsWon) else {
+                return .rejected(state: state, reason: "Round score overflow")
+            }
             next.leftTotal = max(0, leftTotal)
             next.rightTotal = max(0, rightTotal)
             next.currentRound = max(1, min(state.maxRounds, currentRound))

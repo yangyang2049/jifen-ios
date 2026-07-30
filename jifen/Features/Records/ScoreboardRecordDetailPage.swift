@@ -27,6 +27,7 @@ struct ScoreboardRecordDetailPage: View {
     @State private var shareFileURL: URL?
     @State private var showingShareSheet = false
     @State private var isPreparingShare = false
+    @State private var didTrackRecordView = false
 
     var body: some View {
         ZStack {
@@ -66,7 +67,7 @@ struct ScoreboardRecordDetailPage: View {
             Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) {}
         } message: { Text(explanation ?? "") }
         .sheet(isPresented: $showingShareSheet, onDismiss: cleanupShareFile) {
-            if let shareFileURL { ShareActivityView(activityItems: [shareFileURL]) }
+            if let shareFileURL { AnalyticsActivityView(activityItems: [shareFileURL], contentType: "score_record") }
         }
         .sheet(isPresented: $showingSetup) {
             if let record { replaySetupSheet(record) }
@@ -76,6 +77,7 @@ struct ScoreboardRecordDetailPage: View {
                 gameType: request.gameType,
                 setupResult: request.setup,
                 initialRecordId: request.draftRecordId,
+                analyticsEntryPoint: request.draftRecordId == nil ? .recordReplay : .unfinishedBar,
                 onBack: { launchRequest = nil }
             )
             .toolbar(.hidden, for: .tabBar)
@@ -361,6 +363,11 @@ struct ScoreboardRecordDetailPage: View {
             }
             launchRequest = LaunchRequest(gameType: record.gameType, setup: nil, draftRecordId: record.id)
         } else {
+            AppAnalytics.track(.scoreboardMenuAction, parameters: [
+                .gameType: .string(record.gameType.analyticsIdentifier),
+                .actionName: .string("play_again"),
+                .entryPoint: .string(AnalyticsEntryPoint.recordReplay.rawValue)
+            ])
             showingSetup = true
         }
     }
@@ -379,19 +386,16 @@ struct ScoreboardRecordDetailPage: View {
         if stringValue(data["setScoringMode"]) == "tiebreak_only" {
             return NSLocalizedString(
                 tieBreakPoints == 10 ? "tennis_scoring_mode_tiebreak_10" : "tennis_scoring_mode_tiebreak_7",
-                value: tieBreakPoints == 10 ? "一盘抢十" : "一盘抢七",
                 comment: ""
             )
         }
         let games = intValue(data["gamesPerSet"]) == 4 ? 4 : 6
         let gamesLabel = NSLocalizedString(
             games == 4 ? "tennis_games_per_set_4" : "tennis_games_per_set_6",
-            value: games == 4 ? "四局制" : "六局制",
             comment: ""
         )
         let tieBreakLabel = NSLocalizedString(
             tieBreakPoints == 10 ? "tennis_format_tiebreak_10" : "tennis_format_tiebreak_7",
-            value: tieBreakPoints == 10 ? "盘内抢十" : "盘内抢七",
             comment: ""
         )
         return "\(NSLocalizedString("tennis_scoring_mode_regular", value: "传统赛制", comment: "")) · \(gamesLabel) · \(tieBreakLabel)"
@@ -412,7 +416,18 @@ struct ScoreboardRecordDetailPage: View {
         }
     }
 
-    private func loadRecord() { record = ScoreboardRecordManager.shared.getRecordById(recordId) }
+    private func loadRecord() {
+        record = ScoreboardRecordManager.shared.getRecordById(recordId)
+        guard let record, !didTrackRecordView else { return }
+        didTrackRecordView = true
+        let screen: AnalyticsScreen = record.gameType == .multiScoreboard ? .multiscoreRecordDetail : .sportsRecordDetail
+        AppAnalytics.screenView(screen, source: .recordsTab)
+        AppAnalytics.track(.recordView, parameters: [
+            .recordType: .string(record.gameType == .multiScoreboard ? "multiscore" : "scoreboard"),
+            .gameType: .string(record.gameType.analyticsIdentifier),
+            .sourceSurface: .string(record.isSyncedFromWatch ? AnalyticsSourceSurface.watch.rawValue : AnalyticsSourceSurface.phone.rawValue)
+        ])
+    }
 
     private func deleteRecord() {
         guard ScoreboardRecordManager.shared.deleteRecord(recordId) else { return }
@@ -430,8 +445,19 @@ struct ScoreboardRecordDetailPage: View {
         do {
             try data.write(to: url, options: .atomic)
             shareFileURL = url
+            AppAnalytics.track(.shareStart, parameters: [
+                .contentType: .string("score_record"),
+                .gameType: .string(record.gameType.analyticsIdentifier),
+                .sourcePage: .string(record.gameType == .multiScoreboard ? AnalyticsScreen.multiscoreRecordDetail.rawValue : AnalyticsScreen.sportsRecordDetail.rawValue)
+            ])
             showingShareSheet = true
-        } catch { explanation = error.localizedDescription }
+        } catch {
+            AppAnalytics.track(.shareResult, parameters: [
+                .contentType: .string("score_record"),
+                .result: .string(AnalyticsResult.failed.rawValue)
+            ])
+            explanation = error.localizedDescription
+        }
         isPreparingShare = false
     }
 
@@ -499,10 +525,4 @@ private struct RecordDetailShareCardView: View {
         .background(Theme.backgroundColor)
         .foregroundStyle(Theme.textPrimary)
     }
-}
-
-private struct ShareActivityView: UIViewControllerRepresentable {
-    let activityItems: [Any]
-    func makeUIViewController(context: Context) -> UIActivityViewController { UIActivityViewController(activityItems: activityItems, applicationActivities: nil) }
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

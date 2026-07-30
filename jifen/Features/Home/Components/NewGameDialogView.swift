@@ -75,6 +75,7 @@ struct NewGameDialogView: View {
                 }
             }
         }
+        .accessibilityIdentifier("new_game_dialog")
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.dialogSurfaceBackground)

@@ -24,6 +24,7 @@ struct RecentActivityPage: View {
             .navigationTitle(NSLocalizedString("recent_records", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
+            .analyticsScreen(.recentActivityPage, source: .homeTab)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { withAnimation { isEditMode.toggle() } }) {
@@ -100,7 +101,7 @@ struct RecentActivityPage: View {
             // Edit mode: Show delete button + content side by side
             HStack(spacing: 12) {
                 recordContent(for: item)
-                    .background(.ultraThinMaterial)
+                    .background(Theme.appCardBackground)
                     .cornerRadius(12)
 
                 Button(action: { deleteRecord(item) }) {
@@ -116,7 +117,7 @@ struct RecentActivityPage: View {
             case .scoreboard(let record):
                 NavigationLink(destination: ScoreboardRecordDetailPage(recordId: record.id)) {
                     recordContent(for: item)
-                        .background(.ultraThinMaterial)
+                        .background(Theme.appCardBackground)
                         .cornerRadius(12)
                 }
                 .buttonStyle(.plain)
@@ -124,7 +125,7 @@ struct RecentActivityPage: View {
             case .timer(let record):
                 NavigationLink(destination: TimerRecordDetailPage(recordId: record.id)) {
                     recordContent(for: item)
-                        .background(.ultraThinMaterial)
+                        .background(Theme.appCardBackground)
                         .cornerRadius(12)
                 }
                 .buttonStyle(.plain)

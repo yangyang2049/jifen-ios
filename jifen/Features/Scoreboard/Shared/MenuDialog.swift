@@ -222,6 +222,7 @@ struct MenuDialog: View {
     var showExchangeSide: Bool = true
     var resetConfirming: Bool = false
     var items: [ScoreboardMenuItem]? = nil
+    var analyticsGameType: GameType? = nil
     @State private var showUsageHint = false
     @State private var containerSize: CGSize = .zero
 
@@ -310,9 +311,19 @@ struct MenuDialog: View {
                         .frame(width: 1, height: 1)
                         .opacity(0.001)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("Scoreboard menu")
+                        .accessibilityLabel(NSLocalizedString("menu", value: "Menu", comment: "Scoreboard menu"))
                         .accessibilityIdentifier("scoreboard_menu_dialog")
                 }
+            }
+            .onAppear {
+                var parameters: AnalyticsParameters = [:]
+                if let analyticsGameType {
+                    parameters[.gameType] = .string(analyticsGameType.analyticsIdentifier)
+                }
+                AppAnalytics.track(.scoreboardMenuOpen, parameters: parameters)
+                AppAnalytics.openDialog("scoreboard_menu", source: analyticsGameType.map {
+                    AnalyticsScreen.scoreboard(for: $0, setup: nil)
+                } ?? .scoreTab)
             }
             .sheet(isPresented: $showUsageHint) {
                 ScoreboardUsageHintView()
@@ -426,6 +437,7 @@ struct MenuDialog: View {
     private func menuCard(item: ScoreboardMenuItem, size: ScoreboardMenuCardSize, stripItem: Bool) -> some View {
         Button {
             guard item.enabled else { return }
+            trackMenuAction(item)
             // Always notify parent first so pending green-confirm state can clear
             // when tapping non-confirm actions handled inside the dialog.
             onMenuItemClick(item.action)
@@ -479,6 +491,46 @@ struct MenuDialog: View {
         .accessibilityLabel(item.title)
         .accessibilityIdentifier("scoreboard_menu_action_\(item.action)")
         .disabled(!item.enabled)
+    }
+
+    private func trackMenuAction(_ item: ScoreboardMenuItem) {
+        var parameters: AnalyticsParameters = [
+            .actionName: .string(analyticsActionName(item.action))
+        ]
+        if let analyticsGameType {
+            parameters[.gameType] = .string(analyticsGameType.analyticsIdentifier)
+            if item.confirming,
+               ["endGame", "finish", "settleMatch"].contains(item.action) {
+                AppAnalytics.markNextMatchEndReason(.manualFinish, gameType: analyticsGameType)
+            }
+        }
+
+        switch item.action {
+        case "undo":
+            AppAnalytics.track(.scoreUndo, parameters: parameters)
+        case "reset" where item.confirming:
+            parameters[.result] = .string(AnalyticsResult.success.rawValue)
+            AppAnalytics.track(.scoreReset, parameters: parameters)
+        case "reset":
+            parameters[.result] = .string(AnalyticsResult.requested.rawValue)
+            AppAnalytics.track(.scoreboardMenuAction, parameters: parameters)
+        default:
+            parameters[.result] = .string(AnalyticsResult.requested.rawValue)
+            AppAnalytics.track(.scoreboardMenuAction, parameters: parameters)
+        }
+    }
+
+    private func analyticsActionName(_ action: String) -> String {
+        var value = ""
+        for character in action {
+            if character.isUppercase {
+                if !value.isEmpty { value.append("_") }
+                value.append(character.lowercased())
+            } else {
+                value.append(character)
+            }
+        }
+        return value
     }
 
     private func cardFill(item: ScoreboardMenuItem, stripItem: Bool) -> Color {

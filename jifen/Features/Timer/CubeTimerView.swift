@@ -17,6 +17,7 @@ struct CubeTimerView: View {
     @State private var leftHandDown = false
     @State private var rightHandDown = false
     @State private var canStart = false
+    @State private var hasCompletedSolve = false
 
     @State private var displayTimer: Timer?
     @State private var handDownTimer: Timer?
@@ -295,7 +296,13 @@ struct CubeTimerView: View {
             if isRunning {
                 stopTimer()
                 isRunning = false
+                hasCompletedSolve = true
                 VibrationManager.shared.vibrateHeavy()
+                AppAnalytics.track(.timerFinish, parameters: [
+                    .gameType: .string("cube"),
+                    .elapsedMS: .int(Int(elapsedTime * 1_000)),
+                    .endReason: .string(AnalyticsEndReason.ruleCompleted.rawValue)
+                ])
             } else {
                 isWaitingToStart = true
                 canStart = false
@@ -327,9 +334,13 @@ struct CubeTimerView: View {
                 isWaitingToStart = false
                 isRunning = true
                 elapsedTime = 0
+                hasCompletedSolve = false
                 startReference = Date()
                 startTimer()
                 VibrationManager.shared.vibrateMedium()
+                AppAnalytics.track(.timerStart, parameters: [
+                    .gameType: .string("cube")
+                ])
             } else {
                 isWaitingToStart = false
                 canStart = false
@@ -355,6 +366,9 @@ struct CubeTimerView: View {
     }
 
     private func resetTimer() {
+        let previousElapsed = elapsedTime
+        let wasRunning = isRunning
+        let wasCompleted = hasCompletedSolve
         stopTimer()
         handDownTimer?.invalidate()
         handDownTimer = nil
@@ -366,9 +380,15 @@ struct CubeTimerView: View {
         leftHandDown = false
         rightHandDown = false
         canStart = false
+        hasCompletedSolve = false
         startReference = nil
 
         VibrationManager.shared.vibrateLight()
+        trackCancelledSolveIfNeeded(
+            elapsed: previousElapsed,
+            wasRunning: wasRunning,
+            wasCompleted: wasCompleted
+        )
     }
 
     private func cleanupTimers() {
@@ -381,6 +401,11 @@ struct CubeTimerView: View {
         let now = Date()
         if let last = exitClickTime, now.timeIntervalSince(last) < 2 {
             exitClickTime = nil
+            trackCancelledSolveIfNeeded(
+                elapsed: elapsedTime,
+                wasRunning: isRunning,
+                wasCompleted: hasCompletedSolve
+            )
             dismiss()
             return
         }
@@ -391,6 +416,19 @@ struct CubeTimerView: View {
             : NSLocalizedString("tap_again_to_exit", value: "再次轻触退出", comment: ""),
             duration: 1.5
         )
+    }
+
+    private func trackCancelledSolveIfNeeded(
+        elapsed: TimeInterval,
+        wasRunning: Bool,
+        wasCompleted: Bool
+    ) {
+        guard wasRunning, !wasCompleted, elapsed > 0 else { return }
+        AppAnalytics.track(.timerExit, parameters: [
+            .gameType: .string("cube"),
+            .elapsedMS: .int(Int(elapsed * 1_000)),
+            .result: .string(AnalyticsResult.cancelled.rawValue)
+        ])
     }
 
     private func showToast(_ message: String, duration: TimeInterval) {

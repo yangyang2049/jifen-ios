@@ -246,7 +246,8 @@ struct TennisScoreboardView: View {
                     },
                     onMenuItemClick: handleMenu,
                     showEndGame: true,
-                    items: menuItems
+                    items: menuItems,
+                    analyticsGameType: GameType(scoreCoreGameType: store.gameType) ?? .tennis
                 )
                 if shouldShowChrome, !isEditMode, !showMenu, !showGameOverDialog {
                     VStack {
@@ -522,6 +523,10 @@ struct TennisScoreboardView: View {
         let name = side == .left ? store.state.leftName : store.state.rightName
         let typography = resolvedTennisTypography(side: side, name: name, size: size)
         let nameSize = typography.nameFontSize
+        let nameRegionHeight = ScoreboardLayoutMetrics.tennisSinglesNameRegionHeight(
+            panelHeight: size.height,
+            nameFontSize: nameSize
+        )
 
         return VStack(spacing: 0) {
             Text(name)
@@ -529,7 +534,8 @@ struct TennisScoreboardView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 72)
-                .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height))
+                .frame(maxWidth: .infinity)
+                .frame(height: nameRegionHeight, alignment: .bottom)
             Spacer(minLength: 0)
             tennisScoreRow(
                 screenSide: screenSide,
@@ -538,6 +544,9 @@ struct TennisScoreboardView: View {
                 panelSize: size
             )
             Spacer(minLength: 0)
+            Color.clear
+                .frame(height: nameRegionHeight)
+                .accessibilityHidden(true)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -569,7 +578,7 @@ struct TennisScoreboardView: View {
                 fontSize: mainSize,
                 canDecrement: (isLeft ? store.state.leftPoints : store.state.rightPoints) > 0,
                 onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
-                onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
+                onIncrement: { adjustPointsInEdit(side: side, delta: 1) }
             )
 
             if store.state.rules.setScoringMode != .tiebreakOnly {
@@ -580,7 +589,7 @@ struct TennisScoreboardView: View {
                     canDecrement: games > 0,
                     useSecondaryColor: true,
                     onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
-                    onIncrement: { dispatch(.adjustGames(side: side, delta: 1)) }
+                    onIncrement: { adjustGamesInEdit(side: side, delta: 1) }
                 )
                 tennisEditAdjustRow(
                     label: NSLocalizedString("tennis_set_score", value: "盘分", comment: ""),
@@ -589,7 +598,7 @@ struct TennisScoreboardView: View {
                     canDecrement: sets > 0,
                     useSecondaryColor: true,
                     onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                    onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
+                    onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
                 )
             }
         }
@@ -736,7 +745,7 @@ struct TennisScoreboardView: View {
                     canDecrement: (isLeft ? store.state.leftPoints : store.state.rightPoints) > 0,
                     controlSize: controlSize,
                     onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
-                    onIncrement: { dispatch(.adjustPoints(side: side, delta: 1)) }
+                    onIncrement: { adjustPointsInEdit(side: side, delta: 1) }
                 )
 
                 if store.state.rules.setScoringMode != .tiebreakOnly {
@@ -748,7 +757,7 @@ struct TennisScoreboardView: View {
                         useSecondaryColor: true,
                         controlSize: controlSize,
                         onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
-                        onIncrement: { dispatch(.adjustGames(side: side, delta: 1)) }
+                        onIncrement: { adjustGamesInEdit(side: side, delta: 1) }
                     )
                     tennisEditAdjustRow(
                         label: NSLocalizedString("tennis_set_score", value: "盘分", comment: ""),
@@ -758,7 +767,7 @@ struct TennisScoreboardView: View {
                         useSecondaryColor: true,
                         controlSize: controlSize,
                         onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                        onIncrement: { dispatch(.adjustSets(side: side, delta: 1)) }
+                        onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
                     )
                 }
             }
@@ -889,17 +898,24 @@ struct TennisScoreboardView: View {
         let isLeft = side == .left
         let games = isLeft ? store.state.leftGames : store.state.rightGames
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        let hasInlineSecondary = store.state.rules.setScoringMode != .tiebreakOnly
         let typography = resolvedTennisTypography(
             side: side,
             name: "",
             size: CGSize(width: panelSize.width, height: height),
-            secondaryIsInline: store.state.rules.setScoringMode != .tiebreakOnly,
+            scoreBaseScale: ScoreboardLayoutMetrics.tennisMainScoreScale(
+                hasInlineSecondary: hasInlineSecondary
+            ),
+            secondaryIsInline: hasInlineSecondary,
             referenceHeight: panelSize.height
         )
         let mainSize = typography.scoreFontSize
         let scoreSpacing = typography.mainToSecondarySpacing
+        let centerLineClearance = ScoreboardLayoutMetrics.tennisCenterLineClearance(
+            halfViewportSize: panelSize
+        )
 
-        if store.state.rules.setScoringMode == .tiebreakOnly {
+        if !hasInlineSecondary {
             tennisMainScore(side: side, fontSize: mainSize)
                 .frame(maxWidth: .infinity)
                 .frame(height: height)
@@ -912,12 +928,14 @@ struct TennisScoreboardView: View {
                         sets: sets,
                         panelSize: CGSize(width: panelSize.width, height: height)
                     )
+                    .padding(.trailing, centerLineClearance)
                 } else {
                     tennisInnerScoreColumn(
                         games: games,
                         sets: sets,
                         panelSize: CGSize(width: panelSize.width, height: height)
                     )
+                    .padding(.leading, centerLineClearance)
                     tennisMainScore(side: side, fontSize: mainSize)
                 }
             }
@@ -1188,6 +1206,30 @@ struct TennisScoreboardView: View {
         if resolvedLeft != store.state.leftName || resolvedRight != store.state.rightName {
             dispatch(.setNames(left: resolvedLeft, right: resolvedRight))
         }
+    }
+
+    private func adjustPointsInEdit(side: MatchSide, delta: Int) {
+        guard store.state.canAdjustPoints(side: side, delta: delta) else {
+            showToast(NSLocalizedString("scoreboard_main_score_overflow", value: "大分超限", comment: ""))
+            return
+        }
+        dispatch(.adjustPoints(side: side, delta: delta))
+    }
+
+    private func adjustGamesInEdit(side: MatchSide, delta: Int) {
+        guard store.state.canAdjustGames(side: side, delta: delta) else {
+            showToast(NSLocalizedString("scoreboard_set_score_overflow", value: "局分超限", comment: ""))
+            return
+        }
+        dispatch(.adjustGames(side: side, delta: delta))
+    }
+
+    private func adjustSetsInEdit(side: MatchSide, delta: Int) {
+        guard store.state.canAdjustSets(side: side, delta: delta) else {
+            showToast(NSLocalizedString("scoreboard_game_score_overflow", value: "盘分超限", comment: ""))
+            return
+        }
+        dispatch(.adjustSets(side: side, delta: delta))
     }
 
     private func dispatch(_ intent: TennisMatchIntent) {

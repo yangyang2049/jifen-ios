@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 final class MainFlowUITests: XCTestCase {
@@ -43,6 +44,116 @@ final class MainFlowUITests: XCTestCase {
         }
     }
 
+    func testEnglishLocalizationSmokeHasNoChineseOrRawKeys() {
+        var app = launchApp()
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+
+        for tab in tabNames {
+            XCTAssertTrue(selectTab(named: tab, in: app), "Failed to select tab: \(tab)")
+            if tab == "Home" {
+                // Home can contain persisted names from recent or unfinished
+                // games. Verify stable product chrome instead of user content.
+                for label in ["Home", "Recent Records"] {
+                    XCTAssertTrue(
+                        app.descendants(matching: .any)[label].exists,
+                        "Missing localized Home label: \(label)"
+                    )
+                }
+                XCTAssertTrue(
+                    app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "New Game")).firstMatch.exists,
+                    "Missing localized New Game action"
+                )
+                assertRawLocalizationKeysAreAbsent(
+                    ["tab_home", "recent_records", "home_new_game", "home_no_records"],
+                    in: app,
+                    context: "Home tab"
+                )
+            } else if tab == "Records" {
+                // Persisted records may contain user-entered Chinese names. Verify
+                // the product chrome without treating user content as a translation.
+                for label in ["Records", "All", "Score", "Timer"] {
+                    XCTAssertTrue(
+                        app.descendants(matching: .any)[label].exists,
+                        "Missing localized Records label: \(label)"
+                    )
+                }
+                assertRawLocalizationKeysAreAbsent(
+                    ["filter", "game_type_filter", "time_filter", "record_empty"],
+                    in: app,
+                    context: "Records tab"
+                )
+            } else {
+                assertEnglishLocalization(in: app, context: "\(tab) tab")
+            }
+        }
+
+        XCTAssertTrue(selectTab(named: "Home", in: app))
+        let newGame = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "New Game")).firstMatch
+        XCTAssertTrue(newGame.waitForExistence(timeout: 5))
+        newGame.tap()
+        XCTAssertTrue(app.navigationBars["Select Game"].waitForExistence(timeout: 5))
+        let newGameDialog = app.descendants(matching: .any)["new_game_dialog"]
+        XCTAssertTrue(newGameDialog.waitForExistence(timeout: 3))
+        assertEnglishLocalization(in: newGameDialog, context: "Select Game")
+        app.terminate()
+
+        for gameID in ["basketball", "doudizhu"] {
+            app = launchLocalizedApp(language: "en", locale: "en_US")
+            XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+            XCTAssertTrue(selectTab(named: "Score", in: app))
+            let card = app.descendants(matching: .any)["scoreboard_catalog_\(gameID)"]
+            XCTAssertTrue(scrollUntilExists(card, in: app), "Missing scoreboard card: \(gameID)")
+            card.tap()
+            dismissEnglishWatchGuideIfNeeded(in: app)
+            assertEnglishLocalization(in: app, context: "\(gameID) setup")
+
+            let start = app.buttons["Start"]
+            if start.waitForExistence(timeout: 2), start.isHittable {
+                start.tap()
+            }
+            XCUIDevice.shared.orientation = .landscapeLeft
+            _ = app.descendants(matching: .any)["scoreboard_back_button"].waitForExistence(timeout: 8)
+            assertEnglishLocalization(in: app, context: "\(gameID) scoreboard")
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        app = launchLocalizedApp(
+            language: "en",
+            locale: "en_US",
+            arguments: ["-UITestRecordFixtures", "-UITestRecordDetail", "basketball"]
+        )
+        XCTAssertTrue(app.buttons["Play Again"].waitForExistence(timeout: 5))
+        assertEnglishLocalization(in: app, context: "record detail")
+        app.terminate()
+
+        for toolID in ["points_table", "aa_calculator", "ten_second"] {
+            app = launchLocalizedApp(
+                language: "en",
+                locale: "en_US",
+                arguments: ["-UITestOpenTools"]
+            )
+            XCTAssertTrue(openToolsList(in: app))
+            let card = app.descendants(matching: .any)["tool_card_\(toolID)"]
+            XCTAssertTrue(scrollUntilExists(card, in: app), "Missing tool card: \(toolID)")
+            card.tap()
+            XCTAssertTrue(app.navigationBars.firstMatch.waitForExistence(timeout: 5))
+            if toolID == "points_table" {
+                // Saved table and team names are user content and may use any
+                // language. Verify the stable product chrome instead.
+                XCTAssertTrue(app.navigationBars["Standings"].exists)
+                assertRawLocalizationKeysAreAbsent(
+                    ["points_table_title", "points_table_empty", "points_table_empty_hint"],
+                    in: app,
+                    context: "points_table tool"
+                )
+            } else {
+                assertEnglishLocalization(in: app, context: "\(toolID) tool")
+            }
+            app.terminate()
+        }
+    }
+
     func testFirstLaunchLegalConsentGatesMainContent() {
         let app = XCUIApplication()
         app.launchArguments += [
@@ -84,6 +195,211 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["FAQ"].exists)
         XCTAssertTrue(app.staticTexts["About Us"].exists)
         XCTAssertFalse(app.staticTexts["Common Names"].exists)
+    }
+
+    func testMeSecondaryPagesUseExpectedPresentation() {
+        let app = launchApp()
+        defer { app.terminate() }
+
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        let meTab = tabButton(named: "Me", in: app)
+        XCTAssertTrue(meTab.exists)
+        meTab.tap()
+
+        let destinations = [
+            (
+                entry: "settings_scoreboard_entry",
+                sheet: "settings_scoreboard_sheet",
+                close: "settings_scoreboard_sheet_close",
+                title: "Scoreboard Settings"
+            ),
+            (
+                entry: "settings_faq_entry",
+                sheet: "settings_faq_sheet",
+                close: "settings_faq_sheet_close",
+                title: "FAQ"
+            ),
+            (
+                entry: "settings_about_entry",
+                sheet: "settings_about_sheet",
+                close: "settings_about_sheet_close",
+                title: "About Us"
+            )
+        ]
+
+        for destination in destinations {
+            let entry = app.descendants(matching: .any)[destination.entry]
+            XCTAssertTrue(entry.waitForExistence(timeout: 5), "Missing entry: \(destination.entry)")
+            entry.tap()
+
+            let sheet = app.descendants(matching: .any)[destination.sheet]
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                XCTAssertTrue(sheet.waitForExistence(timeout: 5), "Missing sheet: \(destination.sheet)")
+                XCTAssertFalse(entry.isHittable, "Underlying Me entry remained interactive")
+
+                let close = app.buttons[destination.close]
+                XCTAssertTrue(close.waitForExistence(timeout: 3), "Missing close button: \(destination.close)")
+                close.tap()
+                XCTAssertTrue(sheet.waitForNonExistence(timeout: 5), "Sheet did not close: \(destination.sheet)")
+            } else {
+                XCTAssertFalse(sheet.exists, "iPhone unexpectedly presented a settings sheet")
+                let navigationBar = app.navigationBars[destination.title]
+                XCTAssertTrue(navigationBar.waitForExistence(timeout: 5), "Missing pushed page: \(destination.title)")
+                let backButton = navigationBar.buttons.element(boundBy: 0)
+                XCTAssertTrue(backButton.exists, "Missing back button: \(destination.title)")
+                backButton.tap()
+            }
+        }
+    }
+
+    func testIPadMeFormSheetSupportsRotationAndInteractiveDismissal() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("iPad-only Form Sheet behavior")
+        }
+
+        let app = launchApp()
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        tabButton(named: "Me", in: app).tap()
+
+        let entry = app.descendants(matching: .any)["settings_faq_entry"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 5))
+        entry.tap()
+
+        let sheet = app.descendants(matching: .any)["settings_faq_sheet"]
+        XCTAssertTrue(sheet.waitForExistence(timeout: 5))
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(sheet.waitForExistence(timeout: 5), "Sheet disappeared after rotation")
+        let close = app.buttons["settings_faq_sheet_close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 3))
+
+        let dragStart = sheet.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.04))
+        let dragEnd = sheet.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
+        dragStart.press(forDuration: 0.1, thenDragTo: dragEnd)
+        XCTAssertTrue(sheet.waitForNonExistence(timeout: 5), "System drag gesture did not dismiss the sheet")
+    }
+
+    func testIPadMeFormSheetPreservesContentInteractions() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("iPad-only Form Sheet behavior")
+        }
+
+        let app = launchApp()
+        var originalKeepScreenOnValue: String?
+        defer {
+            if let originalKeepScreenOnValue {
+                restoreKeepScreenOn(in: app, to: originalKeepScreenOnValue)
+            }
+            app.terminate()
+        }
+
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        tabButton(named: "Me", in: app).tap()
+
+        app.descendants(matching: .any)["settings_scoreboard_entry"].tap()
+        let scoreboardSheet = app.descendants(matching: .any)["settings_scoreboard_sheet"]
+        XCTAssertTrue(scoreboardSheet.waitForExistence(timeout: 5))
+        scoreboardSheet.swipeUp()
+
+        var keepScreenOn = app.switches["scoreboard_keep_screen_on_toggle"]
+        XCTAssertTrue(keepScreenOn.waitForExistence(timeout: 3))
+        let originalValue = String(describing: keepScreenOn.value)
+        originalKeepScreenOnValue = originalValue
+        keepScreenOn.tap()
+        let updatedValue = String(describing: keepScreenOn.value)
+        XCTAssertNotEqual(updatedValue, originalValue, "Setting toggle did not change")
+
+        let help = app.buttons["scoreboard_immersive_mode_toggle_help"]
+        XCTAssertTrue(help.waitForExistence(timeout: 3))
+        help.tap()
+        let helpAlert = app.alerts.firstMatch
+        XCTAssertTrue(helpAlert.waitForExistence(timeout: 3), "Scoreboard help Alert did not appear")
+        let helpDismiss = helpAlert.buttons["Got It"]
+        XCTAssertTrue(helpDismiss.waitForExistence(timeout: 2), "Scoreboard help Alert was not localized in English")
+        helpDismiss.tap()
+
+        app.buttons["settings_scoreboard_sheet_close"].tap()
+        XCTAssertTrue(scoreboardSheet.waitForNonExistence(timeout: 5))
+
+        app.descendants(matching: .any)["settings_scoreboard_entry"].tap()
+        XCTAssertTrue(scoreboardSheet.waitForExistence(timeout: 5))
+        scoreboardSheet.swipeUp()
+        keepScreenOn = app.switches["scoreboard_keep_screen_on_toggle"]
+        XCTAssertTrue(keepScreenOn.waitForExistence(timeout: 3))
+        XCTAssertEqual(String(describing: keepScreenOn.value), updatedValue, "Setting did not persist after reopening")
+        keepScreenOn.tap()
+        XCTAssertEqual(String(describing: keepScreenOn.value), originalValue, "Test did not restore the original setting")
+        app.buttons["settings_scoreboard_sheet_close"].tap()
+        XCTAssertTrue(scoreboardSheet.waitForNonExistence(timeout: 5))
+
+        app.descendants(matching: .any)["settings_faq_entry"].tap()
+        let faqSheet = app.descendants(matching: .any)["settings_faq_sheet"]
+        XCTAssertTrue(faqSheet.waitForExistence(timeout: 5))
+        app.buttons["settings_faq_question_1"].tap()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["settings_faq_answer_1"].waitForExistence(timeout: 3),
+            "FAQ answer did not expand"
+        )
+        app.buttons["settings_faq_sheet_close"].tap()
+        XCTAssertTrue(faqSheet.waitForNonExistence(timeout: 5))
+
+        app.descendants(matching: .any)["settings_about_entry"].tap()
+        let aboutSheet = app.descendants(matching: .any)["settings_about_sheet"]
+        XCTAssertTrue(aboutSheet.waitForExistence(timeout: 5))
+        for identifier in ["settings_about_terms_link", "settings_about_feedback_link"] {
+            let link = app.descendants(matching: .any)[identifier]
+            XCTAssertTrue(link.waitForExistence(timeout: 3), "Missing About link: \(identifier)")
+            XCTAssertTrue(link.isHittable, "About link is not interactive: \(identifier)")
+        }
+        app.buttons["settings_about_sheet_close"].tap()
+        XCTAssertTrue(aboutSheet.waitForNonExistence(timeout: 5))
+    }
+
+    private func restoreKeepScreenOn(in app: XCUIApplication, to expectedValue: String) {
+        guard app.state == .runningForeground else { return }
+
+        let alert = app.alerts.firstMatch
+        if alert.exists {
+            let dismissButton = alert.buttons.firstMatch
+            if dismissButton.exists, dismissButton.isHittable {
+                dismissButton.tap()
+            }
+        }
+
+        var toggle = app.switches["scoreboard_keep_screen_on_toggle"]
+        if !toggle.exists {
+            for identifier in [
+                "settings_faq_sheet_close",
+                "settings_about_sheet_close"
+            ] {
+                let close = app.buttons[identifier]
+                if close.exists, close.isHittable {
+                    close.tap()
+                    _ = close.waitForNonExistence(timeout: 2)
+                }
+            }
+
+            let entry = app.descendants(matching: .any)["settings_scoreboard_entry"]
+            if entry.waitForExistence(timeout: 2), entry.isHittable {
+                entry.tap()
+                let sheet = app.descendants(matching: .any)["settings_scoreboard_sheet"]
+                if sheet.waitForExistence(timeout: 2) {
+                    sheet.swipeUp()
+                }
+            }
+            toggle = app.switches["scoreboard_keep_screen_on_toggle"]
+        }
+
+        if toggle.waitForExistence(timeout: 2),
+           String(describing: toggle.value) != expectedValue,
+           toggle.isHittable {
+            toggle.tap()
+        }
     }
 
     func testHomeContainsCommonNamesAndPlaces() {
@@ -175,8 +491,14 @@ final class MainFlowUITests: XCTestCase {
         var app = launchChineseApp()
         defer { app.terminate() }
 
-        XCTAssertTrue(app.tabBars.buttons["计时"].waitForExistence(timeout: 8))
-        app.tabBars.buttons["计时"].tap()
+        let timerTab = app.tabBars.buttons["计时"]
+        if timerTab.waitForExistence(timeout: 4) {
+            timerTab.tap()
+        } else {
+            let regularTimerButton = app.buttons["计时"].firstMatch
+            XCTAssertTrue(regularTimerButton.waitForExistence(timeout: 4))
+            regularTimerButton.tap()
+        }
         let checkers = app.descendants(matching: .any)["timer_dest_checkers"]
         XCTAssertTrue(checkers.waitForExistence(timeout: 5))
         checkers.tap()
@@ -249,8 +571,14 @@ final class MainFlowUITests: XCTestCase {
             app.terminate()
         }
 
-        XCTAssertTrue(app.tabBars.buttons["计时"].waitForExistence(timeout: 8))
-        app.tabBars.buttons["计时"].tap()
+        let timerTab = app.tabBars.buttons["计时"]
+        if timerTab.waitForExistence(timeout: 4) {
+            timerTab.tap()
+        } else {
+            let regularTimerButton = app.buttons["计时"].firstMatch
+            XCTAssertTrue(regularTimerButton.waitForExistence(timeout: 4))
+            regularTimerButton.tap()
+        }
         let checkers = app.descendants(matching: .any)["timer_dest_checkers"]
         XCTAssertTrue(scrollUntilExists(checkers, in: app))
         checkers.tap()
@@ -299,7 +627,14 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["board_timer_thinking_indicator_player_2"].exists)
         app.buttons["board_timer_stop_button"].tap()
         XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
-        app.alerts.firstMatch.buttons["确定"].tap()
+        let confirmEndButton = app.alerts.firstMatch.buttons["确认"]
+        if confirmEndButton.waitForExistence(timeout: 1) {
+            confirmEndButton.tap()
+        } else {
+            let legacyConfirmEndButton = app.alerts.firstMatch.buttons["确定"]
+            XCTAssertTrue(legacyConfirmEndButton.waitForExistence(timeout: 1))
+            legacyConfirmEndButton.tap()
+        }
 
         XCTAssertTrue(app.descendants(matching: .any)["board_timer_game_over_result"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["手动结束"].exists)
@@ -475,6 +810,55 @@ final class MainFlowUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    private func dismissEnglishWatchGuideIfNeeded(in app: XCUIApplication) {
+        for label in ["Got It", "Got it"] {
+            let button = app.buttons[label]
+            if button.waitForExistence(timeout: 0.5), button.isHittable {
+                button.tap()
+                return
+            }
+        }
+    }
+
+    private func assertEnglishLocalization(
+        in root: XCUIElement,
+        context: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let visibleElements = [XCUIElement.ElementType.staticText, .button, .navigationBar]
+            .flatMap { root.descendants(matching: $0).allElementsBoundByIndex }
+            .filter { element in
+                element.exists
+                    && !element.frame.isEmpty
+                    && element.frame.intersects(root.frame)
+            }
+
+        let labels = Set(visibleElements.map(\.label).filter { !$0.isEmpty })
+        let chinese = labels.filter {
+            $0.range(of: #"[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]"#, options: .regularExpression) != nil
+        }.sorted()
+        let rawKeys = labels.filter {
+            $0.range(of: #"^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$"#, options: .regularExpression) != nil
+        }.sorted()
+
+        XCTAssertEqual(chinese, [], "Chinese leaked into English UI at \(context): \(chinese)", file: file, line: line)
+        XCTAssertEqual(rawKeys, [], "Raw localization keys leaked at \(context): \(rawKeys)", file: file, line: line)
+    }
+
+    private func assertRawLocalizationKeysAreAbsent(
+        _ keys: [String],
+        in app: XCUIApplication,
+        context: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let leaked = keys.filter { key in
+            app.staticTexts[key].exists || app.buttons[key].exists || app.navigationBars[key].exists
+        }
+        XCTAssertEqual(leaked, [], "Raw localization keys leaked at \(context): \(leaked)", file: file, line: line)
     }
 
     private func runPlayAllSetup(appearance: String) {

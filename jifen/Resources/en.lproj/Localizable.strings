@@ -50,7 +50,7 @@
 "home_tool_team" = "Random Team";
 
 /* Dialog */
-"dialog_new_game_title" = "New Game";
+"dialog_new_game_title" = "Select Game";
 
 /* Default Team Names */
 "red_team" = "Red Team";
@@ -151,7 +151,7 @@
 "game_football" = "Football";
 "game_volleyball" = "Volleyball";
 "game_checkers" = "Checkers";
-"timer_checkers" = "International Checkers";
+"timer_checkers" = "Checkers";
 "game_boxing" = "Boxing";
 "game_billiards" = "Billiards";
 "game_pickleball" = "Pickleball";
@@ -281,6 +281,7 @@
 "advanced_filter" = "Advanced Filter";
 "edit" = "Edit";
 "done" = "Done";
+"close" = "Close";
 "no_recent_records" = "No recent records";
 "items" = "items";
 
@@ -344,7 +345,7 @@
 "tool_whistle" = "Whistle";
 "tool_random_team" = "Random Team";
 "tool_red_yellow_card" = "Red/Yellow Card";
-"tool_points_table" = "Points Table";
+"tool_points_table" = "Standings";
 "tool_time" = "Flip Clock";
 "tool_aa_calculator" = "AA Calculator";
 "tool_ten_second" = "10s Challenge";
@@ -386,11 +387,11 @@
 "dice_count_3" = "3 dice";
 
 /* Points Table Tool */
-"points_table_title" = "Points Table";
-"points_table_empty" = "No points tables";
+"points_table_title" = "Standings";
+"points_table_empty" = "No standings";
 "points_table_empty_hint" = "Tap + in the top right to create one";
 "points_table_teams" = "teams";
-"points_table_new_name" = "New Table";
+"points_table_new_name" = "New Standings";
 "points_table_team_a" = "A";
 "points_table_team_b" = "B";
 "points_table_team_c" = "C";
@@ -406,7 +407,7 @@
 "points_table_team_name" = "Team name";
 "points_table_team_suffix" = "";
 "points_table_new_team" = "Team";
-"points_table_delete_confirm_title" = "Delete this table?";
+"points_table_delete_confirm_title" = "Delete these standings?";
 "points_table_delete_confirm_message" = "This cannot be undone";
 "points_table_min_teams" = "Keep at least 2 teams";
 "points_table_tap_again_to_delete_team" = "Tap again to delete team";
@@ -771,6 +772,7 @@
 "watch_sync_status_no_connection" = "Not connected";
 "watch_sync_status_app_not_installed" = "App not installed";
 "watch_sync_comm_failure_help_confirm" = "Got it";
+"got_it" = "Got It";
 "linked_score_not_controller" = "This device is not the controller, so that action can’t be performed.";
 "linked_score_reclaim_denied" = "The watch declined to return control.";
 "pingpong_doubles_confirm_opening" = "Confirm opening order";
@@ -837,6 +839,9 @@
 "scoreboard_font_metric_nine_ball_secondary" = "Chase Details";
 "scoreboard_font_metric_uno_secondary" = "Target/Gap";
 "scoreboard_font_metric_boxing_secondary" = "Round Details";
+"scoreboard_main_score_overflow" = "Score limit reached";
+"scoreboard_set_score_overflow" = "Game score limit reached";
+"scoreboard_game_score_overflow" = "Set score limit reached";
 "scoreboard_show_controls" = "Show scoreboard controls";
 "apply" = "Apply";
 "scoreboard_billiards" = "Billiards";
@@ -1050,3 +1055,58 @@
 "snooker_foul_label_7" = "Black";
 "snooker_foul_switch_turn" = "Switch turn";
 "snooker_foul_continue" = "Offender continues";
+
+/* Localization audit additions */
+"aa_enter_valid_amount" = "Please enter a valid amount";
+"add_score" = "Add Score";
+"archery_repeat_shoot_off" = "Same distance. Continue the shoot-off.";
+"boxing_end_round" = "End Round";
+"custom" = "Custom";
+"doudizhu_base_score" = "Base Score";
+"doudizhu_confirm_with_score" = "Confirm (Base: %d)";
+"doudizhu_multiplier" = "Multiplier";
+"doudizhu_winner" = "Winner";
+"draw_result" = "Draw";
+"filter" = "Filter";
+"flip_coin_recent" = "Recent Flips";
+"foul" = "Foul";
+"game_over_draw" = "Draw";
+"game_over_records" = "View Records";
+"game_over_title" = "Game Over";
+"game_stopwatch" = "Stopwatch";
+"game_type_filter" = "Game Type";
+"menu" = "Menu";
+"menu_end_game" = "End Match";
+"nine_ball_foul_opponent_points" = "Opponent +%d";
+"record" = "Record";
+"record_date" = "Match Date";
+"record_detail" = "Record Details";
+"record_empty" = "No Records";
+"record_time" = "Match Time";
+"schedule_notification_body" = "%@ %@ starts soon";
+"schedule_notification_body_with_location" = "%@ %@ starts soon at %@";
+"schedule_notification_title" = "Match Reminder";
+"snooker_current_frame_short" = "Frame %d/%d";
+"snooker_foul_button" = "Foul";
+"snooker_record_pot" = "Pot";
+"tab_timer_record" = "Timer Record";
+"team_name" = "Team Name";
+"ten_second_error_label" = "Error";
+"ten_second_start" = "Start";
+"ten_second_stop" = "Stop";
+"tennis_game_score" = "Games";
+"tennis_point_score" = "Points";
+"tennis_set_score" = "Sets";
+"this_month" = "This Month";
+"this_week" = "This Week";
+"time_filter" = "Time";
+"timeout" = "Timeout";
+"timer_record_time" = "Recorded At";
+"undo" = "Undo";
+"watch_set_end_format" = "Game %d Finished";
+"winner_named_format" = "%@ Wins";
+"basketball_fouls_count" = "Fouls %d";
+"basketball_timeout_remaining" = "Timeout (%d)";
+"basketball_next_period" = "Next Period";
+"basketball_extra_overtime" = "Extra OT";
+"basketball_enter_overtime" = "Overtime";

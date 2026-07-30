@@ -56,6 +56,11 @@ struct ScoreboardTab: View {
                         for: sport,
                         maxDialogHeight: maxDialogHeight,
                         onConfirm: { result in
+                            AppAnalytics.scoreSetupConfirmed(
+                                gameType: sport.gameType,
+                                setup: result,
+                                entryPoint: .scoreTab
+                            )
                             appliedSetupResult = result
                             appliedSetupGameType = sport.gameType
                             pendingSetupSport = nil
@@ -94,6 +99,12 @@ struct ScoreboardTab: View {
             LazyVGrid(columns: gridColumns(availableWidth: availableWidth), spacing: gridSpacing) {
                 ForEach(items) { sport in
                     SportCardView(sport: sport) {
+                        AppAnalytics.track(.scoreItemSelect, parameters: [
+                            .gameType: .string(sport.gameType.analyticsIdentifier),
+                            .sourcePage: .string(AnalyticsScreen.scoreTab.rawValue),
+                            .entryPoint: .string(AnalyticsEntryPoint.scoreTab.rawValue)
+                        ])
+                        AppAnalytics.openDialog("score_setup", source: .scoreTab)
                         pendingSetupSport = sport
                     }
                 }
@@ -165,6 +176,7 @@ struct ScoreboardTab: View {
         ScoreboardLaunchView(
             gameType: gameType,
             setupResult: setupResult,
+            analyticsEntryPoint: .scoreTab,
             onSetupConsumed: onSetupConsumed,
             onBack: onBack
         )
@@ -259,8 +271,6 @@ struct SportCardView: View {
     let sport: ScoreboardCatalogItem
     let action: () -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         Button(action: {
             VibrationManager.shared.vibrateLight()
@@ -279,13 +289,7 @@ struct SportCardView: View {
             .padding(.vertical, Theme.cardPadding)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 92)
-            .background {
-                if colorScheme == .light {
-                    Color.white
-                } else {
-                    Rectangle().fill(.ultraThinMaterial)
-                }
-            }
+            .background(Theme.appCardBackground)
             .cornerRadius(Theme.cornerRadius)
         }
         .buttonStyle(PlainButtonStyle())

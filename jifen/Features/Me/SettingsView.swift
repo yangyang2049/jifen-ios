@@ -13,6 +13,34 @@ private enum AppSupportURLs {
     static let qqGroupNumber = "825096333"
 }
 
+private enum SettingsSheetDestination: String, Identifiable {
+    case scoreboardSettings
+    case faq
+    case about
+
+    var id: String { rawValue }
+
+    var entryAccessibilityIdentifier: String {
+        switch self {
+        case .scoreboardSettings: "settings_scoreboard_entry"
+        case .faq: "settings_faq_entry"
+        case .about: "settings_about_entry"
+        }
+    }
+
+    var sheetAccessibilityIdentifier: String {
+        switch self {
+        case .scoreboardSettings: "settings_scoreboard_sheet"
+        case .faq: "settings_faq_sheet"
+        case .about: "settings_about_sheet"
+        }
+    }
+
+    var closeAccessibilityIdentifier: String {
+        "\(sheetAccessibilityIdentifier)_close"
+    }
+}
+
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
@@ -20,6 +48,8 @@ struct SettingsView: View {
     var isTabRoot: Bool = false
     @State private var showClearConfirm = false
     @State private var showAppearancePicker = false
+    @State private var showAppShareSheet = false
+    @State private var activeSheet: SettingsSheetDestination?
 
     var body: some View {
         NavigationStack {
@@ -30,17 +60,27 @@ struct SettingsView: View {
                     VStack(spacing: Theme.sectionSpacing) {
                         SettingsSection(title: NSLocalizedString("settings_features", value: "功能设置", comment: "")) {
                             VStack(spacing: 0) {
-                                NavigationLink { ScoreboardSettingsView() } label: {
-                                    SettingsNavigationRow(title: NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: ""))
+                                settingsDestinationRow(
+                                    .scoreboardSettings,
+                                    title: NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: "")
+                                ) {
+                                    ScoreboardSettingsView()
                                 }
-                                if AppFeatureFlags.watchLinkEntryEnabled {
+                                if AppFeatureFlags.watchLinkEntryEnabled
+                                    && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice {
                                     settingsRowDivider
                                     NavigationLink { WatchLinkSettingsView() } label: {
                                         SettingsNavigationRow(title: NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
                                     }
+                                    .simultaneousGesture(TapGesture().onEnded {
+                                        AppAnalytics.openPage(from: .meTab, to: .watchLinkPage, entryPoint: .meTab)
+                                    })
                                 }
                                 settingsRowDivider
-                                Button { showAppearancePicker = true } label: {
+                                Button {
+                                    AppAnalytics.openDialog("appearance_picker", source: .meTab)
+                                    showAppearancePicker = true
+                                } label: {
                                     SettingsNavigationRow(
                                         title: NSLocalizedString("appearance", comment: ""),
                                         value: appearance.mode.localizedTitle
@@ -48,7 +88,10 @@ struct SettingsView: View {
                                 }
                                 .buttonStyle(.plain)
                                 settingsRowDivider
-                                Button { showClearConfirm = true } label: {
+                                Button {
+                                    AppAnalytics.openDialog("clear_data_confirm", source: .meTab)
+                                    showClearConfirm = true
+                                } label: {
                                     SettingsNavigationRow(title: NSLocalizedString("clear_data", comment: ""))
                                 }
                                 .buttonStyle(.plain)
@@ -57,22 +100,44 @@ struct SettingsView: View {
 
                         SettingsSection(title: NSLocalizedString("settings_help_support", value: "帮助与支持", comment: "")) {
                             VStack(spacing: 0) {
-                                Button { requestReview() } label: {
+                                Button {
+                                    requestReview()
+                                    AppAnalytics.track(.rateApp, parameters: [
+                                        .entryPoint: .string(AnalyticsEntryPoint.meTab.rawValue),
+                                        .result: .string(AnalyticsResult.requested.rawValue)
+                                    ])
+                                } label: {
                                     SettingsNavigationRow(title: NSLocalizedString("settings_rate_app", value: "给个好评", comment: ""))
                                 }
                                 .buttonStyle(.plain)
                                 settingsRowDivider
-                                ShareLink(item: AppSupportURLs.website) {
+                                Button {
+                                    AppAnalytics.track(.shareApp, parameters: [
+                                        .entryPoint: .string(AnalyticsEntryPoint.meTab.rawValue),
+                                        .contentType: .string("app_link")
+                                    ])
+                                    AppAnalytics.track(.shareStart, parameters: [
+                                        .contentType: .string("app_link"),
+                                        .sourcePage: .string(AnalyticsScreen.meTab.rawValue)
+                                    ])
+                                    showAppShareSheet = true
+                                } label: {
                                     SettingsNavigationRow(title: NSLocalizedString("settings_share_app", value: "分享给朋友", comment: ""))
                                 }
                                 .buttonStyle(.plain)
                                 settingsRowDivider
-                                NavigationLink { FAQView() } label: {
-                                    SettingsNavigationRow(title: NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
+                                settingsDestinationRow(
+                                    .faq,
+                                    title: NSLocalizedString("settings_faq", value: "常见问题", comment: "")
+                                ) {
+                                    FAQView()
                                 }
                                 settingsRowDivider
-                                NavigationLink { AboutUsView() } label: {
-                                    SettingsNavigationRow(title: NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
+                                settingsDestinationRow(
+                                    .about,
+                                    title: NSLocalizedString("about_us_title", value: "关于我们", comment: "")
+                                ) {
+                                    AboutUsView()
                                 }
                             }
                         }
@@ -101,7 +166,13 @@ struct SettingsView: View {
             }
             .confirmationDialog(NSLocalizedString("appearance", comment: ""), isPresented: $showAppearancePicker) {
                 ForEach(AppAppearanceMode.allCases) { mode in
-                    Button(mode.localizedTitle) { appearance.mode = mode }
+                    Button(mode.localizedTitle) {
+                        appearance.mode = mode
+                        AppAnalytics.track(.toggleSetting, parameters: [
+                            .settingName: .string("app_appearance"),
+                            .settingValue: .string(mode.rawValue)
+                        ])
+                    }
                 }
             }
             .tint(showAppearancePicker ? Color.primary : Theme.accentColor)
@@ -117,10 +188,50 @@ struct SettingsView: View {
                     CommonPlacesManager.shared.clearAll()
                     ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
                     TimerRecordsViewModel.shared.loadFromStorage()
+                    AppAnalytics.track(.clearData, parameters: [
+                        .actionName: .string("clear_all"),
+                        .result: .string(AnalyticsResult.success.rawValue)
+                    ])
                 }
             } message: {
                 Text(NSLocalizedString("clear_all_records_message", comment: ""))
             }
+        }
+        .sheet(item: $activeSheet) { destination in
+            SettingsFormSheet(destination: destination)
+                .presentationSizing(.form)
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showAppShareSheet) {
+            AnalyticsActivityView(activityItems: [AppSupportURLs.website], contentType: "app_link")
+        }
+    }
+
+    @ViewBuilder
+    private func settingsDestinationRow<Destination: View>(
+        _ destination: SettingsSheetDestination,
+        title: String,
+        @ViewBuilder content: () -> Destination
+    ) -> some View {
+        if Theme.usesPadLayout {
+            Button {
+                AppAnalytics.openPage(from: .meTab, to: destination.analyticsScreen, entryPoint: .meTab)
+                activeSheet = destination
+            } label: {
+                SettingsNavigationRow(title: title)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(destination.entryAccessibilityIdentifier)
+        } else {
+            NavigationLink {
+                content()
+            } label: {
+                SettingsNavigationRow(title: title)
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                AppAnalytics.openPage(from: .meTab, to: destination.analyticsScreen, entryPoint: .meTab)
+            })
+            .accessibilityIdentifier(destination.entryAccessibilityIdentifier)
         }
     }
 
@@ -128,6 +239,52 @@ struct SettingsView: View {
         Divider()
             .overlay(Theme.divider)
             .opacity(0.45)
+    }
+}
+
+private struct SettingsFormSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let destination: SettingsSheetDestination
+
+    var body: some View {
+        NavigationStack {
+            destinationContent
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
+                        .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: "Close form sheet"))
+                        .accessibilityIdentifier(destination.closeAccessibilityIdentifier)
+                    }
+                }
+        }
+        .background(Theme.backgroundColor.ignoresSafeArea())
+        .accessibilityIdentifier(destination.sheetAccessibilityIdentifier)
+    }
+
+    @ViewBuilder
+    private var destinationContent: some View {
+        switch destination {
+        case .scoreboardSettings:
+            ScoreboardSettingsView()
+        case .faq:
+            FAQView()
+        case .about:
+            AboutUsView()
+        }
+    }
+}
+
+private extension SettingsSheetDestination {
+    var analyticsScreen: AnalyticsScreen {
+        switch self {
+        case .scoreboardSettings: return .scoreboardSettingsPage
+        case .faq: return .faqPage
+        case .about: return .aboutUsPage
+        }
     }
 }
 
@@ -157,7 +314,7 @@ struct SettingsSection<Content: View>: View {
 
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Theme.cardBackground)
+                .background(Theme.appCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous)
@@ -222,40 +379,47 @@ private struct ScoreboardSettingsView: View {
                         if Theme.usesPadLayout {
                             ScoreboardToggleSettingRow(
                                 title: NSLocalizedString("scoreboard_force_ipad_landscape", value: "iPad 强制横屏", comment: ""),
-                                isOn: $forceIPadLandscape
+                                isOn: $forceIPadLandscape,
+                                toggleAccessibilityIdentifier: "scoreboard_force_ipad_landscape_toggle"
                             )
                             Divider().overlay(Theme.divider)
                         }
                         ScoreboardToggleSettingRow(
                             title: NSLocalizedString("scoreboard_keep_screen_on", value: "屏幕常亮", comment: ""),
-                            isOn: $keepScreenOn
+                            isOn: $keepScreenOn,
+                            toggleAccessibilityIdentifier: "scoreboard_keep_screen_on_toggle"
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
                             title: NSLocalizedString("sound", value: "声音", comment: ""),
-                            isOn: $soundEnabled
+                            isOn: $soundEnabled,
+                            toggleAccessibilityIdentifier: "scoreboard_sound_toggle"
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
                             title: NSLocalizedString("vibration", value: "振动", comment: ""),
-                            isOn: $vibrationEnabled
+                            isOn: $vibrationEnabled,
+                            toggleAccessibilityIdentifier: "scoreboard_vibration_toggle"
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
                             title: NSLocalizedString("scoreboard_immersive_mode", value: "沉浸模式", comment: ""),
                             isOn: $immersiveMode,
+                            toggleAccessibilityIdentifier: "scoreboard_immersive_mode_toggle",
                             helpAction: { helpTopic = .immersive }
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
                             title: NSLocalizedString("scoreboard_touch_guard", value: "触摸防误触", comment: ""),
                             isOn: $touchGuard,
+                            toggleAccessibilityIdentifier: "scoreboard_touch_guard_toggle",
                             helpAction: { helpTopic = .touchGuard }
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
                             title: NSLocalizedString("scoreboard_double_tap_subtract", value: "双击减分", comment: ""),
                             isOn: $doubleTapSubtract,
+                            toggleAccessibilityIdentifier: "scoreboard_double_tap_subtract_toggle",
                             helpAction: { helpTopic = .doubleTapSubtract }
                         )
                     }
@@ -271,18 +435,57 @@ private struct ScoreboardSettingsView: View {
         .navigationTitle(NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .onChange(of: selectedTheme) { _, value in PreferencesManager.shared.scoreboardTheme = value.rawValue }
-        .onChange(of: selectedFont) { _, value in PreferencesManager.shared.defaultScoreboardFont = value.rawValue }
-        .onChange(of: forceIPadLandscape) { _, value in PreferencesManager.shared.forceIPadLandscape = value }
-        .onChange(of: keepScreenOn) { _, value in PreferencesManager.shared.keepScoreboardScreenOn = value }
-        .onChange(of: soundEnabled) { _, value in PreferencesManager.shared.soundEnabled = value }
-        .onChange(of: vibrationEnabled) { _, value in PreferencesManager.shared.vibrationEnabled = value }
-        .onChange(of: immersiveMode) { _, value in PreferencesManager.shared.scoreboardImmersiveModeEnabled = value }
-        .onChange(of: touchGuard) { _, value in PreferencesManager.shared.scoreboardTouchGuardEnabled = value }
-        .onChange(of: doubleTapSubtract) { _, value in PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled = value }
+        .analyticsScreen(.scoreboardSettingsPage, source: .meTab)
+        .onChange(of: selectedTheme) { _, value in
+            PreferencesManager.shared.scoreboardTheme = value.rawValue
+            trackSetting("scoreboard_theme", value.rawValue)
+        }
+        .onChange(of: selectedFont) { _, value in
+            PreferencesManager.shared.defaultScoreboardFont = value.rawValue
+            trackSetting("scoreboard_font", value.rawValue)
+        }
+        .onChange(of: forceIPadLandscape) { _, value in
+            PreferencesManager.shared.forceIPadLandscape = value
+            trackSetting("force_ipad_landscape", value)
+        }
+        .onChange(of: keepScreenOn) { _, value in
+            PreferencesManager.shared.keepScoreboardScreenOn = value
+            trackSetting("keep_screen_on", value)
+        }
+        .onChange(of: soundEnabled) { _, value in
+            PreferencesManager.shared.soundEnabled = value
+            trackSetting("sound_enabled", value)
+        }
+        .onChange(of: vibrationEnabled) { _, value in
+            PreferencesManager.shared.vibrationEnabled = value
+            trackSetting("vibration_enabled", value)
+        }
+        .onChange(of: immersiveMode) { _, value in
+            PreferencesManager.shared.scoreboardImmersiveModeEnabled = value
+            trackSetting("immersive_mode", value)
+        }
+        .onChange(of: touchGuard) { _, value in
+            PreferencesManager.shared.scoreboardTouchGuardEnabled = value
+            trackSetting("touch_guard", value)
+        }
+        .onChange(of: doubleTapSubtract) { _, value in
+            PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled = value
+            trackSetting("double_tap_subtract", value)
+        }
         .alert(item: $helpTopic) { topic in
             Alert(title: Text(topic.title), message: Text(topic.message), dismissButton: .default(Text(NSLocalizedString("got_it", value: "知道了", comment: ""))))
         }
+    }
+
+    private func trackSetting(_ name: String, _ value: Bool) {
+        trackSetting(name, value ? "enabled" : "disabled")
+    }
+
+    private func trackSetting(_ name: String, _ value: String) {
+        AppAnalytics.track(.toggleSetting, parameters: [
+            .settingName: .string(name),
+            .settingValue: .string(value)
+        ])
     }
 }
 
@@ -412,6 +615,7 @@ private struct ScoreboardFontSelector: View {
 private struct ScoreboardToggleSettingRow: View {
     let title: String
     @Binding var isOn: Bool
+    let toggleAccessibilityIdentifier: String
     var helpAction: (() -> Void)? = nil
 
     var body: some View {
@@ -425,10 +629,12 @@ private struct ScoreboardToggleSettingRow: View {
                         .foregroundColor(Theme.textSecondary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("\(toggleAccessibilityIdentifier)_help")
             }
             Spacer()
             Toggle("", isOn: $isOn)
                 .labelsHidden()
+                .accessibilityIdentifier(toggleAccessibilityIdentifier)
         }
         .padding(.horizontal, Theme.md)
         .frame(minHeight: 56)
@@ -474,14 +680,16 @@ private struct FAQView: View {
                                     .font(.system(size: 14))
                                     .foregroundColor(Theme.textSecondary)
                                     .multilineTextAlignment(.leading)
+                                    .accessibilityIdentifier("settings_faq_answer_\(item.id)")
                             }
                         }
                         .padding(Theme.md)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Theme.cardBackground)
+                        .background(Theme.appCardBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("settings_faq_question_\(item.id)")
                 }
             }
             .frame(maxWidth: Theme.meTabContentMaxWidth)
@@ -493,6 +701,7 @@ private struct FAQView: View {
         .navigationTitle(NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .analyticsScreen(.faqPage, source: .meTab)
     }
 }
 
@@ -520,22 +729,35 @@ private struct AboutUsView: View {
                         Link(destination: AppSupportURLs.terms) {
                             SettingsNavigationRow(title: NSLocalizedString("terms_of_service", value: "用户协议", comment: ""))
                         }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
+                        })
+                        .accessibilityIdentifier("settings_about_terms_link")
                         Divider().overlay(Theme.divider)
                         Link(destination: AppSupportURLs.privacy) {
                             SettingsNavigationRow(title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: ""))
                         }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
+                        })
+                        .accessibilityIdentifier("settings_about_privacy_link")
                         Divider().overlay(Theme.divider)
                         Link(destination: AppSupportURLs.feedback) {
                             SettingsNavigationRow(title: NSLocalizedString("about_feedback_row", value: "意见反馈", comment: ""))
                         }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            AppAnalytics.openPage(from: .aboutUsPage, to: .feedbackPage)
+                        })
+                        .accessibilityIdentifier("settings_about_feedback_link")
                         Divider().overlay(Theme.divider)
                         Link(destination: AppSupportURLs.wechatGroup) {
                             SettingsNavigationRow(title: NSLocalizedString("about_wechat_group", value: "微信群", comment: ""))
                         }
+                        .accessibilityIdentifier("settings_about_wechat_link")
                         Divider().overlay(Theme.divider)
                         qqGroupRow
                     }
-                    .background(Theme.cardBackground)
+                    .background(Theme.appCardBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .overlay {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -564,6 +786,7 @@ private struct AboutUsView: View {
         .navigationTitle(NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .analyticsScreen(.aboutUsPage, source: .meTab)
     }
 
     private var qqGroupRow: some View {

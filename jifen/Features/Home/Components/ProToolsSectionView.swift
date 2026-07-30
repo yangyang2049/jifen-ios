@@ -56,11 +56,7 @@ struct ToolItemView: View {
                         .foregroundColor(iconColor)
                 }
                 .frame(width: 64, height: 64)
-                .background(
-                    isDarkTheme
-                        ? AnyShapeStyle(.ultraThinMaterial)
-                        : AnyShapeStyle(Theme.homeNeutralCardBackground)
-                )
+                .background(Theme.appCardBackground)
                 .cornerRadius(Theme.cornerRadius)
                 .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1)
 

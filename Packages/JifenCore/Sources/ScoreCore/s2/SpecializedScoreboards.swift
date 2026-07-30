@@ -28,6 +28,14 @@ public struct EightBallState: Codable, Equatable, Sendable {
             sidesSwapped: false
         )
     }
+
+    public func canAdjustRacks(side: MatchSide, delta: Int) -> Bool {
+        guard delta != 0 else { return false }
+        let current = side == .left ? leftPoints : rightPoints
+        let minimum = handicapBeneficiary == side ? handicapRacks : 0
+        let next = current + delta
+        return next >= minimum && next <= max(0, targetPoints - 1)
+    }
 }
 
 public enum EightBallIntent: Codable, Sendable {
@@ -79,8 +87,12 @@ public struct EightBallReducer: DomainReducer {
             let maximum = max(0, state.targetPoints - 1)
             let leftMinimum = state.handicapBeneficiary == .left ? state.handicapRacks : 0
             let rightMinimum = state.handicapBeneficiary == .right ? state.handicapRacks : 0
-            next.leftPoints = min(maximum, max(leftMinimum, left))
-            next.rightPoints = min(maximum, max(rightMinimum, right))
+            guard left >= leftMinimum, left <= maximum,
+                  right >= rightMinimum, right <= maximum else {
+                return .rejected(state: state, reason: "Rack score overflow")
+            }
+            next.leftPoints = left
+            next.rightPoints = right
             next.finished = false
             return .init(state: next, events: [.adminAdjusted])
         case .exchangeSides:

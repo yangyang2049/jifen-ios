@@ -1,6 +1,37 @@
 import SwiftUI
 import UIKit
 
+struct FullscreenBarrageOverlayPadding: Equatable {
+    let top: CGFloat
+    let leading: CGFloat
+    let trailing: CGFloat
+}
+
+enum FullscreenBarrageOverlayLayout {
+    /// Keep the controls just clear of the system safe area without creating
+    /// an oversized empty band around the full-screen content.
+    static let extraClearance: CGFloat = 6
+    static let minimumHorizontalPadding: CGFloat = 16
+
+    static func padding(
+        for safeAreaInsets: UIEdgeInsets,
+        rotatesContentClockwise: Bool
+    ) -> FullscreenBarrageOverlayPadding {
+        // When the display surface is rotated clockwise inside a resizable
+        // iPad window, its logical top/leading/trailing edges map to the
+        // window's right/top/bottom edges respectively.
+        let logicalTop = rotatesContentClockwise ? safeAreaInsets.right : safeAreaInsets.top
+        let logicalLeading = rotatesContentClockwise ? safeAreaInsets.top : safeAreaInsets.left
+        let logicalTrailing = rotatesContentClockwise ? safeAreaInsets.bottom : safeAreaInsets.right
+
+        return FullscreenBarrageOverlayPadding(
+            top: max(0, logicalTop) + extraClearance,
+            leading: max(minimumHorizontalPadding, max(0, logicalLeading) + extraClearance),
+            trailing: max(minimumHorizontalPadding, max(0, logicalTrailing) + extraClearance)
+        )
+    }
+}
+
 struct FullscreenBarrageView: View {
     private enum DisplayMode: String, CaseIterable {
         case scroll
@@ -136,8 +167,12 @@ struct FullscreenBarrageView: View {
             let displaySize = usesContentRotationFallback
                 ? CGSize(width: container.size.height, height: container.size.width)
                 : container.size
+            let overlayPadding = FullscreenBarrageOverlayLayout.padding(
+                for: activeWindowSafeAreaInsets,
+                rotatesContentClockwise: usesContentRotationFallback
+            )
 
-            runningDisplaySurface(width: displaySize.width)
+            runningDisplaySurface(width: displaySize.width, overlayPadding: overlayPadding)
                 .frame(width: displaySize.width, height: displaySize.height)
                 .rotationEffect(.degrees(usesContentRotationFallback ? 90 : 0))
                 .position(x: container.size.width / 2, y: container.size.height / 2)
@@ -148,7 +183,10 @@ struct FullscreenBarrageView: View {
         .accessibilityValue(usesContentRotationFallback ? "content_rotated" : "window_orientation")
     }
 
-    private func runningDisplaySurface(width: CGFloat) -> some View {
+    private func runningDisplaySurface(
+        width: CGFloat,
+        overlayPadding: FullscreenBarrageOverlayPadding
+    ) -> some View {
         ZStack {
             backgroundColor.ignoresSafeArea()
 
@@ -171,7 +209,7 @@ struct FullscreenBarrageView: View {
                     runningEditor
                         .transition(.move(edge: .top).combined(with: .opacity))
                 } else {
-                    runningOverlayButtons
+                    runningOverlayButtons(padding: overlayPadding)
                 }
                 Spacer(minLength: 0)
             }
@@ -197,24 +235,33 @@ struct FullscreenBarrageView: View {
         }
     }
 
-    private var runningOverlayButtons: some View {
+    private func runningOverlayButtons(padding: FullscreenBarrageOverlayPadding) -> some View {
         HStack(spacing: 12) {
             overlayButton(systemName: "chevron.left", label: NSLocalizedString("back", value: "返回", comment: "")) {
                 // Exit fullscreen display back to settings (replaces removed close button).
+                AppAnalytics.track(.toolAction, parameters: [
+                    .toolID: .string("fullscreen_barrage"),
+                    .actionName: .string("stop_display"),
+                    .displayMode: .string(mode.rawValue)
+                ])
                 invalidateOrientationRequests()
                 isRunning = false
                 showEditor = false
             }
+            .accessibilityIdentifier("barrage_running_back")
             Spacer(minLength: 8)
             overlayButton(systemName: "rectangle.portrait.rotate", label: NSLocalizedString("rotate_display", value: "旋转屏幕", comment: "")) {
                 rotateScreen()
             }
+            .accessibilityIdentifier("barrage_running_rotate")
             overlayButton(systemName: "pencil", label: NSLocalizedString("edit", value: "编辑", comment: "")) {
                 withAnimation(.easeInOut(duration: 0.2)) { showEditor = true }
             }
+            .accessibilityIdentifier("barrage_running_edit")
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
+        .padding(.leading, padding.leading)
+        .padding(.trailing, padding.trailing)
+        .padding(.top, padding.top)
     }
 
     private var runningEditor: some View {
@@ -376,6 +423,11 @@ struct FullscreenBarrageView: View {
         scrollStartedAt = Date()
         showEditor = false
         isRunning = true
+        AppAnalytics.track(.toolAction, parameters: [
+            .toolID: .string("fullscreen_barrage"),
+            .actionName: .string("start_display"),
+            .displayMode: .string(newMode.rawValue)
+        ])
     }
 
     private func colorsEqual(_ lhs: Color, _ rhs: Color) -> Bool {
@@ -481,6 +533,10 @@ struct FullscreenBarrageView: View {
             .compactMap { $0 as? UIWindowScene }
             .first { $0.activationState == .foregroundActive }
             ?? UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+    }
+
+    private var activeWindowSafeAreaInsets: UIEdgeInsets {
+        activeWindowScene?.windows.first(where: \.isKeyWindow)?.safeAreaInsets ?? .zero
     }
 }
 

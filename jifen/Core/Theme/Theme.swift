@@ -25,8 +25,19 @@ struct Theme {
     // System semantic colors automatically follow appearance and accessibility contrast.
     static let backgroundColor = Color(uiColor: .systemGroupedBackground)
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
-    /// 自适应 Dialog / Sheet 底色；需要与弹层灰色控件形成稳定层级。
-    static let dialogSurfaceBackground = Color(uiColor: .systemBackground)
+    /// 主页面内容卡片的统一底色。深色值取自计分/计时 Grid 当前的视觉层级，
+    /// 使用不透明动态色以避免 iPad Stage Manager 小窗口下 Material 或系统层级变化导致撞色。
+    static let appCardBackground = Color(uiColor: UIColor { traits in
+        if traits.userInterfaceStyle == .dark {
+            return UIColor(red: 32 / 255, green: 32 / 255, blue: 34 / 255, alpha: 1) // #202022
+        }
+        return .white
+    })
+    /// 自适应 Dialog / Sheet 底色；浅色保持白色，深色使用系统二级背景，
+    /// 避免自定义弹窗与纯黑页面背景融为一体。
+    static let dialogSurfaceBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemBackground
+    })
     /// Dialog / Sheet 内选项格、输入区、取消按钮的统一灰色。
     /// 浅色跟随系统分段 Toggle 的 tertiary fill；深色继续保留现有 secondary fill 对比度。
     static let dialogControlBackground = Color(uiColor: UIColor { traits in
@@ -61,7 +72,7 @@ struct Theme {
     static let homePrimaryCardOrange = Color(hex: "#F97316")
     static let homeSecondaryCardGreen = Color(hex: "#30D158") // Approximated, used in HarmonyOS quickStart config
     static let homeEditButtonGreen = Color(hex: "#30D158") // Used for save button
-    static let homeCardDark = controlBackground
+    static let homeCardDark = appCardBackground
     static let homeCardLight = cardBackground
     static let homeOverlayBorder = Color.primary.opacity(0.1)
     static let homeDividerLight = Color.primary.opacity(0.2)
@@ -74,13 +85,8 @@ struct Theme {
     static let homeCardTextPrimary = Color.white
     static let homeCardTextSecondary = Color.white.opacity(0.78)
     static let homeCardTextTertiary = Color.white.opacity(0.62)
-    /// 首页中性卡片：浅色用纯白，与分组灰页面背景拉开层次；深色保持原深灰。
-    static let homeNeutralCardBackground = Color(uiColor: UIColor { traits in
-        if traits.userInterfaceStyle == .dark {
-            return UIColor(red: 28 / 255, green: 28 / 255, blue: 30 / 255, alpha: 1) // #1C1C1E
-        }
-        return .white
-    })
+    /// 首页卡片与计分、计时、我的、记录详情共用同一表面色。
+    static let homeNeutralCardBackground = appCardBackground
     static let homeNeutralCardTextPrimary = Color(uiColor: .label)
     static let homeNeutralCardTextSecondary = Color(uiColor: .secondaryLabel)
     static let homeNeutralCardTextTertiary = Color(uiColor: .tertiaryLabel)
@@ -92,7 +98,7 @@ struct Theme {
     static let toolWhistleRed = Color(hex: "#EF4444") // Example tool color
     static let toolRankingsIndigo = Color(hex: "#6366F1") // Example tool color
     static let toolGray = Color(hex: "#6B7280") // Example tool color
-    static let surface = Color(uiColor: .secondarySystemGroupedBackground)
+    static let surface = appCardBackground
 
     // Spacing
     static let padding: CGFloat = 16

@@ -150,6 +150,34 @@ enum ScoreboardLayoutMetrics {
         )
     }
 
+    /// Tennis places the point score and the game/set column on the same row.
+    /// Its main score therefore needs a smaller baseline than rally sports,
+    /// whose score can use the complete half-panel width.
+    static func tennisMainScoreScale(hasInlineSecondary: Bool) -> CGFloat {
+        hasInlineSecondary ? 0.78 : 1
+    }
+
+    /// High custom score caps can produce three- or four-digit rally scores.
+    /// Compact them before applying the user's typography multiplier so every
+    /// selected size keeps the same 25% safety reduction at three digits.
+    static func threeDigitMainScoreScale(scoreText: String) -> CGFloat {
+        scoreText.filter(\.isNumber).count >= 3 ? 0.75 : 1
+    }
+
+    /// Keeps the tennis game/set column clear of the center-line serve marker.
+    /// The margin scales with the same measured viewport as the triangle so it
+    /// remains useful in compact windows without becoming excessive on iPad.
+    static func tennisCenterLineClearance(halfViewportSize: CGSize) -> CGFloat {
+        let indicatorSize = serveIndicatorSize(halfViewportSize: halfViewportSize)
+        return indicatorSize + Swift.max(12, indicatorSize * 0.25)
+    }
+
+    /// Singles uses matching top and bottom regions so its score row is truly
+    /// centered in the complete panel rather than in the space below the name.
+    static func tennisSinglesNameRegionHeight(panelHeight: CGFloat, nameFontSize: CGFloat) -> CGFloat {
+        nameTopPadding(panelHeight: panelHeight) + max(1, nameFontSize) * 1.2
+    }
+
     /// Doubles scoreboards render the score cluster over the middle of the
     /// court instead of confining it to the nominal middle third. Android uses
     /// a 60% overlay; this geometry curve keeps compact phones slightly tighter

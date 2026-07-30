@@ -545,6 +545,7 @@ struct TimeoutCountdownView: View {
     }
 
     private func startOrResumeCountdown() {
+        let wasPaused = state.phase == .paused
         let remaining: Double
         if state.phase == .paused {
             remaining = max(1, state.remainingMilliseconds)
@@ -561,6 +562,11 @@ struct TimeoutCountdownView: View {
         CountdownNotificationManager.shared.schedule(after: remaining / 1_000)
         startTicker()
         VibrationManager.shared.vibrateMedium()
+        AppAnalytics.track(wasPaused ? .timerResume : .timerStart, parameters: [
+            .gameType: .string("timeout"),
+            .durationMS: .int(state.lastDurationSeconds * 1_000),
+            .elapsedMS: .int(elapsedMilliseconds(remainingMilliseconds: remaining))
+        ])
     }
 
     private func pauseCountdown() {
@@ -572,10 +578,17 @@ struct TimeoutCountdownView: View {
         CountdownNotificationManager.shared.cancel()
         TimerToolStateStore.saveCountdown(state)
         VibrationManager.shared.vibrateMedium()
+        AppAnalytics.track(.timerPause, parameters: [
+            .gameType: .string("timeout"),
+            .durationMS: .int(state.lastDurationSeconds * 1_000),
+            .elapsedMS: .int(elapsedMilliseconds(remainingMilliseconds: state.remainingMilliseconds))
+        ])
     }
 
     private func resetCountdown() {
         guard !resetDisabled else { return }
+        let previousPhase = state.phase
+        let elapsedBeforeReset = max(0, Double(state.lastDurationSeconds) * 1_000 - displayRemainingMilliseconds)
         stopTicker()
         CountdownNotificationManager.shared.cancel()
         state = CountdownPersistedState(
@@ -589,6 +602,14 @@ struct TimeoutCountdownView: View {
         previousSecondBoundary = -1
         TimerToolStateStore.saveCountdown(state)
         VibrationManager.shared.vibrateMedium()
+        if previousPhase == .running || previousPhase == .paused {
+            AppAnalytics.track(.timerExit, parameters: [
+                .gameType: .string("timeout"),
+                .durationMS: .int(state.lastDurationSeconds * 1_000),
+                .elapsedMS: .int(Int(elapsedBeforeReset)),
+                .result: .string(AnalyticsResult.cancelled.rawValue)
+            ])
+        }
     }
 
     private func startTicker() {
@@ -636,6 +657,16 @@ struct TimeoutCountdownView: View {
         TimerToolStateStore.saveCountdown(state)
         BoardTimerVoiceAnnouncer.shared.playCountdownCompletion()
         VibrationManager.shared.vibrateHeavy()
+        AppAnalytics.track(.timerFinish, parameters: [
+            .gameType: .string("timeout"),
+            .durationMS: .int(state.durationSeconds * 1_000),
+            .elapsedMS: .int(state.durationSeconds * 1_000),
+            .endReason: .string(AnalyticsEndReason.ruleCompleted.rawValue)
+        ])
+    }
+
+    private func elapsedMilliseconds(remainingMilliseconds: Double) -> Int {
+        Int(max(0, Double(state.lastDurationSeconds) * 1_000 - remainingMilliseconds))
     }
 
     private func warnIfNeeded(_ seconds: Int) {

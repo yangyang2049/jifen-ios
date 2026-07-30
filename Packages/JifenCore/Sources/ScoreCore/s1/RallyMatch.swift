@@ -154,6 +154,44 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         setNumber == maxSets ? finalSetPointsToWin ?? pointsToWinSet : pointsToWinSet
     }
 
+    public func pointCap(for setNumber: Int) -> Int? {
+        if setNumber == maxSets, let finalSetPointCap { return finalSetPointCap }
+        return pointCap
+    }
+
+    public func usesWinByTwo(for setNumber: Int) -> Bool {
+        if setNumber == maxSets, let finalSetWinByTwo { return finalSetWinByTwo }
+        return winByTwo
+    }
+
+    /// Highest score editable without bypassing normal set settlement.
+    public func maxEditablePointsBeforeSetWin(opponentScore: Int, setNumber: Int) -> Int {
+        let target = target(for: setNumber)
+        let maximumBeforeWin: Int
+        if usesWinByTwo(for: setNumber) {
+            let deuceEdge = max(0, target - 1)
+            maximumBeforeWin = opponentScore < deuceEdge ? deuceEdge : opponentScore + 1
+        } else {
+            maximumBeforeWin = max(0, target - 1)
+        }
+        guard let cap = pointCap(for: setNumber) else { return maximumBeforeWin }
+        return min(maximumBeforeWin, max(0, cap - 1))
+    }
+
+    public func allowsPointAdjustment(
+        currentScore: Int,
+        opponentScore: Int,
+        setNumber: Int,
+        delta: Int
+    ) -> Bool {
+        guard delta != 0 else { return false }
+        let next = currentScore + delta
+        return next >= 0 && next <= maxEditablePointsBeforeSetWin(
+            opponentScore: opponentScore,
+            setNumber: setNumber
+        )
+    }
+
     /// Aligns with Android `resolveRallyDecidingSetSideSwitchPoint`:
     /// ping-pong uses `points/2` (11→5); badminton uses `(points+1)/2` (21→11).
     public static func decidingSetSideSwitchPoint(for gameType: GameType, pointsPerSet: Int) -> Int? {
@@ -778,15 +816,28 @@ public struct RallyMatchReducer: DomainReducer {
         guard delta != 0 else { return .rejected(state: state, reason: "Zero delta") }
         guard !state.finished else { return .rejected(state: state, reason: "Match is already finished") }
         if delta > 0 {
-            var current = state
-            var events: [RallyMatchEvent] = []
-            for _ in 0..<delta {
-                let result = pointWon(side, state: current)
-                guard result.accepted else { return result }
-                current = result.state
-                events.append(contentsOf: result.events)
+            let current = side == .left ? state.leftPoints : state.rightPoints
+            let opponent = side == .left ? state.rightPoints : state.leftPoints
+            guard state.rules.allowsPointAdjustment(
+                currentScore: current,
+                opponentScore: opponent,
+                setNumber: state.currentSet,
+                delta: delta
+            ) else {
+                return .rejected(state: state, reason: "Point score overflow")
             }
-            return .init(state: current, events: events)
+            var next = state
+            if side == .left { next.leftPoints += delta } else { next.rightPoints += delta }
+            if var replay = next.currentSetReplay {
+                replay.actions.append(contentsOf: Array(repeating: .pointWon(side), count: delta))
+                next.currentSetReplay = replay
+            }
+            return .init(state: next, events: [.pointsAdjusted(
+                side: side,
+                delta: delta,
+                leftPoints: next.leftPoints,
+                rightPoints: next.rightPoints
+            )])
         }
 
         guard delta == -1 else {

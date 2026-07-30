@@ -38,7 +38,7 @@ enum WatchGameType: String, Codable, CaseIterable {
         case .eightBall:
             return NSLocalizedString("game_eight_ball", value: "黑八", comment: "Eight Ball")
         case .nineBall:
-            return NSLocalizedString("game_nine_ball", value: "追分", comment: "Nine-ball Chase")
+            return NSLocalizedString("game_nine_ball", value: "Chase", comment: "Nine-ball Chase")
         case .snooker:
             return NSLocalizedString("game_snooker", value: "斯诺克", comment: "Snooker")
         case .basketballTraining:

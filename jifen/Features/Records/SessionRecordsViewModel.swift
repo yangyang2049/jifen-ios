@@ -391,7 +391,10 @@ final class SessionRecordsViewModel {
 
     private static func migratedNames(_ participants: [SessionParticipant]) -> (String, String) {
         let names = participants.map(\.name).filter { !$0.isEmpty }
-        return (names.first ?? "红方", names.dropFirst().first ?? "蓝方")
+        return (
+            names.first ?? NSLocalizedString("red_team", value: "Red Team", comment: ""),
+            names.dropFirst().first ?? NSLocalizedString("blue_team", value: "Blue Team", comment: "")
+        )
     }
 
     private static func startDate(_ metadata: SessionMetadata) -> Date {
@@ -403,15 +406,20 @@ final class SessionRecordsViewModel {
 private extension ScoreCore.GameType {
     var v2DisplayName: String {
         switch self {
-        case .basketball: return "篮球"
-        case .threeBasketball: return "篮球 3x3"
+        case .basketball:
+            return NSLocalizedString("game_basketball", value: "Basketball", comment: "")
+        case .threeBasketball:
+            return NSLocalizedString("game_three_basketball", value: "3x3 Basketball", comment: "")
         case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles,
              .pickleball, .pickleballDoubles, .tennis, .tennisDoubles,
              .foosball, .foosballDoubles:
             return scoreboardDisplayName
-        case .volleyball: return "排球"
-        case .airVolleyball: return "气排球"
-        case .beachVolleyball: return "沙滩排球"
+        case .volleyball:
+            return NSLocalizedString("game_volleyball", value: "Volleyball", comment: "")
+        case .airVolleyball:
+            return NSLocalizedString("game_air_volleyball", value: "Air Volleyball", comment: "")
+        case .beachVolleyball:
+            return NSLocalizedString("game_beach_volleyball", value: "Beach Volleyball", comment: "")
         default: return rawValue
         }
     }

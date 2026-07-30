@@ -255,7 +255,7 @@ struct RandomTeamView: View {
             if let team { return resultColors[team % resultColors.count] }
             if isAnimating, flashColors.indices.contains(index) { return animationColors[flashColors[index] % animationColors.count] }
             if touchedIndices.contains(index) { return Theme.primary }
-            return Theme.cardBackground
+            return Theme.appCardBackground
         }()
 
         return ZStack(alignment: .bottomTrailing) {
@@ -311,6 +311,11 @@ struct RandomTeamView: View {
         assignments = Array(repeating: nil, count: players)
         flashColors = Array(repeating: 0, count: players)
         isAnimating = false
+        AppAnalytics.track(.toolSettingChange, parameters: [
+            .toolID: .string("random_team"),
+            .participantCount: .int(players),
+            .teamCount: .int(teams)
+        ])
     }
 
     private func teamOptionLabel(players: Int, teams: Int) -> String {
@@ -350,6 +355,12 @@ struct RandomTeamView: View {
             touchedIndices = []
             isAnimating = false
             VibrationManager.shared.vibrateHeavy()
+            AppAnalytics.track(.toolResult, parameters: [
+                .toolID: .string("random_team"),
+                .participantCount: .int(playerCount),
+                .teamCount: .int(teamCount),
+                .result: .string(AnalyticsResult.success.rawValue)
+            ])
         }
     }
 
@@ -362,6 +373,9 @@ struct RandomTeamView: View {
         touchedIndices = []
         flashColors = []
         isAnimating = false
+        AppAnalytics.track(.toolReset, parameters: [
+            .toolID: .string("random_team")
+        ])
     }
 }
 

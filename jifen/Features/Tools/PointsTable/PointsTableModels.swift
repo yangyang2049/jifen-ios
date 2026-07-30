@@ -60,6 +60,29 @@ struct PointsTableRecord: Identifiable, Codable, Hashable {
         self.createdAt = createdAt
     }
 
+    /// Older releases persisted the localized default title and team names.
+    /// Normalize only the complete system-default pattern so locale changes do
+    /// not produce mixed-language UI while user-entered names remain untouched.
+    func localizingLegacyDefaults() -> PointsTableRecord {
+        let legacyRecordNames: Set<String> = [
+            "New Table", "New Points Table", "New Standings", "新积分表", "新积分榜"
+        ]
+        let legacyTeamNames = teams.map(\.name)
+        guard legacyRecordNames.contains(name),
+              legacyTeamNames == ["A", "B", "C"] || legacyTeamNames == ["甲", "乙", "丙"] else {
+            return self
+        }
+
+        var localized = self
+        localized.name = NSLocalizedString("points_table_new_name", value: "New Standings", comment: "")
+
+        let keys = ["points_table_team_a", "points_table_team_b", "points_table_team_c"]
+        for index in keys.indices {
+            localized.teams[index].name = NSLocalizedString(keys[index], comment: "")
+        }
+        return localized
+    }
+
     /// 按积分 → 胜场 → 队名排序后的队伍（含排名）
     func standings() -> [(rank: Int, team: PointsTableTeam)] {
         let sorted = teams.sorted { t1, t2 in

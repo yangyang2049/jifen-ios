@@ -1,6 +1,6 @@
 source 'https://cdn.cocoapods.org/'
 
-platform :ios, '17.6'
+platform :ios, '18.0'
 
 target 'jifen' do
   pod 'UMCommon'
@@ -17,7 +17,7 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.6'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '18.0'
     end
   end
 end

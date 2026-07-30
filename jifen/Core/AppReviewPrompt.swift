@@ -84,6 +84,10 @@ private struct LaunchReviewPromptModifier: ViewModifier {
             // Let the main scene finish becoming active before asking StoreKit.
             await Task.yield()
             requestReview()
+            AppAnalytics.track(.rateApp, parameters: [
+                .entryPoint: .string(AnalyticsEntryPoint.autoAfterLaunchThreshold.rawValue),
+                .result: .string(AnalyticsResult.requested.rawValue)
+            ])
         }
     }
 }

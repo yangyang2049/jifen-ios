@@ -119,6 +119,7 @@ struct CommonNamesManagementView: View {
         }
         .navigationTitle(NSLocalizedString("common_names_title", value: "常用名称", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .analyticsScreen(.commonNamesPage, source: .homeTab)
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("common_names_search_placeholder", value: "搜索名称", comment: ""),
@@ -143,6 +144,7 @@ struct CommonNamesManagementView: View {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
             Button(NSLocalizedString("clear", value: "清空", comment: ""), role: .destructive) {
                 manager.clearNames(type: selectedType)
+                trackNameForm(action: "clear", result: .success)
                 reload()
                 selectedNames.removeAll()
                 isEditMode = false
@@ -464,6 +466,13 @@ struct CommonNamesManagementView: View {
             return
         }
         let result = manager.addNamesBatch(names, type: addType)
+        AppAnalytics.track(.submitForm, parameters: [
+            .contentType: .string("common_name"),
+            .actionName: .string("create"),
+            .settingValue: .string(addType == .team ? "team" : "player"),
+            .participantCount: .int(result.added),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
         reload()
         addInput = ""
         if result.added == 1 && result.skipped == 0 {
@@ -494,10 +503,12 @@ struct CommonNamesManagementView: View {
         guard let oldName = editingOriginalName else { return }
         do {
             try manager.updateName(oldName: oldName, newName: editInput, type: selectedType)
+            trackNameForm(action: "update", result: .success)
             reload()
             closeEditSheet()
             showMessage(NSLocalizedString("common_names_updated", value: "已更新", comment: ""))
         } catch {
+            trackNameForm(action: "update", result: .failed)
             handleError(error, fallback: NSLocalizedString("common_names_update_failed", value: "更新失败", comment: ""))
         }
     }
@@ -525,12 +536,28 @@ struct CommonNamesManagementView: View {
         for name in toDelete {
             manager.removeName(name, type: selectedType)
         }
+        AppAnalytics.track(.submitForm, parameters: [
+            .contentType: .string("common_name"),
+            .actionName: .string("delete"),
+            .settingValue: .string(selectedType == .team ? "team" : "player"),
+            .participantCount: .int(toDelete.count),
+            .result: .string(AnalyticsResult.success.rawValue)
+        ])
         selectedNames.removeAll()
         reload()
         if wasSelectAll {
             isEditMode = false
         }
         showMessage(NSLocalizedString("common_names_deleted", value: "已删除", comment: ""))
+    }
+
+    private func trackNameForm(action: String, result: AnalyticsResult) {
+        AppAnalytics.track(.submitForm, parameters: [
+            .contentType: .string("common_name"),
+            .actionName: .string(action),
+            .settingValue: .string(selectedType == .team ? "team" : "player"),
+            .result: .string(result.rawValue)
+        ])
     }
 
     private func handleError(_ error: Error, fallback: String) {

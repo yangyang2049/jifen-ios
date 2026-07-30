@@ -34,8 +34,11 @@ struct NineBallSetupDialogView: View {
 
     private var canStartOnWatch: Bool {
         AppFeatureFlags.watchLinkEntryEnabled
-            && AppFeatureFlags.isWatchLinkSupportedProject(.nineBall)
-            && (2...4).contains(playerCount)
+            && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice
+            && AppFeatureFlags.isWatchLinkSupportedSetup(
+                gameType: .nineBall,
+                nineBallPlayerCount: playerCount
+            )
     }
 
     var body: some View {
