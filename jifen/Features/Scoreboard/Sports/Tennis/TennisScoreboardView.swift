@@ -32,6 +32,9 @@ struct TennisScoreboardView: View {
     @State private var editLeftName = ""
     @State private var editRightName = ""
     @State private var editDoublesNames = ["", "", "", ""]
+    @State private var flashSlots: Set<Int> = []
+    @State private var flashActive = false
+    @State private var flashTask: Task<Void, Never>?
     @State private var isStartingNewMatch = false
 
     init(
@@ -311,15 +314,6 @@ struct TennisScoreboardView: View {
                     revealImmersiveChrome()
                 }
         )
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 50)
-                .onEnded { value in
-                    guard !isEditMode,
-                          value.translation.width < -50,
-                          abs(value.translation.width) > abs(value.translation.height) else { return }
-                    performUndo()
-                }
-        )
         .onAppear {
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
@@ -467,6 +461,7 @@ struct TennisScoreboardView: View {
         }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
+            flashTask?.cancel()
             if let previousIdleTimerDisabled {
                 UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
             }
@@ -506,13 +501,14 @@ struct TennisScoreboardView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             guard !isEditMode, !store.state.finished, !scoringLocked else { return }
-            dispatch(.pointWon(side))
+            handlePointWon(side)
         }
         .onTapGesture(count: 2) {
             guard !isEditMode, !store.state.finished,
                   appearance.doubleTapSubtract, !scoringLocked else { return }
             dispatch(.adjustPoints(side: side, delta: -1))
         }
+        .gesture(scoreboardDragGesture(for: side))
     }
 
     private func tennisSinglesPlayContent(
@@ -643,6 +639,7 @@ struct TennisScoreboardView: View {
                 VStack(spacing: 0) {
                     tennisDoublesNameRow(
                         name: names.indices.contains(slots.top) ? names[slots.top] : "",
+                        slot: slots.top,
                         isServer: serverSlot == slots.top,
                         isReceiver: receiverSlot == slots.top,
                         fontSize: nameFontSize,
@@ -651,6 +648,7 @@ struct TennisScoreboardView: View {
                     Spacer(minLength: 0)
                     tennisDoublesNameRow(
                         name: names.indices.contains(slots.bottom) ? names[slots.bottom] : "",
+                        slot: slots.bottom,
                         isServer: serverSlot == slots.bottom,
                         isReceiver: receiverSlot == slots.bottom,
                         fontSize: nameFontSize,
@@ -670,13 +668,14 @@ struct TennisScoreboardView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             guard !isEditMode, !store.state.finished, !scoringLocked else { return }
-            dispatch(.pointWon(side))
+            handlePointWon(side)
         }
         .onTapGesture(count: 2) {
             guard !isEditMode, !store.state.finished,
                   appearance.doubleTapSubtract, !scoringLocked else { return }
             dispatch(.adjustPoints(side: side, delta: -1))
         }
+        .gesture(scoreboardDragGesture(for: side))
     }
 
     private func tennisDoublesEditContent(
@@ -1043,12 +1042,17 @@ struct TennisScoreboardView: View {
 
     private func tennisDoublesNameRow(
         name: String,
+        slot: Int,
         isServer: Bool,
         isReceiver: Bool,
         fontSize: CGFloat,
         height: CGFloat
     ) -> some View {
-        ZStack {
+        let showFlash = flashSlots.contains(slot) && flashActive
+        return ZStack {
+            if showFlash {
+                Color(red: 1, green: 215 / 255, blue: 0).opacity(0.45)
+            }
             Text(name)
                 .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                 .foregroundStyle(isReceiver
@@ -1232,6 +1236,48 @@ struct TennisScoreboardView: View {
         dispatch(.adjustSets(side: side, delta: delta))
     }
 
+    private func handlePointWon(_ side: MatchSide) {
+        dispatch(.pointWon(side))
+        guard store.gameType == .tennisDoubles else { return }
+        runDoublesFlash(slots: side == .left ? [0, 2] : [1, 3])
+    }
+
+    private func runDoublesFlash(slots: Set<Int>) {
+        flashTask?.cancel()
+        flashTask = Task { @MainActor in
+            flashSlots = slots
+            flashActive = false
+            try? await Task.sleep(for: .milliseconds(400))
+            guard !Task.isCancelled else { return }
+            for step in 0..<4 {
+                flashActive = step.isMultiple(of: 2)
+                try? await Task.sleep(for: .milliseconds(150))
+                guard !Task.isCancelled else { return }
+            }
+            try? await Task.sleep(for: .milliseconds(80))
+            guard !Task.isCancelled else { return }
+            flashActive = false
+            flashSlots = []
+        }
+    }
+
+    private func scoreboardDragGesture(for side: MatchSide) -> some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onEnded { value in
+                guard !isEditMode, !scoringLocked else { return }
+                if value.translation.width < -50,
+                   abs(value.translation.height) < 50 {
+                    performUndo()
+                } else if value.translation.height > 50,
+                          abs(value.translation.width) < 50 {
+                    guard !store.state.finished else { return }
+                    let points = side == .left ? store.state.leftPoints : store.state.rightPoints
+                    guard points > 0 else { return }
+                    dispatch(.adjustPoints(side: side, delta: -1))
+                }
+            }
+    }
+
     private func dispatch(_ intent: TennisMatchIntent) {
         guard !scoringLocked else { return }
         store.send(intent) { events in
@@ -1273,9 +1319,9 @@ struct TennisScoreboardView: View {
                 ) else { return }
                 switch intent {
                 case .addLeft:
-                    dispatch(.pointWon(logicalSide(forScreen: .left)))
+                    handlePointWon(logicalSide(forScreen: .left))
                 case .addRight:
-                    dispatch(.pointWon(logicalSide(forScreen: .right)))
+                    handlePointWon(logicalSide(forScreen: .right))
                 case .subtractLeft:
                     dispatch(.adjustPoints(side: logicalSide(forScreen: .left), delta: -1))
                 case .subtractRight:
@@ -1519,6 +1565,9 @@ struct TennisScoreboardView: View {
                 isEditMode = false
                 showMenu = false
                 menuConfirm.clear()
+                flashTask?.cancel()
+                flashSlots = []
+                flashActive = false
                 showGameOverDialog = false
                 syncEditNamesFromState()
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()

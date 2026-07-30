@@ -682,8 +682,10 @@ struct SportsSetupDialogView: View {
 
     private var servingIconAssetName: String {
         switch gameType {
-        case .pingpong, .pickleball:
+        case .pingpong:
             return "ic_pingpong_serve"
+        case .pickleball:
+            return "ic_pickleball_serve"
         case .badminton:
             return "ic_badminton_serve"
         case .tennis:
