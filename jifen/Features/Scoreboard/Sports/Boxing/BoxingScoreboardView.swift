@@ -13,8 +13,8 @@ struct BoxingScoreboardView: View {
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
-    @State private var controller = BoxingScoreboardController()
-    @State private var viewModel = BoxingViewModel()
+    @State private var controller: BoxingScoreboardController
+    @State private var viewModel: BoxingViewModel
     @State private var typographySession = ScoreboardTypographySession(
         styleID: ScoreboardStyleID(gameType: .boxing)
     )
@@ -25,9 +25,25 @@ struct BoxingScoreboardView: View {
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
     @State private var isEditing = false
+    @State private var recordID: String
 
-    private var recordID: String {
-        initialRecordId ?? "boxing_\(Int(controller.gameStartTime.timeIntervalSince1970))"
+    init(
+        initialSetup: SportsSetupResult? = nil,
+        initialRecordId: String? = nil,
+        onSetupConsumed: (() -> Void)? = nil,
+        onNavigationBack: (() -> Void)? = nil
+    ) {
+        self.initialSetup = initialSetup
+        self.initialRecordId = initialRecordId
+        self.onSetupConsumed = onSetupConsumed
+        self.onNavigationBack = onNavigationBack
+        let controller = BoxingScoreboardController()
+        _controller = State(initialValue: controller)
+        _viewModel = State(initialValue: BoxingViewModel(controller: controller))
+        _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
+            prefix: GameType.boxing.canonicalScoreboardIdentifier,
+            resuming: initialRecordId
+        ))
     }
 
     var body: some View {
@@ -44,7 +60,10 @@ struct BoxingScoreboardView: View {
                 ),
                 typographySession: typographySession,
                 onBack: {
-                    viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                    viewModel.saveGameRecordInRealTime(
+                        recordID: recordID,
+                        isGameFinished: viewModel.gameFinished
+                    )
                     onNavigationBack?()
                     dismiss()
                 }
@@ -59,12 +78,13 @@ struct BoxingScoreboardView: View {
                     leftScore: viewModel.leftTeam.score,
                     rightScore: viewModel.rightTeam.score,
                     onNewGame: {
-                        showGameOverDialog = false
-                        viewModel.reset()
-                        controller.recordScoreAction(action: "reset")
+                        startNewMatch()
                     },
                     onRecords: {
-                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        viewModel.saveGameRecordInRealTime(
+                            recordID: recordID,
+                            isGameFinished: viewModel.gameFinished
+                        )
                         showFinishedRecordDetail = true
                     },
                     onShare: {
@@ -73,7 +93,10 @@ struct BoxingScoreboardView: View {
                         )
                     },
                     onExit: {
-                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        viewModel.saveGameRecordInRealTime(
+                            recordID: recordID,
+                            isGameFinished: viewModel.gameFinished
+                        )
                         onNavigationBack?()
                         dismiss()
                     }
@@ -142,11 +165,14 @@ struct BoxingScoreboardView: View {
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
                 showGameOverDialog = true
-                viewModel.saveGameRecordInRealTime(isGameFinished: true)
+                viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
             }
         }
         .onDisappear {
-            viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+            viewModel.saveGameRecordInRealTime(
+                recordID: recordID,
+                isGameFinished: viewModel.gameFinished
+            )
         }
     }
 
@@ -203,6 +229,17 @@ struct BoxingScoreboardView: View {
         .opacity(viewModel.gameFinished ? 0.45 : 1)
     }
 
+    private func startNewMatch() {
+        viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
+        controller.beginNewMatch()
+        recordID = ScoreboardRecordIdentity.next(prefix: GameType.boxing.canonicalScoreboardIdentifier)
+        viewModel.startNewMatch()
+        roundLeftPoints = 10
+        roundRightPoints = 10
+        showRoundDialog = false
+        showGameOverDialog = false
+    }
+
     private func restoreDraftIfNeeded() {
         guard let recordId = initialRecordId,
               let record = ScoreboardRecordManager.shared.getRecordById(recordId),
@@ -214,27 +251,23 @@ struct BoxingScoreboardView: View {
         controller.gameActions = record.actions
         controller.gameRecordSaved = false
 
-        viewModel.leftTeam.name = record.team1Name
-        viewModel.rightTeam.name = record.team2Name
-        viewModel.leftTeam.score = record.team1FinalScore
-        viewModel.rightTeam.score = record.team2FinalScore
+        if let data = record.stateSnapshot,
+           let archive = try? JSONDecoder().decode(BoxingSessionArchive.self, from: data) {
+            controller.gameActions = archive.intentTimeline
+            viewModel.restoreSession(archive)
+            return
+        }
 
-        if let leftSets = record.extraData?["leftSets"]?.value as? Int {
-            viewModel.leftTeam.sets = leftSets
-        } else if let team1SetScore = record.team1SetScore {
-            viewModel.leftTeam.sets = team1SetScore
-        }
-        if let rightSets = record.extraData?["rightSets"]?.value as? Int {
-            viewModel.rightTeam.sets = rightSets
-        } else if let team2SetScore = record.team2SetScore {
-            viewModel.rightTeam.sets = team2SetScore
-        }
-        if let currentRound = record.extraData?["currentRound"]?.value as? Int {
-            viewModel.currentRound = currentRound
-        }
-        if let maxRounds = record.extraData?["maxRounds"]?.value as? Int {
-            viewModel.setMaxRounds(maxRounds)
-        }
+        viewModel.restoreLegacyMatch(
+            leftName: record.team1Name,
+            rightName: record.team2Name,
+            leftScore: record.team1FinalScore,
+            rightScore: record.team2FinalScore,
+            leftSets: (record.extraData?["leftSets"]?.value as? Int) ?? record.team1SetScore ?? 0,
+            rightSets: (record.extraData?["rightSets"]?.value as? Int) ?? record.team2SetScore ?? 0,
+            currentRound: (record.extraData?["currentRound"]?.value as? Int) ?? 1,
+            maxRounds: (record.extraData?["maxRounds"]?.value as? Int) ?? 3
+        )
     }
 }
 

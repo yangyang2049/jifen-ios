@@ -339,6 +339,11 @@ public struct ShengjiTierState: Codable, Equatable, Sendable {
         self.finished = finished
         self.dealer = dealer
     }
+
+    public var winnerSide: MatchSide? {
+        guard finished, leftIndex != rightIndex else { return nil }
+        return leftIndex > rightIndex ? .left : .right
+    }
 }
 
 public enum ShengjiTierIntent: Codable, Sendable {

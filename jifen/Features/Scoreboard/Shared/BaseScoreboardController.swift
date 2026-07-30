@@ -8,6 +8,16 @@
 import Foundation
 import UIKit
 
+enum ScoreboardRecordIdentity {
+    static func initial(prefix: String, resuming recordID: String?) -> String {
+        recordID ?? next(prefix: prefix)
+    }
+
+    static func next(prefix: String) -> String {
+        "\(prefix)_\(UUID().uuidString.lowercased())"
+    }
+}
+
 class BaseScoreboardController: BaseScoreboardControllerProtocol {
     // MARK: - Properties
     
@@ -98,6 +108,15 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             gameActions.append("\(timestamp)|\(action)")
         }
     }
+
+    /// Starts a distinct match lifecycle without carrying record or undo state
+    /// from the previous match into a "play again" flow.
+    func beginNewMatch(at startTime: Date = Date()) {
+        gameStartTime = startTime
+        gameActions.removeAll()
+        gameRecordSaved = false
+        clearHistory()
+    }
     
     func saveScoreboardRecord(
         id: String,
@@ -110,6 +129,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         winner: String?,
         totalScoreChanges: Int,
         extraData: [String: Any],
+        projectConfiguration: [String: Any]? = nil,
+        stateSnapshot: Data? = nil,
         status: ScoreboardRecordStatus = .finished
     ) {
         // Allow saving with set scores if provided
@@ -126,6 +147,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             winner: winner,
             totalScoreChanges: totalScoreChanges,
             extraData: extraData,
+            projectConfiguration: projectConfiguration,
+            stateSnapshot: stateSnapshot,
             status: status
         )
     }
@@ -143,6 +166,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         winner: String?,
         totalScoreChanges: Int,
         extraData: [String: Any],
+        projectConfiguration: [String: Any]? = nil,
+        stateSnapshot: Data? = nil,
         status: ScoreboardRecordStatus = .finished
     ) {
         // Allow saving/updating records multiple times (e.g., for multi-set games)
@@ -165,6 +190,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             actions: gameActions,
             totalScoreChanges: totalScoreChanges,
             extraData: nil,
+            projectConfiguration: projectConfiguration?.mapValues { AnyCodable($0) },
+            stateSnapshot: stateSnapshot,
             status: status
         )
         

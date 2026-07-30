@@ -36,10 +36,21 @@ enum MultiScoreRules {
     }
 }
 
-struct MultiPlayerItem: Identifiable {
+struct MultiPlayerItem: Identifiable, Codable, Equatable {
     let id: Int
     var name: String
     var score: Int
+}
+
+struct MultiScoreSessionArchive: Codable, Equatable {
+    var schemaVersion = 1
+    let players: [MultiPlayerItem]
+    let undoHistory: [[Int]]
+    let intentTimeline: [String]
+    let unoRoundCount: Int
+    let targetScore: Int?
+    let customAdjustEnabled: Bool
+    let useLandscapeLayout: Bool
 }
 
 struct MultiScoreboardView: View {
@@ -116,7 +127,10 @@ struct MultiScoreboardView: View {
 
         let start = Date()
         _gameStartTime = State(initialValue: start)
-        _recordId = State(initialValue: initialRecordId ?? "\(gameType.canonicalScoreboardIdentifier)_\(Int(start.timeIntervalSince1970))")
+        _recordId = State(initialValue: ScoreboardRecordIdentity.initial(
+            prefix: gameType.canonicalScoreboardIdentifier,
+            resuming: initialRecordId
+        ))
         _players = State(initialValue: defaultMultiPlayerNames(count: safeCount).enumerated().map {
             MultiPlayerItem(id: $0.offset, name: $0.element, score: 0)
         })
@@ -217,8 +231,7 @@ struct MultiScoreboardView: View {
                         multiNames: players.map(\.name),
                         multiScores: players.map(\.score),
                         onNewGame: {
-                            resetScores()
-                            showTransientToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
+                            startNewMatch()
                         },
                         onRecords: {
                             persistRecord(finished: gameFinished)
@@ -1085,6 +1098,28 @@ struct MultiScoreboardView: View {
         scheduleDraftPersist()
     }
 
+    private func startNewMatch() {
+        persistRecord(finished: true)
+
+        draftSaveGeneration += 1
+        recordId = ScoreboardRecordIdentity.next(prefix: gameType.canonicalScoreboardIdentifier)
+        gameStartTime = Date()
+        history.removeAll()
+        actions.removeAll()
+        for index in players.indices {
+            players[index].score = 0
+        }
+        gameFinished = false
+        finishedWinnerName = ""
+        unoRoundCount = 0
+        pendingTapIndex = nil
+        playerEditIndex = nil
+        customAdjustIndex = nil
+        showUnoRoundPanel = false
+        VibrationManager.shared.vibrateMedium()
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+    }
+
     // MARK: - Appearance / sync
 
     private var shouldShowChrome: Bool {
@@ -1205,6 +1240,26 @@ struct MultiScoreboardView: View {
         actions = record.actions
         gameFinished = false
 
+        if let data = record.stateSnapshot,
+           let archive = try? JSONDecoder().decode(MultiScoreSessionArchive.self, from: data),
+           MultiScoreRules.normalizedPlayerCount(archive.players.count, gameType: gameType) == archive.players.count {
+            players = archive.players.enumerated().map { index, player in
+                let trimmed = player.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                return MultiPlayerItem(
+                    id: index,
+                    name: trimmed.isEmpty ? playerPlaceholder(index) : trimmed,
+                    score: MultiScoreRules.scoreRange.clamp(player.score)
+                )
+            }
+            history = Array(archive.undoHistory.suffix(50))
+            actions = archive.intentTimeline
+            unoRoundCount = max(0, archive.unoRoundCount)
+            resolvedTargetScore = archive.targetScore ?? resolvedTargetScore
+            customAdjustEnabled = archive.customAdjustEnabled
+            useLandscapeLayout = archive.useLandscapeLayout
+            return
+        }
+
         if let playersData = record.extraData?["players"]?.value as? [Any] {
             let restored: [MultiPlayerItem] = playersData.enumerated().compactMap { index, raw in
                 guard let dict = raw as? [String: Any] else { return nil }
@@ -1286,6 +1341,27 @@ struct MultiScoreboardView: View {
             }
         }
 
+        let archive = MultiScoreSessionArchive(
+            players: players,
+            undoHistory: history,
+            intentTimeline: actions,
+            unoRoundCount: unoRoundCount,
+            targetScore: gameType == .uno ? effectiveTargetScore : nil,
+            customAdjustEnabled: customAdjustEnabled,
+            useLandscapeLayout: useLandscapeLayout
+        )
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(archive)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to encode \(gameType.rawValue) record \(recordId)"
+            )
+            return
+        }
+        let scoreCoreGameType: ScoreCore.GameType = gameType == .uno ? .uno : .multiScoreboard
+
         let record = ScoreboardRecord(
             id: recordId,
             gameType: gameType,
@@ -1302,6 +1378,10 @@ struct MultiScoreboardView: View {
             actions: actions,
             totalScoreChanges: max(actions.count, history.count),
             extraData: extraData,
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(scoreCoreGameType.rawValue)
+            ],
+            stateSnapshot: snapshotData,
             status: (finished || gameFinished) ? .finished : .draft
         )
         do {

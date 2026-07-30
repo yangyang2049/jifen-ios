@@ -50,7 +50,7 @@ struct GuandanScoreboardView: View {
             tripleAFallbackRank: fallback
         )
         var start = Date()
-        var id = "guandan_\(Int(start.timeIntervalSince1970))"
+        var id = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
         var actions = 0
         var showFinished = false
         var restoredActions: [String] = []
@@ -128,16 +128,27 @@ struct GuandanScoreboardView: View {
                 }
             )
 
-            if showGameOverDialog, let winner = state.finalWinner {
+            if showGameOverDialog {
+                let winnerName: String = switch state.finalWinner {
+                case .red: state.redTeam.name
+                case .blue: state.blueTeam.name
+                case nil: ""
+                }
+                let winnerIndices: Set<Int> = switch state.finalWinner {
+                case .red: [0]
+                case .blue: [1]
+                case nil: []
+                }
                 GameOverDialog(
-                    winnerName: winner == .red ? state.redTeam.name : state.blueTeam.name,
+                    winnerName: winnerName,
                     gameType: .guandan,
                     leftName: state.redTeam.name,
                     rightName: state.blueTeam.name,
                     leftScoreText: state.displayRank(for: .red),
                     rightScoreText: state.displayRank(for: .blue),
+                    winnerIndices: winnerIndices,
                     onNewGame: {
-                        resetMatch()
+                        startNewMatch()
                     },
                     onRecords: {
                         saveRecord()
@@ -306,6 +317,24 @@ struct GuandanScoreboardView: View {
 
     private func resetMatch() {
         send(.reset)
+        showGameOverDialog = false
+    }
+
+    private func startNewMatch() {
+        saveRecord()
+        let reset = reducer.reduce(
+            state: state,
+            intent: .reset,
+            at: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        guard reset.accepted else { return }
+        state = reset.state
+        history.removeAll()
+        actionLog.removeAll()
+        actionCount = 0
+        gameStartAt = Date()
+        recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
+        pendingEditWrapSide = nil
         showGameOverDialog = false
     }
 

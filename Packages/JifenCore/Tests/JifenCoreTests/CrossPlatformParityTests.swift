@@ -495,6 +495,13 @@ import SessionCore
     #expect(finished.state.finished)
 }
 
+@Test func shengjiFinishedWinnerFollowsTheHigherTierAndAllowsDraws() {
+    #expect(ShengjiTierState(leftIndex: 5, rightIndex: 3, finished: true).winnerSide == .left)
+    #expect(ShengjiTierState(leftIndex: 2, rightIndex: 7, finished: true).winnerSide == .right)
+    #expect(ShengjiTierState(leftIndex: 4, rightIndex: 4, finished: true).winnerSide == nil)
+    #expect(ShengjiTierState(leftIndex: 5, rightIndex: 3, finished: false).winnerSide == nil)
+}
+
 @Test func guandanUpgradeAndPassAFinishMatch() {
     let reducer = GuandanSessionReducer()
     var state = GuandanMatchState.initial(redName: "红", blueName: "蓝")

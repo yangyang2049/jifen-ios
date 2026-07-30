@@ -248,9 +248,12 @@ extension SportsSetupResult {
     var foosballRules: RallyRuleSet {
         var rules = RallyRuleSet.foosball(maxSets: maxSets ?? 3)
         rules.matchCompletionMode = matchCompletionMode ?? .bestOf
-        rules.pointsToWinSet = max(1, pointsPerSet ?? targetScore ?? 5)
+        let pointsToWin = max(1, pointsPerSet ?? targetScore ?? 5)
+        rules.pointsToWinSet = pointsToWin
         rules.finalSetWinByTwo = winByTwo ?? false
-        rules.finalSetPointCap = winByTwo == true ? scoreCap : nil
+        rules.finalSetPointCap = winByTwo == true
+            ? scoreCap.flatMap { (pointsToWin...99).contains($0) ? $0 : nil }
+            : nil
         return rules
     }
 }

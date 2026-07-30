@@ -8,6 +8,18 @@
 import Foundation
 import ScoreCore
 
+struct BoxingHistoryEntry: Codable, Equatable {
+    let state: BoxingMatchState
+    let restoresNames: Bool
+}
+
+struct BoxingSessionArchive: Codable, Equatable {
+    var schemaVersion = 1
+    let state: BoxingMatchState
+    let undoHistory: [BoxingHistoryEntry]
+    let intentTimeline: [String]
+}
+
 @Observable
 class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     private let reducer = BoxingMatchReducer()
@@ -15,24 +27,6 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     var maxRounds: Int = 3
     private var fullStateHistory: [BoxingHistoryEntry] = []
     private var sidesSwapped = false
-
-    private struct BoxingState {
-        let leftName: String
-        let rightName: String
-        let leftScore: Int
-        let rightScore: Int
-        let leftSets: Int
-        let rightSets: Int
-        let currentRound: Int
-        let maxRounds: Int
-        let sidesSwapped: Bool
-        let gameFinished: Bool
-    }
-
-    private struct BoxingHistoryEntry {
-        let state: BoxingState
-        let restoresNames: Bool
-    }
 
     override init(controller: BaseScoreboardController? = nil) {
         super.init(controller: controller)
@@ -65,7 +59,7 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         return ""
     }
 
-    func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+    func saveGameRecordInRealTime(recordID: String, isGameFinished: Bool = false) {
         let hasProgress = !(controller?.getGameActions().isEmpty ?? true)
             || leftTeam.score != 0
             || rightTeam.score != 0
@@ -90,8 +84,24 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
             }
         }
 
+        let archive = BoxingSessionArchive(
+            state: coreState,
+            undoHistory: fullStateHistory,
+            intentTimeline: controller?.getGameActions() ?? []
+        )
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(archive)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to encode boxing record \(recordID)"
+            )
+            return
+        }
+
         controller?.saveScoreboardRecord(
-            id: "boxing_\(Int(start.timeIntervalSince1970))",
+            id: recordID,
             endTime: end,
             duration: end.timeIntervalSince(start),
             team1Name: leftTeam.name,
@@ -108,8 +118,58 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
                 "leftSets": leftTeam.sets ?? 0,
                 "rightSets": rightTeam.sets ?? 0
             ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.boxing.rawValue,
+                "maxRounds": maxRounds
+            ],
+            stateSnapshot: snapshotData,
             status: finished ? .finished : .draft
         )
+    }
+
+    func restoreSession(_ archive: BoxingSessionArchive) {
+        fullStateHistory = Array(archive.undoHistory.suffix(50))
+        apply(archive.state)
+        controller?.clearHistory()
+        for entry in fullStateHistory {
+            controller?.pushHistory(
+                left: entry.state.leftTotal,
+                right: entry.state.rightTotal,
+                leftSets: entry.state.leftRoundsWon,
+                rightSets: entry.state.rightRoundsWon
+            )
+        }
+    }
+
+    func restoreLegacyMatch(
+        leftName: String,
+        rightName: String,
+        leftScore: Int,
+        rightScore: Int,
+        leftSets: Int,
+        rightSets: Int,
+        currentRound: Int,
+        maxRounds: Int
+    ) {
+        fullStateHistory.removeAll()
+        apply(BoxingMatchState(
+            leftName: leftName,
+            rightName: rightName,
+            maxRounds: maxRounds,
+            leftTotal: leftScore,
+            rightTotal: rightScore,
+            leftRoundsWon: leftSets,
+            rightRoundsWon: rightSets,
+            currentRound: currentRound
+        ))
+        controller?.clearHistory()
+    }
+
+    func startNewMatch() {
+        let result = reduce(.reset)
+        apply(result.state)
+        fullStateHistory.removeAll()
+        controller?.clearHistory()
     }
 
     func adjustSets(isLeft: Bool, delta: Int) {
@@ -174,14 +234,14 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
             leftTeam.name = state.leftName
             rightTeam.name = state.rightName
         }
-        leftTeam.score = state.leftScore
-        rightTeam.score = state.rightScore
-        leftTeam.sets = state.leftSets
-        rightTeam.sets = state.rightSets
+        leftTeam.score = state.leftTotal
+        rightTeam.score = state.rightTotal
+        leftTeam.sets = state.leftRoundsWon
+        rightTeam.sets = state.rightRoundsWon
         currentRound = state.currentRound
         maxRounds = state.maxRounds
         sidesSwapped = state.sidesSwapped
-        gameFinished = state.gameFinished
+        gameFinished = state.finished
 
         controller?.performVibration(type: .light)
         return true
@@ -201,18 +261,7 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     private func saveFullStateToHistory(restoresNames: Bool = false) {
         fullStateHistory.append(
             BoxingHistoryEntry(
-                state: BoxingState(
-                    leftName: leftTeam.name,
-                    rightName: rightTeam.name,
-                    leftScore: leftTeam.score,
-                    rightScore: rightTeam.score,
-                    leftSets: leftTeam.sets ?? 0,
-                    rightSets: rightTeam.sets ?? 0,
-                    currentRound: currentRound,
-                    maxRounds: maxRounds,
-                    sidesSwapped: sidesSwapped,
-                    gameFinished: gameFinished
-                ),
+                state: coreState,
                 restoresNames: restoresNames
             )
         )

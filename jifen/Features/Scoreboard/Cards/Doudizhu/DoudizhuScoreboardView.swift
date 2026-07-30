@@ -79,7 +79,7 @@ struct DoudizhuScoreboardView: View {
         self.onNavigationBack = onNavigationBack
 
         var start = Date()
-        var id = "doudizhu_\(Int(start.timeIntervalSince1970))"
+        var id = ScoreboardRecordIdentity.next(prefix: GameType.doudizhu.canonicalScoreboardIdentifier)
         var initialPlayers = defaultDoudizhuNames.enumerated().map {
             DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0)
         }
@@ -186,7 +186,7 @@ struct DoudizhuScoreboardView: View {
                         multiNames: players.map(\.name),
                         multiScores: players.map(\.score),
                         onNewGame: {
-                            performMatchReset()
+                            startNewMatch()
                         },
                         onRecords: {
                             saveRecord(finished: gameFinished)
@@ -825,6 +825,21 @@ struct DoudizhuScoreboardView: View {
         showGameOverDialog = false
         showScorePanel = false
         saveRecord()
+    }
+
+    private func startNewMatch() {
+        saveRecord(finished: true)
+        recordID = ScoreboardRecordIdentity.next(prefix: GameType.doudizhu.canonicalScoreboardIdentifier)
+        gameStartTime = Date()
+        history.removeAll()
+        actions.removeAll()
+        for index in players.indices { players[index].score = 0 }
+        selectedBaseScore = 1
+        selectedMultiplierPower = 0
+        selectedWinners = [false, false, false]
+        gameFinished = false
+        showGameOverDialog = false
+        showScorePanel = false
     }
 
     private func confirmSettle() {

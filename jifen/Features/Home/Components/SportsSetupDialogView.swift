@@ -1045,6 +1045,15 @@ struct SportsSetupDialogView: View {
                         maxValue: 99
                     )
                 }
+                if !hasValidFoosballScoreCap {
+                    Text(NSLocalizedString(
+                        "setup_score_cap_below_target",
+                        value: "封顶分不能低于每局分数。",
+                        comment: "Foosball final-set score cap validation"
+                    ))
+                    .font(.system(size: 12))
+                    .foregroundColor(.red)
+                }
             }
         }
     }
@@ -1125,6 +1134,13 @@ struct SportsSetupDialogView: View {
         guard gameType == .pingpong || gameType == .badminton || gameType == .foosball else { return true }
         let maximum = gameType == .foosball ? 99 : 999
         return (1...maximum).contains(selectedPointsPerSet)
+    }
+
+    private var hasValidFoosballScoreCap: Bool {
+        guard gameType == .foosball,
+              foosballWinByTwo,
+              let foosballScoreCap else { return true }
+        return (selectedPointsPerSet...99).contains(foosballScoreCap)
     }
 
     private func chipRow(
@@ -1595,6 +1611,14 @@ struct SportsSetupDialogView: View {
             return
         }
         if !hasValidPointsPerSet {
+            return
+        }
+        if !hasValidFoosballScoreCap {
+            setupSendErrorText = NSLocalizedString(
+                "setup_score_cap_below_target",
+                value: "封顶分不能低于每局分数。",
+                comment: "Foosball final-set score cap validation"
+            )
             return
         }
         let resolvedTeam1Name = shouldUseDoublesPlayerInputs()

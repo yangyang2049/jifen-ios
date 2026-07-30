@@ -1135,7 +1135,7 @@ struct DualPlayerTimerView: View {
         if duration <= 0 { return }
 
         let record = GameRecordSummary(
-            id: "\(gameType.rawValue)_\(Int(gameStartAt.timeIntervalSince1970))_\(Int(end.timeIntervalSince1970))",
+            id: ScoreboardRecordIdentity.next(prefix: gameType.rawValue),
             gameType: gameType,
             timestamp: gameStartAt.timeIntervalSince1970,
             duration: duration,

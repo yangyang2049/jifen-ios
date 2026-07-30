@@ -298,6 +298,211 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(GameCatalog.scoreboardItems.count, 23)
     }
 
+    func testBilliardsNewMatchUsesFreshUUIDAndClearsControllerLifecycle() throws {
+        let resumedID = "legacy-billiards-record"
+        XCTAssertEqual(BilliardsRecordIdentity.initial(resuming: resumedID), resumedID)
+
+        let freshID = BilliardsRecordIdentity.initial(resuming: nil)
+        let nextID = BilliardsRecordIdentity.next()
+        XCTAssertNotNil(UUID(uuidString: freshID))
+        XCTAssertNotNil(UUID(uuidString: nextID))
+        XCTAssertNotEqual(freshID, nextID)
+
+        let controller = BilliardsScoreboardController()
+        controller.gameActions = ["old-action"]
+        controller.gameRecordSaved = true
+        let newStart = Date(timeIntervalSince1970: 123)
+        controller.beginNewMatch(at: newStart)
+
+        XCTAssertEqual(controller.gameStartTime, newStart)
+        XCTAssertTrue(controller.gameActions.isEmpty)
+        XCTAssertFalse(controller.gameRecordSaved)
+    }
+
+    func testScoreboardRecordIdentityPreservesResumeIDAndUsesFreshUUIDSuffixes() {
+        let resumedID = "legacy-record"
+        XCTAssertEqual(
+            ScoreboardRecordIdentity.initial(prefix: "boxing", resuming: resumedID),
+            resumedID
+        )
+
+        let prefixes = [
+            "simple_score", "multi_scoreboard", "archery_dual", "boxing", "football",
+            "guandan", "doudizhu", "shengji", "go", "xiangqi", "chess", "checkers"
+        ]
+        let ids = prefixes.map { ScoreboardRecordIdentity.next(prefix: $0) }
+        XCTAssertEqual(Set(ids).count, ids.count)
+        for (prefix, id) in zip(prefixes, ids) {
+            XCTAssertTrue(id.hasPrefix("\(prefix)_"))
+            XCTAssertNotNil(UUID(uuidString: String(id.dropFirst(prefix.count + 1))))
+        }
+    }
+
+    func testAuditedScoreboardSessionArchivesRoundTripWithoutLosingUndoState() throws {
+        let lineState = LineScoreState(
+            leftName: "红方",
+            rightName: "蓝方",
+            rules: .freeCounter,
+            leftScore: -3,
+            rightScore: 8,
+            sidesSwapped: true
+        )
+        let lineArchive = LineScoreSessionArchive(
+            state: lineState,
+            undoHistory: [.init(state: lineState, restoresNames: true)],
+            intentTimeline: ["line-action"]
+        )
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                LineScoreSessionArchive.self,
+                from: JSONEncoder().encode(lineArchive)
+            ).state,
+            lineState
+        )
+
+        let multiArchive = MultiScoreSessionArchive(
+            players: [
+                .init(id: 0, name: "甲", score: 12),
+                .init(id: 1, name: "乙", score: -2),
+                .init(id: 2, name: "丙", score: 7)
+            ],
+            undoHistory: [[11, -2, 7]],
+            intentTimeline: ["multi-action"],
+            unoRoundCount: 2,
+            targetScore: 500,
+            customAdjustEnabled: true,
+            useLandscapeLayout: false
+        )
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                MultiScoreSessionArchive.self,
+                from: JSONEncoder().encode(multiArchive)
+            ),
+            multiArchive
+        )
+
+        let boxingState = BoxingMatchState(
+            leftName: "拳手 A",
+            rightName: "拳手 B",
+            maxRounds: 3,
+            leftTotal: 10,
+            rightTotal: 9,
+            leftRoundsWon: 1,
+            currentRound: 2
+        )
+        let boxingArchive = BoxingSessionArchive(
+            state: boxingState,
+            undoHistory: [.init(state: boxingState, restoresNames: false)],
+            intentTimeline: ["boxing-action"]
+        )
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                BoxingSessionArchive.self,
+                from: JSONEncoder().encode(boxingArchive)
+            ),
+            boxingArchive
+        )
+
+        let archeryState = ArcheryMatchState(
+            leftName: "射手 A",
+            rightName: "射手 B",
+            leftArrowSum: 19,
+            rightArrowSum: 18,
+            leftSetPoints: 2,
+            currentSet: 2,
+            arrowsLeftThisSet: 2,
+            arrowsRightThisSet: 2
+        )
+        let archeryArchive = ArcheryRecordArchive(
+            state: archeryState,
+            undoHistory: [archeryState],
+            intentTimeline: ["archery-action"]
+        )
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                ArcheryRecordArchive.self,
+                from: JSONEncoder().encode(archeryArchive)
+            ),
+            archeryArchive
+        )
+    }
+
+    func testBoxingRestoredSessionKeepsUndoAndNewMatchClearsIt() {
+        let controller = BoxingScoreboardController()
+        let viewModel = BoxingViewModel(controller: controller)
+        let beforeRound = BoxingMatchState(leftName: "A", rightName: "B", maxRounds: 3)
+        let afterRound = BoxingMatchState(
+            leftName: "A",
+            rightName: "B",
+            maxRounds: 3,
+            leftTotal: 10,
+            rightTotal: 9,
+            leftRoundsWon: 1,
+            currentRound: 2
+        )
+        viewModel.restoreSession(BoxingSessionArchive(
+            state: afterRound,
+            undoHistory: [.init(state: beforeRound, restoresNames: false)],
+            intentTimeline: ["round"]
+        ))
+
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        XCTAssertEqual(viewModel.currentRound, 1)
+
+        viewModel.addRoundScore(leftPoints: 10, rightPoints: 9)
+        viewModel.startNewMatch()
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        XCTAssertEqual(viewModel.rightTeam.score, 0)
+        XCTAssertFalse(viewModel.undo())
+    }
+
+    func testFootballRestoredSessionKeepsUndoAndNewLifecycleClearsControllerState() {
+        let controller = FootballScoreboardController()
+        let viewModel = FootballViewModel(controller: controller)
+        let initial = LineScoreState(leftName: "主队", rightName: "客队")
+        let scored = LineScoreState(
+            leftName: "主队",
+            rightName: "客队",
+            leftScore: 1,
+            rightScore: 0
+        )
+        viewModel.restoreSession(
+            state: scored,
+            history: [.init(state: initial, restoresNames: false)]
+        )
+        controller.gameActions = ["goal"]
+        controller.gameRecordSaved = true
+
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+
+        controller.beginNewMatch(at: Date(timeIntervalSince1970: 456))
+        viewModel.restoreSession(state: initial, history: [])
+        XCTAssertEqual(controller.gameStartTime, Date(timeIntervalSince1970: 456))
+        XCTAssertTrue(controller.gameActions.isEmpty)
+        XCTAssertFalse(controller.gameRecordSaved)
+        XCTAssertFalse(viewModel.undo())
+    }
+
+    func testLineScoreFreshMatchRestoresOriginalSidesAndClearsFinishedState() {
+        let controller = SimpleScoreboardController()
+        let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
+        viewModel.leftTeam.name = "A"
+        viewModel.rightTeam.name = "B"
+        viewModel.adjustScore(isLeft: true, delta: 3)
+        viewModel.exchangeSides()
+        viewModel.endGame()
+
+        let fresh = viewModel.makeFreshMatchState()
+        XCTAssertEqual(fresh.leftName, "A")
+        XCTAssertEqual(fresh.rightName, "B")
+        XCTAssertEqual(fresh.leftScore, 0)
+        XCTAssertEqual(fresh.rightScore, 0)
+        XCTAssertFalse(fresh.sidesSwapped)
+        XCTAssertFalse(fresh.finished)
+    }
+
     func testPhoneWatchStartScopeMatchesExistingWatchMatchProjectsOnly() {
         let supported: Set<jifen.GameType> = [
             .pingpong, .badminton, .tennis, .pickleball,
@@ -380,6 +585,34 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(rules.finalSetWinByTwo, true)
         XCTAssertEqual(rules.finalSetPointCap, 10)
         XCTAssertEqual(rules.pointCap, nil)
+    }
+
+    func testFoosballSetupRejectsScoreCapBelowTarget() {
+        let setup = SportsSetupResult(
+            team1Name: "A",
+            team2Name: "B",
+            pointsPerSet: 8,
+            winByTwo: true,
+            scoreCap: 7
+        )
+
+        XCTAssertNil(setup.foosballRules.finalSetPointCap)
+    }
+
+    func testSingleSetRallyResultPresentsFinalPointsInsteadOfOneNilSetScore() {
+        var state = RallyMatchEngine.initial(
+            leftName: "A",
+            rightName: "B",
+            rules: .foosball(maxSets: 1)
+        )
+        state.leftPoints = 5
+        state.rightPoints = 3
+        state.leftSets = 1
+        state.finished = true
+
+        let scores = RallyFinishedScorePresentation.scores(for: state)
+        XCTAssertEqual(scores.left, 5)
+        XCTAssertEqual(scores.right, 3)
     }
 
     func testPhoneBadmintonSinglesAndDoublesUseConfiguredPointCaps() {

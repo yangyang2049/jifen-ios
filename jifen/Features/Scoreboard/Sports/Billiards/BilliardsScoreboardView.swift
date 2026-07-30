@@ -9,11 +9,14 @@ import SwiftUI
 import RecordCore
 import ScoreCore
 
-private struct LineScoreSessionArchive: Codable {
-    var schemaVersion = 1
-    let state: LineScoreState
-    let undoHistory: [LineScoreViewModel.HistoryEntry]
-    let intentTimeline: [String]
+enum BilliardsRecordIdentity {
+    static func initial(resuming recordID: String?) -> String {
+        recordID ?? UUID().uuidString
+    }
+
+    static func next() -> String {
+        UUID().uuidString
+    }
 }
 
 struct BilliardsScoreboardView: View {
@@ -28,10 +31,7 @@ struct BilliardsScoreboardView: View {
     @State private var responsiveScoreFontSize: CGFloat = ScoreboardConstants.baseMainScoreFontSize
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
-
-    private var recordID: String {
-        initialRecordId ?? "billiards_\(Int(controller.gameStartTime.timeIntervalSince1970))"
-    }
+    @State private var recordID: String
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -46,6 +46,7 @@ struct BilliardsScoreboardView: View {
         let c = BilliardsScoreboardController()
         _controller = State(initialValue: c)
         _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .nonNegative))
+        _recordID = State(initialValue: BilliardsRecordIdentity.initial(resuming: initialRecordId))
     }
 
     var body: some View {
@@ -77,9 +78,7 @@ struct BilliardsScoreboardView: View {
                     leftScore: viewModel.leftTeam.score,
                     rightScore: viewModel.rightTeam.score,
                     onNewGame: {
-                        showGameOverDialog = false
-                        viewModel.reset()
-                        controller.recordScoreAction(action: "reset")
+                        startNewMatch()
                     },
                     onRecords: {
                         saveGameRecordInRealTime(isGameFinished: true)
@@ -150,6 +149,18 @@ struct BilliardsScoreboardView: View {
 
     private func calculateResponsiveScoreFontSize(containerShortSide: CGFloat) -> CGFloat {
         ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: containerShortSide)
+    }
+
+    private func startNewMatch() {
+        // Preserve the completed match before switching identity. A new match
+        // must not reuse the resumed/timestamp-derived record or its undo log.
+        saveGameRecordInRealTime(isGameFinished: true)
+
+        let freshState = viewModel.makeFreshMatchState()
+        controller.beginNewMatch()
+        recordID = BilliardsRecordIdentity.next()
+        viewModel.restoreSession(state: freshState, history: [])
+        showGameOverDialog = false
     }
 
     private func restoreDraftIfNeeded() {

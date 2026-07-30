@@ -22,4 +22,5 @@ class BilliardsScoreboardController: BaseScoreboardController {
     override func getScoringOptions() -> [Int] {
         return []
     }
+
 }

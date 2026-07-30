@@ -3368,7 +3368,7 @@ struct ShengjiReducerScoreboardView: View {
         var right = initialSetup?.team2Name.nonEmpty ?? blue
         var initial = ShengjiTierState()
         var start = Date()
-        var id = "shengji_\(Int(start.timeIntervalSince1970))"
+        var id = ScoreboardRecordIdentity.next(prefix: GameType.shengji.canonicalScoreboardIdentifier)
         var actions = 0
 
         if let initialRecordId,
@@ -3446,7 +3446,16 @@ struct ShengjiReducerScoreboardView: View {
             }
 
             if state.finished {
-                let winnerName = state.leftIndex >= state.maxTierIndex ? leftName : rightName
+                let winnerName: String = switch state.winnerSide {
+                case .left: leftName
+                case .right: rightName
+                case nil: ""
+                }
+                let winnerIndices: Set<Int> = switch state.winnerSide {
+                case .left: [0]
+                case .right: [1]
+                case nil: []
+                }
                 GameOverDialog(
                     winnerName: winnerName,
                     gameType: .shengji,
@@ -3455,8 +3464,9 @@ struct ShengjiReducerScoreboardView: View {
                     rightName: rightName,
                     leftScoreText: level(state.leftIndex),
                     rightScoreText: level(state.rightIndex),
+                    winnerIndices: winnerIndices,
                     onNewGame: {
-                        resetMatch()
+                        startNewMatch()
                     },
                     onRecords: {
                         saveRecord()
@@ -3533,6 +3543,15 @@ struct ShengjiReducerScoreboardView: View {
     }
     private func resetMatch() {
         send(.reset)
+    }
+    private func startNewMatch() {
+        saveRecord()
+        state = ShengjiTierState(maxTierIndex: state.maxTierIndex)
+        history.removeAll()
+        actionLog.removeAll()
+        actionCount = 0
+        startedAt = Date()
+        recordID = ScoreboardRecordIdentity.next(prefix: GameType.shengji.canonicalScoreboardIdentifier)
     }
     private func finishMatch() {
         send(.finish)

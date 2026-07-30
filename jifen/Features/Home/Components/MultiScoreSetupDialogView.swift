@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 
 /// 多人 / 卡牌 / 简单计分开局设置，对齐鸿蒙 CasualGameSetupDialog。
@@ -353,15 +354,19 @@ struct MultiScoreSetupDialogView: View {
                 Text(NSLocalizedString("guandan_triple_a_fallback_section", value: "三 A 不过回退到", comment: ""))
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.textSecondary)
-                HStack(spacing: 8) {
-                    ForEach(["2", "J", "10", "K"], id: \.self) { rank in
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4),
+                    spacing: 8
+                ) {
+                    ForEach(Array(guandanRankOrder.dropLast()), id: \.self) { rank in
                         Button {
                             guandanFallbackRank = rank
                         } label: {
                             Text(rank)
                                 .font(.system(size: 14, weight: guandanFallbackRank == rank ? .medium : .regular))
                                 .foregroundStyle(guandanFallbackRank == rank ? Color.white : Theme.textPrimary)
-                                .frame(width: 44, height: 36)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 36)
                                 .background(guandanFallbackRank == rank ? Theme.primary : Theme.dialogControlBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }

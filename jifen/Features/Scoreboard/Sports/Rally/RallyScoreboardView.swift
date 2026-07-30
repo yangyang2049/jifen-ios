@@ -12,6 +12,18 @@ func decodeRallyStateSnapshot(_ data: Data) -> RallyMatchState? {
             from: data
         ))?.currentSession.state
 }
+
+enum RallyFinishedScorePresentation {
+    static func scores(for state: RallyMatchState) -> (left: Int, right: Int) {
+        if state.rules.maxSets == 1 {
+            return (state.leftPoints, state.rightPoints)
+        }
+        if state.leftSets > 0 || state.rightSets > 0 {
+            return (state.leftSets, state.rightSets)
+        }
+        return (state.leftPoints, state.rightPoints)
+    }
+}
 import UIKit
 
 struct RallyScoreboardView: View {
@@ -197,17 +209,14 @@ struct RallyScoreboardView: View {
                 )
 
                 if showGameOverDialog {
+                    let displayScores = RallyFinishedScorePresentation.scores(for: store.state)
                     GameOverDialog(
                         winnerName: finishedWinnerName,
                         gameType: GameType(scoreCoreGameType: store.gameType) ?? .simpleScore,
                         leftName: store.state.leftName,
                         rightName: store.state.rightName,
-                        leftScore: store.state.leftSets > 0 || store.state.rightSets > 0
-                            ? store.state.leftSets
-                            : store.state.leftPoints,
-                        rightScore: store.state.leftSets > 0 || store.state.rightSets > 0
-                            ? store.state.rightSets
-                            : store.state.rightPoints,
+                        leftScore: displayScores.left,
+                        rightScore: displayScores.right,
                         newGameLabel: scoringLocked ? linkedNewGameLabel : nil,
                         newGameDisabled: scoringLocked || isStartingNewMatch,
                         onNewGame: {
@@ -1723,8 +1732,9 @@ struct RallyScoreboardView: View {
     }
 
     private func shareFinishedMatch() {
+        let displayScores = RallyFinishedScorePresentation.scores(for: store.state)
         ScoreboardShareSupport.present(
-            text: "\(store.state.leftName) \(store.state.leftSets) - \(store.state.rightSets) \(store.state.rightName)"
+            text: "\(store.state.leftName) \(displayScores.left) - \(displayScores.right) \(store.state.rightName)"
         )
     }
 

@@ -63,7 +63,10 @@ struct ArcheryScoreboardView: View {
         self.initialRecordId = initialRecordId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
-        _recordID = State(initialValue: initialRecordId ?? "archery_\(Int(Date().timeIntervalSince1970))")
+        _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
+            prefix: GameType.archery.canonicalScoreboardIdentifier,
+            resuming: initialRecordId
+        ))
     }
 
     var body: some View {
@@ -164,10 +167,7 @@ struct ArcheryScoreboardView: View {
                     newGameDisabled: scoringLocked,
                     onNewGame: {
                         guard !scoringLocked else { return }
-                        showGameOverDialog = false
-                        manualFinishRequested = false
-                        viewModel.reset()
-                        controller.recordScoreAction(action: "reset")
+                        startNewMatch()
                     },
                     onRecords: {
                         saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
@@ -523,6 +523,21 @@ struct ArcheryScoreboardView: View {
         return min(240, max(base, base + (containerWidth - 400) * 0.15))
     }
 
+    private func startNewMatch() {
+        saveGameRecordInRealTime(isGameFinished: true)
+        controller.beginNewMatch()
+        recordID = ScoreboardRecordIdentity.next(prefix: GameType.archery.canonicalScoreboardIdentifier)
+        viewModel.startNewMatch()
+        manualFinishRequested = false
+        showArrowPicker = false
+        showSetEndOverlay = false
+        showClosestToCenter = false
+        pendingContinueUpdate = nil
+        pendingClosestContinue = nil
+        showGameOverDialog = false
+        publishWatchIfNeeded()
+    }
+
     private func restoreDraftIfNeeded() {
         guard let recordId = initialRecordId,
               let record = ScoreboardRecordManager.shared.getRecordById(recordId),
@@ -534,6 +549,13 @@ struct ArcheryScoreboardView: View {
         controller.gameStartTime = record.startTime
         controller.gameActions = record.actions
         controller.gameRecordSaved = false
+
+        if let data = record.stateSnapshot,
+           let archive = try? JSONDecoder().decode(ArcheryRecordArchive.self, from: data) {
+            controller.gameActions = archive.intentTimeline
+            viewModel.restoreSession(archive)
+            return
+        }
 
         viewModel.leftTeam.name = record.team1Name
         viewModel.rightTeam.name = record.team2Name
@@ -632,6 +654,22 @@ struct ArcheryScoreboardView: View {
             }
         }
 
+        let archive = ArcheryRecordArchive(
+            state: viewModel.match,
+            undoHistory: viewModel.resumeHistory,
+            intentTimeline: controller.getGameActions()
+        )
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(archive)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to encode archery record \(recordID)"
+            )
+            return
+        }
+
         controller.saveScoreboardRecord(
             id: recordID,
             endTime: end,
@@ -657,6 +695,10 @@ struct ArcheryScoreboardView: View {
                 "leftSets": viewModel.leftTeam.sets ?? 0,
                 "rightSets": viewModel.rightTeam.sets ?? 0
             ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.archeryDual.rawValue
+            ],
+            stateSnapshot: snapshotData,
             status: finished ? .finished : .draft
         )
     }
@@ -686,7 +728,7 @@ private class ArcheryScoreboardController: BaseScoreboardController {
 /// 需为 internal 以便 ScoreboardTemplate 通过 ScoreViewModelProtocol 派发调用 adjustSets（private 时协议走默认空实现，局分 +/- 不生效）
 @Observable
 class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
-    private let sessionStore: ArcherySessionStore
+    private var sessionStore: ArcherySessionStore
     private var onSetEndCallback: ((SetEndCallbackData) -> Void)? = nil
     private var lastEvents: [ArcheryMatchEvent] = []
     var mutationLocked = false
@@ -694,6 +736,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     var match: ArcheryMatchState { sessionStore.state }
     var teamScreenLayout: TeamScreenLayout { sessionStore.teamScreenLayout }
     var sessionId: UUID { sessionStore.sessionId }
+    var resumeHistory: [ArcheryMatchState] { sessionStore.resumeHistory }
 
     var currentSet: Int { match.currentSet }
     var currentShooterIsLeft: Bool {
@@ -721,6 +764,23 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     func configureOpening(leftName: String, rightName: String, openingIsLeft: Bool) {
         sessionStore.configureOpening(leftName: leftName, rightName: rightName, openingIsLeft: openingIsLeft)
         syncTeamsFromMatch()
+    }
+
+    func restoreSession(_ archive: ArcheryRecordArchive) {
+        sessionStore.restoreRecordState(archive.state, undoHistory: archive.undoHistory)
+        syncTeamsFromMatch()
+    }
+
+    func startNewMatch() {
+        let reset = ArcheryMatchReducer().reduce(
+            state: match,
+            intent: .reset,
+            at: Int64(Date().timeIntervalSince1970 * 1_000)
+        ).state
+        sessionStore = ArcherySessionStore(state: reset)
+        lastEvents.removeAll()
+        syncTeamsFromMatch()
+        sessionStore.persistSnapshot()
     }
 
     func applyRemote(_ remote: LinkedArcheryState) {

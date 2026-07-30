@@ -4,6 +4,13 @@ import PersistenceCore
 import ScoreCore
 import SessionCore
 
+struct ArcheryRecordArchive: Codable, Equatable {
+    var schemaVersion = 1
+    let state: ArcheryMatchState
+    let undoHistory: [ArcheryMatchState]
+    let intentTimeline: [String]
+}
+
 /// Primary archery session host — sync apply for scoreboard UI, archives via SessionCore snapshot shape.
 @MainActor
 @Observable
@@ -40,6 +47,20 @@ final class ArcherySessionStore {
             participants: [
                 .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
                 .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
+            ]
+        )
+    }
+
+    convenience init(state: ArcheryMatchState) {
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: .archeryDual)
+        self.init(
+            sessionId: UUID(),
+            state: state,
+            ruleFamily: descriptor.ruleFamily,
+            reducerType: descriptor.reducerType,
+            participants: [
+                .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
+                .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
             ]
         )
     }
@@ -112,6 +133,20 @@ final class ArcherySessionStore {
 
     func clearHistory() {
         undoStack.removeAll()
+    }
+
+    var resumeHistory: [ArcheryMatchState] {
+        undoStack
+    }
+
+    func restoreRecordState(_ state: ArcheryMatchState, undoHistory: [ArcheryMatchState]) {
+        self.state = state
+        undoStack = Array(undoHistory.suffix(100))
+        participants = [
+            .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
+            .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
+        ]
+        persistSnapshot()
     }
 
     func persistSnapshot() {

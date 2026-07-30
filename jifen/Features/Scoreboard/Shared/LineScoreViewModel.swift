@@ -1,6 +1,13 @@
 import Foundation
 import ScoreCore
 
+struct LineScoreSessionArchive: Codable {
+    var schemaVersion = 1
+    let state: LineScoreState
+    let undoHistory: [LineScoreViewModel.HistoryEntry]
+    let intentTimeline: [String]
+}
+
 /// UI adapter for S1 line-score boards. All score transitions are delegated to
 /// `LineScoreReducer`; the inherited team model only mirrors reducer state for
 /// the legacy template while those screens are migrated.
@@ -18,6 +25,14 @@ class LineScoreViewModel: BaseScoreViewModel {
 
     var sessionState: LineScoreState { state }
     var resumeHistory: [HistoryEntry] { stateHistory }
+
+    func makeFreshMatchState() -> LineScoreState {
+        reducer.reduce(
+            state: state,
+            intent: .reset,
+            at: Int64(Date().timeIntervalSince1970 * 1_000)
+        ).state
+    }
 
     func restoreSession(state: LineScoreState, history: [HistoryEntry]) {
         stateHistory = Array(history.suffix(50))

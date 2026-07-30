@@ -5,6 +5,7 @@
 //  Football scoreboard view
 //
 
+import ScoreCore
 import SwiftUI
 import UIKit
 
@@ -14,13 +15,29 @@ struct FootballScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
-    @State private var controller = FootballScoreboardController()
-    @State private var viewModel = FootballViewModel()
+    @State private var controller: FootballScoreboardController
+    @State private var viewModel: FootballViewModel
     @State private var showGameOverDialog: Bool = false
     @State private var showFinishedRecordDetail = false
+    @State private var recordID: String
 
-    private var recordID: String {
-        initialRecordId ?? "football_\(Int(controller.gameStartTime.timeIntervalSince1970))"
+    init(
+        onNavigationBack: (() -> Void)? = nil,
+        initialSetup: SportsSetupResult? = nil,
+        initialRecordId: String? = nil,
+        onSetupConsumed: (() -> Void)? = nil
+    ) {
+        self.onNavigationBack = onNavigationBack
+        self.initialSetup = initialSetup
+        self.initialRecordId = initialRecordId
+        self.onSetupConsumed = onSetupConsumed
+        let controller = FootballScoreboardController()
+        _controller = State(initialValue: controller)
+        _viewModel = State(initialValue: FootballViewModel(controller: controller))
+        _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
+            prefix: GameType.football.canonicalScoreboardIdentifier,
+            resuming: initialRecordId
+        ))
     }
 
     var body: some View {
@@ -52,12 +69,13 @@ struct FootballScoreboardView: View {
                     leftScore: viewModel.leftTeam.score,
                     rightScore: viewModel.rightTeam.score,
                     onNewGame: {
-                        showGameOverDialog = false
-                        viewModel.reset()
-                        controller.recordScoreAction(action: "reset")
+                        startNewMatch()
                     },
                     onRecords: {
-                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        viewModel.saveGameRecordInRealTime(
+                            recordID: recordID,
+                            isGameFinished: viewModel.gameFinished
+                        )
                         showFinishedRecordDetail = true
                     },
                     onShare: {
@@ -66,7 +84,10 @@ struct FootballScoreboardView: View {
                         )
                     },
                     onExit: {
-                        viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+                        viewModel.saveGameRecordInRealTime(
+                            recordID: recordID,
+                            isGameFinished: viewModel.gameFinished
+                        )
                         if let onNavigationBack {
                             onNavigationBack()
                         } else {
@@ -116,6 +137,7 @@ struct FootballScoreboardView: View {
         .onChange(of: viewModel.gameFinished) { _, newValue in
             if newValue {
                 showGameOverDialog = true
+                viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
             }
         }
         .onDisappear {
@@ -123,7 +145,10 @@ struct FootballScoreboardView: View {
             #if DEBUG
             print("[FootballScoreboardView] 📤 View disappearing, saving record")
             #endif
-            viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+            viewModel.saveGameRecordInRealTime(
+                recordID: recordID,
+                isGameFinished: viewModel.gameFinished
+            )
 
             // Show tab bar when leaving
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -132,6 +157,16 @@ struct FootballScoreboardView: View {
                 tabBarController.tabBar.isHidden = false
             }
         }
+    }
+
+    private func startNewMatch() {
+        viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
+
+        let freshState = viewModel.makeFreshMatchState()
+        controller.beginNewMatch()
+        recordID = ScoreboardRecordIdentity.next(prefix: GameType.football.canonicalScoreboardIdentifier)
+        viewModel.restoreSession(state: freshState, history: [])
+        showGameOverDialog = false
     }
 
     private func restoreDraftIfNeeded() {
@@ -144,6 +179,13 @@ struct FootballScoreboardView: View {
         controller.gameStartTime = record.startTime
         controller.gameActions = record.actions
         controller.gameRecordSaved = false
+
+        if let data = record.stateSnapshot,
+           let archive = try? JSONDecoder().decode(LineScoreSessionArchive.self, from: data) {
+            controller.gameActions = archive.intentTimeline
+            viewModel.restoreSession(state: archive.state, history: archive.undoHistory)
+            return
+        }
 
         viewModel.leftTeam.name = record.team1Name
         viewModel.rightTeam.name = record.team2Name

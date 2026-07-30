@@ -22,10 +22,7 @@ struct SimpleScoreboardView: View {
     @State private var adjustTargetIsLeft: Bool?
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
-
-    private var recordID: String {
-        initialRecordId ?? "simple_score_\(Int(controller.gameStartTime.timeIntervalSince1970))"
-    }
+    @State private var recordID: String
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -40,6 +37,10 @@ struct SimpleScoreboardView: View {
         let c = SimpleScoreboardController()
         _controller = State(initialValue: c)
         _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .freeCounter))
+        _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
+            prefix: GameType.simpleScore.canonicalScoreboardIdentifier,
+            resuming: initialRecordId
+        ))
         let enabled = initialSetup?.multiScoreCustomAdjustEnabled
             ?? PreferencesManager.shared.simpleScoreCustomAdjustEnabled
         _customAdjustEnabled = State(initialValue: enabled)
@@ -95,9 +96,7 @@ struct SimpleScoreboardView: View {
                     leftScore: viewModel.leftTeam.score,
                     rightScore: viewModel.rightTeam.score,
                     onNewGame: {
-                        showGameOverDialog = false
-                        viewModel.reset()
-                        controller.recordScoreAction(action: "reset")
+                        startNewMatch()
                     },
                     onRecords: {
                         saveGameRecordInRealTime(isGameFinished: true)
@@ -173,6 +172,19 @@ struct SimpleScoreboardView: View {
         ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: containerShortSide)
     }
 
+    private func startNewMatch() {
+        saveGameRecordInRealTime(isGameFinished: true)
+
+        let freshState = viewModel.makeFreshMatchState()
+        controller.beginNewMatch()
+        recordID = ScoreboardRecordIdentity.next(
+            prefix: GameType.simpleScore.canonicalScoreboardIdentifier
+        )
+        viewModel.restoreSession(state: freshState, history: [])
+        adjustTargetIsLeft = nil
+        showGameOverDialog = false
+    }
+
     private func restoreDraftIfNeeded() {
         guard let recordId = initialRecordId,
               let record = ScoreboardRecordManager.shared.getRecordById(recordId),
@@ -183,6 +195,16 @@ struct SimpleScoreboardView: View {
         controller.gameStartTime = record.startTime
         controller.gameActions = record.actions
         controller.gameRecordSaved = false
+
+        if let data = record.stateSnapshot,
+           let archive = try? JSONDecoder().decode(LineScoreSessionArchive.self, from: data) {
+            controller.gameActions = archive.intentTimeline
+            viewModel.restoreSession(state: archive.state, history: archive.undoHistory)
+            if let flag = record.extraData?["multiScoreCustomAdjustEnabled"]?.value as? Bool {
+                customAdjustEnabled = flag
+            }
+            return
+        }
 
         viewModel.leftTeam.name = record.team1Name
         viewModel.rightTeam.name = record.team2Name
@@ -214,6 +236,22 @@ struct SimpleScoreboardView: View {
             }
         }
 
+        let archive = LineScoreSessionArchive(
+            state: viewModel.sessionState,
+            undoHistory: viewModel.resumeHistory,
+            intentTimeline: controller.getGameActions()
+        )
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(archive)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to encode simple score record \(recordID)"
+            )
+            return
+        }
+
         controller.saveScoreboardRecord(
             id: recordID,
             endTime: endTime,
@@ -227,6 +265,12 @@ struct SimpleScoreboardView: View {
             extraData: [
                 "multiScoreCustomAdjustEnabled": customAdjustEnabled
             ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.simpleScore.rawValue,
+                "minimumScore": LineScoreRuleSet.freeCounter.minimum,
+                "maximumScore": LineScoreRuleSet.freeCounter.maximum
+            ],
+            stateSnapshot: snapshotData,
             status: finished ? .finished : .draft
         )
     }

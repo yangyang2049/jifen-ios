@@ -29,24 +29,47 @@ class FootballViewModel: LineScoreViewModel {
 
     // MARK: - Real-time Record Saving
 
-    func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+    func saveGameRecordInRealTime(recordID: String, isGameFinished: Bool = false) {
         #if DEBUG
         print("[FootballViewModel] 💾 Saving football record in real-time (isGameFinished: \(isGameFinished))")
         #endif
+        let hasProgress = !(controller?.getGameActions().isEmpty ?? true)
+            || leftTeam.score != 0
+            || rightTeam.score != 0
+            || isGameFinished
+            || gameFinished
+        guard hasProgress else { return }
+
         let endTime = Date()
         let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
 
         var winner: String? = nil
         if isGameFinished || gameFinished {
             if leftTeam.score > rightTeam.score {
-                winner = "left"
+                winner = TeamID.team0.rawValue
             } else if rightTeam.score > leftTeam.score {
-                winner = "right"
+                winner = TeamID.team1.rawValue
             }
         }
 
+        let archive = LineScoreSessionArchive(
+            state: sessionState,
+            undoHistory: resumeHistory,
+            intentTimeline: controller?.getGameActions() ?? []
+        )
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(archive)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to encode football record \(recordID)"
+            )
+            return
+        }
+
         controller?.saveScoreboardRecord(
-            id: "football_\(Int(controller?.getGameStartTime().timeIntervalSince1970 ?? 0))",
+            id: recordID,
             endTime: endTime,
             duration: duration,
             team1Name: leftTeam.name,
@@ -58,6 +81,12 @@ class FootballViewModel: LineScoreViewModel {
             winner: winner,
             totalScoreChanges: controller?.getGameActions().count ?? 0,
             extraData: [:],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.football.rawValue,
+                "minimumScore": LineScoreRuleSet.nonNegative.minimum,
+                "maximumScore": LineScoreRuleSet.nonNegative.maximum
+            ],
+            stateSnapshot: snapshotData,
             status: (isGameFinished || gameFinished) ? .finished : .draft
         )
         #if DEBUG
