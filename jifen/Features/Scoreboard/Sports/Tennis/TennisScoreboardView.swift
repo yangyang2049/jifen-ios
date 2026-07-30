@@ -20,6 +20,7 @@ struct TennisScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
     @State private var toastMessage: String?
     @State private var previousIdleTimerDisabled: Bool?
@@ -87,6 +88,9 @@ struct TennisScoreboardView: View {
             state: tennisState,
             voiceAnnouncementEnabled: setup?.voiceAnnouncement == true
         ))
+        _typographySession = State(initialValue: ScoreboardTypographySession(
+            styleID: ScoreboardStyleID(scoreCoreGameType: gameType)
+        ))
         _watchSessionId = State(initialValue: setup?.linkedWatchSessionId)
     }
 
@@ -125,17 +129,32 @@ struct TennisScoreboardView: View {
             )
             ZStack {
                 HStack(spacing: 0) {
-                    half(.left, size: size)
-                    half(.right, size: size)
+                    let halfSize = CGSize(width: size.width / 2, height: size.height)
+                    half(.left, size: halfSize)
+                    half(.right, size: halfSize)
                 }
                 if !isEditMode,
-                   !store.state.finished,
-                   store.state.doublesPlayerNames == nil {
-                    CenterLineServeIndicator(
-                        isLeftServing: logicalSide(forScreen: .left) == store.state.servingSide,
-                        triangleSize: serveIndicatorSize
-                    )
-                    .position(x: size.width / 2, y: size.height / 2)
+                   !store.state.finished {
+                    if store.state.doublesPlayerNames == nil {
+                        CenterLineServeIndicator(
+                            isLeftServing: logicalSide(forScreen: .left) == store.state.servingSide,
+                            triangleSize: serveIndicatorSize
+                        )
+                        .position(x: size.width / 2, y: size.height / 2)
+                    } else if let isLeftServing = tennisDoublesServerIsLeftScreen,
+                              let isTopRow = tennisDoublesServerIsTopRow {
+                        CenterLineServeIndicator(
+                            isLeftServing: isLeftServing,
+                            triangleSize: serveIndicatorSize
+                        )
+                        .position(
+                            x: size.width / 2,
+                            y: ScoreboardServeGeometry.doublesAnchorY(
+                                height: size.height,
+                                topRow: isTopRow
+                            )
+                        )
+                    }
                 }
                 if shouldShowChrome {
                     VStack {
@@ -309,6 +328,7 @@ struct TennisScoreboardView: View {
                let restored = TennisSessionStore(restoring: uuid) {
                 store = restored
             }
+            typographySession.switchStyleID(ScoreboardStyleID(scoreCoreGameType: store.gameType))
             syncEditNamesFromState()
             registerScoreboardSync()
             revealImmersiveChrome()
@@ -378,6 +398,9 @@ struct TennisScoreboardView: View {
         .onChange(of: showDisplaySettings) { _, _ in
             updateImmersiveForBlocking()
         }
+        .onChange(of: typographySession.effectivePreference) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
         .onChange(of: isEditMode) { _, _ in
             updateImmersiveForBlocking()
         }
@@ -386,7 +409,8 @@ struct TennisScoreboardView: View {
         }
         .scoreboardDisplaySettingsOverlay(
             isPresented: $showDisplaySettings,
-            gameType: GameType(scoreCoreGameType: store.gameType) ?? .tennis
+            session: typographySession,
+            metrics: ScoreboardTypographyProfile.tennis.adjustableMetrics
         )
         .alert(
             NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
@@ -496,12 +520,12 @@ struct TennisScoreboardView: View {
         size: CGSize
     ) -> some View {
         let name = side == .left ? store.state.leftName : store.state.rightName
-        let nameSize = ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: size.height)
-            * tennisNameMultiplier
+        let typography = resolvedTennisTypography(side: side, name: name, size: size)
+        let nameSize = typography.nameFontSize
 
         return VStack(spacing: 0) {
             Text(name)
-                .font(.system(size: nameSize, weight: .bold))
+                .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 72)
@@ -523,14 +547,18 @@ struct TennisScoreboardView: View {
         let points = store.state.scoreDisplay(for: side)
         let games = isLeft ? store.state.leftGames : store.state.rightGames
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
-            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height)
-                * tennisScoreMultiplier * 0.72
+        let typography = resolvedTennisTypography(
+            side: side,
+            name: isLeft ? editLeftName : editRightName,
+            size: size,
+            scoreBaseScale: 0.72,
+            reservedHeight: 80
         )
-        let secondarySize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height)
-            * tennisSecondaryMultiplier * 0.72
-        let nameSize = ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: size.height)
-            * tennisNameMultiplier * 0.72
+        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
+            regularSize: typography.scoreFontSize
+        )
+        let secondarySize = typography.secondaryFontSize * 0.72
+        let nameSize = typography.nameFontSize * 0.72
 
         return VStack(spacing: Theme.usesPadLayout ? 16 : 8) {
             tennisSinglesEditNameField(side: side, fontSize: nameSize)
@@ -583,12 +611,15 @@ struct TennisScoreboardView: View {
             ? nil
             : TennisDoublesServing.currentReceiverSlot(in: store.state)
         let rowHeight = size.height / 3
-        let nameFontSize = ScoreboardLayoutMetrics.teamNameFontSize(
-            halfViewportHeight: size.height
-        ) * tennisNameMultiplier
-        let serveIndicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
-            halfViewportSize: size
-        )
+        let longestName = names.max(by: { $0.count < $1.count }) ?? ""
+        let nameFontSize = resolvedTennisTypography(
+            side: side,
+            name: longestName,
+            size: CGSize(width: size.width, height: rowHeight),
+            scoreText: "",
+            secondaryText: "",
+            referenceHeight: size.height
+        ).nameFontSize
 
         return ZStack {
             isLeft ? appearance.theme.palette.left : appearance.theme.palette.right
@@ -605,27 +636,24 @@ struct TennisScoreboardView: View {
                         name: names.indices.contains(slots.top) ? names[slots.top] : "",
                         isServer: serverSlot == slots.top,
                         isReceiver: receiverSlot == slots.top,
-                        screenSide: screenSide,
                         fontSize: nameFontSize,
-                        serveIndicatorSize: serveIndicatorSize,
                         height: rowHeight
                     )
-                    tennisScoreRow(
-                        screenSide: screenSide,
-                        side: side,
-                        height: rowHeight,
-                        panelSize: size
-                    )
+                    Spacer(minLength: 0)
                     tennisDoublesNameRow(
                         name: names.indices.contains(slots.bottom) ? names[slots.bottom] : "",
                         isServer: serverSlot == slots.bottom,
                         isReceiver: receiverSlot == slots.bottom,
-                        screenSide: screenSide,
                         fontSize: nameFontSize,
-                        serveIndicatorSize: serveIndicatorSize,
                         height: rowHeight
                     )
                 }
+                tennisScoreRow(
+                    screenSide: screenSide,
+                    side: side,
+                    height: ScoreboardLayoutMetrics.doublesScoreRegionHeight(panelHeight: size.height),
+                    panelSize: size
+                )
             }
         }
         .foregroundStyle(appearance.theme.palette.foreground)
@@ -653,19 +681,25 @@ struct TennisScoreboardView: View {
         let games = isLeft ? store.state.leftGames : store.state.rightGames
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
         let usesCompactHeight = size.height < 420
+        let longestName = [
+            editDoublesNames.indices.contains(slots.top) ? editDoublesNames[slots.top] : "",
+            editDoublesNames.indices.contains(slots.bottom) ? editDoublesNames[slots.bottom] : ""
+        ].max(by: { $0.count < $1.count }) ?? ""
+        let typography = resolvedTennisTypography(
+            side: side,
+            name: longestName,
+            size: CGSize(width: size.width, height: size.height / 3),
+            reservedHeight: 16
+        )
         let regularMainSize = ScoreboardLayoutMetrics.compactEditMainScoreFontSize(
-            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height)
-                * tennisScoreMultiplier,
+            regularSize: typography.scoreFontSize,
             rowHeight: size.height / 3
         )
         let regularSecondarySize = ScoreboardLayoutMetrics.compactEditSecondaryScoreFontSize(
-            regularSize: ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height)
-                * tennisSecondaryMultiplier,
+            regularSize: typography.secondaryFontSize,
             rowHeight: size.height / 3
         )
-        let regularNameSize = ScoreboardLayoutMetrics.teamNameFontSize(
-            halfViewportHeight: size.height
-        ) * tennisNameMultiplier
+        let regularNameSize = typography.nameFontSize
         let mainSize = usesCompactHeight ? min(34, regularMainSize) : regularMainSize
         let secondarySize = usesCompactHeight ? min(24, regularSecondarySize) : regularSecondarySize
         let nameSize = usesCompactHeight
@@ -745,7 +779,7 @@ struct TennisScoreboardView: View {
             NSLocalizedString("team_name", value: "队名", comment: ""),
             text: side == .left ? $editLeftName : $editRightName
         )
-        .font(.system(size: fontSize, weight: .bold))
+        .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
         .multilineTextAlignment(.center)
         .textFieldStyle(.plain)
         .padding(.horizontal, 12)
@@ -777,7 +811,7 @@ struct TennisScoreboardView: View {
                 }
             )
         )
-        .font(.system(size: fontSize, weight: .bold))
+        .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
         .multilineTextAlignment(.center)
         .textFieldStyle(.plain)
         .padding(.horizontal, 12)
@@ -808,7 +842,7 @@ struct TennisScoreboardView: View {
                     action: onDecrement
                 )
                 Text(value)
-                    .font(appearance.font.swiftUIFont(size: fontSize, weight: .bold))
+                    .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                     .foregroundStyle(useSecondaryColor
                         ? appearance.theme.palette.secondary
                         : appearance.theme.palette.foreground)
@@ -855,30 +889,36 @@ struct TennisScoreboardView: View {
         let isLeft = side == .left
         let games = isLeft ? store.state.leftGames : store.state.rightGames
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelSize.height)
-            * tennisScoreMultiplier * 0.85
-        let scoreSpacing = ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(
-            halfViewportWidth: panelSize.width
+        let typography = resolvedTennisTypography(
+            side: side,
+            name: "",
+            size: CGSize(width: panelSize.width, height: height),
+            secondaryIsInline: store.state.rules.setScoringMode != .tiebreakOnly,
+            referenceHeight: panelSize.height
         )
+        let mainSize = typography.scoreFontSize
+        let scoreSpacing = typography.mainToSecondarySpacing
 
         if store.state.rules.setScoringMode == .tiebreakOnly {
             tennisMainScore(side: side, fontSize: mainSize)
                 .frame(maxWidth: .infinity)
                 .frame(height: height)
         } else {
-            HStack(spacing: 0) {
+            HStack(spacing: scoreSpacing) {
                 if screenSide == .left {
                     tennisMainScore(side: side, fontSize: mainSize)
-                        .frame(maxWidth: .infinity)
-                    Color.clear.frame(width: scoreSpacing)
-                    tennisInnerScoreColumn(games: games, sets: sets, panelHeight: panelSize.height)
-                    Color.clear.frame(width: Theme.usesPadLayout ? 56 : 42)
+                    tennisInnerScoreColumn(
+                        games: games,
+                        sets: sets,
+                        panelSize: CGSize(width: panelSize.width, height: height)
+                    )
                 } else {
-                    Color.clear.frame(width: Theme.usesPadLayout ? 56 : 42)
-                    tennisInnerScoreColumn(games: games, sets: sets, panelHeight: panelSize.height)
-                    Color.clear.frame(width: scoreSpacing)
+                    tennisInnerScoreColumn(
+                        games: games,
+                        sets: sets,
+                        panelSize: CGSize(width: panelSize.width, height: height)
+                    )
                     tennisMainScore(side: side, fontSize: mainSize)
-                        .frame(maxWidth: .infinity)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -888,7 +928,7 @@ struct TennisScoreboardView: View {
 
     private func tennisMainScore(side: MatchSide, fontSize: CGFloat) -> some View {
         Text(store.state.scoreDisplay(for: side))
-            .font(appearance.font.swiftUIFont(size: fontSize, weight: .bold))
+            .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
             .foregroundStyle(appearance.theme.palette.foreground)
             .monospacedDigit()
             .minimumScaleFactor(0.5)
@@ -898,11 +938,21 @@ struct TennisScoreboardView: View {
     private func tennisInnerScoreColumn(
         games: Int,
         sets: Int,
-        panelHeight: CGFloat
+        panelSize: CGSize
     ) -> some View {
         let usesPadLayout = Theme.usesPadLayout
-        let baseSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: panelHeight)
-            * tennisSecondaryMultiplier
+        let baseSize = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .tennis,
+                containerSize: CGSize(width: min(panelSize.width * 0.34, 150), height: panelSize.height),
+                nameText: "",
+                scoreText: "",
+                secondaryText: "\(games) \(sets)",
+                preference: typographyPreference,
+                horizontalPadding: 8,
+                isLargeScreen: usesPadLayout
+            )
+        ).secondaryFontSize
         let gameSize = min(baseSize * 1.55, usesPadLayout ? 120 : 90)
         let setSize = min(baseSize * 1.25, usesPadLayout ? 88 : 66)
         let setBoxSize = max(
@@ -915,13 +965,13 @@ struct TennisScoreboardView: View {
 
         return VStack(spacing: usesPadLayout ? 40 : 8) {
             Text("\(games)")
-                .font(appearance.font.swiftUIFont(size: gameSize, weight: .bold))
+                .font(typographyPreference.font.swiftUIFont(size: gameSize, weight: .bold))
                 .monospacedDigit()
                 .lineLimit(1)
 
             if store.state.leftSets > 0 || store.state.rightSets > 0 {
                 Text("\(sets)")
-                    .font(appearance.font.swiftUIFont(size: setSize, weight: .bold))
+                    .font(typographyPreference.font.swiftUIFont(size: setSize, weight: .bold))
                     .monospacedDigit()
                     .frame(width: setBoxSize, height: setBoxSize)
                     .background(Color.black.opacity(0.16))
@@ -929,7 +979,7 @@ struct TennisScoreboardView: View {
             }
         }
         .foregroundStyle(appearance.theme.palette.secondary)
-        .frame(width: usesPadLayout ? 120 : 88)
+        .frame(width: setBoxSize)
     }
 
     private func tennisDoublesDisplaySlots(
@@ -965,51 +1015,81 @@ struct TennisScoreboardView: View {
         return nil
     }
 
+    private var tennisDoublesServerIsLeftScreen: Bool? {
+        guard let serverSlot = TennisDoublesServing.currentServerSlot(in: store.state) else {
+            return nil
+        }
+        let serverLogicalSide: MatchSide = serverSlot.isMultiple(of: 2) ? .left : .right
+        return logicalSide(forScreen: .left) == serverLogicalSide
+    }
+
     private func tennisDoublesNameRow(
         name: String,
         isServer: Bool,
         isReceiver: Bool,
-        screenSide: MatchSide,
         fontSize: CGFloat,
-        serveIndicatorSize: CGFloat,
         height: CGFloat
     ) -> some View {
         ZStack {
             Text(name)
-                .font(.system(size: fontSize, weight: .bold))
+                .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                 .foregroundStyle(isReceiver
                     ? appearance.theme.palette.secondary
                     : appearance.theme.palette.foreground.opacity(isServer ? 1 : 0.85))
                 .lineLimit(1)
                 .minimumScaleFactor(0.65)
                 .padding(.horizontal, 36)
-            if isServer {
-                ServeTriangleIndicator(
-                    direction: screenSide == .left ? .right : .left,
-                    triangleSize: serveIndicatorSize,
-                    color: Color(hex: "30D158")
-                )
-                    .frame(
-                        maxWidth: .infinity,
-                        alignment: screenSide == .left ? .trailing : .leading
-                    )
-                    .padding(.horizontal, max(10, serveIndicatorSize * 0.3))
-            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: height)
     }
 
     private var tennisScoreMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: .tennis)[ScoreboardFontMetric.score.rawValue] ?? 1)
+        CGFloat(typographyPreference.scoreMultiplier)
     }
 
     private var tennisNameMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: .tennis)[ScoreboardFontMetric.name.rawValue] ?? 1)
+        CGFloat(typographyPreference.nameMultiplier)
     }
 
     private var tennisSecondaryMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: .tennis)[ScoreboardFontMetric.secondary.rawValue] ?? 1)
+        CGFloat(typographyPreference.secondaryMultiplier)
+    }
+
+    private var typographyPreference: ScoreboardTypographyPreference {
+        typographySession.effectivePreference
+    }
+
+    private func resolvedTennisTypography(
+        side: MatchSide,
+        name: String,
+        size: CGSize,
+        scoreText: String? = nil,
+        secondaryText: String? = nil,
+        scoreBaseScale: CGFloat = 1,
+        reservedHeight: CGFloat = 0,
+        secondaryIsInline: Bool = false,
+        referenceHeight: CGFloat? = nil
+    ) -> ScoreboardTypographyResult {
+        let isLeft = side == .left
+        let games = isLeft ? store.state.leftGames : store.state.rightGames
+        let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        return ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .tennis,
+                containerSize: size,
+                nameText: name,
+                scoreText: scoreText ?? store.state.scoreDisplay(for: side),
+                secondaryText: secondaryText ?? "\(max(games, sets))",
+                preference: typographyPreference,
+                horizontalPadding: 20,
+                reservedHeight: reservedHeight,
+                scoreBaseScale: scoreBaseScale,
+                secondaryIsInline: secondaryIsInline,
+                referenceHeight: referenceHeight,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        )
     }
 
     private var shouldShowChrome: Bool {
@@ -1184,7 +1264,10 @@ struct TennisScoreboardView: View {
             leftDetail: tennisLocalSyncDetail(state: state, side: leftSide),
             rightDetail: tennisLocalSyncDetail(state: state, side: rightSide),
             themeID: appearance.theme.rawValue,
-            fontID: appearance.font.rawValue,
+            fontID: typographyPreference.font.rawValue,
+            scoreMultiplier: typographyPreference.scoreMultiplier,
+            nameMultiplier: typographyPreference.nameMultiplier,
+            secondaryMultiplier: typographyPreference.secondaryMultiplier,
             finished: state.finished,
             keyPoint: LocalScoreboardKeyPoint.syncValue(
                 LocalScoreboardKeyPoint(

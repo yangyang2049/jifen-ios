@@ -14,7 +14,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
     let config: ScoreboardControllerConfig
     
     var isTablet: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        Theme.usesPadLayout
     }
     
     var hideButtons: Bool = false

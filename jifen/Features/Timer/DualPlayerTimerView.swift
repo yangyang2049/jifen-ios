@@ -66,7 +66,7 @@ struct DualPlayerTimerView: View {
     @State private var hasShownPlayer2TapHint = false
 
     private var isPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        Theme.usesPadLayout
     }
 
     init(gameType: GameType, config: BoardTimerConfig) {

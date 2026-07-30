@@ -65,6 +65,9 @@ struct LocalScoreboardDisplayState: Codable, Equatable {
     var rightDetail: String?
     var themeID: String
     var fontID: String
+    var scoreMultiplier: Double? = nil
+    var nameMultiplier: Double? = nil
+    var secondaryMultiplier: Double? = nil
     var finished: Bool
     var keyPoint: LocalScoreboardKeyPoint? = nil
     var revision: UInt64

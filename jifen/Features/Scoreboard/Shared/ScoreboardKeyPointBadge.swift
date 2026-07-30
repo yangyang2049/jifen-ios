@@ -7,7 +7,7 @@ struct ScoreboardKeyPointBadgeLayer: View {
     let sidesSwapped: Bool
     /// nil keeps a doubles badge centred; non-nil aligns it to the active player row.
     var doublesTopRow: Bool? = nil
-    var serveIndicatorSize: CGFloat = ScoreboardServeGeometry.triangleSize
+    let serveIndicatorSize: CGFloat
 
     var body: some View {
         GeometryReader { proxy in

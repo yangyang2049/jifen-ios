@@ -64,12 +64,13 @@ struct RandomTeamView: View {
 
     var body: some View {
         GeometryReader { proxy in
+            let isPad = Theme.usesPadLayout
             ZStack {
                 Theme.backgroundColor.ignoresSafeArea()
                 if playerCount == 0 {
-                    playerSelection(isPad: UIDevice.current.userInterfaceIdiom == .pad)
+                    playerSelection(isPad: isPad)
                 } else {
-                    groupingContent(size: proxy.size, isPad: UIDevice.current.userInterfaceIdiom == .pad)
+                    groupingContent(size: proxy.size, isPad: isPad)
                 }
             }
         }

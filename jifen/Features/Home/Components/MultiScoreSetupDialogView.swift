@@ -174,7 +174,11 @@ struct MultiScoreSetupDialogView: View {
             .frame(height: 56)
             .padding(.horizontal, Theme.md)
         } content: { maxContentHeight in
-            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
+            AdaptiveSetupDialogScrollView(
+                maxHeight: maxContentHeight,
+                // Multi-player forms can grow substantially; keep this independent of the shared default.
+                bottomClearance: 88
+            ) {
                 VStack(alignment: .leading, spacing: Theme.md) {
                     switch layoutMode {
                     case .twoTeam:

@@ -37,9 +37,14 @@ final class BoardTimerVoiceAnnouncer {
         playBaseName(phrase.rawValue)
     }
 
-    /// Standalone countdown tool end (Harmony `CountdownPage` → `SoundType.TIMEOUT`).
+    /// Legacy timeout voice retained for board-timer compatibility.
     func playTimeout() {
         playBaseName(BoardTimerVoice.timeoutSoundBaseName)
+    }
+
+    /// Standalone countdown completion uses a short neutral ding on every locale.
+    func playCountdownCompletion() {
+        playBaseName(BoardTimerVoice.countdownCompletionSoundBaseName, localeAware: false)
     }
 
     /// Start clip, then announce player 1 after Harmony delay (cancelled if interrupted).
@@ -77,9 +82,13 @@ final class BoardTimerVoiceAnnouncer {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(delayMs), execute: work)
     }
 
-    private func playBaseName(_ baseName: String, preferSecondaryChannel: Bool = false) {
+    private func playBaseName(
+        _ baseName: String,
+        preferSecondaryChannel: Bool = false,
+        localeAware: Bool = true
+    ) {
         guard PreferencesManager.shared.soundEnabled else { return }
-        let resolved = BoardTimerVoice.resolvedSoundName(baseName)
+        let resolved = localeAware ? BoardTimerVoice.resolvedSoundName(baseName) : baseName
         guard let url = Self.resolveURL(forSoundName: resolved) else {
             #if DEBUG
             print("Board timer sound not found: \(resolved).mp3")

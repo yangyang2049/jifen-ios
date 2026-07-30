@@ -297,6 +297,21 @@ protocol ScoreViewModelProtocol: AnyObject {
 
 extension ScoreViewModelProtocol {
     func adjustSets(isLeft: Bool, delta: Int) {}
+
+    /// Replaces empty or legacy generic team labels with the canonical red/blue labels.
+    func applyStandardTeamNamesIfNeeded() {
+        let red = NSLocalizedString("watch_team_red", value: "红方", comment: "")
+        let blue = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+        let legacyRed = NSLocalizedString("red_team", comment: "")
+        let legacyBlue = NSLocalizedString("blue_team", comment: "")
+
+        if leftTeam.name.isEmpty || leftTeam.name == legacyRed {
+            leftTeam.name = red
+        }
+        if rightTeam.name.isEmpty || rightTeam.name == legacyBlue {
+            rightTeam.name = blue
+        }
+    }
 }
 
 // MARK: - Template Config

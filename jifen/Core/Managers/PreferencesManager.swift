@@ -14,9 +14,7 @@ import ScoreCore
 class PreferencesManager {
     static let shared = PreferencesManager()
     
-    private init() {
-        migrateScoreboardPreferencesIfNeeded()
-    }
+    private init() {}
     
     private let defaults = UserDefaults.standard
     private(set) var scoreboardRevision: UInt64 = 0
@@ -51,13 +49,13 @@ class PreferencesManager {
         }
     }
     
-    // Scoreboard Font
-    var scoreboardFont: String {
+    // Default font for scoreboards that do not have their own typography yet.
+    var defaultScoreboardFont: String {
         get {
-            return defaults.string(forKey: "scoreboard_font") ?? "default"
+            return defaults.string(forKey: "scoreboard_default_font") ?? ScoreboardFont.default.rawValue
         }
         set {
-            defaults.set(newValue, forKey: "scoreboard_font")
+            defaults.set(newValue, forKey: "scoreboard_default_font")
             notifyScoreboardPreferencesChanged()
         }
     }
@@ -174,39 +172,37 @@ class PreferencesManager {
         set { defaults.set(newValue, forKey: "guandanSetupTripleAFallbackRank") }
     }
 
-    func fontSizeMultipliers(for gameType: GameType) -> [String: Double] {
-        guard let encoded = defaults.data(forKey: fontSizeKey(for: gameType)),
-              let values = try? JSONDecoder().decode([String: Double].self, from: encoded) else {
-            return [:]
+    func scoreboardTypography(for styleID: ScoreboardStyleID) -> ScoreboardTypographyPreference {
+        guard let encoded = defaults.data(forKey: typographyKey(for: styleID)),
+              let preference = try? JSONDecoder().decode(ScoreboardTypographyPreference.self, from: encoded) else {
+            return .default(font: resolvedDefaultScoreboardFont)
         }
-        return values
+        return preference.normalized(isLargeScreen: Theme.usesPadLayout)
     }
 
-    func setFontSizeMultipliers(_ values: [String: Double], for gameType: GameType) {
-        if let encoded = try? JSONEncoder().encode(values) {
-            defaults.set(encoded, forKey: fontSizeKey(for: gameType))
-            notifyScoreboardPreferencesChanged()
-        }
+    func hasScoreboardTypography(for styleID: ScoreboardStyleID) -> Bool {
+        defaults.data(forKey: typographyKey(for: styleID)) != nil
     }
 
-    private func fontSizeKey(for gameType: GameType) -> String {
-        "scoreboard_font_sizes_v4_\(gameType.canonicalScoreboardIdentifier)"
+    func setScoreboardTypography(
+        _ preference: ScoreboardTypographyPreference,
+        for styleID: ScoreboardStyleID
+    ) {
+        let normalized = preference.normalized(isLargeScreen: Theme.usesPadLayout)
+        guard let encoded = try? JSONEncoder().encode(normalized) else { return }
+        defaults.set(encoded, forKey: typographyKey(for: styleID))
     }
 
-    private func migrateScoreboardPreferencesIfNeeded() {
-        let migrationKey = "scoreboard_preferences_schema_version"
-        guard defaults.integer(forKey: migrationKey) < 1 else { return }
+    func resetScoreboardTypography(for styleID: ScoreboardStyleID) {
+        defaults.removeObject(forKey: typographyKey(for: styleID))
+    }
 
-        let legacyFontAliases = [
-            "digital": ScoreboardFont.monospaced.rawValue,
-            "seven_segment": ScoreboardFont.sevenSegment.rawValue,
-            "teko": ScoreboardFont.sports.rawValue
-        ]
-        if let legacyFont = defaults.string(forKey: "scoreboard_font"),
-           let canonicalFont = legacyFontAliases[legacyFont] {
-            defaults.set(canonicalFont, forKey: "scoreboard_font")
-        }
-        defaults.set(1, forKey: migrationKey)
+    var resolvedDefaultScoreboardFont: ScoreboardFont {
+        ScoreboardFont(rawValue: defaultScoreboardFont) ?? .default
+    }
+
+    private func typographyKey(for styleID: ScoreboardStyleID) -> String {
+        "scoreboard_typography_\(styleID.rawValue)"
     }
 
     private func notifyScoreboardPreferencesChanged() {

@@ -107,9 +107,12 @@ struct GuandanScoreboardView: View {
                 seamOverlay: state.lastRoundWinner == nil ? nil : {
                     AnyView(
                         GeometryReader { geo in
+                            let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                                halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
+                            )
                             CenterLineServeIndicator(
                                 isLeftServing: state.lastRoundWinner == .red,
-                                triangleSize: Theme.usesPadLayout ? 42 : 36,
+                                triangleSize: indicatorSize,
                                 color: ScoreboardTheme.serverIndicatorColor
                             )
                             .position(x: geo.size.width / 2, y: geo.size.height / 2)
@@ -120,7 +123,7 @@ struct GuandanScoreboardView: View {
                 panelAccessory: { isLeft in
                     AnyView(guandanPanelActions(side: isLeft ? .red : .blue))
                 },
-                center: {
+                center: { _, _ in
                     EmptyView()
                 }
             )

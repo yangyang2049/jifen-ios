@@ -30,7 +30,7 @@ struct CubeTimerView: View {
     @State private var showInitialHintDialog = true
 
     private var isTablet: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        Theme.usesPadLayout
     }
 
     private var isTwoInOne: Bool {

@@ -1,5 +1,5 @@
 //
-//  FootballController.swift
+//  FootballScoreboardController.swift
 //  jifen
 //
 //  Football scoreboard controller
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class FootballController: BaseScoreboardController {
+class FootballScoreboardController: BaseScoreboardController {
     init() {
         super.init(config: ScoreboardControllerConfig(
             gameType: .football,

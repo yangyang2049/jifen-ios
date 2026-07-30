@@ -11,10 +11,18 @@ import UIKit
 struct ScoreboardTemplate: View {
     @Environment(\.dismiss) private var dismiss
     @State private var config: TemplateConfig
+    @State private var typographySession: ScoreboardTypographySession
     var onBack: (() -> Void)? = nil
 
-    init(config: TemplateConfig, onBack: (() -> Void)? = nil) {
+    init(
+        config: TemplateConfig,
+        typographySession: ScoreboardTypographySession? = nil,
+        onBack: (() -> Void)? = nil
+    ) {
         self._config = State(initialValue: config)
+        self._typographySession = State(initialValue: typographySession ?? ScoreboardTypographySession(
+            styleID: ScoreboardStyleID(gameType: config.gameType)
+        ))
         self.onBack = onBack
     }
     @State private var showMenu: Bool = false
@@ -60,7 +68,7 @@ struct ScoreboardTemplate: View {
                             scoreText: scoreText(for: baseViewModel.leftTeam, isLeft: true),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
-                            scoreboardFont: appearance.font,
+                            scoreboardFont: typographyPreference.font,
                             palette: appearance.theme.palette,
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
@@ -129,7 +137,7 @@ struct ScoreboardTemplate: View {
                             scoreText: scoreText(for: baseViewModel.rightTeam, isLeft: false),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
-                            scoreboardFont: appearance.font,
+                            scoreboardFont: typographyPreference.font,
                             palette: appearance.theme.palette,
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
@@ -376,6 +384,9 @@ struct ScoreboardTemplate: View {
             updateImmersiveChromeForBlockingState()
         }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveChromeForBlockingState() }
+        .onChange(of: typographySession.effectivePreference) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
             applyScreenAwakePreference()
@@ -383,6 +394,7 @@ struct ScoreboardTemplate: View {
         }
         .onAppear {
             config.onEditModeChange?(isEditMode)
+            typographySession.reload()
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             applyScreenAwakePreference()
@@ -396,7 +408,11 @@ struct ScoreboardTemplate: View {
                 UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
             }
         }
-        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: config.gameType)
+        .scoreboardDisplaySettingsOverlay(
+            isPresented: $showDisplaySettings,
+            session: typographySession,
+            metrics: templateTypographyMetrics
+        )
         // Screenshot dialog removed - iOS auto-saves after permission is granted
     }
     
@@ -533,13 +549,25 @@ struct ScoreboardTemplate: View {
         appearance.immersiveMode && !isEditMode && !showMenu && !showDisplaySettings && !chromeButtonsVisible
     }
 
-    private var savedFontMultipliers: [String: Double] {
-        PreferencesManager.shared.fontSizeMultipliers(for: config.gameType)
+    private var typographyPreference: ScoreboardTypographyPreference {
+        typographySession.effectivePreference
     }
 
-    private var scoreMultiplier: Double { savedFontMultipliers[ScoreboardFontMetric.score.rawValue] ?? 1 }
-    private var nameMultiplier: Double { savedFontMultipliers[ScoreboardFontMetric.name.rawValue] ?? 1 }
-    private var secondaryMultiplier: Double { savedFontMultipliers[ScoreboardFontMetric.secondary.rawValue] ?? 1 }
+    private var scoreMultiplier: Double { typographyPreference.scoreMultiplier }
+    private var nameMultiplier: Double { typographyPreference.nameMultiplier }
+    private var secondaryMultiplier: Double { typographyPreference.secondaryMultiplier }
+
+    private var templateTypographyMetrics: [ScoreboardFontMetric] {
+        if config.gameType == .boxing {
+            return ScoreboardTypographyProfile.standard.adjustableMetrics
+        }
+        guard let team = (config.viewModel as? BaseScoreViewModel)?.leftTeam else {
+            return [.name, .score]
+        }
+        return team.sets == nil && team.games == nil
+            ? [.name, .score]
+            : [.name, .score, .secondary]
+    }
 
     private func scoreTapGesture(isLeft: Bool, panelSize: CGSize) -> some Gesture {
         SpatialTapGesture(count: 1)
@@ -624,7 +652,10 @@ struct ScoreboardTemplate: View {
             leftDetail: syncDetail(for: left),
             rightDetail: syncDetail(for: right),
             themeID: appearance.theme.rawValue,
-            fontID: appearance.font.rawValue,
+            fontID: typographyPreference.font.rawValue,
+            scoreMultiplier: typographyPreference.scoreMultiplier,
+            nameMultiplier: typographyPreference.nameMultiplier,
+            secondaryMultiplier: typographyPreference.secondaryMultiplier,
             finished: config.viewModel.gameFinished,
             keyPoint: LocalScoreboardKeyPoint.syncValue(
                 config.syncKeyPointProvider?(),
@@ -714,7 +745,7 @@ struct ScoreboardTemplate: View {
 extension View {
     func lockOrientation(_ orientation: UIInterfaceOrientationMask) -> some View {
         self.onAppear {
-            if UIDevice.current.userInterfaceIdiom == .pad,
+            if Theme.usesPadLayout,
                !PreferencesManager.shared.forceIPadLandscape {
                 OrientationLock.shared.unlock()
             } else {
@@ -744,8 +775,8 @@ struct TeamSection: View {
     let fontRefreshTrigger: Int // Used to trigger font refresh
     
     // Helper to get Font from font family name with bold weight
-    private func getFont(size: CGFloat) -> Font {
-        scoreboardFont.swiftUIFont(size: size)
+    private func getFont(size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        scoreboardFont.swiftUIFont(size: size, weight: weight)
     }
     let onScoreTap: (Int) -> Void
     let onScoreSubtract: (Int) -> Void
@@ -774,12 +805,31 @@ struct TeamSection: View {
     var body: some View {
         GeometryReader { geo in
             let halfH = geo.size.height
-            let nameSize = ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: halfH) * nameMultiplier
-            let doublesNameSize = (isTablet ? 28 : 22) * nameMultiplier
-            let mainScoreSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: halfH) * scoreMultiplier
-            // Prefer HOS curve; fall back to config size floor when caller passes a larger custom size.
-            let effectiveScoreSize = max(mainScoreSize, scoreFontSize * scoreMultiplier * (isTablet ? min(1.5, 200 / max(scoreFontSize, 1)) : 1))
-            let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: halfH) * secondaryMultiplier
+            let secondaryText = [team.games, team.sets]
+                .compactMap { $0.map(String.init) }
+                .joined(separator: " ")
+            let typography = ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: .standard,
+                    containerSize: geo.size,
+                    nameText: team.name,
+                    scoreText: scoreText,
+                    secondaryText: secondaryText,
+                    preference: ScoreboardTypographyPreference(
+                        font: scoreboardFont,
+                        scoreMultiplier: scoreMultiplier,
+                        nameMultiplier: nameMultiplier,
+                        secondaryMultiplier: secondaryMultiplier
+                    ),
+                    horizontalPadding: 20,
+                    reservedHeight: scoringOptions.count > 1 ? 64 : 0,
+                    isLargeScreen: isTablet
+                )
+            )
+            let nameSize = typography.nameFontSize
+            let doublesNameSize = min(nameSize, typography.nameFontSize * 0.82)
+            let effectiveScoreSize = typography.scoreFontSize
+            let setSize = typography.secondaryFontSize
             let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: halfH)
             let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: halfH)
             let editOffset = isEditMode
@@ -856,7 +906,7 @@ struct TeamSection: View {
                         }
                     }
                 ))
-                .font(.system(size: nameSize, weight: .bold))
+                .font(getFont(size: nameSize, weight: .bold))
                 .foregroundColor(palette.foreground)
                 .multilineTextAlignment(.center)
                 .textFieldStyle(.plain)
@@ -894,11 +944,11 @@ struct TeamSection: View {
         } else if let doublesNames = doublesDisplayNames {
             VStack(spacing: 2) {
                 Text(doublesNames.0)
-                    .font(.system(size: doublesNameSize, weight: .bold))
+                    .font(getFont(size: doublesNameSize, weight: .bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text(doublesNames.1)
-                    .font(.system(size: doublesNameSize, weight: .bold))
+                    .font(getFont(size: doublesNameSize, weight: .bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
@@ -906,7 +956,7 @@ struct TeamSection: View {
             .padding(.horizontal, 8)
         } else {
             Text(team.name)
-                .font(.system(size: nameSize, weight: .bold))
+                .font(getFont(size: nameSize, weight: .bold))
                 .foregroundColor(palette.foreground)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)

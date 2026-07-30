@@ -135,7 +135,7 @@ struct SimpleScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .onAppear {
-            applyDefaultNamesIfNeeded()
+            viewModel.applyStandardTeamNamesIfNeeded()
             if let setup = initialSetup {
                 if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
                 if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
@@ -167,19 +167,6 @@ struct SimpleScoreboardView: View {
         if viewModel.leftTeam.score > viewModel.rightTeam.score { return viewModel.leftTeam.name }
         if viewModel.rightTeam.score > viewModel.leftTeam.score { return viewModel.rightTeam.name }
         return ""
-    }
-
-    private func applyDefaultNamesIfNeeded() {
-        let red = NSLocalizedString("watch_team_red", value: "红方", comment: "")
-        let blue = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
-        if viewModel.leftTeam.name == NSLocalizedString("red_team", comment: "") {
-            viewModel.leftTeam.name = red
-        }
-        if viewModel.rightTeam.name == NSLocalizedString("blue_team", comment: "") {
-            viewModel.rightTeam.name = blue
-        }
-        if viewModel.leftTeam.name.isEmpty { viewModel.leftTeam.name = red }
-        if viewModel.rightTeam.name.isEmpty { viewModel.rightTeam.name = blue }
     }
 
     private func calculateResponsiveScoreFontSize(containerShortSide: CGFloat) -> CGFloat {

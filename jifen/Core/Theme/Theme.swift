@@ -12,6 +12,8 @@ struct Theme {
         case setup
         case scoreboardMenu
         case gameOver
+        case scoreAdjustment
+        case scoreboardDisplaySettings
     }
 
     /// Use the system-reported device idiom for iPad-specific layouts.
@@ -117,16 +119,24 @@ struct Theme {
         availableWidth: CGFloat,
         role: DialogWidthRole
     ) -> CGFloat {
-        let widths: (phone: CGFloat, pad: CGFloat) = switch role {
-        case .setup: (340, 500)
-        case .scoreboardMenu: (320, 500)
-        case .gameOver: (360, 500)
-        }
+        let widths = dialogPreferredWidths(role: role)
         return dialogWidth(
             availableWidth: availableWidth,
             phonePreferredWidth: widths.phone,
             padPreferredWidth: widths.pad
         )
+    }
+
+    private static func dialogPreferredWidths(
+        role: DialogWidthRole
+    ) -> (phone: CGFloat, pad: CGFloat) {
+        switch role {
+        case .setup: (340, 500)
+        case .scoreboardMenu: (320, 500)
+        case .gameOver: (360, 500)
+        case .scoreAdjustment: (600, 600)
+        case .scoreboardDisplaySettings: (360, 500)
+        }
     }
 
     static func dialogWidth(
@@ -140,12 +150,8 @@ struct Theme {
     }
 
     static func dialogPreferredWidth(role: DialogWidthRole) -> CGFloat {
-        switch (usesPadLayout, role) {
-        case (false, .setup): 340
-        case (false, .scoreboardMenu): 320
-        case (false, .gameOver): 360
-        case (true, _): 500
-        }
+        let widths = dialogPreferredWidths(role: role)
+        return usesPadLayout ? widths.pad : widths.phone
     }
 
     static let sectionSpacing: CGFloat = 24

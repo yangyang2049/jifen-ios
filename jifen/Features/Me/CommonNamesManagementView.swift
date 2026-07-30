@@ -117,7 +117,7 @@ struct CommonNamesManagementView: View {
                 }
             }
         }
-        .navigationTitle(NSLocalizedString("common_names_manage", value: "常用名称管理", comment: ""))
+        .navigationTitle(NSLocalizedString("common_names_title", value: "常用名称", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .systemSearchable(
             text: $searchText,

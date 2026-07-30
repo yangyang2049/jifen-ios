@@ -34,12 +34,12 @@ struct SettingsView: View {
                                     SettingsNavigationRow(title: NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: ""))
                                 }
                                 if AppFeatureFlags.watchLinkEntryEnabled {
-                                    Divider().overlay(Theme.divider)
+                                    settingsRowDivider
                                     NavigationLink { WatchLinkSettingsView() } label: {
                                         SettingsNavigationRow(title: NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
                                     }
                                 }
-                                Divider().overlay(Theme.divider)
+                                settingsRowDivider
                                 Button { showAppearancePicker = true } label: {
                                     SettingsNavigationRow(
                                         title: NSLocalizedString("appearance", comment: ""),
@@ -47,7 +47,7 @@ struct SettingsView: View {
                                     )
                                 }
                                 .buttonStyle(.plain)
-                                Divider().overlay(Theme.divider)
+                                settingsRowDivider
                                 Button { showClearConfirm = true } label: {
                                     SettingsNavigationRow(title: NSLocalizedString("clear_data", comment: ""))
                                 }
@@ -61,16 +61,16 @@ struct SettingsView: View {
                                     SettingsNavigationRow(title: NSLocalizedString("settings_rate_app", value: "给个好评", comment: ""))
                                 }
                                 .buttonStyle(.plain)
-                                Divider().overlay(Theme.divider)
+                                settingsRowDivider
                                 ShareLink(item: AppSupportURLs.website) {
                                     SettingsNavigationRow(title: NSLocalizedString("settings_share_app", value: "分享给朋友", comment: ""))
                                 }
                                 .buttonStyle(.plain)
-                                Divider().overlay(Theme.divider)
+                                settingsRowDivider
                                 NavigationLink { FAQView() } label: {
                                     SettingsNavigationRow(title: NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
                                 }
-                                Divider().overlay(Theme.divider)
+                                settingsRowDivider
                                 NavigationLink { AboutUsView() } label: {
                                     SettingsNavigationRow(title: NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
                                 }
@@ -124,6 +124,11 @@ struct SettingsView: View {
         }
     }
 
+    private var settingsRowDivider: some View {
+        Divider()
+            .overlay(Theme.divider)
+            .opacity(0.45)
+    }
 }
 
 struct MeTab: View {
@@ -189,7 +194,7 @@ private struct SettingsNavigationRow: View {
 
 private struct ScoreboardSettingsView: View {
     @State private var selectedTheme = ScoreboardTheme(rawValue: PreferencesManager.shared.scoreboardTheme) ?? .defaultTheme
-    @State private var selectedFont = ScoreboardFont(rawValue: PreferencesManager.shared.scoreboardFont) ?? .default
+    @State private var selectedFont = PreferencesManager.shared.resolvedDefaultScoreboardFont
     @State private var forceIPadLandscape = PreferencesManager.shared.forceIPadLandscape
     @State private var keepScreenOn = PreferencesManager.shared.keepScoreboardScreenOn
     @State private var soundEnabled = PreferencesManager.shared.soundEnabled
@@ -214,7 +219,7 @@ private struct ScoreboardSettingsView: View {
 
                 SettingsSection(title: NSLocalizedString("scoreboard_settings_experience", value: "计分体验", comment: "")) {
                     VStack(spacing: 0) {
-                        if UIDevice.current.userInterfaceIdiom == .pad {
+                        if Theme.usesPadLayout {
                             ScoreboardToggleSettingRow(
                                 title: NSLocalizedString("scoreboard_force_ipad_landscape", value: "iPad 强制横屏", comment: ""),
                                 isOn: $forceIPadLandscape
@@ -267,7 +272,7 @@ private struct ScoreboardSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .onChange(of: selectedTheme) { _, value in PreferencesManager.shared.scoreboardTheme = value.rawValue }
-        .onChange(of: selectedFont) { _, value in PreferencesManager.shared.scoreboardFont = value.rawValue }
+        .onChange(of: selectedFont) { _, value in PreferencesManager.shared.defaultScoreboardFont = value.rawValue }
         .onChange(of: forceIPadLandscape) { _, value in PreferencesManager.shared.forceIPadLandscape = value }
         .onChange(of: keepScreenOn) { _, value in PreferencesManager.shared.keepScoreboardScreenOn = value }
         .onChange(of: soundEnabled) { _, value in PreferencesManager.shared.soundEnabled = value }
@@ -378,7 +383,7 @@ private struct ScoreboardFontSelector: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(NSLocalizedString("scoreboard_font", value: "比分字体", comment: ""))
+            Text(NSLocalizedString("scoreboard_default_font", value: "默认比分字体", comment: ""))
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
             ForEach(ScoreboardFont.allCases) { font in

@@ -365,7 +365,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testFootballBoundariesExchangeUndoResetAndFinishLock() {
-        let controller = FootballController()
+        let controller = FootballScoreboardController()
         let viewModel = FootballViewModel(controller: controller)
         viewModel.leftTeam.name = "主队"
         viewModel.rightTeam.name = "客队"
@@ -447,6 +447,32 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(viewModel.leftTeam.score, 9999)
         XCTAssertTrue(viewModel.undo())
         XCTAssertEqual(viewModel.leftTeam.score, -9999)
+    }
+
+    func testStandardTeamNamesNormalizeEmptyAndLegacyLabelsWithoutReplacingCustomNames() {
+        let expectedRed = NSLocalizedString("watch_team_red", value: "红方", comment: "")
+        let expectedBlue = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+
+        let emptyNames = BaseScoreViewModel()
+        emptyNames.leftTeam.name = ""
+        emptyNames.rightTeam.name = ""
+        emptyNames.applyStandardTeamNamesIfNeeded()
+        XCTAssertEqual(emptyNames.leftTeam.name, expectedRed)
+        XCTAssertEqual(emptyNames.rightTeam.name, expectedBlue)
+
+        let legacyNames = BaseScoreViewModel()
+        legacyNames.leftTeam.name = NSLocalizedString("red_team", comment: "")
+        legacyNames.rightTeam.name = NSLocalizedString("blue_team", comment: "")
+        legacyNames.applyStandardTeamNamesIfNeeded()
+        XCTAssertEqual(legacyNames.leftTeam.name, expectedRed)
+        XCTAssertEqual(legacyNames.rightTeam.name, expectedBlue)
+
+        let customNames = BaseScoreViewModel()
+        customNames.leftTeam.name = "主队"
+        customNames.rightTeam.name = "客队"
+        customNames.applyStandardTeamNamesIfNeeded()
+        XCTAssertEqual(customNames.leftTeam.name, "主队")
+        XCTAssertEqual(customNames.rightTeam.name, "客队")
     }
 
     func testMultiScorePlayerScoreAndWinnerBoundaries() {

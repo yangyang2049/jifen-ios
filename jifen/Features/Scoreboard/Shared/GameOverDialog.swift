@@ -159,7 +159,7 @@ struct GameOverDialog: View {
     private let winnerScoreColor = Color(hex: "34C759")
 
     private var usesTabletSpacing: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        Theme.usesPadLayout
     }
 
     private var isPhoneLandscape: Bool {

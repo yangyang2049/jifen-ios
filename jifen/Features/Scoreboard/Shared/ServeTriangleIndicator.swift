@@ -1,7 +1,13 @@
 import SwiftUI
 
 enum ScoreboardServeGeometry {
-    static let triangleSize: CGFloat = 36
+    static func centerLineDirection(isLeftServing: Bool) -> ServeTriangleDirection {
+        isLeftServing ? .left : .right
+    }
+
+    static func centerLineOffsetX(isLeftServing: Bool, triangleSize: CGFloat) -> CGFloat {
+        (isLeftServing ? -1 : 1) * triangleSize / 2
+    }
 
     static func doublesAnchorY(height: CGFloat, topRow: Bool) -> CGFloat {
         height * (topRow ? 1 / 6 : 5 / 6)
@@ -33,7 +39,7 @@ enum ScoreboardServeGeometry {
     }
 }
 
-enum ServeTriangleDirection {
+enum ServeTriangleDirection: Equatable {
     case top
     case bottom
     case left
@@ -42,7 +48,7 @@ enum ServeTriangleDirection {
 
 struct ServeTriangleIndicator: View {
     let direction: ServeTriangleDirection
-    var triangleSize: CGFloat = ScoreboardServeGeometry.triangleSize
+    let triangleSize: CGFloat
     var color: Color = Color(hex: "30D158")
 
     var body: some View {
@@ -55,17 +61,20 @@ struct ServeTriangleIndicator: View {
 /// 发球指示：箭头整体在发球方一侧，贴中心线。红队发球→箭头在红区右缘贴中线；蓝队发球→箭头在蓝区左缘贴中线。
 struct CenterLineServeIndicator: View {
     let isLeftServing: Bool
-    var triangleSize: CGFloat = ScoreboardServeGeometry.triangleSize
+    let triangleSize: CGFloat
     var color: Color = Color(hex: "30D158")
 
     var body: some View {
         ServeTriangleIndicator(
-            direction: isLeftServing ? .left : .right,
+            direction: ScoreboardServeGeometry.centerLineDirection(isLeftServing: isLeftServing),
             triangleSize: triangleSize,
             color: color
         )
         // 红队发球：箭头在左半区，右缘贴中线 → 整体左移 half。蓝队发球：箭头在右半区，左缘贴中线 → 整体右移 half。
-        .offset(x: isLeftServing ? -triangleSize / 2 : triangleSize / 2)
+        .offset(x: ScoreboardServeGeometry.centerLineOffsetX(
+            isLeftServing: isLeftServing,
+            triangleSize: triangleSize
+        ))
         .allowsHitTesting(false)
     }
 }

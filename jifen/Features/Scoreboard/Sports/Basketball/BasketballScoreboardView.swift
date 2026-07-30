@@ -15,6 +15,7 @@ struct BasketballScoreboardView: View {
     @State private var store: BasketballSessionStore
     @State private var watchSessionId: UUID?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var showMenu = false
@@ -45,11 +46,13 @@ struct BasketballScoreboardView: View {
         self.initialRecordId = initialRecordId
         self.onSetupConsumed = onSetupConsumed
 
+        let initialStyleID: ScoreboardStyleID
         if let initialRecordId,
            let sessionId = UUID(uuidString: initialRecordId),
            let restoredStore = BasketballSessionStore(restoring: sessionId) {
             _store = State(initialValue: restoredStore)
             _showGameOverDialog = State(initialValue: restoredStore.state.finished)
+            initialStyleID = ScoreboardStyleID(gameType: restoredStore.state.gameMode == .threeXThree ? .threeBasketball : .basketball)
         } else {
             let leftName = resolvedScoreboardSetupName(
                 initialSetup?.team1Name,
@@ -67,7 +70,9 @@ struct BasketballScoreboardView: View {
                 gameMode: gameMode,
                 ruleSet: ruleSet
             ))
+            initialStyleID = ScoreboardStyleID(gameType: gameMode == .threeXThree ? .threeBasketball : .basketball)
         }
+        _typographySession = State(initialValue: ScoreboardTypographySession(styleID: initialStyleID))
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
@@ -96,13 +101,14 @@ struct BasketballScoreboardView: View {
                     ScoreboardLayoutMetrics.basketballCenterWidth(screenWidth: availableW)
                 )
                 let sideW = max(0, (availableW - centerW) / 2)
+                let sideSize = CGSize(width: sideW, height: proxy.size.height)
                 let windowInsets = activeWindowSafeAreaInsets
                 let leadingSafeInset = max(proxy.safeAreaInsets.leading, windowInsets.left)
                 let trailingSafeInset = max(proxy.safeAreaInsets.trailing, windowInsets.right)
                 HStack(spacing: 0) {
                     basketballSidePanel(
                         screenSide: .left,
-                        panelHeight: proxy.size.height,
+                        panelSize: sideSize,
                         outerSafeAreaInset: leadingSafeInset
                     )
                     .frame(width: sideW)
@@ -113,6 +119,7 @@ struct BasketballScoreboardView: View {
                         } else {
                             BasketballCenterPanel(
                                 state: store.state,
+                                typography: typographyPreference,
                                 onToggleClock: { guard !scoringLocked else { return }; store.send(.setClockRunning(!store.state.gameRunning)) },
                                 onResetGameClock: { guard !scoringLocked else { return }; store.send(.resetGameClock) },
                                 onResetShotClock: { guard !scoringLocked else { return }; store.send(.resetShotClock(seconds: $0)) },
@@ -126,7 +133,7 @@ struct BasketballScoreboardView: View {
 
                     basketballSidePanel(
                         screenSide: .right,
-                        panelHeight: proxy.size.height,
+                        panelSize: sideSize,
                         outerSafeAreaInset: trailingSafeInset
                     )
                     .frame(width: sideW)
@@ -211,6 +218,7 @@ struct BasketballScoreboardView: View {
         )
         .onAppear {
             onSetupConsumed?()
+            typographySession.switchStyleID(ScoreboardStyleID(gameType: appGameType))
             updateClockOwnership()
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
@@ -274,6 +282,9 @@ struct BasketballScoreboardView: View {
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
+        .onChange(of: typographySession.effectivePreference) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
@@ -297,7 +308,11 @@ struct BasketballScoreboardView: View {
             )
         }
         // Keep above MenuDialog so the side panel is not covered.
-        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: appGameType)
+        .scoreboardDisplaySettingsOverlay(
+            isPresented: $showDisplaySettings,
+            session: typographySession,
+            metrics: ScoreboardTypographyProfile.basketball.adjustableMetrics
+        )
     }
 
     private var scoringLocked: Bool {
@@ -400,7 +415,7 @@ struct BasketballScoreboardView: View {
     @ViewBuilder
     private func basketballSidePanel(
         screenSide: MatchSide,
-        panelHeight: CGFloat,
+        panelSize: CGSize,
         outerSafeAreaInset: CGFloat
     ) -> some View {
         let isScreenLeft = screenSide == .left
@@ -413,8 +428,8 @@ struct BasketballScoreboardView: View {
                 name: isScreenLeft ? $editLeftName : $editRightName,
                 score: isScreenLeft ? $editLeftScore : $editRightScore,
                 color: color,
-                scoreboardFont: appearance.font,
-                panelHeight: panelHeight
+                typography: typographyPreference,
+                panelSize: panelSize
             )
         } else {
             BasketballTeamPanel(
@@ -427,9 +442,8 @@ struct BasketballScoreboardView: View {
                 doubleBonusThreshold: BasketballMatchEngine.doubleBonusThreshold(store.state),
                 color: color,
                 isLeftSide: isScreenLeft,
-                scoreboardFont: appearance.font,
-                scoreMultiplier: scoreMultiplier,
-                panelHeight: panelHeight,
+                typography: typographyPreference,
+                panelSize: panelSize,
                 outerSafeAreaInset: outerSafeAreaInset,
                 points: BasketballMatchEngine.scoringButtons(store.state),
                 onScore: { guard !scoringLocked else { return }; store.send(.addPoints(side: logicalSide(forScreen: screenSide), points: $0)) },
@@ -500,8 +514,8 @@ struct BasketballScoreboardView: View {
         store.state.gameMode == .threeXThree ? .threeBasketball : .basketball
     }
 
-    private var scoreMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: appGameType)[ScoreboardFontMetric.score.rawValue] ?? 1)
+    private var typographyPreference: ScoreboardTypographyPreference {
+        typographySession.effectivePreference
     }
 
     private var shouldShowChrome: Bool {
@@ -635,7 +649,10 @@ struct BasketballScoreboardView: View {
                     leftDetail: "\(displayFouls(for: .left)) 犯规 · \(displayTimeouts(for: .left)) 暂停",
                     rightDetail: "\(displayFouls(for: .right)) 犯规 · \(displayTimeouts(for: .right)) 暂停",
                     themeID: appearance.theme.rawValue,
-                    fontID: appearance.font.rawValue,
+                    fontID: typographyPreference.font.rawValue,
+                    scoreMultiplier: typographyPreference.scoreMultiplier,
+                    nameMultiplier: typographyPreference.nameMultiplier,
+                    secondaryMultiplier: typographyPreference.secondaryMultiplier,
                     finished: store.state.finished,
                     revision: 0
                 )
@@ -740,8 +757,24 @@ private struct BasketballEditTeamPanel: View {
     @Binding var name: String
     @Binding var score: Int
     let color: Color
-    let scoreboardFont: ScoreboardFont
-    let panelHeight: CGFloat
+    let typography: ScoreboardTypographyPreference
+    let panelSize: CGSize
+
+    private var resolvedTypography: ScoreboardTypographyResult {
+        ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .basketball,
+                containerSize: panelSize,
+                nameText: name,
+                scoreText: "\(score)",
+                secondaryText: "",
+                preference: typography,
+                horizontalPadding: 20,
+                reservedHeight: 48,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -752,10 +785,8 @@ private struct BasketballEditTeamPanel: View {
                     NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
                     text: $name
                 )
-                .font(.system(
-                    size: ScoreboardLayoutMetrics.defaultTeamNameFontSize(
-                        usesPadLayout: Theme.usesPadLayout
-                    ),
+                .font(typography.font.swiftUIFont(
+                    size: resolvedTypography.nameFontSize,
                     weight: .bold
                 ))
                 .multilineTextAlignment(.center)
@@ -770,11 +801,9 @@ private struct BasketballEditTeamPanel: View {
                         score = max(0, score - 1)
                     }
                     Text("\(score)")
-                        .font(scoreboardFont.swiftUIFont(
+                        .font(typography.font.swiftUIFont(
                             size: ScoreboardLayoutMetrics.editMainScoreFontSize(
-                                regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(
-                                    halfViewportHeight: panelHeight
-                                )
+                                regularSize: resolvedTypography.scoreFontSize
                             )
                         ))
                         .monospacedDigit()
@@ -786,7 +815,7 @@ private struct BasketballEditTeamPanel: View {
                 }
             }
             .foregroundStyle(.white)
-            .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelHeight))
+            .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelSize.height))
         }
     }
 
@@ -812,9 +841,8 @@ private struct BasketballTeamPanel: View {
     let doubleBonusThreshold: Int
     let color: Color
     let isLeftSide: Bool
-    let scoreboardFont: ScoreboardFont
-    let scoreMultiplier: CGFloat
-    let panelHeight: CGFloat
+    let typography: ScoreboardTypographyPreference
+    let panelSize: CGSize
     let outerSafeAreaInset: CGFloat
     let points: [Int]
     let onScore: (Int) -> Void
@@ -825,8 +853,20 @@ private struct BasketballTeamPanel: View {
     private let bonusYellow = Color(hex: "FACC15")
     private let additionalOuterPadding: CGFloat = 8
 
-    private var scoreSize: CGFloat {
-        ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelHeight) * scoreMultiplier
+    private var resolvedTypography: ScoreboardTypographyResult {
+        ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .basketball,
+                containerSize: panelSize,
+                nameText: name,
+                scoreText: "\(score)",
+                secondaryText: "\(fouls) \(timeouts)",
+                preference: typography,
+                horizontalPadding: 64 + outerSafeAreaInset,
+                reservedHeight: 76,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        )
     }
 
     private var foulBonusLabel: String? {
@@ -846,7 +886,7 @@ private struct BasketballTeamPanel: View {
                 }
 
                 Text("\(score)")
-                    .font(scoreboardFont.swiftUIFont(size: scoreSize))
+                    .font(typography.font.swiftUIFont(size: resolvedTypography.scoreFontSize))
                     .monospacedDigit()
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.4)
@@ -863,16 +903,14 @@ private struct BasketballTeamPanel: View {
 
             VStack {
                 Text(name)
-                    .font(.system(
-                        size: ScoreboardLayoutMetrics.defaultTeamNameFontSize(
-                            usesPadLayout: Theme.usesPadLayout
-                        ),
+                    .font(typography.font.swiftUIFont(
+                        size: resolvedTypography.nameFontSize,
                         weight: .bold
                     ))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                    .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelHeight))
+                    .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
                     .padding(.horizontal, 8)
                 Spacer()
             }
@@ -888,7 +926,10 @@ private struct BasketballTeamPanel: View {
                     if isLeftSide { Spacer() }
                     Button(action: onTimeout) {
                         Text("暂停 \(timeouts)")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(typography.font.swiftUIFont(
+                                size: max(12, resolvedTypography.secondaryFontSize * 0.34),
+                                weight: .semibold
+                            ))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
@@ -922,7 +963,10 @@ private struct BasketballTeamPanel: View {
     private var foulRow: some View {
         HStack(spacing: 8) {
             Text("犯规 \(fouls)")
-                .font(.system(size: 14, weight: .semibold))
+                .font(typography.font.swiftUIFont(
+                    size: max(12, resolvedTypography.secondaryFontSize * 0.4),
+                    weight: .semibold
+                ))
                 .foregroundStyle(.white)
 
             HStack(spacing: 4) {
@@ -935,7 +979,10 @@ private struct BasketballTeamPanel: View {
 
             if let label = foulBonusLabel {
                 Text(label)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(typography.font.swiftUIFont(
+                        size: max(11, resolvedTypography.secondaryFontSize * 0.34),
+                        weight: .bold
+                    ))
                     .foregroundStyle(bonusYellow)
             }
         }
@@ -947,6 +994,7 @@ private struct BasketballTeamPanel: View {
 
 private struct BasketballCenterPanel: View {
     let state: BasketballMatchState
+    let typography: ScoreboardTypographyPreference
     let onToggleClock: () -> Void
     let onResetGameClock: () -> Void
     let onResetShotClock: (Int) -> Void
@@ -967,12 +1015,28 @@ private struct BasketballCenterPanel: View {
         ZStack(alignment: .top) {
             GeometryReader { proxy in
                 let upperHeight = proxy.size.height * 2 / 3
+                let resolvedTypography = ScoreboardTypographyResolver.resolve(
+                    ScoreboardTypographyLayoutContext(
+                        profile: .basketball,
+                        containerSize: proxy.size,
+                        nameText: periodTitle,
+                        scoreText: clockText(state.gameTimeSeconds),
+                        secondaryText: "\(state.shotTimeSeconds)",
+                        preference: typography,
+                        horizontalPadding: 12,
+                        reservedHeight: proxy.size.height * 0.42,
+                        scoreBaseScale: 0.72,
+                        nameBaseScale: 0.72,
+                        secondaryBaseScale: 0.72,
+                        isLargeScreen: Theme.usesPadLayout
+                    )
+                )
                 VStack(spacing: 0) {
-                    upperZone
+                    upperZone(typography: resolvedTypography)
                         .frame(maxWidth: .infinity)
                         .frame(height: upperHeight, alignment: .top)
 
-                    lowerZone
+                    lowerZone(typography: resolvedTypography)
                         .frame(maxWidth: .infinity)
                         .frame(height: max(0, proxy.size.height - upperHeight))
                 }
@@ -985,7 +1049,7 @@ private struct BasketballCenterPanel: View {
         }
     }
 
-    private var upperZone: some View {
+    private func upperZone(typography: ScoreboardTypographyResult) -> some View {
         VStack(spacing: showsPeriodActionButton ? 8 : 14) {
             if state.gameMode == .fiveVFive {
                 Button {
@@ -993,7 +1057,10 @@ private struct BasketballCenterPanel: View {
                 } label: {
                     HStack(spacing: 4) {
                         Text(periodTitle)
-                            .font(.system(size: 22, weight: .bold))
+                            .font(self.typography.font.swiftUIFont(
+                                size: max(16, typography.nameFontSize * 0.62),
+                                weight: .bold
+                            ))
                             .foregroundStyle(.white)
                         Image(systemName: "chevron.down")
                             .font(.system(size: 12, weight: .bold))
@@ -1010,14 +1077,17 @@ private struct BasketballCenterPanel: View {
                 .buttonStyle(.plain)
             } else {
                 Text(periodTitle)
-                    .font(.system(size: 22, weight: .bold))
+                    .font(self.typography.font.swiftUIFont(
+                        size: max(16, typography.nameFontSize * 0.62),
+                        weight: .bold
+                    ))
                     .foregroundStyle(.white)
                     .frame(height: 40)
             }
 
             Button(action: onResetGameClock) {
                 Text(clockText(state.gameTimeSeconds))
-                    .font(.system(size: 44, weight: .bold, design: .monospaced))
+                    .font(typographyPreferenceFont(size: typography.scoreFontSize))
                     .monospacedDigit()
                     .foregroundStyle(.white)
             }
@@ -1046,10 +1116,10 @@ private struct BasketballCenterPanel: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
-    private var lowerZone: some View {
+    private func lowerZone(typography: ScoreboardTypographyResult) -> some View {
         VStack(spacing: 10) {
             Text("\(state.shotTimeSeconds)″")
-                .font(.system(size: 30, weight: .bold, design: .monospaced))
+                .font(typographyPreferenceFont(size: max(18, typography.secondaryFontSize * 0.56)))
                 .monospacedDigit()
                 .foregroundStyle(state.shotTimeSeconds <= 0 ? shotExpired : shotYellow)
                 .opacity(state.shotTimeSeconds <= 0 ? (shotClockBlinkPhase ? 1 : 0.25) : 1)
@@ -1126,6 +1196,10 @@ private struct BasketballCenterPanel: View {
                 .padding(.top, periodPickerTopPadding)
             }
         }
+    }
+
+    private func typographyPreferenceFont(size: CGFloat) -> Font {
+        typography.font.swiftUIFont(size: size, weight: .bold)
     }
 
     /// The period chip is the visual anchor: top padding + 40pt chip + 8pt gap.

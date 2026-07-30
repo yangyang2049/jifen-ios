@@ -47,11 +47,15 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     /// Optional bottom bar (e.g. snooker balls).
     var bottomBar: (() -> AnyView)? = nil
     /// Optional top-center pill.
-    var topCenter: (() -> AnyView)? = nil
+    var topCenter: ((ScoreboardTypographyPreference, CGSize) -> AnyView)? = nil
     var onEditModeChange: ((Bool) -> Void)? = nil
-    let center: () -> Center
+    var onTypographyChange: ((ScoreboardTypographyPreference) -> Void)? = nil
+    let center: (ScoreboardTypographyPreference, CGSize) -> Center
 
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var typographySession = ScoreboardTypographySession(
+        styleID: ScoreboardStyleID(rawValue: "unconfigured")
+    )
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var showMenu = false
@@ -85,7 +89,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         score: leftScore,
                         detail: leftDetail,
                         color: appearance.theme.palette.left,
-                        halfHeight: halfH,
+                        panelSize: CGSize(width: proxy.size.width / 2, height: halfH),
                         accessory: panelAccessory?(true),
                         action: onLeftTap
                     )
@@ -98,7 +102,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         score: rightScore,
                         detail: rightDetail,
                         color: appearance.theme.palette.right,
-                        halfHeight: halfH,
+                        panelSize: CGSize(width: proxy.size.width / 2, height: halfH),
                         accessory: panelAccessory?(false),
                         action: onRightTap
                     )
@@ -112,7 +116,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
 
                 if !isEditMode, let topCenter {
                     VStack {
-                        topCenter()
+                        topCenter(typographySession.effectivePreference, proxy.size)
                             .padding(.top, ScoreboardConstants.buttonPadding)
                         Spacer()
                     }
@@ -122,7 +126,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 if !isEditMode {
                     VStack {
                         Spacer()
-                        center()
+                        center(typographySession.effectivePreference, proxy.size)
                             .padding(.bottom, bottomBar == nil ? 72 : 90)
                     }
                     .allowsHitTesting(false)
@@ -174,6 +178,8 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
         .tint(Theme.primary)
         .lockOrientation(.landscape)
         .onAppear {
+            typographySession.switchStyleID(ScoreboardStyleID(gameType: gameType))
+            onTypographyChange?(typographySession.effectivePreference)
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
@@ -188,7 +194,15 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
             if !isOpen { menuConfirm.clear() }
             updateImmersiveForBlocking()
         }
-        .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: showDisplaySettings) { _, presented in
+            updateImmersiveForBlocking()
+            if !presented {
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            }
+        }
+        .onChange(of: typographySession.effectivePreference) { _, preference in
+            onTypographyChange?(preference)
+        }
         .onDisappear {
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
@@ -248,7 +262,13 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 )
             )
         }
-        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: gameType)
+        .scoreboardDisplaySettingsOverlay(
+            isPresented: $showDisplaySettings,
+            session: typographySession,
+            metrics: leftDetail == nil && rightDetail == nil
+                ? [.name, .score]
+                : ScoreboardTypographyProfile.specialized.adjustableMetrics
+        )
     }
 
     private func revealImmersiveChrome() {
@@ -365,29 +385,40 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
         score: String,
         detail: String?,
         color: Color,
-        halfHeight: CGFloat,
+        panelSize: CGSize,
         accessory: AnyView?,
         action: @escaping () -> Void
     ) -> some View {
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: halfHeight)
-            * (score.count >= 3 ? 0.72 : 1)
-        let nameSize = ScoreboardLayoutMetrics.defaultTeamNameFontSize(
-            usesPadLayout: Theme.usesPadLayout
+        let typography = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .specialized,
+                containerSize: panelSize,
+                nameText: name,
+                scoreText: score,
+                secondaryText: detail ?? "",
+                preference: typographySession.effectivePreference,
+                horizontalPadding: 20,
+                reservedHeight: accessory == nil ? 0 : 44,
+                scoreBaseScale: score.count >= 3 ? 0.72 : 1,
+                isLargeScreen: Theme.usesPadLayout
+            )
         )
-        let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: halfHeight)
-        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: halfHeight)
+        let mainSize = typography.scoreFontSize
+        let nameSize = typography.nameFontSize
+        let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height)
+        let setSize = typography.secondaryFontSize
         let editOffset = isEditMode
-            ? ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: halfHeight)
+            ? ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelSize.height)
             : 0
 
         return ZStack {
             color
-            VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: halfHeight)) {
+            VStack(spacing: typography.nameToScoreSpacing) {
                 if isEditMode, let onEditAdjust {
                     HStack(spacing: 16) {
                         editCircleButton(systemName: "minus") { onEditAdjust(isLeft, -1) }
                         Text(score)
-                            .font(appearance.font.swiftUIFont(
+                            .font(typographySession.effectivePreference.font.swiftUIFont(
                                 size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: mainSize)
                             ))
                             .monospacedDigit()
@@ -401,14 +432,14 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         text: isLeft ? $editLeftScore : $editRightScore
                     )
                     .keyboardType(.numbersAndPunctuation)
-                    .font(appearance.font.swiftUIFont(
+                    .font(typographySession.effectivePreference.font.swiftUIFont(
                         size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: mainSize)
                     ))
                     .multilineTextAlignment(.center)
                     .textFieldStyle(.plain)
                 } else {
                     Text(score)
-                        .font(appearance.font.swiftUIFont(size: mainSize))
+                        .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
                         .monospacedDigit()
                         .minimumScaleFactor(0.4)
                         .lineLimit(1)
@@ -418,7 +449,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 }
                 if !isEditMode, let detail {
                     Text(detail)
-                        .font(appearance.font.swiftUIFont(size: min(setSize, 36)))
+                        .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
                         .foregroundStyle(appearance.theme.palette.secondary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
@@ -433,7 +464,10 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
                         text: isLeft ? $editLeftName : $editRightName
                     )
-                    .font(.system(size: nameSize, weight: .bold))
+                    .font(typographySession.effectivePreference.font.swiftUIFont(
+                        size: nameSize,
+                        weight: .bold
+                    ))
                     .multilineTextAlignment(.center)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 12)
@@ -444,7 +478,10 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                     .offset(y: editOffset)
                 } else {
                     Text(name)
-                        .font(.system(size: nameSize, weight: .bold))
+                        .font(typographySession.effectivePreference.font.swiftUIFont(
+                            size: nameSize,
+                            weight: .bold
+                        ))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                         .padding(.top, topPad)
@@ -536,6 +573,9 @@ struct EightBallScoreboardView: View {
     @State private var manualFinishRequested = false
     @State private var isStartingNewMatch = false
     @State private var scoreboardEditing = false
+    @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
+        for: ScoreboardStyleID(gameType: .eightBall)
+    )
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -693,13 +733,27 @@ struct EightBallScoreboardView: View {
                     watchBackgrounded: watchLinkService.watchBackgrounded
                 ),
                 onMenuAction: handleWatchMenu,
-                topCenter: { AnyView(eightBallTargetPill) },
-                onEditModeChange: { scoreboardEditing = $0 }
-            ) {
+                topCenter: { preference, containerSize in
+                    AnyView(eightBallTargetPill(preference: preference, containerSize: containerSize))
+                },
+                onEditModeChange: { scoreboardEditing = $0 },
+                onTypographyChange: { preference in
+                    typographyPreference = preference
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                }
+            ) { preference, containerSize in
                 Group {
                     if state.handicapRacks > 0 {
                         Text(String(format: NSLocalizedString("eight_ball_handicap_summary", value: "让局 %d", comment: ""), state.handicapRacks))
-                            .font(.caption)
+                            .font(preference.font.swiftUIFont(
+                                size: specializedSecondarySize(
+                                    text: "\(state.handicapRacks)",
+                                    preference: preference,
+                                    containerSize: containerSize,
+                                    baseScale: 0.25
+                                ),
+                                weight: .medium
+                            ))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.white.opacity(0.78))
                     }
@@ -841,17 +895,50 @@ struct EightBallScoreboardView: View {
         return ""
     }
 
-    private var eightBallTargetPill: some View {
-        HStack(spacing: 8) {
+    private func eightBallTargetPill(
+        preference: ScoreboardTypographyPreference,
+        containerSize: CGSize
+    ) -> some View {
+        let fontSize = specializedSecondarySize(
+            text: "\(state.targetPoints) +\(state.handicapRacks)",
+            preference: preference,
+            containerSize: containerSize,
+            baseScale: 0.32
+        )
+        return HStack(spacing: 8) {
             handicapBadge(forScreen: .left)
             Text("\(state.targetPoints)")
                 .accessibilityIdentifier("eight_ball_target")
             handicapBadge(forScreen: .right)
         }
-            .font(.system(size: 18, weight: .bold, design: .rounded).monospacedDigit())
+            .font(preference.font.swiftUIFont(size: fontSize, weight: .bold))
             .foregroundStyle(.white)
-            .frame(minWidth: 132, minHeight: 34)
+            .frame(minWidth: 132, minHeight: max(34, fontSize * 1.6))
             .background(Capsule().fill(Color.black.opacity(0.4)))
+    }
+
+    private func specializedSecondarySize(
+        text: String,
+        preference: ScoreboardTypographyPreference,
+        containerSize: CGSize,
+        baseScale: CGFloat
+    ) -> CGFloat {
+        ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .specialized,
+                containerSize: CGSize(
+                    width: max(132, min(320, containerSize.width * 0.32)),
+                    height: containerSize.height
+                ),
+                nameText: "",
+                scoreText: "",
+                secondaryText: text,
+                preference: preference,
+                horizontalPadding: 12,
+                secondaryBaseScale: baseScale,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        ).secondaryFontSize
     }
 
     @ViewBuilder
@@ -1077,11 +1164,16 @@ struct EightBallScoreboardView: View {
         }
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
-        .init(gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: GameType.eightBall.displayName,
+        return .init(gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: GameType.eightBall.displayName,
               leftName: leftName, rightName: rightName,
               leftScore: "\(logical(.left))", rightScore: "\(logical(.right))",
               leftDetail: nil, rightDetail: nil,
-              themeID: ScoreboardAppearanceSnapshot.current().theme.rawValue, fontID: ScoreboardAppearanceSnapshot.current().font.rawValue, finished: state.finished, revision: 0)
+              themeID: ScoreboardAppearanceSnapshot.current().theme.rawValue,
+              fontID: typographyPreference.font.rawValue,
+              scoreMultiplier: typographyPreference.scoreMultiplier,
+              nameMultiplier: typographyPreference.nameMultiplier,
+              secondaryMultiplier: typographyPreference.secondaryMultiplier,
+              finished: state.finished, revision: 0)
     }
     @discardableResult
     private func saveRecord() -> Bool {
@@ -1113,6 +1205,9 @@ struct NineBallChaseScoreboardView: View {
     @State private var actionLog: [String] = []
     @State private var detailedActions: [DetailedScoreAction] = []
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var typographySession = ScoreboardTypographySession(
+        styleID: ScoreboardStyleID(gameType: .nineBall)
+    )
     @State private var preferences = PreferencesManager.shared
     @State private var actionCount = 0
     @State private var startedAt: Date
@@ -1263,21 +1358,36 @@ struct NineBallChaseScoreboardView: View {
 
     private var state: NineBallChaseState { sessionStore.state }
 
+    private func nineBallGridRows(containerSize: CGSize) -> [[Int]] {
+        ScoreboardPlayerGridLayout.nineBallRows(
+            playerCount: state.playerCount,
+            containerSize: containerSize
+        )
+    }
+
     var body: some View {
         ZStack {
             GeometryReader { proxy in
                 let spacing: CGFloat = 8
-                HStack(spacing: spacing) {
-                    ForEach(0..<state.playerCount, id: \.self) { screenIndex in
-                        nineBallPlayerColumn(
-                            player: logicalPlayer(forScreenIndex: screenIndex),
-                            screenIndex: screenIndex,
-                            width: (
-                                proxy.size.width
-                                    - spacing * CGFloat(max(0, state.playerCount - 1))
-                            ) / CGFloat(state.playerCount),
-                            height: proxy.size.height
-                        )
+                let rows = nineBallGridRows(containerSize: proxy.size)
+                VStack(spacing: spacing) {
+                    ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                        let cellWidth = (
+                            proxy.size.width - spacing * CGFloat(max(0, row.count - 1))
+                        ) / CGFloat(max(1, row.count))
+                        let cellHeight = (
+                            proxy.size.height - spacing * CGFloat(max(0, rows.count - 1))
+                        ) / CGFloat(max(1, rows.count))
+                        HStack(spacing: spacing) {
+                            ForEach(row, id: \.self) { screenIndex in
+                                nineBallPlayerColumn(
+                                    player: logicalPlayer(forScreenIndex: screenIndex),
+                                    screenIndex: screenIndex,
+                                    width: cellWidth,
+                                    height: cellHeight
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -1480,6 +1590,7 @@ struct NineBallChaseScoreboardView: View {
         .lockOrientation(.landscape)
         .onAppear {
             onSetupConsumed?()
+            typographySession.reload()
             registerSync()
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
@@ -1493,6 +1604,9 @@ struct NineBallChaseScoreboardView: View {
         }
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: typographySession.effectivePreference) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
         .onChange(of: showEditPanel) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: state.finished) { _, finished in
             if finished {
@@ -1530,7 +1644,11 @@ struct NineBallChaseScoreboardView: View {
             if !skipSave { saveRecord() }
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
-        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: .nineBall)
+        .scoreboardDisplaySettingsOverlay(
+            isPresented: $showDisplaySettings,
+            session: typographySession,
+            metrics: ScoreboardTypographyProfile.nineBall.adjustableMetrics
+        )
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
@@ -1614,9 +1732,22 @@ struct NineBallChaseScoreboardView: View {
         let editOffset = showEditPanel
             ? ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: height)
             : 0
-        let regularScoreSize: CGFloat = compact
-            ? 58
-            : (state.playerPoints[player].magnitude >= 100 ? 72 : 92)
+        let scoreText = displayedEditingScore(for: player)
+        let detailText = state.playerCounts[player].map(String.init).joined(separator: " ")
+        let typography = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .nineBall,
+                containerSize: CGSize(width: width, height: height),
+                nameText: playerName(player),
+                scoreText: scoreText,
+                secondaryText: detailText,
+                preference: typographySession.effectivePreference,
+                horizontalPadding: compact ? 8 : 14,
+                reservedHeight: showEditPanel ? 44 : (compact ? 48 : 58),
+                isLargeScreen: Theme.usesPadLayout
+            )
+        )
+        let regularScoreSize = typography.scoreFontSize
         let displayedScoreSize = showEditPanel
             ? ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: regularScoreSize)
             : regularScoreSize
@@ -1637,7 +1768,10 @@ struct NineBallChaseScoreboardView: View {
                         Text(playerName(player))
                     }
                 }
-                .font(.system(size: compact ? 16 : 20, weight: .semibold))
+                .font(typographySession.effectivePreference.font.swiftUIFont(
+                    size: typography.nameFontSize,
+                    weight: .semibold
+                ))
                 .lineLimit(1)
                 .padding(.horizontal, 12)
                 .padding(.top, compact ? 12 : 20)
@@ -1656,7 +1790,10 @@ struct NineBallChaseScoreboardView: View {
                                     .monospacedDigit()
                                     .fontWeight(.bold)
                             }
-                            .font(.system(size: compact ? 9 : 11))
+                            .font(typographySession.effectivePreference.font.swiftUIFont(
+                                size: max(8, typography.secondaryFontSize * 0.22),
+                                weight: .regular
+                            ))
                             .frame(maxWidth: .infinity, minHeight: compact ? 30 : 36)
                             .background(.black.opacity(0.16), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                             .accessibilityIdentifier("nine_ball_player_\(player)_count_\(kind.rawValue)")
@@ -1668,8 +1805,8 @@ struct NineBallChaseScoreboardView: View {
             }
 
             VStack(spacing: 8) {
-                Text(displayedEditingScore(for: player))
-                    .font(appearance.font.swiftUIFont(size: displayedScoreSize))
+                Text(scoreText)
+                    .font(typographySession.effectivePreference.font.swiftUIFont(size: displayedScoreSize))
                     .minimumScaleFactor(0.42)
                     .lineLimit(1)
                     .monospacedDigit()
@@ -2086,7 +2223,10 @@ struct NineBallChaseScoreboardView: View {
             leftDetail: nil,
             rightDetail: nil,
             themeID: appearance.theme.rawValue,
-            fontID: appearance.font.rawValue,
+            fontID: typographySession.effectivePreference.font.rawValue,
+            scoreMultiplier: typographySession.effectivePreference.scoreMultiplier,
+            nameMultiplier: typographySession.effectivePreference.nameMultiplier,
+            secondaryMultiplier: typographySession.effectivePreference.secondaryMultiplier,
             finished: state.finished,
             revision: 0
         )
@@ -2150,6 +2290,9 @@ struct SnookerReducerScoreboardView: View {
     @State private var manualFinishRequested = false
     @State private var scoreboardEditing = false
     @State private var isStartingNewMatch = false
+    @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
+        for: ScoreboardStyleID(gameType: .snooker)
+    )
 
     private let balls: [(points: Int, color: Color, label: String)] = [
         (1, Color(hex: "FF3B30"), "1"),
@@ -2355,9 +2498,12 @@ struct SnookerReducerScoreboardView: View {
                 seamOverlay: {
                     AnyView(
                         GeometryReader { geo in
+                            let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                                halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
+                            )
                             CenterLineServeIndicator(
                                 isLeftServing: state.striker == .left,
-                                triangleSize: Theme.usesPadLayout ? 42 : 36
+                                triangleSize: indicatorSize
                             )
                             .position(x: geo.size.width / 2, y: geo.size.height / 2)
                         }
@@ -2365,9 +2511,15 @@ struct SnookerReducerScoreboardView: View {
                     )
                 },
                 bottomBar: { AnyView(snookerBottomBar) },
-                topCenter: { AnyView(framePill) },
-                onEditModeChange: { scoreboardEditing = $0 }
-            ) {
+                topCenter: { preference, containerSize in
+                    AnyView(framePill(preference: preference, containerSize: containerSize))
+                },
+                onEditModeChange: { scoreboardEditing = $0 },
+                onTypographyChange: { preference in
+                    typographyPreference = preference
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                }
+            ) { _, _ in
                 EmptyView()
             }
 
@@ -2497,19 +2649,39 @@ struct SnookerReducerScoreboardView: View {
         return ""
     }
 
-    private var framePill: some View {
-        Group {
+    private func framePill(
+        preference: ScoreboardTypographyPreference,
+        containerSize: CGSize
+    ) -> some View {
+        let detail = String(format: "%d %d/%d %d", state.leftFrames, state.currentFrame, state.maxFrames, state.rightFrames)
+        let secondarySize = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .specialized,
+                containerSize: CGSize(
+                    width: max(150, min(360, containerSize.width * 0.38)),
+                    height: containerSize.height
+                ),
+                nameText: "",
+                scoreText: "",
+                secondaryText: detail,
+                preference: preference,
+                horizontalPadding: 12,
+                secondaryBaseScale: 0.3,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        ).secondaryFontSize
+        return Group {
             if state.maxFrames > 1 {
                 HStack(spacing: 0) {
                     Text("\(state.leftFrames)").frame(width: 42)
                     Text(String(format: NSLocalizedString("snooker_current_frame_short", value: "第 %d/%d 局", comment: ""), state.currentFrame, state.maxFrames))
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(preference.font.swiftUIFont(size: max(8, secondarySize * 0.68), weight: .semibold))
                     Text("\(state.rightFrames)").frame(width: 42)
                 }
-                .font(.system(size: 16, weight: .bold).monospacedDigit())
+                .font(preference.font.swiftUIFont(size: secondarySize, weight: .bold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 10)
-                .frame(height: 34)
+                .frame(height: max(34, secondarySize * 1.7))
                 .background(Capsule().fill(Color.black.opacity(0.35)))
             }
         }
@@ -2527,13 +2699,22 @@ struct SnookerReducerScoreboardView: View {
                         if ball.points == 1 {
                             HStack(spacing: 0) {
                                 Text("x")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(typographyPreference.font.swiftUIFont(
+                                        size: snookerControlFontSize(text: "x", baseScale: 0.18),
+                                        weight: .bold
+                                    ))
                                 Text("\(state.redBallsRemaining)")
-                                    .font(.system(size: 18, weight: .bold))
+                                    .font(typographyPreference.font.swiftUIFont(
+                                        size: snookerControlFontSize(text: "\(state.redBallsRemaining)", baseScale: 0.3),
+                                        weight: .bold
+                                    ))
                             }
                         } else {
                             Text(ball.label)
-                                .font(.system(size: 20, weight: .bold))
+                                .font(typographyPreference.font.swiftUIFont(
+                                    size: snookerControlFontSize(text: ball.label, baseScale: 0.34),
+                                    weight: .bold
+                                ))
                         }
                     }
                     .foregroundStyle(.white)
@@ -2579,6 +2760,22 @@ struct SnookerReducerScoreboardView: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background(Color.black.opacity(0.2))
+    }
+
+    private func snookerControlFontSize(text: String, baseScale: CGFloat) -> CGFloat {
+        ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .specialized,
+                containerSize: CGSize(width: 50, height: 50),
+                nameText: "",
+                scoreText: "",
+                secondaryText: text,
+                preference: typographyPreference,
+                horizontalPadding: 4,
+                secondaryBaseScale: baseScale,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        ).secondaryFontSize
     }
 
     /// HOS legal-ball highlighting: red stage → red; color stage → any colour; clearance → expected colour only.
@@ -2872,7 +3069,7 @@ struct SnookerReducerScoreboardView: View {
         }
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
-        .init(
+        return .init(
             gameID: GameType.snooker.canonicalScoreboardIdentifier,
             title: GameType.snooker.displayName,
             leftName: leftName,
@@ -2882,7 +3079,10 @@ struct SnookerReducerScoreboardView: View {
             leftDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), state.leftFrames),
             rightDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), state.rightFrames),
             themeID: ScoreboardAppearanceSnapshot.current().theme.rawValue,
-            fontID: ScoreboardAppearanceSnapshot.current().font.rawValue,
+            fontID: typographyPreference.font.rawValue,
+            scoreMultiplier: typographyPreference.scoreMultiplier,
+            nameMultiplier: typographyPreference.nameMultiplier,
+            secondaryMultiplier: typographyPreference.secondaryMultiplier,
             finished: state.finished,
             revision: 0
         )
@@ -3120,6 +3320,9 @@ struct ShengjiReducerScoreboardView: View {
     @State private var rightName: String
     @State private var showFinishedRecordDetail = false
     @State private var scoreboardEditing = false
+    @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
+        for: ScoreboardStyleID(gameType: .shengji)
+    )
     private let reducer = ShengjiTierReducer()
     private let levels = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 
@@ -3192,9 +3395,12 @@ struct ShengjiReducerScoreboardView: View {
                 seamOverlay: state.dealer == nil ? nil : {
                     AnyView(
                         GeometryReader { geo in
+                            let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                                halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
+                            )
                             CenterLineServeIndicator(
                                 isLeftServing: state.dealer == .left,
-                                triangleSize: Theme.usesPadLayout ? 42 : 36,
+                                triangleSize: indicatorSize,
                                 color: ScoreboardTheme.serverIndicatorColor
                             )
                             .position(x: geo.size.width / 2, y: geo.size.height / 2)
@@ -3205,8 +3411,12 @@ struct ShengjiReducerScoreboardView: View {
                 panelAccessory: { isLeft in
                     AnyView(shengjiPanelActions(side: isLeft ? .left : .right))
                 },
-                onEditModeChange: { scoreboardEditing = $0 }
-            ) {
+                onEditModeChange: { scoreboardEditing = $0 },
+                onTypographyChange: { preference in
+                    typographyPreference = preference
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                }
+            ) { _, _ in
                 EmptyView()
             }
 
@@ -3351,7 +3561,7 @@ struct ShengjiReducerScoreboardView: View {
         }
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
-        .init(
+        return .init(
             gameID: GameType.shengji.canonicalScoreboardIdentifier,
             title: GameType.shengji.displayName,
             leftName: leftName,
@@ -3361,7 +3571,10 @@ struct ShengjiReducerScoreboardView: View {
             leftDetail: nil,
             rightDetail: nil,
             themeID: ScoreboardAppearanceSnapshot.current().theme.rawValue,
-            fontID: ScoreboardAppearanceSnapshot.current().font.rawValue,
+            fontID: typographyPreference.font.rawValue,
+            scoreMultiplier: typographyPreference.scoreMultiplier,
+            nameMultiplier: typographyPreference.nameMultiplier,
+            secondaryMultiplier: typographyPreference.secondaryMultiplier,
             finished: state.finished,
             revision: 0
         )

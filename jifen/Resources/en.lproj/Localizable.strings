@@ -811,6 +811,7 @@
 "scoreboard_theme_electronic" = "Electronic";
 "scoreboard_theme_retro" = "Retro";
 "scoreboard_font" = "Score Font";
+"scoreboard_default_font" = "Default Score Font";
 "scoreboard_font_default" = "Default";
 "scoreboard_font_monospaced" = "Monospaced";
 "scoreboard_font_seven_segment" = "LED Digit";
@@ -832,6 +833,10 @@
 "scoreboard_font_metric_score" = "Main Score";
 "scoreboard_font_metric_name" = "Name";
 "scoreboard_font_metric_secondary" = "Sets/Games";
+"scoreboard_font_metric_basketball_secondary" = "Clock/Fouls";
+"scoreboard_font_metric_nine_ball_secondary" = "Chase Details";
+"scoreboard_font_metric_uno_secondary" = "Target/Gap";
+"scoreboard_font_metric_boxing_secondary" = "Round Details";
 "scoreboard_show_controls" = "Show scoreboard controls";
 "apply" = "Apply";
 "scoreboard_billiards" = "Billiards";

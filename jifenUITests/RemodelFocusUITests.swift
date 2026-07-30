@@ -133,6 +133,59 @@ final class RemodelFocusUITests: XCTestCase {
         attachScreenshot("remodel_pingpong_doubles")
     }
 
+    func testConservativeArchitectureScoreboardsScoreUndoAndExit() {
+        let scoreboards = [
+            (id: "simpleScore", label: "简单计分", leftName: "红方", rightName: "蓝方"),
+            (id: "billiards", label: "台球", leftName: "红方", rightName: "蓝方"),
+            (id: "football", label: "足球", leftName: "主队", rightName: "客队")
+        ]
+        defer { clearRecordFixtures() }
+
+        for item in scoreboards {
+            XCUIDevice.shared.orientation = .portrait
+            let app = launchChineseApp()
+            defer {
+                XCUIDevice.shared.orientation = .portrait
+                app.terminate()
+            }
+
+            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 12))
+            XCTAssertTrue(selectTab("计分", in: app), "Missing Score tab for \(item.id)")
+            XCTAssertTrue(openCatalogCard(item.id, label: item.label, in: app), "Missing catalog \(item.id)")
+            tapStart(in: app)
+
+            XCUIDevice.shared.orientation = .landscapeLeft
+            let back = app.descendants(matching: .any)["scoreboard_back_button"]
+            XCTAssertTrue(back.waitForExistence(timeout: 10), "Scoreboard did not open: \(item.id)")
+            XCTAssertTrue(app.staticTexts[item.leftName].waitForExistence(timeout: 4))
+            XCTAssertTrue(app.staticTexts[item.rightName].waitForExistence(timeout: 4))
+
+            let leftPanel = app.descendants(matching: .any)
+                .matching(identifier: "scoreboard_left_panel")
+                .firstMatch
+            XCTAssertTrue(leftPanel.waitForExistence(timeout: 3), "Missing score panel: \(item.id)")
+            leftPanel.tap()
+
+            let menu = app.descendants(matching: .any)["scoreboard_menu_button"]
+            XCTAssertTrue(menu.waitForExistence(timeout: 3), "Missing menu button: \(item.id)")
+            menu.tap()
+            let undo = app.descendants(matching: .any)["scoreboard_menu_action_undo"]
+            XCTAssertTrue(undo.waitForExistence(timeout: 3), "Missing undo action: \(item.id)")
+            undo.tap()
+
+            let closeMenu = app.descendants(matching: .any)["scoreboard_menu_close_button"]
+            XCTAssertTrue(closeMenu.waitForExistence(timeout: 3), "Missing menu close button: \(item.id)")
+            closeMenu.tap()
+            XCTAssertTrue(back.waitForExistence(timeout: 3))
+            back.doubleTap()
+            let dismissed = expectation(
+                for: NSPredicate(format: "exists == false"),
+                evaluatedWith: back
+            )
+            wait(for: [dismissed], timeout: 5)
+        }
+    }
+
     // MARK: - Helpers
 
     private func launchChineseApp(language: String = "zh-Hans", locale: String = "zh_CN") -> XCUIApplication {

@@ -49,4 +49,8 @@ import TimerCore
         #expect(BoardTimerVoice.resolvedSoundName(BoardTimerVoice.timeoutSoundBaseName, isEnglish: false) == "timeout")
         #expect(BoardTimerVoice.resolvedSoundName(BoardTimerVoice.timeoutSoundBaseName, isEnglish: true) == "timeout_en")
     }
+
+    @Test func standaloneCountdownUsesNeutralDingClip() {
+        #expect(BoardTimerVoice.countdownCompletionSoundBaseName == "ding")
+    }
 }

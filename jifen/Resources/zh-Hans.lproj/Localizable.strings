@@ -814,6 +814,7 @@
 "scoreboard_theme_electronic" = "电子屏";
 "scoreboard_theme_retro" = "复古";
 "scoreboard_font" = "比分字体";
+"scoreboard_default_font" = "默认比分字体";
 "scoreboard_font_default" = "默认";
 "scoreboard_font_monospaced" = "等宽数字";
 "scoreboard_font_seven_segment" = "LED数字";
@@ -835,6 +836,10 @@
 "scoreboard_font_metric_score" = "主比分";
 "scoreboard_font_metric_name" = "名称";
 "scoreboard_font_metric_secondary" = "局分/盘分";
+"scoreboard_font_metric_basketball_secondary" = "计时/犯规";
+"scoreboard_font_metric_nine_ball_secondary" = "追分详情";
+"scoreboard_font_metric_uno_secondary" = "目标/分差";
+"scoreboard_font_metric_boxing_secondary" = "回合信息";
 "scoreboard_show_controls" = "显示计分板控制按钮";
 "apply" = "应用";
 "scoreboard_billiards" = "台球";

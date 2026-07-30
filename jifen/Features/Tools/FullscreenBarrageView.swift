@@ -12,7 +12,7 @@ struct FullscreenBarrageView: View {
     @State private var mode: DisplayMode = .scroll
     @State private var isRunning = false
     @State private var showEditor = false
-    @State private var fontSize: Double = UIDevice.current.userInterfaceIdiom == .pad ? 120 : 80
+    @State private var fontSize: Double = Theme.usesPadLayout ? 120 : 80
     @State private var speed: Double = 15
     @State private var textColor = Color.white
     @State private var backgroundColor = Color.black
@@ -410,7 +410,7 @@ struct FullscreenBarrageView: View {
         // orientation programmatically. Swapping and rotating the complete
         // display surface produces the same result without issuing a request
         // that the system is guaranteed to reject.
-        if UIDevice.current.userInterfaceIdiom == .pad, !scene.isFullScreen {
+        if Theme.usesPadLayout, !scene.isFullScreen {
             OrientationLock.shared.lock(.all)
             updateSupportedOrientations(in: scene)
             usesContentRotationFallback = true
@@ -427,7 +427,7 @@ struct FullscreenBarrageView: View {
             DispatchQueue.main.async {
                 guard orientationRequestGeneration == requestGeneration, isRunning else { return }
                 OrientationLock.shared.lock(
-                    UIDevice.current.userInterfaceIdiom == .pad ? .all : .allButUpsideDown
+                    Theme.usesPadLayout ? .all : .allButUpsideDown
                 )
                 updateSupportedOrientations(in: scene)
                 usesContentRotationFallback = true
@@ -443,7 +443,7 @@ struct FullscreenBarrageView: View {
             return
         }
 
-        if UIDevice.current.userInterfaceIdiom == .pad, !scene.isFullScreen {
+        if Theme.usesPadLayout, !scene.isFullScreen {
             OrientationLock.shared.unlock()
             updateSupportedOrientations(in: scene)
             return

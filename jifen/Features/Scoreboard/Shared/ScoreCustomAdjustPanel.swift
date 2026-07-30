@@ -19,7 +19,10 @@ struct ScoreCustomAdjustPanel: View {
             let compactHeight = geometry.size.height < 400
             let sectionSpacing: CGFloat = compactHeight ? 16 : 22
             let buttonHeight: CGFloat = compactHeight ? 54 : 62
-            let panelWidth = min(max(geometry.size.width - 40, 0), 600)
+            let panelWidth = Theme.dialogWidth(
+                availableWidth: geometry.size.width,
+                role: .scoreAdjustment
+            )
 
             ZStack {
                 Color.black.opacity(0.45)

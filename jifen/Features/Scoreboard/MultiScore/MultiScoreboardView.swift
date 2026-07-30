@@ -82,6 +82,7 @@ struct MultiScoreboardView: View {
     @State private var customAdjustIndex: Int? = nil
     @State private var resolvedTargetScore: Int?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var previousIdleTimerDisabled: Bool?
@@ -119,6 +120,9 @@ struct MultiScoreboardView: View {
         _players = State(initialValue: defaultMultiPlayerNames(count: safeCount).enumerated().map {
             MultiPlayerItem(id: $0.offset, name: $0.element, score: 0)
         })
+        _typographySession = State(initialValue: ScoreboardTypographySession(
+            styleID: ScoreboardStyleID(gameType: gameType)
+        ))
         _resolvedTargetScore = State(initialValue: targetScore ?? (gameType == .uno ? 500 : nil))
         let adjust = initialSetup?.multiScoreCustomAdjustEnabled
             ?? (gameType == .multiScoreboard ? PreferencesManager.shared.multiScoreboardCustomAdjustEnabled : false)
@@ -264,6 +268,7 @@ struct MultiScoreboardView: View {
                 }
         )
         .onAppear {
+            typographySession.reload()
             applySetupIfNeeded()
             restoreDraftIfNeeded()
             appearance = .current()
@@ -277,12 +282,21 @@ struct MultiScoreboardView: View {
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
+        .onChange(of: typographySession.effectivePreference) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
             persistRecord(finished: gameFinished)
         }
-        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: gameType)
+        .scoreboardDisplaySettingsOverlay(
+            isPresented: $showDisplaySettings,
+            session: typographySession,
+            metrics: gameType == .uno
+                ? ScoreboardTypographyProfile.uno.adjustableMetrics
+                : ScoreboardTypographyProfile.multi.adjustableMetrics
+        )
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordId)
@@ -371,59 +385,90 @@ struct MultiScoreboardView: View {
     }
 
     private var unoTargetBadge: some View {
-        VStack {
-            Spacer()
-            HStack {
+        GeometryReader { proxy in
+            let targetText = String(
+                format: NSLocalizedString("uno_target_badge", value: "目标 %d", comment: ""),
+                effectiveTargetScore
+            )
+            let secondarySize = ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: .uno,
+                    containerSize: CGSize(width: min(proxy.size.width * 0.5, 320), height: max(80, proxy.size.height * 0.22)),
+                    nameText: "",
+                    scoreText: "",
+                    secondaryText: targetText,
+                    preference: typographySession.effectivePreference,
+                    horizontalPadding: 20,
+                    isLargeScreen: Theme.usesPadLayout
+                )
+            ).secondaryFontSize
+            VStack {
                 Spacer()
-                HStack(spacing: 6) {
-                    Text("🎴")
-                        .font(.system(size: 13))
-                    Text(String(
-                        format: NSLocalizedString("uno_target_badge", value: "目标 %d", comment: ""),
-                        effectiveTargetScore
-                    ))
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(.white)
+                HStack {
+                    Spacer()
+                    HStack(spacing: 6) {
+                        Text("🎴")
+                            .font(.system(size: max(13, secondarySize * 0.45)))
+                        Text(targetText)
+                            .font(typographySession.effectivePreference.font.swiftUIFont(
+                                size: max(13, secondarySize * 0.45),
+                                weight: .medium
+                            ))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(Color.black.opacity(0.35)))
+                    Spacer()
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(Capsule().fill(Color.black.opacity(0.35)))
-                Spacer()
+                .padding(.bottom, 72)
             }
-            .padding(.bottom, 72)
         }
         .allowsHitTesting(false)
     }
 
     private func playerPanel(index: Int, player: MultiPlayerItem, height: CGFloat) -> some View {
         GeometryReader { panelGeo in
-            let nameFont = ScoreboardLayoutMetrics.playerGridNameFontSize(cellHeight: panelGeo.size.height)
-            let scoreFont = ScoreboardLayoutMetrics.playerGridScoreFontSize(
-                cellHeight: panelGeo.size.height,
-                reservedHeight: nameFont + (gameType == .uno ? 28 : 16),
-                fontScale: scoreMultiplier
+            let gap = gameType == .uno ? max(0, effectiveTargetScore - player.score) : 0
+            let typography = ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: gameType == .uno ? .uno : .multi,
+                    containerSize: panelGeo.size,
+                    nameText: player.name,
+                    scoreText: "\(player.score)",
+                    secondaryText: gameType == .uno ? "\(gap)" : "",
+                    preference: typographySession.effectivePreference,
+                    horizontalPadding: 12,
+                    reservedHeight: gameType == .uno ? 28 : 12,
+                    isLargeScreen: Theme.usesPadLayout
+                )
             )
-            VStack(spacing: Theme.sm) {
+            VStack(spacing: typography.nameToScoreSpacing) {
                 Text(player.name)
-                    .font(.system(size: nameFont, weight: .medium))
+                    .font(typographySession.effectivePreference.font.swiftUIFont(
+                        size: typography.nameFontSize,
+                        weight: .medium
+                    ))
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .padding(.horizontal, Theme.sm)
 
                 Text("\(player.score)")
-                    .font(appearance.font.swiftUIFont(size: scoreFont))
+                    .font(typographySession.effectivePreference.font.swiftUIFont(size: typography.scoreFontSize))
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
 
                 if gameType == .uno, !gameFinished {
-                    let gap = max(0, effectiveTargetScore - player.score)
                     Text(String(
                         format: NSLocalizedString("uno_gap_format", value: "差 %d", comment: ""),
                         gap
                     ))
-                    .font(.system(size: max(10, nameFont * 0.55)))
+                    .font(typographySession.effectivePreference.font.swiftUIFont(
+                        size: max(10, typography.secondaryFontSize * 0.4),
+                        weight: .regular
+                    ))
                     .foregroundStyle(.white.opacity(0.75))
                 }
             }
@@ -600,34 +645,10 @@ struct MultiScoreboardView: View {
     // MARK: - Layout helpers
 
     private func layoutRows() -> [[Int?]] {
-        let indices = Array(players.indices)
-        func row(_ range: Range<Int>) -> [Int?] {
-            range.filter { indices.indices.contains($0) }.map { Optional(indices[$0]) }
-        }
-        if useLandscapeLayout {
-            switch players.count {
-            case 2...4: return [indices.map(Optional.some)]
-            case 5: return [row(0..<3), row(3..<5) + [nil]]
-            case 6: return [row(0..<3), row(3..<6)]
-            case 7: return [row(0..<4), row(4..<7) + [nil]]
-            case 8: return [row(0..<4), row(4..<8)]
-            case 9: return [row(0..<5), row(5..<9) + [nil]]
-            case 10: return [row(0..<5), row(5..<10)]
-            default: return [indices.map(Optional.some)]
-            }
-        }
-        switch players.count {
-        case 2: return [[0], [1]]
-        case 3: return [[0], [1], [2]]
-        case 4: return [row(0..<2), row(2..<4)]
-        case 5: return [row(0..<2), row(2..<5)]
-        case 6: return [row(0..<3), row(3..<6)]
-        case 7: return [row(0..<2), row(2..<5), row(5..<7)]
-        case 8: return [row(0..<3), [3, nil, 4], row(5..<8)]
-        case 9: return [row(0..<3), row(3..<6), row(6..<9)]
-        case 10: return [row(0..<2), row(2..<4), row(4..<6), row(6..<8), row(8..<10)]
-        default: return [indices.map(Optional.some)]
-        }
+        ScoreboardPlayerGridLayout.multiRows(
+            playerCount: players.count,
+            usesWideLayout: useLandscapeLayout
+        )
     }
 
     private func toggleLayout() {
@@ -754,7 +775,7 @@ struct MultiScoreboardView: View {
                                 playerEditScore = MultiScoreRules.adjustedScore(playerEditScore, delta: -1)
                             }
                             Text("\(playerEditScore)")
-                                .font(appearance.font.swiftUIFont(size: 30))
+                                .font(typographySession.effectivePreference.font.swiftUIFont(size: 30))
                                 .fontWeight(.bold)
                                 .foregroundStyle(.white)
                                 .monospacedDigit()
@@ -1065,10 +1086,6 @@ struct MultiScoreboardView: View {
 
     // MARK: - Appearance / sync
 
-    private var scoreMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: gameType)[ScoreboardFontMetric.score.rawValue] ?? 1)
-    }
-
     private var shouldShowChrome: Bool {
         !appearance.immersiveMode || chromeVisible || showMenu || showDisplaySettings || showUnoRoundPanel || playerEditIndex != nil
     }
@@ -1106,7 +1123,10 @@ struct MultiScoreboardView: View {
                         ? String(format: NSLocalizedString("uno_target_badge", value: "目标 %d", comment: ""), effectiveTargetScore)
                         : nil,
                     themeID: appearance.theme.rawValue,
-                    fontID: appearance.font.rawValue,
+                    fontID: typographySession.effectivePreference.font.rawValue,
+                    scoreMultiplier: typographySession.effectivePreference.scoreMultiplier,
+                    nameMultiplier: typographySession.effectivePreference.nameMultiplier,
+                    secondaryMultiplier: typographySession.effectivePreference.secondaryMultiplier,
                     finished: gameFinished,
                     revision: 0
                 )

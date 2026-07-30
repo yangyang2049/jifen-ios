@@ -285,10 +285,6 @@ struct ArcheryScoreboardView: View {
         }
     }
 
-    private var centerShooterIndicator: some View {
-        CenterLineServeIndicator(isLeftServing: viewModel.currentShooterIsLeft, triangleSize: 34)
-    }
-
     private var archeryScorePicker: some View {
         GeometryReader { proxy in
             let dialogWidth = Theme.dialogWidth(
@@ -974,8 +970,17 @@ private struct ArcheryMiddleLayer: View {
     var body: some View {
         Group {
             if !isEditMode && !viewModel.gameFinished && !scoringLocked {
-                CenterLineServeIndicator(isLeftServing: viewModel.currentShooterIsLeft, triangleSize: 34)
-                    .allowsHitTesting(false)
+                GeometryReader { geo in
+                    let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                        halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
+                    )
+                    CenterLineServeIndicator(
+                        isLeftServing: viewModel.currentShooterIsLeft,
+                        triangleSize: indicatorSize
+                    )
+                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                }
+                .allowsHitTesting(false)
 
                 GeometryReader { geo in
                     HStack(spacing: 0) {

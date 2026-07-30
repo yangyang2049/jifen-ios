@@ -124,6 +124,7 @@ struct TimeoutCountdownView: View {
                             .foregroundStyle(timeColor)
                             .minimumScaleFactor(0.4)
                             .lineLimit(1)
+                            .frame(maxWidth: .infinity)
 
                         Text(compactDuration(state.durationSeconds))
                             .font(.system(size: compactLandscape ? 14 : 16, weight: .medium))
@@ -199,6 +200,7 @@ struct TimeoutCountdownView: View {
                 .foregroundStyle(.white)
                 .frame(width: 60, height: 60)
                 .background(.white.opacity(0.08), in: Circle())
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
     }
@@ -226,7 +228,8 @@ struct TimeoutCountdownView: View {
                 presetButton(
                     title: NSLocalizedString("timer_countdown_edit_time", value: "编辑时间", comment: "Edit countdown time"),
                     subtitle: nil,
-                    selected: !quickPresets.contains(state.durationSeconds)
+                    selected: !quickPresets.contains(state.durationSeconds),
+                    identifier: "countdown_preset_custom"
                 ) {
                     syncCustomFields()
                     showsCustomEditor = true
@@ -244,7 +247,12 @@ struct TimeoutCountdownView: View {
         case 300: title = NSLocalizedString("timer_countdown_chip_5m", value: "5 分钟", comment: "5 minutes")
         default: title = NSLocalizedString("timer_countdown_chip_10m", value: "10 分钟", comment: "10 minutes")
         }
-        return presetButton(title: title, subtitle: nil, selected: state.durationSeconds == seconds) {
+        return presetButton(
+            title: title,
+            subtitle: nil,
+            selected: state.durationSeconds == seconds,
+            identifier: "countdown_preset_quick_\(seconds)"
+        ) {
             applyDuration(seconds)
         }
     }
@@ -264,8 +272,11 @@ struct TimeoutCountdownView: View {
                                 .padding(.horizontal, 14)
                                 .frame(height: 34)
                                 .background(selectedSportID == sport.id ? Theme.primary : .white.opacity(0.10), in: Capsule())
+                                .contentShape(Capsule())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("countdown_sport_\(sport.id)")
+                        .accessibilityAddTraits(selectedSportID == sport.id ? .isSelected : [])
                     }
                 }
             }
@@ -275,7 +286,8 @@ struct TimeoutCountdownView: View {
                     presetButton(
                         title: item.title,
                         subtitle: formatCountdown(Double(item.seconds) * 1_000),
-                        selected: state.durationSeconds == item.seconds
+                        selected: state.durationSeconds == item.seconds,
+                        identifier: "countdown_preset_\(item.id)"
                     ) {
                         applyDuration(item.seconds)
                     }
@@ -288,6 +300,7 @@ struct TimeoutCountdownView: View {
         title: String,
         subtitle: String?,
         selected: Bool,
+        identifier: String,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -311,8 +324,11 @@ struct TimeoutCountdownView: View {
                     .stroke(selected ? Theme.primary : Color.clear, lineWidth: 1.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private var modePicker: some View {
@@ -328,8 +344,11 @@ struct TimeoutCountdownView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 36)
                         .background(mode == item ? Theme.primary : .clear, in: Capsule())
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("countdown_mode_\(item.rawValue)")
+                .accessibilityAddTraits(mode == item ? .isSelected : [])
             }
         }
         .padding(3)
@@ -346,9 +365,11 @@ struct TimeoutCountdownView: View {
                     .background(.black.opacity(0.2), in: Circle())
                     .overlay(Circle().stroke(.white.opacity(0.3), lineWidth: 1))
                     .opacity(resetDisabled ? 0.35 : 1)
+                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
             .disabled(resetDisabled)
+            .accessibilityIdentifier("countdown_reset_button")
 
             Spacer().frame(maxWidth: 56)
 
@@ -359,8 +380,10 @@ struct TimeoutCountdownView: View {
                     .frame(width: 90, height: 90)
                     .background(.white.opacity(0.13), in: Circle())
                     .overlay(Circle().stroke(.white.opacity(0.55), lineWidth: 1.5))
+                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("countdown_main_button")
 
             Spacer().frame(maxWidth: 56)
 
@@ -430,6 +453,7 @@ struct TimeoutCountdownView: View {
                 .foregroundStyle(.white)
                 .frame(width: 44, height: 44)
                 .background(.white.opacity(0.1), in: Circle())
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
     }
@@ -457,7 +481,13 @@ struct TimeoutCountdownView: View {
     private func timerFontSize(for size: CGSize) -> CGFloat {
         let compactLandscape = UIDevice.current.userInterfaceIdiom == .phone && size.width > size.height
         if compactLandscape { return min(112, size.height * 0.28) }
-        if UIDevice.current.userInterfaceIdiom == .pad { return 128 }
+        if Theme.usesPadLayout {
+            let characterCount = CGFloat(max(5, formatCountdown(displayRemainingMilliseconds).count))
+            let targetTextWidth = size.width / 3
+            let widthDrivenSize = targetTextWidth / (characterCount * 0.60)
+            let heightDrivenSize = size.height * 0.20
+            return min(220, max(128, min(widthDrivenSize, heightDrivenSize)))
+        }
         return min(88, size.width * 0.22)
     }
 
@@ -604,8 +634,7 @@ struct TimeoutCountdownView: View {
         )
         displayRemainingMilliseconds = 0
         TimerToolStateStore.saveCountdown(state)
-        // Harmony CountdownPage plays timeout.mp3 (locale-aware); fall back to buzzer if missing.
-        BoardTimerVoiceAnnouncer.shared.playTimeout()
+        BoardTimerVoiceAnnouncer.shared.playCountdownCompletion()
         VibrationManager.shared.vibrateHeavy()
     }
 

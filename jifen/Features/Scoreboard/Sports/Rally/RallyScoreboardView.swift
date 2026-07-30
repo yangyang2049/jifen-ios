@@ -27,6 +27,7 @@ struct RallyScoreboardView: View {
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var toastMessage: String?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
     @State private var showMenu = false
@@ -103,6 +104,9 @@ struct RallyScoreboardView: View {
             _legacyRecordId = State(initialValue: nil)
             _voiceAnnouncementEnabled = State(initialValue: voiceAnnouncementEnabled)
         }
+        _typographySession = State(initialValue: ScoreboardTypographySession(
+            styleID: ScoreboardStyleID(scoreCoreGameType: self.gameType)
+        ))
     }
 
     private var isDoubles: Bool { store.state.doubles != nil }
@@ -267,6 +271,7 @@ struct RallyScoreboardView: View {
         )
         .onAppear {
             onPresented()
+            typographySession.switchStyleID(ScoreboardStyleID(scoreCoreGameType: gameType))
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
@@ -357,6 +362,9 @@ struct RallyScoreboardView: View {
             ))
         }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: typographySession.effectivePreference) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
         .onChange(of: isEditMode) { _, editing in
             if editing {
                 syncEditNamesFromState()
@@ -381,7 +389,11 @@ struct RallyScoreboardView: View {
                 store.persistSnapshot()
             }
         }
-        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: appGameType)
+        .scoreboardDisplaySettingsOverlay(
+            isPresented: $showDisplaySettings,
+            session: typographySession,
+            metrics: ScoreboardTypographyProfile.rally.adjustableMetrics
+        )
         .alert(
             NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
             isPresented: Binding(
@@ -459,27 +471,33 @@ struct RallyScoreboardView: View {
         let name = scoreboardDisplayName(for: side)
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height) * scoreMultiplier
-        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height) * secondaryMultiplier
-        let nameSize = ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: size.height) * nameMultiplier
-        let nameToMain = ScoreboardLayoutMetrics.nameToMainSpacing(halfViewportHeight: size.height)
+        let typography = resolvedTypography(
+            name: name,
+            score: "\(score)",
+            secondary: "\(sets)",
+            size: size
+        )
+        let mainSize = typography.scoreFontSize
+        let setSize = typography.secondaryFontSize
+        let nameSize = typography.nameFontSize
+        let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
 
         return VStack(spacing: 0) {
             Text(name)
-                .font(.system(size: nameSize, weight: .bold))
+                .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
                 .lineLimit(isFoosballDoubles ? 2 : 1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 8)
             Spacer().frame(height: nameToMain)
             Text("\(score)")
-                .font(appearance.font.swiftUIFont(size: mainSize))
+                .font(typographyPreference.font.swiftUIFont(size: mainSize))
                 .monospacedDigit()
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
             Spacer().frame(height: mainToSet)
             Text("\(sets)")
-                .font(appearance.font.swiftUIFont(size: setSize))
+                .font(typographyPreference.font.swiftUIFont(size: setSize))
                 .monospacedDigit()
                 .foregroundStyle(palette.secondary)
         }
@@ -488,14 +506,22 @@ struct RallyScoreboardView: View {
 
     private func singlesEditContent(side: MatchSide, size: CGSize) -> some View {
         let isLeft = side == .left
+        let name = isLeft ? editLeftName : editRightName
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
-            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height) * scoreMultiplier
+        let typography = resolvedTypography(
+            name: name,
+            score: "\(score)",
+            secondary: "\(sets)",
+            size: size,
+            reservedHeight: 32
         )
-        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height) * secondaryMultiplier
-        let nameSize = ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: size.height) * nameMultiplier
-        let nameToMain = ScoreboardLayoutMetrics.nameToMainSpacing(halfViewportHeight: size.height)
+        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
+            regularSize: typography.scoreFontSize
+        )
+        let setSize = typography.secondaryFontSize
+        let nameSize = typography.nameFontSize
+        let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
 
         return VStack(spacing: 0) {
@@ -503,7 +529,7 @@ struct RallyScoreboardView: View {
                 NSLocalizedString("team_name", value: "队名", comment: ""),
                 text: isLeft ? $editLeftName : $editRightName
             )
-            .font(.system(size: nameSize, weight: .bold))
+            .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
             .multilineTextAlignment(.center)
             .textFieldStyle(.plain)
             .padding(.horizontal, 12)
@@ -584,12 +610,20 @@ struct RallyScoreboardView: View {
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
         let slots = isLeft ? (0, 2) : (1, 3)
-        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
-            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: size.height) * scoreMultiplier
+        let joinedName = [editDoublesNames[slots.0], editDoublesNames[slots.1]].max(by: { $0.count < $1.count }) ?? ""
+        let typography = resolvedTypography(
+            name: joinedName,
+            score: "\(score)",
+            secondary: "\(sets)",
+            size: size,
+            reservedHeight: 48
         )
-        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: size.height) * secondaryMultiplier
-        let nameSize = doublesNameFontSize(panelHeight: size.height)
-        let nameToMain = ScoreboardLayoutMetrics.nameToMainSpacing(halfViewportHeight: size.height)
+        let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
+            regularSize: typography.scoreFontSize
+        )
+        let setSize = typography.secondaryFontSize
+        let nameSize = typography.nameFontSize
+        let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
 
         return VStack(spacing: 0) {
@@ -643,7 +677,7 @@ struct RallyScoreboardView: View {
                 }
             )
         )
-        .font(.system(size: fontSize, weight: .bold))
+        .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
         .multilineTextAlignment(.center)
         .textFieldStyle(.plain)
         .padding(.horizontal, 12)
@@ -685,37 +719,52 @@ struct RallyScoreboardView: View {
 
         return ZStack {
             color
-            VStack(spacing: 0) {
-                doublesNameCell(
-                    name: topName,
-                    slot: topSlot,
-                    fontSize: doublesNameFontSize(panelHeight: size.height),
-                    height: nameRowHeight
-                )
-                if isEditMode {
-                    doublesEditScoreRow(
-                        screenSide: screenSide,
-                        side: side,
-                        height: scoreRowHeight,
-                        panelHeight: size.height
+            if isEditMode {
+                VStack(spacing: 0) {
+                    doublesNameCell(
+                        name: topName,
+                        slot: topSlot,
+                        fontSize: doublesNameFontSize(panelSize: size),
+                        height: nameRowHeight
                     )
-                } else {
-                    doublesPlayScoreRow(
+                    doublesEditScoreRow(
                         screenSide: screenSide,
                         side: side,
                         height: scoreRowHeight,
                         panelSize: size
                     )
+                    doublesNameCell(
+                        name: bottomName,
+                        slot: bottomSlot,
+                        fontSize: doublesNameFontSize(panelSize: size),
+                        height: nameRowHeight
+                    )
                 }
-                doublesNameCell(
-                    name: bottomName,
-                    slot: bottomSlot,
-                    fontSize: doublesNameFontSize(panelHeight: size.height),
-                    height: nameRowHeight
+                .padding(.top, editTopInset)
+                .frame(height: size.height, alignment: .top)
+            } else {
+                VStack(spacing: 0) {
+                    doublesNameCell(
+                        name: topName,
+                        slot: topSlot,
+                        fontSize: doublesNameFontSize(panelSize: size),
+                        height: size.height / 3
+                    )
+                    Spacer(minLength: 0)
+                    doublesNameCell(
+                        name: bottomName,
+                        slot: bottomSlot,
+                        fontSize: doublesNameFontSize(panelSize: size),
+                        height: size.height / 3
+                    )
+                }
+                doublesPlayScoreRow(
+                    screenSide: screenSide,
+                    side: side,
+                    height: ScoreboardLayoutMetrics.doublesScoreRegionHeight(panelHeight: size.height),
+                    panelSize: size
                 )
             }
-            .padding(.top, editTopInset)
-            .frame(height: size.height, alignment: .top)
         }
         .foregroundStyle(palette.foreground)
         .frame(width: size.width, height: size.height)
@@ -744,30 +793,36 @@ struct RallyScoreboardView: View {
         let isLeft = side == .left
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let mainSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelSize.height) * scoreMultiplier * 0.85
-        let setSize = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: panelSize.height) * secondaryMultiplier
-        let scoreSpacing = ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(
-            halfViewportWidth: panelSize.width
+        let typography = resolvedTypography(
+            name: "",
+            score: "\(score)",
+            secondary: "\(sets)",
+            size: CGSize(width: panelSize.width, height: height),
+            secondaryIsInline: true,
+            referenceHeight: panelSize.height
         )
+        let mainSize = typography.scoreFontSize
+        let setSize = typography.secondaryFontSize
+        let scoreSpacing = typography.mainToSecondarySpacing
 
         return HStack(spacing: scoreSpacing) {
             if screenSide == .left {
                 Text("\(score)")
-                    .font(appearance.font.swiftUIFont(size: mainSize))
+                    .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                 Text("\(sets)")
-                    .font(appearance.font.swiftUIFont(size: setSize))
+                    .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(palette.secondary)
             } else {
                 Text("\(sets)")
-                    .font(appearance.font.swiftUIFont(size: setSize))
+                    .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(palette.secondary)
                 Text("\(score)")
-                    .font(appearance.font.swiftUIFont(size: mainSize))
+                    .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -777,16 +832,29 @@ struct RallyScoreboardView: View {
         .frame(height: height)
     }
 
-    private func doublesEditScoreRow(screenSide: MatchSide, side: MatchSide, height: CGFloat, panelHeight: CGFloat) -> some View {
+    private func doublesEditScoreRow(
+        screenSide: MatchSide,
+        side: MatchSide,
+        height: CGFloat,
+        panelSize: CGSize
+    ) -> some View {
         let isLeft = side == .left
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        let typography = resolvedTypography(
+            name: "",
+            score: "\(score)",
+            secondary: "\(sets)",
+            size: CGSize(width: panelSize.width, height: height),
+            scoreBaseScale: 0.85,
+            reservedHeight: 16
+        )
         let mainSize = ScoreboardLayoutMetrics.compactEditMainScoreFontSize(
-            regularSize: ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: panelHeight) * scoreMultiplier,
+            regularSize: typography.scoreFontSize,
             rowHeight: height
         )
         let setSize = ScoreboardLayoutMetrics.compactEditSecondaryScoreFontSize(
-            regularSize: ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: panelHeight) * secondaryMultiplier,
+            regularSize: typography.secondaryFontSize,
             rowHeight: height
         )
         let controlSize = ScoreboardLayoutMetrics.compactEditControlSize(rowHeight: height)
@@ -850,13 +918,13 @@ struct RallyScoreboardView: View {
                         }
                     )
                 )
-                .font(.system(size: fontSize, weight: .bold))
+                .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                 .multilineTextAlignment(.center)
                 .textFieldStyle(.plain)
                 .padding(.horizontal, 8)
             } else {
                 Text(name)
-                    .font(.system(size: fontSize, weight: .bold))
+                    .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                     .foregroundStyle(nameColor)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
@@ -867,8 +935,14 @@ struct RallyScoreboardView: View {
         .frame(height: height)
     }
 
-    private func doublesNameFontSize(panelHeight: CGFloat) -> CGFloat {
-        ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: panelHeight) * nameMultiplier
+    private func doublesNameFontSize(panelSize: CGSize) -> CGFloat {
+        let longestName = store.state.doubles?.playerNames.max(by: { $0.count < $1.count }) ?? ""
+        return resolvedTypography(
+            name: longestName,
+            score: "",
+            secondary: "",
+            size: panelSize
+        ).nameFontSize
     }
 
     private func doublesTopSlot(screenSide: MatchSide) -> Int {
@@ -970,7 +1044,7 @@ struct RallyScoreboardView: View {
                 action: onDecrement
             )
             Text("\(value)")
-                .font(appearance.font.swiftUIFont(size: fontSize))
+                .font(typographyPreference.font.swiftUIFont(size: fontSize))
                 .monospacedDigit()
                 .foregroundStyle(useSecondaryColor ? palette.secondary : palette.foreground)
                 .minimumScaleFactor(0.5)
@@ -1089,6 +1163,14 @@ struct RallyScoreboardView: View {
         if isDoubles, let doubles = store.state.doubles {
             let serverSlot = doubles.serverSlotIndex
             let isTopRow = serverSlot == 0 || serverSlot == 1
+            let serverNumberText = doubles.pickleballServerNumber.map(String.init) ?? ""
+            let serverNumberSize = resolvedTypography(
+                name: "",
+                score: "",
+                secondary: serverNumberText,
+                size: CGSize(width: max(64, triangleSize * 2.4), height: max(80, triangleSize * 3)),
+                secondaryBaseScale: 0.3
+            ).secondaryFontSize
             ZStack {
                 CenterLineServeIndicator(
                     isLeftServing: servingIsLeftScreen,
@@ -1096,12 +1178,12 @@ struct RallyScoreboardView: View {
                 )
                 if let serverNumber = doubles.pickleballServerNumber {
                     Text("\(serverNumber)")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(typographyPreference.font.swiftUIFont(size: serverNumberSize, weight: .bold))
                         .foregroundStyle(palette.foreground)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Capsule().fill(Color.black.opacity(0.35)))
-                        .offset(y: isTopRow ? 28 : -28)
+                        .offset(y: isTopRow ? triangleSize * 0.78 : -triangleSize * 0.78)
                 }
             }
             .position(
@@ -1315,15 +1397,49 @@ struct RallyScoreboardView: View {
     // MARK: - Multipliers / chrome state
 
     private var scoreMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: appGameType)[ScoreboardFontMetric.score.rawValue] ?? 1)
+        CGFloat(typographyPreference.scoreMultiplier)
     }
 
     private var nameMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: appGameType)[ScoreboardFontMetric.name.rawValue] ?? 1)
+        CGFloat(typographyPreference.nameMultiplier)
     }
 
     private var secondaryMultiplier: CGFloat {
-        CGFloat(PreferencesManager.shared.fontSizeMultipliers(for: appGameType)[ScoreboardFontMetric.secondary.rawValue] ?? 1)
+        CGFloat(typographyPreference.secondaryMultiplier)
+    }
+
+    private var typographyPreference: ScoreboardTypographyPreference {
+        typographySession.effectivePreference
+    }
+
+    private func resolvedTypography(
+        name: String,
+        score: String,
+        secondary: String,
+        size: CGSize,
+        scoreBaseScale: CGFloat = 1,
+        secondaryBaseScale: CGFloat = 1,
+        reservedHeight: CGFloat = 0,
+        secondaryIsInline: Bool = false,
+        referenceHeight: CGFloat? = nil
+    ) -> ScoreboardTypographyResult {
+        ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .rally,
+                containerSize: size,
+                nameText: name,
+                scoreText: score,
+                secondaryText: secondary,
+                preference: typographyPreference,
+                horizontalPadding: 16,
+                reservedHeight: reservedHeight,
+                scoreBaseScale: scoreBaseScale,
+                secondaryBaseScale: secondaryBaseScale,
+                secondaryIsInline: secondaryIsInline,
+                referenceHeight: referenceHeight,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        )
     }
 
     private var shouldShowChrome: Bool {
@@ -1390,7 +1506,10 @@ struct RallyScoreboardView: View {
                     leftDetail: String(format: NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), leftSide == .left ? store.state.leftSets : store.state.rightSets),
                     rightDetail: String(format: NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), rightSide == .left ? store.state.leftSets : store.state.rightSets),
                     themeID: appearance.theme.rawValue,
-                    fontID: appearance.font.rawValue,
+                    fontID: typographyPreference.font.rawValue,
+                    scoreMultiplier: typographyPreference.scoreMultiplier,
+                    nameMultiplier: typographyPreference.nameMultiplier,
+                    secondaryMultiplier: typographyPreference.secondaryMultiplier,
                     finished: store.state.finished,
                     keyPoint: LocalScoreboardKeyPoint.syncValue(
                         LocalScoreboardKeyPoint(

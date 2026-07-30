@@ -349,6 +349,39 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(runningBarrage.exists)
     }
 
+    func testCountdownChipsRespondAcrossTheirVisibleArea() {
+        let app = launchChineseApp(arguments: ["-UITestOpenTimer"])
+        defer { app.terminate() }
+
+        let countdown = app.descendants(matching: .any)["timer_dest_timeout"]
+        XCTAssertTrue(scrollUntilExists(countdown, in: app))
+        countdown.tap()
+
+        let sportsMode = app.buttons["countdown_mode_sports"]
+        XCTAssertTrue(sportsMode.waitForExistence(timeout: 5))
+        sportsMode.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertTrue(sportsMode.isSelected)
+
+        let badminton = app.buttons["countdown_sport_badminton"]
+        XCTAssertTrue(badminton.waitForExistence(timeout: 3))
+        badminton.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertTrue(badminton.isSelected)
+
+        let betweenGames = app.buttons["countdown_preset_badminton_between"]
+        XCTAssertTrue(betweenGames.waitForExistence(timeout: 3))
+        betweenGames.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertTrue(betweenGames.isSelected)
+
+        let quickMode = app.buttons["countdown_mode_quick"]
+        quickMode.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5)).tap()
+        XCTAssertTrue(quickMode.isSelected)
+
+        let fiveMinutes = app.buttons["countdown_preset_quick_300"]
+        XCTAssertTrue(fiveMinutes.waitForExistence(timeout: 3))
+        fiveMinutes.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertTrue(fiveMinutes.isSelected)
+    }
+
     func testAll23RecordDetailFixturesUseProjectMatrix() {
         defer { clearRecordFixtures() }
         let trendProjects: Set<String> = [

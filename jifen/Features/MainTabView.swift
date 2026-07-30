@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 struct MainTabView: View {
-    @State private var selectedTab = 0
+    @State private var selectedTab = ProcessInfo.processInfo.arguments.contains("-UITestOpenTimer") ? 3 : 0
     @State private var selectedGame: GameType? = nil
     @State private var navigatingFromTab: Int? = nil
     @State private var pendingTimerGameType: GameType? = nil

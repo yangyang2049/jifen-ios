@@ -14,7 +14,7 @@ struct FootballScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
     var initialRecordId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
-    @State private var controller = FootballController()
+    @State private var controller = FootballScoreboardController()
     @State private var viewModel = FootballViewModel()
     @State private var showGameOverDialog: Bool = false
     @State private var showFinishedRecordDetail = false

@@ -44,6 +44,9 @@ struct DoudizhuScoreboardView: View {
     @State private var selectedMultiplierPower = 0 // 0番=1倍 … 5番=32倍
     @State private var selectedWinners = [false, false, false]
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var typographySession = ScoreboardTypographySession(
+        styleID: ScoreboardStyleID(gameType: .doudizhu)
+    )
     @State private var preferences = PreferencesManager.shared
     @State private var gameFinished = false
     @State private var showGameOverDialog = false
@@ -135,7 +138,11 @@ struct DoudizhuScoreboardView: View {
                 appearance.theme.palette.background.ignoresSafeArea()
                 HStack(spacing: 0) {
                     ForEach(Array(players.enumerated()), id: \.element.id) { index, p in
-                        doudizhuPlayerPanel(index: index, player: p, width: w / 3, height: h)
+                        doudizhuPlayerPanel(
+                            index: index,
+                            player: p,
+                            panelSize: CGSize(width: w / 3, height: h)
+                        )
                     }
                 }
 
@@ -234,6 +241,7 @@ struct DoudizhuScoreboardView: View {
                 }
         )
         .onAppear {
+            typographySession.reload()
             if let setup = initialSetup {
                 if let names = setup.playerNames, !names.isEmpty {
                     for index in 0..<min(3, names.count, players.count) {
@@ -272,7 +280,11 @@ struct DoudizhuScoreboardView: View {
                 activeCommonNameIndex = nil
             }
         }
-        .scoreboardDisplaySettingsOverlay(isPresented: $showDisplaySettings, gameType: .doudizhu)
+        .scoreboardDisplaySettingsOverlay(
+            isPresented: $showDisplaySettings,
+            session: typographySession,
+            metrics: ScoreboardTypographyProfile.doudizhu.adjustableMetrics
+        )
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
@@ -376,22 +388,37 @@ struct DoudizhuScoreboardView: View {
         .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing])
     }
 
-    private func doudizhuPlayerPanel(index: Int, player: DoudizhuPlayerItem, width: CGFloat, height: CGFloat) -> some View {
-        let scoreSize = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: height) * 0.85
-        let nameSize = ScoreboardLayoutMetrics.defaultTeamNameFontSize(
-            usesPadLayout: Theme.usesPadLayout
+    private func doudizhuPlayerPanel(
+        index: Int,
+        player: DoudizhuPlayerItem,
+        panelSize: CGSize
+    ) -> some View {
+        let typography = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .doudizhu,
+                containerSize: panelSize,
+                nameText: player.name,
+                scoreText: "\(player.score)",
+                preference: typographySession.effectivePreference,
+                horizontalPadding: 16,
+                reservedHeight: 32,
+                scoreBaseScale: 0.85,
+                isLargeScreen: Theme.usesPadLayout
+            )
         )
+        let scoreSize = typography.scoreFontSize
+        let nameSize = typography.nameFontSize
         return ZStack {
             panelColors[index % 3]
             if isEditMode {
-                let editOffset = ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: height)
+                let editOffset = ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelSize.height)
                 ZStack {
                     HStack(spacing: 16) {
                         doudizhuEditCircleButton(systemName: "minus") {
                             adjustDoudizhuEditScore(index: index, delta: -1)
                         }
                         Text("\(player.score)")
-                            .font(appearance.font.swiftUIFont(
+                            .font(typographySession.effectivePreference.font.swiftUIFont(
                                 size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: scoreSize)
                             ))
                             .monospacedDigit()
@@ -411,7 +438,10 @@ struct DoudizhuScoreboardView: View {
                                 NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
                                 text: playerNameBinding(index)
                             )
-                            .font(.system(size: nameSize, weight: .bold))
+                            .font(typographySession.effectivePreference.font.swiftUIFont(
+                                size: nameSize,
+                                weight: .bold
+                            ))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .textFieldStyle(.plain)
@@ -427,16 +457,16 @@ struct DoudizhuScoreboardView: View {
                         .background(Color.black.opacity(0.12))
                         .cornerRadius(8)
                         .padding(.horizontal, 16)
-                        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: height))
+                        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
                         Spacer(minLength: 0)
                     }
                     .offset(y: editOffset)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: height)) {
+                VStack(spacing: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: panelSize.height)) {
                     Text("\(player.score)")
-                        .font(appearance.font.swiftUIFont(size: scoreSize))
+                        .font(typographySession.effectivePreference.font.swiftUIFont(size: scoreSize))
                         .monospacedDigit()
                         .foregroundColor(appearance.theme.palette.foreground)
                         .minimumScaleFactor(0.4)
@@ -446,16 +476,19 @@ struct DoudizhuScoreboardView: View {
 
                 VStack {
                     Text(player.name)
-                        .font(.system(size: nameSize, weight: .bold))
+                        .font(typographySession.effectivePreference.font.swiftUIFont(
+                            size: nameSize,
+                            weight: .bold
+                        ))
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: height))
+                        .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
                     Spacer()
                 }
             }
         }
-        .frame(width: width, height: height)
+        .frame(width: panelSize.width, height: panelSize.height)
         .contentShape(Rectangle())
     }
 

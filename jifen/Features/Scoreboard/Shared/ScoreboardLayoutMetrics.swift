@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 
 /// Font/spacing curves aligned with HOS `helpers/baseMainScoreFontSize.ts`.
 enum ScoreboardLayoutMetrics {
@@ -25,14 +26,15 @@ enum ScoreboardLayoutMetrics {
     private static let mainToSetGapScale: CGFloat = 0.025
     private static let mainToSetGapMax: CGFloat = 24
 
-    private static let inlineScoreGapBase: CGFloat = 24
-    private static let inlineScoreGapBaseViewportWidth: CGFloat = 320
-    private static let inlineScoreGapViewportWidthScale: CGFloat = 0.08
-    private static let inlineScoreGapMax: CGFloat = 64
+    private static let inlineScoreGapBase: CGFloat = 28
+    private static let inlineScoreGapBaseViewportWidth: CGFloat = 280
+    private static let inlineScoreGapViewportWidthScale: CGFloat = 0.10
+    private static let inlineScoreGapMax: CGFloat = 72
 
     private static let serveIndicatorBaseSize: CGFloat = 36
     private static let serveIndicatorViewportScale: CGFloat = 0.10
     private static let serveIndicatorMaxSize: CGFloat = 64
+    private static let serveIndicatorStep: CGFloat = 4
 
     /// HarmonyOS uses the displayed main-score size as the source of truth and
     /// renders it at 70% while the inline +/- controls are visible.
@@ -118,11 +120,6 @@ enum ScoreboardLayoutMetrics {
         )
     }
 
-    /// Phone template default when height curve isn't available yet.
-    static func defaultTeamNameFontSize(usesPadLayout: Bool) -> CGFloat {
-        usesPadLayout ? ScoreboardConstants.teamNameFontSizePad : ScoreboardConstants.teamNameFontSizePhone
-    }
-
     static func nameToMainSpacing(halfViewportHeight: CGFloat) -> CGFloat {
         let extra = Swift.max(0, halfViewportHeight - mainScoreBaseViewportHeight)
         return clampRound(
@@ -153,15 +150,24 @@ enum ScoreboardLayoutMetrics {
         )
     }
 
+    /// Doubles scoreboards render the score cluster over the middle of the
+    /// court instead of confining it to the nominal middle third. Android uses
+    /// a 60% overlay; this geometry curve keeps compact phones slightly tighter
+    /// and reaches the same 60% allocation on tall tablet windows.
+    static func doublesScoreRegionHeight(panelHeight: CGFloat) -> CGFloat {
+        let growth = Swift.min(1, Swift.max(0, (panelHeight - 360) / 640))
+        let ratio = 0.56 + growth * 0.04
+        return max(1, panelHeight * ratio)
+    }
+
     /// Serving triangle size derived from one side panel's measured viewport.
-    /// Phones keep the existing 36pt size while tablets scale up smoothly.
+    /// Phones keep the existing 36pt baseline while larger panels scale in
+    /// 4pt steps, keeping every scoreboard on the same geometry grid.
     static func serveIndicatorSize(halfViewportSize: CGSize) -> CGFloat {
         let shortEdge = Swift.min(halfViewportSize.width, halfViewportSize.height)
-        return clampRound(
-            shortEdge * serveIndicatorViewportScale,
-            min: serveIndicatorBaseSize,
-            max: serveIndicatorMaxSize
-        )
+        let responsive = shortEdge * serveIndicatorViewportScale
+        let stepped = (responsive / serveIndicatorStep).rounded() * serveIndicatorStep
+        return Swift.min(serveIndicatorMaxSize, Swift.max(serveIndicatorBaseSize, stepped))
     }
 
     static func nameTopPadding(panelHeight: CGFloat, isEditMode: Bool = false) -> CGFloat {
@@ -211,5 +217,254 @@ enum ScoreboardLayoutMetrics {
         if screenWidth < 700 { return 160 }
         if screenWidth < 900 { return 180 }
         return 200
+    }
+}
+
+enum ScoreboardTypographyProfile: Sendable {
+    case standard
+    case rally
+    case tennis
+    case basketball
+    case specialized
+    case doudizhu
+    case nineBall
+    case multi
+    case uno
+
+    var adjustableMetrics: [ScoreboardFontMetric] {
+        switch self {
+        case .doudizhu, .multi:
+            return [.name, .score]
+        default:
+            return [.name, .score, .secondary]
+        }
+    }
+}
+
+struct ScoreboardTypographyLayoutContext: Sendable {
+    let profile: ScoreboardTypographyProfile
+    let containerSize: CGSize
+    let nameText: String
+    let scoreText: String
+    var secondaryText: String = ""
+    let preference: ScoreboardTypographyPreference
+    var horizontalPadding: CGFloat = 16
+    var reservedHeight: CGFloat = 0
+    var scoreBaseScale: CGFloat = 1
+    var nameBaseScale: CGFloat = 1
+    var secondaryBaseScale: CGFloat = 1
+    var secondaryIsInline: Bool = false
+    /// Height used by the HarmonyOS typography curves. The measured container
+    /// still supplies the hard width/height constraints. Doubles score rows use
+    /// the complete half-panel height as their baseline and the overlay height
+    /// as their rendering limit.
+    var referenceHeight: CGFloat? = nil
+    var isLargeScreen: Bool = false
+}
+
+struct ScoreboardTypographyResult: Equatable, Sendable {
+    let nameFontSize: CGFloat
+    let scoreFontSize: CGFloat
+    let secondaryFontSize: CGFloat
+    let nameToScoreSpacing: CGFloat
+    let mainToSecondarySpacing: CGFloat
+}
+
+/// Resolves scoreboard typography from the actual panel or grid-cell geometry.
+/// Height determines the initial visual hierarchy; width and content length are
+/// then hard constraints, so Split View, long names and multi-digit scores never
+/// depend on device-model breakpoints.
+enum ScoreboardTypographyResolver {
+    static func resolve(_ context: ScoreboardTypographyLayoutContext) -> ScoreboardTypographyResult {
+        let size = context.containerSize
+        guard size.width > 0, size.height > 0 else {
+            return ScoreboardTypographyResult(
+                nameFontSize: 1,
+                scoreFontSize: 1,
+                secondaryFontSize: 1,
+                nameToScoreSpacing: 0,
+                mainToSecondarySpacing: 0
+            )
+        }
+
+        let isGrid = context.profile == .doudizhu
+            || context.profile == .nineBall
+            || context.profile == .multi
+            || context.profile == .uno
+        let nameMinimum: CGFloat = context.isLargeScreen ? 16 : 12
+        let scoreMinimum: CGFloat = context.isLargeScreen ? 30 : 24
+        let secondaryMinimum: CGFloat = context.isLargeScreen ? 16 : 12
+        let availableWidth = max(1, size.width - context.horizontalPadding * 2)
+        let referenceHeight = max(1, context.referenceHeight ?? size.height)
+
+        let requestedNameBase = isGrid
+            ? ScoreboardLayoutMetrics.playerGridNameFontSize(
+                cellHeight: size.height,
+                baseSize: context.isLargeScreen ? 20 : 16
+            )
+            : ScoreboardLayoutMetrics.teamNameFontSize(halfViewportHeight: referenceHeight)
+        let requestedName = requestedNameBase
+            * context.nameBaseScale
+            * CGFloat(context.preference.nameMultiplier)
+        let nameSize = fitFontSizeByWidth(
+            requested: requestedName,
+            text: context.nameText,
+            availableWidth: availableWidth,
+            minimum: nameMinimum
+        )
+
+        let requestedSecondary = ScoreboardLayoutMetrics.setScoreFontSize(halfViewportHeight: referenceHeight)
+            * context.secondaryBaseScale
+            * CGFloat(context.preference.secondaryMultiplier)
+        let secondarySize = fitFontSizeByWidth(
+            requested: requestedSecondary,
+            text: context.secondaryText,
+            availableWidth: availableWidth,
+            minimum: secondaryMinimum
+        )
+
+        let baseGap = isGrid
+            ? max(4, min(18, size.height * 0.035))
+            : ScoreboardLayoutMetrics.nameToMainSpacing(halfViewportHeight: size.height)
+        let profileReservedHeight: CGFloat
+        switch context.profile {
+        case .uno:
+            profileReservedHeight = context.isLargeScreen ? 64 : 48
+        case .nineBall:
+            profileReservedHeight = context.isLargeScreen ? 44 : 34
+        default:
+            profileReservedHeight = 0
+        }
+        let hasName = !context.nameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasScore = !context.scoreText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasSecondary = !context.secondaryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let mainToSecondarySpacing = context.secondaryIsInline && hasScore && hasSecondary
+            ? ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: size.width)
+            : 0
+        let secondaryLineHeight = context.secondaryText.isEmpty || context.secondaryIsInline
+            ? 0
+            : secondarySize * 1.2
+        let nameLineHeight = hasName ? nameSize * 1.2 : 0
+        let nameScoreGap = hasName && hasScore ? baseGap : 0
+        let reservedHeight = max(0, context.reservedHeight)
+            + profileReservedHeight
+            + nameLineHeight
+            + secondaryLineHeight
+            + nameScoreGap
+
+        let requestedScoreBase: CGFloat
+        if isGrid {
+            requestedScoreBase = ScoreboardLayoutMetrics.playerGridScoreFontSize(
+                cellHeight: size.height,
+                baseSize: scoreMinimum,
+                reservedHeight: reservedHeight,
+                fontScale: context.scoreBaseScale
+            )
+        } else {
+            requestedScoreBase = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: referenceHeight)
+                * context.scoreBaseScale
+        }
+        let requestedScore = requestedScoreBase * CGFloat(context.preference.scoreMultiplier)
+        let inlineSecondaryWidth = context.secondaryIsInline && hasSecondary
+            ? estimatedTextWidth(text: context.secondaryText, fontSize: secondarySize)
+                + mainToSecondarySpacing
+            : 0
+        let widthLimitedScore = fitFontSizeByWidth(
+            requested: requestedScore,
+            text: context.scoreText,
+            availableWidth: max(1, availableWidth - inlineSecondaryWidth),
+            minimum: scoreMinimum
+        )
+        let verticalLimit = max(1, (size.height - reservedHeight) * 0.88)
+        let scoreSize = max(1, min(widthLimitedScore, verticalLimit))
+
+        let nameScale = min(1, nameSize / max(1, requestedName))
+        let scoreScale = min(1, scoreSize / max(1, requestedScore))
+        let compression = min(nameScale, scoreScale)
+        let spacing = hasName && hasScore
+            ? max(2, (baseGap * (0.4 + 0.6 * compression)).rounded())
+            : 0
+
+        return ScoreboardTypographyResult(
+            nameFontSize: nameSize.rounded(),
+            scoreFontSize: scoreSize.rounded(),
+            secondaryFontSize: secondarySize.rounded(),
+            nameToScoreSpacing: spacing,
+            mainToSecondarySpacing: mainToSecondarySpacing
+        )
+    }
+
+    private static func estimatedTextWidth(text: String, fontSize: CGFloat) -> CGFloat {
+        let units = text.reduce(CGFloat.zero) { partial, character in
+            partial + glyphWidthUnit(for: character)
+        }
+        return max(0, units * fontSize)
+    }
+
+    static func fitFontSizeByWidth(
+        requested: CGFloat,
+        text: String,
+        availableWidth: CGFloat,
+        minimum: CGFloat
+    ) -> CGFloat {
+        guard !text.isEmpty else { return max(1, requested.rounded()) }
+        let units = text.reduce(CGFloat.zero) { partial, character in
+            partial + glyphWidthUnit(for: character)
+        }
+        let widthLimit = availableWidth / max(0.5, units)
+        return max(1, min(requested, max(minimum, widthLimit))).rounded()
+    }
+
+    private static func glyphWidthUnit(for character: Character) -> CGFloat {
+        guard let scalar = character.unicodeScalars.first else { return 1 }
+        if CharacterSet.decimalDigits.contains(scalar) { return 0.64 }
+        if scalar.isASCII { return 0.58 }
+        return 1
+    }
+}
+
+enum ScoreboardPlayerGridLayout {
+    static func nineBallRows(playerCount: Int, containerSize: CGSize) -> [[Int]] {
+        let safeCount = min(4, max(2, playerCount))
+        let indices = Array(0..<safeCount)
+        let usesWideLayout = safeCount <= 2
+            || containerSize.width >= containerSize.height * 1.35
+        guard !usesWideLayout else { return [indices] }
+        if safeCount == 3 {
+            return indices.map { [$0] }
+        }
+        return [Array(indices.prefix(2)), Array(indices.dropFirst(2))]
+    }
+
+    static func multiRows(playerCount: Int, usesWideLayout: Bool) -> [[Int?]] {
+        let safeCount = min(10, max(2, playerCount))
+        let indices = Array(0..<safeCount)
+        func row(_ range: Range<Int>) -> [Int?] {
+            range.filter { indices.indices.contains($0) }.map { Optional(indices[$0]) }
+        }
+        if usesWideLayout {
+            switch safeCount {
+            case 2...4: return [indices.map(Optional.some)]
+            case 5: return [row(0..<3), row(3..<5) + [nil]]
+            case 6: return [row(0..<3), row(3..<6)]
+            case 7: return [row(0..<4), row(4..<7) + [nil]]
+            case 8: return [row(0..<4), row(4..<8)]
+            case 9: return [row(0..<5), row(5..<9) + [nil]]
+            case 10: return [row(0..<5), row(5..<10)]
+            default: return [indices.map(Optional.some)]
+            }
+        }
+        switch safeCount {
+        case 2: return [[0], [1]]
+        case 3: return [[0], [1], [2]]
+        case 4: return [row(0..<2), row(2..<4)]
+        case 5: return [row(0..<2), row(2..<5)]
+        case 6: return [row(0..<3), row(3..<6)]
+        case 7: return [row(0..<2), row(2..<5), row(5..<7)]
+        case 8: return [row(0..<3), [3, nil, 4], row(5..<8)]
+        case 9: return [row(0..<3), row(3..<6), row(6..<9)]
+        case 10: return [row(0..<2), row(2..<4), row(4..<6), row(6..<8), row(8..<10)]
+        default: return [indices.map(Optional.some)]
+        }
     }
 }

@@ -14,7 +14,7 @@ struct DateTimeToolView: View {
         GeometryReader { geometry in
             let layout = FlipClockLayoutMetrics(
                 size: geometry.size,
-                isPad: UIDevice.current.userInterfaceIdiom == .pad
+                isPad: Theme.usesPadLayout
             )
 
             ZStack {

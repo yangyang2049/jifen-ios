@@ -186,6 +186,11 @@ final class FullAppScreenshotUITests: XCTestCase {
                 app.descendants(matching: .any)["scoreboard_back_button"].waitForExistence(timeout: 8),
                 "Scoreboard did not open for \(item.id)"
             )
+            if item.id == "tennis" {
+                let back = app.descendants(matching: .any)["scoreboard_back_button"]
+                XCTAssertLessThan(back.frame.midX, app.frame.midX, "Tennis back button must stay on the left")
+                XCTAssertGreaterThan(back.frame.midY, app.frame.midY, "Tennis back button must stay at the bottom")
+            }
             exerciseScoreboardChrome(for: item.id)
         }
     }

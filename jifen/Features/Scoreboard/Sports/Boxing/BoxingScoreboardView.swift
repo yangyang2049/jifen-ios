@@ -15,7 +15,10 @@ struct BoxingScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     @State private var controller = BoxingScoreboardController()
     @State private var viewModel = BoxingViewModel()
-    @State private var responsiveScoreFontSize: CGFloat = 120
+    @State private var typographySession = ScoreboardTypographySession(
+        styleID: ScoreboardStyleID(gameType: .boxing)
+    )
+    @State private var scoreboardSize: CGSize = .zero
     @State private var showRoundDialog: Bool = false
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
@@ -34,12 +37,12 @@ struct BoxingScoreboardView: View {
                     gameType: .boxing,
                     controller: controller,
                     viewModel: viewModel,
-                    scoreFontSize: responsiveScoreFontSize,
                     nameType: .team,
                     scoreTextProvider: { _, team in "\(team.score)" },
                     onEditModeChange: { isEditing = $0 },
                     showEndGame: true
                 ),
+                typographySession: typographySession,
                 onBack: {
                     viewModel.saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
                     onNavigationBack?()
@@ -131,10 +134,10 @@ struct BoxingScoreboardView: View {
             }
             restoreDraftIfNeeded()
         }
-        .onGeometryChange(for: CGFloat.self) { proxy in
-            proxy.size.width
-        } action: { width in
-            responsiveScoreFontSize = calculateResponsiveScoreFontSize(containerWidth: width)
+        .onGeometryChange(for: CGSize.self) { proxy in
+            proxy.size
+        } action: { size in
+            scoreboardSize = size
         }
         .onChange(of: viewModel.gameFinished) { _, finished in
             if finished {
@@ -148,12 +151,32 @@ struct BoxingScoreboardView: View {
     }
 
     private var roundTitle: some View {
-        Text(String(
+        let text = String(
             format: NSLocalizedString("boxing_round_progress", value: "%d / %d", comment: "Round N of max"),
             viewModel.currentRound,
             viewModel.maxRounds
-        ))
-            .font(.system(size: 24, weight: .bold))
+        )
+        let typography = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .standard,
+                containerSize: CGSize(
+                    width: max(120, scoreboardSize.width * 0.32),
+                    height: max(1, scoreboardSize.height)
+                ),
+                nameText: "",
+                scoreText: "",
+                secondaryText: text,
+                preference: typographySession.effectivePreference,
+                horizontalPadding: 16,
+                secondaryBaseScale: 0.42,
+                isLargeScreen: Theme.usesPadLayout
+            )
+        )
+        return Text(text)
+            .font(typographySession.effectivePreference.font.swiftUIFont(
+                size: typography.secondaryFontSize,
+                weight: .bold
+            ))
             .foregroundColor(.yellow)
             .padding(.horizontal, 16)
             .padding(.vertical, 6)
@@ -178,12 +201,6 @@ struct BoxingScoreboardView: View {
         .buttonStyle(.plain)
         .disabled(viewModel.gameFinished)
         .opacity(viewModel.gameFinished ? 0.45 : 1)
-    }
-
-    private func calculateResponsiveScoreFontSize(containerWidth: CGFloat) -> CGFloat {
-        let base: CGFloat = 120
-        guard containerWidth > 0 else { return base }
-        return min(240, max(base, base + (containerWidth - 400) * 0.15))
     }
 
     private func restoreDraftIfNeeded() {

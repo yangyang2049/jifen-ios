@@ -21,10 +21,6 @@ struct ScoreboardConstants {
     /// Default main score base size (HOS DEFAULT_SCORE_FONT_SIZE).
     static let baseMainScoreFontSize: CGFloat = 144
 
-    /// Phone / tablet team name sizes (HOS template defaults).
-    static let teamNameFontSizePhone: CGFloat = 28
-    static let teamNameFontSizePad: CGFloat = 36
-
     /// Side control lift from bottom (HOS translateY: -72).
     static let sideControlsBottomOffset: CGFloat = 72
 }
@@ -43,4 +39,3 @@ struct ScoreboardBackButtonAccessibility: ViewModifier {
         }
     }
 }
-

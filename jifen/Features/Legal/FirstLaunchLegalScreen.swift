@@ -11,7 +11,7 @@ struct FirstLaunchLegalScreen: View {
             Theme.backgroundColor.ignoresSafeArea()
 
             GeometryReader { geometry in
-                let isPad = UIDevice.current.userInterfaceIdiom == .pad
+                let isPad = Theme.usesPadLayout
 
                 ScrollView {
                     VStack(spacing: 18) {

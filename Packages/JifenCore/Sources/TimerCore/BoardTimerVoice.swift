@@ -30,6 +30,8 @@ public enum BoardTimerVoice {
 
     /// Harmony countdown-end clip (`SoundType.TIMEOUT`).
     public static let timeoutSoundBaseName = "timeout"
+    /// Neutral standalone countdown completion clip shared by all locales.
+    public static let countdownCompletionSoundBaseName = "ding"
 
     /// Harmony `START_SOUND_DURATION_MS` / `START_SOUND_DURATION_MS_EN`
     public static let startDurationMsZh = 864

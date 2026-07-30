@@ -83,8 +83,9 @@ final class CountdownNotificationManager {
     func schedule(after seconds: TimeInterval) {
         guard seconds > 0, Bundle.main.bundleIdentifier != nil else { return }
         let center = UNUserNotificationCenter.current()
+        let soundEnabled = PreferencesManager.shared.soundEnabled
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
-        ensureAuthorization(center: center) { [identifier] granted in
+        ensureAuthorization(center: center) { [identifier, soundEnabled] granted in
             guard granted else { return }
             let content = UNMutableNotificationContent()
             content.title = NSLocalizedString(
@@ -97,7 +98,11 @@ final class CountdownNotificationManager {
                 value: "倒计时已结束，点按返回查看。",
                 comment: "Countdown notification body"
             )
-            content.sound = .default
+            if soundEnabled {
+                content.sound = UNNotificationSound(
+                    named: UNNotificationSoundName(rawValue: "ding.caf")
+                )
+            }
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, seconds), repeats: false)
             center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
         }
