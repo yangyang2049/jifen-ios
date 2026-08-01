@@ -304,45 +304,6 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(unknown.competitionDisplayName, jifen.GameType.badminton.displayName)
     }
 
-    func testArchiveResumeBundleNormalizationCoversAllMigratedFamilies() throws {
-        try assertArchiveNormalization(
-            gameType: .badmintonDoubles,
-            state: RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton()),
-            eventType: RallyMatchEvent.self,
-            intentType: RallyMatchIntent.self
-        )
-        try assertArchiveNormalization(
-            gameType: .basketball,
-            state: BasketballMatchState(leftName: "A", rightName: "B", gameMode: .fiveVFive),
-            eventType: BasketballMatchEvent.self,
-            intentType: BasketballMatchIntent.self
-        )
-        try assertArchiveNormalization(
-            gameType: .tennisDoubles,
-            state: TennisMatchState(leftName: "A", rightName: "B", doublesPlayerNames: ["A1", "B1", "A2", "B2"]),
-            eventType: TennisMatchEvent.self,
-            intentType: TennisMatchIntent.self
-        )
-        try assertArchiveNormalization(
-            gameType: .eightBall,
-            state: EightBallState.initial(targetPoints: 7),
-            eventType: EightBallEvent.self,
-            intentType: EightBallIntent.self
-        )
-        try assertArchiveNormalization(
-            gameType: .nineBall,
-            state: NineBallChaseState.initial(playerCount: 4, playerNames: ["A", "B", "C", "D"]),
-            eventType: NineBallChaseEvent.self,
-            intentType: NineBallChaseIntent.self
-        )
-        try assertArchiveNormalization(
-            gameType: .snooker,
-            state: SnookerState.initial(striker: .right, maxFrames: 5),
-            eventType: SnookerEvent.self,
-            intentType: SnookerIntent.self
-        )
-    }
-
     func testGuandanUnoAndCustomAdjustmentConfigurationRestoresFromRecord() {
         let record = ScoreboardRecord(
             id: "configuration-special",
@@ -452,39 +413,6 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             totalScoreChanges: 0,
             projectConfiguration: configuration
         )
-    }
-
-    private func assertArchiveNormalization<State, Event, Intent>(
-        gameType: ScoreCore.GameType,
-        state: State,
-        eventType: Event.Type,
-        intentType: Intent.Type
-    ) throws where State: Codable & Equatable & Sendable,
-                   Event: Codable & Sendable,
-                   Intent: Codable & Sendable {
-        _ = eventType
-        _ = intentType
-        let descriptor = ScoreboardKernelRegistry.descriptor(for: gameType)
-        let session = ScoreSession<State, Event>(
-            gameType: gameType,
-            ruleFamily: descriptor.ruleFamily,
-            reducerType: descriptor.reducerType,
-            state: state
-        )
-        let bundle = ScoreSessionResumeBundle<State, Event, Intent>(
-            replaySeed: session,
-            currentSession: session,
-            undoFrames: [],
-            timeline: []
-        )
-        let archiveData = try JSONEncoder().encode(bundle)
-        let normalized = try XCTUnwrap(
-            SessionRecordsViewModel.normalizedSessionData(for: gameType, archiveData: archiveData),
-            gameType.rawValue
-        )
-        let decoded = try JSONDecoder().decode(ScoreSession<State, Event>.self, from: normalized)
-        XCTAssertEqual(decoded.gameType, gameType)
-        XCTAssertEqual(decoded.state, state)
     }
 
     private func encode<T: Encodable>(_ value: T) throws -> Data {

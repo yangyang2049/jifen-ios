@@ -39,6 +39,14 @@ enum WatchLinkMenuSupport {
                     icon: "applewatch"
                 )
             )
+            items.append(
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("linked_score_force_takeover", value: "强制接管", comment: ""),
+                    action: "forceTakeover",
+                    group: .sync,
+                    icon: "exclamationmark.shield"
+                )
+            )
         }
         items.append(
             ScoreboardMenuItem(
@@ -49,6 +57,29 @@ enum WatchLinkMenuSupport {
             )
         )
         return items
+    }
+}
+
+@MainActor
+protocol PhoneLinkRecordSink {
+    func ingest(
+        payload: LinkMatchFinishedPayload,
+        gameType: ScoreCore.GameType,
+        matchId: UUID
+    ) throws -> String
+}
+
+struct DefaultPhoneLinkRecordSink: PhoneLinkRecordSink {
+    func ingest(
+        payload: LinkMatchFinishedPayload,
+        gameType: ScoreCore.GameType,
+        matchId: UUID
+    ) throws -> String {
+        try LinkedMatchRecordIngestor.ingest(
+            payload: payload,
+            gameType: gameType,
+            sessionId: matchId
+        )
     }
 }
 
@@ -81,12 +112,12 @@ enum LinkedMatchRecordIngestor {
             winnerSide: payload.winnerSide,
             participantNames: payload.participantNames
         )
-        let endMs = payload.endTimeEpochMilliseconds ?? Int64(Date().timeIntervalSince1970 * 1000)
-        let startMs = payload.startTimeEpochMilliseconds ?? (endMs - 60_000)
+        let endMs = payload.endTimeEpochMilliseconds
+        let startMs = payload.startTimeEpochMilliseconds
         let start = Date(timeIntervalSince1970: Double(startMs) / 1000)
         let end = Date(timeIntervalSince1970: Double(endMs) / 1000)
-        let duration = payload.durationSeconds ?? max(1, end.timeIntervalSince(start))
-        let scoreChanges = max(0, payload.totalScoreChanges ?? 0)
+        let duration = payload.durationSeconds
+        let scoreChanges = max(0, payload.totalScoreChanges)
         var extra: [String: AnyCodable] = [
             "syncFrom": AnyCodable("watch"),
             "watchSyncTime": AnyCodable(Int64(Date().timeIntervalSince1970 * 1000))
@@ -131,7 +162,7 @@ enum LinkedMatchRecordIngestor {
             winner: projected.winner,
             actions: ["watch_link_finish"],
             detailedActions: payload.detailedActions,
-            setResults: payload.detailedActions.map(ScoreboardRecordActionAdapter.setResults),
+            setResults: ScoreboardRecordActionAdapter.setResults(from: payload.detailedActions),
             totalScoreChanges: scoreChanges,
             extraData: extra,
             projectConfiguration: projectConfiguration,
@@ -172,7 +203,7 @@ enum LinkedMatchRecordIngestor {
             configuration["playerCount"] = AnyCodable(state.playerCount)
         case .snooker(let state):
             configuration["maxFrames"] = AnyCodable(state.maxFrames)
-        case .basketball, .archery, .eightBall:
+        case .archery, .eightBall:
             break
         }
         return configuration
@@ -202,16 +233,6 @@ enum LinkedMatchRecordIngestor {
             }
         }()
         switch snapshot {
-        case .basketball(let state):
-            return .init(
-                leftName: state.leftName,
-                rightName: state.rightName,
-                leftScore: state.leftScore,
-                rightScore: state.rightScore,
-                leftSets: nil,
-                rightSets: nil,
-                winner: winner
-            )
         case .rally(let state):
             return .init(
                 leftName: state.leftName,

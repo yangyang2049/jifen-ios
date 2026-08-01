@@ -1,5 +1,4 @@
 import LinkCore
-import PersistenceCore
 import RecordCore
 import ScoreCore
 import SwiftUI
@@ -36,9 +35,7 @@ struct WatchEightBallScoreView: View {
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
     @State private var actionLog: WatchScoreActionLog
-    @State private var archiveSessionId = UUID()
     @State private var undoToastToken: UUID?
-    private let archiveRepository = SessionArchiveRepository()
 
     init(
         initialState: EightBallState? = nil,
@@ -134,9 +131,6 @@ struct WatchEightBallScoreView: View {
         }
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
-            if hasEightBallProgress {
-                persistArchiveSnapshot()
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
@@ -154,7 +148,6 @@ struct WatchEightBallScoreView: View {
         }
         .onChange(of: state) { _, _ in
             persistResumeSession()
-            persistArchiveSnapshot()
         }
         .onDisappear {
             finishTask?.cancel()
@@ -370,7 +363,14 @@ struct WatchEightBallScoreView: View {
         matchStartTime = restartedAt
         showFinishedOverlay = false
         finishUndoAvailable = false
-        publish(manualEnd: false)
+        if linkedSessionId != nil {
+            linkService.startNextMatch(
+                snapshot: .eightBall(state),
+                participantNames: [leftName, rightName]
+            )
+        } else {
+            publish(manualEnd: false)
+        }
     }
 
     private var interactionsEnabled: Bool {
@@ -494,11 +494,7 @@ struct WatchEightBallScoreView: View {
 
     private func exitEightBall() {
         if linkedSessionId != nil {
-            if state.finished {
-                linkService.leaveSession()
-            } else {
-                linkService.exitScoreboardToHome()
-            }
+            linkService.exitScoreboardToHome()
         }
         persistResumeSession()
         dismiss()
@@ -530,22 +526,6 @@ struct WatchEightBallScoreView: View {
         state.leftPoints != 0 || state.rightPoints != 0 || !undoStack.isEmpty || state.finished
     }
 
-    private func persistArchiveSnapshot() {
-        WatchSessionArchiveSupport.persist(
-            repository: archiveRepository,
-            sessionId: archiveSessionId,
-            gameType: .eightBall,
-            state: state,
-            eventType: EightBallEvent.self,
-            finished: state.finished,
-            participants: [
-                .init(id: TeamID.team0.rawValue, name: leftName, role: "team"),
-                .init(id: TeamID.team1.rawValue, name: rightName, role: "team")
-            ],
-            startedAt: matchStartTime
-        )
-    }
-
     private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
 }
 
@@ -568,9 +548,7 @@ struct WatchNineBallScoreView: View {
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
     @State private var actionLog: WatchScoreActionLog
-    @State private var archiveSessionId = UUID()
     @State private var undoToastToken: UUID?
-    private let archiveRepository = SessionArchiveRepository()
 
     private static let playerColors: [Color] = [
         Color(hex: 0xE53935),
@@ -662,9 +640,6 @@ struct WatchNineBallScoreView: View {
             if state.playerCount < 4 {
                 scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
             }
-            if hasNineBallProgress {
-                persistArchiveSnapshot()
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             guard state.playerCount < 4 else { return }
@@ -683,7 +658,6 @@ struct WatchNineBallScoreView: View {
         }
         .onChange(of: state) { _, _ in
             persistResumeSession()
-            persistArchiveSnapshot()
         }
         .onDisappear {
             finishTask?.cancel()
@@ -975,7 +949,11 @@ struct WatchNineBallScoreView: View {
         matchStartTime = restartedAt
         showFinishedOverlay = false
         finishUndoAvailable = false
-        publish()
+        if linkedSessionId != nil {
+            linkService.startNextMatch(snapshot: .nineBall(state))
+        } else {
+            publish()
+        }
     }
 
     private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
@@ -1127,11 +1105,7 @@ struct WatchNineBallScoreView: View {
 
     private func exitNineBall() {
         if linkedSessionId != nil {
-            if state.finished {
-                linkService.leaveSession()
-            } else {
-                linkService.exitScoreboardToHome()
-            }
+            linkService.exitScoreboardToHome()
         }
         persistResumeSession()
         dismiss()
@@ -1162,20 +1136,6 @@ struct WatchNineBallScoreView: View {
             || !undoStack.isEmpty || state.finished
     }
 
-    private func persistArchiveSnapshot() {
-        WatchSessionArchiveSupport.persist(
-            repository: archiveRepository,
-            sessionId: archiveSessionId,
-            gameType: .nineBall,
-            state: state,
-            eventType: NineBallChaseEvent.self,
-            finished: state.finished,
-            participants: (0..<state.playerCount).map { index in
-                .init(id: "player_\(index)", name: displayName(at: index), role: "player")
-            },
-            startedAt: matchStartTime
-        )
-    }
 }
 
 enum WatchSnookerBallAvailability {
@@ -1231,9 +1191,7 @@ struct WatchSnookerScoreView: View {
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
     @State private var actionLog: WatchScoreActionLog
-    @State private var archiveSessionId = UUID()
     @State private var undoToastToken: UUID?
-    private let archiveRepository = SessionArchiveRepository()
 
     init(
         initialState: SnookerState? = nil,
@@ -1338,9 +1296,6 @@ struct WatchSnookerScoreView: View {
         }
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
-            if hasSnookerProgress {
-                persistArchiveSnapshot()
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
@@ -1358,7 +1313,6 @@ struct WatchSnookerScoreView: View {
         }
         .onChange(of: state) { _, _ in
             persistResumeSession()
-            persistArchiveSnapshot()
         }
         .onDisappear {
             finishTask?.cancel()
@@ -1792,7 +1746,14 @@ struct WatchSnookerScoreView: View {
         showFrameSettlement = false
         showFinishedOverlay = false
         finishUndoAvailable = false
-        publish()
+        if linkedSessionId != nil {
+            linkService.startNextMatch(
+                snapshot: .snooker(state),
+                participantNames: [leftName, rightName]
+            )
+        } else {
+            publish()
+        }
     }
 
     private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
@@ -1924,11 +1885,7 @@ struct WatchSnookerScoreView: View {
 
     private func exitSnooker() {
         if linkedSessionId != nil {
-            if state.finished {
-                linkService.leaveSession()
-            } else {
-                linkService.exitScoreboardToHome()
-            }
+            linkService.exitScoreboardToHome()
         }
         persistResumeSession()
         dismiss()
@@ -1963,19 +1920,4 @@ struct WatchSnookerScoreView: View {
             || state.currentFrame > 1 || !undoStack.isEmpty || state.finished
     }
 
-    private func persistArchiveSnapshot() {
-        WatchSessionArchiveSupport.persist(
-            repository: archiveRepository,
-            sessionId: archiveSessionId,
-            gameType: .snooker,
-            state: state,
-            eventType: SnookerEvent.self,
-            finished: state.finished,
-            participants: [
-                .init(id: TeamID.team0.rawValue, name: leftName, role: "player"),
-                .init(id: TeamID.team1.rawValue, name: rightName, role: "player")
-            ],
-            startedAt: matchStartTime
-        )
-    }
 }

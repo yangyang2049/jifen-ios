@@ -1,6 +1,5 @@
 import LinkCore
 import Observation
-import PersistenceCore
 import RecordCore
 import ScoreCore
 import SessionCore
@@ -12,7 +11,6 @@ private final class WatchTennisSessionStore {
     typealias ResumeBundle = ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>
 
     private let core: ScoreSessionCore<TennisMatchReducer>
-    private let archiveRepository = SessionArchiveRepository()
     private(set) var state: TennisMatchState
     private(set) var actionLog: WatchScoreActionLog
     private var lastAppliedRemoteRevision: UInt64?
@@ -83,7 +81,6 @@ private final class WatchTennisSessionStore {
                     timestamp: Date(timeIntervalSince1970: TimeInterval(now) / 1_000)
                 ))
             }
-            try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, events)
         }
     }
@@ -100,7 +97,6 @@ private final class WatchTennisSessionStore {
                 team1SetScore: session.state.leftSets,
                 team2SetScore: session.state.rightSets
             )
-            try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, [])
             onSuccess()
         }
@@ -123,7 +119,6 @@ private final class WatchTennisSessionStore {
         guard lastAppliedRemoteRevision == revision else { return false }
         self.state = session.state
         actionLog.merge(detailedActions: detailedActions)
-        try? await archiveRepository.save(session, source: .watchLocal)
         return true
     }
 
@@ -960,8 +955,7 @@ struct WatchTennisScoreView: View {
         completedSetPresentation = nil
         showSideExchangeToast = false
         scoreEventToast = nil
-        matchStartTime = Date()
-        store.send(.reset)
+        startFreshMatch()
     }
 
     private func finishAndExit() {
@@ -995,18 +989,49 @@ struct WatchTennisScoreView: View {
             completedSetPresentation = nil
             showSideExchangeToast = false
             scoreEventToast = nil
-            matchStartTime = Date()
-            store.send(.reset)
+            startFreshMatch()
+        }
+    }
+
+    private func startFreshMatch() {
+        let timestamp = Date()
+        let result = TennisMatchReducer().reduce(
+            state: store.state,
+            intent: .reset,
+            at: Int64(timestamp.timeIntervalSince1970 * 1_000)
+        )
+        guard result.accepted else { return }
+        let freshStore = WatchTennisSessionStore(
+            gameType: isDoubles ? .tennisDoubles : .tennis,
+            rules: store.state.rules,
+            initialState: result.state,
+            startedAt: timestamp
+        )
+        freshStore.onStateChanged = { [linkService] state, events in
+            if linkedSessionId != nil {
+                guard linkService.isController else { return }
+                linkService.publishSnapshot(
+                    .tennis(state),
+                    detailedActions: freshStore.actionLog.detailedActions
+                )
+            }
+            handle(events: events, state: state)
+            Task { await persistResumeSession() }
+        }
+        store = freshStore
+        matchStartTime = timestamp
+        if linkedSessionId != nil {
+            linkService.startNextMatch(
+                snapshot: .tennis(result.state),
+                participantNames: result.state.doublesPlayerNames
+                    ?? [result.state.leftName, result.state.rightName]
+            )
         }
     }
 
     private func exitBoard() {
         if linkedSessionId != nil {
-            if store.state.finished {
-                linkService.leaveSession()
-            } else {
-                linkService.exitScoreboardToHome()
-            }
+            linkService.exitScoreboardToHome()
         }
         dismiss()
     }

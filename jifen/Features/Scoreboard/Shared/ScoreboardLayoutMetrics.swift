@@ -1,6 +1,16 @@
 import CoreGraphics
 import Foundation
 
+struct TennisDoublesEditLayoutMetrics: Equatable, Sendable {
+    let mainFontSize: CGFloat
+    let secondaryFontSize: CGFloat
+    let controlVisualSize: CGFloat
+    let labelFontSize: CGFloat
+    let contentSpacing: CGFloat
+    let availableScoreHeight: CGFloat
+    let estimatedContentHeight: CGFloat
+}
+
 /// Font/spacing curves aligned with HOS `helpers/baseMainScoreFontSize.ts`.
 enum ScoreboardLayoutMetrics {
     private static let mainScoreBaseSize: CGFloat = 144
@@ -79,6 +89,168 @@ enum ScoreboardLayoutMetrics {
         (regularSize * editMainScoreScale).rounded()
     }
 
+    /// HarmonyOS doubles edit mode keeps both player fields in a compact top
+    /// band, leaving the remaining height to a centered two-row score editor.
+    static func doublesEditNamesRegionHeight(
+        isLargeScreen: Bool,
+        screenWidth: CGFloat
+    ) -> CGFloat {
+        let fieldHeight = scoreboardNameEditorHeight(screenWidth: screenWidth)
+        let fieldSpacing: CGFloat = isLargeScreen ? 8 : 4
+        let topPadding: CGFloat = isLargeScreen ? 12 : 6
+        let bottomPadding: CGFloat = isLargeScreen ? 8 : 4
+        let fittedHeight = fieldHeight * 2 + fieldSpacing + topPadding + bottomPadding
+        return Swift.max(isLargeScreen ? 138 : 0, fittedHeight)
+    }
+
+    static func doublesEditMainScoreFontSize(
+        regularSize: CGFloat,
+        isLargeScreen: Bool
+    ) -> CGFloat {
+        (regularSize * (isLargeScreen ? 0.86 : 0.70)).rounded()
+    }
+
+    static func doublesEditSecondaryScoreFontSize(
+        regularSize: CGFloat,
+        isLargeScreen: Bool
+    ) -> CGFloat {
+        (regularSize * (isLargeScreen ? 0.90 : 0.72)).rounded()
+    }
+
+    static func doublesEditControlSize(isLargeScreen: Bool) -> CGFloat {
+        isLargeScreen ? 58 : ScoreboardConstants.minimumTouchTarget
+    }
+
+    static func tennisDoublesEditMainScoreFontSize(
+        regularSize: CGFloat,
+        isLargeScreen: Bool
+    ) -> CGFloat {
+        (regularSize * (isLargeScreen ? 0.62 : 0.50)).rounded()
+    }
+
+    static func tennisDoublesEditSecondaryScoreFontSize(
+        regularSize: CGFloat,
+        isLargeScreen: Bool
+    ) -> CGFloat {
+        (regularSize * (isLargeScreen ? 0.84 : 0.72)).rounded()
+    }
+
+    /// Keeps HarmonyOS edit sizes when they fit, then scales only score values
+    /// and visible control circles on short landscape phones. Labels, minimum
+    /// hit targets and inter-row spacing are included in the height budget.
+    static func tennisDoublesEditLayout(
+        regularMainSize: CGFloat,
+        regularSecondarySize: CGFloat,
+        panelHeight: CGFloat,
+        namesRegionHeight: CGFloat,
+        secondaryRowCount: Int,
+        isLargeScreen: Bool
+    ) -> TennisDoublesEditLayoutMetrics {
+        let safeSecondaryRows = Swift.max(0, secondaryRowCount)
+        let rowCount = 1 + safeSecondaryRows
+        let desiredMain = tennisDoublesEditMainScoreFontSize(
+            regularSize: regularMainSize,
+            isLargeScreen: isLargeScreen
+        )
+        let desiredSecondary = tennisDoublesEditSecondaryScoreFontSize(
+            regularSize: regularSecondarySize,
+            isLargeScreen: isLargeScreen
+        )
+        let desiredControl = doublesEditControlSize(isLargeScreen: isLargeScreen)
+        let labelFontSize: CGFloat = isLargeScreen ? 18 : 12
+        let contentSpacing: CGFloat = isLargeScreen ? 8 : 5
+        let labelToValueSpacing: CGFloat = 2
+        let availableHeight = Swift.max(
+            1,
+            panelHeight
+                - nameTopPadding(panelHeight: panelHeight, isEditMode: true)
+                - namesRegionHeight
+        )
+        let minimumMainSize: CGFloat = isLargeScreen ? 48 : 36
+        let minimumSecondarySize: CGFloat = isLargeScreen ? 28 : 22
+        let minimumControlVisualSize: CGFloat = isLargeScreen
+            ? ScoreboardConstants.minimumTouchTarget
+            : 32
+
+        func resolvedValues(scale: CGFloat) -> (
+            main: CGFloat,
+            secondary: CGFloat,
+            control: CGFloat
+        ) {
+            (
+                Swift.max(minimumMainSize, desiredMain * scale).rounded(),
+                Swift.max(minimumSecondarySize, desiredSecondary * scale).rounded(),
+                Swift.max(minimumControlVisualSize, desiredControl * scale).rounded()
+            )
+        }
+
+        func estimatedHeight(scale: CGFloat) -> CGFloat {
+            let values = resolvedValues(scale: scale)
+            let hitTarget = Swift.max(ScoreboardConstants.minimumTouchTarget, values.control)
+            let mainRowHeight = Swift.max(hitTarget, values.main * 1.06)
+            let secondaryRowHeight = Swift.max(hitTarget, values.secondary * 1.08)
+            let labelHeight = labelFontSize * 1.15
+            let labelsAndInnerSpacing = CGFloat(rowCount) * (labelHeight + labelToValueSpacing)
+            let betweenRows = CGFloat(Swift.max(0, rowCount - 1)) * contentSpacing
+            return mainRowHeight
+                + CGFloat(safeSecondaryRows) * secondaryRowHeight
+                + labelsAndInnerSpacing
+                + betweenRows
+        }
+
+        var scale: CGFloat = 1
+        if estimatedHeight(scale: scale) > availableHeight {
+            var lower: CGFloat = 0
+            var upper: CGFloat = 1
+            for _ in 0..<20 {
+                let candidate = (lower + upper) / 2
+                if estimatedHeight(scale: candidate) <= availableHeight {
+                    lower = candidate
+                } else {
+                    upper = candidate
+                }
+            }
+            scale = lower
+        }
+
+        let values = resolvedValues(scale: scale)
+        return TennisDoublesEditLayoutMetrics(
+            mainFontSize: values.main,
+            secondaryFontSize: values.secondary,
+            controlVisualSize: values.control,
+            labelFontSize: labelFontSize,
+            contentSpacing: contentSpacing,
+            availableScoreHeight: availableHeight,
+            estimatedContentHeight: estimatedHeight(scale: scale)
+        )
+    }
+
+    /// Matches HarmonyOS `getStandardTeamNameFieldWidthVp`.
+    static func scoreboardNameEditorWidth(screenWidth: CGFloat) -> CGFloat {
+        if screenWidth >= 1_600 { return 360 }
+        if screenWidth >= 1_400 { return 330 }
+        if screenWidth >= 1_200 { return 300 }
+        if screenWidth >= 900 { return 252 }
+        if screenWidth >= 720 { return 220 }
+        return 180
+    }
+
+    static func scoreboardNameEditorFontSize(screenWidth: CGFloat) -> CGFloat {
+        if screenWidth >= 1_600 { return 24 }
+        if screenWidth >= 1_400 { return 22 }
+        if screenWidth >= 1_200 { return 20 }
+        if screenWidth >= 900 { return 18 }
+        if screenWidth >= 720 { return 17 }
+        return 16
+    }
+
+    static func scoreboardNameEditorHeight(screenWidth: CGFloat) -> CGFloat {
+        if screenWidth >= 1_600 { return 52 }
+        if screenWidth >= 1_400 { return 48 }
+        if screenWidth >= 1_200 { return 46 }
+        return ScoreboardConstants.minimumTouchTarget
+    }
+
     /// Three-row doubles layouts have substantially less vertical room than
     /// the standard two-panel template. Keep the phone result near 40/28,
     /// while allowing larger windows to scale up without exceeding the normal
@@ -98,7 +270,11 @@ enum ScoreboardLayoutMetrics {
     }
 
     static func compactEditControlSize(rowHeight: CGFloat) -> CGFloat {
-        clampRound((rowHeight - 8) / 2, min: 36, max: 50)
+        clampRound(
+            (rowHeight - 8) / 2,
+            min: ScoreboardConstants.minimumTouchTarget,
+            max: 50
+        )
     }
 
     static func setScoreFontSize(halfViewportHeight: CGFloat) -> CGFloat {

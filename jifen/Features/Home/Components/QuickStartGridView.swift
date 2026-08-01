@@ -14,7 +14,6 @@ struct QuickStartGridView: View {
     @State private var startGameText: String = NSLocalizedString("home_start_game", comment: "Start Game text for QuickStartGrid")
     @State private var startTimerText: String = NSLocalizedString("home_start_timer", value: "Start Timer", comment: "Start Timer text for QuickStartGrid")
     @State private var newGameShortText: String = NSLocalizedString("home_new_game_short", comment: "New Game short text for QuickStartGrid")
-    @State private var allItemsText: String = NSLocalizedString("home_all_items", comment: "All Items text for QuickStartGrid")
     @State private var quickStartText: String = NSLocalizedString("home_quick_start", comment: "Quick Start section title")
 
 
@@ -88,33 +87,21 @@ struct QuickStartGridView: View {
                                     )
 
                                 VStack(alignment: .leading, spacing: 0) {
-                                    HStack(alignment: .top) {
-                                        Text(newGameShortText)
-                                            .font(.system(size: Theme.fontH5, weight: .bold))
-                                            .foregroundColor(.white)
-                                            .lineLimit(1)
-                                            .layoutPriority(1)
-                                    }
-
-                                    Text(allItemsText)
-                                        .font(.system(size: Theme.fontCaption, weight: .regular))
-                                        .foregroundColor(Color.white.opacity(0.85))
-                                        .textCase(.uppercase)
-                                        .padding(.top, Theme.xs)
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 28, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
 
                                     Spacer()
 
-                                    HStack {
-                                        Spacer()
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 20, weight: .bold))
-                                            .foregroundColor(.white)
-                                            .frame(width: 32, height: 32)
-                                            .background(Color.black.opacity(0.2))
-                                            .clipShape(Circle())
-                                    }
+                                    Text(newGameShortText)
+                                        .font(.system(size: Theme.fontH5, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .lineLimit(1)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 .padding(Theme.cardPadding)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
                         .buttonStyle(.plain)

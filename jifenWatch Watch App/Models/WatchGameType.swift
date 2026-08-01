@@ -3,7 +3,7 @@ import RecordCore
 import ScoreCore
 
 enum WatchGameType: String, Codable, CaseIterable {
-    /// Regulation basketball cases are retained only to decode legacy link sessions and records.
+    /// Regulation basketball cases are retained only to decode and display historical records.
     /// New phone-initiated linkage must not originate these cases, and they must not be added
     /// to `WatchHomeItem` or `WatchSetupSport`.
     case basketball

@@ -4,7 +4,7 @@ import UIKit
 
 struct GuandanScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
@@ -23,12 +23,12 @@ struct GuandanScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
 
@@ -55,9 +55,8 @@ struct GuandanScoreboardView: View {
         var showFinished = false
         var restoredActions: [String] = []
 
-        if let initialRecordId,
-           let record = ScoreboardRecordManager.shared.getRecordById(initialRecordId),
-           record.status == .draft,
+        if let initialResumeSessionId,
+           let record = ManualResumeSessionStore.load(recordID: initialResumeSessionId),
            let data = record.stateSnapshot,
            let restored = try? JSONDecoder().decode(GuandanMatchState.self, from: data) {
             initial = restored
@@ -398,10 +397,10 @@ struct GuandanScoreboardView: View {
                 "guandanTripleAFallbackRank": AnyCodable(state.tripleAFallbackRank)
             ],
             stateSnapshot: snapshotData,
-            status: finished ? .finished : .draft
+            status: .finished
         )
         do {
-            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+            try ScoreboardLifecyclePersistence.save(record, finished: finished)
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save guandan record \(recordID)")
         }

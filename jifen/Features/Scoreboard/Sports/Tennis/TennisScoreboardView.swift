@@ -9,7 +9,7 @@ struct TennisScoreboardView: View {
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
 
     @State private var store: TennisSessionStore
@@ -40,12 +40,12 @@ struct TennisScoreboardView: View {
     init(
         onNavigationBack: (() -> Void)? = nil,
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil
     ) {
         self.onNavigationBack = onNavigationBack
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
 
         let setup = initialSetup
@@ -319,13 +319,25 @@ struct TennisScoreboardView: View {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             onSetupConsumed?()
-            if let id = initialRecordId, let uuid = UUID(uuidString: id),
+            if let id = initialResumeSessionId, let uuid = UUID(uuidString: id),
                let restored = TennisSessionStore(restoring: uuid) {
                 store = restored
             }
             typographySession.switchStyleID(ScoreboardStyleID(scoreCoreGameType: store.gameType))
             syncEditNamesFromState()
             registerScoreboardSync()
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let tennis = update.snapshot.tennisState {
+                Task {
+                    _ = await store.applyAuthoritativeState(
+                        tennis,
+                        detailedActions: update.detailedActions,
+                        revision: update.revision,
+                        persistFormalRecord: false
+                    )
+                }
+            }
             revealImmersiveChrome()
             if store.state.finished { showGameOverDialog = true }
         }
@@ -368,7 +380,8 @@ struct TennisScoreboardView: View {
                 _ = await store.applyAuthoritativeState(
                     tennis,
                     detailedActions: update.detailedActions,
-                    revision: update.revision
+                    revision: update.revision,
+                    persistFormalRecord: false
                 )
             }
         }
@@ -468,7 +481,7 @@ struct TennisScoreboardView: View {
             let skipPersist = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
-                watchLinkService.endWatchSession(watchSessionId)
+                watchLinkService.detachPage(sessionId: watchSessionId)
             }
             if !skipPersist {
                 store.persistSnapshot()
@@ -563,10 +576,8 @@ struct TennisScoreboardView: View {
             regularSize: typography.scoreFontSize
         )
         let secondarySize = typography.secondaryFontSize * 0.72
-        let nameSize = typography.nameFontSize * 0.72
-
         return VStack(spacing: Theme.usesPadLayout ? 16 : 8) {
-            tennisSinglesEditNameField(side: side, fontSize: nameSize)
+            tennisSinglesEditNameField(side: side)
 
             tennisEditAdjustRow(
                 label: NSLocalizedString("tennis_point_score", value: "小分", comment: ""),
@@ -688,7 +699,6 @@ struct TennisScoreboardView: View {
         let points = store.state.scoreDisplay(for: side)
         let games = isLeft ? store.state.leftGames : store.state.rightGames
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
-        let usesCompactHeight = size.height < 420
         let longestName = [
             editDoublesNames.indices.contains(slots.top) ? editDoublesNames[slots.top] : "",
             editDoublesNames.indices.contains(slots.bottom) ? editDoublesNames[slots.bottom] : ""
@@ -696,118 +706,107 @@ struct TennisScoreboardView: View {
         let typography = resolvedTennisTypography(
             side: side,
             name: longestName,
-            size: CGSize(width: size.width, height: size.height / 3),
-            reservedHeight: 16
+            size: size
         )
-        let regularMainSize = ScoreboardLayoutMetrics.compactEditMainScoreFontSize(
-            regularSize: typography.scoreFontSize,
-            rowHeight: size.height / 3
+        let nameSpacing: CGFloat = Theme.usesPadLayout ? 8 : 4
+        let topPadding = ScoreboardLayoutMetrics.nameTopPadding(
+            panelHeight: size.height,
+            isEditMode: true
         )
-        let regularSecondarySize = ScoreboardLayoutMetrics.compactEditSecondaryScoreFontSize(
-            regularSize: typography.secondaryFontSize,
-            rowHeight: size.height / 3
+        let scoreboardScreenWidth = max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        let namesHeight = ScoreboardLayoutMetrics.doublesEditNamesRegionHeight(
+            isLargeScreen: Theme.usesPadLayout,
+            screenWidth: scoreboardScreenWidth
         )
-        let regularNameSize = typography.nameFontSize
-        let mainSize = usesCompactHeight ? min(34, regularMainSize) : regularMainSize
-        let secondarySize = usesCompactHeight ? min(24, regularSecondarySize) : regularSecondarySize
-        let nameSize = usesCompactHeight
-            ? min(28, max(20, (size.height * 0.07).rounded()))
-            : regularNameSize
-        let contentSpacing: CGFloat = usesCompactHeight ? 4 : (Theme.usesPadLayout ? 16 : 8)
-        let nameSpacing: CGFloat = usesCompactHeight ? 3 : (Theme.usesPadLayout ? 10 : 6)
-        let fieldVerticalPadding: CGFloat = usesCompactHeight ? 2 : (Theme.usesPadLayout ? 10 : 6)
-        let controlSize: CGFloat? = usesCompactHeight ? 30 : nil
-        let topPadding = usesCompactHeight
-            ? CGFloat(52)
-            : ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height, isEditMode: true)
-        let bottomPadding: CGFloat = usesCompactHeight ? 4 : (Theme.usesPadLayout ? 36 : 12)
+        let hasSecondaryRows = store.state.rules.setScoringMode != .tiebreakOnly
+        let editLayout = ScoreboardLayoutMetrics.tennisDoublesEditLayout(
+            regularMainSize: typography.scoreFontSize,
+            regularSecondarySize: typography.secondaryFontSize,
+            panelHeight: size.height,
+            namesRegionHeight: namesHeight,
+            secondaryRowCount: hasSecondaryRows ? 2 : 0,
+            isLargeScreen: Theme.usesPadLayout
+        )
 
-        return ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: contentSpacing) {
-                VStack(spacing: nameSpacing) {
-                    tennisDoublesEditNameField(
-                        slot: slots.top,
-                        fontSize: nameSize,
-                        verticalPadding: fieldVerticalPadding
-                    )
-                    tennisDoublesEditNameField(
-                        slot: slots.bottom,
-                        fontSize: nameSize,
-                        verticalPadding: fieldVerticalPadding
-                    )
-                }
+        return VStack(spacing: 0) {
+            VStack(spacing: nameSpacing) {
+                tennisDoublesEditNameField(
+                    slot: slots.top
+                )
+                tennisDoublesEditNameField(
+                    slot: slots.bottom
+                )
+            }
+            .padding(.horizontal, Theme.usesPadLayout ? 12 : 8)
+            .padding(.top, Theme.usesPadLayout ? 12 : 6)
+            .frame(height: namesHeight, alignment: .top)
 
+            VStack(spacing: editLayout.contentSpacing) {
                 tennisEditAdjustRow(
                     label: NSLocalizedString("tennis_point_score", value: "小分", comment: ""),
                     value: points,
-                    fontSize: mainSize,
+                    fontSize: editLayout.mainFontSize,
                     canDecrement: (isLeft ? store.state.leftPoints : store.state.rightPoints) > 0,
-                    controlSize: controlSize,
+                    controlSize: editLayout.controlVisualSize,
+                    labelFontSize: editLayout.labelFontSize,
                     onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
                     onIncrement: { adjustPointsInEdit(side: side, delta: 1) }
                 )
 
-                if store.state.rules.setScoringMode != .tiebreakOnly {
+                if hasSecondaryRows {
                     tennisEditAdjustRow(
                         label: NSLocalizedString("tennis_game_score", value: "局分", comment: ""),
                         value: "\(games)",
-                        fontSize: secondarySize,
+                        fontSize: editLayout.secondaryFontSize,
                         canDecrement: games > 0,
                         useSecondaryColor: true,
-                        controlSize: controlSize,
+                        controlSize: editLayout.controlVisualSize,
+                        labelFontSize: editLayout.labelFontSize,
                         onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
                         onIncrement: { adjustGamesInEdit(side: side, delta: 1) }
                     )
                     tennisEditAdjustRow(
                         label: NSLocalizedString("tennis_set_score", value: "盘分", comment: ""),
                         value: "\(sets)",
-                        fontSize: secondarySize,
+                        fontSize: editLayout.secondaryFontSize,
                         canDecrement: sets > 0,
                         useSecondaryColor: true,
-                        controlSize: controlSize,
+                        controlSize: editLayout.controlVisualSize,
+                        labelFontSize: editLayout.labelFontSize,
                         onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
                         onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
                     )
                 }
             }
-            .padding(.horizontal, Theme.usesPadLayout ? 36 : 16)
-            .padding(.top, topPadding)
-            .padding(.bottom, bottomPadding)
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .scrollDisabled(!usesCompactHeight)
+        .padding(.top, topPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .accessibilityIdentifier(screenSide == .left
             ? "tennis_doubles_left_edit_panel"
             : "tennis_doubles_right_edit_panel")
     }
 
-    private func tennisSinglesEditNameField(side: MatchSide, fontSize: CGFloat) -> some View {
-        TextField(
-            NSLocalizedString("team_name", value: "队名", comment: ""),
-            text: side == .left ? $editLeftName : $editRightName
+    private func tennisSinglesEditNameField(side: MatchSide) -> some View {
+        ScoreboardNameEditorField(
+            placeholder: NSLocalizedString("team_name", value: "队名", comment: ""),
+            text: side == .left ? $editLeftName : $editRightName,
+            nameType: .team,
+            scoreboardFont: typographyPreference.font,
+            accessibilityIdentifier: side == .left
+                ? "tennis_left_name_edit"
+                : "tennis_right_name_edit"
         )
-        .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
-        .multilineTextAlignment(.center)
-        .textFieldStyle(.plain)
-        .padding(.horizontal, 12)
-        .padding(.vertical, Theme.usesPadLayout ? 10 : 6)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.12)))
-        .accessibilityIdentifier(side == .left
-            ? "tennis_left_name_edit"
-            : "tennis_right_name_edit")
     }
 
     private func tennisDoublesEditNameField(
-        slot: Int,
-        fontSize: CGFloat,
-        verticalPadding: CGFloat
+        slot: Int
     ) -> some View {
         let fallback = store.state.doublesPlayerNames?.indices.contains(slot) == true
             ? store.state.doublesPlayerNames?[slot] ?? ""
             : ""
-        return TextField(
-            NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
+        return ScoreboardNameEditorField(
+            placeholder: NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
             text: Binding(
                 get: {
                     guard editDoublesNames.indices.contains(slot) else { return fallback }
@@ -817,15 +816,11 @@ struct TennisScoreboardView: View {
                     guard editDoublesNames.indices.contains(slot) else { return }
                     editDoublesNames[slot] = value
                 }
-            )
+            ),
+            nameType: .player,
+            scoreboardFont: typographyPreference.font,
+            accessibilityIdentifier: "tennis_doubles_player_\(slot)_edit"
         )
-        .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
-        .multilineTextAlignment(.center)
-        .textFieldStyle(.plain)
-        .padding(.horizontal, 12)
-        .padding(.vertical, verticalPadding)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.12)))
-        .accessibilityIdentifier("tennis_doubles_player_\(slot)_edit")
     }
 
     private func tennisEditAdjustRow(
@@ -835,12 +830,16 @@ struct TennisScoreboardView: View {
         canDecrement: Bool,
         useSecondaryColor: Bool = false,
         controlSize: CGFloat? = nil,
+        labelFontSize: CGFloat? = nil,
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) -> some View {
-        VStack(spacing: 2) {
+        let labelFont = labelFontSize.map {
+            Font.system(size: $0, weight: .bold)
+        } ?? .caption.bold()
+        return VStack(spacing: 2) {
             Text(label)
-                .font(.caption.bold())
+                .font(labelFont)
                 .foregroundStyle(appearance.theme.palette.secondary)
             HStack(spacing: Theme.usesPadLayout ? 20 : 10) {
                 tennisEditControl(
@@ -874,14 +873,19 @@ struct TennisScoreboardView: View {
         size: CGFloat? = nil,
         action: @escaping () -> Void
     ) -> some View {
-        let controlSize = size ?? (Theme.usesPadLayout ? 48 : 36)
+        let visualSize = size ?? (Theme.usesPadLayout ? 48 : 36)
+        let hitTargetSize = size == nil
+            ? visualSize
+            : max(ScoreboardConstants.minimumTouchTarget, visualSize)
         return Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: Theme.usesPadLayout ? 22 : 17, weight: .bold))
                 .foregroundStyle(appearance.theme.palette.foreground)
-                .frame(width: controlSize, height: controlSize)
+                .frame(width: visualSize, height: visualSize)
                 .background(Circle().fill(Color.black.opacity(enabled ? 0.24 : 0.1)))
         }
+        .frame(width: hitTargetSize, height: hitTargetSize)
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
         .disabled(!enabled)
         .opacity(enabled ? 1 : 0.45)
@@ -1238,8 +1242,7 @@ struct TennisScoreboardView: View {
 
     private func handlePointWon(_ side: MatchSide) {
         dispatch(.pointWon(side))
-        guard store.gameType == .tennisDoubles else { return }
-        runDoublesFlash(slots: side == .left ? [0, 2] : [1, 3])
+        // 网球双打无位置轮转（发球人整个发球局固定，局间才换），得分时不闪烁。
     }
 
     private func runDoublesFlash(slots: Set<Int>) {
@@ -1478,10 +1481,19 @@ struct TennisScoreboardView: View {
                             revision: update.revision
                         )
                     }
-                    try? await watchLinkService.takeover(sessionId: id)
+                    do {
+                        try await watchLinkService.takeover(sessionId: id)
+                    } catch {
+                        showToast(error.localizedDescription)
+                    }
                 }
                 showMenu = false
             }
+        case "forceTakeover":
+            if let id = watchSessionId {
+                watchLinkService.requestForceTakeoverConfirmation(id)
+            }
+            showMenu = false
         case "endLink":
             if let id = watchSessionId {
                 watchLinkService.leaveSession(id)

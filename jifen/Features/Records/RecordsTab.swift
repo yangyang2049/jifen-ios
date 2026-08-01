@@ -13,7 +13,6 @@ import UIKit
 struct RecordsTab: View {
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
-    @State private var v2RecordsVM = SessionRecordsViewModel()
 
     @State private var currentTab: Int = 0 // 0: 全部, 1: 计分, 2: 计时
     @State private var searchText: String = ""
@@ -84,7 +83,7 @@ struct RecordsTab: View {
                                 destructiveTrashMenuIcon
                             }
                         }
-                        .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty && v2RecordsVM.records.isEmpty)
+                        .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty)
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
@@ -97,7 +96,6 @@ struct RecordsTab: View {
         .onAppear {
             scoreboardVM.refreshRecords()
             timerVM.loadFromStorage()
-            v2RecordsVM.reload()
         }
         .alert(NSLocalizedString("clear_all_records", comment: ""), isPresented: $showClearConfirm) {
             Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
@@ -239,7 +237,7 @@ struct RecordsTab: View {
 
     @ViewBuilder
     private var content: some View {
-        if scoreboardVM.isLoading && scoreboardVM.records.isEmpty && timerVM.records.isEmpty && v2RecordsVM.records.isEmpty {
+        if scoreboardVM.isLoading && scoreboardVM.records.isEmpty && timerVM.records.isEmpty {
             loadingView
         } else {
             let filtered = filteredRecords()
@@ -255,10 +253,6 @@ struct RecordsTab: View {
         var items: [RecordsTabRecordItem] = []
         if currentTab == 0 || currentTab == 1 {
             items += scoreboardVM.records.map { RecordsTabRecordItem.scoreboard($0) }
-            let mirroredIDs = Set(scoreboardVM.records.map(\.id))
-            items += v2RecordsVM.records
-                .filter { !mirroredIDs.contains($0.id.uuidString) }
-                .map { RecordsTabRecordItem.v2($0) }
         }
         if currentTab == 0 || currentTab == 2 {
             items += timerVM.records.filter { $0.gameType != .stopwatch }.map { RecordsTabRecordItem.timer($0) }
@@ -278,8 +272,6 @@ struct RecordsTab: View {
                     return r.displayMatchTitle.lowercased().contains(q) || r.competitionDisplayName.lowercased().contains(q)
                 case .timer(let r):
                     return r.gameType.displayName.lowercased().contains(q)
-                case .v2(let r):
-                    return r.gameName.lowercased().contains(q) || r.teamsText.lowercased().contains(q)
                 }
             }
         }
@@ -312,8 +304,6 @@ struct RecordsTab: View {
             return filter.matches(scoreboard: r)
         case .timer(let r):
             return filter.matches(timerGameType: r.gameType)
-        case .v2(let r):
-            return filter.matches(scoreCoreGameType: r.entry.gameType)
         }
     }
 
@@ -402,23 +392,6 @@ struct RecordsTab: View {
             } else {
                 NavigationLink(destination: dest) {
                     timerRowContent(record)
-                }
-                .buttonStyle(.plain)
-            }
-        case .v2(let record):
-            if isEditMode {
-                HStack(spacing: 0) {
-                    v2RowContent(record)
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 18))
-                            .foregroundColor(.red)
-                            .frame(width: 44, height: 44)
-                    }
-                }
-            } else {
-                NavigationLink(destination: SessionArchiveDetailPage(record: record)) {
-                    v2RowContent(record)
                 }
                 .buttonStyle(.plain)
             }
@@ -532,49 +505,12 @@ struct RecordsTab: View {
         .padding(.vertical, Theme.recordRowVerticalPadding)
     }
 
-    private func v2RowContent(_ record: SessionRecordsViewModel.Record) -> some View {
-        HStack(spacing: 0) {
-            Text(record.gameEmoji)
-                .font(.system(size: 26))
-                .frame(width: 40, height: 40)
-                .padding(.trailing, Theme.sm)
-
-            VStack(alignment: .leading, spacing: Theme.xs) {
-                Text(record.teamsText.isEmpty ? record.gameName : record.teamsText)
-                    .font(.system(size: Theme.fontBody2, weight: .medium))
-                    .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                Text("\(record.gameName)  \(record.timeText)")
-                    .font(.system(size: Theme.fontCaption))
-                    .foregroundColor(Theme.textSecondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            if let scoreText = record.scoreText {
-                Text(scoreText)
-                    .font(.system(size: Theme.fontBody1, weight: .bold))
-                    .foregroundColor(Theme.accentColor)
-            }
-
-            if record.entry.status == .finished {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(Theme.textSecondary)
-                    .padding(.leading, Theme.sm)
-            }
-        }
-        .contentShape(Rectangle())
-        .padding(.vertical, Theme.recordRowVerticalPadding)
-    }
-
     private func deleteRecord(_ item: RecordsTabRecordItem) {
         switch item {
         case .scoreboard(let r):
             _ = ScoreboardRecordsViewModel.shared.deleteRecord(r.id)
         case .timer(let r):
             _ = TimerRecordsViewModel.shared.deleteRecord(r.id)
-        case .v2(let r):
-            v2RecordsVM.delete(r)
         }
     }
 
@@ -615,7 +551,6 @@ struct RecordsTab: View {
         _ = TimerRecordManager.shared.clearAllRecords()
         scoreboardVM.refreshRecordsImmediately()
         timerVM.loadFromStorage()
-        v2RecordsVM.clearAll()
     }
 
     private var loadingView: some View {
@@ -639,80 +574,6 @@ struct RecordsTab: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-private struct SessionArchiveDetailPage: View {
-    let record: SessionRecordsViewModel.Record
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: Theme.lg) {
-                Text(record.gameEmoji)
-                    .font(.system(size: 64))
-
-                VStack(spacing: Theme.xs) {
-                    Text(record.gameName)
-                        .font(.system(size: Theme.fontH3, weight: .bold))
-                        .foregroundStyle(Theme.textPrimary)
-                    if !record.teamsText.isEmpty {
-                        Text(record.teamsText)
-                            .font(.system(size: Theme.fontBody1, weight: .medium))
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                }
-
-                if let scoreText = record.scoreText {
-                    Text(scoreText)
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
-                        .foregroundStyle(Theme.accentColor)
-                }
-
-                VStack(spacing: Theme.sm) {
-                    archiveDetailRow(
-                        title: NSLocalizedString("record_date", value: "比赛日期", comment: ""),
-                        value: record.dateString
-                    )
-                    archiveDetailRow(
-                        title: NSLocalizedString("record_time", value: "比赛时间", comment: ""),
-                        value: record.timeText
-                    )
-                }
-                .padding(Theme.cardPadding)
-                .background(Theme.surface)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
-
-                Text(NSLocalizedString(
-                    "archive_record_read_only_message",
-                    value: "这条归档记录仅可查看，无法继续比赛。",
-                    comment: "Archive-only record cannot be resumed"
-                ))
-                .font(.system(size: Theme.fontBody2))
-                .foregroundStyle(Theme.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Theme.lg)
-            }
-            .frame(maxWidth: Theme.usesPadLayout ? 640 : .infinity)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, Theme.pageHorizontalInset)
-            .padding(.vertical, Theme.lg)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.backgroundColor)
-        .navigationTitle(NSLocalizedString("record_detail", value: "记录详情", comment: ""))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
-    }
-
-    private func archiveDetailRow(title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-                .foregroundStyle(Theme.textSecondary)
-            Spacer()
-            Text(value)
-                .foregroundStyle(Theme.textPrimary)
-        }
-        .font(.system(size: Theme.fontBody2))
     }
 }
 
@@ -789,13 +650,11 @@ struct RecordsProjectFilter: Identifiable, Hashable {
 private enum RecordsTabRecordItem: Identifiable {
     case scoreboard(ScoreboardRecordSummary)
     case timer(GameRecordSummary)
-    case v2(SessionRecordsViewModel.Record)
 
     var id: String {
         switch self {
         case .scoreboard(let r): return "s-\(r.id)"
         case .timer(let r): return "t-\(r.id)"
-        case .v2(let r): return "v2-\(r.id)"
         }
     }
 
@@ -803,7 +662,6 @@ private enum RecordsTabRecordItem: Identifiable {
         switch self {
         case .scoreboard(let r): return r.timestamp
         case .timer(let r): return r.timestamp
-        case .v2(let r): return r.timestamp
         }
     }
 
@@ -811,7 +669,6 @@ private enum RecordsTabRecordItem: Identifiable {
         switch self {
         case .scoreboard(let r): return r.date
         case .timer(let r): return r.date
-        case .v2(let r): return r.dateString
         }
     }
 }

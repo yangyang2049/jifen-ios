@@ -1,7 +1,7 @@
 import Foundation
 import ScoreCore
 
-struct LineScoreSessionArchive: Codable {
+struct LineScoreResumeState: Codable {
     var schemaVersion = 1
     let state: LineScoreState
     let undoHistory: [LineScoreViewModel.HistoryEntry]

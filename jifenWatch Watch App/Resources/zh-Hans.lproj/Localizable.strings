@@ -93,7 +93,6 @@
 "linked_score_accept" = "接受";
 "linked_score_reject" = "拒绝";
 "linked_score_watch_reclaim" = "手表接管";
-"pingpong_doubles_confirm_opening" = "确认首发";
 "linked_score_waiting_controller" = "等待手机确认";
 "linked_score_setup_rules" = "%d局 | %d分";
 "linked_score_setup_rules_sets" = "%d盘";
@@ -107,8 +106,6 @@
 "linked_score_sport_tennis_doubles" = "🎾 网球双打";
 "linked_score_sport_pickleball" = "🏓 匹克球单打";
 "linked_score_sport_pickleball_doubles" = "🏓 匹克球双打";
-"linked_score_sport_basketball" = "🏀 篮球";
-"linked_score_sport_three_basketball" = "🏀 三人篮球";
 "game_basketball" = "篮球";
 "game_three_basketball" = "三人篮球";
 "linked_score_sport_archery" = "🏹 射箭";
@@ -249,7 +246,7 @@
 
 "watch_phone_link_title" = "手机联动";
 "watch_phone_link_intro" = "由手机发起，手表主控计分";
-"watch_phone_link_support" = "除投篮训练外，已接入项目均支持；羽毛球、乒乓球、网球包含单打和双打。";
+"watch_phone_link_support" = "支持羽毛球、乒乓球、网球、匹克球的单打与双打，以及射箭、黑八、追分和斯诺克。";
 "watch_phone_link_status" = "连接状态";
 "watch_phone_link_steps" = "使用步骤";
 "watch_phone_link_step_1" = "在手机选择比赛并完成设置";
@@ -374,3 +371,9 @@
 "watch_action_snooker_next_frame_format" = "开始第 %d 局";
 "watch_action_snooker_pot_format" = "%@进球 +%d";
 "watch_record_actions_unavailable" = "此记录未保存动作详情";
+"linked_score_error_title" = "联动失败";
+"linked_score_persistence_failed" = "无法保存联动恢复数据：%@";
+"resume_persistence_error_title" = "续玩保存失败";
+"resume_persistence_failed" = "无法保存续玩数据：%@";
+"linked_score_control_timeout" = "控制权切换超时，请重试。";
+"linked_score_sync_timeout" = "比分同步超时，将在重新连接后继续同步。";

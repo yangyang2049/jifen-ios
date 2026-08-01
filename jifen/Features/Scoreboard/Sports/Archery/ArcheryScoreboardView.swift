@@ -26,7 +26,7 @@ struct ArcheryScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
@@ -38,6 +38,7 @@ struct ArcheryScoreboardView: View {
     @State private var recordID: String
     @State private var watchSessionId: UUID?
     @State private var manualFinishRequested = false
+    @State private var toastMessage: String?
 
     @State private var showArrowPicker = false
     @State private var showSetEndOverlay = false
@@ -55,17 +56,17 @@ struct ArcheryScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
         _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
             prefix: GameType.archery.canonicalScoreboardIdentifier,
-            resuming: initialRecordId
+            resuming: initialResumeSessionId
         ))
     }
 
@@ -117,9 +118,17 @@ struct ArcheryScoreboardView: View {
                         case "takeover":
                             if let id = watchSessionId {
                                 Task {
-                                    try? await watchLinkService.takeover(sessionId: id)
-                                    publishWatchIfNeeded()
+                                    do {
+                                        try await watchLinkService.takeover(sessionId: id)
+                                        publishWatchIfNeeded()
+                                    } catch {
+                                        showToast(error.localizedDescription)
+                                    }
                                 }
+                            }
+                        case "forceTakeover":
+                            if let id = watchSessionId {
+                                watchLinkService.requestForceTakeoverConfirmation(id)
                             }
                         case "endLink":
                             if let id = watchSessionId {
@@ -184,6 +193,13 @@ struct ArcheryScoreboardView: View {
                 )
             }
         }
+        .overlay(alignment: .bottom) {
+            if let toastMessage {
+                ToastView(message: toastMessage)
+                    .padding(.bottom, 72)
+                    .allowsHitTesting(false)
+            }
+        }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
@@ -217,7 +233,12 @@ struct ArcheryScoreboardView: View {
                 viewModel.configureOpening(leftName: left, rightName: right, openingIsLeft: openingIsLeft)
                 onSetupConsumed?()
             }
-            restoreDraftIfNeeded()
+            restoreResumeIfNeeded()
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let remote = update.snapshot.archeryState {
+                applyRemoteArchery(remote)
+            }
             viewModel.setOnSetEndCallback { data in
                 handleSetEnd(data: data)
             }
@@ -235,6 +256,11 @@ struct ArcheryScoreboardView: View {
                 }
                 publishWatchIfNeeded(finished: true)
                 notifyLinkedFinishIfNeeded()
+            }
+        }
+        .onChange(of: viewModel.match) { _, state in
+            if !state.finished, !watchLinkService.isFollower {
+                saveGameRecordInRealTime()
             }
         }
         .onChange(of: viewModel.leftTeam.score) { _, _ in publishWatchIfNeeded() }
@@ -261,7 +287,7 @@ struct ArcheryScoreboardView: View {
         .onDisappear {
             let skipSave = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
-            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
             }
@@ -281,7 +307,24 @@ struct ArcheryScoreboardView: View {
                 rejectWatchReclaim()
             }
         } message: {
-            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
+            Text(reclaimMessage)
+        }
+    }
+
+    private var reclaimMessage: String {
+        NSLocalizedString(
+            "linked_score_watch_reclaim_message",
+            value: "是否允许手表在 5 秒内重新接管计分？",
+            comment: ""
+        )
+    }
+
+    private func showToast(_ message: String) {
+        toastMessage = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if toastMessage == message {
+                toastMessage = nil
+            }
         }
     }
 
@@ -298,7 +341,7 @@ struct ArcheryScoreboardView: View {
                 spacing: 10,
                 horizontalPadding: 16,
                 preferredSize: 60,
-                minimumSize: 36
+                minimumSize: ScoreboardConstants.minimumTouchTarget
             )
 
             ZStack {
@@ -318,12 +361,16 @@ struct ArcheryScoreboardView: View {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16))
                                 .foregroundColor(.white)
-                                .frame(width: 36, height: 36)
+                                .frame(
+                                    width: ScoreboardConstants.minimumTouchTarget,
+                                    height: ScoreboardConstants.minimumTouchTarget
+                                )
                                 .background(
                                     Circle()
                                         .fill(Color.white.opacity(0.1))
                                 )
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.top, 8)
@@ -535,25 +582,33 @@ struct ArcheryScoreboardView: View {
         pendingContinueUpdate = nil
         pendingClosestContinue = nil
         showGameOverDialog = false
-        publishWatchIfNeeded()
+        if let watchSessionId, watchLinkService.isController {
+            watchLinkService.prepareControllerForNewMatch(
+                sessionId: watchSessionId,
+                gameType: .archeryDual,
+                snapshot: .archery(viewModel.linkedSnapshot()),
+                participantNames: [viewModel.leftTeam.name, viewModel.rightTeam.name]
+            )
+        } else {
+            publishWatchIfNeeded()
+        }
     }
 
-    private func restoreDraftIfNeeded() {
-        guard let recordId = initialRecordId,
-              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-              record.status == .draft else {
+    private func restoreResumeIfNeeded() {
+        guard let recordId = initialResumeSessionId,
+              let record = ManualResumeSessionStore.load(recordID: recordId) else {
             return
         }
 
-        recordID = recordId
+        recordID = record.id
         controller.gameStartTime = record.startTime
         controller.gameActions = record.actions
         controller.gameRecordSaved = false
 
         if let data = record.stateSnapshot,
-           let archive = try? JSONDecoder().decode(ArcheryRecordArchive.self, from: data) {
-            controller.gameActions = archive.intentTimeline
-            viewModel.restoreSession(archive)
+           let resumeState = try? JSONDecoder().decode(ArcheryResumeState.self, from: data) {
+            controller.gameActions = resumeState.intentTimeline
+            viewModel.restoreSession(resumeState)
             return
         }
 
@@ -654,14 +709,14 @@ struct ArcheryScoreboardView: View {
             }
         }
 
-        let archive = ArcheryRecordArchive(
+        let resumeState = ArcheryResumeState(
             state: viewModel.match,
             undoHistory: viewModel.resumeHistory,
             intentTimeline: controller.getGameActions()
         )
         let snapshotData: Data
         do {
-            snapshotData = try JSONEncoder().encode(archive)
+            snapshotData = try JSONEncoder().encode(resumeState)
         } catch {
             ScoreboardPersistenceFailureReporter.report(
                 error,
@@ -699,7 +754,7 @@ struct ArcheryScoreboardView: View {
                 ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.archeryDual.rawValue
             ],
             stateSnapshot: snapshotData,
-            status: finished ? .finished : .draft
+            isFinished: finished
         )
     }
 
@@ -766,8 +821,8 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         syncTeamsFromMatch()
     }
 
-    func restoreSession(_ archive: ArcheryRecordArchive) {
-        sessionStore.restoreRecordState(archive.state, undoHistory: archive.undoHistory)
+    func restoreSession(_ resumeState: ArcheryResumeState) {
+        sessionStore.restoreRecordState(resumeState.state, undoHistory: resumeState.undoHistory)
         syncTeamsFromMatch()
     }
 
@@ -780,7 +835,6 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         sessionStore = ArcherySessionStore(state: reset)
         lastEvents.removeAll()
         syncTeamsFromMatch()
-        sessionStore.persistSnapshot()
     }
 
     func applyRemote(_ remote: LinkedArcheryState) {
@@ -1022,7 +1076,6 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         if let openingShooterIsLeft { next.openingShooterIsLeft = openingShooterIsLeft }
         if let sidesSwapped { next.sidesSwapped = sidesSwapped }
         sessionStore.replaceDisplayedState(next)
-        sessionStore.persistSnapshot()
         syncTeamsFromMatch()
     }
 }

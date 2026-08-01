@@ -12,7 +12,7 @@ final class RallySessionStore {
     private typealias ResumeBundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>
 
     private let core: ScoreSessionCore<RallyMatchReducer>
-    private let archiveRepository: SessionArchiveRepository
+    private let resumeRepository: ResumeSessionRepository
     private var detailedActions: [DetailedScoreAction]
     private var lastAppliedRemoteRevision: UInt64?
     private var operationTask: Task<Void, Never>?
@@ -49,7 +49,7 @@ final class RallySessionStore {
         participants: [SessionParticipant]? = nil,
         openingServer: MatchSide = .left,
         voiceAnnouncementEnabled: Bool = false,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         let providedParticipants = participants?.filter { !$0.name.isEmpty }
         let initial = RallyMatchEngine.initial(
@@ -68,7 +68,7 @@ final class RallySessionStore {
             state: initial,
             participants: providedParticipants,
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
     }
 
@@ -77,7 +77,7 @@ final class RallySessionStore {
         state: RallyMatchState,
         participants: [SessionParticipant]? = nil,
         voiceAnnouncementEnabled: Bool = false,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         let sessionParticipants = participants ?? [
             .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
@@ -94,21 +94,21 @@ final class RallySessionStore {
         self.init(
             session: session,
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
     }
 
     private init(
         session: ScoreSession<RallyMatchState, RallyMatchEvent>,
         voiceAnnouncementEnabled: Bool,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         gameType = session.gameType
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
         startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
         core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
-        self.archiveRepository = archiveRepository ?? SessionArchiveRepository()
+        self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
         self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
@@ -125,26 +125,23 @@ final class RallySessionStore {
             reducer: RallyMatchReducer(),
             shouldFinish: { _, state in state.finished }
         )
-        archiveRepository = SessionArchiveRepository()
+        resumeRepository = ResumeSessionRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
         self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
     }
 
     convenience init?(restoring sessionId: UUID) {
-        let url = SessionArchiveRepository.snapshotURL(sessionId: sessionId)
-        guard let data = try? Data(contentsOf: url) else {
+        guard let data = try? ResumeSessionRepository.loadPayload(
+            sessionId: sessionId,
+            expectedKind: .scoreSessionBundle
+        ) else {
             return nil
         }
-        let voiceAnnouncementEnabled = (ScoreboardRecordManager.shared
-            .getRecordById(sessionId.uuidString)?
-            .projectConfiguration?["voiceAnnouncement"]?.value as? Bool) ?? false
+        let voiceAnnouncementEnabled = false
         if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
            bundle.currentSession.status == .live {
             self.init(resumeBundle: bundle, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
-        } else if let session = try? JSONDecoder().decode(ScoreSession<RallyMatchState, RallyMatchEvent>.self, from: data),
-                  session.status == .live {
-            self.init(session: session, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
         } else {
             return nil
         }
@@ -161,7 +158,7 @@ final class RallySessionStore {
             state: resetState,
             participants: Self.participants(for: resetState),
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
     }
 
@@ -178,7 +175,7 @@ final class RallySessionStore {
             let bundle = await core.resumeBundle()
             self.append(events: events, at: now, state: session.state)
             do {
-                try await self.archiveRepository.saveResumeBundle(bundle)
+                try await self.resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(bundle.currentSession)
             } catch {
                 self.reportPersistenceFailure(error)
@@ -201,7 +198,7 @@ final class RallySessionStore {
             let bundle = await core.resumeBundle()
             self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftPoints, session.state.rightPoints], setScores: [session.state.leftSets, session.state.rightSets], setNumber: session.state.currentSet, operationCode: "undo"))
             do {
-                try await self.archiveRepository.saveResumeBundle(bundle)
+                try await self.resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(session)
             } catch {
                 self.reportPersistenceFailure(error)
@@ -211,11 +208,11 @@ final class RallySessionStore {
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [core, archiveRepository] in
+        operationTask = Task { [core, resumeRepository] in
             _ = await previousTask?.value
             let bundle = await core.resumeBundle()
             do {
-                try await archiveRepository.saveResumeBundle(bundle)
+                try await resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(bundle.currentSession)
                 completion?(true)
             } catch {
@@ -229,7 +226,8 @@ final class RallySessionStore {
     func applyAuthoritativeState(
         _ state: RallyMatchState,
         detailedActions incoming: [DetailedScoreAction],
-        revision: UInt64
+        revision: UInt64,
+        persistFormalRecord: Bool = true
     ) async -> Bool {
         if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
             return false
@@ -248,8 +246,10 @@ final class RallySessionStore {
         await synchronizeParticipants(for: session.state)
         let bundle = await core.resumeBundle()
         do {
-            try await archiveRepository.saveResumeBundle(bundle)
-            try persistRecord(bundle.currentSession)
+            try await resumeRepository.saveResumeBundle(bundle)
+            if persistFormalRecord {
+                try persistRecord(bundle.currentSession)
+            }
         } catch {
             reportPersistenceFailure(error)
         }
@@ -338,6 +338,7 @@ final class RallySessionStore {
     }
 
     private func persistRecord(_ session: ScoreSession<RallyMatchState, RallyMatchEvent>) throws {
+        guard session.status == .finished, state.finished else { return }
         guard let appGameType = GameType(scoreCoreGameType: gameType) else { return }
         let snapshot = try JSONEncoder().encode(session)
         let winner: String? = state.finished && state.leftSets != state.rightSets ? (state.leftSets > state.rightSets ? "left" : "right") : nil
@@ -363,7 +364,7 @@ final class RallySessionStore {
                 voiceAnnouncement: voiceAnnouncementEnabled
             ),
             stateSnapshot: snapshot,
-            status: state.finished ? .finished : .draft
+            status: .finished
         )
         try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
         ScoreboardRecordsViewModel.shared.refreshRecords()
@@ -398,8 +399,7 @@ final class RallySessionStore {
             return .pingPong(
                 playerNames: names,
                 openingServerSlotIndex: openingServer == .left ? 0 : 1,
-                openingReceiverSlotIndex: openingServer == .left ? 1 : 0,
-                requiresOpeningConfirmation: true
+                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)

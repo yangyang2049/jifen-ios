@@ -3,7 +3,7 @@ import SwiftUI
 
 struct PickleballScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
@@ -24,7 +24,7 @@ struct PickleballScoreboardView: View {
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
-            initialRecordId: initialRecordId,
+            initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )

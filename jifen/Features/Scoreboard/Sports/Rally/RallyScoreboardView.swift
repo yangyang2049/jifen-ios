@@ -57,8 +57,7 @@ struct RallyScoreboardView: View {
     @State private var flashTask: Task<Void, Never>?
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
-    @State private var legacyRecordId: String?
-    @State private var draftSaveGeneration = 0
+    @State private var resumeSaveGeneration = 0
     @State private var completedSetScores: [VoiceSetScore] = []
     @State private var didSpeakOpeningAnnouncement = false
     @State private var manualFinishRequested = false
@@ -73,7 +72,7 @@ struct RallyScoreboardView: View {
         openingServer: MatchSide = .left,
         voiceAnnouncementEnabled: Bool = false,
         initialWatchSessionId: UUID? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onNavigationBack: (() -> Void)? = nil,
         onPresented: @escaping () -> Void = {}
     ) {
@@ -81,26 +80,13 @@ struct RallyScoreboardView: View {
         self.onPresented = onPresented
         _watchSessionId = State(initialValue: initialWatchSessionId)
 
-        if let initialRecordId,
-           let sessionId = UUID(uuidString: initialRecordId),
+        if let initialResumeSessionId,
+           let sessionId = UUID(uuidString: initialResumeSessionId),
            let restoredStore = RallySessionStore(restoring: sessionId) {
             self.gameType = restoredStore.gameType
             _store = State(initialValue: restoredStore)
-            _legacyRecordId = State(initialValue: nil)
             _voiceAnnouncementEnabled = State(initialValue: voiceAnnouncementEnabled)
             _showGameOverDialog = State(initialValue: restoredStore.state.finished)
-        } else if let initialRecordId,
-           let draft = Self.loadDraft(recordId: initialRecordId) {
-            self.gameType = draft.coreGameType ?? gameType
-            _store = State(initialValue: RallySessionStore(
-                gameType: draft.coreGameType ?? gameType,
-                state: draft.state,
-                participants: participants,
-                voiceAnnouncementEnabled: draft.voiceAnnouncementEnabled
-            ))
-            _legacyRecordId = State(initialValue: initialRecordId)
-            _voiceAnnouncementEnabled = State(initialValue: draft.voiceAnnouncementEnabled)
-            _showGameOverDialog = State(initialValue: draft.state.finished)
         } else {
             self.gameType = gameType
             let newStore = RallySessionStore(
@@ -113,7 +99,6 @@ struct RallyScoreboardView: View {
                 voiceAnnouncementEnabled: voiceAnnouncementEnabled
             )
             _store = State(initialValue: newStore)
-            _legacyRecordId = State(initialValue: nil)
             _voiceAnnouncementEnabled = State(initialValue: voiceAnnouncementEnabled)
         }
         _typographySession = State(initialValue: ScoreboardTypographySession(
@@ -182,10 +167,6 @@ struct RallyScoreboardView: View {
                         doublesTopRow: keyPointDoublesTopRow,
                         serveIndicatorSize: serveIndicatorSize
                     )
-                }
-
-                if !isEditMode, let opening = pendingPingPongDoublesOpening {
-                    pingPongDoublesOpeningOverlay(opening)
                 }
 
                 if shouldShowChrome {
@@ -286,11 +267,22 @@ struct RallyScoreboardView: View {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let rally = update.snapshot.rallyState {
+                Task {
+                    _ = await store.applyAuthoritativeState(
+                        rally,
+                        detailedActions: update.detailedActions,
+                        revision: update.revision,
+                        persistFormalRecord: false
+                    )
+                }
+            }
             revealImmersiveChrome()
             if store.state.finished {
                 showGameOverDialog = true
             }
-            migrateLegacyDraftIfNeeded()
             speakOpeningAnnouncementIfNeeded()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
@@ -329,7 +321,7 @@ struct RallyScoreboardView: View {
             }
             // Follower relies on LinkedMatchRecordIngestor; don't write a second phone record.
             if !(watchLinkService.isFollower && state.finished) {
-                scheduleDraftPersist(finished: state.finished)
+                scheduleResumePersist(finished: state.finished)
             }
         }
         .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
@@ -341,7 +333,8 @@ struct RallyScoreboardView: View {
                 _ = await store.applyAuthoritativeState(
                     rally,
                     detailedActions: update.detailedActions,
-                    revision: update.revision
+                    revision: update.revision,
+                    persistFormalRecord: false
                 )
             }
         }
@@ -392,9 +385,9 @@ struct RallyScoreboardView: View {
             let skipPersist = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
-                watchLinkService.endWatchSession(watchSessionId)
+                watchLinkService.detachPage(sessionId: watchSessionId)
             }
-            // Linked follower finishes are ingested via matchFinished — do not write a draft/second record.
+            // Linked follower finishes are ingested via matchFinished — do not write a resume or second record.
             if !skipPersist {
                 store.persistSnapshot()
             }
@@ -530,25 +523,22 @@ struct RallyScoreboardView: View {
             regularSize: typography.scoreFontSize
         )
         let setSize = typography.secondaryFontSize
-        let nameSize = typography.nameFontSize
         let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
 
         return VStack(spacing: 0) {
-            TextField(
-                NSLocalizedString("team_name", value: "队名", comment: ""),
-                text: isLeft ? $editLeftName : $editRightName
+            ScoreboardNameEditorField(
+                placeholder: NSLocalizedString("team_name", value: "队名", comment: ""),
+                text: isLeft ? $editLeftName : $editRightName,
+                nameType: .team,
+                scoreboardFont: typographyPreference.font,
+                onSubmit: commitSinglesNamesIfNeeded,
+                onSelection: { _ in commitSinglesNamesIfNeeded() },
+                accessibilityIdentifier: isLeft
+                    ? "rally_left_name_editor"
+                    : "rally_right_name_editor"
             )
-            .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
-            .multilineTextAlignment(.center)
-            .textFieldStyle(.plain)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
             .padding(.horizontal, 16)
-            .onChange(of: isLeft ? editLeftName : editRightName) { _, _ in
-                commitSinglesNamesIfNeeded()
-            }
 
             Spacer().frame(height: nameToMain)
 
@@ -632,14 +622,13 @@ struct RallyScoreboardView: View {
             regularSize: typography.scoreFontSize
         )
         let setSize = typography.secondaryFontSize
-        let nameSize = typography.nameFontSize
         let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
 
         return VStack(spacing: 0) {
             VStack(spacing: 6) {
-                foosballDoublesEditNameField(slot: slots.0, fontSize: nameSize)
-                foosballDoublesEditNameField(slot: slots.1, fontSize: nameSize)
+                foosballDoublesEditNameField(slot: slots.0)
+                foosballDoublesEditNameField(slot: slots.1)
             }
             .padding(.horizontal, 16)
 
@@ -669,10 +658,10 @@ struct RallyScoreboardView: View {
         .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: size.height))
     }
 
-    private func foosballDoublesEditNameField(slot: Int, fontSize: CGFloat) -> some View {
+    private func foosballDoublesEditNameField(slot: Int) -> some View {
         let fallback = store.state.doubles?.playerName(at: slot) ?? ""
-        return TextField(
-            NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
+        return ScoreboardNameEditorField(
+            placeholder: NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
             text: Binding(
                 get: {
                     guard editDoublesNames.indices.contains(slot) else { return fallback }
@@ -685,14 +674,11 @@ struct RallyScoreboardView: View {
                     guard !trimmed.isEmpty, !scoringLocked else { return }
                     dispatch(.setDoublesPlayerName(slot: slot, name: trimmed))
                 }
-            )
+            ),
+            nameType: .player,
+            scoreboardFont: typographyPreference.font,
+            accessibilityIdentifier: "foosball_doubles_player_\(slot)_editor"
         )
-        .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
-        .multilineTextAlignment(.center)
-        .textFieldStyle(.plain)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
     }
 
     private func scoreboardDisplayName(for side: MatchSide) -> String {
@@ -715,13 +701,16 @@ struct RallyScoreboardView: View {
         let editTopInset = isEditMode
             ? ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height, isEditMode: true)
             : 0
-        let availableHeight = max(0, size.height - editTopInset)
-        let preferredEditScoreHeight = min(160, max(120, availableHeight * 0.48))
+        let scoreboardScreenWidth = max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        let editNamesHeight = ScoreboardLayoutMetrics.doublesEditNamesRegionHeight(
+            isLargeScreen: Theme.usesPadLayout,
+            screenWidth: scoreboardScreenWidth
+        )
+        let editFieldHeight = ScoreboardLayoutMetrics.scoreboardNameEditorHeight(
+            screenWidth: scoreboardScreenWidth
+        )
         let scoreRowHeight = isEditMode
-            ? min(availableHeight, preferredEditScoreHeight)
-            : size.height / 3
-        let nameRowHeight = isEditMode
-            ? max(0, availableHeight - scoreRowHeight) / 2
+            ? max(1, size.height - editTopInset - editNamesHeight)
             : size.height / 3
         let (topName, bottomName) = doublesCornerNames(screenSide: screenSide)
         let topSlot = doublesTopSlot(screenSide: screenSide)
@@ -731,23 +720,29 @@ struct RallyScoreboardView: View {
             color
             if isEditMode {
                 VStack(spacing: 0) {
-                    doublesNameCell(
-                        name: topName,
-                        slot: topSlot,
-                        fontSize: doublesNameFontSize(panelSize: size),
-                        height: nameRowHeight
-                    )
+                    VStack(spacing: Theme.usesPadLayout ? 10 : 4) {
+                        doublesNameCell(
+                            name: topName,
+                            slot: topSlot,
+                            fontSize: doublesNameFontSize(panelSize: size),
+                            height: editFieldHeight
+                        )
+                        doublesNameCell(
+                            name: bottomName,
+                            slot: bottomSlot,
+                            fontSize: doublesNameFontSize(panelSize: size),
+                            height: editFieldHeight
+                        )
+                    }
+                    .padding(.horizontal, Theme.usesPadLayout ? 12 : 8)
+                    .padding(.top, Theme.usesPadLayout ? 12 : 6)
+                    .frame(height: editNamesHeight, alignment: .top)
+
                     doublesEditScoreRow(
                         screenSide: screenSide,
                         side: side,
                         height: scoreRowHeight,
                         panelSize: size
-                    )
-                    doublesNameCell(
-                        name: bottomName,
-                        slot: bottomSlot,
-                        fontSize: doublesNameFontSize(panelSize: size),
-                        height: nameRowHeight
                     )
                 }
                 .padding(.top, editTopInset)
@@ -855,27 +850,29 @@ struct RallyScoreboardView: View {
             name: "",
             score: "\(score)",
             secondary: "\(sets)",
-            size: CGSize(width: panelSize.width, height: height),
-            scoreBaseScale: 0.85,
-            reservedHeight: 16
+            size: panelSize
         )
-        let mainSize = ScoreboardLayoutMetrics.compactEditMainScoreFontSize(
+        let mainSize = ScoreboardLayoutMetrics.doublesEditMainScoreFontSize(
             regularSize: typography.scoreFontSize,
-            rowHeight: height
+            isLargeScreen: Theme.usesPadLayout
         )
-        let setSize = ScoreboardLayoutMetrics.compactEditSecondaryScoreFontSize(
+        let setSize = ScoreboardLayoutMetrics.doublesEditSecondaryScoreFontSize(
             regularSize: typography.secondaryFontSize,
-            rowHeight: height
+            isLargeScreen: Theme.usesPadLayout
         )
-        let controlSize = ScoreboardLayoutMetrics.compactEditControlSize(rowHeight: height)
+        let controlSize = ScoreboardLayoutMetrics.doublesEditControlSize(
+            isLargeScreen: Theme.usesPadLayout
+        )
 
-        return VStack(spacing: 8) {
+        return VStack(spacing: Theme.usesPadLayout ? 10 : 5) {
             editAdjustRow(
                 value: score,
                 fontSize: mainSize,
                 useSecondaryColor: false,
                 canDecrement: score > 0,
                 controlSize: controlSize,
+                spacing: Theme.usesPadLayout ? 20 : 10,
+                valueMinWidth: Theme.usesPadLayout ? 72 : 48,
                 onDecrement: { dispatch(.adjustPoints(side: side, delta: -1)) },
                 onIncrement: { adjustPointsInEdit(side: side, delta: 1) }
             )
@@ -885,6 +882,8 @@ struct RallyScoreboardView: View {
                 useSecondaryColor: true,
                 canDecrement: sets > 0,
                 controlSize: controlSize,
+                spacing: Theme.usesPadLayout ? 18 : 8,
+                valueMinWidth: Theme.usesPadLayout ? 40 : 28,
                 onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
                 onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
             )
@@ -910,8 +909,8 @@ struct RallyScoreboardView: View {
                 flashColor
             }
             if isEditMode {
-                TextField(
-                    NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
+                ScoreboardNameEditorField(
+                    placeholder: NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
                     text: Binding(
                         get: {
                             guard editDoublesNames.indices.contains(slot) else { return name }
@@ -926,12 +925,11 @@ struct RallyScoreboardView: View {
                                 dispatch(.setDoublesPlayerName(slot: slot, name: trimmed))
                             }
                         }
-                    )
+                    ),
+                    nameType: .player,
+                    scoreboardFont: typographyPreference.font,
+                    accessibilityIdentifier: "rally_doubles_player_\(slot)_editor"
                 )
-                .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
-                .multilineTextAlignment(.center)
-                .textFieldStyle(.plain)
-                .padding(.horizontal, 8)
             } else {
                 Text(name)
                     .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
@@ -986,55 +984,6 @@ struct RallyScoreboardView: View {
         return (display.topPlayerIndex, display.bottomPlayerIndex)
     }
 
-    private var pendingPingPongDoublesOpening: PingPongDoublesGameOpening? {
-        guard case .pingPong(let rotation) = store.state.doubles?.rotation else { return nil }
-        return rotation.pendingGameOpening
-    }
-
-    @ViewBuilder
-    private func pingPongDoublesOpeningOverlay(_ opening: PingPongDoublesGameOpening) -> some View {
-        let serverSlots = opening.servingTeam0 ? [0, 2] : [1, 3]
-        let receiverSlots = opening.servingTeam0 ? [1, 3] : [0, 2]
-        VStack(spacing: 14) {
-            Text(NSLocalizedString("pingpong_doubles_confirm_opening", value: "确认本局首发顺序", comment: ""))
-                .font(.title2.bold())
-            if scoringLocked {
-                Text(NSLocalizedString("linked_score_waiting_controller", value: "等待控制端确认", comment: ""))
-                    .foregroundStyle(.secondary)
-            } else if opening.isFirstGame {
-                ForEach(serverSlots, id: \.self) { server in
-                    HStack(spacing: 10) {
-                        ForEach(receiverSlots, id: \.self) { receiver in
-                            openingChoiceButton(server: server, receiver: receiver)
-                        }
-                    }
-                }
-            } else {
-                HStack(spacing: 12) {
-                    ForEach(serverSlots, id: \.self) { server in
-                        openingChoiceButton(server: server, receiver: nil)
-                    }
-                }
-            }
-        }
-        .padding(24)
-        .foregroundStyle(.white)
-        .background(.black.opacity(0.88), in: RoundedRectangle(cornerRadius: 20))
-        .padding(40)
-        .allowsHitTesting(!scoringLocked)
-    }
-
-    private func openingChoiceButton(server: Int, receiver: Int?) -> some View {
-        let names = store.state.doubles?.playerNames ?? []
-        let serverName = names.indices.contains(server) ? names[server] : ""
-        let receiverName = receiver.flatMap { names.indices.contains($0) ? names[$0] : nil }
-        let title = receiverName.map { "\(serverName) → \($0)" } ?? serverName
-        return Button(title) {
-            dispatch(.confirmPingPongDoublesOpening(serverSlot: server, receiverSlot: receiver))
-        }
-        .buttonStyle(.borderedProminent)
-    }
-
     // MARK: - Edit helpers
 
     private func editAdjustRow(
@@ -1043,10 +992,12 @@ struct RallyScoreboardView: View {
         useSecondaryColor: Bool,
         canDecrement: Bool,
         controlSize: CGFloat = 50,
+        spacing: CGFloat = 16,
+        valueMinWidth: CGFloat = 0,
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) -> some View {
-        HStack(spacing: 16) {
+        HStack(spacing: spacing) {
             editCircleButton(
                 systemName: "minus",
                 enabled: canDecrement,
@@ -1059,6 +1010,7 @@ struct RallyScoreboardView: View {
                 .foregroundStyle(useSecondaryColor ? palette.secondary : palette.foreground)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
+                .frame(minWidth: valueMinWidth)
             editCircleButton(
                 systemName: "plus",
                 enabled: true,
@@ -1111,7 +1063,9 @@ struct RallyScoreboardView: View {
     }
 
     private func handlePointWon(_ side: MatchSide) {
-        if isDoubles {
+        // 仅羽毛球/匹克球双打有位置轮转，发球方得分时高亮该队两人以提示换位；
+        // 乒乓球、桌上足球双打无轮转，不闪烁。
+        if isDoubles, gameType == .badmintonDoubles || gameType == .pickleballDoubles {
             pendingDoublesFlash = PendingDoublesFlash(
                 scoringSide: side,
                 prevServingSide: store.state.servingSide
@@ -1373,7 +1327,7 @@ struct RallyScoreboardView: View {
             } else {
                 ScoreVoiceAnnouncer.shared.stop()
             }
-            scheduleDraftPersist(finished: store.state.finished)
+            scheduleResumePersist(finished: store.state.finished)
         case "resync":
             watchLinkService.requestScoreResync()
             showMenu = false
@@ -1389,10 +1343,19 @@ struct RallyScoreboardView: View {
                             revision: update.revision
                         )
                     }
-                    try? await watchLinkService.takeover(sessionId: id)
+                    do {
+                        try await watchLinkService.takeover(sessionId: id)
+                    } catch {
+                        showToast(error.localizedDescription)
+                    }
                 }
                 showMenu = false
             }
+        case "forceTakeover":
+            if let id = watchSessionId {
+                watchLinkService.requestForceTakeoverConfirmation(id)
+            }
+            showMenu = false
         case "endLink":
             if let id = watchSessionId {
                 watchLinkService.leaveSession(id)
@@ -1752,7 +1715,6 @@ struct RallyScoreboardView: View {
                 isStartingNewMatch = false
                 guard freshSaved else { return }
                 store = freshStore
-                legacyRecordId = nil
                 manualFinishRequested = false
                 completedSetScores = []
                 didSpeakOpeningAnnouncement = false
@@ -1784,50 +1746,14 @@ struct RallyScoreboardView: View {
             || store.state.finished
     }
 
-    private func scheduleDraftPersist(finished: Bool) {
+    private func scheduleResumePersist(finished: Bool) {
         guard finished || hasMatchProgress else { return }
-        draftSaveGeneration += 1
-        let generation = draftSaveGeneration
+        resumeSaveGeneration += 1
+        let generation = resumeSaveGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            guard generation == draftSaveGeneration else { return }
+            guard generation == resumeSaveGeneration else { return }
             store.persistSnapshot()
         }
-    }
-
-    private func migrateLegacyDraftIfNeeded() {
-        guard let legacyRecordId else { return }
-        store.persistSnapshot { success in
-            guard success else { return }
-            _ = ScoreboardRecordManager.shared.deleteRecord(legacyRecordId)
-            self.legacyRecordId = nil
-            ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
-        }
-    }
-
-    private struct DraftLoad {
-        let state: RallyMatchState
-        let coreGameType: ScoreCore.GameType?
-        let voiceAnnouncementEnabled: Bool
-    }
-
-    private static func loadDraft(recordId: String) -> DraftLoad? {
-        guard let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-              record.status == .draft,
-              let data = record.stateSnapshot else {
-            return nil
-        }
-        guard let state = decodeRallyStateSnapshot(data) else { return nil }
-        let coreRaw = (record.projectConfiguration?[ScoreboardRecordConfiguration.Key.scoreCoreGameType]?.value as? String)
-            ?? (record.extraData?["coreGameType"]?.value as? String)
-        let coreGameType = coreRaw.flatMap { ScoreCore.GameType(rawValue: $0) }
-        let voiceAnnouncementEnabled = (record.projectConfiguration?["voiceAnnouncement"]?.value as? Bool)
-            ?? (record.extraData?["voiceAnnouncement"]?.value as? Bool)
-            ?? false
-        return DraftLoad(
-            state: state,
-            coreGameType: coreGameType,
-            voiceAnnouncementEnabled: voiceAnnouncementEnabled
-        )
     }
 
     private func showToast(_ message: String) {
@@ -1843,7 +1769,7 @@ struct RallyScoreboardView: View {
         guard !isEditMode, !scoringLocked, !store.state.finished else { return }
         store.undo { success in
             if success {
-                scheduleDraftPersist(finished: store.state.finished)
+                scheduleResumePersist(finished: store.state.finished)
                 showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
             } else {
                 showToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))

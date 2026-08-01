@@ -436,7 +436,10 @@ struct ScreenshotSaveOverlay: View {
                             Text(NSLocalizedString("cancel", comment: ""))
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(Color(uiColor: .label))
-                                .frame(maxWidth: .infinity, minHeight: 36)
+                                .frame(
+                                    maxWidth: .infinity,
+                                    minHeight: ScoreboardConstants.minimumTouchTarget
+                                )
                         }
                         .buttonStyle(.plain)
                         .background(Color(uiColor: .tertiarySystemFill))
@@ -449,7 +452,10 @@ struct ScreenshotSaveOverlay: View {
                             Text(coordinator.primaryButtonTitle)
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity, minHeight: 36)
+                                .frame(
+                                    maxWidth: .infinity,
+                                    minHeight: ScoreboardConstants.minimumTouchTarget
+                                )
                         }
                         .buttonStyle(.plain)
                         .background(Theme.primary)

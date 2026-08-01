@@ -5,7 +5,7 @@ struct VolleyballScoreboardView: View {
     var variant: ScoreCore.GameType = .volleyball
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
 
     var body: some View {
@@ -21,7 +21,7 @@ struct VolleyballScoreboardView: View {
             gameType: variant,
             rules: rules,
             openingServer: openingServer,
-            initialRecordId: initialRecordId,
+            initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )

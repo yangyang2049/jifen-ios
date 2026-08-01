@@ -25,6 +25,7 @@ struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
     @State private var unfinishedRecord: UnfinishedGameSummary?
@@ -33,6 +34,7 @@ struct HomeTab: View {
     @State private var isDiscardConfirmationPending = false
     @State private var showDiscardConfirmationToast = false
     @State private var discardConfirmationToken = UUID()
+    @State private var resumeLoadErrorMessage: String?
     @AppStorage("home_discard_chip_shown_count") private var discardConfirmationToastShownCount = 0
     @State private var showCreateBookingSheet = false
     @State private var path = NavigationPath()
@@ -175,7 +177,7 @@ struct HomeTab: View {
                     getScoreboardView(
                         for: target.gameType,
                         setupResult: target.setupResult,
-                        initialRecordId: target.recordId,
+                        initialResumeSessionId: target.recordId,
                         analyticsEntryPoint: target.analyticsEntryPoint,
                         onSetupConsumed: {}
                     )
@@ -272,9 +274,31 @@ struct HomeTab: View {
             updateRecentActivities()
             loadUnfinishedRecord()
         }
+        .onChange(of: watchLinkService.resumeStateToken) { _, _ in
+            loadUnfinishedRecord()
+        }
         .onChange(of: unfinishedRecord?.recordIdentifier) { _, _ in
             resetDiscardConfirmation()
         }
+        .alert(
+            NSLocalizedString("resume_load_failed_title", value: "Unable to Resume Match", comment: ""),
+            isPresented: resumeLoadErrorBinding
+        ) {
+            Button(NSLocalizedString("got_it", comment: ""), role: .cancel) {}
+        } message: {
+            Text(resumeLoadErrorMessage ?? "")
+        }
+    }
+
+    private var resumeLoadErrorBinding: Binding<Bool> {
+        Binding(
+            get: { resumeLoadErrorMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    resumeLoadErrorMessage = nil
+                }
+            }
+        )
     }
 
     private func loadQuickStartConfigForCurrentLayout() {
@@ -393,27 +417,78 @@ struct HomeTab: View {
     }
 
     private func loadUnfinishedRecord() {
-        Task {
-            let repository = SessionArchiveRepository()
-            // At most one Resume GameBar: prune any stacked live sessions first.
-            if let entry = try? await repository.retainNewestLiveSession(),
-               let summary = UnfinishedGameSummary(session: entry) {
+        if let linked = watchLinkService.linkedResumeDescriptor {
+            // When a linked descriptor exists we must resolve it here and return.
+            // Falling through to the repository Task would recurse indefinitely
+            // because the descriptor never clears on its own.
+            if let summary = UnfinishedGameSummary(linked: linked) {
                 unfinishedRecord = summary
-                return
+            } else {
+                unfinishedRecord = nil
             }
-            unfinishedRecord = ScoreboardRecordManager.shared.getUnfinishedRecord().map(UnfinishedGameSummary.init(legacy:))
+            return
+        }
+        Task {
+            let repository = ResumeSessionRepository()
+            // At most one Resume GameBar: prune any stacked live sessions first.
+            do {
+                if let entry = try await repository.retainNewestLiveSession() {
+                    guard let summary = UnfinishedGameSummary(session: entry) else {
+                        unfinishedRecord = nil
+                        resumeLoadErrorMessage = NSLocalizedString(
+                            "resume_load_invalid",
+                            value: "The saved match is damaged and cannot be resumed.",
+                            comment: ""
+                        )
+                        return
+                    }
+                    guard watchLinkService.linkedResumeDescriptor == nil else {
+                        loadUnfinishedRecord()
+                        return
+                    }
+                    unfinishedRecord = summary
+                    resumeLoadErrorMessage = nil
+                    return
+                }
+                unfinishedRecord = nil
+                resumeLoadErrorMessage = nil
+            } catch {
+                guard watchLinkService.linkedResumeDescriptor == nil else {
+                    loadUnfinishedRecord()
+                    return
+                }
+                unfinishedRecord = nil
+                resumeLoadErrorMessage = String(
+                    format: NSLocalizedString(
+                        "resume_load_failed_format",
+                        value: "Could not load the saved match: %@",
+                        comment: ""
+                    ),
+                    error.localizedDescription
+                )
+            }
         }
     }
 
     private func continueUnfinishedGame() {
         guard let unfinishedRecord else { return }
         resetDiscardConfirmation()
+        let recordId: String?
+        let setupResult: SportsSetupResult?
+        switch unfinishedRecord.source {
+        case .resume:
+            recordId = unfinishedRecord.recordIdentifier
+            setupResult = nil
+        case .linked:
+            recordId = nil
+            setupResult = unfinishedRecord.linkedSetupResult
+        }
         path.append(
             NavigationDestination.scoreboard(
                     ScoreboardNavigationTarget(
                         gameType: unfinishedRecord.gameType,
-                        recordId: unfinishedRecord.recordIdentifier,
-                        setupResult: nil,
+                        recordId: recordId,
+                        setupResult: setupResult,
                         analyticsEntryPoint: .unfinishedBar
                 )
             )
@@ -467,24 +542,22 @@ struct HomeTab: View {
             .result: .string(AnalyticsResult.success.rawValue)
         ])
         switch unfinishedRecord.source {
-        case .legacy:
-            _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
+        case .resume(let sessionId):
             Task {
-                try? await SessionArchiveRepository().discardAllLiveSessions()
-                ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
-                loadUnfinishedRecord()
-            }
-        case .session(let sessionId):
-            Task {
-                try? await SessionArchiveRepository().remove(sessionId: sessionId)
-                if ScoreboardRecordManager.shared.getUnfinishedRecordId() == sessionId.uuidString {
-                    _ = ScoreboardRecordManager.shared.discardUnfinishedRecord()
-                } else {
-                    _ = ScoreboardRecordManager.shared.deleteRecord(sessionId.uuidString)
+                do {
+                    try await ResumeSessionRepository().remove(sessionId: sessionId)
+                    ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+                    loadUnfinishedRecord()
+                } catch {
+                    NotificationCenter.default.post(
+                        name: .scoreboardPersistenceFailed,
+                        object: nil
+                    )
                 }
-                ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
-                loadUnfinishedRecord()
             }
+        case .linked(let sessionId):
+            watchLinkService.leaveSession(sessionId)
+            loadUnfinishedRecord()
         }
     }
 
@@ -568,14 +641,14 @@ struct HomeTab: View {
     private func getScoreboardView(
         for gameType: GameType,
         setupResult: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         analyticsEntryPoint: AnalyticsEntryPoint = .homeNewGame,
         onSetupConsumed: @escaping () -> Void = {}
     ) -> some View {
         ScoreboardLaunchView(
             gameType: gameType,
             setupResult: setupResult,
-            initialRecordId: initialRecordId,
+            initialResumeSessionId: initialResumeSessionId,
             analyticsEntryPoint: analyticsEntryPoint,
             onSetupConsumed: onSetupConsumed,
             onBack: navigateBack

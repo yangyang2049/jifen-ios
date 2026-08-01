@@ -1,19 +1,16 @@
 import SwiftUI
 import ScoreCore
-import LinkCore
 import UIKit
 
 struct BasketballScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
 
     @State private var store: BasketballSessionStore
-    @State private var watchSessionId: UUID?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
@@ -38,17 +35,17 @@ struct BasketballScoreboardView: View {
     init(
         onNavigationBack: (() -> Void)? = nil,
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil
     ) {
         self.onNavigationBack = onNavigationBack
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
 
         let initialStyleID: ScoreboardStyleID
-        if let initialRecordId,
-           let sessionId = UUID(uuidString: initialRecordId),
+        if let initialResumeSessionId,
+           let sessionId = UUID(uuidString: initialResumeSessionId),
            let restoredStore = BasketballSessionStore(restoring: sessionId) {
             _store = State(initialValue: restoredStore)
             _showGameOverDialog = State(initialValue: restoredStore.state.finished)
@@ -73,7 +70,6 @@ struct BasketballScoreboardView: View {
             initialStyleID = ScoreboardStyleID(gameType: gameMode == .threeXThree ? .threeBasketball : .basketball)
         }
         _typographySession = State(initialValue: ScoreboardTypographySession(styleID: initialStyleID))
-        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
 
     /// The scoreboard fills the physical display with `ignoresSafeArea()`, so
@@ -120,12 +116,12 @@ struct BasketballScoreboardView: View {
                             BasketballCenterPanel(
                                 state: store.state,
                                 typography: typographyPreference,
-                                onToggleClock: { guard !scoringLocked else { return }; store.send(.setClockRunning(!store.state.gameRunning)) },
-                                onResetGameClock: { guard !scoringLocked else { return }; store.send(.resetGameClock) },
-                                onResetShotClock: { guard !scoringLocked else { return }; store.send(.resetShotClock(seconds: $0)) },
-                                onAdvancePeriod: { guard !scoringLocked else { return }; store.send(.advanceToNextPeriod) },
-                                onEnterOvertime: { guard !scoringLocked else { return }; store.send(.enterOvertime) },
-                                onSelectPeriod: { guard !scoringLocked else { return }; store.send(.selectPeriod($0)) }
+                                onToggleClock: { store.send(.setClockRunning(!store.state.gameRunning)) },
+                                onResetGameClock: { store.send(.resetGameClock) },
+                                onResetShotClock: { store.send(.resetShotClock(seconds: $0)) },
+                                onAdvancePeriod: { store.send(.advanceToNextPeriod) },
+                                onEnterOvertime: { store.send(.enterOvertime) },
+                                onSelectPeriod: { store.send(.selectPeriod($0)) }
                             )
                         }
                     }
@@ -163,8 +159,7 @@ struct BasketballScoreboardView: View {
                     rightName: store.state.rightName,
                     leftScore: store.state.leftScore,
                     rightScore: store.state.rightScore,
-                    newGameLabel: scoringLocked ? linkedNewGameLabel : nil,
-                    newGameDisabled: scoringLocked || isStartingNewMatch,
+                    newGameDisabled: isStartingNewMatch,
                     onNewGame: {
                         startNewMatch()
                     },
@@ -202,8 +197,7 @@ struct BasketballScoreboardView: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
-                    guard !scoringLocked,
-                          !isEditMode,
+                    guard !isEditMode,
                           !store.state.finished,
                           value.translation.width < -50,
                           abs(value.translation.width) > abs(value.translation.height) else { return }
@@ -219,7 +213,7 @@ struct BasketballScoreboardView: View {
         .onAppear {
             onSetupConsumed?()
             typographySession.switchStyleID(ScoreboardStyleID(gameType: appGameType))
-            updateClockOwnership()
+            store.startClock()
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
@@ -243,39 +237,10 @@ struct BasketballScoreboardView: View {
         }
         .onChange(of: store.state) { _, state in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-            if let watchSessionId, watchLinkService.isController {
-                watchLinkService.syncWatch(
-                    sessionId: watchSessionId,
-                    state: state,
-                    detailedActions: store.actionTimeline
-                )
-            }
             if state.finished {
                 showGameOverDialog = true
                 store.persistSnapshot()
             }
-        }
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId,
-                  let update,
-                  update.sessionId == watchSessionId,
-                  let basketball = update.snapshot.basketballState else { return }
-            Task {
-                _ = await store.applyAuthoritativeState(
-                    basketball,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision
-                )
-            }
-        }
-        .onChange(of: watchLinkService.isFollower) { _, _ in
-            updateClockOwnership()
-        }
-        .onChange(of: watchLinkService.isAuthorityTransferPending) { _, _ in
-            updateClockOwnership()
-        }
-        .onChange(of: watchSessionId) { _, _ in
-            updateClockOwnership()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
@@ -288,9 +253,6 @@ struct BasketballScoreboardView: View {
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
-            if let watchSessionId {
-                watchLinkService.endWatchSession(watchSessionId)
-            }
             store.stopClock()
             store.persistSnapshot()
         }
@@ -316,42 +278,14 @@ struct BasketballScoreboardView: View {
         )
     }
 
-    private var scoringLocked: Bool {
-        watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
-    }
-
-    private var linkedNewGameLabel: String {
-        NSLocalizedString(
-            "game_over_new_game_on_watch",
-            value: "再来一场\n（请在手表端操作）",
-            comment: ""
-        )
-    }
-
-    private func updateClockOwnership() {
-        if scoringLocked {
-            store.stopClock()
-        } else {
-            store.startClock()
-        }
-    }
-
     private var basketballMenuItems: [ScoreboardMenuItem] {
-        let extras = WatchLinkMenuSupport.extraItems(
-            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-            sessionId: watchSessionId,
-            isFollower: watchLinkService.isFollower,
-            watchBackgrounded: watchLinkService.watchBackgrounded
-        )
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: true,
             resetConfirming: menuConfirm.resetConfirming,
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,
-            scoringEnabled: !scoringLocked,
-            extraItems: extras
+            scoringEnabled: true
         )
     }
 
@@ -366,8 +300,8 @@ struct BasketballScoreboardView: View {
                         beginBasketballEdit()
                     }
                 }
-                .disabled(scoringLocked || store.state.finished)
-                .opacity(scoringLocked || store.state.finished ? 0.45 : 1)
+                .disabled(store.state.finished)
+                .opacity(store.state.finished ? 0.45 : 1)
                 .padding(.trailing, ScoreboardConstants.buttonPadding)
                 .padding(.top, ScoreboardConstants.buttonPadding)
             }
@@ -447,16 +381,16 @@ struct BasketballScoreboardView: View {
                 panelSize: panelSize,
                 outerSafeAreaInset: outerSafeAreaInset,
                 points: BasketballMatchEngine.scoringButtons(store.state),
-                onScore: { guard !scoringLocked else { return }; store.send(.addPoints(side: logicalSide(forScreen: screenSide), points: $0)) },
-                onFoul: { guard !scoringLocked else { return }; store.send(.addFoul(side: logicalSide(forScreen: screenSide))) },
-                onRemoveFoul: { guard !scoringLocked else { return }; store.send(.removeFoul(side: logicalSide(forScreen: screenSide))) },
-                onTimeout: { guard !scoringLocked else { return }; store.send(.useTimeout(side: logicalSide(forScreen: screenSide))) }
+                onScore: { store.send(.addPoints(side: logicalSide(forScreen: screenSide), points: $0)) },
+                onFoul: { store.send(.addFoul(side: logicalSide(forScreen: screenSide))) },
+                onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: screenSide))) },
+                onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: screenSide))) }
             )
         }
     }
 
     private func beginBasketballEdit() {
-        guard !scoringLocked, !store.state.finished else { return }
+        guard !store.state.finished else { return }
         editLeftName = displayName(for: .left)
         editRightName = displayName(for: .right)
         editLeftScore = displayScore(for: .left)
@@ -546,11 +480,6 @@ struct BasketballScoreboardView: View {
     }
 
     private func handleMenuAction(_ action: String) {
-        if scoringLocked,
-           !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
-            showToastMessage(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
-            return
-        }
         menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
@@ -590,36 +519,6 @@ struct BasketballScoreboardView: View {
             showMenu = false
         case "whistle":
             break
-        case "resync":
-            watchLinkService.requestScoreResync()
-            showMenu = false
-        case "takeover":
-            if let id = watchSessionId {
-                Task {
-                    if let update = watchLinkService.latestRemoteSnapshot,
-                       update.sessionId == id,
-                       let state = update.snapshot.basketballState {
-                        _ = await store.applyAuthoritativeState(
-                            state,
-                            detailedActions: update.detailedActions,
-                            revision: update.revision
-                        )
-                    }
-                    try? await watchLinkService.takeover(sessionId: id)
-                    watchLinkService.syncWatch(
-                        sessionId: id,
-                        state: store.state,
-                        detailedActions: store.actionTimeline
-                    )
-                }
-            }
-            showMenu = false
-        case "endLink":
-            if let id = watchSessionId {
-                watchLinkService.leaveSession(id)
-                watchSessionId = nil
-            }
-            showMenu = false
         default:
             break
         }
@@ -662,7 +561,7 @@ struct BasketballScoreboardView: View {
                 guard LocalScoreboardMutationPolicy.allowsMutation(
                     isEditing: isEditMode,
                     finished: store.state.finished,
-                    scoringLocked: scoringLocked
+                    scoringLocked: false
                 ) else { return }
                 switch intent {
                 case .addLeft: store.send(.addPoints(side: logicalSide(forScreen: .left), points: 1))
@@ -722,21 +621,21 @@ struct BasketballScoreboardView: View {
     }
 
     private func startNewMatch() {
-        guard !scoringLocked, !isStartingNewMatch else { return }
+        guard !isStartingNewMatch else { return }
         isStartingNewMatch = true
         let finishedStore = store
         finishedStore.stopClock()
         finishedStore.persistSnapshot { success in
             guard success else {
                 isStartingNewMatch = false
-                updateClockOwnership()
+                store.startClock()
                 return
             }
             let freshStore = finishedStore.makeFreshMatchStore()
             freshStore.persistSnapshot { freshSaved in
                 isStartingNewMatch = false
                 guard freshSaved else {
-                    updateClockOwnership()
+                    store.startClock()
                     return
                 }
                 store = freshStore
@@ -748,19 +647,8 @@ struct BasketballScoreboardView: View {
                 editRightName = displayName(for: .right)
                 editLeftScore = displayScore(for: .left)
                 editRightScore = displayScore(for: .right)
-                updateClockOwnership()
+                store.startClock()
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                if let watchSessionId {
-                    let gameType: ScoreCore.GameType = freshStore.state.gameMode == .threeXThree
-                        ? .threeBasketball
-                        : .basketball
-                    watchLinkService.prepareControllerForNewMatch(
-                        sessionId: watchSessionId,
-                        gameType: gameType,
-                        snapshot: .basketball(freshStore.state),
-                        participantNames: [freshStore.state.leftName, freshStore.state.rightName]
-                    )
-                }
             }
         }
     }
@@ -794,19 +682,12 @@ private struct BasketballEditTeamPanel: View {
             color
 
             VStack(spacing: 24) {
-                TextField(
-                    NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
-                    text: $name
+                ScoreboardNameEditorField(
+                    placeholder: NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
+                    text: $name,
+                    nameType: .team,
+                    scoreboardFont: typography.font
                 )
-                .font(typography.font.swiftUIFont(
-                    size: resolvedTypography.nameFontSize,
-                    weight: .bold
-                ))
-                .multilineTextAlignment(.center)
-                .textFieldStyle(.plain)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
                 .padding(.horizontal, 16)
 
                 HStack(spacing: 16) {
@@ -1086,7 +967,7 @@ private struct BasketballCenterPanel: View {
                             .foregroundStyle(.white.opacity(0.85))
                             .rotationEffect(.degrees(showPeriodPicker ? 180 : 0))
                     }
-                    .frame(height: 40)
+                    .frame(height: ScoreboardConstants.minimumTouchTarget)
                     .padding(.horizontal, 10)
                     .background(
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -1173,7 +1054,10 @@ private struct BasketballCenterPanel: View {
                         Text("\(seconds)")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.white)
-                            .frame(width: shotOptions.count == 1 ? 72 : 52, height: 36)
+                            .frame(
+                                width: shotOptions.count == 1 ? 72 : 52,
+                                height: ScoreboardConstants.minimumTouchTarget
+                            )
                             .background(Capsule().fill(Color.white.opacity(0.12)))
                     }
                         .buttonStyle(.plain)
@@ -1199,7 +1083,10 @@ private struct BasketballCenterPanel: View {
                             }
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(state.currentPeriod == period && !state.isOvertime ? .white : .white.opacity(0.85))
-                            .frame(maxWidth: .infinity, minHeight: 36)
+                            .frame(
+                                maxWidth: .infinity,
+                                minHeight: ScoreboardConstants.minimumTouchTarget
+                            )
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(state.currentPeriod == period && !state.isOvertime ? actionAccent : Color.white.opacity(0.12))
@@ -1214,7 +1101,10 @@ private struct BasketballCenterPanel: View {
                     }
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(state.isOvertime ? .white : .white.opacity(0.85))
-                    .frame(maxWidth: .infinity, minHeight: 36)
+                    .frame(
+                        maxWidth: .infinity,
+                        minHeight: ScoreboardConstants.minimumTouchTarget
+                    )
                     .background(
                         RoundedRectangle(cornerRadius: 8)
                             .fill(state.isOvertime ? overtimePurple : Color.white.opacity(0.12))
@@ -1243,7 +1133,7 @@ private struct BasketballCenterPanel: View {
             Text(title)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(.white)
-                .frame(width: 92, height: 38)
+                .frame(width: 92, height: ScoreboardConstants.minimumTouchTarget)
                 .background(RoundedRectangle(cornerRadius: 8).fill(color))
         }
         .buttonStyle(.plain)

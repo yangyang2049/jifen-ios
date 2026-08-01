@@ -15,7 +15,6 @@ struct ScoreboardRecordDetailPage: View {
         let id = UUID()
         let gameType: GameType
         let setup: SportsSetupResult?
-        let draftRecordId: String?
     }
 
     @State private var record: ScoreboardRecord?
@@ -76,8 +75,7 @@ struct ScoreboardRecordDetailPage: View {
             ScoreboardLaunchView(
                 gameType: request.gameType,
                 setupResult: request.setup,
-                initialRecordId: request.draftRecordId,
-                analyticsEntryPoint: request.draftRecordId == nil ? .recordReplay : .unfinishedBar,
+                analyticsEntryPoint: .recordReplay,
                 onBack: { launchRequest = nil }
             )
             .toolbar(.hidden, for: .tabBar)
@@ -127,9 +125,9 @@ struct ScoreboardRecordDetailPage: View {
                     .background(Theme.accentColor.opacity(0.12))
                     .clipShape(Capsule())
                 }
-                Text(record.status == .draft ? NSLocalizedString("unfinished", value: "未结束", comment: "") : NSLocalizedString("finished", value: "已结束", comment: ""))
+                Text(NSLocalizedString("finished", value: "已结束", comment: ""))
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(record.status == .draft ? .orange : .green)
+                    .foregroundStyle(.green)
             }
             if record.isSyncedFromWatch {
                 Text(NSLocalizedString(
@@ -180,8 +178,8 @@ struct ScoreboardRecordDetailPage: View {
         HStack(spacing: 10) {
             Button { handleReplay(record, presentation: presentation) } label: {
                 Label(
-                    record.status == .draft ? NSLocalizedString("continue_game", value: "继续比赛", comment: "") : NSLocalizedString("play_again", value: "再来一场", comment: ""),
-                    systemImage: record.status == .draft ? "play.fill" : "arrow.clockwise"
+                    NSLocalizedString("play_again", value: "再来一场", comment: ""),
+                    systemImage: "arrow.clockwise"
                 )
                 .frame(maxWidth: .infinity)
             }
@@ -356,27 +354,19 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func handleReplay(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) {
-        if record.status == .draft {
-            guard record.stateSnapshot != nil else {
-                explanation = NSLocalizedString("record_draft_cannot_restore", value: "这条旧草稿没有可恢复的状态快照。", comment: "")
-                return
-            }
-            launchRequest = LaunchRequest(gameType: record.gameType, setup: nil, draftRecordId: record.id)
-        } else {
-            AppAnalytics.track(.scoreboardMenuAction, parameters: [
-                .gameType: .string(record.gameType.analyticsIdentifier),
-                .actionName: .string("play_again"),
-                .entryPoint: .string(AnalyticsEntryPoint.recordReplay.rawValue)
-            ])
-            showingSetup = true
-        }
+        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+            .gameType: .string(record.gameType.analyticsIdentifier),
+            .actionName: .string("play_again"),
+            .entryPoint: .string(AnalyticsEntryPoint.recordReplay.rawValue)
+        ])
+        showingSetup = true
     }
 
     private func startReplay(_ setup: SportsSetupResult) {
         guard let record else { return }
         showingSetup = false
         DispatchQueue.main.async {
-            launchRequest = LaunchRequest(gameType: record.gameType, setup: setup, draftRecordId: nil)
+            launchRequest = LaunchRequest(gameType: record.gameType, setup: setup)
         }
     }
 

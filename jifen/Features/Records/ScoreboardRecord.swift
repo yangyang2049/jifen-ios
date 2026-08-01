@@ -145,6 +145,59 @@ struct ScoreboardRecord: Codable, Identifiable {
     }
 }
 
+/// Current-format state for scoreboards that do not yet use a `ScoreSession`
+/// reducer. This is deliberately separate from `ScoreboardRecord`: resumable
+/// state is not a history record and never enters the finished-record store.
+struct ManualScoreboardResumeState: Codable {
+    static let currentSchemaVersion = 1
+
+    let schemaVersion: Int
+    let recordId: String
+    let gameType: GameType
+    let scoreCoreGameType: ScoreCore.GameType
+    let startTime: Date
+    let updatedAt: Date
+    let team1Name: String
+    let team2Name: String
+    var team1FinalScore: Int
+    var team2FinalScore: Int
+    var team1SetScore: Int?
+    var team2SetScore: Int?
+    var winner: String?
+    var actions: [String]
+    var detailedActions: [DetailedScoreAction]?
+    var setResults: [RecordSetResult]?
+    var totalScoreChanges: Int
+    var extraData: [String: AnyCodable]?
+    var projectConfiguration: [String: AnyCodable]?
+    var stateSnapshot: Data?
+
+    var id: String { recordId }
+
+    init(record: ScoreboardRecord, scoreCoreGameType: ScoreCore.GameType) {
+        schemaVersion = Self.currentSchemaVersion
+        recordId = record.id
+        gameType = record.gameType
+        self.scoreCoreGameType = scoreCoreGameType
+        startTime = record.startTime
+        updatedAt = record.endTime ?? Date()
+        team1Name = record.team1Name
+        team2Name = record.team2Name
+        team1FinalScore = record.team1FinalScore
+        team2FinalScore = record.team2FinalScore
+        team1SetScore = record.team1SetScore
+        team2SetScore = record.team2SetScore
+        winner = record.winner
+        actions = record.actions
+        detailedActions = record.detailedActions
+        setResults = record.setResults
+        totalScoreChanges = record.totalScoreChanges
+        extraData = record.extraData
+        projectConfiguration = record.projectConfiguration
+        stateSnapshot = record.stateSnapshot
+    }
+}
+
 // MARK: - Scoreboard Record Summary
 
 struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {

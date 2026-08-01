@@ -496,6 +496,8 @@
 "clear_records_tab_message" = "将删除“记录”中的计分记录和计时记录，此操作无法撤销。不会删除常用名称、常用地点或预约记录。";
 "clear_all_records_message" = "将删除比赛记录、计时记录、球局预约及常用名称和地点，此操作无法撤销。";
 "clear_data" = "清除数据";
+"clear_data_failed_title" = "清除失败";
+"clear_data_failed_format" = "部分续玩数据未能清除：%@";
 
 /* Settings */
 "settings" = "设置";
@@ -737,8 +739,6 @@
 "linked_score_sport_tennis_doubles" = "🎾 网球双打";
 "linked_score_sport_pickleball" = "🏓 匹克球单打";
 "linked_score_sport_pickleball_doubles" = "🏓 匹克球双打";
-"linked_score_sport_basketball" = "🏀 篮球";
-"linked_score_sport_three_basketball" = "🏀 三人篮球";
 "linked_score_sport_archery" = "🏹 射箭";
 "linked_score_sport_eight_ball" = "🎱 黑八";
 "linked_score_sport_nine_ball" = "🎱 追分";
@@ -775,7 +775,6 @@
 "got_it" = "知道了";
 "linked_score_not_controller" = "当前不是主控端，无法执行该操作。";
 "linked_score_reclaim_denied" = "手表拒绝交还控制权。";
-"pingpong_doubles_confirm_opening" = "确认本局首发顺序";
 "linked_score_waiting_controller" = "等待控制端确认";
 "linked_score_unsupported_record_type" = "无法同步不支持的手表记录类型：%@";
 "record_detail_synced_from_watch_hint" = "这条记录已从手表同步到手机";
@@ -1026,7 +1025,6 @@
 "record_details" = "明细";
 "record_detail_legacy_unavailable" = "旧记录缺少可靠的分局或时间信息，已降级显示比赛总览。";
 "record_unavailable" = "无法继续";
-"record_draft_cannot_restore" = "这条旧草稿没有可恢复的状态快照。";
 "record_set_score_format" = "局分 %d : %d";
 "record_score_changed" = "比分变化";
 "record_set_finished" = "本局结束";
@@ -1110,3 +1108,22 @@
 "basketball_next_period" = "下一节";
 "basketball_extra_overtime" = "再加时";
 "basketball_enter_overtime" = "进入加时";
+"linked_score_error_title" = "联动失败";
+"linked_score_force_takeover" = "强制接管";
+"linked_score_force_takeover_confirm" = "仍要接管";
+"linked_score_force_takeover_warning" = "未同步的手表操作可能丢失。手机会基于最后一次已确认的比分继续。";
+"linked_score_no_confirmed_snapshot" = "没有已确认的比赛快照，无法安全强制接管。";
+"linked_score_not_follower" = "当前手机不是跟随端，无需接管。";
+"linked_score_status_timeout" = "等待手表状态响应超时。";
+"linked_score_phone_controller" = "手机主控";
+"linked_score_watch_controller" = "手表主控";
+"linked_score_connected" = "已连接";
+"linked_score_disconnected" = "已断开";
+"linked_score_interrupted" = "已中断";
+"setup_score_cap_below_target" = "封顶分不能低于每局分数。";
+"linked_score_persistence_failed" = "无法保存联动恢复数据：%@";
+"linked_score_control_timeout" = "控制权切换超时，请重试。";
+"linked_score_sync_timeout" = "比分同步超时，将在重新连接后继续同步。";
+"resume_load_failed_title" = "无法继续比赛";
+"resume_load_failed_format" = "无法读取已保存的比赛：%@";
+"resume_load_invalid" = "已保存的比赛数据已损坏，无法继续。";

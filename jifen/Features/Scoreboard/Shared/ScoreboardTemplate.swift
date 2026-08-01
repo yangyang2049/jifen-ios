@@ -8,6 +8,87 @@
 import SwiftUI
 import UIKit
 
+/// Shared scoreboard name editor aligned with HarmonyOS `TeamNameField`.
+/// It keeps a consistent responsive width and always exposes common names
+/// through the trailing chevron while preserving direct text entry.
+struct ScoreboardNameEditorField: View {
+    let placeholder: String
+    @Binding var text: String
+    let nameType: NameType
+    let scoreboardFont: ScoreboardFont
+    var textColor: Color = .white
+    var onSubmit: (() -> Void)?
+    var onSelection: ((String) -> Void)?
+    var accessibilityIdentifier: String?
+
+    @State private var showCommonNameSelector = false
+
+    private var screenWidth: CGFloat {
+        max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+    }
+
+    private var preferredWidth: CGFloat {
+        ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: screenWidth)
+    }
+
+    private var fieldHeight: CGFloat {
+        ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: screenWidth)
+    }
+
+    private var fieldFontSize: CGFloat {
+        ScoreboardLayoutMetrics.scoreboardNameEditorFontSize(screenWidth: screenWidth)
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            HStack(spacing: 4) {
+                TextField(placeholder, text: $text)
+                    .font(scoreboardFont.swiftUIFont(size: fieldFontSize, weight: .bold))
+                    .foregroundStyle(textColor)
+                    .multilineTextAlignment(.center)
+                    .textFieldStyle(.plain)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .onSubmit { onSubmit?() }
+
+                Button {
+                    showCommonNameSelector = true
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(textColor.opacity(0.9))
+                        .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.plain)
+                .scoreboardMinimumTouchTarget()
+                .accessibilityLabel(
+                    NSLocalizedString("common_names_title", value: "常用名称", comment: "")
+                )
+            }
+            .padding(.leading, 10)
+            .padding(.trailing, 6)
+            .frame(width: min(preferredWidth, proxy.size.width), height: fieldHeight)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white.opacity(0.15))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.6), lineWidth: 2)
+            )
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .frame(height: fieldHeight)
+        .accessibilityIdentifier(accessibilityIdentifier ?? "")
+        .sheet(isPresented: $showCommonNameSelector) {
+            CommonNameSelectorDialog(nameType: nameType) { selectedName in
+                text = selectedName
+                onSelection?(selectedName)
+            }
+        }
+    }
+}
+
 struct ScoreboardTemplate: View {
     @Environment(\.dismiss) private var dismiss
     @State private var config: TemplateConfig
@@ -365,6 +446,11 @@ struct ScoreboardTemplate: View {
                     }
             )
         }
+        // Match the rally scoreboards: let GeometryReader measure the complete
+        // display, including the home-indicator area. Ignoring the safe area only
+        // on the inner ZStack leaves panelSize based on a shorter viewport, which
+        // shifts the score group upward and exposes a strip along the bottom.
+        .ignoresSafeArea()
         .onChange(of: isEditMode) { _, newValue in
             config.onEditModeChange?(newValue)
             updateImmersiveChromeForBlockingState()
@@ -815,9 +901,19 @@ struct TeamSection: View {
     private var isTablet: Bool {
         Theme.usesPadLayout
     }
-    /// 编辑态队名输入框：缩短宽度并左右留白居中
-    private var nameEditMaxWidth: CGFloat { isTablet ? 240 : 148 }
-    private var nameEditSideInset: CGFloat { isTablet ? 40 : 28 }
+    private var scoreboardScreenWidth: CGFloat {
+        max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+    }
+    private var nameEditMaxWidth: CGFloat {
+        ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: scoreboardScreenWidth)
+    }
+    private var nameEditHeight: CGFloat {
+        ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: scoreboardScreenWidth)
+    }
+    private var nameEditFontSize: CGFloat {
+        ScoreboardLayoutMetrics.scoreboardNameEditorFontSize(screenWidth: scoreboardScreenWidth)
+    }
+    private var nameEditSideInset: CGFloat { 16 }
 
     var body: some View {
         GeometryReader { geo in
@@ -847,8 +943,8 @@ struct TeamSection: View {
             let doublesNameSize = min(nameSize, typography.nameFontSize * 0.82)
             let effectiveScoreSize = typography.scoreFontSize
             let setSize = typography.secondaryFontSize
+            let nameToMain = typography.nameToScoreSpacing
             let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: halfH)
-            let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: halfH)
             let editOffset = isEditMode
                 ? ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: halfH)
                 : 0
@@ -857,20 +953,17 @@ struct TeamSection: View {
                 (isLeft ? palette.left : palette.right)
                     .ignoresSafeArea()
 
-                // Centered main score + sets/games under it (HOS ScoreboardPageTemplate).
-                VStack(spacing: mainToSet) {
+                // Keep the complete name/score/secondary group centered, matching
+                // the rally scoreboards. With the name pinned to the top, the main
+                // score sits visibly above the panel's horizontal center line.
+                VStack(spacing: 0) {
+                    nameBlock(nameSize: nameSize, doublesNameSize: doublesNameSize)
+                    Spacer().frame(height: nameToMain)
                     scoreBlock(fontSize: effectiveScoreSize)
+                    Spacer().frame(height: mainToSet)
                     secondaryScoresBlock(fontSize: setSize)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .offset(y: editOffset)
-
-                // Name pinned to top.
-                VStack(spacing: 0) {
-                    nameBlock(nameSize: nameSize, doublesNameSize: doublesNameSize)
-                        .padding(.top, topPad)
-                    Spacer(minLength: 0)
-                }
                 .offset(y: editOffset)
 
                 // Side controls pinned near bottom (HOS translateY: -72).
@@ -883,7 +976,10 @@ struct TeamSection: View {
                                     Text("+\(points)")
                                         .font(.system(size: 18, weight: .bold))
                                         .foregroundColor(palette.foreground)
-                                        .frame(width: 60, height: 40)
+                                        .frame(
+                                            width: 60,
+                                            height: ScoreboardConstants.minimumTouchTarget
+                                        )
                                         .background(
                                             RoundedRectangle(cornerRadius: 8)
                                                 .fill(ScoreboardTheme.auxiliaryButtonBackground)
@@ -923,7 +1019,7 @@ struct TeamSection: View {
                         }
                     }
                 ))
-                .font(getFont(size: nameSize, weight: .bold))
+                .font(getFont(size: nameEditFontSize, weight: .bold))
                 .foregroundColor(palette.foreground)
                 .multilineTextAlignment(.center)
                 .textFieldStyle(.plain)
@@ -945,11 +1041,16 @@ struct TeamSection: View {
                         .frame(width: 24, height: 24)
                 }
                 .buttonStyle(.plain)
+                .scoreboardMinimumTouchTarget()
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .frame(maxWidth: nameEditMaxWidth)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+            .padding(.leading, 10)
+            .padding(.trailing, 6)
+            .frame(maxWidth: nameEditMaxWidth, minHeight: nameEditHeight, maxHeight: nameEditHeight)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.15)))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.6), lineWidth: 2)
+            )
             .frame(maxWidth: .infinity)
             .padding(.horizontal, nameEditSideInset)
             .onChange(of: isEditMode) { _, newValue in

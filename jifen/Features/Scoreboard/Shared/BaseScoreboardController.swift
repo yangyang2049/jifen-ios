@@ -131,7 +131,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         extraData: [String: Any],
         projectConfiguration: [String: Any]? = nil,
         stateSnapshot: Data? = nil,
-        status: ScoreboardRecordStatus = .finished
+        isFinished: Bool = true
     ) {
         // Allow saving with set scores if provided
         saveScoreboardRecord(
@@ -149,7 +149,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             extraData: extraData,
             projectConfiguration: projectConfiguration,
             stateSnapshot: stateSnapshot,
-            status: status
+            isFinished: isFinished
         )
     }
     
@@ -168,7 +168,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         extraData: [String: Any],
         projectConfiguration: [String: Any]? = nil,
         stateSnapshot: Data? = nil,
-        status: ScoreboardRecordStatus = .finished
+        isFinished: Bool = true
     ) {
         // Allow saving/updating records multiple times (e.g., for multi-set games)
         // ScoreboardRecordManager will handle updating records with the same ID
@@ -192,7 +192,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             extraData: nil,
             projectConfiguration: projectConfiguration?.mapValues { AnyCodable($0) },
             stateSnapshot: stateSnapshot,
-            status: status
+            status: .finished
         )
         
         // Convert extraData to AnyCodable
@@ -205,19 +205,21 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         print("[BaseScoreboardController] 💾 Attempting to save record: \(id) for game: \(config.gameType.rawValue)")
         #endif
         do {
-            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+            try ScoreboardLifecyclePersistence.save(record, finished: isFinished)
             
             // Mark as saved only if not already saved (to prevent duplicate notifications)
-            if !gameRecordSaved {
+            if isFinished, !gameRecordSaved {
                 gameRecordSaved = true
             }
 
             // Notify ViewModel to refresh
-            DispatchQueue.main.async {
-                ScoreboardRecordsViewModel.shared.refreshRecords()
-                #if DEBUG
-                print("[BaseScoreboardController] 🔄 ViewModel refreshed after saving record")
-                #endif
+            if isFinished {
+                DispatchQueue.main.async {
+                    ScoreboardRecordsViewModel.shared.refreshRecords()
+                    #if DEBUG
+                    print("[BaseScoreboardController] 🔄 ViewModel refreshed after saving record")
+                    #endif
+                }
             }
 
             #if DEBUG

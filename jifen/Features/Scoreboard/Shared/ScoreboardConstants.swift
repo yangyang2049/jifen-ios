@@ -15,6 +15,9 @@ struct ScoreboardConstants {
 
     static let buttonIconSize: CGFloat = 20
 
+    /// Minimum interactive area for scoreboard controls.
+    static let minimumTouchTarget: CGFloat = 44
+
     /// Accessibility id for the bottom-left scoreboard back / exit control.
     static let backButtonAccessibilityID = "scoreboard_back_button"
 
@@ -23,6 +26,18 @@ struct ScoreboardConstants {
 
     /// Side control lift from bottom (HOS translateY: -72).
     static let sideControlsBottomOffset: CGFloat = 72
+}
+
+extension View {
+    /// Keeps compact scoreboard chrome visually small without shrinking its
+    /// tappable area below the platform accessibility minimum.
+    func scoreboardMinimumTouchTarget() -> some View {
+        frame(
+            minWidth: ScoreboardConstants.minimumTouchTarget,
+            minHeight: ScoreboardConstants.minimumTouchTarget
+        )
+        .contentShape(Rectangle())
+    }
 }
 
 /// Marks the scoreboard bottom-left back control for UI tests / VoiceOver.

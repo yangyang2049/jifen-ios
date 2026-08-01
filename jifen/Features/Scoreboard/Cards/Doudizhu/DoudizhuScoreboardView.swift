@@ -27,7 +27,7 @@ struct DoudizhuPlayerItem: Identifiable {
 struct DoudizhuScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
     @State private var players: [DoudizhuPlayerItem]
@@ -37,7 +37,6 @@ struct DoudizhuScoreboardView: View {
     @State private var showMenu = false
     @State private var isEditMode = false
     @State private var editNames: [String]
-    @State private var activeCommonNameIndex: Int? = nil
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var exitClickTime: TimeInterval = 0
     @State private var toastMessage: String? = nil
@@ -69,12 +68,12 @@ struct DoudizhuScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
 
@@ -86,21 +85,20 @@ struct DoudizhuScoreboardView: View {
         var finished = false
         var restoredActions: [String] = []
 
-        if let initialRecordId,
-           let record = ScoreboardRecordManager.shared.getRecordById(initialRecordId),
-           record.status == .draft {
+        if let initialResumeSessionId,
+           let record = ManualResumeSessionStore.load(recordID: initialResumeSessionId) {
             start = record.startTime
             id = record.id
             restoredActions = record.actions
             if let data = record.stateSnapshot,
-               let draft = try? JSONDecoder().decode(DoudizhuDraftSnapshot.self, from: data) {
-                for (index, name) in draft.names.prefix(3).enumerated() where !name.isEmpty {
+               let resumeState = try? JSONDecoder().decode(DoudizhuResumeState.self, from: data) {
+                for (index, name) in resumeState.names.prefix(3).enumerated() where !name.isEmpty {
                     initialPlayers[index].name = name
                 }
-                for (index, score) in draft.scores.prefix(3).enumerated() {
+                for (index, score) in resumeState.scores.prefix(3).enumerated() {
                     initialPlayers[index].score = score
                 }
-                finished = draft.finished
+                finished = resumeState.finished
             } else if let names = record.extraData?["playerNames"]?.value as? [String] {
                 for (index, name) in names.prefix(3).enumerated() where !name.isEmpty {
                     initialPlayers[index].name = name
@@ -268,21 +266,6 @@ struct DoudizhuScoreboardView: View {
             saveRecord(finished: gameFinished)
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
-        .sheet(isPresented: Binding(
-            get: { activeCommonNameIndex != nil },
-            set: { if !$0 { activeCommonNameIndex = nil } }
-        )) {
-            CommonNameSelectorDialog(nameType: .player) { selectedName in
-                if let index = activeCommonNameIndex, players.indices.contains(index) {
-                    if isEditMode, editNames.indices.contains(index) {
-                        editNames[index] = selectedName
-                    } else {
-                        players[index].name = selectedName
-                    }
-                }
-                activeCommonNameIndex = nil
-            }
-        }
         .scoreboardDisplaySettingsOverlay(
             isPresented: $showDisplaySettings,
             session: typographySession,
@@ -436,29 +419,13 @@ struct DoudizhuScoreboardView: View {
                     .offset(y: editOffset)
 
                     VStack(spacing: 0) {
-                        HStack(spacing: 6) {
-                            TextField(
-                                NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
-                                text: playerNameBinding(index)
-                            )
-                            .font(typographySession.effectivePreference.font.swiftUIFont(
-                                size: nameSize,
-                                weight: .bold
-                            ))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .textFieldStyle(.plain)
-                            Button { activeCommonNameIndex = index } label: {
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundColor(.white.opacity(0.9))
-                                    .frame(width: 28, height: 28)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .padding(8)
-                        .background(Color.black.opacity(0.12))
-                        .cornerRadius(8)
+                        ScoreboardNameEditorField(
+                            placeholder: NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
+                            text: playerNameBinding(index),
+                            nameType: .player,
+                            scoreboardFont: typographySession.effectivePreference.font,
+                            accessibilityIdentifier: "doudizhu_player_\(index)_name_editor"
+                        )
                         .padding(.horizontal, 16)
                         .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
                         Spacer(minLength: 0)
@@ -883,14 +850,14 @@ struct DoudizhuScoreboardView: View {
         let playersEnc: [[String: Any]] = players.map { p in
             ["name": p.name, "finalScore": p.score]
         }
-        let draft = DoudizhuDraftSnapshot(
+        let resumeState = DoudizhuResumeState(
             names: players.map(\.name),
             scores: players.map(\.score),
             finished: isFinished
         )
         let snapshotData: Data
         do {
-            snapshotData = try JSONEncoder().encode(draft)
+            snapshotData = try JSONEncoder().encode(resumeState)
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode doudizhu record \(recordID)")
             return
@@ -924,11 +891,13 @@ struct DoudizhuScoreboardView: View {
                 "playerCount": AnyCodable(3)
             ],
             stateSnapshot: snapshotData,
-            status: isFinished ? .finished : .draft
+            status: .finished
         )
         do {
-            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-            ScoreboardRecordsViewModel.shared.refreshRecords()
+            try ScoreboardLifecyclePersistence.save(record, finished: isFinished)
+            if isFinished {
+                ScoreboardRecordsViewModel.shared.refreshRecords()
+            }
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save doudizhu record \(recordID)")
         }
@@ -1006,7 +975,7 @@ struct DoudizhuScoreboardView: View {
     }
 }
 
-private struct DoudizhuDraftSnapshot: Codable {
+private struct DoudizhuResumeState: Codable {
     var names: [String]
     var scores: [Int]
     var finished: Bool

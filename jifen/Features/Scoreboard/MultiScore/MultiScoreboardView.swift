@@ -42,7 +42,7 @@ struct MultiPlayerItem: Identifiable, Codable, Equatable {
     var score: Int
 }
 
-struct MultiScoreSessionArchive: Codable, Equatable {
+struct MultiScoreResumeState: Codable, Equatable {
     var schemaVersion = 1
     let players: [MultiPlayerItem]
     let undoHistory: [[Int]]
@@ -59,7 +59,7 @@ struct MultiScoreboardView: View {
     var defaultPlayerCount: Int = 4
     var targetScore: Int? = nil
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
@@ -99,7 +99,7 @@ struct MultiScoreboardView: View {
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
-    @State private var draftSaveGeneration = 0
+    @State private var resumeSaveGeneration = 0
     @State private var pendingTapIndex: Int?
     @State private var pendingTapAt: Date = .distantPast
     @State private var useLandscapeLayout: Bool
@@ -112,7 +112,7 @@ struct MultiScoreboardView: View {
         defaultPlayerCount: Int = 4,
         targetScore: Int? = nil,
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
@@ -121,7 +121,7 @@ struct MultiScoreboardView: View {
         self.defaultPlayerCount = safeCount
         self.targetScore = targetScore
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
 
@@ -129,7 +129,7 @@ struct MultiScoreboardView: View {
         _gameStartTime = State(initialValue: start)
         _recordId = State(initialValue: ScoreboardRecordIdentity.initial(
             prefix: gameType.canonicalScoreboardIdentifier,
-            resuming: initialRecordId
+            resuming: initialResumeSessionId
         ))
         _players = State(initialValue: defaultMultiPlayerNames(count: safeCount).enumerated().map {
             MultiPlayerItem(id: $0.offset, name: $0.element, score: 0)
@@ -284,7 +284,7 @@ struct MultiScoreboardView: View {
         .onAppear {
             typographySession.reload()
             applySetupIfNeeded()
-            restoreDraftIfNeeded()
+            restoreResumeIfNeeded()
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
@@ -735,7 +735,7 @@ struct MultiScoreboardView: View {
         Task { await commonNamesManager.saveNameIfNeeded(name, .player) }
         cancelPlayerEdit()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        scheduleDraftPersist()
+        scheduleResumePersist()
     }
 
     private func playerEditAdjustButton(systemName: String, action: @escaping () -> Void) -> some View {
@@ -767,17 +767,14 @@ struct MultiScoreboardView: View {
                         .font(.system(size: 18, weight: .medium))
                         .foregroundStyle(.white)
 
-                    TextField(
-                        NSLocalizedString("multi_score_rename_placeholder", value: "玩家名称", comment: ""),
-                        text: $playerEditName
+                    ScoreboardNameEditorField(
+                        placeholder: NSLocalizedString("multi_score_rename_placeholder", value: "玩家名称", comment: ""),
+                        text: $playerEditName,
+                        nameType: .player,
+                        scoreboardFont: typographySession.effectivePreference.font,
+                        onSubmit: { confirmPlayerEdit(index: index) },
+                        accessibilityIdentifier: "multi_score_player_name_editor"
                     )
-                    .font(.system(size: 16))
-                    .foregroundStyle(.white)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 12)
-                    .frame(height: 44)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
-                    .onSubmit { confirmPlayerEdit(index: index) }
 
                     VStack(spacing: 8) {
                         Text(NSLocalizedString("multi_score_edit_score_label", value: "分数", comment: ""))
@@ -888,7 +885,7 @@ struct MultiScoreboardView: View {
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                     .frame(maxWidth: .infinity)
-                                    .frame(height: 36)
+                                    .frame(height: ScoreboardConstants.minimumTouchTarget)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12, style: .continuous)
                                             .fill(unoSelectedWinnerIndex == index ? Theme.primary : Theme.dialogControlBackground)
@@ -1028,7 +1025,7 @@ struct MultiScoreboardView: View {
         VibrationManager.shared.vibrateLight()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         showUnoRoundPanel = false
-        scheduleDraftPersist()
+        scheduleResumePersist()
         checkTargetReached(for: unoSelectedWinnerIndex)
     }
 
@@ -1043,7 +1040,7 @@ struct MultiScoreboardView: View {
         checkTargetReached(for: index)
         VibrationManager.shared.vibrateLight()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        scheduleDraftPersist()
+        scheduleResumePersist()
     }
 
     private func checkTargetReached(for index: Int) {
@@ -1079,7 +1076,7 @@ struct MultiScoreboardView: View {
         }
         VibrationManager.shared.vibrateLight()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        scheduleDraftPersist()
+        scheduleResumePersist()
         showTransientToast(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
     }
 
@@ -1095,13 +1092,13 @@ struct MultiScoreboardView: View {
         unoRoundCount = 0
         VibrationManager.shared.vibrateMedium()
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        scheduleDraftPersist()
+        scheduleResumePersist()
     }
 
     private func startNewMatch() {
         persistRecord(finished: true)
 
-        draftSaveGeneration += 1
+        resumeSaveGeneration += 1
         recordId = ScoreboardRecordIdentity.next(prefix: gameType.canonicalScoreboardIdentifier)
         gameStartTime = Date()
         history.removeAll()
@@ -1182,14 +1179,14 @@ struct MultiScoreboardView: View {
                 case .exchangeSides:
                     guard players.count > 1 else { return }
                     players.swapAt(0, 1)
-                    scheduleDraftPersist()
+                    scheduleResumePersist()
                 case .requestSnapshot: break
                 }
             }
         )
     }
 
-    // MARK: - Setup / draft
+    // MARK: - Setup / resume
 
     private func applySetupIfNeeded() {
         guard !initialSetupApplied else { return }
@@ -1229,10 +1226,9 @@ struct MultiScoreboardView: View {
         onSetupConsumed?()
     }
 
-    private func restoreDraftIfNeeded() {
-        guard let draftId = initialRecordId,
-              let record = ScoreboardRecordManager.shared.getRecordById(draftId),
-              record.status == .draft,
+    private func restoreResumeIfNeeded() {
+        guard let resumeId = initialResumeSessionId,
+              let record = ManualResumeSessionStore.load(recordID: resumeId),
               record.gameType == gameType else { return }
 
         recordId = record.id
@@ -1241,9 +1237,9 @@ struct MultiScoreboardView: View {
         gameFinished = false
 
         if let data = record.stateSnapshot,
-           let archive = try? JSONDecoder().decode(MultiScoreSessionArchive.self, from: data),
-           MultiScoreRules.normalizedPlayerCount(archive.players.count, gameType: gameType) == archive.players.count {
-            players = archive.players.enumerated().map { index, player in
+           let resumeState = try? JSONDecoder().decode(MultiScoreResumeState.self, from: data),
+           MultiScoreRules.normalizedPlayerCount(resumeState.players.count, gameType: gameType) == resumeState.players.count {
+            players = resumeState.players.enumerated().map { index, player in
                 let trimmed = player.name.trimmingCharacters(in: .whitespacesAndNewlines)
                 return MultiPlayerItem(
                     id: index,
@@ -1251,12 +1247,12 @@ struct MultiScoreboardView: View {
                     score: MultiScoreRules.scoreRange.clamp(player.score)
                 )
             }
-            history = Array(archive.undoHistory.suffix(50))
-            actions = archive.intentTimeline
-            unoRoundCount = max(0, archive.unoRoundCount)
-            resolvedTargetScore = archive.targetScore ?? resolvedTargetScore
-            customAdjustEnabled = archive.customAdjustEnabled
-            useLandscapeLayout = archive.useLandscapeLayout
+            history = Array(resumeState.undoHistory.suffix(50))
+            actions = resumeState.intentTimeline
+            unoRoundCount = max(0, resumeState.unoRoundCount)
+            resolvedTargetScore = resumeState.targetScore ?? resolvedTargetScore
+            customAdjustEnabled = resumeState.customAdjustEnabled
+            useLandscapeLayout = resumeState.useLandscapeLayout
             return
         }
 
@@ -1291,12 +1287,12 @@ struct MultiScoreboardView: View {
         }
     }
 
-    private func scheduleDraftPersist() {
+    private func scheduleResumePersist() {
         guard !gameFinished else { return }
-        draftSaveGeneration += 1
-        let generation = draftSaveGeneration
+        resumeSaveGeneration += 1
+        let generation = resumeSaveGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            guard generation == draftSaveGeneration else { return }
+            guard generation == resumeSaveGeneration else { return }
             persistRecord(finished: false)
         }
     }
@@ -1341,7 +1337,7 @@ struct MultiScoreboardView: View {
             }
         }
 
-        let archive = MultiScoreSessionArchive(
+        let resumeState = MultiScoreResumeState(
             players: players,
             undoHistory: history,
             intentTimeline: actions,
@@ -1352,7 +1348,7 @@ struct MultiScoreboardView: View {
         )
         let snapshotData: Data
         do {
-            snapshotData = try JSONEncoder().encode(archive)
+            snapshotData = try JSONEncoder().encode(resumeState)
         } catch {
             ScoreboardPersistenceFailureReporter.report(
                 error,
@@ -1382,11 +1378,14 @@ struct MultiScoreboardView: View {
                 ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(scoreCoreGameType.rawValue)
             ],
             stateSnapshot: snapshotData,
-            status: (finished || gameFinished) ? .finished : .draft
+            status: .finished
         )
         do {
-            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-            ScoreboardRecordsViewModel.shared.refreshRecords()
+            let isFinished = finished || gameFinished
+            try ScoreboardLifecyclePersistence.save(record, finished: isFinished)
+            if isFinished {
+                ScoreboardRecordsViewModel.shared.refreshRecords()
+            }
         } catch {
             ScoreboardPersistenceFailureReporter.report(
                 error,

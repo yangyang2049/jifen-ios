@@ -35,7 +35,7 @@ struct WatchPhoneLinkView: View {
                 .multilineTextAlignment(.center)
             Text(NSLocalizedString(
                 "watch_phone_link_support",
-                value: "除投篮训练外，已接入项目均支持；羽毛球、乒乓球、网球包含单打和双打。",
+                value: "支持四类球拍项目的单打与双打，以及射箭、黑八、追分和斯诺克。",
                 comment: ""
             ))
             .font(.system(size: 10))

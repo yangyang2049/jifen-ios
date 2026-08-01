@@ -496,6 +496,8 @@
 "clear_records_tab_message" = "Score and timer records in the Records tab will be deleted. This cannot be undone. Common names, common places, and bookings will not be deleted.";
 "clear_all_records_message" = "Match records, timer records, bookings, common names, and common places will be deleted. This cannot be undone.";
 "clear_data" = "Clear data";
+"clear_data_failed_title" = "Clear Failed";
+"clear_data_failed_format" = "Some resume data could not be cleared: %@";
 
 /* Settings */
 "settings" = "Settings";
@@ -737,8 +739,6 @@
 "linked_score_sport_tennis_doubles" = "🎾 Tennis Doubles";
 "linked_score_sport_pickleball" = "🏓 Pickleball Singles";
 "linked_score_sport_pickleball_doubles" = "🏓 Pickleball Doubles";
-"linked_score_sport_basketball" = "🏀 Basketball";
-"linked_score_sport_three_basketball" = "🏀 3x3 Basketball";
 "linked_score_sport_archery" = "🏹 Archery";
 "linked_score_sport_eight_ball" = "🎱 Eight-ball";
 "linked_score_sport_nine_ball" = "🎱 Nine-ball Chase";
@@ -775,7 +775,6 @@
 "got_it" = "Got It";
 "linked_score_not_controller" = "This device is not the controller, so that action can’t be performed.";
 "linked_score_reclaim_denied" = "The watch declined to return control.";
-"pingpong_doubles_confirm_opening" = "Confirm opening order";
 "linked_score_waiting_controller" = "Waiting for the controller";
 "linked_score_unsupported_record_type" = "Unsupported watch record type: %@";
 "record_detail_synced_from_watch_hint" = "This record was synced from the watch to this phone.";
@@ -1026,7 +1025,6 @@
 "record_details" = "Details";
 "record_detail_legacy_unavailable" = "This legacy record has no reliable game or time data. Showing the match overview instead.";
 "record_unavailable" = "Unable to Continue";
-"record_draft_cannot_restore" = "This legacy draft has no restorable state snapshot.";
 "record_set_score_format" = "Games %d : %d";
 "record_score_changed" = "Score changed";
 "record_set_finished" = "Game finished";
@@ -1110,3 +1108,22 @@
 "basketball_next_period" = "Next Period";
 "basketball_extra_overtime" = "Extra OT";
 "basketball_enter_overtime" = "Overtime";
+"linked_score_error_title" = "Link Failed";
+"linked_score_force_takeover" = "Force Take Over";
+"linked_score_force_takeover_confirm" = "Take Over Anyway";
+"linked_score_force_takeover_warning" = "Unsynced Watch actions may be lost. The phone will continue from the last confirmed score.";
+"linked_score_no_confirmed_snapshot" = "There is no confirmed match snapshot to take over safely.";
+"linked_score_not_follower" = "The phone is not the follower, so takeover is not needed.";
+"linked_score_status_timeout" = "Timed out waiting for the Watch status.";
+"linked_score_phone_controller" = "Phone controls";
+"linked_score_watch_controller" = "Watch controls";
+"linked_score_connected" = "Connected";
+"linked_score_disconnected" = "Disconnected";
+"linked_score_interrupted" = "Interrupted";
+"setup_score_cap_below_target" = "The score cap cannot be lower than the points per game.";
+"linked_score_persistence_failed" = "Could not save link recovery data: %@";
+"linked_score_control_timeout" = "Timed out switching control. Please try again.";
+"linked_score_sync_timeout" = "Score sync timed out and will continue after reconnecting.";
+"resume_load_failed_title" = "Unable to Resume Match";
+"resume_load_failed_format" = "Could not load the saved match: %@";
+"resume_load_invalid" = "The saved match is damaged and cannot be resumed.";

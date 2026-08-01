@@ -42,6 +42,7 @@
 		F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* AppAnalyticsTests.swift */; };
 		F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90000000000000000000001 /* LocalizationIntegrityTests.swift */; };
 		FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000000000000000000001 /* RemodelFocusUITests.swift */; };
+		FB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -124,6 +125,7 @@
 		F80000000000000000000001 /* AppAnalyticsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppAnalyticsTests.swift; sourceTree = "<group>"; };
 		F90000000000000000000001 /* LocalizationIntegrityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationIntegrityTests.swift; sourceTree = "<group>"; };
 		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
+		FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneWatchLinkServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -254,6 +256,7 @@
 				F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */,
 				F80000000000000000000001 /* AppAnalyticsTests.swift */,
 				F90000000000000000000001 /* LocalizationIntegrityTests.swift */,
+				FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */,
 			);
 			path = jifenTests;
 			sourceTree = "<group>";
@@ -631,6 +634,7 @@
 				F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */,
 				F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */,
 				F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */,
+				FB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -50,6 +50,7 @@ struct SettingsView: View {
     @State private var showAppearancePicker = false
     @State private var showAppShareSheet = false
     @State private var activeSheet: SettingsSheetDestination?
+    @State private var clearDataErrorMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -179,22 +180,20 @@ struct SettingsView: View {
             .alert(NSLocalizedString("clear_data", comment: ""), isPresented: $showClearConfirm) {
                 Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
                 Button(NSLocalizedString("clear_data", comment: ""), role: .destructive) {
-                    ScoreboardRecordManager.shared.clearAllRecords()
-                    Task { try? await SessionArchiveRepository().clear() }
-                    _ = TimerRecordManager.shared.clearAllRecords()
-                    _ = LocalBookingManager.shared.clearAllBookings()
-                    CommonNamesManager.shared.clearNames(type: .team)
-                    CommonNamesManager.shared.clearNames(type: .player)
-                    CommonPlacesManager.shared.clearAll()
-                    ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
-                    TimerRecordsViewModel.shared.loadFromStorage()
-                    AppAnalytics.track(.clearData, parameters: [
-                        .actionName: .string("clear_all"),
-                        .result: .string(AnalyticsResult.success.rawValue)
-                    ])
+                    clearAllData()
                 }
             } message: {
                 Text(NSLocalizedString("clear_all_records_message", comment: ""))
+            }
+            .alert(
+                NSLocalizedString("clear_data_failed_title", value: "Clear Failed", comment: ""),
+                isPresented: clearDataErrorPresented
+            ) {
+                Button(NSLocalizedString("confirm", value: "OK", comment: "")) {
+                    clearDataErrorMessage = nil
+                }
+            } message: {
+                Text(clearDataErrorMessage ?? "")
             }
         }
         .sheet(item: $activeSheet) { destination in
@@ -205,6 +204,47 @@ struct SettingsView: View {
         .sheet(isPresented: $showAppShareSheet) {
             AnalyticsActivityView(activityItems: [AppSupportURLs.website], contentType: "app_link")
         }
+    }
+
+    private var clearDataErrorPresented: Binding<Bool> {
+        Binding(
+            get: { clearDataErrorMessage != nil },
+            set: { if !$0 { clearDataErrorMessage = nil } }
+        )
+    }
+
+    private func clearAllData() {
+        ScoreboardRecordManager.shared.clearAllRecords()
+        _ = TimerRecordManager.shared.clearAllRecords()
+        _ = LocalBookingManager.shared.clearAllBookings()
+        CommonNamesManager.shared.clearNames(type: .team)
+        CommonNamesManager.shared.clearNames(type: .player)
+        CommonPlacesManager.shared.clearAll()
+        ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+        TimerRecordsViewModel.shared.loadFromStorage()
+        Task {
+            do {
+                try await ResumeSessionRepository().clear()
+                trackClearDataResult(.success)
+            } catch {
+                clearDataErrorMessage = String(
+                    format: NSLocalizedString(
+                        "clear_data_failed_format",
+                        value: "Some resume data could not be cleared: %@",
+                        comment: "Clear data failure with the underlying error"
+                    ),
+                    error.localizedDescription
+                )
+                trackClearDataResult(.failed)
+            }
+        }
+    }
+
+    private func trackClearDataResult(_ result: AnalyticsResult) {
+        AppAnalytics.track(.clearData, parameters: [
+            .actionName: .string("clear_all"),
+            .result: .string(result.rawValue)
+        ])
     }
 
     @ViewBuilder

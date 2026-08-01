@@ -13,7 +13,7 @@ struct BoxingHistoryEntry: Codable, Equatable {
     let restoresNames: Bool
 }
 
-struct BoxingSessionArchive: Codable, Equatable {
+struct BoxingResumeState: Codable, Equatable {
     var schemaVersion = 1
     let state: BoxingMatchState
     let undoHistory: [BoxingHistoryEntry]
@@ -84,14 +84,14 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
             }
         }
 
-        let archive = BoxingSessionArchive(
+        let resumeState = BoxingResumeState(
             state: coreState,
             undoHistory: fullStateHistory,
             intentTimeline: controller?.getGameActions() ?? []
         )
         let snapshotData: Data
         do {
-            snapshotData = try JSONEncoder().encode(archive)
+            snapshotData = try JSONEncoder().encode(resumeState)
         } catch {
             ScoreboardPersistenceFailureReporter.report(
                 error,
@@ -123,13 +123,13 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
                 "maxRounds": maxRounds
             ],
             stateSnapshot: snapshotData,
-            status: finished ? .finished : .draft
+            isFinished: finished
         )
     }
 
-    func restoreSession(_ archive: BoxingSessionArchive) {
-        fullStateHistory = Array(archive.undoHistory.suffix(50))
-        apply(archive.state)
+    func restoreSession(_ resumeState: BoxingResumeState) {
+        fullStateHistory = Array(resumeState.undoHistory.suffix(50))
+        apply(resumeState.state)
         controller?.clearHistory()
         for entry in fullStateHistory {
             controller?.pushHistory(

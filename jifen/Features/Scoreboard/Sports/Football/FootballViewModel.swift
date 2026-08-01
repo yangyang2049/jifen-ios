@@ -52,14 +52,14 @@ class FootballViewModel: LineScoreViewModel {
             }
         }
 
-        let archive = LineScoreSessionArchive(
+        let resumeState = LineScoreResumeState(
             state: sessionState,
             undoHistory: resumeHistory,
             intentTimeline: controller?.getGameActions() ?? []
         )
         let snapshotData: Data
         do {
-            snapshotData = try JSONEncoder().encode(archive)
+            snapshotData = try JSONEncoder().encode(resumeState)
         } catch {
             ScoreboardPersistenceFailureReporter.report(
                 error,
@@ -87,7 +87,7 @@ class FootballViewModel: LineScoreViewModel {
                 "maximumScore": LineScoreRuleSet.nonNegative.maximum
             ],
             stateSnapshot: snapshotData,
-            status: (isGameFinished || gameFinished) ? .finished : .draft
+            isFinished: isGameFinished || gameFinished
         )
         #if DEBUG
         print("[FootballViewModel] ✅ Football record saved successfully")

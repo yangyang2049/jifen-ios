@@ -316,6 +316,7 @@ struct GameOverDialog: View {
                         .background(Circle().fill(Color.white.opacity(0.12)))
                 }
                 .buttonStyle(.plain)
+                .scoreboardMinimumTouchTarget()
                 .padding(10)
                 .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
             }
@@ -522,7 +523,7 @@ struct GameOverDialog: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .buttonStyle(.plain)
-        .frame(height: usesTabletSpacing ? 46 : 40)
+        .frame(height: usesTabletSpacing ? 46 : ScoreboardConstants.minimumTouchTarget)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }

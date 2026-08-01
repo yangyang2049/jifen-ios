@@ -790,7 +790,7 @@ import SessionCore
 @Test func specializedBilliardsResumeBundleRepositoryPreservesTypedUndoTimeline() async throws {
     let root = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
-    let repository = SessionArchiveRepository(rootURL: root)
+    let repository = ResumeSessionRepository(rootURL: root)
     let seed = ScoreSession<EightBallState, EightBallEvent>(
         gameType: .eightBall,
         ruleFamily: .s2,
@@ -1269,9 +1269,33 @@ import SessionCore
     #expect(decoded.leftPoints == 0)
 }
 
-@Test func pingPongDoublesRequiresOpeningConfirmationAndDerivesNextReceiver() {
+@Test func pingPongDoublesStartsAndContinuesWithoutOpeningConfirmation() {
     let reducer = RallyMatchReducer()
     var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: .pingPong(),
+        doubles: .pingPong(playerNames: ["R1", "B1", "R2", "B2"])
+    )
+
+    for point in 0..<11 {
+        let result = reducer.reduce(state: state, intent: .pointWon(.left), at: Int64(point + 1))
+        #expect(result.accepted)
+        state = result.state
+    }
+
+    guard case .pingPong(let nextSetRotation) = state.doubles?.rotation else {
+        Issue.record("Expected ping-pong doubles rotation")
+        return
+    }
+    #expect(nextSetRotation.pendingGameOpening == nil)
+    #expect(state.doubles?.serverSlotIndex == 1)
+    #expect(state.doubles?.receiverSlotIndex == 0)
+
+    let nextPoint = reducer.reduce(state: state, intent: .pointWon(.right), at: 20)
+    #expect(nextPoint.accepted)
+
+    let legacyState = RallyMatchEngine.initial(
         leftName: "Red",
         rightName: "Blue",
         rules: .pingPong(),
@@ -1280,33 +1304,17 @@ import SessionCore
             requiresOpeningConfirmation: true
         )
     )
-    #expect(!reducer.reduce(state: state, intent: .pointWon(.left), at: 1).accepted)
-    state = reducer.reduce(
-        state: state,
-        intent: .confirmPingPongDoublesOpening(serverSlot: 2, receiverSlot: 3),
-        at: 2
-    ).state
-    #expect(state.doubles?.serverSlotIndex == 2)
-    #expect(state.doubles?.receiverSlotIndex == 3)
-
-    for point in 0..<11 {
-        state = reducer.reduce(state: state, intent: .pointWon(.left), at: Int64(point + 3)).state
-    }
-
-    guard case .pingPong(let pendingRotation) = state.doubles?.rotation else {
+    let resumedLegacyMatch = reducer.reduce(
+        state: legacyState,
+        intent: .pointWon(.left),
+        at: 21
+    )
+    #expect(resumedLegacyMatch.accepted)
+    guard case .pingPong(let resumedRotation) = resumedLegacyMatch.state.doubles?.rotation else {
         Issue.record("Expected ping-pong doubles rotation")
         return
     }
-    #expect(pendingRotation.pendingGameOpening != nil)
-    #expect(!reducer.reduce(state: state, intent: .pointWon(.right), at: 20).accepted)
-
-    state = reducer.reduce(
-        state: state,
-        intent: .confirmPingPongDoublesOpening(serverSlot: 1, receiverSlot: nil),
-        at: 21
-    ).state
-    #expect(state.doubles?.serverSlotIndex == 1)
-    #expect(state.doubles?.receiverSlotIndex == 0)
+    #expect(resumedRotation.pendingGameOpening == nil)
 }
 
 @Test func legacyPingPongSnapshotWithoutReplayCanRecomputeAfterDecrement() {

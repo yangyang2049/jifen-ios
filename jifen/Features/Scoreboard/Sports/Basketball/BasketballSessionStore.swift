@@ -11,11 +11,10 @@ final class BasketballSessionStore {
     private typealias ResumeBundle = ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>
 
     private let core: ScoreSessionCore<BasketballMatchReducer>
-    private let archiveRepository: SessionArchiveRepository
+    private let resumeRepository: ResumeSessionRepository
     private var clockTask: Task<Void, Never>?
     private var detailedActions: [DetailedScoreAction]
     private var operationTask: Task<Void, Never>?
-    private var lastAppliedRemoteRevision: UInt64?
 
     private(set) var state: BasketballMatchState
     var actionTimeline: [DetailedScoreAction] { detailedActions }
@@ -40,7 +39,7 @@ final class BasketballSessionStore {
         rightName: String,
         gameMode: BasketballGameMode = .fiveVFive,
         ruleSet: BasketballRuleSet = .fiba,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         let initial = BasketballMatchEngine.initial(
             leftName: leftName,
@@ -59,12 +58,12 @@ final class BasketballSessionStore {
             ],
             metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
         )
-        self.init(session: session, archiveRepository: archiveRepository)
+        self.init(session: session, resumeRepository: resumeRepository)
     }
 
     private init(
         session: ScoreSession<BasketballMatchState, BasketballMatchEvent>,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
@@ -74,7 +73,7 @@ final class BasketballSessionStore {
             reducer: BasketballMatchReducer(),
             shouldFinish: { _, state in state.finished }
         )
-        self.archiveRepository = archiveRepository ?? SessionArchiveRepository()
+        self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
     }
@@ -89,22 +88,21 @@ final class BasketballSessionStore {
             reducer: BasketballMatchReducer(),
             shouldFinish: { _, state in state.finished }
         )
-        archiveRepository = SessionArchiveRepository()
+        resumeRepository = ResumeSessionRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
     }
 
     convenience init?(restoring sessionId: UUID) {
-        let url = SessionArchiveRepository.snapshotURL(sessionId: sessionId)
-        guard let data = try? Data(contentsOf: url) else {
+        guard let data = try? ResumeSessionRepository.loadPayload(
+            sessionId: sessionId,
+            expectedKind: .scoreSessionBundle
+        ) else {
             return nil
         }
         if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
            bundle.currentSession.status == .live {
             self.init(resumeBundle: bundle)
-        } else if let session = try? JSONDecoder().decode(ScoreSession<BasketballMatchState, BasketballMatchEvent>.self, from: data),
-                  session.status == .live {
-            self.init(session: session)
         } else {
             return nil
         }
@@ -116,7 +114,7 @@ final class BasketballSessionStore {
             rightName: state.rightName,
             gameMode: state.gameMode,
             ruleSet: state.ruleSet,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
     }
 
@@ -135,7 +133,7 @@ final class BasketballSessionStore {
             await self.synchronizeParticipants(for: session.state)
             let bundle = await core.resumeBundle()
             do {
-                try await self.archiveRepository.saveResumeBundle(bundle)
+                try await self.resumeRepository.saveResumeBundle(bundle)
                 if intent != .tickClock {
                     self.append(intent: intent, at: now, state: session.state)
                     try self.persistRecord(bundle.currentSession)
@@ -164,7 +162,7 @@ final class BasketballSessionStore {
             let bundle = await core.resumeBundle()
             self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftScore, session.state.rightScore], periodNumber: session.state.currentPeriod, operationCode: "undo"))
             do {
-                try await self.archiveRepository.saveResumeBundle(bundle)
+                try await self.resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(session)
             } catch {
                 ScoreboardPersistenceFailureReporter.report(
@@ -193,11 +191,11 @@ final class BasketballSessionStore {
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [core, archiveRepository] in
+        operationTask = Task { [core, resumeRepository] in
             _ = await previousTask?.value
             let bundle = await core.resumeBundle()
             do {
-                try await archiveRepository.saveResumeBundle(bundle)
+                try await resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(bundle.currentSession)
                 completion?(true)
             } catch {
@@ -217,45 +215,6 @@ final class BasketballSessionStore {
             _ = await pending?.value
             completion()
         }
-    }
-
-    func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
-        guard !incoming.isEmpty else { return }
-        detailedActions = incoming.sorted {
-            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
-        }
-    }
-
-    @discardableResult
-    func applyAuthoritativeState(
-        _ state: BasketballMatchState,
-        detailedActions incoming: [DetailedScoreAction],
-        revision: UInt64
-    ) async -> Bool {
-        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
-            return false
-        }
-        lastAppliedRemoteRevision = revision
-        _ = await operationTask?.value
-        let session = await core.rebase(
-            to: state,
-            status: state.finished ? .finished : .live
-        )
-        guard lastAppliedRemoteRevision == revision else { return false }
-        self.state = session.state
-        mergeRemoteActions(incoming)
-        await synchronizeParticipants(for: session.state)
-        let bundle = await core.resumeBundle()
-        do {
-            try await archiveRepository.saveResumeBundle(bundle)
-            try persistRecord(bundle.currentSession)
-        } catch {
-            ScoreboardPersistenceFailureReporter.report(
-                error,
-                context: "Failed to persist linked basketball state \(sessionId.uuidString)"
-            )
-        }
-        return true
     }
 
     private func synchronizeParticipants(for state: BasketballMatchState) async {
@@ -293,6 +252,7 @@ final class BasketballSessionStore {
     }
 
     private func persistRecord(_ session: ScoreSession<BasketballMatchState, BasketballMatchEvent>) throws {
+        guard session.status == .finished, state.finished else { return }
         let appGameType: GameType = state.gameMode == .threeXThree ? .threeBasketball : .basketball
         let snapshot = try JSONEncoder().encode(session)
         let winner = state.finished && state.leftScore != state.rightScore ? (state.leftScore > state.rightScore ? "left" : "right") : nil
@@ -315,7 +275,7 @@ final class BasketballSessionStore {
                 "basketballRuleSet": AnyCodable(String(describing: state.ruleSet).lowercased())
             ],
             stateSnapshot: snapshot,
-            status: state.finished ? .finished : .draft
+            status: .finished
         )
         try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
         ScoreboardRecordsViewModel.shared.refreshRecords()

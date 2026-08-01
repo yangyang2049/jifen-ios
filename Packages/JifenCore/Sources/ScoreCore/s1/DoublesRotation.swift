@@ -8,8 +8,8 @@ public struct PingPongDoublesRotationState: Codable, Equatable, Sendable {
     public let openingServerSlotIndex: DoublesPlayerSlotIndex
     public let openingReceiverSlotIndex: DoublesPlayerSlotIndex
     public var decidingReceiverOrderChanged: Bool
-    /// Non-nil while the next game's individual opening order must be
-    /// confirmed by the active controller before another point is scored.
+    /// Legacy persisted state from versions that prompted for an opening order.
+    /// New matches leave this nil, and scoring clears any restored value.
     public var pendingGameOpening: PingPongDoublesGameOpening?
 
     public init(
@@ -29,6 +29,8 @@ public struct PingPongDoublesRotationState: Codable, Equatable, Sendable {
     }
 }
 
+/// Retained so snapshots written before the opening-order prompt was retired
+/// continue to decode.
 public struct PingPongDoublesGameOpening: Codable, Equatable, Sendable {
     public let servingTeam0: Bool
     public let previousOpeningServerSlotIndex: DoublesPlayerSlotIndex?

@@ -4,7 +4,7 @@ import SwiftUI
 struct BadmintonScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
 
     var body: some View {
@@ -24,7 +24,7 @@ struct BadmintonScoreboardView: View {
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
-            initialRecordId: initialRecordId,
+            initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )

@@ -297,8 +297,8 @@ public struct RallyMatchState: Codable, Equatable, Sendable {
     public var finished: Bool
     public var sidesSwapped: Bool
     public var doubles: RallyDoublesState?
-    /// Optional for backward compatibility with drafts and linked snapshots
-    /// written before score-correction replay was introduced.
+    /// Optional for completed historical snapshots written before
+    /// score-correction replay was introduced.
     public var currentSetReplay: RallyCurrentSetReplay?
 
     public var currentSet: Int { leftSets + rightSets + 1 }
@@ -343,6 +343,7 @@ public enum RallyMatchIntent: Codable, Sendable {
     case adjustPoints(side: MatchSide, delta: Int)
     case adjustSets(side: MatchSide, delta: Int)
     case setDoublesPlayerName(slot: Int, name: String)
+    /// Retained for decoding and replaying timelines written by older clients.
     case confirmPingPongDoublesOpening(serverSlot: Int, receiverSlot: Int?)
     case exchangeSides
     case finish
@@ -449,12 +450,17 @@ public struct RallyMatchReducer: DomainReducer {
         recordsReplay: Bool = true
     ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
         guard !state.finished else { return .rejected(state: state, reason: "Match is already finished") }
-        if case .pingPong(let rotation) = state.doubles?.rotation,
-           rotation.pendingGameOpening != nil {
-            return .rejected(state: state, reason: "Ping-pong doubles opening order requires confirmation")
-        }
 
         var prepared = state
+        if var doubles = prepared.doubles,
+           case .pingPong(var rotation) = doubles.rotation,
+           rotation.pendingGameOpening != nil {
+            // Older saved matches may still contain the retired opening-order prompt.
+            // Clear it on the first rally so those matches can continue normally.
+            rotation.pendingGameOpening = nil
+            doubles.rotation = .pingPong(rotation)
+            prepared.doubles = doubles
+        }
         if recordsReplay, state.rules.useRallyScoring {
             if prepared.currentSetReplay == nil {
                 prepared.currentSetReplay = makeCurrentSetReplayBaseline(from: prepared)
@@ -754,12 +760,7 @@ public struct RallyMatchReducer: DomainReducer {
             ) ?? (server == 0 ? 1 : 0)
             doubles.rotation = .pingPong(createPingPongDoublesRotation(
                 openingServerSlotIndex: server,
-                openingReceiverSlotIndex: receiver,
-                pendingGameOpening: .init(
-                    servingTeam0: servingSide == .left,
-                    previousOpeningServerSlotIndex: rotation.openingServerSlotIndex,
-                    previousOpeningReceiverSlotIndex: rotation.openingReceiverSlotIndex
-                )
+                openingReceiverSlotIndex: receiver
             ))
         case .badminton(let rotation):
             let servingTeam0 = servingSide == .left
@@ -800,8 +801,7 @@ public struct RallyMatchReducer: DomainReducer {
             return .pingPong(
                 playerNames: doubles.playerNames,
                 openingServerSlotIndex: server,
-                openingReceiverSlotIndex: server == 0 ? 1 : 0,
-                requiresOpeningConfirmation: true
+                openingReceiverSlotIndex: server == 0 ? 1 : 0
             )
         case .badminton:
             return .badminton(playerNames: doubles.playerNames, servingTeam0: openingServer == .left)
@@ -865,7 +865,7 @@ public struct RallyMatchReducer: DomainReducer {
         )
     }
 
-    /// Old table-tennis drafts did not persist rally history. Its serving and
+    /// Old completed table-tennis snapshots did not persist rally history. Their serving and
     /// doubles receiving order depend on total points rather than who won each
     /// rally, so an aggregate-score replay is deterministic and safe.
     private func legacyPingPongReplay(from state: RallyMatchState) -> RallyCurrentSetReplay? {

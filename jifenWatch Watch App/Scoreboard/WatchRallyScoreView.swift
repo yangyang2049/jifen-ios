@@ -1,6 +1,5 @@
 import Observation
 import LinkCore
-import PersistenceCore
 import RecordCore
 import ScoreCore
 import SessionCore
@@ -12,8 +11,6 @@ private final class WatchRallySessionStore {
     typealias ResumeBundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>
 
     private let core: ScoreSessionCore<RallyMatchReducer>
-    private let archiveRepository: SessionArchiveRepository
-
     private(set) var state: RallyMatchState
     private(set) var actionLog: WatchScoreActionLog
     private var lastAppliedRemoteRevision: UInt64?
@@ -55,7 +52,6 @@ private final class WatchRallySessionStore {
                 shouldFinish: { _, state in state.finished }
             )
         }
-        archiveRepository = SessionArchiveRepository()
         state = initial
         actionLog = WatchScoreActionLog(startedAt: startedAt, resumed: resumedActionLog)
     }
@@ -85,7 +81,6 @@ private final class WatchRallySessionStore {
                     timestamp: timestamp
                 ))
             }
-            try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, events)
         }
     }
@@ -101,20 +96,12 @@ private final class WatchRallySessionStore {
                 team1SetScore: session.state.leftSets,
                 team2SetScore: session.state.rightSets
             )
-            try? await self.archiveRepository.save(session, source: .watchLocal)
             self.onStateChanged?(session.state, [])
             onSuccess()
         }
     }
 
     var onStateChanged: ((RallyMatchState, [RallyMatchEvent]) -> Void)?
-
-    func persist() {
-        Task { [core, archiveRepository] in
-            let session = await core.snapshot()
-            try? await archiveRepository.save(session, source: .watchLocal)
-        }
-    }
 
     @discardableResult
     func applyAuthoritativeState(
@@ -133,7 +120,6 @@ private final class WatchRallySessionStore {
         guard lastAppliedRemoteRevision == revision else { return false }
         self.state = session.state
         actionLog.merge(detailedActions: detailedActions)
-        try? await archiveRepository.save(session, source: .watchLocal)
         return true
     }
 
@@ -218,9 +204,6 @@ struct WatchRallyScoreView: View {
             if let scoreEventToast {
                 WatchScoreEventToast(state: scoreEventToast)
                     .transition(.opacity)
-            }
-            if let opening = pendingPingPongDoublesOpening {
-                pingPongDoublesOpeningOverlay(opening)
             }
             if showMenu {
                 WatchScoreboardMenuOverlay(
@@ -358,9 +341,6 @@ struct WatchRallyScoreView: View {
             if store.state.finished {
                 finalizeFinish()
             }
-            if !scoringLocked {
-                store.persist()
-            }
             Task { await persistResumeSession() }
         }
     }
@@ -404,57 +384,6 @@ struct WatchRallyScoreView: View {
             onExit: exitBoard
         )
         .watchUndoToast(token: $undoToastToken)
-    }
-
-    private var pendingPingPongDoublesOpening: PingPongDoublesGameOpening? {
-        guard case .pingPong(let rotation) = store.state.doubles?.rotation else { return nil }
-        return rotation.pendingGameOpening
-    }
-
-    @ViewBuilder
-    private func pingPongDoublesOpeningOverlay(_ opening: PingPongDoublesGameOpening) -> some View {
-        let serverSlots = opening.servingTeam0 ? [0, 2] : [1, 3]
-        let receiverSlots = opening.servingTeam0 ? [1, 3] : [0, 2]
-        VStack(spacing: 7) {
-            Text(NSLocalizedString("pingpong_doubles_confirm_opening", value: "确认首发", comment: ""))
-                .font(.system(size: 14, weight: .bold))
-            if scoringLocked {
-                Text(NSLocalizedString("linked_score_waiting_controller", value: "等待手机确认", comment: ""))
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-            } else if opening.isFirstGame {
-                ForEach(serverSlots, id: \.self) { server in
-                    HStack(spacing: 6) {
-                        ForEach(receiverSlots, id: \.self) { receiver in
-                            watchOpeningChoiceButton(server: server, receiver: receiver)
-                        }
-                    }
-                }
-            } else {
-                HStack(spacing: 8) {
-                    ForEach(serverSlots, id: \.self) { server in
-                        watchOpeningChoiceButton(server: server, receiver: nil)
-                    }
-                }
-            }
-        }
-        .padding(12)
-        .foregroundStyle(.white)
-        .background(.black.opacity(0.9), in: RoundedRectangle(cornerRadius: 14))
-        .padding(10)
-        .allowsHitTesting(!scoringLocked)
-    }
-
-    private func watchOpeningChoiceButton(server: Int, receiver: Int?) -> some View {
-        let names = store.state.doubles?.playerNames ?? []
-        let serverName = names.indices.contains(server) ? names[server] : ""
-        let receiverName = receiver.flatMap { names.indices.contains($0) ? names[$0] : nil }
-        let title = receiverName.map { "\(serverName)→\($0)" } ?? serverName
-        return Button(title) {
-            store.send(.confirmPingPongDoublesOpening(serverSlot: server, receiverSlot: receiver))
-        }
-        .font(.system(size: 10, weight: .semibold))
-        .buttonStyle(.borderedProminent)
     }
 
     private var doublesBoard: some View {
@@ -997,8 +926,7 @@ struct WatchRallyScoreView: View {
         completedSetPresentation = nil
         showSideExchangeToast = false
         scoreEventToast = nil
-        matchStartTime = Date()
-        store.send(.reset)
+        startFreshMatch()
     }
 
     private func finishAndExit() {
@@ -1032,18 +960,49 @@ struct WatchRallyScoreView: View {
             completedSetPresentation = nil
             showSideExchangeToast = false
             scoreEventToast = nil
-            matchStartTime = Date()
-            store.send(.reset)
+            startFreshMatch()
+        }
+    }
+
+    private func startFreshMatch() {
+        let timestamp = Date()
+        let result = RallyMatchReducer().reduce(
+            state: store.state,
+            intent: .reset,
+            at: Int64(timestamp.timeIntervalSince1970 * 1_000)
+        )
+        guard result.accepted else { return }
+        let freshStore = WatchRallySessionStore(
+            gameType: gameType,
+            rules: rules,
+            initialState: result.state,
+            startedAt: timestamp
+        )
+        freshStore.onStateChanged = { [linkService] state, events in
+            if linkedSessionId != nil {
+                guard linkService.isController else { return }
+                linkService.publishSnapshot(
+                    .rally(state),
+                    detailedActions: freshStore.actionLog.detailedActions
+                )
+            }
+            handle(events: events, state: state)
+            Task { await persistResumeSession() }
+        }
+        store = freshStore
+        matchStartTime = timestamp
+        if linkedSessionId != nil {
+            linkService.startNextMatch(
+                snapshot: .rally(result.state),
+                participantNames: result.state.doubles?.playerNames
+                    ?? [result.state.leftName, result.state.rightName]
+            )
         }
     }
 
     private func exitBoard() {
         if linkedSessionId != nil {
-            if store.state.finished {
-                linkService.leaveSession()
-            } else {
-                linkService.exitScoreboardToHome()
-            }
+            linkService.exitScoreboardToHome()
         }
         dismiss()
     }

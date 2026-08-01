@@ -25,6 +25,10 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(store.state.doubles?.playerNames, ["Red A", "Blue A", "Red B", "Blue B"])
         XCTAssertEqual(store.state.doubles?.serverSlotIndex, 0)
         XCTAssertEqual(store.state.doubles?.receiverSlotIndex, 1)
+        guard case .pingPong(let rotation) = store.state.doubles?.rotation else {
+            return XCTFail("Expected ping-pong doubles rotation")
+        }
+        XCTAssertNil(rotation.pendingGameOpening)
     }
 
     func testBadmintonDoublesUsesCrossPlatformSlotOrder() {
@@ -116,23 +120,6 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(restored.state.leftPoints, 2)
     }
 
-    func testBasketballAuthoritativeRebaseRejectsStaleRevision() async {
-        let store = BasketballSessionStore(leftName: "A", rightName: "B")
-        var remote = store.state
-        remote.leftScore = 12
-        remote.rightScore = 8
-
-        let applied = await store.applyAuthoritativeState(remote, detailedActions: [], revision: 9)
-        XCTAssertTrue(applied)
-        XCTAssertEqual(store.state.leftScore, 12)
-
-        var stale = remote
-        stale.leftScore = 2
-        let staleApplied = await store.applyAuthoritativeState(stale, detailedActions: [], revision: 8)
-        XCTAssertFalse(staleApplied)
-        XCTAssertEqual(store.state.leftScore, 12)
-    }
-
     func testTennisAuthoritativeRebaseContinuesFromThirtyFifteen() async {
         let store = TennisSessionStore(
             leftName: "A",
@@ -159,11 +146,11 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(store.state.scoreDisplay(for: .right), "15")
     }
 
-    func testTennisDoublesArchiveKeepsAllFourPlayerIdentities() async throws {
-        let archiveRoot = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tennis-doubles-archive-\(UUID().uuidString)", isDirectory: true)
-        let archiveRepository = SessionArchiveRepository(rootURL: archiveRoot)
-        defer { try? FileManager.default.removeItem(at: archiveRoot) }
+    func testTennisDoublesResumeKeepsAllFourPlayerIdentities() async throws {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("tennis-doubles-resume-\(UUID().uuidString)", isDirectory: true)
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        defer { try? FileManager.default.removeItem(at: resumeRoot) }
 
         let state = TennisMatchState(
             leftName: "红队",
@@ -173,14 +160,14 @@ final class RallySessionStoreTests: XCTestCase {
         let store = TennisSessionStore(
             gameType: .tennisDoubles,
             state: state,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
         store.persistSnapshot()
-        let flushed = expectation(description: "tennis doubles archive flushed")
+        let flushed = expectation(description: "tennis doubles resume flushed")
         store.flush { flushed.fulfill() }
         await fulfillment(of: [flushed], timeout: 2)
 
-        let bundle = try await archiveRepository.loadResumeBundle(
+        let bundle = try await resumeRepository.loadResumeBundle(
             sessionId: store.sessionId,
             as: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self
         )
@@ -264,31 +251,31 @@ final class RallySessionStoreTests: XCTestCase {
             ScoreboardRecordManager.shared.getRecordById(finishedStore.sessionId.uuidString)?.status,
             .finished
         )
-        XCTAssertEqual(
-            ScoreboardRecordManager.shared.getRecordById(freshStore.sessionId.uuidString)?.status,
-            .draft
+        XCTAssertNil(
+            ScoreboardRecordManager.shared.getRecordById(freshStore.sessionId.uuidString),
+            "Live matches belong in ResumeSessionRepository, not the finished-record store"
         )
         XCTAssertNotNil(RallySessionStore(restoring: freshStore.sessionId))
         XCTAssertTrue(freshStore.actionTimeline.isEmpty)
 
         _ = ScoreboardRecordManager.shared.deleteRecord(finishedStore.sessionId.uuidString)
         _ = ScoreboardRecordManager.shared.deleteRecord(freshStore.sessionId.uuidString)
-        try? await SessionArchiveRepository().remove(sessionId: finishedStore.sessionId)
-        try? await SessionArchiveRepository().remove(sessionId: freshStore.sessionId)
+        try? await ResumeSessionRepository().remove(sessionId: finishedStore.sessionId)
+        try? await ResumeSessionRepository().remove(sessionId: freshStore.sessionId)
     }
 
     func testUndoAfterRenameKeepsParticipantsAlignedWithRestoredState() async throws {
-        let archiveRoot = FileManager.default.temporaryDirectory
+        let resumeRoot = FileManager.default.temporaryDirectory
             .appendingPathComponent("rally-participant-undo-\(UUID().uuidString)", isDirectory: true)
-        let archiveRepository = SessionArchiveRepository(rootURL: archiveRoot)
-        defer { try? FileManager.default.removeItem(at: archiveRoot) }
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        defer { try? FileManager.default.removeItem(at: resumeRoot) }
 
         let rally = RallySessionStore(
             leftName: "Before Left",
             rightName: "Before Right",
             gameType: .pingpong,
             rules: .pingPong(),
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
         defer { _ = ScoreboardRecordManager.shared.deleteRecord(rally.sessionId.uuidString) }
         let renamed = expectation(description: "rally renamed")
@@ -300,7 +287,7 @@ final class RallySessionStoreTests: XCTestCase {
         let rallyFlushed = expectation(description: "rally undo persisted")
         rally.flush { rallyFlushed.fulfill() }
         await fulfillment(of: [rallyFlushed], timeout: 2)
-        let rallyBundle = try await archiveRepository.loadResumeBundle(
+        let rallyBundle = try await resumeRepository.loadResumeBundle(
             sessionId: rally.sessionId,
             as: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self
         )
@@ -310,7 +297,7 @@ final class RallySessionStoreTests: XCTestCase {
         let tennis = TennisSessionStore(
             leftName: "Before Left",
             rightName: "Before Right",
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
         defer { _ = ScoreboardRecordManager.shared.deleteRecord(tennis.sessionId.uuidString) }
         let tennisRenamed = expectation(description: "tennis renamed")
@@ -322,7 +309,7 @@ final class RallySessionStoreTests: XCTestCase {
         let tennisFlushed = expectation(description: "tennis undo persisted")
         tennis.flush { tennisFlushed.fulfill() }
         await fulfillment(of: [tennisFlushed], timeout: 2)
-        let tennisBundle = try await archiveRepository.loadResumeBundle(
+        let tennisBundle = try await resumeRepository.loadResumeBundle(
             sessionId: tennis.sessionId,
             as: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self
         )
@@ -332,7 +319,7 @@ final class RallySessionStoreTests: XCTestCase {
         let basketball = BasketballSessionStore(
             leftName: "Before Left",
             rightName: "Before Right",
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
         defer { _ = ScoreboardRecordManager.shared.deleteRecord(basketball.sessionId.uuidString) }
         basketball.send(.rename(side: .left, name: "After Left"))
@@ -345,7 +332,7 @@ final class RallySessionStoreTests: XCTestCase {
         let basketballUndoFlushed = expectation(description: "basketball undo persisted")
         basketball.flush { basketballUndoFlushed.fulfill() }
         await fulfillment(of: [basketballUndoFlushed], timeout: 2)
-        let basketballBundle = try await archiveRepository.loadResumeBundle(
+        let basketballBundle = try await resumeRepository.loadResumeBundle(
             sessionId: basketball.sessionId,
             as: ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>.self
         )
@@ -381,7 +368,7 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(restored.rules.decidingSetSideSwitchPoint, 5)
     }
 
-    func testRallyLegacyDraftDecoderAcceptsRawSessionAndResumeBundle() throws {
+    func testRallyCompletedRecordSnapshotDecoderAcceptsHistoricalShapes() throws {
         var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton())
         state.leftPoints = 9
         state.rightPoints = 7

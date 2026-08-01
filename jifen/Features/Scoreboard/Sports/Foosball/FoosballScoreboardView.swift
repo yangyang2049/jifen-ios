@@ -5,7 +5,7 @@ import SwiftUI
 struct FoosballScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
 
     var body: some View {
@@ -18,7 +18,7 @@ struct FoosballScoreboardView: View {
             participants: isDoubles ? doublesParticipants(initialSetup) : nil,
             openingServer: .left,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
-            initialRecordId: initialRecordId,
+            initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }
         )

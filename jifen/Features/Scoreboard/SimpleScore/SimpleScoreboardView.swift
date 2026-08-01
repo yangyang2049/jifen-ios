@@ -11,7 +11,7 @@ import SwiftUI
 struct SimpleScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
@@ -26,12 +26,12 @@ struct SimpleScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
         let c = SimpleScoreboardController()
@@ -39,7 +39,7 @@ struct SimpleScoreboardView: View {
         _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .freeCounter))
         _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
             prefix: GameType.simpleScore.canonicalScoreboardIdentifier,
-            resuming: initialRecordId
+            resuming: initialResumeSessionId
         ))
         let enabled = initialSetup?.multiScoreCustomAdjustEnabled
             ?? PreferencesManager.shared.simpleScoreCustomAdjustEnabled
@@ -143,7 +143,7 @@ struct SimpleScoreboardView: View {
                 }
                 onSetupConsumed?()
             }
-            restoreDraftIfNeeded()
+            restoreResumeIfNeeded()
         }
         .onGeometryChange(for: CGFloat.self) { proxy in
             min(proxy.size.width, proxy.size.height)
@@ -185,10 +185,9 @@ struct SimpleScoreboardView: View {
         showGameOverDialog = false
     }
 
-    private func restoreDraftIfNeeded() {
-        guard let recordId = initialRecordId,
-              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-              record.status == .draft else {
+    private func restoreResumeIfNeeded() {
+        guard let recordId = initialResumeSessionId,
+              let record = ManualResumeSessionStore.load(recordID: recordId) else {
             return
         }
 
@@ -197,9 +196,9 @@ struct SimpleScoreboardView: View {
         controller.gameRecordSaved = false
 
         if let data = record.stateSnapshot,
-           let archive = try? JSONDecoder().decode(LineScoreSessionArchive.self, from: data) {
-            controller.gameActions = archive.intentTimeline
-            viewModel.restoreSession(state: archive.state, history: archive.undoHistory)
+           let resumeState = try? JSONDecoder().decode(LineScoreResumeState.self, from: data) {
+            controller.gameActions = resumeState.intentTimeline
+            viewModel.restoreSession(state: resumeState.state, history: resumeState.undoHistory)
             if let flag = record.extraData?["multiScoreCustomAdjustEnabled"]?.value as? Bool {
                 customAdjustEnabled = flag
             }
@@ -236,14 +235,14 @@ struct SimpleScoreboardView: View {
             }
         }
 
-        let archive = LineScoreSessionArchive(
+        let resumeState = LineScoreResumeState(
             state: viewModel.sessionState,
             undoHistory: viewModel.resumeHistory,
             intentTimeline: controller.getGameActions()
         )
         let snapshotData: Data
         do {
-            snapshotData = try JSONEncoder().encode(archive)
+            snapshotData = try JSONEncoder().encode(resumeState)
         } catch {
             ScoreboardPersistenceFailureReporter.report(
                 error,
@@ -271,7 +270,7 @@ struct SimpleScoreboardView: View {
                 "maximumScore": LineScoreRuleSet.freeCounter.maximum
             ],
             stateSnapshot: snapshotData,
-            status: finished ? .finished : .draft
+            isFinished: finished
         )
     }
 }

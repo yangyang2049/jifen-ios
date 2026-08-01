@@ -46,12 +46,16 @@ struct CommonDataCategoryChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 14, weight: selected ? .semibold : .medium))
-                .foregroundColor(selected ? .white : Theme.textSecondary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
-                .background(selected ? Theme.accentColor : Theme.controlBackground)
-                .clipShape(Capsule())
+                .font(.system(size: Theme.fontBody2, weight: selected ? .semibold : .medium))
+                .foregroundColor(selected ? .white : Theme.textPrimary)
+                .padding(.horizontal, Theme.cardPadding)
+                .padding(.vertical, 8)
+                .background(selected ? Theme.accentColor : Theme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(selected ? Color.clear : Theme.homeOverlayBorder, lineWidth: 1)
+                )
+                .cornerRadius(16)
         }
         .buttonStyle(.plain)
     }

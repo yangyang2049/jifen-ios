@@ -14,37 +14,20 @@ struct BentoCardView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            
-            VStack(spacing: 0) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(title)
-                            .font(.system(size: Theme.fontH5, weight: .bold))
-                            .foregroundColor(Theme.homeCardTextPrimary)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
 
-                        if !subtitle.isEmpty {
-                            Text(subtitle)
-                                .font(.system(size: Theme.fontCaption, weight: .medium))
-                                .foregroundColor(Theme.homeCardTextSecondary)
-                                .padding(.top, Theme.xs)
-                                .textCase(.uppercase)
-                        }
-                    }
-                    .layoutPriority(1)
-                    Spacer()
-                }
+            VStack(alignment: .leading, spacing: 0) {
+                Text(icon)
+                    .font(.system(size: 36))
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer()
 
-                HStack {
-                    Spacer()
-                    Text(icon)
-                        .font(.system(size: Theme.fontH3))
-                        .padding(.trailing, Theme.sm)
-                        .padding(.bottom, Theme.sm)
-                }
+                Text(title)
+                    .font(.system(size: Theme.fontH5, weight: .bold))
+                    .foregroundColor(Theme.homeCardTextPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(Theme.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

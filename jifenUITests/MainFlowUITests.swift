@@ -537,8 +537,9 @@ final class MainFlowUITests: XCTestCase {
 
         app.terminate()
         app = launchLocalizedApp(language: "en", locale: "en_US", appearance: "dark")
-        XCTAssertTrue(app.tabBars.buttons["Timer"].waitForExistence(timeout: 8))
-        app.tabBars.buttons["Timer"].tap()
+        let englishTimerTab = app.buttons["main_tab_3"].firstMatch
+        XCTAssertTrue(englishTimerTab.waitForExistence(timeout: 8))
+        englishTimerTab.tap()
         let englishCheckers = app.descendants(matching: .any)["timer_dest_checkers"]
         XCTAssertTrue(englishCheckers.waitForExistence(timeout: 5))
         englishCheckers.tap()

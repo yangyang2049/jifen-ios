@@ -10,7 +10,7 @@ import SwiftUI
 struct BoxingScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
     @State private var controller: BoxingScoreboardController
@@ -29,12 +29,12 @@ struct BoxingScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
         let controller = BoxingScoreboardController()
@@ -42,7 +42,7 @@ struct BoxingScoreboardView: View {
         _viewModel = State(initialValue: BoxingViewModel(controller: controller))
         _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
             prefix: GameType.boxing.canonicalScoreboardIdentifier,
-            resuming: initialRecordId
+            resuming: initialResumeSessionId
         ))
     }
 
@@ -155,7 +155,7 @@ struct BoxingScoreboardView: View {
                 viewModel.setMaxRounds(setup.maxRounds ?? 3)
                 onSetupConsumed?()
             }
-            restoreDraftIfNeeded()
+            restoreResumeIfNeeded()
         }
         .onGeometryChange(for: CGSize.self) { proxy in
             proxy.size
@@ -240,10 +240,9 @@ struct BoxingScoreboardView: View {
         showGameOverDialog = false
     }
 
-    private func restoreDraftIfNeeded() {
-        guard let recordId = initialRecordId,
-              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-              record.status == .draft else {
+    private func restoreResumeIfNeeded() {
+        guard let recordId = initialResumeSessionId,
+              let record = ManualResumeSessionStore.load(recordID: recordId) else {
             return
         }
 
@@ -252,9 +251,9 @@ struct BoxingScoreboardView: View {
         controller.gameRecordSaved = false
 
         if let data = record.stateSnapshot,
-           let archive = try? JSONDecoder().decode(BoxingSessionArchive.self, from: data) {
-            controller.gameActions = archive.intentTimeline
-            viewModel.restoreSession(archive)
+           let resumeState = try? JSONDecoder().decode(BoxingResumeState.self, from: data) {
+            controller.gameActions = resumeState.intentTimeline
+            viewModel.restoreSession(resumeState)
             return
         }
 
@@ -295,7 +294,7 @@ private struct BoxingRoundDialog: View {
                 spacing: 6,
                 horizontalPadding: 4,
                 preferredSize: 56,
-                minimumSize: 28
+                minimumSize: ScoreboardConstants.minimumTouchTarget
             )
 
             ZStack {

@@ -86,7 +86,6 @@ public enum RealtimeSyncMessageKind: String, Codable, Sendable {
     case intent
     case snapshot
     case acknowledgement
-    case negativeAcknowledgement = "negative_acknowledgement"
     case resyncRequest = "resync_request"
     case phaseChanged = "phase_changed"
     case controllerPaused = "controller_paused"

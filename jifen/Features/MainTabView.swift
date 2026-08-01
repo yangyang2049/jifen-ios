@@ -95,6 +95,7 @@ struct MainTabView: View {
         .tag(tag)
         .tabItem {
             Label(NSLocalizedString(titleKey, comment: ""), systemImage: systemImage)
+                .accessibilityIdentifier("main_tab_\(tag)")
         }
     }
 

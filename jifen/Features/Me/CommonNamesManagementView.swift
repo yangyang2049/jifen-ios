@@ -73,9 +73,6 @@ struct CommonNamesManagementView: View {
                 VStack(spacing: 0) {
                     if !isEditMode {
                         categoryChips
-                            .padding(.horizontal, Theme.md)
-                            .padding(.top, Theme.sm)
-                            .padding(.bottom, Theme.sm)
                     }
 
                     if filteredNames.isEmpty {
@@ -211,7 +208,7 @@ struct CommonNamesManagementView: View {
     }
 
     private var categoryChips: some View {
-        HStack(spacing: Theme.sm) {
+        HStack(spacing: 8) {
             CommonDataCategoryChip(
                 title: NSLocalizedString("common_names_player", value: "选手名称", comment: ""),
                 selected: selectedType == .player
@@ -224,8 +221,9 @@ struct CommonNamesManagementView: View {
             ) {
                 selectedType = .team
             }
-            Spacer(minLength: 0)
         }
+        .padding(.horizontal, Theme.pageHorizontalInset)
+        .padding(.bottom, 12)
     }
 
     private var emptyState: some View {

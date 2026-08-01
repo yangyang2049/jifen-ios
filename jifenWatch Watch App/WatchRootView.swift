@@ -30,6 +30,32 @@ struct WatchRootView: View {
             }
         }
         .accentColor(WatchTheme.accent)
+        .alert(
+            NSLocalizedString("linked_score_error_title", value: "联动失败", comment: ""),
+            isPresented: Binding(
+                get: { linkService.lastLinkErrorMessage != nil },
+                set: { if !$0 { linkService.clearLinkError() } }
+            )
+        ) {
+            Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) {
+                linkService.clearLinkError()
+            }
+        } message: {
+            Text(linkService.lastLinkErrorMessage ?? "")
+        }
+        .alert(
+            NSLocalizedString("resume_persistence_error_title", value: "续玩保存失败", comment: ""),
+            isPresented: Binding(
+                get: { resumeStore.lastErrorMessage != nil },
+                set: { if !$0 { resumeStore.clearError() } }
+            )
+        ) {
+            Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) {
+                resumeStore.clearError()
+            }
+        } message: {
+            Text(resumeStore.lastErrorMessage ?? "")
+        }
         .overlay {
             if linkService.pendingConfirmRequest != nil {
                 linkConfirmOverlay
@@ -78,20 +104,11 @@ struct WatchRootView: View {
         }
         .onAppear {
             restoreStoredLinkContextIfNeeded()
-            if let expiredContext = resumeStore.consumeExpiredLinkContext() {
-                linkService.restoreSuspendedSession(expiredContext)
-                linkService.discardResumableSession(reason: .expired)
-            }
         }
     }
 
     private func resume(_ session: WatchResumeSession) {
         resumeStore.reload()
-        if let expiredContext = resumeStore.consumeExpiredLinkContext() {
-            linkService.restoreSuspendedSession(expiredContext)
-            linkService.discardResumableSession(reason: .expired)
-            return
-        }
         guard let currentSession = resumeStore.session,
               currentSession.startedAt == session.startedAt,
               let route = WatchScoreboardRoute(resumeSession: currentSession) else {
@@ -370,15 +387,6 @@ struct WatchRootView: View {
                     resumedRestState: archeryResumeRestState(),
                     resumedActionLog: activeResumeSession?.actionLog
                 )
-            case .basketball(let threeXThree):
-                WatchBasketballScoreView(
-                    gameMode: threeXThree ? .threeXThree : .fiveVFive,
-                    initialState: basketballInitialState(for: route),
-                    linkedSessionId: linkedSessionId(for: route),
-                    resumeBundle: basketballResumeBundle(),
-                    resumedStartTime: activeResumeSession?.startedAt,
-                    resumedActionLog: activeResumeSession?.actionLog
-                )
             case .basketballTraining(let mode):
                 WatchBasketballTrainingView(
                     mode: mode,
@@ -635,25 +643,6 @@ struct WatchRootView: View {
         return (left, right)
     }
 
-    private func basketballInitialState(for route: WatchScoreboardRoute) -> BasketballMatchState? {
-        guard case .basketball(let threeXThree) = route,
-              let linkedSetup,
-              case .basketball(let state)? = linkedSetup.initialSnapshot else { return nil }
-        switch (threeXThree, state.gameMode) {
-        case (true, .threeXThree), (false, .fiveVFive):
-            return state
-        default:
-            return nil
-        }
-    }
-
-    private func basketballResumeBundle(
-    ) -> ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>? {
-        guard let activeResumeSession,
-              case .basketball(_, let bundle) = activeResumeSession.payload else { return nil }
-        return bundle
-    }
-
     private func rallyInitialState(for route: WatchScoreboardRoute) -> RallyMatchState? {
         guard let linkedSetup,
               case .rally(let state)? = linkedSetup.initialSnapshot else { return nil }
@@ -703,8 +692,7 @@ struct WatchRootView: View {
     }
 
     private func linkedSessionId(for route: WatchScoreboardRoute) -> UUID? {
-        guard basketballInitialState(for: route) != nil
-                || rallyInitialState(for: route) != nil
+        guard rallyInitialState(for: route) != nil
                 || tennisInitialState(for: route) != nil else {
             return linkedSessionId
         }
@@ -731,10 +719,6 @@ private enum LinkedSetupConfirmCopy {
             return NSLocalizedString("linked_score_sport_pickleball", value: "🏓 匹克球单打", comment: "")
         case .pickleballDoubles:
             return NSLocalizedString("linked_score_sport_pickleball_doubles", value: "🏓 匹克球双打", comment: "")
-        case .basketball:
-            return NSLocalizedString("linked_score_sport_basketball", value: "🏀 篮球", comment: "")
-        case .threeBasketball:
-            return NSLocalizedString("linked_score_sport_three_basketball", value: "🏀 三人篮球", comment: "")
         case .archeryDual:
             return NSLocalizedString("linked_score_sport_archery", value: "🏹 射箭", comment: "")
         case .eightBall:
@@ -761,8 +745,6 @@ private enum LinkedSetupConfirmCopy {
             return state.leftName
         case .tennis(let state):
             return state.doublesTeamDisplayName(for: .left)
-        case .basketball(let state):
-            return state.leftName
         case .archery(let state):
             return state.leftName
         case .nineBall(let state):
@@ -799,8 +781,6 @@ private enum LinkedSetupConfirmCopy {
             return state.rightName
         case .tennis(let state):
             return state.doublesTeamDisplayName(for: .right)
-        case .basketball(let state):
-            return state.rightName
         case .archery(let state):
             return state.rightName
         case .nineBall(let state):
@@ -839,7 +819,8 @@ private enum LinkedSetupConfirmCopy {
         index: Int,
         fallback: String
     ) -> String {
-        guard let names = setup.participantNames, names.indices.contains(index) else { return fallback }
+        let names = setup.participantNames
+        guard names.indices.contains(index) else { return fallback }
         let name = names[index].trimmingCharacters(in: .whitespacesAndNewlines)
         return name.isEmpty ? fallback : name
     }
@@ -858,10 +839,6 @@ private enum LinkedSetupConfirmCopy {
                 format: NSLocalizedString("linked_score_setup_rules_sets", value: "%d盘", comment: ""),
                 state.rules.maxSets
             )
-        case .basketball:
-            return setup.basketballThreeXThree
-                ? NSLocalizedString("linked_score_setup_rules_3x3", value: "3x3", comment: "")
-                : NSLocalizedString("linked_score_setup_rules_5v5", value: "5v5", comment: "")
         default:
             if let maxSets = setup.maxSets {
                 return String(

@@ -2,14 +2,16 @@
 //  ScoreboardRecordManager.swift
 //  jifen
 //
-//  Schema-v4 record persistence. Full records live in individual atomic JSON
-//  files; UserDefaults only keeps the unfinished-record pointer and migration
-//  source for older installations.
+//  Schema-v4 finished-record persistence. Full records live in individual
+//  atomic JSON files; active games are owned by ResumeSessionRepository.
 //
 
 import Foundation
 import OSLog
 import PersistenceCore
+import RecordCore
+import ScoreCore
+import SessionCore
 
 extension Notification.Name {
     static let scoreboardPersistenceFailed = Notification.Name("scoreboardPersistenceFailed")
@@ -34,6 +36,70 @@ enum ScoreboardPersistenceFailureReporter {
         guard shouldPresent else { return }
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .scoreboardPersistenceFailed, object: nil)
+        }
+    }
+}
+
+/// Current-format persistence for manually managed scoreboards. Live state is
+/// kept outside the finished-record manager and never enters its file store.
+enum ManualResumeSessionStore {
+    static func load(recordID: String) -> ManualScoreboardResumeState? {
+        guard let sessionId = sessionID(for: recordID),
+              let data = try? ResumeSessionRepository.loadManualPayload(sessionId: sessionId),
+              let state = try? JSONDecoder().decode(ManualScoreboardResumeState.self, from: data),
+              state.schemaVersion == ManualScoreboardResumeState.currentSchemaVersion else {
+            return nil
+        }
+        return state
+    }
+
+    static func save(_ record: ScoreboardRecord) throws {
+        guard let sessionId = sessionID(for: record.id),
+              let exactGameType = record.resolvedScoreCoreGameType ?? record.gameType.scoreCoreGameType else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        let state = ManualScoreboardResumeState(
+            record: record,
+            scoreCoreGameType: exactGameType
+        )
+        let payload = try JSONEncoder().encode(state)
+        let displayParticipants = record.displayParticipants
+        let participants: [SessionParticipant]
+        if displayParticipants.isEmpty {
+            participants = [
+                .init(id: TeamID.team0.rawValue, name: record.team1Name, role: "team"),
+                .init(id: TeamID.team1.rawValue, name: record.team2Name, role: "team")
+            ]
+        } else {
+            participants = displayParticipants.enumerated().map { index, participant in
+                .init(id: "participant-\(index)", name: participant.name, role: "player")
+            }
+        }
+        try ResumeSessionRepository.saveManualPayload(
+            sessionId: sessionId,
+            gameType: exactGameType,
+            startedAtEpochMilliseconds: Int64(record.startTime.timeIntervalSince1970 * 1_000),
+            participants: participants,
+            scoreSummary: record.displayScore(),
+            payload: payload
+        )
+    }
+
+    static func sessionID(for recordID: String) -> UUID? {
+        if let exact = UUID(uuidString: recordID) {
+            return exact
+        }
+        guard let suffix = recordID.split(separator: "_").last else { return nil }
+        return UUID(uuidString: String(suffix))
+    }
+}
+
+enum ScoreboardLifecyclePersistence {
+    static func save(_ record: ScoreboardRecord, finished: Bool) throws {
+        if finished {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        } else {
+            try ManualResumeSessionStore.save(record)
         }
     }
 }
@@ -74,7 +140,8 @@ final class ScoreboardRecordFileStore {
         if let legacyData, !legacyData.isEmpty {
             let oldRecords = try decoder.decode([ScoreboardRecord].self, from: legacyData)
             try legacyData.write(to: backupURL, options: .atomic)
-            for var record in oldRecords {
+            let finishedRecords = oldRecords.filter { $0.status == .finished }
+            for var record in finishedRecords {
                 record.schemaVersion = 4
                 let detailed = record.detailedActions ?? ScoreboardRecordActionAdapter.actions(for: record)
                 record.detailedActions = detailed
@@ -82,7 +149,7 @@ final class ScoreboardRecordFileStore {
                 try writeRecord(record)
             }
             let recoveredIDs = Set(loadRecords().map(\.id))
-            guard recoveredIDs == Set(oldRecords.map(\.id)) else {
+            guard recoveredIDs == Set(finishedRecords.map(\.id)) else {
                 throw CocoaError(.fileReadCorruptFile)
             }
         }
@@ -103,7 +170,12 @@ final class ScoreboardRecordFileStore {
                 indexNeedsRepair = true
                 continue
             }
-            records.append(record)
+            if record.status == .finished {
+                records.append(record)
+            } else {
+                try? fileManager.removeItem(at: url)
+                indexNeedsRepair = true
+            }
         }
 
         records.sort { $0.startTime > $1.startTime }
@@ -112,6 +184,9 @@ final class ScoreboardRecordFileStore {
     }
 
     func save(_ record: ScoreboardRecord) throws {
+        guard record.status == .finished else {
+            throw CocoaError(.fileWriteInapplicableStringEncoding)
+        }
         try ensureDirectory()
         try writeRecord(record)
         var records = loadRecords().filter { $0.id != record.id }
@@ -145,6 +220,27 @@ final class ScoreboardRecordFileStore {
         })
     }
 
+    func discardDraftFiles() {
+        guard let urls = try? fileManager.contentsOfDirectory(
+            at: rootURL,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return }
+        var removedAny = false
+        for url in urls where url.lastPathComponent.hasSuffix(".record.json") {
+            guard let data = try? Data(contentsOf: url),
+                  let record = try? decoder.decode(ScoreboardRecord.self, from: data),
+                  record.status == .draft else {
+                continue
+            }
+            try? fileManager.removeItem(at: url)
+            removedAny = true
+        }
+        if removedAny {
+            try? writeIndex(for: loadRecords())
+        }
+    }
+
     private func ensureDirectory() throws {
         try fileManager.createDirectory(at: rootURL, withIntermediateDirectories: true)
     }
@@ -170,7 +266,12 @@ final class ScoreboardRecordFileStore {
             .filter { $0.lastPathComponent.hasSuffix(".record.json") }
             .compactMap { url -> ScoreboardRecord? in
                 guard let data = try? Data(contentsOf: url) else { return nil }
-                return try? decoder.decode(ScoreboardRecord.self, from: data)
+                guard let record = try? decoder.decode(ScoreboardRecord.self, from: data),
+                      record.status == .finished else {
+                    try? fileManager.removeItem(at: url)
+                    return nil
+                }
+                return record
             }
             .sorted { $0.startTime > $1.startTime }
         try? writeIndex(for: records)
@@ -204,7 +305,6 @@ final class ScoreboardRecordManager {
     static let shared = ScoreboardRecordManager()
 
     private let recordsKey = "scoreboard_records"
-    private let unfinishedRecordIdKey = "scoreboard_unfinished_record_id"
     private let maxRecords = 1000
     private let defaults: UserDefaults
     private let store: ScoreboardRecordFileStore
@@ -218,12 +318,18 @@ final class ScoreboardRecordManager {
             .appendingPathComponent("ScoreboardRecords-v4", isDirectory: true)
         store = ScoreboardRecordFileStore(rootURL: root)
         migrateIfNeeded()
+        store.discardDraftFiles()
+        // The unpublished draft pointer is intentionally not migrated.
+        defaults.removeObject(forKey: "scoreboard_unfinished_record_id")
     }
 
     func saveScoreboardRecord(_ input: ScoreboardRecord) throws {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
+        guard input.status == .finished else {
+            throw CocoaError(.fileWriteUnsupportedScheme)
+        }
 
         var record = input
         record.schemaVersion = 4
@@ -236,17 +342,6 @@ final class ScoreboardRecordManager {
 
         var records = store.loadRecords()
         let previousRecord = records.first { $0.id == record.id }
-        if record.status == .draft {
-            if let previousDraftId = getUnfinishedRecordId(), previousDraftId != record.id {
-                _ = store.delete(id: previousDraftId)
-                records.removeAll { $0.id == previousDraftId }
-            }
-            defaults.set(record.id, forKey: unfinishedRecordIdKey)
-            // Keep Resume GameBar singular across v1 drafts and v2 live sessions.
-            discardConflictingLiveSessions(keeping: UUID(uuidString: record.id))
-        } else if getUnfinishedRecordId() == record.id {
-            defaults.removeObject(forKey: unfinishedRecordIdKey)
-        }
 
         do {
             try store.save(record)
@@ -262,13 +357,25 @@ final class ScoreboardRecordManager {
         }
         RecordSyncOutbox.shared.enqueueUpsert(record)
         AppAnalytics.scoreboardRecordSaved(record, previous: previousRecord)
+        if let sessionId = ManualResumeSessionStore.sessionID(for: record.id) {
+            Task {
+                do {
+                    try await ResumeSessionRepository().remove(sessionId: sessionId)
+                } catch {
+                    ScoreboardPersistenceFailureReporter.report(
+                        error,
+                        context: "remove finished resume session"
+                    )
+                }
+            }
+        }
     }
 
     func loadAllRecords() -> [ScoreboardRecord] {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
-        return store.loadRecords()
+        return store.loadRecords().filter { $0.status == .finished }
     }
 
     func getAllRecordSummaries() -> [ScoreboardRecordSummary] {
@@ -279,38 +386,12 @@ final class ScoreboardRecordManager {
         loadAllRecords().first { $0.id == id }
     }
 
-    func getUnfinishedRecordId() -> String? {
-        defaults.string(forKey: unfinishedRecordIdKey)
-    }
-
-    func getUnfinishedRecord() -> ScoreboardRecord? {
-        let records = loadAllRecords()
-        if let id = getUnfinishedRecordId(),
-           let record = records.first(where: { $0.id == id && $0.status == .draft }) {
-            return record
-        }
-        if let fallback = records.first(where: { $0.status == .draft }) {
-            defaults.set(fallback.id, forKey: unfinishedRecordIdKey)
-            return fallback
-        }
-        return nil
-    }
-
-    @discardableResult
-    func discardUnfinishedRecord() -> Bool {
-        guard let id = getUnfinishedRecordId() else { return false }
-        let deleted = deleteRecord(id)
-        defaults.removeObject(forKey: unfinishedRecordIdKey)
-        return deleted
-    }
-
     func deleteRecord(_ id: String) -> Bool {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
         guard store.delete(id: id) else { return false }
         RecordSyncOutbox.shared.enqueueDelete(recordID: id)
-        if getUnfinishedRecordId() == id { defaults.removeObject(forKey: unfinishedRecordIdKey) }
         AppAnalytics.track(.deleteRecords, parameters: [
             .recordType: .string("scoreboard"),
             .result: .string(AnalyticsResult.success.rawValue)
@@ -324,24 +405,12 @@ final class ScoreboardRecordManager {
         let records = store.loadRecords()
         records.forEach { RecordSyncOutbox.shared.enqueueDelete(recordID: $0.id) }
         store.removeRecords(records)
-        defaults.removeObject(forKey: unfinishedRecordIdKey)
         if !records.isEmpty {
             AppAnalytics.track(.deleteRecords, parameters: [
                 .recordType: .string("scoreboard"),
                 .actionName: .string("clear_all"),
                 .result: .string(AnalyticsResult.success.rawValue)
             ])
-        }
-    }
-
-    private func discardConflictingLiveSessions(keeping sessionId: UUID?) {
-        Task {
-            let repository = SessionArchiveRepository()
-            if let sessionId {
-                try? await repository.discardOtherLiveSessions(except: sessionId)
-            } else {
-                try? await repository.discardAllLiveSessions()
-            }
         }
     }
 

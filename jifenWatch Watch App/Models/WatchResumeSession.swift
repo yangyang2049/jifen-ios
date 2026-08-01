@@ -15,10 +15,6 @@ enum WatchResumePayload: Codable, Sendable {
         bundle: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>,
         restState: WatchRestState?
     )
-    case basketball(
-        gameMode: BasketballGameMode,
-        bundle: ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>
-    )
     case archery(
         state: ArcheryMatchState,
         undoStates: [ArcheryMatchState],
@@ -46,15 +42,53 @@ enum WatchResumePayload: Codable, Sendable {
     )
 }
 
-struct WatchResumeLinkContext: Codable, Sendable {
-    let sessionId: UUID
-    let revision: UInt64
-    let controlRole: LinkControlRole
-    let setup: LinkedScoreboardSetup
+extension WatchLinkResumeContext {
+    var sessionId: UUID { handle.sessionId }
+    var controlRole: LinkControlRole { role }
+
+    init(
+        handle: LinkedMatchHandle,
+        revision: UInt64,
+        authorityEpoch: UInt64,
+        controlRole: LinkControlRole,
+        setup: LinkedScoreboardSetup
+    ) {
+        self.init(
+            handle: handle,
+            setup: setup,
+            role: controlRole,
+            authorityEpoch: authorityEpoch,
+            revision: revision,
+            latestAuthoritativeSnapshot: setup.initialSnapshot,
+            detailedActions: setup.detailedActions,
+            completedMatchIds: [],
+            pendingTerminalMessageIds: []
+        )
+    }
+
+    init(
+        sessionId: UUID,
+        revision: UInt64,
+        authorityEpoch: UInt64 = 0,
+        controlRole: LinkControlRole,
+        setup: LinkedScoreboardSetup
+    ) {
+        self.init(
+            handle: LinkedMatchHandle(sessionId: sessionId),
+            revision: revision,
+            authorityEpoch: authorityEpoch,
+            controlRole: controlRole,
+            setup: setup
+        )
+    }
 }
 
 struct WatchResumeSession: Codable, Sendable {
-    static let currentSchemaVersion = 1
+    /// Bumped to 2: `actionLog` changed from Optional to non-Optional.
+    /// The storage key also changed from `watch_resume_session_v1` to
+    /// `watch_resume_session`, so old data is never read. This bump keeps
+    /// the version in sync with the format for future migrations.
+    static let currentSchemaVersion = 2
 
     let schemaVersion: Int
     var savedAt: Date
@@ -62,9 +96,8 @@ struct WatchResumeSession: Codable, Sendable {
     let scoreLine: String
     let emoji: String
     let payload: WatchResumePayload
-    /// Optional for backward-compatible decoding of schema-v1 resume data.
-    let actionLog: WatchScoreActionLog?
-    let link: WatchResumeLinkContext?
+    let actionLog: WatchScoreActionLog
+    let link: WatchLinkResumeContext?
 
     init(
         savedAt: Date = Date(),
@@ -73,7 +106,7 @@ struct WatchResumeSession: Codable, Sendable {
         emoji: String,
         payload: WatchResumePayload,
         actionLog: WatchScoreActionLog? = nil,
-        link: WatchResumeLinkContext? = nil
+        link: WatchLinkResumeContext? = nil
     ) {
         schemaVersion = Self.currentSchemaVersion
         self.savedAt = savedAt
@@ -81,7 +114,7 @@ struct WatchResumeSession: Codable, Sendable {
         self.scoreLine = scoreLine
         self.emoji = emoji
         self.payload = payload
-        self.actionLog = actionLog
+        self.actionLog = actionLog ?? WatchScoreActionLog(startedAt: startedAt)
         self.link = link
     }
 }
@@ -90,20 +123,39 @@ struct WatchResumeSession: Codable, Sendable {
 @Observable
 final class WatchResumeSessionStore {
     static let shared = WatchResumeSessionStore()
-    static let ttl: TimeInterval = 10 * 60
+
+    /// Resume sessions expire after 24 hours. Aligned with HarmonyOS's TTL
+    /// approach (which uses 10 minutes); iOS uses a longer window so users
+    /// can resume after a mid-session break without losing state. Expired
+    /// sessions are silently cleared — no link context is retained.
+    private static let sessionTTL: TimeInterval = 24 * 60 * 60
 
     private let defaults: UserDefaults
     private let now: () -> Date
-    private let storageKey = "watch_resume_session_v1"
+    private let storageKey = "watch_resume_session"
 
     private(set) var session: WatchResumeSession?
-    private(set) var expiredLinkContext: WatchResumeLinkContext?
+    private(set) var lastErrorMessage: String?
 
     init(defaults: UserDefaults = .standard, now: @escaping () -> Date = Date.init) {
         self.defaults = defaults
         self.now = now
+        defaults.removeObject(forKey: "watch_resume_session_v1")
+        if defaults === UserDefaults.standard {
+            let applicationSupport = FileManager.default.urls(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask
+            )[0]
+            for oldRoot in [
+                applicationSupport.appendingPathComponent("jifen-v2", isDirectory: true),
+                applicationSupport
+                    .appendingPathComponent("jifen", isDirectory: true)
+                    .appendingPathComponent("resume", isDirectory: true)
+            ] {
+                try? FileManager.default.removeItem(at: oldRoot)
+            }
+        }
         session = nil
-        expiredLinkContext = nil
         reload()
     }
 
@@ -113,32 +165,44 @@ final class WatchResumeSessionStore {
               decoded.schemaVersion == WatchResumeSession.currentSchemaVersion else {
             defaults.removeObject(forKey: storageKey)
             session = nil
-            expiredLinkContext = nil
             return
         }
-        guard now().timeIntervalSince(decoded.savedAt) <= Self.ttl else {
-            expiredLinkContext = decoded.link
+        if now().timeIntervalSince(decoded.savedAt) > Self.sessionTTL {
             defaults.removeObject(forKey: storageKey)
             session = nil
             return
         }
         session = decoded
-        expiredLinkContext = nil
     }
 
     func save(_ value: WatchResumeSession) {
         var refreshed = value
         refreshed.savedAt = now()
-        guard let data = try? JSONEncoder().encode(refreshed) else { return }
-        defaults.set(data, forKey: storageKey)
-        session = refreshed
-        expiredLinkContext = nil
+        do {
+            let data = try JSONEncoder().encode(refreshed)
+            defaults.set(data, forKey: storageKey)
+            session = refreshed
+            lastErrorMessage = nil
+        } catch {
+            lastErrorMessage = String(
+                format: NSLocalizedString(
+                    "resume_persistence_failed",
+                    value: "无法保存续玩数据：%@",
+                    comment: ""
+                ),
+                error.localizedDescription
+            )
+        }
     }
 
-    func refreshLinkContext(_ context: WatchResumeLinkContext) {
+    func clearError() {
+        lastErrorMessage = nil
+    }
+
+    func refreshLinkContext(_ context: WatchLinkResumeContext) {
         guard let value = session, value.link?.sessionId == context.sessionId else { return }
-        var actionLog = value.actionLog ?? WatchScoreActionLog(startedAt: value.startedAt)
-        actionLog.merge(detailedActions: context.setup.detailedActions ?? [])
+        var actionLog = value.actionLog
+        actionLog.merge(detailedActions: context.setup.detailedActions)
         save(WatchResumeSession(
             startedAt: value.startedAt,
             scoreLine: value.scoreLine,
@@ -154,7 +218,7 @@ final class WatchResumeSessionStore {
     /// watch undo never crosses the phone takeover boundary.
     func applyLinkedSnapshot(
         _ snapshot: LinkedScoreboardSnapshot,
-        context: WatchResumeLinkContext
+        context: WatchLinkResumeContext
     ) {
         guard let value = session, value.link?.sessionId == context.sessionId else { return }
 
@@ -184,14 +248,6 @@ final class WatchResumeSessionStore {
                 ),
                 score
             )
-        case (.basketball(let gameMode, let bundle), .basketball(let state)):
-            updated = (
-                .basketball(
-                    gameMode: gameMode,
-                    bundle: replacingCurrentState(in: bundle, with: state)
-                ),
-                "\(state.leftScore) : \(state.rightScore)"
-            )
         case (.archery(var state, _, let restState), .archery(let linkedState)):
             linkedState.applying(to: &state)
             let score = state.leftSetPoints + state.rightSetPoints > 0
@@ -218,8 +274,8 @@ final class WatchResumeSessionStore {
         }
 
         guard let updated else { return }
-        var actionLog = value.actionLog ?? WatchScoreActionLog(startedAt: value.startedAt)
-        actionLog.merge(detailedActions: context.setup.detailedActions ?? [])
+        var actionLog = value.actionLog
+        actionLog.merge(detailedActions: context.setup.detailedActions)
         save(WatchResumeSession(
             startedAt: value.startedAt,
             scoreLine: updated.scoreLine,
@@ -237,15 +293,9 @@ final class WatchResumeSessionStore {
         return value
     }
 
-    func consumeExpiredLinkContext() -> WatchResumeLinkContext? {
-        defer { expiredLinkContext = nil }
-        return expiredLinkContext
-    }
-
     func clear() {
         defaults.removeObject(forKey: storageKey)
         session = nil
-        expiredLinkContext = nil
     }
 
     private func replacingCurrentState<

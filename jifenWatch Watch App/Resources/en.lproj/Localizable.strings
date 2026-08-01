@@ -93,7 +93,6 @@
 "linked_score_accept" = "Accept";
 "linked_score_reject" = "Decline";
 "linked_score_watch_reclaim" = "Take Control";
-"pingpong_doubles_confirm_opening" = "Confirm Serve";
 "linked_score_waiting_controller" = "Waiting for phone";
 "linked_score_setup_rules" = "%d sets | %d pts";
 "linked_score_setup_rules_sets" = "%d sets";
@@ -107,8 +106,6 @@
 "linked_score_sport_tennis_doubles" = "🎾 Tennis Doubles";
 "linked_score_sport_pickleball" = "🏓 Pickleball Singles";
 "linked_score_sport_pickleball_doubles" = "🏓 Pickleball Doubles";
-"linked_score_sport_basketball" = "🏀 Basketball";
-"linked_score_sport_three_basketball" = "🏀 3x3 Basketball";
 "game_basketball" = "Basketball";
 "game_three_basketball" = "3x3 Basketball";
 "linked_score_sport_archery" = "🏹 Archery";
@@ -249,7 +246,7 @@
 
 "watch_phone_link_title" = "Phone Link";
 "watch_phone_link_intro" = "Start on phone, score on watch";
-"watch_phone_link_support" = "All linked sports are supported except basketball shooting practice, including badminton, table tennis, and tennis singles and doubles.";
+"watch_phone_link_support" = "Supports badminton, table tennis, tennis, and pickleball singles and doubles, plus archery, eight-ball, nine-ball chase, and snooker.";
 "watch_phone_link_status" = "Connection Status";
 "watch_phone_link_steps" = "How to Use";
 "watch_phone_link_step_1" = "Choose and configure a match on the phone";
@@ -374,3 +371,9 @@
 "watch_action_snooker_next_frame_format" = "Frame %d started";
 "watch_action_snooker_pot_format" = "%@potted +%d";
 "watch_record_actions_unavailable" = "Action details were not saved for this record";
+"linked_score_error_title" = "Link Failed";
+"linked_score_persistence_failed" = "Could not save link recovery data: %@";
+"resume_persistence_error_title" = "Resume Save Failed";
+"resume_persistence_failed" = "Could not save resume data: %@";
+"linked_score_control_timeout" = "Timed out switching control. Please try again.";
+"linked_score_sync_timeout" = "Score sync timed out and will continue after reconnecting.";

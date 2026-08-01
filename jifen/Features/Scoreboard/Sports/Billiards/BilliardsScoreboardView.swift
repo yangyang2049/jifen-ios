@@ -22,7 +22,7 @@ enum BilliardsRecordIdentity {
 struct BilliardsScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
@@ -35,18 +35,18 @@ struct BilliardsScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
         let c = BilliardsScoreboardController()
         _controller = State(initialValue: c)
         _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .nonNegative))
-        _recordID = State(initialValue: BilliardsRecordIdentity.initial(resuming: initialRecordId))
+        _recordID = State(initialValue: BilliardsRecordIdentity.initial(resuming: initialResumeSessionId))
     }
 
     var body: some View {
@@ -122,7 +122,7 @@ struct BilliardsScoreboardView: View {
                 if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
                 onSetupConsumed?()
             }
-            restoreDraftIfNeeded()
+            restoreResumeIfNeeded()
         }
         .onGeometryChange(for: CGFloat.self) { proxy in
             min(proxy.size.width, proxy.size.height)
@@ -163,10 +163,9 @@ struct BilliardsScoreboardView: View {
         showGameOverDialog = false
     }
 
-    private func restoreDraftIfNeeded() {
-        guard let recordId = initialRecordId,
-              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-              record.status == .draft else {
+    private func restoreResumeIfNeeded() {
+        guard let recordId = initialResumeSessionId,
+              let record = ManualResumeSessionStore.load(recordID: recordId) else {
             return
         }
 
@@ -175,9 +174,9 @@ struct BilliardsScoreboardView: View {
         controller.gameRecordSaved = false
 
         if let data = record.stateSnapshot,
-           let archive = try? JSONDecoder().decode(LineScoreSessionArchive.self, from: data) {
-            controller.gameActions = archive.intentTimeline
-            viewModel.restoreSession(state: archive.state, history: archive.undoHistory)
+           let resumeState = try? JSONDecoder().decode(LineScoreResumeState.self, from: data) {
+            controller.gameActions = resumeState.intentTimeline
+            viewModel.restoreSession(state: resumeState.state, history: resumeState.undoHistory)
             return
         }
 
@@ -207,14 +206,14 @@ struct BilliardsScoreboardView: View {
             }
         }
 
-        let archive = LineScoreSessionArchive(
+        let resumeState = LineScoreResumeState(
             state: viewModel.sessionState,
             undoHistory: viewModel.resumeHistory,
             intentTimeline: controller.getGameActions()
         )
         let snapshotData: Data
         do {
-            snapshotData = try JSONEncoder().encode(archive)
+            snapshotData = try JSONEncoder().encode(resumeState)
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode billiards record \(recordID)")
             return
@@ -241,14 +240,16 @@ struct BilliardsScoreboardView: View {
                 "maximumScore": AnyCodable(9_999)
             ],
             stateSnapshot: snapshotData,
-            status: finished ? .finished : .draft
+            status: .finished
         )
         let detailed = ScoreboardRecordActionAdapter.actions(for: record)
         record.detailedActions = detailed
         record.setResults = ScoreboardRecordActionAdapter.setResults(from: detailed)
         do {
-            try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-            ScoreboardRecordsViewModel.shared.refreshRecords()
+            try ScoreboardLifecyclePersistence.save(record, finished: finished)
+            if finished {
+                ScoreboardRecordsViewModel.shared.refreshRecords()
+            }
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save billiards record \(recordID)")
         }

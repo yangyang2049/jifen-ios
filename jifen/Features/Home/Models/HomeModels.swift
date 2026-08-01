@@ -171,7 +171,7 @@ struct SportsSetupResult: Codable, Hashable {
     var guandanTripleAFallbackRank: String? = nil
 }
 
-/// Typed projection used by every billiards entry path (fresh setup, draft,
+/// Typed projection used by every billiards entry path (fresh setup, resume,
 /// replay and Watch setup). `SportsSetupResult` remains the compatibility
 /// payload for existing records and navigation state.
 enum BilliardsSetupConfiguration: Codable, Equatable {

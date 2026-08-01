@@ -12,7 +12,7 @@ final class TennisSessionStore {
     private typealias ResumeBundle = ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>
 
     private let core: ScoreSessionCore<TennisMatchReducer>
-    private let archiveRepository: SessionArchiveRepository
+    private let resumeRepository: ResumeSessionRepository
     private var detailedActions: [DetailedScoreAction]
     private var completedSetScores: [VoiceSetScore] = []
     private var lastAppliedRemoteRevision: UInt64?
@@ -47,7 +47,7 @@ final class TennisSessionStore {
         rules: TennisRuleSet = .init(),
         openingServer: MatchSide = .left,
         voiceAnnouncementEnabled: Bool = false,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         let state = TennisMatchState(
             leftName: leftName,
@@ -59,7 +59,7 @@ final class TennisSessionStore {
             gameType: gameType,
             state: state,
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
     }
 
@@ -67,7 +67,7 @@ final class TennisSessionStore {
         gameType: ScoreCore.GameType,
         state: TennisMatchState,
         voiceAnnouncementEnabled: Bool = false,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
             gameType: gameType,
@@ -80,14 +80,14 @@ final class TennisSessionStore {
         self.init(
             session: session,
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
     }
 
     private init(
         session: ScoreSession<TennisMatchState, TennisMatchEvent>,
         voiceAnnouncementEnabled: Bool,
-        archiveRepository: SessionArchiveRepository? = nil
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         gameType = session.gameType
         sessionId = session.sessionId
@@ -98,7 +98,7 @@ final class TennisSessionStore {
             reducer: TennisMatchReducer(),
             shouldFinish: { _, state in state.finished }
         )
-        self.archiveRepository = archiveRepository ?? SessionArchiveRepository()
+        self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
         self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
@@ -115,26 +115,23 @@ final class TennisSessionStore {
             reducer: TennisMatchReducer(),
             shouldFinish: { _, state in state.finished }
         )
-        archiveRepository = SessionArchiveRepository()
+        resumeRepository = ResumeSessionRepository()
         state = session.state
         detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
         self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
     }
 
     convenience init?(restoring sessionId: UUID) {
-        let url = SessionArchiveRepository.snapshotURL(sessionId: sessionId)
-        guard let data = try? Data(contentsOf: url) else {
+        guard let data = try? ResumeSessionRepository.loadPayload(
+            sessionId: sessionId,
+            expectedKind: .scoreSessionBundle
+        ) else {
             return nil
         }
-        let voiceAnnouncementEnabled = (ScoreboardRecordManager.shared
-            .getRecordById(sessionId.uuidString)?
-            .projectConfiguration?["voiceAnnouncement"]?.value as? Bool) ?? false
+        let voiceAnnouncementEnabled = false
         if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
            bundle.currentSession.status == .live {
             self.init(resumeBundle: bundle, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
-        } else if let session = try? JSONDecoder().decode(ScoreSession<TennisMatchState, TennisMatchEvent>.self, from: data),
-                  session.status == .live {
-            self.init(session: session, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
         } else {
             return nil
         }
@@ -150,7 +147,7 @@ final class TennisSessionStore {
             gameType: gameType,
             state: resetState,
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
-            archiveRepository: archiveRepository
+            resumeRepository: resumeRepository
         )
     }
 
@@ -168,7 +165,7 @@ final class TennisSessionStore {
             let bundle = await core.resumeBundle()
             self.append(events: events, at: now, state: session.state)
             do {
-                try await self.archiveRepository.saveResumeBundle(bundle)
+                try await self.resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(bundle.currentSession)
             } catch {
                 self.reportPersistenceFailure(error)
@@ -198,7 +195,7 @@ final class TennisSessionStore {
                 operationCode: "undo"
             ))
             do {
-                try await self.archiveRepository.saveResumeBundle(bundle)
+                try await self.resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(session)
             } catch {
                 self.reportPersistenceFailure(error)
@@ -210,7 +207,8 @@ final class TennisSessionStore {
     func applyAuthoritativeState(
         _ state: TennisMatchState,
         detailedActions incoming: [DetailedScoreAction],
-        revision: UInt64
+        revision: UInt64,
+        persistFormalRecord: Bool = true
     ) async -> Bool {
         if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
             return false
@@ -227,8 +225,10 @@ final class TennisSessionStore {
         await synchronizeParticipants(for: session.state)
         let bundle = await core.resumeBundle()
         do {
-            try await archiveRepository.saveResumeBundle(bundle)
-            try persistRecord(bundle.currentSession)
+            try await resumeRepository.saveResumeBundle(bundle)
+            if persistFormalRecord {
+                try persistRecord(bundle.currentSession)
+            }
         } catch {
             reportPersistenceFailure(error)
         }
@@ -244,11 +244,11 @@ final class TennisSessionStore {
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [core, archiveRepository] in
+        operationTask = Task { [core, resumeRepository] in
             _ = await previousTask?.value
             let bundle = await core.resumeBundle()
             do {
-                try await archiveRepository.saveResumeBundle(bundle)
+                try await resumeRepository.saveResumeBundle(bundle)
                 try self.persistRecord(bundle.currentSession)
                 completion?(true)
             } catch {
@@ -391,6 +391,7 @@ final class TennisSessionStore {
     }
 
     private func persistRecord(_ session: ScoreSession<TennisMatchState, TennisMatchEvent>) throws {
+        guard session.status == .finished, state.finished else { return }
         guard let appGameType = GameType(scoreCoreGameType: gameType) else { return }
         let snapshot = try JSONEncoder().encode(session)
         let usePointScore = state.rules.setScoringMode == .tiebreakOnly
@@ -423,7 +424,7 @@ final class TennisSessionStore {
                 voiceAnnouncement: voiceAnnouncementEnabled
             ),
             stateSnapshot: snapshot,
-            status: state.finished ? .finished : .draft
+            status: .finished
         )
         try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
         ScoreboardRecordsViewModel.shared.refreshRecords()

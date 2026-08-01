@@ -41,30 +41,26 @@ private struct CounterReducer: DomainReducer {
 }
 
 @Test func linkedScoreboardSetupPreservesTheInitialState() throws {
-    var state = BasketballMatchEngine.initial(leftName: "Home", rightName: "Away", gameMode: .threeXThree)
-    state.leftScore = 14
-    state.rightScore = 12
-    state.gameTimeSeconds = 86
-    state.shotTimeSeconds = 7
-
+    var state = RallyMatchEngine.initial(leftName: "Home", rightName: "Away", rules: .badminton())
+    state.leftPoints = 14
+    state.rightPoints = 12
     let setup = LinkedScoreboardSetup(
-        gameType: .threeBasketball,
-        basketballThreeXThree: true,
-        initialSnapshot: .basketball(state)
+        gameType: .badminton,
+        initialSnapshot: .rally(state)
     )
     let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
 
     #expect(decoded == setup)
-    guard case .basketball(let restored)? = decoded.initialSnapshot else {
+    guard case .rally(let restored)? = decoded.initialSnapshot else {
         #expect(Bool(false))
         return
     }
     #expect(restored.leftName == "Home")
-    #expect(restored.leftScore == 14)
-    #expect(restored.gameTimeSeconds == 86)
+    #expect(restored.leftPoints == 14)
+    #expect(restored.rightPoints == 12)
 }
 
-@Test func linkedSetupAndFinishedPayloadPreserveOptionalDetailedActions() throws {
+@Test func linkedSetupAndFinishedPayloadPreserveRequiredDetailedActions() throws {
     let action = DetailedScoreAction(
         type: .scoreChanged,
         epochMilliseconds: 123,
@@ -98,16 +94,17 @@ private struct CounterReducer: DomainReducer {
     #expect(decodedFinished.participantNames == ["Alice", "Bob"])
 }
 
-@Test func oldLinkedSetupWithoutDetailedActionsStillDecodes() throws {
+@Test func formalV1SetupRequiresCapabilities() throws {
     let json = """
     {
       "gameType": "badminton",
-      "basketballThreeXThree": false
+      "detailedActions": [],
+      "participantNames": []
     }
     """
-    let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: Data(json.utf8))
-    #expect(decoded.detailedActions == nil)
-    #expect(decoded.participantNames == nil)
+    #expect(throws: DecodingError.self) {
+        _ = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: Data(json.utf8))
+    }
 }
 
 @Test func linkedRallySetupPreservesSetsAndServer() throws {
@@ -656,10 +653,10 @@ private struct CounterReducer: DomainReducer {
     #expect(try await store.load() == 2)
 }
 
-@Test func sessionArchiveIndexUpsertsAndOrdersEntries() async throws {
+@Test func resumeSessionIndexUpsertsAndOrdersEntries() async throws {
     let directory = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
-    let index = SessionArchiveIndex(fileURL: directory.appendingPathComponent("index.json"))
+    let index = ResumeSessionIndex(fileURL: directory.appendingPathComponent("index.json"))
     let firstID = UUID()
     let secondID = UUID()
 
@@ -817,10 +814,10 @@ private struct CounterReducer: DomainReducer {
     #expect(state.rightName == "蓝A/蓝B")
 }
 
-@Test func sessionArchiveRepositoryOwnsSnapshotIndexAndDeletion() async throws {
+@Test func resumeSessionRepositoryOwnsEnvelopeIndexAndDeletion() async throws {
     let root = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
-    let repository = SessionArchiveRepository(rootURL: root)
+    let repository = ResumeSessionRepository(rootURL: root)
     let state = LineScoreState(leftName: "A", rightName: "B", rules: .freeCounter, leftScore: -2, rightScore: 4)
     let session = ScoreSession<LineScoreState, LineScoreEvent>(
         gameType: .simpleScore,
@@ -836,13 +833,13 @@ private struct CounterReducer: DomainReducer {
 
     try await repository.remove(sessionId: session.sessionId)
     #expect(try await repository.entries().isEmpty)
-    #expect(!FileManager.default.fileExists(atPath: SessionArchiveRepository.snapshotURL(sessionId: session.sessionId, rootURL: root).path))
+    #expect(!FileManager.default.fileExists(atPath: ResumeSessionRepository.snapshotURL(sessionId: session.sessionId, rootURL: root).path))
 }
 
-@Test func sessionArchiveRepositoryKeepsAtMostOneLiveResumeSession() async throws {
+@Test func resumeSessionRepositoryKeepsAtMostOneLiveResumeSession() async throws {
     let root = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
-    let repository = SessionArchiveRepository(rootURL: root)
+    let repository = ResumeSessionRepository(rootURL: root)
     let first = ScoreSession<LineScoreState, LineScoreEvent>(
         gameType: .simpleScore,
         ruleFamily: .s1,
@@ -862,7 +859,7 @@ private struct CounterReducer: DomainReducer {
     let live = try await repository.liveEntries()
     #expect(live.map(\.sessionId) == [second.sessionId])
     #expect(try await repository.entries().map(\.sessionId) == [second.sessionId])
-    #expect(!FileManager.default.fileExists(atPath: SessionArchiveRepository.snapshotURL(sessionId: first.sessionId, rootURL: root).path))
+    #expect(!FileManager.default.fileExists(atPath: ResumeSessionRepository.snapshotURL(sessionId: first.sessionId, rootURL: root).path))
 
     let finishedFirst = ScoreSession<LineScoreState, LineScoreEvent>(
         sessionId: first.sessionId,
@@ -875,7 +872,59 @@ private struct CounterReducer: DomainReducer {
     try await repository.save(finishedFirst, updatedAtEpochMilliseconds: 300)
     // Finished saves must not discard the remaining live resume.
     #expect(try await repository.liveEntries().map(\.sessionId) == [second.sessionId])
-    #expect(Set(try await repository.entries().map(\.sessionId)) == Set([first.sessionId, second.sessionId]))
+    #expect(try await repository.entries().map(\.sessionId) == [second.sessionId])
+}
+
+@Test func resumeSessionRepositoryPreservesEveryExactGameTypeAndClearsIt() async throws {
+    struct ProbePayload: Codable, Equatable {
+        let gameType: String
+        let score: Int
+    }
+
+    let root = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let repository = ResumeSessionRepository(rootURL: root)
+
+    for (index, gameType) in GameType.allCases.enumerated() {
+        let sessionId = UUID()
+        let expected = ProbePayload(gameType: gameType.rawValue, score: index)
+        try ResumeSessionRepository.saveManualPayload(
+            sessionId: sessionId,
+            gameType: gameType,
+            startedAtEpochMilliseconds: 100,
+            participants: [
+                SessionParticipant(id: "left", name: "A"),
+                SessionParticipant(id: "right", name: "B")
+            ],
+            scoreSummary: "\(index):0",
+            payload: try JSONEncoder().encode(expected),
+            rootURL: root,
+            updatedAtEpochMilliseconds: Int64(200 + index)
+        )
+
+        let loadedEnvelope = try ResumeSessionRepository.loadEnvelope(
+            sessionId: sessionId,
+            rootURL: root
+        )
+        let envelope = try #require(loadedEnvelope)
+        #expect(envelope.schemaVersion == 1)
+        #expect(envelope.gameType == gameType)
+        #expect(envelope.payloadKind == .manualState)
+        #expect(try JSONDecoder().decode(ProbePayload.self, from: envelope.payload) == expected)
+        #expect(try await repository.entries().map(\.sessionId) == [sessionId])
+
+        try await repository.remove(sessionId: sessionId)
+        #expect(try await repository.entries().isEmpty)
+        #expect(
+            !FileManager.default.fileExists(
+                atPath: ResumeSessionRepository.snapshotURL(
+                    sessionId: sessionId,
+                    rootURL: root
+                ).path
+            )
+        )
+    }
 }
 
 @Test func finishedSessionBecomesLiveWhenReducerAcceptsReset() async {

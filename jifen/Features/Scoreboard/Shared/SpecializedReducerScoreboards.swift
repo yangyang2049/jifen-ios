@@ -408,76 +408,63 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
         let nameSize = typography.nameFontSize
         let topPad = ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height)
         let setSize = typography.secondaryFontSize
+        let mainToDetailSpacing = ScoreboardLayoutMetrics.mainToSetSpacing(
+            halfViewportHeight: panelSize.height
+        )
         let editOffset = isEditMode
             ? ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelSize.height)
             : 0
 
         return ZStack {
             color
-            VStack(spacing: typography.nameToScoreSpacing) {
-                if isEditMode, let onEditAdjust {
-                    HStack(spacing: 16) {
-                        editCircleButton(systemName: "minus") { onEditAdjust(isLeft, -1) }
-                        Text(score)
-                            .font(typographySession.effectivePreference.font.swiftUIFont(
-                                size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: mainSize)
-                            ))
-                            .monospacedDigit()
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                        editCircleButton(systemName: "plus") { onEditAdjust(isLeft, 1) }
-                    }
-                } else if isEditMode {
-                    TextField(
-                        "0",
-                        text: isLeft ? $editLeftScore : $editRightScore
-                    )
-                    .keyboardType(.numbersAndPunctuation)
-                    .font(typographySession.effectivePreference.font.swiftUIFont(
-                        size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: mainSize)
-                    ))
-                    .multilineTextAlignment(.center)
-                    .textFieldStyle(.plain)
-                } else {
-                    Text(score)
-                        .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.4)
-                        .lineLimit(1)
-                    if let accessory {
-                        accessory
-                    }
-                }
-                if !isEditMode, let detail {
-                    Text(detail)
-                        .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
-                        .foregroundStyle(appearance.theme.palette.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .offset(y: editOffset)
 
-            VStack {
-                if isEditMode {
-                    TextField(
-                        NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
-                        text: isLeft ? $editLeftName : $editRightName
+            if isEditMode {
+                VStack(spacing: typography.nameToScoreSpacing) {
+                    if let onEditAdjust {
+                        HStack(spacing: 16) {
+                            editCircleButton(systemName: "minus") { onEditAdjust(isLeft, -1) }
+                            Text(score)
+                                .font(typographySession.effectivePreference.font.swiftUIFont(
+                                    size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: mainSize)
+                                ))
+                                .monospacedDigit()
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                            editCircleButton(systemName: "plus") { onEditAdjust(isLeft, 1) }
+                        }
+                    } else {
+                        TextField(
+                            "0",
+                            text: isLeft ? $editLeftScore : $editRightScore
+                        )
+                        .keyboardType(.numbersAndPunctuation)
+                        .font(typographySession.effectivePreference.font.swiftUIFont(
+                            size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: mainSize)
+                        ))
+                        .multilineTextAlignment(.center)
+                        .textFieldStyle(.plain)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .offset(y: editOffset)
+
+                VStack {
+                    ScoreboardNameEditorField(
+                        placeholder: NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
+                        text: isLeft ? $editLeftName : $editRightName,
+                        nameType: .team,
+                        scoreboardFont: typographySession.effectivePreference.font
                     )
-                    .font(typographySession.effectivePreference.font.swiftUIFont(
-                        size: nameSize,
-                        weight: .bold
-                    ))
-                    .multilineTextAlignment(.center)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
                     .padding(.horizontal, 16)
                     .padding(.top, topPad)
                     .offset(y: editOffset)
-                } else {
+                    Spacer()
+                }
+            } else {
+                // Keep the complete label/score/detail cluster centered. This
+                // matches the rally and standard templates and prevents a
+                // top-pinned name from making the main score look too high.
+                VStack(spacing: 0) {
                     Text(name)
                         .font(typographySession.effectivePreference.font.swiftUIFont(
                             size: nameSize,
@@ -485,10 +472,31 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         ))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
-                        .padding(.top, topPad)
                         .padding(.horizontal, 8)
+
+                    Spacer().frame(height: typography.nameToScoreSpacing)
+
+                    Text(score)
+                        .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
+                        .monospacedDigit()
+                        .minimumScaleFactor(0.4)
+                        .lineLimit(1)
+
+                    if let accessory {
+                        accessory
+                            .padding(.top, 8)
+                    }
+
+                    if let detail {
+                        Spacer().frame(height: mainToDetailSpacing)
+                        Text(detail)
+                            .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
+                            .foregroundStyle(appearance.theme.palette.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
                 }
-                Spacer()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .foregroundStyle(appearance.theme.palette.foreground)
@@ -555,7 +563,7 @@ struct EightBallScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)?
     var onNavigationBack: (() -> Void)?
 
@@ -581,12 +589,12 @@ struct EightBallScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
 
@@ -615,20 +623,20 @@ struct EightBallScoreboardView: View {
         var id = UUID().uuidString
         var actions = 0
         var restoredHistory: [EightBallState] = []
-        var restoredActionLog: [String] = []
-        var restoredDetailedActions: [DetailedScoreAction] = []
+        let restoredActionLog: [String] = []
+        let restoredDetailedActions: [DetailedScoreAction] = []
         var showFinished = false
         var resumeBundle: SpecializedBilliardsSessionStore<EightBallReducer>.ResumeBundle?
 
-        if let initialRecordId,
-           let sessionId = UUID(uuidString: initialRecordId),
+        if let initialResumeSessionId,
+           let sessionId = UUID(uuidString: initialResumeSessionId),
            let bundle = SpecializedBilliardsSessionStore<EightBallReducer>.decodeResumeBundle(sessionId: sessionId) {
             resumeBundle = bundle
             initial = bundle.currentSession.state
             start = bundle.currentSession.metadata.extras["startedAtEpochMilliseconds"]
                 .flatMap(Int64.init)
                 .map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? start
-            id = bundle.currentSession.metadata.extras["recordID"] ?? initialRecordId
+            id = bundle.currentSession.metadata.extras["recordID"] ?? initialResumeSessionId
             actions = bundle.timeline.count
             restoredHistory = bundle.undoFrames.map(\.session.state)
             if bundle.currentSession.participants.count >= 2 {
@@ -636,34 +644,6 @@ struct EightBallScoreboardView: View {
                 right = bundle.currentSession.participants[1].name
             }
             showFinished = initial.finished
-        } else if let initialRecordId,
-                  let draft = loadSpecializedSessionDraft(
-                    recordId: initialRecordId,
-                    reducer: EightBallReducer.self
-                  ) {
-            resumeBundle = draft.bundle
-            initial = draft.bundle.currentSession.state
-            start = draft.record.startTime
-            id = draft.record.id
-            actions = draft.record.totalScoreChanges
-            restoredHistory = draft.bundle.undoFrames.map(\.session.state)
-            restoredActionLog = draft.record.actions
-            restoredDetailedActions = draft.record.detailedActions ?? []
-            left = draft.record.team1Name
-            right = draft.record.team2Name
-            showFinished = initial.finished
-        } else if let initialRecordId,
-           let draft = loadSpecializedDraft(recordId: initialRecordId, as: EightBallState.self) {
-            initial = draft.state
-            start = draft.record.startTime
-            id = draft.record.id
-            actions = max(draft.record.totalScoreChanges, 1)
-            restoredHistory = draft.undoStates
-            restoredActionLog = draft.intentTimeline
-            restoredDetailedActions = draft.detailedActions
-            left = draft.record.team1Name
-            right = draft.record.team2Name
-            showFinished = draft.state.finished
         }
 
         let store = resumeBundle.map {
@@ -678,7 +658,7 @@ struct EightBallScoreboardView: View {
             ],
             startedAt: start,
             recordID: id,
-            legacyUndoStates: restoredHistory
+            restoredUndoStates: restoredHistory
         )
         _sessionStore = State(initialValue: store)
         _startedAt = State(initialValue: start)
@@ -807,7 +787,16 @@ struct EightBallScoreboardView: View {
                     }
             }
         }
-        .onAppear { onSetupConsumed?(); registerSync() }
+        .onAppear {
+            onSetupConsumed?()
+            registerSync()
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let remote = update.snapshot.eightBallState {
+                detailedActions = update.detailedActions
+                applyAuthoritativeEightBall(remote)
+            }
+        }
         .onChange(of: state.finished) { _, finished in
             if finished {
                 showGameOverDialog = true
@@ -838,7 +827,7 @@ struct EightBallScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
-            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave { saveRecord() }
         }
         .alert(
@@ -875,9 +864,17 @@ struct EightBallScoreboardView: View {
         case "takeover":
             if let id = watchSessionId {
                 Task {
-                    try? await watchLinkService.takeover(sessionId: id)
-                    publishWatchIfNeeded(state)
+                    do {
+                        try await watchLinkService.takeover(sessionId: id)
+                        publishWatchIfNeeded(state)
+                    } catch {
+                        showToastMessage(error.localizedDescription)
+                    }
                 }
+            }
+        case "forceTakeover":
+            if let id = watchSessionId {
+                watchLinkService.requestForceTakeoverConfirmation(id)
             }
         case "endLink":
             if let id = watchSessionId {
@@ -886,6 +883,15 @@ struct EightBallScoreboardView: View {
             }
         default:
             break
+        }
+    }
+
+    private func showToastMessage(_ message: String) {
+        overflowToastMessage = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if overflowToastMessage == message {
+                overflowToastMessage = nil
+            }
         }
     }
 
@@ -1222,7 +1228,7 @@ struct NineBallChaseScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)?
     var onNavigationBack: (() -> Void)?
     @State private var sessionStore: SpecializedBilliardsSessionStore<NineBallChaseReducer>
@@ -1267,12 +1273,12 @@ struct NineBallChaseScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
         let projectedConfiguration = initialSetup?.billiardsConfiguration(for: .nineBall)
@@ -1300,60 +1306,24 @@ struct NineBallChaseScoreboardView: View {
         var id = UUID().uuidString
         var actions = 0
         var restoredHistory: [NineBallChaseState] = []
-        var restoredActionLog: [String] = []
-        var restoredDetailedActions: [DetailedScoreAction] = []
+        let restoredActionLog: [String] = []
+        let restoredDetailedActions: [DetailedScoreAction] = []
         var showFinished = false
         var resumeBundle: SpecializedBilliardsSessionStore<NineBallChaseReducer>.ResumeBundle?
 
-        if let initialRecordId,
-           let sessionId = UUID(uuidString: initialRecordId),
+        if let initialResumeSessionId,
+           let sessionId = UUID(uuidString: initialResumeSessionId),
            let bundle = SpecializedBilliardsSessionStore<NineBallChaseReducer>.decodeResumeBundle(sessionId: sessionId) {
             resumeBundle = bundle
             initial = bundle.currentSession.state
             start = bundle.currentSession.metadata.extras["startedAtEpochMilliseconds"]
                 .flatMap(Int64.init)
                 .map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? start
-            id = bundle.currentSession.metadata.extras["recordID"] ?? initialRecordId
+            id = bundle.currentSession.metadata.extras["recordID"] ?? initialResumeSessionId
             actions = bundle.timeline.count
             restoredHistory = bundle.undoFrames.map(\.session.state)
             names = (0..<4).map { initial.resolvedName(at: $0, fallback: names[safe: $0]) }
             showFinished = initial.finished
-        } else if let initialRecordId,
-                  let draft = loadSpecializedSessionDraft(
-                    recordId: initialRecordId,
-                    reducer: NineBallChaseReducer.self
-                  ) {
-            resumeBundle = draft.bundle
-            initial = draft.bundle.currentSession.state
-            start = draft.record.startTime
-            id = draft.record.id
-            actions = draft.record.totalScoreChanges
-            restoredHistory = draft.bundle.undoFrames.map(\.session.state)
-            restoredActionLog = draft.record.actions
-            restoredDetailedActions = draft.record.detailedActions ?? []
-            showFinished = initial.finished
-            names = (0..<4).map { initial.resolvedName(at: $0, fallback: names[safe: $0]) }
-        } else if let initialRecordId,
-           let draft = loadSpecializedDraft(recordId: initialRecordId, as: NineBallChaseState.self) {
-            initial = draft.state
-            start = draft.record.startTime
-            id = draft.record.id
-            actions = max(draft.record.totalScoreChanges, 1)
-            restoredHistory = draft.undoStates
-            restoredActionLog = draft.intentTimeline
-            restoredDetailedActions = draft.detailedActions
-            showFinished = draft.state.finished
-            if !draft.state.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }),
-               let stored = draft.record.extraData?["playerNames"]?.value as? [String], !stored.isEmpty {
-                names = Array((stored + names).prefix(4))
-                initial.playerNames = names
-            } else if draft.state.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
-                names = (0..<4).map { draft.state.resolvedName(at: $0, fallback: names[safe: $0]) }
-            } else {
-                names[0] = draft.record.team1Name
-                names[1] = draft.record.team2Name
-                initial.playerNames = names
-            }
         }
 
         let store = resumeBundle.map {
@@ -1367,7 +1337,7 @@ struct NineBallChaseScoreboardView: View {
             },
             startedAt: start,
             recordID: id,
-            legacyUndoStates: restoredHistory
+            restoredUndoStates: restoredHistory
         )
         _sessionStore = State(initialValue: store)
         _startedAt = State(initialValue: start)
@@ -1558,9 +1528,18 @@ struct NineBallChaseScoreboardView: View {
                     case "takeover":
                         if let id = watchSessionId {
                             Task {
-                                try? await watchLinkService.takeover(sessionId: id)
-                                publishWatchIfNeeded(state)
+                                do {
+                                    try await watchLinkService.takeover(sessionId: id)
+                                    publishWatchIfNeeded(state)
+                                } catch {
+                                    showNineBallToast(error.localizedDescription)
+                                }
                             }
+                        }
+                        showMenu = false
+                    case "forceTakeover":
+                        if let id = watchSessionId {
+                            watchLinkService.requestForceTakeoverConfirmation(id)
                         }
                         showMenu = false
                     case "endLink":
@@ -1620,6 +1599,12 @@ struct NineBallChaseScoreboardView: View {
             appearance = .current()
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let remote = update.snapshot.nineBallState {
+                detailedActions = update.detailedActions
+                applyAuthoritativeNineBall(remote)
+            }
             revealImmersiveChrome()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
@@ -1665,7 +1650,7 @@ struct NineBallChaseScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
-            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave { saveRecord() }
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
@@ -1780,15 +1765,16 @@ struct NineBallChaseScoreboardView: View {
             VStack(spacing: 0) {
                 Group {
                     if showEditPanel {
-                        TextField(
-                            NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
+                        ScoreboardNameEditorField(
+                            placeholder: NSLocalizedString("multi_score_player_default", value: "玩家", comment: ""),
                             text: Binding(
                                 get: { editPlayerNames[safe: player] ?? "" },
                                 set: { if editPlayerNames.indices.contains(player) { editPlayerNames[player] = $0 } }
-                            )
+                            ),
+                            nameType: .player,
+                            scoreboardFont: typographySession.effectivePreference.font,
+                            accessibilityIdentifier: "nine_ball_player_\(player)_name_editor"
                         )
-                        .multilineTextAlignment(.center)
-                        .textFieldStyle(.plain)
                     } else {
                         Text(playerName(player))
                     }
@@ -1840,12 +1826,18 @@ struct NineBallChaseScoreboardView: View {
                     HStack(spacing: 24) {
                         Button { adjustEditingScore(player: player, delta: -1) } label: {
                             Image(systemName: "minus")
-                                .frame(width: 42, height: 34)
+                                .frame(
+                                    width: ScoreboardConstants.minimumTouchTarget,
+                                    height: ScoreboardConstants.minimumTouchTarget
+                                )
                                 .background(.black.opacity(0.2), in: Capsule())
                         }
                         Button { adjustEditingScore(player: player, delta: 1) } label: {
                             Image(systemName: "plus")
-                                .frame(width: 42, height: 34)
+                                .frame(
+                                    width: ScoreboardConstants.minimumTouchTarget,
+                                    height: ScoreboardConstants.minimumTouchTarget
+                                )
                                 .background(.black.opacity(0.2), in: Capsule())
                         }
                     }
@@ -2292,7 +2284,7 @@ struct SnookerReducerScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     let initialSetup: SportsSetupResult?
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)?
     var onNavigationBack: (() -> Void)?
     @State private var sessionStore: SpecializedBilliardsSessionStore<SnookerReducer>
@@ -2331,12 +2323,12 @@ struct SnookerReducerScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
 
@@ -2358,20 +2350,20 @@ struct SnookerReducerScoreboardView: View {
         var id = UUID().uuidString
         var actions = 0
         var restoredHistory: [SnookerState] = []
-        var restoredActionLog: [String] = []
-        var restoredDetailedActions: [DetailedScoreAction] = []
+        let restoredActionLog: [String] = []
+        let restoredDetailedActions: [DetailedScoreAction] = []
         var showFinished = false
         var resumeBundle: SpecializedBilliardsSessionStore<SnookerReducer>.ResumeBundle?
 
-        if let initialRecordId,
-           let sessionId = UUID(uuidString: initialRecordId),
+        if let initialResumeSessionId,
+           let sessionId = UUID(uuidString: initialResumeSessionId),
            let bundle = SpecializedBilliardsSessionStore<SnookerReducer>.decodeResumeBundle(sessionId: sessionId) {
             resumeBundle = bundle
             initial = bundle.currentSession.state
             start = bundle.currentSession.metadata.extras["startedAtEpochMilliseconds"]
                 .flatMap(Int64.init)
                 .map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? start
-            id = bundle.currentSession.metadata.extras["recordID"] ?? initialRecordId
+            id = bundle.currentSession.metadata.extras["recordID"] ?? initialResumeSessionId
             actions = bundle.timeline.count
             restoredHistory = bundle.undoFrames.map(\.session.state)
             if bundle.currentSession.participants.count >= 2 {
@@ -2379,34 +2371,6 @@ struct SnookerReducerScoreboardView: View {
                 right = bundle.currentSession.participants[1].name
             }
             showFinished = initial.finished
-        } else if let initialRecordId,
-                  let draft = loadSpecializedSessionDraft(
-                    recordId: initialRecordId,
-                    reducer: SnookerReducer.self
-                  ) {
-            resumeBundle = draft.bundle
-            initial = draft.bundle.currentSession.state
-            start = draft.record.startTime
-            id = draft.record.id
-            actions = draft.record.totalScoreChanges
-            restoredHistory = draft.bundle.undoFrames.map(\.session.state)
-            restoredActionLog = draft.record.actions
-            restoredDetailedActions = draft.record.detailedActions ?? []
-            left = draft.record.team1Name
-            right = draft.record.team2Name
-            showFinished = initial.finished
-        } else if let initialRecordId,
-           let draft = loadSpecializedDraft(recordId: initialRecordId, as: SnookerState.self) {
-            initial = draft.state
-            start = draft.record.startTime
-            id = draft.record.id
-            actions = max(draft.record.totalScoreChanges, 1)
-            restoredHistory = draft.undoStates
-            restoredActionLog = draft.intentTimeline
-            restoredDetailedActions = draft.detailedActions
-            left = draft.record.team1Name
-            right = draft.record.team2Name
-            showFinished = draft.state.finished
         }
 
         let store = resumeBundle.map {
@@ -2421,7 +2385,7 @@ struct SnookerReducerScoreboardView: View {
             ],
             startedAt: start,
             recordID: id,
-            legacyUndoStates: restoredHistory
+            restoredUndoStates: restoredHistory
         )
         _sessionStore = State(initialValue: store)
         _startedAt = State(initialValue: start)
@@ -2507,9 +2471,17 @@ struct SnookerReducerScoreboardView: View {
                     case "takeover":
                         if let id = watchSessionId {
                             Task {
-                                try? await watchLinkService.takeover(sessionId: id)
-                                publishWatchIfNeeded(state)
+                                do {
+                                    try await watchLinkService.takeover(sessionId: id)
+                                    publishWatchIfNeeded(state)
+                                } catch {
+                                    showPersistenceError = true
+                                }
                             }
+                        }
+                    case "forceTakeover":
+                        if let id = watchSessionId {
+                            watchLinkService.requestForceTakeoverConfirmation(id)
                         }
                     case "endLink":
                         if let id = watchSessionId {
@@ -2592,7 +2564,16 @@ struct SnookerReducerScoreboardView: View {
                     }
             }
         }
-        .onAppear { onSetupConsumed?(); registerSync() }
+        .onAppear {
+            onSetupConsumed?()
+            registerSync()
+            if let watchSessionId,
+               let update = watchLinkService.attachPage(sessionId: watchSessionId),
+               let remote = update.snapshot.snookerState {
+                detailedActions = update.detailedActions
+                applyAuthoritativeSnooker(remote)
+            }
+        }
         .onChange(of: state.finished) { _, finished in
             if finished {
                 showGameOverDialog = true
@@ -2623,7 +2604,7 @@ struct SnookerReducerScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
-            if let watchSessionId { watchLinkService.endWatchSession(watchSessionId) }
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave { saveRecord() }
         }
         .sheet(isPresented: $showSettlePanel) { settleSheet }
@@ -2885,6 +2866,7 @@ struct SnookerReducerScoreboardView: View {
                             .background(Circle().fill(Color.white.opacity(0.1)))
                     }
                     .buttonStyle(.plain)
+                    .scoreboardMinimumTouchTarget()
                     .padding(.top, 10)
                     .padding(.trailing, 12)
                     .accessibilityIdentifier("snooker_foul_close")
@@ -2912,7 +2894,7 @@ struct SnookerReducerScoreboardView: View {
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(selected ? Color.white : Color.white.opacity(0.68))
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(height: ScoreboardConstants.minimumTouchTarget)
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color.white.opacity(selected ? 0.2 : 0.08))
@@ -3332,7 +3314,7 @@ struct SnookerReducerScoreboardView: View {
 struct ShengjiReducerScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     let initialSetup: SportsSetupResult?
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)?
     var onNavigationBack: (() -> Void)?
     @State private var state: ShengjiTierState
@@ -3353,12 +3335,12 @@ struct ShengjiReducerScoreboardView: View {
 
     init(
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil,
         onNavigationBack: (() -> Void)? = nil
     ) {
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
 
@@ -3371,14 +3353,14 @@ struct ShengjiReducerScoreboardView: View {
         var id = ScoreboardRecordIdentity.next(prefix: GameType.shengji.canonicalScoreboardIdentifier)
         var actions = 0
 
-        if let initialRecordId,
-           let draft = loadSpecializedDraft(recordId: initialRecordId, as: ShengjiTierState.self) {
-            initial = draft.state
-            start = draft.record.startTime
-            id = draft.record.id
-            actions = max(draft.record.totalScoreChanges, 1)
-            left = draft.record.team1Name
-            right = draft.record.team2Name
+        if let initialResumeSessionId,
+           let resume = loadSpecializedResume(recordId: initialResumeSessionId, as: ShengjiTierState.self) {
+            initial = resume.state
+            start = resume.record.startTime
+            id = resume.record.id
+            actions = max(resume.record.totalScoreChanges, 1)
+            left = resume.record.team1Name
+            right = resume.record.team2Name
         }
 
         _state = State(initialValue: initial)
@@ -3653,7 +3635,7 @@ private func localizedSideBlueName() -> String {
 private func localizedRedName() -> String { localizedSideRedName() }
 private func localizedBlueName() -> String { localizedSideBlueName() }
 
-private struct BilliardsSessionArchive<State: Codable>: Codable {
+private struct ReducerScoreboardStateSnapshot<State: Codable>: Codable {
     var schemaVersion: Int = 1
     let state: State
     let undoStates: [State]
@@ -3661,42 +3643,13 @@ private struct BilliardsSessionArchive<State: Codable>: Codable {
     let detailedActions: [DetailedScoreAction]
 }
 
-private func loadSpecializedSessionDraft<Reducer: DomainReducer>(
-    recordId: String,
-    reducer: Reducer.Type
-) -> (
-    record: ScoreboardRecord,
-    bundle: ScoreSessionResumeBundle<Reducer.State, Reducer.Event, Reducer.Intent>
-)? where Reducer.State: Equatable {
-    guard let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-          record.status == .draft,
-          let data = record.stateSnapshot,
-          let bundle = try? JSONDecoder().decode(
-            ScoreSessionResumeBundle<Reducer.State, Reducer.Event, Reducer.Intent>.self,
-            from: data
-          ) else {
-        return nil
-    }
-    return (record, bundle)
-}
-
-private func loadSpecializedDraft<State: Codable>(
+private func loadSpecializedResume<State: Codable>(
     recordId: String,
     as type: State.Type
-) -> (record: ScoreboardRecord, state: State, undoStates: [State], intentTimeline: [String], detailedActions: [DetailedScoreAction])? {
-    guard let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-          record.status == .draft,
+) -> (record: ManualScoreboardResumeState, state: State, undoStates: [State], intentTimeline: [String], detailedActions: [DetailedScoreAction])? {
+    guard let record = ManualResumeSessionStore.load(recordID: recordId),
           let data = record.stateSnapshot else {
         return nil
-    }
-    if let archive = try? JSONDecoder().decode(BilliardsSessionArchive<State>.self, from: data) {
-        return (
-            record,
-            archive.state,
-            archive.undoStates,
-            archive.intentTimeline,
-            archive.detailedActions
-        )
     }
     guard let state = try? JSONDecoder().decode(type, from: data) else { return nil }
     return (record, state, [], record.actions, record.detailedActions ?? [])
@@ -3725,6 +3678,11 @@ private func saveSpecializedRecord<State: Codable>(
     projectConfiguration: [String: Any] = [:]
 ) -> Bool {
     guard actionCount > 0 else { return true }
+    if !finished, gameType == .eightBall || gameType == .nineBall || gameType == .snooker {
+        // These reducers already persist their complete ScoreSession bundle.
+        // A second manual payload would overwrite the authoritative resume.
+        return true
+    }
     let end = Date()
     let winner = left == right ? nil : (left > right ? "left" : "right")
     let snapshotData: Data
@@ -3732,7 +3690,7 @@ private func saveSpecializedRecord<State: Codable>(
         if let sessionSnapshotData {
             snapshotData = sessionSnapshotData
         } else if let undoStates {
-            snapshotData = try JSONEncoder().encode(BilliardsSessionArchive(
+            snapshotData = try JSONEncoder().encode(ReducerScoreboardStateSnapshot(
                 state: snapshot,
                 undoStates: undoStates,
                 intentTimeline: actions,
@@ -3774,7 +3732,7 @@ private func saveSpecializedRecord<State: Codable>(
         extraData: extraData,
         projectConfiguration: configuration.isEmpty ? nil : configuration,
         stateSnapshot: snapshotData,
-        status: finished ? .finished : .draft
+        status: .finished
     )
     let resolvedDetailedActions = detailedActions?.isEmpty == false
         ? detailedActions!
@@ -3782,7 +3740,7 @@ private func saveSpecializedRecord<State: Codable>(
     record.detailedActions = resolvedDetailedActions
     record.setResults = ScoreboardRecordActionAdapter.setResults(from: resolvedDetailedActions)
     do {
-        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        try ScoreboardLifecyclePersistence.save(record, finished: finished)
         return true
     } catch {
         specializedRecordLogger.error("Failed to save specialized record \(id, privacy: .public): \(String(describing: error), privacy: .public)")

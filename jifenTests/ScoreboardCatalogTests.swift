@@ -133,6 +133,101 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertGreaterThan(nameRegion, 72)
     }
 
+    func testTennisDoublesEditLayoutFitsShortAndRegularLandscapeHeights() {
+        func metrics(
+            panelHeight: CGFloat,
+            screenWidth: CGFloat,
+            isLargeScreen: Bool,
+            secondaryRowCount: Int = 2
+        ) -> TennisDoublesEditLayoutMetrics {
+            let namesHeight = ScoreboardLayoutMetrics.doublesEditNamesRegionHeight(
+                isLargeScreen: isLargeScreen,
+                screenWidth: screenWidth
+            )
+            return ScoreboardLayoutMetrics.tennisDoublesEditLayout(
+                regularMainSize: 148,
+                regularSecondarySize: 58,
+                panelHeight: panelHeight,
+                namesRegionHeight: namesHeight,
+                secondaryRowCount: secondaryRowCount,
+                isLargeScreen: isLargeScreen
+            )
+        }
+
+        let compact375 = metrics(panelHeight: 375, screenWidth: 844, isLargeScreen: false)
+        let compact390 = metrics(panelHeight: 390, screenWidth: 844, isLargeScreen: false)
+        let regular430 = metrics(panelHeight: 430, screenWidth: 932, isLargeScreen: false)
+        let tablet684 = metrics(panelHeight: 684, screenWidth: 1_366, isLargeScreen: true)
+
+        for result in [compact375, compact390, regular430, tablet684] {
+            XCTAssertLessThanOrEqual(
+                result.estimatedContentHeight,
+                result.availableScoreHeight + 0.01
+            )
+        }
+
+        XCTAssertGreaterThan(compact375.mainFontSize, 34)
+        XCTAssertGreaterThan(compact375.secondaryFontSize, 24)
+        XCTAssertGreaterThan(compact390.mainFontSize, compact375.mainFontSize)
+        XCTAssertEqual(
+            regular430.mainFontSize,
+            ScoreboardLayoutMetrics.tennisDoublesEditMainScoreFontSize(
+                regularSize: 148,
+                isLargeScreen: false
+            )
+        )
+        XCTAssertEqual(
+            tablet684.mainFontSize,
+            ScoreboardLayoutMetrics.tennisDoublesEditMainScoreFontSize(
+                regularSize: 148,
+                isLargeScreen: true
+            )
+        )
+
+        let tieBreakOnly = metrics(
+            panelHeight: 375,
+            screenWidth: 844,
+            isLargeScreen: false,
+            secondaryRowCount: 0
+        )
+        XCTAssertEqual(tieBreakOnly.mainFontSize, regular430.mainFontSize)
+        XCTAssertLessThanOrEqual(
+            tieBreakOnly.estimatedContentHeight,
+            tieBreakOnly.availableScoreHeight + 0.01
+        )
+    }
+
+    func testScoreboardNameEditorBreakpointsAndDoublesRegionFitFields() {
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: 667), 180)
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: 844), 220)
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: 1_024), 252)
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: 1_200), 300)
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: 1_400), 330)
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: 1_600), 360)
+
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: 844),
+            ScoreboardConstants.minimumTouchTarget
+        )
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: 1_200), 46)
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: 1_400), 48)
+        XCTAssertEqual(ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: 1_600), 52)
+
+        let phoneNamesHeight = ScoreboardLayoutMetrics.doublesEditNamesRegionHeight(
+            isLargeScreen: false,
+            screenWidth: 844
+        )
+        let phoneFieldsHeight = ScoreboardConstants.minimumTouchTarget * 2 + 4 + 6 + 4
+        XCTAssertGreaterThanOrEqual(phoneNamesHeight, phoneFieldsHeight)
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.doublesEditNamesRegionHeight(
+                isLargeScreen: true,
+                screenWidth: 1_366
+            ),
+            138
+        )
+    }
+
     func testThreeDigitRallyScoresCompactOnTopOfTheUserMultiplier() {
         XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "99"), 1)
         XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "100"), 0.75)
@@ -338,7 +433,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         }
     }
 
-    func testAuditedScoreboardSessionArchivesRoundTripWithoutLosingUndoState() throws {
+    func testManualResumeStatesRoundTripWithoutLosingUndoState() throws {
         let lineState = LineScoreState(
             leftName: "红方",
             rightName: "蓝方",
@@ -347,20 +442,20 @@ final class ScoreboardCatalogTests: XCTestCase {
             rightScore: 8,
             sidesSwapped: true
         )
-        let lineArchive = LineScoreSessionArchive(
+        let lineResume = LineScoreResumeState(
             state: lineState,
             undoHistory: [.init(state: lineState, restoresNames: true)],
             intentTimeline: ["line-action"]
         )
         XCTAssertEqual(
             try JSONDecoder().decode(
-                LineScoreSessionArchive.self,
-                from: JSONEncoder().encode(lineArchive)
+                LineScoreResumeState.self,
+                from: JSONEncoder().encode(lineResume)
             ).state,
             lineState
         )
 
-        let multiArchive = MultiScoreSessionArchive(
+        let multiResume = MultiScoreResumeState(
             players: [
                 .init(id: 0, name: "甲", score: 12),
                 .init(id: 1, name: "乙", score: -2),
@@ -375,10 +470,10 @@ final class ScoreboardCatalogTests: XCTestCase {
         )
         XCTAssertEqual(
             try JSONDecoder().decode(
-                MultiScoreSessionArchive.self,
-                from: JSONEncoder().encode(multiArchive)
+                MultiScoreResumeState.self,
+                from: JSONEncoder().encode(multiResume)
             ),
-            multiArchive
+            multiResume
         )
 
         let boxingState = BoxingMatchState(
@@ -390,17 +485,17 @@ final class ScoreboardCatalogTests: XCTestCase {
             leftRoundsWon: 1,
             currentRound: 2
         )
-        let boxingArchive = BoxingSessionArchive(
+        let boxingResume = BoxingResumeState(
             state: boxingState,
             undoHistory: [.init(state: boxingState, restoresNames: false)],
             intentTimeline: ["boxing-action"]
         )
         XCTAssertEqual(
             try JSONDecoder().decode(
-                BoxingSessionArchive.self,
-                from: JSONEncoder().encode(boxingArchive)
+                BoxingResumeState.self,
+                from: JSONEncoder().encode(boxingResume)
             ),
-            boxingArchive
+            boxingResume
         )
 
         let archeryState = ArcheryMatchState(
@@ -413,17 +508,17 @@ final class ScoreboardCatalogTests: XCTestCase {
             arrowsLeftThisSet: 2,
             arrowsRightThisSet: 2
         )
-        let archeryArchive = ArcheryRecordArchive(
+        let archeryResume = ArcheryResumeState(
             state: archeryState,
             undoHistory: [archeryState],
             intentTimeline: ["archery-action"]
         )
         XCTAssertEqual(
             try JSONDecoder().decode(
-                ArcheryRecordArchive.self,
-                from: JSONEncoder().encode(archeryArchive)
+                ArcheryResumeState.self,
+                from: JSONEncoder().encode(archeryResume)
             ),
-            archeryArchive
+            archeryResume
         )
     }
 
@@ -440,7 +535,7 @@ final class ScoreboardCatalogTests: XCTestCase {
             leftRoundsWon: 1,
             currentRound: 2
         )
-        viewModel.restoreSession(BoxingSessionArchive(
+        viewModel.restoreSession(BoxingResumeState(
             state: afterRound,
             undoHistory: [.init(state: beforeRound, restoresNames: false)],
             intentTimeline: ["round"]

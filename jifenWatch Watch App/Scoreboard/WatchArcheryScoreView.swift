@@ -747,11 +747,18 @@ struct WatchArcheryScoreView: View {
         resumeStore.clear()
         undoHideTimer?.invalidate()
         undoHideTimer = nil
-        let result = store.apply(.reset, recordHistory: false)
-        if result.accepted {
-            applyMatch(result.state)
-        }
-        store.clearHistory()
+        let timestamp = Date()
+        let freshState = ArcheryMatchState(
+            leftName: store.state.leftName,
+            rightName: store.state.rightName,
+            currentShooterIsLeft: store.state.openingShooterIsLeft,
+            openingShooterIsLeft: store.state.openingShooterIsLeft
+        )
+        store = WatchArcherySessionStore(
+            resumedState: freshState,
+            resumedStartTime: timestamp
+        )
+        applyMatch(freshState)
         setEnding = false
         showScorePanel = false
         showClosestToCenter = false
@@ -763,6 +770,12 @@ struct WatchArcheryScoreView: View {
         undoButtonVisible = false
         recordSaved = false
         finishCommitted = false
+        if linkedSessionId != nil {
+            linkService.startNextMatch(
+                snapshot: .archery(LinkedArcheryState(match: freshState)),
+                participantNames: [freshState.leftName, freshState.rightName]
+            )
+        }
         WatchHaptics.shared.play(.light)
         showToast(NSLocalizedString("watch_reset_toast", comment: "Match reset"))
     }
@@ -779,11 +792,7 @@ struct WatchArcheryScoreView: View {
 
     private func exitArchery() {
         if linkedSessionId != nil {
-            if store.state.finished {
-                linkService.leaveSession()
-            } else {
-                linkService.exitScoreboardToHome()
-            }
+            linkService.exitScoreboardToHome()
         }
         persistResumeSession()
         dismiss()

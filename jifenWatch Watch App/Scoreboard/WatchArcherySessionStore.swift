@@ -1,17 +1,15 @@
 import Foundation
 import LinkCore
 import Observation
-import PersistenceCore
 import RecordCore
 import ScoreCore
 import SessionCore
 
-/// Watch archery session host — sync apply (same reducer as phone), local undo + archive.
+/// Watch archery session host — sync apply (same reducer as phone), local undo + resume.
 @MainActor
 @Observable
 final class WatchArcherySessionStore {
     private let reducer = ArcheryMatchReducer()
-    private let archiveRepository = SessionArchiveRepository()
     private var undoStack: [ArcheryMatchState] = []
     private let ruleFamily: RuleFamily
     private let reducerType: String
@@ -100,7 +98,6 @@ final class WatchArcherySessionStore {
                 timestamp: timestamp
             ))
         }
-        persistSnapshot()
         return result
     }
 
@@ -115,7 +112,6 @@ final class WatchArcherySessionStore {
             team1SetScore: state.leftSetPoints,
             team2SetScore: state.rightSetPoints
         )
-        persistSnapshot()
         return true
     }
 
@@ -127,7 +123,6 @@ final class WatchArcherySessionStore {
     func rebase(to state: ArcheryMatchState) {
         self.state = state
         undoStack.removeAll()
-        persistSnapshot()
     }
 
     func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
@@ -142,21 +137,4 @@ final class WatchArcherySessionStore {
         undoStack
     }
 
-    func persistSnapshot() {
-        let session = ScoreSession<ArcheryMatchState, ArcheryMatchEvent>(
-            sessionId: sessionId,
-            gameType: .archeryDual,
-            ruleFamily: ruleFamily,
-            reducerType: reducerType,
-            state: state,
-            status: state.finished ? .finished : .live,
-            participants: participants,
-            metadata: .init(extras: [
-                "startedAtEpochMilliseconds": String(Int64(startedAt.timeIntervalSince1970 * 1_000))
-            ])
-        )
-        Task { [archiveRepository] in
-            try? await archiveRepository.save(session, source: .watchLocal)
-        }
-    }
 }

@@ -273,7 +273,7 @@ struct MenuDialog: View {
     private var syncCardHeight: CGFloat { isCompact ? 44 : 48 }
     private var matchCardHeight: CGFloat { 72 }
     private var toolsCardWidth: CGFloat { isCompact ? 44 : 48 }
-    private var toolsCardHeight: CGFloat { isCompact ? 36 : 40 }
+    private var toolsCardHeight: CGFloat { ScoreboardConstants.minimumTouchTarget }
     private var sectionPaddingV: CGFloat { isCompact ? 8 : 10 }
     private var toolsRowGap: CGFloat { isCompact ? 10 : 12 }
 
@@ -426,6 +426,7 @@ struct MenuDialog: View {
                 .background(Circle().fill(Color.white.opacity(0.12)))
         }
         .buttonStyle(.plain)
+        .scoreboardMinimumTouchTarget()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: "Close"))
         .accessibilityIdentifier("scoreboard_menu_close_button")

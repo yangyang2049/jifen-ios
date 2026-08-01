@@ -13,7 +13,7 @@ struct FootballScoreboardView: View {
     @Environment(\.dismiss) var dismiss
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
-    var initialRecordId: String? = nil
+    var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     @State private var controller: FootballScoreboardController
     @State private var viewModel: FootballViewModel
@@ -24,19 +24,19 @@ struct FootballScoreboardView: View {
     init(
         onNavigationBack: (() -> Void)? = nil,
         initialSetup: SportsSetupResult? = nil,
-        initialRecordId: String? = nil,
+        initialResumeSessionId: String? = nil,
         onSetupConsumed: (() -> Void)? = nil
     ) {
         self.onNavigationBack = onNavigationBack
         self.initialSetup = initialSetup
-        self.initialRecordId = initialRecordId
+        self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         let controller = FootballScoreboardController()
         _controller = State(initialValue: controller)
         _viewModel = State(initialValue: FootballViewModel(controller: controller))
         _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
             prefix: GameType.football.canonicalScoreboardIdentifier,
-            resuming: initialRecordId
+            resuming: initialResumeSessionId
         ))
     }
 
@@ -126,7 +126,7 @@ struct FootballScoreboardView: View {
                     : setup.team2Name
                 onSetupConsumed?()
             }
-            restoreDraftIfNeeded()
+            restoreResumeIfNeeded()
             // Hide tab bar
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first,
@@ -169,10 +169,9 @@ struct FootballScoreboardView: View {
         showGameOverDialog = false
     }
 
-    private func restoreDraftIfNeeded() {
-        guard let recordId = initialRecordId,
-              let record = ScoreboardRecordManager.shared.getRecordById(recordId),
-              record.status == .draft else {
+    private func restoreResumeIfNeeded() {
+        guard let recordId = initialResumeSessionId,
+              let record = ManualResumeSessionStore.load(recordID: recordId) else {
             return
         }
 
@@ -181,9 +180,9 @@ struct FootballScoreboardView: View {
         controller.gameRecordSaved = false
 
         if let data = record.stateSnapshot,
-           let archive = try? JSONDecoder().decode(LineScoreSessionArchive.self, from: data) {
-            controller.gameActions = archive.intentTimeline
-            viewModel.restoreSession(state: archive.state, history: archive.undoHistory)
+           let resumeState = try? JSONDecoder().decode(LineScoreResumeState.self, from: data) {
+            controller.gameActions = resumeState.intentTimeline
+            viewModel.restoreSession(state: resumeState.state, history: resumeState.undoHistory)
             return
         }
 

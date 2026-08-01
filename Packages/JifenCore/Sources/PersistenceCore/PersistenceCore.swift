@@ -1,4 +1,5 @@
 import Foundation
+import os
 import RecordCore
 import ScoreCore
 import SessionCore
@@ -42,7 +43,48 @@ public actor AtomicJSONFileStore<Value: Codable & Sendable> {
     }
 }
 
-public struct SessionArchiveEntry: Codable, Equatable, Identifiable, Sendable {
+public enum ResumePayloadKind: String, Codable, Sendable {
+    case scoreSession
+    case scoreSessionBundle
+    case manualState
+}
+
+public struct ResumeSessionEnvelope: Codable, Equatable, Sendable {
+    public static let currentSchemaVersion = 1
+
+    public let schemaVersion: Int
+    public let sessionId: UUID
+    public let gameType: GameType
+    public let startedAtEpochMilliseconds: Int64
+    public let updatedAtEpochMilliseconds: Int64
+    public let participants: [SessionParticipant]
+    public let scoreSummary: String
+    public let payloadKind: ResumePayloadKind
+    public let payload: Data
+
+    public init(
+        sessionId: UUID,
+        gameType: GameType,
+        startedAtEpochMilliseconds: Int64,
+        updatedAtEpochMilliseconds: Int64,
+        participants: [SessionParticipant],
+        scoreSummary: String,
+        payloadKind: ResumePayloadKind,
+        payload: Data
+    ) {
+        schemaVersion = Self.currentSchemaVersion
+        self.sessionId = sessionId
+        self.gameType = gameType
+        self.startedAtEpochMilliseconds = startedAtEpochMilliseconds
+        self.updatedAtEpochMilliseconds = updatedAtEpochMilliseconds
+        self.participants = participants
+        self.scoreSummary = scoreSummary
+        self.payloadKind = payloadKind
+        self.payload = payload
+    }
+}
+
+public struct ResumeSessionSummary: Codable, Equatable, Identifiable, Sendable {
     public let sessionId: UUID
     public let gameType: GameType
     public let source: RecordSource
@@ -72,18 +114,18 @@ public struct SessionArchiveEntry: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
-public actor SessionArchiveIndex {
-    private let store: AtomicJSONFileStore<[SessionArchiveEntry]>
+public actor ResumeSessionIndex {
+    private let store: AtomicJSONFileStore<[ResumeSessionSummary]>
 
     public init(fileURL: URL) {
         store = AtomicJSONFileStore(fileURL: fileURL)
     }
 
-    public func entries() async throws -> [SessionArchiveEntry] {
+    public func entries() async throws -> [ResumeSessionSummary] {
         try await store.load()?.sorted { $0.updatedAtEpochMilliseconds > $1.updatedAtEpochMilliseconds } ?? []
     }
 
-    public func upsert(_ entry: SessionArchiveEntry) async throws {
+    public func upsert(_ entry: ResumeSessionSummary) async throws {
         var allEntries = try await store.load() ?? []
         allEntries.removeAll { $0.sessionId == entry.sessionId }
         allEntries.append(entry)
@@ -97,20 +139,28 @@ public actor SessionArchiveIndex {
     }
 }
 
-/// Single persistence gateway for v2 score sessions. New sessions write only
-/// through this repository; legacy v1 records remain a read-only migration source.
-public actor SessionArchiveRepository {
+/// The single store for every resumable match. Its schema starts at 1 because
+/// the previous archive and unfinished-record implementations were never released.
+public actor ResumeSessionRepository {
     public let rootURL: URL
-    private let index: SessionArchiveIndex
+    private let index: ResumeSessionIndex
 
-    public init(rootURL: URL = SessionArchiveRepository.defaultRootURL()) {
+    public init(rootURL: URL = ResumeSessionRepository.defaultRootURL()) {
         self.rootURL = rootURL
-        index = SessionArchiveIndex(fileURL: rootURL.appendingPathComponent("session-index.json"))
+        index = ResumeSessionIndex(fileURL: rootURL.appendingPathComponent("resume-index.json"))
+        if rootURL == Self.defaultRootURL() {
+            let oldRoot = FileManager.default.urls(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask
+            )[0].appendingPathComponent("jifen-v2", isDirectory: true)
+            try? FileManager.default.removeItem(at: oldRoot)
+        }
     }
 
     public static func defaultRootURL() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("jifen-v2", isDirectory: true)
+            .appendingPathComponent("jifen", isDirectory: true)
+            .appendingPathComponent("resume", isDirectory: true)
     }
 
     public static func snapshotURL(sessionId: UUID, rootURL: URL = defaultRootURL()) -> URL {
@@ -119,16 +169,141 @@ public actor SessionArchiveRepository {
             .appendingPathComponent("\(sessionId.uuidString).json")
     }
 
+    public static func saveManualPayload(
+        sessionId: UUID,
+        gameType: GameType,
+        startedAtEpochMilliseconds: Int64,
+        participants: [SessionParticipant],
+        scoreSummary: String,
+        payload: Data,
+        rootURL: URL = defaultRootURL(),
+        updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1_000)
+    ) throws {
+        let fileManager = FileManager.default
+        let sessionsURL = rootURL.appendingPathComponent("sessions", isDirectory: true)
+        try fileManager.createDirectory(at: sessionsURL, withIntermediateDirectories: true)
+        let envelope = ResumeSessionEnvelope(
+            sessionId: sessionId,
+            gameType: gameType,
+            startedAtEpochMilliseconds: startedAtEpochMilliseconds,
+            updatedAtEpochMilliseconds: updatedAtEpochMilliseconds,
+            participants: participants,
+            scoreSummary: scoreSummary,
+            payloadKind: .manualState,
+            payload: payload
+        )
+        try JSONEncoder().encode(envelope).write(
+            to: snapshotURL(sessionId: sessionId, rootURL: rootURL),
+            options: .atomic
+        )
+
+        let summary = ResumeSessionSummary(
+            sessionId: sessionId,
+            gameType: gameType,
+            source: .phoneLocal,
+            snapshotPath: "sessions/\(sessionId.uuidString).json",
+            participants: participants,
+            status: .live,
+            updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
+        )
+
+        // Route index updates through the actor to avoid clobbering concurrent
+        // saves from `ResumeSessionRepository.save`. The semaphore bridges the
+        // sync call site (MainActor) to the async actor method without changing
+        // the public signature. This is safe because `saveManualPayload` is
+        // never called from the `ResumeSessionRepository` actor itself.
+        let semaphore = DispatchSemaphore(value: 0)
+        let errorBox = OSAllocatedUnfairLock(initialState: nil as NSError?)
+        Task {
+            do {
+                let repository = ResumeSessionRepository(rootURL: rootURL)
+                try await repository.saveManualSession(summary)
+            } catch {
+                errorBox.withLock { $0 = error as NSError }
+            }
+            semaphore.signal()
+        }
+        semaphore.wait()
+        if let error = errorBox.withLock({ $0 }) { throw error }
+    }
+
+    /// Index-only update for manual (non-ScoreCore) sessions. Uses `index.upsert`
+    /// instead of replacing the entire index array, and delegates session cleanup
+    /// to `discardOtherLiveSessions` to stay consistent with actor-managed saves.
+    public func saveManualSession(_ summary: ResumeSessionSummary) async throws {
+        try await index.upsert(summary)
+        if summary.status == .live {
+            try await discardOtherLiveSessions(except: summary.sessionId)
+        }
+    }
+
+    public static func loadEnvelope(
+        sessionId: UUID,
+        rootURL: URL = defaultRootURL()
+    ) throws -> ResumeSessionEnvelope? {
+        let url = snapshotURL(sessionId: sessionId, rootURL: rootURL)
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        let envelope = try JSONDecoder().decode(
+            ResumeSessionEnvelope.self,
+            from: Data(contentsOf: url)
+        )
+        guard envelope.schemaVersion == ResumeSessionEnvelope.currentSchemaVersion,
+              envelope.sessionId == sessionId else {
+            return nil
+        }
+        return envelope
+    }
+
+    public static func loadPayload(
+        sessionId: UUID,
+        expectedKind: ResumePayloadKind,
+        rootURL: URL = defaultRootURL()
+    ) throws -> Data? {
+        guard let envelope = try loadEnvelope(sessionId: sessionId, rootURL: rootURL),
+              envelope.payloadKind == expectedKind else {
+            return nil
+        }
+        return envelope.payload
+    }
+
+    public static func loadManualPayload(
+        sessionId: UUID,
+        rootURL: URL = defaultRootURL()
+    ) throws -> Data? {
+        try loadPayload(
+            sessionId: sessionId,
+            expectedKind: .manualState,
+            rootURL: rootURL
+        )
+    }
+
     public func save<State: Codable & Sendable, Event: Codable & Sendable>(
         _ session: ScoreSession<State, Event>,
         source: RecordSource = .phoneLocal,
         updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1_000)
     ) async throws {
+        if session.status == .finished {
+            try await remove(sessionId: session.sessionId)
+            return
+        }
         let snapshotPath = "sessions/\(session.sessionId.uuidString).json"
-        let store = AtomicJSONFileStore<ScoreSession<State, Event>>(
+        let payload = try JSONEncoder().encode(session)
+        let envelope = ResumeSessionEnvelope(
+            sessionId: session.sessionId,
+            gameType: session.gameType,
+            startedAtEpochMilliseconds: Int64(
+                session.metadata.extras["startedAtEpochMilliseconds"] ?? ""
+            ) ?? updatedAtEpochMilliseconds,
+            updatedAtEpochMilliseconds: updatedAtEpochMilliseconds,
+            participants: session.participants,
+            scoreSummary: "",
+            payloadKind: .scoreSession,
+            payload: payload
+        )
+        let store = AtomicJSONFileStore<ResumeSessionEnvelope>(
             fileURL: rootURL.appendingPathComponent(snapshotPath)
         )
-        try await store.save(session)
+        try await store.save(envelope)
         try await index.upsert(.init(
             sessionId: session.sessionId,
             gameType: session.gameType,
@@ -157,11 +332,28 @@ public actor SessionArchiveRepository {
         updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1_000)
     ) async throws {
         let session = bundle.currentSession
+        if session.status == .finished {
+            try await remove(sessionId: session.sessionId)
+            return
+        }
         let snapshotPath = "sessions/\(session.sessionId.uuidString).json"
-        let store = AtomicJSONFileStore<ScoreSessionResumeBundle<State, Event, Intent>>(
+        let payload = try JSONEncoder().encode(bundle)
+        let envelope = ResumeSessionEnvelope(
+            sessionId: session.sessionId,
+            gameType: session.gameType,
+            startedAtEpochMilliseconds: Int64(
+                session.metadata.extras["startedAtEpochMilliseconds"] ?? ""
+            ) ?? updatedAtEpochMilliseconds,
+            updatedAtEpochMilliseconds: updatedAtEpochMilliseconds,
+            participants: session.participants,
+            scoreSummary: "",
+            payloadKind: .scoreSessionBundle,
+            payload: payload
+        )
+        let store = AtomicJSONFileStore<ResumeSessionEnvelope>(
             fileURL: rootURL.appendingPathComponent(snapshotPath)
         )
-        try await store.save(bundle)
+        try await store.save(envelope)
         try await index.upsert(.init(
             sessionId: session.sessionId,
             gameType: session.gameType,
@@ -180,9 +372,11 @@ public actor SessionArchiveRepository {
         sessionId: UUID,
         as type: ScoreSession<State, Event>.Type = ScoreSession<State, Event>.self
     ) async throws -> ScoreSession<State, Event>? {
-        try await AtomicJSONFileStore<ScoreSession<State, Event>>(
+        guard let envelope = try await AtomicJSONFileStore<ResumeSessionEnvelope>(
             fileURL: Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
-        ).load()
+        ).load(), envelope.schemaVersion == ResumeSessionEnvelope.currentSchemaVersion,
+              envelope.payloadKind == .scoreSession else { return nil }
+        return try JSONDecoder().decode(type, from: envelope.payload)
     }
 
     public func loadResumeBundle<
@@ -193,16 +387,18 @@ public actor SessionArchiveRepository {
         sessionId: UUID,
         as type: ScoreSessionResumeBundle<State, Event, Intent>.Type
     ) async throws -> ScoreSessionResumeBundle<State, Event, Intent>? {
-        try await AtomicJSONFileStore<ScoreSessionResumeBundle<State, Event, Intent>>(
+        guard let envelope = try await AtomicJSONFileStore<ResumeSessionEnvelope>(
             fileURL: Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
-        ).load()
+        ).load(), envelope.schemaVersion == ResumeSessionEnvelope.currentSchemaVersion,
+              envelope.payloadKind == .scoreSessionBundle else { return nil }
+        return try JSONDecoder().decode(type, from: envelope.payload)
     }
 
-    public func entries() async throws -> [SessionArchiveEntry] {
+    public func entries() async throws -> [ResumeSessionSummary] {
         try await index.entries()
     }
 
-    public func liveEntries() async throws -> [SessionArchiveEntry] {
+    public func liveEntries() async throws -> [ResumeSessionSummary] {
         try await entries().filter { $0.status == .live }
     }
 
@@ -219,9 +415,9 @@ public actor SessionArchiveRepository {
         }
     }
 
-    /// Prunes stacked live sessions (legacy data) down to the newest one.
+    /// Prunes accidentally stacked live sessions down to the newest one.
     @discardableResult
-    public func retainNewestLiveSession() async throws -> SessionArchiveEntry? {
+    public func retainNewestLiveSession() async throws -> ResumeSessionSummary? {
         let live = try await liveEntries()
         guard let newest = live.first else { return nil }
         for entry in live.dropFirst() {

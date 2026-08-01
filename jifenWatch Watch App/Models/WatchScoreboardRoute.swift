@@ -15,7 +15,6 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
     case pickleball(maxSets: Int)
     case pickleballDoubles(maxSets: Int)
     case archery
-    case basketball(threeXThree: Bool)
     case basketballTraining(mode: WatchBasketballTrainingMode)
     case eightBall
     case nineBall
@@ -34,7 +33,6 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
         case .pickleball(let maxSets): return "pickleball-\(maxSets)"
         case .pickleballDoubles(let maxSets): return "pickleball-d-\(maxSets)"
         case .archery: return "archery"
-        case .basketball(let threeXThree): return threeXThree ? "basketball-3x3" : "basketball-5v5"
         case .basketballTraining(let mode): return "basketballTraining-\(mode.rawValue)"
         case .eightBall: return "eightBall"
         case .nineBall: return "nineBall"
@@ -60,8 +58,6 @@ extension WatchScoreboardRoute {
         case .tennis(let isDoubles, let bundle, _):
             let maxSets = bundle.currentSession.state.rules.maxSets
             self = isDoubles ? .tennisDoubles(maxSets: maxSets) : .tennis(maxSets: maxSets)
-        case .basketball(let gameMode, _):
-            self = .basketball(threeXThree: gameMode == .threeXThree)
         case .archery:
             self = .archery
         case .eightBall:
@@ -77,10 +73,6 @@ extension WatchScoreboardRoute {
 
     init?(linkedSetup: LinkedScoreboardSetup) {
         switch linkedSetup.gameType {
-        case .basketball:
-            self = .basketball(threeXThree: linkedSetup.basketballThreeXThree)
-        case .threeBasketball:
-            self = .basketball(threeXThree: true)
         case .pingpong:
             self = .pingpong(maxSets: linkedSetup.maxSets ?? 5)
         case .pingpongDoubles:

@@ -17,7 +17,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
     typealias ResumeBundle = ScoreSessionResumeBundle<State, Event, Intent>
 
     private let core: ScoreSessionCore<Reducer>
-    private let archiveRepository = SessionArchiveRepository()
+    private let resumeRepository = ResumeSessionRepository()
     private var cachedBundle: ResumeBundle
     private var pendingUndoReservations = 0
     private var operationTask: Task<Void, Never>?
@@ -43,7 +43,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         participants: [SessionParticipant],
         startedAt: Date,
         recordID: String,
-        legacyUndoStates: [State] = []
+        restoredUndoStates: [State] = []
     ) {
         let descriptor = ScoreboardKernelRegistry.descriptor(for: gameType)
         let session = ScoreSession<State, Event>(
@@ -59,7 +59,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
                 "recordID": recordID
             ])
         )
-        let undoFrames = legacyUndoStates.map {
+        let undoFrames = restoredUndoStates.map {
             ScoreSessionResumeUndoFrame<State, Event>(
                 session: ScoreSession(
                     sessionId: session.sessionId,
@@ -104,7 +104,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         completion: ((State, State, [Event]) -> Void)? = nil
     ) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, archiveRepository] in
+        operationTask = Task { [weak self, core, resumeRepository] in
             _ = await previousTask?.value
             guard let self else { return }
             let before = self.state
@@ -117,7 +117,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
             self.state = session.state
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await archiveRepository.saveResumeBundle(self.cachedBundle)
+                try await resumeRepository.saveResumeBundle(self.cachedBundle)
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -134,7 +134,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         }
         pendingUndoReservations += 1
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, archiveRepository] in
+        operationTask = Task { [weak self, core, resumeRepository] in
             _ = await previousTask?.value
             let succeeded = await core.undo(actorId: "phone")
             guard let self else { return }
@@ -144,7 +144,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
                 self.state = session.state
                 self.cachedBundle = await core.resumeBundle()
                 do {
-                    try await archiveRepository.saveResumeBundle(self.cachedBundle)
+                    try await resumeRepository.saveResumeBundle(self.cachedBundle)
                 } catch {
                     self.reportPersistenceFailure(error)
                 }
@@ -156,14 +156,14 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
 
     func rebase(to state: State, completion: ((State) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, archiveRepository] in
+        operationTask = Task { [weak self, core, resumeRepository] in
             _ = await previousTask?.value
             let session = await core.rebase(to: state, status: Self.status(of: state))
             guard let self else { return }
             self.state = session.state
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await archiveRepository.saveResumeBundle(self.cachedBundle)
+                try await resumeRepository.saveResumeBundle(self.cachedBundle)
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -173,13 +173,13 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
 
     func updateParticipants(_ participants: [SessionParticipant]) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, archiveRepository] in
+        operationTask = Task { [weak self, core, resumeRepository] in
             _ = await previousTask?.value
             _ = await core.updateParticipants(participants)
             guard let self else { return }
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await archiveRepository.saveResumeBundle(self.cachedBundle)
+                try await resumeRepository.saveResumeBundle(self.cachedBundle)
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -188,12 +188,12 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, archiveRepository] in
+        operationTask = Task { [weak self, core, resumeRepository] in
             _ = await previousTask?.value
             guard let self else { return }
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await archiveRepository.saveResumeBundle(self.cachedBundle)
+                try await resumeRepository.saveResumeBundle(self.cachedBundle)
                 completion?(true)
             } catch {
                 self.reportPersistenceFailure(error)
@@ -211,8 +211,10 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
     }
 
     static func decodeResumeBundle(sessionId: UUID) -> ResumeBundle? {
-        let url = SessionArchiveRepository.snapshotURL(sessionId: sessionId)
-        guard let data = try? Data(contentsOf: url) else { return nil }
+        guard let data = try? ResumeSessionRepository.loadPayload(
+            sessionId: sessionId,
+            expectedKind: .scoreSessionBundle
+        ) else { return nil }
         return try? JSONDecoder().decode(ResumeBundle.self, from: data)
     }
 
