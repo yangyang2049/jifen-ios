@@ -54,7 +54,7 @@ struct SimpleScoreboardView: View {
                     controller: controller,
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
-                    nameType: .team,
+                    nameType: ScoreboardCommonNamePolicy.nameType(for: .simpleScore),
                     scoreTextProvider: { _, team in "\(team.score)" },
                     onEditModeChange: { editing in
                         if editing { adjustTargetIsLeft = nil }
@@ -119,10 +119,8 @@ struct SimpleScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }

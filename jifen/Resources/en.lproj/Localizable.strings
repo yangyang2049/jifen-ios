@@ -945,6 +945,9 @@
 "nine_ball_small_gold" = "Small Gold";
 "nine_ball_golden_nine" = "Golden Nine";
 "nine_ball_normal_win" = "Normal Win";
+"nine_ball_decrease_points" = "Decrease %@ points";
+"nine_ball_current_points" = "%@ current points: %d";
+"nine_ball_increase_points" = "Increase %@ points";
 "nine_ball_ball_in_hand" = "Ball in Hand";
 "nine_ball_foul" = "Foul";
 "multi_score_player_default_format" = "Player %d";

@@ -5,6 +5,81 @@ import UIKit
 
 @MainActor
 final class ScoreboardCatalogTests: XCTestCase {
+    func testCommonNamePolicyUsesPlayerNamesForSinglesAndDoublesMembers() {
+        let playerGames: [jifen.GameType] = [
+            .pingpong, .badminton, .tennis, .pickleball, .foosball,
+            .archery, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+            .doudizhu, .uno, .multiScoreboard
+        ]
+
+        for game in playerGames {
+            XCTAssertEqual(
+                ScoreboardCommonNamePolicy.nameType(for: game),
+                .player,
+                "\(game) should use common player names"
+            )
+        }
+
+        let rallyPlayerGames: [ScoreCore.GameType] = [
+            .pingpong, .pingpongDoubles,
+            .badminton, .badmintonDoubles,
+            .tennis, .tennisDoubles,
+            .pickleball, .pickleballDoubles,
+            .foosball, .foosballDoubles
+        ]
+        for game in rallyPlayerGames {
+            XCTAssertEqual(
+                ScoreboardCommonNamePolicy.rallyNameType(for: game),
+                .player,
+                "\(game) should use common player names"
+            )
+        }
+    }
+
+    func testCommonNamePolicyKeepsActualTeamProjectsOnTeamNames() {
+        let teamGames: [jifen.GameType] = [
+            .football, .basketball, .threeBasketball,
+            .volleyball, .beachVolleyball, .airVolleyball,
+            .guandan, .shengji, .simpleScore
+        ]
+
+        for game in teamGames {
+            XCTAssertEqual(
+                ScoreboardCommonNamePolicy.nameType(for: game),
+                .team,
+                "\(game) should use common team names"
+            )
+        }
+
+        for game: ScoreCore.GameType in [.volleyball, .beachVolleyball, .airVolleyball] {
+            XCTAssertEqual(ScoreboardCommonNamePolicy.rallyNameType(for: game), .team)
+        }
+    }
+
+    func testCommonNamePolicyExplicitlyPartitionsEveryGameType() {
+        let playerGames: Set<jifen.GameType> = [
+            .pingpong, .badminton, .tennis,
+            .checkers, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+            .pickleball, .archery, .doudizhu, .uno, .foosball,
+            .multiScoreboard, .stopwatch, .go, .xiangqi, .chess
+        ]
+        let teamGames: Set<jifen.GameType> = [
+            .basketball, .threeBasketball, .football,
+            .volleyball, .beachVolleyball, .airVolleyball,
+            .guandan, .shengji, .simpleScore, .counter
+        ]
+
+        XCTAssertTrue(playerGames.isDisjoint(with: teamGames))
+        XCTAssertEqual(playerGames.union(teamGames), Set(jifen.GameType.allCases))
+
+        for game in playerGames {
+            XCTAssertEqual(ScoreboardCommonNamePolicy.nameType(for: game), .player)
+        }
+        for game in teamGames {
+            XCTAssertEqual(ScoreboardCommonNamePolicy.nameType(for: game), .team)
+        }
+    }
+
     func testUnfinishedDoublesTitleGroupsPlayersByTeam() {
         let participants: [SessionParticipant] = [
             .init(id: "left-top", name: "红A"),

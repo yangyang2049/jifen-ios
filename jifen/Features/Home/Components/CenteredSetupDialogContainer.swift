@@ -146,16 +146,12 @@ struct AdaptiveSetupDialogLayout<Header: View, DialogContent: View, Actions: Vie
     }
 }
 
-/// 居中 Setup Dialog 壳：遮罩独立淡入，卡片 scale-up。
-/// 用 overlay 展示，避免 fullScreenCover 自下而上的系统动画。
+/// 居中 Setup Dialog 壳：与计分板操作菜单一致，遮罩和卡片直接出现、直接消失。
 struct CenteredSetupDialogContainer<Content: View>: View {
     var allowsBackdropDismiss: Bool = true
     var onBackdropTap: () -> Void
     @ViewBuilder var content: (_ maxDialogHeight: CGFloat) -> Content
 
-    @State private var appeared = false
-
-    private let animation = Animation.easeOut(duration: 0.2)
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
@@ -167,7 +163,6 @@ struct CenteredSetupDialogContainer<Content: View>: View {
             ZStack {
                 Color.black.opacity(0.48)
                     .ignoresSafeArea()
-                    .opacity(appeared ? 1 : 0)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         guard allowsBackdropDismiss else { return }
@@ -180,32 +175,20 @@ struct CenteredSetupDialogContainer<Content: View>: View {
                     .background(Theme.homeDialogBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .shadow(color: .black.opacity(0.28), radius: 28, y: 12)
-                    .scaleEffect(appeared ? 1 : 0.92)
-                    .opacity(appeared ? 1 : 0)
                     .contentShape(Rectangle())
                     .onTapGesture { }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .onAppear {
-            withAnimation(animation) {
-                appeared = true
-            }
-        }
     }
 }
 
-/// 托管 binding：打开时 scale-up，关闭时先播退出动画再清空 item。
+/// 托管 binding：直接根据 item 插入或移除整块遮罩与 Dialog。
 struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
     @Binding var item: Item?
     var allowsBackdropDismiss: Bool = true
     @ViewBuilder var content: (_ item: Item, _ dismiss: @escaping () -> Void, _ maxDialogHeight: CGFloat) -> Content
 
-    @State private var visibleItem: Item?
-    @State private var appeared = false
-
-    private let animation = Animation.easeOut(duration: 0.2)
-    private let dismissDuration: TimeInterval = 0.18
     var body: some View {
         GeometryReader { proxy in
             let cardMaxHeight = max(280, proxy.size.height - 48)
@@ -215,74 +198,31 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
             )
 
             ZStack {
-                if let visibleItem {
+                if let item {
                     Color.black.opacity(0.48)
                         .ignoresSafeArea()
-                        .opacity(appeared ? 1 : 0)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             guard allowsBackdropDismiss else { return }
                             requestDismiss()
                         }
 
-                    content(visibleItem, requestDismiss, cardMaxHeight)
+                    content(item, requestDismiss, cardMaxHeight)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(width: cardWidth)
                         .background(Theme.homeDialogBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                         .shadow(color: .black.opacity(0.28), radius: 28, y: 12)
-                        .scaleEffect(appeared ? 1 : 0.92)
-                        .opacity(appeared ? 1 : 0)
                         .contentShape(Rectangle())
                         .onTapGesture { }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .allowsHitTesting(visibleItem != nil)
-        .onAppear {
-            if let item {
-                present(item)
-            }
-        }
-        .onChange(of: item?.id) { _, newId in
-            if let item, newId != nil {
-                present(item)
-            } else if newId == nil, visibleItem != nil, appeared {
-                animateOutThenClearVisible()
-            }
-        }
-    }
-
-    private func present(_ newItem: Item) {
-        visibleItem = newItem
-        appeared = false
-        withAnimation(animation) {
-            appeared = true
-        }
+        .allowsHitTesting(item != nil)
     }
 
     private func requestDismiss() {
-        guard appeared else {
-            visibleItem = nil
-            item = nil
-            return
-        }
-        withAnimation(.easeOut(duration: dismissDuration)) {
-            appeared = false
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + dismissDuration) {
-            visibleItem = nil
-            item = nil
-        }
-    }
-
-    private func animateOutThenClearVisible() {
-        withAnimation(.easeOut(duration: dismissDuration)) {
-            appeared = false
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + dismissDuration) {
-            visibleItem = nil
-        }
+        item = nil
     }
 }

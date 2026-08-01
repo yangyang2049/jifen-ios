@@ -132,14 +132,6 @@ struct QuickStartEditView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Theme.dialogSurfaceBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .foregroundStyle(Theme.textPrimary)
-                    }
-                }
-            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)

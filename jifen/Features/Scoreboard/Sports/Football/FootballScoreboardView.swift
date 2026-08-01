@@ -48,7 +48,7 @@ struct FootballScoreboardView: View {
                 controller: controller,
                 viewModel: viewModel,
                 scoreFontSize: 120,
-                nameType: .team,
+                nameType: ScoreboardCommonNamePolicy.nameType(for: .football),
                 showSettleMatch: true
             ),
             onBack: {
@@ -101,10 +101,8 @@ struct FootballScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }

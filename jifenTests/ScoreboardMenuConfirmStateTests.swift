@@ -96,7 +96,27 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
         XCTAssertFalse(ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked("endGame"))
     }
 
-    func testSnookerSettleFrameAppearsAfterEndGame() {
+    func testSettlementAppearsAfterRegularEndGameAction() throws {
+        let items = ScoreboardMenuItemBuilder.defaultItems(
+            showEndGame: true,
+            showExchangeSide: false,
+            showWhistle: false,
+            showScreenshot: false,
+            showDisplaySettings: false,
+            showSettleMatch: true
+        )
+        let ordered = ScoreboardMenuItemBuilder.orderedMatchItems(
+            items.filter { $0.group == .match }
+        )
+
+        XCTAssertEqual(ordered.last?.action, "settleMatch")
+        XCTAssertLessThan(
+            try XCTUnwrap(ordered.firstIndex { $0.action == "endGame" }),
+            try XCTUnwrap(ordered.firstIndex { $0.action == "settleMatch" })
+        )
+    }
+
+    func testSnookerRecordAndSettlementAreTheFinalTwoActions() {
         let items = ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: false,
@@ -104,6 +124,11 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
             showScreenshot: false,
             showDisplaySettings: false,
             extraItems: [
+                ScoreboardMenuItem(
+                    title: "记录",
+                    action: "frameRecord",
+                    group: .match
+                ),
                 ScoreboardMenuItem(
                     title: "结算本局",
                     action: "settleFrame",
@@ -115,11 +140,7 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
             items.filter { $0.group == .match }
         )
 
-        XCTAssertEqual(ordered.last?.action, "settleFrame")
-        XCTAssertLessThan(
-            try XCTUnwrap(ordered.firstIndex { $0.action == "endGame" }),
-            try XCTUnwrap(ordered.firstIndex { $0.action == "settleFrame" })
-        )
+        XCTAssertEqual(Array(ordered.suffix(2)).map(\.action), ["frameRecord", "settleFrame"])
     }
 
     func testReadOnlyLinkedBilliardsDisablesMutatingMenuItemsButKeepsRecordVisible() {

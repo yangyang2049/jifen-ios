@@ -116,6 +116,9 @@ struct RallyScoreboardView: View {
     }
 
     private var isDoubles: Bool { store.state.doubles != nil }
+    private var primaryNameType: NameType {
+        ScoreboardCommonNamePolicy.rallyNameType(for: gameType)
+    }
     private var isFoosballDoubles: Bool {
         guard let doubles = store.state.doubles else { return false }
         if case .foosball = doubles.rotation { return true }
@@ -257,10 +260,8 @@ struct RallyScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }
@@ -524,9 +525,11 @@ struct RallyScoreboardView: View {
 
         return VStack(spacing: 0) {
             ScoreboardNameEditorField(
-                placeholder: NSLocalizedString("team_name", value: "队名", comment: ""),
+                placeholder: primaryNameType == .player
+                    ? NSLocalizedString("setup_player_name", value: "选手名称", comment: "")
+                    : NSLocalizedString("team_name", value: "队名", comment: ""),
                 text: isLeft ? $editLeftName : $editRightName,
-                nameType: .team,
+                nameType: primaryNameType,
                 scoreboardFont: typographyPreference.font,
                 onSubmit: commitSinglesNamesIfNeeded,
                 onSelection: { _ in commitSinglesNamesIfNeeded() },

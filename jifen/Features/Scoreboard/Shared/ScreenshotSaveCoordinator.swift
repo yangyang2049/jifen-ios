@@ -373,7 +373,6 @@ struct ScreenshotSaveOverlay: View {
         ZStack {
             if coordinator.isDialogPresented, let image = coordinator.image {
                 permissionDialog(image: image)
-                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
             }
 
             if coordinator.overlayMode == .saved, let image = coordinator.image {
@@ -391,7 +390,6 @@ struct ScreenshotSaveOverlay: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
         .allowsHitTesting(coordinator.isDialogPresented)
-        .animation(.easeInOut(duration: 0.2), value: coordinator.overlayMode)
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             Task {
                 await coordinator.resumeAfterSettingsIfNeeded()

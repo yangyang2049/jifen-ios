@@ -258,6 +258,23 @@ final class FullAppScreenshotUITests: XCTestCase {
         XCTAssertEqual(frameStatus.value as? String, "1|2|3|0")
     }
 
+    func testSnookerFoulPanelPresentsAndDismissesWithoutBlockingTheScoreboard() {
+        relaunch()
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "snooker", label: "斯诺克"))
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+
+        let foulButton = app.buttons["snooker_foul_button"]
+        XCTAssertTrue(foulButton.waitForExistence(timeout: 4))
+        foulButton.tap()
+
+        let closeButton = app.buttons["snooker_foul_close"]
+        XCTAssertTrue(closeButton.waitForExistence(timeout: 3))
+        closeButton.tap()
+        XCTAssertTrue(closeButton.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(foulButton.isHittable, "Hidden foul overlay still blocks scoreboard controls")
+    }
+
     private func capturePriorityGuandan(index: Int) {
         XCTContext.runActivity(named: "Priority guandan") { _ in
             XCTAssertTrue(openPriorityScoreboardSetup(id: "guandan", label: "掼蛋"))

@@ -224,10 +224,8 @@ struct BasketballScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }
@@ -682,7 +680,7 @@ private struct BasketballEditTeamPanel: View {
                 ScoreboardNameEditorField(
                     placeholder: NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
                     text: $name,
-                    nameType: .team,
+                    nameType: ScoreboardCommonNamePolicy.nameType(for: .basketball),
                     scoreboardFont: typography.font
                 )
                 .padding(.horizontal, 16)
@@ -1076,7 +1074,7 @@ private struct BasketballCenterPanel: View {
     private var periodPickerOverlay: some View {
         GeometryReader { proxy in
             ZStack(alignment: .top) {
-                Color.black.opacity(0.45)
+                Theme.scoreboardDialogScrim
                     .ignoresSafeArea()
                     .onTapGesture { showPeriodPicker = false }
 

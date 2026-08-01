@@ -171,7 +171,7 @@ struct CommonPlacesManagementView: View {
                         }
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    Image(systemName: "ellipsis")
                 }
             }
         }
@@ -545,8 +545,8 @@ struct CommonPlacePickerView: View {
             .navigationTitle(NSLocalizedString("common_places_select", value: "选择地点", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", comment: "")) { dismiss() }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ModalCloseButton { dismiss() }
                 }
             }
         }

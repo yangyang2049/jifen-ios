@@ -66,12 +66,7 @@ struct NewGameDialogView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(Theme.textPrimary)
-                    }
+                    ModalCloseButton { dismiss() }
                 }
             }
         }

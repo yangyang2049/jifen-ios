@@ -81,7 +81,7 @@ struct PointsTableView: View {
                     ])
                     selectedRecord = newRecord
                 } label: {
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus")
                 }
             }
         }
@@ -211,7 +211,7 @@ struct PointsTableDetailView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Image(systemName: "ellipsis")
                     }
                     .accessibilityLabel(NSLocalizedString("operations", value: "操作", comment: ""))
                 }

@@ -193,22 +193,14 @@ enum ScoreboardMenuItemBuilder {
     }
 
     static func orderedMatchItems(_ items: [ScoreboardMenuItem]) -> [ScoreboardMenuItem] {
-        let undo = items.filter { $0.action == "undo" }
-        let settle = items.filter {
-            ($0.action.hasPrefix("settle") && $0.action != "settleFrame") ||
-            $0.action == "endGame" ||
-            $0.action == "finish" ||
-            $0.action == "exit"
+        // “结束”仍属于常规比赛操作；后来增加的“结算”单独放在末尾。
+        // 斯诺克的本局记录紧邻结算，固定为倒数第二项。
+        let regularItems = items.filter {
+            $0.action != "frameRecord" && !$0.action.hasPrefix("settle")
         }
-        let finalFrameSettlement = items.filter { $0.action == "settleFrame" }
-        let middle = items.filter {
-            $0.action != "undo" &&
-            !$0.action.hasPrefix("settle") &&
-            $0.action != "endGame" &&
-            $0.action != "finish" &&
-            $0.action != "exit"
-        }
-        return undo + middle + settle + finalFrameSettlement
+        let frameRecordItems = items.filter { $0.action == "frameRecord" }
+        let settlementItems = items.filter { $0.action.hasPrefix("settle") }
+        return regularItems + frameRecordItems + settlementItems
     }
 }
 
@@ -226,10 +218,10 @@ struct MenuDialog: View {
     @State private var showUsageHint = false
     @State private var containerSize: CGSize = .zero
 
-    private let dialogBackground = Color(hex: "2C2C2E")
-    private let cardBackground = Color(hex: "3A3A3C")
+    private let dialogBackground = Theme.scoreboardDialogSurface
+    private let cardBackground = Theme.scoreboardDialogControl
     private let sectionStrip = Color.white.opacity(0.06)
-    private let secondaryText = Color(hex: "98989D")
+    private let secondaryText = Theme.scoreboardDialogTextSecondary
     private let confirmBackground = Color(hex: "4CAF50").opacity(0.5)
 
     private var resolvedItems: [ScoreboardMenuItem] {
@@ -280,7 +272,7 @@ struct MenuDialog: View {
     var body: some View {
         if isVisible {
             ZStack {
-                Color.black.opacity(0.45)
+                Theme.scoreboardDialogScrim
                     .ignoresSafeArea()
                     .onTapGesture(perform: onClose)
 
@@ -418,18 +410,10 @@ struct MenuDialog: View {
     }
 
     private var closeButton: some View {
-        Button(action: onClose) {
-            Image(systemName: "xmark")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(Circle().fill(Color.white.opacity(0.12)))
-        }
-        .buttonStyle(.plain)
-        .scoreboardMinimumTouchTarget()
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: "Close"))
-        .accessibilityIdentifier("scoreboard_menu_close_button")
+        ScoreboardDialogCloseButton(
+            action: onClose,
+            accessibilityIdentifier: "scoreboard_menu_close_button"
+        )
         .padding(.trailing, 8)
     }
 
@@ -581,10 +565,11 @@ struct ScoreboardUsageHintView: View {
             .navigationTitle(NSLocalizedString("scoreboard_usage_hint_title", value: "计分板使用说明", comment: ""))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(NSLocalizedString("done", value: "完成", comment: "")) { dismiss() }
+                    ModalCloseButton { dismiss() }
                 }
             }
         }
+        .environment(\.font, .body)
     }
 
     private func usageRow(_ icon: String, _ key: String, _ fallback: String) -> some View {

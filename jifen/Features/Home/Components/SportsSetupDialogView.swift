@@ -57,13 +57,14 @@ struct CommonNameSelectorDialog: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(NSLocalizedString("cancel", comment: "")) {
-                        dismiss()
-                    }
-                    .foregroundColor(Theme.primary)
+                    ModalCloseButton { dismiss() }
                 }
             }
         }
+        // Scoreboards use very large display fonts. A presented sheet inherits
+        // the environment from its presenter, so reset it at the sheet root to
+        // keep all system-provided navigation text at a normal dialog size.
+        .environment(\.font, .body)
         .presentationBackground(Theme.dialogSurfaceBackground)
     }
 }
@@ -1527,12 +1528,7 @@ struct SportsSetupDialogView: View {
     }
 
     private var usesPlayerCommonNames: Bool {
-        switch gameType {
-        case .archery, .boxing, .billiards, .eightBall, .snooker:
-            true
-        default:
-            false
-        }
+        ScoreboardCommonNamePolicy.nameType(for: gameType) == .player
     }
 
     private func applySelectedName(_ value: String, to target: NameInputTarget) {

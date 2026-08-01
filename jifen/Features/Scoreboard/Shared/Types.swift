@@ -356,7 +356,7 @@ struct TemplateConfig {
         controller: BaseScoreboardControllerProtocol,
         viewModel: ScoreViewModelProtocol,
         scoreFontSize: CGFloat = 96,
-        nameType: NameType = .team,
+        nameType: NameType? = nil,
         isDoublesModeProvider: (() -> Bool)? = nil,
         scoreTextProvider: ((Bool, TeamData) -> String)? = nil,
         tapToAddEnabled: Bool = true,
@@ -375,7 +375,7 @@ struct TemplateConfig {
         self.controller = controller
         self.viewModel = viewModel
         self.scoreFontSize = scoreFontSize
-        self.nameType = nameType
+        self.nameType = nameType ?? ScoreboardCommonNamePolicy.nameType(for: gameType)
         self.isDoublesModeProvider = isDoublesModeProvider
         self.scoreTextProvider = scoreTextProvider
         self.tapToAddEnabled = tapToAddEnabled
@@ -397,6 +397,40 @@ struct TemplateConfig {
 enum NameType: String, Codable {
     case team = "TEAM"
     case player = "PLAYER"
+}
+
+/// Keeps setup and in-game name editors on the same common-name collection.
+/// Individual and doubles-member fields use player names; actual team sports
+/// and two-team card/general scoreboards use team names.
+enum ScoreboardCommonNamePolicy {
+    static func nameType(for gameType: GameType) -> NameType {
+        switch gameType {
+        case .pingpong, .badminton, .tennis,
+             .checkers, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+             .pickleball, .archery, .doudizhu, .uno, .foosball,
+             .multiScoreboard, .go, .xiangqi, .chess:
+            .player
+        case .basketball, .threeBasketball, .football,
+             .volleyball, .beachVolleyball, .airVolleyball,
+             .guandan, .shengji, .simpleScore, .counter:
+            .team
+        case .stopwatch:
+            .player
+        }
+    }
+
+    static func rallyNameType(for gameType: ScoreCore.GameType) -> NameType {
+        switch gameType {
+        case .pingpong, .pingpongDoubles,
+             .tennis, .tennisDoubles,
+             .badminton, .badmintonDoubles,
+             .pickleball, .pickleballDoubles,
+             .foosball, .foosballDoubles:
+            .player
+        default:
+            .team
+        }
+    }
 }
 
 // MARK: - Set End Callback Data

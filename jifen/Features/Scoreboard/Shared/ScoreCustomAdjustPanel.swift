@@ -25,7 +25,7 @@ struct ScoreCustomAdjustPanel: View {
             )
 
             ZStack {
-                Color.black.opacity(0.45)
+                Theme.scoreboardDialogScrim
                     .ignoresSafeArea()
                     .onTapGesture(perform: onDismiss)
 
@@ -40,16 +40,16 @@ struct ScoreCustomAdjustPanel: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(targetName)
                                 .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(Theme.textPrimary)
+                                .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                                 .lineLimit(1)
                             Text(NSLocalizedString("score_custom_adjust_label", value: "自定义加减分", comment: ""))
                                 .font(.system(size: 13))
-                                .foregroundStyle(Theme.textSecondary)
+                                .foregroundStyle(Theme.scoreboardDialogTextSecondary)
                         }
                         Spacer(minLength: 24)
                         Text("\(currentScore)")
                             .font(.system(size: 44, weight: .bold))
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                             .monospacedDigit()
                     }
                     .padding(.bottom, compactHeight ? 2 : 8)
@@ -90,10 +90,10 @@ struct ScoreCustomAdjustPanel: View {
                             } label: {
                                 Text("\(value)")
                                     .font(.system(size: 22, weight: .semibold))
-                                    .foregroundStyle(Theme.textPrimary)
+                                    .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: buttonHeight)
-                                    .background(Theme.dialogControlBackground)
+                                    .background(Theme.scoreboardDialogControl)
                                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                                     .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             }
@@ -104,10 +104,10 @@ struct ScoreCustomAdjustPanel: View {
                         } label: {
                             Text("…")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundStyle(Theme.textPrimary)
+                                .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: buttonHeight)
-                                .background(Theme.dialogControlBackground)
+                                .background(Theme.scoreboardDialogControl)
                                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
@@ -126,9 +126,10 @@ struct ScoreCustomAdjustPanel: View {
                             )
                             .keyboardType(.numberPad)
                             .textFieldStyle(.plain)
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                             .padding(.horizontal, 14)
                             .frame(height: 50)
-                            .background(Theme.dialogControlBackground)
+                            .background(Theme.scoreboardDialogControl)
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .onChange(of: customValue) { _, _ in
                                 if showInvalidToast { showInvalidToast = false }
@@ -156,11 +157,12 @@ struct ScoreCustomAdjustPanel: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, compactHeight ? 16 : 22)
                 .frame(width: panelWidth)
-                .background(Theme.homeDialogBackground)
+                .background(Theme.scoreboardDialogSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .offset(y: compactHeight ? 4 : 10)
             }
         }
+        .environment(\.colorScheme, .dark)
     }
 
     private func signButton(
@@ -179,10 +181,10 @@ struct ScoreCustomAdjustPanel: View {
                 Text(NSLocalizedString(labelKey, value: labelFallback, comment: ""))
                     .font(.system(size: 17, weight: .semibold))
             }
-            .foregroundStyle(selected ? Color.white : Theme.textPrimary)
+            .foregroundStyle(selected ? Color.white : Theme.scoreboardDialogTextPrimary)
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .background(selected ? selectedColor : Theme.dialogControlBackground)
+            .background(selected ? selectedColor : Theme.scoreboardDialogControl)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .buttonStyle(.plain)

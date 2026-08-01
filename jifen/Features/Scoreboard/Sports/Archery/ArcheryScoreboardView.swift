@@ -78,7 +78,7 @@ struct ArcheryScoreboardView: View {
                     controller: controller,
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
-                    nameType: .team,
+                    nameType: ScoreboardCommonNamePolicy.nameType(for: .archery),
                     scoreTextProvider: { _, team in "\(team.score)" },
                     tapToAddEnabled: false,
                     contentOverlayProvider: { isEditMode in
@@ -204,10 +204,8 @@ struct ArcheryScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }
@@ -345,7 +343,7 @@ struct ArcheryScoreboardView: View {
             )
 
             ZStack {
-            Color.black.opacity(0.45)
+            Theme.scoreboardDialogScrim
                 .ignoresSafeArea()
                 .onTapGesture { showArrowPicker = false }
 
@@ -357,20 +355,10 @@ struct ArcheryScoreboardView: View {
                         .foregroundColor(.white)
                     HStack {
                         Spacer()
-                        Button(action: { showArrowPicker = false }) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white)
-                                .frame(
-                                    width: ScoreboardConstants.minimumTouchTarget,
-                                    height: ScoreboardConstants.minimumTouchTarget
-                                )
-                                .background(
-                                    Circle()
-                                        .fill(Color.white.opacity(0.1))
-                                )
-                        }
-                        .buttonStyle(.plain)
+                        ScoreboardDialogCloseButton(
+                            action: { showArrowPicker = false },
+                            accessibilityIdentifier: "archery_arrow_picker_close"
+                        )
                     }
                 }
                 .padding(.top, 8)
@@ -403,7 +391,7 @@ struct ArcheryScoreboardView: View {
                 .padding(.bottom, 16)
             }
             .frame(width: dialogWidth)
-            .background(Color(hex: "2C2C2E"))
+            .background(Theme.scoreboardDialogSurface)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.white.opacity(0.05), lineWidth: 1)
@@ -424,7 +412,7 @@ struct ArcheryScoreboardView: View {
             )
 
             ZStack {
-            Color.black.opacity(0.45)
+            Theme.scoreboardDialogScrim
                 .ignoresSafeArea()
             VStack(spacing: 12) {
                 Text(String(format: NSLocalizedString("watch_set_end_format", value: "第 %d 局结束", comment: ""), pendingSetNumber))
@@ -449,7 +437,7 @@ struct ArcheryScoreboardView: View {
                 .frame(width: max(0, dialogWidth - 48))
             }
             .padding(24)
-            .background(Color(hex: "2C2C2E"))
+            .background(Theme.scoreboardDialogSurface)
             .cornerRadius(16)
         }
         }
@@ -464,7 +452,7 @@ struct ArcheryScoreboardView: View {
             )
 
             ZStack {
-            Color.black.opacity(0.45)
+            Theme.scoreboardDialogScrim
                 .ignoresSafeArea()
             VStack(spacing: 16) {
                 Text(NSLocalizedString("archery_closest_title", value: "一箭决胜 · 近心", comment: ""))
@@ -521,7 +509,7 @@ struct ArcheryScoreboardView: View {
             }
             .padding(24)
             .frame(width: dialogWidth)
-            .background(Color(hex: "2C2C2E"))
+            .background(Theme.scoreboardDialogSurface)
             .cornerRadius(16)
         }
         }

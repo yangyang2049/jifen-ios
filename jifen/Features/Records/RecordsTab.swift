@@ -20,6 +20,8 @@ struct RecordsTab: View {
     @State private var isEditMode = false
     @State private var selectedTimeFilter: RecordsTimeFilter = .all
     @State private var selectedProjectFilter: RecordsProjectFilter? = nil
+    @State private var draftTimeFilter: RecordsTimeFilter = .all
+    @State private var draftProjectFilter: RecordsProjectFilter? = nil
     @State private var showFilterSheet = false
 
     private enum RecordsTimeFilter: String, CaseIterable, Identifiable {
@@ -61,6 +63,8 @@ struct RecordsTab: View {
                     Menu {
                         Button {
                             AppAnalytics.openDialog("record_filter", source: .recordsTab)
+                            draftTimeFilter = selectedTimeFilter
+                            draftProjectFilter = selectedProjectFilter
                             showFilterSheet = true
                         } label: {
                             Label(NSLocalizedString("filter", value: "筛选", comment: ""), systemImage: "line.3.horizontal.decrease.circle")
@@ -85,7 +89,7 @@ struct RecordsTab: View {
                         }
                         .disabled(scoreboardVM.records.isEmpty && timerVM.records.isEmpty)
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Image(systemName: "ellipsis")
                     }
                 }
             }
@@ -129,13 +133,13 @@ struct RecordsTab: View {
                 Section(NSLocalizedString("time_filter", value: "时间", comment: "")) {
                     ForEach(RecordsTimeFilter.allCases) { filter in
                         Button {
-                            selectedTimeFilter = filter
+                            draftTimeFilter = filter
                         } label: {
                             HStack {
                                 Text(filter.title)
                                     .foregroundStyle(Theme.textPrimary)
                                 Spacer()
-                                if selectedTimeFilter == filter {
+                                if draftTimeFilter == filter {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(Theme.accentColor)
                                 }
@@ -145,13 +149,13 @@ struct RecordsTab: View {
                 }
                 Section(NSLocalizedString("game_type_filter", value: "项目", comment: "")) {
                     Button {
-                        selectedProjectFilter = nil
+                        draftProjectFilter = nil
                     } label: {
                         HStack {
                             Text(NSLocalizedString("all", value: "全部", comment: ""))
                                 .foregroundStyle(Theme.textPrimary)
                             Spacer()
-                            if selectedProjectFilter == nil {
+                            if draftProjectFilter == nil {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(Theme.accentColor)
                             }
@@ -159,13 +163,13 @@ struct RecordsTab: View {
                     }
                     ForEach(RecordsProjectFilter.allOptions) { filter in
                         Button {
-                            selectedProjectFilter = filter
+                            draftProjectFilter = filter
                         } label: {
                             HStack {
                                 Text("\(filter.icon) \(filter.title)")
                                     .foregroundStyle(Theme.textPrimary)
                                 Spacer()
-                                if selectedProjectFilter == filter {
+                                if draftProjectFilter == filter {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(Theme.accentColor)
                                 }
@@ -180,13 +184,28 @@ struct RecordsTab: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("done", comment: "Done")) {
+                    Button(NSLocalizedString("cancel", comment: "Cancel")) {
+                        showFilterSheet = false
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(NSLocalizedString("apply", value: "应用", comment: "")) {
+                        let appliesReset = draftTimeFilter == .all
+                            && draftProjectFilter == nil
+                            && (selectedTimeFilter != .all || selectedProjectFilter != nil)
+                        selectedTimeFilter = draftTimeFilter
+                        selectedProjectFilter = draftProjectFilter
+                        if appliesReset {
+                            AppAnalytics.track(.resetFilter, parameters: [
+                                .contentType: .string("records")
+                            ])
+                        }
                         var parameters: AnalyticsParameters = [
                             .contentType: .string("records"),
                             .settingName: .string("time_range"),
-                            .settingValue: .string(selectedTimeFilter.rawValue)
+                            .settingValue: .string(draftTimeFilter.rawValue)
                         ]
-                        if let gameType = selectedProjectFilter?.gameType {
+                        if let gameType = draftProjectFilter?.gameType {
                             parameters[.gameType] = .string(gameType.analyticsIdentifier)
                         }
                         AppAnalytics.track(.applyFilter, parameters: parameters)
@@ -195,11 +214,8 @@ struct RecordsTab: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(NSLocalizedString("reset", value: "重置", comment: "")) {
-                        selectedTimeFilter = .all
-                        selectedProjectFilter = nil
-                        AppAnalytics.track(.resetFilter, parameters: [
-                            .contentType: .string("records")
-                        ])
+                        draftTimeFilter = .all
+                        draftProjectFilter = nil
                     }
                 }
             }

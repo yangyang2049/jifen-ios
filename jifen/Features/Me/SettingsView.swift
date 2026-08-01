@@ -156,12 +156,7 @@ struct SettingsView: View {
             .toolbar {
                 if !isTabRoot {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "xmark")
-                                .foregroundColor(Theme.textPrimary)
-                        }
+                        ModalCloseButton { dismiss() }
                     }
                 }
             }
@@ -291,12 +286,7 @@ private struct SettingsFormSheet: View {
             destinationContent
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
-                        .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: "Close form sheet"))
+                        ModalCloseButton { dismiss() }
                         .accessibilityIdentifier(destination.closeAccessibilityIdentifier)
                     }
                 }

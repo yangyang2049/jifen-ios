@@ -306,10 +306,8 @@ struct MultiScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordId)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }
@@ -724,7 +722,7 @@ struct MultiScoreboardView: View {
             )
 
             ZStack {
-                Color.black.opacity(0.45)
+                Theme.scoreboardDialogScrim
                     .ignoresSafeArea()
                     .onTapGesture { cancelPlayerEdit() }
 
@@ -767,6 +765,7 @@ struct MultiScoreboardView: View {
                         Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
                             cancelPlayerEdit()
                         }
+                        .font(.system(size: 16, weight: .medium))
                         .buttonStyle(.plain)
                         .foregroundStyle(.white.opacity(0.6))
                         .frame(maxWidth: .infinity)
@@ -776,6 +775,7 @@ struct MultiScoreboardView: View {
                         Button(NSLocalizedString("confirm", value: "确定", comment: "")) {
                             confirmPlayerEdit(index: index)
                         }
+                        .font(.system(size: 16, weight: .semibold))
                         .buttonStyle(.plain)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -819,7 +819,7 @@ struct MultiScoreboardView: View {
                     HStack {
                         Text(NSLocalizedString("uno_round_sheet_title", value: "UNO 结算", comment: ""))
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                         Spacer()
                         Text(String(
                             format: NSLocalizedString("uno_round_total_format", value: "本局 %d 分", comment: ""),
@@ -831,7 +831,7 @@ struct MultiScoreboardView: View {
 
                     Text(NSLocalizedString("uno_round_winner", value: "本局赢家", comment: ""))
                         .font(.system(size: 13))
-                        .foregroundStyle(Theme.textSecondary)
+                        .foregroundStyle(Theme.scoreboardDialogTextSecondary)
 
                     LazyVGrid(
                         columns: Array(
@@ -847,14 +847,14 @@ struct MultiScoreboardView: View {
                             } label: {
                                 Text(player.name)
                                     .font(.system(size: 13, weight: .medium))
-                                    .foregroundStyle(unoSelectedWinnerIndex == index ? Color.white : Theme.textPrimary)
+                                    .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: ScoreboardConstants.minimumTouchTarget)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                            .fill(unoSelectedWinnerIndex == index ? Theme.primary : Theme.dialogControlBackground)
+                                            .fill(unoSelectedWinnerIndex == index ? Theme.primary : Theme.scoreboardDialogControl)
                                     )
                             }
                             .buttonStyle(.plain)
@@ -864,16 +864,17 @@ struct MultiScoreboardView: View {
                     HStack {
                         Text(NSLocalizedString("uno_number_total", value: "数字牌合计", comment: ""))
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                         Spacer()
                         TextField("0", text: $unoNumberTotalText)
                             .keyboardType(.numberPad)
                             .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 100)
                             .padding(.horizontal, 10)
                             .frame(height: 38)
-                            .background(Theme.dialogControlBackground)
+                            .background(Theme.scoreboardDialogControl)
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
 
@@ -899,10 +900,10 @@ struct MultiScoreboardView: View {
                         } label: {
                             Text(NSLocalizedString("cancel", value: "取消", comment: ""))
                                 .font(.system(size: 16))
-                                .foregroundStyle(Theme.textSecondary)
+                                .foregroundStyle(Theme.scoreboardDialogTextSecondary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
-                                .background(Theme.dialogControlBackground)
+                                .background(Theme.scoreboardDialogControl)
                                 .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
@@ -923,12 +924,13 @@ struct MultiScoreboardView: View {
                 }
                 .padding(18)
                 .frame(maxWidth: 720)
-                .background(Theme.homeDialogBackground)
+                .background(Theme.scoreboardDialogSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             }
         }
+        .environment(\.colorScheme, .dark)
     }
 
     private func unoCountStepper(title: String, hint: String, value: Binding<Int>) -> some View {
@@ -937,10 +939,10 @@ struct MultiScoreboardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Theme.textPrimary)
+                        .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                     Text(hint)
                         .font(.system(size: 11))
-                        .foregroundStyle(Theme.textSecondary)
+                        .foregroundStyle(Theme.scoreboardDialogTextSecondary)
                 }
                 Spacer()
                 HStack(spacing: 0) {
@@ -949,7 +951,7 @@ struct MultiScoreboardView: View {
                     } label: {
                         Image(systemName: "minus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                             .frame(width: 36, height: 36)
                     }
                     .buttonStyle(.plain)
@@ -957,7 +959,7 @@ struct MultiScoreboardView: View {
                     Text("\(value.wrappedValue)")
                         .font(.system(size: 16, weight: .semibold))
                         .monospacedDigit()
-                        .foregroundStyle(Theme.textPrimary)
+                        .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                         .frame(minWidth: 32, alignment: .center)
 
                     Button {
@@ -965,12 +967,12 @@ struct MultiScoreboardView: View {
                     } label: {
                         Image(systemName: "plus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                             .frame(width: 36, height: 36)
                     }
                     .buttonStyle(.plain)
                 }
-                .background(Theme.dialogControlBackground)
+                .background(Theme.scoreboardDialogControl)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
         }

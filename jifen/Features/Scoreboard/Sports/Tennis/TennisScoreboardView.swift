@@ -460,10 +460,8 @@ struct TennisScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }
@@ -818,9 +816,9 @@ struct TennisScoreboardView: View {
 
     private func tennisSinglesEditNameField(side: MatchSide) -> some View {
         ScoreboardNameEditorField(
-            placeholder: NSLocalizedString("team_name", value: "队名", comment: ""),
+            placeholder: NSLocalizedString("setup_player_name", value: "选手名称", comment: ""),
             text: side == .left ? $editLeftName : $editRightName,
-            nameType: .team,
+            nameType: ScoreboardCommonNamePolicy.nameType(for: .tennis),
             scoreboardFont: typographyPreference.font,
             accessibilityIdentifier: side == .left
                 ? "tennis_left_name_edit"

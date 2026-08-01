@@ -28,8 +28,10 @@ struct RecentActivityPage: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { withAnimation { isEditMode.toggle() } }) {
-                        Image(systemName: isEditMode ? "xmark" : "pencil")
+                        Image(systemName: isEditMode ? "checkmark" : "pencil")
+                            .foregroundColor(Theme.accentColor)
                     }
+                    .accessibilityLabel(NSLocalizedString(isEditMode ? "done" : "edit", comment: ""))
                 }
             }
         }

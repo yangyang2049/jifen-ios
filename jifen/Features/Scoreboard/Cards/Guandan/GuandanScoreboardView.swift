@@ -170,10 +170,8 @@ struct GuandanScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }

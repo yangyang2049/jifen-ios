@@ -57,7 +57,7 @@ struct BilliardsScoreboardView: View {
                     controller: controller,
                     viewModel: viewModel,
                     scoreFontSize: responsiveScoreFontSize,
-                    nameType: .team,
+                    nameType: ScoreboardCommonNamePolicy.nameType(for: .billiards),
                     scoreTextProvider: { _, team in "\(team.score)" },
                     showEndGame: true,
                     showSettleMatch: true
@@ -101,10 +101,8 @@ struct BilliardsScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }

@@ -651,13 +651,7 @@ struct DualPlayerTimerView: View {
         vibrateIfEnabled(heavy: true)
 
         gameOverPresentationTask?.cancel()
-        gameOverPresentationTask = Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(500))
-            guard !Task.isCancelled, gameState == .finished else { return }
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showGameOverResult = true
-            }
-        }
+        showGameOverResult = true
     }
 
     private func restartGame() {

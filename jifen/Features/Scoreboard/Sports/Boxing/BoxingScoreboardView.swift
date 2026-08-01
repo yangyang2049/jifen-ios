@@ -53,7 +53,7 @@ struct BoxingScoreboardView: View {
                     gameType: .boxing,
                     controller: controller,
                     viewModel: viewModel,
-                    nameType: .team,
+                    nameType: ScoreboardCommonNamePolicy.nameType(for: .boxing),
                     scoreTextProvider: { _, team in "\(team.score)" },
                     onEditModeChange: { isEditing = $0 },
                     showEndGame: true
@@ -133,10 +133,8 @@ struct BoxingScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
             }
@@ -299,7 +297,7 @@ private struct BoxingRoundDialog: View {
             )
 
             ZStack {
-            Color.black.opacity(0.45)
+            Theme.scoreboardDialogScrim
                 .ignoresSafeArea()
                 .onTapGesture { onCancel() }
 
@@ -308,17 +306,6 @@ private struct BoxingRoundDialog: View {
                     Text(NSLocalizedString("boxing_end_round", value: "回合结束", comment: ""))
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white)
-                    HStack {
-                        Spacer()
-                        Button(action: onCancel) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white.opacity(0.9))
-                                .frame(width: 44, height: 44)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
                 }
                 .padding(.horizontal, 12)
                 .frame(height: 48)
@@ -356,7 +343,7 @@ private struct BoxingRoundDialog: View {
                 .padding(.bottom, 12)
             }
             .frame(width: dialogWidth, height: 320)
-            .background(Color(hex: "2C2C2E"))
+            .background(Theme.scoreboardDialogSurface)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.white.opacity(0.05), lineWidth: 1)

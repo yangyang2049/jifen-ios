@@ -420,6 +420,18 @@ struct TimeoutCountdownView: View {
             }
             .padding(.horizontal, 24)
         }
+        .overlay(alignment: .topTrailing) {
+            ModalCloseButton { showsCustomEditor = false }
+                .buttonStyle(.plain)
+                .frame(width: 44, height: 44)
+                .background {
+                    Circle()
+                        .fill(Theme.dialogControlBackground)
+                        .frame(width: 32, height: 32)
+                }
+                .contentShape(Rectangle())
+                .padding(12)
+        }
         .preferredColorScheme(.dark)
     }
 

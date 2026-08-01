@@ -173,8 +173,8 @@ struct GameOverDialog: View {
 
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-    private let dialogBackground = Color(hex: "2C2C2E")
-    private let cardBackground = Color(hex: "3A3A3C")
+    private let dialogBackground = Theme.scoreboardDialogSurface
+    private let cardBackground = Theme.scoreboardDialogControl
     private let disabledBackground = Color(hex: "48484A")
     private let primaryText = Color.white
     private let secondaryText = Color(hex: "98989D")
@@ -240,7 +240,7 @@ struct GameOverDialog: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.45)
+            Theme.scoreboardDialogScrim
                 .ignoresSafeArea()
                 .onTapGesture { /* block dismiss by background tap */ }
 
@@ -308,18 +308,6 @@ struct GameOverDialog: View {
                 .background(dialogBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .accessibilityIdentifier("game_over_dialog")
-
-                Button(action: trackExit) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(primaryText)
-                        .frame(width: 30, height: 30)
-                        .background(Circle().fill(Color.white.opacity(0.12)))
-                }
-                .buttonStyle(.plain)
-                .scoreboardMinimumTouchTarget()
-                .padding(10)
-                .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
             }
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 20)

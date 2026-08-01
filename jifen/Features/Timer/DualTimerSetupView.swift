@@ -90,13 +90,16 @@ struct DualTimerSetupView: View {
                     onCancel?()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(Theme.textSecondary)
-                        .frame(width: 32, height: 32)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(Theme.textPrimary)
+                        .frame(width: 36, height: 36)
                         .background(Theme.dialogControlBackground)
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
+                .frame(width: ScoreboardConstants.minimumTouchTarget, height: ScoreboardConstants.minimumTouchTarget)
+                .contentShape(Rectangle())
+                .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
             }
         }
         .padding(.horizontal, 16)

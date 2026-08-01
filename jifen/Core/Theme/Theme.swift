@@ -43,6 +43,13 @@ struct Theme {
     static let dialogControlBackground = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark ? .secondarySystemFill : .tertiarySystemFill
     })
+    /// Scoreboard overlays stay dark regardless of the app/system appearance,
+    /// matching the in-game operation menu against bright scoreboard panels.
+    static let scoreboardDialogSurface = Color(hex: "2C2C2E")
+    static let scoreboardDialogControl = Color(hex: "3A3A3C")
+    static let scoreboardDialogTextPrimary = Color.white
+    static let scoreboardDialogTextSecondary = Color(hex: "98989D")
+    static let scoreboardDialogScrim = Color.black.opacity(0.45)
     /// 普通页面控件仍保留 secondary gray；Dialog / Sheet 请使用 dialogControlBackground。
     static let controlBackground = Color(uiColor: .secondarySystemFill)
     static let textPrimary = Color(uiColor: .label)

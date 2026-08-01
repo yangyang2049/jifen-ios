@@ -565,7 +565,7 @@ struct HomeTab: View {
         _ gameType: GameType,
         setupResult: SportsSetupResult
     ) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.async {
             guard pendingScoreboardSetupItem == nil else { return }
             path.append(
                 NavigationDestination.scoreboard(

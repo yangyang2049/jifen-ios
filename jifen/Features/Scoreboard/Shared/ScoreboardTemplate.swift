@@ -49,7 +49,10 @@ struct ScoreboardNameEditorField: View {
                     .textFieldStyle(.plain)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
-                    .onSubmit { onSubmit?() }
+                    .onSubmit {
+                        saveCurrentNameIfNeeded()
+                        onSubmit?()
+                    }
 
                 Button {
                     showCommonNameSelector = true
@@ -83,8 +86,21 @@ struct ScoreboardNameEditorField: View {
         .sheet(isPresented: $showCommonNameSelector) {
             CommonNameSelectorDialog(nameType: nameType) { selectedName in
                 text = selectedName
+                saveNameIfNeeded(selectedName)
                 onSelection?(selectedName)
             }
+        }
+    }
+
+    private func saveCurrentNameIfNeeded() {
+        saveNameIfNeeded(text)
+    }
+
+    private func saveNameIfNeeded(_ value: String) {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        Task {
+            await CommonNamesManager.shared.saveNameIfNeeded(trimmed, nameType)
         }
     }
 }

@@ -257,18 +257,18 @@ struct MultiScoreSetupDialogView: View {
 
     private var playerCountChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Theme.sm) {
+            HStack(spacing: 10) {
                 ForEach(Array(playerCountRange), id: \.self) { count in
                     Button(action: { selectedPlayerCount = count }) {
                         Text(playerCountText(count))
-                            .font(.system(size: 14, weight: selectedPlayerCount == count ? .medium : .regular))
+                            .font(.system(size: 15, weight: selectedPlayerCount == count ? .semibold : .medium))
                             .foregroundColor(selectedPlayerCount == count ? .white : Theme.textPrimary)
-                            .padding(.horizontal, Theme.sm)
-                            .padding(.vertical, Theme.xs)
+                            .frame(minWidth: 80, minHeight: 44)
                             .background(selectedPlayerCount == count ? Theme.primary : Theme.dialogControlBackground)
-                            .cornerRadius(Theme.sm)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
             }
         }

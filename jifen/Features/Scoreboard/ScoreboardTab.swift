@@ -183,11 +183,11 @@ struct ScoreboardTab: View {
     }
 
     private func navigateToSportAfterSetupDismiss(_ sport: ScoreboardCatalogItem) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.async {
             guard pendingSetupSport == nil else { return }
             if selectedSport != nil {
                 selectedSport = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                DispatchQueue.main.async {
                     selectedSport = sport
                 }
             } else {

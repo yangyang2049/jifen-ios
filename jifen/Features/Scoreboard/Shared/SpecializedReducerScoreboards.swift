@@ -33,6 +33,9 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     var showEndGame: Bool = false
     var onEndGame: (() -> Void)? = nil
     var onEditCommit: ((String, String, String, String) -> Void)? = nil
+    /// Defaults to the shared game policy so a new specialized scoreboard
+    /// cannot silently read the wrong common-name collection.
+    var nameType: NameType? = nil
     var editingEnabled: Bool = true
     var scoringEnabled: Bool = true
     /// Optional step-based editor used by rank/score boards that mirror the
@@ -44,7 +47,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
     var seamOverlay: (() -> AnyView)? = nil
     /// Optional controls rendered directly below each side's main score.
     var panelAccessory: ((Bool) -> AnyView)? = nil
-    /// Optional bottom bar (e.g. snooker balls).
+    /// Optional floating bottom dock (e.g. snooker balls).
     var bottomBar: (() -> AnyView)? = nil
     /// Optional top-center pill.
     var topCenter: ((ScoreboardTypographyPreference, CGSize) -> AnyView)? = nil
@@ -74,6 +77,10 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
 
     private var shouldShowChrome: Bool {
         !appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu
+    }
+
+    private var resolvedNameType: NameType {
+        nameType ?? ScoreboardCommonNamePolicy.nameType(for: gameType)
     }
 
     var body: some View {
@@ -137,6 +144,7 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                         Spacer()
                         bottomBar()
                     }
+                    .zIndex(20)
                 }
 
                 if shouldShowChrome {
@@ -450,9 +458,11 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
 
                 VStack {
                     ScoreboardNameEditorField(
-                        placeholder: NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
+                        placeholder: resolvedNameType == .player
+                            ? NSLocalizedString("setup_player_name", value: "选手名称", comment: "")
+                            : NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
                         text: isLeft ? $editLeftName : $editRightName,
-                        nameType: .team,
+                        nameType: resolvedNameType,
                         scoreboardFont: typographySession.effectivePreference.font
                     )
                     .padding(.horizontal, 16)
@@ -797,10 +807,8 @@ struct EightBallScoreboardView: View {
         NavigationStack {
             ScoreboardRecordDetailPage(recordId: recordID)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                            showFinishedRecordDetail = false
-                        }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ModalCloseButton { showFinishedRecordDetail = false }
                     }
                 }
         }
@@ -828,6 +836,7 @@ struct EightBallScoreboardView: View {
                 guard !scoringLocked else { return }
                 applyEditNames(left: left, right: right)
             },
+            nameType: ScoreboardCommonNamePolicy.nameType(for: .eightBall),
             editingEnabled: !scoringLocked,
             scoringEnabled: !scoringLocked,
             onEditAdjust: { isLeft, delta in
@@ -1266,8 +1275,19 @@ struct NineBallChaseScoreboardView: View {
     }
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu || showEditPanel
+        !appearance.immersiveMode
+            || chromeVisible
+            || showDisplaySettings
+            || showMenu
+            || showEditPanel
+            || activeChasePlayer != nil
     }
+
+    private let nineBallActionOrder: [NineBallChaseKind] = [
+        .normalWin, .foul,
+        .bigGold, .smallGold,
+        .goldenNine, .ballInHand
+    ]
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -1565,16 +1585,22 @@ struct NineBallChaseScoreboardView: View {
                 ),
                 analyticsGameType: .nineBall
             )
+
+            if let player = activeChasePlayer {
+                nineBallActionDialog(player: player)
+                    .zIndex(30)
+            }
         }
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         .simultaneousGesture(LongPressGesture(minimumDuration: 0.55).onEnded { _ in
-            guard !showEditPanel else { return }
+            guard !showEditPanel, activeChasePlayer == nil else { return }
             showMenu = true
             revealImmersiveChrome()
         })
         .simultaneousGesture(DragGesture(minimumDistance: 36).onEnded { value in
             guard !scoringLocked,
                   !showEditPanel,
+                  activeChasePlayer == nil,
                   value.translation.width < -60,
                   abs(value.translation.width) > abs(value.translation.height) else { return }
             if undo() {
@@ -1607,6 +1633,7 @@ struct NineBallChaseScoreboardView: View {
         }
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .onChange(of: activeChasePlayer) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: typographySession.effectivePreference) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
@@ -1656,23 +1683,10 @@ struct NineBallChaseScoreboardView: View {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
                     .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
-            }
-        }
-        .sheet(isPresented: Binding(
-            get: { activeChasePlayer != nil },
-            set: { if !$0 { activeChasePlayer = nil } }
-        )) {
-            if let player = activeChasePlayer {
-                nineBallActionSheet(player: player)
-                    .presentationDetents([.height(310)])
-                    .presentationDragIndicator(.visible)
-                    .presentationBackground(Theme.dialogSurfaceBackground)
             }
         }
         .alert(
@@ -1764,7 +1778,7 @@ struct NineBallChaseScoreboardView: View {
                                 get: { editPlayerNames[safe: player] ?? "" },
                                 set: { if editPlayerNames.indices.contains(player) { editPlayerNames[player] = $0 } }
                             ),
-                            nameType: .player,
+                            nameType: ScoreboardCommonNamePolicy.nameType(for: .nineBall),
                             scoreboardFont: typographySession.effectivePreference.font,
                             accessibilityIdentifier: "nine_ball_player_\(player)_name_editor"
                         )
@@ -1862,31 +1876,93 @@ struct NineBallChaseScoreboardView: View {
         }
     }
 
-    private func nineBallActionSheet(player: Int) -> some View {
-        NavigationStack {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2), spacing: 10) {
-                ForEach(NineBallChaseKind.allCases, id: \.self) { kind in
-                    Button {
-                        send(.chaseEvent(player: player, kind: kind))
-                        activeChasePlayer = nil
-                    } label: {
-                        VStack(spacing: 4) {
-                            Text(chaseTitle(kind)).fontWeight(.semibold)
-                            Text(chasePointDescription(kind, player: player))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+    private func nineBallActionDialog(player: Int) -> some View {
+        GeometryReader { proxy in
+            let dialogWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                phonePreferredWidth: 380,
+                padPreferredWidth: 500
+            )
+
+            ZStack {
+                Theme.scoreboardDialogScrim
+                    .ignoresSafeArea()
+                    .onTapGesture { activeChasePlayer = nil }
+
+                VStack(spacing: 0) {
+                    ZStack {
+                        Text(playerName(player))
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .padding(.horizontal, 52)
+
+                        HStack {
+                            Spacer()
+                            ScoreboardDialogCloseButton(
+                                action: { activeChasePlayer = nil },
+                                accessibilityIdentifier: "nine_ball_action_close"
+                            )
                         }
-                        .frame(maxWidth: .infinity, minHeight: 58)
-                        .background(Theme.dialogControlBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
-                    .buttonStyle(.plain)
-                    .disabled(scoringLocked || state.finished)
-                    .accessibilityIdentifier("nine_ball_action_\(kind.rawValue)")
+                    .padding(.horizontal, 12)
+                    .frame(height: 52)
+
+                    LazyVGrid(
+                        columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2),
+                        spacing: 10
+                    ) {
+                        ForEach(nineBallActionOrder, id: \.self) { kind in
+                            Button {
+                                send(.chaseEvent(player: player, kind: kind))
+                                activeChasePlayer = nil
+                            } label: {
+                                VStack(spacing: 4) {
+                                    Text(chaseTitle(kind))
+                                        .font(.system(size: 16, weight: .semibold))
+                                    Text(chasePointDescription(kind, player: player))
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(.white.opacity(0.72))
+                                }
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity, minHeight: 58)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(nineBallActionBackground(kind))
+                                )
+                                .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(scoringLocked || state.finished)
+                            .accessibilityIdentifier("nine_ball_action_\(kind.rawValue)")
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
                 }
+                .frame(width: dialogWidth)
+                .background(Theme.scoreboardDialogSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.3), radius: 32, x: 0, y: 12)
+                .contentShape(Rectangle())
+                .onTapGesture { }
+                .accessibilityIdentifier("nine_ball_action_dialog")
             }
-            .padding(16)
-            .navigationTitle(playerName(player))
-            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private func nineBallActionBackground(_ kind: NineBallChaseKind) -> Color {
+        switch kind {
+        case .normalWin:
+            Theme.primary
+        case .foul:
+            Color(hex: "E5484D")
+        default:
+            Theme.scoreboardDialogControl
         }
     }
 
@@ -2079,7 +2155,11 @@ struct NineBallChaseScoreboardView: View {
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !showDisplaySettings, !showMenu, !showEditPanel else { return }
+        guard appearance.immersiveMode,
+              !showDisplaySettings,
+              !showMenu,
+              !showEditPanel,
+              activeChasePlayer == nil else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -2092,14 +2172,19 @@ struct NineBallChaseScoreboardView: View {
                   appearance.immersiveMode,
                   !showDisplaySettings,
                   !showMenu,
-                  !showEditPanel else { return }
+                  !showEditPanel,
+                  activeChasePlayer == nil else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
         }
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || showEditPanel || !appearance.immersiveMode {
+        if showMenu
+            || showDisplaySettings
+            || showEditPanel
+            || activeChasePlayer != nil
+            || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {
@@ -2499,7 +2584,6 @@ struct SnookerReducerScoreboardView: View {
 
             if showFoulPanel {
                 snookerFoulOverlay
-                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
                     .zIndex(30)
             }
 
@@ -2535,10 +2619,8 @@ struct SnookerReducerScoreboardView: View {
         NavigationStack {
             ScoreboardRecordDetailPage(recordId: recordID)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                            showFinishedRecordDetail = false
-                        }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ModalCloseButton { showFinishedRecordDetail = false }
                     }
                 }
         }
@@ -2570,6 +2652,7 @@ struct SnookerReducerScoreboardView: View {
                 guard !scoringLocked else { return }
                 applyEditNames(left: left, right: right)
             },
+            nameType: ScoreboardCommonNamePolicy.nameType(for: .snooker),
             editingEnabled: !scoringLocked,
             scoringEnabled: !linkScoringLocked,
             onEditAdjust: { isLeft, delta in
@@ -2718,7 +2801,37 @@ struct SnookerReducerScoreboardView: View {
     }
 
     private var snookerBottomBar: some View {
-        HStack(spacing: 8) {
+        let controlSize: CGFloat = Theme.usesPadLayout ? 50 : 44
+        let spacing: CGFloat = Theme.usesPadLayout ? 8 : 6
+        let horizontalPadding: CGFloat = 16
+        let verticalPadding: CGFloat = Theme.usesPadLayout ? 10 : 8
+        let actionHorizontalPadding: CGFloat = Theme.usesPadLayout ? 4 : 3
+
+        return snookerBottomBarControls(
+            controlSize: controlSize,
+            spacing: spacing,
+            actionHorizontalPadding: actionHorizontalPadding
+        )
+        .padding(.horizontal, horizontalPadding)
+        .padding(.vertical, verticalPadding)
+        .background(
+            Capsule()
+                .fill(Color.black.opacity(0.28))
+        )
+        .overlay {
+            Capsule()
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        }
+        .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+        .padding(.bottom, 16)
+    }
+
+    private func snookerBottomBarControls(
+        controlSize: CGFloat,
+        spacing: CGFloat,
+        actionHorizontalPadding: CGFloat
+    ) -> some View {
+        HStack(spacing: spacing) {
             ForEach(balls, id: \.points) { ball in
                 let legal = isLegalSnookerBall(ball.points)
                 Button {
@@ -2748,7 +2861,7 @@ struct SnookerReducerScoreboardView: View {
                         }
                     }
                     .foregroundStyle(.white)
-                    .frame(width: 50, height: 50)
+                    .frame(width: controlSize, height: controlSize)
                     .background(Circle().fill(ball.color))
                     .overlay(Circle().stroke(Color.white.opacity(0.25), lineWidth: 1))
                     .opacity(legal ? 1 : 0.45)
@@ -2760,38 +2873,32 @@ struct SnookerReducerScoreboardView: View {
             Button {
                 guard !scoringLocked else { return }
                 foulSwitchTurn = true
-                withAnimation(.easeOut(duration: 0.18)) {
-                    showFoulPanel = true
-                }
+                showFoulPanel = true
             } label: {
                 Text(NSLocalizedString("snooker_foul_button", value: "犯规", comment: ""))
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(Color(hex: "FF453A"))
-                    .frame(minWidth: 48, minHeight: 50)
-                    .padding(.horizontal, 6)
+                    .frame(minWidth: controlSize, minHeight: controlSize)
+                    .padding(.horizontal, actionHorizontalPadding)
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("snooker_foul_button")
             .disabled(scoringLocked || displayedState.finished)
             Button {
                 guard !scoringLocked else { return }
                 send(.handover)
             } label: {
                 Text(NSLocalizedString("snooker_handover", value: "交杆", comment: ""))
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.white)
-                    .frame(minWidth: 48, minHeight: 50)
-                    .padding(.horizontal, 6)
+                    .frame(minWidth: controlSize, minHeight: controlSize)
+                    .padding(.horizontal, actionHorizontalPadding)
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
             .disabled(scoringLocked || displayedState.finished)
         }
-        .padding(.horizontal, 6)
-        .padding(.top, 24)
-        .padding(.bottom, 8)
-        .frame(maxWidth: .infinity)
-        .background(Color.black.opacity(0.2))
     }
 
     private func snookerControlFontSize(text: String, baseScale: CGFloat) -> CGFloat {
@@ -2836,7 +2943,7 @@ struct SnookerReducerScoreboardView: View {
             )
 
             ZStack {
-                Color.black.opacity(0.45)
+                Theme.scoreboardDialogScrim
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { dismissFoulPanel() }
@@ -2880,22 +2987,16 @@ struct SnookerReducerScoreboardView: View {
                 .frame(width: panelWidth, height: 248)
                 .background(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color(hex: "2C2C2E"))
+                        .fill(Theme.scoreboardDialogSurface)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(alignment: .topTrailing) {
-                    Button { dismissFoulPanel() } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.white)
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.1)))
-                    }
-                    .buttonStyle(.plain)
-                    .scoreboardMinimumTouchTarget()
+                    ScoreboardDialogCloseButton(
+                        action: dismissFoulPanel,
+                        accessibilityIdentifier: "snooker_foul_close"
+                    )
                     .padding(.top, 10)
                     .padding(.trailing, 12)
-                    .accessibilityIdentifier("snooker_foul_close")
                 }
                 .onTapGesture {}
             }
@@ -2974,9 +3075,7 @@ struct SnookerReducerScoreboardView: View {
     }
 
     private func dismissFoulPanel() {
-        withAnimation(.easeOut(duration: 0.16)) {
-            showFoulPanel = false
-        }
+        showFoulPanel = false
     }
 
     private var settleSheet: some View {
@@ -3002,9 +3101,11 @@ struct SnookerReducerScoreboardView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(NSLocalizedString("cancel", value: "取消", comment: "")) { showSettlePanel = false }
+                        .font(.system(size: 17, weight: .semibold))
                 }
             }
         }
+        .environment(\.font, .body)
         .presentationDetents([.height(260)])
         .presentationBackground(Theme.dialogSurfaceBackground)
     }
@@ -3033,10 +3134,11 @@ struct SnookerReducerScoreboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(NSLocalizedString("done", value: "完成", comment: "")) { showRecordPanel = false }
+                    ModalCloseButton { showRecordPanel = false }
                 }
             }
         }
+        .environment(\.font, .body)
         .presentationDetents([.medium, .large])
         .presentationBackground(Theme.dialogSurfaceBackground)
     }
@@ -3505,10 +3607,8 @@ struct ShengjiReducerScoreboardView: View {
         NavigationStack {
             ScoreboardRecordDetailPage(recordId: recordID)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                            showFinishedRecordDetail = false
-                        }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ModalCloseButton { showFinishedRecordDetail = false }
                     }
                 }
         }

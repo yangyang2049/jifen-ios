@@ -99,7 +99,9 @@ struct NineBallSetupDialogView: View {
             get: { activeNameIndex != nil },
             set: { if !$0 { activeNameIndex = nil } }
         )) {
-            CommonNameSelectorDialog(nameType: .player) { value in
+            CommonNameSelectorDialog(
+                nameType: ScoreboardCommonNamePolicy.nameType(for: .nineBall)
+            ) { value in
                 if let activeNameIndex { playerNames[activeNameIndex] = value }
                 activeNameIndex = nil
             }
@@ -290,17 +292,77 @@ struct NineBallSetupDialogView: View {
     }
 
     private func scoreStepper(_ key: String, fallback: String, value: Binding<Int>) -> some View {
-        Stepper(value: value, in: 0...99) {
-            HStack {
-                Text(NSLocalizedString(key, value: fallback, comment: ""))
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer()
+        let title = NSLocalizedString(key, value: fallback, comment: "")
+
+        return HStack(spacing: 12) {
+            Text(title)
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.textPrimary)
+
+            Spacer(minLength: 12)
+
+            HStack(spacing: 0) {
+                scoreStepButton(
+                    systemName: "minus",
+                    enabled: value.wrappedValue > 0,
+                    accessibilityLabel: String.localizedStringWithFormat(
+                        NSLocalizedString("nine_ball_decrease_points", value: "减少%@分值", comment: ""),
+                        title
+                    )
+                ) {
+                    value.wrappedValue = max(0, value.wrappedValue - 1)
+                }
+
+                Divider()
+                    .frame(height: 22)
+
                 Text("\(value.wrappedValue)")
+                    .font(.system(size: 15, weight: .medium))
                     .monospacedDigit()
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 44, height: 40)
+                    .accessibilityLabel(String.localizedStringWithFormat(
+                        NSLocalizedString("nine_ball_current_points", value: "%@当前分值%d", comment: ""),
+                        title,
+                        value.wrappedValue
+                    ))
+
+                Divider()
+                    .frame(height: 22)
+
+                scoreStepButton(
+                    systemName: "plus",
+                    enabled: value.wrappedValue < 99,
+                    accessibilityLabel: String.localizedStringWithFormat(
+                        NSLocalizedString("nine_ball_increase_points", value: "增加%@分值", comment: ""),
+                        title
+                    )
+                ) {
+                    value.wrappedValue = min(99, value.wrappedValue + 1)
+                }
             }
-            .font(.system(size: 14))
+            .frame(height: 40)
+            .background(Theme.dialogControlBackground)
+            .clipShape(Capsule())
         }
+    }
+
+    private func scoreStepButton(
+        systemName: String,
+        enabled: Bool,
+        accessibilityLabel: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(enabled ? Theme.textPrimary : Theme.textSecondary.opacity(0.45))
+                .frame(width: 40, height: 40)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .accessibilityLabel(accessibilityLabel)
     }
 
     private func nameBinding(_ index: Int) -> Binding<String> {
