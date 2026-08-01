@@ -66,6 +66,7 @@ struct ScoreCustomAdjustPanel: View {
                             sign = 1
                             showCustomInput = false
                             customValue = ""
+                            showInvalidToast = false
                         }
                         signButton(
                             selected: sign < 0,
@@ -78,6 +79,7 @@ struct ScoreCustomAdjustPanel: View {
                             sign = -1
                             showCustomInput = false
                             customValue = ""
+                            showInvalidToast = false
                         }
                     }
 
@@ -93,6 +95,7 @@ struct ScoreCustomAdjustPanel: View {
                                     .frame(height: buttonHeight)
                                     .background(Theme.dialogControlBackground)
                                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                    .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             }
                             .buttonStyle(.plain)
                         }
@@ -106,6 +109,7 @@ struct ScoreCustomAdjustPanel: View {
                                 .frame(height: buttonHeight)
                                 .background(Theme.dialogControlBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
                         .buttonStyle(.plain)
                     }
@@ -126,6 +130,9 @@ struct ScoreCustomAdjustPanel: View {
                             .frame(height: 50)
                             .background(Theme.dialogControlBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .onChange(of: customValue) { _, _ in
+                                if showInvalidToast { showInvalidToast = false }
+                            }
 
                             Button(action: applyCustomInput) {
                                 Text(NSLocalizedString("score_custom_adjust_apply", value: "应用", comment: ""))
@@ -190,6 +197,9 @@ struct ScoreCustomAdjustPanel: View {
     private func applyCustomInput() {
         guard let value = Int(customValue), value >= 1 else {
             showInvalidToast = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showInvalidToast = false
+            }
             return
         }
         apply(value)

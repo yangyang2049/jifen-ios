@@ -160,6 +160,104 @@ final class FullAppScreenshotUITests: XCTestCase {
         capturePriorityGuandan(index: 7)
     }
 
+    func testPingPongTerminalScoreHoldsBeforeNextSet() {
+        relaunch()
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球"))
+        XCTAssertTrue(selectSinglesDoublesMode(doubles: false))
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+
+        for _ in 0..<11 {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.04))
+        }
+
+        let terminalScoreWasVisible = app.staticTexts["11"].waitForExistence(timeout: 0.3)
+        XCTAssertTrue(terminalScoreWasVisible, "Terminal score must remain visible during the one-second hold")
+        snap("74_pingpong_terminal_score_11", settle: 0.1)
+
+        RunLoop.current.run(until: Date().addingTimeInterval(1.05))
+        XCTAssertFalse(app.staticTexts["11"].exists)
+        XCTAssertTrue(app.staticTexts["0"].exists)
+        snap("75_pingpong_next_set", settle: 0.1)
+    }
+
+    func testBasketballFoulLongPressDoesNotOpenScoreboardMenu() {
+        relaunch()
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "basketball", label: "篮球"))
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+
+        let foulRow = app.descendants(matching: .any)["basketball_left_foul_row"]
+        XCTAssertTrue(foulRow.waitForExistence(timeout: 4))
+        foulRow.tap()
+        XCTAssertEqual(foulRow.value as? String, "1")
+
+        foulRow.press(forDuration: 0.7)
+        XCTAssertEqual(foulRow.value as? String, "0")
+        XCTAssertFalse(
+            app.descendants(matching: .any)["scoreboard_menu_dialog"].exists,
+            "Removing a foul must not also open the whole-board menu"
+        )
+    }
+
+    func testSnookerFrameScoreHoldsBeforeNextFrame() {
+        relaunch()
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "snooker", label: "斯诺克"))
+        let threeFrames = app.buttons
+            .matching(NSPredicate(format: "label == %@", "3"))
+            .allElementsBoundByIndex
+            .first(where: { $0.isHittable })
+        XCTAssertNotNil(threeFrames)
+        threeFrames?.tap()
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+
+        let redBall = app.descendants(matching: .any)["snooker_ball_1"]
+        XCTAssertTrue(redBall.waitForExistence(timeout: 4))
+        redBall.tap()
+        let leftScoreOne = app.staticTexts.matching(
+            NSPredicate(
+                format: "identifier == %@ AND label == %@",
+                "scoreboard_left_panel",
+                "1"
+            )
+        ).firstMatch
+        XCTAssertTrue(leftScoreOne.waitForExistence(timeout: 1))
+
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        let menuSettle = app.buttons
+            .matching(NSPredicate(format: "label CONTAINS %@", "结算本局"))
+            .firstMatch
+        XCTAssertTrue(menuSettle.waitForExistence(timeout: 3))
+        menuSettle.tap()
+        let confirmSettle = app.buttons["结算本局"].firstMatch
+        XCTAssertTrue(confirmSettle.waitForExistence(timeout: 3))
+        confirmSettle.tap()
+
+        let frameStatus = app.staticTexts.matching(
+            NSPredicate(
+                format: "identifier == %@ AND label CONTAINS %@",
+                "snooker_frame_status",
+                "局"
+            )
+        ).firstMatch
+        XCTAssertTrue(frameStatus.waitForExistence(timeout: 0.3))
+        XCTAssertTrue(leftScoreOne.exists)
+        XCTAssertEqual(frameStatus.value as? String, "0|1|3|0")
+
+        RunLoop.current.run(until: Date().addingTimeInterval(1.05))
+        let leftScoreZero = app.staticTexts.matching(
+            NSPredicate(
+                format: "identifier == %@ AND label == %@",
+                "scoreboard_left_panel",
+                "0"
+            )
+        ).firstMatch
+        XCTAssertTrue(leftScoreZero.waitForExistence(timeout: 1))
+        XCTAssertEqual(frameStatus.value as? String, "1|2|3|0")
+    }
+
     private func capturePriorityGuandan(index: Int) {
         XCTContext.runActivity(named: "Priority guandan") { _ in
             XCTAssertTrue(openPriorityScoreboardSetup(id: "guandan", label: "掼蛋"))

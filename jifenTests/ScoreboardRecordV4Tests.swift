@@ -113,6 +113,21 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertTrue(presentation.canShowTrend)
     }
 
+    func testTrendFallsBackAcrossPeriodSetAndRoundNumbers() {
+        var record = makeRecord()
+        record.detailedActions = [
+            .init(type: .scoreChanged, scores: [1, 0], setNumber: 1, scoreChange: 1),
+            .init(type: .scoreChanged, scores: [0, 1], periodNumber: 2, scoreChange: 1),
+            .init(type: .scoreChanged, scores: [2, 0], roundNumber: 3, scoreChange: 1),
+        ]
+
+        let presentation = ScoreboardRecordPresentation(record: record)
+
+        XCTAssertEqual(presentation.trend.compactMap(\.period), [1, 2, 3])
+        XCTAssertEqual(presentation.recap.count, 1)
+        XCTAssertEqual(presentation.recap.first?.actions.count, 3)
+    }
+
     func testStandaloneWatchIngestKeepsStructuredActions() throws {
         let id = "watch-ingest-\(UUID().uuidString)"
         let actions = [
@@ -377,6 +392,45 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertFalse(phone.contains(#""play_again" = "再来一局";"#))
         XCTAssertTrue(watch.contains(#""watch_play_again" = "再来一场";"#))
         XCTAssertFalse(watch.contains(#""watch_play_again" = "再来一局";"#))
+    }
+
+    func testAnyCodableEncodesNestedPlayerPayloadWithNegativeScores() throws {
+        let payload = AnyCodable([
+            ["name": "甲", "score": -3, "finalScore": -3] as [String: Any],
+            ["name": "乙", "score": 12, "finalScore": 12] as [String: Any],
+        ])
+
+        let data = try JSONEncoder().encode(payload)
+        let decoded = try JSONDecoder().decode(AnyCodable.self, from: data)
+        let players = try XCTUnwrap(decoded.value as? [Any])
+        let first = try XCTUnwrap(players.first as? [String: Any])
+
+        XCTAssertEqual(first["name"] as? String, "甲")
+        XCTAssertEqual(first["score"] as? Int, -3)
+    }
+
+    func testLifecyclePersistenceNormalizesDraftAndFinishedMetadata() {
+        let draftSource = makeRecord()
+        let draft = ScoreboardLifecyclePersistence.normalizedRecord(
+            draftSource,
+            finished: false
+        )
+        XCTAssertEqual(draft.status.rawValue, ScoreboardRecordStatus.draft.rawValue)
+        XCTAssertNil(draft.endTime)
+        XCTAssertNil(draft.winner)
+
+        var unfinishedSource = makeRecord()
+        unfinishedSource.endTime = nil
+        unfinishedSource.status = .draft
+        let fallbackEnd = Date(timeIntervalSince1970: 1_700_000_120)
+        let finished = ScoreboardLifecyclePersistence.normalizedRecord(
+            unfinishedSource,
+            finished: true,
+            finishedAt: fallbackEnd
+        )
+        XCTAssertEqual(finished.status.rawValue, ScoreboardRecordStatus.finished.rawValue)
+        XCTAssertEqual(finished.endTime, fallbackEnd)
+        XCTAssertEqual(finished.winner, "left")
     }
 
     private func makeRecord(id: String = "record", schemaVersion: Int = 4, actions: [String] = []) -> ScoreboardRecord {

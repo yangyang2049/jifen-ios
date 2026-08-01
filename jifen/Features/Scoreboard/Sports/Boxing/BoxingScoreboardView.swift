@@ -194,7 +194,7 @@ struct BoxingScoreboardView: View {
                 secondaryText: text,
                 preference: typographySession.effectivePreference,
                 horizontalPadding: 16,
-                secondaryBaseScale: 0.42,
+                secondaryBaseScale: 0.32,
                 isLargeScreen: Theme.usesPadLayout
             )
         )
@@ -203,7 +203,7 @@ struct BoxingScoreboardView: View {
                 size: typography.secondaryFontSize,
                 weight: .bold
             ))
-            .foregroundColor(.yellow)
+            .foregroundColor(.white)
             .padding(.horizontal, 16)
             .padding(.vertical, 6)
             .background(Color.black.opacity(0.2))
@@ -221,8 +221,9 @@ struct BoxingScoreboardView: View {
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 64, height: 64)
-                .background(Color.white.opacity(0.2))
+                .background(Color.black.opacity(0.2))
                 .clipShape(Circle())
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .disabled(viewModel.gameFinished)
@@ -298,7 +299,7 @@ private struct BoxingRoundDialog: View {
             )
 
             ZStack {
-            Color.black.opacity(0.5)
+            Color.black.opacity(0.45)
                 .ignoresSafeArea()
                 .onTapGesture { onCancel() }
 
@@ -355,7 +356,7 @@ private struct BoxingRoundDialog: View {
                 .padding(.bottom, 12)
             }
             .frame(width: dialogWidth, height: 320)
-            .background(Color.black.opacity(0.95))
+            .background(Color(hex: "2C2C2E"))
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.white.opacity(0.05), lineWidth: 1)
@@ -402,6 +403,7 @@ private struct BoxingRoundDialog: View {
                 .frame(width: size, height: size)
                 .background(selected.wrappedValue == value ? Color(hex: "00C853") : Color.white.opacity(0.1))
                 .clipShape(Circle())
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
     }
@@ -414,6 +416,7 @@ private struct BoxingRoundDialog: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background(background)
                 .cornerRadius(22)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }

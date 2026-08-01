@@ -680,112 +680,9 @@ struct EightBallScoreboardView: View {
     }
 
     var body: some View {
-        ZStack {
-            SpecializedScoreboardScaffold(
-                gameType: .eightBall,
-                leftName: leftName,
-                rightName: rightName,
-                leftScore: "\(logical(.left))",
-                rightScore: "\(logical(.right))",
-                leftDetail: nil,
-                rightDetail: nil,
-                finished: state.finished,
-                onLeftTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.left))) },
-                onRightTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.right))) },
-                onUndo: { scoringLocked ? false : undo() },
-                onReset: { guard !scoringLocked else { return }; send(.reset) },
-                onExchange: { guard !scoringLocked else { return }; send(.exchangeSides) },
-                onBack: exit,
-                showEndGame: true,
-                onEndGame: { guard !scoringLocked else { return }; markFinished() },
-                onEditCommit: { left, right, leftScore, rightScore in
-                    guard !scoringLocked else { return }
-                    applyEditNames(left: left, right: right)
-                },
-                editingEnabled: !scoringLocked,
-                scoringEnabled: !scoringLocked,
-                onEditAdjust: { isLeft, delta in
-                    guard !scoringLocked else { return }
-                    adjustScore(onScreen: isLeft ? .left : .right, delta: delta)
-                },
-                extraMenuItems: WatchLinkMenuSupport.extraItems(
-                    entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-                    sessionId: watchSessionId,
-                    isFollower: watchLinkService.isFollower,
-                    watchBackgrounded: watchLinkService.watchBackgrounded
-                ),
-                onMenuAction: handleWatchMenu,
-                topCenter: { preference, containerSize in
-                    AnyView(eightBallTargetPill(preference: preference, containerSize: containerSize))
-                },
-                onEditModeChange: { scoreboardEditing = $0 },
-                onTypographyChange: { preference in
-                    typographyPreference = preference
-                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                }
-            ) { preference, containerSize in
-                Group {
-                    if state.handicapRacks > 0 {
-                        Text(String(format: NSLocalizedString("eight_ball_handicap_summary", value: "让局 %d", comment: ""), state.handicapRacks))
-                            .font(preference.font.swiftUIFont(
-                                size: specializedSecondarySize(
-                                    text: "\(state.handicapRacks)",
-                                    preference: preference,
-                                    containerSize: containerSize,
-                                    baseScale: 0.25
-                                ),
-                                weight: .medium
-                            ))
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.white.opacity(0.78))
-                    }
-                }
-            }
-
-            if showGameOverDialog {
-                GameOverDialog(
-                    winnerName: finishedWinnerName,
-                    gameType: .eightBall,
-                    leftName: leftName,
-                    rightName: rightName,
-                    leftScore: state.leftPoints,
-                    rightScore: state.rightPoints,
-                    newGameLabel: scoringLocked ? linkedScoreboardNewGameLabel : nil,
-                    newGameDisabled: scoringLocked || isStartingNewMatch,
-                    onNewGame: {
-                        startNewMatch()
-                    },
-                    onRecords: {
-                        if !scoringLocked, !saveRecord() { return }
-                        showFinishedRecordDetail = true
-                    },
-                    onShare: {
-                        ScoreboardShareSupport.present(text: "\(leftName) \(state.leftPoints) - \(state.rightPoints) \(rightName)")
-                    },
-                    onExit: exit
-                )
-            }
-
-            if let overflowToastMessage {
-                VStack {
-                    Spacer()
-                    ToastView(message: overflowToastMessage)
-                        .padding(.bottom, 72)
-                }
-                .allowsHitTesting(false)
-            }
-        }
+        eightBallContent
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
-            NavigationStack {
-                ScoreboardRecordDetailPage(recordId: recordID)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
-                        }
-                    }
-            }
+            finishedRecordDetailPage
         }
         .onAppear {
             onSetupConsumed?()
@@ -857,6 +754,121 @@ struct EightBallScoreboardView: View {
         }
     }
 
+    private var eightBallContent: some View {
+        ZStack {
+            eightBallScaffold
+
+            if showGameOverDialog {
+                GameOverDialog(
+                    winnerName: finishedWinnerName,
+                    gameType: .eightBall,
+                    leftName: leftName,
+                    rightName: rightName,
+                    leftScore: state.leftPoints,
+                    rightScore: state.rightPoints,
+                    newGameLabel: scoringLocked ? linkedScoreboardNewGameLabel : nil,
+                    newGameDisabled: scoringLocked || isStartingNewMatch,
+                    onNewGame: {
+                        startNewMatch()
+                    },
+                    onRecords: {
+                        if !scoringLocked, !saveRecord() { return }
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        ScoreboardShareSupport.present(text: "\(leftName) \(state.leftPoints) - \(state.rightPoints) \(rightName)")
+                    },
+                    onExit: exit
+                )
+            }
+
+            if let overflowToastMessage {
+                VStack {
+                    Spacer()
+                    ToastView(message: overflowToastMessage)
+                        .padding(.bottom, 72)
+                }
+                .allowsHitTesting(false)
+            }
+        }
+    }
+
+    private var finishedRecordDetailPage: some View {
+        NavigationStack {
+            ScoreboardRecordDetailPage(recordId: recordID)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                            showFinishedRecordDetail = false
+                        }
+                    }
+                }
+        }
+    }
+
+    private var eightBallScaffold: some View {
+        SpecializedScoreboardScaffold(
+            gameType: .eightBall,
+            leftName: leftName,
+            rightName: rightName,
+            leftScore: "\(logical(.left))",
+            rightScore: "\(logical(.right))",
+            leftDetail: nil,
+            rightDetail: nil,
+            finished: state.finished,
+            onLeftTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.left))) },
+            onRightTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.right))) },
+            onUndo: { scoringLocked ? false : undo() },
+            onReset: { guard !scoringLocked else { return }; send(.reset) },
+            onExchange: { guard !scoringLocked else { return }; send(.exchangeSides) },
+            onBack: exit,
+            showEndGame: true,
+            onEndGame: { guard !scoringLocked else { return }; markFinished() },
+            onEditCommit: { left, right, leftScore, rightScore in
+                guard !scoringLocked else { return }
+                applyEditNames(left: left, right: right)
+            },
+            editingEnabled: !scoringLocked,
+            scoringEnabled: !scoringLocked,
+            onEditAdjust: { isLeft, delta in
+                guard !scoringLocked else { return }
+                adjustScore(onScreen: isLeft ? .left : .right, delta: delta)
+            },
+            extraMenuItems: WatchLinkMenuSupport.extraItems(
+                entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                sessionId: watchSessionId,
+                isFollower: watchLinkService.isFollower,
+                watchBackgrounded: watchLinkService.watchBackgrounded
+            ),
+            onMenuAction: handleWatchMenu,
+            panelAccessory: { isLeft in
+                AnyView(
+                    Group {
+                        if state.handicapRacks > 0, state.handicapBeneficiary == screenSide(isLeft ? .left : .right) {
+                            Text("+\(state.handicapRacks)")
+                                .font(typographyPreference.font.swiftUIFont(
+                                    size: 28,
+                                    weight: .bold
+                                ))
+                                .foregroundStyle(ScoreboardAppearanceSnapshot.current().theme.palette.foreground.opacity(0.6))
+                                .accessibilityIdentifier(isLeft ? "eight_ball_left_handicap" : "eight_ball_right_handicap")
+                        }
+                    }
+                )
+            },
+            topCenter: { preference, containerSize in
+                AnyView(eightBallTargetPill(preference: preference, containerSize: containerSize))
+            },
+            onEditModeChange: { scoreboardEditing = $0 },
+            onTypographyChange: { preference in
+                typographyPreference = preference
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            }
+        ) { _, _ in
+            EmptyView()
+        }
+    }
+
     private func handleWatchMenu(_ action: String) {
         switch action {
         case "resync":
@@ -917,16 +929,14 @@ struct EightBallScoreboardView: View {
         containerSize: CGSize
     ) -> some View {
         let fontSize = specializedSecondarySize(
-            text: "\(state.targetPoints) +\(state.handicapRacks)",
+            text: "\(state.targetPoints)",
             preference: preference,
             containerSize: containerSize,
             baseScale: 0.32
         )
         return HStack(spacing: 8) {
-            handicapBadge(forScreen: .left)
             Text("\(state.targetPoints)")
                 .accessibilityIdentifier("eight_ball_target")
-            handicapBadge(forScreen: .right)
         }
             .font(preference.font.swiftUIFont(size: fontSize, weight: .bold))
             .foregroundStyle(.white)
@@ -956,18 +966,6 @@ struct EightBallScoreboardView: View {
                 isLargeScreen: Theme.usesPadLayout
             )
         ).secondaryFontSize
-    }
-
-    @ViewBuilder
-    private func handicapBadge(forScreen screen: MatchSide) -> some View {
-        if state.handicapRacks > 0, state.handicapBeneficiary == screenSide(screen) {
-            Text("+\(state.handicapRacks)")
-                .foregroundStyle(Theme.primary)
-                .frame(width: 36)
-                .accessibilityIdentifier(screen == .left ? "eight_ball_left_handicap" : "eight_ball_right_handicap")
-        } else {
-            Color.clear.frame(width: 36, height: 1)
-        }
     }
 
     private func logical(_ screen: MatchSide) -> Int {
@@ -1362,7 +1360,7 @@ struct NineBallChaseScoreboardView: View {
     var body: some View {
         ZStack {
             GeometryReader { proxy in
-                let spacing: CGFloat = 8
+                let spacing: CGFloat = 0
                 let rows = nineBallGridRows(containerSize: proxy.size)
                 VStack(spacing: spacing) {
                     ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
@@ -1388,22 +1386,9 @@ struct NineBallChaseScoreboardView: View {
             .background(appearance.theme.palette.background).ignoresSafeArea()
 
             if shouldShowChrome {
-                // Top undo / edit
+                // Top edit
                 VStack {
                     HStack {
-                        if !showEditPanel {
-                            Button(action: {
-                                guard !scoringLocked else { return }
-                                if undo() {
-                                    showNineBallToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
-                                } else {
-                                    showNineBallToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
-                                }
-                                revealImmersiveChrome()
-                            }) {
-                                Image(systemName: "arrow.uturn.backward")
-                            }
-                        }
                         Spacer()
                         Button(action: {
                             guard !scoringLocked else { return }
@@ -1415,11 +1400,19 @@ struct NineBallChaseScoreboardView: View {
                             revealImmersiveChrome()
                         }) {
                             Image(systemName: showEditPanel ? "checkmark" : "pencil")
+                                .font(.system(size: ScoreboardConstants.buttonIconSize))
+                                .foregroundColor(.white)
+                                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                                .background(Circle().fill(
+                                    showEditPanel ? Theme.primary : Color.black.opacity(0.25)
+                                ))
                         }
+                        .buttonStyle(.plain)
                         .disabled(scoringLocked)
+                        .accessibilityIdentifier("scoreboard_edit_button")
                     }
                     .foregroundStyle(.white)
-                    .padding(10)
+                    .padding(ScoreboardConstants.buttonPadding)
                     Spacer()
                 }
 
@@ -1815,36 +1808,8 @@ struct NineBallChaseScoreboardView: View {
                 }
             }
 
-            VStack(spacing: 8) {
-                Text(scoreText)
-                    .font(typographySession.effectivePreference.font.swiftUIFont(size: displayedScoreSize))
-                    .minimumScaleFactor(0.42)
-                    .lineLimit(1)
-                    .monospacedDigit()
-
-                if showEditPanel {
-                    HStack(spacing: 24) {
-                        Button { adjustEditingScore(player: player, delta: -1) } label: {
-                            Image(systemName: "minus")
-                                .frame(
-                                    width: ScoreboardConstants.minimumTouchTarget,
-                                    height: ScoreboardConstants.minimumTouchTarget
-                                )
-                                .background(.black.opacity(0.2), in: Capsule())
-                        }
-                        Button { adjustEditingScore(player: player, delta: 1) } label: {
-                            Image(systemName: "plus")
-                                .frame(
-                                    width: ScoreboardConstants.minimumTouchTarget,
-                                    height: ScoreboardConstants.minimumTouchTarget
-                                )
-                                .background(.black.opacity(0.2), in: Capsule())
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .offset(y: (compact ? -4 : -8) + editOffset)
+            nineBallScoreContent(player: player, scoreText: scoreText, displayedScoreSize: displayedScoreSize)
+                .offset(y: (compact ? -4 : -8) + editOffset)
         }
         .foregroundStyle(appearance.theme.palette.foreground)
         .frame(width: width, height: height)
@@ -1859,6 +1824,42 @@ struct NineBallChaseScoreboardView: View {
             activeChasePlayer = player
         }
         .accessibilityIdentifier("nine_ball_player_\(player)_tile")
+    }
+
+    @ViewBuilder
+    private func nineBallScoreContent(player: Int, scoreText: String, displayedScoreSize: CGFloat) -> some View {
+        if showEditPanel {
+            HStack(spacing: 12) {
+                Button { adjustEditingScore(player: player, delta: -1) } label: {
+                    Image(systemName: "minus")
+                        .frame(
+                            width: ScoreboardConstants.minimumTouchTarget,
+                            height: ScoreboardConstants.minimumTouchTarget
+                        )
+                        .background(.black.opacity(0.2), in: Capsule())
+                }
+                Text(scoreText)
+                    .font(typographySession.effectivePreference.font.swiftUIFont(size: displayedScoreSize))
+                    .minimumScaleFactor(0.42)
+                    .lineLimit(1)
+                    .monospacedDigit()
+                Button { adjustEditingScore(player: player, delta: 1) } label: {
+                    Image(systemName: "plus")
+                        .frame(
+                            width: ScoreboardConstants.minimumTouchTarget,
+                            height: ScoreboardConstants.minimumTouchTarget
+                        )
+                        .background(.black.opacity(0.2), in: Capsule())
+                }
+            }
+            .buttonStyle(.plain)
+        } else {
+            Text(scoreText)
+                .font(typographySession.effectivePreference.font.swiftUIFont(size: displayedScoreSize))
+                .minimumScaleFactor(0.42)
+                .lineLimit(1)
+                .monospacedDigit()
+        }
     }
 
     private func nineBallActionSheet(player: Int) -> some View {
@@ -2307,6 +2308,7 @@ struct SnookerReducerScoreboardView: View {
     @State private var manualFinishRequested = false
     @State private var scoreboardEditing = false
     @State private var isStartingNewMatch = false
+    @State private var terminalFrameHold = ScoreboardTerminalHold<SnookerState>()
     @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
         for: ScoreboardStyleID(gameType: .snooker)
     )
@@ -2400,169 +2402,21 @@ struct SnookerReducerScoreboardView: View {
     }
 
     private var state: SnookerState { sessionStore.state }
+    private var displayedState: SnookerState { terminalFrameHold.value ?? state }
 
-    private var scoringLocked: Bool {
+    private var linkScoringLocked: Bool {
         watchSessionId != nil
             && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
     }
 
+    private var scoringLocked: Bool {
+        terminalFrameHold.value != nil || linkScoringLocked
+    }
+
     var body: some View {
-        ZStack {
-            SpecializedScoreboardScaffold(
-                gameType: .snooker,
-                leftName: leftName,
-                rightName: rightName,
-                leftScore: "\(state.leftScore)",
-                rightScore: "\(state.rightScore)",
-                leftDetail: "\(state.leftBreak)",
-                rightDetail: "\(state.rightBreak)",
-                finished: state.finished,
-                onLeftTap: {},
-                onRightTap: {},
-                onUndo: { scoringLocked ? false : undo() },
-                onReset: { guard !scoringLocked else { return }; resetMatch() },
-                onExchange: nil,
-                onBack: exit,
-                showEndGame: true,
-                onEndGame: {
-                    guard !scoringLocked else { return }
-                    manualFinishRequested = true
-                    send(.finishMatch)
-                },
-                onEditCommit: { left, right, leftScore, rightScore in
-                    guard !scoringLocked else { return }
-                    applyEditNames(left: left, right: right)
-                },
-                editingEnabled: !scoringLocked,
-                scoringEnabled: !scoringLocked,
-                onEditAdjust: { isLeft, delta in
-                    guard !scoringLocked else { return }
-                    adjustSnookerScore(side: isLeft ? .left : .right, delta: delta)
-                },
-                extraMenuItems: [
-                    ScoreboardMenuItem(
-                        title: NSLocalizedString("record", value: "记录", comment: ""),
-                        action: "frameRecord",
-                        group: .match,
-                        icon: "list.bullet.rectangle"
-                    ),
-                    ScoreboardMenuItem(
-                        title: NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: ""),
-                        action: "settleFrame",
-                        group: .match,
-                        icon: "flag"
-                    )
-                ] + WatchLinkMenuSupport.extraItems(
-                    entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-                    sessionId: watchSessionId,
-                    isFollower: watchLinkService.isFollower,
-                    watchBackgrounded: watchLinkService.watchBackgrounded
-                ),
-                onMenuAction: { action in
-                    switch action {
-                    case "frameRecord":
-                        showRecordPanel = true
-                    case "settleFrame":
-                        guard !scoringLocked else { return }
-                        settleWinner = state.leftScore >= state.rightScore ? .left : .right
-                        showSettlePanel = true
-                    case "resync":
-                        watchLinkService.requestScoreResync()
-                    case "takeover":
-                        if let id = watchSessionId {
-                            Task {
-                                do {
-                                    try await watchLinkService.takeover(sessionId: id)
-                                    publishWatchIfNeeded(state)
-                                } catch {
-                                    showPersistenceError = true
-                                }
-                            }
-                        }
-                    case "forceTakeover":
-                        if let id = watchSessionId {
-                            watchLinkService.requestForceTakeoverConfirmation(id)
-                        }
-                    case "endLink":
-                        if let id = watchSessionId {
-                            watchLinkService.leaveSession(id)
-                            watchSessionId = nil
-                        }
-                    default:
-                        break
-                    }
-                },
-                seamOverlay: {
-                    AnyView(
-                        GeometryReader { geo in
-                            let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
-                                halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
-                            )
-                            CenterLineServeIndicator(
-                                isLeftServing: state.striker == .left,
-                                triangleSize: indicatorSize
-                            )
-                            .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                        }
-                        .allowsHitTesting(false)
-                    )
-                },
-                bottomBar: { AnyView(snookerBottomBar) },
-                topCenter: { preference, containerSize in
-                    AnyView(framePill(preference: preference, containerSize: containerSize))
-                },
-                onEditModeChange: { scoreboardEditing = $0 },
-                onTypographyChange: { preference in
-                    typographyPreference = preference
-                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                }
-            ) { _, _ in
-                EmptyView()
-            }
-
-            if showFoulPanel {
-                snookerFoulOverlay
-                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
-                    .zIndex(30)
-            }
-
-            if showGameOverDialog {
-                GameOverDialog(
-                    winnerName: finishedWinnerName,
-                    gameType: .snooker,
-                    leftName: leftName,
-                    rightName: rightName,
-                    leftScore: state.maxFrames > 1 ? state.leftFrames : state.leftScore,
-                    rightScore: state.maxFrames > 1 ? state.rightFrames : state.rightScore,
-                    newGameLabel: scoringLocked ? linkedScoreboardNewGameLabel : nil,
-                    newGameDisabled: scoringLocked || isStartingNewMatch,
-                    onNewGame: {
-                        startNewMatch()
-                    },
-                    onRecords: {
-                        if !scoringLocked, !saveRecord() { return }
-                        showFinishedRecordDetail = true
-                    },
-                    onShare: {
-                        let left = state.maxFrames > 1 ? state.leftFrames : state.leftScore
-                        let right = state.maxFrames > 1 ? state.rightFrames : state.rightScore
-                        ScoreboardShareSupport.present(text: "\(leftName) \(left) - \(right) \(rightName)")
-                    },
-                    onExit: exit
-                )
-            }
-        }
+        snookerContent
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
-            NavigationStack {
-                ScoreboardRecordDetailPage(recordId: recordID)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
-                        }
-                    }
-            }
+            finishedRecordDetailPage
         }
         .onAppear {
             onSetupConsumed?()
@@ -2575,14 +2429,16 @@ struct SnookerReducerScoreboardView: View {
             }
         }
         .onChange(of: state.finished) { _, finished in
-            if finished {
+            if finished, terminalFrameHold.value == nil {
                 showGameOverDialog = true
                 notifyLinkedFinishIfNeeded()
             }
         }
         .onChange(of: state) { _, newState in
-            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-            publishWatchIfNeeded(newState)
+            if terminalFrameHold.value == nil {
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                publishWatchIfNeeded(newState)
+            }
         }
         .onChange(of: sessionStore.persistenceFailureSignal) { _, signal in
             if signal > 0 { showPersistenceError = true }
@@ -2601,6 +2457,7 @@ struct SnookerReducerScoreboardView: View {
             watchLinkService.completePhoneTakeover(messageId: pending.messageId)
         }
         .onDisappear {
+            cancelTerminalFramePresentation()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
                 && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
@@ -2636,6 +2493,171 @@ struct SnookerReducerScoreboardView: View {
         }
     }
 
+    private var snookerContent: some View {
+        ZStack {
+            snookerScaffold
+
+            if showFoulPanel {
+                snookerFoulOverlay
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                    .zIndex(30)
+            }
+
+            if showGameOverDialog {
+                GameOverDialog(
+                    winnerName: finishedWinnerName,
+                    gameType: .snooker,
+                    leftName: leftName,
+                    rightName: rightName,
+                    leftScore: state.maxFrames > 1 ? state.leftFrames : state.leftScore,
+                    rightScore: state.maxFrames > 1 ? state.rightFrames : state.rightScore,
+                    newGameLabel: scoringLocked ? linkedScoreboardNewGameLabel : nil,
+                    newGameDisabled: scoringLocked || isStartingNewMatch,
+                    onNewGame: {
+                        startNewMatch()
+                    },
+                    onRecords: {
+                        if !scoringLocked, !saveRecord() { return }
+                        showFinishedRecordDetail = true
+                    },
+                    onShare: {
+                        let left = state.maxFrames > 1 ? state.leftFrames : state.leftScore
+                        let right = state.maxFrames > 1 ? state.rightFrames : state.rightScore
+                        ScoreboardShareSupport.present(text: "\(leftName) \(left) - \(right) \(rightName)")
+                    },
+                    onExit: exit
+                )
+            }
+        }
+    }
+
+    private var finishedRecordDetailPage: some View {
+        NavigationStack {
+            ScoreboardRecordDetailPage(recordId: recordID)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                            showFinishedRecordDetail = false
+                        }
+                    }
+                }
+        }
+    }
+
+    private var snookerScaffold: some View {
+        SpecializedScoreboardScaffold(
+            gameType: .snooker,
+            leftName: leftName,
+            rightName: rightName,
+            leftScore: "\(displayedState.leftScore)",
+            rightScore: "\(displayedState.rightScore)",
+            leftDetail: "\(displayedState.leftBreak)",
+            rightDetail: "\(displayedState.rightBreak)",
+            finished: displayedState.finished,
+            onLeftTap: {},
+            onRightTap: {},
+            onUndo: { undo() },
+            onReset: { resetMatch() },
+            onExchange: nil,
+            onBack: exit,
+            showEndGame: true,
+            onEndGame: {
+                guard !scoringLocked else { return }
+                manualFinishRequested = true
+                send(.finishMatch)
+            },
+            onEditCommit: { left, right, leftScore, rightScore in
+                guard !scoringLocked else { return }
+                applyEditNames(left: left, right: right)
+            },
+            editingEnabled: !scoringLocked,
+            scoringEnabled: !linkScoringLocked,
+            onEditAdjust: { isLeft, delta in
+                guard !scoringLocked else { return }
+                adjustSnookerScore(side: isLeft ? .left : .right, delta: delta)
+            },
+            extraMenuItems: [
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("record", value: "记录", comment: ""),
+                    action: "frameRecord",
+                    group: .match,
+                    icon: "list.bullet.rectangle"
+                ),
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: ""),
+                    action: "settleFrame",
+                    group: .match,
+                    icon: "flag"
+                )
+            ] + WatchLinkMenuSupport.extraItems(
+                entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                sessionId: watchSessionId,
+                isFollower: watchLinkService.isFollower,
+                watchBackgrounded: watchLinkService.watchBackgrounded
+            ),
+            onMenuAction: { action in
+                switch action {
+                case "frameRecord":
+                    showRecordPanel = true
+                case "settleFrame":
+                    guard !scoringLocked else { return }
+                    settleWinner = state.leftScore >= state.rightScore ? .left : .right
+                    showSettlePanel = true
+                case "resync":
+                    watchLinkService.requestScoreResync()
+                case "takeover":
+                    if let id = watchSessionId {
+                        Task {
+                            do {
+                                try await watchLinkService.takeover(sessionId: id)
+                                publishWatchIfNeeded(state)
+                            } catch {
+                                showPersistenceError = true
+                            }
+                        }
+                    }
+                case "forceTakeover":
+                    if let id = watchSessionId {
+                        watchLinkService.requestForceTakeoverConfirmation(id)
+                    }
+                case "endLink":
+                    if let id = watchSessionId {
+                        watchLinkService.leaveSession(id)
+                        watchSessionId = nil
+                    }
+                default:
+                    break
+                }
+            },
+            seamOverlay: {
+                AnyView(
+                    GeometryReader { geo in
+                        let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                            halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
+                        )
+                        CenterLineServeIndicator(
+                            isLeftServing: displayedState.striker == .left,
+                            triangleSize: indicatorSize
+                        )
+                        .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                    }
+                    .allowsHitTesting(false)
+                )
+            },
+            bottomBar: { AnyView(snookerBottomBar) },
+            topCenter: { preference, containerSize in
+                AnyView(framePill(preference: preference, containerSize: containerSize))
+            },
+            onEditModeChange: { scoreboardEditing = $0 },
+            onTypographyChange: { preference in
+                typographyPreference = preference
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            }
+        ) { _, _ in
+            EmptyView()
+        }
+    }
+
     private func publishWatchIfNeeded(_ state: SnookerState) {
         guard let watchSessionId, watchLinkService.isController else { return }
         watchLinkService.syncWatch(
@@ -2659,7 +2681,7 @@ struct SnookerReducerScoreboardView: View {
         preference: ScoreboardTypographyPreference,
         containerSize: CGSize
     ) -> some View {
-        let detail = String(format: "%d %d/%d %d", state.leftFrames, state.currentFrame, state.maxFrames, state.rightFrames)
+        let detail = String(format: "%d %d/%d %d", displayedState.leftFrames, displayedState.currentFrame, displayedState.maxFrames, displayedState.rightFrames)
         let secondarySize = ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
                 profile: .specialized,
@@ -2677,18 +2699,20 @@ struct SnookerReducerScoreboardView: View {
             )
         ).secondaryFontSize
         return Group {
-            if state.maxFrames > 1 {
+            if displayedState.maxFrames > 1 {
                 HStack(spacing: 0) {
-                    Text("\(state.leftFrames)").frame(width: 42)
-                    Text(String(format: NSLocalizedString("snooker_current_frame_short", value: "第 %d/%d 局", comment: ""), state.currentFrame, state.maxFrames))
+                    Text("\(displayedState.leftFrames)").frame(width: 42)
+                    Text(String(format: NSLocalizedString("snooker_current_frame_short", value: "第 %d/%d 局", comment: ""), displayedState.currentFrame, displayedState.maxFrames))
                         .font(preference.font.swiftUIFont(size: max(8, secondarySize * 0.68), weight: .semibold))
-                    Text("\(state.rightFrames)").frame(width: 42)
+                    Text("\(displayedState.rightFrames)").frame(width: 42)
                 }
                 .font(preference.font.swiftUIFont(size: secondarySize, weight: .bold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 10)
                 .frame(height: max(34, secondarySize * 1.7))
                 .background(Capsule().fill(Color.black.opacity(0.35)))
+                .accessibilityIdentifier("snooker_frame_status")
+                .accessibilityValue("\(displayedState.leftFrames)|\(displayedState.currentFrame)|\(displayedState.maxFrames)|\(displayedState.rightFrames)")
             }
         }
     }
@@ -2709,9 +2733,9 @@ struct SnookerReducerScoreboardView: View {
                                         size: snookerControlFontSize(text: "x", baseScale: 0.18),
                                         weight: .bold
                                     ))
-                                Text("\(state.redBallsRemaining)")
+                                Text("\(displayedState.redBallsRemaining)")
                                     .font(typographyPreference.font.swiftUIFont(
-                                        size: snookerControlFontSize(text: "\(state.redBallsRemaining)", baseScale: 0.3),
+                                        size: snookerControlFontSize(text: "\(displayedState.redBallsRemaining)", baseScale: 0.3),
                                         weight: .bold
                                     ))
                             }
@@ -2730,7 +2754,8 @@ struct SnookerReducerScoreboardView: View {
                     .opacity(legal ? 1 : 0.45)
                 }
                 .buttonStyle(.plain)
-                .disabled(scoringLocked || state.finished || !legal)
+                .accessibilityIdentifier("snooker_ball_\(ball.points)")
+                .disabled(scoringLocked || displayedState.finished || !legal)
             }
             Button {
                 guard !scoringLocked else { return }
@@ -2747,7 +2772,7 @@ struct SnookerReducerScoreboardView: View {
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
-            .disabled(scoringLocked || state.finished)
+            .disabled(scoringLocked || displayedState.finished)
             Button {
                 guard !scoringLocked else { return }
                 send(.handover)
@@ -2760,10 +2785,11 @@ struct SnookerReducerScoreboardView: View {
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
-            .disabled(scoringLocked || state.finished)
+            .disabled(scoringLocked || displayedState.finished)
         }
         .padding(.horizontal, 6)
-        .padding(.vertical, 8)
+        .padding(.top, 24)
+        .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
         .background(Color.black.opacity(0.2))
     }
@@ -2786,9 +2812,9 @@ struct SnookerReducerScoreboardView: View {
 
     /// HOS legal-ball highlighting: red stage → red; color stage → any colour; clearance → expected colour only.
     private func isLegalSnookerBall(_ points: Int) -> Bool {
-        switch state.nextBallStage {
+        switch displayedState.nextBallStage {
         case .red:
-            return points == 1 && state.redBallsRemaining > 0
+            return points == 1 && displayedState.redBallsRemaining > 0
         case .color:
             return points >= 2 && points <= 7
         case .yellow: return points == 2
@@ -2810,7 +2836,7 @@ struct SnookerReducerScoreboardView: View {
             )
 
             ZStack {
-                Color.black.opacity(0.38)
+                Color.black.opacity(0.45)
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { dismissFoulPanel() }
@@ -2854,7 +2880,7 @@ struct SnookerReducerScoreboardView: View {
                 .frame(width: panelWidth, height: 248)
                 .background(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color(hex: "1C1C1C").opacity(0.96))
+                        .fill(Color(hex: "2C2C2E"))
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(alignment: .topTrailing) {
@@ -2964,7 +2990,7 @@ struct SnookerReducerScoreboardView: View {
                 .pickerStyle(.segmented)
                 Button(NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: "")) {
                     guard !scoringLocked else { return }
-                    send(.settleFrame(winner: settleWinner))
+                    settleCurrentFrame(winner: settleWinner)
                     showSettlePanel = false
                 }
                 .buttonStyle(.borderedProminent)
@@ -3040,11 +3066,42 @@ struct SnookerReducerScoreboardView: View {
             actionCount += 1
             actionLog.append(recordSnapshot(code: String(describing: intent), scores: [next.leftScore, next.rightScore], setScores: [next.leftFrames, next.rightFrames]))
             appendSnookerAction(intent, previousState: previous)
-            if next.finished { showGameOverDialog = true }
+            if next.finished {
+                showGameOverDialog = true
+            }
         }
     }
+
+    private func settleCurrentFrame(winner: MatchSide) {
+        guard !scoringLocked else { return }
+        let finalFrame = state
+        sessionStore.send(.settleFrame(winner: winner)) { previous, next, _ in
+            actionCount += 1
+            actionLog.append(recordSnapshot(
+                code: String(describing: SnookerIntent.settleFrame(winner: winner)),
+                scores: [previous.leftScore, previous.rightScore],
+                setScores: [next.leftFrames, next.rightFrames]
+            ))
+            appendSnookerAction(.settleFrame(winner: winner), previousState: previous)
+            terminalFrameHold.begin(finalFrame) {
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                publishWatchIfNeeded(state)
+                if state.finished {
+                    showGameOverDialog = true
+                    notifyLinkedFinishIfNeeded()
+                }
+            }
+        }
+    }
+
+    private func cancelTerminalFramePresentation() {
+        terminalFrameHold.cancel()
+    }
+
     private func undo() -> Bool {
-        guard !scoringLocked else { return false }
+        guard !linkScoringLocked,
+              (!state.finished || terminalFrameHold.value != nil) else { return false }
+        cancelTerminalFramePresentation()
         return sessionStore.undo { success, restored in
             guard success else { return }
             actionCount = max(0, actionCount - 1)
@@ -3054,6 +3111,7 @@ struct SnookerReducerScoreboardView: View {
         }
     }
     private func exit() {
+        cancelTerminalFramePresentation()
         sessionStore.flush {
             guard saveRecord() else { return }
             onNavigationBack?()
@@ -3076,26 +3134,28 @@ struct SnookerReducerScoreboardView: View {
         }
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
+        let display = displayedState
         return .init(
             gameID: GameType.snooker.canonicalScoreboardIdentifier,
             title: GameType.snooker.displayName,
             leftName: leftName,
             rightName: rightName,
-            leftScore: "\(state.leftScore)",
-            rightScore: "\(state.rightScore)",
-            leftDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), state.leftFrames),
-            rightDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), state.rightFrames),
+            leftScore: "\(display.leftScore)",
+            rightScore: "\(display.rightScore)",
+            leftDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), display.leftFrames),
+            rightDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), display.rightFrames),
             themeID: ScoreboardAppearanceSnapshot.current().theme.rawValue,
             fontID: typographyPreference.font.rawValue,
             scoreMultiplier: typographyPreference.scoreMultiplier,
             nameMultiplier: typographyPreference.nameMultiplier,
             secondaryMultiplier: typographyPreference.secondaryMultiplier,
-            finished: state.finished,
+            finished: display.finished,
             revision: 0
         )
     }
     private func resetMatch() {
-        guard !scoringLocked else { return }
+        guard !linkScoringLocked else { return }
+        cancelTerminalFramePresentation()
         send(.reset)
         foulSwitchTurn = true
         showSettlePanel = false
@@ -3128,6 +3188,8 @@ struct SnookerReducerScoreboardView: View {
         let team: RecordTeam?
         let delta: Int?
         let code: String
+        var recordedScores: [Int]?
+        var recordedSetScores: [Int]?
         switch intent {
         case .potBall(let points):
             type = .scoreChanged
@@ -3155,6 +3217,8 @@ struct SnookerReducerScoreboardView: View {
             type = .serveChanged; team = side == .left ? .team2 : .team1; delta = nil; code = "snooker_handover"
         case .settleFrame(let winner):
             type = .setFinished; team = winner == .left ? .team1 : .team2; delta = nil; code = "snooker_settle_frame"
+            recordedScores = [previousState.leftScore, previousState.rightScore]
+            recordedSetScores = [state.leftFrames, state.rightFrames]
         case .adminCorrect:
             type = .stateChanged; team = nil; delta = nil; code = "snooker_edit"
         case .finishMatch:
@@ -3171,7 +3235,9 @@ struct SnookerReducerScoreboardView: View {
             team: team,
             delta: delta,
             code: code,
-            setNumber: previousState.currentFrame
+            setNumber: previousState.currentFrame,
+            scores: recordedScores,
+            setScores: recordedSetScores
         ))
     }
 
@@ -3180,14 +3246,16 @@ struct SnookerReducerScoreboardView: View {
         team: RecordTeam? = nil,
         delta: Int? = nil,
         code: String,
-        setNumber: Int? = nil
+        setNumber: Int? = nil,
+        scores: [Int]? = nil,
+        setScores: [Int]? = nil
     ) -> DetailedScoreAction {
         DetailedScoreAction(
             type: type,
             epochMilliseconds: nowMilliseconds(),
             team: team,
-            scores: [state.leftScore, state.rightScore],
-            setScores: [state.leftFrames, state.rightFrames],
+            scores: scores ?? [state.leftScore, state.rightScore],
+            setScores: setScores ?? [state.leftFrames, state.rightFrames],
             setNumber: setNumber ?? state.currentFrame,
             scoreChange: delta,
             winner: type == .setFinished ? team : nil,
@@ -3212,6 +3280,7 @@ struct SnookerReducerScoreboardView: View {
     }
 
     private func applyAuthoritativeSnooker(_ remote: SnookerState) {
+        cancelTerminalFramePresentation()
         sessionStore.rebase(to: remote) { applied in
             showFoulPanel = false
             showSettlePanel = false
@@ -3327,6 +3396,8 @@ struct ShengjiReducerScoreboardView: View {
     @State private var rightName: String
     @State private var showFinishedRecordDetail = false
     @State private var scoreboardEditing = false
+    @State private var showGameOverDialog = false
+    @State private var showPersistenceError = false
     @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
         for: ScoreboardStyleID(gameType: .shengji)
     )
@@ -3364,6 +3435,7 @@ struct ShengjiReducerScoreboardView: View {
         }
 
         _state = State(initialValue: initial)
+        _showGameOverDialog = State(initialValue: initial.finished)
         _startedAt = State(initialValue: start)
         _recordID = State(initialValue: id)
         _actionCount = State(initialValue: actions)
@@ -3372,62 +3444,28 @@ struct ShengjiReducerScoreboardView: View {
     }
 
     var body: some View {
-        ZStack {
-            SpecializedScoreboardScaffold(
-                gameType: .shengji,
-                leftName: leftName,
-                rightName: rightName,
-                leftScore: level(state.leftIndex),
-                rightScore: level(state.rightIndex),
-                leftDetail: nil,
-                rightDetail: nil,
-                finished: state.finished,
-                onLeftTap: {},
-                onRightTap: {},
-                onUndo: undo,
-                onReset: resetMatch,
-                onExchange: nil,
-                onBack: exit,
-                showEndGame: true,
-                onEndGame: finishMatch,
-                onEditCommit: applyEdit,
-                onEditAdjust: { isLeft, delta in
-                    let side: MatchSide = isLeft ? .left : .right
-                    if delta < 0 {
-                        send(.subtractLevels(side: side, delta: abs(delta)))
-                    } else {
-                        send(.addLevels(side: side, delta: delta))
-                    }
-                },
-                seamOverlay: state.dealer == nil ? nil : {
-                    AnyView(
-                        GeometryReader { geo in
-                            let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
-                                halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
-                            )
-                            CenterLineServeIndicator(
-                                isLeftServing: state.dealer == .left,
-                                triangleSize: indicatorSize,
-                                color: ScoreboardTheme.serverIndicatorColor
-                            )
-                            .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                        }
-                        .allowsHitTesting(false)
-                    )
-                },
-                panelAccessory: { isLeft in
-                    AnyView(shengjiPanelActions(side: isLeft ? .left : .right))
-                },
-                onEditModeChange: { scoreboardEditing = $0 },
-                onTypographyChange: { preference in
-                    typographyPreference = preference
-                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                }
-            ) { _, _ in
-                EmptyView()
-            }
+        shengjiContent
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            finishedRecordDetailPage
+        }
+        .onAppear { onSetupConsumed?(); registerSync() }
+        .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
+        .onDisappear { LocalScoreboardSyncCoordinator.shared.unregisterHost(); saveRecord() }
+        .alert(
+            NSLocalizedString("save_failed", value: "保存失败", comment: ""),
+            isPresented: $showPersistenceError
+        ) {
+            Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) { }
+        } message: {
+            Text(NSLocalizedString("scoreboard_save_failed", value: "保存失败，请稍后重试", comment: ""))
+        }
+    }
 
-            if state.finished {
+    private var shengjiContent: some View {
+        ZStack {
+            shengjiScaffold
+
+            if showGameOverDialog {
                 let winnerName: String = switch state.winnerSide {
                 case .left: leftName
                 case .right: rightName
@@ -3461,21 +3499,75 @@ struct ShengjiReducerScoreboardView: View {
                 )
             }
         }
-        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
-            NavigationStack {
-                ScoreboardRecordDetailPage(recordId: recordID)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                showFinishedRecordDetail = false
-                            }
+    }
+
+    private var finishedRecordDetailPage: some View {
+        NavigationStack {
+            ScoreboardRecordDetailPage(recordId: recordID)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                            showFinishedRecordDetail = false
                         }
                     }
-            }
+                }
         }
-        .onAppear { onSetupConsumed?(); registerSync() }
-        .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
-        .onDisappear { LocalScoreboardSyncCoordinator.shared.unregisterHost(); saveRecord() }
+    }
+
+    private var shengjiScaffold: some View {
+        SpecializedScoreboardScaffold(
+            gameType: .shengji,
+            leftName: leftName,
+            rightName: rightName,
+            leftScore: level(state.leftIndex),
+            rightScore: level(state.rightIndex),
+            leftDetail: nil,
+            rightDetail: nil,
+            finished: state.finished,
+            onLeftTap: {},
+            onRightTap: {},
+            onUndo: undo,
+            onReset: resetMatch,
+            onExchange: nil,
+            onBack: exit,
+            showEndGame: true,
+            onEndGame: finishMatch,
+            onEditCommit: applyEdit,
+            onEditAdjust: { isLeft, delta in
+                let side: MatchSide = isLeft ? .left : .right
+                if delta < 0 {
+                    send(.subtractLevels(side: side, delta: abs(delta)))
+                } else {
+                    send(.addLevels(side: side, delta: delta))
+                }
+            },
+            seamOverlay: state.dealer == nil ? nil : {
+                AnyView(
+                    GeometryReader { geo in
+                        let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
+                            halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
+                        )
+                        CenterLineServeIndicator(
+                            isLeftServing: state.dealer == .left,
+                            triangleSize: indicatorSize,
+                            color: ScoreboardTheme.serverIndicatorColor
+                        )
+                        .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                    }
+                    .allowsHitTesting(false)
+                )
+            },
+            panelAccessory: { isLeft in
+                AnyView(shengjiPanelActions(side: isLeft ? .left : .right))
+            },
+            onEditModeChange: { scoreboardEditing = $0 },
+            onTypographyChange: { preference in
+                typographyPreference = preference
+                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            }
+        ) { _, _ in
+            EmptyView()
+        }
     }
 
     @ViewBuilder
@@ -3512,9 +3604,13 @@ struct ShengjiReducerScoreboardView: View {
         let result = reducer.reduce(state: state, intent: intent, at: nowMilliseconds())
         guard result.accepted else { return }
         history.append(state)
+        let wasFinished = state.finished
         state = result.state
         actionCount += 1
         actionLog.append(recordSnapshot(code: String(describing: intent), scores: [state.leftIndex, state.rightIndex]))
+        if state.finished, !wasFinished {
+            showGameOverDialog = true
+        }
     }
     private func undo() -> Bool {
         guard let previous = history.popLast() else { return false }
@@ -3525,6 +3621,7 @@ struct ShengjiReducerScoreboardView: View {
     }
     private func resetMatch() {
         send(.reset)
+        showGameOverDialog = false
     }
     private func startNewMatch() {
         saveRecord()
@@ -3534,6 +3631,7 @@ struct ShengjiReducerScoreboardView: View {
         actionCount = 0
         startedAt = Date()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.shengji.canonicalScoreboardIdentifier)
+        showGameOverDialog = false
     }
     private func finishMatch() {
         send(.finish)
@@ -3605,13 +3703,16 @@ struct ShengjiReducerScoreboardView: View {
             revision: 0
         )
     }
-    private func saveRecord() {
-        saveSpecializedRecord(
+    @discardableResult
+    private func saveRecord() -> Bool {
+        let success = saveSpecializedRecord(
             id: recordID, gameType: .shengji, startedAt: startedAt,
             leftName: leftName, rightName: rightName,
             left: state.leftIndex, right: state.rightIndex,
             actionCount: actionCount, actions: actionLog, finished: state.finished, snapshot: state
         )
+        if !success { showPersistenceError = true }
+        return success
     }
 }
 
@@ -3684,7 +3785,7 @@ private func saveSpecializedRecord<State: Codable>(
         return true
     }
     let end = Date()
-    let winner = left == right ? nil : (left > right ? "left" : "right")
+    let winner = finished && left != right ? (left > right ? "left" : "right") : nil
     let snapshotData: Data
     do {
         if let sessionSnapshotData {
@@ -3718,7 +3819,7 @@ private func saveSpecializedRecord<State: Codable>(
         id: id,
         gameType: gameType,
         startTime: startedAt,
-        endTime: end,
+        endTime: finished ? end : nil,
         duration: end.timeIntervalSince(startedAt),
         team1Name: leftName,
         team2Name: rightName,
@@ -3732,7 +3833,7 @@ private func saveSpecializedRecord<State: Codable>(
         extraData: extraData,
         projectConfiguration: configuration.isEmpty ? nil : configuration,
         stateSnapshot: snapshotData,
-        status: .finished
+        status: finished ? .finished : .draft
     )
     let resolvedDetailedActions = detailedActions?.isEmpty == false
         ? detailedActions!

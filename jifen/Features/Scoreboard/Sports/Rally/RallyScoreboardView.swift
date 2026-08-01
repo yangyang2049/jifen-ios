@@ -24,6 +24,14 @@ enum RallyFinishedScorePresentation {
         return (state.leftPoints, state.rightPoints)
     }
 }
+
+private struct RallyTerminalSetPresentation: Equatable {
+    let leftPoints: Int
+    let rightPoints: Int
+    let leftSets: Int
+    let rightSets: Int
+    let sidesSwapped: Bool
+}
 import UIKit
 
 struct RallyScoreboardView: View {
@@ -62,6 +70,7 @@ struct RallyScoreboardView: View {
     @State private var didSpeakOpeningAnnouncement = false
     @State private var manualFinishRequested = false
     @State private var isStartingNewMatch = false
+    @State private var terminalHold = ScoreboardTerminalHold<RallyTerminalSetPresentation>()
 
     init(
         leftName: String,
@@ -112,9 +121,13 @@ struct RallyScoreboardView: View {
         if case .foosball = doubles.rotation { return true }
         return gameType == .foosballDoubles
     }
-    private var scoringLocked: Bool {
+    private var terminalSetPresentation: RallyTerminalSetPresentation? { terminalHold.value }
+    private var linkScoringLocked: Bool {
         watchSessionId != nil
             && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+    }
+    private var scoringLocked: Bool {
+        terminalSetPresentation != nil || linkScoringLocked
     }
     private var palette: ScoreboardPalette { appearance.theme.palette }
     private var linkedNewGameLabel: String {
@@ -155,11 +168,11 @@ struct RallyScoreboardView: View {
                     }
                 }
 
-                if !isEditMode && showsServeIndicator {
+                if !isEditMode && showsServeIndicator && terminalSetPresentation == nil {
                     serveIndicatorOverlay(size: proxy.size, triangleSize: serveIndicatorSize)
                 }
 
-                if !isEditMode && !store.state.finished {
+                if !isEditMode && !store.state.finished && terminalSetPresentation == nil {
                     ScoreboardKeyPointBadgeLayer(
                         status: KeyPointResolver.rally(state: store.state),
                         gameType: gameType,
@@ -295,29 +308,9 @@ struct RallyScoreboardView: View {
                previous.leftPoints != state.leftPoints || previous.rightPoints != state.rightPoints {
                 processPendingDoublesFlash()
             }
-            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-            if let watchSessionId, watchLinkService.isController {
-                watchLinkService.syncWatch(
-                    sessionId: watchSessionId,
-                    gameType: gameType,
-                    state: state,
-                    detailedActions: store.actionTimeline
-                )
-            }
-            if state.finished {
-                showGameOverDialog = true
-                if let watchSessionId, watchLinkService.isController {
-                    let winner: MatchSide? = state.leftSets == state.rightSets
-                        ? nil
-                        : (state.leftSets > state.rightSets ? .left : .right)
-                    watchLinkService.notifyMatchFinished(
-                        sessionId: watchSessionId,
-                        snapshot: .rally(state),
-                        recordId: store.sessionId.uuidString,
-                        winnerSide: winner,
-                        manualEnd: manualFinishRequested
-                    )
-                }
+            if terminalSetPresentation == nil {
+                publishCurrentRallyState()
+                if state.finished { notifyLinkedFinishIfNeeded() }
             }
             // Follower relies on LinkedMatchRecordIngestor; don't write a second phone record.
             if !(watchLinkService.isFollower && state.finished) {
@@ -329,6 +322,7 @@ struct RallyScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let rally = update.snapshot.rallyState else { return }
+            cancelTerminalSetPresentation()
             Task {
                 _ = await store.applyAuthoritativeState(
                     rally,
@@ -343,6 +337,7 @@ struct RallyScoreboardView: View {
                   let pending,
                   pending.sessionId == watchSessionId,
                   let state = pending.snapshot.rallyState else { return }
+            cancelTerminalSetPresentation()
             Task {
                 _ = await store.applyAuthoritativeState(
                     state,
@@ -379,6 +374,7 @@ struct RallyScoreboardView: View {
         }
         .onDisappear {
             flashTask?.cancel()
+            cancelTerminalSetPresentation()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
             // Capture before leave — ending the session clears follower role.
@@ -472,8 +468,8 @@ struct RallyScoreboardView: View {
     private func singlesPlayContent(side: MatchSide, size: CGSize) -> some View {
         let isLeft = side == .left
         let name = scoreboardDisplayName(for: side)
-        let score = isLeft ? store.state.leftPoints : store.state.rightPoints
-        let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        let score = displayedPoints(for: side)
+        let sets = displayedSets(for: side)
         let typography = resolvedTypography(
             name: name,
             score: "\(score)",
@@ -795,9 +791,8 @@ struct RallyScoreboardView: View {
     }
 
     private func doublesPlayScoreRow(screenSide: MatchSide, side: MatchSide, height: CGFloat, panelSize: CGSize) -> some View {
-        let isLeft = side == .left
-        let score = isLeft ? store.state.leftPoints : store.state.rightPoints
-        let sets = isLeft ? store.state.leftSets : store.state.rightSets
+        let score = displayedPoints(for: side)
+        let sets = displayedSets(for: side)
         let typography = resolvedTypography(
             name: "",
             score: "\(score)",
@@ -1063,6 +1058,7 @@ struct RallyScoreboardView: View {
     }
 
     private func handlePointWon(_ side: MatchSide) {
+        guard !scoringLocked else { return }
         // 仅羽毛球/匹克球双打有位置轮转，发球方得分时高亮该队两人以提示换位；
         // 乒乓球、桌上足球双打无轮转，不闪烁。
         if isDoubles, gameType == .badmintonDoubles || gameType == .pickleballDoubles {
@@ -1269,13 +1265,13 @@ struct RallyScoreboardView: View {
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,
             settleConfirming: menuConfirm.settleConfirming,
-            scoringEnabled: !scoringLocked,
+            scoringEnabled: !linkScoringLocked,
             extraItems: extras
         )
     }
 
     private func handleMenuAction(_ action: String) {
-        if scoringLocked,
+        if linkScoringLocked,
            !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
             showToast(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
             return
@@ -1292,6 +1288,7 @@ struct RallyScoreboardView: View {
             }
         case "reset":
             if menuConfirm.armOrConfirm(.reset) {
+                cancelTerminalSetPresentation()
                 showGameOverDialog = false
                 manualFinishRequested = false
                 dispatch(.reset)
@@ -1536,7 +1533,9 @@ struct RallyScoreboardView: View {
     }
 
     private func logicalSide(forScreen side: MatchSide) -> MatchSide {
-        store.teamScreenLayout.engineSide(onScreen: side)
+        TeamScreenLayout(
+            sidesSwapped: terminalSetPresentation?.sidesSwapped ?? store.state.sidesSwapped
+        ).engineSide(onScreen: side)
     }
 
     private func requestBack() {
@@ -1551,6 +1550,7 @@ struct RallyScoreboardView: View {
     }
 
     private func back() {
+        cancelTerminalSetPresentation()
         store.flush {
             if let onNavigationBack {
                 onNavigationBack()
@@ -1598,18 +1598,20 @@ struct RallyScoreboardView: View {
         let before = store.state
         store.send(intent) { events in
             handleVoiceAnnouncement(before: before, events: events)
-            handleEvents(events)
+            handleEvents(events, before: before)
         }
     }
 
-    private func handleEvents(_ events: [RallyMatchEvent]) {
+    private func handleEvents(_ events: [RallyMatchEvent], before: RallyMatchState) {
         var setToast: String?
         var sideToast: String?
         var matchFinished = false
+        var terminalScore: (left: Int, right: Int)?
 
         for event in events {
             switch event {
             case .setCompleted(let winner, let setNumber, let leftPoints, let rightPoints, _, _):
+                terminalScore = (leftPoints, rightPoints)
                 let winnerName = winner == .left ? store.state.leftName : store.state.rightName
                 setToast = String(
                     format: NSLocalizedString("set_ended_winner", value: "第%d局结束，%@获胜，比分 %d-%d", comment: ""),
@@ -1633,21 +1635,98 @@ struct RallyScoreboardView: View {
             }
         }
 
-        if let setToast {
-            showToast(setToast)
-            if let sideToast {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.1) {
-                    showToast(sideToast)
-                }
-            }
+        if let terminalScore {
+            beginTerminalSetPresentation(
+                score: terminalScore,
+                previousState: before,
+                setToast: setToast,
+                sideToast: sideToast,
+                matchFinished: matchFinished
+            )
         } else if let sideToast {
             showToast(sideToast)
-        }
-
-        if matchFinished {
+            if matchFinished {
+                showGameOverDialog = true
+                store.persistSnapshot()
+            }
+        } else if matchFinished {
             showGameOverDialog = true
             store.persistSnapshot()
         }
+    }
+
+    private func beginTerminalSetPresentation(
+        score: (left: Int, right: Int),
+        previousState: RallyMatchState,
+        setToast: String?,
+        sideToast: String?,
+        matchFinished: Bool
+    ) {
+        let presentation = RallyTerminalSetPresentation(
+            leftPoints: score.left,
+            rightPoints: score.right,
+            leftSets: previousState.leftSets,
+            rightSets: previousState.rightSets,
+            sidesSwapped: previousState.sidesSwapped
+        )
+        terminalHold.begin(presentation) {
+            publishCurrentRallyState()
+            if let setToast {
+                showToast(setToast)
+            }
+            if let sideToast {
+                showToast(sideToast)
+            }
+            if matchFinished {
+                notifyLinkedFinishIfNeeded()
+                showGameOverDialog = true
+                store.persistSnapshot()
+            }
+        }
+    }
+
+    private func displayedPoints(for side: MatchSide) -> Int {
+        if let terminalSetPresentation {
+            return side == .left ? terminalSetPresentation.leftPoints : terminalSetPresentation.rightPoints
+        }
+        return side == .left ? store.state.leftPoints : store.state.rightPoints
+    }
+
+    private func displayedSets(for side: MatchSide) -> Int {
+        if let terminalSetPresentation {
+            return side == .left ? terminalSetPresentation.leftSets : terminalSetPresentation.rightSets
+        }
+        return side == .left ? store.state.leftSets : store.state.rightSets
+    }
+
+    private func cancelTerminalSetPresentation() {
+        terminalHold.cancel()
+    }
+
+    private func publishCurrentRallyState() {
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        guard let watchSessionId, watchLinkService.isController else { return }
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: gameType,
+            state: store.state,
+            detailedActions: store.actionTimeline
+        )
+    }
+
+    private func notifyLinkedFinishIfNeeded() {
+        guard let watchSessionId, watchLinkService.isController else { return }
+        let state = store.state
+        let winner: MatchSide? = state.leftSets == state.rightSets
+            ? nil
+            : (state.leftSets > state.rightSets ? .left : .right)
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: .rally(state),
+            recordId: store.sessionId.uuidString,
+            winnerSide: winner,
+            manualEnd: manualFinishRequested
+        )
     }
 
     private func handleVoiceAnnouncement(before: RallyMatchState, events: [RallyMatchEvent]) {
@@ -1703,6 +1782,7 @@ struct RallyScoreboardView: View {
 
     private func startNewMatch() {
         guard !scoringLocked, !isStartingNewMatch else { return }
+        cancelTerminalSetPresentation()
         isStartingNewMatch = true
         let finishedStore = store
         finishedStore.persistSnapshot { success in
@@ -1766,7 +1846,10 @@ struct RallyScoreboardView: View {
     }
 
     private func performUndo() {
-        guard !isEditMode, !scoringLocked, !store.state.finished else { return }
+        guard !isEditMode,
+              !linkScoringLocked,
+              (!store.state.finished || terminalSetPresentation != nil) else { return }
+        cancelTerminalSetPresentation()
         store.undo { success in
             if success {
                 scheduleResumePersist(finished: store.state.finished)

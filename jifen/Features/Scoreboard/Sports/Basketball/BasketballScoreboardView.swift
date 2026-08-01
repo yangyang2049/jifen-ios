@@ -186,14 +186,11 @@ struct BasketballScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.55)
-                .onEnded { _ in
-                    guard !isEditMode else { return }
-                    showMenu = true
-                    revealImmersiveChrome()
-                }
-        )
+        .onLongPressGesture(minimumDuration: 0.55) {
+            guard !isEditMode else { return }
+            showMenu = true
+            revealImmersiveChrome()
+        }
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
@@ -824,7 +821,7 @@ private struct BasketballTeamPanel: View {
                             timeouts
                         ))
                             .font(typography.font.swiftUIFont(
-                                size: max(12, resolvedTypography.secondaryFontSize * 0.34),
+                                size: min(16, max(12, resolvedTypography.secondaryFontSize * 0.3)),
                                 weight: .semibold
                             ))
                             .foregroundStyle(.white)
@@ -851,6 +848,7 @@ private struct BasketballTeamPanel: View {
                         .foregroundStyle(.white)
                         .frame(width: 50, height: 50)
                         .background(Circle().fill(Color.white.opacity(0.14)))
+                        .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
             }
@@ -864,7 +862,7 @@ private struct BasketballTeamPanel: View {
                 fouls
             ))
                 .font(typography.font.swiftUIFont(
-                    size: max(12, resolvedTypography.secondaryFontSize * 0.4),
+                    size: min(18, max(12, resolvedTypography.secondaryFontSize * 0.35)),
                     weight: .semibold
                 ))
                 .foregroundStyle(.white)
@@ -880,15 +878,23 @@ private struct BasketballTeamPanel: View {
             if let label = foulBonusLabel {
                 Text(label)
                     .font(typography.font.swiftUIFont(
-                        size: max(11, resolvedTypography.secondaryFontSize * 0.34),
+                        size: min(16, max(11, resolvedTypography.secondaryFontSize * 0.34)),
                         weight: .bold
                     ))
                     .foregroundStyle(bonusYellow)
             }
         }
         .contentShape(Rectangle())
-        .onTapGesture(perform: onFoul)
-        .onLongPressGesture(minimumDuration: 0.35, perform: onRemoveFoul)
+        .accessibilityIdentifier(isLeftSide ? "basketball_left_foul_row" : "basketball_right_foul_row")
+        .accessibilityValue("\(fouls)")
+        .gesture(
+            LongPressGesture(minimumDuration: 0.35)
+                .onEnded { _ in onRemoveFoul() }
+                .exclusively(
+                    before: TapGesture()
+                        .onEnded { onFoul() }
+                )
+        )
     }
 }
 
@@ -1077,38 +1083,44 @@ private struct BasketballCenterPanel: View {
                 VStack(spacing: 10) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                         ForEach(1...4, id: \.self) { period in
-                            Button("Q\(period)") {
+                            Button {
                                 onSelectPeriod(period)
                                 showPeriodPicker = false
+                            } label: {
+                                Text("Q\(period)")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(state.currentPeriod == period && !state.isOvertime ? .white : .white.opacity(0.85))
+                                    .frame(
+                                        maxWidth: .infinity,
+                                        minHeight: ScoreboardConstants.minimumTouchTarget
+                                    )
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(state.currentPeriod == period && !state.isOvertime ? actionAccent : Color.white.opacity(0.12))
+                                    )
+                                    .contentShape(Rectangle())
                             }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
+                    Button {
+                        onEnterOvertime()
+                        showPeriodPicker = false
+                    } label: {
+                        Text("OT")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(state.currentPeriod == period && !state.isOvertime ? .white : .white.opacity(0.85))
+                            .foregroundStyle(state.isOvertime ? .white : .white.opacity(0.85))
                             .frame(
                                 maxWidth: .infinity,
                                 minHeight: ScoreboardConstants.minimumTouchTarget
                             )
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(state.currentPeriod == period && !state.isOvertime ? actionAccent : Color.white.opacity(0.12))
+                                    .fill(state.isOvertime ? overtimePurple : Color.white.opacity(0.12))
                             )
-                            .buttonStyle(.plain)
-                        }
+                            .contentShape(Rectangle())
                     }
-
-                    Button("OT") {
-                        onEnterOvertime()
-                        showPeriodPicker = false
-                    }
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(state.isOvertime ? .white : .white.opacity(0.85))
-                    .frame(
-                        maxWidth: .infinity,
-                        minHeight: ScoreboardConstants.minimumTouchTarget
-                    )
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(state.isOvertime ? overtimePurple : Color.white.opacity(0.12))
-                    )
                     .buttonStyle(.plain)
                 }
                 .padding(12)

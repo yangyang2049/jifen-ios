@@ -333,19 +333,19 @@ struct ArcheryScoreboardView: View {
             let dialogWidth = Theme.dialogWidth(
                 availableWidth: proxy.size.width,
                 phonePreferredWidth: 380,
-                padPreferredWidth: 500
+                padPreferredWidth: 420
             )
             let scoreButtonSize = ScoreboardLayoutMetrics.fittedGridItemSize(
                 containerWidth: dialogWidth,
                 columns: 4,
                 spacing: 10,
                 horizontalPadding: 16,
-                preferredSize: 60,
+                preferredSize: Theme.usesPadLayout ? 80 : 60,
                 minimumSize: ScoreboardConstants.minimumTouchTarget
             )
 
             ZStack {
-            Color.black.opacity(0.55)
+            Color.black.opacity(0.45)
                 .ignoresSafeArea()
                 .onTapGesture { showArrowPicker = false }
 
@@ -403,7 +403,7 @@ struct ArcheryScoreboardView: View {
                 .padding(.bottom, 16)
             }
             .frame(width: dialogWidth)
-            .background(Color.black.opacity(0.95))
+            .background(Color(hex: "2C2C2E"))
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.white.opacity(0.05), lineWidth: 1)
@@ -424,7 +424,7 @@ struct ArcheryScoreboardView: View {
             )
 
             ZStack {
-            Color.black.opacity(0.55)
+            Color.black.opacity(0.45)
                 .ignoresSafeArea()
             VStack(spacing: 12) {
                 Text(String(format: NSLocalizedString("watch_set_end_format", value: "第 %d 局结束", comment: ""), pendingSetNumber))
@@ -449,7 +449,7 @@ struct ArcheryScoreboardView: View {
                 .frame(width: max(0, dialogWidth - 48))
             }
             .padding(24)
-            .background(Color.black.opacity(0.7))
+            .background(Color(hex: "2C2C2E"))
             .cornerRadius(16)
         }
         }
@@ -464,7 +464,7 @@ struct ArcheryScoreboardView: View {
             )
 
             ZStack {
-            Color.black.opacity(0.55)
+            Color.black.opacity(0.45)
                 .ignoresSafeArea()
             VStack(spacing: 16) {
                 Text(NSLocalizedString("archery_closest_title", value: "一箭决胜 · 近心", comment: ""))
@@ -521,7 +521,7 @@ struct ArcheryScoreboardView: View {
             }
             .padding(24)
             .frame(width: dialogWidth)
-            .background(Color.black.opacity(0.85))
+            .background(Color(hex: "2C2C2E"))
             .cornerRadius(16)
         }
         }

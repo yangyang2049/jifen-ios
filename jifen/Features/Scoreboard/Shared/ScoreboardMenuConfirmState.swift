@@ -3,11 +3,11 @@
 //  jifen
 //
 //  Scoreboard menu secondary-confirm state — aligned with HarmonyOS
-//  ScoreboardMenuConfirmState (no auto-timeout; green until second tap /
-//  other action / menu close).
+//  ScoreboardMenuConfirmState (two-second confirmation window).
 //
 
 import Foundation
+import Observation
 
 enum ScoreboardMenuConfirmAction: String, Equatable {
     case reset
@@ -43,9 +43,17 @@ enum ScoreboardMenuConfirmAction: String, Equatable {
 }
 
 /// Single pending confirm at a time. First tap arms (button turns green + toast);
-/// second tap on the same action executes.
-struct ScoreboardMenuConfirmState: Equatable {
+/// second tap on the same action executes. Auto-clears after 2 seconds.
+@MainActor
+@Observable
+final class ScoreboardMenuConfirmState {
     private(set) var pending: ScoreboardMenuConfirmAction?
+    @ObservationIgnored private let confirmationDuration: Duration
+    private var dismissTask: Task<Void, Never>?
+
+    init(confirmationDuration: Duration = .seconds(2)) {
+        self.confirmationDuration = confirmationDuration
+    }
 
     var resetConfirming: Bool { pending == .reset }
     var exchangeConfirming: Bool { pending == .exchangeSide }
@@ -53,28 +61,86 @@ struct ScoreboardMenuConfirmState: Equatable {
     var settleConfirming: Bool { pending == .settleMatch }
     var exitConfirming: Bool { pending == .exit }
 
-    mutating func clear() {
+    func clear() {
         pending = nil
+        dismissTask?.cancel()
+        dismissTask = nil
     }
 
     /// Clear pending when the user taps a different menu action.
-    mutating func prepare(forMenuAction action: String) {
+    func prepare(forMenuAction action: String) {
         guard let confirm = ScoreboardMenuConfirmAction.fromMenuAction(action) else {
             pending = nil
+            dismissTask?.cancel()
+            dismissTask = nil
             return
         }
         if pending != confirm {
             pending = nil
+            dismissTask?.cancel()
+            dismissTask = nil
         }
     }
 
     /// - Returns: `true` if this is the confirming (second) tap and the action should run.
-    mutating func armOrConfirm(_ action: ScoreboardMenuConfirmAction) -> Bool {
+    func armOrConfirm(_ action: ScoreboardMenuConfirmAction) -> Bool {
         if pending == action {
             pending = nil
+            dismissTask?.cancel()
+            dismissTask = nil
             return true
         }
         pending = action
+        dismissTask?.cancel()
+        dismissTask = Task { [weak self, confirmationDuration] in
+            do {
+                try await Task.sleep(for: confirmationDuration)
+            } catch {
+                return
+            }
+            self?.pending = nil
+        }
         return false
+    }
+}
+
+/// Holds a terminal score snapshot for a short, cancellable presentation phase.
+/// The scoring engine may already have advanced; views keep rendering `value`
+/// until the release callback atomically reveals the next period.
+@MainActor
+@Observable
+final class ScoreboardTerminalHold<Value> {
+    private(set) var value: Value?
+    @ObservationIgnored private let duration: Duration
+    @ObservationIgnored private var releaseTask: Task<Void, Never>?
+    @ObservationIgnored private var generation = 0
+
+    init(duration: Duration = .seconds(1)) {
+        self.duration = duration
+    }
+
+    func begin(_ value: Value, onRelease: @escaping @MainActor () -> Void) {
+        generation += 1
+        let expectedGeneration = generation
+        releaseTask?.cancel()
+        self.value = value
+        releaseTask = Task { [weak self, duration] in
+            do {
+                try await Task.sleep(for: duration)
+            } catch {
+                return
+            }
+            guard let self, self.generation == expectedGeneration else { return }
+            self.value = nil
+            self.releaseTask = nil
+            onRelease()
+        }
+    }
+
+    func cancel() {
+        generation += 1
+        releaseTask?.cancel()
+        releaseTask = nil
+        value = nil
     }
 }

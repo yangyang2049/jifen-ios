@@ -56,6 +56,58 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertNil(store.state.doubles)
     }
 
+    func testPingPongTerminalPointEventKeepsElevenWhileReducerAdvancesNextSet() {
+        var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong(maxSets: 3))
+        state.leftPoints = 10
+        state.rightPoints = 4
+
+        let result = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 1)
+
+        XCTAssertTrue(result.events.contains(.setCompleted(
+            winner: .left,
+            setNumber: 1,
+            leftPoints: 11,
+            rightPoints: 4,
+            leftSets: 1,
+            rightSets: 0
+        )))
+        XCTAssertEqual(result.state.leftPoints, 0)
+        XCTAssertEqual(result.state.rightPoints, 0)
+        XCTAssertEqual(result.state.leftSets, 1)
+    }
+
+    func testPingPongDeuceRequiresTwoPointLeadBeforeTerminalEvent() {
+        var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong(maxSets: 3))
+        state.leftPoints = 10
+        state.rightPoints = 10
+
+        let advantage = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 1)
+        XCTAssertEqual(advantage.state.leftPoints, 11)
+        XCTAssertFalse(advantage.events.contains { if case .setCompleted = $0 { true } else { false } })
+
+        let completed = RallyMatchReducer().reduce(state: advantage.state, intent: .pointWon(.left), at: 2)
+        XCTAssertTrue(completed.events.contains { event in
+            if case .setCompleted(_, _, 12, 10, _, _) = event { return true }
+            return false
+        })
+    }
+
+    func testPingPongDecidingSetChangesSidesAtConfiguredSwitchPoint() {
+        var rules = RallyRuleSet.pingPong(maxSets: 5)
+        rules.autoChangeSides = true
+        rules.decidingSetSideSwitchPoint = 5
+        var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: rules)
+        state.leftSets = 2
+        state.rightSets = 2
+        state.leftPoints = 4
+
+        let result = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 1)
+
+        XCTAssertEqual(result.state.leftPoints, 5)
+        XCTAssertTrue(result.events.contains(.sidesExchanged))
+        XCTAssertTrue(result.state.sidesSwapped)
+    }
+
     func testPickleballAuthoritativeRebaseContinuesFromWatchScore() async {
         let store = RallySessionStore(
             leftName: "A",
@@ -144,6 +196,34 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(store.state.rightPoints, 1)
         XCTAssertEqual(store.state.scoreDisplay(for: .left), "40")
         XCTAssertEqual(store.state.scoreDisplay(for: .right), "15")
+    }
+
+    func testTennisTerminalGameEventsPreserveFinalPointAndSetScoresForPresentation() {
+        var state = TennisMatchState(
+            leftName: "A",
+            rightName: "B",
+            rules: .init(maxSets: 3, gamesPerSet: 6, autoChangeSides: true)
+        )
+        state.leftPoints = 3
+        state.rightPoints = 0
+        state.leftGames = 5
+        state.rightGames = 4
+
+        let result = TennisMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 1)
+
+        XCTAssertTrue(result.events.contains(.pointScored(side: .left, left: 4, right: 0)))
+        XCTAssertTrue(result.events.contains(.gameCompleted(winner: .left, leftGames: 6, rightGames: 4, tieBreak: false)))
+        XCTAssertTrue(result.events.contains(.setCompleted(
+            winner: .left,
+            setNumber: 1,
+            leftGames: 6,
+            rightGames: 4,
+            leftSets: 1,
+            rightSets: 0
+        )))
+        XCTAssertEqual(result.state.leftPoints, 0)
+        XCTAssertEqual(result.state.leftGames, 0)
+        XCTAssertEqual(result.state.leftSets, 1)
     }
 
     func testTennisDoublesResumeKeepsAllFourPlayerIdentities() async throws {
@@ -465,5 +545,28 @@ final class RallySessionStoreTests: XCTestCase {
 
         XCTAssertNil(restored.matchCompletionMode)
         XCTAssertEqual(restored.maxSets, 5)
+    }
+
+    func testSnookerFrameSettlementPreservesTerminalScoresInEventBeforeNextFrameReset() {
+        let reducer = SnookerReducer()
+        let initial = SnookerState.initial(striker: .left, maxFrames: 3)
+        let scored = reducer.reduce(
+            state: initial,
+            intent: .adminCorrect(left: 57, right: 42, striker: .left),
+            at: 1
+        ).state
+        let result = reducer.reduce(
+            state: scored,
+            intent: .settleFrame(winner: .left),
+            at: 2
+        )
+
+        XCTAssertEqual(result.events, [.frameSettled(winner: .left, frame: 1)])
+        XCTAssertEqual(scored.leftScore, 57)
+        XCTAssertEqual(scored.rightScore, 42)
+        XCTAssertEqual(result.state.leftScore, 0)
+        XCTAssertEqual(result.state.rightScore, 0)
+        XCTAssertEqual(result.state.leftFrames, 1)
+        XCTAssertEqual(result.state.currentFrame, 2)
     }
 }

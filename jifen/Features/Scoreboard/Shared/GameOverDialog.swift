@@ -278,6 +278,7 @@ struct GameOverDialog: View {
                                 .multilineTextAlignment(.center)
                                 .lineLimit(newGameDisabled ? 2 : 1)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .frame(height: usesTabletSpacing ? 52 : 44)
@@ -416,12 +417,16 @@ struct GameOverDialog: View {
         rightScore: String
     ) -> some View {
         HStack(spacing: 6) {
-            resultColumn(name: leftName, score: leftScore, isWinner: resolvedWinnerIndices.contains(0))
+            resultColumn(name: leftName, score: leftScore, isWinner: resolvedWinnerIndices.contains(0),
+                         nameFontSize: usesTabletSpacing ? 14 : 12,
+                         scoreFontSize: usesTabletSpacing ? 38 : 30)
             Text("-")
                 .font(.system(size: 20))
                 .foregroundStyle(secondaryText)
                 .padding(.horizontal, 4)
-            resultColumn(name: rightName, score: rightScore, isWinner: resolvedWinnerIndices.contains(1))
+            resultColumn(name: rightName, score: rightScore, isWinner: resolvedWinnerIndices.contains(1),
+                         nameFontSize: usesTabletSpacing ? 14 : 12,
+                         scoreFontSize: usesTabletSpacing ? 38 : 30)
         }
         .padding(.vertical, usesTabletSpacing ? 12 : 4)
     }
@@ -521,6 +526,7 @@ struct GameOverDialog: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .frame(height: usesTabletSpacing ? 46 : ScoreboardConstants.minimumTouchTarget)

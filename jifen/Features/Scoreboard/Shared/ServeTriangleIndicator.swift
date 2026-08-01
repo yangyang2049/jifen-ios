@@ -20,7 +20,7 @@ enum ScoreboardServeGeometry {
         badgeHalfWidth: CGFloat = 28
     ) -> CGFloat {
         guard doublesTopRow != nil else { return innerGap + badgeHalfWidth }
-        return triangleSize + innerGap + badgeHalfWidth
+        return 0
     }
 
     static func keyPointBadgeCenterY(
@@ -30,7 +30,16 @@ enum ScoreboardServeGeometry {
         triangleSize: CGFloat
     ) -> CGFloat {
         if let doublesTopRow {
-            return doublesAnchorY(height: height, topRow: doublesTopRow)
+            let anchorY = doublesAnchorY(height: height, topRow: doublesTopRow)
+            let gap: CGFloat = 8
+            let badgeHalfHeight: CGFloat = 14
+            if doublesTopRow {
+                // Indicator at top → badge below it (toward court center)
+                return anchorY + triangleSize / 2 + gap + badgeHalfHeight
+            } else {
+                // Indicator at bottom → badge above it (toward court center)
+                return anchorY - triangleSize / 2 - gap - badgeHalfHeight
+            }
         }
         let triangleCenterY = height / 2
         let gap: CGFloat = largeWindow ? 14 : 10

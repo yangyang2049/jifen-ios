@@ -1,9 +1,10 @@
 import XCTest
 @testable import jifen
 
+@MainActor
 final class ScoreboardMenuConfirmStateTests: XCTestCase {
     func testArmThenConfirmExecutes() {
-        var state = ScoreboardMenuConfirmState()
+        let state = ScoreboardMenuConfirmState()
         state.prepare(forMenuAction: "reset")
         XCTAssertFalse(state.armOrConfirm(.reset))
         XCTAssertTrue(state.resetConfirming)
@@ -14,7 +15,7 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
     }
 
     func testSwitchingConfirmActionReArms() {
-        var state = ScoreboardMenuConfirmState()
+        let state = ScoreboardMenuConfirmState()
         state.prepare(forMenuAction: "reset")
         XCTAssertFalse(state.armOrConfirm(.reset))
 
@@ -26,7 +27,7 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
     }
 
     func testNonConfirmActionClearsPending() {
-        var state = ScoreboardMenuConfirmState()
+        let state = ScoreboardMenuConfirmState()
         state.prepare(forMenuAction: "exchangeSide")
         XCTAssertFalse(state.armOrConfirm(.exchangeSide))
         XCTAssertTrue(state.exchangeConfirming)
@@ -41,7 +42,7 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
     }
 
     func testClear() {
-        var state = ScoreboardMenuConfirmState()
+        let state = ScoreboardMenuConfirmState()
         _ = state.armOrConfirm(.settleMatch)
         state.clear()
         XCTAssertNil(state.pending)
@@ -50,6 +51,42 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
     func testDefaultScoreboardMenuIncludesSharedScreenshotAction() {
         let items = ScoreboardMenuItemBuilder.defaultItems()
         XCTAssertEqual(items.filter { $0.action == "screenshot" }.count, 1)
+    }
+
+    func testConfirmationAutomaticallyExpires() async throws {
+        let state = ScoreboardMenuConfirmState(confirmationDuration: .milliseconds(20))
+        XCTAssertFalse(state.armOrConfirm(.reset))
+        XCTAssertTrue(state.resetConfirming)
+
+        try await Task.sleep(for: .milliseconds(40))
+
+        XCTAssertNil(state.pending)
+        XCTAssertFalse(state.resetConfirming)
+    }
+
+    func testTerminalHoldReleasesAfterConfiguredDelay() async throws {
+        let hold = ScoreboardTerminalHold<Int>(duration: .milliseconds(20))
+        var released = false
+
+        hold.begin(11) { released = true }
+        XCTAssertEqual(hold.value, 11)
+
+        try await Task.sleep(for: .milliseconds(40))
+
+        XCTAssertNil(hold.value)
+        XCTAssertTrue(released)
+    }
+
+    func testTerminalHoldCancellationDoesNotReleaseStaleTransition() async throws {
+        let hold = ScoreboardTerminalHold<Int>(duration: .milliseconds(20))
+        var released = false
+        hold.begin(11) { released = true }
+
+        hold.cancel()
+        try await Task.sleep(for: .milliseconds(40))
+
+        XCTAssertNil(hold.value)
+        XCTAssertFalse(released)
     }
 
     func testScreenshotIsAllowedWhileWatchFollowerScoringIsLocked() {

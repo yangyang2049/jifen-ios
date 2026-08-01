@@ -674,6 +674,12 @@ struct AnyCodable: Codable {
             try container.encode(double)
         case let string as String:
             try container.encode(string)
+        case let wrapped as AnyCodable:
+            try container.encode(wrapped)
+        case let array as [AnyCodable]:
+            try container.encode(array)
+        case let dictionary as [String: AnyCodable]:
+            try container.encode(dictionary)
         case let array as [Any]:
             try container.encode(array.map { AnyCodable($0) })
         case let dictionary as [String: Any]:

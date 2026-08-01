@@ -1161,6 +1161,7 @@ struct TeamSection: View {
                 .foregroundColor(enabled ? palette.foreground.opacity(0.75) : palette.foreground.opacity(0.3))
                 .frame(width: 50, height: 50)
                 .background(Circle().fill(ScoreboardTheme.auxiliaryButtonBackgroundSubtle))
+                .contentShape(Circle())
         }
         .disabled(!enabled)
         .buttonStyle(.plain)

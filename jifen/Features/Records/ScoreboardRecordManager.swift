@@ -95,7 +95,24 @@ enum ManualResumeSessionStore {
 }
 
 enum ScoreboardLifecyclePersistence {
+    /// Enforce one lifecycle contract at the persistence boundary so manually
+    /// managed scoreboards cannot accidentally store a live match as finished.
+    static func normalizedRecord(
+        _ record: ScoreboardRecord,
+        finished: Bool,
+        finishedAt: Date = Date()
+    ) -> ScoreboardRecord {
+        var normalized = record
+        normalized.status = finished ? .finished : .draft
+        normalized.endTime = finished ? (record.endTime ?? finishedAt) : nil
+        if !finished {
+            normalized.winner = nil
+        }
+        return normalized
+    }
+
     static func save(_ record: ScoreboardRecord, finished: Bool) throws {
+        let record = normalizedRecord(record, finished: finished)
         if finished {
             try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
         } else {

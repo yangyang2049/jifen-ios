@@ -510,7 +510,7 @@ struct DoudizhuScoreboardView: View {
     /// HOS-style 320pt bottom settle overlay (not a system sheet).
     private func doudizhuBottomSettleOverlay(containerWidth: CGFloat) -> some View {
         ZStack(alignment: .bottomLeading) {
-            Color.black.opacity(0.35)
+            Color.black.opacity(0.45)
                 .ignoresSafeArea()
                 .onTapGesture { showScorePanel = false }
 
@@ -598,7 +598,7 @@ struct DoudizhuScoreboardView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 320)
-            .background(Color.black.opacity(0.8))
+            .background(Color(hex: "2C2C2E"))
             .onAppear {
                 if selectedWinners.allSatisfy({ !$0 }) {
                     selectedWinners = [true, false, false]

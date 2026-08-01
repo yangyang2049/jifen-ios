@@ -1019,6 +1019,7 @@
 "record_recap_frame_format" = "第 %d 局";
 "record_recap_full_match" = "全场事件";
 "record_recap_adjustments" = "调整明细";
+"record_recap_overall" = "全场复盘";
 "record_final_ranking" = "最终排名";
 "score_trend" = "比分趋势";
 "record_recap" = "复盘";

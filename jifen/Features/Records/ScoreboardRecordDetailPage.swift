@@ -27,6 +27,7 @@ struct ScoreboardRecordDetailPage: View {
     @State private var showingShareSheet = false
     @State private var isPreparingShare = false
     @State private var didTrackRecordView = false
+    @State private var selectedTrendPeriod: Int = 1
 
     var body: some View {
         ZStack {
@@ -48,15 +49,6 @@ struct ScoreboardRecordDetailPage: View {
         .navigationTitle(NSLocalizedString("match_detail", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(action: prepareShare) { Label(NSLocalizedString("share", comment: ""), systemImage: "square.and.arrow.up") }
-                    Button(role: .destructive) { showingDeleteConfirm = true } label: { Label(NSLocalizedString("delete", comment: ""), systemImage: "trash") }
-                } label: { Image(systemName: "ellipsis.circle") }
-                .disabled(record == nil)
-            }
-        }
         .onAppear(perform: loadRecord)
         .alert(NSLocalizedString("confirm_delete", comment: ""), isPresented: $showingDeleteConfirm) {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
@@ -182,12 +174,26 @@ struct ScoreboardRecordDetailPage: View {
                     systemImage: "arrow.clockwise"
                 )
                 .frame(maxWidth: .infinity)
+                .frame(minHeight: ScoreboardConstants.minimumTouchTarget)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.borderedProminent)
-            Button(action: prepareShare) { Label(NSLocalizedString("share", comment: ""), systemImage: "square.and.arrow.up").frame(maxWidth: .infinity) }
+            Button(action: prepareShare) {
+                Label(NSLocalizedString("share", comment: ""), systemImage: "square.and.arrow.up")
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: ScoreboardConstants.minimumTouchTarget)
+                    .contentShape(Rectangle())
+            }
                 .buttonStyle(.bordered)
-            Button(role: .destructive) { showingDeleteConfirm = true } label: { Image(systemName: "trash").frame(width: 28) }
-                .buttonStyle(.bordered)
+            Button(role: .destructive) { showingDeleteConfirm = true } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.green)
+                    .frame(minWidth: ScoreboardConstants.minimumTouchTarget,
+                           minHeight: ScoreboardConstants.minimumTouchTarget)
+                    .contentShape(Rectangle())
+            }
+                .buttonStyle(.plain)
         }
     }
 
@@ -208,9 +214,31 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func trendCard(record: ScoreboardRecord, points: [ScoreboardRecordTrendPoint]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(NSLocalizedString("score_trend", value: "比分趋势", comment: ""), systemImage: "chart.xyaxis.line").font(.headline)
-            ScoreTrendChart(points: points, leftName: record.team1Name, rightName: record.team2Name)
+        let availablePeriods = Array(Set(points.map { $0.period ?? 1 })).sorted()
+        let effectivePeriod = availablePeriods.contains(selectedTrendPeriod)
+            ? selectedTrendPeriod
+            : (availablePeriods.first ?? 1)
+        let filteredPoints = points.filter { ($0.period ?? 1) == effectivePeriod }
+        let periodPolicy = ScoreboardRecordProjectPolicy.policy(for: record.gameType)
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label(NSLocalizedString("score_trend", value: "比分趋势", comment: ""), systemImage: "chart.xyaxis.line").font(.headline)
+                Spacer()
+                if availablePeriods.count > 1 {
+                    Picker("", selection: $selectedTrendPeriod) {
+                        ForEach(availablePeriods, id: \.self) { period in
+                            Text(periodPolicy.trendPeriodTitle(period)).tag(period)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onAppear {
+                        if !availablePeriods.contains(selectedTrendPeriod) {
+                            selectedTrendPeriod = availablePeriods.first ?? 1
+                        }
+                    }
+                }
+            }
+            ScoreTrendChart(points: filteredPoints, leftName: record.team1Name, rightName: record.team2Name)
                 .frame(height: 190)
         }
         .padding(16).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))

@@ -264,7 +264,9 @@ struct GuandanScoreboardView: View {
         actionCount += 1
         appendSnapshot("round_\(side.rawValue)_plus_\(step)")
         VibrationManager.shared.vibrateMedium()
-        if state.phase == .finished { showGameOverDialog = true }
+        if state.phase == .finished {
+            showGameOverDialog = true
+        }
     }
 
     private func adjustRankInEditMode(side: GuandanSide, delta: Int) {

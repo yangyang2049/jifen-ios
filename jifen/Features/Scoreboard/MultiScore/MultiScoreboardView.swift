@@ -69,6 +69,7 @@ struct MultiScoreboardView: View {
     @State private var gameStartTime = Date()
     @State private var recordId: String
     @State private var gameFinished = false
+    @State private var showGameOverDialog = false
     @State private var finishedWinnerName = ""
     @State private var showMenu = false
     @State private var playerEditIndex: Int? = nil
@@ -224,7 +225,7 @@ struct MultiScoreboardView: View {
                     .allowsHitTesting(false)
                 }
 
-                if gameFinished {
+                if showGameOverDialog {
                     GameOverDialog(
                         winnerName: finishedWinnerName,
                         gameType: gameType,
@@ -260,16 +261,6 @@ struct MultiScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.55)
-                .onEnded { _ in
-                    guard playerEditIndex == nil,
-                          customAdjustIndex == nil,
-                          !showUnoRoundPanel else { return }
-                    showMenu = true
-                    revealImmersiveChrome()
-                }
-        )
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
@@ -351,15 +342,9 @@ struct MultiScoreboardView: View {
     }
 
     private func extraCellPlaceholder(height: CGFloat, showEmoji: Bool) -> some View {
-        Group {
-            if showEmoji {
-                Text("🤡")
-                    .font(.system(size: min(48, height * 0.5)))
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: height)
-        .background(Color.white.opacity(0.08))
+        Color.white.opacity(0.05)
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
     }
 
     private var bottomControls: some View {
@@ -443,17 +428,16 @@ struct MultiScoreboardView: View {
 
     private func playerPanel(index: Int, player: MultiPlayerItem, height: CGFloat) -> some View {
         GeometryReader { panelGeo in
-            let gap = gameType == .uno ? max(0, effectiveTargetScore - player.score) : 0
             let typography = ScoreboardTypographyResolver.resolve(
                 ScoreboardTypographyLayoutContext(
                     profile: gameType == .uno ? .uno : .multi,
                     containerSize: panelGeo.size,
                     nameText: player.name,
                     scoreText: "\(player.score)",
-                    secondaryText: gameType == .uno ? "\(gap)" : "",
+                    secondaryText: "",
                     preference: typographySession.effectivePreference,
                     horizontalPadding: 12,
-                    reservedHeight: gameType == .uno ? 28 : 12,
+                    reservedHeight: gameType == .uno ? 44 : 20,
                     isLargeScreen: Theme.usesPadLayout
                 )
             )
@@ -474,17 +458,6 @@ struct MultiScoreboardView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
 
-                if gameType == .uno, !gameFinished {
-                    Text(String(
-                        format: NSLocalizedString("uno_gap_format", value: "差 %d", comment: ""),
-                        gap
-                    ))
-                    .font(typographySession.effectivePreference.font.swiftUIFont(
-                        size: max(10, typography.secondaryFontSize * 0.4),
-                        weight: .regular
-                    ))
-                    .foregroundStyle(.white.opacity(0.75))
-                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -569,15 +542,7 @@ struct MultiScoreboardView: View {
                     title: NSLocalizedString("scoreboard_rotate_orientation", value: "切换布局", comment: ""),
                     action: "layout",
                     group: .match,
-                    icon: "rectangle.portrait.rotate.90"
-                ),
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("exit", value: "退出", comment: "Exit"),
-                    action: "exit",
-                    group: .match,
-                    icon: "rectangle.portrait.and.arrow.right",
-                    keepDialogOpen: true,
-                    confirming: menuConfirm.exitConfirming
+                    icon: "rectangle.2.swap"
                 )
             ]
         )
@@ -654,6 +619,7 @@ struct MultiScoreboardView: View {
         VibrationManager.shared.vibrateHeavy()
         persistRecord(finished: true)
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        showGameOverDialog = true
     }
 
     // MARK: - Layout helpers
@@ -758,7 +724,7 @@ struct MultiScoreboardView: View {
             )
 
             ZStack {
-                Color.black.opacity(0.55)
+                Color.black.opacity(0.45)
                     .ignoresSafeArea()
                     .onTapGesture { cancelPlayerEdit() }
 
@@ -819,7 +785,7 @@ struct MultiScoreboardView: View {
                 }
                 .padding(24)
                 .frame(width: dialogWidth)
-                .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.88)))
+                .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.7)))
             }
         }
         .zIndex(20)
@@ -895,16 +861,21 @@ struct MultiScoreboardView: View {
                         }
                     }
 
-                    Text(NSLocalizedString("uno_number_total", value: "数字牌合计", comment: ""))
-                        .font(.system(size: 13))
-                        .foregroundStyle(Theme.textSecondary)
-                    TextField("0", text: $unoNumberTotalText)
-                        .keyboardType(.numberPad)
-                        .font(.system(size: 22, weight: .semibold))
-                        .padding(.horizontal, 12)
-                        .frame(height: 44)
-                        .background(Theme.dialogControlBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    HStack {
+                        Text(NSLocalizedString("uno_number_total", value: "数字牌合计", comment: ""))
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(Theme.textPrimary)
+                        Spacer()
+                        TextField("0", text: $unoNumberTotalText)
+                            .keyboardType(.numberPad)
+                            .font(.system(size: 20, weight: .semibold))
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 100)
+                            .padding(.horizontal, 10)
+                            .frame(height: 38)
+                            .background(Theme.dialogControlBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
 
                     unoCountStepper(
                         title: NSLocalizedString("uno_action_20_count", value: "20 分功能牌张数", comment: ""),
@@ -972,13 +943,35 @@ struct MultiScoreboardView: View {
                         .foregroundStyle(Theme.textSecondary)
                 }
                 Spacer()
-                Stepper(value: value, in: 0...20) {
+                HStack(spacing: 0) {
+                    Button {
+                        if value.wrappedValue > 0 { value.wrappedValue -= 1 }
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Theme.textPrimary)
+                            .frame(width: 36, height: 36)
+                    }
+                    .buttonStyle(.plain)
+
                     Text("\(value.wrappedValue)")
                         .font(.system(size: 16, weight: .semibold))
                         .monospacedDigit()
-                        .frame(minWidth: 28, alignment: .trailing)
+                        .foregroundStyle(Theme.textPrimary)
+                        .frame(minWidth: 32, alignment: .center)
+
+                    Button {
+                        if value.wrappedValue < 20 { value.wrappedValue += 1 }
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Theme.textPrimary)
+                            .frame(width: 36, height: 36)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .labelsHidden()
+                .background(Theme.dialogControlBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
         }
     }
@@ -1053,6 +1046,7 @@ struct MultiScoreboardView: View {
             finishedWinnerName = players[winnerIndex].name
             VibrationManager.shared.vibrateHeavy()
             persistRecord(finished: true)
+            showGameOverDialog = true
         }
     }
 
@@ -1069,6 +1063,7 @@ struct MultiScoreboardView: View {
             let target = effectiveTargetScore
             let stillFinished = players.contains { $0.score >= target }
             gameFinished = stillFinished
+            showGameOverDialog = stillFinished
             finishedWinnerName = players.first(where: { $0.score >= target })?.name ?? ""
             if stillFinished == false, unoRoundCount > 0 {
                 unoRoundCount -= 1
@@ -1088,6 +1083,7 @@ struct MultiScoreboardView: View {
         }
         appendRecordAction("reset")
         gameFinished = false
+        showGameOverDialog = false
         finishedWinnerName = ""
         unoRoundCount = 0
         VibrationManager.shared.vibrateMedium()
@@ -1107,6 +1103,7 @@ struct MultiScoreboardView: View {
             players[index].score = 0
         }
         gameFinished = false
+        showGameOverDialog = false
         finishedWinnerName = ""
         unoRoundCount = 0
         pendingTapIndex = nil
@@ -1235,6 +1232,7 @@ struct MultiScoreboardView: View {
         gameStartTime = record.startTime
         actions = record.actions
         gameFinished = false
+        showGameOverDialog = false
 
         if let data = record.stateSnapshot,
            let resumeState = try? JSONDecoder().decode(MultiScoreResumeState.self, from: data),
@@ -1311,15 +1309,16 @@ struct MultiScoreboardView: View {
         guard hasProgress else { return }
 
         let end = Date()
-        let playersEnc: [AnyCodable] = players.map { p in
-            AnyCodable([
-                "name": AnyCodable(p.name),
-                "finalScore": AnyCodable(p.score),
-                "score": AnyCodable(p.score),
-            ])
+        let isFinished = finished || gameFinished
+        let playersPayload: [[String: Any]] = players.map { player in
+            [
+                "name": player.name,
+                "finalScore": player.score,
+                "score": player.score,
+            ]
         }
         var extraData: [String: AnyCodable] = [
-            "players": AnyCodable(playersEnc),
+            "players": AnyCodable(playersPayload),
             "playerCount": AnyCodable(players.count),
         ]
         if gameType == .multiScoreboard {
@@ -1331,7 +1330,7 @@ struct MultiScoreboardView: View {
         }
 
         var winner: String?
-        if finished || gameFinished {
+        if isFinished {
             if let index = MultiScoreRules.uniqueLeaderIndex(scores: players.map(\.score)) {
                 winner = "\(index)"
             }
@@ -1362,7 +1361,7 @@ struct MultiScoreboardView: View {
             id: recordId,
             gameType: gameType,
             startTime: gameStartTime,
-            endTime: (finished || gameFinished) ? end : nil,
+            endTime: isFinished ? end : nil,
             duration: end.timeIntervalSince(gameStartTime),
             team1Name: players.first?.name ?? gameType.displayName,
             team2Name: players.count > 1 ? players[1].name : "",
@@ -1378,10 +1377,9 @@ struct MultiScoreboardView: View {
                 ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(scoreCoreGameType.rawValue)
             ],
             stateSnapshot: snapshotData,
-            status: .finished
+            status: isFinished ? .finished : .draft
         )
         do {
-            let isFinished = finished || gameFinished
             try ScoreboardLifecyclePersistence.save(record, finished: isFinished)
             if isFinished {
                 ScoreboardRecordsViewModel.shared.refreshRecords()

@@ -1019,6 +1019,7 @@
 "record_recap_frame_format" = "Frame %d";
 "record_recap_full_match" = "Match Events";
 "record_recap_adjustments" = "Score Adjustments";
+"record_recap_overall" = "Full Match Replay";
 "record_final_ranking" = "Final Ranking";
 "score_trend" = "Score Trend";
 "record_recap" = "Recap";

@@ -38,6 +38,19 @@ struct ScoreboardRecordProjectPolicy: Equatable {
             return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
         }
     }
+
+    func trendPeriodTitle(_ number: Int) -> String {
+        switch recapKind {
+        case .periods:
+            return String(format: NSLocalizedString("record_recap_period_format", value: "第 %d 节", comment: ""), number)
+        case .rounds, .cardRounds:
+            return String(format: NSLocalizedString("record_recap_round_format", value: "第 %d 回合", comment: ""), number)
+        case .tennisSets:
+            return String(format: NSLocalizedString("record_recap_tennis_set_format", value: "第 %d 盘", comment: ""), number)
+        default:
+            return String(format: NSLocalizedString("record_recap_set_format", value: "第 %d 局", comment: ""), number)
+        }
+    }
 }
 
 struct ScoreboardRecordTrendPoint: Identifiable, Equatable {
@@ -88,7 +101,7 @@ struct ScoreboardRecordPresentation {
                 left: action.scores[0],
                 right: action.scores[1],
                 segment: segment,
-                period: action.periodNumber
+                period: action.periodNumber ?? action.setNumber ?? action.roundNumber ?? 1
             )
         }
     }
@@ -98,21 +111,7 @@ struct ScoreboardRecordPresentation {
         setResults: [RecordSetResult]?,
         policy: ScoreboardRecordProjectPolicy
     ) -> [ScoreboardRecordRecapSection] {
-        if let setResults, !setResults.isEmpty {
-            return setResults.map { result in
-                let matching = actions.filter { ($0.setNumber ?? $0.roundNumber ?? $0.periodNumber) == result.number }
-                return .init(id: "result-\(result.id)", title: recapTitle(kind: policy.recapKind, number: result.number), actions: matching)
-            }
-        }
-
-        var groups: [Int: [DetailedScoreAction]] = [:]
-        for action in actions {
-            let number = action.periodNumber ?? action.roundNumber ?? action.setNumber ?? 1
-            groups[number, default: []].append(action)
-        }
-        return groups.keys.sorted().map { number in
-            .init(id: "recap-\(number)", title: recapTitle(kind: policy.recapKind, number: number), actions: groups[number] ?? [])
-        }
+        [.init(id: "overall-recap", title: NSLocalizedString("record_recap_overall", value: "全场复盘", comment: ""), actions: actions)]
     }
 
     private static func recapTitle(kind: ScoreboardRecordProjectPolicy.RecapKind, number: Int) -> String {

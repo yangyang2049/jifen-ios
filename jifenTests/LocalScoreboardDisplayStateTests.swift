@@ -161,7 +161,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
                 largeWindow: true,
                 triangleSize: 64
             ),
-            100
+            154
         )
         XCTAssertEqual(
             ScoreboardServeGeometry.keyPointBadgeCenterY(
@@ -170,7 +170,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
                 largeWindow: true,
                 triangleSize: 64
             ),
-            500
+            446
         )
     }
 
@@ -196,7 +196,7 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
                 doublesTopRow: true,
                 triangleSize: 64
             ),
-            104
+            0
         )
     }
 
@@ -230,6 +230,23 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             )
             XCTAssertEqual(size.truncatingRemainder(dividingBy: 4), 0)
         }
+    }
+
+    func testSharedTennisEditLabelsResolveToTheCenterLineFromEitherPanel() {
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.sharedCenterLabelHorizontalOffset(
+                halfViewportWidth: 500,
+                sourceScreenSide: .left
+            ),
+            250
+        )
+        XCTAssertEqual(
+            ScoreboardLayoutMetrics.sharedCenterLabelHorizontalOffset(
+                halfViewportWidth: 500,
+                sourceScreenSide: .right
+            ),
+            -250
+        )
     }
 
     func testDoublesScoreRegionScalesFromPhoneToTabletGeometry() {

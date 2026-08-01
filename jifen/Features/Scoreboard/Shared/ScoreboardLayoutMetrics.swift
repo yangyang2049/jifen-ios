@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import ScoreCore
 
 struct TennisDoublesEditLayoutMetrics: Equatable, Sendable {
     let mainFontSize: CGFloat
@@ -403,15 +404,17 @@ enum ScoreboardLayoutMetrics {
         cellHeight: CGFloat,
         baseSize: CGFloat = 24,
         reservedHeight: CGFloat = 0,
-        fontScale: CGFloat = 1
+        fontScale: CGFloat = 1,
+        fillRatio: CGFloat = playerGridScoreFontFillRatio
     ) -> CGFloat {
         let scale = Swift.max(0.1, fontScale)
+        let safeFillRatio = Swift.max(0.1, fillRatio)
         let target = Swift.max(
             baseSize,
-            cellHeight * playerGridScoreRegionHeightRatio * playerGridScoreFontFillRatio
+            cellHeight * playerGridScoreRegionHeightRatio * safeFillRatio
         ) * scale
         let remaining = Swift.max(1, cellHeight - Swift.max(0, reservedHeight))
-        let verticalLimit = remaining * playerGridScoreFontFillRatio
+        let verticalLimit = remaining * safeFillRatio
         let safeMin = Swift.min(24, verticalLimit)
         return clampRound(Swift.min(target, verticalLimit), min: safeMin, max: playerGridScoreMaxSize)
     }
@@ -421,6 +424,15 @@ enum ScoreboardLayoutMetrics {
         if screenWidth < 700 { return 160 }
         if screenWidth < 900 { return 180 }
         return 200
+    }
+
+    /// Moves a label from the center of either half-panel onto the shared
+    /// scoreboard center line without coupling it to a logical team side.
+    static func sharedCenterLabelHorizontalOffset(
+        halfViewportWidth: CGFloat,
+        sourceScreenSide: MatchSide
+    ) -> CGFloat {
+        (sourceScreenSide == .left ? 1 : -1) * halfViewportWidth / 2
     }
 }
 
@@ -558,11 +570,16 @@ enum ScoreboardTypographyResolver {
 
         let requestedScoreBase: CGFloat
         if isGrid {
+            let fillRatio: CGFloat = switch context.profile {
+            case .uno, .multi: 0.7
+            default: ScoreboardLayoutMetrics.playerGridScoreFontFillRatio
+            }
             requestedScoreBase = ScoreboardLayoutMetrics.playerGridScoreFontSize(
                 cellHeight: size.height,
                 baseSize: scoreMinimum,
                 reservedHeight: reservedHeight,
-                fontScale: context.scoreBaseScale
+                fontScale: context.scoreBaseScale,
+                fillRatio: fillRatio
             )
         } else {
             requestedScoreBase = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: referenceHeight)
@@ -632,7 +649,7 @@ enum ScoreboardPlayerGridLayout {
         let safeCount = min(4, max(2, playerCount))
         let indices = Array(0..<safeCount)
         let usesWideLayout = safeCount <= 2
-            || containerSize.width >= containerSize.height * 1.35
+            || containerSize.width >= containerSize.height * 0.9
         guard !usesWideLayout else { return [indices] }
         if safeCount == 3 {
             return indices.map { [$0] }

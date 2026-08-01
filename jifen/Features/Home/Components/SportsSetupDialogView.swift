@@ -862,8 +862,6 @@ struct SportsSetupDialogView: View {
     @ViewBuilder
     private func buildTennisSettings() -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(NSLocalizedString("tennis_format_label", value: "赛制", comment: "Tennis format"))
-                .settingsLabelStyle()
             HStack(spacing: 6) {
                 ForEach(["regular", "tiebreak_7", "tiebreak_10"], id: \.self) { format in
                     let selected = format == "regular"
@@ -895,8 +893,6 @@ struct SportsSetupDialogView: View {
         if tennisSetScoringMode == "regular" {
             buildMatchCompletionSection(useTennisWording: true)
             VStack(alignment: .leading, spacing: 8) {
-                Text(NSLocalizedString("tennis_games_per_set_label", value: "每盘局数", comment: "Games per tennis set"))
-                    .settingsLabelStyle()
                 HStack(spacing: 8) {
                     ForEach([4, 6], id: \.self) { games in
                         Button {
@@ -922,8 +918,6 @@ struct SportsSetupDialogView: View {
                 }
             }
             VStack(alignment: .leading, spacing: 8) {
-                Text(NSLocalizedString("tennis_set_tiebreak_label", value: "盘内抢分", comment: "In-set tiebreak"))
-                    .settingsLabelStyle()
                 HStack(spacing: 8) {
                     ForEach([7, 10], id: \.self) { points in
                         Button {
@@ -942,8 +936,6 @@ struct SportsSetupDialogView: View {
                 }
             }
             VStack(alignment: .leading, spacing: 8) {
-                Text(NSLocalizedString("tennis_deuce_mode", value: "40:40 规则", comment: "Tennis deuce mode"))
-                    .settingsLabelStyle()
                 chipRow(options: ["advantage", "no_ad"], selection: $tennisDeuceMode) { value in
                     value == "no_ad"
                         ? NSLocalizedString("tennis_deuce_option_no_ad", value: "金球", comment: "")
