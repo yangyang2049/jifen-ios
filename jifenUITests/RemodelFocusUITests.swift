@@ -55,6 +55,7 @@ final class RemodelFocusUITests: XCTestCase {
             app.launchArguments += [
                 "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
                 "-UITestSkipLegalConsent",
+                "-UITestSkipScoreboardUsageHints",
                 "-UITestRecordFixtures", "-UITestRecordDetail", project
             ]
             app.launch()
@@ -72,7 +73,7 @@ final class RemodelFocusUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent", "-UITestRecordFixtures"
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures"
         ]
         app.launch()
         defer {
@@ -193,7 +194,8 @@ final class RemodelFocusUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(\(language))",
             "-AppleLocale", locale,
-            "-UITestSkipLegalConsent"
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
         ]
         app.launch()
         return app
@@ -255,7 +257,11 @@ final class RemodelFocusUITests: XCTestCase {
 
     private func clearRecordFixtures() {
         let cleanup = XCUIApplication()
-        cleanup.launchArguments += ["-UITestSkipLegalConsent", "-UITestClearRecordFixtures"]
+        cleanup.launchArguments += [
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
+            "-UITestClearRecordFixtures"
+        ]
         cleanup.launch()
         cleanup.terminate()
     }

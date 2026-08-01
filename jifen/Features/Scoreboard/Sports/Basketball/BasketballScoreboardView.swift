@@ -742,6 +742,23 @@ private struct BasketballTeamPanel: View {
     private let bonusYellow = Color(hex: "FACC15")
     private let additionalOuterPadding: CGFloat = 8
 
+    private var scoreButtonSize: CGFloat {
+        guard Theme.usesPadLayout else { return 50 }
+        let widthLimitedSize = panelSize.width * 0.3
+        let heightLimitedSize = (panelSize.height - 96) / 3.25
+        return min(72, max(44, min(widthLimitedSize, heightLimitedSize)))
+    }
+
+    private var scoreButtonFontSize: CGFloat {
+        guard Theme.usesPadLayout else { return 16 }
+        return min(22, max(15, 16 + (scoreButtonSize - 50) * 6 / 22))
+    }
+
+    private var scoreButtonSpacing: CGFloat {
+        guard Theme.usesPadLayout else { return 10 }
+        return min(16, max(8, 10 + (scoreButtonSize - 50) * 6 / 22))
+    }
+
     private var resolvedTypography: ScoreboardTypographyResult {
         ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
@@ -775,7 +792,10 @@ private struct BasketballTeamPanel: View {
                 }
 
                 Text("\(score)")
-                    .font(typography.font.swiftUIFont(size: resolvedTypography.scoreFontSize))
+                    .font(typography.font.swiftUIFont(
+                        size: resolvedTypography.scoreFontSize
+                            * ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "\(score)")
+                    ))
                     .monospacedDigit()
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.4)
@@ -838,13 +858,13 @@ private struct BasketballTeamPanel: View {
     }
 
     private var scoreButtons: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: scoreButtonSpacing) {
             ForEach(points, id: \.self) { point in
                 Button(action: { onScore(point) }) {
                     Text("+\(point)")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: scoreButtonFontSize, weight: .bold))
                         .foregroundStyle(.white)
-                        .frame(width: 50, height: 50)
+                        .frame(width: scoreButtonSize, height: scoreButtonSize)
                         .background(Circle().fill(Color.white.opacity(0.14)))
                         .contentShape(Circle())
                 }
@@ -897,6 +917,8 @@ private struct BasketballTeamPanel: View {
 }
 
 private struct BasketballCenterPanel: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let state: BasketballMatchState
     let typography: ScoreboardTypographyPreference
     let onToggleClock: () -> Void
@@ -908,6 +930,7 @@ private struct BasketballCenterPanel: View {
 
     @State private var showPeriodPicker = false
     @State private var shotClockBlinkPhase = false
+    @State private var clockControlPulseScale: CGFloat = 1
 
     private let centerBG = Color(hex: "111827")
     private let actionAccent = Theme.primary
@@ -1027,13 +1050,22 @@ private struct BasketballCenterPanel: View {
                     .background(Circle().fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
+            .scaleEffect(clockControlPulseScale)
+            .accessibilityIdentifier("basketball_clock_toggle")
+            .accessibilityLabel(NSLocalizedString(
+                state.gameRunning ? "pause" : "resume",
+                comment: "Basketball clock control"
+            ))
+            .onAppear { updateClockControlPulse() }
+            .onChange(of: state.gameRunning) { _, _ in updateClockControlPulse() }
+            .onChange(of: reduceMotion) { _, _ in updateClockControlPulse() }
         }
         .padding(.top, showsPeriodActionButton ? 8 : 18)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private func lowerZone(typography: ScoreboardTypographyResult) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Theme.usesPadLayout ? 14 : 10) {
             Text("\(state.shotTimeSeconds)″")
                 .font(typographyPreferenceFont(size: max(18, typography.secondaryFontSize * 0.56)))
                 .monospacedDigit()
@@ -1050,17 +1082,17 @@ private struct BasketballCenterPanel: View {
                     if seconds <= 0 { shotClockBlinkPhase.toggle() }
                 }
 
-            HStack(spacing: 10) {
+            HStack(spacing: Theme.usesPadLayout ? 12 : 10) {
                 ForEach(shotOptions, id: \.self) { seconds in
                     Button {
                         onResetShotClock(seconds)
                     } label: {
                         Text("\(seconds)")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: Theme.usesPadLayout ? 18 : 14, weight: .semibold))
                             .foregroundStyle(.white)
                             .frame(
-                                width: shotOptions.count == 1 ? 72 : 52,
-                                height: ScoreboardConstants.minimumTouchTarget
+                                width: shotButtonWidth,
+                                height: Theme.usesPadLayout ? 56 : ScoreboardConstants.minimumTouchTarget
                             )
                             .background(Capsule().fill(Color.white.opacity(0.12)))
                     }
@@ -1169,6 +1201,29 @@ private struct BasketballCenterPanel: View {
 
     private var shotOptions: [Int] {
         state.gameMode == .threeXThree ? [12] : [14, 24]
+    }
+
+    private var shotButtonWidth: CGFloat {
+        if Theme.usesPadLayout {
+            return shotOptions.count == 1 ? 96 : 68
+        }
+        return shotOptions.count == 1 ? 72 : 52
+    }
+
+    /// Matches Android and HarmonyOS: when the game clock is stopped, the play
+    /// control gently breathes from 1.0x to 1.12x over 900ms to invite a tap.
+    private func updateClockControlPulse() {
+        guard !state.gameRunning, !reduceMotion else {
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+                clockControlPulseScale = 1
+            }
+            return
+        }
+
+        clockControlPulseScale = 1
+        withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+            clockControlPulseScale = 1.12
+        }
     }
 
     private func clockText(_ seconds: Int) -> String {

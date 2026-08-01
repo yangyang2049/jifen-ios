@@ -67,7 +67,8 @@ final class SupplementalScreenshotUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent"
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
         ]
         app.launch()
         XCUIDevice.shared.orientation = .portrait

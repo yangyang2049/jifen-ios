@@ -408,7 +408,9 @@ struct SpecializedScoreboardScaffold<Center: View>: View {
                 preference: typographySession.effectivePreference,
                 horizontalPadding: 20,
                 reservedHeight: accessory == nil ? 0 : 44,
-                scoreBaseScale: score.count >= 3 ? 0.72 : 1,
+                scoreBaseScale: isEditMode
+                    ? 1
+                    : ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: score),
                 isLargeScreen: Theme.usesPadLayout
             )
         )
@@ -1881,7 +1883,7 @@ struct NineBallChaseScoreboardView: View {
             let dialogWidth = Theme.dialogWidth(
                 availableWidth: proxy.size.width,
                 phonePreferredWidth: 380,
-                padPreferredWidth: 500
+                padPreferredWidth: 480
             )
 
             ZStack {

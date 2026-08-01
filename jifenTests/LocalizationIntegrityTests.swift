@@ -91,6 +91,22 @@ final class LocalizationIntegrityTests: XCTestCase {
         XCTAssertEqual(expected.filter { !phoneKeys.contains($0) }, [])
     }
 
+    func testScoreboardKeyPointLabelsKeepLocalizedFullChineseAndCompactEnglishCopy() throws {
+        let english = Dictionary(uniqueKeysWithValues: try entries(
+            at: "jifen/Resources/en.lproj/Localizable.strings"
+        ).map { ($0.key, $0.value) })
+        let chinese = Dictionary(uniqueKeysWithValues: try entries(
+            at: "jifen/Resources/zh-Hans.lproj/Localizable.strings"
+        ).map { ($0.key, $0.value) })
+
+        XCTAssertEqual(english["scoreboard_key_point_game"], "GP")
+        XCTAssertEqual(english["scoreboard_key_point_match"], "MP")
+        XCTAssertEqual(english["scoreboard_key_point_set"], "SP")
+        XCTAssertEqual(chinese["scoreboard_key_point_game"], "局点")
+        XCTAssertEqual(chinese["scoreboard_key_point_match"], "赛点")
+        XCTAssertEqual(chinese["scoreboard_key_point_set"], "盘点")
+    }
+
     func testSwiftUIHasNoDirectChineseStringLiterals() throws {
         let pattern = #"(?:Text|Button|Label|navigationTitle|alert|confirmationDialog|Section|Picker|TextField|SecureField|accessibilityLabel|accessibilityHint)\s*\(\s*\"([^\"]*[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF][^\"]*)\""#
         var failures: [String] = []

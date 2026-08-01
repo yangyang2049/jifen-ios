@@ -1118,8 +1118,11 @@ struct TeamSection: View {
                 }
             }
         } else {
+            let displayFontSize = fontSize * ScoreboardLayoutMetrics.threeDigitMainScoreScale(
+                scoreText: scoreText
+            )
             Text(scoreText)
-                .font(getFont(size: fontSize))
+                .font(getFont(size: displayFontSize))
                 .monospacedDigit()
                 .foregroundColor(palette.foreground)
                 .minimumScaleFactor(0.5)

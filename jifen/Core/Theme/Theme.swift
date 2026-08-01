@@ -12,6 +12,7 @@ struct Theme {
         case setup
         case scoreboardMenu
         case gameOver
+        case informational
         case scoreAdjustment
         case scoreboardDisplaySettings
     }
@@ -144,11 +145,12 @@ struct Theme {
         role: DialogWidthRole
     ) -> (phone: CGFloat, pad: CGFloat) {
         switch role {
-        case .setup: (340, 500)
-        case .scoreboardMenu: (320, 500)
-        case .gameOver: (360, 500)
+        case .setup: (340, 480)
+        case .scoreboardMenu: (320, 480)
+        case .gameOver: (360, 480)
+        case .informational: (360, 480)
         case .scoreAdjustment: (600, 600)
-        case .scoreboardDisplaySettings: (360, 500)
+        case .scoreboardDisplaySettings: (360, 480)
         }
     }
 
@@ -165,6 +167,14 @@ struct Theme {
     static func dialogPreferredWidth(role: DialogWidthRole) -> CGFloat {
         let widths = dialogPreferredWidths(role: role)
         return usesPadLayout ? widths.pad : widths.phone
+    }
+
+    static func scoreboardDisplaySettingsPanelWidth(availableWidth: CGFloat) -> CGFloat {
+        let preferredWidth = dialogWidth(
+            availableWidth: availableWidth,
+            role: .scoreboardDisplaySettings
+        )
+        return usesPadLayout ? min(preferredWidth, availableWidth * 0.46) : preferredWidth
     }
 
     static let sectionSpacing: CGFloat = 24

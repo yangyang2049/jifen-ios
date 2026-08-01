@@ -61,6 +61,8 @@ struct HomeTab: View {
         let gameType: GameType
         let recordId: String?
         let setupResult: SportsSetupResult?
+        var exactScoreCoreGameType: ScoreCore.GameType? = nil
+        var automaticallyShowsUsageHint = true
         let analyticsEntryPoint: AnalyticsEntryPoint
     }
 
@@ -178,6 +180,8 @@ struct HomeTab: View {
                         for: target.gameType,
                         setupResult: target.setupResult,
                         initialResumeSessionId: target.recordId,
+                        exactScoreCoreGameType: target.exactScoreCoreGameType,
+                        automaticallyShowsUsageHint: target.automaticallyShowsUsageHint,
                         analyticsEntryPoint: target.analyticsEntryPoint,
                         onSetupConsumed: {}
                     )
@@ -475,13 +479,16 @@ struct HomeTab: View {
         resetDiscardConfirmation()
         let recordId: String?
         let setupResult: SportsSetupResult?
+        let automaticallyShowsUsageHint: Bool
         switch unfinishedRecord.source {
         case .resume:
             recordId = unfinishedRecord.recordIdentifier
             setupResult = nil
+            automaticallyShowsUsageHint = true
         case .linked:
             recordId = nil
             setupResult = unfinishedRecord.linkedSetupResult
+            automaticallyShowsUsageHint = false
         }
         path.append(
             NavigationDestination.scoreboard(
@@ -489,6 +496,8 @@ struct HomeTab: View {
                         gameType: unfinishedRecord.gameType,
                         recordId: recordId,
                         setupResult: setupResult,
+                        exactScoreCoreGameType: unfinishedRecord.exactScoreCoreGameType,
+                        automaticallyShowsUsageHint: automaticallyShowsUsageHint,
                         analyticsEntryPoint: .unfinishedBar
                 )
             )
@@ -642,6 +651,8 @@ struct HomeTab: View {
         for gameType: GameType,
         setupResult: SportsSetupResult? = nil,
         initialResumeSessionId: String? = nil,
+        exactScoreCoreGameType: ScoreCore.GameType? = nil,
+        automaticallyShowsUsageHint: Bool = true,
         analyticsEntryPoint: AnalyticsEntryPoint = .homeNewGame,
         onSetupConsumed: @escaping () -> Void = {}
     ) -> some View {
@@ -649,6 +660,8 @@ struct HomeTab: View {
             gameType: gameType,
             setupResult: setupResult,
             initialResumeSessionId: initialResumeSessionId,
+            exactScoreCoreGameType: exactScoreCoreGameType,
+            automaticallyShowsUsageHint: automaticallyShowsUsageHint,
             analyticsEntryPoint: analyticsEntryPoint,
             onSetupConsumed: onSetupConsumed,
             onBack: navigateBack

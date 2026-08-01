@@ -11,7 +11,8 @@ final class jifenUITests: XCTestCase {
             app.launchArguments += [
                 "-AppleLanguages", "(en)",
                 "-AppleLocale", "en_US",
-                "-UITestSkipLegalConsent"
+                "-UITestSkipLegalConsent",
+                "-UITestSkipScoreboardUsageHints"
             ]
             app.launch()
         }

@@ -67,6 +67,7 @@ struct ScoreboardRecordDetailPage: View {
             ScoreboardLaunchView(
                 gameType: request.gameType,
                 setupResult: request.setup,
+                automaticallyShowsUsageHint: false,
                 analyticsEntryPoint: .recordReplay,
                 onBack: { launchRequest = nil }
             )
@@ -394,7 +395,10 @@ struct ScoreboardRecordDetailPage: View {
         guard let record else { return }
         showingSetup = false
         DispatchQueue.main.async {
-            launchRequest = LaunchRequest(gameType: record.gameType, setup: setup)
+            launchRequest = LaunchRequest(
+                gameType: record.gameType,
+                setup: setup
+            )
         }
     }
 

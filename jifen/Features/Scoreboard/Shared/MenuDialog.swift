@@ -39,6 +39,7 @@ enum ScoreboardMenuActionPolicy {
         "resync",
         "takeover",
         "endLink",
+        "usageHint",
         "displaySettings",
         "screenshot",
         "exit"
@@ -207,6 +208,7 @@ enum ScoreboardMenuItemBuilder {
 // MARK: - Dialog
 
 struct MenuDialog: View {
+    @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     let isVisible: Bool
     let onClose: () -> Void
     let onMenuItemClick: (String) -> Void
@@ -215,7 +217,6 @@ struct MenuDialog: View {
     var resetConfirming: Bool = false
     var items: [ScoreboardMenuItem]? = nil
     var analyticsGameType: GameType? = nil
-    @State private var showUsageHint = false
     @State private var containerSize: CGSize = .zero
 
     private let dialogBackground = Theme.scoreboardDialogSurface
@@ -316,9 +317,6 @@ struct MenuDialog: View {
                 AppAnalytics.openDialog("scoreboard_menu", source: analyticsGameType.map {
                     AnalyticsScreen.scoreboard(for: $0, setup: nil)
                 } ?? .scoreTab)
-            }
-            .sheet(isPresented: $showUsageHint) {
-                ScoreboardUsageHintView()
             }
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
@@ -427,7 +425,8 @@ struct MenuDialog: View {
             // when tapping non-confirm actions handled inside the dialog.
             onMenuItemClick(item.action)
             if item.action == "usageHint" {
-                showUsageHint = true
+                onClose()
+                usageHintCoordinator?.presentFromMenu()
                 return
             }
             if item.action == "whistle" {
@@ -546,35 +545,6 @@ struct MenuDialog: View {
         case .medium: return 18
         case .small: return 14
         }
-    }
-}
-
-struct ScoreboardUsageHintView: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            List {
-                usageRow("hand.tap", "scoreboard_usage_tap", "点击计分区加分；部分项目点击后会打开回合或结算面板。")
-                usageRow("arrow.uturn.backward", "scoreboard_usage_undo", "误操作后可在菜单中撤销。")
-                usageRow("pencil", "scoreboard_usage_edit", "点击铅笔可编辑名称和比分，点击对勾保存。")
-                usageRow("arrow.counterclockwise", "scoreboard_usage_reset", "重置、换边、结束比赛、结算等需要再次点击同一按钮确认（按钮会变绿）。")
-                usageRow("flag.checkered", "scoreboard_usage_finish", "结束比赛后会保存为已完成记录。")
-                usageRow("textformat.size", "scoreboard_usage_display", "显示设置可调整主题、字体和沉浸模式。")
-            }
-            .navigationTitle(NSLocalizedString("scoreboard_usage_hint_title", value: "计分板使用说明", comment: ""))
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    ModalCloseButton { dismiss() }
-                }
-            }
-        }
-        .environment(\.font, .body)
-    }
-
-    private func usageRow(_ icon: String, _ key: String, _ fallback: String) -> some View {
-        Label(NSLocalizedString(key, value: fallback, comment: ""), systemImage: icon)
-            .padding(.vertical, 4)
     }
 }
 

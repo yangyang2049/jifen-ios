@@ -6,16 +6,21 @@ struct ScoreboardLaunchView: View {
     let gameType: GameType
     var setupResult: SportsSetupResult?
     var initialResumeSessionId: String? = nil
+    var exactScoreCoreGameType: ScoreCore.GameType? = nil
+    var automaticallyShowsUsageHint = true
     var analyticsEntryPoint: AnalyticsEntryPoint = .scoreTab
     var onSetupConsumed: () -> Void = {}
     var onBack: () -> Void = {}
 
     @State private var analyticsContext: MatchAnalyticsContext
+    @State private var usageHintCoordinator: ScoreboardUsageHintCoordinator?
 
     init(
         gameType: GameType,
         setupResult: SportsSetupResult? = nil,
         initialResumeSessionId: String? = nil,
+        exactScoreCoreGameType: ScoreCore.GameType? = nil,
+        automaticallyShowsUsageHint: Bool = true,
         analyticsEntryPoint: AnalyticsEntryPoint = .scoreTab,
         onSetupConsumed: @escaping () -> Void = {},
         onBack: @escaping () -> Void = {}
@@ -23,6 +28,8 @@ struct ScoreboardLaunchView: View {
         self.gameType = gameType
         self.setupResult = setupResult
         self.initialResumeSessionId = initialResumeSessionId
+        self.exactScoreCoreGameType = exactScoreCoreGameType
+        self.automaticallyShowsUsageHint = automaticallyShowsUsageHint
         self.analyticsEntryPoint = analyticsEntryPoint
         self.onSetupConsumed = onSetupConsumed
         self.onBack = onBack
@@ -31,6 +38,14 @@ struct ScoreboardLaunchView: View {
             setup: setupResult,
             entryPoint: analyticsEntryPoint
         ))
+        let usageDescriptor = ScoreboardUsageHintDescriptor.resolve(
+            gameType: gameType,
+            setup: setupResult,
+            exactGameType: exactScoreCoreGameType
+        )
+        _usageHintCoordinator = State(initialValue: usageDescriptor.map {
+            ScoreboardUsageHintCoordinator(descriptor: $0)
+        })
     }
 
     @ViewBuilder
@@ -86,6 +101,27 @@ struct ScoreboardLaunchView: View {
             default:
                 Text(NSLocalizedString("not_implemented", comment: ""))
                     .foregroundStyle(Theme.textPrimary)
+            }
+        }
+        .environment(\.scoreboardUsageHintCoordinator, usageHintCoordinator)
+        .allowsHitTesting(usageHintCoordinator?.isPresented != true)
+        .accessibilityHidden(usageHintCoordinator?.isPresented == true)
+        .overlay {
+            if let usageHintCoordinator, usageHintCoordinator.isPresented {
+                ScoreboardUsageHintDialog(
+                    descriptor: usageHintCoordinator.descriptor,
+                    onDismiss: usageHintCoordinator.dismissAndMarkShown
+                )
+                .zIndex(10_000)
+            }
+        }
+        .task {
+            await Task.yield()
+            if ScoreboardUsageHintAutomaticPresentationPolicy.allows(
+                requested: automaticallyShowsUsageHint,
+                setup: setupResult
+            ) {
+                usageHintCoordinator?.presentAutomaticallyIfNeeded()
             }
         }
         .onAppear { analyticsContext.trackLaunch(isResume: initialResumeSessionId != nil) }

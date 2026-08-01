@@ -339,9 +339,8 @@ struct ScoreboardDisplaySettingsView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let panelWidth = Theme.dialogWidth(
-                availableWidth: proxy.size.width,
-                role: .scoreboardDisplaySettings
+            let panelWidth = Theme.scoreboardDisplaySettingsPanelWidth(
+                availableWidth: proxy.size.width
             )
             // Transparent left tap-to-dismiss + semi-transparent right side panel.
             HStack(spacing: 0) {

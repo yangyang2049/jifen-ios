@@ -306,6 +306,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testThreeDigitRallyScoresCompactOnTopOfTheUserMultiplier() {
         XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "99"), 1)
         XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "100"), 0.75)
+        XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "-100"), 0.75)
         XCTAssertEqual(ScoreboardLayoutMetrics.threeDigitMainScoreScale(scoreText: "1,000"), 0.75)
 
         let preference = ScoreboardTypographyPreference(

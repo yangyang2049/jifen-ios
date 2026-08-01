@@ -1389,7 +1389,9 @@ struct RallyScoreboardView: View {
         switch gameType {
         case .pingpong, .pingpongDoubles,
              .badminton, .badmintonDoubles,
-             .pickleball, .pickleballDoubles:
+             .pickleball, .pickleballDoubles,
+             .volleyball, .beachVolleyball, .airVolleyball,
+             .foosball, .foosballDoubles:
             true
         default:
             false

@@ -448,7 +448,7 @@ struct ArcheryScoreboardView: View {
             let dialogWidth = Theme.dialogWidth(
                 availableWidth: proxy.size.width,
                 phonePreferredWidth: max(0, proxy.size.width - 80),
-                padPreferredWidth: 500
+                padPreferredWidth: 480
             )
 
             ZStack {

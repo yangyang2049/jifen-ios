@@ -339,6 +339,19 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
     }
 
     func testAdditionalDialogRolesUseSharedWidthPolicy() {
+        let regularRoleExpectations: [(Theme.DialogWidthRole, CGFloat, CGFloat)] = [
+            (.setup, 340, 480),
+            (.scoreboardMenu, 320, 480),
+            (.gameOver, 360, 480),
+            (.informational, 360, 480),
+            (.scoreboardDisplaySettings, 360, 480),
+        ]
+        for (role, phoneWidth, padWidth) in regularRoleExpectations {
+            XCTAssertEqual(
+                Theme.dialogPreferredWidth(role: role),
+                Theme.usesPadLayout ? padWidth : phoneWidth
+            )
+        }
         XCTAssertEqual(
             Theme.dialogWidth(availableWidth: 300, role: .scoreAdjustment),
             268
@@ -348,8 +361,9 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             600
         )
         XCTAssertEqual(
-            Theme.dialogPreferredWidth(role: .scoreboardDisplaySettings),
-            Theme.usesPadLayout ? 500 : 360
+            Theme.scoreboardDisplaySettingsPanelWidth(availableWidth: 1_024),
+            Theme.usesPadLayout ? 471.04 : 360,
+            accuracy: 0.01
         )
     }
 

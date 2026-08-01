@@ -26,7 +26,8 @@ final class MainFlowUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(en)",
             "-AppleLocale", "en_US",
-            "-UITestSkipLegalConsent"
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
         ]
         app.launch()
         return app
@@ -433,7 +434,8 @@ final class MainFlowUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent"
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
         ]
         app.launch()
         defer { app.terminate() }
@@ -465,7 +467,8 @@ final class MainFlowUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent"
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
         ]
         app.launch()
         defer { app.terminate() }
@@ -477,6 +480,84 @@ final class MainFlowUITests: XCTestCase {
         let back = app.descendants(matching: .any)["scoreboard_back_button"]
         XCTAssertTrue(back.waitForExistence(timeout: 8), "Scoreboard missing bottom-left back button")
         XCUIDevice.shared.orientation = .portrait
+    }
+
+    func testScoreboardUsageHintSupportsFirstEntryAndMenuReopen() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent",
+            "-UITestResetScoreboardUsageHints"
+        ]
+        app.launch()
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(openPingPongSetup(in: app))
+        app.buttons["开始"].tap()
+
+        let dialog = app.descendants(matching: .any)["scoreboard_usage_hint_dialog"]
+        XCTAssertTrue(dialog.waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["scoreboard_usage_hint_body"].exists)
+
+        let menuButton = app.buttons["scoreboard_menu_button"]
+        XCTAssertTrue(menuButton.exists)
+        XCTAssertFalse(menuButton.isHittable, "Usage dialog must block scoreboard controls")
+
+        app.buttons["scoreboard_usage_hint_confirm"].tap()
+        XCTAssertFalse(dialog.waitForExistence(timeout: 1))
+        XCTAssertTrue(menuButton.waitForExistence(timeout: 3))
+        XCTAssertTrue(menuButton.isHittable)
+
+        let backButton = app.buttons["scoreboard_back_button"]
+        XCTAssertTrue(backButton.waitForExistence(timeout: 3))
+        backButton.tap()
+        backButton.tap()
+        XCUIDevice.shared.orientation = .portrait
+
+        XCTAssertTrue(openPingPongSetup(in: app))
+        app.buttons["开始"].tap()
+        XCTAssertFalse(
+            dialog.waitForExistence(timeout: 2),
+            "A scoreboard must not show its automatic hint twice"
+        )
+
+        menuButton.tap()
+        let usageMenuItem = app.descendants(matching: .any)["scoreboard_menu_action_usageHint"]
+        XCTAssertTrue(usageMenuItem.waitForExistence(timeout: 3))
+        usageMenuItem.tap()
+        XCTAssertTrue(dialog.waitForExistence(timeout: 3))
+
+        app.buttons["scoreboard_usage_hint_close"].tap()
+        XCTAssertFalse(dialog.waitForExistence(timeout: 1))
+        XCTAssertTrue(menuButton.isHittable)
+
+        backButton.tap()
+        backButton.tap()
+        XCUIDevice.shared.orientation = .portrait
+
+        XCTAssertTrue(openPingPongSetup(in: app))
+        let modeControl = app.segmentedControls["singles_doubles_picker"]
+        let doublesOption = app.buttons["doubles_option"]
+        if doublesOption.exists {
+            doublesOption.tap()
+        } else {
+            modeControl.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)).tap()
+        }
+        XCTAssertEqual(modeControl.value as? String, "双打")
+        app.buttons["开始"].tap()
+        XCTAssertTrue(
+            dialog.waitForExistence(timeout: 8),
+            "Singles and doubles must keep independent lifetime automatic hint state"
+        )
+        XCTAssertTrue(
+            app.descendants(matching: .any)["scoreboard_usage_hint_body"]
+                .label.contains("双打"),
+            "Doubles must use its own help copy"
+        )
     }
 
     func testPlayAllSetupSupportsEvenAndCustomSetCounts() {
@@ -737,6 +818,7 @@ final class MainFlowUITests: XCTestCase {
             app.launchArguments += [
                 "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
                 "-UITestSkipLegalConsent",
+                "-UITestSkipScoreboardUsageHints",
                 "-UITestRecordFixtures", "-UITestRecordDetail", project
             ]
             app.launch()
@@ -751,7 +833,11 @@ final class MainFlowUITests: XCTestCase {
 
     private func clearRecordFixtures() {
         let cleanup = XCUIApplication()
-        cleanup.launchArguments += ["-UITestSkipLegalConsent", "-UITestClearRecordFixtures"]
+        cleanup.launchArguments += [
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
+            "-UITestClearRecordFixtures"
+        ]
         cleanup.launch()
         cleanup.terminate()
     }
@@ -770,7 +856,8 @@ final class MainFlowUITests: XCTestCase {
         app.launchArguments += [
             "-AppleLanguages", "(\(language))",
             "-AppleLocale", locale,
-            "-UITestSkipLegalConsent"
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
         ]
         if let appearance {
             app.launchArguments += ["-jifen-v2.appAppearanceMode", appearance]
@@ -868,6 +955,7 @@ final class MainFlowUITests: XCTestCase {
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN",
             "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
             "-jifen-v2.appAppearanceMode", appearance
         ]
         app.launch()
@@ -906,7 +994,10 @@ final class MainFlowUITests: XCTestCase {
     }
 
     private func openPingPongSetup(in app: XCUIApplication) -> Bool {
-        let scoreTab = app.tabBars.buttons["计分"]
+        let tabBarScoreButton = app.tabBars.buttons["计分"]
+        let scoreTab = tabBarScoreButton.exists
+            ? tabBarScoreButton
+            : app.buttons.matching(identifier: "main_tab_2").firstMatch
         guard scoreTab.waitForExistence(timeout: 8) else { return false }
         scoreTab.tap()
 

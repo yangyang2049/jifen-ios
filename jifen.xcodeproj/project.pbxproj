@@ -43,6 +43,7 @@
 		F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90000000000000000000001 /* LocalizationIntegrityTests.swift */; };
 		FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000000000000000000001 /* RemodelFocusUITests.swift */; };
 		FB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */; };
+		FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,6 +127,7 @@
 		F90000000000000000000001 /* LocalizationIntegrityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationIntegrityTests.swift; sourceTree = "<group>"; };
 		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
 		FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneWatchLinkServiceTests.swift; sourceTree = "<group>"; };
+		FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardUsageHintTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -257,6 +259,7 @@
 				F80000000000000000000001 /* AppAnalyticsTests.swift */,
 				F90000000000000000000001 /* LocalizationIntegrityTests.swift */,
 				FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */,
+				FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */,
 			);
 			path = jifenTests;
 			sourceTree = "<group>";
@@ -635,6 +638,7 @@
 				F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */,
 				F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */,
 				FB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift in Sources */,
+				FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

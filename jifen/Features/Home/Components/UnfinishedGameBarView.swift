@@ -12,6 +12,7 @@ struct UnfinishedGameSummary {
 
     let source: Source
     let gameType: GameType
+    let exactScoreCoreGameType: ScoreCore.GameType
     let scoreText: String
     let matchTitle: String
     let linkStatusText: String?
@@ -28,6 +29,7 @@ struct UnfinishedGameSummary {
         guard let appGameType = GameType(scoreCoreGameType: entry.gameType) else { return nil }
         source = .resume(entry.sessionId)
         gameType = appGameType
+        exactScoreCoreGameType = entry.gameType
         matchTitle = Self.matchTitle(participants: entry.participants, gameType: entry.gameType)
         linkStatusText = nil
         linkedSetupResult = nil
@@ -120,6 +122,7 @@ struct UnfinishedGameSummary {
         }
         source = .linked(descriptor.handle.sessionId)
         gameType = appGameType
+        exactScoreCoreGameType = descriptor.gameType
         let names = descriptor.setup.participantNames
 
         switch descriptor.snapshot {

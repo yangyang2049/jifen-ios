@@ -339,6 +339,7 @@ final class FullAppScreenshotUITests: XCTestCase {
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN",
             "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
             "-UITestScreenshotMode", "1"
         ]
         app.launch()
