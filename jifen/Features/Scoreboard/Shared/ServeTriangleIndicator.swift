@@ -14,13 +14,23 @@ enum ScoreboardServeGeometry {
     }
 
     static func keyPointBadgeHorizontalOffset(
-        doublesTopRow: Bool?,
-        triangleSize: CGFloat,
         innerGap: CGFloat = 12,
         badgeHalfWidth: CGFloat = 28
     ) -> CGFloat {
-        guard doublesTopRow != nil else { return innerGap + badgeHalfWidth }
-        return 0
+        innerGap + badgeHalfWidth
+    }
+
+    static func keyPointBadgeCenterX(
+        width: CGFloat,
+        isLeftSide: Bool,
+        innerGap: CGFloat = 12,
+        badgeHalfWidth: CGFloat = 28
+    ) -> CGFloat {
+        let offset = keyPointBadgeHorizontalOffset(
+            innerGap: innerGap,
+            badgeHalfWidth: badgeHalfWidth
+        )
+        return width / 2 + (isLeftSide ? -offset : offset)
     }
 
     static func keyPointBadgeCenterY(

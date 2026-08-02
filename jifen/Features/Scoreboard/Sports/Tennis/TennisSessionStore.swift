@@ -191,7 +191,9 @@ final class TennisSessionStore {
                 type: .undo,
                 epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
                 scores: [session.state.leftPoints, session.state.rightPoints],
-                setScores: [session.state.leftSets, session.state.rightSets],
+                setScores: session.state.rules.setScoringMode == .tiebreakOnly
+                    ? []
+                    : [session.state.leftSets, session.state.rightSets],
                 operationCode: "undo"
             ))
             do {
@@ -324,6 +326,9 @@ final class TennisSessionStore {
     }
 
     private func append(events: [TennisMatchEvent], at milliseconds: Int64, state: TennisMatchState) {
+        let recordedSetScores = state.rules.setScoringMode == .tiebreakOnly
+            ? []
+            : [state.leftSets, state.rightSets]
         for event in events {
             switch event {
             case .pointScored(let side, let left, let right):
@@ -332,7 +337,7 @@ final class TennisSessionStore {
                     epochMilliseconds: milliseconds,
                     team: side == .left ? .team1 : .team2,
                     scores: [left, right],
-                    setScores: [state.leftSets, state.rightSets],
+                    setScores: recordedSetScores,
                     scoreChange: 1,
                     operationCode: "point"
                 ))
@@ -342,7 +347,7 @@ final class TennisSessionStore {
                     epochMilliseconds: milliseconds,
                     team: winner == .left ? .team1 : .team2,
                     scores: [leftGames, rightGames],
-                    setScores: [state.leftSets, state.rightSets],
+                    setScores: recordedSetScores,
                     operationCode: "game_completed"
                 ))
             case .setCompleted(let winner, let number, let leftGames, let rightGames, let leftSets, let rightSets):
@@ -361,7 +366,7 @@ final class TennisSessionStore {
                     type: .sideChanged,
                     epochMilliseconds: milliseconds,
                     scores: [state.leftPoints, state.rightPoints],
-                    setScores: [state.leftSets, state.rightSets],
+                    setScores: recordedSetScores,
                     operationCode: "exchange_sides"
                 ))
             case .matchFinished(let winner):
@@ -372,7 +377,7 @@ final class TennisSessionStore {
                     scores: usePointScore
                         ? [state.leftPoints, state.rightPoints]
                         : [state.leftGames, state.rightGames],
-                    setScores: [state.leftSets, state.rightSets],
+                    setScores: recordedSetScores,
                     winner: winner.map { $0 == .left ? .team1 : .team2 },
                     operationCode: "finish"
                 ))
@@ -381,7 +386,7 @@ final class TennisSessionStore {
                     type: .reset,
                     epochMilliseconds: milliseconds,
                     scores: [0, 0],
-                    setScores: [0, 0],
+                    setScores: state.rules.setScoringMode == .tiebreakOnly ? [] : [0, 0],
                     operationCode: "reset"
                 ))
             default:
@@ -412,8 +417,8 @@ final class TennisSessionStore {
             team2Name: state.rightName,
             team1FinalScore: leftFinalScore,
             team2FinalScore: rightFinalScore,
-            team1SetScore: state.leftSets,
-            team2SetScore: state.rightSets,
+            team1SetScore: usePointScore ? nil : state.leftSets,
+            team2SetScore: usePointScore ? nil : state.rightSets,
             winner: winner,
             detailedActions: detailedActions,
             setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),

@@ -911,7 +911,7 @@ struct SportsSetupDialogView: View {
                     }
                 }
                 if tennisGamesPerSet == 4 {
-                    Text(NSLocalizedString("tennis_short_set_help", value: "先到 4 局且领先 2 局，4-4 进入抢七", comment: "Short tennis set explanation"))
+                    Text(NSLocalizedString("tennis_short_set_help", value: "先胜 4 局且领先 2 局；4:4 时进行抢七决胜局", comment: "Short tennis set explanation"))
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.textSecondary)
                         .multilineTextAlignment(.center)
@@ -939,7 +939,7 @@ struct SportsSetupDialogView: View {
             VStack(alignment: .leading, spacing: 8) {
                 chipRow(options: ["advantage", "no_ad"], selection: $tennisDeuceMode) { value in
                     value == "no_ad"
-                        ? NSLocalizedString("tennis_deuce_option_no_ad", value: "金球", comment: "")
+                        ? NSLocalizedString("tennis_deuce_option_no_ad", value: "无占先", comment: "")
                         : NSLocalizedString("tennis_deuce_option_advantage", value: "占先", comment: "")
                 }
             }
@@ -1586,11 +1586,11 @@ struct SportsSetupDialogView: View {
     private func tennisFormatOptionText(_ format: String) -> String {
         switch format {
         case "tiebreak_7":
-            return NSLocalizedString("tennis_scoring_mode_tiebreak_7", value: "一盘抢七", comment: "")
+            return NSLocalizedString("tennis_scoring_mode_tiebreak_7", value: "抢七赛", comment: "")
         case "tiebreak_10":
-            return NSLocalizedString("tennis_scoring_mode_tiebreak_10", value: "一盘抢十", comment: "")
+            return NSLocalizedString("tennis_scoring_mode_tiebreak_10", value: "抢十赛", comment: "")
         default:
-            return NSLocalizedString("tennis_scoring_mode_regular", value: "传统赛制", comment: "")
+            return NSLocalizedString("tennis_scoring_mode_regular", value: "标准赛制", comment: "")
         }
     }
     

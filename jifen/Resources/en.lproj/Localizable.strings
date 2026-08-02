@@ -222,19 +222,18 @@
 "pingpong_set_option_best_of_7" = "Best of 7";
 "tennis_set_option_best_of_3" = "Best of 3";
 "tennis_set_option_best_of_5" = "Best of 5";
-"tennis_tiebreak_option_7" = "Tiebreak 7";
-"tennis_tiebreak_option_10" = "Tiebreak 10";
-"tennis_format_label" = "Format";
-"tennis_scoring_mode_regular" = "Traditional";
-"tennis_scoring_mode_tiebreak_7" = "One-set 7-point tiebreak";
-"tennis_scoring_mode_tiebreak_10" = "One-set 10-point tiebreak";
+"tennis_tiebreak_option_7" = "7-Point Tiebreak";
+"tennis_tiebreak_option_10" = "10-Point Tiebreak";
+"tennis_scoring_mode_regular" = "Standard";
+"tennis_scoring_mode_tiebreak_7" = "7-Point Tiebreak";
+"tennis_scoring_mode_tiebreak_10" = "10-Point Tiebreak";
 "tennis_games_per_set_label" = "Games per set";
 "tennis_games_per_set_4" = "4-game set";
 "tennis_games_per_set_6" = "6-game set";
-"tennis_set_tiebreak_label" = "In-set tiebreak";
-"tennis_format_tiebreak_7" = "In-set 7-point tiebreak";
-"tennis_format_tiebreak_10" = "In-set 10-point tiebreak";
-"tennis_short_set_help" = "First to 4 games by 2; play a tiebreak at 4-4";
+"tennis_set_tiebreak_label" = "Set tiebreak";
+"tennis_format_tiebreak_7" = "7-Point Tiebreak";
+"tennis_format_tiebreak_10" = "10-Point Tiebreak";
+"tennis_short_set_help" = "First to 4 games by two; at 4-4, play a 7-point tiebreak";
 "points_11" = "11 points";
 "points_21" = "21 points";
 
@@ -794,7 +793,7 @@
 "basketball_rule_fiba_summary" = "FIBA: 10-minute periods with timeouts split by half.";
 "basketball_rule_nba_summary" = "NBA: 12-minute periods with 7 regulation timeouts.";
 "boxing_rounds" = "Rounds";
-"tennis_deuce_mode" = "Deuce rule";
+"tennis_deuce_mode" = "Deuce scoring";
 "tennis_deuce_option_advantage" = "Advantage";
 "tennis_deuce_option_no_ad" = "No-ad";
 "points_per_set" = "Points per set";

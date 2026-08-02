@@ -55,6 +55,9 @@ private final class WatchTennisSessionStore {
         }
         state = initial
         actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
+        if initial.rules.setScoringMode == .tiebreakOnly {
+            actionLog.omitSecondaryScores()
+        }
     }
 
     func score(_ side: MatchSide) {
@@ -73,6 +76,9 @@ private final class WatchTennisSessionStore {
             self.state = session.state
             if case .reset = intent {
                 self.actionLog.reset(at: Date(timeIntervalSince1970: TimeInterval(now) / 1_000))
+                if session.state.rules.setScoringMode == .tiebreakOnly {
+                    self.actionLog.omitSecondaryScores()
+                }
             } else {
                 self.actionLog.append(contentsOf: WatchScoreActionProjector.tennis(
                     intent: intent,
@@ -94,8 +100,12 @@ private final class WatchTennisSessionStore {
                 at: Date(),
                 team1Score: session.state.leftPoints,
                 team2Score: session.state.rightPoints,
-                team1SetScore: session.state.leftSets,
-                team2SetScore: session.state.rightSets
+                team1SetScore: session.state.rules.setScoringMode == .tiebreakOnly
+                    ? nil
+                    : session.state.leftSets,
+                team2SetScore: session.state.rules.setScoringMode == .tiebreakOnly
+                    ? nil
+                    : session.state.rightSets
             )
             self.onStateChanged?(session.state, [])
             onSuccess()
@@ -119,11 +129,17 @@ private final class WatchTennisSessionStore {
         guard lastAppliedRemoteRevision == revision else { return false }
         self.state = session.state
         actionLog.merge(detailedActions: detailedActions)
+        if session.state.rules.setScoringMode == .tiebreakOnly {
+            actionLog.omitSecondaryScores()
+        }
         return true
     }
 
     func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
         actionLog.merge(detailedActions: actions)
+        if state.rules.setScoringMode == .tiebreakOnly {
+            actionLog.omitSecondaryScores()
+        }
     }
 
     func resumeBundle() async -> ResumeBundle {
@@ -199,13 +215,19 @@ struct WatchTennisScoreView: View {
         ZStack {
             mainBoard
             if store.state.isTieBreak && !showMenu && restState == nil && !showFinishedOverlay {
-                Text(NSLocalizedString("watch_tiebreak_indicator", value: "抢七", comment: ""))
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(Color.yellow)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 6)
-                    .background(Color.black.opacity(0.65))
-                    .clipShape(Capsule())
+                VStack {
+                    Text(store.state.rules.tieBreakPoints == 10
+                        ? NSLocalizedString("watch_tiebreak_indicator_10", value: "抢十", comment: "")
+                        : NSLocalizedString("watch_tiebreak_indicator_7", value: "抢七", comment: ""))
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Color.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Color(white: 0.32))
+                        .clipShape(Capsule())
+                    Spacer()
+                }
+                .padding(.top, 8)
             }
             if showSideExchangeToast {
                 WatchSideExchangeToast()
@@ -1092,6 +1114,8 @@ struct WatchTennisScoreView: View {
                 "scoreCoreGameType": (isDoubles ? GameType.tennisDoubles : .tennis).rawValue,
                 "isSingles": String(state.doublesPlayerNames == nil),
                 "maxSets": String(state.rules.maxSets),
+                "tieBreakPoints": String(state.rules.tieBreakPoints),
+                "setScoringMode": state.rules.setScoringMode.rawValue,
                 "usesNoAdScoring": String(state.rules.usesNoAdScoring),
                 "isDoubles": String(state.doublesPlayerNames != nil)
             ]

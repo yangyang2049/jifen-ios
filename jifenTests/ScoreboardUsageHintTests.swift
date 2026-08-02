@@ -163,6 +163,46 @@ final class ScoreboardUsageHintTests: XCTestCase {
         XCTAssertTrue(ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked("usageHint"))
     }
 
+    func testDialogTypographyIsRoomierOnPadWhilePhoneMetricsStayUnchanged() {
+        let phone = ScoreboardUsageHintDialogMetrics.resolve(
+            isPad: false,
+            compactHeight: false
+        )
+        let pad = ScoreboardUsageHintDialogMetrics.resolve(
+            isPad: true,
+            compactHeight: false
+        )
+
+        XCTAssertEqual(phone.titleFontSize, 20)
+        XCTAssertEqual(phone.bodyFontSize, 15)
+        XCTAssertEqual(phone.bodyLineSpacing, 0)
+        XCTAssertEqual(phone.buttonFontSize, 16)
+        XCTAssertEqual(phone.buttonHeight, 44)
+
+        XCTAssertEqual(pad.titleFontSize, 24)
+        XCTAssertEqual(pad.bodyFontSize, 19)
+        XCTAssertEqual(pad.bodyLineSpacing, 7)
+        XCTAssertEqual(pad.buttonFontSize, 18)
+        XCTAssertEqual(pad.buttonHeight, 50)
+        XCTAssertGreaterThan(pad.horizontalPadding, phone.horizontalPadding)
+        XCTAssertGreaterThan(pad.verticalPadding, phone.verticalPadding)
+    }
+
+    func testCompactPadDialogRetainsLargerBodyTypeWithoutIncreasingButtonHeight() {
+        let compactPhone = ScoreboardUsageHintDialogMetrics.resolve(
+            isPad: false,
+            compactHeight: true
+        )
+        let compactPad = ScoreboardUsageHintDialogMetrics.resolve(
+            isPad: true,
+            compactHeight: true
+        )
+
+        XCTAssertGreaterThan(compactPad.bodyFontSize, compactPhone.bodyFontSize)
+        XCTAssertGreaterThan(compactPad.bodyLineSpacing, compactPhone.bodyLineSpacing)
+        XCTAssertEqual(compactPad.buttonHeight, compactPhone.buttonHeight)
+    }
+
     private var singlesDoublesFamilies: [(
         appType: jifen.GameType,
         singlesType: ScoreCore.GameType,

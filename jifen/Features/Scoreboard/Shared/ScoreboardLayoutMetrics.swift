@@ -327,6 +327,17 @@ enum ScoreboardLayoutMetrics {
         )
     }
 
+    /// Doubles uses a fixed inner column for the game/set score. This keeps the
+    /// left and right values equally far from the center line even when the two
+    /// main scores have different digit counts.
+    static func doublesSecondaryColumnWidth(halfViewportWidth: CGFloat) -> CGFloat {
+        clampRound(halfViewportWidth * 0.20, min: 96, max: 180)
+    }
+
+    static func doublesSecondaryScoreFontSize(regularSize: CGFloat) -> CGFloat {
+        (regularSize * 1.18).rounded()
+    }
+
     /// Tennis places the point score and the game/set column on the same row.
     /// Its main score therefore needs a smaller baseline than rally sports,
     /// whose score can use the complete half-panel width.

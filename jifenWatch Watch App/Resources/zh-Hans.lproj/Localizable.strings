@@ -171,6 +171,8 @@
 "watch_swap_sides" = "换边";
 "watch_tiebreak_start" = "进入抢七";
 "watch_tiebreak_indicator" = "抢七";
+"watch_tiebreak_indicator_7" = "抢七";
+"watch_tiebreak_indicator_10" = "抢十";
 "watch_continue_match" = "继续比赛";
 "watch_resume_discard" = "放弃未完成比赛";
 "watch_set_start_format" = "第%d局开始";

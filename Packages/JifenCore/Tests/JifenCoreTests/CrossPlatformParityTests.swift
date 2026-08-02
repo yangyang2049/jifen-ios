@@ -1382,6 +1382,36 @@ import SessionCore
     #expect(right.receiverIsTop == true)
 }
 
+@Test func rallyDoublesDisplayKeepsPickleballServerAttachedToDisplayedName() {
+    var rotation = createPickleballDoublesRotation(servingTeam0: true)
+    togglePickleballPartnerSwap(&rotation, servingTeam0: true)
+    refreshPickleballDoublesSlots(&rotation, servingTeam0: true)
+    let leftServing = RallyDoublesState(
+        playerNames: ["R1", "B1", "R2", "B2"],
+        rotation: .pickleball(rotation)
+    )
+
+    let left = RallyDoublesDisplayState.resolve(
+        doubles: leftServing,
+        logicalSide: .left,
+        screenSide: .left
+    )
+    #expect(left.topPlayerIndex == leftServing.serverSlotIndex)
+    #expect(left.serverIsTop == true)
+
+    let rightServing = RallyDoublesState.pickleball(
+        playerNames: ["R1", "B1", "R2", "B2"],
+        servingTeam0: false
+    )
+    let right = RallyDoublesDisplayState.resolve(
+        doubles: rightServing,
+        logicalSide: .right,
+        screenSide: .right
+    )
+    #expect(right.topPlayerIndex == rightServing.serverSlotIndex)
+    #expect(right.serverIsTop == true)
+}
+
 @Test func linkedRallySnapshotPreservesDoublesNamesAndRotation() throws {
     let reducer = RallyMatchReducer()
     var state = RallyMatchEngine.initial(

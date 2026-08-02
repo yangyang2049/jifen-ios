@@ -13,6 +13,36 @@ private struct TennisTerminalGamePresentation: Equatable {
     let sidesSwapped: Bool
 }
 
+enum TennisTieBreakIndicatorLayout {
+    static func topCenter(
+        viewportSize: CGSize,
+        safeAreaTop: CGFloat
+    ) -> CGPoint {
+        CGPoint(
+            x: viewportSize.width / 2,
+            y: max(safeAreaTop, ScoreboardConstants.buttonPadding)
+                + ScoreboardConstants.buttonSize / 2
+        )
+    }
+}
+
+private struct TennisTieBreakIndicator: View {
+    let targetPoints: Int
+
+    var body: some View {
+        Text(targetPoints == 10
+            ? NSLocalizedString("tennis_tiebreak_option_10", value: "抢十", comment: "")
+            : NSLocalizedString("tennis_tiebreak_option_7", value: "抢七", comment: ""))
+            .font(.system(size: Theme.usesPadLayout ? 14 : 12, weight: .semibold))
+            .padding(.horizontal, Theme.usesPadLayout ? 12 : 10)
+            .padding(.vertical, Theme.usesPadLayout ? 7 : 6)
+            .background(Capsule().fill(Color(white: 0.34)))
+            .foregroundStyle(.white)
+            .allowsHitTesting(false)
+            .accessibilityIdentifier("tennis_tiebreak_indicator")
+    }
+}
+
 /// Tennis scoreboard driven by `TennisSessionStore` / ScoreCore reducer.
 struct TennisScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
@@ -203,13 +233,12 @@ struct TennisScoreboardView: View {
                     .zIndex(2)
                 }
                 if terminalGamePresentation == nil, store.state.isTieBreak {
-                    Text(store.state.rules.tieBreakPoints == 10
-                        ? NSLocalizedString("tennis_tiebreak_option_10", value: "抢十", comment: "")
-                        : NSLocalizedString("tennis_tiebreak_option_7", value: "抢七", comment: ""))
-                        .font(.caption.bold())
-                        .padding(6)
-                        .background(Capsule().fill(Color.orange))
-                        .foregroundStyle(.white)
+                    TennisTieBreakIndicator(targetPoints: store.state.rules.tieBreakPoints)
+                        .position(TennisTieBreakIndicatorLayout.topCenter(
+                            viewportSize: size,
+                            safeAreaTop: proxy.safeAreaInsets.top
+                        ))
+                        .zIndex(3)
                 }
                 if terminalGamePresentation == nil, !isEditMode, !store.state.finished {
                     ScoreboardKeyPointBadgeLayer(
@@ -948,11 +977,39 @@ struct TennisScoreboardView: View {
         let centerLineClearance = ScoreboardLayoutMetrics.tennisCenterLineClearance(
             halfViewportSize: panelSize
         )
+        let usesDoublesLayout = store.state.doublesPlayerNames != nil
+        let doublesSecondaryColumnWidth = ScoreboardLayoutMetrics.doublesSecondaryColumnWidth(
+            halfViewportWidth: panelSize.width
+        )
 
         if !hasInlineSecondary {
             tennisMainScore(side: side, fontSize: mainSize)
                 .frame(maxWidth: .infinity)
                 .frame(height: height)
+        } else if usesDoublesLayout {
+            HStack(spacing: 0) {
+                if screenSide == .left {
+                    tennisMainScore(side: side, fontSize: mainSize)
+                        .frame(maxWidth: .infinity)
+                    tennisInnerScoreColumn(
+                        games: games,
+                        sets: sets,
+                        panelSize: CGSize(width: panelSize.width, height: height)
+                    )
+                    .frame(width: doublesSecondaryColumnWidth)
+                } else {
+                    tennisInnerScoreColumn(
+                        games: games,
+                        sets: sets,
+                        panelSize: CGSize(width: panelSize.width, height: height)
+                    )
+                    .frame(width: doublesSecondaryColumnWidth)
+                    tennisMainScore(side: side, fontSize: mainSize)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
         } else {
             HStack(spacing: scoreSpacing) {
                 if screenSide == .left {

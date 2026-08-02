@@ -310,7 +310,7 @@ final class WatchSportsSetupTests: XCTestCase {
         )
         XCTAssertEqual(left.topPlayerIndex, 2)
         XCTAssertEqual(left.bottomPlayerIndex, 0)
-        XCTAssertEqual(left.serverIsTop, false)
+        XCTAssertEqual(left.serverIsTop, true)
 
         let right = WatchDoublesDisplayState.resolve(
             doubles: doubles,
@@ -320,6 +320,22 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(right.topPlayerIndex, 3)
         XCTAssertEqual(right.bottomPlayerIndex, 1)
         XCTAssertNil(right.serverIsTop)
+    }
+
+    func testPickleballDoublesServingArrowFollowsRightTeamName() {
+        let doubles = RallyDoublesState.pickleball(
+            playerNames: ["A", "C", "B", "D"],
+            servingTeam0: false
+        )
+
+        let right = WatchDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: .right,
+            screenSide: .right
+        )
+
+        XCTAssertEqual(right.topPlayerIndex, doubles.serverSlotIndex)
+        XCTAssertEqual(right.serverIsTop, true)
     }
 
     func testTennisDoublesServerSlotsForGamesAndTieBreak() {
@@ -930,6 +946,33 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(summary.listDisplayText, "红A/红B 2 - 蓝A/蓝B 1")
     }
 
+    func testTennisTiebreakOnlyRecordListUsesPointsInsteadOfGames() {
+        let record = WatchScoreboardRecord(
+            id: "tennis-tiebreak-record",
+            gameType: .tennis,
+            startTime: Date(timeIntervalSince1970: 1_000),
+            endTime: Date(timeIntervalSince1970: 1_060),
+            duration: 60,
+            team1Name: "甲",
+            team2Name: "乙",
+            team1FinalScore: 10,
+            team2FinalScore: 8,
+            team1SetScore: 0,
+            team2SetScore: 0,
+            actions: [],
+            totalScoreChanges: 18,
+            projectConfiguration: [
+                "setScoringMode": "tiebreak_only",
+                "tieBreakPoints": "10"
+            ]
+        )
+
+        let summary = WatchScoreboardRecordSummary(from: record)
+
+        XCTAssertTrue(record.usesPointScoreForDisplay)
+        XCTAssertEqual(summary.listDisplayText, "甲 10 - 8 乙")
+    }
+
     func testMultiplayerRecordListKeepsIndividualScores() {
         let record = WatchScoreboardRecord(
             id: "multi-record",
@@ -1047,6 +1090,51 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertEqual(log.detailedActions.map(\.operationCode), ["game_start"])
         XCTAssertEqual(log.scoreChangeCount, 0)
         XCTAssertFalse(log.undo(team1Score: 0, team2Score: 0))
+    }
+
+    func testTiebreakOnlyTennisActionsOmitGamesMetadata() {
+        var state = TennisMatchState(
+            leftName: "甲",
+            rightName: "乙",
+            rules: TennisRuleSet(
+                maxSets: 1,
+                tieBreakPoints: 10,
+                setScoringMode: .tiebreakOnly
+            )
+        )
+        state.leftPoints = 10
+        state.rightPoints = 8
+        state.finished = true
+        let actions = WatchScoreActionProjector.tennis(
+            intent: .pointWon(.left),
+            events: [
+                .pointScored(side: .left, left: 10, right: 8),
+                .matchFinished(winner: .left)
+            ],
+            state: state,
+            timestamp: Date(timeIntervalSince1970: 1_000)
+        )
+
+        XCTAssertEqual(actions.map(\.team1Score), [10, 10])
+        XCTAssertTrue(actions.allSatisfy { $0.team1SetScore == nil && $0.team2SetScore == nil })
+        XCTAssertTrue(actions.allSatisfy { $0.gameNumber == nil })
+
+        var legacyLog = WatchScoreActionLog(startedAt: Date(timeIntervalSince1970: 900))
+        legacyLog.append(contentsOf: [
+            WatchScoreAction(
+                actionType: .gameEnd,
+                description: "game_end",
+                team1Score: 10,
+                team2Score: 8,
+                team1SetScore: 0,
+                team2SetScore: 0,
+                gameNumber: 1
+            )
+        ])
+        legacyLog.omitSecondaryScores()
+        XCTAssertTrue(legacyLog.actions.allSatisfy {
+            $0.team1SetScore == nil && $0.team2SetScore == nil && $0.gameNumber == nil
+        })
     }
 
     func testRallyProjectionKeepsScoreSetAndFinishOrder() {

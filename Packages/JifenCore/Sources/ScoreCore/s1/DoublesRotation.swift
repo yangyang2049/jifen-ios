@@ -277,7 +277,6 @@ public struct RallyDoublesDisplayState: Equatable, Sendable {
         let team0 = logicalSide == .left
         var topIndex = team0 ? 0 : 1
         var bottomIndex = team0 ? 2 : 3
-        var resolvedServerIsTop: Bool?
 
         switch doubles.rotation {
         case .badminton(let rotation):
@@ -287,11 +286,6 @@ public struct RallyDoublesDisplayState: Equatable, Sendable {
             let swapped = team0 ? rotation.team0PartnersSwapped : rotation.team1PartnersSwapped
             if appliesCourtOrder, swapped { swap(&topIndex, &bottomIndex) }
             if screenSide == .right { swap(&topIndex, &bottomIndex) }
-            if isTeam0DoublesSlot(rotation.serverSlotIndex) == team0 {
-                let logicalServerOnTop = rotation.serverNumber == 2
-                let displayLogicalTop = logicalServerOnTop != swapped
-                resolvedServerIsTop = screenSide == .right ? !displayLogicalTop : displayLogicalTop
-            }
         case .pingPong, .foosball:
             break
         }
@@ -301,7 +295,7 @@ public struct RallyDoublesDisplayState: Equatable, Sendable {
         return .init(
             topPlayerIndex: topIndex,
             bottomPlayerIndex: bottomIndex,
-            serverIsTop: resolvedServerIsTop ?? (isTeam0DoublesSlot(server) == team0 ? server == topIndex : nil),
+            serverIsTop: isTeam0DoublesSlot(server) == team0 ? server == topIndex : nil,
             receiverIsTop: isTeam0DoublesSlot(receiver) == team0 ? receiver == topIndex : nil
         )
     }

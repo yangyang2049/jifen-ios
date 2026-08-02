@@ -184,19 +184,14 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             ),
             260
         )
+        XCTAssertEqual(ScoreboardServeGeometry.keyPointBadgeHorizontalOffset(), 40)
         XCTAssertEqual(
-            ScoreboardServeGeometry.keyPointBadgeHorizontalOffset(
-                doublesTopRow: nil,
-                triangleSize: 64
-            ),
-            40
+            ScoreboardServeGeometry.keyPointBadgeCenterX(width: 800, isLeftSide: true),
+            360
         )
         XCTAssertEqual(
-            ScoreboardServeGeometry.keyPointBadgeHorizontalOffset(
-                doublesTopRow: true,
-                triangleSize: 64
-            ),
-            0
+            ScoreboardServeGeometry.keyPointBadgeCenterX(width: 800, isLeftSide: false),
+            440
         )
     }
 
@@ -204,6 +199,10 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertEqual(ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: 320), 32)
         XCTAssertEqual(ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: 600), 60)
         XCTAssertEqual(ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: 1_000), 72)
+        XCTAssertEqual(ScoreboardLayoutMetrics.doublesSecondaryColumnWidth(halfViewportWidth: 320), 96)
+        XCTAssertEqual(ScoreboardLayoutMetrics.doublesSecondaryColumnWidth(halfViewportWidth: 600), 120)
+        XCTAssertEqual(ScoreboardLayoutMetrics.doublesSecondaryColumnWidth(halfViewportWidth: 1_000), 180)
+        XCTAssertEqual(ScoreboardLayoutMetrics.doublesSecondaryScoreFontSize(regularSize: 100), 118)
 
         XCTAssertEqual(
             ScoreboardLayoutMetrics.serveIndicatorSize(
@@ -329,6 +328,22 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertEqual(
             ScoreboardServeGeometry.centerLineOffsetX(isLeftServing: false, triangleSize: 52),
             26
+        )
+    }
+
+    func testTennisTiebreakIndicatorUsesTheTopCenterAwayFromServeIndicators() {
+        let viewport = CGSize(width: 1_824, height: 1_366)
+        let position = TennisTieBreakIndicatorLayout.topCenter(
+            viewportSize: viewport,
+            safeAreaTop: 24
+        )
+
+        XCTAssertEqual(position.x, viewport.width / 2)
+        XCTAssertEqual(position.y, 48)
+        XCTAssertLessThan(position.y, viewport.height / 2)
+        XCTAssertLessThan(
+            position.y,
+            ScoreboardServeGeometry.doublesAnchorY(height: viewport.height, topRow: true)
         )
     }
 

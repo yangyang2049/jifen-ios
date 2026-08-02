@@ -137,12 +137,14 @@ struct ScoreboardRecordDetailPage: View {
                 Text(":").font(.title.bold()).foregroundStyle(Theme.textSecondary)
                 scoreSide(record.team2Name, score: record.team2FinalScore, isWinner: record.winner == "right")
             }
-            if let left = record.team1SetScore, let right = record.team2SetScore {
+            if record.shouldDisplaySecondaryScore,
+               let left = record.team1SetScore,
+               let right = record.team2SetScore {
                 Text(String(format: NSLocalizedString("record_set_score_format", value: "局分 %d : %d", comment: ""), left, right))
                     .font(.subheadline).foregroundStyle(Theme.textSecondary)
             }
             if record.gameType == .tennis {
-                Text("\(NSLocalizedString("tennis_format_label", value: "赛制", comment: ""))：\(tennisFormatDescription(record))")
+                Text(tennisFormatDescription(record))
                     .font(.subheadline)
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -168,7 +170,7 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func primaryActions(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 16) {
             Button { handleReplay(record, presentation: presentation) } label: {
                 Label(
                     NSLocalizedString("play_again", value: "再来一场", comment: ""),
@@ -180,21 +182,29 @@ struct ScoreboardRecordDetailPage: View {
             }
             .buttonStyle(.borderedProminent)
             Button(action: prepareShare) {
-                Label(NSLocalizedString("share", comment: ""), systemImage: "square.and.arrow.up")
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: ScoreboardConstants.minimumTouchTarget)
-                    .contentShape(Rectangle())
-            }
-                .buttonStyle(.bordered)
-            Button(role: .destructive) { showingDeleteConfirm = true } label: {
-                Image(systemName: "trash")
-                    .font(.system(size: 20))
-                    .foregroundStyle(.green)
-                    .frame(minWidth: ScoreboardConstants.minimumTouchTarget,
-                           minHeight: ScoreboardConstants.minimumTouchTarget)
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundStyle(Theme.primary)
+                    .frame(
+                        width: ScoreboardConstants.minimumTouchTarget + 8,
+                        height: ScoreboardConstants.minimumTouchTarget + 8
+                    )
                     .contentShape(Rectangle())
             }
                 .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("share", comment: ""))
+            Button(role: .destructive) { showingDeleteConfirm = true } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundStyle(.red)
+                    .frame(
+                        width: ScoreboardConstants.minimumTouchTarget + 8,
+                        height: ScoreboardConstants.minimumTouchTarget + 8
+                    )
+                    .contentShape(Rectangle())
+            }
+                .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("delete", comment: ""))
         }
     }
 
@@ -404,8 +414,8 @@ struct ScoreboardRecordDetailPage: View {
 
     private func tennisFormatDescription(_ record: ScoreboardRecord) -> String {
         let data = record.mergedProjectConfiguration
-        let tieBreakPoints = intValue(data["tieBreakPoints"]) == 10 ? 10 : 7
-        if stringValue(data["setScoringMode"]) == "tiebreak_only" {
+        let tieBreakPoints = record.tennisTieBreakPoints == 10 ? 10 : 7
+        if record.isTennisTiebreakOnly {
             return NSLocalizedString(
                 tieBreakPoints == 10 ? "tennis_scoring_mode_tiebreak_10" : "tennis_scoring_mode_tiebreak_7",
                 comment: ""
@@ -420,7 +430,7 @@ struct ScoreboardRecordDetailPage: View {
             tieBreakPoints == 10 ? "tennis_format_tiebreak_10" : "tennis_format_tiebreak_7",
             comment: ""
         )
-        return "\(NSLocalizedString("tennis_scoring_mode_regular", value: "传统赛制", comment: "")) · \(gamesLabel) · \(tieBreakLabel)"
+        return "\(NSLocalizedString("tennis_scoring_mode_regular", value: "标准赛制", comment: "")) · \(gamesLabel) · \(tieBreakLabel)"
     }
 
     private func intValue(_ value: AnyCodable?) -> Int? { (value?.value as? Int) ?? (value?.value as? Double).map(Int.init) ?? (value?.value as? String).flatMap(Int.init) }

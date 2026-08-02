@@ -107,6 +107,23 @@ final class LocalizationIntegrityTests: XCTestCase {
         XCTAssertEqual(chinese["scoreboard_key_point_set"], "盘点")
     }
 
+    func testTennisSetupUsesNaturalMatchAndTiebreakTerminology() throws {
+        let english = Dictionary(uniqueKeysWithValues: try entries(
+            at: "jifen/Resources/en.lproj/Localizable.strings"
+        ).map { ($0.key, $0.value) })
+        let chinese = Dictionary(uniqueKeysWithValues: try entries(
+            at: "jifen/Resources/zh-Hans.lproj/Localizable.strings"
+        ).map { ($0.key, $0.value) })
+
+        XCTAssertEqual(chinese["tennis_scoring_mode_regular"], "标准赛制")
+        XCTAssertEqual(chinese["tennis_scoring_mode_tiebreak_7"], "抢七赛")
+        XCTAssertEqual(chinese["tennis_scoring_mode_tiebreak_10"], "抢十赛")
+        XCTAssertEqual(chinese["tennis_deuce_option_no_ad"], "无占先")
+        XCTAssertEqual(english["tennis_scoring_mode_regular"], "Standard")
+        XCTAssertEqual(english["tennis_scoring_mode_tiebreak_7"], "7-Point Tiebreak")
+        XCTAssertEqual(english["tennis_scoring_mode_tiebreak_10"], "10-Point Tiebreak")
+    }
+
     func testSwiftUIHasNoDirectChineseStringLiterals() throws {
         let pattern = #"(?:Text|Button|Label|navigationTitle|alert|confirmationDialog|Section|Picker|TextField|SecureField|accessibilityLabel|accessibilityHint)\s*\(\s*\"([^\"]*[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF][^\"]*)\""#
         var failures: [String] = []

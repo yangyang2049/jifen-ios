@@ -805,30 +805,42 @@ struct RallyScoreboardView: View {
             referenceHeight: panelSize.height
         )
         let mainSize = typography.scoreFontSize
-        let setSize = typography.secondaryFontSize
-        let scoreSpacing = typography.mainToSecondarySpacing
+        let setSize = ScoreboardLayoutMetrics.doublesSecondaryScoreFontSize(
+            regularSize: typography.secondaryFontSize
+        )
+        let secondaryColumnWidth = ScoreboardLayoutMetrics.doublesSecondaryColumnWidth(
+            halfViewportWidth: panelSize.width
+        )
 
-        return HStack(spacing: scoreSpacing) {
+        return HStack(spacing: 0) {
             if screenSide == .left {
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
+                    .frame(maxWidth: .infinity)
                 Text("\(sets)")
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(palette.secondary)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                    .frame(width: secondaryColumnWidth)
             } else {
                 Text("\(sets)")
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(palette.secondary)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                    .frame(width: secondaryColumnWidth)
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
+                    .frame(maxWidth: .infinity)
             }
         }
         .frame(maxWidth: .infinity)
@@ -1111,8 +1123,21 @@ struct RallyScoreboardView: View {
     // MARK: - Serve indicator
 
     private var keyPointDoublesTopRow: Bool? {
-        guard showsServeIndicator, let serverSlot = store.state.doubles?.serverSlotIndex else { return nil }
-        return serverSlot == 0 || serverSlot == 1
+        guard showsServeIndicator, let doubles = store.state.doubles else { return nil }
+        return doublesServerIsTopRow(doubles)
+    }
+
+    private func doublesServerIsTopRow(_ doubles: RallyDoublesState) -> Bool {
+        let servingScreenSide: MatchSide = logicalSide(forScreen: .left) == store.state.servingSide
+            ? .left
+            : .right
+        let servingLogicalSide = logicalSide(forScreen: servingScreenSide)
+        let display = RallyDoublesDisplayState.resolve(
+            doubles: doubles,
+            logicalSide: servingLogicalSide,
+            screenSide: servingScreenSide
+        )
+        return display.serverIsTop ?? (doubles.serverSlotIndex == 0 || doubles.serverSlotIndex == 1)
     }
 
     @ViewBuilder
@@ -1124,8 +1149,7 @@ struct RallyScoreboardView: View {
         }()
 
         if isDoubles, let doubles = store.state.doubles {
-            let serverSlot = doubles.serverSlotIndex
-            let isTopRow = serverSlot == 0 || serverSlot == 1
+            let isTopRow = doublesServerIsTopRow(doubles)
             let serverNumberText = doubles.pickleballServerNumber.map(String.init) ?? ""
             let serverNumberSize = resolvedTypography(
                 name: "",

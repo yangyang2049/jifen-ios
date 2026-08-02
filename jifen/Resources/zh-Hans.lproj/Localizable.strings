@@ -224,23 +224,22 @@
 "tennis_set_option_best_of_5" = "5盘3胜";
 "tennis_tiebreak_option_7" = "抢七";
 "tennis_tiebreak_option_10" = "抢十";
-"tennis_format_label" = "赛制";
-"tennis_scoring_mode_regular" = "传统赛制";
-"tennis_scoring_mode_tiebreak_7" = "一盘抢七";
-"tennis_scoring_mode_tiebreak_10" = "一盘抢十";
+"tennis_scoring_mode_regular" = "标准赛制";
+"tennis_scoring_mode_tiebreak_7" = "抢七赛";
+"tennis_scoring_mode_tiebreak_10" = "抢十赛";
 "tennis_games_per_set_label" = "每盘局数";
 "tennis_games_per_set_4" = "四局制";
 "tennis_games_per_set_6" = "六局制";
-"tennis_set_tiebreak_label" = "盘内抢分";
-"tennis_format_tiebreak_7" = "盘内抢七";
-"tennis_format_tiebreak_10" = "盘内抢十";
-"tennis_short_set_help" = "先到 4 局且领先 2 局，4-4 进入抢七";
+"tennis_set_tiebreak_label" = "决胜局";
+"tennis_format_tiebreak_7" = "抢七决胜局";
+"tennis_format_tiebreak_10" = "抢十决胜局";
+"tennis_short_set_help" = "先胜 4 局且领先 2 局；4:4 时进行抢七决胜局";
 "points_11" = "11分";
 "points_21" = "21分";
 
 /* Tennis Settings */
 "tennis_set_count_label" = "盘数";
-"tennis_tiebreak_label" = "抢七";
+"tennis_tiebreak_label" = "决胜局";
 "tennis_auto_change_sides" = "自动换边";
 "sets_1" = "1盘";
 "sets_3_best_of_2" = "3盘2胜";
@@ -797,9 +796,9 @@
 "basketball_rule_fiba_summary" = "FIBA：每节 10 分钟，上下半场分别计算暂停。";
 "basketball_rule_nba_summary" = "NBA：每节 12 分钟，常规赛 7 次暂停。";
 "boxing_rounds" = "回合数";
-"tennis_deuce_mode" = "40:40 规则";
+"tennis_deuce_mode" = "平分规则";
 "tennis_deuce_option_advantage" = "占先";
-"tennis_deuce_option_no_ad" = "金球";
+"tennis_deuce_option_no_ad" = "无占先";
 "points_per_set" = "每局分数";
 "voice_announcement" = "语音播报";
 "pickleball_target_score" = "目标分";

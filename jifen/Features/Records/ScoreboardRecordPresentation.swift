@@ -77,7 +77,10 @@ struct ScoreboardRecordPresentation {
 
     init(record: ScoreboardRecord) {
         let policy = ScoreboardRecordProjectPolicy.policy(for: record.gameType)
-        actions = record.detailedActions ?? ScoreboardRecordActionAdapter.actions(for: record)
+        let recordedActions = record.detailedActions ?? ScoreboardRecordActionAdapter.actions(for: record)
+        actions = record.isTennisTiebreakOnly
+            ? recordedActions.filter { $0.type != .matchFinished }
+            : recordedActions
         trend = Self.makeTrend(actions: actions)
         let participants = record.displayParticipants
         let twoPlayerEligible = !policy.trendRequiresTwoPlayers || participants.isEmpty || participants.count == 2

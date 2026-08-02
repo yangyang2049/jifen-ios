@@ -190,6 +190,14 @@ struct WatchScoreActionLog: Codable, Sendable, Equatable {
         undoCheckpoints = []
     }
 
+    mutating func omitSecondaryScores() {
+        for index in actions.indices {
+            actions[index].team1SetScore = nil
+            actions[index].team2SetScore = nil
+            actions[index].gameNumber = nil
+        }
+    }
+
     @discardableResult
     mutating func undo(
         at timestamp: Date = Date(),
@@ -379,47 +387,52 @@ enum WatchScoreActionProjector {
         timestamp: Date
     ) -> [WatchScoreAction] {
         var projected: [WatchScoreAction] = []
+        let hasGamesLayer = state.rules.setScoringMode != .tiebreakOnly
+        let secondaryScores: (Int, Int)? = hasGamesLayer
+            ? (state.leftSets, state.rightSets)
+            : nil
         for event in events {
             switch event {
             case .pointScored(let side, let left, let right):
                 projected.append(action(
                     .scoreAdd, code: "tennis_point", side: side,
-                    scores: (left, right), sets: (state.leftSets, state.rightSets),
+                    scores: (left, right), sets: secondaryScores,
                     delta: 1, setNumber: state.leftSets + state.rightSets + 1,
-                    gameNumber: state.leftGames + state.rightGames + 1,
+                    gameNumber: hasGamesLayer ? state.leftGames + state.rightGames + 1 : nil,
                     timestamp: timestamp
                 ))
             case .gameCompleted(let winner, let leftGames, let rightGames, let tieBreak):
                 projected.append(action(
                     .roundEnd, code: tieBreak ? "tiebreak_completed" : "game_completed",
                     side: winner, scores: (leftGames, rightGames),
-                    sets: (state.leftSets, state.rightSets),
-                    gameNumber: leftGames + rightGames, winner: winner,
+                    sets: secondaryScores,
+                    gameNumber: hasGamesLayer ? leftGames + rightGames : nil, winner: winner,
                     timestamp: timestamp
                 ))
             case .setCompleted(let winner, let number, let leftGames, let rightGames, let leftSets, let rightSets):
                 projected.append(action(
                     .setEnd, code: "tennis_set_completed", side: winner,
-                    scores: (leftGames, rightGames), sets: (leftSets, rightSets),
+                    scores: (leftGames, rightGames),
+                    sets: hasGamesLayer ? (leftSets, rightSets) : nil,
                     setNumber: number, winner: winner, timestamp: timestamp
                 ))
             case .sidesExchangeReminder:
                 projected.append(action(
                     .stateChange, code: "side_change_reminder",
                     scores: (state.leftPoints, state.rightPoints),
-                    sets: (state.leftSets, state.rightSets), timestamp: timestamp
+                    sets: secondaryScores, timestamp: timestamp
                 ))
             case .sidesExchanged:
                 projected.append(action(
                     .sideChange, code: "exchange_sides",
                     scores: (state.leftPoints, state.rightPoints),
-                    sets: (state.leftSets, state.rightSets), timestamp: timestamp
+                    sets: secondaryScores, timestamp: timestamp
                 ))
             case .namesChanged:
                 projected.append(action(
                     .stateChange, code: "edit_name",
                     scores: (state.leftPoints, state.rightPoints),
-                    sets: (state.leftSets, state.rightSets), timestamp: timestamp
+                    sets: secondaryScores, timestamp: timestamp
                 ))
             case .adminAdjusted:
                 let sideAndDelta: (MatchSide?, Int?) = switch intent {
@@ -431,16 +444,16 @@ enum WatchScoreActionProjector {
                 projected.append(action(
                     .editScore, code: "edit_score", side: sideAndDelta.0,
                     scores: (state.leftPoints, state.rightPoints),
-                    sets: (state.leftSets, state.rightSets), delta: sideAndDelta.1,
+                    sets: secondaryScores, delta: sideAndDelta.1,
                     setNumber: state.leftSets + state.rightSets + 1,
-                    gameNumber: state.leftGames + state.rightGames + 1,
+                    gameNumber: hasGamesLayer ? state.leftGames + state.rightGames + 1 : nil,
                     timestamp: timestamp
                 ))
             case .matchFinished(let winner):
                 projected.append(action(
                     .gameEnd, code: "game_end",
                     scores: (state.leftPoints, state.rightPoints),
-                    sets: (state.leftSets, state.rightSets), winner: winner,
+                    sets: secondaryScores, winner: winner,
                     timestamp: timestamp
                 ))
             case .matchReset:

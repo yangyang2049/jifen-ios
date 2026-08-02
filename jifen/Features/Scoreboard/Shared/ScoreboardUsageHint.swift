@@ -176,6 +176,43 @@ extension EnvironmentValues {
     }
 }
 
+struct ScoreboardUsageHintDialogMetrics: Equatable {
+    let titleFontSize: CGFloat
+    let bodyFontSize: CGFloat
+    let bodyLineSpacing: CGFloat
+    let buttonFontSize: CGFloat
+    let buttonHeight: CGFloat
+    let contentSpacing: CGFloat
+    let horizontalPadding: CGFloat
+    let verticalPadding: CGFloat
+
+    static func resolve(isPad: Bool, compactHeight: Bool) -> Self {
+        if isPad {
+            return ScoreboardUsageHintDialogMetrics(
+                titleFontSize: compactHeight ? 20 : 24,
+                bodyFontSize: compactHeight ? 17 : 19,
+                bodyLineSpacing: compactHeight ? 4 : 7,
+                buttonFontSize: compactHeight ? 17 : 18,
+                buttonHeight: compactHeight ? 44 : 50,
+                contentSpacing: compactHeight ? 10 : 20,
+                horizontalPadding: compactHeight ? 16 : 28,
+                verticalPadding: compactHeight ? 12 : 22
+            )
+        }
+
+        return ScoreboardUsageHintDialogMetrics(
+            titleFontSize: compactHeight ? 18 : 20,
+            bodyFontSize: 15,
+            bodyLineSpacing: 0,
+            buttonFontSize: 16,
+            buttonHeight: 44,
+            contentSpacing: compactHeight ? 10 : 16,
+            horizontalPadding: compactHeight ? 16 : 22,
+            verticalPadding: compactHeight ? 12 : 18
+        )
+    }
+}
+
 struct ScoreboardUsageHintDialog: View {
     let descriptor: ScoreboardUsageHintDescriptor
     let onDismiss: () -> Void
@@ -183,6 +220,10 @@ struct ScoreboardUsageHintDialog: View {
     var body: some View {
         GeometryReader { proxy in
             let compactHeight = proxy.size.height < 420
+            let metrics = ScoreboardUsageHintDialogMetrics.resolve(
+                isPad: Theme.usesPadLayout,
+                compactHeight: compactHeight
+            )
             let dialogWidth = Theme.dialogWidth(
                 availableWidth: proxy.size.width,
                 role: .informational
@@ -198,14 +239,14 @@ struct ScoreboardUsageHintDialog: View {
                     .contentShape(Rectangle())
                     .onTapGesture { }
 
-                VStack(spacing: compactHeight ? 10 : 16) {
+                VStack(spacing: metrics.contentSpacing) {
                     ZStack {
                         Text(NSLocalizedString(
                             "scoreboard_usage_hint_title",
                             value: "计分板使用说明",
                             comment: ""
                         ))
-                        .font(.system(size: compactHeight ? 18 : 20, weight: .bold))
+                        .font(.system(size: metrics.titleFontSize, weight: .bold))
                         .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                         .frame(maxWidth: .infinity)
 
@@ -220,7 +261,8 @@ struct ScoreboardUsageHintDialog: View {
 
                     ScrollView {
                         Text(descriptor.localizedMessage)
-                            .font(.system(size: 15))
+                            .font(.system(size: metrics.bodyFontSize))
+                            .lineSpacing(metrics.bodyLineSpacing)
                             .foregroundStyle(Theme.scoreboardDialogTextPrimary.opacity(0.86))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .accessibilityIdentifier("scoreboard_usage_hint_body")
@@ -234,18 +276,18 @@ struct ScoreboardUsageHintDialog: View {
                             value: "知道了",
                             comment: ""
                         ))
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: metrics.buttonFontSize, weight: .semibold))
                         .foregroundStyle(Color.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 44)
+                        .frame(height: metrics.buttonHeight)
                         .background(Theme.accentColor)
                         .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("scoreboard_usage_hint_confirm")
                 }
-                .padding(.horizontal, compactHeight ? 16 : 22)
-                .padding(.vertical, compactHeight ? 12 : 18)
+                .padding(.horizontal, metrics.horizontalPadding)
+                .padding(.vertical, metrics.verticalPadding)
                 .frame(width: dialogWidth)
                 .background(Theme.scoreboardDialogSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))

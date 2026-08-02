@@ -5,7 +5,7 @@ struct ScoreboardKeyPointBadgeLayer: View {
     let status: KeyPointStatus?
     let gameType: ScoreCore.GameType
     let sidesSwapped: Bool
-    /// nil keeps a doubles badge centred; non-nil aligns it to the active player row.
+    /// nil uses the singles height; non-nil aligns the badge to the active doubles player row.
     var doublesTopRow: Bool? = nil
     let serveIndicatorSize: CGFloat
 
@@ -14,12 +14,7 @@ struct ScoreboardKeyPointBadgeLayer: View {
             if let status {
                 let screenSide = TeamScreenLayout(sidesSwapped: sidesSwapped)
                     .screenSide(of: TeamScreenLayout.teamID(forEngine: status.side))
-                let midX = proxy.size.width / 2
                 let largeWindow = min(proxy.size.width, proxy.size.height) >= 600
-                let horizontalOffset = ScoreboardServeGeometry.keyPointBadgeHorizontalOffset(
-                    doublesTopRow: doublesTopRow,
-                    triangleSize: serveIndicatorSize
-                )
                 Text(label(for: status.kind))
                     .font(.system(size: 12, weight: .heavy, design: .rounded))
                     .tracking(0.8)
@@ -27,7 +22,10 @@ struct ScoreboardKeyPointBadgeLayer: View {
                     .frame(width: 56, height: 28)
                     .background(background(for: status.kind), in: RoundedRectangle(cornerRadius: 7))
                     .position(
-                        x: midX + (screenSide == .left ? -horizontalOffset : horizontalOffset),
+                        x: ScoreboardServeGeometry.keyPointBadgeCenterX(
+                            width: proxy.size.width,
+                            isLeftSide: screenSide == .left
+                        ),
                         y: usesDoublesLayout && doublesTopRow == nil
                             ? proxy.size.height / 2
                             : ScoreboardServeGeometry.keyPointBadgeCenterY(

@@ -105,7 +105,7 @@ struct WatchRecordDetailView: View {
     }
 
     private func scoreRow(_ record: WatchScoreboardRecord) -> some View {
-        let usePoints = record.gameType.usesPointScoreInList
+        let usePoints = record.usesPointScoreForDisplay
         let leftScore = usePoints ? record.team1FinalScore : record.team1SetScore
         let rightScore = usePoints ? record.team2FinalScore : record.team2SetScore
         let teamNames = record.doublesTeamNames ?? (record.team1Name, record.team2Name)
@@ -231,7 +231,7 @@ struct WatchRecordDetailView: View {
                         .truncationMode(.tail)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    if let scoreText = actionScoreText(action) {
+                    if let scoreText = actionScoreText(action, record: record) {
                         Text(scoreText)
                             .font(.system(size: 11))
                             .foregroundColor(WatchTheme.secondaryText)
@@ -298,8 +298,12 @@ struct WatchRecordDetailView: View {
         }
     }
 
-    private func actionScoreText(_ action: WatchScoreAction) -> String? {
-        if let setLeft = action.team1SetScore, let setRight = action.team2SetScore,
+    private func actionScoreText(
+        _ action: WatchScoreAction,
+        record: WatchScoreboardRecord
+    ) -> String? {
+        if !record.usesPointScoreForDisplay,
+           let setLeft = action.team1SetScore, let setRight = action.team2SetScore,
            action.actionType == .setEnd || action.actionType == .gameEnd {
             return "\(setLeft) - \(setRight)"
         }

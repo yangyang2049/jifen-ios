@@ -1,5 +1,6 @@
 import Foundation
 import LinkCore
+import RecordCore
 import ScoreCore
 
 /// Shared Watch-link menu extras for phone scoreboards.
@@ -118,6 +119,14 @@ enum LinkedMatchRecordIngestor {
         let end = Date(timeIntervalSince1970: Double(endMs) / 1000)
         let duration = payload.durationSeconds
         let scoreChanges = max(0, payload.totalScoreChanges)
+        let isTennisTiebreakOnly: Bool = {
+            guard case .tennis(let state) = payload.snapshot else { return false }
+            return state.rules.setScoringMode == .tiebreakOnly
+        }()
+        let detailedActions = recordActions(
+            payload.detailedActions,
+            omittingSecondaryScores: isTennisTiebreakOnly
+        ) ?? []
         var extra: [String: AnyCodable] = [
             "syncFrom": AnyCodable("watch"),
             "watchSyncTime": AnyCodable(Int64(Date().timeIntervalSince1970 * 1000))
@@ -161,8 +170,8 @@ enum LinkedMatchRecordIngestor {
             team2SetScore: projected.rightSets,
             winner: projected.winner,
             actions: ["watch_link_finish"],
-            detailedActions: payload.detailedActions,
-            setResults: ScoreboardRecordActionAdapter.setResults(from: payload.detailedActions),
+            detailedActions: detailedActions,
+            setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
             totalScoreChanges: scoreChanges,
             extraData: extra,
             projectConfiguration: projectConfiguration,
@@ -244,13 +253,14 @@ enum LinkedMatchRecordIngestor {
                 winner: winner
             )
         case .tennis(let state):
+            let usePointScore = state.rules.setScoringMode == .tiebreakOnly
             return .init(
                 leftName: state.leftName,
                 rightName: state.rightName,
-                leftScore: state.leftGames,
-                rightScore: state.rightGames,
-                leftSets: state.leftSets,
-                rightSets: state.rightSets,
+                leftScore: usePointScore ? state.leftPoints : state.leftGames,
+                rightScore: usePointScore ? state.rightPoints : state.rightGames,
+                leftSets: usePointScore ? nil : state.leftSets,
+                rightSets: usePointScore ? nil : state.rightSets,
                 winner: winner
             )
         case .archery(let state):
@@ -386,6 +396,12 @@ enum WatchStandaloneRecordIngestor {
             projectConfiguration[ScoreboardRecordConfiguration.Key.scoreCoreGameType] = AnyCodable(exactType.rawValue)
             projectConfiguration[ScoreboardRecordConfiguration.Key.isSingles] = AnyCodable(!exactType.isDoublesScoreboard)
         }
+        let isTennisTiebreakOnly = gameType == .tennis
+            && (projectConfiguration["setScoringMode"]?.value as? String) == "tiebreak_only"
+        let detailedActions = recordActions(
+            payload.detailedActions,
+            omittingSecondaryScores: isTennisTiebreakOnly
+        )
         let record = ScoreboardRecord(
             id: rawId,
             gameType: gameType,
@@ -396,12 +412,12 @@ enum WatchStandaloneRecordIngestor {
             team2Name: payload.team2Name,
             team1FinalScore: payload.team1FinalScore,
             team2FinalScore: payload.team2FinalScore,
-            team1SetScore: payload.team1SetScore,
-            team2SetScore: payload.team2SetScore,
+            team1SetScore: isTennisTiebreakOnly ? nil : payload.team1SetScore,
+            team2SetScore: isTennisTiebreakOnly ? nil : payload.team2SetScore,
             winner: winnerSide,
             actions: payload.actions.isEmpty ? ["watch_auto_sync"] : payload.actions,
-            detailedActions: payload.detailedActions,
-            setResults: payload.detailedActions.map(ScoreboardRecordActionAdapter.setResults),
+            detailedActions: detailedActions,
+            setResults: detailedActions.map(ScoreboardRecordActionAdapter.setResults),
             totalScoreChanges: max(0, payload.totalScoreChanges),
             extraData: extraData,
             projectConfiguration: projectConfiguration.isEmpty ? nil : projectConfiguration,
@@ -456,6 +472,34 @@ enum WatchStandaloneRecordIngestor {
             return appGameType.scoreCoreGameType(isSingles: !legacyDoubles)
         }
         return appGameType.supportsSinglesAndDoubles ? nil : appGameType.scoreCoreGameType
+    }
+}
+
+private func recordActions(
+    _ actions: [DetailedScoreAction]?,
+    omittingSecondaryScores: Bool
+) -> [DetailedScoreAction]? {
+    guard omittingSecondaryScores else { return actions }
+    return actions?.map { action in
+        DetailedScoreAction(
+            id: action.id,
+            type: action.type,
+            epochMilliseconds: action.epochMilliseconds,
+            team: action.team,
+            scores: action.scores,
+            setScores: [],
+            setNumber: action.setNumber,
+            gameNumber: nil,
+            roundNumber: action.roundNumber,
+            periodNumber: action.periodNumber,
+            scoreChange: action.scoreChange,
+            winner: action.winner,
+            loser: action.loser,
+            landlord: action.landlord,
+            participants: action.participants,
+            operationCode: action.operationCode,
+            summary: action.summary
+        )
     }
 }
 

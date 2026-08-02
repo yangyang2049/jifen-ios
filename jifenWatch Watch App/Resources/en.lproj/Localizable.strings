@@ -171,6 +171,8 @@
 "watch_swap_sides" = "Swap sides";
 "watch_tiebreak_start" = "Tiebreak start";
 "watch_tiebreak_indicator" = "Tiebreak";
+"watch_tiebreak_indicator_7" = "7-Point Tiebreak";
+"watch_tiebreak_indicator_10" = "10-Point Tiebreak";
 "watch_continue_match" = "Resume game";
 "watch_resume_discard" = "Discard unfinished game";
 "watch_set_start_format" = "Set %d start";

@@ -134,6 +134,7 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
     var team2SetScore: Int
     var winner: String?
     var participants: [WatchRecordParticipant]?
+    var projectConfiguration: [String: String]?
 
     init(from record: WatchScoreboardRecord) {
         self.id = record.id
@@ -148,6 +149,7 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
         self.team2SetScore = record.team2SetScore
         self.winner = record.winner
         self.participants = record.participants
+        self.projectConfiguration = record.projectConfiguration
 
         let dateFormatter = DateFormatter()
         let calendar = Calendar.current
@@ -173,8 +175,12 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
     }
 
     var listDisplayText: String {
-        let leftScore = gameType.usesPointScoreInList ? team1FinalScore : team1SetScore
-        let rightScore = gameType.usesPointScoreInList ? team2FinalScore : team2SetScore
+        let usePointScore = watchRecordUsesPointScore(
+            gameType: gameType,
+            projectConfiguration: projectConfiguration
+        )
+        let leftScore = usePointScore ? team1FinalScore : team1SetScore
+        let rightScore = usePointScore ? team2FinalScore : team2SetScore
 
         if let doublesTeamNames {
             return "\(doublesTeamNames.left) \(leftScore) - \(doublesTeamNames.right) \(rightScore)"
@@ -192,6 +198,22 @@ extension WatchScoreboardRecord {
     var doublesTeamNames: (left: String, right: String)? {
         watchDoublesTeamNames(gameType: gameType, participants: participants)
     }
+
+    var usesPointScoreForDisplay: Bool {
+        watchRecordUsesPointScore(
+            gameType: gameType,
+            projectConfiguration: projectConfiguration
+        )
+    }
+}
+
+private func watchRecordUsesPointScore(
+    gameType: WatchGameType,
+    projectConfiguration: [String: String]?
+) -> Bool {
+    gameType.usesPointScoreInList
+        || (gameType == .tennis
+            && projectConfiguration?["setScoringMode"] == "tiebreak_only")
 }
 
 private func watchDoublesTeamNames(

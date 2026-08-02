@@ -296,6 +296,36 @@ extension ScoreboardRecord {
         return result
     }
 
+    var tennisSnapshotState: TennisMatchState? {
+        guard gameType == .tennis, let stateSnapshot else { return nil }
+        return Self.inferTennisState(from: stateSnapshot)
+    }
+
+    var tennisSetScoringMode: TennisSetScoringMode? {
+        guard gameType == .tennis else { return nil }
+        if let raw = scoreboardString(mergedProjectConfiguration["setScoringMode"]),
+           let mode = TennisSetScoringMode(rawValue: raw) {
+            return mode
+        }
+        return tennisSnapshotState?.rules.setScoringMode
+    }
+
+    var tennisTieBreakPoints: Int? {
+        guard gameType == .tennis else { return nil }
+        return scoreboardInt(mergedProjectConfiguration["tieBreakPoints"])
+            ?? tennisSnapshotState?.rules.tieBreakPoints
+    }
+
+    var isTennisTiebreakOnly: Bool {
+        tennisSetScoringMode == .tiebreakOnly
+    }
+
+    /// Tiebreak-only tennis has no games layer. Old records may still contain
+    /// zero-valued set-score fields, but they must not be presented as Games.
+    var shouldDisplaySecondaryScore: Bool {
+        !isTennisTiebreakOnly && team1SetScore != nil && team2SetScore != nil
+    }
+
     var resolvedScoreCoreGameType: ScoreCore.GameType? {
         let configuration = mergedProjectConfiguration
         if let raw = scoreboardString(configuration[ScoreboardRecordConfiguration.Key.scoreCoreGameType]),
@@ -432,13 +462,15 @@ enum ScoreboardRecordConfiguration {
             "maxSets": AnyCodable(rules.maxSets),
             "matchCompletionMode": AnyCodable(rules.matchCompletionMode.rawValue),
             "tieBreakPoints": AnyCodable(rules.tieBreakPoints),
-            "gamesPerSet": AnyCodable(rules.gamesPerSet),
             "setScoringMode": AnyCodable(rules.setScoringMode.rawValue),
             "autoChangeSides": AnyCodable(rules.autoChangeSides),
             "tennisDeuceMode": AnyCodable(rules.usesNoAdScoring ? "no_ad" : "advantage"),
             "servingSide": AnyCodable(state.openingServerSide.rawValue),
             "voiceAnnouncement": AnyCodable(voiceAnnouncement)
         ]
+        if rules.setScoringMode != .tiebreakOnly {
+            result["gamesPerSet"] = AnyCodable(rules.gamesPerSet)
+        }
         if let names = state.doublesPlayerNames, names.count >= 4 {
             result["team1Player1Name"] = AnyCodable(names[0])
             result["team2Player1Name"] = AnyCodable(names[1])
@@ -451,15 +483,22 @@ enum ScoreboardRecordConfiguration {
     static func setup(from record: ScoreboardRecord) -> SportsSetupResult {
         let data = record.mergedProjectConfiguration
         var setup = SportsSetupResult(team1Name: record.team1Name, team2Name: record.team2Name)
-        setup.maxSets = scoreboardInt(data["maxSets"])
+        let tennisState = record.tennisSnapshotState
+        setup.maxSets = scoreboardInt(data["maxSets"]) ?? tennisState?.rules.maxSets
         setup.pointsPerSet = scoreboardInt(data["pointsPerSet"] ?? data["targetScore"])
         setup.tieBreakPoints = scoreboardInt(data["tieBreakPoints"])
+            ?? tennisState?.rules.tieBreakPoints
         setup.gamesPerSet = scoreboardInt(data["gamesPerSet"])
+            ?? (tennisState?.rules.setScoringMode == .regular ? tennisState?.rules.gamesPerSet : nil)
         setup.setScoringMode = scoreboardString(data["setScoringMode"])
+            ?? tennisState?.rules.setScoringMode.rawValue
         if let completion = scoreboardString(data["matchCompletionMode"]) {
             setup.matchCompletionMode = MatchCompletionMode(rawValue: completion)
+        } else if let completion = tennisState?.rules.matchCompletionMode {
+            setup.matchCompletionMode = completion
         }
         setup.autoChangeSides = scoreboardBool(data["autoChangeSides"])
+            ?? tennisState?.rules.autoChangeSides
         setup.isSingles = scoreboardBool(data[Key.isSingles])
         if setup.isSingles == nil, let doubles = scoreboardBool(data["isDoubles"]) {
             setup.isSingles = !doubles
@@ -474,7 +513,9 @@ enum ScoreboardRecordConfiguration {
         setup.basketballMode = scoreboardString(data["basketballMode"])
         setup.basketballRuleSet = scoreboardString(data["basketballRuleSet"])
         setup.tennisDeuceMode = scoreboardString(data["tennisDeuceMode"])
+            ?? tennisState.map { $0.rules.usesNoAdScoring ? "no_ad" : "advantage" }
         setup.servingSide = scoreboardString(data["servingSide"])
+            ?? tennisState?.openingServerSide.rawValue
         setup.voiceAnnouncement = scoreboardBool(data["voiceAnnouncement"])
         setup.targetScore = scoreboardInt(data["targetScore"] ?? data["unoTargetScore"])
         setup.winByTwo = scoreboardBool(data["winByTwo"])
@@ -547,6 +588,22 @@ extension ScoreCore.GameType {
 }
 
 private extension ScoreboardRecord {
+    static func inferTennisState(from data: Data) -> TennisMatchState? {
+        if let bundle = try? JSONDecoder().decode(
+            ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self,
+            from: data
+        ) {
+            return bundle.currentSession.state
+        }
+        if let session = try? JSONDecoder().decode(
+            ScoreSession<TennisMatchState, TennisMatchEvent>.self,
+            from: data
+        ) {
+            return session.state
+        }
+        return nil
+    }
+
     static func inferScoreCoreGameType(from data: Data, family: GameType) -> ScoreCore.GameType? {
         if family == .tennis {
             if let bundle = try? JSONDecoder().decode(
