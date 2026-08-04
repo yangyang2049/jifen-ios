@@ -1111,7 +1111,10 @@ struct RallyScoreboardView: View {
     }
 
     private func handlePointWon(_ side: MatchSide) {
-        guard !scoringLocked else { return }
+        guard !scoringLocked else {
+            showToast(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+            return
+        }
         // 仅羽毛球/匹克球双打有位置轮转，发球方得分时高亮该队两人以提示换位；
         // 乒乓球、桌上足球双打无轮转，不闪烁。
         if let doubles = store.state.doubles,

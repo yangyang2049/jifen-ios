@@ -369,7 +369,10 @@ struct ArcheryScoreboardView: View {
                             ForEach(archeryScoreGrid[row].indices, id: \.self) { col in
                                 let value = archeryScoreGrid[row][col]
                                 Button {
-                                    guard !scoringLocked else { return }
+                                    guard !scoringLocked else {
+                                        showToast(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                                        return
+                                    }
                                     viewModel.recordArrow(value: value == -1 ? nil : value)
                                     showArrowPicker = false
                                 } label: {

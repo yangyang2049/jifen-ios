@@ -711,6 +711,10 @@ struct NineBallChaseScoreboardView: View {
                     ) {
                         ForEach(nineBallActionOrder, id: \.self) { kind in
                             Button {
+                                guard !scoringLocked else {
+                                    showNineBallToast(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                                    return
+                                }
                                 send(.chaseEvent(player: player, kind: kind))
                                 activeChasePlayer = nil
                             } label: {

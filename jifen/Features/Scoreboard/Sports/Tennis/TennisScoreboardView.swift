@@ -1331,6 +1331,10 @@ struct TennisScoreboardView: View {
     }
 
     private func handlePointWon(_ side: MatchSide) {
+        guard !scoringLocked else {
+            showToast(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+            return
+        }
         dispatch(.pointWon(side))
         // 网球双打无位置轮转（发球人整个发球局固定，局间才换），得分时不闪烁。
     }

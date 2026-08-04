@@ -1159,6 +1159,7 @@
 "linked_score_status_timeout" = "Timed out waiting for the Watch status.";
 "linked_score_phone_controller" = "Phone controls";
 "linked_score_watch_controller" = "Watch controls";
+"linked_score_watch_control_readonly_toast" = "Watch controls scoring.";
 "linked_score_connected" = "Connected";
 "linked_score_disconnected" = "Disconnected";
 "linked_score_interrupted" = "Interrupted";

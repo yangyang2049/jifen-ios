@@ -264,8 +264,20 @@ struct EightBallScoreboardView: View {
             leftDetail: nil,
             rightDetail: nil,
             finished: state.finished,
-            onLeftTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.left))) },
-            onRightTap: { guard !scoringLocked else { return }; send(.addRack(screenSide(.right))) },
+            onLeftTap: {
+                guard !scoringLocked else {
+                    showToastMessage(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                    return
+                }
+                send(.addRack(screenSide(.left)))
+            },
+            onRightTap: {
+                guard !scoringLocked else {
+                    showToastMessage(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                    return
+                }
+                send(.addRack(screenSide(.right)))
+            },
             onUndo: { scoringLocked ? false : undo() },
             onReset: { guard !scoringLocked else { return }; send(.reset) },
             onExchange: { guard !scoringLocked else { return }; send(.exchangeSides) },

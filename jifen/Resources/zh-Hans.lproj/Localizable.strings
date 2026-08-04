@@ -1159,6 +1159,7 @@
 "linked_score_status_timeout" = "等待手表状态响应超时。";
 "linked_score_phone_controller" = "手机主控";
 "linked_score_watch_controller" = "手表主控";
+"linked_score_watch_control_readonly_toast" = "手表计分中，手机暂不能计分";
 "linked_score_connected" = "已连接";
 "linked_score_disconnected" = "已断开";
 "linked_score_interrupted" = "已中断";
