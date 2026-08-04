@@ -164,19 +164,6 @@ struct jifenApp: App {
                     comment: ""
                 ))
             }
-            .alert(
-                NSLocalizedString("linked_score_error_title", value: "联动失败", comment: ""),
-                isPresented: Binding(
-                    get: { watchLinkService.lastErrorMessage != nil },
-                    set: { if !$0 { watchLinkService.clearLastError() } }
-                )
-            ) {
-                Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) {
-                    watchLinkService.clearLastError()
-                }
-            } message: {
-                Text(watchLinkService.lastErrorMessage ?? "")
-            }
         }
     }
 

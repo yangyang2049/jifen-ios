@@ -327,7 +327,11 @@ extension PhoneWatchLinkService {
                 do {
                     try await transport.sendRealtime(data)
                 } catch {
-                    lastErrorMessage = error.localizedDescription
+                    // 后台自动重发失败（如手表暂不可达）属于非致命事件，
+                    // 重试循环会继续投递，不应弹出“联动失败”对话框。
+                    #if DEBUG
+                    print("[PhoneLink] pending ack retry send failed: \(error.localizedDescription)")
+                    #endif
                 }
             }
         } else if let pendingMessageId,
@@ -366,7 +370,10 @@ extension PhoneWatchLinkService {
                 do {
                     try transport.enqueueDurable(data)
                 } catch {
-                    lastErrorMessage = error.localizedDescription
+                    // 后台重试入队失败（如会话尚未激活）不弹窗，outbox 会继续重试。
+                    #if DEBUG
+                    print("[PhoneLink] terminal outbox re-enqueue failed: \(error.localizedDescription)")
+                    #endif
                 }
             }
         }
@@ -441,7 +448,11 @@ extension PhoneWatchLinkService {
                         clearSession()
                     }
                 } catch {
-                    lastErrorMessage = error.localizedDescription
+                    // 会话结束消息的后台重发失败（如手表暂不可达）不弹窗，
+                    // 重试循环与连接恢复时的 flush 会继续投递。
+                    #if DEBUG
+                    print("[PhoneLink] flushPendingSessionEnds failed: \(error.localizedDescription)")
+                    #endif
                 }
             }
         }

@@ -24,32 +24,29 @@ private final class WatchRallySessionStore {
         startedAt: Date = Date()
     ) {
         let defaults = WatchDefaultTeamNames.resolve(for: gameType)
-        #if DEBUG
-        print("[WATCH] rally store init gameType=\(gameType) initialState.leftName=\(initialState?.leftName ?? "<nil>") initialState.rightName=\(initialState?.rightName ?? "<nil>") resumeBundle.leftName=\(resumeBundle?.currentSession.state.leftName ?? "<nil>") resumeBundle.rightName=\(resumeBundle?.currentSession.state.rightName ?? "<nil>")")
-        #endif
-        // Prefer the explicit initialState (from the phone Setup snapshot) over a
-        // potentially stale resumeBundle. This protects against a stale resume
-        // entry left over from a previous match overriding the fresh names.
-        let initial = initialState ?? resumeBundle?.currentSession.state ?? RallyMatchEngine.initial(
-            leftName: defaults.left,
-            rightName: defaults.right,
-            rules: rules
-        )
+        // Priority: a resumeBundle only ever arrives from the explicit resume
+        // flow (every fresh-launch path clears activeResumeSession first), so
+        // it wins. Otherwise initialState (fresh phone Setup snapshot or local
+        // setup) must be used as-is — never fall back to any historical state,
+        // mirroring HarmonyOS, which discards the persisted session on every
+        // non-resume scoreboard launch. Engine core and displayed state must
+        // always come from the same source.
         if let resumeBundle {
             core = ScoreSessionCore(
                 resumeBundle: resumeBundle,
                 reducer: RallyMatchReducer(),
                 shouldFinish: { _, state in state.finished }
             )
-        } else {
+            state = resumeBundle.currentSession.state
+        } else if let initialState {
             let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
                 gameType: gameType,
                 ruleFamily: .s1,
                 reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
-                state: initial,
+                state: initialState,
                 participants: [
-                    .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
-                    .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
+                    .init(id: TeamID.team0.rawValue, name: initialState.leftName, role: "team"),
+                    .init(id: TeamID.team1.rawValue, name: initialState.rightName, role: "team")
                 ]
             )
             core = ScoreSessionCore(
@@ -57,8 +54,30 @@ private final class WatchRallySessionStore {
                 reducer: RallyMatchReducer(),
                 shouldFinish: { _, state in state.finished }
             )
+            state = initialState
+        } else {
+            let fallback = RallyMatchEngine.initial(
+                leftName: defaults.left,
+                rightName: defaults.right,
+                rules: rules
+            )
+            let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
+                gameType: gameType,
+                ruleFamily: .s1,
+                reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
+                state: fallback,
+                participants: [
+                    .init(id: TeamID.team0.rawValue, name: fallback.leftName, role: "team"),
+                    .init(id: TeamID.team1.rawValue, name: fallback.rightName, role: "team")
+                ]
+            )
+            core = ScoreSessionCore(
+                seedSession: session,
+                reducer: RallyMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+            state = fallback
         }
-        state = initial
         actionLog = WatchScoreActionLog(startedAt: startedAt, resumed: resumedActionLog)
     }
 

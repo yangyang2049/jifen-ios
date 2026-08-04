@@ -13,6 +13,11 @@ struct WatchRootView: View {
     @State private var linkedSetup: LinkedScoreboardSetup?
     @State private var linkedSessionId: UUID?
     @State private var confirmDeadline: Date?
+    // Regenerated on every scoreboard launch. Applied as `.id(...)` to the pushed
+    // destination so SwiftUI rebuilds the board (and its session store) from the
+    // freshly received Setup instead of reusing a previously-mounted board's
+    // @State — which could still carry a historical session's names.
+    @State private var scoreboardLaunchID = UUID()
 
     private static let confirmTimeoutSeconds: TimeInterval = 20
 
@@ -27,6 +32,7 @@ struct WatchRootView: View {
             }
             .navigationDestination(item: $scoreboardRoute) { route in
                 destinationView(for: route)
+                    .id(scoreboardLaunchID)
             }
         }
         .accentColor(WatchTheme.accent)
@@ -70,22 +76,19 @@ struct WatchRootView: View {
             }
         }
         .onChange(of: linkService.acceptedSetup) { _, request in
-            #if DEBUG
-            print("[WATCH] onChange acceptedSetup fired request=\(request != nil) request.setup.initialSnapshot=\(request?.setup.initialSnapshot.map { String(describing: $0) } ?? "<nil>")")
-            #endif
             guard let request, let route = WatchScoreboardRoute(linkedSetup: request.setup) else { return }
             // A pending resume session may still hold a stale team names bundle
-            // (e.g. from a previously linked match). WatchRallySessionStore.init
-            // prefers resumeBundle over initialState, so a stale bundle would
-            // override the freshly received phone Setup names. Drop only the
-            // local resume cache here; linkService already holds the new
-            // context (acceptPendingSetup → persistContext), so do NOT call
+            // (e.g. from a previously linked match). Drop only the local resume
+            // cache here; linkService already holds the new context
+            // (acceptPendingSetup → persistContext), so do NOT call
             // discardResumableSession/leaveSession — those would corrupt the
-            // new session's control role.
+            // new session's control role. The regenerated scoreboardLaunchID
+            // guarantees the board is rebuilt fresh from the received Setup.
             resumeStore.clear()
             activeResumeSession = nil
             linkedSetup = request.setup
             linkedSessionId = request.sessionId
+            scoreboardLaunchID = UUID()
             scoreboardRoute = route
             linkService.clearAcceptedSetup()
         }
@@ -138,6 +141,7 @@ struct WatchRootView: View {
         }
         activeResumeSession = currentSession
         _ = resumeStore.consume()
+        scoreboardLaunchID = UUID()
         scoreboardRoute = route
     }
 
@@ -344,6 +348,7 @@ struct WatchRootView: View {
     private func destinationView(for route: WatchScoreboardRoute) -> some View {
         if case .setup(let sport, let playerCount) = route {
             WatchSportsSetupView(sport: sport, playerCount: playerCount) { config in
+                scoreboardLaunchID = UUID()
                 scoreboardRoute = .configured(config)
             }
         } else {
@@ -556,6 +561,9 @@ struct WatchRootView: View {
                 activeResumeSession = nil
                 linkedSetup = nil
                 linkedSessionId = nil
+                if route != nil {
+                    scoreboardLaunchID = UUID()
+                }
                 scoreboardRoute = route
             }
         )
@@ -566,14 +574,8 @@ struct WatchRootView: View {
     ) -> ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>? {
         guard let activeResumeSession,
               case .rally(_, let bundle, _) = activeResumeSession.payload else {
-            #if DEBUG
-            print("[WATCH] rallyResumeBundle route=\(route) -> nil (activeResumeSession nil or non-rally)")
-            #endif
             return nil
         }
-        #if DEBUG
-        print("[WATCH] rallyResumeBundle route=\(route) -> STALE BUNDLE leftName=\(bundle.currentSession.state.leftName) rightName=\(bundle.currentSession.state.rightName)")
-        #endif
         return bundle
     }
 
@@ -678,9 +680,6 @@ struct WatchRootView: View {
 
     private func rallyInitialState(for route: WatchScoreboardRoute) -> RallyMatchState? {
         guard let linkedSetup else { return nil }
-        #if DEBUG
-        print("[WATCH] rallyInitialState route=\(route) linkedSetup.gameType=\(linkedSetup.gameType) linkedSetup.participantNames=\(linkedSetup.participantNames) initialSnapshot.kind=\(linkedSetup.initialSnapshot.map { String(describing: $0).prefix(40) } ?? "<nil>")")
-        #endif
         if case .rally(let state)? = linkedSetup.initialSnapshot {
             switch (route, linkedSetup.gameType) {
             case (.pingpong(_), .pingpong), (.pingpong(_), .pingpongDoubles),

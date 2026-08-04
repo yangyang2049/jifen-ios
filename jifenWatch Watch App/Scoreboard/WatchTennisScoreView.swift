@@ -25,26 +25,30 @@ private final class WatchTennisSessionStore {
         startedAt: Date = Date()
     ) {
         let defaults = WatchDefaultTeamNames.resolve(for: gameType)
-        let initial = resumeBundle?.currentSession.state ?? initialState ?? TennisMatchState(
-            leftName: defaults.left,
-            rightName: defaults.right,
-            rules: rules
-        )
+        // Priority: a resumeBundle only ever arrives from the explicit resume
+        // flow (every fresh-launch path clears activeResumeSession first), so
+        // it wins. Otherwise initialState (fresh phone Setup snapshot or local
+        // setup) must be used as-is — never fall back to any historical state,
+        // mirroring HarmonyOS, which discards the persisted session on every
+        // non-resume scoreboard launch. Engine core and displayed state must
+        // always come from the same source.
+        let initial: TennisMatchState
         if let resumeBundle {
             core = ScoreSessionCore(
                 resumeBundle: resumeBundle,
                 reducer: TennisMatchReducer(),
                 shouldFinish: { _, state in state.finished }
             )
-        } else {
+            initial = resumeBundle.currentSession.state
+        } else if let initialState {
             let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
                 gameType: gameType,
                 ruleFamily: .s1,
                 reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
-                state: initial,
+                state: initialState,
                 participants: [
-                    .init(id: TeamID.team0.rawValue, name: initial.leftName, role: "team"),
-                    .init(id: TeamID.team1.rawValue, name: initial.rightName, role: "team")
+                    .init(id: TeamID.team0.rawValue, name: initialState.leftName, role: "team"),
+                    .init(id: TeamID.team1.rawValue, name: initialState.rightName, role: "team")
                 ]
             )
             core = ScoreSessionCore(
@@ -52,6 +56,29 @@ private final class WatchTennisSessionStore {
                 reducer: TennisMatchReducer(),
                 shouldFinish: { _, state in state.finished }
             )
+            initial = initialState
+        } else {
+            let fallback = TennisMatchState(
+                leftName: defaults.left,
+                rightName: defaults.right,
+                rules: rules
+            )
+            let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
+                gameType: gameType,
+                ruleFamily: .s1,
+                reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
+                state: fallback,
+                participants: [
+                    .init(id: TeamID.team0.rawValue, name: fallback.leftName, role: "team"),
+                    .init(id: TeamID.team1.rawValue, name: fallback.rightName, role: "team")
+                ]
+            )
+            core = ScoreSessionCore(
+                seedSession: session,
+                reducer: TennisMatchReducer(),
+                shouldFinish: { _, state in state.finished }
+            )
+            initial = fallback
         }
         state = initial
         actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
