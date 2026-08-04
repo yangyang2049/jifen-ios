@@ -529,7 +529,7 @@ struct MultiScoreboardView: View {
     // MARK: - Menu
 
     private var multiScoreMenuItems: [ScoreboardMenuItem] {
-        return ScoreboardMenuItemBuilder.defaultItems(
+        var items = ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: false,
             showWhistle: true,
@@ -537,16 +537,18 @@ struct MultiScoreboardView: View {
             showSettleMatch: true,
             resetConfirming: menuConfirm.resetConfirming,
             finishConfirming: menuConfirm.finishConfirming,
-            settleConfirming: menuConfirm.settleConfirming,
-            extraItems: [
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("scoreboard_rotate_orientation", value: "切换布局", comment: ""),
-                    action: "layout",
-                    group: .match,
-                    icon: "rectangle.2.swap"
-                )
-            ]
+            settleConfirming: menuConfirm.settleConfirming
         )
+        // 切换布局与结算同属“赛后操作”一类，放在「结束比赛」之后（orderedMatchItems 会把结算置底）。
+        items.append(
+            ScoreboardMenuItem(
+                title: NSLocalizedString("scoreboard_rotate_orientation", value: "切换布局", comment: ""),
+                action: "layout",
+                group: .match,
+                icon: "rectangle.2.swap"
+            )
+        )
+        return items
     }
 
     private func handleMultiScoreMenuAction(_ action: String) {
