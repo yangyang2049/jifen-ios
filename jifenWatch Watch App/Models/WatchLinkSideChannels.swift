@@ -42,7 +42,7 @@ extension WatchLinkService {
         transport.sendPendingWatchRecords(datas)
     }
 
-    private func persistPendingWatchRecords() {
+    func persistPendingWatchRecords() {
         if pendingWatchRecords.isEmpty {
             UserDefaults.standard.removeObject(forKey: pendingWatchRecordsKey)
         } else {

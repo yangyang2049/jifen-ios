@@ -24,7 +24,13 @@ private final class WatchRallySessionStore {
         startedAt: Date = Date()
     ) {
         let defaults = WatchDefaultTeamNames.resolve(for: gameType)
-        let initial = resumeBundle?.currentSession.state ?? initialState ?? RallyMatchEngine.initial(
+        #if DEBUG
+        print("[WATCH] rally store init gameType=\(gameType) initialState.leftName=\(initialState?.leftName ?? "<nil>") initialState.rightName=\(initialState?.rightName ?? "<nil>") resumeBundle.leftName=\(resumeBundle?.currentSession.state.leftName ?? "<nil>") resumeBundle.rightName=\(resumeBundle?.currentSession.state.rightName ?? "<nil>")")
+        #endif
+        // Prefer the explicit initialState (from the phone Setup snapshot) over a
+        // potentially stale resumeBundle. This protects against a stale resume
+        // entry left over from a previous match overriding the fresh names.
+        let initial = initialState ?? resumeBundle?.currentSession.state ?? RallyMatchEngine.initial(
             leftName: defaults.left,
             rightName: defaults.right,
             rules: rules

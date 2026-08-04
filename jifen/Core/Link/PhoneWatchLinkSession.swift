@@ -40,19 +40,29 @@ extension PhoneWatchLinkService {
         return true
     }
 
-    func startInteractiveOnWatch(gameType: ScoreCore.GameType, state: RallyMatchState) async throws -> UUID {
+    func startInteractiveOnWatch(
+        gameType: ScoreCore.GameType,
+        state: RallyMatchState,
+        participantNames: [String]? = nil
+    ) async throws -> UUID {
         try await startInteractiveSession(
             gameType: gameType,
             maxSets: state.rules.maxSets,
-            initialSnapshot: .rally(state)
+            initialSnapshot: .rally(state),
+            participantNames: participantNames
         )
     }
 
-    func startInteractiveOnWatch(gameType: ScoreCore.GameType, state: TennisMatchState) async throws -> UUID {
+    func startInteractiveOnWatch(
+        gameType: ScoreCore.GameType,
+        state: TennisMatchState,
+        participantNames: [String]? = nil
+    ) async throws -> UUID {
         try await startInteractiveSession(
             gameType: gameType,
             maxSets: state.rules.maxSets,
-            initialSnapshot: .tennis(state)
+            initialSnapshot: .tennis(state),
+            participantNames: participantNames
         )
     }
 

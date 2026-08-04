@@ -68,7 +68,15 @@ enum SportsSetupWatchSessionLauncher {
                 openingServer: opening,
                 doublesPlayerNames: doublesNames
             )
-            return try await service.startInteractiveOnWatch(gameType: tennisType, state: tennisState)
+            let tennisParticipantNames: [String]? = config.isSingles == false
+                ? [config.team1Player1Name, config.team2Player1Name, config.team1Player2Name, config.team2Player2Name]
+                    .compactMap { $0 }
+                : [config.team1Name, config.team2Name]
+            return try await service.startInteractiveOnWatch(
+                gameType: tennisType,
+                state: tennisState,
+                participantNames: tennisParticipantNames
+            )
         case .archery:
             let archery = LinkedArcheryState(
                 leftName: config.team1Name,
@@ -132,7 +140,27 @@ enum SportsSetupWatchSessionLauncher {
             openingServer: openingServer,
             doubles: linkedDoublesState(for: coreGameType, config: config, openingServer: openingServer)
         )
-        return try await service.startInteractiveOnWatch(gameType: coreGameType, state: state)
+        return try await service.startInteractiveOnWatch(
+            gameType: coreGameType,
+            state: state,
+            participantNames: Self.rallyParticipantNames(for: config, coreGameType: coreGameType)
+        )
+    }
+
+    private static func rallyParticipantNames(
+        for config: SportsSetupResult,
+        coreGameType: ScoreCore.GameType
+    ) -> [String] {
+        if config.isSingles == false {
+            let defaultMembers = DefaultParticipantNames.doublesMembers
+            return [
+                config.team1Player1Name ?? defaultMembers[0],
+                config.team2Player1Name ?? defaultMembers[2],
+                config.team1Player2Name ?? defaultMembers[1],
+                config.team2Player2Name ?? defaultMembers[3]
+            ]
+        }
+        return [config.team1Name, config.team2Name]
     }
 
     private static func linkedDoublesState(

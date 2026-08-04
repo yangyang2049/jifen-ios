@@ -70,7 +70,20 @@ struct WatchRootView: View {
             }
         }
         .onChange(of: linkService.acceptedSetup) { _, request in
+            #if DEBUG
+            print("[WATCH] onChange acceptedSetup fired request=\(request != nil) request.setup.initialSnapshot=\(request?.setup.initialSnapshot.map { String(describing: $0) } ?? "<nil>")")
+            #endif
             guard let request, let route = WatchScoreboardRoute(linkedSetup: request.setup) else { return }
+            // A pending resume session may still hold a stale team names bundle
+            // (e.g. from a previously linked match). WatchRallySessionStore.init
+            // prefers resumeBundle over initialState, so a stale bundle would
+            // override the freshly received phone Setup names. Drop only the
+            // local resume cache here; linkService already holds the new
+            // context (acceptPendingSetup → persistContext), so do NOT call
+            // discardResumableSession/leaveSession — those would corrupt the
+            // new session's control role.
+            resumeStore.clear()
+            activeResumeSession = nil
             linkedSetup = request.setup
             linkedSessionId = request.sessionId
             scoreboardRoute = route
@@ -147,9 +160,17 @@ struct WatchRootView: View {
                 // Rectangular timeout ring hugging the watch screen edges
                 // (Harmony uses a circle for round watches; Apple Watch is a rounded square).
                 GeometryReader { proxy in
-                    let lineWidth: CGFloat = 5
-                    let ringInset = lineWidth / 2 + 3
-                    let cornerRadius = min(proxy.size.width, proxy.size.height) * 0.28
+                    let lineWidth: CGFloat = 3
+                    let ringInset = lineWidth / 2
+                    // GeometryReader is bounded by safe area; add insets back so
+                    // the ring fills the full screen and hugs the edges.
+                    let width = proxy.size.width
+                        + proxy.safeAreaInsets.leading
+                        + proxy.safeAreaInsets.trailing
+                    let height = proxy.size.height
+                        + proxy.safeAreaInsets.top
+                        + proxy.safeAreaInsets.bottom
+                    let cornerRadius = min(width, height) * 0.28
                     let ring = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                         .inset(by: ringInset)
                     let clampedProgress = max(0, min(1, progress))
@@ -180,7 +201,11 @@ struct WatchRootView: View {
                                 )
                         }
                     }
-                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .frame(width: width, height: height)
+                    .offset(
+                        x: -proxy.safeAreaInsets.leading,
+                        y: -proxy.safeAreaInsets.top
+                    )
                     .animation(.linear(duration: 0.1), value: progress)
                 }
                 .ignoresSafeArea()
@@ -540,7 +565,15 @@ struct WatchRootView: View {
         for route: WatchScoreboardRoute
     ) -> ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>? {
         guard let activeResumeSession,
-              case .rally(_, let bundle, _) = activeResumeSession.payload else { return nil }
+              case .rally(_, let bundle, _) = activeResumeSession.payload else {
+            #if DEBUG
+            print("[WATCH] rallyResumeBundle route=\(route) -> nil (activeResumeSession nil or non-rally)")
+            #endif
+            return nil
+        }
+        #if DEBUG
+        print("[WATCH] rallyResumeBundle route=\(route) -> STALE BUNDLE leftName=\(bundle.currentSession.state.leftName) rightName=\(bundle.currentSession.state.rightName)")
+        #endif
         return bundle
     }
 
@@ -644,18 +677,73 @@ struct WatchRootView: View {
     }
 
     private func rallyInitialState(for route: WatchScoreboardRoute) -> RallyMatchState? {
-        guard let linkedSetup,
-              case .rally(let state)? = linkedSetup.initialSnapshot else { return nil }
-        switch (route, linkedSetup.gameType) {
-        case (.pingpong(_), .pingpong), (.pingpong(_), .pingpongDoubles),
-             (.pingpongDoubles(_), .pingpongDoubles),
-             (.badminton(_), .badminton), (.badminton(_), .badmintonDoubles),
-             (.badmintonDoubles(_), .badmintonDoubles),
-             (.pickleball(_), .pickleball), (.pickleball(_), .pickleballDoubles),
-             (.pickleballDoubles(_), .pickleballDoubles):
-            return state
+        guard let linkedSetup else { return nil }
+        #if DEBUG
+        print("[WATCH] rallyInitialState route=\(route) linkedSetup.gameType=\(linkedSetup.gameType) linkedSetup.participantNames=\(linkedSetup.participantNames) initialSnapshot.kind=\(linkedSetup.initialSnapshot.map { String(describing: $0).prefix(40) } ?? "<nil>")")
+        #endif
+        if case .rally(let state)? = linkedSetup.initialSnapshot {
+            switch (route, linkedSetup.gameType) {
+            case (.pingpong(_), .pingpong), (.pingpong(_), .pingpongDoubles),
+                 (.pingpongDoubles(_), .pingpongDoubles),
+                 (.badminton(_), .badminton), (.badminton(_), .badmintonDoubles),
+                 (.badmintonDoubles(_), .badmintonDoubles),
+                 (.pickleball(_), .pickleball), (.pickleball(_), .pickleballDoubles),
+                 (.pickleballDoubles(_), .pickleballDoubles):
+                return state
+            default:
+                return nil
+            }
+        }
+        // Linked mode arrived without an embedded rally snapshot: still follow
+        // the phone's Setup (participant names + configured max sets) instead of
+        // any local default name.
+        guard Self.isRallyGameType(linkedSetup.gameType) else { return nil }
+        return linkedRallyInitialState()
+    }
+
+    private func linkedRallyInitialState() -> RallyMatchState? {
+        guard let linkedSetup else { return nil }
+        let names = linkedRallyNames() ?? (
+            left: WatchDefaultTeamNames.fallback(for: linkedSetup.gameType).left,
+            right: WatchDefaultTeamNames.fallback(for: linkedSetup.gameType).right
+        )
+        let maxSets = linkedSetup.maxSets ?? 5
+        let rules = Self.rallyRuleSet(for: linkedSetup.gameType, maxSets: maxSets)
+        return RallyMatchEngine.initial(
+            leftName: names.left,
+            rightName: names.right,
+            rules: rules
+        )
+    }
+
+    private func linkedRallyNames() -> (left: String, right: String)? {
+        guard let names = linkedSetup?.participantNames, names.count >= 2 else { return nil }
+        let left = names[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        let right = names[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !left.isEmpty, !right.isEmpty else { return nil }
+        return (left, right)
+    }
+
+    private static func isRallyGameType(_ gameType: GameType) -> Bool {
+        switch gameType {
+        case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles,
+             .pickleball, .pickleballDoubles:
+            return true
         default:
-            return nil
+            return false
+        }
+    }
+
+    private static func rallyRuleSet(for gameType: GameType, maxSets: Int) -> RallyRuleSet {
+        switch gameType {
+        case .pingpong, .pingpongDoubles:
+            return .pingPong(maxSets: maxSets)
+        case .badminton, .badmintonDoubles:
+            return .badminton(maxSets: maxSets)
+        case .pickleball, .pickleballDoubles:
+            return .pickleball(maxSets: maxSets)
+        default:
+            return .pingPong(maxSets: maxSets)
         }
     }
 
@@ -741,9 +829,15 @@ private enum LinkedSetupConfirmCopy {
         case .rally(let state):
             if let names = state.doubles?.playerNames, names.count >= 4,
                [.pingpongDoubles, .badmintonDoubles, .pickleballDoubles].contains(setup.gameType) {
-                return doublesPair(names[0], names[2], fallback: state.leftName)
+                return doublesPair(
+                    names[0], names[2],
+                    fallback: participantName(setup, index: 0, fallback: state.leftName)
+                )
             }
-            return state.leftName
+            let left = state.leftName.trimmingCharacters(in: .whitespacesAndNewlines)
+            return left.isEmpty
+                ? participantName(setup, index: 0, fallback: defaults.left)
+                : left
         case .tennis(let state):
             return state.doublesTeamDisplayName(for: .left)
         case .archery(let state):
@@ -765,7 +859,7 @@ private enum LinkedSetupConfirmCopy {
                 fallback: defaults.left
             )
         case .none:
-            return defaults.left
+            return participantName(setup, index: 0, fallback: defaults.left)
         }
     }
 
@@ -778,9 +872,15 @@ private enum LinkedSetupConfirmCopy {
         case .rally(let state):
             if let names = state.doubles?.playerNames, names.count >= 4,
                [.pingpongDoubles, .badmintonDoubles, .pickleballDoubles].contains(setup.gameType) {
-                return doublesPair(names[1], names[3], fallback: state.rightName)
+                return doublesPair(
+                    names[1], names[3],
+                    fallback: participantName(setup, index: 1, fallback: state.rightName)
+                )
             }
-            return state.rightName
+            let right = state.rightName.trimmingCharacters(in: .whitespacesAndNewlines)
+            return right.isEmpty
+                ? participantName(setup, index: 1, fallback: defaults.right)
+                : right
         case .tennis(let state):
             return state.doublesTeamDisplayName(for: .right)
         case .archery(let state):
@@ -803,7 +903,7 @@ private enum LinkedSetupConfirmCopy {
                 fallback: defaults.right
             )
         case .none:
-            return defaults.right
+            return participantName(setup, index: 1, fallback: defaults.right)
         }
     }
 

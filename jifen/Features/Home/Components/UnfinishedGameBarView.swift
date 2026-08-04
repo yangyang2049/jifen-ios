@@ -332,13 +332,26 @@ struct UnfinishedGameBarView: View {
     var body: some View {
         HStack(spacing: 0) {
             HStack(spacing: 0) {
-                Text(record.gameType.icon)
-                    .font(.system(size: 28))
-                    .foregroundColor(.white)
-                    .frame(width: iconSize, height: iconSize)
-                    .background(iconBackgroundColor)
-                    .clipShape(Circle())
-                    .padding(.trailing, 16)
+                ZStack(alignment: .bottomTrailing) {
+                    Text(record.gameType.icon)
+                        .font(.system(size: 28))
+                        .foregroundColor(.white)
+                        .frame(width: iconSize, height: iconSize)
+                        .background(iconBackgroundColor)
+                        .clipShape(Circle())
+
+                    if case .linked = record.source {
+                        Image(systemName: "applewatch")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 18, height: 18)
+                            .background(Theme.primary)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Theme.homeNeutralCardBackground, lineWidth: 2))
+                            .offset(x: 3, y: 3)
+                    }
+                }
+                .padding(.trailing, 16)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(displayScore)
@@ -350,13 +363,6 @@ struct UnfinishedGameBarView: View {
                         .font(.system(size: 12))
                         .foregroundColor(Theme.homeNeutralCardTextSecondary)
                         .lineLimit(1)
-
-                    if let status = record.linkStatusText {
-                        Text(status)
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(Theme.primary)
-                            .lineLimit(1)
-                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
