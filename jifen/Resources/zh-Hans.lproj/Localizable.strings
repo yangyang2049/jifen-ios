@@ -1040,7 +1040,7 @@
 "scoreboard_usage_hint_foosball_doubles" = "👆 点击左/右比分区为对应一方加 1 球\n⬇️ 下滑减少 1 球\n↩️ 左滑撤销上一步\n👥 双方两名队员在赛前设置，并在编辑模式中分别修改\n☑️ 比赛结束时可从菜单结算或结束比赛";
 "scoreboard_usage_hint_simple_score" = "👆 点击左/右比分区加 1 分；自定义调分模式会打开调分面板\n↩️ 左滑撤销上一步\n✏️ 点击铅笔可修改名称和比分\n☑️ 可从菜单结算或结束比赛";
 "scoreboard_usage_hint_multi_scoreboard" = "👆 点击玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑减 1 分\n↩️ 左滑撤销上一步\n✏️ 长按玩家可编辑名称和分数\n🎛️ 自定义调分模式下，点击玩家会打开调分面板";
-"scoreboard_rotate_orientation" = "切换布局";
+"scoreboard_rotate_orientation" = "旋转方向";
 "settle_match" = "结算";
 "click_again_to_settle_match" = "再点一次结算比赛";
 "voice_announcement_on" = "语音：开";

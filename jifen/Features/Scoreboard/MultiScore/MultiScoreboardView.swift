@@ -259,7 +259,11 @@ struct MultiScoreboardView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .lockOrientation(.landscape)
+        .lockOrientation(useLandscapeLayout ? .landscape : .portrait)
+        .onChange(of: useLandscapeLayout) { _, newValue in
+            guard !(Theme.usesPadLayout && !PreferencesManager.shared.forceIPadLandscape) else { return }
+            OrientationLock.shared.rotate(to: newValue ? .landscape : .portrait)
+        }
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
@@ -539,13 +543,13 @@ struct MultiScoreboardView: View {
             finishConfirming: menuConfirm.finishConfirming,
             settleConfirming: menuConfirm.settleConfirming
         )
-        // 切换布局与结算同属“赛后操作”一类，放在「结束比赛」之后（orderedMatchItems 会把结算置底）。
+        // 旋转方向与结算同属“赛后操作”一类，放在「结束比赛」之后（orderedMatchItems 会把结算置底）。
         items.append(
             ScoreboardMenuItem(
-                title: NSLocalizedString("scoreboard_rotate_orientation", value: "切换布局", comment: ""),
+                title: NSLocalizedString("scoreboard_rotate_orientation", value: "旋转方向", comment: ""),
                 action: "layout",
                 group: .match,
-                icon: "rectangle.2.swap"
+                icon: "rotate.left"
             )
         )
         return items

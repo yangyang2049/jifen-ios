@@ -1040,7 +1040,7 @@
 "scoreboard_usage_hint_foosball_doubles" = "👆 Tap the left or right score area to add 1 goal\n⬇️ Swipe down to subtract 1 goal\n↩️ Swipe left to undo\n👥 Set both players before the match and edit them separately in edit mode\n☑️ Settle or finish the match from the menu";
 "scoreboard_usage_hint_simple_score" = "👆 Tap a score area to add 1; custom adjust mode opens the adjustment panel instead\n↩️ Swipe left to undo\n✏️ Use the pencil to edit names and scores\n☑️ Settle or finish the match from the menu";
 "scoreboard_usage_hint_multi_scoreboard" = "👆 Tap a player tile to add 1 point\n⬆️ Swipe up to add 1; ⬇️ swipe down to subtract 1\n↩️ Swipe left to undo\n✏️ Long-press a player to edit the name and score\n🎛️ In custom adjust mode, tapping a player opens the adjustment panel";
-"scoreboard_rotate_orientation" = "Switch Layout";
+"scoreboard_rotate_orientation" = "Rotate orientation";
 "settle_match" = "Settle";
 "click_again_to_settle_match" = "Tap again to settle the match";
 "voice_announcement_on" = "Voice: On";

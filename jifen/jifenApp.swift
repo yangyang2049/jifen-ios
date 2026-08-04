@@ -31,6 +31,21 @@ class OrientationLock {
         lockedOrientation = orientation
         updateSupportedInterfaceOrientations()
     }
+
+    /// Locks to the given orientation AND proactively requests a geometry
+    /// update so the device actually rotates (mirrors DateTimeToolView).
+    func rotate(to orientation: UIInterfaceOrientationMask) {
+        lock(orientation)
+        guard let windowScene = activeWindowScene else { return }
+        windowScene.windows.first(where: \.isKeyWindow)?
+            .rootViewController?
+            .setNeedsUpdateOfSupportedInterfaceOrientations()
+        windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { error in
+            #if DEBUG
+            print("[OrientationLock] Geometry update failed: \(error.localizedDescription)")
+            #endif
+        }
+    }
     
     func unlock() {
         let defaultOrientation = OrientationLock.defaultOrientation
