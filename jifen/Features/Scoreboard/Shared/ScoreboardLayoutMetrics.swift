@@ -452,7 +452,7 @@ enum ScoreboardTypographyProfile: Sendable {
     case rally
     case tennis
     case basketball
-    case specialized
+    case twoSide
     case doudizhu
     case nineBall
     case multi

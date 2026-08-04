@@ -24,7 +24,7 @@ private final class WatchTennisSessionStore {
         resumedActionLog: WatchScoreActionLog? = nil,
         startedAt: Date = Date()
     ) {
-        let defaults = WatchDefaultTeamNames.resolve()
+        let defaults = WatchDefaultTeamNames.resolve(for: gameType)
         let initial = resumeBundle?.currentSession.state ?? initialState ?? TennisMatchState(
             leftName: defaults.left,
             rightName: defaults.right,

@@ -30,7 +30,7 @@ struct NineBallSetupDialogView: View {
     @State private var setupSendErrorText = ""
     @State private var showExitWhileSendingConfirm = false
     @State private var showWatchNotForegroundAlert = false
-    @State private var showWatchStartGuide = !PreferencesManager.shared.linkedScoreWatchStartGuideShown
+    @State private var showWatchStartGuide = false
 
     private var canStartOnWatch: Bool {
         AppFeatureFlags.watchLinkEntryEnabled
@@ -52,10 +52,7 @@ struct NineBallSetupDialogView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
         } content: { maxContentHeight in
-            AdaptiveSetupDialogScrollView(
-                maxHeight: maxContentHeight,
-                bottomClearance: canStartOnWatch && showWatchStartGuide ? 88 : 12
-            ) {
+            AdaptiveSetupDialogScrollView(maxHeight: maxContentHeight) {
                 VStack(spacing: 18) {
                     Picker("", selection: $playerCount) {
                         ForEach(2...4, id: \.self) { count in
@@ -107,6 +104,9 @@ struct NineBallSetupDialogView: View {
             }
         }
         .onAppear(perform: applyInitialSetup)
+        .task(id: canStartOnWatch) {
+            await presentWatchStartGuideIfNeeded()
+        }
         .alert(
             NSLocalizedString("linked_score_setup_exit_title", value: "退出同步计分？", comment: ""),
             isPresented: $showExitWhileSendingConfirm
@@ -186,6 +186,15 @@ struct NineBallSetupDialogView: View {
                             value: "在手表开始",
                             comment: ""
                         ))
+                        .popover(
+                            isPresented: $showWatchStartGuide,
+                            attachmentAnchor: .rect(.bounds),
+                            arrowEdge: .bottom
+                        ) {
+                            LinkedScoreWatchStartGuidePopover(
+                                onDismiss: dismissWatchStartGuide
+                            )
+                        }
                         .alert(
                             NSLocalizedString(
                                 "linked_score_watch_not_foreground_title",
@@ -205,16 +214,6 @@ struct NineBallSetupDialogView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .clipShape(Capsule())
-                    // Overlay so the guide bubble does not expand the start-button layout.
-                    .overlay(alignment: .topTrailing) {
-                        if showWatchStartGuide {
-                            watchStartGuideBubble
-                                // Anchor bubble bottom (arrow tip) to the top of the start row.
-                                .alignmentGuide(.top) { $0[.bottom] }
-                                .offset(x: 4, y: -2)
-                        }
-                    }
-                    .zIndex(showWatchStartGuide ? 1 : 0)
                 } else {
                     startButton(startOnWatch: false)
                         .clipShape(Capsule())
@@ -224,41 +223,6 @@ struct NineBallSetupDialogView: View {
         .buttonStyle(.plain)
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
-    }
-
-    private var watchStartGuideBubble: some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(NSLocalizedString("linked_score_watch_start_guide_title", value: "手表主控计分", comment: ""))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Theme.textPrimary)
-                Text(NSLocalizedString(
-                    "linked_score_watch_start_guide_message",
-                    value: "点右侧手表按钮发送到手表，由手表主控；手机同步显示并保存记录。",
-                    comment: ""
-                ))
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
-                Button(action: dismissWatchStartGuide) {
-                    Text(NSLocalizedString("watch_sync_comm_failure_help_confirm", value: "知道了", comment: ""))
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Theme.primary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(10)
-            .frame(width: 210, alignment: .leading)
-            .background(Theme.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
-
-            Image(systemName: "triangle.fill")
-                .font(.system(size: 10))
-                .foregroundStyle(Theme.cardBackground)
-                .rotationEffect(.degrees(180))
-                .padding(.trailing, 18)
-                .offset(y: -1)
-        }
     }
 
     private func startButton(startOnWatch: Bool) -> some View {
@@ -385,9 +349,39 @@ struct NineBallSetupDialogView: View {
     }
 
     private func dismissWatchStartGuide() {
-        guard showWatchStartGuide else { return }
         showWatchStartGuide = false
         PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
+    }
+
+    @MainActor
+    private func presentWatchStartGuideIfNeeded() async {
+        guard canStartOnWatch else {
+            showWatchStartGuide = false
+            return
+        }
+        guard !PreferencesManager.shared.linkedScoreWatchStartGuideShown else {
+            showWatchStartGuide = false
+            return
+        }
+
+        do {
+            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.showDelay)
+        } catch {
+            return
+        }
+        guard !Task.isCancelled,
+              canStartOnWatch,
+              !PreferencesManager.shared.linkedScoreWatchStartGuideShown else { return }
+
+        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
+        showWatchStartGuide = true
+
+        do {
+            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.visibleDuration)
+        } catch {
+            return
+        }
+        showWatchStartGuide = false
     }
 
     @MainActor

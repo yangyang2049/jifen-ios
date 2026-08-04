@@ -134,18 +134,6 @@ final class FullAppScreenshotUITests: XCTestCase {
                 }
                 snap(String(format: "71_%02d_board_%@_%@", index, variant.id, mode), settle: 0.6)
 
-                if variant.id == "pingpong", variant.doubles {
-                    let openingChoice = app.buttons.matching(
-                        NSPredicate(format: "label CONTAINS %@", "→")
-                    ).firstMatch
-                    XCTAssertTrue(
-                        openingChoice.waitForExistence(timeout: 4),
-                        "Ping-pong doubles opening-order selector is missing"
-                    )
-                    if openingChoice.exists { openingChoice.tap() }
-                    RunLoop.current.run(until: Date().addingTimeInterval(0.35))
-                }
-
                 tapPriorityScorePanels()
                 snap(String(format: "72_%02d_scored_%@_%@", index, variant.id, mode), settle: 0.6)
                 XCTAssertTrue(openPriorityScoreboardMenu(), "Menu did not open for \(variant.id) \(mode)")
@@ -332,7 +320,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     private func relaunch() {
         if app != nil {
-            app.terminate()
+            terminateAndWait(app)
         }
         app = XCUIApplication()
         app.launchArguments += [
@@ -342,7 +330,7 @@ final class FullAppScreenshotUITests: XCTestCase {
             "-UITestSkipScoreboardUsageHints",
             "-UITestScreenshotMode", "1"
         ]
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Screenshot app failed to reach the foreground")
         XCTAssertTrue(waitForTabs(timeout: 12), "Tab bar not ready after launch")
         // Ensure portrait for tab navigation
         XCUIDevice.shared.orientation = .portrait
@@ -351,7 +339,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     private func captureFirstLaunchLegalScreen() {
         if app != nil {
-            app.terminate()
+            terminateAndWait(app)
         }
         app = XCUIApplication()
         app.launchArguments += [
@@ -362,11 +350,27 @@ final class FullAppScreenshotUITests: XCTestCase {
             "-UITestScreenshotMode", "1"
         ]
         XCUIDevice.shared.orientation = .portrait
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Legal screenshot app failed to reach the foreground")
 
         let title = app.staticTexts["使用前请先阅读并同意"]
         XCTAssertTrue(title.waitForExistence(timeout: 8), "First-launch legal screen not ready")
         snap("00_first_launch_legal")
+    }
+
+    private func launchAndWait(_ app: XCUIApplication) -> Bool {
+        if app.state != .notRunning {
+            app.terminate()
+            guard app.wait(for: .notRunning, timeout: 5) else { return false }
+        }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        app.launch()
+        return app.wait(for: .runningForeground, timeout: 12)
+    }
+
+    private func terminateAndWait(_ app: XCUIApplication) {
+        guard app.state != .notRunning else { return }
+        app.terminate()
+        XCTAssertTrue(app.wait(for: .notRunning, timeout: 5), "Screenshot app failed to terminate")
     }
 
     private func waitForTabs(timeout: TimeInterval) -> Bool {
@@ -545,13 +549,10 @@ final class FullAppScreenshotUITests: XCTestCase {
     }
 
     private func dismissWatchStartGuideIfNeeded() {
-        for label in ["知道了", "Got It", "Got it"] {
-            let button = app.buttons[label]
-            if button.waitForExistence(timeout: 0.4), button.isHittable {
-                button.tap()
-                RunLoop.current.run(until: Date().addingTimeInterval(0.25))
-                return
-            }
+        let closeButton = app.buttons["linked_score_watch_start_guide_close"]
+        if closeButton.waitForExistence(timeout: 0.8), closeButton.isHittable {
+            closeButton.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
         }
     }
 
@@ -947,15 +948,11 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     @discardableResult
     private func tapStart() -> Bool {
-        // 首次进入支持手表联动的项目时，引导卡会覆盖底部“开始”。
-        // XCTest 仍可能把被覆盖按钮报告为 hittable，因此必须先显式关闭引导。
-        for label in ["知道了", "Got It", "Got it"] {
-            let guideDismiss = app.buttons[label]
-            if guideDismiss.exists, guideDismiss.isHittable {
-                guideDismiss.tap()
-                RunLoop.current.run(until: Date().addingTimeInterval(0.25))
-                break
-            }
+        // 首次进入支持手表联动的项目时，关闭锚定在手表按钮上的一次性引导。
+        let guideDismiss = app.buttons["linked_score_watch_start_guide_close"]
+        if guideDismiss.waitForExistence(timeout: 0.8), guideDismiss.isHittable {
+            guideDismiss.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
         }
         for label in ["开始", "Start", "确认"] {
             let button = app.buttons[label]

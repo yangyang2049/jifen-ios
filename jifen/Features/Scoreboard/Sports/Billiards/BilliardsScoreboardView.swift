@@ -45,7 +45,11 @@ struct BilliardsScoreboardView: View {
         self.onNavigationBack = onNavigationBack
         let c = BilliardsScoreboardController()
         _controller = State(initialValue: c)
-        _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .nonNegative))
+        _viewModel = State(initialValue: LineScoreViewModel(
+            controller: c,
+            rules: .nonNegative,
+            defaultNames: DefaultParticipantNames.resolve(for: .billiards)
+        ))
         _recordID = State(initialValue: BilliardsRecordIdentity.initial(resuming: initialResumeSessionId))
     }
 
@@ -114,7 +118,6 @@ struct BilliardsScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .onAppear {
-            viewModel.applyStandardTeamNamesIfNeeded()
             if let setup = initialSetup {
                 if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
                 if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
@@ -174,7 +177,7 @@ struct BilliardsScoreboardView: View {
         if let data = record.stateSnapshot,
            let resumeState = try? JSONDecoder().decode(LineScoreResumeState.self, from: data) {
             controller.gameActions = resumeState.intentTimeline
-            viewModel.restoreSession(state: resumeState.state, history: resumeState.undoHistory)
+            viewModel.restoreSession(resumeState)
             return
         }
 

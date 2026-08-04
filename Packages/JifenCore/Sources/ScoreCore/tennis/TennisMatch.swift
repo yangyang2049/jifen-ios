@@ -207,8 +207,8 @@ public enum TennisDoublesServing {
         return resolveTennisDoublesReceiverSlot(
             serverSlotIndex: serverSlot,
             pointIndexInGame: max(0, state.leftPoints + state.rightPoints),
-            team0FirstReceiverSlotIndex: 0,
-            team1FirstReceiverSlotIndex: 1
+            team0FirstReceiverSlotIndex: 2,
+            team1FirstReceiverSlotIndex: 3
         )
     }
 

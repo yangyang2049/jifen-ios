@@ -28,12 +28,23 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
 
     func testNonConfirmActionClearsPending() {
         let state = ScoreboardMenuConfirmState()
-        state.prepare(forMenuAction: "exchangeSide")
+        state.prepare(forMenuAction: ScoreboardMenuActionID.exchangeSide.rawValue)
         XCTAssertFalse(state.armOrConfirm(.exchangeSide))
         XCTAssertTrue(state.exchangeConfirming)
 
         state.prepare(forMenuAction: "undo")
         XCTAssertNil(state.pending)
+    }
+
+    func testSharedExchangeMenuUsesTheTypedSingularActionID() throws {
+        let items = ScoreboardMenuItemBuilder.defaultItems(showExchangeSide: true)
+        let exchangeItem = try XCTUnwrap(items.first { $0.action == ScoreboardMenuActionID.exchangeSide.rawValue })
+        XCTAssertEqual(exchangeItem.action, "exchangeSide")
+        XCTAssertFalse(items.contains { $0.action == "exchangeSides" })
+        XCTAssertEqual(
+            ScoreboardMenuConfirmAction.fromMenuAction(exchangeItem.action),
+            .exchangeSide
+        )
     }
 
     func testEndGameMapsToFinish() {

@@ -163,7 +163,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
         XCTAssertTrue(ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked("usageHint"))
     }
 
-    func testDialogTypographyIsRoomierOnPadWhilePhoneMetricsStayUnchanged() {
+    func testDialogTypographyKeepsReadablePhoneBodyAndRoomierPadLayout() {
         let phone = ScoreboardUsageHintDialogMetrics.resolve(
             isPad: false,
             compactHeight: false
@@ -174,8 +174,8 @@ final class ScoreboardUsageHintTests: XCTestCase {
         )
 
         XCTAssertEqual(phone.titleFontSize, 20)
-        XCTAssertEqual(phone.bodyFontSize, 15)
-        XCTAssertEqual(phone.bodyLineSpacing, 0)
+        XCTAssertEqual(phone.bodyFontSize, 17)
+        XCTAssertEqual(phone.bodyLineSpacing, 4)
         XCTAssertEqual(phone.buttonFontSize, 16)
         XCTAssertEqual(phone.buttonHeight, 44)
 
@@ -188,7 +188,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
         XCTAssertGreaterThan(pad.verticalPadding, phone.verticalPadding)
     }
 
-    func testCompactPadDialogRetainsLargerBodyTypeWithoutIncreasingButtonHeight() {
+    func testCompactPhoneMatchesReadablePadBodyWithoutIncreasingButtonHeight() {
         let compactPhone = ScoreboardUsageHintDialogMetrics.resolve(
             isPad: false,
             compactHeight: true
@@ -198,8 +198,10 @@ final class ScoreboardUsageHintTests: XCTestCase {
             compactHeight: true
         )
 
-        XCTAssertGreaterThan(compactPad.bodyFontSize, compactPhone.bodyFontSize)
-        XCTAssertGreaterThan(compactPad.bodyLineSpacing, compactPhone.bodyLineSpacing)
+        XCTAssertEqual(compactPhone.bodyFontSize, 17)
+        XCTAssertEqual(compactPhone.bodyLineSpacing, 4)
+        XCTAssertEqual(compactPad.bodyFontSize, compactPhone.bodyFontSize)
+        XCTAssertEqual(compactPad.bodyLineSpacing, compactPhone.bodyLineSpacing)
         XCTAssertEqual(compactPad.buttonHeight, compactPhone.buttonHeight)
     }
 

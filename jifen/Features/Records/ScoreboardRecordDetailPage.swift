@@ -27,7 +27,8 @@ struct ScoreboardRecordDetailPage: View {
     @State private var showingShareSheet = false
     @State private var isPreparingShare = false
     @State private var didTrackRecordView = false
-    @State private var selectedTrendPeriod: Int = 1
+    @State private var selectedTrendTabID: String?
+    @State private var selectedDetailSectionID: String?
 
     var body: some View {
         ZStack {
@@ -81,13 +82,30 @@ struct ScoreboardRecordDetailPage: View {
             VStack(spacing: 16) {
                 overviewCard(record)
                 primaryActions(record, presentation: presentation)
-                if !record.displayParticipants.isEmpty { rankingCard(record.displayParticipants) }
-                if presentation.canShowTrend { trendCard(record: record, points: presentation.trend) }
-                detailModePicker
-                if mode == .recap {
-                    recapCard(record: record, presentation: presentation)
-                } else {
-                    timelineCard(record: record, actions: presentation.actions)
+                if !record.displayParticipants.isEmpty { rankingCard(record) }
+                switch presentation.detailLayout {
+                case .standard:
+                    if presentation.canShowTrend {
+                        trendCard(record: record, tabs: presentation.trendTabs)
+                    }
+                    detailModePicker
+                    recordSectionPicker(presentation.recap)
+                    if mode == .recap {
+                        recapCard(
+                            record: record,
+                            sections: visibleRecordSections(presentation.recap)
+                        )
+                    } else {
+                        timelineCard(
+                            record: record,
+                            sections: visibleRecordSections(presentation.timelineSections)
+                        )
+                    }
+                case .multiScoreTimeline:
+                    multiScoreTimelineCard(
+                        record: record,
+                        rows: presentation.multiScoreTimelineRows
+                    )
                 }
             }
             .padding()
@@ -133,9 +151,17 @@ struct ScoreboardRecordDetailPage: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             HStack(alignment: .center, spacing: 12) {
-                scoreSide(record.team1Name, score: record.team1FinalScore, isWinner: record.winner == "left")
+                scoreSide(
+                    record.team1Name,
+                    score: record.team1FinalScore,
+                    isWinner: record.resolvedWinnerRecordTeam == .team1
+                )
                 Text(":").font(.title.bold()).foregroundStyle(Theme.textSecondary)
-                scoreSide(record.team2Name, score: record.team2FinalScore, isWinner: record.winner == "right")
+                scoreSide(
+                    record.team2Name,
+                    score: record.team2FinalScore,
+                    isWinner: record.resolvedWinnerRecordTeam == .team2
+                )
             }
             if record.shouldDisplaySecondaryScore,
                let left = record.team1SetScore,
@@ -208,49 +234,74 @@ struct ScoreboardRecordDetailPage: View {
         }
     }
 
-    private func rankingCard(_ participants: [ScoreboardRecordParticipant]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+    private func rankingCard(_ record: ScoreboardRecord) -> some View {
+        let rankedParticipants = record.displayParticipants.enumerated().sorted {
+            if $0.element.score != $1.element.score {
+                return $0.element.score > $1.element.score
+            }
+            return $0.offset < $1.offset
+        }
+        return VStack(alignment: .leading, spacing: 10) {
             Label(NSLocalizedString("record_final_ranking", value: "最终排名", comment: ""), systemImage: "list.number").font(.headline)
-            ForEach(Array(participants.sorted { $0.score > $1.score }.enumerated()), id: \.offset) { index, item in
+            ForEach(Array(rankedParticipants.enumerated()), id: \.element.offset) { rank, entry in
+                let isWinner = record.resolvedWinnerIdentity == .participant(index: entry.offset)
                 HStack {
-                    Text("\(index + 1)").font(.headline).frame(width: 28)
-                    Text(item.name)
+                    Text("\(rank + 1)").font(.headline).frame(width: 28)
+                    Text(entry.element.name)
+                    if isWinner {
+                        Image(systemName: "trophy.fill")
+                            .accessibilityLabel(NSLocalizedString("winner", value: "赢家", comment: ""))
+                    }
                     Spacer()
-                    Text("\(item.score)").font(.headline.monospacedDigit())
+                    Text("\(entry.element.score)").font(.headline.monospacedDigit())
                 }
+                .foregroundStyle(isWinner ? Color.green : Theme.textPrimary)
                 .padding(.vertical, 4)
             }
         }
         .padding(16).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private func trendCard(record: ScoreboardRecord, points: [ScoreboardRecordTrendPoint]) -> some View {
-        let availablePeriods = Array(Set(points.map { $0.period ?? 1 })).sorted()
-        let effectivePeriod = availablePeriods.contains(selectedTrendPeriod)
-            ? selectedTrendPeriod
-            : (availablePeriods.first ?? 1)
-        let filteredPoints = points.filter { ($0.period ?? 1) == effectivePeriod }
-        let periodPolicy = ScoreboardRecordProjectPolicy.policy(for: record.gameType)
+    private func trendCard(
+        record: ScoreboardRecord,
+        tabs: [ScoreboardRecordTrendTab]
+    ) -> some View {
+        let selectedTab = tabs.first { $0.id == selectedTrendTabID } ?? tabs.first
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label(NSLocalizedString("score_trend", value: "比分趋势", comment: ""), systemImage: "chart.xyaxis.line").font(.headline)
                 Spacer()
-                if availablePeriods.count > 1 {
-                    Picker("", selection: $selectedTrendPeriod) {
-                        ForEach(availablePeriods, id: \.self) { period in
-                            Text(periodPolicy.trendPeriodTitle(period)).tag(period)
+                if tabs.count > 1, let selectedTab {
+                    Picker(
+                        "",
+                        selection: Binding(
+                            get: { selectedTab.id },
+                            set: { selectedTrendTabID = $0 }
+                        )
+                    ) {
+                        ForEach(tabs) { tab in
+                            Text(tab.title).tag(tab.id)
                         }
                     }
                     .pickerStyle(.menu)
-                    .onAppear {
-                        if !availablePeriods.contains(selectedTrendPeriod) {
-                            selectedTrendPeriod = availablePeriods.first ?? 1
-                        }
-                    }
+                    .accessibilityIdentifier("score_trend_tab_picker")
                 }
             }
-            ScoreTrendChart(points: filteredPoints, leftName: record.team1Name, rightName: record.team2Name)
+            if let selectedTab {
+                ScoreTrendChart(
+                    tab: selectedTab,
+                    leftName: record.team1Name,
+                    rightName: record.team2Name
+                )
                 .frame(height: 190)
+                .accessibilityIdentifier("score_trend_chart_\(selectedTab.id)")
+                .accessibilityValue("\(selectedTab.title), \(selectedTab.points.count)")
+            }
+        }
+        .onAppear {
+            if !tabs.contains(where: { $0.id == selectedTrendTabID }) {
+                selectedTrendTabID = tabs.first?.id
+            }
         }
         .padding(16).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
@@ -263,34 +314,227 @@ struct ScoreboardRecordDetailPage: View {
         .pickerStyle(.segmented)
     }
 
-    private func recapCard(record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) -> some View {
+    @ViewBuilder
+    private func recordSectionPicker(_ sections: [ScoreboardRecordRecapSection]) -> some View {
+        if sections.count > 1 {
+            if Theme.usesPadLayout {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 112, maximum: 180), spacing: 8)],
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    recordSectionButtons(sections)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        recordSectionButtons(sections)
+                    }
+                    .padding(.horizontal, 1)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func recordSectionButtons(_ sections: [ScoreboardRecordRecapSection]) -> some View {
+        recordSectionButton(
+            title: NSLocalizedString("record_recap_full_match", value: "全场", comment: ""),
+            sectionID: nil
+        )
+        ForEach(sections) { section in
+            recordSectionButton(title: section.title, sectionID: section.id)
+        }
+    }
+
+    private func recordSectionButton(title: String, sectionID: String?) -> some View {
+        let selected = selectedDetailSectionID == sectionID
+        return Button {
+            selectedDetailSectionID = sectionID
+        } label: {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: Theme.usesPadLayout ? .infinity : nil)
+                .padding(.horizontal, 14)
+                .frame(minHeight: ScoreboardConstants.minimumTouchTarget)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(selected ? Color.white : Theme.textPrimary)
+        .background(selected ? Theme.accentColor : Theme.surface)
+        .clipShape(Capsule())
+        .accessibilityIdentifier(
+            sectionID.map { "record_detail_section_\($0)" } ?? "record_detail_section_all"
+        )
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    private func visibleRecordSections(
+        _ sections: [ScoreboardRecordRecapSection]
+    ) -> [ScoreboardRecordRecapSection] {
+        guard let selectedDetailSectionID else { return sections }
+        return sections.filter { $0.id == selectedDetailSectionID }
+    }
+
+    private func recapCard(
+        record: ScoreboardRecord,
+        sections: [ScoreboardRecordRecapSection]
+    ) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            if presentation.recap.isEmpty {
+            if sections.isEmpty {
                 unavailableDetail
             } else {
-                ForEach(presentation.recap) { section in
+                ForEach(sections) { section in
                     VStack(alignment: .leading, spacing: 8) {
                         Text(section.title).font(.headline)
+                        if let result = section.result, !result.scores.isEmpty {
+                            recapResultRow(result)
+                        }
                         ForEach(Array(section.actions.enumerated()), id: \.element.id) { index, action in
                             actionRow(action, index: index, record: record)
                         }
+                        if section.actions.isEmpty && section.result == nil {
+                            unavailableDetail
+                        }
                     }
-                    if section.id != presentation.recap.last?.id { Divider() }
+                    if section.id != sections.last?.id { Divider() }
                 }
             }
         }
         .padding(16).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private func timelineCard(record: ScoreboardRecord, actions: [DetailedScoreAction]) -> some View {
+    private func recapResultRow(_ result: RecordSetResult) -> some View {
+        HStack {
+            Spacer()
+            Text(result.scores.map(String.init).joined(separator: " : "))
+                .font(.subheadline.bold().monospacedDigit())
+                .foregroundStyle(Theme.primary)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func timelineCard(
+        record: ScoreboardRecord,
+        sections: [ScoreboardRecordRecapSection]
+    ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            if actions.isEmpty { unavailableDetail }
-            ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
-                actionRow(action, index: index, record: record)
-                if index != actions.count - 1 { Divider().padding(.leading, 48) }
+            if sections.isEmpty {
+                unavailableDetail
+            } else {
+                ForEach(sections) { section in
+                    if section.number != nil || sections.count > 1 {
+                        Text(section.title)
+                            .font(.headline)
+                            .padding(.vertical, 6)
+                    }
+                    if section.actions.isEmpty {
+                        unavailableDetail
+                    } else {
+                        ForEach(Array(section.actions.enumerated()), id: \.element.id) { index, action in
+                            actionRow(action, index: index, record: record)
+                            if index != section.actions.count - 1 {
+                                Divider().padding(.leading, 48)
+                            }
+                        }
+                    }
+                    if section.id != sections.last?.id { Divider() }
+                }
             }
         }
         .padding(16).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func multiScoreTimelineCard(
+        record: ScoreboardRecord,
+        rows: [MultiScoreRecordDetailRow]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                Image(systemName: "list.bullet.rectangle")
+                Text(NSLocalizedString("multi_score_record_actions", value: "分数变化记录", comment: ""))
+                    .accessibilityIdentifier("multi_score_record_actions")
+            }
+            .font(.headline)
+            .padding(.bottom, 6)
+
+            if rows.isEmpty {
+                Text(NSLocalizedString(
+                    "multi_score_record_no_actions",
+                    value: "暂无分数变化记录",
+                    comment: ""
+                ))
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 8)
+                .accessibilityIdentifier("multi_score_record_no_actions")
+            } else {
+                ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                    multiScoreTimelineRow(row, index: index, record: record)
+                    if index != rows.count - 1 {
+                        Divider().padding(.leading, 48)
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func multiScoreTimelineRow(
+        _ row: MultiScoreRecordDetailRow,
+        index: Int,
+        record: ScoreboardRecord
+    ) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text(relativeActionTime(
+                epochMilliseconds: row.epochMilliseconds,
+                index: index,
+                start: record.startTime
+            ))
+            .font(.caption.monospacedDigit())
+            .foregroundStyle(Theme.textSecondary)
+            .frame(width: 42, alignment: .leading)
+
+            Text(multiScoreActionTitle(row.event))
+                .font(.subheadline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func multiScoreActionTitle(_ event: MultiScoreRecordDetailEvent) -> String {
+        switch event {
+        case .scoreAdjustment(let participantName, let delta):
+            guard let participantName, let delta else {
+                return NSLocalizedString("record_score_changed", value: "比分变化", comment: "")
+            }
+            let signedDelta = delta > 0 ? "+\(delta)" : "\(delta)"
+            return String(
+                format: NSLocalizedString(
+                    "multi_score_record_adjustment_format",
+                    value: "%@ %@",
+                    comment: ""
+                ),
+                participantName,
+                signedDelta
+            )
+        case .matchStarted:
+            return NSLocalizedString("game_started", comment: "")
+        case .matchFinished:
+            return NSLocalizedString("game_ended", comment: "")
+        case .reset:
+            return NSLocalizedString("reset", value: "重置", comment: "")
+        case .undo:
+            return NSLocalizedString("undo", value: "撤销", comment: "")
+        case .stateChanged:
+            return NSLocalizedString("record_state_changed", value: "状态变化", comment: "")
+        }
     }
 
     private var unavailableDetail: some View {
@@ -335,7 +579,19 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func actionTime(_ action: DetailedScoreAction, index: Int, start: Date) -> String {
-        guard let milliseconds = action.epochMilliseconds else { return "#\(index + 1)" }
+        relativeActionTime(
+            epochMilliseconds: action.epochMilliseconds,
+            index: index,
+            start: start
+        )
+    }
+
+    private func relativeActionTime(
+        epochMilliseconds: Int64?,
+        index: Int,
+        start: Date
+    ) -> String {
+        guard let milliseconds = epochMilliseconds else { return "#\(index + 1)" }
         let elapsed = max(0, Double(milliseconds) / 1_000 - start.timeIntervalSince1970)
         return String(format: "%02d:%02d", Int(elapsed) / 60, Int(elapsed) % 60)
     }
@@ -449,6 +705,8 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func loadRecord() {
+        selectedTrendTabID = nil
+        selectedDetailSectionID = nil
         record = ScoreboardRecordManager.shared.getRecordById(recordId)
         guard let record, !didTrackRecordView else { return }
         didTrackRecordView = true
@@ -507,13 +765,14 @@ struct ScoreboardRecordDetailPage: View {
 }
 
 private struct ScoreTrendChart: View {
-    let points: [ScoreboardRecordTrendPoint]
+    let tab: ScoreboardRecordTrendTab
     let leftName: String
     let rightName: String
 
     var body: some View {
         VStack(spacing: 8) {
             Canvas { context, size in
+                let points = tab.points
                 let maxScore = max(1, points.flatMap { [$0.left, $0.right] }.max() ?? 1)
                 draw(team: \.left, color: .red, maxScore: maxScore, context: &context, size: size)
                 draw(team: \.right, color: .blue, maxScore: maxScore, context: &context, size: size)
@@ -526,16 +785,34 @@ private struct ScoreTrendChart: View {
     }
 
     private func draw(team: KeyPath<ScoreboardRecordTrendPoint, Int>, color: Color, maxScore: Int, context: inout GraphicsContext, size: CGSize) {
-        for segment in Set(points.map(\.segment)).sorted() {
-            let values = points.filter { $0.segment == segment }
-            guard values.count >= 2 else { continue }
-            var path = Path()
-            for (index, point) in values.enumerated() {
-                let x = size.width * CGFloat(point.actionIndex) / CGFloat(max(1, (points.last?.actionIndex ?? 1)))
-                let y = size.height - size.height * CGFloat(point[keyPath: team]) / CGFloat(maxScore)
-                if index == 0 { path.move(to: CGPoint(x: x, y: y)) } else { path.addLine(to: CGPoint(x: x, y: y)) }
+        let points = tab.points
+        let xPositions = ScoreboardTrendChartGeometry.xPositions(
+            pointCount: points.count,
+            width: size.width
+        )
+        guard points.count >= 2, xPositions.count == points.count else { return }
+
+        var path = Path()
+        var plottedPoints: [CGPoint] = []
+        for (index, point) in points.enumerated() {
+            let score = max(0, min(point[keyPath: team], maxScore))
+            let plotted = CGPoint(
+                x: xPositions[index],
+                y: size.height - size.height * CGFloat(score) / CGFloat(maxScore)
+            )
+            plottedPoints.append(plotted)
+            if index == 0 {
+                path.move(to: plotted)
+            } else {
+                path.addLine(to: plotted)
             }
-            context.stroke(path, with: .color(color), lineWidth: 3)
+        }
+        context.stroke(path, with: .color(color), style: .init(lineWidth: 3, lineCap: .round, lineJoin: .round))
+        for point in plottedPoints {
+            context.fill(
+                Path(ellipseIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6)),
+                with: .color(color)
+            )
         }
     }
 }

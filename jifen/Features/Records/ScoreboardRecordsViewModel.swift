@@ -1,67 +1,115 @@
 import Foundation
-import SwiftUI
 import Observation
+import OSLog
+import SwiftUI
 
 @Observable
 final class ScoreboardRecordsViewModel {
     static let shared = ScoreboardRecordsViewModel()
-    
+
+    typealias SummaryLoader = () -> [ScoreboardRecordSummary]
+
     var records: [ScoreboardRecordSummary] = []
     private(set) var groupedRecords: [ScoreboardRecordGroup] = []
     private(set) var isLoading: Bool = false
-    
+    private(set) var hasLoaded: Bool = false
+
+    private static let startupLog = OSLog(
+        subsystem: "com.douhua.jifen.ios",
+        category: "Startup"
+    )
+    private let summaryLoader: SummaryLoader
+    private let notificationCenter: NotificationCenter
+    private var recordsChangedObserver: NSObjectProtocol?
     private var lastRefreshTime: TimeInterval = 0
     private let refreshDebounceTime: TimeInterval = 1.0 // 1秒防抖
-    
-    private init() {
-        loadRecordsInBackground()
+    private var refreshAfterCurrentLoad = false
+
+    init(
+        summaryLoader: @escaping SummaryLoader = {
+            ScoreboardRecordManager.shared.getAllRecordSummaries()
+        },
+        notificationCenter: NotificationCenter = .default
+    ) {
+        self.summaryLoader = summaryLoader
+        self.notificationCenter = notificationCenter
+        recordsChangedObserver = notificationCenter.addObserver(
+            forName: .scoreboardRecordsDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.refreshRecordsImmediately()
+            }
+        }
     }
-    
+
+    deinit {
+        if let recordsChangedObserver {
+            notificationCenter.removeObserver(recordsChangedObserver)
+        }
+    }
+
     // MARK: - Refresh Records
-    
+
+    /// Loads the shared record summary exactly once for startup consumers.
+    /// Explicit mutations continue to use the refresh methods below.
+    func ensureLoaded() {
+        guard !hasLoaded, !isLoading else { return }
+        requestLoad()
+    }
+
     func refreshRecords() {
         let now = Date().timeIntervalSince1970
-        
+
         // 防抖：如果距离上次刷新小于1秒，则跳过
         if now - lastRefreshTime < refreshDebounceTime {
             return
         }
-        
-        lastRefreshTime = now
-        isLoading = true
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self else { return }
-            let summaries = ScoreboardRecordManager.shared.getAllRecordSummaries()
-            let grouped = self.groupRecordsByDate(summaries)
-            DispatchQueue.main.async {
-                self.records = summaries
-                self.groupedRecords = grouped
-                self.isLoading = false
-            }
-        }
-    }
-    
-    func loadRecordsInBackground() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.refreshRecords()
-        }
+        lastRefreshTime = now
+        requestLoad()
     }
 
     func refreshRecordsImmediately() {
+        requestLoad()
+    }
+
+    private func requestLoad() {
+        guard !isLoading else {
+            refreshAfterCurrentLoad = true
+            return
+        }
         isLoading = true
+        let loader = summaryLoader
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
-            let summaries = ScoreboardRecordManager.shared.getAllRecordSummaries()
-            let grouped = self.groupRecordsByDate(summaries)
+            os_signpost(
+                .begin,
+                log: Self.startupLog,
+                name: "ScoreboardRecordSummaryLoad"
+            )
+            let summaries = loader()
+            let grouped = Self.groupRecordsByDate(summaries)
+            os_signpost(
+                .end,
+                log: Self.startupLog,
+                name: "ScoreboardRecordSummaryLoad",
+                "count=%{public}d",
+                summaries.count
+            )
             DispatchQueue.main.async {
                 self.records = summaries
                 self.groupedRecords = grouped
                 self.isLoading = false
+                self.hasLoaded = true
+                guard self.refreshAfterCurrentLoad else { return }
+                self.refreshAfterCurrentLoad = false
+                self.requestLoad()
             }
         }
     }
-    
+
     // MARK: - Get Records
     // These getters can be removed if direct access to @Published properties is preferred,
     // but keeping them doesn't hurt.
@@ -89,7 +137,9 @@ final class ScoreboardRecordsViewModel {
     
     // MARK: - Group Records
     
-    private func groupRecordsByDate(_ records: [ScoreboardRecordSummary]) -> [ScoreboardRecordGroup] {
+    private static func groupRecordsByDate(
+        _ records: [ScoreboardRecordSummary]
+    ) -> [ScoreboardRecordGroup] {
         var groups: [String: [ScoreboardRecordSummary]] = [:]
         
         for record in records {

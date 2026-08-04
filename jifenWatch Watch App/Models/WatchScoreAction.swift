@@ -654,7 +654,7 @@ enum WatchScoreActionProjector {
              .handoverFromPanel(let side): side
         case .potBall, .foul, .miss, .handover: state.striker
         case .settleFrame(let winner): winner
-        case .confirmNextFrame, .finishMatch, .reset, .adminCorrect: nil
+        case .confirmNextFrame, .finishMatch, .reset, .adminCorrect, .exchangeSides: nil
         }
         return events.map { event in
             switch event {
@@ -707,6 +707,11 @@ enum WatchScoreActionProjector {
                               roundNumber: state.currentFrame, timestamp: timestamp)
             case .reset:
                 return action(.reset, code: "reset",
+                              scores: (state.leftScore, state.rightScore),
+                              sets: (state.leftFrames, state.rightFrames),
+                              roundNumber: state.currentFrame, timestamp: timestamp)
+            case .sidesExchanged:
+                return action(.sideChange, code: "exchange_sides",
                               scores: (state.leftScore, state.rightScore),
                               sets: (state.leftFrames, state.rightFrames),
                               roundNumber: state.currentFrame, timestamp: timestamp)

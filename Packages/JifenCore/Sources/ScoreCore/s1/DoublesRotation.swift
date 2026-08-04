@@ -110,7 +110,7 @@ public enum RallyDoublesRotationState: Codable, Equatable, Sendable {
     case pingPong(PingPongDoublesRotationState)
     case badminton(BadmintonDoublesRotationState)
     case pickleball(PickleballDoublesRotationState)
-    /// Foosball 2V2 keeps four player identities and has no serving rotation.
+    /// Foosball 2V2 keeps four player identities and has no player-level serving rotation.
     case foosball
 }
 
@@ -131,7 +131,7 @@ public struct RallyDoublesState: Codable, Equatable, Sendable {
     public static func pingPong(
         playerNames: [String],
         openingServerSlotIndex: DoublesPlayerSlotIndex = 0,
-        openingReceiverSlotIndex: DoublesPlayerSlotIndex = 1,
+        openingReceiverSlotIndex: DoublesPlayerSlotIndex = 3,
         requiresOpeningConfirmation: Bool = false
     ) -> Self {
         .init(
@@ -434,17 +434,37 @@ public func refreshPickleballDoublesSlots(
     _ state: inout PickleballDoublesRotationState,
     servingTeam0: Bool
 ) {
-    let swapped = servingTeam0 ? state.team0PartnersSwapped : state.team1PartnersSwapped
     let logicalServerOnTop = state.serverNumber == 2
-    let displayLogicalTop = logicalServerOnTop != swapped
-    if servingTeam0 {
-        state.serverSlotIndex = displayLogicalTop ? 0 : 2
-        // Right team visual flip mirrors Android servingTeamOnRight path.
-        state.receiverSlotIndex = displayLogicalTop ? 3 : 1
-    } else {
-        state.serverSlotIndex = displayLogicalTop ? 3 : 1
-        state.receiverSlotIndex = displayLogicalTop ? 0 : 2
-    }
+    let servingTeamSwapped = servingTeam0
+        ? state.team0PartnersSwapped
+        : state.team1PartnersSwapped
+    let serverDisplayedLogicalTop = logicalServerOnTop != servingTeamSwapped
+
+    state.serverSlotIndex = pickleballDisplayedSlot(
+        team0: servingTeam0,
+        displayedLogicalTop: serverDisplayedLogicalTop,
+        rotation: state
+    )
+    // Opponents face each other, so the diagonal receiver occupies the
+    // opposite logical row before the right-hand panel is mirrored onscreen.
+    state.receiverSlotIndex = pickleballDisplayedSlot(
+        team0: !servingTeam0,
+        displayedLogicalTop: !serverDisplayedLogicalTop,
+        rotation: state
+    )
+}
+
+private func pickleballDisplayedSlot(
+    team0: Bool,
+    displayedLogicalTop: Bool,
+    rotation: PickleballDoublesRotationState
+) -> DoublesPlayerSlotIndex {
+    let topSlot = team0 ? 0 : 1
+    let bottomSlot = team0 ? 2 : 3
+    let swapped = team0 ? rotation.team0PartnersSwapped : rotation.team1PartnersSwapped
+    let displayedTopSlot = swapped ? bottomSlot : topSlot
+    let displayedBottomSlot = swapped ? topSlot : bottomSlot
+    return displayedLogicalTop ? displayedTopSlot : displayedBottomSlot
 }
 
 public func togglePickleballPartnerSwap(

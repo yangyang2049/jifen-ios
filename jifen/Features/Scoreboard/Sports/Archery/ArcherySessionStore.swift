@@ -1,12 +1,41 @@
 import Foundation
 import Observation
+import RecordCore
 import ScoreCore
 
 struct ArcheryResumeState: Codable, Equatable {
-    var schemaVersion = 1
+    var schemaVersion = 3
     let state: ArcheryMatchState
     let undoHistory: [ArcheryMatchState]
     let intentTimeline: [String]
+    let detailedActions: [DetailedScoreAction]
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion, state, undoHistory, intentTimeline, detailedActions
+    }
+
+    init(
+        schemaVersion: Int = 3,
+        state: ArcheryMatchState,
+        undoHistory: [ArcheryMatchState],
+        intentTimeline: [String],
+        detailedActions: [DetailedScoreAction] = []
+    ) {
+        self.schemaVersion = schemaVersion
+        self.state = state
+        self.undoHistory = undoHistory
+        self.intentTimeline = intentTimeline
+        self.detailedActions = detailedActions
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        state = try container.decode(ArcheryMatchState.self, forKey: .state)
+        undoHistory = try container.decodeIfPresent([ArcheryMatchState].self, forKey: .undoHistory) ?? []
+        intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []
+        detailedActions = try container.decodeIfPresent([DetailedScoreAction].self, forKey: .detailedActions) ?? []
+    }
 }
 
 /// Primary archery session host — sync apply for scoreboard UI, resumes via SessionCore snapshot shape.

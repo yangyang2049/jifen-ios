@@ -9,6 +9,33 @@ import Foundation
 import Observation
 import ScoreCore
 
+enum UnoTargetScorePolicy {
+    static let presets = [500, 700, 1000]
+    static let allowedRange = 1...9999
+    static let defaultScore = 500
+
+    static func normalized(_ value: Int) -> Int {
+        allowedRange.contains(value) ? value : defaultScore
+    }
+
+    static func initialSelection(for value: Int) -> (targetScore: Int, customText: String) {
+        let targetScore = normalized(value)
+        return (
+            targetScore,
+            presets.contains(targetScore) ? "" : String(targetScore)
+        )
+    }
+
+    static func sanitizedInput(_ rawValue: String) -> String {
+        String(rawValue.filter(\.isNumber).prefix(4))
+    }
+
+    static func customValue(from text: String) -> Int? {
+        guard let value = Int(text), allowedRange.contains(value) else { return nil }
+        return value
+    }
+}
+
 /// User preferences manager
 @Observable
 class PreferencesManager {
@@ -145,9 +172,9 @@ class PreferencesManager {
     var unoTargetScore: Int {
         get {
             let value = defaults.integer(forKey: "unoTargetScore")
-            return [300, 500, 700, 1000].contains(value) ? value : 500
+            return UnoTargetScorePolicy.normalized(value)
         }
-        set { defaults.set(newValue, forKey: "unoTargetScore") }
+        set { defaults.set(UnoTargetScorePolicy.normalized(newValue), forKey: "unoTargetScore") }
     }
 
     /// 掼蛋开局偏好（对齐 HOS guandanSetup*）

@@ -32,6 +32,7 @@ struct DoudizhuScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     @State private var players: [DoudizhuPlayerItem]
     @State private var history: [[Int]] = []
+    @State private var actionCount = 0
     @State private var gameStartTime: Date
     @State private var recordID: String
     @State private var showMenu = false
@@ -84,12 +85,15 @@ struct DoudizhuScoreboardView: View {
         }
         var finished = false
         var restoredActions: [String] = []
+        var restoredHistory: [[Int]] = []
+        var restoredActionCount = 0
 
         if let initialResumeSessionId,
            let record = ManualResumeSessionStore.load(recordID: initialResumeSessionId) {
             start = record.startTime
             id = record.id
             restoredActions = record.actions
+            restoredActionCount = record.totalScoreChanges
             if let data = record.stateSnapshot,
                let resumeState = try? JSONDecoder().decode(DoudizhuResumeState.self, from: data) {
                 for (index, name) in resumeState.names.prefix(3).enumerated() where !name.isEmpty {
@@ -99,6 +103,24 @@ struct DoudizhuScoreboardView: View {
                     initialPlayers[index].score = score
                 }
                 finished = resumeState.finished
+                restoredHistory = Array(
+                    resumeState.undoHistory
+                        .filter { $0.count == 3 }
+                        .suffix(50)
+                )
+                if !resumeState.intentTimeline.isEmpty {
+                    restoredActions = resumeState.intentTimeline
+                }
+                restoredActionCount = max(
+                    max(restoredActionCount, resumeState.actionCount),
+                    restoredHistory.count
+                )
+            } else if let restoredPlayers = decodedDoudizhuPlayers(from: record.extraData),
+                      !restoredPlayers.isEmpty {
+                for (index, restored) in restoredPlayers.prefix(3).enumerated() {
+                    if !restored.name.isEmpty { initialPlayers[index].name = restored.name }
+                    initialPlayers[index].score = restored.score
+                }
             } else if let names = record.extraData?["playerNames"]?.value as? [String] {
                 for (index, name) in names.prefix(3).enumerated() where !name.isEmpty {
                     initialPlayers[index].name = name
@@ -111,6 +133,8 @@ struct DoudizhuScoreboardView: View {
         }
 
         _players = State(initialValue: initialPlayers)
+        _history = State(initialValue: restoredHistory)
+        _actionCount = State(initialValue: restoredActionCount)
         _gameStartTime = State(initialValue: start)
         _recordID = State(initialValue: id)
         _gameFinished = State(initialValue: finished)
@@ -499,6 +523,7 @@ struct DoudizhuScoreboardView: View {
         history.append(players.map(\.score))
         if history.count > 50 { history.removeFirst() }
         players[index].score = next
+        actionCount += 1
         actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|editScore|\(index),\(delta)")
         VibrationManager.shared.vibrateLight()
     }
@@ -676,6 +701,7 @@ struct DoudizhuScoreboardView: View {
         for i in players.indices where i < deltas.count {
             players[i].score += deltas[i]
         }
+        actionCount += 1
         actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|settleRound|\(deltas.map { String($0) }.joined(separator: ","))")
         VibrationManager.shared.vibrateMedium()
     }
@@ -782,7 +808,9 @@ struct DoudizhuScoreboardView: View {
 
     private func performMatchReset() {
         history.append(players.map(\.score))
+        if history.count > 50 { history.removeFirst() }
         for index in players.indices { players[index].score = 0 }
+        actionCount += 1
         actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|reset")
         gameFinished = false
         showGameOverDialog = false
@@ -795,6 +823,7 @@ struct DoudizhuScoreboardView: View {
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.doudizhu.canonicalScoreboardIdentifier)
         gameStartTime = Date()
         history.removeAll()
+        actionCount = 0
         actions.removeAll()
         for index in players.indices { players[index].score = 0 }
         selectedBaseScore = 1
@@ -827,6 +856,7 @@ struct DoudizhuScoreboardView: View {
         for i in players.indices where i < last.count {
             players[i].score = last[i]
         }
+        actionCount = max(0, actionCount - 1)
         actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|undo")
         VibrationManager.shared.vibrateLight()
         toastMessage = NSLocalizedString("undone", value: "已撤销", comment: "Undo done")
@@ -838,7 +868,7 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func saveRecord(finished: Bool = false) {
-        let totalChanges = history.count
+        let totalChanges = actionCount
         let hasProgress = totalChanges > 0 || players.contains(where: { $0.score != 0 }) || finished || gameFinished
         guard hasProgress else { return }
         let end = Date()
@@ -849,7 +879,10 @@ struct DoudizhuScoreboardView: View {
         let resumeState = DoudizhuResumeState(
             names: players.map(\.name),
             scores: players.map(\.score),
-            finished: isFinished
+            finished: isFinished,
+            undoHistory: history,
+            intentTimeline: actions,
+            actionCount: actionCount
         )
         let snapshotData: Data
         do {
@@ -859,11 +892,13 @@ struct DoudizhuScoreboardView: View {
             return
         }
         var winner: String?
+        var winnerIdentity: ScoreboardWinnerIdentity?
         if isFinished {
             let scores = players.map(\.score)
             if let best = scores.max(), scores.filter({ $0 == best }).count == 1,
                let index = scores.firstIndex(of: best) {
                 winner = players[index].name
+                winnerIdentity = .participant(index: index)
             }
         }
         let record = ScoreboardRecord(
@@ -878,7 +913,8 @@ struct DoudizhuScoreboardView: View {
             team2FinalScore: players.count > 1 ? players[1].score : 0,
             team1SetScore: nil,
             team2SetScore: nil,
-            winner: winner,
+            winner: winnerIdentity?.legacyToken ?? winner,
+            winnerIdentity: winnerIdentity,
             actions: actions,
             totalScoreChanges: max(totalChanges, 1),
             extraData: [
@@ -971,10 +1007,86 @@ struct DoudizhuScoreboardView: View {
     }
 }
 
-private struct DoudizhuResumeState: Codable {
+struct DoudizhuResumeState: Codable, Equatable {
+    var schemaVersion: Int
     var names: [String]
     var scores: [Int]
     var finished: Bool
+    var undoHistory: [[Int]]
+    var intentTimeline: [String]
+    var actionCount: Int
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case names
+        case scores
+        case finished
+        case undoHistory
+        case intentTimeline
+        case actionCount
+    }
+
+    init(
+        schemaVersion: Int = 2,
+        names: [String],
+        scores: [Int],
+        finished: Bool,
+        undoHistory: [[Int]] = [],
+        intentTimeline: [String] = [],
+        actionCount: Int = 0
+    ) {
+        self.schemaVersion = schemaVersion
+        self.names = names
+        self.scores = scores
+        self.finished = finished
+        self.undoHistory = undoHistory
+        self.intentTimeline = intentTimeline
+        self.actionCount = actionCount
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        names = try container.decode([String].self, forKey: .names)
+        scores = try container.decode([Int].self, forKey: .scores)
+        finished = try container.decode(Bool.self, forKey: .finished)
+        undoHistory = try container.decodeIfPresent([[Int]].self, forKey: .undoHistory) ?? []
+        intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []
+        actionCount = try container.decodeIfPresent(Int.self, forKey: .actionCount) ?? undoHistory.count
+    }
+}
+
+private func decodedDoudizhuPlayers(
+    from extraData: [String: AnyCodable]?
+) -> [(name: String, score: Int)]? {
+    guard let rawPlayers = extraData?["players"]?.value else { return nil }
+    let values: [Any]
+    if let rawPlayers = rawPlayers as? [Any] {
+        values = rawPlayers
+    } else if let rawPlayers = rawPlayers as? [AnyCodable] {
+        values = rawPlayers.map(\.value)
+    } else {
+        return nil
+    }
+    return values.compactMap { rawValue in
+        let value = (rawValue as? AnyCodable)?.value ?? rawValue
+        let dictionary: [String: Any]
+        if let value = value as? [String: Any] {
+            dictionary = value
+        } else if let value = value as? [String: AnyCodable] {
+            dictionary = value.mapValues(\.value)
+        } else {
+            return nil
+        }
+        let name = dictionary["name"] as? String ?? ""
+        let rawScore = dictionary["finalScore"] ?? dictionary["score"] ?? 0
+        let score: Int
+        if let value = rawScore as? Int { score = value }
+        else if let value = rawScore as? Double { score = Int(value) }
+        else if let value = rawScore as? String { score = Int(value) ?? 0 }
+        else { score = 0 }
+        return (name, score)
+    }
 }
 
 #Preview {

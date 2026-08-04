@@ -23,6 +23,7 @@ struct MultiScoreSetupDialogView: View {
     @State private var team1Name: String
     @State private var team2Name: String
     @State private var unoTargetScore: Int
+    @State private var unoCustomTargetScoreText: String
     @State private var customAdjustEnabled: Bool
     @State private var guandanTripleA: Bool
     @State private var guandanPassACondition: String
@@ -120,8 +121,9 @@ struct MultiScoreSetupDialogView: View {
         _team2Name = State(initialValue: defaultTeam2Name.isEmpty
             ? Self.defaultTwoTeamName(isTeam1: false, gameType: gameType)
             : defaultTeam2Name)
-        let validTargets = [300, 500, 700, 1000]
-        _unoTargetScore = State(initialValue: validTargets.contains(initialTargetScore) ? initialTargetScore : 500)
+        let initialUnoTarget = UnoTargetScorePolicy.initialSelection(for: initialTargetScore)
+        _unoTargetScore = State(initialValue: initialUnoTarget.targetScore)
+        _unoCustomTargetScoreText = State(initialValue: initialUnoTarget.customText)
         let initialCustomAdjust: Bool = initialSetup?.multiScoreCustomAdjustEnabled ?? {
             switch mode {
             case .multiScore:
@@ -147,18 +149,8 @@ struct MultiScoreSetupDialogView: View {
     }
 
     private static func defaultTwoTeamName(isTeam1: Bool, gameType: GameType) -> String {
-        if gameType == .simpleScore || gameType == .guandan || gameType == .shengji {
-            return NSLocalizedString(
-                isTeam1 ? "watch_team_red" : "watch_team_blue",
-                value: isTeam1 ? "红方" : "蓝方",
-                comment: ""
-            )
-        }
-        return NSLocalizedString(
-            isTeam1 ? "red_team" : "blue_team",
-            value: isTeam1 ? "红方" : "蓝方",
-            comment: ""
-        )
+        let defaults = DefaultParticipantNames.resolve(for: gameType)
+        return isTeam1 ? defaults.left : defaults.right
     }
 
     var body: some View {
@@ -221,13 +213,14 @@ struct MultiScoreSetupDialogView: View {
                 Button(action: confirmSetup) {
                     Text(NSLocalizedString("start_game", comment: "Start Game button"))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
+                        .foregroundColor(canConfirmSetup ? .white : Theme.textSecondary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
-                        .background(Theme.primary)
+                        .background(canConfirmSetup ? Theme.primary : Theme.dialogControlBackground)
                         .cornerRadius(.infinity)
                 }
                 .buttonStyle(.plain)
+                .disabled(!canConfirmSetup)
             }
             .padding(.horizontal, Theme.lg)
             .padding(.top, Theme.sm)
@@ -399,22 +392,50 @@ struct MultiScoreSetupDialogView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
             HStack(spacing: 8) {
-                ForEach([300, 500, 700, 1000], id: \.self) { score in
+                ForEach(UnoTargetScorePolicy.presets, id: \.self) { score in
+                    let isSelected = unoCustomTargetScoreText.isEmpty && unoTargetScore == score
                     Button {
                         unoTargetScore = score
+                        unoCustomTargetScoreText = ""
                     } label: {
                         Text("\(score)")
-                            .font(.system(size: 14, weight: unoTargetScore == score ? .medium : .regular))
-                            .foregroundStyle(unoTargetScore == score ? Color.white : Theme.textPrimary)
+                            .font(.system(size: 14, weight: isSelected ? .medium : .regular))
+                            .foregroundStyle(isSelected ? Color.white : Theme.textPrimary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
-                            .background(unoTargetScore == score ? Theme.primary : Theme.dialogControlBackground)
+                            .background(isSelected ? Theme.primary : Theme.dialogControlBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("uno_target_score_preset_\(score)")
                 }
+
+                TextField(
+                    NSLocalizedString("custom", value: "自定义", comment: ""),
+                    text: Binding(
+                        get: { unoCustomTargetScoreText },
+                        set: { rawValue in
+                            let sanitized = UnoTargetScorePolicy.sanitizedInput(rawValue)
+                            unoCustomTargetScoreText = sanitized
+                            unoTargetScore = UnoTargetScorePolicy.customValue(from: sanitized) ?? 0
+                        }
+                    )
+                )
+                .keyboardType(.numberPad)
+                .multilineTextAlignment(.center)
+                .font(.system(size: 14, weight: unoCustomTargetScoreText.isEmpty ? .regular : .medium))
+                .foregroundStyle(unoCustomTargetScoreText.isEmpty ? Theme.textPrimary : Color.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .background(unoCustomTargetScoreText.isEmpty ? Theme.dialogControlBackground : Theme.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .accessibilityIdentifier("uno_custom_target_score_field")
             }
         }
+    }
+
+    private var canConfirmSetup: Bool {
+        layoutMode != .uno || UnoTargetScorePolicy.allowedRange.contains(unoTargetScore)
     }
 
     private static func normalizePlayerNames(_ names: [String], capacity: Int) -> [String] {
@@ -454,6 +475,8 @@ struct MultiScoreSetupDialogView: View {
     }
 
     private func confirmSetup() {
+        guard canConfirmSetup else { return }
+
         switch layoutMode {
         case .twoTeam:
             let fallback1 = Self.defaultTwoTeamName(isTeam1: true, gameType: gameType)
@@ -505,9 +528,10 @@ struct MultiScoreSetupDialogView: View {
                 result.multiScoreCustomAdjustEnabled = customAdjustEnabled
             }
             if layoutMode == .uno {
+                let targetScore = UnoTargetScorePolicy.normalized(unoTargetScore)
                 PreferencesManager.shared.unoPlayerCount = selectedPlayerCount
-                PreferencesManager.shared.unoTargetScore = unoTargetScore
-                result.targetScore = unoTargetScore
+                PreferencesManager.shared.unoTargetScore = targetScore
+                result.targetScore = targetScore
             }
             Task {
                 for name in finalNames {

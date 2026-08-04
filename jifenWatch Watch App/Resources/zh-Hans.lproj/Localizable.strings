@@ -88,6 +88,14 @@
 "exit" = "退出";
 "watch_team_red" = "红方";
 "watch_team_blue" = "蓝方";
+"team_a" = "A队";
+"team_b" = "B队";
+"team_home" = "主队";
+"team_away" = "客队";
+"player_a" = "选手A";
+"player_b" = "选手B";
+"archer_a" = "射手A";
+"archer_b" = "射手B";
 "linked_score_confirm_title" = "手机请求联动计分";
 "linked_score_phone_started_scoreboard" = "手机已发起计分";
 "linked_score_accept" = "接受";

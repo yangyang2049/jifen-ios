@@ -70,26 +70,30 @@ final class ScoreVoiceAnnouncer {
 
     /// International-standard scoreboard voice (BWF / ITTF / ITF).
     func speak(_ payload: VoiceAnnouncementPayload) {
-        let language = resolveLanguage()
-        let text = VoiceAnnouncementMessageBuilder.build(payload, language: language)
-        guard !text.isEmpty else { return }
+        speak([payload])
+    }
 
-        switch payload.phase {
-        case .scoreChange:
-            scoreChangeTask?.cancel()
+    /// Speaks one reducer event as an atomic, ordered batch. This prevents a
+    /// delayed score call from interrupting the following interval/change-ends call.
+    func speak(_ payloads: [VoiceAnnouncementPayload]) {
+        let language = VoiceAnnouncementLanguage.resolve()
+        let texts = payloads
+            .map { VoiceAnnouncementMessageBuilder.build($0, language: language) }
+            .filter { !$0.isEmpty }
+        guard !texts.isEmpty else { return }
+
+        scoreChangeTask?.cancel()
+        scoreChangeTask = nil
+        if VoiceAnnouncementBatchPolicy.shouldDebounce(payloads) {
             scoreChangeTask = Task { [weak self] in
                 try? await Task.sleep(nanoseconds: self?.scoreChangeDebounceNanoseconds ?? 420_000_000)
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
-                    self?.speakText(text, language: language, queue: false)
+                    self?.speakTexts(texts, language: language)
                 }
             }
-        case .sideChange:
-            speakText(text, language: language, queue: true)
-        default:
-            scoreChangeTask?.cancel()
-            scoreChangeTask = nil
-            speakText(text, language: language, queue: false)
+        } else {
+            speakTexts(texts, language: language)
         }
     }
 
@@ -99,17 +103,13 @@ final class ScoreVoiceAnnouncer {
         synthesizer.stopSpeaking(at: .immediate)
     }
 
-    private func speakText(_ text: String, language: VoiceAnnouncementLanguage, queue: Bool) {
-        if !queue {
-            synthesizer.stopSpeaking(at: .immediate)
+    private func speakTexts(_ texts: [String], language: VoiceAnnouncementLanguage) {
+        synthesizer.stopSpeaking(at: .immediate)
+        for text in texts {
+            let utterance = AVSpeechUtterance(string: text)
+            utterance.voice = AVSpeechSynthesisVoice(language: language.rawValue)
+            utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+            synthesizer.speak(utterance)
         }
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: language.rawValue)
-        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
-        synthesizer.speak(utterance)
-    }
-
-    private func resolveLanguage() -> VoiceAnnouncementLanguage {
-        Locale.current.language.languageCode?.identifier == "en" ? .enUS : .zhCN
     }
 }

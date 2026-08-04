@@ -23,7 +23,7 @@ private final class WatchRallySessionStore {
         resumedActionLog: WatchScoreActionLog? = nil,
         startedAt: Date = Date()
     ) {
-        let defaults = WatchDefaultTeamNames.resolve()
+        let defaults = WatchDefaultTeamNames.resolve(for: gameType)
         let initial = resumeBundle?.currentSession.state ?? initialState ?? RallyMatchEngine.initial(
             leftName: defaults.left,
             rightName: defaults.right,

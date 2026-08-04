@@ -736,6 +736,7 @@ private enum LinkedSetupConfirmCopy {
         guard let setup else {
             return NSLocalizedString("watch_team_red", value: "红方", comment: "")
         }
+        let defaults = WatchDefaultTeamNames.fallback(for: setup.gameType)
         switch setup.initialSnapshot {
         case .rally(let state):
             if let names = state.doubles?.playerNames, names.count >= 4,
@@ -751,7 +752,7 @@ private enum LinkedSetupConfirmCopy {
             if state.playerCount <= 2 {
                 return state.resolvedName(
                     at: 0,
-                    fallback: NSLocalizedString("watch_team_red", value: "红方", comment: "")
+                    fallback: defaults.left
                 )
             }
             return (0..<state.playerCount)
@@ -761,10 +762,10 @@ private enum LinkedSetupConfirmCopy {
             return participantName(
                 setup,
                 index: 0,
-                fallback: NSLocalizedString("watch_team_red", value: "红方", comment: "")
+                fallback: defaults.left
             )
         case .none:
-            return NSLocalizedString("watch_team_red", value: "红方", comment: "")
+            return defaults.left
         }
     }
 
@@ -772,6 +773,7 @@ private enum LinkedSetupConfirmCopy {
         guard let setup else {
             return NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
         }
+        let defaults = WatchDefaultTeamNames.fallback(for: setup.gameType)
         switch setup.initialSnapshot {
         case .rally(let state):
             if let names = state.doubles?.playerNames, names.count >= 4,
@@ -787,7 +789,7 @@ private enum LinkedSetupConfirmCopy {
             if state.playerCount <= 2 {
                 return state.resolvedName(
                     at: 1,
-                    fallback: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+                    fallback: defaults.right
                 )
             }
             return String(
@@ -798,10 +800,10 @@ private enum LinkedSetupConfirmCopy {
             return participantName(
                 setup,
                 index: 1,
-                fallback: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+                fallback: defaults.right
             )
         case .none:
-            return NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+            return defaults.right
         }
     }
 

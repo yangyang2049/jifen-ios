@@ -385,6 +385,92 @@ private struct CounterReducer: DomainReducer {
     #expect(RallyRuleSet.pickleball().nextSetServerModel == .alternateFromOpening)
 }
 
+@Test func pickleballSinglesRallyScoringWinnerServesNext() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.pickleball()
+    rules.useRallyScoring = true
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: rules,
+        openingServer: .left
+    )
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    #expect(state.leftPoints == 1)
+    #expect(state.servingSide == .left)
+
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    #expect(state.rightPoints == 1)
+    #expect(state.servingSide == .right)
+}
+
+@Test func pickleballDoublesRallyScoringHasOneServerPerSideOut() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.pickleball()
+    rules.useRallyScoring = true
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: rules,
+        openingServer: .left,
+        doubles: .pickleball(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+    )
+
+    let openingServer = state.doubles?.serverSlotIndex
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
+    #expect(state.leftPoints == 1)
+    #expect(state.servingSide == .left)
+    #expect(state.doubles?.serverSlotIndex == openingServer)
+
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    #expect(state.rightPoints == 1)
+    #expect(state.servingSide == .right)
+    #expect(state.doubles?.pickleballServerNumber == 1)
+    #expect(state.doubles?.serverSlotIndex == 3)
+
+    let rightServer = state.doubles?.serverSlotIndex
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 3).state
+    #expect(state.rightPoints == 2)
+    #expect(state.servingSide == .right)
+    #expect(state.doubles?.serverSlotIndex == rightServer)
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 4).state
+    #expect(state.leftPoints == 2)
+    #expect(state.servingSide == .left)
+    #expect(state.doubles?.pickleballServerNumber == 2)
+    #expect(state.doubles?.serverSlotIndex == 0)
+}
+
+@Test func pickleballRallyScoringReceiverCanWinGamePointUnder2026Rules() {
+    let reducer = RallyMatchReducer()
+    var rules = RallyRuleSet.pickleball(maxSets: 1)
+    rules.useRallyScoring = true
+    rules.pointsToWinSet = 2
+    rules.winByTwo = false
+    var state = RallyMatchEngine.initial(
+        leftName: "Red",
+        rightName: "Blue",
+        rules: rules,
+        openingServer: .left
+    )
+    state.leftPoints = 1
+    state.servingSide = .right
+
+    let result = reducer.reduce(state: state, intent: .pointWon(.left), at: 1)
+
+    #expect(result.state.finished)
+    #expect(result.state.leftSets == 1)
+    #expect(result.events.contains(.setCompleted(
+        winner: .left,
+        setNumber: 1,
+        leftPoints: 2,
+        rightPoints: 0,
+        leftSets: 1,
+        rightSets: 0
+    )))
+}
+
 @Test func pickleballSinglesNextSetAlternatesFromOpeningServer() {
     let reducer = RallyMatchReducer()
     var rules = RallyRuleSet.pickleball(maxSets: 3)
@@ -428,6 +514,7 @@ private struct CounterReducer: DomainReducer {
     #expect(opening.serverNumber == 2)
     #expect(opening.isFirstServeOfGame)
     #expect(opening.team0PartnersSwapped == false)
+    #expect(opening.serverSlotIndex == 0)
 
     // First rally lost while still on opening second server → side-out to other team as server 1.
     state = reducer.reduce(state: state, intent: .pointWon(.right), at: 1).state
@@ -440,6 +527,7 @@ private struct CounterReducer: DomainReducer {
     }
     #expect(afterFirstSideOut.serverNumber == 1)
     #expect(afterFirstSideOut.isFirstServeOfGame == false)
+    #expect(afterFirstSideOut.serverSlotIndex == 3)
 
     // Server 1 loses → server 2, same team.
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
@@ -449,6 +537,7 @@ private struct CounterReducer: DomainReducer {
         return
     }
     #expect(serverTwo.serverNumber == 2)
+    #expect(serverTwo.serverSlotIndex == 1)
 
     // Server 2 scores → point + partner swap.
     state = reducer.reduce(state: state, intent: .pointWon(.right), at: 3).state
@@ -460,6 +549,17 @@ private struct CounterReducer: DomainReducer {
     }
     #expect(afterScore.team1PartnersSwapped)
     #expect(afterScore.serverNumber == 2)
+    #expect(afterScore.serverSlotIndex == serverTwo.serverSlotIndex)
+    guard let afterScoreDoubles = state.doubles else {
+        Issue.record("Expected pickleball doubles state")
+        return
+    }
+    let rightDisplayAfterScore = RallyDoublesDisplayState.resolve(
+        doubles: afterScoreDoubles,
+        logicalSide: .right,
+        screenSide: .right
+    )
+    #expect(rightDisplayAfterScore.serverIsTop == true)
 
     // Server 2 loses → side-out back to left as server 1.
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 4).state
@@ -738,6 +838,64 @@ private struct CounterReducer: DomainReducer {
     #expect(rules.pointsToWinSet == 5)
     #expect(rules.maxSets == 3)
     #expect(!rules.winByTwo)
+    #expect(rules.servingModel == .concedingSideServes)
+}
+
+@Test func foosballConcedingSideServesAfterEveryGoalAndStartsNextGame() {
+    let rules = RallyRuleSet.foosball(maxSets: 3)
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "A",
+        rightName: "B",
+        rules: rules,
+        openingServer: .right
+    )
+
+    #expect(state.servingSide == .right)
+
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 1).state
+    #expect(state.rightPoints == 1)
+    #expect(state.servingSide == .left)
+
+    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
+    #expect(state.leftPoints == 1)
+    #expect(state.servingSide == .right)
+
+    var nextGame = RallyMatchEngine.initial(
+        leftName: "A",
+        rightName: "B",
+        rules: rules,
+        openingServer: .left
+    )
+    nextGame.leftPoints = 4
+    nextGame.rightPoints = 2
+    nextGame = reducer.reduce(state: nextGame, intent: .pointWon(.left), at: 3).state
+
+    #expect(nextGame.leftSets == 1)
+    #expect(nextGame.leftPoints == 0)
+    #expect(nextGame.rightPoints == 0)
+    #expect(nextGame.firstServerInSet == .right)
+    #expect(nextGame.servingSide == .right)
+}
+
+@Test func foosballDoublesChangesTeamServeWithoutPlayerRotation() {
+    let names = ["红A", "蓝A", "红B", "蓝B"]
+    let doubles = RallyDoublesState.foosball(playerNames: names)
+    let initial = RallyMatchEngine.initial(
+        leftName: "红队",
+        rightName: "蓝队",
+        rules: .foosball(),
+        openingServer: .left,
+        doubles: doubles
+    )
+    let state = RallyMatchReducer().reduce(
+        state: initial,
+        intent: .pointWon(.left),
+        at: 1
+    ).state
+
+    #expect(state.servingSide == .right)
+    #expect(state.doubles == doubles)
 }
 
 @Test func foosballDecidingSetWinByTwoAndCapOnlyApplyToFinalSet() {
@@ -831,7 +989,10 @@ private struct CounterReducer: DomainReducer {
     let restored: ScoreSession<LineScoreState, LineScoreEvent>? = try await repository.load(sessionId: session.sessionId)
     #expect(restored?.state == state)
 
-    try await repository.remove(sessionId: session.sessionId)
+    let secondRepository = ResumeSessionRepository(rootURL: root)
+    async let firstRemoval: Void = repository.remove(sessionId: session.sessionId)
+    async let secondRemoval: Void = secondRepository.remove(sessionId: session.sessionId)
+    _ = try await (firstRemoval, secondRemoval)
     #expect(try await repository.entries().isEmpty)
     #expect(!FileManager.default.fileExists(atPath: ResumeSessionRepository.snapshotURL(sessionId: session.sessionId, rootURL: root).path))
 }

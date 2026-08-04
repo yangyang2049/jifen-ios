@@ -27,8 +27,13 @@ class CommonNamesManager {
     /// 预制名称（红队/蓝队、选手1/2、主队/客队、红方/蓝方、左队/右队等），不写入常用名称，与鸿蒙一致。
     private static let presetNameKeys: Set<String> = {
         let list = [
-            "红队", "蓝队", "主队", "客队", "选手1", "选手2", "红方", "蓝方", "左队", "右队",
-            "red team", "blue team", "home", "away", "player 1", "player 2"
+            "红队", "蓝队", "红方", "蓝方", "主队", "客队", "左队", "右队", "A队", "B队",
+            "选手A", "选手B", "射手A", "射手B", "选手1", "选手2",
+            "红A", "红B", "蓝A", "蓝B", "红A / 红B", "蓝A / 蓝B", "红A/红B", "蓝A/蓝B",
+            "red team", "blue team", "red", "blue", "home", "away", "team a", "team b",
+            "player a", "player b", "archer a", "archer b", "player 1", "player 2",
+            "red a", "red b", "blue a", "blue b",
+            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b"
         ]
         return Set(list.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) })
     }()

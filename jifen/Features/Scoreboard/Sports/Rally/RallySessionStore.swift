@@ -17,6 +17,7 @@ final class RallySessionStore {
     private var lastAppliedRemoteRevision: UInt64?
     private var operationTask: Task<Void, Never>?
     private var lastPersistenceErrorPresentationAt: Date?
+    private var hasPersistedFinishedRecord = false
     private let logger = Logger(subsystem: "com.douhua.jifen.ios", category: "RallyPersistence")
 
     private(set) var state: RallyMatchState
@@ -170,13 +171,15 @@ final class RallySessionStore {
             guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now),
                   let self else { return }
             self.state = session.state
+            if session.status == .live {
+                self.hasPersistedFinishedRecord = false
+            }
             onEvents?(events)
             await self.synchronizeParticipants(for: session.state)
             let bundle = await core.resumeBundle()
             self.append(events: events, at: now, state: session.state)
             do {
-                try await self.resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(bundle.currentSession)
+                try await self.persist(bundle)
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -193,13 +196,15 @@ final class RallySessionStore {
             }
             let session = await core.snapshot()
             self.state = session.state
+            if session.status == .live {
+                self.hasPersistedFinishedRecord = false
+            }
             await self.synchronizeParticipants(for: session.state)
             completion?(true)
             let bundle = await core.resumeBundle()
             self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftPoints, session.state.rightPoints], setScores: [session.state.leftSets, session.state.rightSets], setNumber: session.state.currentSet, operationCode: "undo"))
             do {
-                try await self.resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(session)
+                try await self.persist(bundle)
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -208,12 +213,11 @@ final class RallySessionStore {
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [core, resumeRepository] in
+        operationTask = Task { [core] in
             _ = await previousTask?.value
             let bundle = await core.resumeBundle()
             do {
-                try await resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(bundle.currentSession)
+                try await self.persist(bundle)
                 completion?(true)
             } catch {
                 self.reportPersistenceFailure(error, forcePresentation: true)
@@ -242,14 +246,14 @@ final class RallySessionStore {
         )
         guard lastAppliedRemoteRevision == revision else { return false }
         self.state = session.state
+        if session.status == .live || !persistFormalRecord {
+            hasPersistedFinishedRecord = false
+        }
         mergeRemoteActions(incoming)
         await synchronizeParticipants(for: session.state)
         let bundle = await core.resumeBundle()
         do {
-            try await resumeRepository.saveResumeBundle(bundle)
-            if persistFormalRecord {
-                try persistRecord(bundle.currentSession)
-            }
+            try await persist(bundle, persistFormalRecord: persistFormalRecord)
         } catch {
             reportPersistenceFailure(error)
         }
@@ -272,12 +276,16 @@ final class RallySessionStore {
     }
 
     private func append(events: [RallyMatchEvent], at milliseconds: Int64, state: RallyMatchState) {
+        let completedSetNumber = events.compactMap { event -> Int? in
+            guard case .setCompleted(_, let number, _, _, _, _) = event else { return nil }
+            return number
+        }.first
         for event in events {
             switch event {
             case .pointScored(let side, let left, let right):
-                detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, scoreChange: 1, operationCode: "point"))
+                detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: completedSetNumber ?? state.currentSet, scoreChange: 1, operationCode: "point"))
             case .pointsAdjusted(let side, let delta, let left, let right):
-                detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, scoreChange: delta, operationCode: "adjust"))
+                detailedActions.append(.init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: completedSetNumber ?? state.currentSet, scoreChange: delta, operationCode: "adjust"))
             case .sideOut(_, let left, let right):
                 detailedActions.append(.init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [left, right], setScores: [state.leftSets, state.rightSets], setNumber: state.currentSet, operationCode: "side_out"))
             case .setCompleted(let winner, let number, let left, let right, let leftSets, let rightSets):
@@ -337,9 +345,48 @@ final class RallySessionStore {
         ]
     }
 
-    private func persistRecord(_ session: ScoreSession<RallyMatchState, RallyMatchEvent>) throws {
-        guard session.status == .finished, state.finished else { return }
-        guard let appGameType = GameType(scoreCoreGameType: gameType) else { return }
+    private func persist(
+        _ bundle: ResumeBundle,
+        persistFormalRecord: Bool = true
+    ) async throws {
+        let session = bundle.currentSession
+        if session.status == .live {
+            try await resumeRepository.saveResumeBundle(bundle)
+            return
+        }
+        // A linked follower does not own the formal record. Keep the last live
+        // resume until the authoritative finished record is confirmed instead
+        // of deleting the only recoverable copy here.
+        guard persistFormalRecord,
+              let record = try makeFinishedRecord(session) else { return }
+        let coordinator = FinishedSessionCommitCoordinator(
+            resumeRemover: { [resumeRepository] sessionId in
+                try await resumeRepository.remove(sessionId: sessionId)
+            }
+        )
+        let result: FinishedSessionCommitResult
+        if hasPersistedFinishedRecord {
+            result = await coordinator.cleanupResume(after: FinishedSessionRecordCommit(
+                sessionId: sessionId,
+                recordWritten: false
+            ))
+        } else {
+            result = try await coordinator.commit(record, sessionId: sessionId)
+        }
+        hasPersistedFinishedRecord = true
+        if result.recordWritten {
+            ScoreboardRecordsViewModel.shared.refreshRecords()
+        }
+        if let cleanupError = result.cleanupError {
+            reportPersistenceFailure(cleanupError)
+        }
+    }
+
+    private func makeFinishedRecord(
+        _ session: ScoreSession<RallyMatchState, RallyMatchEvent>
+    ) throws -> ScoreboardRecord? {
+        guard session.status == .finished, state.finished else { return nil }
+        guard let appGameType = GameType(scoreCoreGameType: gameType) else { return nil }
         let snapshot = try JSONEncoder().encode(session)
         let winner: String? = state.finished && state.leftSets != state.rightSets ? (state.leftSets > state.rightSets ? "left" : "right") : nil
         let record = ScoreboardRecord(
@@ -366,8 +413,7 @@ final class RallySessionStore {
             stateSnapshot: snapshot,
             status: .finished
         )
-        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        ScoreboardRecordsViewModel.shared.refreshRecords()
+        return record
     }
 
     private func reportPersistenceFailure(_ error: Error, forcePresentation: Bool = false) {
@@ -388,18 +434,19 @@ final class RallySessionStore {
         let namesByID = (participants ?? []).reduce(into: [String: String]()) { names, participant in
             names[participant.id] = participant.name
         }
+        let defaults = DefaultParticipantNames.doublesMembers
         let names = [
-            namesByID["left-top"] ?? "红A",
-            namesByID["right-top"] ?? "蓝A",
-            namesByID["left-bottom"] ?? "红B",
-            namesByID["right-bottom"] ?? "蓝B"
+            namesByID["left-top"] ?? defaults[0],
+            namesByID["right-top"] ?? defaults[2],
+            namesByID["left-bottom"] ?? defaults[1],
+            namesByID["right-bottom"] ?? defaults[3]
         ]
         switch gameType {
         case .pingpongDoubles:
             return .pingPong(
                 playerNames: names,
                 openingServerSlotIndex: openingServer == .left ? 0 : 1,
-                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
+                openingReceiverSlotIndex: openingServer == .left ? 3 : 2
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)

@@ -36,7 +36,11 @@ struct SimpleScoreboardView: View {
         self.onNavigationBack = onNavigationBack
         let c = SimpleScoreboardController()
         _controller = State(initialValue: c)
-        _viewModel = State(initialValue: LineScoreViewModel(controller: c, rules: .freeCounter))
+        _viewModel = State(initialValue: LineScoreViewModel(
+            controller: c,
+            rules: .freeCounter,
+            defaultNames: DefaultParticipantNames.resolve(for: .simpleScore)
+        ))
         _recordID = State(initialValue: ScoreboardRecordIdentity.initial(
             prefix: GameType.simpleScore.canonicalScoreboardIdentifier,
             resuming: initialResumeSessionId
@@ -132,7 +136,6 @@ struct SimpleScoreboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
         .onAppear {
-            viewModel.applyStandardTeamNamesIfNeeded()
             if let setup = initialSetup {
                 if !setup.team1Name.isEmpty { viewModel.leftTeam.name = setup.team1Name }
                 if !setup.team2Name.isEmpty { viewModel.rightTeam.name = setup.team2Name }
@@ -196,7 +199,7 @@ struct SimpleScoreboardView: View {
         if let data = record.stateSnapshot,
            let resumeState = try? JSONDecoder().decode(LineScoreResumeState.self, from: data) {
             controller.gameActions = resumeState.intentTimeline
-            viewModel.restoreSession(state: resumeState.state, history: resumeState.undoHistory)
+            viewModel.restoreSession(resumeState)
             if let flag = record.extraData?["multiScoreCustomAdjustEnabled"]?.value as? Bool {
                 customAdjustEnabled = flag
             }

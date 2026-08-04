@@ -18,6 +18,31 @@ import SessionCore
     #expect(simple.rightScore == -3)
 }
 
+@Test func lineScoreSideExchangeKeepsStableTeamIdentityAndResetsPlacement() {
+    let reducer = LineScoreReducer()
+    let state = LineScoreState(
+        leftName: "主队",
+        rightName: "客队",
+        leftScore: 3,
+        rightScore: 1
+    )
+
+    let exchanged = reducer.reduce(state: state, intent: .exchangeSides, at: 1).state
+    #expect(exchanged.sidesSwapped)
+    #expect(exchanged.leftName == "主队")
+    #expect(exchanged.rightName == "客队")
+    #expect(exchanged.leftScore == 3)
+    #expect(exchanged.rightScore == 1)
+    #expect(TeamScreenLayout(sidesSwapped: exchanged.sidesSwapped).engineSide(onScreen: .left) == .right)
+
+    let restored = reducer.reduce(state: exchanged, intent: .exchangeSides, at: 2).state
+    #expect(restored == state)
+    let reset = reducer.reduce(state: exchanged, intent: .reset, at: 3).state
+    #expect(!reset.sidesSwapped)
+    #expect(reset.leftName == "主队")
+    #expect(reset.rightName == "客队")
+}
+
 @Test func boxingReducerCompletesConfiguredRoundsLikeAndroid() {
     let reducer = BoxingMatchReducer()
     var state = BoxingMatchState(leftName: "红方", rightName: "蓝方", maxRounds: 2)
@@ -30,6 +55,32 @@ import SessionCore
     #expect(state.rightTotal == 19)
     #expect(state.rightRoundsWon == 1)
     #expect(state.finished)
+}
+
+@Test func boxingSideExchangeKeepsTotalsRoundsAndNamesOnStableIdentity() {
+    let reducer = BoxingMatchReducer()
+    let state = BoxingMatchState(
+        leftName: "红拳手",
+        rightName: "蓝拳手",
+        maxRounds: 5,
+        leftTotal: 20,
+        rightTotal: 18,
+        leftRoundsWon: 2,
+        currentRound: 3
+    )
+
+    let exchanged = reducer.reduce(state: state, intent: .exchangeSides, at: 1).state
+    #expect(exchanged.sidesSwapped)
+    #expect(exchanged.leftName == state.leftName)
+    #expect(exchanged.rightName == state.rightName)
+    #expect(exchanged.leftTotal == 20)
+    #expect(exchanged.rightTotal == 18)
+    #expect(exchanged.leftRoundsWon == 2)
+    #expect(exchanged.rightRoundsWon == 0)
+
+    let restored = reducer.reduce(state: exchanged, intent: .exchangeSides, at: 2).state
+    #expect(restored == state)
+    #expect(!reducer.reduce(state: exchanged, intent: .reset, at: 3).state.sidesSwapped)
 }
 
 @Test func tennisReducerHandlesAdvantageNoAdAndTieBreak() {
@@ -192,21 +243,21 @@ import SessionCore
         doublesPlayerNames: ["A1", "B1", "A2", "B2"]
     )
     #expect(TennisDoublesServing.currentServerSlot(in: state) == 0)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 1)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
 
     state.leftPoints = 1
     #expect(TennisDoublesServing.currentServerSlot(in: state) == 0)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 1)
 
     state = reducer.reduce(state: state, intent: .exchangeSides, at: 1).state
     #expect(state.sidesSwapped)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 1)
 
     state.isTieBreak = true
     state.leftPoints = 1
     state.rightPoints = 0
     #expect(TennisDoublesServing.currentServerSlot(in: state) == 1)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 2)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 0)
 }
 
 @Test func tennisDoublesServerRotationContinuesAcrossSetBoundaries() {
@@ -438,8 +489,62 @@ import SessionCore
     #expect(exchanged.state.playerPoints[0] == 12)
     #expect(exchanged.state.playerCounts[0][0] == 3)
 
+    let reset = reducer.reduce(state: exchanged.state, intent: .resetScores, at: 2)
+    #expect(reset.accepted)
+    #expect(!reset.state.sidesSwapped)
+    #expect(reset.state.playerNames[0] == "甲")
+
     let fourPlayer = NineBallChaseState.initial(playerCount: 4)
-    #expect(!reducer.reduce(state: fourPlayer, intent: .exchangeSides, at: 2).accepted)
+    #expect(!reducer.reduce(state: fourPlayer, intent: .exchangeSides, at: 3).accepted)
+}
+
+@Test func addedTwoSideStatesExchangePlacementAndDecodeLegacyAsUnswapped() throws {
+    let shengjiReducer = ShengjiTierReducer()
+    let shengji = ShengjiTierState(leftIndex: 4, rightIndex: 2, dealer: .right)
+    let shengjiExchanged = shengjiReducer.reduce(state: shengji, intent: .exchangeSides, at: 1)
+    #expect(shengjiExchanged.accepted)
+    #expect(shengjiExchanged.state.sidesSwapped)
+    #expect(shengjiExchanged.state.leftIndex == 4)
+    #expect(shengjiExchanged.state.rightIndex == 2)
+    #expect(shengjiExchanged.state.dealer == .right)
+
+    let guandanReducer = GuandanSessionReducer()
+    let guandan = GuandanMatchState.initial(redName: "红队", blueName: "蓝队")
+    let guandanExchanged = guandanReducer.reduce(state: guandan, intent: .exchangeSides, at: 2)
+    #expect(guandanExchanged.accepted)
+    #expect(guandanExchanged.state.sidesSwapped)
+    #expect(guandanExchanged.state.redTeam == guandan.redTeam)
+    #expect(guandanExchanged.state.blueTeam == guandan.blueTeam)
+
+    let snookerReducer = SnookerReducer()
+    var snooker = SnookerState.initial(striker: .right, maxFrames: 5)
+    snooker.leftScore = 24
+    snooker.rightScore = 17
+    snooker.leftFrames = 1
+    let snookerExchanged = snookerReducer.reduce(state: snooker, intent: .exchangeSides, at: 3)
+    #expect(snookerExchanged.accepted)
+    #expect(snookerExchanged.state.sidesSwapped)
+    #expect(snookerExchanged.state.leftScore == 24)
+    #expect(snookerExchanged.state.rightScore == 17)
+    #expect(snookerExchanged.state.leftFrames == 1)
+    #expect(snookerExchanged.state.striker == .right)
+
+    for value in [
+        try JSONEncoder().encode(shengji),
+        try JSONEncoder().encode(guandan),
+        try JSONEncoder().encode(snooker)
+    ] {
+        var object = try #require(JSONSerialization.jsonObject(with: value) as? [String: Any])
+        object.removeValue(forKey: "sidesSwapped")
+        let legacy = try JSONSerialization.data(withJSONObject: object)
+        if object["leftIndex"] != nil {
+            #expect(try JSONDecoder().decode(ShengjiTierState.self, from: legacy).sidesSwapped == false)
+        } else if object["redTeam"] != nil {
+            #expect(try JSONDecoder().decode(GuandanMatchState.self, from: legacy).sidesSwapped == false)
+        } else {
+            #expect(try JSONDecoder().decode(SnookerState.self, from: legacy).sidesSwapped == false)
+        }
+    }
 }
 
 @Test func legacyNineBallSnapshotDefaultsToUnswappedPlacement() throws {
@@ -449,6 +554,20 @@ import SessionCore
     object.removeValue(forKey: "sidesSwapped")
     let legacy = try JSONSerialization.data(withJSONObject: object)
     #expect(try JSONDecoder().decode(NineBallChaseState.self, from: legacy).sidesSwapped == false)
+}
+
+@Test func legacyEightBallSnapshotDefaultsToUnswappedPlacement() throws {
+    let state = EightBallState.initial(targetPoints: 7, handicapRacks: 1, handicapBeneficiary: .right)
+    var object = try #require(
+        JSONSerialization.jsonObject(with: JSONEncoder().encode(state)) as? [String: Any]
+    )
+    object.removeValue(forKey: "sidesSwapped")
+    let legacy = try JSONSerialization.data(withJSONObject: object)
+    let restored = try JSONDecoder().decode(EightBallState.self, from: legacy)
+    #expect(!restored.sidesSwapped)
+    #expect(restored.targetPoints == 7)
+    #expect(restored.handicapRacks == 1)
+    #expect(restored.handicapBeneficiary == .right)
 }
 
 @Test func shengjiTierReducerMatchesAndroidFixture() {
@@ -1132,10 +1251,10 @@ import SessionCore
 
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
     #expect(state.doubles?.serverSlotIndex == 0)
-    #expect(state.doubles?.receiverSlotIndex == 1)
+    #expect(state.doubles?.receiverSlotIndex == 3)
 
     state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
-    #expect(state.doubles?.serverSlotIndex == 1)
+    #expect(state.doubles?.serverSlotIndex == 3)
     #expect(state.doubles?.receiverSlotIndex == 2)
     #expect(state.servingSide == .right)
 }
@@ -1156,7 +1275,7 @@ import SessionCore
     #expect(state.currentSet == 2)
     #expect(state.servingSide == .right)
     #expect(state.doubles?.serverSlotIndex == 1)
-    #expect(state.doubles?.receiverSlotIndex == 0)
+    #expect(state.doubles?.receiverSlotIndex == 2)
 }
 
 @Test func rallyReducerAdvancesBadmintonDoublesCourtsAndService() {
@@ -1196,11 +1315,11 @@ import SessionCore
 
     _ = await session.dispatch(actorId: "phone", intent: .pointWon(.left), at: 1)
     _ = await session.dispatch(actorId: "phone", intent: .pointWon(.right), at: 2)
-    #expect(await session.snapshot().state.doubles?.serverSlotIndex == 1)
+    #expect(await session.snapshot().state.doubles?.serverSlotIndex == 3)
 
     #expect(await session.undo(actorId: "phone"))
     #expect(await session.snapshot().state.doubles?.serverSlotIndex == 0)
-    #expect(await session.snapshot().state.doubles?.receiverSlotIndex == 1)
+    #expect(await session.snapshot().state.doubles?.receiverSlotIndex == 3)
 }
 
 @Test func badmintonAdministrativeDecrementReplaysSelectedTeamsLatestPoint() {
@@ -1277,6 +1396,8 @@ import SessionCore
         rules: .pingPong(),
         doubles: .pingPong(playerNames: ["R1", "B1", "R2", "B2"])
     )
+    #expect(state.doubles?.serverSlotIndex == 0)
+    #expect(state.doubles?.receiverSlotIndex == 3)
 
     for point in 0..<11 {
         let result = reducer.reduce(state: state, intent: .pointWon(.left), at: Int64(point + 1))
@@ -1290,7 +1411,7 @@ import SessionCore
     }
     #expect(nextSetRotation.pendingGameOpening == nil)
     #expect(state.doubles?.serverSlotIndex == 1)
-    #expect(state.doubles?.receiverSlotIndex == 0)
+    #expect(state.doubles?.receiverSlotIndex == 2)
 
     let nextPoint = reducer.reduce(state: state, intent: .pointWon(.right), at: 20)
     #expect(nextPoint.accepted)
@@ -1396,8 +1517,8 @@ import SessionCore
         logicalSide: .left,
         screenSide: .left
     )
-    #expect(left.topPlayerIndex == leftServing.serverSlotIndex)
-    #expect(left.serverIsTop == true)
+    #expect(left.bottomPlayerIndex == leftServing.serverSlotIndex)
+    #expect(left.serverIsTop == false)
 
     let rightServing = RallyDoublesState.pickleball(
         playerNames: ["R1", "B1", "R2", "B2"],
@@ -1408,8 +1529,8 @@ import SessionCore
         logicalSide: .right,
         screenSide: .right
     )
-    #expect(right.topPlayerIndex == rightServing.serverSlotIndex)
-    #expect(right.serverIsTop == true)
+    #expect(right.bottomPlayerIndex == rightServing.serverSlotIndex)
+    #expect(right.serverIsTop == false)
 }
 
 @Test func linkedRallySnapshotPreservesDoublesNamesAndRotation() throws {
@@ -1436,7 +1557,7 @@ import SessionCore
     #expect(restored.initialSnapshot?.rallyState?.doubles?.playerNames == [
         "Red A", "Blue A", "Red B", "Blue B"
     ])
-    #expect(restored.initialSnapshot?.rallyState?.doubles?.serverSlotIndex == 1)
+    #expect(restored.initialSnapshot?.rallyState?.doubles?.serverSlotIndex == 3)
     #expect(restored.initialSnapshot?.rallyState?.doubles?.receiverSlotIndex == 2)
 }
 

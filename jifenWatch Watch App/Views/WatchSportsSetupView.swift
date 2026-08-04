@@ -318,25 +318,7 @@ struct WatchSportsSetupView: View {
     }
 
     private func namePlaceholder(index: Int) -> String {
-        if draft.sport == .archery {
-            return String.localizedStringWithFormat(
-                NSLocalizedString("watch_setup_archer_number", value: "射手 %d", comment: ""),
-                index + 1
-            )
-        }
-        if draft.sport.isDoubles {
-            let keys = [
-                ("watch_setup_red_a", "红A"),
-                ("watch_setup_red_b", "红B"),
-                ("watch_setup_blue_a", "蓝A"),
-                ("watch_setup_blue_b", "蓝B")
-            ]
-            return NSLocalizedString(keys[index].0, value: keys[index].1, comment: "")
-        }
-        return String.localizedStringWithFormat(
-            NSLocalizedString("watch_setup_player_number", value: "选手 %d", comment: ""),
-            index + 1
-        )
+        WatchDefaultTeamNames.setupParticipantName(for: draft.sport, index: index)
     }
 
     private func integerSection(

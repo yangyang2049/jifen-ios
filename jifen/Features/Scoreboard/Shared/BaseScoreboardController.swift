@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RecordCore
 import UIKit
 
 enum ScoreboardRecordIdentity {
@@ -129,6 +130,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         winner: String?,
         totalScoreChanges: Int,
         extraData: [String: Any],
+        detailedActions: [DetailedScoreAction]? = nil,
         projectConfiguration: [String: Any]? = nil,
         stateSnapshot: Data? = nil,
         isFinished: Bool = true
@@ -147,6 +149,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             winner: winner,
             totalScoreChanges: totalScoreChanges,
             extraData: extraData,
+            detailedActions: detailedActions,
             projectConfiguration: projectConfiguration,
             stateSnapshot: stateSnapshot,
             isFinished: isFinished
@@ -166,6 +169,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         winner: String?,
         totalScoreChanges: Int,
         extraData: [String: Any],
+        detailedActions: [DetailedScoreAction]? = nil,
         projectConfiguration: [String: Any]? = nil,
         stateSnapshot: Data? = nil,
         isFinished: Bool = true
@@ -188,6 +192,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             team2SetScore: team2SetScore,
             winner: winner,
             actions: gameActions,
+            detailedActions: detailedActions,
+            setResults: detailedActions.map { ScoreboardRecordActionAdapter.setResults(from: $0) },
             totalScoreChanges: totalScoreChanges,
             extraData: nil,
             projectConfiguration: projectConfiguration?.mapValues { AnyCodable($0) },

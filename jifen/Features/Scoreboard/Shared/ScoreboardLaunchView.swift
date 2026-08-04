@@ -81,7 +81,7 @@ struct ScoreboardLaunchView: View {
             case .nineBall:
                 NineBallChaseScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .snooker:
-                SnookerReducerScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+                SnookerScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .pickleball:
                 PickleballScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .guandan:
@@ -89,7 +89,7 @@ struct ScoreboardLaunchView: View {
             case .doudizhu:
                 DoudizhuScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .shengji:
-                ShengjiReducerScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
+                ShengjiScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .uno:
                 MultiScoreboardView(gameType: .uno, defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.unoPlayerCount, targetScore: setupResult?.targetScore ?? PreferencesManager.shared.unoTargetScore, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .foosball:

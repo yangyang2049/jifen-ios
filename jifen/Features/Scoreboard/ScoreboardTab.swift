@@ -130,42 +130,6 @@ struct ScoreboardTab: View {
         Theme.usesPadLayout
     }
 
-    /// 设置弹窗默认名称：与鸿蒙一致，选手/单方用红方蓝方，队伍用红队蓝队或主队客队。
-    private static func defaultTeamNames(for gameType: GameType) -> (String, String) {
-        switch gameType {
-        case .basketball:
-            return (
-                NSLocalizedString("team_home", comment: ""),
-                NSLocalizedString("team_away", comment: "")
-            )
-        case .football:
-            return (
-                NSLocalizedString("team_home", comment: ""),
-                NSLocalizedString("team_away", comment: "")
-            )
-        case .volleyball:
-            return (
-                NSLocalizedString("red_team", comment: ""),
-                NSLocalizedString("blue_team", comment: "")
-            )
-        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .pickleball, .simpleScore:
-            return (
-                NSLocalizedString("watch_team_red", value: "红方", comment: ""),
-                NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
-            )
-        case .foosball:
-            return (
-                NSLocalizedString("player_a", value: "选手A", comment: ""),
-                NSLocalizedString("player_b", value: "选手B", comment: "")
-            )
-        default:
-            return (
-                NSLocalizedString("red_team", comment: ""),
-                NSLocalizedString("blue_team", comment: "")
-            )
-        }
-    }
-
     @ViewBuilder
     private func getScoreboardView(
         for gameType: GameType,
@@ -210,12 +174,12 @@ struct ScoreboardTab: View {
                 onCancel: onCancel
             )
         } else if Self.isCasualSetupGame(sport.gameType) {
-            let (t1, t2) = Self.defaultTeamNames(for: sport.gameType)
+            let defaults = DefaultParticipantNames.resolve(for: sport.gameType)
             MultiScoreSetupDialogView(
                 gameType: sport.gameType,
                 defaultPlayerCount: Self.casualDefaultPlayerCount(for: sport.gameType),
-                defaultTeam1Name: t1,
-                defaultTeam2Name: t2,
+                defaultTeam1Name: defaults.left,
+                defaultTeam2Name: defaults.right,
                 initialTargetScore: PreferencesManager.shared.unoTargetScore,
                 titleEmoji: sport.emoji,
                 titleKey: localizationKey(for: sport.gameType),
@@ -225,11 +189,11 @@ struct ScoreboardTab: View {
                 onCancel: onCancel
             )
         } else {
-            let (t1, t2) = Self.defaultTeamNames(for: sport.gameType)
+            let defaults = DefaultParticipantNames.resolve(for: sport.gameType)
             SportsSetupDialogView(
                 gameType: sport.gameType,
-                defaultTeam1Name: t1,
-                defaultTeam2Name: t2,
+                defaultTeam1Name: defaults.left,
+                defaultTeam2Name: defaults.right,
                 initialMaxSets: nil,
                 initialPointsPerSet: nil,
                 initialTieBreakPoints: nil,

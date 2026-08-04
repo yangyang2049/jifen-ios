@@ -89,17 +89,13 @@ public struct LineScoreReducer: DomainReducer {
             next.rightName = right.trimmingCharacters(in: .whitespacesAndNewlines)
             return .init(state: next, events: [.namesChanged])
         case .exchangeSides:
-            swap(&next.leftName, &next.rightName)
-            swap(&next.leftScore, &next.rightScore)
             next.sidesSwapped.toggle()
             return .init(state: next, events: [.sidesExchanged])
         case .finish:
             next.finished = true
             return .init(state: next, events: [.matchFinished])
         case .reset:
-            let leftName = state.sidesSwapped ? state.rightName : state.leftName
-            let rightName = state.sidesSwapped ? state.leftName : state.rightName
-            next = .init(leftName: leftName, rightName: rightName, rules: state.rules)
+            next = .init(leftName: state.leftName, rightName: state.rightName, rules: state.rules)
             return .init(state: next, events: [.matchReset])
         }
     }

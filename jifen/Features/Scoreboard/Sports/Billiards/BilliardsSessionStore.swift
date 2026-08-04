@@ -5,19 +5,19 @@ import PersistenceCore
 import ScoreCore
 import SessionCore
 
-/// Main-actor projection of `ScoreSessionCore` for the three specialized
+/// Main-actor projection of `ScoreSessionCore` for the three
 /// billiards scoreboards. The actor owns the authoritative state, undo frames,
 /// and typed intent timeline; SwiftUI only observes this read-only projection.
 @MainActor
 @Observable
-final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: Equatable {
+final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: Equatable {
     typealias State = Reducer.State
     typealias Intent = Reducer.Intent
     typealias Event = Reducer.Event
     typealias ResumeBundle = ScoreSessionResumeBundle<State, Event, Intent>
 
     private let core: ScoreSessionCore<Reducer>
-    private let resumeRepository = ResumeSessionRepository()
+    private let resumeRepository: ResumeSessionRepository
     private var cachedBundle: ResumeBundle
     private var pendingUndoReservations = 0
     private var operationTask: Task<Void, Never>?
@@ -26,7 +26,16 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
 
     private(set) var state: State
     private(set) var persistenceFailureSignal = 0
+    private(set) var hasCommittedFinishedRecord = false
     let sessionId: UUID
+
+    var finishedCommitCoordinator: FinishedSessionCommitCoordinator {
+        FinishedSessionCommitCoordinator(
+            resumeRemover: { [resumeRepository] sessionId in
+                try await resumeRepository.remove(sessionId: sessionId)
+            }
+        )
+    }
 
     var undoStates: [State] {
         cachedBundle.undoFrames.map(\.session.state)
@@ -43,7 +52,8 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         participants: [SessionParticipant],
         startedAt: Date,
         recordID: String,
-        restoredUndoStates: [State] = []
+        restoredUndoStates: [State] = [],
+        resumeRepository: ResumeSessionRepository? = nil
     ) {
         let descriptor = ScoreboardKernelRegistry.descriptor(for: gameType)
         let session = ScoreSession<State, Event>(
@@ -81,6 +91,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         self.sessionId = session.sessionId
         self.state = state
         self.cachedBundle = bundle
+        self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         self.core = ScoreSessionCore(
             resumeBundle: bundle,
             reducer: reducer,
@@ -88,10 +99,15 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         )
     }
 
-    init(resumeBundle: ResumeBundle, reducer: Reducer) {
+    init(
+        resumeBundle: ResumeBundle,
+        reducer: Reducer,
+        resumeRepository: ResumeSessionRepository? = nil
+    ) {
         sessionId = resumeBundle.currentSession.sessionId
         state = resumeBundle.currentSession.state
         cachedBundle = resumeBundle
+        self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         core = ScoreSessionCore(
             resumeBundle: resumeBundle,
             reducer: reducer,
@@ -99,12 +115,17 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         )
     }
 
+    // Work around a Swift 6.3.3 Release optimizer crash in synthesized
+    // deinitializers for generic classes that retain Task handles.
+    @inline(never)
+    deinit {}
+
     func send(
         _ intent: Intent,
         completion: ((State, State, [Event]) -> Void)? = nil
     ) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, resumeRepository] in
+        operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
             guard let self else { return }
             let before = self.state
@@ -117,7 +138,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
             self.state = session.state
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await resumeRepository.saveResumeBundle(self.cachedBundle)
+                try await self.saveLiveResumeIfNeeded()
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -134,7 +155,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
         }
         pendingUndoReservations += 1
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, resumeRepository] in
+        operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
             let succeeded = await core.undo(actorId: "phone")
             guard let self else { return }
@@ -144,7 +165,7 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
                 self.state = session.state
                 self.cachedBundle = await core.resumeBundle()
                 do {
-                    try await resumeRepository.saveResumeBundle(self.cachedBundle)
+                    try await self.saveLiveResumeIfNeeded()
                 } catch {
                     self.reportPersistenceFailure(error)
                 }
@@ -156,14 +177,14 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
 
     func rebase(to state: State, completion: ((State) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, resumeRepository] in
+        operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
             let session = await core.rebase(to: state, status: Self.status(of: state))
             guard let self else { return }
             self.state = session.state
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await resumeRepository.saveResumeBundle(self.cachedBundle)
+                try await self.saveLiveResumeIfNeeded()
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -173,13 +194,13 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
 
     func updateParticipants(_ participants: [SessionParticipant]) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, resumeRepository] in
+        operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
             _ = await core.updateParticipants(participants)
             guard let self else { return }
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await resumeRepository.saveResumeBundle(self.cachedBundle)
+                try await self.saveLiveResumeIfNeeded()
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -188,12 +209,12 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [weak self, core, resumeRepository] in
+        operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
             guard let self else { return }
             self.cachedBundle = await core.resumeBundle()
             do {
-                try await resumeRepository.saveResumeBundle(self.cachedBundle)
+                try await self.saveLiveResumeIfNeeded()
                 completion?(true)
             } catch {
                 self.reportPersistenceFailure(error)
@@ -216,6 +237,20 @@ final class SpecializedBilliardsSessionStore<Reducer: DomainReducer> where Reduc
             expectedKind: .scoreSessionBundle
         ) else { return nil }
         return try? JSONDecoder().decode(ResumeBundle.self, from: data)
+    }
+
+    func markFinishedRecordCommitted() {
+        hasCommittedFinishedRecord = true
+    }
+
+    private func saveLiveResumeIfNeeded() async throws {
+        guard cachedBundle.currentSession.status == .live else {
+            // Never invoke PersistenceCore's finished-save removal before the
+            // app-layer formal record has committed. Keeping the last live
+            // snapshot makes a failed finish recoverable.
+            return
+        }
+        try await resumeRepository.saveResumeBundle(cachedBundle)
     }
 
     private func reportPersistenceFailure(_ error: Error) {

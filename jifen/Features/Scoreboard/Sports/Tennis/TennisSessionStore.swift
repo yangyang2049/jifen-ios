@@ -18,6 +18,7 @@ final class TennisSessionStore {
     private var lastAppliedRemoteRevision: UInt64?
     private var operationTask: Task<Void, Never>?
     private var lastPersistenceErrorPresentationAt: Date?
+    private var hasPersistedFinishedRecord = false
     private let logger = Logger(subsystem: "com.douhua.jifen.ios", category: "TennisPersistence")
 
     private(set) var state: TennisMatchState
@@ -160,13 +161,15 @@ final class TennisSessionStore {
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
             guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now) else { return }
             self.state = session.state
+            if session.status == .live {
+                self.hasPersistedFinishedRecord = false
+            }
             onEvents?(events)
             await self.synchronizeParticipants(for: session.state)
             let bundle = await core.resumeBundle()
             self.append(events: events, at: now, state: session.state)
             do {
-                try await self.resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(bundle.currentSession)
+                try await self.persist(bundle)
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -184,6 +187,9 @@ final class TennisSessionStore {
             }
             let session = await core.snapshot()
             self.state = session.state
+            if session.status == .live {
+                self.hasPersistedFinishedRecord = false
+            }
             await self.synchronizeParticipants(for: session.state)
             completion?(true)
             let bundle = await core.resumeBundle()
@@ -197,8 +203,7 @@ final class TennisSessionStore {
                 operationCode: "undo"
             ))
             do {
-                try await self.resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(session)
+                try await self.persist(bundle)
             } catch {
                 self.reportPersistenceFailure(error)
             }
@@ -223,14 +228,14 @@ final class TennisSessionStore {
         )
         guard lastAppliedRemoteRevision == revision else { return false }
         self.state = session.state
+        if session.status == .live || !persistFormalRecord {
+            hasPersistedFinishedRecord = false
+        }
         mergeRemoteActions(incoming)
         await synchronizeParticipants(for: session.state)
         let bundle = await core.resumeBundle()
         do {
-            try await resumeRepository.saveResumeBundle(bundle)
-            if persistFormalRecord {
-                try persistRecord(bundle.currentSession)
-            }
+            try await persist(bundle, persistFormalRecord: persistFormalRecord)
         } catch {
             reportPersistenceFailure(error)
         }
@@ -246,12 +251,11 @@ final class TennisSessionStore {
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [core, resumeRepository] in
+        operationTask = Task { [core] in
             _ = await previousTask?.value
             let bundle = await core.resumeBundle()
             do {
-                try await resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(bundle.currentSession)
+                try await self.persist(bundle)
                 completion?(true)
             } catch {
                 self.reportPersistenceFailure(error, forcePresentation: true)
@@ -301,13 +305,6 @@ final class TennisSessionStore {
                 completedSetScores.append(VoiceSetScore(leftGames: leftGames, rightGames: rightGames))
             }
         }
-        let sideChanged = events.contains {
-            if case .sidesExchanged = $0 { return true }
-            return false
-        }
-        if sideChanged {
-            completedSetScores = completedSetScores.map { $0.swapped() }
-        }
         if events.contains(where: { if case .matchReset = $0 { return true }; return false }) {
             completedSetScores = []
         }
@@ -320,15 +317,17 @@ final class TennisSessionStore {
             events: events,
             completedSetScores: completedSetScores
         )
-        for payload in payloads {
-            ScoreVoiceAnnouncer.shared.speak(payload)
-        }
+        ScoreVoiceAnnouncer.shared.speak(payloads)
     }
 
     private func append(events: [TennisMatchEvent], at milliseconds: Int64, state: TennisMatchState) {
         let recordedSetScores = state.rules.setScoringMode == .tiebreakOnly
             ? []
             : [state.leftSets, state.rightSets]
+        let completedSetNumber = events.compactMap { event -> Int? in
+            guard case .setCompleted(_, let number, _, _, _, _) = event else { return nil }
+            return number
+        }.first
         for event in events {
             switch event {
             case .pointScored(let side, let left, let right):
@@ -338,6 +337,7 @@ final class TennisSessionStore {
                     team: side == .left ? .team1 : .team2,
                     scores: [left, right],
                     setScores: recordedSetScores,
+                    setNumber: completedSetNumber ?? state.currentSet,
                     scoreChange: 1,
                     operationCode: "point"
                 ))
@@ -348,6 +348,7 @@ final class TennisSessionStore {
                     team: winner == .left ? .team1 : .team2,
                     scores: [leftGames, rightGames],
                     setScores: recordedSetScores,
+                    setNumber: completedSetNumber ?? state.currentSet,
                     operationCode: "game_completed"
                 ))
             case .setCompleted(let winner, let number, let leftGames, let rightGames, let leftSets, let rightSets):
@@ -367,6 +368,7 @@ final class TennisSessionStore {
                     epochMilliseconds: milliseconds,
                     scores: [state.leftPoints, state.rightPoints],
                     setScores: recordedSetScores,
+                    setNumber: state.currentSet,
                     operationCode: "exchange_sides"
                 ))
             case .matchFinished(let winner):
@@ -378,6 +380,7 @@ final class TennisSessionStore {
                         ? [state.leftPoints, state.rightPoints]
                         : [state.leftGames, state.rightGames],
                     setScores: recordedSetScores,
+                    setNumber: completedSetNumber ?? state.currentSet,
                     winner: winner.map { $0 == .left ? .team1 : .team2 },
                     operationCode: "finish"
                 ))
@@ -395,9 +398,45 @@ final class TennisSessionStore {
         }
     }
 
-    private func persistRecord(_ session: ScoreSession<TennisMatchState, TennisMatchEvent>) throws {
-        guard session.status == .finished, state.finished else { return }
-        guard let appGameType = GameType(scoreCoreGameType: gameType) else { return }
+    private func persist(
+        _ bundle: ResumeBundle,
+        persistFormalRecord: Bool = true
+    ) async throws {
+        let session = bundle.currentSession
+        if session.status == .live {
+            try await resumeRepository.saveResumeBundle(bundle)
+            return
+        }
+        guard persistFormalRecord,
+              let record = try makeFinishedRecord(session) else { return }
+        let coordinator = FinishedSessionCommitCoordinator(
+            resumeRemover: { [resumeRepository] sessionId in
+                try await resumeRepository.remove(sessionId: sessionId)
+            }
+        )
+        let result: FinishedSessionCommitResult
+        if hasPersistedFinishedRecord {
+            result = await coordinator.cleanupResume(after: FinishedSessionRecordCommit(
+                sessionId: sessionId,
+                recordWritten: false
+            ))
+        } else {
+            result = try await coordinator.commit(record, sessionId: sessionId)
+        }
+        hasPersistedFinishedRecord = true
+        if result.recordWritten {
+            ScoreboardRecordsViewModel.shared.refreshRecords()
+        }
+        if let cleanupError = result.cleanupError {
+            reportPersistenceFailure(cleanupError)
+        }
+    }
+
+    private func makeFinishedRecord(
+        _ session: ScoreSession<TennisMatchState, TennisMatchEvent>
+    ) throws -> ScoreboardRecord? {
+        guard session.status == .finished, state.finished else { return nil }
+        guard let appGameType = GameType(scoreCoreGameType: gameType) else { return nil }
         let snapshot = try JSONEncoder().encode(session)
         let usePointScore = state.rules.setScoringMode == .tiebreakOnly
         let leftFinalScore = usePointScore ? state.leftPoints : state.leftGames
@@ -431,8 +470,7 @@ final class TennisSessionStore {
             stateSnapshot: snapshot,
             status: .finished
         )
-        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        ScoreboardRecordsViewModel.shared.refreshRecords()
+        return record
     }
 
     private func reportPersistenceFailure(_ error: Error, forcePresentation: Bool = false) {

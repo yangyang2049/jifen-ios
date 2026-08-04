@@ -115,27 +115,65 @@ public struct ResumeSessionSummary: Codable, Equatable, Identifiable, Sendable {
 }
 
 public actor ResumeSessionIndex {
-    private let store: AtomicJSONFileStore<[ResumeSessionSummary]>
+    private let fileURL: URL
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
 
     public init(fileURL: URL) {
-        store = AtomicJSONFileStore(fileURL: fileURL)
+        self.fileURL = fileURL
+        encoder.outputFormatting = [.sortedKeys]
     }
 
     public func entries() async throws -> [ResumeSessionSummary] {
-        try await store.load()?.sorted { $0.updatedAtEpochMilliseconds > $1.updatedAtEpochMilliseconds } ?? []
+        try load().sorted { $0.updatedAtEpochMilliseconds > $1.updatedAtEpochMilliseconds }
     }
 
     public func upsert(_ entry: ResumeSessionSummary) async throws {
-        var allEntries = try await store.load() ?? []
+        var allEntries = try load()
         allEntries.removeAll { $0.sessionId == entry.sessionId }
         allEntries.append(entry)
-        try await store.save(allEntries)
+        try save(allEntries)
     }
 
     public func remove(sessionId: UUID) async throws {
-        var allEntries = try await store.load() ?? []
+        var allEntries = try load()
+        guard allEntries.contains(where: { $0.sessionId == sessionId }) else { return }
         allEntries.removeAll { $0.sessionId == sessionId }
-        try await store.save(allEntries)
+        try save(allEntries)
+    }
+
+    private func load() throws -> [ResumeSessionSummary] {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return [] }
+        return try decoder.decode([ResumeSessionSummary].self, from: Data(contentsOf: fileURL))
+    }
+
+    private func save(_ entries: [ResumeSessionSummary]) throws {
+        try FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try encoder.encode(entries).write(to: fileURL, options: .atomic)
+    }
+}
+
+/// Repository instances are intentionally lightweight, but every instance
+/// targeting the same root must mutate one shared index actor. Otherwise two
+/// scoreboards finishing close together can both load and replace the same
+/// index file through independent actors.
+private final class ResumeSessionIndexRegistry: @unchecked Sendable {
+    static let shared = ResumeSessionIndexRegistry()
+
+    private let lock = NSLock()
+    private var indexes: [String: ResumeSessionIndex] = [:]
+
+    func index(for fileURL: URL) -> ResumeSessionIndex {
+        let key = fileURL.standardizedFileURL.path
+        lock.lock()
+        defer { lock.unlock() }
+        if let existing = indexes[key] { return existing }
+        let index = ResumeSessionIndex(fileURL: fileURL)
+        indexes[key] = index
+        return index
     }
 }
 
@@ -147,7 +185,9 @@ public actor ResumeSessionRepository {
 
     public init(rootURL: URL = ResumeSessionRepository.defaultRootURL()) {
         self.rootURL = rootURL
-        index = ResumeSessionIndex(fileURL: rootURL.appendingPathComponent("resume-index.json"))
+        index = ResumeSessionIndexRegistry.shared.index(
+            for: rootURL.appendingPathComponent("resume-index.json")
+        )
         if rootURL == Self.defaultRootURL() {
             let oldRoot = FileManager.default.urls(
                 for: .applicationSupportDirectory,
@@ -429,7 +469,12 @@ public actor ResumeSessionRepository {
     public func remove(sessionId: UUID) async throws {
         let url = Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
         if FileManager.default.fileExists(atPath: url.path) {
-            try FileManager.default.removeItem(at: url)
+            do {
+                try FileManager.default.removeItem(at: url)
+            } catch let error as CocoaError where error.code == .fileNoSuchFile {
+                // Another finished-record cleanup won the race. Removal is
+                // intentionally idempotent, so there is nothing left to do.
+            }
         }
         try await index.remove(sessionId: sessionId)
     }

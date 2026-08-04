@@ -16,7 +16,7 @@ struct FoosballScoreboardView: View {
             gameType: isDoubles ? .foosballDoubles : .foosball,
             rules: rules,
             participants: isDoubles ? doublesParticipants(initialSetup) : nil,
-            openingServer: .left,
+            openingServer: Self.openingServer(for: initialSetup),
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
@@ -28,20 +28,24 @@ struct FoosballScoreboardView: View {
         (initialSetup ?? SportsSetupResult(team1Name: "", team2Name: "")).foosballRules
     }
 
+    static func openingServer(for setup: SportsSetupResult?) -> MatchSide {
+        setup?.servingSide == MatchSide.right.rawValue ? .right : .left
+    }
+
     private var resolvedLeftName: String {
         if let name = initialSetup?.team1Name, !name.isEmpty { return name }
-        if initialSetup?.isSingles == false {
-            return NSLocalizedString("foosball_default_red_doubles", value: "红方A/红方B", comment: "")
-        }
-        return NSLocalizedString("player_a", value: "选手A", comment: "")
+        return DefaultParticipantNames.resolve(
+            for: .foosball,
+            isSingles: initialSetup?.isSingles != false
+        ).left
     }
 
     private var resolvedRightName: String {
         if let name = initialSetup?.team2Name, !name.isEmpty { return name }
-        if initialSetup?.isSingles == false {
-            return NSLocalizedString("foosball_default_blue_doubles", value: "蓝方A/蓝方B", comment: "")
-        }
-        return NSLocalizedString("player_b", value: "选手B", comment: "")
+        return DefaultParticipantNames.resolve(
+            for: .foosball,
+            isSingles: initialSetup?.isSingles != false
+        ).right
     }
 
     static func joinFoosballNames(_ first: String, _ second: String) -> String {

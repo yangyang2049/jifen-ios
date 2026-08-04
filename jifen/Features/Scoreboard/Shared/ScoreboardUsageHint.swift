@@ -202,8 +202,8 @@ struct ScoreboardUsageHintDialogMetrics: Equatable {
 
         return ScoreboardUsageHintDialogMetrics(
             titleFontSize: compactHeight ? 18 : 20,
-            bodyFontSize: 15,
-            bodyLineSpacing: 0,
+            bodyFontSize: 17,
+            bodyLineSpacing: 4,
             buttonFontSize: 16,
             buttonHeight: 44,
             contentSpacing: compactHeight ? 10 : 16,
@@ -243,7 +243,7 @@ struct ScoreboardUsageHintDialog: View {
                     ZStack {
                         Text(NSLocalizedString(
                             "scoreboard_usage_hint_title",
-                            value: "计分板使用说明",
+                            value: "使用说明",
                             comment: ""
                         ))
                         .font(.system(size: metrics.titleFontSize, weight: .bold))

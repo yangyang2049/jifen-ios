@@ -283,6 +283,8 @@ protocol ScoreViewModelProtocol: AnyObject {
     var leftTeam: TeamData { get }
     var rightTeam: TeamData { get }
     var gameFinished: Bool { get }
+    /// Screen placement only. `leftTeam`/`rightTeam` remain stable team identities.
+    var sidesSwapped: Bool { get }
     
     func addScore(isLeft: Bool, points: Int)
     func subtractScore(isLeft: Bool, points: Int)
@@ -296,21 +298,27 @@ protocol ScoreViewModelProtocol: AnyObject {
 }
 
 extension ScoreViewModelProtocol {
+    var sidesSwapped: Bool { false }
+
     func adjustSets(isLeft: Bool, delta: Int) {}
 
-    /// Replaces empty or legacy generic team labels with the canonical red/blue labels.
-    func applyStandardTeamNamesIfNeeded() {
-        let red = NSLocalizedString("watch_team_red", value: "红方", comment: "")
-        let blue = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
-        let legacyRed = NSLocalizedString("red_team", comment: "")
-        let legacyBlue = NSLocalizedString("blue_team", comment: "")
+    /// Replaces only missing or old generic labels; restored/custom names remain untouched.
+    func applyDefaultParticipantNamesIfNeeded(for gameType: GameType) {
+        let defaults = DefaultParticipantNames.resolve(for: gameType)
+        let genericLeft: Set<String> = ["Red Team", "红队"]
+        let genericRight: Set<String> = ["Blue Team", "蓝队"]
 
-        if leftTeam.name.isEmpty || leftTeam.name == legacyRed {
-            leftTeam.name = red
+        if leftTeam.name.isEmpty || genericLeft.contains(leftTeam.name) {
+            leftTeam.name = defaults.left
         }
-        if rightTeam.name.isEmpty || rightTeam.name == legacyBlue {
-            rightTeam.name = blue
+        if rightTeam.name.isEmpty || genericRight.contains(rightTeam.name) {
+            rightTeam.name = defaults.right
         }
+    }
+
+    /// Backward-compatible generic side fallback for callers without a game type.
+    func applyStandardTeamNamesIfNeeded() {
+        applyDefaultParticipantNamesIfNeeded(for: .simpleScore)
     }
 }
 

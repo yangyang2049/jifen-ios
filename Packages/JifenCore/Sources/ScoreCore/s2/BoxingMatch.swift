@@ -126,9 +126,6 @@ public struct BoxingMatchReducer: DomainReducer {
             next.rightName = right.trimmingCharacters(in: .whitespacesAndNewlines)
             return .init(state: next, events: [.namesChanged])
         case .exchangeSides:
-            swap(&next.leftName, &next.rightName)
-            swap(&next.leftTotal, &next.rightTotal)
-            swap(&next.leftRoundsWon, &next.rightRoundsWon)
             next.sidesSwapped.toggle()
             return .init(state: next, events: [.sidesExchanged])
         case .nextRound:
@@ -140,9 +137,7 @@ public struct BoxingMatchReducer: DomainReducer {
             next.finished = true
             return .init(state: next, events: [.matchFinished])
         case .reset:
-            let leftName = state.sidesSwapped ? state.rightName : state.leftName
-            let rightName = state.sidesSwapped ? state.leftName : state.rightName
-            next = .init(leftName: leftName, rightName: rightName, maxRounds: state.maxRounds)
+            next = .init(leftName: state.leftName, rightName: state.rightName, maxRounds: state.maxRounds)
             return .init(state: next, events: [.matchReset])
         }
     }

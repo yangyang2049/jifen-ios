@@ -112,6 +112,14 @@ final class WatchCommonNamesStoreTests: XCTestCase {
         XCTAssertThrowsError(try store.addName("红方", type: .player))
     }
 
+    func testNewDefaultParticipantNamesAreRejectedAsCommonNames() {
+        let store = WatchCommonNamesStore(defaults: defaults)
+
+        for name in ["Team A", "Player A", "Archer A", "Red A", "A队", "射手A"] {
+            XCTAssertThrowsError(try store.addName(name, type: .player), name)
+        }
+    }
+
     func testRecordUsagePersistsNewManualNameAndIgnoresExistingOrPresetNames() {
         var store = WatchCommonNamesStore(defaults: defaults)
         store.apply(.init(teams: [], players: ["Alice"], revision: 1))

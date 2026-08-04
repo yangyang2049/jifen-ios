@@ -1,4 +1,5 @@
 import Foundation
+import ScoreCore
 import SwiftUI
 import UIKit
 
@@ -569,12 +570,22 @@ extension BookingSportType {
 
 extension ScoreboardRecord {
     var analyticsWinner: AnalyticsWinner {
-        switch winner?.lowercased() {
-        case "left", "red", "team_0", "team0": return .sideA
-        case "right", "blue", "team_1", "team1": return .sideB
-        default:
-            if team1FinalScore == team2FinalScore { return .draw }
+        switch resolvedWinnerIdentity {
+        case .team(.team0), .participant(index: 0):
+            return .sideA
+        case .team(.team1), .participant(index: 1):
+            return .sideB
+        case .participant:
+            // Analytics has two historical side buckets and cannot represent a
+            // third/fourth participant without changing the event contract.
             return .unknown
+        case nil:
+            if gameType == .doudizhu {
+                let scores = displayParticipants.map(\.score)
+                guard let best = scores.max() else { return .unknown }
+                return scores.filter { $0 == best }.count > 1 ? .draw : .unknown
+            }
+            return team1FinalScore == team2FinalScore ? .draw : .unknown
         }
     }
 }

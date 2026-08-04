@@ -5,6 +5,7 @@
 //  拳击计分板：总分 + 胜回合数，通过「回合结束」弹窗输入本回合双方分数。
 //
 
+import ScoreCore
 import SwiftUI
 
 struct BoxingScoreboardView: View {
@@ -115,12 +116,16 @@ struct BoxingScoreboardView: View {
 
             if showRoundDialog {
                 BoxingRoundDialog(
-                    leftTeamName: viewModel.leftTeam.name,
-                    rightTeamName: viewModel.rightTeam.name,
+                    leftTeamName: boxingName(onScreen: .left),
+                    rightTeamName: boxingName(onScreen: .right),
                     leftScore: $roundLeftPoints,
                     rightScore: $roundRightPoints,
                     onConfirm: {
-                        viewModel.addRoundScore(leftPoints: roundLeftPoints, rightPoints: roundRightPoints)
+                        if viewModel.sidesSwapped {
+                            viewModel.addRoundScore(leftPoints: roundRightPoints, rightPoints: roundLeftPoints)
+                        } else {
+                            viewModel.addRoundScore(leftPoints: roundLeftPoints, rightPoints: roundRightPoints)
+                        }
                         showRoundDialog = false
                     },
                     onCancel: {
@@ -226,6 +231,11 @@ struct BoxingScoreboardView: View {
         .buttonStyle(.plain)
         .disabled(viewModel.gameFinished)
         .opacity(viewModel.gameFinished ? 0.45 : 1)
+    }
+
+    private func boxingName(onScreen side: MatchSide) -> String {
+        let logicalSide = TeamScreenLayout(sidesSwapped: viewModel.sidesSwapped).engineSide(onScreen: side)
+        return logicalSide == .left ? viewModel.leftTeam.name : viewModel.rightTeam.name
     }
 
     private func startNewMatch() {

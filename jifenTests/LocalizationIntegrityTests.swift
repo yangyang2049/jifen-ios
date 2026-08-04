@@ -107,6 +107,48 @@ final class LocalizationIntegrityTests: XCTestCase {
         XCTAssertEqual(chinese["scoreboard_key_point_set"], "盘点")
     }
 
+    func testDefaultParticipantNamesUseCanonicalEnglishAndChineseCopy() throws {
+        let expected: [String: (english: String, chinese: String)] = [
+            "red_team": ("Red", "红方"),
+            "blue_team": ("Blue", "蓝方"),
+            "team_a": ("Team A", "A队"),
+            "team_b": ("Team B", "B队"),
+            "player_a": ("Player A", "选手A"),
+            "player_b": ("Player B", "选手B"),
+            "archer_a": ("Archer A", "射手A"),
+            "archer_b": ("Archer B", "射手B"),
+            "doubles_red_a": ("Red A", "红A"),
+            "doubles_red_b": ("Red B", "红B"),
+            "doubles_blue_a": ("Blue A", "蓝A"),
+            "doubles_blue_b": ("Blue B", "蓝B")
+        ]
+        try assertLocalizedValues(
+            expected,
+            englishPath: "jifen/Resources/en.lproj/Localizable.strings",
+            chinesePath: "jifen/Resources/zh-Hans.lproj/Localizable.strings"
+        )
+
+        let watchExpected: [String: (english: String, chinese: String)] = [
+            "watch_team_red": ("Red", "红方"),
+            "watch_team_blue": ("Blue", "蓝方"),
+            "team_a": ("Team A", "A队"),
+            "team_b": ("Team B", "B队"),
+            "player_a": ("Player A", "选手A"),
+            "player_b": ("Player B", "选手B"),
+            "archer_a": ("Archer A", "射手A"),
+            "archer_b": ("Archer B", "射手B"),
+            "watch_setup_red_a": ("Red A", "红A"),
+            "watch_setup_red_b": ("Red B", "红B"),
+            "watch_setup_blue_a": ("Blue A", "蓝A"),
+            "watch_setup_blue_b": ("Blue B", "蓝B")
+        ]
+        try assertLocalizedValues(
+            watchExpected,
+            englishPath: "jifenWatch Watch App/Resources/en.lproj/Localizable.strings",
+            chinesePath: "jifenWatch Watch App/Resources/zh-Hans.lproj/Localizable.strings"
+        )
+    }
+
     func testTennisSetupUsesNaturalMatchAndTiebreakTerminology() throws {
         let english = Dictionary(uniqueKeysWithValues: try entries(
             at: "jifen/Resources/en.lproj/Localizable.strings"
@@ -228,6 +270,19 @@ final class LocalizationIntegrityTests: XCTestCase {
             additionalTeamWithLegacyDefaults.localizingLegacyDefaults(),
             additionalTeamWithLegacyDefaults
         )
+    }
+
+    private func assertLocalizedValues(
+        _ expected: [String: (english: String, chinese: String)],
+        englishPath: String,
+        chinesePath: String
+    ) throws {
+        let english = Dictionary(uniqueKeysWithValues: try entries(at: englishPath).map { ($0.key, $0.value) })
+        let chinese = Dictionary(uniqueKeysWithValues: try entries(at: chinesePath).map { ($0.key, $0.value) })
+        for (key, values) in expected {
+            XCTAssertEqual(english[key], values.english, "Unexpected English value for \(key)")
+            XCTAssertEqual(chinese[key], values.chinese, "Unexpected Chinese value for \(key)")
+        }
     }
 
     private func assertStaticKeysExist(sourceDirectory: String, stringsPath: String) throws {

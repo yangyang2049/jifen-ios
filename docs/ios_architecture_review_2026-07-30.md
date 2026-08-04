@@ -209,14 +209,14 @@ static func forGameType(_ gameType: GameType, scoringOptions: [Int] = []) -> Bas
 
 ---
 
-#### 3.10 巨型文件拆分建议
+#### 3.10 巨型文件拆分进展
 
 | 文件 | 行数 | 问题 |
 |------|------|------|
-| `SpecializedReducerScoreboards.swift` | 3,553 | 含多个 reducer，应拆成独立文件 |
+| 原计分板聚合文件 | 已拆分 | 公共容器、记录持久化、台球页面和升级页面均已按领域独立 |
 | `SportsSetupDialogView.swift` | 1,907 | 含多个内嵌类型，每个运动设置可独立 |
 
-**建议**：`SpecializedReducerScoreboards` 按运动类型拆为 `ArcheryReducer` / `BasketballReducer` / `BoxingReducer` / `SnookerReducer` 等。`SportsSetupDialogView` 按设置类型拆。
+**进展**：计分板聚合文件已按领域拆分；`SportsSetupDialogView` 仍建议按设置类型拆分。
 
 ---
 

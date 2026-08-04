@@ -10,7 +10,7 @@
 | 维度 | 掼蛋 | 升级 | 斗地主 | UNO |
 |------|:---:|:---:|:---:|:---:|
 | **架构代** | Scaffold+直驱 | Scaffold+直驱 | 完全自定义 | 共享 MultiScore |
-| **UI 容器** | `SpecializedScoreboardScaffold` | `SpecializedScoreboardScaffold` | 自定义 3 列视图 | `MultiScoreboardView` |
+| **UI 容器** | `TwoSideScoreboardScaffold` | `TwoSideScoreboardScaffold` | 自定义 3 列视图 | `MultiScoreboardView` |
 | **Store / Session** | ❌ 无（直接 State） | ❌ 无（直接 State） | ❌ 无（直接 State） | ❌ 无（直接 State） |
 | **Reducer** | `GuandanSessionReducer` | `ShengjiTierReducer` | ❌ 无（手动加减分） | ❌ 无（手动加减分） |
 | **ScoreCore 族** | S4/掼蛋 | S4/升级 | ❌ 不经过 ScoreCore | ❌ 不经过 ScoreCore |
@@ -51,7 +51,7 @@
 
 | 维度 | 描述 |
 |------|------|
-| **布局模式** | `SpecializedScoreboardScaffold`：左右 2 列 + 中间发球三角 + 底部操作栏 |
+| **布局模式** | `TwoSideScoreboardScaffold`：左右 2 列 + 中间发球三角 + 底部操作栏 |
 | **显示内容** | 队名(上) → 等级(中，如 "2"/"A"/"A2") → 无 detail |
 | **发球指示** | ✅ `CenterLineServeIndicator`：上轮胜方三角指示 |
 | **底部操作** | `panelAccessory`：左右各有 [+1] [+2] [+3] 按钮 |
@@ -68,7 +68,7 @@
 
 | 维度 | 描述 |
 |------|------|
-| **布局模��** | `SpecializedScoreboardScaffold`：左右 2 列 + 中间庄家三角 + 底部操作栏 |
+| **布局模��** | `TwoSideScoreboardScaffold`：左右 2 列 + 中间庄家三角 + 底部操作栏 |
 | **显示内容** | 队名 → 当前等级（2/3/.../J/Q/K/A） |
 | **庄家指示** | ✅ `CenterLineServeIndicator`：`state.dealer` 指向庄家侧 |
 | **底部操作** | `panelAccessory`：**庄未定** → [抢庄]；**庄已定** → 胜方 [上台] / [+1] [+2] [+3] |
@@ -117,7 +117,7 @@
 
 ### 4.1 掼蛋 / 升级
 
-通过 `SpecializedScoreboardScaffold` 默认菜单：
+通过 `TwoSideScoreboardScaffold` 默认菜单：
 
 | 菜单项 | 分组 | 二次确认 |
 |--------|------|---------|

@@ -2,10 +2,37 @@ import Foundation
 import ScoreCore
 
 struct LineScoreResumeState: Codable {
-    var schemaVersion = 1
+    var schemaVersion = 2
     let state: LineScoreState
     let undoHistory: [LineScoreViewModel.HistoryEntry]
     let intentTimeline: [String]
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion, state, undoHistory, intentTimeline
+    }
+
+    init(
+        schemaVersion: Int = 2,
+        state: LineScoreState,
+        undoHistory: [LineScoreViewModel.HistoryEntry],
+        intentTimeline: [String]
+    ) {
+        self.schemaVersion = schemaVersion
+        self.state = state
+        self.undoHistory = undoHistory
+        self.intentTimeline = intentTimeline
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        state = try container.decode(LineScoreState.self, forKey: .state)
+        undoHistory = try container.decodeIfPresent(
+            [LineScoreViewModel.HistoryEntry].self,
+            forKey: .undoHistory
+        ) ?? []
+        intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []
+    }
 }
 
 /// UI adapter for S1 line-score boards. All score transitions are delegated to
@@ -20,9 +47,8 @@ class LineScoreViewModel: BaseScoreViewModel {
 
     private let reducer = LineScoreReducer()
     private let rules: LineScoreRuleSet
+    private let defaultNames: ParticipantNamePair
     private var stateHistory: [HistoryEntry] = []
-    private var sidesSwapped = false
-
     var sessionState: LineScoreState { state }
     var resumeHistory: [HistoryEntry] { stateHistory }
 
@@ -43,9 +69,32 @@ class LineScoreViewModel: BaseScoreViewModel {
         }
     }
 
-    init(controller: BaseScoreboardController?, rules: LineScoreRuleSet) {
+    func restoreSession(_ resumeState: LineScoreResumeState) {
+        let requiresMigration = resumeState.schemaVersion < 2
+        let state = requiresMigration
+            ? resumeState.state.normalizedFromLegacyPhysicalSideSwap()
+            : resumeState.state
+        let history = requiresMigration
+            ? resumeState.undoHistory.map {
+                HistoryEntry(
+                    state: $0.state.normalizedFromLegacyPhysicalSideSwap(),
+                    restoresNames: $0.restoresNames
+                )
+            }
+            : resumeState.undoHistory
+        restoreSession(state: state, history: history)
+    }
+
+    init(
+        controller: BaseScoreboardController?,
+        rules: LineScoreRuleSet,
+        defaultNames: ParticipantNamePair = DefaultParticipantNames.resolve(for: .simpleScore)
+    ) {
         self.rules = rules
+        self.defaultNames = defaultNames
         super.init(controller: controller, scoreRange: rules.minimum ... rules.maximum)
+        leftTeam.name = defaultNames.left
+        rightTeam.name = defaultNames.right
     }
 
     override func addScore(isLeft: Bool, points: Int) {
@@ -67,7 +116,7 @@ class LineScoreViewModel: BaseScoreViewModel {
     override func confirmEditName(isLeft: Bool) {
         guard editState.editingSide == (isLeft ? .left : .right) else { return }
         let input = editState.currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        let fallback = NSLocalizedString(isLeft ? "red_team" : "blue_team", comment: "")
+        let fallback = isLeft ? defaultNames.left : defaultNames.right
         let resolved = input.isEmpty ? fallback : input
         dispatch(.setNames(
             left: isLeft ? resolved : leftTeam.name,
@@ -87,6 +136,7 @@ class LineScoreViewModel: BaseScoreViewModel {
             previous.rightName = rightTeam.name
         }
         apply(previous)
+        recordSnapshot(code: "undo")
         controller?.performVibration(type: .light)
         return true
     }
@@ -110,8 +160,29 @@ class LineScoreViewModel: BaseScoreViewModel {
         if stateHistory.count > 50 { stateHistory.removeFirst() }
         controller?.pushHistory(left: before.leftScore, right: before.rightScore)
         apply(result.state)
-        controller?.recordScoreAction(action: String(describing: intent))
+        recordSnapshot(code: operationCode(for: intent))
         controller?.performVibration(type: .light)
+    }
+
+    private func operationCode(for intent: LineScoreIntent) -> String {
+        switch intent {
+        case .pointWon, .adjust:
+            return "score_adjust"
+        case .setNames:
+            return "edit_names"
+        case .exchangeSides:
+            return "exchange_side"
+        case .finish:
+            return "finish"
+        case .reset:
+            return "reset"
+        }
+    }
+
+    private func recordSnapshot(code: String) {
+        controller?.recordScoreAction(
+            action: "snapshot|\(code)|\(leftTeam.score),\(rightTeam.score)"
+        )
     }
 
     private var state: LineScoreState {
@@ -133,5 +204,15 @@ class LineScoreViewModel: BaseScoreViewModel {
         rightTeam.score = state.rightScore
         sidesSwapped = state.sidesSwapped
         gameFinished = state.finished
+    }
+}
+
+private extension LineScoreState {
+    func normalizedFromLegacyPhysicalSideSwap() -> Self {
+        guard sidesSwapped else { return self }
+        var next = self
+        swap(&next.leftName, &next.rightName)
+        swap(&next.leftScore, &next.rightScore)
+        return next
     }
 }

@@ -1,6 +1,11 @@
 import Foundation
 import RecordCore
 
+enum ScoreboardRecordDetailLayout: Equatable {
+    case standard
+    case multiScoreTimeline
+}
+
 struct ScoreboardRecordProjectPolicy: Equatable {
     enum RecapKind: String {
         case sets, tennisSets, periods, rounds, frames, events, cardRounds, ranking
@@ -11,16 +16,20 @@ struct ScoreboardRecordProjectPolicy: Equatable {
     let trendRequiresNonNegativeScores: Bool
     let recapKind: RecapKind
 
+    var detailLayout: ScoreboardRecordDetailLayout {
+        recapKind == .ranking ? .multiScoreTimeline : .standard
+    }
+
     static func policy(for gameType: GameType) -> Self {
         switch gameType {
         case .pingpong, .badminton, .pickleball, .volleyball, .beachVolleyball,
-             .airVolleyball, .billiards, .foosball, .archery, .snooker:
-            return .init(trendAllowed: true, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .sets)
+             .airVolleyball, .foosball, .archery, .snooker:
+            return .init(trendAllowed: true, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: true, recapKind: .sets)
         case .basketball:
-            return .init(trendAllowed: true, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .periods)
+            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .periods)
         case .threeBasketball:
-            return .init(trendAllowed: true, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
-        case .nineBall, .simpleScore:
+            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
+        case .billiards, .nineBall, .simpleScore:
             return .init(trendAllowed: true, trendRequiresTwoPlayers: true, trendRequiresNonNegativeScores: true, recapKind: .events)
         case .tennis:
             return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .tennisSets)
@@ -39,102 +48,77 @@ struct ScoreboardRecordProjectPolicy: Equatable {
         }
     }
 
-    func trendPeriodTitle(_ number: Int) -> String {
-        switch recapKind {
-        case .periods:
-            return String(format: NSLocalizedString("record_recap_period_format", value: "第 %d 节", comment: ""), number)
-        case .rounds, .cardRounds:
-            return String(format: NSLocalizedString("record_recap_round_format", value: "第 %d 回合", comment: ""), number)
-        case .tennisSets:
-            return String(format: NSLocalizedString("record_recap_tennis_set_format", value: "第 %d 盘", comment: ""), number)
-        default:
-            return String(format: NSLocalizedString("record_recap_set_format", value: "第 %d 局", comment: ""), number)
-        }
-    }
-}
-
-struct ScoreboardRecordTrendPoint: Identifiable, Equatable {
-    let id: UUID
-    let actionIndex: Int
-    let left: Int
-    let right: Int
-    let segment: Int
-    let period: Int?
 }
 
 struct ScoreboardRecordRecapSection: Identifiable, Equatable {
     let id: String
     let title: String
+    let number: Int?
+    let resetGeneration: Int
+    let result: RecordSetResult?
     let actions: [DetailedScoreAction]
 }
 
 struct ScoreboardRecordPresentation {
+    let detailLayout: ScoreboardRecordDetailLayout
     let actions: [DetailedScoreAction]
-    let trend: [ScoreboardRecordTrendPoint]
+    let trendTabs: [ScoreboardRecordTrendTab]
     let recap: [ScoreboardRecordRecapSection]
+    let timelineSections: [ScoreboardRecordRecapSection]
+    let multiScoreTimelineRows: [MultiScoreRecordDetailRow]
+    let recapGroupingQuality: ScoreboardRecordRecapGroupingQuality
     let canShowTrend: Bool
     let isReliableForResume: Bool
 
     init(record: ScoreboardRecord) {
         let policy = ScoreboardRecordProjectPolicy.policy(for: record.gameType)
-        let recordedActions = record.detailedActions ?? ScoreboardRecordActionAdapter.actions(for: record)
+        detailLayout = policy.detailLayout
+        let recordedActions: [DetailedScoreAction]
+        if let detailedActions = record.detailedActions, !detailedActions.isEmpty {
+            recordedActions = detailedActions
+        } else {
+            recordedActions = ScoreboardRecordActionAdapter.actions(for: record)
+        }
         actions = record.isTennisTiebreakOnly
             ? recordedActions.filter { $0.type != .matchFinished }
             : recordedActions
-        trend = Self.makeTrend(actions: actions)
-        let participants = record.displayParticipants
-        let twoPlayerEligible = !policy.trendRequiresTwoPlayers || participants.isEmpty || participants.count == 2
-        let nonNegativeEligible = !policy.trendRequiresNonNegativeScores || trend.allSatisfy { $0.left >= 0 && $0.right >= 0 }
-        canShowTrend = policy.trendAllowed && twoPlayerEligible && nonNegativeEligible && trend.count >= 2
-        recap = Self.makeRecap(actions: actions, setResults: record.setResults, policy: policy)
+        let recapBuild = ScoreboardRecordRecapBuilder.build(
+            record: record,
+            actions: actions,
+            policy: policy
+        )
+        recap = recapBuild.sections
+        timelineSections = recapBuild.sections
+        trendTabs = ScoreboardRecordTrendBuilder.build(
+            record: record,
+            sections: recapBuild.sections,
+            policy: policy
+        )
+        canShowTrend = !trendTabs.isEmpty
+        multiScoreTimelineRows = policy.detailLayout == .multiScoreTimeline
+            ? MultiScoreRecordDetailBuilder.build(record: record)
+            : []
+        recapGroupingQuality = recapBuild.quality
         isReliableForResume = record.status == .finished || record.stateSnapshot != nil
     }
 
-    private static func makeTrend(actions: [DetailedScoreAction]) -> [ScoreboardRecordTrendPoint] {
-        var segment = 0
-        return actions.enumerated().compactMap { index, action in
-            if action.type == .reset {
-                segment += 1
-                return nil
-            }
-            guard action.type == .scoreChanged, action.scores.count >= 2 else { return nil }
-            return ScoreboardRecordTrendPoint(
-                id: action.id,
-                actionIndex: index,
-                left: action.scores[0],
-                right: action.scores[1],
-                segment: segment,
-                period: action.periodNumber ?? action.setNumber ?? action.roundNumber ?? 1
-            )
-        }
-    }
-
-    private static func makeRecap(
-        actions: [DetailedScoreAction],
-        setResults: [RecordSetResult]?,
-        policy: ScoreboardRecordProjectPolicy
-    ) -> [ScoreboardRecordRecapSection] {
-        [.init(id: "overall-recap", title: NSLocalizedString("record_recap_overall", value: "全场复盘", comment: ""), actions: actions)]
-    }
-
-    private static func recapTitle(kind: ScoreboardRecordProjectPolicy.RecapKind, number: Int) -> String {
-        switch kind {
-        case .sets: return String(format: NSLocalizedString("record_recap_set_format", value: "第 %d 局", comment: ""), number)
-        case .tennisSets: return String(format: NSLocalizedString("record_recap_tennis_set_format", value: "第 %d 盘", comment: ""), number)
-        case .periods: return String(format: NSLocalizedString("record_recap_period_format", value: "第 %d 节", comment: ""), number)
-        case .rounds, .cardRounds: return String(format: NSLocalizedString("record_recap_round_format", value: "第 %d 回合", comment: ""), number)
-        case .frames: return String(format: NSLocalizedString("record_recap_frame_format", value: "第 %d 局", comment: ""), number)
-        case .events: return NSLocalizedString("record_recap_full_match", value: "全场事件", comment: "")
-        case .ranking: return NSLocalizedString("record_recap_adjustments", value: "调整明细", comment: "")
-        }
-    }
 }
 
 enum ScoreboardRecordActionAdapter {
     static func setResults(from actions: [DetailedScoreAction]) -> [RecordSetResult] {
         actions.compactMap { action in
             guard action.type == .setFinished || action.type == .roundFinished || action.type == .periodFinished else { return nil }
-            let number = action.setNumber ?? action.roundNumber ?? action.periodNumber ?? 1
+            let number: Int
+            switch action.type {
+            case .setFinished:
+                number = action.setNumber ?? action.gameNumber ?? 1
+            case .roundFinished:
+                number = action.roundNumber ?? 1
+            case .periodFinished:
+                number = action.periodNumber ?? 1
+            default:
+                return nil
+            }
             return RecordSetResult(
                 number: number,
                 titleCode: action.operationCode,
@@ -196,6 +180,7 @@ enum ScoreboardRecordActionAdapter {
                     else if code == "finish" { type = .matchFinished }
                     else if code.contains("foul") { type = .foul }
                     else if code.contains("exchange") { type = .sideChanged }
+                    else if code.contains("edit") || code.contains("name") { type = .stateChanged }
                     else if code.contains("settle") || code.contains("round") { type = .roundFinished }
                     else { type = .scoreChanged }
                     scores.replaceSubrange(0..<min(scores.count, snapshotScores.count), with: snapshotScores.prefix(scores.count))
@@ -210,7 +195,26 @@ enum ScoreboardRecordActionAdapter {
                 }
             }
 
-            if let parsed = parseSideDelta(body) {
+            if let parsed = parseLineScoreDelta(body) {
+                let previous = scores[parsed.index]
+                let minimum = record.gameType == .simpleScore ? -9_999 : 0
+                scores[parsed.index] = min(9_999, max(minimum, previous + parsed.delta))
+                let appliedDelta = scores[parsed.index] - previous
+                guard appliedDelta != 0 else { continue }
+                result.append(DetailedScoreAction(
+                    type: .scoreChanged,
+                    epochMilliseconds: timestamp,
+                    team: parsed.index == 0 ? .team1 : .team2,
+                    scores: scores,
+                    setScores: setScores,
+                    setNumber: setNumber,
+                    roundNumber: roundNumber,
+                    periodNumber: periodNumber,
+                    scoreChange: appliedDelta,
+                    operationCode: "score_adjust",
+                    summary: raw
+                ))
+            } else if let parsed = parseSideDelta(body) {
                 scores[parsed.index] += parsed.delta
                 result.append(DetailedScoreAction(type: .scoreChanged, epochMilliseconds: timestamp, team: parsed.index == 0 ? .team1 : .team2, scores: scores, setScores: setScores, setNumber: setNumber, roundNumber: roundNumber, periodNumber: periodNumber, scoreChange: parsed.delta, operationCode: "score_adjust", summary: raw))
             } else if body.hasPrefix("round "), let pair = parsePair(String(body.dropFirst(6))) {
@@ -227,7 +231,7 @@ enum ScoreboardRecordActionAdapter {
             } else if body == "reset" {
                 result.append(DetailedScoreAction(type: .reset, epochMilliseconds: timestamp, scores: scores, operationCode: "reset", summary: raw))
                 scores = [0, 0, 0, 0]
-            } else if body == "exchangeSide" {
+            } else if body == "exchangeSide" || body == "exchangeSides" {
                 result.append(DetailedScoreAction(type: .sideChanged, epochMilliseconds: timestamp, scores: scores, operationCode: "exchange_side", summary: raw))
             } else if body == "undo" {
                 result.append(DetailedScoreAction(type: .undo, epochMilliseconds: timestamp, scores: scores, operationCode: "undo", summary: raw))
@@ -238,7 +242,7 @@ enum ScoreboardRecordActionAdapter {
 
         if record.status == .finished, result.last?.type != .matchFinished {
             let endMilliseconds = record.endTime.map { Int64($0.timeIntervalSince1970 * 1_000) }
-            result.append(DetailedScoreAction(type: .matchFinished, epochMilliseconds: endMilliseconds, scores: [record.team1FinalScore, record.team2FinalScore], setScores: [record.team1SetScore ?? 0, record.team2SetScore ?? 0], winner: record.winner == "left" ? .team1 : (record.winner == "right" ? .team2 : nil), summary: NSLocalizedString("game_ended", comment: "")))
+            result.append(DetailedScoreAction(type: .matchFinished, epochMilliseconds: endMilliseconds, scores: [record.team1FinalScore, record.team2FinalScore], setScores: [record.team1SetScore ?? 0, record.team2SetScore ?? 0], winner: record.resolvedWinnerRecordTeam, summary: NSLocalizedString("game_ended", comment: "")))
         }
         return result
     }
@@ -259,6 +263,39 @@ enum ScoreboardRecordActionAdapter {
         let parts = raw.split(separator: " ").map(String.init)
         guard parts.count >= 2, let delta = Int(parts[1]), parts[0] == "left" || parts[0] == "right" else { return nil }
         return (parts[0] == "left" ? 0 : 1, delta)
+    }
+
+    private static func parseLineScoreDelta(_ raw: String) -> (index: Int, delta: Int)? {
+        let compact = raw.lowercased().filter { !$0.isWhitespace }
+        let adjustPrefix = "adjust(side:"
+        if compact.hasPrefix(adjustPrefix),
+           let deltaMarker = compact.range(of: ",delta:") {
+            let sideStart = compact.index(compact.startIndex, offsetBy: adjustPrefix.count)
+            let sideToken = String(compact[sideStart..<deltaMarker.lowerBound])
+            let deltaToken = String(compact[deltaMarker.upperBound...])
+                .trimmingCharacters(in: CharacterSet(charactersIn: ")"))
+            guard let index = lineScoreSideIndex(sideToken),
+                  let delta = Int(deltaToken) else {
+                return nil
+            }
+            return (index, delta)
+        }
+
+        let pointPrefix = "pointwon("
+        if compact.hasPrefix(pointPrefix), compact.hasSuffix(")") {
+            let sideStart = compact.index(compact.startIndex, offsetBy: pointPrefix.count)
+            let sideEnd = compact.index(before: compact.endIndex)
+            let sideToken = String(compact[sideStart..<sideEnd])
+            guard let index = lineScoreSideIndex(sideToken) else { return nil }
+            return (index, 1)
+        }
+        return nil
+    }
+
+    private static func lineScoreSideIndex(_ token: String) -> Int? {
+        if token.hasSuffix("left") { return 0 }
+        if token.hasSuffix("right") { return 1 }
+        return nil
     }
 
     private static func parsePair(_ raw: String) -> (Int, Int)? {

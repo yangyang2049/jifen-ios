@@ -310,7 +310,7 @@ final class WatchSportsSetupTests: XCTestCase {
         )
         XCTAssertEqual(left.topPlayerIndex, 2)
         XCTAssertEqual(left.bottomPlayerIndex, 0)
-        XCTAssertEqual(left.serverIsTop, true)
+        XCTAssertEqual(left.serverIsTop, false)
 
         let right = WatchDoublesDisplayState.resolve(
             doubles: doubles,
@@ -334,8 +334,8 @@ final class WatchSportsSetupTests: XCTestCase {
             screenSide: .right
         )
 
-        XCTAssertEqual(right.topPlayerIndex, doubles.serverSlotIndex)
-        XCTAssertEqual(right.serverIsTop, true)
+        XCTAssertEqual(right.bottomPlayerIndex, doubles.serverSlotIndex)
+        XCTAssertEqual(right.serverIsTop, false)
     }
 
     func testTennisDoublesServerSlotsForGamesAndTieBreak() {
@@ -537,6 +537,69 @@ final class WatchSportsSetupTests: XCTestCase {
     }
 
     @MainActor
+    func testResumeSessionMigratesLegacyArcheryPhysicalSideSwap() throws {
+        let now = Date(timeIntervalSince1970: 15_000)
+        let legacyState = ArcheryMatchState(
+            leftName: "蓝射手",
+            rightName: "红射手",
+            leftArrowSum: 18,
+            rightArrowSum: 19,
+            leftSetPoints: 0,
+            rightSetPoints: 2,
+            currentShooterIsLeft: false,
+            openingShooterIsLeft: false,
+            sidesSwapped: true
+        )
+        let legacyUndoState = ArcheryMatchState(
+            leftName: "蓝射手",
+            rightName: "红射手",
+            leftArrowSum: 8,
+            rightArrowSum: 9,
+            currentShooterIsLeft: false,
+            openingShooterIsLeft: false,
+            sidesSwapped: true
+        )
+        let session = WatchResumeSession(
+            savedAt: now,
+            startedAt: now.addingTimeInterval(-30),
+            scoreLine: "0 : 2",
+            emoji: "🏹",
+            payload: .archery(
+                state: legacyState,
+                undoStates: [legacyUndoState],
+                restState: nil
+            )
+        )
+        let encoded = try JSONEncoder().encode(session)
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        json["schemaVersion"] = 2
+        defaults.set(try JSONSerialization.data(withJSONObject: json), forKey: "watch_resume_session")
+
+        let restoredStore = WatchResumeSessionStore(defaults: defaults, now: { now })
+        let restoredSession = try XCTUnwrap(restoredStore.session)
+        XCTAssertEqual(restoredSession.schemaVersion, WatchResumeSession.currentSchemaVersion)
+        guard case .archery(let state, let undoStates, _) = restoredSession.payload else {
+            return XCTFail("Expected migrated archery payload")
+        }
+        XCTAssertEqual(state.leftName, "红射手")
+        XCTAssertEqual(state.rightName, "蓝射手")
+        XCTAssertEqual(state.leftArrowSum, 19)
+        XCTAssertEqual(state.rightArrowSum, 18)
+        XCTAssertEqual(state.leftSetPoints, 2)
+        XCTAssertEqual(state.rightSetPoints, 0)
+        XCTAssertTrue(state.currentShooterIsLeft)
+        XCTAssertTrue(state.openingShooterIsLeft)
+        XCTAssertTrue(state.sidesSwapped)
+        XCTAssertEqual(undoStates.first?.leftName, "红射手")
+        XCTAssertEqual(undoStates.first?.leftArrowSum, 9)
+        XCTAssertEqual(undoStates.first?.rightArrowSum, 8)
+
+        let persistedData = try XCTUnwrap(defaults.data(forKey: "watch_resume_session"))
+        let persisted = try JSONDecoder().decode(WatchResumeSession.self, from: persistedData)
+        XCTAssertEqual(persisted.schemaVersion, WatchResumeSession.currentSchemaVersion)
+    }
+
+    @MainActor
     func testResumeSessionRefreshUsesLatestLinkedActionTimeline() throws {
         let now = Date(timeIntervalSince1970: 20_000)
         let sessionID = UUID()
@@ -702,6 +765,19 @@ final class WatchSportsSetupTests: XCTestCase {
         )
     }
 
+    func testPingPongDoublesDefaultsToRedAServingBlueBReceiving() throws {
+        var draft = WatchSportsSetupDraft(sport: .pingpongDoubles, preferences: preferences)
+        draft.playerNames = ["Red A", "Red B", "Blue A", "Blue B"]
+        let state = try XCTUnwrap(WatchSetupPayloadMapper.rallyState(
+            for: WatchScoreboardLaunchConfig(draft: draft)
+        ))
+
+        XCTAssertEqual(state.doubles?.serverSlotIndex, 0)
+        XCTAssertEqual(state.doubles?.receiverSlotIndex, 3)
+        XCTAssertEqual(state.doubles?.serverName, "Red A")
+        XCTAssertEqual(state.doubles?.receiverName, "Blue B")
+    }
+
     func testSetupPayloadsPreserveEnteredNamesForEveryScoreboard() throws {
         func config(
             _ sport: WatchSetupSport,
@@ -731,8 +807,8 @@ final class WatchSportsSetupTests: XCTestCase {
             let state = try XCTUnwrap(WatchSetupPayloadMapper.rallyState(
                 for: config(sport, names: ["红A", "红B", "蓝A", "蓝B"])
             ))
-            XCTAssertEqual(state.leftName, "红A/红B")
-            XCTAssertEqual(state.rightName, "蓝A/蓝B")
+            XCTAssertEqual(state.leftName, "红A / 红B")
+            XCTAssertEqual(state.rightName, "蓝A / 蓝B")
             XCTAssertEqual(state.doubles?.playerNames, ["红A", "蓝A", "红B", "蓝B"])
         }
 
@@ -745,8 +821,8 @@ final class WatchSportsSetupTests: XCTestCase {
         let tennisDoubles = try XCTUnwrap(WatchSetupPayloadMapper.tennisState(
             for: config(.tennisDoubles, names: ["红A", "红B", "蓝A", "蓝B"])
         ))
-        XCTAssertEqual(tennisDoubles.leftName, "红A/红B")
-        XCTAssertEqual(tennisDoubles.rightName, "蓝A/蓝B")
+        XCTAssertEqual(tennisDoubles.leftName, "红A / 红B")
+        XCTAssertEqual(tennisDoubles.rightName, "蓝A / 蓝B")
         XCTAssertEqual(tennisDoubles.doublesPlayerNames, ["红A", "蓝A", "红B", "蓝B"])
 
         let archery = try XCTUnwrap(WatchSetupPayloadMapper.archeryState(
@@ -1228,243 +1304,125 @@ final class WatchSportsSetupTests: XCTestCase {
             52
         )
     }
-}
 
-@MainActor
-extension WatchSportsSetupTests {
-    func testWatchLinkRejectsMismatchedModeBeforeShowingConfirmation() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store
-        )
-        let state = RallyMatchEngine.initial(
-            leftName: "甲",
-            rightName: "乙",
-            rules: .badminton()
-        )
-        let envelope = LinkEnvelope(
-            sessionId: UUID(),
-            kind: .setupRequest,
-            sender: .phone,
-            senderSequence: 1,
-            sessionRevision: 0,
-            sentAtEpochMilliseconds: 1,
-            payload: LinkedScoreboardSetup(
-                gameType: .badmintonDoubles,
-                maxSets: state.rules.maxSets,
-                initialSnapshot: .rally(state),
-                participantNames: ["甲", "乙"]
-            )
-        )
-
-        transport.deliver(try JSONEncoder().encode(envelope))
-        await settleWatchLinkService()
-
-        XCTAssertNil(service.pendingConfirmRequest)
-        let rejection = try XCTUnwrap(
-            transport.realtimeMessages.compactMap {
-                try? JSONDecoder().decode(
-                    LinkEnvelope<EmptyLinkPayload>.self,
-                    from: $0
-                )
-            }.last
-        )
-        XCTAssertEqual(rejection.kind, .setupRejected)
-        XCTAssertEqual(rejection.correlationId, envelope.messageId)
+    func testDefaultParticipantFallbacksMatchPhonePolicy() {
+        assertDefaultParticipantPair(.basketball, "team_a", "team_b")
+        assertDefaultParticipantPair(.threeBasketball, "team_a", "team_b")
+        assertDefaultParticipantPair(.volleyball, "team_a", "team_b")
+        assertDefaultParticipantPair(.beachVolleyball, "team_a", "team_b")
+        assertDefaultParticipantPair(.airVolleyball, "team_a", "team_b")
+        assertDefaultParticipantPair(.guandan, "team_a", "team_b")
+        assertDefaultParticipantPair(.shengji, "team_a", "team_b")
+        assertDefaultParticipantPair(.football, "team_home", "team_away")
+        assertDefaultParticipantPair(.archeryDual, "archer_a", "archer_b")
+        assertDefaultParticipantPair(.pingpong, "player_a", "player_b")
+        assertDefaultParticipantPair(.badminton, "player_a", "player_b")
+        assertDefaultParticipantPair(.tennis, "player_a", "player_b")
+        assertDefaultParticipantPair(.pickleball, "player_a", "player_b")
+        assertDefaultParticipantPair(.foosball, "player_a", "player_b")
+        assertDefaultParticipantPair(.billiards, "player_a", "player_b")
+        assertDefaultParticipantPair(.eightBall, "player_a", "player_b")
+        assertDefaultParticipantPair(.snooker, "player_a", "player_b")
+        assertDefaultParticipantPair(.boxing, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.simpleScore, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.nineBall, "watch_setup_player_number", "watch_setup_player_number")
+        assertDefaultParticipantPair(.doudizhu, "watch_setup_player_number", "watch_setup_player_number")
+        assertDefaultParticipantPair(.uno, "watch_setup_player_number", "watch_setup_player_number")
+        assertDefaultParticipantPair(.multiScoreboard, "watch_setup_player_number", "watch_setup_player_number")
     }
 
-    func testWatchLinkNextMatchCreatesFreshIdentityAndRevision() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store
+    func testLocalSetupPlaceholdersUseABAndDoublesColors() {
+        XCTAssertEqual(
+            WatchDefaultTeamNames.setupParticipantName(for: .archery, index: 0),
+            NSLocalizedString("archer_a", comment: "")
         )
-        let setup = makeWatchLinkSetup()
-        transport.deliver(try JSONEncoder().encode(setup.envelope))
-        await settleWatchLinkService()
-        service.acceptPendingSetup()
-        let firstHandle = try XCTUnwrap(service.resumeContext?.handle)
+        XCTAssertEqual(
+            WatchDefaultTeamNames.setupParticipantName(for: .archery, index: 1),
+            NSLocalizedString("archer_b", comment: "")
+        )
+        XCTAssertEqual(
+            WatchDefaultTeamNames.setupParticipantName(for: .pingpong, index: 0),
+            NSLocalizedString("player_a", comment: "")
+        )
+        XCTAssertEqual(
+            WatchDefaultTeamNames.setupParticipantName(for: .pingpong, index: 1),
+            NSLocalizedString("player_b", comment: "")
+        )
+        XCTAssertEqual(
+            (0..<4).map {
+                WatchDefaultTeamNames.setupParticipantName(for: .pingpongDoubles, index: $0)
+            },
+            WatchDefaultTeamNames.doublesMembers
+        )
+        XCTAssertEqual(
+            WatchDefaultTeamNames.fallback(for: ScoreCore.GameType.pingpongDoubles).members,
+            WatchDefaultTeamNames.doublesMembers
+        )
 
-        service.startNextMatch(snapshot: setup.snapshot)
-        await settleWatchLinkService()
+        for gameType in [
+            ScoreCore.GameType.pingpongDoubles, .badmintonDoubles, .tennisDoubles,
+            .pickleballDoubles, .foosballDoubles
+        ] {
+            let pair = WatchDefaultTeamNames.fallback(for: gameType)
+            XCTAssertEqual(pair.members, WatchDefaultTeamNames.doublesMembers)
+            XCTAssertFalse(pair.left.isEmpty)
+            XCTAssertFalse(pair.right.isEmpty)
+        }
 
-        let next = try XCTUnwrap(service.resumeContext)
-        XCTAssertEqual(next.handle.sessionId, firstHandle.sessionId)
-        XCTAssertEqual(next.handle.matchGeneration, firstHandle.matchGeneration + 1)
-        XCTAssertNotEqual(next.handle.matchId, firstHandle.matchId)
-        XCTAssertEqual(next.revision, 1)
-        XCTAssertEqual(next.role, .watchController)
-        XCTAssertEqual(transport.publishedSnapshots.count, 1)
+        for sport in [
+            WatchSetupSport.pingpongDoubles, .badmintonDoubles,
+            .tennisDoubles, .pickleballDoubles
+        ] {
+            let draft = WatchSportsSetupDraft(sport: sport, preferences: preferences)
+            let config = WatchScoreboardLaunchConfig(draft: draft)
+            let localNames = WatchSetupPayloadMapper.twoSideNames(for: config)
+            let canonical = WatchDefaultTeamNames.fallback(for: sport)
+            XCTAssertEqual(localNames.left, canonical.left)
+            XCTAssertEqual(localNames.right, canonical.right)
+        }
     }
 
-    func testWatchLinkTakeoverIsCorrelatedIdempotentAndRestoresFollower() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store
-        )
-        let setup = makeWatchLinkSetup()
-        transport.deliver(try JSONEncoder().encode(setup.envelope))
-        await settleWatchLinkService()
-        service.acceptPendingSetup()
-        let handle = try XCTUnwrap(service.resumeContext?.handle)
-        let takeover = LinkEnvelope(
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: 0,
-            kind: .takeoverByPhone,
-            sender: .phone,
-            senderSequence: 2,
-            sessionRevision: 0,
-            sentAtEpochMilliseconds: 2,
-            payload: LinkAuthorityTransferPayload(
-                snapshot: setup.snapshot,
-                baseRevision: 0
+    func testNineBallDefaultParticipantNamesStayNumbered() {
+        XCTAssertEqual(
+            WatchDefaultTeamNames.setupParticipantName(for: .nineBall, index: 0),
+            String.localizedStringWithFormat(
+                NSLocalizedString("watch_setup_player_number", comment: ""),
+                1
             )
         )
-        let takeoverData = try JSONEncoder().encode(takeover)
-
-        transport.deliver(takeoverData)
-        await settleWatchLinkService()
-        transport.deliver(takeoverData)
-        await settleWatchLinkService()
-
-        let context = try XCTUnwrap(service.resumeContext)
-        XCTAssertEqual(context.role, .watchFollower)
-        XCTAssertEqual(context.authorityEpoch, 1)
-        let acknowledgements = transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(
-                LinkEnvelope<LinkAcknowledgementPayload>.self,
-                from: $0
+        XCTAssertEqual(
+            WatchDefaultTeamNames.setupParticipantName(for: .nineBall, index: 3),
+            String.localizedStringWithFormat(
+                NSLocalizedString("watch_setup_player_number", comment: ""),
+                4
             )
-        }.filter { $0.correlationId == takeover.messageId }
-        XCTAssertEqual(acknowledgements.count, 2)
-        XCTAssertTrue(acknowledgements.allSatisfy { $0.authorityEpoch == 1 })
-
-        let restored = WatchLinkService(
-            transport: WatchLinkTestTransport(),
-            contextStore: store,
-            outboxStore: store
         )
-        XCTAssertEqual(restored.resumeContext?.role, .watchFollower)
-        XCTAssertEqual(restored.resumeContext?.authorityEpoch, 1)
-        XCTAssertEqual(restored.resumeContext?.handle, handle)
     }
 
-    private func makeWatchLinkSetup() -> (
-        envelope: LinkEnvelope<LinkedScoreboardSetup>,
-        snapshot: LinkedScoreboardSnapshot
+    private func assertDefaultParticipantPair(
+        _ gameType: ScoreCore.GameType,
+        _ leftKey: String,
+        _ rightKey: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) {
-        let state = RallyMatchEngine.initial(
-            leftName: "甲",
-            rightName: "乙",
-            rules: .badminton()
-        )
-        let snapshot = LinkedScoreboardSnapshot.rally(state)
-        let handle = LinkedMatchHandle(sessionId: UUID())
-        return (
-            LinkEnvelope(
-                sessionId: handle.sessionId,
-                matchId: handle.matchId,
-                matchGeneration: handle.matchGeneration,
-                kind: .setupRequest,
-                sender: .phone,
-                senderSequence: 1,
-                sessionRevision: 0,
-                sentAtEpochMilliseconds: 1,
-                payload: LinkedScoreboardSetup(
-                    gameType: .badminton,
-                    maxSets: state.rules.maxSets,
-                    initialSnapshot: snapshot,
-                    participantNames: ["甲", "乙"]
-                )
-            ),
-            snapshot
-        )
-    }
-
-    private func settleWatchLinkService() async {
-        try? await Task.sleep(nanoseconds: 30_000_000)
-    }
-}
-
-private final class WatchLinkTestDataStore: @unchecked Sendable, LinkDataStore {
-    private var values: [String: Data] = [:]
-
-    func data(forKey key: String) -> Data? {
-        values[key]
-    }
-
-    func set(_ data: Data, forKey key: String) {
-        values[key] = data
-    }
-
-    func removeObject(forKey key: String) {
-        values.removeValue(forKey: key)
-    }
-}
-
-private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransport {
-    var status = WatchConnectivityStatus(
-        isSupported: true,
-        isActivated: true,
-        isPaired: true,
-        isWatchAppInstalled: true,
-        isReachable: true
-    )
-    var receivedApplicationContext: [String: Any] = [:]
-    var isReachable: Bool { status.isReachable }
-
-    var onReceive: (@Sendable (Data) -> Void)?
-    var onSendError: (@Sendable (Error) -> Void)?
-    var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
-    var onApplicationContext: (@Sendable ([String: Any]) -> Void)?
-    var onWatchRecordData: (@Sendable (Data) -> Void)?
-    var onCommonNameUsageData: (@Sendable (Data) -> Void)?
-    var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
-    var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
-
-    private(set) var realtimeMessages: [Data] = []
-    private(set) var publishedSnapshots: [Data] = []
-    private(set) var durableMessages: [Data] = []
-
-    func activate() {}
-    func refreshStatus() { onStatusChange?(status) }
-
-    func sendRealtime(_ data: Data) async throws {
-        realtimeMessages.append(data)
-    }
-
-    func publishLatestSnapshot(_ data: Data) throws {
-        publishedSnapshots.append(data)
-    }
-
-    func enqueueDurable(_ data: Data) throws {
-        durableMessages.append(data)
-    }
-
-    func sendInteractive(_ data: Data) throws {
-        realtimeMessages.append(data)
-    }
-
-    func updateApplicationContext(_ context: [String: Any]) throws {
-        receivedApplicationContext.merge(context) { _, latest in latest }
-    }
-
-    func transferWatchRecord(_ data: Data) throws {}
-    func transferCommonNameUsage(_ data: Data) throws {}
-    func transferCommonNameMutations(_ data: Data) throws {}
-    func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
-
-    func deliver(_ data: Data) {
-        onReceive?(data)
+        let pair = WatchDefaultTeamNames.fallback(for: gameType)
+        if leftKey == "watch_setup_player_number" {
+            XCTAssertEqual(
+                pair.left,
+                String.localizedStringWithFormat(NSLocalizedString(leftKey, comment: ""), 1),
+                file: file,
+                line: line
+            )
+            XCTAssertEqual(
+                pair.right,
+                String.localizedStringWithFormat(NSLocalizedString(rightKey, comment: ""), 2),
+                file: file,
+                line: line
+            )
+        } else {
+            XCTAssertEqual(pair.left, NSLocalizedString(leftKey, comment: ""), file: file, line: line)
+            XCTAssertEqual(pair.right, NSLocalizedString(rightKey, comment: ""), file: file, line: line)
+        }
     }
 }

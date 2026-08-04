@@ -10,8 +10,8 @@
 | 维度 | 台球 (billiards) | 黑八 (eightBall) | 九球/追分 (nineBall) | 斯诺克 (snooker) |
 |------|:---:|:---:|:---:|:---:|
 | **架构代** | 旧模板架构 | 新 Session 架构 | 新 Session 架构 | 新 Session 架构 |
-| **UI 容器** | `ScoreboardTemplate` | `SpecializedScoreboardScaffold` | 自定义 player grid | `SpecializedScoreboardScaffold` |
-| **Store** | ❌ 无 | `SpecializedBilliardsSessionStore<EightBallReducer>` | `SpecializedBilliardsSessionStore<NineBallChaseReducer>` | `SpecializedBilliardsSessionStore<SnookerReducer>` |
+| **UI 容器** | `ScoreboardTemplate` | `TwoSideScoreboardScaffold` | 自定义 player grid | `TwoSideScoreboardScaffold` |
+| **Store** | ❌ 无 | `BilliardsSessionStore<EightBallReducer>` | `BilliardsSessionStore<NineBallChaseReducer>` | `BilliardsSessionStore<SnookerReducer>` |
 | **Reducer** | `LineScoreReducer` | `EightBallReducer` | `NineBallChaseReducer` | `SnookerReducer` |
 | **ScoreCore 族** | S1/Line | S2/专项 | S3/多人 | S2/专项 |
 | **Controller** | `BilliardsScoreboardController` | ❌ 无 | ❌ 无 | ❌ 无 |
@@ -93,7 +93,7 @@
 
 | 维度 | 描述 |
 |------|------|
-| **布局模式** | `SpecializedScoreboardScaffold`：左右 50/50 + 顶部 pill（目标局数）+ 中间让局显示 |
+| **布局模式** | `TwoSideScoreboardScaffold`：左右 50/50 + 顶部 pill（目标局数）+ 中间让局显示 |
 | **颜色方案** | 主题色 |
 | **显示内容** | 队名 → 大分(局数) → 顶栏目标局数 → 中栏让局提示(如有) |
 | **计分交互** | 点击左侧 +1 局 / 点击右侧 +1 局（`addRack`） |
@@ -124,7 +124,7 @@
 
 | 维度 | 描述 |
 |------|------|
-| **布局模式** | `SpecializedScoreboardScaffold`：左右 50/50 + 顶部 pill(当前局/总局) + 底部彩球条 + 中间发球三角 |
+| **布局模式** | `TwoSideScoreboardScaffold`：左右 50/50 + 顶部 pill(当前局/总局) + 底部彩球条 + 中间发球三角 |
 | **显示内容** | 队名(上) → 主分(中) + break(下) → 局数 pill → 7 颗彩球按钮 |
 | **颜色方案** | 主题色 |
 | **底部彩球条** | 红(1) 黄(2) 绿(3) 棕(4) 蓝(5) 粉(6) 黑(7)，每颗可点击加分 |
@@ -161,7 +161,7 @@
 
 ### 4.2 黑八 (eightBall)
 
-通过 `SpecializedScoreboardScaffold`：
+通过 `TwoSideScoreboardScaffold`：
 
 | 菜单项 | 分组 | 二次确认 |
 |--------|------|---------|
@@ -229,7 +229,7 @@
 
 | 维度 | 说明 |
 |------|------|
-| **保存方式** | `SpecializedBilliardsSessionStore.persistSnapshot()` → `SessionArchiveRepository` |
+| **保存方式** | `BilliardsSessionStore.persistSnapshot()` → `SessionArchiveRepository` |
 | **Draft 结构** | `ScoreSessionResumeBundle<State, Event, Intent>` |
 | **记录格式** | ScoreboardRecord v4（sessionId UUID） |
 | **记录 ID** | UUID |

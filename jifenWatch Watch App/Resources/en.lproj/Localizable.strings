@@ -88,6 +88,14 @@
 "exit" = "Exit";
 "watch_team_red" = "Red";
 "watch_team_blue" = "Blue";
+"team_a" = "Team A";
+"team_b" = "Team B";
+"team_home" = "Home";
+"team_away" = "Away";
+"player_a" = "Player A";
+"player_b" = "Player B";
+"archer_a" = "Archer A";
+"archer_b" = "Archer B";
 "linked_score_confirm_title" = "Phone requests linked scoring";
 "linked_score_phone_started_scoreboard" = "Phone started scoring";
 "linked_score_accept" = "Accept";

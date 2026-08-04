@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import ScoreCore
 
 /// Shared scoreboard name editor aligned with HarmonyOS `TeamNameField`.
 /// It keeps a consistent responsive width and always exposes common names
@@ -158,24 +159,27 @@ struct ScoreboardTemplate: View {
                 contentLayout {
                     // Left team
                     if let baseViewModel = config.viewModel as? BaseScoreViewModel {
+                        let leftLogicalIsLeft = logicalIsLeft(forScreen: true)
+                        let leftTeam = team(onScreen: true, viewModel: baseViewModel)
                         TeamSection(
-                            team: baseViewModel.leftTeam,
-                            isLeft: true,
+                            team: leftTeam,
+                            isLeft: leftLogicalIsLeft,
                             scoreFontSize: config.scoreFontSize,
-                            scoreText: scoreText(for: baseViewModel.leftTeam, isLeft: true),
+                            scoreText: scoreText(for: leftTeam, isLeft: leftLogicalIsLeft),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
                             scoreboardFont: typographyPreference.font,
                             palette: appearance.theme.palette,
+                            backgroundColor: panelColor(forScreen: true),
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
                             secondaryMultiplier: secondaryMultiplier,
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
-                                config.viewModel.addScore(isLeft: true, points: points)
+                                config.viewModel.addScore(isLeft: leftLogicalIsLeft, points: points)
                             },
                             onScoreSubtract: { points in
-                                config.viewModel.subtractScore(isLeft: true, points: points)
+                                config.viewModel.subtractScore(isLeft: leftLogicalIsLeft, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
                                 applyScoreAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
@@ -185,13 +189,13 @@ struct ScoreboardTemplate: View {
                             },
                             onGamesAdjust: nil,
                             onStartEditName: {
-                                baseViewModel.startEditName(isLeft: true)
+                                baseViewModel.startEditName(isLeft: leftLogicalIsLeft)
                             },
                             onUpdateInput: { value in
-                                baseViewModel.updateInput(isLeft: true, value: value)
+                                baseViewModel.updateInput(isLeft: leftLogicalIsLeft, value: value)
                             },
                             onConfirmEditName: {
-                                baseViewModel.confirmEditName(isLeft: true)
+                                baseViewModel.confirmEditName(isLeft: leftLogicalIsLeft)
                             },
                             gameType: config.gameType,
                             nameType: config.nameType,
@@ -202,7 +206,7 @@ struct ScoreboardTemplate: View {
                         .accessibilityIdentifier("scoreboard_left_panel")
                         .contentShape(Rectangle())
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
-                        .gesture(scoreTapGesture(isLeft: true, panelSize: panelSize))
+                        .gesture(scoreTapGesture(isLeft: leftLogicalIsLeft, panelSize: panelSize))
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
@@ -223,24 +227,27 @@ struct ScoreboardTemplate: View {
                         )
                         
                         // Right team
+                        let rightLogicalIsLeft = logicalIsLeft(forScreen: false)
+                        let rightTeam = team(onScreen: false, viewModel: baseViewModel)
                         TeamSection(
-                            team: baseViewModel.rightTeam,
-                            isLeft: false,
+                            team: rightTeam,
+                            isLeft: rightLogicalIsLeft,
                             scoreFontSize: config.scoreFontSize,
-                            scoreText: scoreText(for: baseViewModel.rightTeam, isLeft: false),
+                            scoreText: scoreText(for: rightTeam, isLeft: rightLogicalIsLeft),
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
                             scoreboardFont: typographyPreference.font,
                             palette: appearance.theme.palette,
+                            backgroundColor: panelColor(forScreen: false),
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
                             secondaryMultiplier: secondaryMultiplier,
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
-                                config.viewModel.addScore(isLeft: false, points: points)
+                                config.viewModel.addScore(isLeft: rightLogicalIsLeft, points: points)
                             },
                             onScoreSubtract: { points in
-                                config.viewModel.subtractScore(isLeft: false, points: points)
+                                config.viewModel.subtractScore(isLeft: rightLogicalIsLeft, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
                                 applyScoreAdjust(viewModel: config.viewModel, isLeft: isLeft, delta: delta)
@@ -250,13 +257,13 @@ struct ScoreboardTemplate: View {
                             },
                             onGamesAdjust: nil,
                             onStartEditName: {
-                                baseViewModel.startEditName(isLeft: false)
+                                baseViewModel.startEditName(isLeft: rightLogicalIsLeft)
                             },
                             onUpdateInput: { value in
-                                baseViewModel.updateInput(isLeft: false, value: value)
+                                baseViewModel.updateInput(isLeft: rightLogicalIsLeft, value: value)
                             },
                             onConfirmEditName: {
-                                baseViewModel.confirmEditName(isLeft: false)
+                                baseViewModel.confirmEditName(isLeft: rightLogicalIsLeft)
                             },
                             gameType: config.gameType,
                             nameType: config.nameType,
@@ -267,7 +274,7 @@ struct ScoreboardTemplate: View {
                         .accessibilityIdentifier("scoreboard_right_panel")
                         .contentShape(Rectangle())
                         .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
-                        .gesture(scoreTapGesture(isLeft: false, panelSize: panelSize))
+                        .gesture(scoreTapGesture(isLeft: rightLogicalIsLeft, panelSize: panelSize))
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
@@ -535,7 +542,7 @@ struct ScoreboardTemplate: View {
             showMenu = false
             showDisplaySettings = true
             
-        case "exchangeSide":
+        case ScoreboardMenuActionID.exchangeSide.rawValue:
             if menuConfirm.armOrConfirm(.exchangeSide) {
                 config.viewModel.exchangeSides()
                 config.controller.recordScoreAction(action: "exchangeSide")
@@ -636,6 +643,22 @@ struct ScoreboardTemplate: View {
         return "\(team.score)"
     }
 
+    private var teamScreenLayout: TeamScreenLayout {
+        TeamScreenLayout(sidesSwapped: config.viewModel.sidesSwapped)
+    }
+
+    private func logicalIsLeft(forScreen isLeft: Bool) -> Bool {
+        teamScreenLayout.engineSide(onScreen: isLeft ? .left : .right) == .left
+    }
+
+    private func team(onScreen isLeft: Bool, viewModel: BaseScoreViewModel) -> TeamData {
+        logicalIsLeft(forScreen: isLeft) ? viewModel.leftTeam : viewModel.rightTeam
+    }
+
+    private func panelColor(forScreen isLeft: Bool) -> Color {
+        logicalIsLeft(forScreen: isLeft) ? appearance.theme.palette.left : appearance.theme.palette.right
+    }
+
     private var shouldShowChromeButtons: Bool {
         !hideButtonsForScreenshot && (!appearance.immersiveMode || isEditMode || chromeButtonsVisible)
     }
@@ -722,10 +745,10 @@ struct ScoreboardTemplate: View {
                     scoringLocked: !scoringEnabled
                 ) else { return }
                 switch intent {
-                case .addLeft: config.viewModel.addScore(isLeft: true, points: 1)
-                case .addRight: config.viewModel.addScore(isLeft: false, points: 1)
-                case .subtractLeft: config.viewModel.subtractScore(isLeft: true, points: 1)
-                case .subtractRight: config.viewModel.subtractScore(isLeft: false, points: 1)
+                case .addLeft: config.viewModel.addScore(isLeft: logicalIsLeft(forScreen: true), points: 1)
+                case .addRight: config.viewModel.addScore(isLeft: logicalIsLeft(forScreen: false), points: 1)
+                case .subtractLeft: config.viewModel.subtractScore(isLeft: logicalIsLeft(forScreen: true), points: 1)
+                case .subtractRight: config.viewModel.subtractScore(isLeft: logicalIsLeft(forScreen: false), points: 1)
                 case .undo: _ = config.viewModel.undo()
                 case .exchangeSides: config.viewModel.exchangeSides()
                 case .requestSnapshot: break
@@ -735,15 +758,17 @@ struct ScoreboardTemplate: View {
     }
 
     private func makeSyncDisplayState() -> LocalScoreboardDisplayState {
-        let left = config.viewModel.leftTeam
-        let right = config.viewModel.rightTeam
+        let leftIsLogicalLeft = logicalIsLeft(forScreen: true)
+        let rightIsLogicalLeft = logicalIsLeft(forScreen: false)
+        let left = leftIsLogicalLeft ? config.viewModel.leftTeam : config.viewModel.rightTeam
+        let right = rightIsLogicalLeft ? config.viewModel.leftTeam : config.viewModel.rightTeam
         return LocalScoreboardDisplayState(
             gameID: config.gameType.canonicalScoreboardIdentifier,
             title: config.gameType.displayName,
             leftName: left.name,
             rightName: right.name,
-            leftScore: scoreText(for: left, isLeft: true),
-            rightScore: scoreText(for: right, isLeft: false),
+            leftScore: scoreText(for: left, isLeft: leftIsLogicalLeft),
+            rightScore: scoreText(for: right, isLeft: rightIsLogicalLeft),
             leftDetail: syncDetail(for: left),
             rightDetail: syncDetail(for: right),
             themeID: appearance.theme.rawValue,
@@ -888,6 +913,7 @@ struct TeamSection: View {
     var editState: EditState
     let scoreboardFont: ScoreboardFont
     let palette: ScoreboardPalette
+    let backgroundColor: Color
     let scoreMultiplier: Double
     let nameMultiplier: Double
     let secondaryMultiplier: Double
@@ -966,7 +992,7 @@ struct TeamSection: View {
                 : 0
 
             ZStack {
-                (isLeft ? palette.left : palette.right)
+                backgroundColor
                     .ignoresSafeArea()
 
                 // Keep the complete name/score/secondary group centered, matching

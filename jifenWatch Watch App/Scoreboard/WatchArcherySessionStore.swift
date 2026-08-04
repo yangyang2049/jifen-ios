@@ -32,7 +32,7 @@ final class WatchArcherySessionStore {
         resumedActionLog: WatchScoreActionLog? = nil
     ) {
         let descriptor = ScoreboardKernelRegistry.descriptor(for: .archeryDual)
-        let defaults = WatchDefaultTeamNames.resolve()
+        let defaults = WatchDefaultTeamNames.resolve(for: .archeryDual)
         let seed: ArcheryMatchState
         if let resumedState {
             seed = resumedState

@@ -180,7 +180,7 @@ struct FootballScoreboardView: View {
         if let data = record.stateSnapshot,
            let resumeState = try? JSONDecoder().decode(LineScoreResumeState.self, from: data) {
             controller.gameActions = resumeState.intentTimeline
-            viewModel.restoreSession(state: resumeState.state, history: resumeState.undoHistory)
+            viewModel.restoreSession(resumeState)
             return
         }
 

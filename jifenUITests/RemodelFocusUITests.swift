@@ -137,7 +137,7 @@ final class RemodelFocusUITests: XCTestCase {
     func testConservativeArchitectureScoreboardsScoreUndoAndExit() {
         let scoreboards = [
             (id: "simpleScore", label: "简单计分", leftName: "红方", rightName: "蓝方"),
-            (id: "billiards", label: "台球", leftName: "红方", rightName: "蓝方"),
+            (id: "billiards", label: "台球", leftName: "选手A", rightName: "选手B"),
             (id: "football", label: "足球", leftName: "主队", rightName: "客队")
         ]
         defer { clearRecordFixtures() }
@@ -197,7 +197,13 @@ final class RemodelFocusUITests: XCTestCase {
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
+        if app.state != .notRunning {
+            app.terminate()
+            XCTAssertTrue(app.wait(for: .notRunning, timeout: 5))
+        }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 12))
         return app
     }
 

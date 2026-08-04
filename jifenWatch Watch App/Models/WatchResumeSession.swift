@@ -1,6 +1,7 @@
 import Foundation
 import LinkCore
 import Observation
+import OSLog
 import ScoreCore
 import SessionCore
 
@@ -84,11 +85,9 @@ extension WatchLinkResumeContext {
 }
 
 struct WatchResumeSession: Codable, Sendable {
-    /// Bumped to 2: `actionLog` changed from Optional to non-Optional.
-    /// The storage key also changed from `watch_resume_session_v1` to
-    /// `watch_resume_session`, so old data is never read. This bump keeps
-    /// the version in sync with the format for future migrations.
-    static let currentSchemaVersion = 2
+    /// Schema 3 adopts stable team identity for archery side exchanges.
+    /// Schema-2 sessions on the current storage key are migrated on restore.
+    static let currentSchemaVersion = 3
 
     let schemaVersion: Int
     var savedAt: Date
@@ -129,50 +128,103 @@ final class WatchResumeSessionStore {
     /// can resume after a mid-session break without losing state. Expired
     /// sessions are silently cleared — no link context is retained.
     private static let sessionTTL: TimeInterval = 24 * 60 * 60
+    private static let startupLog = OSLog(
+        subsystem: "com.douhua.jifen.watch",
+        category: "Startup"
+    )
 
     private let defaults: UserDefaults
     private let now: () -> Date
     private let storageKey = "watch_resume_session"
+    private let legacyCleanupMarkerKey = "watch_resume_legacy_cleanup_v1"
 
     private(set) var session: WatchResumeSession?
     private(set) var lastErrorMessage: String?
+    private(set) var restoreAttemptCount = 0
 
     init(defaults: UserDefaults = .standard, now: @escaping () -> Date = Date.init) {
         self.defaults = defaults
         self.now = now
-        defaults.removeObject(forKey: "watch_resume_session_v1")
-        if defaults === UserDefaults.standard {
-            let applicationSupport = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            )[0]
-            for oldRoot in [
-                applicationSupport.appendingPathComponent("jifen-v2", isDirectory: true),
-                applicationSupport
-                    .appendingPathComponent("jifen", isDirectory: true)
-                    .appendingPathComponent("resume", isDirectory: true)
-            ] {
-                try? FileManager.default.removeItem(at: oldRoot)
+        if !defaults.bool(forKey: legacyCleanupMarkerKey) {
+            defaults.removeObject(forKey: "watch_resume_session_v1")
+            if defaults === UserDefaults.standard {
+                let applicationSupport = FileManager.default.urls(
+                    for: .applicationSupportDirectory,
+                    in: .userDomainMask
+                )[0]
+                for oldRoot in [
+                    applicationSupport.appendingPathComponent("jifen-v2", isDirectory: true),
+                    applicationSupport
+                        .appendingPathComponent("jifen", isDirectory: true)
+                        .appendingPathComponent("resume", isDirectory: true)
+                ] {
+                    try? FileManager.default.removeItem(at: oldRoot)
+                }
             }
+            defaults.set(true, forKey: legacyCleanupMarkerKey)
         }
         session = nil
         reload()
     }
 
     func reload() {
+        restoreAttemptCount += 1
+        os_signpost(.begin, log: Self.startupLog, name: "WatchResumeRestore")
+        defer {
+            os_signpost(
+                .end,
+                log: Self.startupLog,
+                name: "WatchResumeRestore",
+                "restored=%{public}d",
+                session == nil ? 0 : 1
+            )
+        }
         guard let data = defaults.data(forKey: storageKey),
               let decoded = try? JSONDecoder().decode(WatchResumeSession.self, from: data),
-              decoded.schemaVersion == WatchResumeSession.currentSchemaVersion else {
+              let restored = restoredSession(from: decoded) else {
             defaults.removeObject(forKey: storageKey)
             session = nil
             return
         }
-        if now().timeIntervalSince(decoded.savedAt) > Self.sessionTTL {
+        if now().timeIntervalSince(restored.savedAt) > Self.sessionTTL {
             defaults.removeObject(forKey: storageKey)
             session = nil
             return
         }
-        session = decoded
+        if decoded.schemaVersion != restored.schemaVersion,
+           let migratedData = try? JSONEncoder().encode(restored) {
+            defaults.set(migratedData, forKey: storageKey)
+        }
+        session = restored
+    }
+
+    private func restoredSession(from decoded: WatchResumeSession) -> WatchResumeSession? {
+        if decoded.schemaVersion == WatchResumeSession.currentSchemaVersion {
+            return decoded
+        }
+        guard decoded.schemaVersion == 2 else { return nil }
+
+        let payload: WatchResumePayload
+        switch decoded.payload {
+        case .archery(let state, let undoStates, let restState):
+            payload = .archery(
+                state: state.normalizedFromLegacyPhysicalSideSwap(),
+                undoStates: undoStates.map { $0.normalizedFromLegacyPhysicalSideSwap() },
+                restState: restState
+            )
+        default:
+            payload = decoded.payload
+        }
+
+        return WatchResumeSession(
+            savedAt: decoded.savedAt,
+            startedAt: decoded.startedAt,
+            scoreLine: decoded.scoreLine,
+            emoji: decoded.emoji,
+            payload: payload,
+            actionLog: decoded.actionLog,
+            link: decoded.link
+        )
     }
 
     func save(_ value: WatchResumeSession) {

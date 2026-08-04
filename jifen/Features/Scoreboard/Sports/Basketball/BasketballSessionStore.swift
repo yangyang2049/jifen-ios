@@ -15,6 +15,7 @@ final class BasketballSessionStore {
     private var clockTask: Task<Void, Never>?
     private var detailedActions: [DetailedScoreAction]
     private var operationTask: Task<Void, Never>?
+    private var hasPersistedFinishedRecord = false
 
     private(set) var state: BasketballMatchState
     var actionTimeline: [DetailedScoreAction] { detailedActions }
@@ -130,14 +131,21 @@ final class BasketballSessionStore {
             }
             guard case .accepted(let session, _) = result, let self else { return }
             self.state = session.state
+            if session.status == .live {
+                self.hasPersistedFinishedRecord = false
+            }
             await self.synchronizeParticipants(for: session.state)
             let bundle = await core.resumeBundle()
+            if intent != .tickClock {
+                // The final action is part of the formal record and must be in
+                // memory before the record-first commit starts.
+                self.append(intent: intent, at: now, state: session.state)
+            }
             do {
-                try await self.resumeRepository.saveResumeBundle(bundle)
-                if intent != .tickClock {
-                    self.append(intent: intent, at: now, state: session.state)
-                    try self.persistRecord(bundle.currentSession)
-                }
+                // Live clock ticks only update the resume snapshot. The tick
+                // that actually ends a timed match must still write the final
+                // record now that the view no longer queues a duplicate save.
+                try await self.persist(bundle)
             } catch {
                 ScoreboardPersistenceFailureReporter.report(
                     error,
@@ -157,13 +165,15 @@ final class BasketballSessionStore {
             }
             let session = await core.snapshot()
             self.state = session.state
+            if session.status == .live {
+                self.hasPersistedFinishedRecord = false
+            }
             await self.synchronizeParticipants(for: session.state)
             completion?(true)
             let bundle = await core.resumeBundle()
             self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftScore, session.state.rightScore], periodNumber: session.state.currentPeriod, operationCode: "undo"))
             do {
-                try await self.resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(session)
+                try await self.persist(bundle)
             } catch {
                 ScoreboardPersistenceFailureReporter.report(
                     error,
@@ -191,12 +201,11 @@ final class BasketballSessionStore {
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
-        operationTask = Task { [core, resumeRepository] in
+        operationTask = Task { [core] in
             _ = await previousTask?.value
             let bundle = await core.resumeBundle()
             do {
-                try await resumeRepository.saveResumeBundle(bundle)
-                try self.persistRecord(bundle.currentSession)
+                try await self.persist(bundle)
                 completion?(true)
             } catch {
                 ScoreboardPersistenceFailureReporter.report(
@@ -251,8 +260,43 @@ final class BasketballSessionStore {
         detailedActions.append(action)
     }
 
-    private func persistRecord(_ session: ScoreSession<BasketballMatchState, BasketballMatchEvent>) throws {
-        guard session.status == .finished, state.finished else { return }
+    private func persist(_ bundle: ResumeBundle) async throws {
+        let session = bundle.currentSession
+        if session.status == .live {
+            try await resumeRepository.saveResumeBundle(bundle)
+            return
+        }
+        guard let record = try makeFinishedRecord(session) else { return }
+        let coordinator = FinishedSessionCommitCoordinator(
+            resumeRemover: { [resumeRepository] sessionId in
+                try await resumeRepository.remove(sessionId: sessionId)
+            }
+        )
+        let result: FinishedSessionCommitResult
+        if hasPersistedFinishedRecord {
+            result = await coordinator.cleanupResume(after: FinishedSessionRecordCommit(
+                sessionId: sessionId,
+                recordWritten: false
+            ))
+        } else {
+            result = try await coordinator.commit(record, sessionId: sessionId)
+        }
+        hasPersistedFinishedRecord = true
+        if result.recordWritten {
+            ScoreboardRecordsViewModel.shared.refreshRecords()
+        }
+        if let cleanupError = result.cleanupError {
+            ScoreboardPersistenceFailureReporter.report(
+                cleanupError,
+                context: "Failed to clean finished basketball resume \(sessionId.uuidString)"
+            )
+        }
+    }
+
+    private func makeFinishedRecord(
+        _ session: ScoreSession<BasketballMatchState, BasketballMatchEvent>
+    ) throws -> ScoreboardRecord? {
+        guard session.status == .finished, state.finished else { return nil }
         let appGameType: GameType = state.gameMode == .threeXThree ? .threeBasketball : .basketball
         let snapshot = try JSONEncoder().encode(session)
         let winner = state.finished && state.leftScore != state.rightScore ? (state.leftScore > state.rightScore ? "left" : "right") : nil
@@ -277,7 +321,6 @@ final class BasketballSessionStore {
             stateSnapshot: snapshot,
             status: .finished
         )
-        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        ScoreboardRecordsViewModel.shared.refreshRecords()
+        return record
     }
 }

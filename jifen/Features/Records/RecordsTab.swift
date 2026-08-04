@@ -98,8 +98,8 @@ struct RecordsTab: View {
             recordsFilterSheet
         }
         .onAppear {
-            scoreboardVM.refreshRecords()
-            timerVM.loadFromStorage()
+            scoreboardVM.ensureLoaded()
+            timerVM.ensureLoaded()
         }
         .alert(NSLocalizedString("clear_all_records", comment: ""), isPresented: $showClearConfirm) {
             Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }

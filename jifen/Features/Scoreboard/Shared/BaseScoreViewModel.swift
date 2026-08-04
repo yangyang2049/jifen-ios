@@ -14,6 +14,7 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
     var leftTeam: TeamData = TeamData(name: NSLocalizedString("red_team", comment: "Red Team"), score: 0)
     var rightTeam: TeamData = TeamData(name: NSLocalizedString("blue_team", comment: "Blue Team"), score: 0)
     var gameFinished: Bool = false
+    var sidesSwapped: Bool = false
     
     // MARK: - Edit State
     
@@ -99,6 +100,7 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
         leftTeam.games = nil
         rightTeam.games = nil
         gameFinished = false
+        sidesSwapped = false
         controller?.clearHistory()
     }
     
@@ -124,22 +126,7 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
 
     func exchangeSides() {
         saveHistory()
-        
-        let tempName = leftTeam.name
-        let tempScore = leftTeam.score
-        let tempSets = leftTeam.sets
-        let tempGames = leftTeam.games
-        
-        leftTeam.name = rightTeam.name
-        leftTeam.score = rightTeam.score
-        leftTeam.sets = rightTeam.sets
-        leftTeam.games = rightTeam.games
-        
-        rightTeam.name = tempName
-        rightTeam.score = tempScore
-        rightTeam.sets = tempSets
-        rightTeam.games = tempGames
-        
+        sidesSwapped.toggle()
         controller?.performVibration(type: .medium)
     }
     

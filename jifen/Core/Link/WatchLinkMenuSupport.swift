@@ -274,16 +274,17 @@ enum LinkedMatchRecordIngestor {
                 winner: winner
             )
         case .eightBall(let state):
+            let defaults = DefaultParticipantNames.resolve(for: .eightBall)
             return .init(
                 leftName: resolvedParticipantName(
                     participantNames,
                     index: 0,
-                    fallback: NSLocalizedString("watch_team_red", value: "红方", comment: "")
+                    fallback: defaults.left
                 ),
                 rightName: resolvedParticipantName(
                     participantNames,
                     index: 1,
-                    fallback: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+                    fallback: defaults.right
                 ),
                 leftScore: state.leftPoints,
                 rightScore: state.rightPoints,
@@ -322,16 +323,17 @@ enum LinkedMatchRecordIngestor {
                 winner: winner
             )
         case .snooker(let state):
+            let defaults = DefaultParticipantNames.resolve(for: .snooker)
             return .init(
                 leftName: resolvedParticipantName(
                     participantNames,
                     index: 0,
-                    fallback: NSLocalizedString("watch_team_red", value: "红方", comment: "")
+                    fallback: defaults.left
                 ),
                 rightName: resolvedParticipantName(
                     participantNames,
                     index: 1,
-                    fallback: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+                    fallback: defaults.right
                 ),
                 leftScore: state.leftScore,
                 rightScore: state.rightScore,
@@ -378,6 +380,27 @@ enum WatchStandaloneRecordIngestor {
             if winner == "left" || winner == "right" { return winner }
             return nil
         }()
+        let winnerIdentity: ScoreboardWinnerIdentity? = {
+            if gameType == .doudizhu, let participants = payload.participants, !participants.isEmpty {
+                if let winner = payload.winner {
+                    if winner.hasPrefix("player_"),
+                       let identity = ScoreboardWinnerIdentity.fromStableLegacyToken(winner) {
+                        return identity
+                    }
+                    let matches = participants.indices.filter { participants[$0].name == winner }
+                    if matches.count == 1 { return .participant(index: matches[0]) }
+                }
+                if let best = participants.map(\.score).max() {
+                    let leaders = participants.indices.filter { participants[$0].score == best }
+                    if leaders.count == 1 { return .participant(index: leaders[0]) }
+                }
+                if winnerSide == "left" { return .participant(index: 0) }
+                if winnerSide == "right" { return .participant(index: 1) }
+                return nil
+            }
+            return ScoreboardWinnerIdentity.fromStableLegacyToken(payload.winner)
+                ?? ScoreboardWinnerIdentity.fromStableLegacyToken(winnerSide)
+        }()
         var extraData: [String: AnyCodable] = [
             "syncFrom": AnyCodable("watch"),
             "watchSyncTime": AnyCodable(Int64(Date().timeIntervalSince1970 * 1000))
@@ -414,7 +437,8 @@ enum WatchStandaloneRecordIngestor {
             team2FinalScore: payload.team2FinalScore,
             team1SetScore: isTennisTiebreakOnly ? nil : payload.team1SetScore,
             team2SetScore: isTennisTiebreakOnly ? nil : payload.team2SetScore,
-            winner: winnerSide,
+            winner: winnerIdentity?.legacyToken ?? winnerSide,
+            winnerIdentity: winnerIdentity,
             actions: payload.actions.isEmpty ? ["watch_auto_sync"] : payload.actions,
             detailedActions: detailedActions,
             setResults: detailedActions.map(ScoreboardRecordActionAdapter.setResults),

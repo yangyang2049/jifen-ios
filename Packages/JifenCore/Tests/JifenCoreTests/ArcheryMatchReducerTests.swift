@@ -132,11 +132,17 @@ struct ArcheryMatchReducerTests {
             openingShooterIsLeft: true
         )
         state = reduce(state, .exchangeSides)
+        #expect(state.sidesSwapped)
+        #expect(state.leftName == "A")
+        #expect(state.rightName == "B")
+        #expect(state.currentShooterIsLeft)
+        #expect(state.openingShooterIsLeft)
         state = reduce(state, .reset)
         #expect(state.leftName == "A")
         #expect(state.rightName == "B")
         #expect(state.openingShooterIsLeft)
         #expect(state.currentShooterIsLeft)
+        #expect(!state.sidesSwapped)
     }
 
     @Test

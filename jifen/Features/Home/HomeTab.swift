@@ -256,8 +256,8 @@ struct HomeTab: View {
             // directions, while iPhone returns to portrait.
             OrientationLock.shared.unlock()
             loadData()
-            loadQuickStartConfigForCurrentLayout()
-            // Refresh records when view appears
+            configureQuickStartDefaultsForCurrentDevice()
+            scoreboardVM.ensureLoaded()
             updateRecentActivities()
             loadUpcomingBookings()
             loadUnfinishedRecord()
@@ -305,8 +305,8 @@ struct HomeTab: View {
         )
     }
 
-    private func loadQuickStartConfigForCurrentLayout() {
-        quickStartManager.loadConfig(
+    private func configureQuickStartDefaultsForCurrentDevice() {
+        quickStartManager.configureDefaultsIfNeeded(
             isLargeScreen: Theme.usesPadLayout,
             is2in1: isRunningAsMacApp
         )
@@ -328,42 +328,6 @@ struct HomeTab: View {
         .archery, .boxing, .billiards, .pickleball, .guandan, .doudizhu,
         .simpleScore, .multiScoreboard, .counter
     ]
-
-    /// 设置弹窗默认名称：与鸿蒙一致，选手/单方用红方蓝方，队伍用红队蓝队或主队客队。
-    private static func defaultTeamNames(for gameType: GameType) -> (String, String) {
-        switch gameType {
-        case .basketball:
-            return (
-                NSLocalizedString("team_home", comment: ""),
-                NSLocalizedString("team_away", comment: "")
-            )
-        case .football:
-            return (
-                NSLocalizedString("team_home", comment: ""),
-                NSLocalizedString("team_away", comment: "")
-            )
-        case .volleyball:
-            return (
-                NSLocalizedString("red_team", comment: ""),
-                NSLocalizedString("blue_team", comment: "")
-            )
-        case .archery, .boxing, .pingpong, .badminton, .tennis, .billiards, .eightBall, .snooker, .pickleball, .simpleScore:
-            return (
-                NSLocalizedString("watch_team_red", value: "红方", comment: ""),
-                NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
-            )
-        case .foosball:
-            return (
-                NSLocalizedString("player_a", value: "选手A", comment: ""),
-                NSLocalizedString("player_b", value: "选手B", comment: "")
-            )
-        default:
-            return (
-                NSLocalizedString("red_team", comment: ""),
-                NSLocalizedString("blue_team", comment: "")
-            )
-        }
-    }
 
     // MARK: - Private Methods
 
@@ -388,9 +352,9 @@ struct HomeTab: View {
     }
 
     private func updateRecentActivities() {
-        let records = ScoreboardRecordManager.shared.getAllRecordSummaries()
+        let records = scoreboardVM.records
         #if DEBUG
-        print("[HomeTab] 📊 Loading \(records.count) total records for recent activities")
+        print("[HomeTab] 📊 Deriving recent activities from \(records.count) cached records")
         #endif
 
         let recentRecords = records
@@ -437,6 +401,30 @@ struct HomeTab: View {
             // At most one Resume GameBar: prune any stacked live sessions first.
             do {
                 if let entry = try await repository.retainNewestLiveSession() {
+                    let coordinator = FinishedSessionCommitCoordinator(
+                        resumeRemover: { sessionId in
+                            try await repository.remove(sessionId: sessionId)
+                        }
+                    )
+                    let committedRecordID = ManualResumeSessionStore.recordID(
+                        for: entry.sessionId
+                    ) ?? entry.sessionId.uuidString
+                    if let reconciliation = await coordinator.reconcileCommittedRecord(
+                        recordID: committedRecordID,
+                        sessionId: entry.sessionId
+                    ) {
+                        // A crash after record commit but before cleanup must not
+                        // resurrect the match as an unfinished GameBar entry.
+                        if let cleanupError = reconciliation.cleanupError {
+                            ScoreboardPersistenceFailureReporter.report(
+                                cleanupError,
+                                context: "Failed to reconcile finished resume \(entry.sessionId.uuidString)"
+                            )
+                        }
+                        unfinishedRecord = nil
+                        resumeLoadErrorMessage = nil
+                        return
+                    }
                     guard let summary = UnfinishedGameSummary(session: entry) else {
                         unfinishedRecord = nil
                         resumeLoadErrorMessage = NSLocalizedString(
@@ -603,12 +591,12 @@ struct HomeTab: View {
                 onCancel: onCancel
             )
         } else if Self.isCasualSetupGame(gameType) {
-            let (t1, t2) = Self.defaultTeamNames(for: gameType)
+            let defaults = DefaultParticipantNames.resolve(for: gameType)
             MultiScoreSetupDialogView(
                 gameType: gameType,
                 defaultPlayerCount: Self.casualDefaultPlayerCount(for: gameType),
-                defaultTeam1Name: t1,
-                defaultTeam2Name: t2,
+                defaultTeam1Name: defaults.left,
+                defaultTeam2Name: defaults.right,
                 initialTargetScore: PreferencesManager.shared.unoTargetScore,
                 titleEmoji: gameType.icon,
                 titleKey: Self.localizationKey(for: gameType),
@@ -618,11 +606,11 @@ struct HomeTab: View {
                 onCancel: onCancel
             )
         } else {
-            let (t1, t2) = Self.defaultTeamNames(for: gameType)
+            let defaults = DefaultParticipantNames.resolve(for: gameType)
             SportsSetupDialogView(
                 gameType: gameType,
-                defaultTeam1Name: t1,
-                defaultTeam2Name: t2,
+                defaultTeam1Name: defaults.left,
+                defaultTeam2Name: defaults.right,
                 initialMaxSets: nil,
                 initialPointsPerSet: nil,
                 initialTieBreakPoints: nil,

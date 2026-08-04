@@ -77,6 +77,7 @@ struct TennisScoreboardView: View {
     @State private var flashTask: Task<Void, Never>?
     @State private var isStartingNewMatch = false
     @State private var terminalHold = ScoreboardTerminalHold<TennisTerminalGamePresentation>()
+    @State private var didSpeakOpeningAnnouncement = false
 
     init(
         onNavigationBack: (() -> Void)? = nil,
@@ -102,13 +103,14 @@ struct TennisScoreboardView: View {
             autoChangeSides: setup?.autoChangeSides ?? true
         )
         let opening: MatchSide = setup?.servingSide == MatchSide.right.rawValue ? .right : .left
+        let defaults = DefaultParticipantNames.resolve(for: .tennis, isSingles: !isDoubles)
         let left = resolvedScoreboardSetupName(
             setup?.team1Name,
-            fallback: NSLocalizedString("red_team", comment: "")
+            fallback: defaults.left
         )
         let right = resolvedScoreboardSetupName(
             setup?.team2Name,
-            fallback: NSLocalizedString("blue_team", comment: "")
+            fallback: defaults.right
         )
         let doublesNames: [String]? = isDoubles ? [
             setup?.team1Player1Name ?? "",
@@ -385,6 +387,7 @@ struct TennisScoreboardView: View {
             }
             revealImmersiveChrome()
             if store.state.finished { showGameOverDialog = true }
+            speakOpeningAnnouncementIfNeeded()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current()
@@ -1382,6 +1385,7 @@ struct TennisScoreboardView: View {
         var finalPoints: (left: Int, right: Int)?
         var completedGames: (left: Int, right: Int)?
         var matchFinished = false
+        var matchReset = false
         for event in events {
             switch event {
             case .pointScored(_, let left, let right):
@@ -1394,6 +1398,8 @@ struct TennisScoreboardView: View {
                 sideToast = NSLocalizedString("please_change_sides_manually", value: "请手动换边", comment: "")
             case .matchFinished:
                 matchFinished = true
+            case .matchReset:
+                matchReset = true
             default:
                 break
             }
@@ -1409,6 +1415,10 @@ struct TennisScoreboardView: View {
         } else {
             if let sideToast { showToast(sideToast) }
             if matchFinished { showGameOverDialog = true }
+        }
+        if matchReset {
+            didSpeakOpeningAnnouncement = false
+            speakOpeningAnnouncementIfNeeded()
         }
     }
 
@@ -1437,7 +1447,6 @@ struct TennisScoreboardView: View {
             if matchFinished {
                 notifyLinkedFinishIfNeeded()
                 showGameOverDialog = true
-                store.persistSnapshot()
             }
         }
     }
@@ -1616,7 +1625,7 @@ struct TennisScoreboardView: View {
         switch action {
         case "undo":
             performUndo()
-        case "exchangeSide":
+        case ScoreboardMenuActionID.exchangeSide.rawValue:
             if menuConfirm.armOrConfirm(.exchangeSide) {
                 dispatch(.exchangeSides)
                 showMenu = false
@@ -1643,7 +1652,9 @@ struct TennisScoreboardView: View {
             }
         case "voiceAnnouncement":
             store.voiceAnnouncementEnabled.toggle()
-            if !store.voiceAnnouncementEnabled {
+            if store.voiceAnnouncementEnabled {
+                speakOpeningAnnouncementIfNeeded()
+            } else {
                 ScoreVoiceAnnouncer.shared.stop()
             }
         case "displaySettings":
@@ -1737,6 +1748,18 @@ struct TennisScoreboardView: View {
         }
     }
 
+    private func speakOpeningAnnouncementIfNeeded() {
+        guard store.voiceAnnouncementEnabled,
+              !didSpeakOpeningAnnouncement,
+              let payload = TennisVoiceAnnouncementMapper.openingPayload(
+                gameType: store.gameType,
+                state: store.state
+              )
+        else { return }
+        didSpeakOpeningAnnouncement = true
+        ScoreVoiceAnnouncer.shared.speak(payload)
+    }
+
     private func shareFinishedMatch() {
         let left = store.state.rules.setScoringMode == .tiebreakOnly ? store.state.leftPoints : store.state.leftSets
         let right = store.state.rules.setScoringMode == .tiebreakOnly ? store.state.rightPoints : store.state.rightSets
@@ -1759,6 +1782,7 @@ struct TennisScoreboardView: View {
                 guard freshSaved else { return }
                 store = freshStore
                 manualFinishRequested = false
+                didSpeakOpeningAnnouncement = false
                 isEditMode = false
                 showMenu = false
                 menuConfirm.clear()
@@ -1778,6 +1802,7 @@ struct TennisScoreboardView: View {
                         participantNames: participantNames
                     )
                 }
+                speakOpeningAnnouncementIfNeeded()
             }
         }
     }

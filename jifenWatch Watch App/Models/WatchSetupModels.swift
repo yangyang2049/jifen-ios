@@ -259,33 +259,14 @@ struct WatchScoreboardLaunchConfig: Hashable {
 enum WatchSetupPayloadMapper {
     static func resolvedPlayerNames(_ config: WatchScoreboardLaunchConfig) -> [String] {
         let count = config.sport.isDoubles ? 4 : config.playerCount
-        let fallbacks: [String]
-        if config.sport.isDoubles {
-            fallbacks = [
-                localized("watch_setup_red_a", "红A"),
-                localized("watch_setup_red_b", "红B"),
-                localized("watch_setup_blue_a", "蓝A"),
-                localized("watch_setup_blue_b", "蓝B")
-            ]
-        } else if config.sport == .nineBall {
-            fallbacks = (1...count).map {
-                String.localizedStringWithFormat(
-                    NSLocalizedString("watch_setup_player_number", value: "选手 %d", comment: ""),
-                    $0
-                )
-            }
-        } else {
-            fallbacks = [
-                localized("watch_team_red", "红方"),
-                localized("watch_team_blue", "蓝方")
-            ]
-        }
 
         return (0..<count).map { index in
             let entered = config.playerNames.indices.contains(index)
                 ? config.playerNames[index].trimmingCharacters(in: .whitespacesAndNewlines)
                 : ""
-            return entered.isEmpty ? fallbacks[index] : entered
+            return entered.isEmpty
+                ? WatchDefaultTeamNames.setupParticipantName(for: config.sport, index: index)
+                : entered
         }
     }
 
@@ -320,7 +301,7 @@ enum WatchSetupPayloadMapper {
                 ? .pingPong(
                     playerNames: interleavedDoublesNames(names),
                     openingServerSlotIndex: 0,
-                    openingReceiverSlotIndex: 1
+                    openingReceiverSlotIndex: 3
                 )
                 : nil
         case .pickleball, .pickleballDoubles:
@@ -337,7 +318,7 @@ enum WatchSetupPayloadMapper {
         }
 
         rules.autoChangeSides = false
-        let teamNames = resolvedTeamNames(names, doubles: config.sport.isDoubles)
+        let teamNames = resolvedTeamNames(names, sport: config.sport)
         return RallyMatchEngine.initial(
             leftName: teamNames.left,
             rightName: teamNames.right,
@@ -350,7 +331,7 @@ enum WatchSetupPayloadMapper {
     static func tennisState(for config: WatchScoreboardLaunchConfig) -> TennisMatchState? {
         guard config.sport == .tennis || config.sport == .tennisDoubles else { return nil }
         let names = resolvedPlayerNames(config)
-        let teamNames = resolvedTeamNames(names, doubles: config.sport.isDoubles)
+        let teamNames = resolvedTeamNames(names, sport: config.sport)
         let rules = TennisRuleSet(
             maxSets: config.maxSets,
             usesNoAdScoring: config.tennisDeuceMode == "no_ad",
@@ -401,7 +382,7 @@ enum WatchSetupPayloadMapper {
 
     static func twoSideNames(for config: WatchScoreboardLaunchConfig) -> (left: String, right: String) {
         let names = resolvedPlayerNames(config)
-        return resolvedTeamNames(names, doubles: config.sport.isDoubles)
+        return resolvedTeamNames(names, sport: config.sport)
     }
 
     private static func interleavedDoublesNames(_ names: [String]) -> [String] {
@@ -410,13 +391,10 @@ enum WatchSetupPayloadMapper {
 
     private static func resolvedTeamNames(
         _ names: [String],
-        doubles: Bool
+        sport: WatchSetupSport
     ) -> (left: String, right: String) {
-        guard doubles else { return (names[0], names[1]) }
-        return ("\(names[0])/\(names[1])", "\(names[2])/\(names[3])")
-    }
-
-    private static func localized(_ key: String, _ fallback: String) -> String {
-        NSLocalizedString(key, value: fallback, comment: "")
+        guard sport.isDoubles else { return (names[0], names[1]) }
+        let sides = WatchDefaultTeamNames.doublesSideNames(for: sport, members: names)
+        return (sides.left, sides.right)
     }
 }

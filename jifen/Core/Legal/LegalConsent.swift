@@ -1,7 +1,7 @@
 import Foundation
 
 enum LegalDocuments {
-    static let currentVersion = "2026-07-23"
+    static let currentVersion = "2026-08-05"
 
     static var termsURL: URL {
         localizedURL(path: "terms")

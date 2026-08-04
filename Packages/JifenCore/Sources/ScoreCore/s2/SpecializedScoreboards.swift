@@ -13,6 +13,48 @@ public struct EightBallState: Codable, Equatable, Sendable {
     public var handicapBeneficiary: MatchSide?
     public var sidesSwapped: Bool
 
+    private enum CodingKeys: String, CodingKey {
+        case leftPoints, rightPoints, leftCounts, rightCounts, targetPoints, finished
+        case handicapRacks, handicapBeneficiary, sidesSwapped
+    }
+
+    public init(
+        leftPoints: Int,
+        rightPoints: Int,
+        leftCounts: [Int],
+        rightCounts: [Int],
+        targetPoints: Int,
+        finished: Bool,
+        handicapRacks: Int,
+        handicapBeneficiary: MatchSide?,
+        sidesSwapped: Bool = false
+    ) {
+        self.leftPoints = leftPoints
+        self.rightPoints = rightPoints
+        self.leftCounts = leftCounts
+        self.rightCounts = rightCounts
+        self.targetPoints = targetPoints
+        self.finished = finished
+        self.handicapRacks = handicapRacks
+        self.handicapBeneficiary = handicapBeneficiary
+        self.sidesSwapped = sidesSwapped
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            leftPoints: try container.decode(Int.self, forKey: .leftPoints),
+            rightPoints: try container.decode(Int.self, forKey: .rightPoints),
+            leftCounts: try container.decode([Int].self, forKey: .leftCounts),
+            rightCounts: try container.decode([Int].self, forKey: .rightCounts),
+            targetPoints: try container.decode(Int.self, forKey: .targetPoints),
+            finished: try container.decode(Bool.self, forKey: .finished),
+            handicapRacks: try container.decodeIfPresent(Int.self, forKey: .handicapRacks) ?? 0,
+            handicapBeneficiary: try container.decodeIfPresent(MatchSide.self, forKey: .handicapBeneficiary),
+            sidesSwapped: try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false
+        )
+    }
+
     public static func initial(targetPoints: Int = 9, handicapRacks: Int = 0, handicapBeneficiary: MatchSide? = nil) -> Self {
         let target = min(99, max(1, targetPoints))
         let handicap = min(max(0, handicapRacks), max(0, target - 1))
@@ -252,6 +294,7 @@ public struct NineBallChaseReducer: DomainReducer {
             next.playerPoints = Array(repeating: 0, count: 4)
             next.playerCounts = Array(repeating: Array(repeating: 0, count: 6), count: 4)
             next.finished = false
+            next.sidesSwapped = false
             return .init(state: next, events: [.totalsAdjusted])
         case .chaseEvent(let player, let kind):
             guard (0 ..< next.playerCount).contains(player) else { return .rejected(state: state, reason: "Invalid player") }
@@ -331,13 +374,31 @@ public struct ShengjiTierState: Codable, Equatable, Sendable {
     public var maxTierIndex: Int
     public var finished: Bool
     public var dealer: MatchSide?
+    public var sidesSwapped: Bool
 
-    public init(leftIndex: Int = 0, rightIndex: Int = 0, maxTierIndex: Int = 12, finished: Bool = false, dealer: MatchSide? = nil) {
+    private enum CodingKeys: String, CodingKey {
+        case leftIndex, rightIndex, maxTierIndex, finished, dealer, sidesSwapped
+    }
+
+    public init(leftIndex: Int = 0, rightIndex: Int = 0, maxTierIndex: Int = 12, finished: Bool = false, dealer: MatchSide? = nil, sidesSwapped: Bool = false) {
         self.leftIndex = leftIndex
         self.rightIndex = rightIndex
         self.maxTierIndex = maxTierIndex
         self.finished = finished
         self.dealer = dealer
+        self.sidesSwapped = sidesSwapped
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            leftIndex: try container.decode(Int.self, forKey: .leftIndex),
+            rightIndex: try container.decode(Int.self, forKey: .rightIndex),
+            maxTierIndex: try container.decode(Int.self, forKey: .maxTierIndex),
+            finished: try container.decode(Bool.self, forKey: .finished),
+            dealer: try container.decodeIfPresent(MatchSide.self, forKey: .dealer),
+            sidesSwapped: try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false
+        )
     }
 
     public var winnerSide: MatchSide? {
@@ -352,6 +413,7 @@ public enum ShengjiTierIntent: Codable, Sendable {
     case claimDealer(MatchSide)
     case resolveRound(winner: MatchSide, delta: Int)
     case adminCorrect(left: Int, right: Int)
+    case exchangeSides
     case reset
     case finish
 }
@@ -360,6 +422,7 @@ public enum ShengjiTierEvent: Codable, Equatable, Sendable {
     case tierAdjusted(add: Bool, side: MatchSide, delta: Int, left: Int, right: Int)
     case dealerClaimed(side: MatchSide, initial: Bool)
     case administrativeCorrection(left: Int, right: Int)
+    case sidesExchanged
     case matchReset
     case matchFinished
 }
@@ -393,6 +456,9 @@ public struct ShengjiTierReducer: DomainReducer {
                 state: ShengjiTierState(maxTierIndex: current.maxTierIndex),
                 events: [.matchReset]
             )
+        case .exchangeSides:
+            current.sidesSwapped.toggle()
+            return .init(state: current, events: [.sidesExchanged])
         case .finish:
             guard !current.finished else { return .rejected(state: current, reason: "Already finished") }
             current.finished = true

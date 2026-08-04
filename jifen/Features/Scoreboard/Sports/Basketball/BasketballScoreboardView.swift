@@ -51,15 +51,18 @@ struct BasketballScoreboardView: View {
             _showGameOverDialog = State(initialValue: restoredStore.state.finished)
             initialStyleID = ScoreboardStyleID(gameType: restoredStore.state.gameMode == .threeXThree ? .threeBasketball : .basketball)
         } else {
+            let gameMode: BasketballGameMode = initialSetup?.basketballMode == "three_x_three" ? .threeXThree : .fiveVFive
+            let defaults = DefaultParticipantNames.resolve(
+                for: gameMode == .threeXThree ? .threeBasketball : .basketball
+            )
             let leftName = resolvedScoreboardSetupName(
                 initialSetup?.team1Name,
-                fallback: NSLocalizedString("team_home", value: "主队", comment: "Home team")
+                fallback: defaults.left
             )
             let rightName = resolvedScoreboardSetupName(
                 initialSetup?.team2Name,
-                fallback: NSLocalizedString("team_away", value: "客队", comment: "Away team")
+                fallback: defaults.right
             )
-            let gameMode: BasketballGameMode = initialSetup?.basketballMode == "three_x_three" ? .threeXThree : .fiveVFive
             let ruleSet: BasketballRuleSet = initialSetup?.basketballRuleSet == "nba" ? .nba : .fiba
             _store = State(initialValue: BasketballSessionStore(
                 leftName: leftName,
@@ -234,7 +237,6 @@ struct BasketballScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             if state.finished {
                 showGameOverDialog = true
-                store.persistSnapshot()
             }
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
@@ -485,7 +487,7 @@ struct BasketballScoreboardView: View {
                         : NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: "")
                 )
             }
-        case "exchangeSide":
+        case ScoreboardMenuActionID.exchangeSide.rawValue:
             if menuConfirm.armOrConfirm(.exchangeSide) {
                 store.send(.exchangeSides)
             } else {
@@ -504,7 +506,6 @@ struct BasketballScoreboardView: View {
             if menuConfirm.armOrConfirm(.finish) {
                 store.send(.finish)
                 showGameOverDialog = true
-                store.persistSnapshot()
                 showMenu = false
             } else {
                 showConfirmToast(.finish)

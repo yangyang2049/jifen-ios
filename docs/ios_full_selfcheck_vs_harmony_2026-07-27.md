@@ -49,8 +49,8 @@
 | 分区 | 项目数 | 实现方式 |
 | --- | --- | --- |
 | 运动（含单双打） | 12 | 乒/羽/网/匹单双打共享视图（`isSingles` 区分）；篮球 5v5 与 3x3 共享 `BasketballScoreboardView`；排球/沙排/气排共享 `VolleyballScoreboardView` |
-| 台球 | 4 | 黑八/九球/斯诺克聚合在 `SpecializedReducerScoreboards.swift`（约 2000+ 行，无独立文件） |
-| 棋牌 | 4 | 斗地主/掼蛋独立；升级在 `SpecializedReducerScoreboards.swift`；UNO 复用 `MultiScoreboardView` |
+| 台球 | 4 | 普通台球、黑八、九球、斯诺克均在 `Sports/Billiards` 下使用独立页面文件 |
+| 棋牌 | 4 | 斗地主、掼蛋、升级均使用独立页面文件；UNO 复用 `MultiScoreboardView` |
 | 其他 | 3 | 桌上足球（单双打共享）、简单计分、多人计分 |
 
 **与鸿蒙 2.7 对比**：鸿蒙 2.7 实际只有 **22 个**对齐项目（缺 `foosball`，2.9 分支才加入 `FoosballScorePage.ets`）。iOS 在此项上反而比鸿蒙 2.7 多 1 个。鸿蒙多出 `BASKETBALL_TRAINING`（篮球训练，无独立视图）。

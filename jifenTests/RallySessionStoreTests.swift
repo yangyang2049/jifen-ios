@@ -24,7 +24,9 @@ final class RallySessionStoreTests: XCTestCase {
 
         XCTAssertEqual(store.state.doubles?.playerNames, ["Red A", "Blue A", "Red B", "Blue B"])
         XCTAssertEqual(store.state.doubles?.serverSlotIndex, 0)
-        XCTAssertEqual(store.state.doubles?.receiverSlotIndex, 1)
+        XCTAssertEqual(store.state.doubles?.receiverSlotIndex, 3)
+        XCTAssertEqual(store.state.doubles?.serverName, "Red A")
+        XCTAssertEqual(store.state.doubles?.receiverName, "Blue B")
         guard case .pingPong(let rotation) = store.state.doubles?.rotation else {
             return XCTFail("Expected ping-pong doubles rotation")
         }
@@ -302,6 +304,272 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(freshBasketball.state.rightName, "Away")
         XCTAssertEqual(freshBasketball.state.gameMode, .threeXThree)
         XCTAssertEqual(freshBasketball.state.ruleSet, .nba)
+    }
+
+    func testThreeXThreeRapidScoringStopsAtTargetAndFinalSaveIsReusable() async {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("three-basketball-rapid-score-\(UUID().uuidString)", isDirectory: true)
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        let store = BasketballSessionStore(
+            leftName: "Home",
+            rightName: "Away",
+            gameMode: .threeXThree,
+            resumeRepository: resumeRepository
+        )
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            try? FileManager.default.removeItem(at: resumeRoot)
+        }
+
+        for _ in 0..<30 {
+            store.send(.addPoints(side: .left, points: 1))
+        }
+
+        let flushed = expectation(description: "rapid 3x3 scores persisted")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 5)
+
+        XCTAssertTrue(store.state.finished)
+        XCTAssertEqual(store.state.leftScore, 21)
+        XCTAssertEqual(store.state.rightScore, 0)
+        XCTAssertEqual(store.actionTimeline.count, 21)
+        XCTAssertEqual(
+            ScoreboardRecordManager.shared.getRecordById(store.sessionId.uuidString)?.team1FinalScore,
+            21
+        )
+
+        let firstReuse = expectation(description: "first final snapshot reused")
+        let secondReuse = expectation(description: "second final snapshot reused")
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            firstReuse.fulfill()
+        }
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            secondReuse.fulfill()
+        }
+        await fulfillment(of: [firstReuse, secondReuse], timeout: 2)
+    }
+
+    func testFiveVFiveRapidScoringAfterFinishDoesNotCreateDuplicateActions() async {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("basketball-rapid-score-\(UUID().uuidString)", isDirectory: true)
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        let store = BasketballSessionStore(
+            leftName: "Home",
+            rightName: "Away",
+            gameMode: .fiveVFive,
+            resumeRepository: resumeRepository
+        )
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            try? FileManager.default.removeItem(at: resumeRoot)
+        }
+
+        store.send(.addPoints(side: .left, points: 3))
+        store.send(.finish)
+        for _ in 0..<12 {
+            store.send(.addPoints(side: .left, points: 3))
+        }
+
+        let flushed = expectation(description: "rapid basketball finish persisted")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 5)
+
+        XCTAssertTrue(store.state.finished)
+        XCTAssertEqual(store.state.leftScore, 3)
+        XCTAssertEqual(store.actionTimeline.count, 2)
+        XCTAssertEqual(store.actionTimeline.last?.type, .matchFinished)
+        XCTAssertEqual(
+            ScoreboardRecordManager.shared.getRecordById(store.sessionId.uuidString)?.team1FinalScore,
+            3
+        )
+
+        let finalSave = expectation(description: "final basketball snapshot reused")
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            finalSave.fulfill()
+        }
+        await fulfillment(of: [finalSave], timeout: 2)
+    }
+
+    func testRallyRapidTerminalScoringReusesFinishedPersistence() async {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("rally-rapid-finish-\(UUID().uuidString)", isDirectory: true)
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        let store = RallySessionStore(
+            leftName: "A",
+            rightName: "B",
+            gameType: .pingpong,
+            rules: .pingPong(maxSets: 1),
+            resumeRepository: resumeRepository
+        )
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            try? FileManager.default.removeItem(at: resumeRoot)
+        }
+
+        for _ in 0..<18 {
+            store.send(.pointWon(.left))
+        }
+        let flushed = expectation(description: "rapid rally finish persisted")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 5)
+
+        XCTAssertTrue(store.state.finished)
+        XCTAssertEqual(store.state.leftPoints, 11)
+        XCTAssertEqual(
+            ScoreboardRecordManager.shared.getRecordById(store.sessionId.uuidString)?.team1FinalScore,
+            11
+        )
+        XCTAssertEqual(
+            store.actionTimeline.last(where: { $0.operationCode == "point" })?.setNumber,
+            1,
+            "The terminal point belongs to the completed set, not the reducer's next currentSet"
+        )
+
+        let firstReuse = expectation(description: "first rally final snapshot reused")
+        let secondReuse = expectation(description: "second rally final snapshot reused")
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            firstReuse.fulfill()
+        }
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            secondReuse.fulfill()
+        }
+        await fulfillment(of: [firstReuse, secondReuse], timeout: 2)
+    }
+
+    func testTennisRapidTiebreakFinishReusesFinishedPersistence() async {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("tennis-rapid-finish-\(UUID().uuidString)", isDirectory: true)
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        let store = TennisSessionStore(
+            leftName: "A",
+            rightName: "B",
+            rules: .init(tieBreakPoints: 7, setScoringMode: .tiebreakOnly),
+            resumeRepository: resumeRepository
+        )
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            try? FileManager.default.removeItem(at: resumeRoot)
+        }
+
+        for _ in 0..<12 {
+            store.send(.pointWon(.left))
+        }
+        let flushed = expectation(description: "rapid tennis finish persisted")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 5)
+
+        XCTAssertTrue(store.state.finished)
+        XCTAssertEqual(store.state.leftPoints, 7)
+        XCTAssertEqual(
+            ScoreboardRecordManager.shared.getRecordById(store.sessionId.uuidString)?.team1FinalScore,
+            7
+        )
+        XCTAssertTrue(
+            store.actionTimeline
+                .filter { $0.operationCode == "point" || $0.operationCode == "finish" }
+                .allSatisfy { $0.setNumber == 1 }
+        )
+
+        let firstReuse = expectation(description: "first tennis final snapshot reused")
+        let secondReuse = expectation(description: "second tennis final snapshot reused")
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            firstReuse.fulfill()
+        }
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            secondReuse.fulfill()
+        }
+        await fulfillment(of: [firstReuse, secondReuse], timeout: 2)
+    }
+
+    func testFollowerFinishedRallyKeepsLastLiveResumeUntilFormalRecordArrives() async throws {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("follower-finished-rally-\(UUID().uuidString)", isDirectory: true)
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        defer { try? FileManager.default.removeItem(at: resumeRoot) }
+        let store = RallySessionStore(
+            leftName: "A",
+            rightName: "B",
+            gameType: .pingpong,
+            rules: .pingPong(),
+            resumeRepository: resumeRepository
+        )
+        let liveSaved = expectation(description: "live follower resume saved")
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            liveSaved.fulfill()
+        }
+        await fulfillment(of: [liveSaved], timeout: 2)
+
+        let finishedState = RallyMatchReducer().reduce(
+            state: store.state,
+            intent: .finish,
+            at: 1
+        ).state
+        let applied = await store.applyAuthoritativeState(
+            finishedState,
+            detailedActions: [],
+            revision: 1,
+            persistFormalRecord: false
+        )
+
+        XCTAssertTrue(applied)
+        let retained = try await resumeRepository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self
+        )
+        XCTAssertEqual(retained?.currentSession.status, .live)
+        XCTAssertFalse(retained?.currentSession.state.finished ?? true)
+    }
+
+    func testFinishedBilliardsStoreDoesNotDeleteResumeBeforeFormalRecordCommit() async throws {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("finished-billiards-resume-\(UUID().uuidString)", isDirectory: true)
+        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
+        defer { try? FileManager.default.removeItem(at: resumeRoot) }
+        let recordID = UUID().uuidString
+        let store = BilliardsSessionStore(
+            gameType: .eightBall,
+            state: EightBallState.initial(targetPoints: 5),
+            reducer: EightBallReducer(),
+            participants: [
+                .init(id: TeamID.team0.rawValue, name: "A", role: "team"),
+                .init(id: TeamID.team1.rawValue, name: "B", role: "team")
+            ],
+            startedAt: Date(),
+            recordID: recordID,
+            resumeRepository: resumeRepository
+        )
+        let liveSaved = expectation(description: "live billiards resume saved")
+        store.persistSnapshot { success in
+            XCTAssertTrue(success)
+            liveSaved.fulfill()
+        }
+        await fulfillment(of: [liveSaved], timeout: 2)
+
+        let finished = expectation(description: "billiards state finished")
+        store.send(.finishMatch) { _, next, _ in
+            XCTAssertTrue(next.finished)
+            finished.fulfill()
+        }
+        await fulfillment(of: [finished], timeout: 2)
+        let flushed = expectation(description: "finished billiards operation flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+
+        let retained = try await resumeRepository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: ScoreSessionResumeBundle<EightBallState, EightBallEvent, EightBallIntent>.self
+        )
+        XCTAssertTrue(store.state.finished)
+        XCTAssertEqual(retained?.currentSession.status, .live)
+        XCTAssertFalse(retained?.currentSession.state.finished ?? true)
     }
 
     func testFreshRallyMatchKeepsFinishedRecordAndPersistsLiveResume() async {

@@ -168,7 +168,6 @@ struct WatchHomeTabView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadPinnedItems()
-            resumeStore.reload()
         }
         .confirmationDialog(
             pinDialogTitle,

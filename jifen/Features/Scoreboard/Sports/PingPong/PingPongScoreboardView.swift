@@ -9,14 +9,15 @@ struct PingPongScoreboardView: View {
 
     var body: some View {
         let isDoubles = initialSetup?.isSingles == false
+        let defaults = DefaultParticipantNames.resolve(for: .pingpong, isSingles: !isDoubles)
         RallyScoreboardView(
             leftName: resolvedScoreboardSetupName(
                 initialSetup?.team1Name,
-                fallback: NSLocalizedString("red_team", value: "红方", comment: "Red team")
+                fallback: defaults.left
             ),
             rightName: resolvedScoreboardSetupName(
                 initialSetup?.team2Name,
-                fallback: NSLocalizedString("blue_team", value: "蓝方", comment: "Blue team")
+                fallback: defaults.right
             ),
             gameType: isDoubles ? .pingpongDoubles : .pingpong,
             rules: rules,

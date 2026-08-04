@@ -1,6 +1,7 @@
 import XCTest
 import LinkCore
 import ScoreCore
+import UIKit
 @testable import jifen
 
 @MainActor
@@ -51,6 +52,191 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let persisted = try JSONDecoder().decode(PhoneLinkResumeContext.self, from: persistedData)
         XCTAssertEqual(persisted.role, .phoneController)
         XCTAssertEqual(persisted.authorityEpoch, 8)
+    }
+
+    func testForegroundStatusRefreshCoalescesOverlappingQueries() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 4, authorityEpoch: 7)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        NotificationCenter.default.post(
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        NotificationCenter.default.post(
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        await settleMainQueue()
+
+        let queries = transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: $0)
+        }.filter { $0.kind == .statusQuery }
+        let query = try XCTUnwrap(queries.first)
+        XCTAssertEqual(queries.count, 1)
+
+        let response = LinkEnvelope(
+            correlationId: query.messageId,
+            sessionId: query.sessionId,
+            matchId: query.matchId,
+            matchGeneration: query.matchGeneration,
+            authorityEpoch: query.authorityEpoch,
+            kind: .statusResponse,
+            sender: .watch,
+            senderSequence: 1,
+            sessionRevision: query.sessionRevision,
+            sentAtEpochMilliseconds: query.sentAtEpochMilliseconds + 1,
+            payload: LinkStatusPayload(
+                role: .watchController,
+                revision: query.sessionRevision
+            )
+        )
+        transport.deliver(try JSONEncoder().encode(response))
+        await settleMainQueue()
+
+        XCTAssertEqual(service.linkedResumeDescriptor?.role, .phoneFollower)
+    }
+
+    func testStartupRecordLoadersRunOnlyWhenRequestedAndCoalesce() async {
+        let scoreboardCounter = LockedInvocationCounter()
+        let scoreboardVM = ScoreboardRecordsViewModel {
+            scoreboardCounter.increment()
+            return []
+        }
+
+        XCTAssertFalse(scoreboardVM.hasLoaded)
+        scoreboardVM.ensureLoaded()
+        scoreboardVM.ensureLoaded()
+        for _ in 0..<50 where !scoreboardVM.hasLoaded {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        XCTAssertTrue(scoreboardVM.hasLoaded)
+        XCTAssertEqual(scoreboardCounter.value, 1)
+
+        var timerLoadCount = 0
+        let timerVM = TimerRecordsViewModel {
+            timerLoadCount += 1
+            return []
+        }
+        XCTAssertFalse(timerVM.hasLoaded)
+        timerVM.ensureLoaded()
+        timerVM.ensureLoaded()
+        XCTAssertTrue(timerVM.hasLoaded)
+        XCTAssertEqual(timerLoadCount, 1)
+    }
+
+    func testRecordSummaryCacheRefreshesAfterExternalMutationNotification() async {
+        let notificationCenter = NotificationCenter()
+        let counter = LockedInvocationCounter()
+        let viewModel = ScoreboardRecordsViewModel(
+            summaryLoader: {
+                counter.increment()
+                return []
+            },
+            notificationCenter: notificationCenter
+        )
+
+        viewModel.ensureLoaded()
+        for _ in 0..<50 where !viewModel.hasLoaded {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertTrue(viewModel.hasLoaded)
+        XCTAssertEqual(counter.value, 1)
+
+        notificationCenter.post(name: .scoreboardRecordsDidChange, object: nil)
+        for _ in 0..<50 where counter.value < 2 {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertEqual(counter.value, 2)
+    }
+
+    func testQuickStartConfigurationDecodesOnce() throws {
+        let suiteName = "QuickStartConfigManagerTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let persisted = QuickStartConfig(primarySport: .tennis, secondarySport: .boxing)
+        defaults.set(try JSONEncoder().encode(persisted), forKey: "quick-start-test")
+
+        let manager = QuickStartConfigManager(
+            userDefaults: defaults,
+            configKey: "quick-start-test"
+        )
+        manager.configureDefaultsIfNeeded(isLargeScreen: true, is2in1: false)
+        manager.configureDefaultsIfNeeded(isLargeScreen: false, is2in1: false)
+
+        XCTAssertEqual(manager.quickStartConfig, persisted)
+        XCTAssertEqual(manager.configurationReadCount, 1)
+    }
+
+    func testRetrySchedulerStaysIdleWithoutWorkAndStartsForRestoredOutbox() throws {
+        let idleStore = InMemoryLinkDataStore()
+        let idleService = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: idleStore,
+            outboxStore: idleStore,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        XCTAssertFalse(idleService.hasScheduledRetryForTesting)
+
+        let pendingStore = InMemoryLinkDataStore()
+        let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
+        let outbox = LinkDurableOutbox(items: [
+            .init(
+                messageId: UUID(),
+                handle: handle,
+                data: Data([1]),
+                lastSentAtEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+            )
+        ])
+        pendingStore.set(
+            try JSONEncoder().encode(outbox),
+            forKey: "phone_link_terminal_outbox"
+        )
+        let pendingService = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: pendingStore,
+            outboxStore: pendingStore,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        XCTAssertTrue(pendingService.hasScheduledRetryForTesting)
+    }
+
+    func testLegacyLinkCleanupRunsOnlyOnce() {
+        let store = InMemoryLinkDataStore()
+        let legacyKeys = [
+            "phone_link_context_v1",
+            "phone_link_terminal_outbox_v1",
+            "phone_link_pending_ack_v1"
+        ]
+        legacyKeys.forEach { store.set(Data([1]), forKey: $0) }
+
+        _ = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        legacyKeys.forEach { XCTAssertNil(store.data(forKey: $0)) }
+
+        legacyKeys.forEach { store.set(Data([2]), forKey: $0) }
+        _ = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        legacyKeys.forEach {
+            XCTAssertEqual(store.data(forKey: $0), Data([2]))
+            XCTAssertEqual(store.removalCounts[$0], 1)
+        }
     }
 
     func testWatchControllerTwoMatchesCreateExactlyTwoRecords() async throws {
@@ -191,6 +377,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
 private final class InMemoryLinkDataStore: @unchecked Sendable, LinkDataStore {
     private var values: [String: Data] = [:]
+    private(set) var removalCounts: [String: Int] = [:]
 
     func data(forKey key: String) -> Data? {
         values[key]
@@ -201,7 +388,21 @@ private final class InMemoryLinkDataStore: @unchecked Sendable, LinkDataStore {
     }
 
     func removeObject(forKey key: String) {
+        removalCounts[key, default: 0] += 1
         values.removeValue(forKey: key)
+    }
+}
+
+private final class LockedInvocationCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+
+    var value: Int {
+        lock.withLock { count }
+    }
+
+    func increment() {
+        lock.withLock { count += 1 }
     }
 }
 

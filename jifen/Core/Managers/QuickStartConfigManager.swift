@@ -3,21 +3,31 @@ import Combine // Import Combine for ObservableObject and Published
 
 final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
     static let shared = QuickStartConfigManager()
-    private let userDefaults = UserDefaults.standard
-    private let configKey = "quickStartConfig"
+    private let userDefaults: UserDefaults
+    private let configKey: String
+    private var didResolveInitialConfig: Bool
+    private(set) var configurationReadCount = 0
 
     @Published var quickStartConfig: QuickStartConfig // Add @Published property
 
-    private init() {
-        // Direct initialization of quickStartConfig without calling a method on self
+    init(
+        userDefaults: UserDefaults = .standard,
+        configKey: String = "quickStartConfig"
+    ) {
+        self.userDefaults = userDefaults
+        self.configKey = configKey
+        configurationReadCount = 1
         if let data = userDefaults.data(forKey: configKey) {
             if let config = try? JSONDecoder().decode(QuickStartConfig.self, from: data) {
                 self.quickStartConfig = config
+                didResolveInitialConfig = true
             } else {
                 self.quickStartConfig = QuickStartConfig.defaultPhoneConfig
+                didResolveInitialConfig = false
             }
         } else {
             self.quickStartConfig = QuickStartConfig.defaultPhoneConfig
+            didResolveInitialConfig = false
         }
     }
 
@@ -25,30 +35,25 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
         // No-op for UserDefaults, but can be used for more complex setup if needed
     }
 
-    // Internal helper to load config without publishing changes directly
-    private func loadConfigInternal(isLargeScreen: Bool, is2in1: Bool) -> QuickStartConfig {
-        if let data = userDefaults.data(forKey: configKey) {
-            if let config = try? JSONDecoder().decode(QuickStartConfig.self, from: data) {
-                return config
-            }
-        }
+    /// Resolves device-specific defaults without reading UserDefaults again.
+    /// A persisted configuration always wins and is decoded only in `init`.
+    func configureDefaultsIfNeeded(isLargeScreen: Bool, is2in1: Bool) {
+        guard !didResolveInitialConfig else { return }
+        didResolveInitialConfig = true
         if is2in1 {
-            return QuickStartConfig.default2In1Config
+            quickStartConfig = .default2In1Config
+        } else {
+            quickStartConfig = isLargeScreen
+                ? .defaultTabletConfig
+                : .defaultPhoneConfig
         }
-        return isLargeScreen
-            ? QuickStartConfig.defaultTabletConfig
-            : QuickStartConfig.defaultPhoneConfig
-    }
-
-    // Public method to load config and update the published property
-    func loadConfig(isLargeScreen: Bool, is2in1: Bool) {
-        self.quickStartConfig = loadConfigInternal(isLargeScreen: isLargeScreen, is2in1: is2in1)
     }
 
     func setPrimarySport(_ primary: GameType) async throws {
         var currentConfig = self.quickStartConfig // Access the published config
         currentConfig.primarySport = primary
         try await saveConfig(currentConfig)
+        didResolveInitialConfig = true
         self.quickStartConfig = currentConfig // Update published property
     }
 
@@ -56,6 +61,7 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
         var currentConfig = self.quickStartConfig // Access the published config
         currentConfig.secondarySport = secondary
         try await saveConfig(currentConfig)
+        didResolveInitialConfig = true
         self.quickStartConfig = currentConfig // Update published property
     }
 

@@ -4,6 +4,61 @@ import ScoreCore
 
 @MainActor
 final class LocalScoreboardDisplayStateTests: XCTestCase {
+    func testDoublesFlashResolverTracksRotationAndServerChanges() {
+        let pickleballBefore = RallyDoublesState.pickleball(
+            playerNames: ["Red A", "Blue A", "Red B", "Blue B"],
+            servingTeam0: true
+        )
+        guard case .pickleball(var pickleballRotation) = pickleballBefore.rotation else {
+            return XCTFail("Expected pickleball rotation")
+        }
+        togglePickleballPartnerSwap(&pickleballRotation, servingTeam0: true)
+        refreshPickleballDoublesSlots(&pickleballRotation, servingTeam0: true)
+        let pickleballAfter = RallyDoublesState(
+            playerNames: pickleballBefore.playerNames,
+            rotation: .pickleball(pickleballRotation)
+        )
+
+        XCTAssertEqual(pickleballAfter.serverSlotIndex, pickleballBefore.serverSlotIndex)
+        XCTAssertEqual(
+            RallyDoublesFlashResolver.slots(previous: pickleballBefore, current: pickleballAfter),
+            Set([0, 2])
+        )
+
+        var nextServerRotation = pickleballRotation
+        nextServerRotation.serverNumber = 1
+        refreshPickleballDoublesSlots(&nextServerRotation, servingTeam0: true)
+        let nextServer = RallyDoublesState(
+            playerNames: pickleballBefore.playerNames,
+            rotation: .pickleball(nextServerRotation)
+        )
+        XCTAssertEqual(
+            RallyDoublesFlashResolver.slots(previous: pickleballAfter, current: nextServer),
+            Set([nextServer.serverSlotIndex])
+        )
+
+        let badmintonBefore = RallyDoublesState.badminton(
+            playerNames: pickleballBefore.playerNames,
+            servingTeam0: true
+        )
+        guard case .badminton(let badmintonRotation) = badmintonBefore.rotation else {
+            return XCTFail("Expected badminton rotation")
+        }
+        let badmintonAfter = RallyDoublesState(
+            playerNames: badmintonBefore.playerNames,
+            rotation: .badminton(advanceBadmintonDoublesRotation(
+                current: badmintonRotation,
+                scoringTeam0: true,
+                nextTeam0Score: 1,
+                nextTeam1Score: 0
+            ))
+        )
+        XCTAssertEqual(
+            RallyDoublesFlashResolver.slots(previous: badmintonBefore, current: badmintonAfter),
+            Set([0, 2])
+        )
+    }
+
     func testMutationPolicyBlocksEditingFinishedAndFollowerStates() {
         XCTAssertTrue(LocalScoreboardMutationPolicy.allowsMutation(
             isEditing: false,
@@ -25,6 +80,69 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             finished: false,
             scoringLocked: true
         ))
+    }
+
+    func testNineBallLocalControllerMapsTwoPlayerActionsAfterSwap() {
+        XCTAssertEqual(
+            nineBallLogicalPlayerIndex(forScreenIndex: 0, playerCount: 2, sidesSwapped: true),
+            1
+        )
+        XCTAssertEqual(
+            nineBallLogicalPlayerIndex(forScreenIndex: 1, playerCount: 2, sidesSwapped: true),
+            0
+        )
+        XCTAssertEqual(
+            nineBallLogicalPlayerIndex(forScreenIndex: 0, playerCount: 4, sidesSwapped: true),
+            0
+        )
+    }
+
+    func testRallyLocalSubtractValidatesTheMappedLogicalScore() {
+        var state = RallyMatchEngine.initial(
+            leftName: "A",
+            rightName: "B",
+            rules: RallyRuleSet(maxSets: 1, pointsToWinSet: 21)
+        )
+        state.leftPoints = 0
+        state.rightPoints = 3
+        state.sidesSwapped = true
+
+        XCTAssertEqual(rallyLocalSubtractSide(onScreen: .left, state: state), .right)
+        XCTAssertNil(rallyLocalSubtractSide(onScreen: .right, state: state))
+
+        state.finished = true
+        XCTAssertNil(rallyLocalSubtractSide(onScreen: .left, state: state))
+    }
+
+    func testGuandanLocalControllerAndSnapshotFollowScreenPlacement() {
+        var state = GuandanMatchState.initial(redName: "Red", blueName: "Blue")
+        state.phase = .playing
+        state.redTeam.currentRank = "5"
+        state.blueTeam.currentRank = "9"
+        state.sidesSwapped = true
+
+        XCTAssertEqual(
+            guandanLocalScoreboardAction(for: .addLeft, sidesSwapped: true),
+            .settleRound(side: .blue, step: 1)
+        )
+        XCTAssertEqual(
+            guandanLocalScoreboardAction(for: .subtractRight, sidesSwapped: true),
+            .adjustRank(side: .red, delta: -1)
+        )
+        XCTAssertEqual(
+            guandanLocalScoreboardAction(for: .exchangeSides, sidesSwapped: true),
+            .exchangeSides
+        )
+
+        let snapshot = guandanLocalDisplayState(
+            state: state,
+            typography: .default(font: .default),
+            themeID: "default"
+        )
+        XCTAssertEqual(snapshot.leftName, "Blue")
+        XCTAssertEqual(snapshot.rightName, "Red")
+        XCTAssertEqual(snapshot.leftScore, "9")
+        XCTAssertEqual(snapshot.rightScore, "5")
     }
 
     @MainActor

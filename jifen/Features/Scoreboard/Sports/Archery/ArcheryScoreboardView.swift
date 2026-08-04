@@ -6,6 +6,7 @@
 //
 
 import LinkCore
+import RecordCore
 import ScoreCore
 import SwiftUI
 
@@ -221,12 +222,9 @@ struct ArcheryScoreboardView: View {
             viewModel.controller = controller
             viewModel.mutationLocked = scoringLocked
             if let setup = initialSetup {
-                let left = setup.team1Name.isEmpty
-                    ? NSLocalizedString("watch_team_red", value: "红方", comment: "")
-                    : setup.team1Name
-                let right = setup.team2Name.isEmpty
-                    ? NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
-                    : setup.team2Name
+                let defaults = DefaultParticipantNames.resolve(for: .archery)
+                let left = resolvedScoreboardSetupName(setup.team1Name, fallback: defaults.left)
+                let right = resolvedScoreboardSetupName(setup.team2Name, fallback: defaults.right)
                 let openingIsLeft = setup.servingSide != MatchSide.right.rawValue
                 viewModel.configureOpening(leftName: left, rightName: right, openingIsLeft: openingIsLeft)
                 onSetupConsumed?()
@@ -700,7 +698,8 @@ struct ArcheryScoreboardView: View {
         let resumeState = ArcheryResumeState(
             state: viewModel.match,
             undoHistory: viewModel.resumeHistory,
-            intentTimeline: controller.getGameActions()
+            intentTimeline: controller.getGameActions(),
+            detailedActions: viewModel.detailedActions
         )
         let snapshotData: Data
         do {
@@ -738,6 +737,7 @@ struct ArcheryScoreboardView: View {
                 "leftSets": viewModel.leftTeam.sets ?? 0,
                 "rightSets": viewModel.rightTeam.sets ?? 0
             ],
+            detailedActions: viewModel.detailedActions,
             projectConfiguration: [
                 ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.archeryDual.rawValue
             ],
@@ -774,6 +774,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     private var sessionStore: ArcherySessionStore
     private var onSetEndCallback: ((SetEndCallbackData) -> Void)? = nil
     private var lastEvents: [ArcheryMatchEvent] = []
+    private(set) var detailedActions: [DetailedScoreAction] = []
     var mutationLocked = false
 
     var match: ArcheryMatchState { sessionStore.state }
@@ -792,9 +793,10 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     var arrowsPerSet: Int { match.arrowsPerSet }
 
     override init(controller: BaseScoreboardController? = nil) {
+        let defaults = DefaultParticipantNames.resolve(for: .archery)
         sessionStore = ArcherySessionStore(
-            leftName: NSLocalizedString("watch_team_red", value: "红方", comment: ""),
-            rightName: NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+            leftName: defaults.left,
+            rightName: defaults.right
         )
         super.init(controller: controller)
         syncTeamsFromMatch()
@@ -810,7 +812,14 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     }
 
     func restoreSession(_ resumeState: ArcheryResumeState) {
-        sessionStore.restoreRecordState(resumeState.state, undoHistory: resumeState.undoHistory)
+        let requiresMigration = resumeState.schemaVersion < 2
+        sessionStore.restoreRecordState(
+            requiresMigration ? resumeState.state.normalizedFromLegacyPhysicalSideSwap() : resumeState.state,
+            undoHistory: requiresMigration
+                ? resumeState.undoHistory.map { $0.normalizedFromLegacyPhysicalSideSwap() }
+                : resumeState.undoHistory
+        )
+        detailedActions = resumeState.detailedActions
         syncTeamsFromMatch()
     }
 
@@ -822,6 +831,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         ).state
         sessionStore = ArcherySessionStore(state: reset)
         lastEvents.removeAll()
+        detailedActions.removeAll()
         syncTeamsFromMatch()
     }
 
@@ -912,6 +922,14 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         guard !mutationLocked else { return false }
         guard sessionStore.undo() else { return false }
         syncTeamsFromMatch()
+        detailedActions.append(DetailedScoreAction(
+            type: .undo,
+            epochMilliseconds: Self.nowMilliseconds(),
+            scores: [match.leftArrowSum, match.rightArrowSum],
+            setScores: [match.leftSetPoints, match.rightSetPoints],
+            setNumber: match.currentSet,
+            operationCode: "archery_undo"
+        ))
         controller?.performVibration(type: .light)
         return true
     }
@@ -964,11 +982,165 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
 
     @discardableResult
     private func apply(_ intent: ArcheryMatchIntent, recordHistory: Bool = true) -> Bool {
+        let before = match
         let result = sessionStore.apply(intent, recordHistory: recordHistory)
         guard result.accepted else { return false }
         lastEvents = result.events
+        appendDetailedActions(
+            events: result.events,
+            before: before,
+            after: result.state,
+            at: Self.nowMilliseconds()
+        )
         syncTeamsFromMatch()
         return true
+    }
+
+    private static func nowMilliseconds() -> Int64 {
+        Int64(Date().timeIntervalSince1970 * 1_000)
+    }
+
+    /// Records engine-owned boundaries so recap grouping never has to infer
+    /// the current end/set for records written by this version of the app.
+    private func appendDetailedActions(
+        events: [ArcheryMatchEvent],
+        before: ArcheryMatchState,
+        after: ArcheryMatchState,
+        at milliseconds: Int64
+    ) {
+        for event in events {
+            let action: DetailedScoreAction
+            switch event {
+            case .arrowScored(let side, let points, let left, let right):
+                action = .init(
+                    type: .scoreChanged,
+                    epochMilliseconds: milliseconds,
+                    team: side == .left ? .team1 : .team2,
+                    scores: [left, right],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: before.currentSet,
+                    scoreChange: points,
+                    operationCode: "archery_arrow"
+                )
+            case .arrowMissed(let side, let left, let right):
+                action = .init(
+                    type: .scoreChanged,
+                    epochMilliseconds: milliseconds,
+                    team: side == .left ? .team1 : .team2,
+                    scores: [left, right],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: before.currentSet,
+                    scoreChange: 0,
+                    operationCode: "archery_miss"
+                )
+            case .setReady(let number, let left, let right, let pendingLeft, let pendingRight):
+                action = .init(
+                    type: .stateChanged,
+                    epochMilliseconds: milliseconds,
+                    scores: [left, right],
+                    setScores: [pendingLeft, pendingRight],
+                    setNumber: number,
+                    operationCode: "archery_set_ready"
+                )
+            case .closestToCenterRequired(let number, let tiedScore):
+                action = .init(
+                    type: .stateChanged,
+                    epochMilliseconds: milliseconds,
+                    scores: [tiedScore, tiedScore],
+                    setScores: [before.leftSetPoints, before.rightSetPoints],
+                    setNumber: number,
+                    operationCode: "archery_closest_to_center"
+                )
+            case .shootOffRepeated(let number):
+                action = .init(
+                    type: .stateChanged,
+                    epochMilliseconds: milliseconds,
+                    scores: [after.leftArrowSum, after.rightArrowSum],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: number,
+                    operationCode: "archery_shoot_off_repeated"
+                )
+            case .setCompleted(let number, let winner, let leftSets, let rightSets):
+                action = .init(
+                    type: .setFinished,
+                    epochMilliseconds: milliseconds,
+                    team: winner.map { $0 == .left ? .team1 : .team2 },
+                    scores: [before.leftArrowSum, before.rightArrowSum],
+                    setScores: [leftSets, rightSets],
+                    setNumber: number,
+                    winner: winner.map { $0 == .left ? .team1 : .team2 },
+                    operationCode: "archery_set_completed"
+                )
+            case .matchFinished(let winner):
+                action = .init(
+                    type: .matchFinished,
+                    epochMilliseconds: milliseconds,
+                    scores: [after.leftArrowSum, after.rightArrowSum],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: max(1, max(before.pendingSetNumber, before.currentSet)),
+                    winner: winner.map { $0 == .left ? .team1 : .team2 },
+                    operationCode: "finish"
+                )
+            case .arrowSumAdjusted(let side, let delta):
+                action = .init(
+                    type: .scoreChanged,
+                    epochMilliseconds: milliseconds,
+                    team: side == .left ? .team1 : .team2,
+                    scores: [after.leftArrowSum, after.rightArrowSum],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: after.currentSet,
+                    scoreChange: delta,
+                    operationCode: "archery_adjust_arrow_sum"
+                )
+            case .setPointsAdjusted(let side, let delta):
+                action = .init(
+                    type: .stateChanged,
+                    epochMilliseconds: milliseconds,
+                    team: side == .left ? .team1 : .team2,
+                    scores: [after.leftArrowSum, after.rightArrowSum],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: after.currentSet,
+                    scoreChange: delta,
+                    operationCode: "archery_adjust_set_points"
+                )
+            case .namesChanged:
+                action = .init(
+                    type: .stateChanged,
+                    epochMilliseconds: milliseconds,
+                    scores: [after.leftArrowSum, after.rightArrowSum],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: after.currentSet,
+                    operationCode: "archery_edit_names"
+                )
+            case .openingShooterChanged, .shooterSelected:
+                action = .init(
+                    type: .stateChanged,
+                    epochMilliseconds: milliseconds,
+                    scores: [after.leftArrowSum, after.rightArrowSum],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: after.currentSet,
+                    operationCode: "archery_shooter_changed"
+                )
+            case .sidesExchanged:
+                action = .init(
+                    type: .sideChanged,
+                    epochMilliseconds: milliseconds,
+                    scores: [after.leftArrowSum, after.rightArrowSum],
+                    setScores: [after.leftSetPoints, after.rightSetPoints],
+                    setNumber: after.currentSet,
+                    operationCode: "exchange_sides"
+                )
+            case .matchReset:
+                action = .init(
+                    type: .reset,
+                    epochMilliseconds: milliseconds,
+                    scores: [0, 0],
+                    setScores: [0, 0],
+                    operationCode: "reset"
+                )
+            }
+            detailedActions.append(action)
+        }
     }
 
     private func handlePostReduceUI() {
@@ -1035,6 +1207,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         rightTeam.score = match.rightArrowSum
         leftTeam.sets = match.leftSetPoints
         rightTeam.sets = match.rightSetPoints
+        sidesSwapped = match.sidesSwapped
         gameFinished = match.finished
     }
 
@@ -1084,7 +1257,9 @@ private struct ArcheryMiddleLayer: View {
                         halfViewportSize: CGSize(width: geo.size.width / 2, height: geo.size.height)
                     )
                     CenterLineServeIndicator(
-                        isLeftServing: viewModel.currentShooterIsLeft,
+                        isLeftServing: viewModel.teamScreenLayout.screenSide(
+                            of: viewModel.currentShooterIsLeft ? .team0 : .team1
+                        ) == .left,
                         triangleSize: indicatorSize
                     )
                     .position(x: geo.size.width / 2, y: geo.size.height / 2)
@@ -1097,7 +1272,7 @@ private struct ArcheryMiddleLayer: View {
                             .frame(width: geo.size.width / 2)
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                viewModel.currentShooterIsLeft = true
+                                viewModel.currentShooterIsLeft = viewModel.teamScreenLayout.engineSide(onScreen: .left) == .left
                                 showArrowPicker = true
                                 controller.performVibration(type: .light)
                             }
@@ -1105,7 +1280,7 @@ private struct ArcheryMiddleLayer: View {
                             .frame(width: geo.size.width / 2)
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                viewModel.currentShooterIsLeft = false
+                                viewModel.currentShooterIsLeft = viewModel.teamScreenLayout.engineSide(onScreen: .right) == .left
                                 showArrowPicker = true
                                 controller.performVibration(type: .light)
                             }

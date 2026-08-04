@@ -53,10 +53,14 @@
 "dialog_new_game_title" = "选择比赛";
 
 /* Default Team Names */
-"red_team" = "红队";
-"blue_team" = "蓝队";
+"red_team" = "红方";
+"blue_team" = "蓝方";
 "watch_team_red" = "红方";
 "watch_team_blue" = "蓝方";
+"team_a" = "A队";
+"team_b" = "B队";
+"archer_a" = "射手A";
+"archer_b" = "射手B";
 "team_home" = "主队";
 "team_away" = "客队";
 "team1_name" = "主队名称";
@@ -322,6 +326,7 @@
 "set_ended_winner" = "第%d局结束，%@获胜，比分 %d-%d";
 "game_ended_score" = "第%d局结束，局分 %d-%d";
 "winner_wins" = "%@ 获胜";
+"winner" = "赢家";
 
 /* Rest Countdown */
 "set_break" = "局间休息";
@@ -468,7 +473,7 @@
 "menu_whistle" = "哨子";
 "menu_font" = "字体";
 "menu_screenshot" = "截图";
-"menu_swap_sides" = "交换边";
+"menu_swap_sides" = "换边";
 "menu_reset" = "重置";
 "menu_undo" = "撤销";
 "archery_wait_turn" = "轮到对方射箭";
@@ -792,6 +797,13 @@
 "setup_serving_side" = "发球方";
 "setup_serving_left" = "左侧发球";
 "setup_serving_right" = "右侧发球";
+"setup_foosball_kickoff_side" = "开球方";
+"setup_foosball_kickoff_left" = "左侧开球";
+"setup_foosball_kickoff_right" = "右侧开球";
+"setup_snooker_break_left" = "左侧首局开球";
+"setup_snooker_break_right" = "右侧首局开球";
+"setup_archery_shooter_left" = "左侧选手先射";
+"setup_archery_shooter_right" = "右侧选手先射";
 "basketball_rule_set_label" = "规则";
 "basketball_rule_fiba_summary" = "FIBA：每节 10 分钟，上下半场分别计算暂停。";
 "basketball_rule_nba_summary" = "NBA：每节 12 分钟，常规赛 7 次暂停。";
@@ -893,8 +905,8 @@
 "foosball_final_score_cap" = "决胜局最高分上限";
 "foosball_mode_1v1" = "1V1";
 "foosball_mode_2v2" = "2V2";
-"foosball_default_red_doubles" = "红方A/红方B";
-"foosball_default_blue_doubles" = "蓝方A/蓝方B";
+"foosball_default_red_doubles" = "红A/红B";
+"foosball_default_blue_doubles" = "蓝A/蓝B";
 "player_a" = "选手A";
 "player_b" = "选手B";
 "snooker_frames" = "局数";
@@ -998,7 +1010,7 @@
 "timer_countdown_notification_title" = "倒计时结束";
 "timer_countdown_notification_content" = "倒计时已结束，点按返回查看。";
 "scoreboard_usage_hint_menu" = "使用说明";
-"scoreboard_usage_hint_title" = "计分板使用说明";
+"scoreboard_usage_hint_title" = "使用说明";
 "scoreboard_usage_hint_got_it" = "知道了";
 "scoreboard_usage_hint_football" = "👆 点击左/右比分区为对应一方加 1 球\n↩️ 左滑撤销上一步\n✏️ 点击铅笔可修改队名和比分\n☑️ 比赛结束后可从菜单手动结束并保存记录";
 "scoreboard_usage_hint_basketball" = "👆 点击对应球队的 +1、+2、+3 按钮加分\n↩️ 左滑撤销上一步\n🚩 点击犯规区域增加犯规，长按减少犯规\n⏱️ 在篮球面板中操作计时、节次和暂停";
@@ -1042,11 +1054,15 @@
 "record_recap_period_format" = "第 %d 节";
 "record_recap_round_format" = "第 %d 回合";
 "record_recap_frame_format" = "第 %d 局";
-"record_recap_full_match" = "全场事件";
+"record_recap_full_match" = "全场";
 "record_recap_adjustments" = "调整明细";
 "record_recap_overall" = "全场复盘";
 "record_final_ranking" = "最终排名";
+"multi_score_record_actions" = "分数变化记录";
+"multi_score_record_no_actions" = "暂无分数变化记录";
+"multi_score_record_adjustment_format" = "%@ %@";
 "score_trend" = "比分趋势";
+"score_trend_after_reset_format" = "%@（重置后 %d）";
 "record_recap" = "复盘";
 "record_details" = "明细";
 "record_detail_legacy_unavailable" = "旧记录缺少可靠的分局或时间信息，已降级显示比赛总览。";

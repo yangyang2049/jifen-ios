@@ -53,10 +53,14 @@
 "dialog_new_game_title" = "Select Game";
 
 /* Default Team Names */
-"red_team" = "Red Team";
-"blue_team" = "Blue Team";
+"red_team" = "Red";
+"blue_team" = "Blue";
 "watch_team_red" = "Red";
 "watch_team_blue" = "Blue";
+"team_a" = "Team A";
+"team_b" = "Team B";
+"archer_a" = "Archer A";
+"archer_b" = "Archer B";
 "team_home" = "Home";
 "team_away" = "Away";
 "team1_name" = "Home team name";
@@ -322,6 +326,7 @@
 "set_ended_winner" = "Set %d ended, %@ won, score %d-%d";
 "game_ended_score" = "Game %d ended, score %d-%d";
 "winner_wins" = "%@ Wins";
+"winner" = "Winner";
 
 /* Rest Countdown */
 "set_break" = "Set Break";
@@ -789,6 +794,13 @@
 "setup_serving_side" = "First server";
 "setup_serving_left" = "Left side serves";
 "setup_serving_right" = "Right side serves";
+"setup_foosball_kickoff_side" = "First kick-off";
+"setup_foosball_kickoff_left" = "Left side kicks off";
+"setup_foosball_kickoff_right" = "Right side kicks off";
+"setup_snooker_break_left" = "Left side breaks the first frame";
+"setup_snooker_break_right" = "Right side breaks the first frame";
+"setup_archery_shooter_left" = "Left archer shoots first";
+"setup_archery_shooter_right" = "Right archer shoots first";
 "basketball_rule_set_label" = "Rules";
 "basketball_rule_fiba_summary" = "FIBA: 10-minute periods with timeouts split by half.";
 "basketball_rule_nba_summary" = "NBA: 12-minute periods with 7 regulation timeouts.";
@@ -998,7 +1010,7 @@
 "timer_countdown_notification_title" = "Countdown finished";
 "timer_countdown_notification_content" = "Your countdown has ended. Tap to return.";
 "scoreboard_usage_hint_menu" = "How to Use";
-"scoreboard_usage_hint_title" = "Scoreboard Help";
+"scoreboard_usage_hint_title" = "How to Use";
 "scoreboard_usage_hint_got_it" = "Got it";
 "scoreboard_usage_hint_football" = "👆 Tap the left or right score area to add 1 goal\n↩️ Swipe left to undo\n✏️ Use the pencil to edit team names and scores\n☑️ End the match from the menu to save the completed record";
 "scoreboard_usage_hint_basketball" = "👆 Tap +1, +2, or +3 for the team\n↩️ Swipe left to undo\n🚩 Tap the foul area to add a foul; long-press to remove one\n⏱️ Use the basketball panel for the clock, period, and timeouts";
@@ -1042,11 +1054,15 @@
 "record_recap_period_format" = "Period %d";
 "record_recap_round_format" = "Round %d";
 "record_recap_frame_format" = "Frame %d";
-"record_recap_full_match" = "Match Events";
+"record_recap_full_match" = "Full Match";
 "record_recap_adjustments" = "Score Adjustments";
 "record_recap_overall" = "Full Match Replay";
 "record_final_ranking" = "Final Ranking";
+"multi_score_record_actions" = "Score Changes";
+"multi_score_record_no_actions" = "No score changes yet";
+"multi_score_record_adjustment_format" = "%@ %@";
 "score_trend" = "Score Trend";
+"score_trend_after_reset_format" = "%@ (After Reset %d)";
 "record_recap" = "Recap";
 "record_details" = "Details";
 "record_detail_legacy_unavailable" = "This legacy record has no reliable game or time data. Showing the match overview instead.";

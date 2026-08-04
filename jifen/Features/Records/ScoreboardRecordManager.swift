@@ -15,17 +15,18 @@ import SessionCore
 
 extension Notification.Name {
     static let scoreboardPersistenceFailed = Notification.Name("scoreboardPersistenceFailed")
+    static let scoreboardRecordsDidChange = Notification.Name("scoreboardRecordsDidChange")
 }
 
 enum ScoreboardPersistenceFailureReporter {
-    private static let logger = Logger(
+    nonisolated private static let logger = Logger(
         subsystem: "com.douhua.jifen.ios",
         category: "ScoreboardPersistence"
     )
-    private static let lock = NSLock()
+    nonisolated private static let lock = NSLock()
     private nonisolated(unsafe) static var lastPresentationAt: Date?
 
-    static func report(_ error: Error, context: String, forcePresentation: Bool = false) {
+    nonisolated static func report(_ error: Error, context: String, forcePresentation: Bool = false) {
         logger.error("\(context, privacy: .public): \(String(describing: error), privacy: .public)")
         lock.lock()
         let now = Date()
@@ -36,6 +37,192 @@ enum ScoreboardPersistenceFailureReporter {
         guard shouldPresent else { return }
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .scoreboardPersistenceFailed, object: nil)
+        }
+    }
+}
+
+/// A finished match has two persistence phases with deliberately different
+/// failure semantics: the formal record must become durable first, while
+/// removing the resumable snapshot is cleanup that can safely be retried.
+enum FinishedSessionCommitResult {
+    case committed(recordWritten: Bool)
+    case committedCleanupPending(recordWritten: Bool, error: Error)
+
+    var recordWritten: Bool {
+        switch self {
+        case .committed(let recordWritten),
+             .committedCleanupPending(let recordWritten, _):
+            return recordWritten
+        }
+    }
+
+    var cleanupError: Error? {
+        guard case .committedCleanupPending(_, let error) = self else { return nil }
+        return error
+    }
+}
+
+struct FinishedSessionRecordCommit {
+    let sessionId: UUID
+    let recordWritten: Bool
+}
+
+/// Cleanup is best-effort for the foreground commit, but not one-shot. Retry a
+/// transient failure in the background and let startup reconciliation provide
+/// the final safety net if the process is suspended or terminated.
+@MainActor
+private final class FinishedResumeCleanupRetryScheduler {
+    static let shared = FinishedResumeCleanupRetryScheduler()
+
+    private var tasks: [UUID: Task<Void, Never>] = [:]
+
+    func schedule(
+        sessionId: UUID,
+        resumeRemover: @escaping FinishedSessionCommitCoordinator.ResumeRemover
+    ) {
+        guard tasks[sessionId] == nil else { return }
+        tasks[sessionId] = Task { [weak self] in
+            var lastError: Error?
+            for delayNanoseconds in [250_000_000, 1_000_000_000, 3_000_000_000] as [UInt64] {
+                do {
+                    try await Task.sleep(nanoseconds: delayNanoseconds)
+                    try await resumeRemover(sessionId)
+                    self?.tasks[sessionId] = nil
+                    return
+                } catch is CancellationError {
+                    self?.tasks[sessionId] = nil
+                    return
+                } catch {
+                    lastError = error
+                }
+            }
+            self?.tasks[sessionId] = nil
+            if let lastError {
+                ScoreboardPersistenceFailureReporter.report(
+                    lastError,
+                    context: "Finished resume cleanup retries exhausted \(sessionId.uuidString)"
+                )
+            }
+        }
+    }
+}
+
+/// App-layer transaction boundary for SessionCore scoreboards. PersistenceCore
+/// intentionally keeps its existing `finished => remove resume` behavior; app
+/// callers use this coordinator so that behavior is never invoked before the
+/// formal record write has succeeded.
+@MainActor
+struct FinishedSessionCommitCoordinator {
+    typealias RecordLookup = @MainActor (String) -> ScoreboardRecord?
+    typealias RecordWriter = @MainActor (ScoreboardRecord) throws -> Void
+    typealias ResumeRemover = @MainActor (UUID) async throws -> Void
+    typealias CleanupRetryScheduler = @MainActor (UUID, @escaping ResumeRemover) -> Void
+
+    private let recordLookup: RecordLookup
+    private let recordWriter: RecordWriter
+    private let resumeRemover: ResumeRemover
+    private let cleanupRetryScheduler: CleanupRetryScheduler
+
+    init(
+        recordLookup: @escaping RecordLookup = {
+            ScoreboardRecordManager.shared.getRecordById($0)
+        },
+        recordWriter: @escaping RecordWriter = {
+            try ScoreboardRecordManager.shared.saveScoreboardRecord(
+                $0,
+                cleanupResumeAfterWrite: false
+            )
+        },
+        resumeRemover: @escaping ResumeRemover = { sessionId in
+            try await ResumeSessionRepository().remove(sessionId: sessionId)
+        },
+        cleanupRetryScheduler: @escaping CleanupRetryScheduler = { sessionId, resumeRemover in
+            FinishedResumeCleanupRetryScheduler.shared.schedule(
+                sessionId: sessionId,
+                resumeRemover: resumeRemover
+            )
+        }
+    ) {
+        self.recordLookup = recordLookup
+        self.recordWriter = recordWriter
+        self.resumeRemover = resumeRemover
+        self.cleanupRetryScheduler = cleanupRetryScheduler
+    }
+
+    /// Completes the durable phase synchronously. A retry for an already saved
+    /// record skips the writer, avoiding duplicate outbox work and analytics.
+    func commitRecord(
+        _ record: ScoreboardRecord,
+        sessionId: UUID
+    ) throws -> FinishedSessionRecordCommit {
+        let alreadyCommitted = recordLookup(record.id)?.status == .finished
+        if !alreadyCommitted {
+            try recordWriter(record)
+        }
+        return FinishedSessionRecordCommit(
+            sessionId: sessionId,
+            recordWritten: !alreadyCommitted
+        )
+    }
+
+    /// Cleanup failure is returned as a committed result instead of throwing:
+    /// the formal record is already durable and the stale resume can be retried.
+    func cleanupResume(
+        after commit: FinishedSessionRecordCommit
+    ) async -> FinishedSessionCommitResult {
+        do {
+            try await resumeRemover(commit.sessionId)
+            return .committed(recordWritten: commit.recordWritten)
+        } catch {
+            cleanupRetryScheduler(commit.sessionId, resumeRemover)
+            return .committedCleanupPending(
+                recordWritten: commit.recordWritten,
+                error: error
+            )
+        }
+    }
+
+    func commit(
+        _ record: ScoreboardRecord,
+        sessionId: UUID
+    ) async throws -> FinishedSessionCommitResult {
+        let recordCommit = try commitRecord(record, sessionId: sessionId)
+        return await cleanupResume(after: recordCommit)
+    }
+
+    /// Startup reconciliation removes a stale resume without rewriting an
+    /// already durable record. `nil` means no formal record exists yet.
+    func reconcileCommittedRecord(
+        recordID: String,
+        sessionId: UUID
+    ) async -> FinishedSessionCommitResult? {
+        guard recordLookup(recordID)?.status == .finished else { return nil }
+        return await cleanupResume(after: FinishedSessionRecordCommit(
+            sessionId: sessionId,
+            recordWritten: false
+        ))
+    }
+}
+
+/// Finished-record writes can arrive repeatedly from dialog actions and view
+/// teardown. Coalesce cleanup for the same match and route every removal
+/// through one repository so concurrent callers never race on the resume index.
+private actor FinishedResumeSessionCleanup {
+    static let shared = FinishedResumeSessionCleanup()
+
+    private let repository = ResumeSessionRepository()
+    private var pendingSessionIDs: Set<UUID> = []
+
+    func remove(sessionId: UUID) async {
+        guard pendingSessionIDs.insert(sessionId).inserted else { return }
+        defer { pendingSessionIDs.remove(sessionId) }
+        do {
+            try await repository.remove(sessionId: sessionId)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "remove finished resume session"
+            )
         }
     }
 }
@@ -92,6 +279,25 @@ enum ManualResumeSessionStore {
         guard let suffix = recordID.split(separator: "_").last else { return nil }
         return UUID(uuidString: String(suffix))
     }
+
+    /// Manual scoreboards keep the stable record identifier inside the v1
+    /// payload while the resume index is keyed by its UUID suffix. Startup
+    /// reconciliation must recover that identifier before looking for an
+    /// already committed formal record.
+    static func recordID(
+        for sessionID: UUID,
+        rootURL: URL = ResumeSessionRepository.defaultRootURL()
+    ) -> String? {
+        guard let data = try? ResumeSessionRepository.loadManualPayload(
+            sessionId: sessionID,
+            rootURL: rootURL
+        ),
+        let state = try? JSONDecoder().decode(ManualScoreboardResumeState.self, from: data),
+        state.schemaVersion == ManualScoreboardResumeState.currentSchemaVersion else {
+            return nil
+        }
+        return state.recordId
+    }
 }
 
 enum ScoreboardLifecyclePersistence {
@@ -107,6 +313,7 @@ enum ScoreboardLifecyclePersistence {
         normalized.endTime = finished ? (record.endTime ?? finishedAt) : nil
         if !finished {
             normalized.winner = nil
+            normalized.winnerIdentity = nil
         }
         return normalized
     }
@@ -159,7 +366,7 @@ final class ScoreboardRecordFileStore {
             try legacyData.write(to: backupURL, options: .atomic)
             let finishedRecords = oldRecords.filter { $0.status == .finished }
             for var record in finishedRecords {
-                record.schemaVersion = 4
+                record.schemaVersion = ScoreboardRecord.currentSchemaVersion
                 let detailed = record.detailedActions ?? ScoreboardRecordActionAdapter.actions(for: record)
                 record.detailedActions = detailed
                 record.setResults = record.setResults ?? ScoreboardRecordActionAdapter.setResults(from: detailed)
@@ -340,7 +547,10 @@ final class ScoreboardRecordManager {
         defaults.removeObject(forKey: "scoreboard_unfinished_record_id")
     }
 
-    func saveScoreboardRecord(_ input: ScoreboardRecord) throws {
+    func saveScoreboardRecord(
+        _ input: ScoreboardRecord,
+        cleanupResumeAfterWrite: Bool = true
+    ) throws {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
@@ -349,7 +559,13 @@ final class ScoreboardRecordManager {
         }
 
         var record = input
-        record.schemaVersion = 4
+        record.schemaVersion = ScoreboardRecord.currentSchemaVersion
+        if record.winnerIdentity == nil {
+            record.winnerIdentity = ScoreboardWinnerIdentity.fromStableLegacyToken(record.winner)
+        }
+        if record.winner == nil {
+            record.winner = record.winnerIdentity?.legacyToken
+        }
         if record.detailedActions == nil {
             record.detailedActions = ScoreboardRecordActionAdapter.actions(for: record)
         }
@@ -374,18 +590,13 @@ final class ScoreboardRecordManager {
         }
         RecordSyncOutbox.shared.enqueueUpsert(record)
         AppAnalytics.scoreboardRecordSaved(record, previous: previousRecord)
-        if let sessionId = ManualResumeSessionStore.sessionID(for: record.id) {
+        if cleanupResumeAfterWrite,
+           let sessionId = ManualResumeSessionStore.sessionID(for: record.id) {
             Task {
-                do {
-                    try await ResumeSessionRepository().remove(sessionId: sessionId)
-                } catch {
-                    ScoreboardPersistenceFailureReporter.report(
-                        error,
-                        context: "remove finished resume session"
-                    )
-                }
+                await FinishedResumeSessionCleanup.shared.remove(sessionId: sessionId)
             }
         }
+        notifyRecordsChanged()
     }
 
     func loadAllRecords() -> [ScoreboardRecord] {
@@ -413,6 +624,7 @@ final class ScoreboardRecordManager {
             .recordType: .string("scoreboard"),
             .result: .string(AnalyticsResult.success.rawValue)
         ])
+        notifyRecordsChanged()
         return true
     }
 
@@ -428,6 +640,13 @@ final class ScoreboardRecordManager {
                 .actionName: .string("clear_all"),
                 .result: .string(AnalyticsResult.success.rawValue)
             ])
+            notifyRecordsChanged()
+        }
+    }
+
+    private func notifyRecordsChanged() {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .scoreboardRecordsDidChange, object: nil)
         }
     }
 

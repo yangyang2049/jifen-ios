@@ -138,6 +138,27 @@ public struct ArcheryMatchState: Codable, Equatable, Sendable {
     }
 }
 
+public extension ArcheryMatchState {
+    /// Converts snapshots written by the legacy reducer, which physically
+    /// swapped team-owned fields when the screen sides were exchanged, into
+    /// the stable-identity representation used by the current reducer.
+    func normalizedFromLegacyPhysicalSideSwap() -> Self {
+        guard sidesSwapped else { return self }
+        var next = self
+        swap(&next.leftName, &next.rightName)
+        swap(&next.leftArrowSum, &next.rightArrowSum)
+        swap(&next.leftSetPoints, &next.rightSetPoints)
+        swap(&next.arrowsLeftThisSet, &next.arrowsRightThisSet)
+        swap(&next.pendingLeftSetPoints, &next.pendingRightSetPoints)
+        if let pending = next.pendingSetWinnerIsLeft {
+            next.pendingSetWinnerIsLeft = !pending
+        }
+        next.currentShooterIsLeft.toggle()
+        next.openingShooterIsLeft.toggle()
+        return next
+    }
+}
+
 public enum ArcheryMatchIntent: Codable, Equatable, Sendable {
     /// Record one arrow. `side` nil = current shooter; `value` nil = miss, while `0` is a zero-ring arrow.
     case recordArrow(side: MatchSide?, value: Int?)
@@ -237,16 +258,6 @@ public struct ArcheryMatchReducer: DomainReducer {
             next.currentShooterIsLeft = isLeft
             return .init(state: next, events: [.shooterSelected])
         case .exchangeSides:
-            swap(&next.leftName, &next.rightName)
-            swap(&next.leftArrowSum, &next.rightArrowSum)
-            swap(&next.leftSetPoints, &next.rightSetPoints)
-            swap(&next.arrowsLeftThisSet, &next.arrowsRightThisSet)
-            swap(&next.pendingLeftSetPoints, &next.pendingRightSetPoints)
-            if let pending = next.pendingSetWinnerIsLeft {
-                next.pendingSetWinnerIsLeft = !pending
-            }
-            next.currentShooterIsLeft.toggle()
-            next.openingShooterIsLeft.toggle()
             next.sidesSwapped.toggle()
             return .init(state: next, events: [.sidesExchanged])
         case .finish:
@@ -254,16 +265,11 @@ public struct ArcheryMatchReducer: DomainReducer {
             clearPending(&next)
             return .init(state: next, events: [.matchFinished(winner: next.winnerSide)])
         case .reset:
-            let leftName = state.sidesSwapped ? state.rightName : state.leftName
-            let rightName = state.sidesSwapped ? state.leftName : state.rightName
-            let openingShooterIsLeft = state.sidesSwapped
-                ? !state.openingShooterIsLeft
-                : state.openingShooterIsLeft
             next = .init(
-                leftName: leftName,
-                rightName: rightName,
-                currentShooterIsLeft: openingShooterIsLeft,
-                openingShooterIsLeft: openingShooterIsLeft,
+                leftName: state.leftName,
+                rightName: state.rightName,
+                currentShooterIsLeft: state.openingShooterIsLeft,
+                openingShooterIsLeft: state.openingShooterIsLeft,
                 rules: state.rules
             )
             return .init(state: next, events: [.matchReset])

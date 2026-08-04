@@ -43,6 +43,7 @@ public enum MatchCompletionMode: String, Codable, CaseIterable, Hashable, Sendab
 
 public enum RallyServingModel: String, Codable, Sendable {
     case scorerServes
+    case concedingSideServes
     case pingPongTwoServes
 }
 
@@ -279,7 +280,12 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
     }
 
     public static func foosball(maxSets: Int = 3) -> Self {
-        .init(maxSets: maxSets, pointsToWinSet: 5, winByTwo: false)
+        .init(
+            maxSets: maxSets,
+            pointsToWinSet: 5,
+            winByTwo: false,
+            servingModel: .concedingSideServes
+        )
     }
 }
 
@@ -558,17 +564,17 @@ public struct RallyMatchReducer: DomainReducer {
         if case .pickleball(var rotation) = next.doubles?.rotation {
             if side == state.servingSide {
                 togglePickleballPartnerSwap(&rotation, servingTeam0: state.servingSide == .left)
-            }
-            if rotation.serverNumber == 1 {
-                rotation.serverNumber = 2
             } else {
-                next.servingSide = state.servingSide.opposite
-                rotation.serverNumber = 1
+                next.servingSide = side
+                togglePickleballPartnerSwap(&rotation, servingTeam0: side == .left)
+                let servingScore = side == .left ? next.leftPoints : next.rightPoints
+                rotation.serverNumber = servingScore.isMultiple(of: 2) ? 2 : 1
             }
+            rotation.isFirstServeOfGame = false
             refreshPickleballDoublesSlots(&rotation, servingTeam0: next.servingSide == .left)
             next.doubles?.rotation = .pickleball(rotation)
         } else {
-            next.servingSide = state.servingSide.opposite
+            next.servingSide = side
         }
 
         return finalizePointResult(previous: state, next: next, scoredSide: side)
@@ -673,11 +679,17 @@ public struct RallyMatchReducer: DomainReducer {
     }
 
     private func nextServer(after scorer: MatchSide, state: RallyMatchState) -> MatchSide {
-        guard state.rules.servingModel == .pingPongTwoServes else { return scorer }
-        let total = state.leftPoints + state.rightPoints
-        let deuce = state.leftPoints >= state.rules.target(for: state.currentSet) - 1 && state.rightPoints >= state.rules.target(for: state.currentSet) - 1
-        let turns = deuce ? total : total / 2
-        return turns.isMultiple(of: 2) ? state.firstServerInSet : state.firstServerInSet.opposite
+        switch state.rules.servingModel {
+        case .scorerServes:
+            return scorer
+        case .concedingSideServes:
+            return scorer.opposite
+        case .pingPongTwoServes:
+            let total = state.leftPoints + state.rightPoints
+            let deuce = state.leftPoints >= state.rules.target(for: state.currentSet) - 1 && state.rightPoints >= state.rules.target(for: state.currentSet) - 1
+            let turns = deuce ? total : total / 2
+            return turns.isMultiple(of: 2) ? state.firstServerInSet : state.firstServerInSet.opposite
+        }
     }
 
     private func nextFirstServer(for state: RallyMatchState) -> MatchSide {
@@ -757,7 +769,7 @@ public struct RallyMatchReducer: DomainReducer {
                 chosenServerSlotIndex: server,
                 previousOpeningServerSlotIndex: rotation.openingServerSlotIndex,
                 previousOpeningReceiverSlotIndex: rotation.openingReceiverSlotIndex
-            ) ?? (server == 0 ? 1 : 0)
+            ) ?? (server == 0 ? 3 : 2)
             doubles.rotation = .pingPong(createPingPongDoublesRotation(
                 openingServerSlotIndex: server,
                 openingReceiverSlotIndex: receiver
@@ -801,7 +813,7 @@ public struct RallyMatchReducer: DomainReducer {
             return .pingPong(
                 playerNames: doubles.playerNames,
                 openingServerSlotIndex: server,
-                openingReceiverSlotIndex: server == 0 ? 1 : 0
+                openingReceiverSlotIndex: server == 0 ? 3 : 2
             )
         case .badminton:
             return .badminton(playerNames: doubles.playerNames, servingTeam0: openingServer == .left)

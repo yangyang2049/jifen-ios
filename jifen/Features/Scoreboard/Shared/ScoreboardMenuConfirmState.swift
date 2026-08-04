@@ -21,7 +21,7 @@ enum ScoreboardMenuConfirmAction: String, Equatable {
         case "reset": return .reset
         case "endGame", "finish": return .finish
         case "settleMatch": return .settleMatch
-        case "exchangeSide": return .exchangeSide
+        case ScoreboardMenuActionID.exchangeSide.rawValue: return .exchangeSide
         case "exit": return .exit
         default: return nil
         }
@@ -117,6 +117,13 @@ final class ScoreboardTerminalHold<Value> {
 
     init(duration: Duration = .seconds(1)) {
         self.duration = duration
+    }
+
+    // Keep destruction out of the Release inliner. Swift 6.3.3 can otherwise
+    // crash while optimizing the synthesized generic deinitializer.
+    @inline(never)
+    deinit {
+        releaseTask?.cancel()
     }
 
     func begin(_ value: Value, onRelease: @escaping @MainActor () -> Void) {

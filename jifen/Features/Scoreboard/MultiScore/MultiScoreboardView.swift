@@ -416,9 +416,12 @@ struct MultiScoreboardView: View {
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
                     .background(Capsule().fill(Color.black.opacity(0.35)))
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("uno_target_badge")
                     Spacer()
                 }
-                .padding(.bottom, 72)
+                .frame(height: ScoreboardConstants.buttonSize)
+                .padding(.bottom, ScoreboardConstants.buttonPadding)
             }
         }
         .allowsHitTesting(false)
@@ -1176,9 +1179,9 @@ struct MultiScoreboardView: View {
                 case .subtractRight: if players.count > 1 { adjustScore(index: 1, delta: -1) }
                 case .undo: undoLast()
                 case .exchangeSides:
-                    guard players.count > 1 else { return }
-                    players.swapAt(0, 1)
-                    scheduleResumePersist()
+                    // Multi-player layouts, including two-player UNO, intentionally
+                    // do not expose or accept the two-sided placement operation.
+                    break
                 case .requestSnapshot: break
                 }
             }

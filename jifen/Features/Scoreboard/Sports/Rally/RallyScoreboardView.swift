@@ -25,12 +25,60 @@ enum RallyFinishedScorePresentation {
     }
 }
 
+/// Resolves a controller-side subtract action through the current screen layout,
+/// then validates the score that belongs to that logical team.
+func rallyLocalSubtractSide(
+    onScreen screenSide: MatchSide,
+    state: RallyMatchState,
+    presentedSidesSwapped: Bool? = nil
+) -> MatchSide? {
+    guard !state.finished else { return nil }
+    let logicalSide = TeamScreenLayout(
+        sidesSwapped: presentedSidesSwapped ?? state.sidesSwapped
+    ).engineSide(onScreen: screenSide)
+    guard RallyMatchEngine.score(for: logicalSide, in: state) > 0 else { return nil }
+    return logicalSide
+}
+
 private struct RallyTerminalSetPresentation: Equatable {
     let leftPoints: Int
     let rightPoints: Int
     let leftSets: Int
     let rightSets: Int
     let sidesSwapped: Bool
+}
+
+enum RallyDoublesFlashResolver {
+    static func slots(
+        previous: RallyDoublesState?,
+        current: RallyDoublesState?
+    ) -> Set<Int> {
+        guard let previous, let current else { return [] }
+
+        var rotatedSlots: Set<Int> = []
+        switch (previous.rotation, current.rotation) {
+        case let (.badminton(before), .badminton(after)):
+            if before.team0CourtOrderSwapped != after.team0CourtOrderSwapped {
+                rotatedSlots.formUnion([0, 2])
+            }
+            if before.team1CourtOrderSwapped != after.team1CourtOrderSwapped {
+                rotatedSlots.formUnion([1, 3])
+            }
+        case let (.pickleball(before), .pickleball(after)):
+            if before.team0PartnersSwapped != after.team0PartnersSwapped {
+                rotatedSlots.formUnion([0, 2])
+            }
+            if before.team1PartnersSwapped != after.team1PartnersSwapped {
+                rotatedSlots.formUnion([1, 3])
+            }
+        default:
+            return []
+        }
+
+        if !rotatedSlots.isEmpty { return rotatedSlots }
+        guard previous.serverSlotIndex != current.serverSlotIndex else { return [] }
+        return [current.serverSlotIndex]
+    }
 }
 import UIKit
 
@@ -65,7 +113,6 @@ struct RallyScoreboardView: View {
     @State private var flashTask: Task<Void, Never>?
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
-    @State private var resumeSaveGeneration = 0
     @State private var completedSetScores: [VoiceSetScore] = []
     @State private var didSpeakOpeningAnnouncement = false
     @State private var manualFinishRequested = false
@@ -141,10 +188,11 @@ struct RallyScoreboardView: View {
         )
     }
 
-    /// 桌上足球无发球模型（对齐鸿蒙/安卓）。
+    /// Legacy foosball sessions keep their previous no-indicator behavior.
     private var showsServeIndicator: Bool {
         switch gameType {
-        case .foosball, .foosballDoubles: return false
+        case .foosball, .foosballDoubles:
+            return store.state.rules.servingModel == .concedingSideServes
         default: return true
         }
     }
@@ -171,7 +219,7 @@ struct RallyScoreboardView: View {
                     }
                 }
 
-                if !isEditMode && showsServeIndicator && terminalSetPresentation == nil {
+                if !isEditMode && !store.state.finished && showsServeIndicator && terminalSetPresentation == nil {
                     serveIndicatorOverlay(size: proxy.size, triangleSize: serveIndicatorSize)
                 }
 
@@ -304,18 +352,10 @@ struct RallyScoreboardView: View {
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
-        .onChange(of: store.state) { previous, state in
-            if pendingDoublesFlash != nil,
-               previous.leftPoints != state.leftPoints || previous.rightPoints != state.rightPoints {
-                processPendingDoublesFlash()
-            }
+        .onChange(of: store.state) { _, state in
             if terminalSetPresentation == nil {
                 publishCurrentRallyState()
                 if state.finished { notifyLinkedFinishIfNeeded() }
-            }
-            // Follower relies on LinkedMatchRecordIngestor; don't write a second phone record.
-            if !(watchLinkService.isFollower && state.finished) {
-                scheduleResumePersist(finished: state.finished)
             }
         }
         .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
@@ -1068,36 +1108,29 @@ struct RallyScoreboardView: View {
     // MARK: - Doubles flash
 
     private struct PendingDoublesFlash {
-        let scoringSide: MatchSide
-        let prevServingSide: MatchSide
+        let previousDoubles: RallyDoublesState
     }
 
     private func handlePointWon(_ side: MatchSide) {
         guard !scoringLocked else { return }
         // 仅羽毛球/匹克球双打有位置轮转，发球方得分时高亮该队两人以提示换位；
         // 乒乓球、桌上足球双打无轮转，不闪烁。
-        if isDoubles, gameType == .badmintonDoubles || gameType == .pickleballDoubles {
-            pendingDoublesFlash = PendingDoublesFlash(
-                scoringSide: side,
-                prevServingSide: store.state.servingSide
-            )
+        if let doubles = store.state.doubles,
+           gameType == .badmintonDoubles || gameType == .pickleballDoubles {
+            pendingDoublesFlash = PendingDoublesFlash(previousDoubles: doubles)
         }
-        dispatch(.pointWon(side))
+        dispatch(.pointWon(side), onApplied: processPendingDoublesFlash)
         revealImmersiveChrome()
     }
 
     private func processPendingDoublesFlash() {
         guard let pending = pendingDoublesFlash else { return }
         pendingDoublesFlash = nil
-
-        let slots: Set<Int>
-        if pending.scoringSide == pending.prevServingSide {
-            slots = pending.scoringSide == .left ? [0, 2] : [1, 3]
-        } else if let newSlot = store.state.doubles?.serverSlotIndex {
-            slots = [newSlot]
-        } else {
-            return
-        }
+        let slots = RallyDoublesFlashResolver.slots(
+            previous: pending.previousDoubles,
+            current: store.state.doubles
+        )
+        guard !slots.isEmpty else { return }
         runDoublesFlash(slots: slots)
     }
 
@@ -1123,7 +1156,9 @@ struct RallyScoreboardView: View {
     // MARK: - Serve indicator
 
     private var keyPointDoublesTopRow: Bool? {
-        guard showsServeIndicator, let doubles = store.state.doubles else { return nil }
+        guard showsServeIndicator,
+              !isFoosballDoubles,
+              let doubles = store.state.doubles else { return nil }
         return doublesServerIsTopRow(doubles)
     }
 
@@ -1148,31 +1183,12 @@ struct RallyScoreboardView: View {
             return serving == leftLogical
         }()
 
-        if isDoubles, let doubles = store.state.doubles {
+        if isDoubles, !isFoosballDoubles, let doubles = store.state.doubles {
             let isTopRow = doublesServerIsTopRow(doubles)
-            let serverNumberText = doubles.pickleballServerNumber.map(String.init) ?? ""
-            let serverNumberSize = resolvedTypography(
-                name: "",
-                score: "",
-                secondary: serverNumberText,
-                size: CGSize(width: max(64, triangleSize * 2.4), height: max(80, triangleSize * 3)),
-                secondaryBaseScale: 0.3
-            ).secondaryFontSize
-            ZStack {
-                CenterLineServeIndicator(
-                    isLeftServing: servingIsLeftScreen,
-                    triangleSize: triangleSize
-                )
-                if let serverNumber = doubles.pickleballServerNumber {
-                    Text("\(serverNumber)")
-                        .font(typographyPreference.font.swiftUIFont(size: serverNumberSize, weight: .bold))
-                        .foregroundStyle(palette.foreground)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Capsule().fill(Color.black.opacity(0.35)))
-                        .offset(y: isTopRow ? triangleSize * 0.78 : -triangleSize * 0.78)
-                }
-            }
+            CenterLineServeIndicator(
+                isLeftServing: servingIsLeftScreen,
+                triangleSize: triangleSize
+            )
             .position(
                 x: size.width / 2,
                 y: ScoreboardServeGeometry.doublesAnchorY(height: size.height, topRow: isTopRow)
@@ -1307,7 +1323,7 @@ struct RallyScoreboardView: View {
         switch action {
         case "undo":
             performUndo()
-        case "exchangeSide":
+        case ScoreboardMenuActionID.exchangeSide.rawValue:
             if menuConfirm.armOrConfirm(.exchangeSide) {
                 dispatch(.exchangeSides)
             } else {
@@ -1351,7 +1367,6 @@ struct RallyScoreboardView: View {
             } else {
                 ScoreVoiceAnnouncer.shared.stop()
             }
-            scheduleResumePersist(finished: store.state.finished)
         case "resync":
             watchLinkService.requestScoreResync()
             showMenu = false
@@ -1545,12 +1560,18 @@ struct RallyScoreboardView: View {
                 case .addLeft: dispatch(.pointWon(logicalSide(forScreen: .left)))
                 case .addRight: dispatch(.pointWon(logicalSide(forScreen: .right)))
                 case .subtractLeft:
-                    let side = logicalSide(forScreen: .left)
-                    guard store.state.leftPoints > 0, !store.state.finished else { return }
+                    guard let side = rallyLocalSubtractSide(
+                        onScreen: .left,
+                        state: store.state,
+                        presentedSidesSwapped: terminalSetPresentation?.sidesSwapped
+                    ) else { return }
                     dispatch(.adjustPoints(side: side, delta: -1))
                 case .subtractRight:
-                    let side = logicalSide(forScreen: .right)
-                    guard store.state.rightPoints > 0, !store.state.finished else { return }
+                    guard let side = rallyLocalSubtractSide(
+                        onScreen: .right,
+                        state: store.state,
+                        presentedSidesSwapped: terminalSetPresentation?.sidesSwapped
+                    ) else { return }
                     dispatch(.adjustPoints(side: side, delta: -1))
                 case .undo:
                     performUndo()
@@ -1622,12 +1643,16 @@ struct RallyScoreboardView: View {
         dispatch(.adjustSets(side: side, delta: delta))
     }
 
-    private func dispatch(_ intent: RallyMatchIntent) {
+    private func dispatch(
+        _ intent: RallyMatchIntent,
+        onApplied: (() -> Void)? = nil
+    ) {
         guard !scoringLocked else { return }
         let before = store.state
         store.send(intent) { events in
             handleVoiceAnnouncement(before: before, events: events)
             handleEvents(events, before: before)
+            onApplied?()
         }
     }
 
@@ -1676,11 +1701,9 @@ struct RallyScoreboardView: View {
             showToast(sideToast)
             if matchFinished {
                 showGameOverDialog = true
-                store.persistSnapshot()
             }
         } else if matchFinished {
             showGameOverDialog = true
-            store.persistSnapshot()
         }
     }
 
@@ -1709,7 +1732,6 @@ struct RallyScoreboardView: View {
             if matchFinished {
                 notifyLinkedFinishIfNeeded()
                 showGameOverDialog = true
-                store.persistSnapshot()
             }
         }
     }
@@ -1768,14 +1790,6 @@ struct RallyScoreboardView: View {
                 completedSetScores.append(VoiceSetScore(leftGames: leftPoints, rightGames: rightPoints))
             }
         }
-        let sideChanged = events.contains {
-            if case .sidesExchanged = $0 { return true }
-            return false
-        }
-        if sideChanged {
-            completedSetScores = completedSetScores.map { $0.swapped() }
-        }
-
         let payloads = RallyVoiceAnnouncementMapper.payloads(
             gameType: gameType,
             before: before,
@@ -1783,9 +1797,7 @@ struct RallyScoreboardView: View {
             events: events,
             completedSetScores: completedSetScores
         )
-        for payload in payloads {
-            ScoreVoiceAnnouncer.shared.speak(payload)
-        }
+        ScoreVoiceAnnouncer.shared.speak(payloads)
     }
 
     private func speakOpeningAnnouncementIfNeeded() {
@@ -1847,24 +1859,6 @@ struct RallyScoreboardView: View {
         }
     }
 
-    private var hasMatchProgress: Bool {
-        store.state.leftPoints > 0
-            || store.state.rightPoints > 0
-            || store.state.leftSets > 0
-            || store.state.rightSets > 0
-            || store.state.finished
-    }
-
-    private func scheduleResumePersist(finished: Bool) {
-        guard finished || hasMatchProgress else { return }
-        resumeSaveGeneration += 1
-        let generation = resumeSaveGeneration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            guard generation == resumeSaveGeneration else { return }
-            store.persistSnapshot()
-        }
-    }
-
     private func showToast(_ message: String) {
         toastMessage = message
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -1881,7 +1875,6 @@ struct RallyScoreboardView: View {
         cancelTerminalSetPresentation()
         store.undo { success in
             if success {
-                scheduleResumePersist(finished: store.state.finished)
                 showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
             } else {
                 showToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))

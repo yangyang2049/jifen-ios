@@ -48,11 +48,13 @@ public struct SnookerState: Codable, Equatable, Sendable {
     public var nextBallStage: SnookerStage
     public var frameCompletePending: Bool
     public var pendingFrameWinner: MatchSide?
+    /// Presentation-only placement; all score fields remain identity keyed.
+    public var sidesSwapped: Bool
 
     private enum CodingKeys: String, CodingKey {
         case leftScore, rightScore, striker, leftBreak, rightBreak, finished
         case leftFrames, rightFrames, currentFrame, maxFrames, firstBreaker
-        case redBallsRemaining, nextBallStage, frameCompletePending, pendingFrameWinner
+        case redBallsRemaining, nextBallStage, frameCompletePending, pendingFrameWinner, sidesSwapped
     }
 
     public init(
@@ -70,7 +72,8 @@ public struct SnookerState: Codable, Equatable, Sendable {
         redBallsRemaining: Int,
         nextBallStage: SnookerStage,
         frameCompletePending: Bool = false,
-        pendingFrameWinner: MatchSide? = nil
+        pendingFrameWinner: MatchSide? = nil,
+        sidesSwapped: Bool = false
     ) {
         self.leftScore = leftScore
         self.rightScore = rightScore
@@ -87,6 +90,7 @@ public struct SnookerState: Codable, Equatable, Sendable {
         self.nextBallStage = nextBallStage
         self.frameCompletePending = frameCompletePending
         self.pendingFrameWinner = pendingFrameWinner
+        self.sidesSwapped = sidesSwapped
     }
 
     public static func normalizedMaxFrames(_ value: Int) -> Int {
@@ -127,6 +131,7 @@ public struct SnookerState: Codable, Equatable, Sendable {
         nextBallStage = try container.decode(SnookerStage.self, forKey: .nextBallStage)
         frameCompletePending = false
         pendingFrameWinner = nil
+        sidesSwapped = try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false
     }
 }
 
@@ -142,6 +147,7 @@ public enum SnookerIntent: Codable, Sendable {
     case handover
     case settleFrame(winner: MatchSide)
     case confirmNextFrame
+    case exchangeSides
     case finishMatch
     case reset
     case adminCorrect(left: Int, right: Int, striker: MatchSide)
@@ -153,6 +159,7 @@ public enum SnookerEvent: Codable, Equatable, Sendable {
     case turnChanged(MatchSide)
     case frameSettled(winner: MatchSide, frame: Int)
     case nextFrameStarted(Int)
+    case sidesExchanged
     case matchFinished
     case reset
     case adminCorrected
@@ -193,6 +200,10 @@ public struct SnookerReducer: DomainReducer {
             return settle(state: state, winner: winner)
         case .confirmNextFrame:
             return .rejected(state: state, reason: "Frames advance when explicitly settled")
+        case .exchangeSides:
+            var next = state
+            next.sidesSwapped.toggle()
+            return .init(state: next, events: [.sidesExchanged])
         case .finishMatch:
             var next = state
             next.finished = true

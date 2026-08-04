@@ -162,6 +162,13 @@ import ScoreCore
             openingServer: .left,
             doubles: .pickleball(playerNames: ["A", "B", "C", "D"], servingTeam0: true)
         )
+        let opening = RallyVoiceAnnouncementMapper.openingPayload(
+            gameType: .pickleballDoubles,
+            state: state
+        )
+        #expect(opening?.serverNumber == nil)
+        #expect(VoiceAnnouncementMessageBuilder.build(opening!, language: .zhCN) == "0比0")
+
         let scored = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 0)
         let payloads = RallyVoiceAnnouncementMapper.payloads(
             gameType: .pickleballDoubles,
@@ -172,12 +179,13 @@ import ScoreCore
         )
         #expect(!payloads.isEmpty)
         #expect(payloads[0].serviceOver != true)
+        #expect(payloads[0].serverNumber == nil)
         let zh = VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN)
         #expect(zh.contains("比"))
         #expect(!zh.contains("换发球"))
     }
 
-    @Test func setEndPhraseMatchesRallyTemplate() {
+    @Test func gameAndMatchEndUsePickleballCalls() {
         #expect(
             payload(.pickleball) {
                 $0.phase = .setEnd
@@ -188,7 +196,7 @@ import ScoreCore
                 $0.currentSet = 1
                 $0.winnerSide = .left
                 $0.winnerName = "Alice"
-            }.contains("Alice")
+            } == "得分，本局结束，11比7，Alice胜"
         )
         #expect(
             payload(.pickleball, language: .enUS) {
@@ -200,7 +208,18 @@ import ScoreCore
                 $0.currentSet = 1
                 $0.winnerSide = .left
                 $0.winnerName = "Alice"
-            }.localizedCaseInsensitiveContains("Alice")
+            } == "Point. Game. 11-7. Alice wins"
+        )
+        #expect(
+            payload(.pickleball, language: .enUS) {
+                $0.phase = .matchEnd
+                $0.leftScore = 11
+                $0.rightScore = 7
+                $0.leftSets = 2
+                $0.rightSets = 0
+                $0.winnerSide = .left
+                $0.winnerName = "Alice"
+            } == "Point. Game. Match. 11-7. Alice wins"
         )
     }
 }

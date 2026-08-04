@@ -40,9 +40,13 @@ final class WatchCommonNamesStore {
 
     private static let presetNameKeys: Set<String> = {
         let names = [
-            "红队", "蓝队", "红方", "蓝方", "主队", "客队", "左队", "右队",
-            "选手1", "选手2", "玩家1", "玩家2", "玩家3",
-            "red team", "blue team", "home", "away", "player 1", "player 2", "player 3"
+            "红队", "蓝队", "红方", "蓝方", "主队", "客队", "左队", "右队", "A队", "B队",
+            "选手A", "选手B", "射手A", "射手B", "选手1", "选手2", "玩家1", "玩家2", "玩家3",
+            "红A", "红B", "蓝A", "蓝B", "红A / 红B", "蓝A / 蓝B", "红A/红B", "蓝A/蓝B",
+            "red team", "blue team", "red", "blue", "home", "away", "team a", "team b",
+            "player a", "player b", "archer a", "archer b", "player 1", "player 2", "player 3",
+            "red a", "red b", "blue a", "blue b",
+            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b"
         ]
         return Set(names.map { $0.lowercased() })
     }()
@@ -74,12 +78,16 @@ final class WatchCommonNamesStore {
         type == .team ? teams : players
     }
 
-    func apply(_ snapshot: CommonNamesSyncSnapshot) {
-        guard snapshot.schemaVersion <= CommonNamesSyncSnapshot.currentSchemaVersion else { return }
-        guard shouldAccept(snapshot) else { return }
+    @discardableResult
+    func apply(_ snapshot: CommonNamesSyncSnapshot) -> Bool {
+        guard snapshot.schemaVersion <= CommonNamesSyncSnapshot.currentSchemaVersion else {
+            return false
+        }
+        guard shouldAccept(snapshot) else { return false }
         applyCanonical(snapshot)
         persistCanonical()
         recomputeEffectiveNames()
+        return true
     }
 
     func apply(_ acknowledgement: CommonNameMutationAcknowledgement) {
@@ -182,11 +190,18 @@ final class WatchCommonNamesStore {
 
     private func shouldAccept(_ snapshot: CommonNamesSyncSnapshot) -> Bool {
         if snapshot.revision > 0 {
-            return snapshot.revision >= revision
+            return snapshot.revision > revision
         }
         guard revision == 0 else { return false }
-        return snapshot.updatedAtEpochMilliseconds <= 0
-            || snapshot.updatedAtEpochMilliseconds >= updatedAtEpochMilliseconds
+        guard snapshot.updatedAtEpochMilliseconds >= updatedAtEpochMilliseconds else {
+            return false
+        }
+        let incomingTeams = Array(snapshot.teams.prefix(Self.maxNamesPerType))
+        let incomingPlayers = Array(snapshot.players.prefix(Self.maxNamesPerType))
+        let isDuplicate = snapshot.updatedAtEpochMilliseconds == updatedAtEpochMilliseconds
+            && incomingTeams == canonicalTeams
+            && incomingPlayers == canonicalPlayers
+        return !isDuplicate
     }
 
     private func recomputeEffectiveNames() {

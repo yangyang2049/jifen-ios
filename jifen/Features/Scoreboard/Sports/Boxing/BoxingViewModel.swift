@@ -14,10 +14,34 @@ struct BoxingHistoryEntry: Codable, Equatable {
 }
 
 struct BoxingResumeState: Codable, Equatable {
-    var schemaVersion = 1
+    var schemaVersion = 2
     let state: BoxingMatchState
     let undoHistory: [BoxingHistoryEntry]
     let intentTimeline: [String]
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion, state, undoHistory, intentTimeline
+    }
+
+    init(
+        schemaVersion: Int = 2,
+        state: BoxingMatchState,
+        undoHistory: [BoxingHistoryEntry],
+        intentTimeline: [String]
+    ) {
+        self.schemaVersion = schemaVersion
+        self.state = state
+        self.undoHistory = undoHistory
+        self.intentTimeline = intentTimeline
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        state = try container.decode(BoxingMatchState.self, forKey: .state)
+        undoHistory = try container.decodeIfPresent([BoxingHistoryEntry].self, forKey: .undoHistory) ?? []
+        intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []
+    }
 }
 
 @Observable
@@ -26,8 +50,6 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     var currentRound: Int = 1
     var maxRounds: Int = 3
     private var fullStateHistory: [BoxingHistoryEntry] = []
-    private var sidesSwapped = false
-
     override init(controller: BaseScoreboardController? = nil) {
         super.init(controller: controller)
         leftTeam.sets = 0
@@ -128,8 +150,20 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     }
 
     func restoreSession(_ resumeState: BoxingResumeState) {
-        fullStateHistory = Array(resumeState.undoHistory.suffix(50))
-        apply(resumeState.state)
+        let requiresMigration = resumeState.schemaVersion < 2
+        let restoredState = requiresMigration
+            ? resumeState.state.normalizedFromLegacyPhysicalSideSwap()
+            : resumeState.state
+        let restoredHistory = requiresMigration
+            ? resumeState.undoHistory.map {
+                BoxingHistoryEntry(
+                    state: $0.state.normalizedFromLegacyPhysicalSideSwap(),
+                    restoresNames: $0.restoresNames
+                )
+            }
+            : resumeState.undoHistory
+        fullStateHistory = Array(restoredHistory.suffix(50))
+        apply(restoredState)
         controller?.clearHistory()
         for entry in fullStateHistory {
             controller?.pushHistory(
@@ -307,5 +341,16 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         maxRounds = state.maxRounds
         sidesSwapped = state.sidesSwapped
         gameFinished = state.finished
+    }
+}
+
+private extension BoxingMatchState {
+    func normalizedFromLegacyPhysicalSideSwap() -> Self {
+        guard sidesSwapped else { return self }
+        var next = self
+        swap(&next.leftName, &next.rightName)
+        swap(&next.leftTotal, &next.rightTotal)
+        swap(&next.leftRoundsWon, &next.rightRoundsWon)
+        return next
     }
 }

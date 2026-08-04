@@ -50,6 +50,10 @@ enum ScoreboardMenuActionPolicy {
     }
 }
 
+enum ScoreboardMenuActionID: String {
+    case exchangeSide
+}
+
 // MARK: - Default items (aligned with HarmonyOS groups)
 
 enum ScoreboardMenuItemBuilder {
@@ -84,7 +88,7 @@ enum ScoreboardMenuItemBuilder {
             items.append(
                 ScoreboardMenuItem(
                     title: NSLocalizedString("menu_swap_sides", comment: "Exchange sides"),
-                    action: "exchangeSide",
+                    action: ScoreboardMenuActionID.exchangeSide.rawValue,
                     group: .match,
                     icon: "arrow.left.arrow.right",
                     keepDialogOpen: true,

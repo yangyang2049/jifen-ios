@@ -29,8 +29,28 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "App failed to reach the foreground")
         return app
+    }
+
+    @discardableResult
+    private func launchAndWait(
+        _ app: XCUIApplication,
+        timeout: TimeInterval = 12
+    ) -> Bool {
+        if app.state != .notRunning {
+            app.terminate()
+            guard app.wait(for: .notRunning, timeout: 5) else { return false }
+        }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        app.launch()
+        return app.wait(for: .runningForeground, timeout: timeout)
+    }
+
+    private func terminateAndWait(_ app: XCUIApplication) {
+        guard app.state != .notRunning else { return }
+        app.terminate()
+        XCTAssertTrue(app.wait(for: .notRunning, timeout: 5), "App failed to terminate cleanly")
     }
 
     func testMainTabsAreVisibleAndNavigable() {
@@ -163,7 +183,7 @@ final class MainFlowUITests: XCTestCase {
             "-UITestDisableAnalytics",
             "-legal_documents_accepted_version", ""
         ]
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Legal-consent app failed to reach the foreground")
         defer { app.terminate() }
 
         XCTAssertTrue(app.staticTexts["使用前请先阅读并同意"].waitForExistence(timeout: 5))
@@ -418,7 +438,7 @@ final class MainFlowUITests: XCTestCase {
     func testTapVisibleComponentsAcrossAllTabs() {
         for tab in tabNames {
             let app = launchApp()
-            defer { app.terminate() }
+            defer { terminateAndWait(app) }
 
             XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
             XCTAssertTrue(selectTab(named: tab, in: app), "Failed to select tab: \(tab)")
@@ -437,7 +457,7 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Ping-pong app failed to reach the foreground")
         defer { app.terminate() }
 
         XCTAssertTrue(openPingPongSetup(in: app))
@@ -470,7 +490,7 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Scoreboard app failed to reach the foreground")
         defer { app.terminate() }
 
         XCTAssertTrue(openPingPongSetup(in: app))
@@ -490,7 +510,7 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipLegalConsent",
             "-UITestResetScoreboardUsageHints"
         ]
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Usage-hint app failed to reach the foreground")
         defer {
             XCUIDevice.shared.orientation = .portrait
             app.terminate()
@@ -618,7 +638,7 @@ final class MainFlowUITests: XCTestCase {
 
         app.terminate()
         app = launchLocalizedApp(language: "en", locale: "en_US", appearance: "dark")
-        let englishTimerTab = app.buttons["main_tab_3"].firstMatch
+        let englishTimerTab = tabButton(named: "Timer", in: app)
         XCTAssertTrue(englishTimerTab.waitForExistence(timeout: 8))
         englishTimerTab.tap()
         let englishCheckers = app.descendants(matching: .any)["timer_dest_checkers"]
@@ -802,7 +822,7 @@ final class MainFlowUITests: XCTestCase {
     func testAll23RecordDetailFixturesUseProjectMatrix() {
         defer { clearRecordFixtures() }
         let trendProjects: Set<String> = [
-            "pingpong", "badminton", "pickleball", "basketball", "three_basketball",
+            "pingpong", "badminton", "pickleball",
             "volleyball", "beach_volleyball", "air_volleyball", "archery_dual",
             "billiards", "nine_ball", "snooker", "foosball", "simple_score"
         ]
@@ -821,13 +841,24 @@ final class MainFlowUITests: XCTestCase {
                 "-UITestSkipScoreboardUsageHints",
                 "-UITestRecordFixtures", "-UITestRecordDetail", project
             ]
-            app.launch()
+            XCTAssertTrue(
+                launchAndWait(app),
+                "Record-detail app failed to reach the foreground for \(project)"
+            )
             XCTAssertTrue(app.buttons["再来一场"].waitForExistence(timeout: 5), "Missing replay for \(project)")
-            XCTAssertTrue(app.buttons["复盘"].exists || app.staticTexts["复盘"].exists, "Missing recap for \(project)")
+            if project == "multi_scoreboard" {
+                XCTAssertFalse(app.buttons["复盘"].exists || app.staticTexts["复盘"].exists)
+                XCTAssertFalse(app.buttons["明细"].exists || app.staticTexts["明细"].exists)
+                XCTAssertTrue(app.staticTexts["最终排名"].waitForExistence(timeout: 3))
+                XCTAssertTrue(app.staticTexts["multi_score_record_actions"].waitForExistence(timeout: 3))
+            } else {
+                XCTAssertTrue(app.buttons["复盘"].exists || app.staticTexts["复盘"].exists, "Missing recap for \(project)")
+                XCTAssertTrue(app.buttons["明细"].exists || app.staticTexts["明细"].exists, "Missing details for \(project)")
+            }
             XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "fixture")).firstMatch.exists, "Internal fixture text leaked for \(project)")
             let hasTrend = app.staticTexts["比分趋势"].exists
             XCTAssertEqual(hasTrend, trendProjects.contains(project), "Trend policy mismatch for \(project)")
-            app.terminate()
+            terminateAndWait(app)
         }
     }
 
@@ -838,8 +869,9 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipScoreboardUsageHints",
             "-UITestClearRecordFixtures"
         ]
-        cleanup.launch()
-        cleanup.terminate()
+        if launchAndWait(cleanup) {
+            terminateAndWait(cleanup)
+        }
     }
 
     private func launchChineseApp(arguments: [String] = []) -> XCUIApplication {
@@ -863,7 +895,7 @@ final class MainFlowUITests: XCTestCase {
             app.launchArguments += ["-jifen-v2.appAppearanceMode", appearance]
         }
         app.launchArguments += arguments
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Localized app failed to reach the foreground")
         XCUIDevice.shared.orientation = .portrait
         return app
     }
@@ -901,12 +933,9 @@ final class MainFlowUITests: XCTestCase {
     }
 
     private func dismissEnglishWatchGuideIfNeeded(in app: XCUIApplication) {
-        for label in ["Got It", "Got it"] {
-            let button = app.buttons[label]
-            if button.waitForExistence(timeout: 0.5), button.isHittable {
-                button.tap()
-                return
-            }
+        let closeButton = app.buttons["linked_score_watch_start_guide_close"]
+        if closeButton.waitForExistence(timeout: 0.8), closeButton.isHittable {
+            closeButton.tap()
         }
     }
 
@@ -958,7 +987,7 @@ final class MainFlowUITests: XCTestCase {
             "-UITestSkipScoreboardUsageHints",
             "-jifen-v2.appAppearanceMode", appearance
         ]
-        app.launch()
+        XCTAssertTrue(launchAndWait(app), "Play-all app failed to reach the foreground")
         defer { app.terminate() }
 
         XCTAssertTrue(openPingPongSetup(in: app))
@@ -1073,18 +1102,24 @@ final class MainFlowUITests: XCTestCase {
     }
 
     private func candidateElements(in app: XCUIApplication) -> [XCUIElement] {
-        // Exclude navigation/scoreboard Back controls in the query itself. During a
-        // transition XCTest can otherwise re-resolve one bound element by label and
-        // find both Back buttons before our Swift-side safety filter can run.
-        let nonBackButtons = app.buttons.matching(NSPredicate(
-            format: "NOT (label CONTAINS[c] %@ OR identifier CONTAINS[c] %@)",
-            "back",
-            "back"
-        )).allElementsBoundByIndex
+        // Apply the same safety exclusions in the XCUI query itself. If a transient
+        // sheet closes between enumeration and the Swift-side filter, re-resolving a
+        // now-missing indexed button records an XCTest snapshot failure before
+        // `isSafeToTap` can reject it.
+        let safePredicates = (destructiveKeywords + unstableKeywords).map { keyword in
+            NSPredicate(
+                format: "NOT (label CONTAINS[c] %@ OR identifier CONTAINS[c] %@)",
+                keyword,
+                keyword
+            )
+        }
+        let safeButtons = app.buttons.matching(
+            NSCompoundPredicate(andPredicateWithSubpredicates: safePredicates)
+        ).allElementsBoundByIndex
         // SwiftUI list rows and segmented options already surface their actionable
         // descendants as buttons. Adding cells here duplicates those controls and can
         // re-resolve a stale cell query as either of two nested Back buttons.
-        return nonBackButtons + app.switches.allElementsBoundByIndex
+        return safeButtons + app.switches.allElementsBoundByIndex
     }
 
     private func isSafeToTap(element: XCUIElement) -> Bool {

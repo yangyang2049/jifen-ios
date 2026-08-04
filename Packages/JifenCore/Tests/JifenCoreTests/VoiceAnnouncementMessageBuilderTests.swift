@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 import ScoreCore
 
@@ -71,6 +72,37 @@ import ScoreCore
         )
     }
 
+    @Test func badmintonCriticalPointsAndInterval() {
+        #expect(
+            racket(.badminton) {
+                $0.leftScore = 20
+                $0.rightScore = 18
+                $0.criticalPoint = .gamePoint
+            } == "20，局点，18"
+        )
+        #expect(
+            racket(.badminton, language: .enUS) {
+                $0.leftScore = 29
+                $0.rightScore = 28
+                $0.criticalPoint = .matchPoint
+            } == "29, match point, 28"
+        )
+        #expect(
+            racket(.badminton) {
+                $0.leftScore = 11
+                $0.rightScore = 8
+                $0.isInterval = true
+            } == "11比8，间歇"
+        )
+        #expect(
+            racket(.badminton, language: .enUS) {
+                $0.leftScore = 11
+                $0.rightScore = 8
+                $0.isInterval = true
+            } == "11-8, interval"
+        )
+    }
+
     @Test func badmintonSetAndMatchEnd() {
         #expect(
             racket(.badminton) {
@@ -80,7 +112,7 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "第一局，Alice胜，21比18"
+            } == "本局结束，第一局由Alice获胜，21比18"
         )
         #expect(
             racket(.badminton, language: .enUS) {
@@ -90,7 +122,7 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "First game won by Alice, 21-18"
+            } == "Game. First game won by Alice, 21-18"
         )
         #expect(
             racket(.badminton) {
@@ -102,7 +134,7 @@ import ScoreCore
                 $0.currentSet = 2
                 $0.winnerSide = .right
                 $0.winnerName = "Bob"
-            } == "第二局，Bob胜，21比19，局分1平"
+            } == "本局结束，第二局由Bob获胜，21比19，局分1平"
         )
         #expect(
             racket(.badminton) {
@@ -114,7 +146,7 @@ import ScoreCore
                     .init(leftGames: 19, rightGames: 21),
                     .init(leftGames: 21, rightGames: 15),
                 ]
-            } == "比赛结束，Alice胜，21比18、19比21、21比15"
+            } == "本局结束，比赛由Alice获胜，21比18、19比21、21比15"
         )
         #expect(
             racket(.badminton, language: .enUS) {
@@ -126,7 +158,7 @@ import ScoreCore
                     .init(leftGames: 19, rightGames: 21),
                     .init(leftGames: 21, rightGames: 15),
                 ]
-            } == "Match won by Alice, 21-18, 19-21, 21-15"
+            } == "Game. Match won by Alice, 21-18, 19-21, 21-15"
         )
         #expect(racket(.badminton) { $0.phase = .sideChange } == "交换场地")
         #expect(racket(.badminton, language: .enUS) { $0.phase = .sideChange } == "Change ends")
@@ -152,7 +184,7 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "第一局，Alice胜，11比5"
+            } == "11比5，本局由Alice获胜"
         )
         #expect(
             racket(.pingpong, language: .enUS) {
@@ -162,17 +194,21 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "Game 1 won by Alice, 11-5"
+            } == "11-5. Game to Alice"
         )
         #expect(
             racket(.pingpong) {
                 $0.phase = .matchEnd
+                $0.leftScore = 11
+                $0.rightScore = 7
+                $0.leftSets = 3
+                $0.rightSets = 1
                 $0.setScores = [
                     .init(leftGames: 11, rightGames: 5),
                     .init(leftGames: 9, rightGames: 11),
                     .init(leftGames: 11, rightGames: 7),
                 ]
-            } == "比赛结束，Alice胜，11比5、9比11、11比7"
+            } == "11比7，本局及比赛由Alice获胜；Alice以3比1获胜"
         )
     }
 
@@ -216,14 +252,14 @@ import ScoreCore
                 $0.phase = .gameEnd
                 $0.leftScore = 3
                 $0.rightScore = 2
-            } == "Alice胜本局，Alice 3比2领先"
+            } == "本局由Alice获胜，Alice在第一盘以3比2领先"
         )
         #expect(
             tennis(language: .enUS) {
                 $0.phase = .gameEnd
                 $0.leftScore = 3
                 $0.rightScore = 2
-            } == "Game Alice. Alice leads 3 games to 2"
+            } == "Game Alice. Alice leads 3 games to 2, first set"
         )
         #expect(
             tennis {
@@ -265,7 +301,7 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "Alice胜第一盘，6比4"
+            } == "Alice胜本局，并以6比4赢得第一盘"
         )
         #expect(
             tennis(language: .enUS) {
@@ -275,7 +311,7 @@ import ScoreCore
                 $0.leftSets = 1
                 $0.rightSets = 0
                 $0.currentSet = 1
-            } == "Game and first set Alice, 6-4"
+            } == "Game and first set Alice, 6 games to 4"
         )
         #expect(
             tennis {
@@ -284,12 +320,13 @@ import ScoreCore
                 $0.rightScore = 6
                 $0.leftSets = 2
                 $0.rightSets = 1
+                $0.currentSet = 3
                 $0.setScores = [
                     .init(leftGames: 6, rightGames: 4),
                     .init(leftGames: 3, rightGames: 6),
                     .init(leftGames: 7, rightGames: 6),
                 ]
-            } == "比赛结束，Alice胜，6比4、3比6、7比6"
+            } == "本局、决胜盘及比赛由Alice获胜，Alice以2盘比1盘获胜，6比4、3比6、7比6"
         )
         #expect(
             tennis(language: .enUS) {
@@ -298,12 +335,81 @@ import ScoreCore
                 $0.rightScore = 6
                 $0.leftSets = 2
                 $0.rightSets = 1
+                $0.currentSet = 3
                 $0.setScores = [
                     .init(leftGames: 6, rightGames: 4),
                     .init(leftGames: 3, rightGames: 6),
                     .init(leftGames: 7, rightGames: 6),
                 ]
-            } == "Game, set and match Alice, 6-4, 3-6, 7-6"
+            } == "Game, set and match Alice, 2 sets to 1, 6-4, 3-6, 7-6"
+        )
+    }
+
+    @Test func doublesWinnerUsesLocalizedPairNameAndTiedManualFinishHasNoWinner() {
+        var doubles = VoiceAnnouncementPayload(
+            gameType: .pingpongDoubles,
+            phase: .matchEnd,
+            leftTeamName: "Red",
+            rightTeamName: "Blue",
+            leftScore: 11,
+            rightScore: 7,
+            leftSets: 3,
+            rightSets: 1,
+            winnerSide: .left,
+            leftPlayerNames: ["Alice", "Carol"],
+            rightPlayerNames: ["Bob", "David"]
+        )
+        #expect(VoiceAnnouncementMessageBuilder.build(doubles, language: .zhCN).contains("Alice和Carol"))
+        #expect(VoiceAnnouncementMessageBuilder.build(doubles, language: .enUS).contains("Alice and Carol"))
+
+        doubles.phase = .matchEnd
+        doubles.winnerSide = nil
+        doubles.winnerName = nil
+        doubles.leftSets = 1
+        doubles.rightSets = 1
+        #expect(VoiceAnnouncementMessageBuilder.build(doubles, language: .zhCN) == "比赛结束")
+        #expect(VoiceAnnouncementMessageBuilder.build(doubles, language: .enUS) == "Match over")
+    }
+
+    @Test func languageResolutionUsesChineseOnlyForChineseLocales() {
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hans-CN")) == .zhCN)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hant-TW")) == .zhCN)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "en-GB")) == .enUS)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "ja-JP")) == .enUS)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "fr-FR")) == .enUS)
+    }
+
+    @Test func onlyOrdinarySingleScoresAreDebounced() {
+        let ordinary = VoiceAnnouncementPayload(
+            gameType: .badminton,
+            phase: .scoreChange,
+            leftTeamName: "Alice",
+            rightTeamName: "Bob",
+            leftScore: 5,
+            rightScore: 3
+        )
+        #expect(VoiceAnnouncementBatchPolicy.shouldDebounce([ordinary]))
+
+        var keyPoint = ordinary
+        keyPoint.criticalPoint = .gamePoint
+        #expect(!VoiceAnnouncementBatchPolicy.shouldDebounce([keyPoint]))
+
+        var interval = ordinary
+        interval.isInterval = true
+        interval.leftScore = 11
+        interval.rightScore = 8
+        let changeEnds = VoiceAnnouncementPayload(
+            gameType: .badminton,
+            phase: .sideChange,
+            leftTeamName: "Alice",
+            rightTeamName: "Bob",
+            leftScore: 11,
+            rightScore: 8
+        )
+        #expect(!VoiceAnnouncementBatchPolicy.shouldDebounce([interval, changeEnds]))
+        #expect(
+            [interval, changeEnds].map { VoiceAnnouncementMessageBuilder.build($0, language: .enUS) }
+                == ["11-8, interval", "Change ends"]
         )
     }
 }

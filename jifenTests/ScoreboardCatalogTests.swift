@@ -1,4 +1,5 @@
 import XCTest
+import RecordCore
 import ScoreCore
 import UIKit
 @testable import jifen
@@ -587,7 +588,19 @@ final class ScoreboardCatalogTests: XCTestCase {
         let archeryResume = ArcheryResumeState(
             state: archeryState,
             undoHistory: [archeryState],
-            intentTimeline: ["archery-action"]
+            intentTimeline: ["archery-action"],
+            detailedActions: [
+                DetailedScoreAction(
+                    type: .scoreChanged,
+                    epochMilliseconds: 123,
+                    team: .team1,
+                    scores: [19, 18],
+                    setScores: [2, 0],
+                    setNumber: 2,
+                    scoreChange: 10,
+                    operationCode: "archery_arrow"
+                )
+            ]
         )
         XCTAssertEqual(
             try JSONDecoder().decode(
@@ -596,6 +609,105 @@ final class ScoreboardCatalogTests: XCTestCase {
             ),
             archeryResume
         )
+    }
+
+    func testLegacyPhysicallySwappedResumeStatesMigrateToStableTeamIdentity() throws {
+        func removingSchemaVersion<T: Encodable>(_ value: T) throws -> Data {
+            var object = try XCTUnwrap(
+                JSONSerialization.jsonObject(with: JSONEncoder().encode(value)) as? [String: Any]
+            )
+            object.removeValue(forKey: "schemaVersion")
+            return try JSONSerialization.data(withJSONObject: object)
+        }
+
+        let legacyLineState = LineScoreState(
+            leftName: "客队",
+            rightName: "主队",
+            leftScore: 1,
+            rightScore: 3,
+            sidesSwapped: true
+        )
+        let lineResume = try JSONDecoder().decode(
+            LineScoreResumeState.self,
+            from: removingSchemaVersion(LineScoreResumeState(
+                state: legacyLineState,
+                undoHistory: [.init(state: legacyLineState, restoresNames: true)],
+                intentTimeline: ["exchange"]
+            ))
+        )
+        XCTAssertEqual(lineResume.schemaVersion, 1)
+        let lineViewModel = LineScoreViewModel(
+            controller: SimpleScoreboardController(),
+            rules: .nonNegative
+        )
+        lineViewModel.restoreSession(lineResume)
+        XCTAssertEqual(lineViewModel.leftTeam.name, "主队")
+        XCTAssertEqual(lineViewModel.rightTeam.name, "客队")
+        XCTAssertEqual(lineViewModel.leftTeam.score, 3)
+        XCTAssertEqual(lineViewModel.rightTeam.score, 1)
+        XCTAssertTrue(lineViewModel.sidesSwapped)
+
+        let legacyBoxingState = BoxingMatchState(
+            leftName: "蓝拳手",
+            rightName: "红拳手",
+            maxRounds: 5,
+            leftTotal: 18,
+            rightTotal: 20,
+            leftRoundsWon: 1,
+            rightRoundsWon: 2,
+            currentRound: 3,
+            sidesSwapped: true
+        )
+        let boxingResume = try JSONDecoder().decode(
+            BoxingResumeState.self,
+            from: removingSchemaVersion(BoxingResumeState(
+                state: legacyBoxingState,
+                undoHistory: [.init(state: legacyBoxingState, restoresNames: true)],
+                intentTimeline: ["exchange"]
+            ))
+        )
+        XCTAssertEqual(boxingResume.schemaVersion, 1)
+        let boxingViewModel = BoxingViewModel(controller: BoxingScoreboardController())
+        boxingViewModel.restoreSession(boxingResume)
+        XCTAssertEqual(boxingViewModel.leftTeam.name, "红拳手")
+        XCTAssertEqual(boxingViewModel.rightTeam.name, "蓝拳手")
+        XCTAssertEqual(boxingViewModel.leftTeam.score, 20)
+        XCTAssertEqual(boxingViewModel.rightTeam.score, 18)
+        XCTAssertEqual(boxingViewModel.leftTeam.sets, 2)
+        XCTAssertEqual(boxingViewModel.rightTeam.sets, 1)
+        XCTAssertTrue(boxingViewModel.sidesSwapped)
+
+        let legacyArcheryState = ArcheryMatchState(
+            leftName: "蓝射手",
+            rightName: "红射手",
+            leftArrowSum: 18,
+            rightArrowSum: 19,
+            leftSetPoints: 0,
+            rightSetPoints: 2,
+            currentShooterIsLeft: false,
+            openingShooterIsLeft: false,
+            sidesSwapped: true
+        )
+        let archeryResume = try JSONDecoder().decode(
+            ArcheryResumeState.self,
+            from: removingSchemaVersion(ArcheryResumeState(
+                state: legacyArcheryState,
+                undoHistory: [legacyArcheryState],
+                intentTimeline: ["exchange"]
+            ))
+        )
+        XCTAssertEqual(archeryResume.schemaVersion, 1)
+        let archeryViewModel = ArcheryViewModel()
+        archeryViewModel.restoreSession(archeryResume)
+        XCTAssertEqual(archeryViewModel.match.leftName, "红射手")
+        XCTAssertEqual(archeryViewModel.match.rightName, "蓝射手")
+        XCTAssertEqual(archeryViewModel.match.leftArrowSum, 19)
+        XCTAssertEqual(archeryViewModel.match.rightArrowSum, 18)
+        XCTAssertEqual(archeryViewModel.match.leftSetPoints, 2)
+        XCTAssertEqual(archeryViewModel.match.rightSetPoints, 0)
+        XCTAssertTrue(archeryViewModel.match.currentShooterIsLeft)
+        XCTAssertTrue(archeryViewModel.match.openingShooterIsLeft)
+        XCTAssertTrue(archeryViewModel.match.sidesSwapped)
     }
 
     func testBoxingRestoredSessionKeepsUndoAndNewMatchClearsIt() {
@@ -746,6 +858,7 @@ final class ScoreboardCatalogTests: XCTestCase {
             maxSets: 5,
             matchCompletionMode: .playAll,
             pointsPerSet: 7,
+            servingSide: "right",
             winByTwo: true,
             scoreCap: 10
         )
@@ -756,6 +869,9 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(rules.finalSetWinByTwo, true)
         XCTAssertEqual(rules.finalSetPointCap, 10)
         XCTAssertEqual(rules.pointCap, nil)
+        XCTAssertEqual(rules.servingModel, .concedingSideServes)
+        XCTAssertEqual(FoosballScoreboardView.openingServer(for: setup), .right)
+        XCTAssertEqual(FoosballScoreboardView.openingServer(for: nil), .left)
     }
 
     func testFoosballSetupRejectsScoreCapBelowTarget() {
@@ -815,7 +931,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(restored.nineBallFoul, 3)
     }
 
-    func testTypedBilliardsSetupProjectionNormalizesEverySpecializedRule() throws {
+    func testTypedBilliardsSetupProjectionNormalizesEveryRule() throws {
         let eight = SportsSetupResult(
             team1Name: "A",
             team2Name: "B",
@@ -921,9 +1037,13 @@ final class ScoreboardCatalogTests: XCTestCase {
         viewModel.addScore(isLeft: false, points: 1)
 
         viewModel.exchangeSides()
-        XCTAssertEqual(viewModel.leftTeam.name, "客队")
-        XCTAssertEqual(viewModel.leftTeam.score, 1)
+        XCTAssertTrue(viewModel.sidesSwapped)
+        XCTAssertEqual(viewModel.leftTeam.name, "主队")
+        XCTAssertEqual(viewModel.leftTeam.score, 2)
+        XCTAssertEqual(viewModel.rightTeam.name, "客队")
+        XCTAssertEqual(viewModel.rightTeam.score, 1)
         XCTAssertTrue(viewModel.undo())
+        XCTAssertFalse(viewModel.sidesSwapped)
         XCTAssertEqual(viewModel.leftTeam.name, "主队")
         XCTAssertEqual(viewModel.leftTeam.score, 2)
 
@@ -963,8 +1083,11 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(viewModel.rightTeam.score, 10)
 
         viewModel.exchangeSides()
-        XCTAssertEqual(viewModel.leftTeam.name, "蓝方")
+        XCTAssertTrue(viewModel.sidesSwapped)
+        XCTAssertEqual(viewModel.leftTeam.name, "红方")
+        XCTAssertEqual(viewModel.rightTeam.name, "蓝方")
         XCTAssertTrue(viewModel.undo())
+        XCTAssertFalse(viewModel.sidesSwapped)
         XCTAssertEqual(viewModel.leftTeam.name, "红方")
         XCTAssertEqual(viewModel.rightTeam.name, "蓝方")
     }
@@ -1006,8 +1129,8 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(emptyNames.rightTeam.name, expectedBlue)
 
         let legacyNames = BaseScoreViewModel()
-        legacyNames.leftTeam.name = NSLocalizedString("red_team", comment: "")
-        legacyNames.rightTeam.name = NSLocalizedString("blue_team", comment: "")
+        legacyNames.leftTeam.name = "Red Team"
+        legacyNames.rightTeam.name = "Blue Team"
         legacyNames.applyStandardTeamNamesIfNeeded()
         XCTAssertEqual(legacyNames.leftTeam.name, expectedRed)
         XCTAssertEqual(legacyNames.rightTeam.name, expectedBlue)
@@ -1018,6 +1141,13 @@ final class ScoreboardCatalogTests: XCTestCase {
         customNames.applyStandardTeamNamesIfNeeded()
         XCTAssertEqual(customNames.leftTeam.name, "主队")
         XCTAssertEqual(customNames.rightTeam.name, "客队")
+
+        let colorNamedPlayers = BaseScoreViewModel()
+        colorNamedPlayers.leftTeam.name = "Red"
+        colorNamedPlayers.rightTeam.name = "Blue"
+        colorNamedPlayers.applyDefaultParticipantNamesIfNeeded(for: .billiards)
+        XCTAssertEqual(colorNamedPlayers.leftTeam.name, "Red")
+        XCTAssertEqual(colorNamedPlayers.rightTeam.name, "Blue")
     }
 
     func testMultiScorePlayerScoreAndWinnerBoundaries() {
@@ -1030,5 +1160,180 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertNil(MultiScoreRules.uniqueLeaderIndex(scores: [8, 8, 3]))
         XCTAssertEqual(MultiScoreRules.uniqueLeaderIndex(scores: [8, 6, 3]), 0)
         XCTAssertEqual(MultiScoreRules.targetWinnerIndex(scores: [499, 500, 700], target: 500), 1)
+    }
+
+    func testUnoTargetScorePolicyKeepsPresetsAndCustomValues() {
+        XCTAssertEqual(UnoTargetScorePolicy.presets, [500, 700, 1000])
+        XCTAssertEqual(UnoTargetScorePolicy.allowedRange, 1...9999)
+
+        let preset = UnoTargetScorePolicy.initialSelection(for: 700)
+        XCTAssertEqual(preset.targetScore, 700)
+        XCTAssertEqual(preset.customText, "")
+
+        let custom = UnoTargetScorePolicy.initialSelection(for: 850)
+        XCTAssertEqual(custom.targetScore, 850)
+        XCTAssertEqual(custom.customText, "850")
+
+        let invalid = UnoTargetScorePolicy.initialSelection(for: 0)
+        XCTAssertEqual(invalid.targetScore, 500)
+        XCTAssertEqual(invalid.customText, "")
+
+        XCTAssertEqual(UnoTargetScorePolicy.sanitizedInput("8a50分"), "850")
+        XCTAssertEqual(UnoTargetScorePolicy.sanitizedInput("123456"), "1234")
+        XCTAssertEqual(UnoTargetScorePolicy.customValue(from: "850"), 850)
+        XCTAssertNil(UnoTargetScorePolicy.customValue(from: ""))
+        XCTAssertNil(UnoTargetScorePolicy.customValue(from: "0"))
+        XCTAssertNil(UnoTargetScorePolicy.customValue(from: "10000"))
+    }
+
+    func testOfficialTeamAndSideDefaultParticipantNames() {
+        assertDefaultParticipantPair(.basketball, "team_a", "team_b")
+        assertDefaultParticipantPair(.threeBasketball, "team_a", "team_b")
+        assertDefaultParticipantPair(.volleyball, "team_a", "team_b")
+        assertDefaultParticipantPair(.beachVolleyball, "team_a", "team_b")
+        assertDefaultParticipantPair(.airVolleyball, "team_a", "team_b")
+        assertDefaultParticipantPair(.football, "team_home", "team_away")
+        assertDefaultParticipantPair(.boxing, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.guandan, "team_a", "team_b")
+        assertDefaultParticipantPair(.shengji, "team_a", "team_b")
+        assertDefaultParticipantPair(.simpleScore, "watch_team_red", "watch_team_blue")
+    }
+
+    func testIndividualDefaultParticipantNamesDoNotUseTeamLabels() {
+        assertDefaultParticipantPair(.archery, "archer_a", "archer_b")
+        for gameType in [
+            jifen.GameType.pingpong, .badminton, .tennis, .pickleball, .foosball,
+            .billiards, .eightBall, .snooker
+        ] {
+            assertDefaultParticipantPair(gameType, "player_a", "player_b")
+        }
+    }
+
+    func testDoublesDefaultParticipantNamesUseRedAndBlueMembers() {
+        let expectedMembers = [
+            NSLocalizedString("doubles_red_a", comment: ""),
+            NSLocalizedString("doubles_red_b", comment: ""),
+            NSLocalizedString("doubles_blue_a", comment: ""),
+            NSLocalizedString("doubles_blue_b", comment: "")
+        ]
+        XCTAssertEqual(DefaultParticipantNames.doublesMembers, expectedMembers)
+
+        for gameType in [jifen.GameType.pingpong, .badminton, .tennis, .pickleball] {
+            let pair = DefaultParticipantNames.resolve(for: gameType, isSingles: false)
+            XCTAssertEqual(pair.left, "\(expectedMembers[0]) / \(expectedMembers[1])")
+            XCTAssertEqual(pair.right, "\(expectedMembers[2]) / \(expectedMembers[3])")
+            XCTAssertEqual(pair.members, expectedMembers)
+        }
+
+        let foosball = DefaultParticipantNames.resolve(for: .foosball, isSingles: false)
+        XCTAssertEqual(foosball.left, "\(expectedMembers[0])/\(expectedMembers[1])")
+        XCTAssertEqual(foosball.right, "\(expectedMembers[2])/\(expectedMembers[3])")
+        XCTAssertEqual(foosball.members, expectedMembers)
+    }
+
+    func testDoublesModeRoundTripPreservesCustomSecondMembers() {
+        let preserved = DefaultParticipantNames.doublesMembersAfterModeSwitch(
+            currentSideName: "Alice",
+            existingFirst: "Alice",
+            existingSecond: "Bob",
+            singlesDefaultName: "Player A",
+            configuredDefaultName: "Player A",
+            defaultFirst: "Red A",
+            defaultSecond: "Red B"
+        )
+        XCTAssertEqual(preserved, ParticipantMemberPair(first: "Alice", second: "Bob"))
+
+        let reopenedDoublesSetup = DefaultParticipantNames.doublesMembersAfterModeSwitch(
+            currentSideName: "Alice / Bob",
+            existingFirst: "Alice",
+            existingSecond: "Bob",
+            singlesDefaultName: "Player A",
+            configuredDefaultName: "Player A",
+            defaultFirst: "Red A",
+            defaultSecond: "Red B"
+        )
+        XCTAssertEqual(reopenedDoublesSetup, ParticipantMemberPair(first: "Alice", second: "Bob"))
+
+        let renamedFirst = DefaultParticipantNames.doublesMembersAfterModeSwitch(
+            currentSideName: "Alicia",
+            existingFirst: "Alice",
+            existingSecond: "Bob",
+            singlesDefaultName: "Player A",
+            configuredDefaultName: "Player A",
+            defaultFirst: "Red A",
+            defaultSecond: "Red B"
+        )
+        XCTAssertEqual(renamedFirst, ParticipantMemberPair(first: "Alicia", second: "Bob"))
+
+        let systemDefaults = DefaultParticipantNames.doublesMembersAfterModeSwitch(
+            currentSideName: "Player A",
+            existingFirst: "Red A",
+            existingSecond: "Red B",
+            singlesDefaultName: "Player A",
+            configuredDefaultName: "Player A",
+            defaultFirst: "Red A",
+            defaultSecond: "Red B"
+        )
+        XCTAssertEqual(systemDefaults, ParticipantMemberPair(first: "Red A", second: "Red B"))
+
+        let firstDoublesSwitch = DefaultParticipantNames.doublesMembersAfterModeSwitch(
+            currentSideName: "Alice",
+            existingFirst: "Alice",
+            existingSecond: "",
+            singlesDefaultName: "Player A",
+            configuredDefaultName: "Player A",
+            defaultFirst: "Red A",
+            defaultSecond: "Red B"
+        )
+        XCTAssertEqual(firstDoublesSwitch, ParticipantMemberPair(first: "Alice", second: "Red B"))
+    }
+
+    func testBoardAndNumberedProjectsKeepExistingDefaultConventions() {
+        assertDefaultParticipantPair(.nineBall, "player1_name", "player2_name")
+        assertDefaultParticipantPair(.doudizhu, "player1_name", "player2_name")
+        assertDefaultParticipantPair(.uno, "player1_name", "player2_name")
+        assertDefaultParticipantPair(.multiScoreboard, "player1_name", "player2_name")
+        assertDefaultParticipantPair(.go, "timer_black_player", "timer_white_player")
+        assertDefaultParticipantPair(.xiangqi, "timer_red_player", "timer_black_player")
+        assertDefaultParticipantPair(.chess, "timer_white_player", "timer_black_player")
+        assertDefaultParticipantPair(.checkers, "timer_red_player", "timer_black_player")
+        assertDefaultParticipantPair(.counter, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.stopwatch, "watch_team_red", "watch_team_blue")
+    }
+
+    func testEveryGameTypeResolvesToNonEmptyDefaultParticipantNames() {
+        for gameType in jifen.GameType.allCases {
+            let pair = DefaultParticipantNames.resolve(for: gameType)
+            XCTAssertFalse(pair.left.isEmpty, "\(gameType) left default is empty")
+            XCTAssertFalse(pair.right.isEmpty, "\(gameType) right default is empty")
+        }
+    }
+
+    func testNewDefaultParticipantNamesAreNotSavedAsCommonNames() async {
+        let suite = "DefaultParticipantNamesTests.\(UUID().uuidString)"
+        let defaults = try! XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let manager = CommonNamesManager(userDefaults: defaults)
+
+        for name in [
+            "Team A", "Team B", "Player A", "Player B", "Archer A", "Archer B",
+            "Red A", "Red B", "Blue A", "Blue B", "A队", "B队", "射手A", "射手B"
+        ] {
+            await manager.saveNameIfNeeded(name, .player)
+        }
+
+        XCTAssertEqual(manager.getNames(type: .player), [])
+    }
+
+    private func assertDefaultParticipantPair(
+        _ gameType: jifen.GameType,
+        _ leftKey: String,
+        _ rightKey: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let pair = DefaultParticipantNames.resolve(for: gameType)
+        XCTAssertEqual(pair.left, NSLocalizedString(leftKey, comment: ""), file: file, line: line)
+        XCTAssertEqual(pair.right, NSLocalizedString(rightKey, comment: ""), file: file, line: line)
     }
 }

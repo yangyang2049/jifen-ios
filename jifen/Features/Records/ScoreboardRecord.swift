@@ -15,10 +15,104 @@ enum ScoreboardRecordStatus: String, Codable {
     case finished
 }
 
+/// Stable winner identity for record schema v5.
+///
+/// `winner` remains in the payload as a legacy compatibility token. New code
+/// must read this typed identity (or `resolvedWinnerIdentity`) so participant
+/// names, localized labels, and screen placement never become identifiers.
+enum ScoreboardWinnerIdentity: Codable, Equatable {
+    case team(TeamID)
+    case participant(index: Int)
+
+    private enum Kind: String, Codable {
+        case team
+        case participant
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case kind
+        case teamID
+        case participantIndex
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        switch try container.decode(Kind.self, forKey: .kind) {
+        case .team:
+            self = .team(try container.decode(TeamID.self, forKey: .teamID))
+        case .participant:
+            let index = try container.decode(Int.self, forKey: .participantIndex)
+            guard index >= 0 else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .participantIndex,
+                    in: container,
+                    debugDescription: "Winner participant index must be non-negative"
+                )
+            }
+            self = .participant(index: index)
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .team(let teamID):
+            try container.encode(Kind.team, forKey: .kind)
+            try container.encode(teamID, forKey: .teamID)
+        case .participant(let index):
+            try container.encode(Kind.participant, forKey: .kind)
+            try container.encode(index, forKey: .participantIndex)
+        }
+    }
+
+    var teamID: TeamID? {
+        guard case .team(let teamID) = self else { return nil }
+        return teamID
+    }
+
+    /// Canonical compatibility token written beside the typed schema-v5 value.
+    /// Older clients can keep reading `winner` without depending on a localized
+    /// participant name or the current screen placement.
+    var legacyToken: String {
+        switch self {
+        case .team(let teamID): return teamID.rawValue
+        case .participant(let index): return "player_\(index)"
+        }
+    }
+
+    static func fromStableLegacyToken(_ token: String?) -> ScoreboardWinnerIdentity? {
+        guard let raw = token?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+              !raw.isEmpty else {
+            return nil
+        }
+        if let teamID = TeamID.fromLegacyWinnerToken(raw) {
+            return .team(teamID)
+        }
+        guard raw.hasPrefix("player_"),
+              let index = Int(raw.dropFirst("player_".count)),
+              index >= 0 else {
+            return nil
+        }
+        return .participant(index: index)
+    }
+
+    var recordTeam: RecordTeam? {
+        switch self {
+        case .team(.team0), .participant(index: 0): return .team1
+        case .team(.team1), .participant(index: 1): return .team2
+        case .participant(index: 2): return .team3
+        case .participant(index: 3): return .team4
+        case .participant: return nil
+        }
+    }
+}
+
 // MARK: - Scoreboard Record
 
 struct ScoreboardRecord: Codable, Identifiable {
-    var schemaVersion: Int = 4
+    static let currentSchemaVersion = 5
+
+    var schemaVersion: Int = Self.currentSchemaVersion
     let id: String
     let gameType: GameType
     let startTime: Date
@@ -30,10 +124,17 @@ struct ScoreboardRecord: Codable, Identifiable {
     var team2FinalScore: Int
     var team1SetScore: Int?
     var team2SetScore: Int?
-    var winner: String? // Canonical: team_0 / team_1. Legacy left/right/red/blue still decoded.
+    /// Legacy compatibility token. Schema v5 uses `winnerIdentity` as the
+    /// authoritative value; old names and left/right/red/blue tokens remain
+    /// readable through `resolvedWinnerIdentity`.
+    var winner: String?
+    var winnerIdentity: ScoreboardWinnerIdentity?
     var winnerTeamID: TeamID? {
-        get { TeamID.fromLegacyWinnerToken(winner) }
-        set { winner = newValue?.rawValue }
+        get { resolvedWinnerIdentity?.teamID }
+        set {
+            winnerIdentity = newValue.map(ScoreboardWinnerIdentity.team)
+            winner = winnerIdentity?.legacyToken
+        }
     }
     var actions: [String] // Simplified action strings
     /// Schema v4 actions. `actions` is retained for old clients and recovery.
@@ -60,6 +161,7 @@ struct ScoreboardRecord: Codable, Identifiable {
         case team1SetScore
         case team2SetScore
         case winner
+        case winnerIdentity
         case actions
         case detailedActions
         case setResults
@@ -84,6 +186,7 @@ struct ScoreboardRecord: Codable, Identifiable {
         team1SetScore: Int? = nil,
         team2SetScore: Int? = nil,
         winner: String? = nil,
+        winnerIdentity: ScoreboardWinnerIdentity? = nil,
         actions: [String] = [],
         detailedActions: [DetailedScoreAction]? = nil,
         setResults: [RecordSetResult]? = nil,
@@ -94,7 +197,7 @@ struct ScoreboardRecord: Codable, Identifiable {
         syncMetadata: [String: String]? = nil,
         status: ScoreboardRecordStatus = .finished
     ) {
-        self.schemaVersion = 4
+        self.schemaVersion = Self.currentSchemaVersion
         self.id = id
         self.gameType = gameType
         self.startTime = startTime
@@ -106,7 +209,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         self.team2FinalScore = team2FinalScore
         self.team1SetScore = team1SetScore
         self.team2SetScore = team2SetScore
-        self.winner = winner
+        self.winnerIdentity = winnerIdentity
+        self.winner = winner ?? winnerIdentity?.legacyToken
         self.actions = actions
         self.detailedActions = detailedActions
         self.setResults = setResults
@@ -132,7 +236,10 @@ struct ScoreboardRecord: Codable, Identifiable {
         team2FinalScore = try container.decode(Int.self, forKey: .team2FinalScore)
         team1SetScore = try container.decodeIfPresent(Int.self, forKey: .team1SetScore)
         team2SetScore = try container.decodeIfPresent(Int.self, forKey: .team2SetScore)
-        winner = try container.decodeIfPresent(String.self, forKey: .winner)
+        let decodedWinner = try container.decodeIfPresent(String.self, forKey: .winner)
+        let decodedWinnerIdentity = try container.decodeIfPresent(ScoreboardWinnerIdentity.self, forKey: .winnerIdentity)
+        winnerIdentity = decodedWinnerIdentity
+        winner = decodedWinner ?? decodedWinnerIdentity?.legacyToken
         actions = try container.decodeIfPresent([String].self, forKey: .actions) ?? []
         detailedActions = try container.decodeIfPresent([DetailedScoreAction].self, forKey: .detailedActions)
         setResults = try container.decodeIfPresent([RecordSetResult].self, forKey: .setResults)
@@ -164,6 +271,7 @@ struct ManualScoreboardResumeState: Codable {
     var team1SetScore: Int?
     var team2SetScore: Int?
     var winner: String?
+    var winnerIdentity: ScoreboardWinnerIdentity?
     var actions: [String]
     var detailedActions: [DetailedScoreAction]?
     var setResults: [RecordSetResult]?
@@ -188,6 +296,7 @@ struct ManualScoreboardResumeState: Codable {
         team1SetScore = record.team1SetScore
         team2SetScore = record.team2SetScore
         winner = record.winner
+        winnerIdentity = record.winnerIdentity
         actions = record.actions
         detailedActions = record.detailedActions
         setResults = record.setResults
@@ -214,6 +323,7 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
     var team1SetScore: Int?
     var team2SetScore: Int?
     var winner: String?
+    var winnerIdentity: ScoreboardWinnerIdentity?
     var extraData: [String: AnyCodable]?
     var projectConfiguration: [String: AnyCodable]?
     /// Exact ScoreCore type for mode-aware labels and filters. App `GameType`
@@ -248,6 +358,7 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
         self.team1SetScore = record.team1SetScore
         self.team2SetScore = record.team2SetScore
         self.winner = record.winner
+        self.winnerIdentity = record.winnerIdentity
         self.extraData = record.extraData
         self.projectConfiguration = record.projectConfiguration
         self.scoreCoreGameTypeRawValue = record.resolvedScoreCoreGameType?.rawValue
@@ -286,6 +397,97 @@ extension ScoreboardRecord {
 
     var displayParticipants: [ScoreboardRecordParticipant] {
         scoreboardRecordParticipants(gameType: gameType, from: extraData)
+    }
+
+    /// Schema-v5 winner first, followed by lossless project state and finally
+    /// legacy tokens/names. Ambiguous names intentionally resolve to nil.
+    var resolvedWinnerIdentity: ScoreboardWinnerIdentity? {
+        if let winnerIdentity { return winnerIdentity }
+
+        switch gameType {
+        case .guandan:
+            let state = stateSnapshot.flatMap { data in
+                (try? JSONDecoder().decode(GuandanResumeState.self, from: data))?.state
+                    ?? ReducerScoreboardRecordPersistence.decodeSnapshot(data, as: GuandanMatchState.self)?.state
+            }
+            if let state,
+               let winner = state.finalWinner {
+                return .team(winner == .red ? .team0 : .team1)
+            }
+        case .shengji:
+            if let stateSnapshot,
+               let state = ReducerScoreboardRecordPersistence.decodeSnapshot(
+                   stateSnapshot,
+                   as: ShengjiTierState.self
+               )?.state,
+               let winner = state.winnerSide {
+                return .team(winner == .left ? .team0 : .team1)
+            }
+        case .doudizhu:
+            break
+        default:
+            break
+        }
+
+        if let stableIdentity = ScoreboardWinnerIdentity.fromStableLegacyToken(winner) {
+            return stableIdentity
+        }
+
+        let participants = winnerResolutionParticipants
+        if !participants.isEmpty {
+            if let index = uniqueLeaderIndex(participants.map(\.score)) {
+                return .participant(index: index)
+            }
+            if let rawWinner = normalizedLegacyWinner,
+               let index = uniqueIndex(in: participants.map(\.name), matching: rawWinner) {
+                return .participant(index: index)
+            }
+            return nil
+        }
+
+        guard let rawWinner = normalizedLegacyWinner else { return nil }
+        if rawWinner == team1Name, rawWinner != team2Name { return .team(.team0) }
+        if rawWinner == team2Name, rawWinner != team1Name { return .team(.team1) }
+        return nil
+    }
+
+    var resolvedWinnerName: String? {
+        switch resolvedWinnerIdentity {
+        case .team(.team0): return team1Name
+        case .team(.team1): return team2Name
+        case .participant(let index):
+            let participants = winnerResolutionParticipants
+            return participants.indices.contains(index) ? participants[index].name : nil
+        case nil:
+            return nil
+        }
+    }
+
+    var resolvedWinnerRecordTeam: RecordTeam? {
+        resolvedWinnerIdentity?.recordTeam
+    }
+
+    private var normalizedLegacyWinner: String? {
+        guard let value = winner?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else {
+            return nil
+        }
+        return value
+    }
+
+    private var winnerResolutionParticipants: [ScoreboardRecordParticipant] {
+        let participants = displayParticipants
+        guard participants.isEmpty,
+              gameType == .doudizhu,
+              let stateSnapshot,
+              let state = try? JSONDecoder().decode(DoudizhuResumeState.self, from: stateSnapshot) else {
+            return participants
+        }
+        return state.names.indices.map { index in
+            ScoreboardRecordParticipant(
+                name: state.names[index],
+                score: state.scores.indices.contains(index) ? state.scores[index] : 0
+            )
+        }
     }
 
     var mergedProjectConfiguration: [String: AnyCodable] {
@@ -369,6 +571,43 @@ extension ScoreboardRecordSummary {
 
     var displayParticipants: [ScoreboardRecordParticipant] {
         scoreboardRecordParticipants(gameType: gameType, from: extraData)
+    }
+
+    var resolvedWinnerIdentity: ScoreboardWinnerIdentity? {
+        if let winnerIdentity { return winnerIdentity }
+        let rawWinner = winner?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let stableIdentity = ScoreboardWinnerIdentity.fromStableLegacyToken(rawWinner) {
+            return stableIdentity
+        }
+
+        let participants = displayParticipants
+        if !participants.isEmpty {
+            if let index = uniqueLeaderIndex(participants.map(\.score)) {
+                return .participant(index: index)
+            }
+            if let rawWinner, !rawWinner.isEmpty,
+               let index = uniqueIndex(in: participants.map(\.name), matching: rawWinner) {
+                return .participant(index: index)
+            }
+            return nil
+        }
+
+        guard let rawWinner, !rawWinner.isEmpty else { return nil }
+        if rawWinner == team1Name, rawWinner != team2Name { return .team(.team0) }
+        if rawWinner == team2Name, rawWinner != team1Name { return .team(.team1) }
+        return nil
+    }
+
+    var resolvedWinnerName: String? {
+        switch resolvedWinnerIdentity {
+        case .team(.team0): return team1Name
+        case .team(.team1): return team2Name
+        case .participant(let index):
+            let participants = displayParticipants
+            return participants.indices.contains(index) ? participants[index].name : nil
+        case nil:
+            return nil
+        }
     }
 
     var mergedProjectConfiguration: [String: AnyCodable] {
@@ -640,6 +879,17 @@ private func scoreboardBool(_ value: AnyCodable?) -> Bool? {
     if let int = value?.value as? Int { return int != 0 }
     if let string = value?.value as? String { return (string as NSString).boolValue }
     return nil
+}
+
+private func uniqueIndex(in values: [String], matching target: String) -> Int? {
+    let matches = values.indices.filter { values[$0] == target }
+    return matches.count == 1 ? matches[0] : nil
+}
+
+private func uniqueLeaderIndex(_ scores: [Int]) -> Int? {
+    guard let best = scores.max() else { return nil }
+    let leaders = scores.indices.filter { scores[$0] == best }
+    return leaders.count == 1 ? leaders[0] : nil
 }
 
 private func scoreboardInt(_ value: AnyCodable?) -> Int? {

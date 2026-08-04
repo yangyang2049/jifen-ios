@@ -17,16 +17,30 @@ struct RecordGroup: Identifiable {
 class TimerRecordsViewModel: ObservableObject {
     static let shared = TimerRecordsViewModel()
 
+    typealias RecordsLoader = () -> [GameRecordSummary]
+
     @Published var records: [GameRecordSummary] = []
     @Published var groupedRecords: [RecordGroup] = []
+    private(set) var hasLoaded = false
+    private let recordsLoader: RecordsLoader
 
-    private init() {
+    init(
+        recordsLoader: @escaping RecordsLoader = {
+            TimerRecordManager.shared.getRecords()
+        }
+    ) {
+        self.recordsLoader = recordsLoader
+    }
+
+    func ensureLoaded() {
+        guard !hasLoaded else { return }
         loadFromStorage()
     }
 
     func loadFromStorage() {
-        records = TimerRecordManager.shared.getRecords()
+        records = recordsLoader()
         groupRecords()
+        hasLoaded = true
     }
 
     func addRecord(_ record: GameRecordSummary) {
