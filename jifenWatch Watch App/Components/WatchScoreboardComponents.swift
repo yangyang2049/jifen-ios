@@ -769,7 +769,6 @@ struct WatchDoublesBoard: View {
                 }
             }
             .frame(width: secondary == nil ? 30 : 40)
-            .offset(y: secondary == nil ? WatchLayout.scoreboardMetaVerticalOffset : 0)
         }
     }
 

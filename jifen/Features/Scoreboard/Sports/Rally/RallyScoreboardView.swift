@@ -507,7 +507,6 @@ struct RallyScoreboardView: View {
     }
 
     private func singlesPlayContent(side: MatchSide, size: CGSize) -> some View {
-        let isLeft = side == .left
         let name = scoreboardDisplayName(for: side)
         let score = displayedPoints(for: side)
         let sets = displayedSets(for: side)
