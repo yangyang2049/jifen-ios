@@ -439,6 +439,9 @@ private final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransp
     var onCommonNameUsageData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
+    var onCatchUpRequest: (@Sendable () -> Void)?
+    var onClearPendingRequest: (@Sendable ([String]) -> Void)?
+    var onPendingRecords: (@Sendable ([Data]) -> Void)?
 
     var automaticallyRespondToStatusQueries = false
     private(set) var realtimeMessages: [Data] = []
@@ -500,6 +503,9 @@ private final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransp
     func transferCommonNameUsage(_ data: Data) throws {}
     func transferCommonNameMutations(_ data: Data) throws {}
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
+    func requestPendingWatchRecords() {}
+    func sendPendingWatchRecords(_ datas: [Data]) {}
+    func clearPendingWatchRecords(ids: [String]) {}
 
     func deliver(_ data: Data) {
         onReceive?(data)

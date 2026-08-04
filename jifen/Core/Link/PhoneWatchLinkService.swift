@@ -90,6 +90,8 @@ final class PhoneWatchLinkService {
     internal(set) var lastErrorMessage: String?
     /// Last watch record id auto-synced into phone records (for toast / UI).
     internal(set) var lastSyncedWatchRecordId: String?
+    /// Guards against firing the catch-up pull repeatedly while one is in flight.
+    var watchRecordCatchUpInFlight = false
     internal(set) var pendingReclaimRequest: ReclaimConfirmationRequest?
     internal(set) var pendingTakeoverApplication: PendingPhoneTakeoverApplication?
     internal(set) var forceTakeoverConfirmationSessionId: UUID?
@@ -105,6 +107,10 @@ final class PhoneWatchLinkService {
     #endif
 
     static let setupTimeoutSeconds: TimeInterval = 20
+    /// 状态查询（STATUS_QUERY）超时。对齐手表端的确认/开局超时窗口
+    ///（`WatchRootView.confirmTimeoutSeconds = 20`），避免手机侧在手表
+    /// 尚在确认时过早以 3 秒判定超时。
+    static let statusQueryTimeoutSeconds: TimeInterval = 20
 
     enum InteractiveStartError: LocalizedError {
         case watchUnavailable
@@ -232,6 +238,11 @@ final class PhoneWatchLinkService {
                 self?.handleWatchRecordTransfer(data)
             }
         }
+        transport.onPendingRecords = { [weak self] datas in
+            DispatchQueue.main.async {
+                self?.receivePendingWatchRecords(datas)
+            }
+        }
         transport.onCommonNameUsageData = { [weak self] data in
             DispatchQueue.main.async {
                 self?.handleCommonNameUsage(data)
@@ -243,6 +254,9 @@ final class PhoneWatchLinkService {
             }
         }
         transport.activate()
+        #if DEBUG
+        print("[PhoneLink] PhoneWatchLinkService init: activate() called, onWatchRecordData wired")
+        #endif
         scheduleRetryIfNeeded()
         NotificationCenter.default.addObserver(
             forName: .commonNamesDidChange,

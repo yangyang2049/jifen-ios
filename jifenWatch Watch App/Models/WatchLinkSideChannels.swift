@@ -7,6 +7,9 @@ import ScoreCore
 extension WatchLinkService {
     /// Auto-queue a finished local watch record to the phone.
     func transferFinishedRecord(_ payload: WatchRecordTransferPayload) {
+        #if DEBUG
+        print("[WatchLink] transferFinishedRecord id=\(payload.id) (pending now \(pendingWatchRecords.count))")
+        #endif
         if let index = pendingWatchRecords.firstIndex(where: { $0.id == payload.id }) {
             pendingWatchRecords[index] = payload
         } else {
@@ -17,21 +20,26 @@ extension WatchLinkService {
     }
 
     func flushPendingWatchRecords() {
-        guard transport.status.isActivated, !pendingWatchRecords.isEmpty else { return }
-        var deliveredCount = 0
-        for payload in pendingWatchRecords {
-            do {
-                let data = try JSONEncoder().encode(payload)
-                try transport.transferWatchRecord(data)
-                deliveredCount += 1
-            } catch {
-                lastLinkErrorMessage = error.localizedDescription
-                break
-            }
+        #if DEBUG
+        print("[WatchLink] flushPendingWatchRecords isActivated=\(transport.status.isActivated) reachable=\(transport.status.isReachable) pending=\(pendingWatchRecords.count)")
+        #endif
+        guard transport.status.isActivated, !pendingWatchRecords.isEmpty else {
+            #if DEBUG
+            print("[WatchLink] flush skipped: isActivated=\(transport.status.isActivated) pendingEmpty=\(pendingWatchRecords.isEmpty)")
+            #endif
+            return
         }
-        guard deliveredCount > 0 else { return }
-        pendingWatchRecords.removeFirst(deliveredCount)
-        persistPendingWatchRecords()
+        guard transport.status.isReachable else {
+            #if DEBUG
+            print("[WatchLink] flush skipped: not reachable (phone will pull when reachable)")
+            #endif
+            return
+        }
+        let datas = pendingWatchRecords.compactMap { try? JSONEncoder().encode($0) }
+        #if DEBUG
+        print("[WatchLink] pushed \(datas.count) pending records to phone (awaiting confirm)")
+        #endif
+        transport.sendPendingWatchRecords(datas)
     }
 
     private func persistPendingWatchRecords() {

@@ -1171,6 +1171,20 @@ public protocol WatchLinkTransport: AnyObject, LinkTransport {
     func transferCommonNameUsage(_ data: Data) throws
     func transferCommonNameMutations(_ data: Data) throws
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws
+
+    /// Phone → Watch: ask the watch for any finished-record transfers it queued but the phone never received.
+    func requestPendingWatchRecords()
+    /// Watch → Phone: send the queued pending record datas back to the phone.
+    func sendPendingWatchRecords(_ datas: [Data])
+    /// Phone → Watch: tell the watch to drop the given pending record ids after the phone ingested them.
+    func clearPendingWatchRecords(ids: [String])
+
+    /// Watch side: triggered when the phone asks for pending records; respond via `sendPendingWatchRecords`.
+    var onCatchUpRequest: (@Sendable () -> Void)? { get set }
+    /// Watch side: triggered when the phone confirms ingest of the given ids; drop them from the queue.
+    var onClearPendingRequest: (@Sendable ([String]) -> Void)? { get set }
+    /// Phone side: invoked when the watch sends back pending record datas.
+    var onPendingRecords: (@Sendable ([Data]) -> Void)? { get set }
 }
 
 /// A binary transport shared by the phone and Watch targets.
@@ -1185,6 +1199,12 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     public static let commonNameUsageUserInfoKey = "jifen.common_name_usage.v1"
     public static let commonNameMutationsUserInfoKey = "jifen.common_name_mutations.v1"
     public static let commonNameMutationAckUserInfoKey = "jifen.common_name_mutation_ack.v1"
+    /// Phone → Watch: ask the watch for finished-record transfers it queued but the phone never received.
+    public static let catchUpRequestMessageKey = "jifen.link.catch_up_request"
+    /// Watch → Phone: queued pending record datas.
+    public static let pendingRecordsMessageKey = "jifen.link.pending_records"
+    /// Phone → Watch: ids the phone ingested, for the watch to drop from its queue.
+    public static let clearPendingMessageKey = "jifen.link.clear_pending"
 
     private let session: WCSession
     public var onReceive: ReceiveHandler?
@@ -1200,6 +1220,12 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     public var onCommonNameMutationsData: ReceiveHandler?
     /// Offline-capable phone→watch canonical results for edit batches.
     public var onCommonNameMutationAckData: ReceiveHandler?
+    /// Watch side: phone asked for pending records.
+    public var onCatchUpRequest: (@Sendable () -> Void)?
+    /// Watch side: phone confirmed ingest of these ids.
+    public var onClearPendingRequest: (@Sendable ([String]) -> Void)?
+    /// Phone side: watch sent back pending record datas.
+    public var onPendingRecords: (@Sendable ([Data]) -> Void)?
 
     public init(session: WCSession = .default) {
         self.session = session
@@ -1301,10 +1327,19 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
     /// Queue a finished watch record for delivery even when the peer is not reachable.
     public func transferWatchRecord(_ data: Data) throws {
+        #if DEBUG
+        print("[LinkCore] transferWatchRecord called, activationState=\(session.activationState.rawValue) size=\(data.count)")
+        #endif
         guard session.activationState == .activated else {
+            #if DEBUG
+            print("[LinkCore] transferWatchRecord skipped: session NOT activated (\(session.activationState.rawValue))")
+            #endif
             throw WatchConnectivityTransportError.sessionNotActivated
         }
         session.transferUserInfo([Self.watchRecordUserInfoKey: data])
+        #if DEBUG
+        print("[LinkCore] transferWatchRecord enqueued userInfo to phone")
+        #endif
     }
 
     /// Queue a name-usage event even if the phone is currently unreachable.
@@ -1329,6 +1364,60 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         session.transferUserInfo([Self.commonNameMutationAckUserInfoKey: data])
     }
 
+    /// Phone side: ask the watch for queued finished-record transfers it queued but the phone never received.
+    public func requestPendingWatchRecords() {
+        #if DEBUG
+        print("[LinkCore] requestPendingWatchRecords (phone → watch)")
+        #endif
+        guard session.activationState == .activated, session.isReachable else {
+            #if DEBUG
+            print("[LinkCore] requestPendingWatchRecords skipped: activated=\(session.activationState.rawValue) reachable=\(session.isReachable)")
+            #endif
+            return
+        }
+        session.sendMessage([Self.catchUpRequestMessageKey: true], replyHandler: nil) { error in
+            #if DEBUG
+            print("[LinkCore] requestPendingWatchRecords send failed: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
+    /// Watch side: respond with the queued pending record datas.
+    public func sendPendingWatchRecords(_ datas: [Data]) {
+        #if DEBUG
+        print("[LinkCore] sendPendingWatchRecords count=\(datas.count) (watch → phone)")
+        #endif
+        guard session.activationState == .activated, session.isReachable else {
+            #if DEBUG
+            print("[LinkCore] sendPendingWatchRecords skipped: activated=\(session.activationState.rawValue) reachable=\(session.isReachable)")
+            #endif
+            return
+        }
+        session.sendMessage([Self.pendingRecordsMessageKey: datas], replyHandler: nil) { error in
+            #if DEBUG
+            print("[LinkCore] sendPendingWatchRecords send failed: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
+    /// Phone side: tell the watch to drop the given pending ids after the phone ingested them.
+    public func clearPendingWatchRecords(ids: [String]) {
+        #if DEBUG
+        print("[LinkCore] clearPendingWatchRecords ids=\(ids) (phone → watch)")
+        #endif
+        guard session.activationState == .activated, session.isReachable else {
+            #if DEBUG
+            print("[LinkCore] clearPendingWatchRecords skipped: activated=\(session.activationState.rawValue) reachable=\(session.isReachable)")
+            #endif
+            return
+        }
+        session.sendMessage([Self.clearPendingMessageKey: ids], replyHandler: nil) { error in
+            #if DEBUG
+            print("[LinkCore] clearPendingWatchRecords send failed: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
     private func reportStatus() {
         onStatusChange?(status)
     }
@@ -1345,11 +1434,24 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
 extension WatchConnectivityTransport: WCSessionDelegate {
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        #if DEBUG
+        #if !os(watchOS)
+        let paired = session.isPaired
+        let installed = session.isWatchAppInstalled
+        #else
+        let paired = "n/a"
+        let installed = "n/a"
+        #endif
+        print("[LinkCore] activationDidComplete state=\(activationState.rawValue) paired=\(paired) reachable=\(session.isReachable) installed=\(installed) error=\(error?.localizedDescription ?? "nil")")
+        #endif
         reportStatus()
         deliverApplicationContextIfNeeded()
     }
 
     public func sessionReachabilityDidChange(_ session: WCSession) {
+        #if DEBUG
+        print("[LinkCore] reachabilityDidChange reachable=\(session.isReachable)")
+        #endif
         reportStatus()
     }
 
@@ -1357,7 +1459,28 @@ extension WatchConnectivityTransport: WCSessionDelegate {
         onReceive?(messageData)
     }
 
+    public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        #if DEBUG
+        print("[LinkCore] didReceiveMessage keys=\(message.keys.map { String(describing: $0) })")
+        #endif
+        if message[Self.catchUpRequestMessageKey] != nil {
+            onCatchUpRequest?()
+            return
+        }
+        if let ids = message[Self.clearPendingMessageKey] as? [String] {
+            onClearPendingRequest?(ids)
+            return
+        }
+        if let datas = message[Self.pendingRecordsMessageKey] as? [Data] {
+            onPendingRecords?(datas)
+            return
+        }
+    }
+
     public func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        #if DEBUG
+        print("[LinkCore] didReceiveUserInfo keys=\(userInfo.keys.map { String(describing: $0) })")
+        #endif
         if let mutationsData = userInfo[Self.commonNameMutationsUserInfoKey] as? Data {
             onCommonNameMutationsData?(mutationsData)
             return
@@ -1371,6 +1494,9 @@ extension WatchConnectivityTransport: WCSessionDelegate {
             return
         }
         if let recordData = userInfo[Self.watchRecordUserInfoKey] as? Data {
+            #if DEBUG
+            print("[LinkCore] didReceiveUserInfo: watchRecordUserInfoKey, size=\(recordData.count)")
+            #endif
             onWatchRecordData?(recordData)
             return
         }

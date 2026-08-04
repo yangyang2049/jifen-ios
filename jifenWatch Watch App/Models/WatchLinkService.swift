@@ -210,8 +210,24 @@ final class WatchLinkService {
         handleApplicationContext(transport.receivedApplicationContext)
         flushPendingCommonNameMutations(force: false)
         WatchRecordManager.shared.recordTransferHandler = { [weak self] payload in
+            #if DEBUG
+            print("[WatchLink] recordTransferHandler fired for \(payload.id)")
+            #endif
             self?.transferFinishedRecord(payload)
         }
+        transport.onCatchUpRequest = { [weak self] in
+            DispatchQueue.main.async {
+                self?.respondToCatchUpRequest()
+            }
+        }
+        transport.onClearPendingRequest = { [weak self] ids in
+            DispatchQueue.main.async {
+                self?.clearPendingWatchRecords(ids: ids)
+            }
+        }
+        #if DEBUG
+        print("[WatchLink] recordTransferHandler registered at WatchLinkService init")
+        #endif
     }
 
     var isController: Bool {
@@ -224,6 +240,28 @@ final class WatchLinkService {
 
     func clearLinkError() {
         lastLinkErrorMessage = nil
+    }
+
+    /// Watch side of the catch-up handshake: gather queued finished records and push them to the phone.
+    func respondToCatchUpRequest() {
+        let datas = pendingWatchRecords.compactMap { try? JSONEncoder().encode($0) }
+        #if DEBUG
+        print("[WatchLink] respondToCatchUpRequest pending=\(pendingWatchRecords.count) encoded=\(datas.count)")
+        #endif
+        guard !datas.isEmpty else { return }
+        transport.sendPendingWatchRecords(datas)
+    }
+
+    /// Phone confirmed it ingested these ids; drop them from the local queue.
+    func clearPendingWatchRecords(ids: [String]) {
+        #if DEBUG
+        print("[WatchLink] clearPendingWatchRecords ids=\(ids)")
+        #endif
+        let set = Set(ids)
+        let before = pendingWatchRecords.count
+        pendingWatchRecords.removeAll { set.contains($0.id) }
+        guard pendingWatchRecords.count != before else { return }
+        persistPendingWatchRecords()
     }
 
 }

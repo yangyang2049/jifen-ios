@@ -130,6 +130,9 @@ private final class WatchStartupTransport: @unchecked Sendable, WatchLinkTranspo
     var onCommonNameUsageData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
+    var onCatchUpRequest: (@Sendable () -> Void)?
+    var onClearPendingRequest: (@Sendable ([String]) -> Void)?
+    var onPendingRecords: (@Sendable ([Data]) -> Void)?
 
     func activate() {}
     func refreshStatus() { onStatusChange?(status) }
@@ -144,4 +147,7 @@ private final class WatchStartupTransport: @unchecked Sendable, WatchLinkTranspo
     func transferCommonNameUsage(_ data: Data) throws {}
     func transferCommonNameMutations(_ data: Data) throws {}
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
+    func requestPendingWatchRecords() {}
+    func sendPendingWatchRecords(_ datas: [Data]) {}
+    func clearPendingWatchRecords(ids: [String]) {}
 }

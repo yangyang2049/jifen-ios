@@ -60,6 +60,10 @@ final class WatchRecordManager {
             },
             projectConfiguration: record.projectConfiguration
         )
+        #if DEBUG
+        print("[WatchRecord] autoTransferToPhone triggered: record=\(record.id) gameType=\(record.gameType.rawValue)")
+        print("[WatchRecord] recordTransferHandler is nil? \(recordTransferHandler == nil)")
+        #endif
         recordTransferHandler?(payload)
     }
 
