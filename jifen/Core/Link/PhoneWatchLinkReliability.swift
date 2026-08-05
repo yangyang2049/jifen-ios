@@ -164,6 +164,7 @@ extension PhoneWatchLinkService {
         latestRemoteSnapshot = .init(
             sessionId: sessionId,
             revision: session.revision,
+            matchGeneration: session.handle.matchGeneration,
             snapshot: snapshot,
             detailedActions: mergedDetailedActions
         )
@@ -522,6 +523,7 @@ extension PhoneWatchLinkService {
             latestRemoteSnapshot = LinkedSnapshotUpdate(
                 sessionId: context.handle.sessionId,
                 revision: context.revision,
+                matchGeneration: context.handle.matchGeneration,
                 snapshot: snapshot,
                 detailedActions: context.detailedActions
             )

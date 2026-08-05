@@ -332,14 +332,16 @@ struct RallyScoreboardView: View {
             if let watchSessionId,
                let update = watchLinkService.attachPage(sessionId: watchSessionId),
                let rally = update.snapshot.rallyState {
-                Task {
-                    _ = await store.applyAuthoritativeState(
-                        rally,
-                        detailedActions: update.detailedActions,
-                        revision: update.revision,
-                        persistFormalRecord: false
-                    )
-                }
+            Task {
+                let applied = await store.applyAuthoritativeState(
+                    rally,
+                    detailedActions: update.detailedActions,
+                    revision: update.revision,
+                    matchGeneration: update.matchGeneration,
+                    persistFormalRecord: false
+                )
+                if applied, rally.finished { showGameOverDialog = true }
+            }
             }
             revealImmersiveChrome()
             if store.state.finished {
@@ -363,14 +365,23 @@ struct RallyScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let rally = update.snapshot.rallyState else { return }
+            let snapshotFinished = rally.finished
             cancelTerminalSetPresentation()
             Task {
-                _ = await store.applyAuthoritativeState(
+                let applied = await store.applyAuthoritativeState(
                     rally,
                     detailedActions: update.detailedActions,
                     revision: update.revision,
+                    matchGeneration: update.matchGeneration,
                     persistFormalRecord: false
                 )
+                if applied {
+                    // Reactive to the linked device's finished flag (mirrors
+                    // HarmonyOS: follower auto-shows the finish dialog when the
+                    // received snapshot is finished, and dismisses it when a new
+                    // unfinished match arrives after 再来一场).
+                    showGameOverDialog = snapshotFinished
+                }
             }
         }
         .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in

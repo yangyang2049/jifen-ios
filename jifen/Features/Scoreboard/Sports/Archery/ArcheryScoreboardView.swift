@@ -638,9 +638,11 @@ struct ArcheryScoreboardView: View {
     private func applyRemoteArchery(_ remote: LinkedArcheryState) {
         viewModel.applyRemote(remote)
         manualFinishRequested = false
-        if remote.finished {
-            showGameOverDialog = true
-        }
+        // Reactive to the linked device's finished flag (mirrors HarmonyOS:
+        // follower auto-shows the finish dialog when the received snapshot is
+        // finished, and dismisses it when a new unfinished match arrives after
+        // 再来一场). Setting both directions, not just true.
+        showGameOverDialog = remote.finished
     }
 
     private var reclaimAlertPresented: Binding<Bool> {

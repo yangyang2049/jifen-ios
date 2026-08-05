@@ -15,6 +15,7 @@ final class RallySessionStore {
     private let resumeRepository: ResumeSessionRepository
     private var detailedActions: [DetailedScoreAction]
     private var lastAppliedRemoteRevision: UInt64?
+    private var lastAppliedRemoteGeneration: UInt64?
     private var operationTask: Task<Void, Never>?
     private var lastPersistenceErrorPresentationAt: Date?
     private var hasPersistedFinishedRecord = false
@@ -231,8 +232,18 @@ final class RallySessionStore {
         _ state: RallyMatchState,
         detailedActions incoming: [DetailedScoreAction],
         revision: UInt64,
+        matchGeneration: UInt64? = nil,
         persistFormalRecord: Bool = true
     ) async -> Bool {
+        if let matchGeneration {
+            if lastAppliedRemoteGeneration != matchGeneration {
+                // Watch started a new linked match (再来一场). The new match's
+                // revisions restart from 0, so drop the stale gate from the
+                // previous match rather than discarding every new snapshot.
+                lastAppliedRemoteGeneration = matchGeneration
+                lastAppliedRemoteRevision = nil
+            }
+        }
         if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
             return false
         }

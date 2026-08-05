@@ -381,6 +381,7 @@ struct TennisScoreboardView: View {
                         tennis,
                         detailedActions: update.detailedActions,
                         revision: update.revision,
+                        matchGeneration: update.matchGeneration,
                         persistFormalRecord: false
                     )
                 }
@@ -408,15 +409,23 @@ struct TennisScoreboardView: View {
                   let update,
                   update.sessionId == watchSessionId,
                   let tennis = update.snapshot.tennisState else { return }
+            let snapshotFinished = tennis.finished
             cancelTerminalGamePresentation()
             Task {
                 let applied = await store.applyAuthoritativeState(
                     tennis,
                     detailedActions: update.detailedActions,
                     revision: update.revision,
+                    matchGeneration: update.matchGeneration,
                     persistFormalRecord: false
                 )
-                if applied, tennis.finished { showGameOverDialog = true }
+                if applied {
+                    // Reactive to the linked device's finished flag (mirrors
+                    // HarmonyOS: follower auto-shows the finish dialog when the
+                    // received snapshot is finished, and dismisses it when a new
+                    // unfinished match arrives after 再来一场).
+                    showGameOverDialog = snapshotFinished
+                }
             }
         }
         .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in

@@ -186,6 +186,10 @@ final class PhoneWatchLinkService {
     struct LinkedSnapshotUpdate: Equatable {
         let sessionId: UUID
         let revision: UInt64
+        /// Match generation within the link session. Increments when the watch
+        /// starts a new match (再来一场); the `sessionId` stays constant, so
+        /// this is what distinguishes a fresh match from a stale snapshot.
+        let matchGeneration: UInt64
         let snapshot: LinkedScoreboardSnapshot
         let detailedActions: [DetailedScoreAction]
     }
