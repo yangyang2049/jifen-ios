@@ -528,6 +528,18 @@ extension ScoreboardRecord {
         !isTennisTiebreakOnly && team1SetScore != nil && team2SetScore != nil
     }
 
+    /// 详情页与分享卡片的"大比分"优先展示局分（几局几胜）或盘分（网球几盘几胜）；
+    /// 当记录没有局分结构（如台球/篮球/简单计分，或网球仅抢七）时退回小分/总分。
+    /// 与 `shouldDisplaySecondaryScore` 共用同一判定，保证大比分与历史副标题语义一致。
+    var primaryScore: (left: Int, right: Int, usesSetScore: Bool) {
+        if shouldDisplaySecondaryScore,
+           let leftSets = team1SetScore,
+           let rightSets = team2SetScore {
+            return (leftSets, rightSets, true)
+        }
+        return (team1FinalScore, team2FinalScore, false)
+    }
+
     var resolvedScoreCoreGameType: ScoreCore.GameType? {
         let configuration = mergedProjectConfiguration
         if let raw = scoreboardString(configuration[ScoreboardRecordConfiguration.Key.scoreCoreGameType]),

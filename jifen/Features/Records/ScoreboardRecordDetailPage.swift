@@ -136,9 +136,15 @@ struct ScoreboardRecordDetailPage: View {
                     .background(Theme.accentColor.opacity(0.12))
                     .clipShape(Capsule())
                 }
-                Text(NSLocalizedString("finished", value: "已结束", comment: ""))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.green)
+                if record.status == .finished {
+                    Text(NSLocalizedString("finished", value: "已结束", comment: ""))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.green)
+                } else {
+                    Text(NSLocalizedString("record_unfinished", value: "未完成", comment: ""))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.orange)
+                }
             }
             if record.isSyncedFromWatch {
                 Text(NSLocalizedString(
@@ -150,24 +156,19 @@ struct ScoreboardRecordDetailPage: View {
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            let score = record.primaryScore
             HStack(alignment: .center, spacing: 12) {
                 scoreSide(
                     record.team1Name,
-                    score: record.team1FinalScore,
+                    score: score.left,
                     isWinner: record.resolvedWinnerRecordTeam == .team1
                 )
                 Text(":").font(.title.bold()).foregroundStyle(Theme.textSecondary)
                 scoreSide(
                     record.team2Name,
-                    score: record.team2FinalScore,
+                    score: score.right,
                     isWinner: record.resolvedWinnerRecordTeam == .team2
                 )
-            }
-            if record.shouldDisplaySecondaryScore,
-               let left = record.team1SetScore,
-               let right = record.team2SetScore {
-                Text(String(format: NSLocalizedString("record_set_score_format", value: "局分 %d : %d", comment: ""), left, right))
-                    .font(.subheadline).foregroundStyle(Theme.textSecondary)
             }
             if record.gameType == .tennis {
                 Text(tennisFormatDescription(record))
@@ -824,7 +825,8 @@ private struct RecordDetailShareCardView: View {
             Text(record.gameType.icon).font(.system(size: 56))
             Text(record.competitionDisplayName).font(.largeTitle.bold())
             Text(record.displayMatchTitle).font(.title3).multilineTextAlignment(.center)
-            Text(record.displayScore()).font(.system(size: 64, weight: .bold, design: .rounded)).foregroundStyle(Theme.primary)
+            let score = record.primaryScore
+            Text("\(score.left) : \(score.right)").font(.system(size: 64, weight: .bold, design: .rounded)).foregroundStyle(Theme.primary)
             if let duration = record.duration { Label(formatScoreboardDuration(duration), systemImage: "clock") }
             Spacer()
             Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "iScore").foregroundStyle(Theme.textSecondary)
