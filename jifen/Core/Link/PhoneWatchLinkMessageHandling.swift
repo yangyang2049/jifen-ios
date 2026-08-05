@@ -269,6 +269,21 @@ extension PhoneWatchLinkService {
             // Watch resumed scoring — clear the background-interruption flag.
             watchBackgrounded = false
             persistContext()
+        } else if validation == .duplicateOrOlder, snapshot.isFinished {
+            // Mirror HarmonyOS: a finished snapshot is authoritative for the
+            // finish dialog even when its revision is older than the machine's —
+            // the match-finished envelope may have been accepted first, leaving
+            // the machine's revision ahead of the final state snapshot. Surfacing
+            // the finished duplicate is idempotent: it can only keep or re-open
+            // the dialog, never dismiss it, and the view-side revision gate still
+            // rejects stale unfinished states.
+            latestRemoteSnapshot = LinkedSnapshotUpdate(
+                sessionId: envelope.sessionId,
+                revision: envelope.sessionRevision,
+                matchGeneration: envelope.matchGeneration,
+                snapshot: snapshot,
+                detailedActions: mergedDetailedActions
+            )
         }
         // ACK valid duplicates too: a retry usually means our prior ACK was lost.
         sendAck(

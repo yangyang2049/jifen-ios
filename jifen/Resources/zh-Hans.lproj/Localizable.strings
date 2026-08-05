@@ -1087,6 +1087,7 @@
 "game_foosball_doubles" = "桌上足球双打";
 "unfinished" = "未结束";
 "finished" = "已结束";
+"record_unfinished" = "未完成";
 "snooker_foul_row_title" = "犯规罚分";
 "snooker_foul_current_side" = "当前方：%@";
 "snooker_foul_label_4" = "红/黄/绿/棕";

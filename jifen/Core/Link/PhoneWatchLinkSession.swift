@@ -477,6 +477,16 @@ extension PhoneWatchLinkService {
         return latestRemoteSnapshot
     }
 
+    /// Ends the linked session when the match is already finished. Exiting a
+    /// finished linked scoreboard must not leave a stale session behind that
+    /// keeps the Resume GameBar alive — the finished record is already on the
+    /// phone (watch ingest or local commit), so there is nothing left to resume.
+    func leaveSessionIfMatchFinished(_ sessionId: UUID) {
+        guard activeSession?.sessionId == sessionId,
+              sessionMachine?.lifecycle == .matchFinished else { return }
+        leaveSession(sessionId)
+    }
+
     func detachPage(sessionId: UUID) {
         guard activeSession?.sessionId == sessionId else { return }
         persistContext()

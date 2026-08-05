@@ -998,6 +998,9 @@ struct NineBallChaseScoreboardView: View {
 
     private func exit() {
         OrientationLock.shared.unlock()
+        if let id = watchSessionId {
+            watchLinkService.leaveSessionIfMatchFinished(id)
+        }
         let skipSave = watchSessionId != nil
             && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {

@@ -143,6 +143,9 @@ struct ArcheryScoreboardView: View {
                     scoringEnabledProvider: { !viewModel.mutationLocked }
                 ),
                 onBack: {
+                    if let id = watchSessionId {
+                        watchLinkService.leaveSessionIfMatchFinished(id)
+                    }
                     saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
                     onNavigationBack?()
                     dismiss()
@@ -187,6 +190,9 @@ struct ArcheryScoreboardView: View {
                         shareFinishedMatch()
                     },
                     onExit: {
+                        if let id = watchSessionId {
+                            watchLinkService.leaveSessionIfMatchFinished(id)
+                        }
                         saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
                         onNavigationBack?()
                         dismiss()

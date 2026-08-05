@@ -1722,6 +1722,9 @@ struct TennisScoreboardView: View {
     private func goBack() {
         cancelTerminalGamePresentation()
         OrientationLock.shared.unlock()
+        if let id = watchSessionId {
+            watchLinkService.leaveSessionIfMatchFinished(id)
+        }
         store.flush {
             if let onNavigationBack {
                 onNavigationBack()

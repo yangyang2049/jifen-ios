@@ -1087,6 +1087,7 @@
 "game_foosball_doubles" = "Foosball Doubles";
 "unfinished" = "Unfinished";
 "finished" = "Finished";
+"record_unfinished" = "Unfinished";
 "snooker_foul_row_title" = "Foul points";
 "snooker_foul_current_side" = "Current side: %@";
 "snooker_foul_label_4" = "R/Y/G/Br";

@@ -318,7 +318,12 @@ final class PhoneWatchLinkService {
     }
 
     var linkedResumeDescriptor: LinkedResumeDescriptor? {
+        // A session only exists once the watch accepts the setup handshake.
+        // While lifecycle is `.starting` (setup request sent, accept/reject
+        // still pending) no resume descriptor is surfaced, so no Resume
+        // GameBar appears before the link is actually established.
         guard let session = activeSession,
+              sessionMachine?.lifecycle != .starting,
               let snapshot = latestRemoteSnapshot?.sessionId == session.sessionId
                 ? latestRemoteSnapshot?.snapshot
                 : session.setup.initialSnapshot else {

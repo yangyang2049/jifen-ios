@@ -277,6 +277,9 @@ struct RallyScoreboardView: View {
                             shareFinishedMatch()
                         },
                         onExit: {
+                            if let id = watchSessionId {
+                                watchLinkService.leaveSessionIfMatchFinished(id)
+                            }
                             store.persistSnapshot { success in
                                 guard success else { return }
                                 if let onNavigationBack {
@@ -1615,6 +1618,9 @@ struct RallyScoreboardView: View {
     private func back() {
         cancelTerminalSetPresentation()
         OrientationLock.shared.unlock()
+        if let id = watchSessionId {
+            watchLinkService.leaveSessionIfMatchFinished(id)
+        }
         store.flush {
             if let onNavigationBack {
                 onNavigationBack()

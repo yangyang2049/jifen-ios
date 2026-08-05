@@ -104,6 +104,113 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(service.linkedResumeDescriptor?.role, .phoneFollower)
     }
 
+    func testResumeDescriptorIsNilWhileSetupHandshakeIsPending() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        let state = RallyMatchEngine.initial(
+            leftName: "Alice",
+            rightName: "Bob",
+            rules: .badminton()
+        )
+        let snapshot = LinkedScoreboardSnapshot.rally(state)
+
+        let setupTask = Task {
+            try await service.startInteractiveSession(
+                gameType: .badminton,
+                maxSets: state.rules.maxSets,
+                initialSnapshot: snapshot,
+                participantNames: ["Alice", "Bob"]
+            )
+        }
+        try await settleMainQueue()
+
+        // The setup request is in flight but the watch has not accepted yet —
+        // no session exists, so no resume descriptor (no Resume GameBar).
+        XCTAssertNil(service.linkedResumeDescriptor)
+
+        let request = try XCTUnwrap(
+            transport.realtimeMessages.compactMap {
+                try? JSONDecoder().decode(
+                    LinkEnvelope<LinkedScoreboardSetup>.self,
+                    from: $0
+                )
+            }.first { $0.kind == .setupRequest }
+        )
+        let accepted = LinkEnvelope<EmptyLinkPayload>(
+            correlationId: request.messageId,
+            sessionId: request.sessionId,
+            matchId: request.matchId,
+            matchGeneration: request.matchGeneration,
+            authorityEpoch: 0,
+            kind: .setupAccepted,
+            sender: .watch,
+            senderSequence: 1,
+            sessionRevision: 0,
+            sentAtEpochMilliseconds: request.sentAtEpochMilliseconds + 1,
+            payload: EmptyLinkPayload()
+        )
+        transport.deliver(try JSONEncoder().encode(accepted))
+        await settleMainQueue()
+
+        // Watch accepted: the session is established and the descriptor appears.
+        let descriptor = try XCTUnwrap(service.linkedResumeDescriptor)
+        XCTAssertEqual(descriptor.handle.sessionId, request.sessionId)
+        _ = await setupTask.result
+    }
+
+    func testLeaveSessionIfMatchFinishedEndsFinishedLinkedSession() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 4, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        // Watch reports the match finished: the session lifecycle becomes
+        // `.matchFinished` and the descriptor surfaces (GameBar visible).
+        transport.deliver(try JSONEncoder().encode(
+            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 5, snapshot: fixture.snapshot)
+        ))
+        await settleMainQueue()
+        XCTAssertNotNil(service.linkedResumeDescriptor)
+
+        // Exiting the finished scoreboard ends the session, so no stale
+        // GameBar is left behind on Home.
+        service.leaveSessionIfMatchFinished(fixture.handle.sessionId)
+        await settleMainQueue()
+        XCTAssertNil(service.linkedResumeDescriptor)
+    }
+
+    func testLeaveSessionIfMatchFinishedKeepsUnfinishedLinkedSession() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 4, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        await settleMainQueue()
+
+        // Mid-match exit must keep the session so the user can re-attach.
+        XCTAssertNotNil(service.linkedResumeDescriptor)
+        service.leaveSessionIfMatchFinished(fixture.handle.sessionId)
+        await settleMainQueue()
+        XCTAssertNotNil(service.linkedResumeDescriptor)
+    }
+
     func testStartupRecordLoadersRunOnlyWhenRequestedAndCoalesce() async {
         let scoreboardCounter = LockedInvocationCounter()
         let scoreboardVM = ScoreboardRecordsViewModel {
@@ -304,6 +411,73 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(service.linkedResumeDescriptor?.handle, secondHandle)
     }
 
+    func testFinishedSnapshotSurvivesMatchFinishedFirstInterleaving() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        let finished = finishedRallySnapshot()
+
+        // transferUserInfo (matchFinished) can arrive before the final
+        // sendMessageData snapshot. The phone accepts rev 3 first...
+        transport.deliver(try JSONEncoder().encode(
+            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 3, snapshot: finished)
+        ))
+        await settleMainQueue()
+        XCTAssertEqual(service.latestRemoteSnapshot?.revision, 3)
+        XCTAssertEqual(service.latestRemoteSnapshot?.snapshot.rallyState?.finished, true)
+
+        // ...so the final snapshot (rev 2, finished) arrives as
+        // duplicateOrOlder. Mirroring HarmonyOS it must still be surfaced
+        // rather than dropped, so the finish signal can never be lost.
+        transport.deliver(try JSONEncoder().encode(
+            snapshotEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: finished)
+        ))
+        await settleMainQueue()
+
+        let latest = try XCTUnwrap(service.latestRemoteSnapshot)
+        XCTAssertEqual(latest.revision, 2)
+        XCTAssertEqual(latest.snapshot.rallyState?.finished, true)
+    }
+
+    func testUnfinishedDuplicateSnapshotDoesNotOverrideFinishedSignal() async throws {
+        let store = InMemoryLinkDataStore()
+        let fixture = makeContext(revision: 0, authorityEpoch: 2)
+        store.set(try JSONEncoder().encode(fixture.context), forKey: "phone_link_context")
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport,
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        // The watch reports the match finished first...
+        transport.deliver(try JSONEncoder().encode(
+            finishedEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 3, snapshot: finishedRallySnapshot())
+        ))
+        await settleMainQueue()
+        XCTAssertEqual(service.latestRemoteSnapshot?.snapshot.rallyState?.finished, true)
+
+        // A stale unfinished retry (rev 2, e.g. a lost ACK replayed) is
+        // duplicateOrOlder — surfacing it would wrongly dismiss the finish
+        // dialog. Only finished duplicates are surfaced.
+        transport.deliver(try JSONEncoder().encode(
+            snapshotEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: fixture.snapshot)
+        ))
+        await settleMainQueue()
+
+        let latest = try XCTUnwrap(service.latestRemoteSnapshot)
+        XCTAssertEqual(latest.revision, 3)
+        XCTAssertEqual(latest.snapshot.rallyState?.finished, true)
+    }
+
     private func makeContext(
         revision: UInt64,
         authorityEpoch: UInt64
@@ -338,6 +512,45 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
                 detailedActions: [],
                 completedMatchIds: [],
                 pendingTerminalMessageIds: []
+            )
+        )
+    }
+
+    private func finishedRallySnapshot() -> LinkedScoreboardSnapshot {
+        var state = RallyMatchEngine.initial(
+            leftName: "Alice",
+            rightName: "Bob",
+            rules: .badminton()
+        )
+        state.leftPoints = 21
+        state.rightPoints = 18
+        state.leftSets = 2
+        state.rightSets = 0
+        state.finished = true
+        return .rally(state)
+    }
+
+    private func snapshotEnvelope(
+        handle: LinkedMatchHandle,
+        authorityEpoch: UInt64,
+        revision: UInt64,
+        snapshot: LinkedScoreboardSnapshot
+    ) -> LinkEnvelope<LinkedScoreboardSetup> {
+        LinkEnvelope(
+            sessionId: handle.sessionId,
+            matchId: handle.matchId,
+            matchGeneration: handle.matchGeneration,
+            authorityEpoch: authorityEpoch,
+            kind: .stateSnapshot,
+            sender: .watch,
+            senderSequence: revision,
+            sessionRevision: revision,
+            sentAtEpochMilliseconds: Int64(revision) * 1_000,
+            payload: LinkedScoreboardSetup(
+                gameType: .badminton,
+                maxSets: snapshot.rallyState?.rules.maxSets ?? 3,
+                initialSnapshot: snapshot,
+                participantNames: ["Alice", "Bob"]
             )
         )
     }

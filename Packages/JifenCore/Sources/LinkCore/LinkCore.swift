@@ -196,6 +196,21 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         guard case .snooker(let state) = self else { return nil }
         return state
     }
+
+    /// Whether the carried match state is finished. The finish flag is part of
+    /// every synced state, so the phone can mirror the HarmonyOS behavior of
+    /// treating any received finished snapshot as authoritative for the finish
+    /// dialog regardless of delivery order or revision.
+    public var isFinished: Bool {
+        switch self {
+        case .rally(let state): return state.finished
+        case .tennis(let state): return state.finished
+        case .archery(let state): return state.finished
+        case .eightBall(let state): return state.finished
+        case .nineBall(let state): return state.finished
+        case .snooker(let state): return state.finished
+        }
+    }
 }
 
 /// Lightweight archery sync DTO projected from `ArcheryMatchState`.
