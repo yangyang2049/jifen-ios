@@ -351,6 +351,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             return
         }
         exitConfirmDeadline = nil
+        OrientationLock.shared.unlock()
         onBack()
     }
 

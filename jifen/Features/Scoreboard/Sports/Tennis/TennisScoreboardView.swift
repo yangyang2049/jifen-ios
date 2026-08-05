@@ -1721,6 +1721,7 @@ struct TennisScoreboardView: View {
 
     private func goBack() {
         cancelTerminalGamePresentation()
+        OrientationLock.shared.unlock()
         store.flush {
             if let onNavigationBack {
                 onNavigationBack()

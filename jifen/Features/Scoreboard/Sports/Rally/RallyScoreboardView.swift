@@ -1614,6 +1614,7 @@ struct RallyScoreboardView: View {
 
     private func back() {
         cancelTerminalSetPresentation()
+        OrientationLock.shared.unlock()
         store.flush {
             if let onNavigationBack {
                 onNavigationBack()
