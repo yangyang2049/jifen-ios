@@ -842,6 +842,19 @@ public struct RallyMatchReducer: DomainReducer {
             if side == .left { next.leftPoints += delta } else { next.rightPoints += delta }
             if var replay = next.currentSetReplay {
                 replay.actions.append(contentsOf: Array(repeating: .pointWon(side), count: delta))
+                // 编辑加分也要推进发球/双打轮转：从本局开局基线重放整局，与正常得分一致。
+                // 仅当重放能还原预期比分时才采用；分数被直接改写（replay 与比分不同步）时退回仅更新分数。
+                let corrected = replayCurrentSet(state: state, replay: replay)
+                if corrected.accepted &&
+                    corrected.state.leftPoints == next.leftPoints &&
+                    corrected.state.rightPoints == next.rightPoints {
+                    return .init(state: corrected.state, events: [.pointsAdjusted(
+                        side: side,
+                        delta: delta,
+                        leftPoints: corrected.state.leftPoints,
+                        rightPoints: corrected.state.rightPoints
+                    )])
+                }
                 next.currentSetReplay = replay
             }
             return .init(state: next, events: [.pointsAdjusted(

@@ -170,8 +170,8 @@ struct ScoreboardRecordDetailPage: View {
                     isWinner: record.resolvedWinnerRecordTeam == .team2
                 )
             }
-            if record.gameType == .tennis {
-                Text(tennisFormatDescription(record))
+            if let format = recordFormatDescription(record) {
+                Text(format)
                     .font(.subheadline)
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -669,6 +669,20 @@ struct ScoreboardRecordDetailPage: View {
         }
     }
 
+    private func recordFormatDescription(_ record: ScoreboardRecord) -> String? {
+        switch record.gameType {
+        case .tennis:
+            return tennisFormatDescription(record)
+        case .pingpong, .badminton:
+            return rallyFormatDescription(record)
+        case .pickleball:
+            return pickleballFormatDescription(record)
+        default:
+            return nil
+        }
+    }
+
+    /// 网球：赛制从大到小 = 三盘两胜/打满 · 每盘局数 · 抢七/抢十；tiebreak-only 仅显示抢七。
     private func tennisFormatDescription(_ record: ScoreboardRecord) -> String {
         let data = record.mergedProjectConfiguration
         let tieBreakPoints = record.tennisTieBreakPoints == 10 ? 10 : 7
@@ -687,7 +701,62 @@ struct ScoreboardRecordDetailPage: View {
             tieBreakPoints == 10 ? "tennis_format_tiebreak_10" : "tennis_format_tiebreak_7",
             comment: ""
         )
-        return "\(NSLocalizedString("tennis_scoring_mode_regular", value: "标准赛制", comment: "")) · \(gamesLabel) · \(tieBreakLabel)"
+        return "\(tennisSetsLabel(record)) · \(gamesLabel) · \(tieBreakLabel)"
+    }
+
+    private func tennisSetsLabel(_ record: ScoreboardRecord) -> String {
+        let data = record.mergedProjectConfiguration
+        let maxSets = intValue(data["maxSets"]) ?? 3
+        if stringValue(data["matchCompletionMode"]) == "play_all" {
+            return String(format: NSLocalizedString("record_format_sets_play_all_tennis", comment: ""), maxSets)
+        }
+        switch maxSets {
+        case 1: return NSLocalizedString("tennis_set_option_best_of_1", comment: "")
+        case 3: return NSLocalizedString("tennis_set_option_best_of_3", comment: "")
+        case 5: return NSLocalizedString("tennis_set_option_best_of_5", comment: "")
+        default: return "\(maxSets)"
+        }
+    }
+
+    /// 乒乓球/羽毛球：赛制 = 三局两胜/打满 · 每局分数（从大到小）
+    private func rallyFormatDescription(_ record: ScoreboardRecord) -> String? {
+        let data = record.mergedProjectConfiguration
+        let defaultMaxSets = record.gameType == .pingpong ? 5 : 3
+        let maxSets = intValue(data["maxSets"]) ?? defaultMaxSets
+        let defaultPoints = record.gameType == .pingpong ? 11 : 21
+        let points = intValue(data["pointsPerSet"]) ?? defaultPoints
+        let sets = genericSetsLabel(maxSets: maxSets, completionMode: stringValue(data["matchCompletionMode"]))
+        let pointsLabel = String(
+            format: NSLocalizedString("record_format_points_per_set", comment: ""),
+            points
+        )
+        return "\(sets) · \(pointsLabel)"
+    }
+
+    /// 匹克球：赛制 = 三局两胜/打满 · 目标分（从大到小）
+    private func pickleballFormatDescription(_ record: ScoreboardRecord) -> String? {
+        let data = record.mergedProjectConfiguration
+        let maxSets = intValue(data["maxSets"]) ?? 3
+        let targetScore = intValue(data["targetScore"]) ?? 11
+        let sets = genericSetsLabel(maxSets: maxSets, completionMode: stringValue(data["matchCompletionMode"]))
+        let scoreLabel = String(
+            format: NSLocalizedString("record_format_pickleball_score", comment: ""),
+            targetScore
+        )
+        return "\(sets) · \(scoreLabel)"
+    }
+
+    private func genericSetsLabel(maxSets: Int, completionMode: String?) -> String {
+        if completionMode == "play_all" {
+            return String(format: NSLocalizedString("record_format_sets_play_all", comment: ""), maxSets)
+        }
+        switch maxSets {
+        case 1: return NSLocalizedString("pingpong_set_option_best_of_1", comment: "")
+        case 3: return NSLocalizedString("pingpong_set_option_best_of_3", comment: "")
+        case 5: return NSLocalizedString("pingpong_set_option_best_of_5", comment: "")
+        case 7: return NSLocalizedString("pingpong_set_option_best_of_7", comment: "")
+        default: return "\(maxSets)"
+        }
     }
 
     private func intValue(_ value: AnyCodable?) -> Int? { (value?.value as? Int) ?? (value?.value as? Double).map(Int.init) ?? (value?.value as? String).flatMap(Int.init) }

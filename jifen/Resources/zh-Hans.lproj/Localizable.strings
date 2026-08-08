@@ -238,6 +238,12 @@
 "tennis_format_tiebreak_7" = "抢七决胜局";
 "tennis_format_tiebreak_10" = "抢十决胜局";
 "tennis_short_set_help" = "先胜 4 局且领先 2 局；4:4 时进行抢七决胜局";
+"pingpong_set_option_best_of_1" = "一局制";
+"tennis_set_option_best_of_1" = "一盘制";
+"record_format_sets_play_all" = "打满%d局";
+"record_format_sets_play_all_tennis" = "打满%d盘";
+"record_format_points_per_set" = "每局%d分";
+"record_format_pickleball_score" = "%d分制";
 "points_11" = "11分";
 "points_21" = "21分";
 

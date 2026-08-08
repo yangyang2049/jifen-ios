@@ -238,6 +238,12 @@
 "tennis_format_tiebreak_7" = "7-Point Tiebreak";
 "tennis_format_tiebreak_10" = "10-Point Tiebreak";
 "tennis_short_set_help" = "First to 4 games by two; at 4-4, play a 7-point tiebreak";
+"pingpong_set_option_best_of_1" = "Best of 1";
+"tennis_set_option_best_of_1" = "Best of 1";
+"record_format_sets_play_all" = "Play all %d sets";
+"record_format_sets_play_all_tennis" = "Play all %d sets";
+"record_format_points_per_set" = "%d points per set";
+"record_format_pickleball_score" = "Target %d points";
 "points_11" = "11 points";
 "points_21" = "21 points";
 

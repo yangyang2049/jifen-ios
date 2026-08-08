@@ -125,4 +125,57 @@ struct EditScoreGuardTests {
         #expect(!roundOverflow.accepted)
         #expect(roundOverflow.state == boxing)
     }
+
+    @Test
+    func rallyPositiveEditAdvancesServeAndDoublesRotation() {
+        let reducer = RallyMatchReducer()
+        var rules = RallyRuleSet.pickleball()
+        rules.useRallyScoring = true
+        let makeState = {
+            RallyMatchEngine.initial(
+                leftName: "Red",
+                rightName: "Blue",
+                rules: rules,
+                openingServer: .left,
+                doubles: .pickleball(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+            )
+        }
+
+        // 正常得分路径：右队接发赢球
+        let viaPoint = reducer.reduce(state: makeState(), intent: .pointWon(.right), at: 1).state
+        // 编辑 +1 应产生相同的轮转状态（发球方、发球员、接发员、搭档换位）
+        let viaEdit = reducer.reduce(state: makeState(), intent: .adjustPoints(side: .right, delta: 1), at: 1).state
+        #expect(viaEdit.rightPoints == 1)
+        #expect(viaEdit.servingSide == viaPoint.servingSide)
+        #expect(viaEdit.doubles?.serverSlotIndex == viaPoint.doubles?.serverSlotIndex)
+        #expect(viaEdit.doubles?.receiverSlotIndex == viaPoint.doubles?.receiverSlotIndex)
+        #expect(viaEdit.doubles?.pickleballServerNumber == viaPoint.doubles?.pickleballServerNumber)
+
+        // 编辑 +1 后继续正常得分，应从正确轮转推进（而不是陈旧状态）
+        let nextPoint = reducer.reduce(state: viaEdit, intent: .pointWon(.right), at: 2).state
+        let nextPointRef = reducer.reduce(state: viaPoint, intent: .pointWon(.right), at: 2).state
+        #expect(nextPoint.rightPoints == 2)
+        #expect(nextPoint.servingSide == nextPointRef.servingSide)
+        #expect(nextPoint.doubles?.serverSlotIndex == nextPointRef.doubles?.serverSlotIndex)
+    }
+
+    @Test
+    func pingPongDoublesPositiveEditAdvancesRotation() {
+        let reducer = RallyMatchReducer()
+        let makeState = {
+            RallyMatchEngine.initial(
+                leftName: "Red",
+                rightName: "Blue",
+                rules: .pingPong(maxSets: 5),
+                openingServer: .left,
+                doubles: .pingPong(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
+            )
+        }
+        let viaPoint = reducer.reduce(state: makeState(), intent: .pointWon(.left), at: 1).state
+        let viaEdit = reducer.reduce(state: makeState(), intent: .adjustPoints(side: .left, delta: 1), at: 1).state
+        #expect(viaEdit.leftPoints == 1)
+        #expect(viaEdit.servingSide == viaPoint.servingSide)
+        #expect(viaEdit.doubles?.serverSlotIndex == viaPoint.doubles?.serverSlotIndex)
+        #expect(viaEdit.doubles?.receiverSlotIndex == viaPoint.doubles?.receiverSlotIndex)
+    }
 }
