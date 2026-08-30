@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum CubeTimerPolicy {
+    static let readinessHoldDuration: TimeInterval = 0.5
+    static let createsHistoryRecord = false
+}
+
 struct CubeTimerView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -307,7 +312,10 @@ struct CubeTimerView: View {
                 isWaitingToStart = true
                 canStart = false
                 handDownTimer?.invalidate()
-                handDownTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                handDownTimer = Timer.scheduledTimer(
+                    withTimeInterval: CubeTimerPolicy.readinessHoldDuration,
+                    repeats: false
+                ) { _ in
                     canStart = true
                 }
             }

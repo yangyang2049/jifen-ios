@@ -37,12 +37,15 @@ final class RecordRecapUITests: XCTestCase {
             let trendPicker = app.descendants(matching: .any)["score_trend_tab_picker"]
             XCTAssertTrue(trendPicker.waitForExistence(timeout: 4))
             trendPicker.tap()
-            let secondTrend = app.buttons[configuration.secondTrend]
+            let trendMatches = app.buttons.matching(
+                NSPredicate(format: "label == %@", configuration.secondTrend)
+            )
+            let secondTrend = trendMatches.element(boundBy: 0)
             XCTAssertTrue(secondTrend.waitForExistence(timeout: 4))
             secondTrend.tap()
-            let secondTrendChart = app.descendants(matching: .any)[
-                "score_trend_chart_sets-0-2-trend-0"
-            ]
+            let secondTrendChart = app.descendants(matching: .any).matching(
+                identifier: "score_trend_chart_sets-0-2-trend-0"
+            ).firstMatch
             XCTAssertTrue(secondTrendChart.waitForExistence(timeout: 4))
             XCTAssertTrue(
                 String(describing: secondTrendChart.value).contains("4"),

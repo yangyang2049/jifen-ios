@@ -411,5 +411,198 @@ import ScoreCore
             [interval, changeEnds].map { VoiceAnnouncementMessageBuilder.build($0, language: .enUS) }
                 == ["11-8, interval", "Change ends"]
         )
+        #expect(VoiceAnnouncementBatchPolicy.queuePolicy([ordinary]) == .latestScore)
+        #expect(VoiceAnnouncementBatchPolicy.queuePolicy([changeEnds]) == .append)
+        #expect(VoiceAnnouncementBatchPolicy.queuePolicy([interval, changeEnds]) == .flush)
+
+        var warning = ordinary
+        warning.phase = .breakWarning
+        warning.breakCue = .twentySeconds
+        #expect(VoiceAnnouncementBatchPolicy.queuePolicy([warning]) == .append)
+
+        var resume = ordinary
+        resume.phase = .breakResume
+        #expect(VoiceAnnouncementBatchPolicy.queuePolicy([resume]) == .flush)
+    }
+
+    @Test func officialBreak31CuePolicyMatchesAndroid() {
+        #expect(OfficialBreakVoicePolicy.shouldSpeak(gameType: .pickleball, cue: .start))
+        #expect(!OfficialBreakVoicePolicy.shouldSpeak(gameType: .badminton, cue: .start))
+        #expect(!OfficialBreakVoicePolicy.shouldSpeak(gameType: .tennis, cue: .complete))
+        #expect(!OfficialBreakVoicePolicy.shouldSpeak(gameType: .padel, cue: .complete))
+        #expect(OfficialBreakVoicePolicy.shouldSpeak(gameType: .softTennis, cue: .complete))
+        #expect(OfficialBreakVoicePolicy.shouldSpeak(gameType: .tennis, cue: .earlyResume))
+    }
+
+    @Test func pingPongAdministrativeBreaksStaySilentWithPreferenceOnOrOff() {
+        for kind in [OfficialBreakKind.timeout, .medical] {
+            let state = OfficialBreakState(
+                sport: .pingpong,
+                kind: kind,
+                durationSeconds: 60,
+                source: .administrative
+            )
+            for preferenceEnabled in [false, true] {
+                for cue in [
+                    OfficialBreakCue.start, .twentySeconds, .halfTime,
+                    .fifteenSeconds, .time, .complete, .earlyResume
+                ] {
+                    #expect(!OfficialBreakVoicePolicy.shouldSpeak(
+                        gameType: .pingpong,
+                        cue: cue,
+                        state: state,
+                        officialBreaksEnabled: preferenceEnabled
+                    ))
+                    #expect(OfficialBreakVoiceMapper.payload(
+                        gameType: .pingpong,
+                        cue: cue,
+                        state: state,
+                        leftName: "Alice",
+                        rightName: "Bob",
+                        leftScore: 5,
+                        rightScore: 4,
+                        servingSide: .left
+                    ) == nil)
+                }
+            }
+        }
+    }
+
+    @Test func ordinaryOfficialBreakKeepsExistingVoicePolicy() {
+        let state = OfficialBreakState(
+            sport: .pickleball,
+            kind: .midGame,
+            durationSeconds: 60
+        )
+        #expect(!OfficialBreakVoicePolicy.shouldSpeak(
+            gameType: .pickleball,
+            cue: .start,
+            state: state,
+            officialBreaksEnabled: false
+        ))
+        #expect(OfficialBreakVoicePolicy.shouldSpeak(
+            gameType: .pickleball,
+            cue: .start,
+            state: state,
+            officialBreaksEnabled: true
+        ))
+        #expect(OfficialBreakVoiceMapper.payload(
+            gameType: .pickleball,
+            cue: .start,
+            state: state,
+            leftName: "Alice",
+            rightName: "Bob",
+            leftScore: 6,
+            rightScore: 4,
+            servingSide: .left
+        ) != nil)
+    }
+
+    @Test func android31AddsProjectSpecificRacketCalls() {
+        #expect(
+            racket(.squash) {
+                $0.phase = .opening
+                $0.leftScore = 0
+                $0.rightScore = 0
+                $0.receiverName = "Bob"
+                $0.maxSets = 5
+            } == "Alice发球，Bob接发，5局制，0比0"
+        )
+        #expect(
+            racket(.squash, language: .enUS) {
+                $0.phase = .scoreChange
+                $0.leftScore = 10
+                $0.rightScore = 10
+            } == "10-all, a player must win by 2 points"
+        )
+        #expect(racket(.shuttlecock) { $0.phase = .opening; $0.leftScore = 0; $0.rightScore = 0 } == "Alice发球，0比0")
+
+        #expect(
+            racket(.softTennis) {
+                $0.phase = .opening
+                $0.maxSets = 9
+            } == "9局制，比赛开始"
+        )
+        #expect(
+            racket(.softTennis) {
+                $0.leftScore = 4
+                $0.rightScore = 3
+            } == "Alice占先"
+        )
+        #expect(
+            racket(.padel) {
+                $0.leftScore = 3
+                $0.rightScore = 3
+                $0.tennisDeuceMode = PadelDeuceMode.goldenPoint.rawValue
+            } == "黄金分，接发方选择"
+        )
+        #expect(
+            racket(.padel, language: .enUS) {
+                $0.leftScore = 3
+                $0.rightScore = 3
+                $0.tennisDeuceMode = PadelDeuceMode.starPoint.rawValue
+                $0.starPointReturnedAdvantages = 2
+            } == "Deuce 3, Star point"
+        )
+    }
+
+    @Test func officialBreak31WarningsStartAndResumeUseProjectSpecificCalls() {
+        let state = OfficialBreakState(
+            sport: .pickleball,
+            kind: .midGame,
+            durationSeconds: 60,
+            afterAction: .exchangeSides
+        )
+        let start = OfficialBreakVoiceMapper.payload(
+            gameType: .pickleballDoubles,
+            cue: .start,
+            state: state,
+            leftName: "Alice",
+            rightName: "Bob",
+            leftScore: 6,
+            rightScore: 4,
+            servingSide: .left,
+            serverNumber: 2,
+            currentSet: 3
+        )
+        #expect(start != nil)
+        #expect(VoiceAnnouncementMessageBuilder.build(start!, language: .zhCN) == "6比4，二号，暂停，交换场地，1分钟")
+        #expect(VoiceAnnouncementMessageBuilder.build(start!, language: .enUS) == "six, four, 2. Time-out, change ends, 1 minute")
+
+        let resumed = OfficialBreakVoiceMapper.payload(
+            gameType: .pingpong,
+            cue: .complete,
+            state: OfficialBreakState(sport: .pingpong, kind: .gameBreak, durationSeconds: 60),
+            leftName: "Alice",
+            rightName: "Bob",
+            leftScore: 0,
+            rightScore: 0,
+            servingSide: .right,
+            serverName: "Bob",
+            currentSet: 2
+        )
+        #expect(resumed != nil)
+        #expect(VoiceAnnouncementMessageBuilder.build(resumed!, language: .zhCN) == "时间到，第2局，Bob发球，0比0")
+        #expect(VoiceAnnouncementMessageBuilder.build(resumed!, language: .enUS) == "Time. Game 2. Bob serves, love all")
+
+        for (cue, zh, en) in [
+            (OfficialBreakCue.twentySeconds, "20秒", "20 seconds"),
+            (.halfTime, "休息过半", "Half-time"),
+            (.fifteenSeconds, "15秒", "15 seconds"),
+            (.time, "时间到", "Time")
+        ] {
+            let warning = OfficialBreakVoiceMapper.payload(
+                gameType: .squash,
+                cue: cue,
+                state: OfficialBreakState(sport: .squash, kind: .gameBreak, durationSeconds: 90),
+                leftName: "Alice",
+                rightName: "Bob",
+                leftScore: 0,
+                rightScore: 0,
+                servingSide: .left
+            )
+            #expect(VoiceAnnouncementMessageBuilder.build(warning!, language: .zhCN) == zh)
+            #expect(VoiceAnnouncementMessageBuilder.build(warning!, language: .enUS) == en)
+        }
     }
 }

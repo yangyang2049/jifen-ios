@@ -82,29 +82,39 @@ final class ScoreVoiceAnnouncer {
             .filter { !$0.isEmpty }
         guard !texts.isEmpty else { return }
 
-        scoreChangeTask?.cancel()
-        scoreChangeTask = nil
-        if VoiceAnnouncementBatchPolicy.shouldDebounce(payloads) {
+        let policy = VoiceAnnouncementBatchPolicy.queuePolicy(payloads)
+        cancelPendingScore()
+        if policy == .latestScore {
             scoreChangeTask = Task { [weak self] in
                 try? await Task.sleep(nanoseconds: self?.scoreChangeDebounceNanoseconds ?? 420_000_000)
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
-                    self?.speakTexts(texts, language: language)
+                    self?.speakTexts(texts, language: language, interruptCurrent: true)
                 }
             }
         } else {
-            speakTexts(texts, language: language)
+            speakTexts(texts, language: language, interruptCurrent: policy == .flush)
         }
     }
 
-    func stop() {
+    func cancelPendingScore() {
         scoreChangeTask?.cancel()
         scoreChangeTask = nil
+    }
+
+    func stop() {
+        cancelPendingScore()
         synthesizer.stopSpeaking(at: .immediate)
     }
 
-    private func speakTexts(_ texts: [String], language: VoiceAnnouncementLanguage) {
-        synthesizer.stopSpeaking(at: .immediate)
+    private func speakTexts(
+        _ texts: [String],
+        language: VoiceAnnouncementLanguage,
+        interruptCurrent: Bool
+    ) {
+        if interruptCurrent {
+            synthesizer.stopSpeaking(at: .immediate)
+        }
         for text in texts {
             let utterance = AVSpeechUtterance(string: text)
             utterance.voice = AVSpeechSynthesisVoice(language: language.rawValue)

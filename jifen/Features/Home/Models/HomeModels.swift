@@ -107,13 +107,104 @@ struct GameItem: Identifiable {
 struct QuickStartConfig: Codable, Equatable {
     var primarySport: GameType
     var secondarySport: GameType
+    var tertiarySport: GameType
 
-    // A default configuration for phone, similar to DEFAULT_QUICK_START_CONFIG_PHONE
-    static let defaultPhoneConfig = QuickStartConfig(primarySport: .badminton, secondarySport: .pingpong)
-    static let defaultTabletConfig = QuickStartConfig(primarySport: .basketball, secondarySport: .badminton)
-    // iOS has no tertiary quick-start card yet, so the 2-in-1 default currently
-    // shares the two visible sports with the tablet configuration.
-    static let default2In1Config = QuickStartConfig(primarySport: .basketball, secondarySport: .badminton)
+    init(
+        primarySport: GameType,
+        secondarySport: GameType,
+        tertiarySport: GameType = .tennis
+    ) {
+        self.primarySport = primarySport
+        self.secondarySport = secondarySport
+        self.tertiarySport = tertiarySport
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case primarySport
+        case secondarySport
+        case tertiarySport
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        primarySport = try Self.decodeStoredGameType(from: container, forKey: .primarySport)
+        secondarySport = try Self.decodeStoredGameType(from: container, forKey: .secondarySport)
+        // Versions before the wide quick-start layout persisted only two slots.
+        tertiarySport = try Self.decodeStoredGameTypeIfPresent(from: container, forKey: .tertiarySport) ?? .tennis
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(Self.persistedIdentifier(for: primarySport), forKey: .primarySport)
+        try container.encode(Self.persistedIdentifier(for: secondarySport), forKey: .secondarySport)
+        try container.encode(Self.persistedIdentifier(for: tertiarySport), forKey: .tertiarySport)
+    }
+
+    /// Android 3.1 persists table tennis as `table_tennis`; older iOS builds
+    /// used `pingpong`. Decode both spellings and write only the canonical one.
+    private static func decodeStoredGameType(
+        from container: KeyedDecodingContainer<CodingKeys>,
+        forKey key: CodingKeys
+    ) throws -> GameType {
+        let identifier = try container.decode(String.self, forKey: key)
+        guard let value = gameType(forPersistedIdentifier: identifier) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: key,
+                in: container,
+                debugDescription: "Unknown quick-start game type: \(identifier)"
+            )
+        }
+        return value
+    }
+
+    private static func decodeStoredGameTypeIfPresent(
+        from container: KeyedDecodingContainer<CodingKeys>,
+        forKey key: CodingKeys
+    ) throws -> GameType? {
+        guard container.contains(key) else { return nil }
+        guard !(try container.decodeNil(forKey: key)) else { return nil }
+        return try decodeStoredGameType(from: container, forKey: key)
+    }
+
+    private static func gameType(forPersistedIdentifier identifier: String) -> GameType? {
+        switch identifier {
+        case "table_tennis", "pingpong": return .pingpong
+        case "archery_dual": return .archery
+        case "simple_score": return .simpleScore
+        case "multi_scoreboard": return .multiScoreboard
+        default: return GameType(rawValue: identifier)
+        }
+    }
+
+    private static func persistedIdentifier(for gameType: GameType) -> String {
+        gameType == .pingpong ? "table_tennis" : gameType.canonicalScoreboardIdentifier
+    }
+
+    /// Quick-start customization follows the shared catalog and excludes the
+    /// standalone stopwatch, matching the new-game picker contract.
+    static var selectableGameTypes: [GameType] {
+        GameCatalog.quickStartSelectableGameTypes.filter { $0 != .stopwatch }
+    }
+
+    static let defaultPhoneConfig = QuickStartConfig(
+        primarySport: .basketball,
+        secondarySport: .badminton,
+        tertiarySport: .tennis
+    )
+    static let defaultTabletConfig = defaultPhoneConfig
+    static let default2In1Config = defaultPhoneConfig
+}
+
+enum QuickStartLayoutPolicy {
+    static func showsTertiarySlot(
+        horizontalSizeClass: UserInterfaceSizeClass?,
+        isPad: Bool
+    ) -> Bool {
+        if let horizontalSizeClass {
+            return horizontalSizeClass == .regular
+        }
+        return isPad
+    }
 }
 
 // MARK: - ScoreboardSetupItem (for sheet(item:) so content is never empty)
@@ -127,6 +218,8 @@ struct ScoreboardSetupItem: Identifiable {
 struct SportsSetupResult: Codable, Hashable {
     var team1Name: String
     var team2Name: String
+    /// Optional snooker event/match heading. Normalized to 40 Unicode code points.
+    var matchTitle: String? = nil
     var team3Name: String? = nil
     var team4Name: String? = nil
     var maxSets: Int? = nil
@@ -141,6 +234,8 @@ struct SportsSetupResult: Codable, Hashable {
     var team1Player2Name: String? = nil
     var team2Player1Name: String? = nil
     var team2Player2Name: String? = nil
+    var team1Player3Name: String? = nil
+    var team2Player3Name: String? = nil
     var basketballMode: String? = nil // "five_v_five" or "three_x_three"
     var basketballRuleSet: String? = nil // "fiba" or "nba"
     var tennisDeuceMode: String? = nil // "advantage" or "no_ad"
@@ -169,6 +264,33 @@ struct SportsSetupResult: Codable, Hashable {
     var guandanTripleA: Bool? = nil
     var guandanPassACondition: String? = nil // "not_last" | "double_up"
     var guandanTripleAFallbackRank: String? = nil
+    var competitionFormat: CompetitionFormat? = nil
+    var softTennisMatchGames: Int? = nil
+    var padelDeuceMode: PadelDeuceMode? = nil
+    var ruleProfileVersion: Int? = nil
+    var footballHalfLengthSeconds: Int? = nil
+    var showMatchTime: Bool? = nil
+}
+
+enum ScoreboardMatchTitlePolicy {
+    static let maximumCodePoints = 40
+
+    static func sanitize(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let normalized = value
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        guard !normalized.isEmpty else { return nil }
+        return limitInput(normalized)
+    }
+
+    static func limitInput(_ value: String) -> String {
+        let scalars = value.unicodeScalars
+        guard scalars.count > maximumCodePoints else { return value }
+        let end = scalars.index(scalars.startIndex, offsetBy: maximumCodePoints)
+        return String(value[..<end])
+    }
 }
 
 /// Typed projection used by every billiards entry path (fresh setup, resume,
@@ -208,12 +330,12 @@ extension SportsSetupResult {
             return .nineBall(
                 playerNames: names,
                 points: NineBallChaseConfig(
-                    bigGold: min(99, max(0, nineBallBigGold ?? 10)),
-                    smallGold: min(99, max(0, nineBallSmallGold ?? 7)),
-                    goldenNine: min(99, max(0, nineBallGoldenNine ?? 8)),
-                    normalWin: min(99, max(0, nineBallNormalWin ?? 4)),
-                    ballInHand: min(99, max(0, nineBallBallInHand ?? 1)),
-                    foul: min(99, max(0, nineBallFoul ?? 1))
+                    bigGold: min(99, max(1, nineBallBigGold ?? 10)),
+                    smallGold: min(99, max(1, nineBallSmallGold ?? 7)),
+                    goldenNine: min(99, max(1, nineBallGoldenNine ?? 8)),
+                    normalWin: min(99, max(1, nineBallNormalWin ?? 4)),
+                    ballInHand: min(99, max(1, nineBallBallInHand ?? 1)),
+                    foul: min(99, max(1, nineBallFoul ?? 1))
                 )
             )
         case .snooker:
@@ -228,6 +350,22 @@ extension SportsSetupResult {
 }
 
 extension SportsSetupResult {
+    var pingPongRules: RallyRuleSet {
+        var rules = RallyRuleSet.pingPong(
+            maxSets: maxSets.flatMap { $0 > 0 ? $0 : nil } ?? 5,
+            matchCompletionMode: matchCompletionMode ?? .bestOf
+        )
+        let target = max(1, pointsPerSet ?? 11)
+        let coreType: ScoreCore.GameType = isSingles == false ? .pingpongDoubles : .pingpong
+        rules.pointsToWinSet = target
+        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(
+            for: coreType,
+            pointsPerSet: target
+        )
+        rules.autoChangeSides = autoChangeSides ?? true
+        return rules
+    }
+
     var badmintonRules: RallyRuleSet {
         var rules = RallyRuleSet.badminton(
             maxSets: maxSets ?? 3,
@@ -245,6 +383,35 @@ extension SportsSetupResult {
         return rules
     }
 
+    var pickleballRules: RallyRuleSet {
+        let requestedTarget = targetScore ?? 11
+        let target = [11, 15, 21].contains(requestedTarget) ? requestedTarget : 11
+        let defaultMaxSets = target == 11 ? 3 : 1
+        var rules = RallyRuleSet.pickleball(
+            maxSets: maxSets.flatMap { $0 > 0 ? $0 : nil } ?? defaultMaxSets,
+            matchCompletionMode: matchCompletionMode ?? .bestOf
+        )
+        rules.pointsToWinSet = target
+        rules.pointCap = scoreCap.flatMap { $0 > 0 ? $0 : nil }
+        rules.winByTwo = winByTwo ?? true
+        rules.autoChangeSides = autoChangeSides ?? true
+        rules.useRallyScoring = useRallyScoring ?? false
+        rules.nextSetServerModel = isSingles == false ? .alternateFromOpening : .opening
+        return rules
+    }
+
+    var tennisRules: TennisRuleSet {
+        TennisRuleSet(
+            maxSets: maxSets.flatMap { $0 > 0 ? $0 : nil } ?? 3,
+            tieBreakPoints: tieBreakPoints == 10 ? 10 : 7,
+            gamesPerSet: gamesPerSet == 4 ? 4 : 6,
+            setScoringMode: setScoringMode == "tiebreak_only" ? .tiebreakOnly : .regular,
+            matchCompletionMode: matchCompletionMode ?? .bestOf,
+            usesNoAdScoring: tennisDeuceMode == "no_ad",
+            autoChangeSides: autoChangeSides ?? true
+        )
+    }
+
     var foosballRules: RallyRuleSet {
         var rules = RallyRuleSet.foosball(maxSets: maxSets ?? 3)
         rules.matchCompletionMode = matchCompletionMode ?? .bestOf
@@ -255,5 +422,41 @@ extension SportsSetupResult {
             ? scoreCap.flatMap { (pointsToWin...99).contains($0) ? $0 : nil }
             : nil
         return rules
+    }
+
+    var shuttlecockRules: RallyRuleSet {
+        var rules = RallyRuleSet.shuttlecock(
+            maxSets: maxSets ?? 3,
+            pointsPerSet: pointsPerSet ?? 21,
+            matchCompletionMode: matchCompletionMode ?? .bestOf
+        )
+        rules.autoChangeSides = autoChangeSides ?? true
+        return rules
+    }
+
+    var squashRules: RallyRuleSet {
+        var rules = RallyRuleSet.squash(
+            maxSets: maxSets ?? 5,
+            matchCompletionMode: matchCompletionMode ?? .bestOf
+        )
+        rules.autoChangeSides = autoChangeSides ?? true
+        return rules
+    }
+
+    var softTennisRules: TennisRuleSet {
+        TennisRuleSet.softTennis(
+            maxSets: maxSets ?? 3,
+            gamesPerSet: softTennisMatchGames ?? 7,
+            matchCompletionMode: matchCompletionMode ?? .bestOf,
+            autoChangeSides: autoChangeSides ?? true
+        )
+    }
+
+    var padelRules: TennisRuleSet {
+        TennisRuleSet.padel(
+            maxSets: maxSets ?? 3,
+            deuceMode: padelDeuceMode ?? .starPoint,
+            autoChangeSides: autoChangeSides ?? true
+        )
     }
 }

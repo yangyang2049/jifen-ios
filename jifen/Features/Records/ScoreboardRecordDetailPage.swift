@@ -29,6 +29,8 @@ struct ScoreboardRecordDetailPage: View {
     @State private var didTrackRecordView = false
     @State private var selectedTrendTabID: String?
     @State private var selectedDetailSectionID: String?
+    @State private var showingNoteEditor = false
+    @State private var noteDraft = ""
 
     var body: some View {
         ZStack {
@@ -64,6 +66,9 @@ struct ScoreboardRecordDetailPage: View {
         .sheet(isPresented: $showingSetup) {
             if let record { replaySetupSheet(record) }
         }
+        .sheet(isPresented: $showingNoteEditor) {
+            noteEditor
+        }
         .navigationDestination(item: $launchRequest) { request in
             ScoreboardLaunchView(
                 gameType: request.gameType,
@@ -81,6 +86,7 @@ struct ScoreboardRecordDetailPage: View {
         return ScrollView {
             VStack(spacing: 16) {
                 overviewCard(record)
+                noteCard(record)
                 primaryActions(record, presentation: presentation)
                 if !record.displayParticipants.isEmpty { rankingCard(record) }
                 switch presentation.detailLayout {
@@ -156,19 +162,42 @@ struct ScoreboardRecordDetailPage: View {
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            let score = record.primaryScore
-            HStack(alignment: .center, spacing: 12) {
-                scoreSide(
-                    record.team1Name,
-                    score: score.left,
-                    isWinner: record.resolvedWinnerRecordTeam == .team1
-                )
-                Text(":").font(.title.bold()).foregroundStyle(Theme.textSecondary)
-                scoreSide(
-                    record.team2Name,
-                    score: score.right,
-                    isWinner: record.resolvedWinnerRecordTeam == .team2
-                )
+            if let matchTitle = record.configuredMatchTitle {
+                Text(matchTitle)
+                    .font(.title3.weight(.semibold))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityIdentifier("record_match_title")
+            }
+            if record.gameType == .doudizhu, record.displayParticipants.count >= 3 {
+                let participants = Array(record.displayParticipants.prefix(3))
+                HStack(alignment: .center, spacing: 8) {
+                    ForEach(Array(participants.enumerated()), id: \.offset) { index, participant in
+                        if index > 0 {
+                            Text("/").font(.title.bold()).foregroundStyle(Theme.textSecondary)
+                        }
+                        scoreSide(
+                            participant.name,
+                            score: participant.score,
+                            isWinner: record.resolvedWinnerIdentity == .participant(index: index)
+                        )
+                    }
+                }
+            } else {
+                let score = record.primaryScore
+                HStack(alignment: .center, spacing: 12) {
+                    scoreSide(
+                        record.team1Name,
+                        score: score.left,
+                        isWinner: record.resolvedWinnerRecordTeam == .team1
+                    )
+                    Text(":").font(.title.bold()).foregroundStyle(Theme.textSecondary)
+                    scoreSide(
+                        record.team2Name,
+                        score: score.right,
+                        isWinner: record.resolvedWinnerRecordTeam == .team2
+                    )
+                }
             }
             if let format = recordFormatDescription(record) {
                 Text(format)
@@ -232,6 +261,75 @@ struct ScoreboardRecordDetailPage: View {
             }
                 .buttonStyle(.plain)
                 .accessibilityLabel(NSLocalizedString("delete", comment: ""))
+        }
+    }
+
+    private func noteCard(_ record: ScoreboardRecord) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label(NSLocalizedString("record_note", value: "备注", comment: ""), systemImage: "note.text")
+                    .font(.headline)
+                Spacer()
+                Button {
+                    noteDraft = record.note ?? ""
+                    showingNoteEditor = true
+                } label: {
+                    Text(record.note == nil ? NSLocalizedString("add", value: "添加", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
+                }
+                .buttonStyle(.borderless)
+            }
+            if let note = record.note, !note.isEmpty {
+                Text(note)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundStyle(Theme.textSecondary)
+                    .textSelection(.enabled)
+            } else {
+                Text(NSLocalizedString("record_note_empty", value: "还没有备注", comment: ""))
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textSecondary)
+            }
+        }
+        .padding(16)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private var noteEditor: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 8) {
+                TextEditor(text: $noteDraft)
+                    .padding(8)
+                    .frame(minHeight: 180)
+                    .background(Theme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                Text("\(noteDraft.unicodeScalars.count)/300")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .padding()
+            .background(Theme.backgroundColor.ignoresSafeArea())
+            .navigationTitle(NSLocalizedString("record_note", value: "备注", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(NSLocalizedString("cancel", comment: "")) { showingNoteEditor = false }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(NSLocalizedString("save", comment: "保存")) { saveNote() }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func saveNote() {
+        do {
+            try ScoreboardRecordManager.shared.updateRecordNote(id: recordId, note: noteDraft)
+            record = ScoreboardRecordManager.shared.getRecordById(recordId)
+            showingNoteEditor = false
+        } catch {
+            explanation = NSLocalizedString("record_note_save_failed", value: "备注保存失败，原备注已保留。", comment: "")
         }
     }
 
@@ -392,7 +490,7 @@ struct ScoreboardRecordDetailPage: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(section.title).font(.headline)
                         if let result = section.result, !result.scores.isEmpty {
-                            recapResultRow(result)
+                            recapResultRow(result, record: record)
                         }
                         ForEach(Array(section.actions.enumerated()), id: \.element.id) { index, action in
                             actionRow(action, index: index, record: record)
@@ -408,10 +506,15 @@ struct ScoreboardRecordDetailPage: View {
         .padding(16).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private func recapResultRow(_ result: RecordSetResult) -> some View {
+    private func recapResultRow(_ result: RecordSetResult, record: ScoreboardRecord) -> some View {
         HStack {
             Spacer()
-            Text(result.scores.map(String.init).joined(separator: " : "))
+            Text(
+                record.gameType == .doudizhu
+                    ? DoudizhuRecordDetailPolicy.scoreLine(scores: result.scores)
+                        ?? result.scores.map(String.init).joined(separator: " : ")
+                    : result.scores.map(String.init).joined(separator: " : ")
+            )
                 .font(.subheadline.bold().monospacedDigit())
                 .foregroundStyle(Theme.primary)
         }
@@ -544,22 +647,84 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func actionRow(_ action: DetailedScoreAction, index: Int, record: ScoreboardRecord) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Text(actionTime(action, index: index, start: record.startTime))
-                .font(.caption.monospacedDigit()).foregroundStyle(Theme.textSecondary).frame(width: 42, alignment: .leading)
-            Text(actionTitle(action, record: record)).font(.subheadline)
-            Spacer()
-            if action.scores.count >= 2 {
-                Text("\(action.scores[0]) : \(action.scores[1])").font(.subheadline.bold().monospacedDigit()).foregroundStyle(Theme.primary)
+        let doudizhuDetails = DoudizhuRecordDetailPolicy.scoreDetails(for: action, record: record)
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 10) {
+                Text(actionTime(action, index: index, start: record.startTime))
+                    .font(.caption.monospacedDigit()).foregroundStyle(Theme.textSecondary).frame(width: 42, alignment: .leading)
+                Text(actionTitle(action, record: record)).font(.subheadline)
+                Spacer()
+                if let scoreText = actionScoreText(action, record: record) {
+                    Text(scoreText).font(.subheadline.bold().monospacedDigit()).foregroundStyle(Theme.primary)
+                }
+            }
+            if !doudizhuDetails.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(Array(doudizhuDetails.enumerated()), id: \.offset) { _, detail in
+                        HStack(spacing: 8) {
+                            Text(doudizhuPlayerRoleText(detail))
+                            Spacer()
+                            if let change = detail.scoreChange {
+                                Text(DoudizhuRecordDetailPolicy.signedScore(change))
+                                    .font(.subheadline.bold().monospacedDigit())
+                            }
+                        }
+                        .font(.caption)
+                        .foregroundStyle(detail.isWinner ? Color.green : Theme.textSecondary)
+                    }
+                }
+                .padding(.leading, 52)
             }
         }
         .padding(.vertical, 6)
     }
 
+    private func actionScoreText(_ action: DetailedScoreAction, record: ScoreboardRecord) -> String? {
+        if record.gameType == .doudizhu {
+            return DoudizhuRecordDetailPolicy.scoreLine(for: action)
+        }
+        guard action.scores.count >= 2 else { return nil }
+        return "\(action.scores[0]) : \(action.scores[1])"
+    }
+
+    private func doudizhuPlayerRoleText(_ detail: DoudizhuRecordScoreDetail) -> String {
+        let role: String?
+        switch detail.role {
+        case .landlord:
+            role = NSLocalizedString("doudizhu_role_landlord", value: "地主", comment: "")
+        case .farmer:
+            role = NSLocalizedString("doudizhu_role_farmer", value: "农民", comment: "")
+        case nil:
+            role = nil
+        }
+        guard let role else { return detail.playerName }
+        return String.localizedStringWithFormat(
+            NSLocalizedString("doudizhu_player_role_format", value: "%@（%@）", comment: ""),
+            detail.playerName,
+            role
+        )
+    }
+
     private func actionTitle(_ action: DetailedScoreAction, record: ScoreboardRecord) -> String {
+        if record.gameType == .doudizhu {
+            let winnerNames = DoudizhuRecordDetailPolicy.winnerNames(for: action, record: record)
+            if !winnerNames.isEmpty {
+                let separator = NSLocalizedString("doudizhu_winner_separator", value: "、", comment: "")
+                return String.localizedStringWithFormat(
+                    NSLocalizedString("winner_named_format", value: "%@ 获胜", comment: ""),
+                    winnerNames.joined(separator: separator)
+                )
+            }
+        }
         let sideName: String? = {
             switch action.team { case .team1: return record.team1Name; case .team2: return record.team2Name; default: return nil }
         }()
+        if let title = ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
+            operationCode: action.operationCode,
+            teamName: sideName
+        ) {
+            return title
+        }
         switch action.type {
         case .matchStarted: return NSLocalizedString("game_started", comment: "")
         case .matchFinished: return NSLocalizedString("game_ended", comment: "")

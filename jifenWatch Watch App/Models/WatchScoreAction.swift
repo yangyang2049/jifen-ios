@@ -346,6 +346,17 @@ enum WatchScoreActionProjector {
                 ))
             case .matchReset:
                 break
+            case .pingPongAdministrativeAction(let administrativeAction):
+                projected.append(action(
+                    .stateChange,
+                    code: "pingpong_\(administrativeAction.type.rawValue)",
+                    side: administrativeAction.side,
+                    scores: (state.leftPoints, state.rightPoints),
+                    sets: (state.leftSets, state.rightSets),
+                    timestamp: timestamp
+                ))
+            case .officialBreakChanged:
+                break
             }
         }
 
@@ -370,6 +381,15 @@ enum WatchScoreActionProjector {
                     .stateChange, code: "edit_name",
                     scores: (state.leftPoints, state.rightPoints),
                     sets: (state.leftSets, state.rightSets), timestamp: timestamp
+                ))
+            case .pingPongAdministrativeAction(let type, let side):
+                projected.append(action(
+                    .stateChange,
+                    code: "pingpong_\(type.rawValue)",
+                    side: side,
+                    scores: (state.leftPoints, state.rightPoints),
+                    sets: (state.leftSets, state.rightSets),
+                    timestamp: timestamp
                 ))
             case .reset:
                 break
@@ -457,6 +477,8 @@ enum WatchScoreActionProjector {
                     timestamp: timestamp
                 ))
             case .matchReset:
+                break
+            case .officialBreakChanged:
                 break
             }
         }

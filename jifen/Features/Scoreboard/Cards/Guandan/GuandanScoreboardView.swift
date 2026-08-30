@@ -1,3 +1,4 @@
+import PersistenceCore
 import RecordCore
 import ScoreCore
 import SwiftUI
@@ -46,7 +47,7 @@ func guandanLocalDisplayState(
 ) -> LocalScoreboardDisplayState {
     let leftSide = guandanLogicalSide(onScreen: .left, sidesSwapped: state.sidesSwapped)
     let rightSide = guandanLogicalSide(onScreen: .right, sidesSwapped: state.sidesSwapped)
-    return LocalScoreboardDisplayState(
+    var compact = LocalScoreboardDisplayState(
         gameID: GameType.guandan.canonicalScoreboardIdentifier,
         title: GameType.guandan.displayName,
         leftName: leftSide == .red ? state.redTeam.name : state.blueTeam.name,
@@ -63,6 +64,14 @@ func guandanLocalDisplayState(
         finished: state.phase == .finished,
         revision: 0
     )
+    compact.externalState = ScoreboardDisplayState.enriched(
+        compact: compact,
+        layoutKind: .boardCard,
+        sportState: [
+            "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left")
+        ]
+    )
+    return compact
 }
 
 struct GuandanResumeState: Codable, Equatable {
@@ -72,6 +81,7 @@ struct GuandanResumeState: Codable, Equatable {
     let intentTimeline: [String]
     let detailedActions: [DetailedScoreAction]
     let actionCount: Int
+    let undoTimeline: [GuandanUndoTimelineCheckpoint]
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
@@ -80,6 +90,7 @@ struct GuandanResumeState: Codable, Equatable {
         case intentTimeline
         case detailedActions
         case actionCount
+        case undoTimeline
     }
 
     init(
@@ -88,7 +99,8 @@ struct GuandanResumeState: Codable, Equatable {
         undoHistory: [GuandanMatchState],
         intentTimeline: [String],
         detailedActions: [DetailedScoreAction] = [],
-        actionCount: Int
+        actionCount: Int,
+        undoTimeline: [GuandanUndoTimelineCheckpoint] = []
     ) {
         self.schemaVersion = schemaVersion
         self.state = state
@@ -96,6 +108,7 @@ struct GuandanResumeState: Codable, Equatable {
         self.intentTimeline = intentTimeline
         self.detailedActions = detailedActions
         self.actionCount = actionCount
+        self.undoTimeline = undoTimeline
     }
 
     init(from decoder: Decoder) throws {
@@ -106,6 +119,217 @@ struct GuandanResumeState: Codable, Equatable {
         intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []
         detailedActions = try container.decodeIfPresent([DetailedScoreAction].self, forKey: .detailedActions) ?? []
         actionCount = try container.decodeIfPresent(Int.self, forKey: .actionCount) ?? undoHistory.count
+        undoTimeline = try container.decodeIfPresent([GuandanUndoTimelineCheckpoint].self, forKey: .undoTimeline) ?? []
+    }
+}
+
+struct GuandanUndoTimelineCheckpoint: Codable, Equatable {
+    let actionLogCount: Int
+    let detailedActionsCount: Int
+    let actionCount: Int
+}
+
+func guandanPresentationStartedState(
+    _ state: GuandanMatchState,
+    at epochMilliseconds: Int64
+) -> GuandanMatchState {
+    guard state.phase == .notStarted else { return state }
+    return GuandanSessionReducer().reduce(
+        state: state,
+        intent: .startMatch,
+        at: epochMilliseconds
+    ).state
+}
+
+/// One visible +1/+2/+3 operation is one atomic user transition even when a
+/// legacy snapshot is still `notStarted`. This prevents an undo-to-notStarted
+/// state from trapping the board in reducer no-ops.
+func guandanRoundStateAfterTap(
+    state: GuandanMatchState,
+    winner: GuandanSide,
+    step: Int,
+    at epochMilliseconds: Int64
+) -> GuandanMatchState? {
+    let reducer = GuandanSessionReducer()
+    var working = guandanPresentationStartedState(state, at: epochMilliseconds)
+    guard working.phase != .finished else { return nil }
+    if working.phase == .roundResult, working.roundWinner != winner {
+        working = reducer.reduce(
+            state: working,
+            intent: .cancelRoundResult,
+            at: epochMilliseconds
+        ).state
+    }
+    if working.phase != .roundResult {
+        guard working.phase == .playing else { return nil }
+        let begun = reducer.reduce(
+            state: working,
+            intent: .beginRoundResult(winner: winner),
+            at: epochMilliseconds
+        )
+        guard begun.accepted, begun.state.phase == .roundResult else { return nil }
+        working = begun.state
+    }
+    let settled = reducer.reduce(
+        state: working,
+        intent: .applyRoundSettlement(step: step),
+        at: epochMilliseconds
+    )
+    guard settled.accepted, settled.state != state else { return nil }
+    return settled.state
+}
+
+func guandanDetailedActions(
+    for intent: GuandanSessionIntent,
+    previousState: GuandanMatchState,
+    resultingState state: GuandanMatchState,
+    epochMilliseconds: Int64,
+    roundNumber: Int
+) -> [DetailedScoreAction] {
+    func recordTeam(_ side: GuandanSide?) -> RecordTeam? {
+        guard let side else { return nil }
+        return side == .red ? .team1 : .team2
+    }
+    func rank(for side: GuandanSide, in state: GuandanMatchState) -> String {
+        side == .red ? state.redTeam.currentRank : state.blueTeam.currentRank
+    }
+    func rankIndex(_ rank: String) -> Int {
+        max(0, guandanRankOrder.firstIndex(of: rank) ?? 0)
+    }
+    let scores = [
+        GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
+        GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank)
+    ]
+
+    switch intent {
+    case .startMatch:
+        return [.init(type: .matchStarted, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_match_started")]
+    case .applyRoundSettlement(let step):
+        let winnerSide = state.lastRoundWinner ?? previousState.roundWinner
+        let winner = recordTeam(winnerSide)
+        let actualDelta: Int = winnerSide.map { side in
+            let beforeRank = rank(for: side, in: previousState)
+            let afterRank = rank(for: side, in: state)
+            let rankDelta = rankIndex(afterRank) - rankIndex(beforeRank)
+            return rankDelta == 0 ? step : rankDelta
+        } ?? step
+        var actions = [DetailedScoreAction(
+            type: .roundFinished,
+            epochMilliseconds: epochMilliseconds,
+            team: winner,
+            scores: scores,
+            roundNumber: roundNumber,
+            scoreChange: actualDelta,
+            winner: winner,
+            operationCode: "guandan_upgrade"
+        )]
+
+        if let passSide = previousState.aStageTeam {
+            let passTeam = recordTeam(passSide)
+            let passSucceeded = passSide == winnerSide && {
+                switch previousState.passACondition {
+                case .doubleUp: return step == 3
+                case .notLast: return step == 2 || step == 3
+                }
+            }()
+            if passSucceeded {
+                actions.append(.init(
+                    type: .stateChanged,
+                    epochMilliseconds: epochMilliseconds,
+                    team: passTeam,
+                    scores: scores,
+                    roundNumber: roundNumber,
+                    operationCode: "gd_pass_a_ok"
+                ))
+            } else if previousState.aStageMode == .singleA {
+                actions.append(.init(
+                    type: .stateChanged,
+                    epochMilliseconds: epochMilliseconds,
+                    team: passTeam,
+                    scores: scores,
+                    roundNumber: roundNumber,
+                    operationCode: "gd_pass_a_fail"
+                ))
+            } else {
+                let failAttempt = previousState.aFailCount(for: passSide) + 1
+                actions.append(.init(
+                    type: .stateChanged,
+                    epochMilliseconds: epochMilliseconds,
+                    team: passTeam,
+                    scores: scores,
+                    roundNumber: roundNumber,
+                    scoreChange: failAttempt,
+                    operationCode: "gd_pass_a_fail_triple"
+                ))
+                if failAttempt >= 3 {
+                    actions.append(.init(
+                        type: .stateChanged,
+                        epochMilliseconds: epochMilliseconds,
+                        team: passTeam,
+                        scores: scores,
+                        roundNumber: roundNumber,
+                        operationCode: "gd_triple_a_fallback",
+                        operationPayload: previousState.tripleAFallbackRank
+                    ))
+                }
+            }
+        }
+        return actions
+    case .recordPassA(let success):
+        guard let passSide = previousState.aStageTeam else {
+            return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, scores: scores, roundNumber: roundNumber, operationCode: "guandan_pass_a_unavailable")]
+        }
+        let passTeam = recordTeam(passSide)
+        let operationCode: String
+        let scoreChange: Int?
+        let operationPayload: String?
+        if success {
+            operationCode = "gd_pass_a_ok"
+            scoreChange = nil
+            operationPayload = nil
+        } else if previousState.aStageMode == .singleA {
+            operationCode = "gd_pass_a_fail"
+            scoreChange = nil
+            operationPayload = nil
+        } else if previousState.aFailCount(for: passSide) < 2 {
+            operationCode = "gd_pass_a_fail_triple"
+            scoreChange = state.aFailCount(for: passSide)
+            operationPayload = nil
+        } else {
+            operationCode = "gd_triple_a_fallback"
+            scoreChange = nil
+            operationPayload = rank(for: passSide, in: state)
+        }
+        return [.init(
+            type: .roundFinished,
+            epochMilliseconds: epochMilliseconds,
+            team: passTeam,
+            scores: scores,
+            roundNumber: roundNumber,
+            scoreChange: scoreChange,
+            winner: success ? passTeam : nil,
+            operationCode: operationCode,
+            operationPayload: operationPayload
+        )]
+    case .adjustRank(let side, let delta):
+        return [.init(type: .scoreChanged, epochMilliseconds: epochMilliseconds, team: recordTeam(side), scores: scores, scoreChange: delta, operationCode: "guandan_rank_adjusted")]
+    case .beginRoundResult(let winner):
+        return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, team: recordTeam(winner), scores: scores, operationCode: "guandan_round_winner_selected")]
+    case .cancelRoundResult:
+        return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_round_result_cancelled")]
+    case .exchangeSides:
+        return [.init(type: .sideChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_sides_exchanged")]
+    case .reset:
+        return [.init(type: .reset, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_reset")]
+    case .finish:
+        let winner = recordTeam(state.finalWinner)
+        return [.init(type: .matchFinished, epochMilliseconds: epochMilliseconds, scores: scores, winner: winner, operationCode: "guandan_match_finished")]
+    case .adminCorrect:
+        return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_admin_corrected")]
+    case .setRedTeamName:
+        return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, team: .team1, scores: scores, operationCode: "guandan_red_name_changed")]
+    case .setBlueTeamName:
+        return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, team: .team2, scores: scores, operationCode: "guandan_blue_name_changed")]
     }
 }
 
@@ -116,44 +340,13 @@ func guandanDetailedAction(
     epochMilliseconds: Int64,
     roundNumber: Int
 ) -> DetailedScoreAction {
-    func recordTeam(_ side: GuandanSide?) -> RecordTeam? {
-        guard let side else { return nil }
-        return side == .red ? .team1 : .team2
-    }
-    let scores = [
-        GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
-        GuandanMatchState.rankDisplayScore(state.blueTeam.currentRank)
-    ]
-
-    switch intent {
-    case .startMatch:
-        return .init(type: .matchStarted, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_match_started")
-    case .applyRoundSettlement(let step):
-        let winner = recordTeam(state.lastRoundWinner)
-        return .init(type: .roundFinished, epochMilliseconds: epochMilliseconds, team: winner, scores: scores, roundNumber: roundNumber, scoreChange: step, winner: winner, operationCode: "guandan_round_finished")
-    case .recordPassA:
-        let winner = recordTeam(state.lastRoundWinner ?? previousState.aStageTeam)
-        return .init(type: .roundFinished, epochMilliseconds: epochMilliseconds, team: winner, scores: scores, roundNumber: roundNumber, winner: winner, operationCode: "guandan_pass_a_finished")
-    case .adjustRank(let side, let delta):
-        return .init(type: .scoreChanged, epochMilliseconds: epochMilliseconds, team: recordTeam(side), scores: scores, scoreChange: delta, operationCode: "guandan_rank_adjusted")
-    case .beginRoundResult(let winner):
-        return .init(type: .stateChanged, epochMilliseconds: epochMilliseconds, team: recordTeam(winner), scores: scores, operationCode: "guandan_round_winner_selected")
-    case .cancelRoundResult:
-        return .init(type: .stateChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_round_result_cancelled")
-    case .exchangeSides:
-        return .init(type: .sideChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_sides_exchanged")
-    case .reset:
-        return .init(type: .reset, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_reset")
-    case .finish:
-        let winner = recordTeam(state.finalWinner)
-        return .init(type: .matchFinished, epochMilliseconds: epochMilliseconds, scores: scores, winner: winner, operationCode: "guandan_match_finished")
-    case .adminCorrect:
-        return .init(type: .stateChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_admin_corrected")
-    case .setRedTeamName:
-        return .init(type: .stateChanged, epochMilliseconds: epochMilliseconds, team: .team1, scores: scores, operationCode: "guandan_red_name_changed")
-    case .setBlueTeamName:
-        return .init(type: .stateChanged, epochMilliseconds: epochMilliseconds, team: .team2, scores: scores, operationCode: "guandan_blue_name_changed")
-    }
+    guandanDetailedActions(
+        for: intent,
+        previousState: previousState,
+        resultingState: state,
+        epochMilliseconds: epochMilliseconds,
+        roundNumber: roundNumber
+    )[0]
 }
 
 struct GuandanScoreboardView: View {
@@ -163,8 +356,10 @@ struct GuandanScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scoreboardMatchClockSession) private var matchClockSession
     @State private var state: GuandanMatchState
     @State private var history: [GuandanMatchState] = []
+    @State private var historyTimeline: [GuandanUndoTimelineCheckpoint] = []
     @State private var actionLog: [String] = []
     @State private var detailedActions: [DetailedScoreAction] = []
     @State private var actionCount = 0
@@ -214,6 +409,7 @@ struct GuandanScoreboardView: View {
         var restoredActions: [String] = []
         var restoredDetailedActions: [DetailedScoreAction] = []
         var restoredHistory: [GuandanMatchState] = []
+        var restoredHistoryTimeline: [GuandanUndoTimelineCheckpoint] = []
 
         if let initialResumeSessionId,
            let record = ManualResumeSessionStore.load(recordID: initialResumeSessionId),
@@ -221,6 +417,7 @@ struct GuandanScoreboardView: View {
             if let resume = try? JSONDecoder().decode(GuandanResumeState.self, from: data) {
                 initial = resume.state
                 restoredHistory = Array(resume.undoHistory.suffix(80))
+                restoredHistoryTimeline = Array(resume.undoTimeline.suffix(80))
                 restoredActions = resume.intentTimeline.isEmpty ? record.actions : resume.intentTimeline
                 restoredDetailedActions = resume.detailedActions.isEmpty
                     ? (record.detailedActions ?? [])
@@ -240,8 +437,21 @@ struct GuandanScoreboardView: View {
             }
         }
 
+        if restoredHistoryTimeline.count != restoredHistory.count {
+            let historyCount = restoredHistory.count
+            restoredHistoryTimeline = restoredHistory.indices.map { index in
+                let distance = historyCount - index
+                return GuandanUndoTimelineCheckpoint(
+                    actionLogCount: max(0, restoredActions.count - distance),
+                    detailedActionsCount: max(0, restoredDetailedActions.count - distance),
+                    actionCount: max(0, actions - distance)
+                )
+            }
+        }
+
         _state = State(initialValue: initial)
         _history = State(initialValue: restoredHistory)
+        _historyTimeline = State(initialValue: restoredHistoryTimeline)
         _gameStartAt = State(initialValue: start)
         _recordID = State(initialValue: id)
         _actionCount = State(initialValue: actions)
@@ -266,7 +476,9 @@ struct GuandanScoreboardView: View {
                 onRightTap: {},
                 onUndo: undo,
                 onReset: resetMatch,
-                onExchange: { send(.exchangeSides) },
+                // Android 3.0/3.1 does not expose a local exchange-side action
+                // for Guandan. Logical red/blue identity therefore stays fixed.
+                onExchange: nil,
                 onBack: {
                     saveRecord()
                     onNavigationBack?()
@@ -277,6 +489,14 @@ struct GuandanScoreboardView: View {
                 onEditCommit: applyEdit,
                 onEditAdjust: { isLeft, delta in
                     adjustRankInEditMode(side: guandanSide(onScreen: isLeft ? .left : .right), delta: delta)
+                },
+                onPanelSwipe: { isLeft, delta in
+                    let side = guandanSide(onScreen: isLeft ? .left : .right)
+                    if delta > 0 {
+                        applyGuandanRound(side: side, step: 1)
+                    } else {
+                        send(.adjustRank(side: side, delta: -1))
+                    }
                 },
                 seamOverlay: state.lastRoundWinner == nil ? nil : {
                     AnyView(
@@ -359,10 +579,17 @@ struct GuandanScoreboardView: View {
         }
         .onAppear {
             if state.phase == .notStarted {
-                send(.startMatch)
+                // Opening the page is lifecycle setup, not an undoable scoring
+                // action. Android starts the state machine on the first round
+                // settlement and never enables Undo on an untouched board.
+                state = guandanPresentationStartedState(
+                    state,
+                    at: Int64(Date().timeIntervalSince1970 * 1_000)
+                )
             }
             onSetupConsumed?()
             registerSync()
+            bindMatchClock()
         }
         .onChange(of: state) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -372,6 +599,7 @@ struct GuandanScoreboardView: View {
                 showGameOverDialog = true
             }
         }
+        .onChange(of: matchClockSession?.isVisible) { _, _ in saveRecord() }
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             saveRecord()
@@ -426,34 +654,14 @@ struct GuandanScoreboardView: View {
         guard state.phase != .finished else { return }
         let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
         let before = state
-        var working = state
-        if working.phase == .roundResult {
-            if working.roundWinner != side {
-                working = reducer.reduce(
-                    state: working,
-                    intent: .cancelRoundResult,
-                    at: timestamp
-                ).state
-            }
-        }
-        if working.phase != .roundResult {
-            let begin = reducer.reduce(
-                state: working,
-                intent: .beginRoundResult(winner: side),
-                at: timestamp
-            )
-            guard begin.accepted else { return }
-            working = begin.state
-        }
-        let settled = reducer.reduce(
-            state: working,
-            intent: .applyRoundSettlement(step: step),
+        guard let settled = guandanRoundStateAfterTap(
+            state: state,
+            winner: side,
+            step: step,
             at: timestamp
-        )
-        guard settled.accepted else { return }
-        history.append(before)
-        if history.count > 80 { history.removeFirst() }
-        state = settled.state
+        ) else { return }
+        pushUndoSnapshot(before)
+        state = settled
         actionCount += 1
         appendSnapshot("round_\(side.rawValue)_plus_\(step)")
         appendDetailedAction(
@@ -465,6 +673,7 @@ struct GuandanScoreboardView: View {
         if state.phase == .finished {
             showGameOverDialog = true
         }
+        saveRecord()
     }
 
     private func adjustRankInEditMode(side: GuandanSide, delta: Int) {
@@ -496,8 +705,7 @@ struct GuandanScoreboardView: View {
         let previous = state
         let result = reducer.reduce(state: state, intent: intent, at: timestamp)
         guard result.accepted else { return }
-        history.append(state)
-        if history.count > 80 { history.removeFirst() }
+        pushUndoSnapshot(state)
         state = result.state
         actionCount += 1
         appendSnapshot(String(describing: intent))
@@ -506,26 +714,47 @@ struct GuandanScoreboardView: View {
         if state.phase == .finished {
             showGameOverDialog = true
         }
+        saveRecord()
     }
 
     private func undo() -> Bool {
         guard let previous = history.popLast() else { return false }
+        let timeline = historyTimeline.popLast()
         state = previous
-        actionCount = max(0, actionCount - 1)
-        appendSnapshot("undo")
-        appendDetailedAction(DetailedScoreAction(
-            type: .undo,
-            epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
-            scores: guandanDetailedScores,
-            operationCode: "guandan_undo"
-        ))
+        actionLog = Array(actionLog.prefix(timeline?.actionLogCount ?? max(0, actionLog.count - 1)))
+        detailedActions = Array(detailedActions.prefix(timeline?.detailedActionsCount ?? max(0, detailedActions.count - 1)))
+        actionCount = timeline?.actionCount ?? max(0, actionCount - 1)
         showGameOverDialog = state.phase == .finished
+        saveRecord()
         return true
     }
 
     private func resetMatch() {
-        send(.reset)
+        let previousRecordID = recordID
+        let reset = reducer.reduce(
+            state: state,
+            intent: .reset,
+            at: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        guard reset.accepted else { return }
+        state = reset.state
+        history.removeAll()
+        historyTimeline.removeAll()
+        actionLog.removeAll()
+        detailedActions.removeAll()
+        actionCount = 0
+        gameStartAt = Date()
+        recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
+        pendingEditWrapSide = nil
         showGameOverDialog = false
+        matchClockSession?.reset(startedAt: gameStartAt)
+        saveRecord()
+
+        if let oldSessionID = ManualResumeSessionStore.sessionID(for: previousRecordID) {
+            Task {
+                try? await ResumeSessionRepository().remove(sessionId: oldSessionID)
+            }
+        }
     }
 
     private func startNewMatch() {
@@ -538,13 +767,29 @@ struct GuandanScoreboardView: View {
         guard reset.accepted else { return }
         state = reset.state
         history.removeAll()
+        historyTimeline.removeAll()
         actionLog.removeAll()
         detailedActions.removeAll()
         actionCount = 0
         gameStartAt = Date()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
+        matchClockSession?.reset(startedAt: gameStartAt)
         pendingEditWrapSide = nil
         showGameOverDialog = false
+    }
+
+    private func bindMatchClock() {
+        guard let matchClockSession else { return }
+        var visible = initialSetup?.showMatchTime ?? matchClockSession.isVisible
+        if let recordId = initialResumeSessionId,
+           let record = ManualResumeSessionStore.load(recordID: recordId),
+           let restored = scoreboardBool(
+               record.projectConfiguration?["showMatchTime"]
+                   ?? record.extraData?["showMatchTime"]
+           ) {
+            visible = restored
+        }
+        matchClockSession.bind(startedAt: gameStartAt, isVisible: visible)
     }
 
     private func finishMatch() {
@@ -553,10 +798,16 @@ struct GuandanScoreboardView: View {
 
     private func applyEdit(left: String, right: String, leftScore: String, rightScore: String) {
         let previous = state
-        let screenLeftRank = leftScore.uppercased().replacingOccurrences(of: "A1", with: "A")
+        // Rank buttons mutate the reducer immediately while the scaffold keeps
+        // the edit-session text it captured on entry. Commit names together
+        // with the reducer's current ranks so leaving edit mode cannot roll a
+        // rank adjustment back to that stale text.
+        let screenLeftRank = state.displayRank(for: guandanSide(onScreen: .left))
+            .uppercased().replacingOccurrences(of: "A1", with: "A")
             .replacingOccurrences(of: "A2", with: "A")
             .replacingOccurrences(of: "A3", with: "A")
-        let screenRightRank = rightScore.uppercased().replacingOccurrences(of: "A1", with: "A")
+        let screenRightRank = state.displayRank(for: guandanSide(onScreen: .right))
+            .uppercased().replacingOccurrences(of: "A1", with: "A")
             .replacingOccurrences(of: "A2", with: "A")
             .replacingOccurrences(of: "A3", with: "A")
         let leftIsRed = guandanSide(onScreen: .left) == .red
@@ -570,8 +821,7 @@ struct GuandanScoreboardView: View {
             at: Int64(Date().timeIntervalSince1970 * 1_000)
         )
         guard result.accepted, result.state != previous else { return }
-        history.append(previous)
-        if history.count > 80 { history.removeFirst(history.count - 80) }
+        pushUndoSnapshot(previous)
         state = result.state
         actionCount += 1
         appendSnapshot("adminCorrect")
@@ -581,6 +831,7 @@ struct GuandanScoreboardView: View {
             epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
         )
         showGameOverDialog = false
+        saveRecord()
     }
 
     private func registerSync() {
@@ -627,7 +878,8 @@ struct GuandanScoreboardView: View {
                 undoHistory: Array(history.suffix(80)),
                 intentTimeline: actionLog,
                 detailedActions: detailedActions,
-                actionCount: actionCount
+                actionCount: actionCount,
+                undoTimeline: historyTimeline
             ))
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode guandan record \(recordID)")
@@ -654,7 +906,12 @@ struct GuandanScoreboardView: View {
                 "schemaVersion": AnyCodable(3),
                 "guandanTripleA": AnyCodable(state.aStageMode == .tripleA),
                 "guandanPassACondition": AnyCodable(state.passACondition.rawValue),
-                "guandanTripleAFallbackRank": AnyCodable(state.tripleAFallbackRank)
+                "guandanTripleAFallbackRank": AnyCodable(state.tripleAFallbackRank),
+                "showMatchTime": AnyCodable(matchClockSession?.isVisible ?? false)
+            ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.guandan.rawValue),
+                "showMatchTime": AnyCodable(matchClockSession?.isVisible ?? false)
             ],
             stateSnapshot: snapshotData,
             status: .finished
@@ -673,6 +930,19 @@ struct GuandanScoreboardView: View {
         actionLog.append("\(timestamp)|snapshot|\(safeCode)|\(scores.map(String.init).joined(separator: ","))|")
     }
 
+    private func pushUndoSnapshot(_ snapshot: GuandanMatchState) {
+        history.append(snapshot)
+        historyTimeline.append(.init(
+            actionLogCount: actionLog.count,
+            detailedActionsCount: detailedActions.count,
+            actionCount: actionCount
+        ))
+        if history.count > 80 {
+            history.removeFirst(history.count - 80)
+            historyTimeline.removeFirst(max(0, historyTimeline.count - 80))
+        }
+    }
+
     private var guandanDetailedScores: [Int] {
         [
             GuandanMatchState.rankDisplayScore(state.redTeam.currentRank),
@@ -689,13 +959,17 @@ struct GuandanScoreboardView: View {
         previousState: GuandanMatchState,
         epochMilliseconds: Int64
     ) {
-        appendDetailedAction(guandanDetailedAction(
+        let roundNumber = nextDetailedRoundNumber
+        let actions = guandanDetailedActions(
             for: intent,
             previousState: previousState,
             resultingState: state,
             epochMilliseconds: epochMilliseconds,
-            roundNumber: nextDetailedRoundNumber
-        ))
+            roundNumber: roundNumber
+        )
+        for action in actions {
+            appendDetailedAction(action)
+        }
     }
 
     private func appendDetailedAction(_ action: DetailedScoreAction) {

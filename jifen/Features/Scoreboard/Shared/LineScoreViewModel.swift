@@ -2,7 +2,7 @@ import Foundation
 import ScoreCore
 
 struct LineScoreResumeState: Codable {
-    var schemaVersion = 2
+    var schemaVersion = 3
     let state: LineScoreState
     let undoHistory: [LineScoreViewModel.HistoryEntry]
     let intentTimeline: [String]
@@ -12,7 +12,7 @@ struct LineScoreResumeState: Codable {
     }
 
     init(
-        schemaVersion: Int = 2,
+        schemaVersion: Int = 3,
         state: LineScoreState,
         undoHistory: [LineScoreViewModel.HistoryEntry],
         intentTimeline: [String]
@@ -43,6 +43,19 @@ class LineScoreViewModel: BaseScoreViewModel {
     struct HistoryEntry: Codable {
         let state: LineScoreState
         let restoresNames: Bool
+        /// `nil` identifies a v1/v2 snapshot whose action boundary was not
+        /// persisted. New snapshots always carry the exact prefix length.
+        let recordedActionCount: Int?
+
+        init(
+            state: LineScoreState,
+            restoresNames: Bool,
+            recordedActionCount: Int? = nil
+        ) {
+            self.state = state
+            self.restoresNames = restoresNames
+            self.recordedActionCount = recordedActionCount
+        }
     }
 
     private let reducer = LineScoreReducer()
@@ -51,6 +64,10 @@ class LineScoreViewModel: BaseScoreViewModel {
     private var stateHistory: [HistoryEntry] = []
     var sessionState: LineScoreState { state }
     var resumeHistory: [HistoryEntry] { stateHistory }
+    private(set) var persistenceRevision = 0
+    override var recordsUndoActionInternally: Bool { true }
+    override var recordsExchangeActionInternally: Bool { true }
+    override var recordsResetActionInternally: Bool { true }
 
     func makeFreshMatchState() -> LineScoreState {
         reducer.reduce(
@@ -129,14 +146,24 @@ class LineScoreViewModel: BaseScoreViewModel {
     override func undo() -> Bool {
         guard controller?.undoEnabled ?? false,
               let entry = stateHistory.popLast() else { return false }
+        let wasFinished = gameFinished
         _ = controller?.popHistory()
         var previous = entry.state
         if !entry.restoresNames {
             previous.leftName = leftTeam.name
             previous.rightName = rightTeam.name
         }
+        // A normal score undo remains visible as score + undo in the audit
+        // timeline. A finish-only transition is different: leaving its stale
+        // terminal snapshot would produce duplicate match-finished sections
+        // after resume and re-finish, so roll that boundary back exactly.
+        if wasFinished, !previous.finished,
+           let recordedActionCount = entry.recordedActionCount {
+            controller?.restoreRecordedActions(to: recordedActionCount)
+        }
         apply(previous)
         recordSnapshot(code: "undo")
+        persistenceRevision &+= 1
         controller?.performVibration(type: .light)
         return true
     }
@@ -156,11 +183,16 @@ class LineScoreViewModel: BaseScoreViewModel {
         default:
             restoresNames = false
         }
-        stateHistory.append(.init(state: before, restoresNames: restoresNames))
+        stateHistory.append(.init(
+            state: before,
+            restoresNames: restoresNames,
+            recordedActionCount: controller?.recordedActionCount
+        ))
         if stateHistory.count > 50 { stateHistory.removeFirst() }
         controller?.pushHistory(left: before.leftScore, right: before.rightScore)
         apply(result.state)
         recordSnapshot(code: operationCode(for: intent))
+        persistenceRevision &+= 1
         controller?.performVibration(type: .light)
     }
 

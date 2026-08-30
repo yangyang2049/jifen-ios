@@ -181,4 +181,36 @@ struct TennisVoiceAnnouncementMapperTests {
         #expect(payload.leftPlayerNames == ["Alice", "Carol"])
         #expect(payload.rightPlayerNames == ["Bob", "David"])
     }
+
+    @Test func softTennisAndPadelCarryAndroid31VoiceProfiles() {
+        let soft = TennisMatchState(
+            leftName: "Red",
+            rightName: "Blue",
+            rules: .softTennis(gamesPerSet: 9)
+        )
+        let softOpening = TennisVoiceAnnouncementMapper.openingPayload(gameType: .softTennis, state: soft)
+        #expect(softOpening?.maxSets == 9)
+        #expect(VoiceAnnouncementMessageBuilder.build(softOpening!, language: .zhCN) == "9局制，比赛开始")
+
+        var padel = TennisMatchState(
+            leftName: "Red",
+            rightName: "Blue",
+            rules: .padel(deuceMode: .starPoint)
+        )
+        padel.leftPoints = 3
+        padel.rightPoints = 2
+        padel.starPointReturnedAdvantages = 1
+        let result = TennisMatchReducer().reduce(state: padel, intent: .pointWon(.right), at: 1)
+        let payload = TennisVoiceAnnouncementMapper.payloads(
+            gameType: .padel,
+            before: padel,
+            after: result.state,
+            intent: .pointWon(.right),
+            events: result.events,
+            completedSetScores: []
+        )[0]
+        #expect(payload.tennisDeuceMode == PadelDeuceMode.starPoint.rawValue)
+        #expect(payload.starPointReturnedAdvantages == 1)
+        #expect(VoiceAnnouncementMessageBuilder.build(payload, language: .zhCN) == "第二次平分")
+    }
 }

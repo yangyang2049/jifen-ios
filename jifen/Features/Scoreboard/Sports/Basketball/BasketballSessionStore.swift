@@ -13,12 +13,14 @@ final class BasketballSessionStore {
     private let core: ScoreSessionCore<BasketballMatchReducer>
     private let resumeRepository: ResumeSessionRepository
     private var clockTask: Task<Void, Never>?
-    private var detailedActions: [DetailedScoreAction]
+    private var recordContext: ScoreSessionRecordContext
     private var operationTask: Task<Void, Never>?
     private var hasPersistedFinishedRecord = false
+    private var gameClockAnchorNanoseconds: UInt64?
+    private var timeoutClockAnchorNanoseconds: UInt64?
 
     private(set) var state: BasketballMatchState
-    var actionTimeline: [DetailedScoreAction] { detailedActions }
+    var actionTimeline: [DetailedScoreAction] { recordContext.detailedActions }
     let sessionId: UUID
     let startedAt: Date
 
@@ -76,7 +78,12 @@ final class BasketballSessionStore {
         )
         self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         state = session.state
-        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+        let restoredActions = ScoreboardRecordManager.shared
+            .getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+        recordContext = ScoreSessionRecordContext(
+            detailedActions: restoredActions,
+            actionCount: restoredActions.count
+        )
     }
 
     private init(resumeBundle: ResumeBundle) {
@@ -91,7 +98,16 @@ final class BasketballSessionStore {
         )
         resumeRepository = ResumeSessionRepository()
         state = session.state
-        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+        if let restoredContext = ScoreSessionRecordContext.decode(resumeBundle.auxiliaryPayload) {
+            recordContext = restoredContext
+        } else {
+            let restoredActions = ScoreboardRecordManager.shared
+                .getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+            recordContext = ScoreSessionRecordContext(
+                detailedActions: restoredActions,
+                actionCount: restoredActions.count
+            )
+        }
     }
 
     convenience init?(restoring sessionId: UUID) {
@@ -120,6 +136,9 @@ final class BasketballSessionStore {
     }
 
     func send(_ intent: BasketballMatchIntent, recordsUndo: Bool = true) {
+        if intent != .tickClock, intent != .tickTimeout {
+            refreshClockFromAnchor()
+        }
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
@@ -131,16 +150,24 @@ final class BasketballSessionStore {
             }
             guard case .accepted(let session, _) = result, let self else { return }
             self.state = session.state
+            self.synchronizeClockAnchors()
             if session.status == .live {
                 self.hasPersistedFinishedRecord = false
             }
-            await self.synchronizeParticipants(for: session.state)
-            let bundle = await core.resumeBundle()
-            if intent != .tickClock {
+            if recordsUndo {
+                // The actor has just created the matching undo frame. Capture
+                // the record-facing state before projecting this accepted
+                // intent so both layers can roll back as one operation.
+                self.recordContext.pushUndoCheckpoint()
+            }
+            if intent != .tickClock, intent != .tickTimeout {
                 // The final action is part of the formal record and must be in
                 // memory before the record-first commit starts.
                 self.append(intent: intent, at: now, state: session.state)
             }
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
+            await self.synchronizeParticipants(for: session.state)
+            let bundle = await core.resumeBundle()
             do {
                 // Live clock ticks only update the resume snapshot. The tick
                 // that actually ends a timed match must still write the final
@@ -156,6 +183,7 @@ final class BasketballSessionStore {
     }
 
     func undo(completion: ((Bool) -> Void)? = nil) {
+        refreshClockFromAnchor()
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
@@ -165,13 +193,20 @@ final class BasketballSessionStore {
             }
             let session = await core.snapshot()
             self.state = session.state
+            self.synchronizeClockAnchors()
             if session.status == .live {
                 self.hasPersistedFinishedRecord = false
             }
             await self.synchronizeParticipants(for: session.state)
+            if !self.recordContext.restoreLastUndoCheckpoint() {
+                // Bundles written before record checkpoints existed still have
+                // the reducer event stream. Re-project it instead of retaining
+                // a stale score/period action after a legacy resume undo.
+                self.rebuildRecordContext(from: session.events)
+            }
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             completion?(true)
             let bundle = await core.resumeBundle()
-            self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftScore, session.state.rightScore], periodNumber: session.state.currentPeriod, operationCode: "undo"))
             do {
                 try await self.persist(bundle)
             } catch {
@@ -185,24 +220,40 @@ final class BasketballSessionStore {
 
     func startClock() {
         guard clockTask == nil else { return }
+        synchronizeClockAnchors()
         clockTask = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(1))
+                try? await Task.sleep(for: .milliseconds(250))
                 guard !Task.isCancelled else { return }
-                self?.send(.tickClock, recordsUndo: false)
+                guard let self else { return }
+                self.refreshClockFromAnchor()
             }
         }
     }
 
     func stopClock() {
+        refreshClockFromAnchor()
         clockTask?.cancel()
         clockTask = nil
     }
 
+    /// A normal foul creates a dead ball in Android 3.1: both clocks stop,
+    /// while the current shot-clock value is preserved. Edit corrections use
+    /// the raw intent and therefore do not disturb the live clocks.
+    func addFoul(_ side: MatchSide, stopClocks: Bool = true) {
+        let shouldStop = stopClocks && (state.gameRunning || state.shotRunning)
+        send(.addFoul(side: side))
+        if shouldStop {
+            send(.setClockRunning(false), recordsUndo: false)
+        }
+    }
+
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
+        refreshClockFromAnchor()
         let previousTask = operationTask
         operationTask = Task { [core] in
             _ = await previousTask?.value
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             let bundle = await core.resumeBundle()
             do {
                 try await self.persist(bundle)
@@ -219,10 +270,59 @@ final class BasketballSessionStore {
     }
 
     func flush(completion: @escaping () -> Void) {
+        refreshClockFromAnchor()
         let pending = operationTask
         Task {
             _ = await pending?.value
             completion()
+        }
+    }
+
+    private func refreshClockFromAnchor() {
+        let now = DispatchTime.now().uptimeNanoseconds
+        let maximumCatchUpSeconds = 90 * 60
+        if state.timeoutActiveSide != nil, state.timeoutRemainingSeconds > 0 {
+            gameClockAnchorNanoseconds = nil
+            guard let anchor = timeoutClockAnchorNanoseconds else {
+                timeoutClockAnchorNanoseconds = now
+                return
+            }
+            let elapsed = min(maximumCatchUpSeconds, Int((now - anchor) / 1_000_000_000))
+            guard elapsed > 0 else { return }
+            timeoutClockAnchorNanoseconds = anchor + UInt64(elapsed) * 1_000_000_000
+            for _ in 0..<elapsed {
+                send(.tickTimeout, recordsUndo: false)
+            }
+            return
+        }
+
+        timeoutClockAnchorNanoseconds = nil
+        guard state.gameRunning else {
+            gameClockAnchorNanoseconds = nil
+            return
+        }
+        guard let anchor = gameClockAnchorNanoseconds else {
+            gameClockAnchorNanoseconds = now
+            return
+        }
+        let elapsed = min(maximumCatchUpSeconds, Int((now - anchor) / 1_000_000_000))
+        guard elapsed > 0 else { return }
+        gameClockAnchorNanoseconds = anchor + UInt64(elapsed) * 1_000_000_000
+        for _ in 0..<elapsed {
+            send(.tickClock, recordsUndo: false)
+        }
+    }
+
+    private func synchronizeClockAnchors() {
+        let now = DispatchTime.now().uptimeNanoseconds
+        if state.timeoutActiveSide != nil, state.timeoutRemainingSeconds > 0 {
+            timeoutClockAnchorNanoseconds = timeoutClockAnchorNanoseconds ?? now
+            gameClockAnchorNanoseconds = nil
+        } else {
+            timeoutClockAnchorNanoseconds = nil
+            gameClockAnchorNanoseconds = state.gameRunning
+                ? (gameClockAnchorNanoseconds ?? now)
+                : nil
         }
     }
 
@@ -236,6 +336,18 @@ final class BasketballSessionStore {
     }
 
     private func append(intent: BasketballMatchIntent, at milliseconds: Int64, state: BasketballMatchState) {
+        guard let action = Self.detailedAction(intent: intent, at: milliseconds, state: state) else {
+            return
+        }
+        recordContext.detailedActions.append(action)
+        recordContext.actionCount = recordContext.detailedActions.count
+    }
+
+    private static func detailedAction(
+        intent: BasketballMatchIntent,
+        at milliseconds: Int64,
+        state: BasketballMatchState
+    ) -> DetailedScoreAction? {
         let action: DetailedScoreAction
         switch intent {
         case .addPoints(let side, let points, _):
@@ -246,6 +358,8 @@ final class BasketballSessionStore {
             action = .init(type: .foul, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: String(describing: intent))
         case .useTimeout(let side):
             action = .init(type: .timeout, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: "timeout")
+        case .endTimeout:
+            action = .init(type: .timeout, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: "timeout_end")
         case .advanceToNextPeriod, .enterOvertime:
             action = .init(type: .periodFinished, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: max(1, state.currentPeriod - (state.isOvertime ? 0 : 1)), operationCode: state.isOvertime ? "overtime" : "period_finished")
         case .exchangeSides:
@@ -254,10 +368,25 @@ final class BasketballSessionStore {
             action = .init(type: .reset, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: "reset")
         case .finish:
             action = .init(type: .matchFinished, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, winner: state.leftScore == state.rightScore ? nil : (state.leftScore > state.rightScore ? .team1 : .team2), operationCode: "finish")
+        case .tickClock, .tickTimeout:
+            return nil
         default:
             action = .init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: String(describing: intent))
         }
-        detailedActions.append(action)
+        return action
+    }
+
+    private func rebuildRecordContext(from events: [BasketballMatchEvent]) {
+        let actions = events.compactMap { event -> DetailedScoreAction? in
+            guard case .stateChanged(let at, let intent, _, let after) = event else {
+                return nil
+            }
+            return Self.detailedAction(intent: intent, at: at, state: after)
+        }
+        recordContext = ScoreSessionRecordContext(
+            detailedActions: actions,
+            actionCount: actions.count
+        )
     }
 
     private func persist(_ bundle: ResumeBundle) async throws {
@@ -311,9 +440,9 @@ final class BasketballSessionStore {
             team1FinalScore: state.leftScore,
             team2FinalScore: state.rightScore,
             winner: winner,
-            detailedActions: detailedActions,
-            setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
-            totalScoreChanges: detailedActions.count,
+            detailedActions: recordContext.detailedActions,
+            setResults: ScoreboardRecordActionAdapter.setResults(from: recordContext.detailedActions),
+            totalScoreChanges: recordContext.actionCount,
             projectConfiguration: [
                 "basketballMode": AnyCodable(state.gameMode == .threeXThree ? "three_x_three" : "five_v_five"),
                 "basketballRuleSet": AnyCodable(String(describing: state.ruleSet).lowercased())

@@ -11,10 +11,21 @@ import ScoreCore
 struct BoxingHistoryEntry: Codable, Equatable {
     let state: BoxingMatchState
     let restoresNames: Bool
+    let recordedActionCount: Int?
+
+    init(
+        state: BoxingMatchState,
+        restoresNames: Bool,
+        recordedActionCount: Int? = nil
+    ) {
+        self.state = state
+        self.restoresNames = restoresNames
+        self.recordedActionCount = recordedActionCount
+    }
 }
 
 struct BoxingResumeState: Codable, Equatable {
-    var schemaVersion = 2
+    var schemaVersion = 3
     let state: BoxingMatchState
     let undoHistory: [BoxingHistoryEntry]
     let intentTimeline: [String]
@@ -24,7 +35,7 @@ struct BoxingResumeState: Codable, Equatable {
     }
 
     init(
-        schemaVersion: Int = 2,
+        schemaVersion: Int = 3,
         state: BoxingMatchState,
         undoHistory: [BoxingHistoryEntry],
         intentTimeline: [String]
@@ -50,10 +61,40 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     var currentRound: Int = 1
     var maxRounds: Int = 3
     private var fullStateHistory: [BoxingHistoryEntry] = []
+    var resumeHistory: [BoxingHistoryEntry] { fullStateHistory }
+    private(set) var persistenceRevision = 0
+    override var recordsUndoActionInternally: Bool { true }
+    override var recordsExchangeActionInternally: Bool { true }
+    override var recordsResetActionInternally: Bool { true }
     override init(controller: BaseScoreboardController? = nil) {
         super.init(controller: controller)
         leftTeam.sets = 0
         rightTeam.sets = 0
+    }
+
+    var matchState: BoxingMatchState { coreState }
+
+    override func confirmEditName(isLeft: Bool) {
+        guard !gameFinished,
+              editState.editingSide == (isLeft ? .left : .right) else { return }
+        let defaults = DefaultParticipantNames.resolve(for: .boxing)
+        let input = editState.currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolved = input.isEmpty ? (isLeft ? defaults.left : defaults.right) : input
+        saveFullStateToHistory(restoresNames: true)
+        let result = reduce(.setNames(
+            left: isLeft ? resolved : leftTeam.name,
+            right: isLeft ? rightTeam.name : resolved
+        ))
+        guard result.accepted else {
+            _ = fullStateHistory.popLast()
+            _ = controller?.popHistory()
+            return
+        }
+        apply(result.state)
+        recordSnapshot(code: "edit_names")
+        persistenceRevision &+= 1
+        editState.editingSide = nil
+        editState.currentInput = ""
     }
 
     /// 结束一回合：累加双方本回合分数，胜方回合数 +1
@@ -61,10 +102,15 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         guard !gameFinished, currentRound <= maxRounds else { return }
         saveFullStateToHistory()
         let result = reduce(.submitRound(left: leftPoints, right: rightPoints))
-        guard result.accepted else { _ = fullStateHistory.popLast(); return }
+        guard result.accepted else {
+            _ = fullStateHistory.popLast()
+            _ = controller?.popHistory()
+            return
+        }
         apply(result.state)
 
         controller?.recordScoreAction(action: "round \(max(0, leftPoints))-\(max(0, rightPoints))")
+        persistenceRevision &+= 1
         controller?.performVibration(type: .medium)
     }
 
@@ -107,7 +153,7 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         }
 
         let resumeState = BoxingResumeState(
-            state: coreState,
+            state: matchState,
             undoHistory: fullStateHistory,
             intentTimeline: controller?.getGameActions() ?? []
         )
@@ -218,6 +264,7 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         saveFullStateToHistory()
         apply(result.state)
         controller?.recordScoreAction(action: (isLeft ? "left" : "right") + " sets \(delta > 0 ? "+" : "")\(delta)")
+        persistenceRevision &+= 1
     }
 
     func canAdjustSetScore(isLeft: Bool, delta: Int) -> Bool {
@@ -231,9 +278,14 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         guard !gameFinished else { return }
         saveFullStateToHistory()
         let result = reduce(.addPoints(side: isLeft ? .left : .right, points: points))
-        guard result.accepted else { _ = fullStateHistory.popLast(); return }
+        guard result.accepted else {
+            _ = fullStateHistory.popLast()
+            _ = controller?.popHistory()
+            return
+        }
         apply(result.state)
         controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") +\(points)")
+        persistenceRevision &+= 1
         controller?.performVibration(type: .medium)
     }
 
@@ -247,14 +299,28 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
             leftRoundsWon: leftTeam.sets ?? 0,
             rightRoundsWon: rightTeam.sets ?? 0
         ))
+        guard result.accepted else {
+            _ = fullStateHistory.popLast()
+            _ = controller?.popHistory()
+            return
+        }
         apply(result.state)
         controller?.recordScoreAction(action: "\(isLeft ? "left" : "right") -\(points)")
+        persistenceRevision &+= 1
         controller?.performVibration(type: .light)
     }
 
     override func exchangeSides() {
         saveFullStateToHistory(restoresNames: true)
-        apply(reduce(.exchangeSides).state)
+        let result = reduce(.exchangeSides)
+        guard result.accepted else {
+            _ = fullStateHistory.popLast()
+            _ = controller?.popHistory()
+            return
+        }
+        apply(result.state)
+        recordSnapshot(code: "exchange_side")
+        persistenceRevision &+= 1
         controller?.performVibration(type: .medium)
     }
 
@@ -264,6 +330,9 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         let state = entry.state
 
         _ = controller?.popHistory()
+        if let recordedActionCount = entry.recordedActionCount {
+            controller?.restoreRecordedActions(to: recordedActionCount)
+        }
         if entry.restoresNames {
             leftTeam.name = state.leftName
             rightTeam.name = state.rightName
@@ -277,6 +346,8 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         sidesSwapped = state.sidesSwapped
         gameFinished = state.finished
 
+        recordSnapshot(code: "undo")
+        persistenceRevision &+= 1
         controller?.performVibration(type: .light)
         return true
     }
@@ -286,17 +357,30 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
         apply(reduce(.reset).state)
         controller?.clearHistory()
         fullStateHistory.removeAll()
+        recordSnapshot(code: "reset")
+        persistenceRevision &+= 1
     }
 
     override func endGame() {
-        apply(reduce(.finish).state)
+        guard !gameFinished else { return }
+        saveFullStateToHistory()
+        let result = reduce(.finish)
+        guard result.accepted else {
+            _ = fullStateHistory.popLast()
+            _ = controller?.popHistory()
+            return
+        }
+        apply(result.state)
+        recordSnapshot(code: "finish")
+        persistenceRevision &+= 1
     }
 
     private func saveFullStateToHistory(restoresNames: Bool = false) {
         fullStateHistory.append(
             BoxingHistoryEntry(
                 state: coreState,
-                restoresNames: restoresNames
+                restoresNames: restoresNames,
+                recordedActionCount: controller?.recordedActionCount
             )
         )
         if fullStateHistory.count > 50 {
@@ -313,6 +397,12 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
 
     private func reduce(_ intent: BoxingMatchIntent) -> ReduceResult<BoxingMatchState, BoxingMatchEvent> {
         reducer.reduce(state: coreState, intent: intent, at: Int64(Date().timeIntervalSince1970 * 1_000))
+    }
+
+    private func recordSnapshot(code: String) {
+        controller?.recordScoreAction(
+            action: "snapshot|\(code)|\(leftTeam.score),\(rightTeam.score)|\(leftTeam.sets ?? 0),\(rightTeam.sets ?? 0)"
+        )
     }
 
     private var coreState: BoxingMatchState {

@@ -2,6 +2,7 @@ import Foundation
 
 public enum GameType: String, Codable, CaseIterable, Sendable {
     case football
+    case football5v5 = "football_5v5"
     case basketball
     case threeBasketball = "three_basketball"
     case volleyball
@@ -13,6 +14,10 @@ public enum GameType: String, Codable, CaseIterable, Sendable {
     case tennisDoubles = "tennis_doubles"
     case badminton
     case badmintonDoubles = "badminton_doubles"
+    case shuttlecock
+    case squash
+    case softTennis = "soft_tennis"
+    case padel
     case pickleball
     case pickleballDoubles = "pickleball_doubles"
     case archeryDual = "archery_dual"

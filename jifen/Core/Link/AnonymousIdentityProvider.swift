@@ -28,6 +28,25 @@ final class AnonymousIdentityProvider: @unchecked Sendable, IdentityProvider {
         }
     }
 
+    func clearLocalIdentity() throws {
+        let status = lock.withLock {
+            UserDefaults.standard.removeObject(forKey: displayNameKey)
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: keychainService,
+                kSecAttrAccount as String: keychainAccount
+            ]
+            return SecItemDelete(query as CFDictionary)
+        }
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw NSError(
+                domain: NSOSStatusErrorDomain,
+                code: Int(status),
+                userInfo: nil
+            )
+        }
+    }
+
     private func storedDisplayName() -> String {
         UserDefaults.standard.string(forKey: displayNameKey) ?? defaultDisplayName()
     }

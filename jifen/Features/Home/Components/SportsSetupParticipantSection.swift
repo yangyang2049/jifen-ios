@@ -16,17 +16,24 @@ struct SportsSetupParticipantSection: View {
         case team1Player2
         case team2Player1
         case team2Player2
+        case team1Player3
+        case team2Player3
 
         var id: String { rawValue }
     }
 
     var body: some View {
         VStack(spacing: 20) {
+            if gameType == .shuttlecock {
+                shuttlecockFormatSection
+            }
             if supportsSinglesDoubles {
                 singlesDoublesSection
             }
 
-            if usesDoublesPlayerInputs {
+            if usesTeamPlayerInputs {
+                shuttlecockTeamInputs
+            } else if usesDoublesPlayerInputs {
                 doublesNameInputs
             } else {
                 primaryNameInput
@@ -45,16 +52,70 @@ struct SportsSetupParticipantSection: View {
     }
 
     private var supportsSinglesDoubles: Bool {
-        [.pingpong, .badminton, .tennis, .pickleball, .foosball].contains(gameType)
+        [.pingpong, .badminton, .tennis, .softTennis, .pickleball, .foosball].contains(gameType)
     }
 
     private var usesDoublesPlayerInputs: Bool {
-        supportsSinglesDoubles && !draft.isSingles
+        gameType == .padel
+            || (supportsSinglesDoubles && !draft.isSingles)
+            || (gameType == .shuttlecock && [.doubles, .mixedDoubles].contains(draft.competitionFormat))
+    }
+
+    private var usesTeamPlayerInputs: Bool {
+        gameType == .shuttlecock && draft.competitionFormat == .team
+    }
+
+    private var shuttlecockFormatSection: some View {
+        Picker("", selection: Binding(
+            get: { draft.competitionFormat },
+            set: {
+                draft.competitionFormat = $0
+                draft.isSingles = $0 == .singles
+            }
+        )) {
+            Text(NSLocalizedString("competition_format_singles", value: "单打", comment: ""))
+                .tag(CompetitionFormat.singles)
+            Text(NSLocalizedString("competition_format_doubles", value: "双打", comment: ""))
+                .tag(CompetitionFormat.doubles)
+            Text(NSLocalizedString("competition_format_mixed_doubles", value: "混双", comment: ""))
+                .tag(CompetitionFormat.mixedDoubles)
+            Text(NSLocalizedString("competition_format_team", value: "团队赛", comment: ""))
+                .tag(CompetitionFormat.team)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .accessibilityIdentifier("competition_format_picker")
+    }
+
+    private var shuttlecockTeamInputs: some View {
+        let defaults = DefaultParticipantNames.shuttlecockTeamMembers
+        return HStack(alignment: .top, spacing: Theme.sm) {
+            VStack(spacing: Theme.sm) {
+                InlineCommonNameTextField(placeholder: defaultTeam1Name, text: $draft.team1Name, onChevronTap: { activeNameInputTarget = .team1 })
+                InlineCommonNameTextField(placeholder: defaults[0], text: $draft.team1Player1Name, onChevronTap: { activeNameInputTarget = .team1Player1 })
+                InlineCommonNameTextField(placeholder: defaults[1], text: $draft.team1Player2Name, onChevronTap: { activeNameInputTarget = .team1Player2 })
+                InlineCommonNameTextField(placeholder: defaults[2], text: $draft.team1Player3Name, onChevronTap: { activeNameInputTarget = .team1Player3 })
+            }
+            .frame(maxWidth: .infinity)
+
+            Text(NSLocalizedString("vs_separator", value: " vs ", comment: ""))
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Theme.textSecondary)
+                .padding(.top, 12)
+
+            VStack(spacing: Theme.sm) {
+                InlineCommonNameTextField(placeholder: defaultTeam2Name, text: $draft.team2Name, onChevronTap: { activeNameInputTarget = .team2 })
+                InlineCommonNameTextField(placeholder: defaults[3], text: $draft.team2Player1Name, onChevronTap: { activeNameInputTarget = .team2Player1 })
+                InlineCommonNameTextField(placeholder: defaults[4], text: $draft.team2Player2Name, onChevronTap: { activeNameInputTarget = .team2Player2 })
+                InlineCommonNameTextField(placeholder: defaults[5], text: $draft.team2Player3Name, onChevronTap: { activeNameInputTarget = .team2Player3 })
+            }
+            .frame(maxWidth: .infinity)
+        }
     }
 
     private var showsServingSideSelector: Bool {
         [
-            .pingpong, .badminton, .tennis, .pickleball, .volleyball,
+            .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .volleyball,
             .beachVolleyball, .airVolleyball, .foosball, .snooker, .archery
         ].contains(gameType)
     }
@@ -213,8 +274,8 @@ struct SportsSetupParticipantSection: View {
         switch gameType {
         case .pingpong: return "ic_pingpong_serve"
         case .pickleball: return "ic_pickleball_serve"
-        case .badminton: return "ic_badminton_serve"
-        case .tennis: return "ic_tennis_serve"
+        case .badminton, .shuttlecock, .squash: return "ic_badminton_serve"
+        case .tennis, .softTennis, .padel: return "ic_tennis_serve"
         case .volleyball, .beachVolleyball, .airVolleyball: return "ic_volleyball_serve"
         case .snooker: return "ic_snooker_cue"
         default: return "ic_pingpong_serve"
@@ -239,7 +300,7 @@ struct SportsSetupParticipantSection: View {
             return supportsSinglesDoubles || ScoreboardCommonNamePolicy.nameType(for: gameType) == .player
                 ? .player
                 : .team
-        case .team1Player1, .team1Player2, .team2Player1, .team2Player2:
+        case .team1Player1, .team1Player2, .team1Player3, .team2Player1, .team2Player2, .team2Player3:
             return .player
         }
     }
@@ -252,6 +313,8 @@ struct SportsSetupParticipantSection: View {
         case .team1Player2: draft.team1Player2Name = value
         case .team2Player1: draft.team2Player1Name = value
         case .team2Player2: draft.team2Player2Name = value
+        case .team1Player3: draft.team1Player3Name = value
+        case .team2Player3: draft.team2Player3Name = value
         }
     }
 }

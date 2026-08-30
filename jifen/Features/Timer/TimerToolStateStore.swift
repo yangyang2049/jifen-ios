@@ -1,6 +1,10 @@
 import Foundation
 import UserNotifications
 
+enum StopwatchPolicy {
+    static let maximumLapCount = 99
+}
+
 enum StopwatchPhase: String, Codable {
     case idle
     case running
@@ -43,33 +47,46 @@ struct CountdownPersistedState: Codable {
 }
 
 enum TimerToolStateStore {
-    private static let stopwatchKey = "timer.tool.stopwatch.state.v1"
-    private static let countdownKey = "timer.tool.countdown.state.v1"
+    static let stopwatchKey = "timer.tool.stopwatch.state.v1"
+    static let countdownKey = "timer.tool.countdown.state.v1"
 
-    static func loadStopwatch() -> StopwatchPersistedState {
-        load(StopwatchPersistedState.self, key: stopwatchKey) ?? StopwatchPersistedState()
+    static func loadStopwatch(defaults: UserDefaults = .standard) -> StopwatchPersistedState {
+        load(StopwatchPersistedState.self, key: stopwatchKey, defaults: defaults) ?? StopwatchPersistedState()
     }
 
-    static func saveStopwatch(_ state: StopwatchPersistedState) {
-        save(state, key: stopwatchKey)
+    static func saveStopwatch(_ state: StopwatchPersistedState, defaults: UserDefaults = .standard) {
+        save(state, key: stopwatchKey, defaults: defaults)
     }
 
-    static func loadCountdown() -> CountdownPersistedState {
-        load(CountdownPersistedState.self, key: countdownKey) ?? CountdownPersistedState()
+    static func loadCountdown(defaults: UserDefaults = .standard) -> CountdownPersistedState {
+        load(CountdownPersistedState.self, key: countdownKey, defaults: defaults) ?? CountdownPersistedState()
     }
 
-    static func saveCountdown(_ state: CountdownPersistedState) {
-        save(state, key: countdownKey)
+    static func saveCountdown(_ state: CountdownPersistedState, defaults: UserDefaults = .standard) {
+        save(state, key: countdownKey, defaults: defaults)
     }
 
-    private static func load<T: Decodable>(_ type: T.Type, key: String) -> T? {
-        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
+    static func clear(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: stopwatchKey)
+        defaults.removeObject(forKey: countdownKey)
+    }
+
+    private static func load<T: Decodable>(
+        _ type: T.Type,
+        key: String,
+        defaults: UserDefaults
+    ) -> T? {
+        guard let data = defaults.data(forKey: key) else { return nil }
         return try? JSONDecoder().decode(type, from: data)
     }
 
-    private static func save<T: Encodable>(_ value: T, key: String) {
+    private static func save<T: Encodable>(
+        _ value: T,
+        key: String,
+        defaults: UserDefaults
+    ) {
         guard let data = try? JSONEncoder().encode(value) else { return }
-        UserDefaults.standard.set(data, forKey: key)
+        defaults.set(data, forKey: key)
     }
 }
 

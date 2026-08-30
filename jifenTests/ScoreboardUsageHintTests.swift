@@ -22,7 +22,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
     }
 
     func testCatalogAndDoublesCoverEveryExactScoreboardType() {
-        XCTAssertEqual(GameCatalog.scoreboardItems.count, 23)
+        XCTAssertEqual(GameCatalog.scoreboardItems.count, 28)
 
         let baseTypes = GameCatalog.scoreboardItems.compactMap {
             ScoreboardUsageHintDescriptor.resolve(gameType: $0.gameType, setup: nil)?.gameType
@@ -37,7 +37,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
         }
         let covered = Set(baseTypes + doublesTypes)
 
-        XCTAssertEqual(covered.count, 28)
+        XCTAssertEqual(covered.count, 33)
         XCTAssertEqual(covered, Set(ScoreCore.GameType.allCases))
     }
 

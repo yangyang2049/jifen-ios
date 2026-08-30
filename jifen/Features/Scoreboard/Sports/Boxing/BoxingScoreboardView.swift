@@ -10,6 +10,7 @@ import SwiftUI
 
 struct BoxingScoreboardView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
@@ -169,6 +170,20 @@ struct BoxingScoreboardView: View {
             if finished {
                 showGameOverDialog = true
                 viewModel.saveGameRecordInRealTime(recordID: recordID, isGameFinished: true)
+            }
+        }
+        .onChange(of: viewModel.persistenceRevision) { _, _ in
+            viewModel.saveGameRecordInRealTime(
+                recordID: recordID,
+                isGameFinished: viewModel.gameFinished
+            )
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active {
+                viewModel.saveGameRecordInRealTime(
+                    recordID: recordID,
+                    isGameFinished: viewModel.gameFinished
+                )
             }
         }
         .onDisappear {

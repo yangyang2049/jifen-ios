@@ -29,9 +29,12 @@ struct ScoreboardMenuItem: Identifiable, Equatable {
     let group: ScoreboardMenuGroup
     var icon: String? = nil
     var customText: String? = nil
+    var customTextScale: CGFloat = 1
     var keepDialogOpen: Bool = false
     var confirming: Bool = false
     var enabled: Bool = true
+    var sortOrder: Int = 0
+    var placeAtEnd: Bool = false
 }
 
 enum ScoreboardMenuActionPolicy {
@@ -115,7 +118,8 @@ enum ScoreboardMenuItemBuilder {
                 icon: "arrow.counterclockwise",
                 keepDialogOpen: true,
                 confirming: resetConfirming,
-                enabled: scoringEnabled
+                enabled: scoringEnabled,
+                sortOrder: 10
             )
         )
 
@@ -142,7 +146,8 @@ enum ScoreboardMenuItemBuilder {
                     icon: "flag.checkered",
                     keepDialogOpen: true,
                     confirming: finishConfirming,
-                    enabled: scoringEnabled
+                    enabled: scoringEnabled,
+                    sortOrder: 100
                 )
             )
         }
@@ -198,14 +203,32 @@ enum ScoreboardMenuItemBuilder {
     }
 
     static func orderedMatchItems(_ items: [ScoreboardMenuItem]) -> [ScoreboardMenuItem] {
-        // “结束”仍属于常规比赛操作；后来增加的“结算”单独放在末尾。
-        // 斯诺克的本局记录紧邻结算，固定为倒数第二项。
-        let regularItems = items.filter {
-            $0.action != "frameRecord" && !$0.action.hasPrefix("settle")
+        // Android 3.1: undo is fixed first; regular actions are sorted; settlement
+        // follows them; explicit trailing actions (football clock decisions) are last.
+        let undoItems = items.filter { $0.action == "undo" }
+        let trailingItems = items.filter(\.placeAtEnd)
+        let settlementItems = items.filter {
+            !$0.placeAtEnd && $0.action.lowercased().hasPrefix("settle")
         }
-        let frameRecordItems = items.filter { $0.action == "frameRecord" }
-        let settlementItems = items.filter { $0.action.hasPrefix("settle") }
-        return regularItems + frameRecordItems + settlementItems
+        let middleItems = items.enumerated().filter { _, item in
+            item.action != "undo"
+                && !item.placeAtEnd
+                && !item.action.lowercased().hasPrefix("settle")
+        }.sorted { lhs, rhs in
+            let lhsOrder = lhs.element.action == "frameRecord" && lhs.element.sortOrder == 0
+                ? 200
+                : lhs.element.sortOrder
+            let rhsOrder = rhs.element.action == "frameRecord" && rhs.element.sortOrder == 0
+                ? 200
+                : rhs.element.sortOrder
+            return lhsOrder == rhsOrder ? lhs.offset < rhs.offset : lhsOrder < rhsOrder
+        }.map(\.element)
+        let sortedTrailingItems = trailingItems.enumerated().sorted { lhs, rhs in
+            lhs.element.sortOrder == rhs.element.sortOrder
+                ? lhs.offset < rhs.offset
+                : lhs.element.sortOrder < rhs.element.sortOrder
+        }.map(\.element)
+        return undoItems + middleItems + settlementItems + sortedTrailingItems
     }
 }
 
@@ -213,9 +236,11 @@ enum ScoreboardMenuItemBuilder {
 
 struct MenuDialog: View {
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
+    @Environment(\.scoreboardUsageHintPresenter) private var usageHintPresenter
     let isVisible: Bool
     let onClose: () -> Void
     let onMenuItemClick: (String) -> Void
+    var onUsageHint: (() -> Void)? = nil
     var showEndGame: Bool = false
     var showExchangeSide: Bool = true
     var resetConfirming: Bool = false
@@ -273,6 +298,11 @@ struct MenuDialog: View {
     private var toolsCardHeight: CGFloat { ScoreboardConstants.minimumTouchTarget }
     private var sectionPaddingV: CGFloat { isCompact ? 8 : 10 }
     private var toolsRowGap: CGFloat { isCompact ? 10 : 12 }
+    private var maxMatchSectionHeight: CGFloat {
+        let headerHeight = syncCardHeight + sectionPaddingV * 2
+        let toolsHeight = toolItems.isEmpty ? 0 : toolsCardHeight + sectionPaddingV * 2 + 2
+        return max(matchCardHeight + 16, containerShortSide - headerHeight - toolsHeight - 32)
+    }
 
     var body: some View {
         if isVisible {
@@ -289,7 +319,10 @@ struct MenuDialog: View {
                     }
 
                     if !matchItems.isEmpty {
-                        matchGrid(items: matchItems)
+                        ScrollView(.vertical, showsIndicators: matchItems.count > 6) {
+                            matchGrid(items: matchItems)
+                        }
+                        .frame(maxHeight: maxMatchSectionHeight)
                     }
 
                     if !toolItems.isEmpty {
@@ -297,6 +330,7 @@ struct MenuDialog: View {
                     }
                 }
                 .frame(width: dialogWidth)
+                .frame(maxHeight: max(180, containerShortSide - 16))
                 .background(dialogBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: 12)
@@ -425,14 +459,25 @@ struct MenuDialog: View {
         Button {
             guard item.enabled else { return }
             trackMenuAction(item)
+            if item.action == "usageHint" {
+                onClose()
+                // Let the menu leave the hierarchy before presenting the
+                // blocking usage overlay. Presenting both in one transaction
+                // can leave the second-open card unhittable in landscape.
+                DispatchQueue.main.async {
+                    if let usageHintPresenter {
+                        usageHintPresenter()
+                    } else if let onUsageHint {
+                        onUsageHint()
+                    } else {
+                        usageHintCoordinator?.presentFromMenu()
+                    }
+                }
+                return
+            }
             // Always notify parent first so pending green-confirm state can clear
             // when tapping non-confirm actions handled inside the dialog.
             onMenuItemClick(item.action)
-            if item.action == "usageHint" {
-                onClose()
-                usageHintCoordinator?.presentFromMenu()
-                return
-            }
             if item.action == "whistle" {
                 SoundManager.shared.playSound("whistle")
                 return
@@ -452,7 +497,10 @@ struct MenuDialog: View {
             VStack(spacing: size == .large ? 4 : 3) {
                 if let customText = item.customText {
                     Text(customText)
-                        .font(.system(size: customTextSize(size), weight: .bold))
+                        .font(.system(
+                            size: customTextSize(size) * min(2, max(0.5, item.customTextScale)),
+                            weight: .bold
+                        ))
                         .foregroundColor(.white)
                 } else if let icon = item.icon {
                     Image(systemName: icon)
@@ -475,7 +523,8 @@ struct MenuDialog: View {
             .opacity(item.enabled ? 1 : 0.45)
         }
         .buttonStyle(.plain)
-        .accessibilityElement(children: .ignore)
+        // Preserve SwiftUI's native Button accessibility role. The compact
+        // tool cards must remain queryable as Buttons in landscape UI tests.
         .accessibilityLabel(item.title)
         .accessibilityIdentifier("scoreboard_menu_action_\(item.action)")
         .disabled(!item.enabled)

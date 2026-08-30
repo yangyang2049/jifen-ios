@@ -10,6 +10,8 @@ import SwiftUI
 
 struct SimpleScoreboardView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.scoreboardMatchClockSession) private var matchClockSession
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
@@ -145,6 +147,7 @@ struct SimpleScoreboardView: View {
                 onSetupConsumed?()
             }
             restoreResumeIfNeeded()
+            bindMatchClock()
         }
         .onGeometryChange(for: CGFloat.self) { proxy in
             min(proxy.size.width, proxy.size.height)
@@ -156,6 +159,17 @@ struct SimpleScoreboardView: View {
                 showGameOverDialog = true
                 saveGameRecordInRealTime(isGameFinished: true)
             }
+        }
+        .onChange(of: viewModel.persistenceRevision) { _, _ in
+            saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active {
+                saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+            }
+        }
+        .onChange(of: matchClockSession?.isVisible) { _, _ in
+            saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
         }
         .onDisappear {
             saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
@@ -181,9 +195,27 @@ struct SimpleScoreboardView: View {
         recordID = ScoreboardRecordIdentity.next(
             prefix: GameType.simpleScore.canonicalScoreboardIdentifier
         )
+        matchClockSession?.reset(startedAt: controller.gameStartTime)
         viewModel.restoreSession(state: freshState, history: [])
         adjustTargetIsLeft = nil
         showGameOverDialog = false
+    }
+
+    private func bindMatchClock() {
+        guard let matchClockSession else { return }
+        var visible = initialSetup?.showMatchTime ?? matchClockSession.isVisible
+        if let recordId = initialResumeSessionId,
+           let record = ManualResumeSessionStore.load(recordID: recordId),
+           let restored = scoreboardBool(
+               record.projectConfiguration?["showMatchTime"]
+                   ?? record.extraData?["showMatchTime"]
+           ) {
+            visible = restored
+        }
+        matchClockSession.bind(
+            startedAt: controller.gameStartTime,
+            isVisible: visible
+        )
     }
 
     private func restoreResumeIfNeeded() {
@@ -263,12 +295,14 @@ struct SimpleScoreboardView: View {
             winner: winner,
             totalScoreChanges: controller.getGameActions().count,
             extraData: [
-                "multiScoreCustomAdjustEnabled": customAdjustEnabled
+                "multiScoreCustomAdjustEnabled": customAdjustEnabled,
+                "showMatchTime": matchClockSession?.isVisible ?? false
             ],
             projectConfiguration: [
                 ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.simpleScore.rawValue,
                 "minimumScore": LineScoreRuleSet.freeCounter.minimum,
-                "maximumScore": LineScoreRuleSet.freeCounter.maximum
+                "maximumScore": LineScoreRuleSet.freeCounter.maximum,
+                "showMatchTime": matchClockSession?.isVisible ?? false
             ],
             stateSnapshot: snapshotData,
             isFinished: finished

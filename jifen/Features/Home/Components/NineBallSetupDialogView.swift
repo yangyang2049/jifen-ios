@@ -247,12 +247,12 @@ struct NineBallSetupDialogView: View {
         for (index, name) in (setup.playerNames ?? []).prefix(4).enumerated() {
             playerNames[index] = name
         }
-        bigGold = setup.nineBallBigGold ?? bigGold
-        smallGold = setup.nineBallSmallGold ?? smallGold
-        goldenNine = setup.nineBallGoldenNine ?? goldenNine
-        normalWin = setup.nineBallNormalWin ?? normalWin
-        ballInHand = setup.nineBallBallInHand ?? ballInHand
-        foul = setup.nineBallFoul ?? foul
+        bigGold = min(99, max(1, setup.nineBallBigGold ?? bigGold))
+        smallGold = min(99, max(1, setup.nineBallSmallGold ?? smallGold))
+        goldenNine = min(99, max(1, setup.nineBallGoldenNine ?? goldenNine))
+        normalWin = min(99, max(1, setup.nineBallNormalWin ?? normalWin))
+        ballInHand = min(99, max(1, setup.nineBallBallInHand ?? ballInHand))
+        foul = min(99, max(1, setup.nineBallFoul ?? foul))
     }
 
     private func scoreStepper(_ key: String, fallback: String, value: Binding<Int>) -> some View {
@@ -268,13 +268,13 @@ struct NineBallSetupDialogView: View {
             HStack(spacing: 0) {
                 scoreStepButton(
                     systemName: "minus",
-                    enabled: value.wrappedValue > 0,
+                    enabled: value.wrappedValue > 1,
                     accessibilityLabel: String.localizedStringWithFormat(
                         NSLocalizedString("nine_ball_decrease_points", value: "减少%@分值", comment: ""),
                         title
                     )
                 ) {
-                    value.wrappedValue = max(0, value.wrappedValue - 1)
+                    value.wrappedValue = max(1, value.wrappedValue - 1)
                 }
 
                 Divider()

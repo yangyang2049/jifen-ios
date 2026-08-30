@@ -56,6 +56,15 @@ final class LocalPeerRoomManager: NSObject, ObservableObject {
     }
 
     func createRoom() async {
+        guard AppFeatureFlags.lanPeerSyncEnabled else {
+            stop()
+            fail(NSLocalizedString(
+                "sync_unavailable_offline",
+                value: "此版本不提供局域网同步",
+                comment: "LAN sync is unavailable in the offline release"
+            ))
+            return
+        }
         stop()
         do {
             let identity = try await AnonymousIdentityProvider.shared.currentIdentity()
@@ -93,6 +102,15 @@ final class LocalPeerRoomManager: NSObject, ObservableObject {
     }
 
     func joinRoom(code: String, role: SyncParticipantRole) async {
+        guard AppFeatureFlags.lanPeerSyncEnabled else {
+            stop()
+            fail(NSLocalizedString(
+                "sync_unavailable_offline",
+                value: "此版本不提供局域网同步",
+                comment: "LAN sync is unavailable in the offline release"
+            ))
+            return
+        }
         stop()
         let normalized = code.filter(\.isNumber)
         guard normalized.count == 6 else {
@@ -140,6 +158,7 @@ final class LocalPeerRoomManager: NSObject, ObservableObject {
     }
 
     func send(_ envelope: RealtimeSyncEnvelope) {
+        guard AppFeatureFlags.lanPeerSyncEnabled else { return }
         guard let session, !session.connectedPeers.isEmpty else { return }
         do {
             let data = try JSONEncoder().encode(envelope)
@@ -156,6 +175,7 @@ final class LocalPeerRoomManager: NSObject, ObservableObject {
         sessionID: UUID? = nil,
         revision: UInt64 = 0
     ) {
+        guard AppFeatureFlags.lanPeerSyncEnabled else { return }
         guard let room, let localIdentity else { return }
         do {
             senderSequence += 1
@@ -177,6 +197,7 @@ final class LocalPeerRoomManager: NSObject, ObservableObject {
     }
 
     func setPaused(_ paused: Bool) {
+        guard AppFeatureFlags.lanPeerSyncEnabled else { return }
         guard localRole == .hostController else { return }
         phase = paused ? .paused : (session?.connectedPeers.isEmpty == false ? .connected : .advertising)
         broadcastPayload(["paused": paused], kind: paused ? .controllerPaused : .controllerResumed)
@@ -209,6 +230,7 @@ final class LocalPeerRoomManager: NSObject, ObservableObject {
     }
 
     var shareURL: URL? {
+        guard AppFeatureFlags.lanPeerSyncEnabled else { return nil }
         guard let room else { return nil }
         var components = URLComponents()
         components.scheme = "jifen"

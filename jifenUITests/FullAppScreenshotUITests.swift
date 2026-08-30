@@ -452,29 +452,29 @@ final class FullAppScreenshotUITests: XCTestCase {
             dismissDialog()
         }
 
-        for _ in 0..<6 { app.swipeUp() }
-        tapContaining("常用名称")
-        if app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "常用名称")).firstMatch.waitForExistence(timeout: 3) {
+        relaunch()
+        XCTAssertTrue(tapContaining("常用名称"), "Cannot open Common Names from Home")
+        if app.navigationBars["常用名称"].waitForExistence(timeout: 3) {
             snap("07_home_common_names")
-            let add = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "添加")).firstMatch
-            if add.exists {
-                add.tap()
+            if tapContaining("添加"), app.navigationBars["添加"].waitForExistence(timeout: 3) {
                 snap("07b_home_common_names_add")
                 dismissDialog()
             }
             navigateBack()
         }
 
-        selectTab("首页")
-        for _ in 0..<6 { app.swipeUp() }
-        tapContaining("常用地点")
-        if app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "常用地点")).firstMatch.waitForExistence(timeout: 3) {
+        relaunch()
+        XCTAssertTrue(tapContaining("常用地点"), "Cannot open Common Places from Home")
+        if app.navigationBars["常用地点"].waitForExistence(timeout: 3) {
             snap("08_home_common_places")
             navigateBack()
         }
 
-        selectTab("首页")
-        let edit = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "编辑")).firstMatch
+        relaunch()
+        let identifiedEdit = app.buttons["home_quick_start_edit"]
+        let edit = identifiedEdit.exists
+            ? identifiedEdit
+            : app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "编辑")).firstMatch
         if edit.exists {
             edit.tap()
             snap("09_home_quick_start_edit")
@@ -969,11 +969,30 @@ final class FullAppScreenshotUITests: XCTestCase {
         return false
     }
 
-    private func tapContaining(_ text: String) {
-        let button = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
-        if button.waitForExistence(timeout: 3), button.isHittable {
-            button.tap()
+    @discardableResult
+    private func tapContaining(_ text: String) -> Bool {
+        for _ in 0..<10 {
+            let button = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
+            if button.waitForExistence(timeout: 0.5) {
+                if button.isHittable {
+                    button.tap()
+                    return true
+                }
+
+                let window = app.windows.firstMatch
+                let windowFrame = window.exists ? window.frame : app.frame
+                let buttonFrame = button.frame
+                if buttonFrame.maxY < windowFrame.minY {
+                    app.swipeDown()
+                } else {
+                    app.swipeUp()
+                }
+            } else {
+                app.swipeUp()
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
+        return false
     }
 
     private func tapRow(_ text: String) {
@@ -1021,6 +1040,11 @@ final class FullAppScreenshotUITests: XCTestCase {
     }
 
     private func navigateBack() {
+        let explicitBack = app.buttons.matching(identifier: "BackButton").firstMatch
+        if explicitBack.exists, explicitBack.isHittable {
+            explicitBack.tap()
+            return
+        }
         if app.navigationBars.buttons.element(boundBy: 0).exists {
             let back = app.navigationBars.buttons.element(boundBy: 0)
             if back.isHittable {

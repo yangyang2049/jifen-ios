@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import ScoreCore
 
 class FootballScoreboardController: BaseScoreboardController {
-    init() {
+    init(gameType: ScoreCore.GameType = .football) {
         super.init(config: ScoreboardControllerConfig(
-            gameType: .football,
+            gameType: GameType(scoreCoreGameType: gameType) ?? .football,
             enableRecording: true,
             enableScreenshot: true,
             enableUndo: true,

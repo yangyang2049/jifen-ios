@@ -57,7 +57,7 @@ struct UnfinishedGameSummary {
             guard let session else { return nil }
             scoreText = "\(session.state.leftScore) : \(session.state.rightScore)"
         case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles, .pickleball, .pickleballDoubles,
-             .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
+             .shuttlecock, .squash, .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
             let session = (try? JSONDecoder().decode(
                 ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self,
                 from: data
@@ -69,7 +69,7 @@ struct UnfinishedGameSummary {
             scoreText = session.state.leftSets > 0 || session.state.rightSets > 0
                 ? "\(session.state.leftSets) : \(session.state.rightSets)"
                 : "\(session.state.leftPoints) : \(session.state.rightPoints)"
-        case .tennis, .tennisDoubles:
+        case .tennis, .tennisDoubles, .softTennis, .padel:
             let session = (try? JSONDecoder().decode(
                 ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>.self,
                 from: data
@@ -274,6 +274,9 @@ struct UnfinishedGameSummary {
             result.matchCompletionMode = state.rules.matchCompletionMode
             result.tieBreakPoints = state.rules.tieBreakPoints
             result.gamesPerSet = state.rules.gamesPerSet
+            if state.rules.familyProfile == .softTennis {
+                result.softTennisMatchGames = state.rules.softTennisMatchGames ?? 7
+            }
             result.setScoringMode = state.rules.setScoringMode.rawValue
             result.tennisDeuceMode = state.rules.usesNoAdScoring ? "no_ad" : "advantage"
             result.autoChangeSides = state.rules.autoChangeSides

@@ -504,8 +504,8 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         let entryStyles = Set(
             ScoreboardStyleID.registeredEntryGameTypes.map(ScoreboardStyleID.init(gameType:))
         )
-        XCTAssertEqual(ScoreboardStyleID.registeredEntryGameTypes.count, 23)
-        XCTAssertEqual(entryStyles.count, 23)
+        XCTAssertEqual(ScoreboardStyleID.registeredEntryGameTypes.count, 28)
+        XCTAssertEqual(entryStyles.count, 28)
         XCTAssertTrue(entryStyles.isSubset(of: ScoreboardStyleID.registeredScoreboardStyles))
         for gameType in ScoreCore.GameType.allCases {
             XCTAssertTrue(
@@ -847,5 +847,59 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             ),
             47
         )
+    }
+
+    func testStyleV2DecodesLegacyProfileAndKeepsTextCompatibility() throws {
+        let data = try JSONSerialization.data(withJSONObject: [
+            "team0Hex": "112233",
+            "team1Hex": "445566",
+            "centerHex": "778899",
+            "foregroundHex": "ABCDEF",
+            "backgroundHex": "000000",
+            "autoContrast": false
+        ])
+        let profile = try JSONDecoder().decode(ScoreboardStyleProfileV2.self, from: data)
+
+        XCTAssertEqual(profile.themeCode, ScoreboardTheme.defaultTheme.rawValue)
+        XCTAssertEqual(profile.team0TextHex, "ABCDEF")
+        XCTAssertEqual(profile.team1TextHex, "ABCDEF")
+        XCTAssertEqual(profile.centerTextHex, "ABCDEF")
+    }
+
+    func testStyleV2SupportsCrossPlatformThemesAndAutomaticContrast() {
+        XCTAssertEqual(Set(ScoreboardTheme.allCases.map(\.rawValue)), [
+            "default", "pro_dark", "electronic", "retro", "brb", "wrb"
+        ])
+        XCTAssertEqual(ScoreboardStyleProfileV2.autoTextHex(for: "FFFFFF"), "111111")
+        XCTAssertEqual(ScoreboardStyleProfileV2.autoTextHex(for: "000000"), "FFFFFF")
+
+        let wrb = ScoreboardStyleProfileV2.default(
+            for: ScoreboardStyleID(gameType: .doudizhu),
+            theme: .wrb
+        )
+        XCTAssertEqual(wrb.team0Hex, "FFFFFF")
+        XCTAssertEqual(wrb.team0TextHex, "FF3B30")
+        XCTAssertEqual(wrb.team1TextHex, "007AFF")
+        XCTAssertFalse(wrb.autoContrast)
+    }
+
+    func testStyleV2PersistsPerProjectAndTracksRecentColors() {
+        let preferences = PreferencesManager.shared
+        let first = ScoreboardStyleID(rawValue: "style_test_\(UUID().uuidString)")
+        let second = ScoreboardStyleID(rawValue: "style_test_\(UUID().uuidString)")
+        let oldRecent = preferences.scoreboardRecentStyleColors
+        defer {
+            preferences.resetScoreboardStyleProfileV2(for: first)
+            preferences.resetScoreboardStyleProfileV2(for: second)
+            preferences.scoreboardRecentStyleColors = oldRecent
+        }
+
+        let profile = ScoreboardStyleProfileV2.default(for: first, theme: .brb)
+        preferences.setScoreboardStyleProfileV2(profile, for: first)
+        preferences.rememberScoreboardStyleColors(["#123456", "abcdef", "bad"])
+
+        XCTAssertEqual(preferences.scoreboardStyleProfileV2(for: first), profile)
+        XCTAssertNotEqual(preferences.scoreboardStyleProfileV2(for: second), profile)
+        XCTAssertEqual(Array(preferences.scoreboardRecentStyleColors.prefix(2)), ["123456", "ABCDEF"])
     }
 }

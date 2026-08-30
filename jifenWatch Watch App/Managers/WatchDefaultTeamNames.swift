@@ -37,11 +37,11 @@ enum WatchDefaultTeamNames {
              .volleyball, .beachVolleyball, .airVolleyball,
              .guandan, .shengji:
             return localizedPair("team_a", "Team A", "team_b", "Team B")
-        case .football:
+        case .football, .football5v5:
             return localizedPair("team_home", "Home", "team_away", "Away")
         case .archeryDual:
             return localizedPair("archer_a", "Archer A", "archer_b", "Archer B")
-        case .pingpong, .badminton, .tennis, .pickleball, .foosball,
+        case .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .foosball,
              .billiards, .eightBall, .snooker:
             return localizedPair("player_a", "Player A", "player_b", "Player B")
         case .pingpongDoubles, .badmintonDoubles, .tennisDoubles,

@@ -65,6 +65,32 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
         self.quickStartConfig = currentConfig // Update published property
     }
 
+    func setTertiarySport(_ tertiary: GameType) async throws {
+        var currentConfig = quickStartConfig
+        currentConfig.tertiarySport = tertiary
+        try await saveConfig(currentConfig)
+        didResolveInitialConfig = true
+        quickStartConfig = currentConfig
+    }
+
+    /// Saves the visible quick-start slots in one write. Compact layouts pass
+    /// `nil` for the tertiary slot so an existing iPad choice is preserved.
+    func setSports(
+        primary: GameType,
+        secondary: GameType,
+        tertiary: GameType?
+    ) async throws {
+        var currentConfig = quickStartConfig
+        currentConfig.primarySport = primary
+        currentConfig.secondarySport = secondary
+        if let tertiary {
+            currentConfig.tertiarySport = tertiary
+        }
+        try await saveConfig(currentConfig)
+        didResolveInitialConfig = true
+        quickStartConfig = currentConfig
+    }
+
     private func saveConfig(_ config: QuickStartConfig) async throws {
         do {
             let data = try JSONEncoder().encode(config)

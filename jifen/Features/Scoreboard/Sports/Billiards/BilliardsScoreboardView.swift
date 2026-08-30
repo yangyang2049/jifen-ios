@@ -21,6 +21,7 @@ enum BilliardsRecordIdentity {
 
 struct BilliardsScoreboardView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
@@ -134,6 +135,14 @@ struct BilliardsScoreboardView: View {
             if finished {
                 showGameOverDialog = true
                 saveGameRecordInRealTime(isGameFinished: true)
+            }
+        }
+        .onChange(of: viewModel.persistenceRevision) { _, _ in
+            saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active {
+                saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
             }
         }
         .onDisappear {

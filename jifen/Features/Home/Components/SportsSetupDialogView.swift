@@ -357,11 +357,15 @@ struct SportsSetupDialogView: View {
     }
 
     private func shouldShowSinglesDoublesAtTop() -> Bool {
-        return gameType == .pingpong || gameType == .badminton || gameType == .tennis || gameType == .pickleball || gameType == .foosball
+        return gameType == .pingpong || gameType == .badminton || gameType == .tennis || gameType == .softTennis || gameType == .shuttlecock || gameType == .pickleball || gameType == .foosball
     }
 
     private func shouldUseDoublesPlayerInputs() -> Bool {
-        shouldShowSinglesDoublesAtTop() && !draft.isSingles
+        if gameType == .padel { return true }
+        if gameType == .shuttlecock {
+            return [.doubles, .mixedDoubles].contains(draft.competitionFormat)
+        }
+        return shouldShowSinglesDoublesAtTop() && !draft.isSingles
     }
 
     private var supportsWatchProject: Bool {
@@ -434,12 +438,14 @@ struct SportsSetupDialogView: View {
             isSendingSetupToWatch = false
         }
         
-        if shouldUseDoublesPlayerInputs() {
+        if shouldUseDoublesPlayerInputs() || (gameType == .shuttlecock && draft.competitionFormat == .team) {
             let playerNames = [
                 draft.team1Player1Name,
                 draft.team1Player2Name,
+                draft.team1Player3Name,
                 draft.team2Player1Name,
                 draft.team2Player2Name,
+                draft.team2Player3Name,
             ]
             for name in playerNames {
                 let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -462,6 +468,16 @@ struct SportsSetupDialogView: View {
             if !finalConfig.team2Name.isEmpty && finalConfig.team2Name != defaultTeam2Name {
                 await commonNamesManager.saveNameIfNeeded(finalConfig.team2Name, nameKind)
             }
+        }
+
+        if ScoreboardMatchTimePolicy.includesSportsSetupValue(
+            for: gameType,
+            isSingles: draft.isSingles
+        ) {
+            PreferencesManager.shared.setScoreboardMatchTimeVisible(
+                draft.showMatchTime,
+                for: gameType
+            )
         }
 
         onConfirm?(finalConfig)

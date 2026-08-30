@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SchedulePage: View {
+    var onStartBooking: ((BookingStartRequest) async -> Bool)? = nil
     var onStartGame: ((GameType) -> Void)? = nil
     var onChanged: (() -> Void)? = nil
 
@@ -8,6 +9,9 @@ struct SchedulePage: View {
     @State private var bookings: [LocalBooking] = []
     @State private var selectedBooking: LocalBooking?
     @State private var showCreatePage = false
+    @State private var isEditMode = false
+    @State private var selectedBookingIDs: Set<String> = []
+    @State private var showBatchDeleteConfirm = false
 
     var body: some View {
         List {
@@ -26,6 +30,10 @@ struct SchedulePage: View {
             } else {
                 ForEach(filteredBookings) { booking in
                     Button {
+                        if isEditMode {
+                            toggleSelection(booking.id)
+                            return
+                        }
                         AppAnalytics.track(.selectContent, parameters: [
                             .contentType: .string("booking"),
                             .actionName: .string("view"),
@@ -33,7 +41,15 @@ struct SchedulePage: View {
                         ])
                         selectedBooking = booking
                     } label: {
-                        bookingRow(booking)
+                        HStack(spacing: 8) {
+                            if isEditMode {
+                                Image(systemName: selectedBookingIDs.contains(booking.id) ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 22))
+                                    .foregroundStyle(selectedBookingIDs.contains(booking.id) ? Theme.primaryDark : Theme.textSecondary)
+                                    .frame(width: 30)
+                            }
+                            bookingRow(booking)
+                        }
                     }
                     .buttonStyle(.plain)
                     .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
@@ -50,21 +66,56 @@ struct SchedulePage: View {
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("schedule_title", value: "我的球局", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if !filteredBookings.isEmpty {
+                    Button(isEditMode ? NSLocalizedString("done", value: "完成", comment: "") : NSLocalizedString("edit", value: "编辑", comment: "")) {
+                        isEditMode.toggle()
+                        if !isEditMode { selectedBookingIDs.removeAll() }
+                    }
+                }
+            }
+        }
         .toolbarBackground(Theme.backgroundColor, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .safeAreaInset(edge: .bottom) {
             scheduleContentWidth {
-                Button {
-                    AppAnalytics.openPage(from: .scheduleList, to: .createBookingPage, entryPoint: .scheduleList)
-                    showCreatePage = true
-                } label: {
-                    Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(Theme.accentColor)
-                        .clipShape(Capsule())
+                Group {
+                    if isEditMode {
+                        HStack(spacing: 12) {
+                            Button(allVisibleSelected
+                                ? NSLocalizedString("deselect_all", value: "取消全选", comment: "")
+                                : NSLocalizedString("select_all", value: "全选", comment: "")) {
+                                toggleSelectAll()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 46)
+                            .background(Theme.controlBackground)
+                            .clipShape(Capsule())
+
+                            Button(role: .destructive) {
+                                showBatchDeleteConfirm = true
+                            } label: {
+                                Text(String(format: NSLocalizedString("schedule_delete_selected", value: "删除（%d）", comment: ""), selectedBookingIDs.count))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 46)
+                            }
+                            .disabled(selectedBookingIDs.isEmpty)
+                        }
+                    } else {
+                        Button {
+                            AppAnalytics.openPage(from: .scheduleList, to: .createBookingPage, entryPoint: .scheduleList)
+                            showCreatePage = true
+                        } label: {
+                            Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 48)
+                                .background(Theme.accentColor)
+                                .clipShape(Capsule())
+                        }
+                    }
                 }
                 .padding(.horizontal, Theme.lg)
             }
@@ -84,6 +135,7 @@ struct SchedulePage: View {
         .onAppear(perform: reload)
         .analyticsScreen(.scheduleList, source: .homeTab)
         .onChange(of: selectedStatus) { _, value in
+            selectedBookingIDs.removeAll()
             AppAnalytics.track(.applyFilter, parameters: [
                 .contentType: .string("booking"),
                 .settingValue: .string(value.rawValue)
@@ -100,6 +152,7 @@ struct SchedulePage: View {
         .navigationDestination(item: $selectedBooking) { booking in
             BookingDetailPage(
                 bookingId: booking.id,
+                onStartBooking: onStartBooking,
                 onStartGame: { gameType in
                     onStartGame?(gameType)
                 },
@@ -108,6 +161,15 @@ struct SchedulePage: View {
                     onChanged?()
                 }
             )
+        }
+        .alert(
+            NSLocalizedString("schedule_batch_delete_title", value: "批量删除预约", comment: ""),
+            isPresented: $showBatchDeleteConfirm
+        ) {
+            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) { }
+            Button(NSLocalizedString("delete", comment: ""), role: .destructive) { deleteSelectedBookings() }
+        } message: {
+            Text(String(format: NSLocalizedString("schedule_batch_delete_message", value: "确定删除选中的 %d 条预约吗？", comment: ""), selectedBookingIDs.count))
         }
     }
 
@@ -121,7 +183,14 @@ struct SchedulePage: View {
     }
 
     private var filteredBookings: [LocalBooking] {
-        bookings.filter { $0.status == selectedStatus }
+        bookings
+            .filter { $0.status.isVisible(in: selectedStatus) }
+            .sorted { $0.dateTime < $1.dateTime }
+    }
+
+    private var allVisibleSelected: Bool {
+        let visibleIDs = Set(filteredBookings.map(\.id))
+        return !visibleIDs.isEmpty && visibleIDs.isSubset(of: selectedBookingIDs)
     }
 
     private var emptyStateText: String {
@@ -130,7 +199,7 @@ struct SchedulePage: View {
             return NSLocalizedString("schedule_empty_pending", value: "暂无待进行球局", comment: "")
         case .completed:
             return NSLocalizedString("schedule_empty_completed", value: "暂无已完成球局", comment: "")
-        case .cancelled:
+        case .cancelled, .noShow:
             return NSLocalizedString("schedule_empty_cancelled", value: "暂无已取消球局", comment: "")
         }
     }
@@ -146,6 +215,30 @@ struct SchedulePage: View {
 
     private func reload() {
         bookings = LocalBookingManager.shared.getAllBookings()
+        selectedBookingIDs.formIntersection(Set(bookings.map(\.id)))
+    }
+
+    private func toggleSelection(_ id: String) {
+        if !selectedBookingIDs.insert(id).inserted {
+            selectedBookingIDs.remove(id)
+        }
+    }
+
+    private func toggleSelectAll() {
+        let visibleIDs = Set(filteredBookings.map(\.id))
+        if visibleIDs.isSubset(of: selectedBookingIDs) {
+            selectedBookingIDs.subtract(visibleIDs)
+        } else {
+            selectedBookingIDs.formUnion(visibleIDs)
+        }
+    }
+
+    private func deleteSelectedBookings() {
+        guard LocalBookingManager.shared.deleteBookings(selectedBookingIDs) else { return }
+        selectedBookingIDs.removeAll()
+        isEditMode = false
+        reload()
+        onChanged?()
     }
 
     private func bookingRow(_ booking: LocalBooking) -> some View {
@@ -162,7 +255,7 @@ struct SchedulePage: View {
                         .foregroundColor(Theme.textPrimary)
                         .lineLimit(1)
 
-                    Text(booking.sportType.displayName)
+                    Text(booking.displayName)
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(Theme.textPrimary.opacity(0.86))
                         .lineLimit(1)

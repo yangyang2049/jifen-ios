@@ -160,12 +160,27 @@ public struct NineBallChaseConfig: Codable, Equatable, Sendable {
     public var foul = 1
 
     public init(bigGold: Int = 10, smallGold: Int = 7, goldenNine: Int = 8, normalWin: Int = 4, ballInHand: Int = 1, foul: Int = 1) {
-        self.bigGold = bigGold
-        self.smallGold = smallGold
-        self.goldenNine = goldenNine
-        self.normalWin = normalWin
-        self.ballInHand = ballInHand
-        self.foul = foul
+        self.bigGold = Self.normalizedPoint(bigGold)
+        self.smallGold = Self.normalizedPoint(smallGold)
+        self.goldenNine = Self.normalizedPoint(goldenNine)
+        self.normalWin = Self.normalizedPoint(normalWin)
+        self.ballInHand = Self.normalizedPoint(ballInHand)
+        self.foul = Self.normalizedPoint(foul)
+    }
+
+    public var normalized: Self {
+        .init(
+            bigGold: bigGold,
+            smallGold: smallGold,
+            goldenNine: goldenNine,
+            normalWin: normalWin,
+            ballInHand: ballInHand,
+            foul: foul
+        )
+    }
+
+    private static func normalizedPoint(_ value: Int) -> Int {
+        min(99, max(1, value))
     }
 }
 
@@ -205,7 +220,7 @@ public struct NineBallChaseState: Codable, Equatable, Sendable {
             let source = playerCounts[safe: index] ?? []
             return Array((source + Array(repeating: 0, count: NineBallChaseKind.allCases.count)).prefix(NineBallChaseKind.allCases.count))
         }
-        self.config = config
+        self.config = config.normalized
         self.finished = finished
         self.playerNames = Self.normalizedNames(playerNames)
         self.sidesSwapped = sidesSwapped
@@ -351,6 +366,7 @@ public struct NineBallChaseReducer: DomainReducer {
         value.playerNames = Array((value.playerNames + Array(repeating: "", count: 4)).prefix(4)).map {
             $0.trimmingCharacters(in: .whitespacesAndNewlines)
         }
+        value.config = value.config.normalized
         return value
     }
 

@@ -27,6 +27,13 @@ struct SportsSetupDraft: Equatable {
     var tennisDeuceMode = "advantage"
     var servingSide: MatchSide = .left
     var voiceAnnouncement = false
+    var showMatchTime = false
+    var competitionFormat: CompetitionFormat = .singles
+    var softTennisMatchGames = 7
+    var padelDeuceMode: PadelDeuceMode = .starPoint
+    var footballHalfLengthSeconds = 45 * 60
+    var matchTitleEnabled = false
+    var matchTitle = ""
 
     var pickleballTargetScore = 11
     var pickleballScoreCap: Int?
@@ -40,18 +47,38 @@ struct SportsSetupDraft: Equatable {
     var team1Player2Name = ""
     var team2Player1Name = ""
     var team2Player2Name = ""
+    var team1Player3Name = ""
+    var team2Player3Name = ""
 }
 
 extension SportsSetupDraft {
+    private static func defaultCompetitionFormat(for gameType: GameType, isSingles: Bool) -> CompetitionFormat {
+        switch gameType {
+        case .shuttlecock:
+            return .team
+        case .softTennis, .padel:
+            return .doubles
+        case .squash:
+            return .singles
+        default:
+            return isSingles ? .singles : .doubles
+        }
+    }
+
     mutating func initialize(
         gameType: GameType,
         initialSetup: SportsSetupResult?,
         initialMaxSets: Int?,
         initialPointsPerSet: Int?,
-        initialTieBreakPoints: Int?
+        initialTieBreakPoints: Int?,
+        preferences: PreferencesManager = .shared
     ) {
         let setup = initialSetup
-        isSingles = setup?.isSingles ?? (gameType != .foosball)
+        let defaultSingles = gameType != .foosball && gameType != .shuttlecock && gameType != .softTennis && gameType != .padel
+        isSingles = setup?.isSingles
+            ?? setup?.competitionFormat.map { $0 == .singles }
+            ?? defaultSingles
+        competitionFormat = setup?.competitionFormat ?? Self.defaultCompetitionFormat(for: gameType, isSingles: isSingles)
         let modeDefaults = DefaultParticipantNames.resolve(for: gameType, isSingles: isSingles)
         team1Name = setup?.team1Name ?? modeDefaults.left
         team2Name = setup?.team2Name ?? modeDefaults.right
@@ -66,8 +93,20 @@ extension SportsSetupDraft {
             team2Player1Name = setup?.team2Player1Name ?? team2Player1Name
             team2Player2Name = setup?.team2Player2Name ?? team2Player2Name
         }
+        if gameType == .shuttlecock, competitionFormat == .team {
+            let defaults = DefaultParticipantNames.shuttlecockTeamMembers
+            team1Player1Name = setup?.team1Player1Name ?? defaults[0]
+            team1Player2Name = setup?.team1Player2Name ?? defaults[1]
+            team1Player3Name = setup?.team1Player3Name ?? defaults[2]
+            team2Player1Name = setup?.team2Player1Name ?? defaults[3]
+            team2Player2Name = setup?.team2Player2Name ?? defaults[4]
+            team2Player3Name = setup?.team2Player3Name ?? defaults[5]
+        }
 
-        selectedMaxSets = setup?.maxSets ?? initialMaxSets ?? Self.defaultMaxSets(for: gameType) ?? 0
+        selectedMaxSets = (gameType == .boxing ? setup?.maxRounds : setup?.maxSets)
+            ?? initialMaxSets
+            ?? Self.defaultMaxSets(for: gameType)
+            ?? 0
         customMaxSetsText = frameCountPresets(for: gameType).contains(selectedMaxSets) ? "" : (
             selectedMaxSets > 0 ? String(selectedMaxSets) : ""
         )
@@ -97,6 +136,17 @@ extension SportsSetupDraft {
         tennisDeuceMode = setup?.tennisDeuceMode ?? "advantage"
         servingSide = setup?.servingSide == MatchSide.right.rawValue ? .right : .left
         voiceAnnouncement = setup?.voiceAnnouncement ?? false
+        showMatchTime = setup?.showMatchTime ?? (
+            ScoreboardMatchTimePolicy.loadsSportsSetupPreference(for: gameType)
+                ? preferences.scoreboardMatchTimeVisible(for: gameType)
+                : false
+        )
+        softTennisMatchGames = [7, 9].contains(setup?.softTennisMatchGames ?? 7) ? (setup?.softTennisMatchGames ?? 7) : 7
+        padelDeuceMode = setup?.padelDeuceMode ?? .starPoint
+        let defaultFootballLength = gameType == .football5v5 ? 20 * 60 : 45 * 60
+        footballHalfLengthSeconds = min(90 * 60, max(60, setup?.footballHalfLengthSeconds ?? defaultFootballLength))
+        matchTitle = ScoreboardMatchTitlePolicy.limitInput(setup?.matchTitle ?? "")
+        matchTitleEnabled = ScoreboardMatchTitlePolicy.sanitize(setup?.matchTitle) != nil
         pickleballTargetScore = setup?.targetScore ?? 11
         pickleballScoreCap = setup?.scoreCap
         pickleballUseRallyScoring = setup?.useRallyScoring ?? false
@@ -108,7 +158,9 @@ extension SportsSetupDraft {
         if gameType == .eightBall, selectedMaxSets > 1, eightBallHandicapMode != "none" {
             eightBallHandicapRacks = min(max(1, eightBallHandicapRacks), selectedMaxSets - 1)
         }
-        syncPickleballTargetForSets(gameType: gameType)
+        if setup == nil {
+            syncPickleballTargetForSets(gameType: gameType)
+        }
     }
 
     mutating func syncPickleballTargetForSets(gameType: GameType) {
@@ -118,6 +170,12 @@ extension SportsSetupDraft {
         if next != 11 {
             pickleballScoreCap = nil
         }
+    }
+
+    mutating func selectMatchCompletionPreset(_ sets: Int, gameType: GameType) {
+        selectedMaxSets = sets
+        customMaxSetsText = ""
+        syncPickleballTargetForSets(gameType: gameType)
     }
 
     mutating func applyDefaultsWhenSwitchingToDoubles(
@@ -195,19 +253,21 @@ extension SportsSetupDraft {
         let first = player1.trimmingCharacters(in: .whitespacesAndNewlines)
         let second = player2.trimmingCharacters(in: .whitespacesAndNewlines)
         if !first.isEmpty && !second.isEmpty {
-            return gameType == .foosball ? "\(first)/\(second)" : "\(first) / \(second)"
+            return "\(first)/\(second)"
         }
         return first.isEmpty ? second : first
     }
 
     func pointPresets(for gameType: GameType) -> [Int] {
-        if gameType == .pingpong { return [5, 7, 9, 11, 15, 21] }
+        if gameType == .pingpong { return [5, 7, 9, 11] }
         if gameType == .foosball { return [5, 7, 8] }
-        return [21, 15, 11]
+        return [11, 15, 21]
     }
 
-    var matchCompletionPresets: [Int] {
-        matchCompletionMode == .playAll ? [1, 2, 3, 4, 5] : [1, 3, 5, 7]
+    func matchCompletionPresets(for gameType: GameType) -> [Int] {
+        if gameType == .foosball { return [1, 3, 5, 7] }
+        if gameType == .tennis, matchCompletionMode == .playAll { return [1, 2, 3, 4] }
+        return matchCompletionMode == .playAll ? [1, 2, 3, 4, 5] : [1, 3, 5, 7]
     }
 
     func frameCountPresets(for gameType: GameType) -> [Int] {
@@ -217,12 +277,12 @@ extension SportsSetupDraft {
         case .snooker:
             return [1, 3, 5, 7, 9, 11, 15, 17, 19, 25, 33, 35]
         default:
-            return matchCompletionPresets
+            return matchCompletionPresets(for: gameType)
         }
     }
 
     func hasValidPointsPerSet(for gameType: GameType) -> Bool {
-        guard gameType == .pingpong || gameType == .badminton || gameType == .foosball else {
+        guard gameType == .pingpong || gameType == .badminton || gameType == .shuttlecock || gameType == .foosball else {
             return true
         }
         let maximum = gameType == .foosball ? 99 : 999
@@ -242,27 +302,39 @@ extension SportsSetupDraft {
     }
 
     func makeResult(gameType: GameType, usesDoublesPlayerInputs: Bool) -> SportsSetupResult {
-        let resolvedTeam1Name = usesDoublesPlayerInputs
-            ? buildDoublesTeamName(team1Player1Name, team1Player2Name, gameType: gameType)
-            : team1Name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let resolvedTeam2Name = usesDoublesPlayerInputs
-            ? buildDoublesTeamName(team2Player1Name, team2Player2Name, gameType: gameType)
-            : team2Name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let usesTeamPlayerInputs = gameType == .shuttlecock && competitionFormat == .team
+        let usesNamedPlayerInputs = usesDoublesPlayerInputs || usesTeamPlayerInputs
+        let resolvedTeam1Name = usesTeamPlayerInputs
+            ? buildCompetitionTeamName([team1Player1Name, team1Player2Name, team1Player3Name])
+            : (usesDoublesPlayerInputs
+                ? buildDoublesTeamName(team1Player1Name, team1Player2Name, gameType: gameType)
+                : team1Name.trimmingCharacters(in: .whitespacesAndNewlines))
+        let resolvedTeam2Name = usesTeamPlayerInputs
+            ? buildCompetitionTeamName([team2Player1Name, team2Player2Name, team2Player3Name])
+            : (usesDoublesPlayerInputs
+                ? buildDoublesTeamName(team2Player1Name, team2Player2Name, gameType: gameType)
+                : team2Name.trimmingCharacters(in: .whitespacesAndNewlines))
 
         var result = SportsSetupResult(
             team1Name: resolvedTeam1Name,
             team2Name: resolvedTeam2Name,
-            team1Player1Name: usesDoublesPlayerInputs
+            team1Player1Name: usesNamedPlayerInputs
                 ? team1Player1Name.trimmingCharacters(in: .whitespacesAndNewlines)
                 : nil,
-            team1Player2Name: usesDoublesPlayerInputs
+            team1Player2Name: usesNamedPlayerInputs
                 ? team1Player2Name.trimmingCharacters(in: .whitespacesAndNewlines)
                 : nil,
-            team2Player1Name: usesDoublesPlayerInputs
+            team2Player1Name: usesNamedPlayerInputs
                 ? team2Player1Name.trimmingCharacters(in: .whitespacesAndNewlines)
                 : nil,
-            team2Player2Name: usesDoublesPlayerInputs
+            team2Player2Name: usesNamedPlayerInputs
                 ? team2Player2Name.trimmingCharacters(in: .whitespacesAndNewlines)
+                : nil,
+            team1Player3Name: usesTeamPlayerInputs
+                ? team1Player3Name.trimmingCharacters(in: .whitespacesAndNewlines)
+                : nil,
+            team2Player3Name: usesTeamPlayerInputs
+                ? team2Player3Name.trimmingCharacters(in: .whitespacesAndNewlines)
                 : nil
         )
 
@@ -280,6 +352,12 @@ extension SportsSetupDraft {
             result.isSingles = isSingles
             result.servingSide = servingSide.rawValue
             result.voiceAnnouncement = voiceAnnouncement
+            if ScoreboardMatchTimePolicy.includesSportsSetupValue(
+                for: gameType,
+                isSingles: isSingles
+            ) {
+                result.showMatchTime = showMatchTime
+            }
         case .tennis:
             result.maxSets = tennisSetScoringMode == "tiebreak_only"
                 ? 1
@@ -295,6 +373,32 @@ extension SportsSetupDraft {
             result.tennisDeuceMode = tennisDeuceMode
             result.servingSide = servingSide.rawValue
             result.voiceAnnouncement = voiceAnnouncement
+        case .softTennis:
+            result.maxSets = 1
+            result.matchCompletionMode = .bestOf
+            result.gamesPerSet = 4
+            result.tieBreakPoints = 7
+            result.tennisDeuceMode = "advantage"
+            result.softTennisMatchGames = [7, 9].contains(softTennisMatchGames) ? softTennisMatchGames : 7
+            result.competitionFormat = isSingles ? .singles : .doubles
+            result.isSingles = isSingles
+            result.autoChangeSides = autoChangeSides
+            result.servingSide = servingSide.rawValue
+            result.voiceAnnouncement = voiceAnnouncement
+            result.ruleProfileVersion = 1
+        case .padel:
+            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
+            result.matchCompletionMode = .bestOf
+            result.gamesPerSet = 6
+            result.tieBreakPoints = 7
+            result.tennisDeuceMode = padelDeuceMode.rawValue
+            result.competitionFormat = .doubles
+            result.isSingles = false
+            result.padelDeuceMode = padelDeuceMode
+            result.autoChangeSides = autoChangeSides
+            result.servingSide = servingSide.rawValue
+            result.voiceAnnouncement = voiceAnnouncement
+            result.ruleProfileVersion = 1
         case .badminton:
             result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
             result.matchCompletionMode = matchCompletionMode
@@ -303,6 +407,29 @@ extension SportsSetupDraft {
             result.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 21
             result.servingSide = servingSide.rawValue
             result.voiceAnnouncement = voiceAnnouncement
+        case .shuttlecock:
+            result.maxSets = 3
+            result.matchCompletionMode = .bestOf
+            result.pointsPerSet = selectedPointsPerSet > 0 ? selectedPointsPerSet : 21
+            result.competitionFormat = competitionFormat
+            result.isSingles = competitionFormat == .singles
+            result.autoChangeSides = autoChangeSides
+            result.servingSide = servingSide.rawValue
+            result.voiceAnnouncement = voiceAnnouncement
+            result.ruleProfileVersion = 1
+        case .squash:
+            result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 5
+            result.matchCompletionMode = matchCompletionMode
+            result.competitionFormat = .singles
+            result.isSingles = true
+            result.autoChangeSides = autoChangeSides
+            result.servingSide = servingSide.rawValue
+            result.voiceAnnouncement = voiceAnnouncement
+            result.ruleProfileVersion = 1
+        case .football, .football5v5:
+            result.footballHalfLengthSeconds = footballHalfLengthSeconds
+            result.showMatchTime = true
+            result.ruleProfileVersion = 1
         case .pickleball:
             result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 3
             result.matchCompletionMode = matchCompletionMode
@@ -326,9 +453,11 @@ extension SportsSetupDraft {
         case .volleyball, .beachVolleyball, .airVolleyball:
             result.autoChangeSides = autoChangeSides
             result.servingSide = servingSide.rawValue
+            result.showMatchTime = showMatchTime
         case .snooker:
             result.maxSets = selectedMaxSets > 0 ? selectedMaxSets : 1
             result.servingSide = servingSide.rawValue
+            result.matchTitle = matchTitleEnabled ? ScoreboardMatchTitlePolicy.sanitize(matchTitle) : nil
         case .eightBall:
             let target = selectedMaxSets > 0 ? selectedMaxSets : 9
             result.maxSets = target
@@ -356,10 +485,18 @@ extension SportsSetupDraft {
         return parts.count >= 2 ? (parts[0], parts[1]) : (trimmed, "")
     }
 
+    private func buildCompetitionTeamName(_ names: [String]) -> String {
+        names
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "/")
+    }
+
     private static func defaultMaxSets(for gameType: GameType) -> Int? {
         switch gameType {
         case .pingpong: return 5
-        case .badminton, .pickleball, .boxing, .foosball, .tennis: return 3
+        case .badminton, .shuttlecock, .pickleball, .boxing, .foosball, .tennis, .padel: return 3
+        case .squash: return 5
         case .snooker: return 1
         case .eightBall: return 9
         default: return nil
@@ -369,7 +506,7 @@ extension SportsSetupDraft {
     private static func defaultPointsPerSet(for gameType: GameType) -> Int? {
         switch gameType {
         case .pingpong: return 11
-        case .badminton: return 21
+        case .badminton, .shuttlecock: return 21
         case .foosball: return 5
         default: return nil
         }

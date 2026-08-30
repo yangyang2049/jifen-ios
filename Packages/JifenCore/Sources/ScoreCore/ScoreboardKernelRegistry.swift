@@ -37,11 +37,11 @@ public enum ScoreboardKernelRegistry {
         let kind: ScoreboardKernelKind
         switch gameType {
         case .pingpong, .pingpongDoubles, .badminton, .badmintonDoubles, .pickleball, .pickleballDoubles,
-             .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
+             .shuttlecock, .squash, .volleyball, .airVolleyball, .beachVolleyball, .foosball, .foosballDoubles:
             family = .s1; kind = .rally
-        case .tennis, .tennisDoubles:
+        case .tennis, .tennisDoubles, .softTennis, .padel:
             family = .s1; kind = .tennis
-        case .football, .billiards, .simpleScore:
+        case .football, .football5v5, .billiards, .simpleScore:
             family = .s1; kind = .line
         case .basketball, .threeBasketball:
             family = .s2; kind = .basketball
@@ -73,7 +73,15 @@ public enum ScoreboardKernelRegistry {
         switch gameType {
         case .pingpong, .pingpongDoubles: .pingPong()
         case .badminton, .badmintonDoubles: .badminton()
-        case .pickleball, .pickleballDoubles: .pickleball()
+        case .shuttlecock: .shuttlecock()
+        case .squash: .squash()
+        case .pickleball: .pickleball()
+        case .pickleballDoubles:
+            {
+                var rules = RallyRuleSet.pickleball()
+                rules.nextSetServerModel = .alternateFromOpening
+                return rules
+            }()
         case .volleyball: .volleyball()
         case .airVolleyball: .airVolleyball()
         case .beachVolleyball: .beachVolleyball()
@@ -84,9 +92,22 @@ public enum ScoreboardKernelRegistry {
 
     public static func defaultLineRules(for gameType: GameType) -> LineScoreRuleSet? {
         switch gameType {
-        case .football, .billiards: .nonNegative
+        case .football, .football5v5, .billiards: .nonNegative
         case .simpleScore: .freeCounter
         default: nil
+        }
+    }
+
+    public static func defaultTennisRules(for gameType: GameType) -> TennisRuleSet? {
+        switch gameType {
+        case .tennis, .tennisDoubles:
+            .init()
+        case .softTennis:
+            .softTennis()
+        case .padel:
+            .padel()
+        default:
+            nil
         }
     }
 }

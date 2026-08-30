@@ -54,6 +54,11 @@ public enum RallyNextSetServerModel: String, Codable, Sendable {
     case alternateFromOpening
 }
 
+public enum RallySportProfile: String, Codable, Sendable {
+    case generic
+    case pickleball
+}
+
 public struct RallyRuleSet: Codable, Equatable, Sendable {
     public var maxSets: Int
     public var pointsToWinSet: Int
@@ -73,6 +78,7 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
     public var matchCompletionMode: MatchCompletionMode
     /// Pickleball and alternating-serve sports use `.alternateFromOpening`.
     public var nextSetServerModel: RallyNextSetServerModel
+    public var sportProfile: RallySportProfile
 
     public init(
         maxSets: Int,
@@ -89,7 +95,8 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         servingModel: RallyServingModel = .scorerServes,
         useRallyScoring: Bool = true,
         matchCompletionMode: MatchCompletionMode = .bestOf,
-        nextSetServerModel: RallyNextSetServerModel = .scorerContinues
+        nextSetServerModel: RallyNextSetServerModel = .scorerContinues,
+        sportProfile: RallySportProfile = .generic
     ) {
         self.maxSets = max(1, maxSets)
         self.pointsToWinSet = max(1, pointsToWinSet)
@@ -106,6 +113,7 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         self.useRallyScoring = useRallyScoring
         self.matchCompletionMode = matchCompletionMode
         self.nextSetServerModel = nextSetServerModel
+        self.sportProfile = sportProfile
     }
 
     public var setsToWin: Int { (maxSets + 1) / 2 }
@@ -130,6 +138,7 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         case useRallyScoring
         case matchCompletionMode
         case nextSetServerModel
+        case sportProfile
     }
 
     public init(from decoder: Decoder) throws {
@@ -149,6 +158,12 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
         useRallyScoring = try container.decodeIfPresent(Bool.self, forKey: .useRallyScoring) ?? true
         matchCompletionMode = try container.decodeIfPresent(MatchCompletionMode.self, forKey: .matchCompletionMode) ?? .bestOf
         nextSetServerModel = try container.decodeIfPresent(RallyNextSetServerModel.self, forKey: .nextSetServerModel) ?? .scorerContinues
+        sportProfile = try container.decodeIfPresent(RallySportProfile.self, forKey: .sportProfile)
+            ?? (nextSetServerModel == .alternateFromOpening
+                && finalSetPointsToWin == nil
+                && servingModel == .scorerServes
+                ? .pickleball
+                : .generic)
     }
 
     public func target(for setNumber: Int) -> Int {
@@ -244,7 +259,8 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
             pointCap: nil,
             useRallyScoring: false,
             matchCompletionMode: matchCompletionMode,
-            nextSetServerModel: .alternateFromOpening
+            nextSetServerModel: .opening,
+            sportProfile: .pickleball
         )
     }
 
@@ -306,8 +322,63 @@ public struct RallyMatchState: Codable, Equatable, Sendable {
     /// Optional for completed historical snapshots written before
     /// score-correction replay was introduced.
     public var currentSetReplay: RallyCurrentSetReplay?
+    /// Optional administrative actions added for table-tennis 2.1. Keeping
+    /// this optional lets 2.0 snapshots decode unchanged.
+    public var pingPongAdministrativeActions: [PingPongAdministrativeAction]?
+    /// New-sport setup metadata kept in the local snapshot so team formats
+    /// and names survive draft recovery and record restart.
+    public var competitionFormat: CompetitionFormat?
+    public var competitionPlayerNames: [String]?
+    public var officialBreakState: OfficialBreakState?
 
     public var currentSet: Int { leftSets + rightSets + 1 }
+}
+
+public enum PingPongAdministrativeActionType: String, Codable, Equatable, Sendable {
+    case timeout
+    case medicalTimeout = "medical_timeout"
+    case yellowCard = "yellow_card"
+    case redCard = "red_card"
+}
+
+public struct PingPongAdministrativeAction: Codable, Equatable, Sendable, Identifiable {
+    public let id: UUID
+    public let type: PingPongAdministrativeActionType
+    public let side: MatchSide
+    public let epochMilliseconds: Int64
+
+    public init(
+        id: UUID = UUID(),
+        type: PingPongAdministrativeActionType,
+        side: MatchSide,
+        epochMilliseconds: Int64
+    ) {
+        self.id = id
+        self.type = type
+        self.side = side
+        self.epochMilliseconds = epochMilliseconds
+    }
+}
+
+public struct PingPongAdministrativeStatus: Equatable, Sendable {
+    public let timeoutUsed: Bool
+    public let medicalTimeoutCount: Int
+    public let hasYellowCard: Bool
+    public let redCardCount: Int
+}
+
+public extension RallyMatchState {
+    func pingPongAdministrativeStatus(for side: MatchSide) -> PingPongAdministrativeStatus {
+        let actions = (pingPongAdministrativeActions ?? []).filter { $0.side == side }
+        return PingPongAdministrativeStatus(
+            timeoutUsed: actions.contains { $0.type == .timeout },
+            medicalTimeoutCount: actions.filter { $0.type == .medicalTimeout }.count,
+            // Android 3.1 renders a yellow marker for either an explicit yellow
+            // card or any red card; a red card therefore always implies yellow.
+            hasYellowCard: actions.contains { $0.type == .yellowCard || $0.type == .redCard },
+            redCardCount: actions.filter { $0.type == .redCard }.count
+        )
+    }
 }
 
 public enum RallyCurrentSetReplayAction: Codable, Equatable, Sendable {
@@ -354,6 +425,8 @@ public enum RallyMatchIntent: Codable, Sendable {
     case exchangeSides
     case finish
     case reset
+    case pingPongAdministrativeAction(type: PingPongAdministrativeActionType, side: MatchSide)
+    case setOfficialBreakState(OfficialBreakState?)
 }
 
 public enum RallyMatchEvent: Codable, Equatable, Sendable {
@@ -366,6 +439,8 @@ public enum RallyMatchEvent: Codable, Equatable, Sendable {
     case sidesExchanged
     case matchFinished(winner: MatchSide?)
     case matchReset
+    case pingPongAdministrativeAction(PingPongAdministrativeAction)
+    case officialBreakChanged(OfficialBreakState?)
 }
 
 public enum RallyMatchEngine {
@@ -374,7 +449,9 @@ public enum RallyMatchEngine {
         rightName: String,
         rules: RallyRuleSet,
         openingServer: MatchSide = .left,
-        doubles: RallyDoublesState? = nil
+        doubles: RallyDoublesState? = nil,
+        competitionFormat: CompetitionFormat? = nil,
+        competitionPlayerNames: [String]? = nil
     ) -> RallyMatchState {
         var state = RallyMatchState(
             rules: rules,
@@ -390,7 +467,11 @@ public enum RallyMatchEngine {
             finished: false,
             sidesSwapped: false,
             doubles: doubles,
-            currentSetReplay: nil
+            currentSetReplay: nil,
+            pingPongAdministrativeActions: nil,
+            competitionFormat: competitionFormat,
+            competitionPlayerNames: competitionPlayerNames,
+            officialBreakState: nil
         )
         state.currentSetReplay = RallyCurrentSetReplay(
             baselineLeftPoints: 0,
@@ -416,6 +497,15 @@ public struct RallyMatchReducer: DomainReducer {
         intent: RallyMatchIntent,
         at epochMilliseconds: Int64
     ) -> ReduceResult<RallyMatchState, RallyMatchEvent> {
+        if state.officialBreakState?.isRunning == true {
+            switch intent {
+            case .pointWon, .adjustPoints, .adjustSets:
+                return .rejected(state: state, reason: "Scoring is unavailable during an official break")
+            default:
+                break
+            }
+        }
+
         switch intent {
         case .pointWon(let side):
             return pointWon(side, state: state)
@@ -444,9 +534,38 @@ public struct RallyMatchReducer: DomainReducer {
                 rightName: state.rightName,
                 rules: state.rules,
                 openingServer: state.openingServerSide,
-                doubles: resetDoubles(state.doubles, openingServer: state.openingServerSide)
+                doubles: resetDoubles(state.doubles, openingServer: state.openingServerSide),
+                competitionFormat: state.competitionFormat,
+                competitionPlayerNames: state.competitionPlayerNames
             )
-            return .init(state: reset, events: [.matchReset])
+            var restoredReset = reset
+            restoredReset.officialBreakState = nil
+            return .init(state: restoredReset, events: [.matchReset])
+        case .pingPongAdministrativeAction(let type, let side):
+            guard state.rules.servingModel == .pingPongTwoServes, !state.finished else {
+                return .rejected(state: state, reason: "Administrative action is unavailable")
+            }
+            var next = state
+            var actions = next.pingPongAdministrativeActions ?? []
+            let status = state.pingPongAdministrativeStatus(for: side)
+            if type == .timeout, status.timeoutUsed {
+                return .rejected(state: state, reason: "Timeout has already been used")
+            }
+            if type == .redCard, status.redCardCount >= 2 {
+                return .rejected(state: state, reason: "Red card limit reached")
+            }
+            let action = PingPongAdministrativeAction(
+                type: type,
+                side: side,
+                epochMilliseconds: epochMilliseconds
+            )
+            actions.append(action)
+            next.pingPongAdministrativeActions = actions
+            return .init(state: next, events: [.pingPongAdministrativeAction(action)])
+        case .setOfficialBreakState(let breakState):
+            var next = state
+            next.officialBreakState = breakState
+            return .init(state: next, events: [.officialBreakChanged(breakState)])
         }
     }
 
@@ -497,6 +616,7 @@ public struct RallyMatchReducer: DomainReducer {
     }
 
     private func usesPickleballServeRules(_ state: RallyMatchState) -> Bool {
+        if state.rules.sportProfile == .pickleball { return true }
         if case .pickleball = state.doubles?.rotation { return true }
         // Pickleball is the only singles rally-family ruleset using side-out scoring.
         return !state.rules.useRallyScoring
@@ -564,17 +684,17 @@ public struct RallyMatchReducer: DomainReducer {
         if case .pickleball(var rotation) = next.doubles?.rotation {
             if side == state.servingSide {
                 togglePickleballPartnerSwap(&rotation, servingTeam0: state.servingSide == .left)
-            } else {
-                next.servingSide = side
-                togglePickleballPartnerSwap(&rotation, servingTeam0: side == .left)
-                let servingScore = side == .left ? next.leftPoints : next.rightPoints
-                rotation.serverNumber = servingScore.isMultiple(of: 2) ? 2 : 1
             }
-            rotation.isFirstServeOfGame = false
+            if rotation.serverNumber == 1 {
+                rotation.serverNumber = 2
+            } else {
+                next.servingSide = state.servingSide.opposite
+                rotation.serverNumber = 1
+            }
             refreshPickleballDoublesSlots(&rotation, servingTeam0: next.servingSide == .left)
             next.doubles?.rotation = .pickleball(rotation)
         } else {
-            next.servingSide = side
+            next.servingSide = state.servingSide.opposite
         }
 
         return finalizePointResult(previous: state, next: next, scoredSide: side)
@@ -693,6 +813,14 @@ public struct RallyMatchReducer: DomainReducer {
     }
 
     private func nextFirstServer(for state: RallyMatchState) -> MatchSide {
+        if state.rules.sportProfile == .pickleball {
+            if case .pickleball = state.doubles?.rotation {
+                return state.currentSet.isMultiple(of: 2)
+                    ? state.openingServerSide.opposite
+                    : state.openingServerSide
+            }
+            return state.openingServerSide
+        }
         switch state.rules.nextSetServerModel {
         case .opening:
             return state.openingServerSide
@@ -769,7 +897,7 @@ public struct RallyMatchReducer: DomainReducer {
                 chosenServerSlotIndex: server,
                 previousOpeningServerSlotIndex: rotation.openingServerSlotIndex,
                 previousOpeningReceiverSlotIndex: rotation.openingReceiverSlotIndex
-            ) ?? (server == 0 ? 3 : 2)
+            ) ?? (server == 0 ? 1 : 0)
             doubles.rotation = .pingPong(createPingPongDoublesRotation(
                 openingServerSlotIndex: server,
                 openingReceiverSlotIndex: receiver
@@ -813,7 +941,7 @@ public struct RallyMatchReducer: DomainReducer {
             return .pingPong(
                 playerNames: doubles.playerNames,
                 openingServerSlotIndex: server,
-                openingReceiverSlotIndex: server == 0 ? 3 : 2
+                openingReceiverSlotIndex: server == 0 ? 1 : 0
             )
         case .badminton:
             return .badminton(playerNames: doubles.playerNames, servingTeam0: openingServer == .left)

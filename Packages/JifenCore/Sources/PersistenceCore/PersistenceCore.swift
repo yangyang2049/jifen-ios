@@ -61,6 +61,11 @@ public struct ResumeSessionEnvelope: Codable, Equatable, Sendable {
     public let scoreSummary: String
     public let payloadKind: ResumePayloadKind
     public let payload: Data
+    /// Unique identity for one durable snapshot write. Timestamps and payloads
+    /// can repeat (for example a terminal undo completed in the same
+    /// millisecond and restored byte-identical state), so cleanup must not use
+    /// either as an optimistic-concurrency token.
+    public let snapshotGenerationID: UUID?
 
     public init(
         sessionId: UUID,
@@ -70,7 +75,8 @@ public struct ResumeSessionEnvelope: Codable, Equatable, Sendable {
         participants: [SessionParticipant],
         scoreSummary: String,
         payloadKind: ResumePayloadKind,
-        payload: Data
+        payload: Data,
+        snapshotGenerationID: UUID? = UUID()
     ) {
         schemaVersion = Self.currentSchemaVersion
         self.sessionId = sessionId
@@ -81,7 +87,15 @@ public struct ResumeSessionEnvelope: Codable, Equatable, Sendable {
         self.scoreSummary = scoreSummary
         self.payloadKind = payloadKind
         self.payload = payload
+        self.snapshotGenerationID = snapshotGenerationID
     }
+}
+
+/// Opaque compare-and-delete token for a specific durable resume snapshot.
+/// A later live save always receives a different envelope generation, even if
+/// it restores exactly the same reducer state.
+public struct ResumeSessionCleanupToken: Equatable, Sendable {
+    fileprivate let envelope: ResumeSessionEnvelope
 }
 
 public struct ResumeSessionSummary: Codable, Equatable, Identifiable, Sendable {
@@ -111,6 +125,41 @@ public struct ResumeSessionSummary: Codable, Equatable, Identifiable, Sendable {
         self.participants = participants
         self.status = status
         self.updatedAtEpochMilliseconds = updatedAtEpochMilliseconds
+    }
+}
+
+/// Determines how long a live scoreboard remains resumable. The lifetime is
+/// measured from the match start rather than the last autosave so background
+/// persistence cannot keep an abandoned match alive indefinitely.
+public struct ResumeSessionRetentionPolicy: Equatable, Sendable {
+    public static let fortyEightHours = Self(retentionInterval: 48 * 60 * 60)
+
+    public let retentionInterval: TimeInterval
+
+    public init(retentionInterval: TimeInterval = 48 * 60 * 60) {
+        self.retentionInterval = max(0, retentionInterval)
+    }
+
+    public func isExpired(
+        startedAtEpochMilliseconds: Int64,
+        nowEpochMilliseconds: Int64
+    ) -> Bool {
+        let retentionMilliseconds = Int64(retentionInterval * 1_000)
+        let age = nowEpochMilliseconds.subtractingReportingOverflow(
+            startedAtEpochMilliseconds
+        )
+        guard !age.overflow else { return nowEpochMilliseconds > startedAtEpochMilliseconds }
+        return age.partialValue > retentionMilliseconds
+    }
+
+    public func isExpired(
+        _ envelope: ResumeSessionEnvelope,
+        now: Date = Date()
+    ) -> Bool {
+        isExpired(
+            startedAtEpochMilliseconds: envelope.startedAtEpochMilliseconds,
+            nowEpochMilliseconds: Int64(now.timeIntervalSince1970 * 1_000)
+        )
     }
 }
 
@@ -180,8 +229,9 @@ private final class ResumeSessionIndexRegistry: @unchecked Sendable {
 /// The single store for every resumable match. Its schema starts at 1 because
 /// the previous archive and unfinished-record implementations were never released.
 public actor ResumeSessionRepository {
-    public let rootURL: URL
+    public nonisolated let rootURL: URL
     private let index: ResumeSessionIndex
+    private var activeSnapshotWriteCounts: [UUID: Int] = [:]
 
     public init(rootURL: URL = ResumeSessionRepository.defaultRootURL()) {
         self.rootURL = rootURL
@@ -268,13 +318,11 @@ public actor ResumeSessionRepository {
     }
 
     /// Index-only update for manual (non-ScoreCore) sessions. Uses `index.upsert`
-    /// instead of replacing the entire index array, and delegates session cleanup
-    /// to `discardOtherLiveSessions` to stay consistent with actor-managed saves.
+    /// instead of replacing the entire index array. Stacked live sessions are
+    /// intentionally retained until the app lifecycle can archive progress as
+    /// an abandoned record before deleting any resume snapshot.
     public func saveManualSession(_ summary: ResumeSessionSummary) async throws {
         try await index.upsert(summary)
-        if summary.status == .live {
-            try await discardOtherLiveSessions(except: summary.sessionId)
-        }
     }
 
     public static func loadEnvelope(
@@ -292,6 +340,15 @@ public actor ResumeSessionRepository {
             return nil
         }
         return envelope
+    }
+
+    public static func cleanupToken(
+        sessionId: UUID,
+        rootURL: URL = defaultRootURL()
+    ) throws -> ResumeSessionCleanupToken? {
+        try loadEnvelope(sessionId: sessionId, rootURL: rootURL).map {
+            ResumeSessionCleanupToken(envelope: $0)
+        }
     }
 
     public static func loadPayload(
@@ -326,6 +383,8 @@ public actor ResumeSessionRepository {
             try await remove(sessionId: session.sessionId)
             return
         }
+        beginSnapshotWrite(sessionId: session.sessionId)
+        defer { endSnapshotWrite(sessionId: session.sessionId) }
         let snapshotPath = "sessions/\(session.sessionId.uuidString).json"
         let payload = try JSONEncoder().encode(session)
         let envelope = ResumeSessionEnvelope(
@@ -353,10 +412,6 @@ public actor ResumeSessionRepository {
             status: session.status,
             updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
         ))
-        // Resume GameBar allows at most one live session (aligned with HarmonyOS).
-        if session.status == .live {
-            try await discardOtherLiveSessions(except: session.sessionId)
-        }
     }
 
     /// Persists the complete resumable session, including reducer intent
@@ -376,6 +431,8 @@ public actor ResumeSessionRepository {
             try await remove(sessionId: session.sessionId)
             return
         }
+        beginSnapshotWrite(sessionId: session.sessionId)
+        defer { endSnapshotWrite(sessionId: session.sessionId) }
         let snapshotPath = "sessions/\(session.sessionId.uuidString).json"
         let payload = try JSONEncoder().encode(bundle)
         let envelope = ResumeSessionEnvelope(
@@ -403,9 +460,6 @@ public actor ResumeSessionRepository {
             status: session.status,
             updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
         ))
-        if session.status == .live {
-            try await discardOtherLiveSessions(except: session.sessionId)
-        }
     }
 
     public func load<State: Codable & Sendable, Event: Codable & Sendable>(
@@ -442,30 +496,6 @@ public actor ResumeSessionRepository {
         try await entries().filter { $0.status == .live }
     }
 
-    /// Keeps at most one live resume target: discards every live session except `sessionId`.
-    public func discardOtherLiveSessions(except sessionId: UUID) async throws {
-        for entry in try await liveEntries() where entry.sessionId != sessionId {
-            try await remove(sessionId: entry.sessionId)
-        }
-    }
-
-    public func discardAllLiveSessions() async throws {
-        for entry in try await liveEntries() {
-            try await remove(sessionId: entry.sessionId)
-        }
-    }
-
-    /// Prunes accidentally stacked live sessions down to the newest one.
-    @discardableResult
-    public func retainNewestLiveSession() async throws -> ResumeSessionSummary? {
-        let live = try await liveEntries()
-        guard let newest = live.first else { return nil }
-        for entry in live.dropFirst() {
-            try await remove(sessionId: entry.sessionId)
-        }
-        return newest
-    }
-
     public func remove(sessionId: UUID) async throws {
         let url = Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
         if FileManager.default.fileExists(atPath: url.path) {
@@ -479,10 +509,60 @@ public actor ResumeSessionRepository {
         try await index.remove(sessionId: sessionId)
     }
 
+    /// Deletes only the exact snapshot observed by the finished-record commit.
+    /// If a live save has started or completed since then, cleanup becomes a
+    /// successful no-op and must never remove that newer recovery point.
+    @discardableResult
+    public func remove(
+        sessionId: UUID,
+        ifUnchanged token: ResumeSessionCleanupToken
+    ) async throws -> Bool {
+        guard token.envelope.sessionId == sessionId,
+              activeSnapshotWriteCounts[sessionId, default: 0] == 0 else {
+            return false
+        }
+        let url = Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
+        guard FileManager.default.fileExists(atPath: url.path) else { return false }
+        let current = try JSONDecoder().decode(
+            ResumeSessionEnvelope.self,
+            from: Data(contentsOf: url)
+        )
+        guard current == token.envelope else { return false }
+        do {
+            // The compare and file deletion are deliberately synchronous while
+            // isolated to this repository actor. No save through this instance
+            // can start between the equality check and deletion.
+            try FileManager.default.removeItem(at: url)
+        } catch let error as CocoaError where error.code == .fileNoSuchFile {
+            return false
+        }
+        try await index.remove(sessionId: sessionId)
+        return true
+    }
+
     public func clear() async throws {
-        let allEntries = try await entries()
-        for entry in allEntries {
-            try await remove(sessionId: entry.sessionId)
+        guard FileManager.default.fileExists(atPath: rootURL.path) else { return }
+        do {
+            // The index is only a catalog, not the complete storage inventory.
+            // Removing the dedicated root also clears orphan/corrupted snapshots,
+            // temporary files, and an unreadable index in one retry-safe step.
+            try FileManager.default.removeItem(at: rootURL)
+        } catch let error as CocoaError where error.code == .fileNoSuchFile {
+            // Another idempotent cleanup already removed the directory.
+        }
+    }
+
+
+    private func beginSnapshotWrite(sessionId: UUID) {
+        activeSnapshotWriteCounts[sessionId, default: 0] += 1
+    }
+
+    private func endSnapshotWrite(sessionId: UUID) {
+        let remaining = activeSnapshotWriteCounts[sessionId, default: 0] - 1
+        if remaining > 0 {
+            activeSnapshotWriteCounts[sessionId] = remaining
+        } else {
+            activeSnapshotWriteCounts[sessionId] = nil
         }
     }
 }

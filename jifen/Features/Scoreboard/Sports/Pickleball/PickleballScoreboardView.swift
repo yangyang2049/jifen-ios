@@ -6,6 +6,7 @@ struct PickleballScoreboardView: View {
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
+    var usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator? = nil
 
     var body: some View {
         let isDoubles = initialSetup?.isSingles == false
@@ -27,22 +28,15 @@ struct PickleballScoreboardView: View {
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
-            onPresented: { onSetupConsumed?() }
+            onPresented: { onSetupConsumed?() },
+            usageHintCoordinatorOverride: usageHintCoordinatorOverride
         )
     }
 
     private var rules: RallyRuleSet {
-        var rules = RallyRuleSet.pickleball(
-            maxSets: initialSetup?.maxSets ?? 3,
-            matchCompletionMode: initialSetup?.matchCompletionMode ?? .bestOf
-        )
-        rules.pointsToWinSet = max(1, initialSetup?.targetScore ?? 11)
-        rules.pointCap = initialSetup?.scoreCap
-        rules.winByTwo = initialSetup?.winByTwo ?? true
-        rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
-        rules.useRallyScoring = initialSetup?.useRallyScoring ?? false
-        rules.nextSetServerModel = .alternateFromOpening
-        return rules
+        var setup = initialSetup ?? SportsSetupResult(team1Name: "", team2Name: "")
+        setup.isSingles = !isDoubles
+        return setup.pickleballRules
     }
 
     private var isDoubles: Bool {

@@ -30,8 +30,29 @@ final class BookingNotificationManager {
     }
 
     func removeNotifications(for bookingId: String, completion: (() -> Void)? = nil) {
-        guard let center else {
+        removeNotificationsVerified(for: bookingId) { _ in
             completion?()
+        }
+    }
+
+    /// Removes both pending and already delivered reminders, then reads the
+    /// notification center again before reporting success. Completion flows
+    /// such as "start scheduled match" must await this method before they mark
+    /// a booking completed or navigate away.
+    func removeNotificationsAndWait(for bookingId: String) async -> Bool {
+        await withCheckedContinuation { continuation in
+            removeNotificationsVerified(for: bookingId) { success in
+                continuation.resume(returning: success)
+            }
+        }
+    }
+
+    private func removeNotificationsVerified(
+        for bookingId: String,
+        completion: @escaping (Bool) -> Void
+    ) {
+        guard let center else {
+            completion(true)
             return
         }
 
@@ -57,24 +78,62 @@ final class BookingNotificationManager {
         }
 
         group.notify(queue: .main) {
-            completion?()
+            center.getPendingNotificationRequests { pendingAfter in
+                center.getDeliveredNotifications { deliveredAfter in
+                    let pendingRemoved = pendingAfter.allSatisfy {
+                        !$0.identifier.hasPrefix(prefix)
+                    }
+                    let deliveredRemoved = deliveredAfter.allSatisfy {
+                        !$0.request.identifier.hasPrefix(prefix)
+                    }
+                    DispatchQueue.main.async {
+                        completion(pendingRemoved && deliveredRemoved)
+                    }
+                }
+            }
         }
     }
 
-    func removeAllBookingNotifications() {
-        guard let center else { return }
+    func removeAllBookingNotifications(completion: ((Bool) -> Void)? = nil) {
+        guard let center else {
+            completion?(true)
+            return
+        }
 
+        // Resolve removals and then query the notification center again. The
+        // data-reset flow can therefore report a real failure instead of
+        // treating this asynchronous operation as completed immediately.
         center.getPendingNotificationRequests { [idPrefix] requests in
             let ids = requests.map(\.identifier).filter { $0.hasPrefix(idPrefix) }
             if !ids.isEmpty {
                 center.removePendingNotificationRequests(withIdentifiers: ids)
             }
+            center.getDeliveredNotifications { notifications in
+                let ids = notifications.map { $0.request.identifier }.filter { $0.hasPrefix(idPrefix) }
+                if !ids.isEmpty {
+                    center.removeDeliveredNotifications(withIdentifiers: ids)
+                }
+                center.getPendingNotificationRequests { pendingAfter in
+                    center.getDeliveredNotifications { deliveredAfter in
+                        let pendingRemoved = pendingAfter.allSatisfy {
+                            !$0.identifier.hasPrefix(idPrefix)
+                        }
+                        let deliveredRemoved = deliveredAfter.allSatisfy {
+                            !$0.request.identifier.hasPrefix(idPrefix)
+                        }
+                        DispatchQueue.main.async {
+                            completion?(pendingRemoved && deliveredRemoved)
+                        }
+                    }
+                }
+            }
         }
+    }
 
-        center.getDeliveredNotifications { [idPrefix] notifications in
-            let ids = notifications.map { $0.request.identifier }.filter { $0.hasPrefix(idPrefix) }
-            if !ids.isEmpty {
-                center.removeDeliveredNotifications(withIdentifiers: ids)
+    func removeAllBookingNotificationsAndWait() async -> Bool {
+        await withCheckedContinuation { continuation in
+            removeAllBookingNotifications { success in
+                continuation.resume(returning: success)
             }
         }
     }

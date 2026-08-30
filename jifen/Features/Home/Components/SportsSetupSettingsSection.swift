@@ -5,9 +5,22 @@ struct SportsSetupSettingsSection: View {
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
     @State private var completionModeExpanded = false
+    @State private var showFootballHalfLengthHint = false
 
     var body: some View {
         buildSettingsSection()
+            .alert(
+                NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"),
+                isPresented: $showFootballHalfLengthHint
+            ) {
+                Button(NSLocalizedString("done", value: "完成", comment: ""), role: .cancel) {}
+            } message: {
+                Text(NSLocalizedString(
+                    "football_setup_hint",
+                    value: "默认每半场 20 分钟；进入比赛后，点击顶部计时器开始或暂停。",
+                    comment: "5x5 football timer setup hint"
+                ))
+            }
     }
 
     private func getChipBackgroundColor(selected: Bool) -> Color {
@@ -23,7 +36,11 @@ struct SportsSetupSettingsSection: View {
                gameType == .boxing ||
                gameType == .pingpong ||
                gameType == .tennis ||
+               gameType == .softTennis ||
+               gameType == .padel ||
                gameType == .badminton ||
+               gameType == .shuttlecock ||
+               gameType == .squash ||
                gameType == .volleyball ||
                gameType == .beachVolleyball ||
                gameType == .airVolleyball ||
@@ -31,6 +48,7 @@ struct SportsSetupSettingsSection: View {
                gameType == .foosball ||
                gameType == .eightBall ||
                gameType == .snooker
+               || gameType == .football5v5
     }
 
     @ViewBuilder
@@ -45,9 +63,19 @@ struct SportsSetupSettingsSection: View {
                     buildMatchCompletionSection(useTennisWording: false)
                     buildPointsPerSetSection()
                     settingsToggle("pingpong_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
+                    if ScoreboardMatchTimePolicy.includesSportsSetupValue(
+                        for: gameType,
+                        isSingles: draft.isSingles
+                    ) {
+                        matchTimeToggle
+                    }
                     settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
                 } else if gameType == .tennis {
                     buildTennisSettings()
+                } else if gameType == .softTennis {
+                    buildSoftTennisSettings()
+                } else if gameType == .padel {
+                    buildPadelSettings()
                 } else if gameType == .badminton {
                     buildMatchCompletionSection(useTennisWording: false)
                     buildPointsPerSetSection()
@@ -55,18 +83,67 @@ struct SportsSetupSettingsSection: View {
                     settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
                 } else if gameType == .pickleball {
                     buildPickleballSettings()
+                } else if gameType == .shuttlecock {
+                    buildPointsPerSetSection()
+                    settingsToggle("shuttlecock_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
+                    settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
+                } else if gameType == .squash {
+                    buildMatchCompletionSection(useTennisWording: false)
+                    settingsToggle("squash_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
+                    settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
                 } else if gameType == .volleyball || gameType == .beachVolleyball || gameType == .airVolleyball {
                     settingsToggle("volleyball_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
+                    matchTimeToggle
                 } else if gameType == .foosball {
                     buildFoosballSettings()
                 } else if gameType == .snooker {
                     buildSnookerSettings()
                 } else if gameType == .eightBall {
                     buildEightBallSettings()
+                } else if gameType == .football5v5 {
+                    buildFootballSettings()
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    @ViewBuilder
+    private func buildFootballSettings() -> some View {
+        Stepper(
+            value: Binding(
+                get: { draft.footballHalfLengthSeconds / 60 },
+                set: { draft.footballHalfLengthSeconds = min(90, max(1, $0)) * 60 }
+            ),
+            in: 1...90
+        ) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"))
+                        .settingsLabelStyle()
+                    Button {
+                        showFootballHalfLengthHint = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(NSLocalizedString(
+                        "football_setup_hint_accessibility",
+                        value: "查看计时说明",
+                        comment: "Football timer setup hint accessibility label"
+                    ))
+                }
+                Text(String(
+                    format: NSLocalizedString("minutes_format", value: "%d 分钟", comment: "Minutes"),
+                    draft.footballHalfLengthSeconds / 60
+                ))
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Theme.textPrimary)
+            }
+        }
+        .accessibilityValue("\(draft.footballHalfLengthSeconds / 60)")
     }
 
     @ViewBuilder
@@ -189,6 +266,47 @@ struct SportsSetupSettingsSection: View {
         }
         settingsToggle("tennis_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
         settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
+    }
+
+    @ViewBuilder
+    private func buildSoftTennisSettings() -> some View {
+        Text(NSLocalizedString("soft_tennis_match_games", value: "整场局数", comment: "Soft tennis total match games"))
+            .settingsLabelStyle()
+        HStack(spacing: 8) {
+            ForEach([7, 9], id: \.self) { games in
+                numberChip(games, selection: $draft.softTennisMatchGames)
+            }
+        }
+        settingsToggle("soft_tennis_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
+        settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
+    }
+
+    @ViewBuilder
+    private func buildPadelSettings() -> some View {
+        Text(NSLocalizedString("padel_deuce_mode", value: "平分规则", comment: "Padel deuce mode"))
+            .settingsLabelStyle()
+        ForEach(PadelDeuceMode.allCases, id: \.self) { mode in
+            Button {
+                draft.padelDeuceMode = mode
+            } label: {
+                HStack {
+                    Text(padelModeTitle(mode))
+                    Spacer()
+                    if draft.padelDeuceMode == mode { Image(systemName: "checkmark") }
+                }
+            }
+            .buttonStyle(.plain)
+        }
+        settingsToggle("padel_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
+        settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
+    }
+
+    private func padelModeTitle(_ mode: PadelDeuceMode) -> String {
+        switch mode {
+        case .advantage: return NSLocalizedString("padel_advantage", value: "占先", comment: "")
+        case .goldenPoint: return NSLocalizedString("padel_golden_point", value: "黄金分", comment: "")
+        case .starPoint: return NSLocalizedString("padel_star_point", value: "星星分", comment: "")
+        }
     }
 
     @ViewBuilder
@@ -344,6 +462,18 @@ struct SportsSetupSettingsSection: View {
                 }
                 customNumberChip(selection: $draft.selectedMaxSets, text: $draft.customMaxSetsText, maxValue: 99)
             }
+        }
+        settingsToggle("match_title", fallback: "比赛抬头", value: $draft.matchTitleEnabled)
+        if draft.matchTitleEnabled {
+            TextField(
+                NSLocalizedString("match_title_placeholder", value: "例如：2026 城市公开赛", comment: "Snooker match title placeholder"),
+                text: Binding(
+                    get: { draft.matchTitle },
+                    set: { draft.matchTitle = ScoreboardMatchTitlePolicy.limitInput($0) }
+                )
+            )
+            .textFieldStyle(.roundedBorder)
+            .accessibilityIdentifier("setup_snooker_match_title_input")
         }
     }
 
@@ -529,8 +659,13 @@ struct SportsSetupSettingsSection: View {
         .tint(Theme.primary)
     }
 
+    private var matchTimeToggle: some View {
+        settingsToggle("show_match_time", fallback: "显示时间", value: $draft.showMatchTime)
+            .accessibilityIdentifier("sports_setup_show_match_time")
+    }
+
     private var matchCompletionPresets: [Int] {
-        draft.matchCompletionPresets
+        draft.matchCompletionPresets(for: gameType)
     }
 
     /// Presets used by the currently visible “局数/盘数” chips (not only classic best-of).
@@ -600,8 +735,7 @@ struct SportsSetupSettingsSection: View {
             HStack(spacing: Theme.sm) {
                 ForEach(matchCompletionPresets, id: \.self) { sets in
                     Button(action: {
-                        draft.selectedMaxSets = sets
-                        draft.customMaxSetsText = ""
+                        draft.selectMatchCompletionPreset(sets, gameType: gameType)
                     }) {
                         Text("\(sets)")
                             .font(.system(size: 14, weight: draft.selectedMaxSets == sets ? .medium : .regular))

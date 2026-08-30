@@ -14,6 +14,7 @@ final class RecordSyncOutbox {
     }
 
     func enqueueUpsert(_ record: ScoreboardRecord) {
+        guard AppFeatureFlags.recordCrossDeviceSyncEnabled else { return }
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         guard let payload = try? encoder.encode(record) else { return }
@@ -21,6 +22,7 @@ final class RecordSyncOutbox {
     }
 
     func enqueueDelete(recordID: String) {
+        guard AppFeatureFlags.recordCrossDeviceSyncEnabled else { return }
         let deletedAt = Int64(Date().timeIntervalSince1970 * 1_000)
         let payload = try? JSONEncoder().encode(RecordTombstone(recordID: recordID, deletedAtEpochMilliseconds: deletedAt))
         enqueue(recordID: recordID, kind: .delete, payload: payload, updatedAt: deletedAt)

@@ -260,8 +260,8 @@ struct ArcheryScoreboardView: View {
                 notifyLinkedFinishIfNeeded()
             }
         }
-        .onChange(of: viewModel.match) { _, state in
-            if !state.finished, !watchLinkService.isFollower {
+        .onChange(of: viewModel.persistenceRevision) { _, _ in
+            if !viewModel.match.finished, !watchLinkService.isFollower {
                 saveGameRecordInRealTime()
             }
         }
@@ -710,7 +710,8 @@ struct ArcheryScoreboardView: View {
             state: viewModel.match,
             undoHistory: viewModel.resumeHistory,
             intentTimeline: controller.getGameActions(),
-            detailedActions: viewModel.detailedActions
+            detailedActions: viewModel.detailedActions,
+            recordUndoCheckpoints: viewModel.recordUndoCheckpoints
         )
         let snapshotData: Data
         do {
@@ -750,7 +751,10 @@ struct ArcheryScoreboardView: View {
             ],
             detailedActions: viewModel.detailedActions,
             projectConfiguration: [
-                ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.archeryDual.rawValue
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.archeryDual.rawValue,
+                "servingSide": viewModel.openingShooterIsLeft
+                    ? MatchSide.left.rawValue
+                    : MatchSide.right.rawValue
             ],
             stateSnapshot: snapshotData,
             isFinished: finished
@@ -786,7 +790,12 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     private var onSetEndCallback: ((SetEndCallbackData) -> Void)? = nil
     private var lastEvents: [ArcheryMatchEvent] = []
     private(set) var detailedActions: [DetailedScoreAction] = []
+    private(set) var recordUndoCheckpoints: [ArcheryRecordUndoCheckpoint] = []
+    private(set) var persistenceRevision = 0
     var mutationLocked = false
+    override var recordsUndoActionInternally: Bool { true }
+    override var recordsExchangeActionInternally: Bool { true }
+    override var recordsResetActionInternally: Bool { true }
 
     var match: ArcheryMatchState { sessionStore.state }
     var teamScreenLayout: TeamScreenLayout { sessionStore.teamScreenLayout }
@@ -819,7 +828,24 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
 
     func configureOpening(leftName: String, rightName: String, openingIsLeft: Bool) {
         sessionStore.configureOpening(leftName: leftName, rightName: rightName, openingIsLeft: openingIsLeft)
+        recordUndoCheckpoints.removeAll()
         syncTeamsFromMatch()
+    }
+
+    override func confirmEditName(isLeft: Bool) {
+        guard !mutationLocked,
+              editState.editingSide == (isLeft ? .left : .right) else { return }
+        let defaults = DefaultParticipantNames.resolve(for: .archery)
+        let input = editState.currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolved = input.isEmpty ? (isLeft ? defaults.left : defaults.right) : input
+        let left = isLeft ? resolved : match.leftName
+        let right = isLeft ? match.rightName : resolved
+        guard apply(.setNames(left: left, right: right)) else { return }
+        controller?.recordScoreAction(
+            action: "snapshot|archery_edit_names|\(match.leftArrowSum),\(match.rightArrowSum)|\(match.leftSetPoints),\(match.rightSetPoints)"
+        )
+        editState.editingSide = nil
+        editState.currentInput = ""
     }
 
     func restoreSession(_ resumeState: ArcheryResumeState) {
@@ -831,6 +857,11 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
                 : resumeState.undoHistory
         )
         detailedActions = resumeState.detailedActions
+        let restoredCheckpoints = Array(resumeState.recordUndoCheckpoints.suffix(resumeHistory.count))
+        recordUndoCheckpoints = Array(
+            repeating: .legacy,
+            count: max(0, resumeHistory.count - restoredCheckpoints.count)
+        ) + restoredCheckpoints
         syncTeamsFromMatch()
     }
 
@@ -843,6 +874,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         sessionStore = ArcherySessionStore(state: reset)
         lastEvents.removeAll()
         detailedActions.removeAll()
+        recordUndoCheckpoints.removeAll()
         syncTeamsFromMatch()
     }
 
@@ -850,6 +882,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         var next = match
         remote.applying(to: &next)
         sessionStore.rebase(to: next)
+        recordUndoCheckpoints.removeAll()
         syncTeamsFromMatch()
     }
 
@@ -932,6 +965,15 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     override func undo() -> Bool {
         guard !mutationLocked else { return false }
         guard sessionStore.undo() else { return false }
+        let checkpoint = recordUndoCheckpoints.popLast()
+        if let recordedActionCount = checkpoint?.recordedActionCount {
+            controller?.restoreRecordedActions(to: recordedActionCount)
+        }
+        if let detailedActionCount = checkpoint?.detailedActionCount {
+            detailedActions = Array(detailedActions.prefix(
+                max(0, min(detailedActionCount, detailedActions.count))
+            ))
+        }
         syncTeamsFromMatch()
         detailedActions.append(DetailedScoreAction(
             type: .undo,
@@ -941,13 +983,20 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
             setNumber: match.currentSet,
             operationCode: "archery_undo"
         ))
+        controller?.recordScoreAction(
+            action: "snapshot|archery_undo|\(match.leftArrowSum),\(match.rightArrowSum)|\(match.leftSetPoints),\(match.rightSetPoints)"
+        )
+        persistenceRevision &+= 1
         controller?.performVibration(type: .light)
         return true
     }
 
     override func exchangeSides() {
         guard !mutationLocked, !match.finished else { return }
-        _ = apply(.exchangeSides)
+        guard apply(.exchangeSides) else { return }
+        controller?.recordScoreAction(
+            action: "snapshot|exchange_sides|\(match.leftArrowSum),\(match.rightArrowSum)|\(match.leftSetPoints),\(match.rightSetPoints)"
+        )
         controller?.performVibration(type: .medium)
     }
 
@@ -956,6 +1005,8 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         super.reset()
         _ = apply(.reset, recordHistory: false)
         sessionStore.clearHistory()
+        recordUndoCheckpoints.removeAll()
+        controller?.recordScoreAction(action: "snapshot|reset|0,0|0,0")
     }
 
     func needsClosestToCenterDecision(leftArrowScore: Int, rightArrowScore: Int) -> Bool {
@@ -988,14 +1039,27 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
     override func endGame() {
         guard !mutationLocked else { return }
         guard apply(.finish) else { return }
+        controller?.recordScoreAction(
+            action: "snapshot|finish|\(match.leftArrowSum),\(match.rightArrowSum)|\(match.leftSetPoints),\(match.rightSetPoints)"
+        )
         syncTeamsFromMatch()
     }
 
     @discardableResult
     private func apply(_ intent: ArcheryMatchIntent, recordHistory: Bool = true) -> Bool {
         let before = match
+        let checkpoint = ArcheryRecordUndoCheckpoint(
+            recordedActionCount: controller?.recordedActionCount,
+            detailedActionCount: detailedActions.count
+        )
         let result = sessionStore.apply(intent, recordHistory: recordHistory)
         guard result.accepted else { return false }
+        if recordHistory {
+            recordUndoCheckpoints.append(checkpoint)
+            if recordUndoCheckpoints.count > 100 {
+                recordUndoCheckpoints.removeFirst()
+            }
+        }
         lastEvents = result.events
         appendDetailedActions(
             events: result.events,
@@ -1004,6 +1068,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
             at: Self.nowMilliseconds()
         )
         syncTeamsFromMatch()
+        persistenceRevision &+= 1
         return true
     }
 

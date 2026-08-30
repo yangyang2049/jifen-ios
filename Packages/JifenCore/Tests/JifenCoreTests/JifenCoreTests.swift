@@ -206,6 +206,40 @@ private struct CounterReducer: DomainReducer {
     #expect(try await resumed.replay().state.value == 2)
 }
 
+@Test func metadataUpdateSurvivesUndoReplayAndResume() async throws {
+    let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
+        gameType: .snooker,
+        ruleFamily: .s2,
+        reducerType: "test/counter",
+        state: CounterReducer.State(value: 0),
+        metadata: SessionMetadata(title: "Old title", extras: ["recordID": "record-1"])
+    )
+    let original = ScoreSessionCore(seedSession: seed, reducer: CounterReducer())
+    _ = await original.dispatch(actorId: "phone", intent: .add(2), at: 1)
+    _ = await original.dispatch(actorId: "phone", intent: .add(3), at: 2)
+
+    _ = await original.updateMetadata(
+        SessionMetadata(title: "Android 3.1 final", extras: ["recordID": "record-1"])
+    )
+    #expect(await original.snapshot().metadata.title == "Android 3.1 final")
+    #expect(await original.undo(actorId: "phone"))
+    #expect(await original.snapshot().state.value == 2)
+    #expect(await original.snapshot().metadata.title == "Android 3.1 final")
+    #expect(try await original.replay().metadata.title == "Android 3.1 final")
+
+    let encoded = try JSONEncoder().encode(await original.resumeBundle())
+    let bundle = try JSONDecoder().decode(
+        ScoreSessionResumeBundle<
+            CounterReducer.State,
+            CounterReducer.Event,
+            CounterReducer.Intent
+        >.self,
+        from: encoded
+    )
+    let resumed = ScoreSessionCore(resumeBundle: bundle, reducer: CounterReducer())
+    #expect(await resumed.snapshot().metadata.title == "Android 3.1 final")
+}
+
 @Test func authoritativeRebaseClearsUndoAndReplayBoundary() async throws {
     let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
         gameType: .tennis,
@@ -382,10 +416,10 @@ private struct CounterReducer: DomainReducer {
 
 @Test func pickleballFactoryHasNoDefaultPointCap() {
     #expect(RallyRuleSet.pickleball().pointCap == nil)
-    #expect(RallyRuleSet.pickleball().nextSetServerModel == .alternateFromOpening)
+    #expect(RallyRuleSet.pickleball().nextSetServerModel == .opening)
 }
 
-@Test func pickleballSinglesRallyScoringWinnerServesNext() {
+@Test func pickleballSinglesRallyScoringAlternatesThePriorServer() {
     let reducer = RallyMatchReducer()
     var rules = RallyRuleSet.pickleball()
     rules.useRallyScoring = true
@@ -398,11 +432,11 @@ private struct CounterReducer: DomainReducer {
 
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
     #expect(state.leftPoints == 1)
-    #expect(state.servingSide == .left)
+    #expect(state.servingSide == .right)
 
     state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
     #expect(state.rightPoints == 1)
-    #expect(state.servingSide == .right)
+    #expect(state.servingSide == .left)
 }
 
 @Test func pickleballDoublesRallyScoringHasOneServerPerSideOut() {
@@ -417,23 +451,26 @@ private struct CounterReducer: DomainReducer {
         doubles: .pickleball(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
     )
 
-    let openingServer = state.doubles?.serverSlotIndex
+    #expect(state.servingSide == .left)
+    #expect(state.doubles?.pickleballServerNumber == 2)
+    #expect(state.doubles?.serverSlotIndex == 0)
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
     #expect(state.leftPoints == 1)
-    #expect(state.servingSide == .left)
-    #expect(state.doubles?.serverSlotIndex == openingServer)
-
-    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
-    #expect(state.rightPoints == 1)
     #expect(state.servingSide == .right)
     #expect(state.doubles?.pickleballServerNumber == 1)
     #expect(state.doubles?.serverSlotIndex == 3)
 
-    let rightServer = state.doubles?.serverSlotIndex
+    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
+    #expect(state.rightPoints == 1)
+    #expect(state.servingSide == .right)
+    #expect(state.doubles?.pickleballServerNumber == 2)
+    #expect(state.doubles?.serverSlotIndex == 1)
+
     state = reducer.reduce(state: state, intent: .pointWon(.right), at: 3).state
     #expect(state.rightPoints == 2)
-    #expect(state.servingSide == .right)
-    #expect(state.doubles?.serverSlotIndex == rightServer)
+    #expect(state.servingSide == .left)
+    #expect(state.doubles?.pickleballServerNumber == 1)
+    #expect(state.doubles?.serverSlotIndex == 2)
 
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 4).state
     #expect(state.leftPoints == 2)
@@ -471,7 +508,7 @@ private struct CounterReducer: DomainReducer {
     )))
 }
 
-@Test func pickleballSinglesNextSetAlternatesFromOpeningServer() {
+@Test func pickleballSinglesNextSetReturnsToOpeningServer() {
     let reducer = RallyMatchReducer()
     var rules = RallyRuleSet.pickleball(maxSets: 3)
     rules.pointsToWinSet = 2
@@ -487,8 +524,8 @@ private struct CounterReducer: DomainReducer {
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 2).state
     #expect(state.leftSets == 1)
     #expect(state.leftPoints == 0)
-    #expect(state.servingSide == .right)
-    #expect(state.firstServerInSet == .right)
+    #expect(state.servingSide == .left)
+    #expect(state.firstServerInSet == .left)
 }
 
 @Test func pickleballDoublesStartsAtServerTwoAndRotates() {
@@ -997,7 +1034,7 @@ private struct CounterReducer: DomainReducer {
     #expect(!FileManager.default.fileExists(atPath: ResumeSessionRepository.snapshotURL(sessionId: session.sessionId, rootURL: root).path))
 }
 
-@Test func resumeSessionRepositoryKeepsAtMostOneLiveResumeSession() async throws {
+@Test func resumeSessionRepositoryRetainsStackedLiveSessionsForRecordFirstCleanup() async throws {
     let root = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
     let repository = ResumeSessionRepository(rootURL: root)
@@ -1018,9 +1055,9 @@ private struct CounterReducer: DomainReducer {
     try await repository.save(second, updatedAtEpochMilliseconds: 200)
 
     let live = try await repository.liveEntries()
-    #expect(live.map(\.sessionId) == [second.sessionId])
-    #expect(try await repository.entries().map(\.sessionId) == [second.sessionId])
-    #expect(!FileManager.default.fileExists(atPath: ResumeSessionRepository.snapshotURL(sessionId: first.sessionId, rootURL: root).path))
+    #expect(live.map(\.sessionId) == [second.sessionId, first.sessionId])
+    #expect(try await repository.entries().map(\.sessionId) == [second.sessionId, first.sessionId])
+    #expect(FileManager.default.fileExists(atPath: ResumeSessionRepository.snapshotURL(sessionId: first.sessionId, rootURL: root).path))
 
     let finishedFirst = ScoreSession<LineScoreState, LineScoreEvent>(
         sessionId: first.sessionId,
@@ -1031,7 +1068,7 @@ private struct CounterReducer: DomainReducer {
         status: .finished
     )
     try await repository.save(finishedFirst, updatedAtEpochMilliseconds: 300)
-    // Finished saves must not discard the remaining live resume.
+    // A finished save removes only its matching resume and preserves the other.
     #expect(try await repository.liveEntries().map(\.sessionId) == [second.sessionId])
     #expect(try await repository.entries().map(\.sessionId) == [second.sessionId])
 }

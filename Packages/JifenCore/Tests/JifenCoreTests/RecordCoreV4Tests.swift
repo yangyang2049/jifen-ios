@@ -17,8 +17,12 @@ final class RecordCoreV4Tests: XCTestCase {
             winner: .team3,
             loser: .team1,
             landlord: .team2,
+            winners: [.team2, .team3],
+            losers: [.team1],
+            farmers: [.team2, .team3],
             participants: [.init(id: "p1", name: "A", score: 30, rank: 1, role: "landlord")],
             operationCode: "doudizhu_settle_round",
+            operationPayload: "J",
             summary: "round"
         )
 
@@ -26,6 +30,10 @@ final class RecordCoreV4Tests: XCTestCase {
         XCTAssertEqual(decoded, action)
         XCTAssertEqual(decoded.scores, [10, 20, 30, 40])
         XCTAssertEqual(decoded.setScores, [1, 2, 3, 4])
+        XCTAssertEqual(decoded.winners, [.team2, .team3])
+        XCTAssertEqual(decoded.losers, [.team1])
+        XCTAssertEqual(decoded.farmers, [.team2, .team3])
+        XCTAssertEqual(decoded.operationPayload, "J")
     }
 
     func testImportedActionMayOmitTimestamp() throws {

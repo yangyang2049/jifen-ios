@@ -39,6 +39,25 @@ public struct BasketballTimeoutPools: Codable, Equatable, Sendable {
         self.leftOvertime = leftOvertime
         self.rightOvertime = rightOvertime
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case leftFirstHalf, rightFirstHalf, leftSecondHalf, rightSecondHalf
+        case leftRegular, rightRegular, leftOvertime, rightOvertime
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            leftFirstHalf: try container.decodeIfPresent(Int.self, forKey: .leftFirstHalf) ?? 2,
+            rightFirstHalf: try container.decodeIfPresent(Int.self, forKey: .rightFirstHalf) ?? 2,
+            leftSecondHalf: try container.decodeIfPresent(Int.self, forKey: .leftSecondHalf) ?? 3,
+            rightSecondHalf: try container.decodeIfPresent(Int.self, forKey: .rightSecondHalf) ?? 3,
+            leftRegular: try container.decodeIfPresent(Int.self, forKey: .leftRegular) ?? 7,
+            rightRegular: try container.decodeIfPresent(Int.self, forKey: .rightRegular) ?? 7,
+            leftOvertime: try container.decodeIfPresent(Int.self, forKey: .leftOvertime) ?? 1,
+            rightOvertime: try container.decodeIfPresent(Int.self, forKey: .rightOvertime) ?? 1
+        )
+    }
 }
 
 public struct BasketballMatchState: Codable, Equatable, Sendable {
@@ -64,6 +83,10 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
     public var timeoutPools: BasketballTimeoutPools
     public var leftTimeouts: Int
     public var rightTimeouts: Int
+    /// Android 3.1 team-timeout state. A timeout remains active at zero until
+    /// the operator explicitly resumes with the center clock control.
+    public var timeoutActiveSide: MatchSide?
+    public var timeoutRemainingSeconds: Int
 
     public init(
         leftName: String,
@@ -87,7 +110,9 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
         shotRunning: Bool = false,
         timeoutPools: BasketballTimeoutPools? = nil,
         leftTimeouts: Int? = nil,
-        rightTimeouts: Int? = nil
+        rightTimeouts: Int? = nil,
+        timeoutActiveSide: MatchSide? = nil,
+        timeoutRemainingSeconds: Int = 0
     ) {
         let defaultGameTime = gameMode == .threeXThree ? 10 * 60 : BasketballMatchEngine.periodSeconds(ruleSet)
         let defaultShotTime = BasketballMatchEngine.defaultShotSeconds(gameMode)
@@ -122,6 +147,48 @@ public struct BasketballMatchState: Codable, Equatable, Sendable {
         self.timeoutPools = pools
         self.leftTimeouts = max(0, leftTimeouts ?? active.left)
         self.rightTimeouts = max(0, rightTimeouts ?? active.right)
+        let activeTimeoutSide = finished ? nil : timeoutActiveSide
+        self.timeoutActiveSide = activeTimeoutSide
+        self.timeoutRemainingSeconds = activeTimeoutSide == nil ? 0 : max(0, timeoutRemainingSeconds)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case leftName, rightName, leftScore, rightScore, leftFouls, rightFouls
+        case sidesSwapped, finished, gameMode, ruleSet, currentPeriod, periodEnded
+        case canAdvancePeriod, isOvertime, overtimeStartScore, gameTimeSeconds
+        case shotTimeSeconds, gameRunning, shotRunning, timeoutPools
+        case leftTimeouts, rightTimeouts, timeoutActiveSide
+        case timeoutRemainingSeconds = "timeoutRemainingSec"
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            leftName: try container.decode(String.self, forKey: .leftName),
+            rightName: try container.decode(String.self, forKey: .rightName),
+            gameMode: try container.decode(BasketballGameMode.self, forKey: .gameMode),
+            ruleSet: try container.decodeIfPresent(BasketballRuleSet.self, forKey: .ruleSet) ?? .fiba,
+            leftScore: try container.decodeIfPresent(Int.self, forKey: .leftScore) ?? 0,
+            rightScore: try container.decodeIfPresent(Int.self, forKey: .rightScore) ?? 0,
+            leftFouls: try container.decodeIfPresent(Int.self, forKey: .leftFouls) ?? 0,
+            rightFouls: try container.decodeIfPresent(Int.self, forKey: .rightFouls) ?? 0,
+            sidesSwapped: try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false,
+            finished: try container.decodeIfPresent(Bool.self, forKey: .finished) ?? false,
+            currentPeriod: try container.decodeIfPresent(Int.self, forKey: .currentPeriod) ?? 1,
+            periodEnded: try container.decodeIfPresent(Bool.self, forKey: .periodEnded) ?? false,
+            canAdvancePeriod: try container.decodeIfPresent(Bool.self, forKey: .canAdvancePeriod) ?? false,
+            isOvertime: try container.decodeIfPresent(Bool.self, forKey: .isOvertime) ?? false,
+            overtimeStartScore: try container.decodeIfPresent(Int.self, forKey: .overtimeStartScore) ?? 0,
+            gameTimeSeconds: try container.decodeIfPresent(Int.self, forKey: .gameTimeSeconds),
+            shotTimeSeconds: try container.decodeIfPresent(Int.self, forKey: .shotTimeSeconds),
+            gameRunning: try container.decodeIfPresent(Bool.self, forKey: .gameRunning) ?? false,
+            shotRunning: try container.decodeIfPresent(Bool.self, forKey: .shotRunning) ?? false,
+            timeoutPools: try container.decodeIfPresent(BasketballTimeoutPools.self, forKey: .timeoutPools),
+            leftTimeouts: try container.decodeIfPresent(Int.self, forKey: .leftTimeouts),
+            rightTimeouts: try container.decodeIfPresent(Int.self, forKey: .rightTimeouts),
+            timeoutActiveSide: try container.decodeIfPresent(MatchSide.self, forKey: .timeoutActiveSide),
+            timeoutRemainingSeconds: try container.decodeIfPresent(Int.self, forKey: .timeoutRemainingSeconds) ?? 0
+        )
     }
 }
 
@@ -140,6 +207,8 @@ public enum BasketballMatchIntent: Codable, Equatable, Sendable {
     case enterOvertime
     case selectPeriod(Int)
     case useTimeout(side: MatchSide)
+    case tickTimeout
+    case endTimeout
     case adjustTimeout(side: MatchSide, delta: Int)
     case exchangeSides
     case reset
@@ -258,6 +327,8 @@ public enum BasketballMatchEngine {
         next.finished = true
         next.gameRunning = false
         next.shotRunning = false
+        next.timeoutActiveSide = nil
+        next.timeoutRemainingSeconds = 0
         return next
     }
 
@@ -319,6 +390,8 @@ public enum BasketballMatchEngine {
         next.overtimeStartScore = 0
         next.gameTimeSeconds = next.gameMode == .threeXThree ? 10 * 60 : periodSeconds(next.ruleSet)
         next.shotTimeSeconds = defaultShotSeconds(next.gameMode)
+        next.timeoutActiveSide = nil
+        next.timeoutRemainingSeconds = 0
         return next
     }
 
@@ -346,6 +419,8 @@ public enum BasketballMatchEngine {
         next.shotTimeSeconds = defaultShotSeconds(next.gameMode)
         next.gameRunning = false
         next.shotRunning = false
+        next.timeoutActiveSide = nil
+        next.timeoutRemainingSeconds = 0
         return next.ruleSet == .fiba && previousPeriod == 2 ? refreshActiveTimeouts(next) : next
     }
 
@@ -365,6 +440,8 @@ public enum BasketballMatchEngine {
         next.finished = false
         next.gameRunning = false
         next.shotRunning = false
+        next.timeoutActiveSide = nil
+        next.timeoutRemainingSeconds = 0
         return refreshActiveTimeouts(next)
     }
 
@@ -381,6 +458,8 @@ public enum BasketballMatchEngine {
         next.rightFouls = 0
         next.periodEnded = false
         next.canAdvancePeriod = false
+        next.timeoutActiveSide = nil
+        next.timeoutRemainingSeconds = 0
         return refreshActiveTimeouts(resetGameClock(next))
     }
 
@@ -390,7 +469,30 @@ public enum BasketballMatchEngine {
         var next = setActiveTimeout(state, side: side, value: current - 1)
         next.gameRunning = false
         next.shotRunning = false
+        next.timeoutActiveSide = side
+        next.timeoutRemainingSeconds = timeoutDurationSeconds(next)
         return resetShotClock(next)
+    }
+
+    public static func timeoutDurationSeconds(_ state: BasketballMatchState) -> Int {
+        state.gameMode == .threeXThree ? 30 : 100
+    }
+
+    public static func tickTimeout(_ state: BasketballMatchState) -> BasketballMatchState {
+        guard state.timeoutActiveSide != nil, state.timeoutRemainingSeconds > 0 else { return state }
+        var next = state
+        next.timeoutRemainingSeconds -= 1
+        return next
+    }
+
+    public static func endTimeout(_ state: BasketballMatchState) -> BasketballMatchState {
+        guard state.timeoutActiveSide != nil, !state.finished else { return state }
+        var next = state
+        next.timeoutActiveSide = nil
+        next.timeoutRemainingSeconds = 0
+        next.gameRunning = true
+        next.shotRunning = true
+        return next
     }
 
     public static func adjustTimeout(_ state: BasketballMatchState, side: MatchSide, delta: Int) -> BasketballMatchState {
@@ -541,6 +643,10 @@ public struct BasketballMatchReducer: DomainReducer {
             next = BasketballMatchEngine.selectPeriod(state, period: period)
         case .useTimeout(let side):
             next = BasketballMatchEngine.useTeamTimeout(state, side: side)
+        case .tickTimeout:
+            next = BasketballMatchEngine.tickTimeout(state)
+        case .endTimeout:
+            next = BasketballMatchEngine.endTimeout(state)
         case .adjustTimeout(let side, let delta):
             next = BasketballMatchEngine.adjustTimeout(state, side: side, delta: delta)
         case .exchangeSides:

@@ -243,21 +243,21 @@ import SessionCore
         doublesPlayerNames: ["A1", "B1", "A2", "B2"]
     )
     #expect(TennisDoublesServing.currentServerSlot(in: state) == 0)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 1)
 
     state.leftPoints = 1
     #expect(TennisDoublesServing.currentServerSlot(in: state) == 0)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 1)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
 
     state = reducer.reduce(state: state, intent: .exchangeSides, at: 1).state
     #expect(state.sidesSwapped)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 1)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 3)
 
     state.isTieBreak = true
     state.leftPoints = 1
     state.rightPoints = 0
     #expect(TennisDoublesServing.currentServerSlot(in: state) == 1)
-    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 0)
+    #expect(TennisDoublesServing.currentReceiverSlot(in: state) == 2)
 }
 
 @Test func tennisDoublesServerRotationContinuesAcrossSetBoundaries() {
@@ -424,6 +424,12 @@ import SessionCore
     #expect(ScoreboardKernelRegistry.descriptor(for: .football).kind == .line)
     #expect(ScoreboardKernelRegistry.descriptor(for: .boxing).ruleFamily == .s2)
     #expect(ScoreboardSessionFactory.line(gameType: .tennis, leftName: "A", rightName: "B") == nil)
+    #expect(ScoreboardSessionFactory.line(gameType: .tennis, leftName: "A", rightName: "B", rules: .nonNegative) == nil)
+    #expect(ScoreboardSessionFactory.rally(gameType: .tennis, leftName: "A", rightName: "B", rules: .pingPong()) == nil)
+    #expect(ScoreboardSessionFactory.rally(gameType: .pingpong, leftName: "A", rightName: "B", rules: .pickleball()) == nil)
+    #expect(ScoreboardSessionFactory.rally(gameType: .pickleball, leftName: "A", rightName: "B", rules: .pingPong()) == nil)
+    #expect(ScoreboardSessionFactory.tennis(gameType: .softTennis, leftName: "A", rightName: "B", rules: .init()) == nil)
+    #expect(ScoreboardSessionFactory.tennis(gameType: .tennis, leftName: "A", rightName: "B", rules: .padel()) == nil)
 
     let core = ScoreboardSessionFactory.line(gameType: .simpleScore, leftName: "A", rightName: "B")
     let result = await core?.dispatch(actorId: "test", intent: .adjust(side: .left, delta: -2), at: 1)
@@ -433,6 +439,64 @@ import SessionCore
     }
     #expect(session.state.leftScore == -2)
     #expect(session.ruleFamily == .s1)
+
+    guard let softTennisCore = ScoreboardSessionFactory.tennis(
+        gameType: .softTennis,
+        leftName: "A",
+        rightName: "B"
+    ) else {
+        Issue.record("Expected the soft-tennis factory to resolve its Android 3.0 defaults")
+        return
+    }
+    #expect(await softTennisCore.snapshot().state.rules.familyProfile == .softTennis)
+
+    guard let padelCore = ScoreboardSessionFactory.tennis(
+        gameType: .padel,
+        leftName: "A",
+        rightName: "B"
+    ) else {
+        Issue.record("Expected the padel factory to resolve its Android 3.0 defaults")
+        return
+    }
+    #expect(await padelCore.snapshot().state.rules.familyProfile == .padel)
+
+    guard let tennisDoublesCore = ScoreboardSessionFactory.tennis(
+        gameType: .tennisDoubles,
+        leftName: "Team A",
+        rightName: "Team B"
+    ) else {
+        Issue.record("Expected the tennis-doubles factory to create four participants")
+        return
+    }
+    let tennisDoublesSession = await tennisDoublesCore.snapshot()
+    #expect(tennisDoublesSession.state.doublesPlayerNames?.count == 4)
+    #expect(tennisDoublesSession.participants.map(\.id) == ["left-top", "right-top", "left-bottom", "right-bottom"])
+    #expect(TennisDoublesServing.currentReceiverSlot(in: tennisDoublesSession.state) == 1)
+
+    guard let pingPongDoublesCore = ScoreboardSessionFactory.rally(
+        gameType: .pingpongDoubles,
+        leftName: "Team A",
+        rightName: "Team B"
+    ) else {
+        Issue.record("Expected the table-tennis doubles factory to create a rotation")
+        return
+    }
+    let pingPongDoublesSession = await pingPongDoublesCore.snapshot()
+    #expect(pingPongDoublesSession.state.doubles?.playerNames.count == 4)
+    #expect(pingPongDoublesSession.state.doubles?.receiverSlotIndex == 1)
+    #expect(pingPongDoublesSession.participants.map(\.id) == ["left-top", "right-top", "left-bottom", "right-bottom"])
+
+    guard let pickleballDoublesCore = ScoreboardSessionFactory.rally(
+        gameType: .pickleballDoubles,
+        leftName: "Team A",
+        rightName: "Team B"
+    ) else {
+        Issue.record("Expected the pickleball-doubles factory to create Android 3.1 defaults")
+        return
+    }
+    let pickleballDoublesSession = await pickleballDoublesCore.snapshot()
+    #expect(pickleballDoublesSession.state.rules.sportProfile == .pickleball)
+    #expect(pickleballDoublesSession.state.rules.nextSetServerModel == .alternateFromOpening)
 }
 
 @Test func eightBallRaceToMatchesAndroidFixture() {
@@ -668,6 +732,86 @@ import SessionCore
     #expect(reset.state.redTeam.currentRank == "2")
 }
 
+@Test func guandanIllegalPhaseIntentsDoNotCreateEmptyUndoFrames() async {
+    func isRejected(_ result: DispatchResult<GuandanMatchState, GuandanSessionEvent>) -> Bool {
+        if case .rejected = result { return true }
+        return false
+    }
+
+    let initial = GuandanMatchState.initial(redName: "红", blueName: "蓝")
+    let seed = ScoreSession<GuandanMatchState, GuandanSessionEvent>(
+        gameType: .guandan,
+        ruleFamily: .s4,
+        reducerType: "guandan/v1",
+        state: initial
+    )
+    let core = ScoreSessionCore(seedSession: seed, reducer: GuandanSessionReducer())
+
+    let invalidInitialBegin = await core.dispatch(
+        actorId: "phone",
+        intent: .beginRoundResult(winner: .red),
+        at: 1
+    )
+    #expect(isRejected(invalidInitialBegin))
+    let invalidInitialSettlement = await core.dispatch(
+        actorId: "phone",
+        intent: .applyRoundSettlement(step: 2),
+        at: 2
+    )
+    #expect(isRejected(invalidInitialSettlement))
+    var bundle = await core.resumeBundle()
+    #expect(bundle.currentSession.state == initial)
+    #expect(bundle.undoFrames.isEmpty)
+    #expect(bundle.timeline.isEmpty)
+
+    _ = await core.dispatch(actorId: "phone", intent: .startMatch, at: 3)
+    let invalidSecondStart = await core.dispatch(actorId: "phone", intent: .startMatch, at: 4)
+    #expect(isRejected(invalidSecondStart))
+    bundle = await core.resumeBundle()
+    #expect(bundle.undoFrames.count == 1)
+    #expect(bundle.timeline.count == 1)
+
+    _ = await core.dispatch(actorId: "phone", intent: .beginRoundResult(winner: .red), at: 5)
+    let invalidSecondBegin = await core.dispatch(
+        actorId: "phone",
+        intent: .beginRoundResult(winner: .blue),
+        at: 6
+    )
+    #expect(isRejected(invalidSecondBegin))
+    for (index, step) in [0, -1, 4].enumerated() {
+        let invalidStep = await core.dispatch(
+            actorId: "phone",
+            intent: .applyRoundSettlement(step: step),
+            at: Int64(7 + index)
+        )
+        #expect(isRejected(invalidStep))
+        bundle = await core.resumeBundle()
+        #expect(bundle.undoFrames.count == 2)
+        #expect(bundle.timeline.count == 2)
+        #expect(bundle.currentSession.state.phase == .roundResult)
+        #expect(bundle.currentSession.state.roundWinner == .red)
+    }
+    _ = await core.dispatch(actorId: "phone", intent: .applyRoundSettlement(step: 2), at: 10)
+    let invalidSecondSettlement = await core.dispatch(
+        actorId: "phone",
+        intent: .applyRoundSettlement(step: 2),
+        at: 11
+    )
+    #expect(isRejected(invalidSecondSettlement))
+    let invalidCancel = await core.dispatch(actorId: "phone", intent: .cancelRoundResult, at: 12)
+    #expect(isRejected(invalidCancel))
+    let invalidPassA = await core.dispatch(
+        actorId: "phone",
+        intent: .recordPassA(success: true),
+        at: 13
+    )
+    #expect(isRejected(invalidPassA))
+
+    bundle = await core.resumeBundle()
+    #expect(bundle.undoFrames.count == 3)
+    #expect(bundle.timeline.count == 3)
+}
+
 @Test func guandanTripleAFailsFallbackToConfiguredRank() {
     let reducer = GuandanSessionReducer()
     var state = GuandanMatchState(
@@ -718,6 +862,65 @@ import SessionCore
     #expect(DoudizhuSettlement.deltas(winners: [true, false, false], baseScore: 5, multiplierPower: 1) == [20, -10, -10])
     #expect(DoudizhuSettlement.deltas(winners: [false, true, true], baseScore: 5, multiplierPower: 0) == [-10, 5, 5])
     #expect(DoudizhuSettlement.deltas(winners: [true, true, true], baseScore: 1, multiplierPower: 0) == nil)
+}
+
+@Test func doudizhuReducerProjectsAndroidLandlordFarmerRoles() {
+    let reducer = DoudizhuScoreReducer()
+    let oneWinner = reducer.reduce(
+        state: .init(),
+        intent: .confirmRound(winners: [true, false, false], baseScore: 2, multiplierPower: 1),
+        at: 1
+    )
+    #expect(oneWinner.state.scores == [8, -4, -4])
+    guard case let .some(.roundConfirmed(winners, losers, landlord, farmers, scoreChange, scores)) = oneWinner.events.first else {
+        Issue.record("Expected typed Doudizhu round event")
+        return
+    }
+    #expect(winners == [0])
+    #expect(losers == [1, 2])
+    #expect(landlord == 0)
+    #expect(farmers == [1, 2])
+    #expect(scoreChange == 8)
+    #expect(scores == [8, -4, -4])
+
+    let twoWinners = reducer.reduce(
+        state: .init(),
+        intent: .confirmRound(winners: [false, true, true], baseScore: 3, multiplierPower: 0),
+        at: 2
+    )
+    guard case let .some(.roundConfirmed(twoWinnersList, twoLosers, twoLandlord, twoFarmers, _, _)) = twoWinners.events.first else {
+        Issue.record("Expected typed two-farmer Doudizhu round event")
+        return
+    }
+    #expect(twoWinnersList == [1, 2])
+    #expect(twoLosers == [0])
+    #expect(twoLandlord == 0)
+    #expect(twoFarmers == [1, 2])
+}
+
+@Test func nineBallAndroidSetupRangeMigratesEveryPointValueToOneThroughNinetyNine() {
+    let state = NineBallChaseState.initial(
+        config: .init(
+            bigGold: 0,
+            smallGold: -5,
+            goldenNine: 100,
+            normalWin: 4,
+            ballInHand: 1,
+            foul: 0
+        )
+    )
+    #expect(state.config.bigGold == 1)
+    #expect(state.config.smallGold == 1)
+    #expect(state.config.goldenNine == 99)
+    #expect(state.config.foul == 1)
+
+    let scored = NineBallChaseReducer().reduce(
+        state: state,
+        intent: .chaseEvent(player: 0, kind: .foul),
+        at: 1
+    )
+    #expect(scored.accepted)
+    #expect(scored.state.playerPoints[1] == 1)
 }
 
 @Test func archeryNextShooterPrefersTrailingSetPoints() {
@@ -775,7 +978,7 @@ import SessionCore
     #expect(state.leftBreak == 0)
 }
 
-@Test func snookerClearanceRequiresExplicitFrameSettlement() {
+@Test func snookerClearanceAutoSettlesAndWaitsForNextFrameLikeAndroid30() {
     let reducer = SnookerReducer()
     var state = SnookerState.initial(maxFrames: 3)
     state.redBallsRemaining = 0
@@ -785,24 +988,59 @@ import SessionCore
 
     state = reducer.reduce(state: state, intent: .potBall(points: 7), at: 1).state
     #expect(state.nextBallStage == .complete)
-    #expect(state.leftFrames == 0)
+    #expect(state.leftFrames == 1)
     #expect(state.currentFrame == 1)
+    #expect(state.frameCompletePending)
+    #expect(state.pendingFrameWinner == .left)
     #expect(!state.finished)
 
-    state = reducer.reduce(state: state, intent: .settleFrame(winner: .left), at: 2).state
+    let blocked = reducer.reduce(state: state, intent: .potBall(points: 1), at: 2)
+    #expect(!blocked.accepted)
+
+    state = reducer.reduce(state: state, intent: .confirmNextFrame, at: 3).state
     #expect(state.leftFrames == 1)
     #expect(state.currentFrame == 2)
     #expect(state.leftScore == 0)
     #expect(state.striker == .right)
+    #expect(!state.frameCompletePending)
+    #expect(state.pendingFrameWinner == nil)
 }
 
-@Test func legacySnookerPendingFrameSnapshotNormalizesOnRestore() throws {
+@Test func snookerSingleFrameAutoFinishesAndTiedBlackIsRespottedLikeAndroid30() {
+    let reducer = SnookerReducer()
+    var single = SnookerState.initial(maxFrames: 1)
+    single.redBallsRemaining = 0
+    single.nextBallStage = .black
+    single.leftScore = 50
+    single.rightScore = 40
+    let finished = reducer.reduce(state: single, intent: .potBall(points: 7), at: 1)
+    #expect(finished.state.leftFrames == 1)
+    #expect(finished.state.finished)
+    #expect(!finished.state.frameCompletePending)
+    #expect(finished.events.contains(.frameSettled(winner: .left, frame: 1)))
+    #expect(finished.events.contains(.matchFinished))
+
+    var tied = SnookerState.initial(maxFrames: 3)
+    tied.redBallsRemaining = 0
+    tied.nextBallStage = .black
+    tied.leftScore = 50
+    tied.rightScore = 43
+    tied.striker = .right
+    let respotted = reducer.reduce(state: tied, intent: .potBall(points: 7), at: 2).state
+    #expect(respotted.leftScore == respotted.rightScore)
+    #expect(respotted.nextBallStage == .black)
+    #expect(respotted.leftFrames == 0)
+    #expect(respotted.rightFrames == 0)
+    #expect(!respotted.frameCompletePending)
+}
+
+@Test func snookerPendingFrameSnapshotSurvivesRestore() throws {
     var state = SnookerState.initial(maxFrames: 3)
     state.frameCompletePending = true
     state.pendingFrameWinner = .left
     let restored = try JSONDecoder().decode(SnookerState.self, from: JSONEncoder().encode(state))
-    #expect(!restored.frameCompletePending)
-    #expect(restored.pendingFrameWinner == nil)
+    #expect(restored.frameCompletePending)
+    #expect(restored.pendingFrameWinner == .left)
 }
 
 @Test func specializedBilliardsAdministrativeTransitionsStayInsideReducers() {
@@ -1251,10 +1489,10 @@ import SessionCore
 
     state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
     #expect(state.doubles?.serverSlotIndex == 0)
-    #expect(state.doubles?.receiverSlotIndex == 3)
+    #expect(state.doubles?.receiverSlotIndex == 1)
 
     state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
-    #expect(state.doubles?.serverSlotIndex == 3)
+    #expect(state.doubles?.serverSlotIndex == 1)
     #expect(state.doubles?.receiverSlotIndex == 2)
     #expect(state.servingSide == .right)
 }
@@ -1275,7 +1513,7 @@ import SessionCore
     #expect(state.currentSet == 2)
     #expect(state.servingSide == .right)
     #expect(state.doubles?.serverSlotIndex == 1)
-    #expect(state.doubles?.receiverSlotIndex == 2)
+    #expect(state.doubles?.receiverSlotIndex == 0)
 }
 
 @Test func rallyReducerAdvancesBadmintonDoublesCourtsAndService() {
@@ -1315,11 +1553,11 @@ import SessionCore
 
     _ = await session.dispatch(actorId: "phone", intent: .pointWon(.left), at: 1)
     _ = await session.dispatch(actorId: "phone", intent: .pointWon(.right), at: 2)
-    #expect(await session.snapshot().state.doubles?.serverSlotIndex == 3)
+    #expect(await session.snapshot().state.doubles?.serverSlotIndex == 1)
 
     #expect(await session.undo(actorId: "phone"))
     #expect(await session.snapshot().state.doubles?.serverSlotIndex == 0)
-    #expect(await session.snapshot().state.doubles?.receiverSlotIndex == 3)
+    #expect(await session.snapshot().state.doubles?.receiverSlotIndex == 1)
 }
 
 @Test func badmintonAdministrativeDecrementReplaysSelectedTeamsLatestPoint() {
@@ -1397,7 +1635,7 @@ import SessionCore
         doubles: .pingPong(playerNames: ["R1", "B1", "R2", "B2"])
     )
     #expect(state.doubles?.serverSlotIndex == 0)
-    #expect(state.doubles?.receiverSlotIndex == 3)
+    #expect(state.doubles?.receiverSlotIndex == 1)
 
     for point in 0..<11 {
         let result = reducer.reduce(state: state, intent: .pointWon(.left), at: Int64(point + 1))
@@ -1411,7 +1649,7 @@ import SessionCore
     }
     #expect(nextSetRotation.pendingGameOpening == nil)
     #expect(state.doubles?.serverSlotIndex == 1)
-    #expect(state.doubles?.receiverSlotIndex == 2)
+    #expect(state.doubles?.receiverSlotIndex == 0)
 
     let nextPoint = reducer.reduce(state: state, intent: .pointWon(.right), at: 20)
     #expect(nextPoint.accepted)
@@ -1557,7 +1795,7 @@ import SessionCore
     #expect(restored.initialSnapshot?.rallyState?.doubles?.playerNames == [
         "Red A", "Blue A", "Red B", "Blue B"
     ])
-    #expect(restored.initialSnapshot?.rallyState?.doubles?.serverSlotIndex == 3)
+    #expect(restored.initialSnapshot?.rallyState?.doubles?.serverSlotIndex == 1)
     #expect(restored.initialSnapshot?.rallyState?.doubles?.receiverSlotIndex == 2)
 }
 
@@ -1652,4 +1890,82 @@ import SessionCore
     #expect(!state.gameRunning)
     #expect(!state.shotRunning)
     #expect(state.shotTimeSeconds == 24)
+    #expect(state.timeoutActiveSide == .left)
+    #expect(state.timeoutRemainingSeconds == 100)
+}
+
+@Test func basketball31TimeoutCountsDownToZeroAndRequiresExplicitResume() {
+    var state = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .fiveVFive)
+    state.gameRunning = true
+    state.shotRunning = true
+    state = BasketballMatchEngine.useTeamTimeout(state, side: .left)
+
+    for _ in 0..<100 {
+        state = BasketballMatchEngine.tickTimeout(state)
+    }
+
+    #expect(state.timeoutRemainingSeconds == 0)
+    #expect(state.timeoutActiveSide == .left)
+    #expect(!state.gameRunning)
+    #expect(!state.shotRunning)
+    #expect(BasketballMatchEngine.tickTimeout(state) == state)
+
+    state = BasketballMatchEngine.endTimeout(state)
+    #expect(state.timeoutActiveSide == nil)
+    #expect(state.timeoutRemainingSeconds == 0)
+    #expect(state.gameRunning)
+    #expect(state.shotRunning)
+}
+
+@Test func basketball31ThreeByThreeTimeoutUsesThirtySeconds() {
+    let state = BasketballMatchEngine.useTeamTimeout(
+        BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .threeXThree),
+        side: .right
+    )
+
+    #expect(state.rightTimeouts == 0)
+    #expect(state.timeoutActiveSide == .right)
+    #expect(state.timeoutRemainingSeconds == 30)
+}
+
+@Test func basketball31PeriodResetAndFinishClearActiveTimeout() {
+    var periodState = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .fiveVFive)
+    periodState.timeoutActiveSide = .left
+    periodState.timeoutRemainingSeconds = 55
+    periodState.canAdvancePeriod = true
+    periodState = BasketballMatchEngine.advanceToNextPeriod(periodState)
+    #expect(periodState.timeoutActiveSide == nil)
+    #expect(periodState.timeoutRemainingSeconds == 0)
+
+    var resetState = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .fiveVFive)
+    resetState.timeoutActiveSide = .right
+    resetState.timeoutRemainingSeconds = 22
+    resetState = BasketballMatchEngine.resetGameClock(resetState)
+    #expect(resetState.timeoutActiveSide == nil)
+    #expect(resetState.timeoutRemainingSeconds == 0)
+
+    var finishedState = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .fiveVFive)
+    finishedState.timeoutActiveSide = .left
+    finishedState.timeoutRemainingSeconds = 33
+    finishedState = BasketballMatchEngine.finish(finishedState)
+    #expect(finishedState.timeoutActiveSide == nil)
+    #expect(finishedState.timeoutRemainingSeconds == 0)
+}
+
+@Test func basketball31TimeoutSnapshotRoundTripsAndLegacySnapshotMigrates() throws {
+    var active = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .fiveVFive)
+    active = BasketballMatchEngine.useTeamTimeout(active, side: .right)
+    active = BasketballMatchEngine.tickTimeout(active)
+
+    let encoded = try JSONEncoder().encode(active)
+    let decoded = try JSONDecoder().decode(BasketballMatchState.self, from: encoded)
+    #expect(decoded == active)
+
+    let legacy = Data(#"{"leftName":"A","rightName":"B","gameMode":"five_v_five","leftScore":12,"timeoutPools":{"leftFirstHalf":1}}"#.utf8)
+    let migrated = try JSONDecoder().decode(BasketballMatchState.self, from: legacy)
+    #expect(migrated.leftScore == 12)
+    #expect(migrated.timeoutActiveSide == nil)
+    #expect(migrated.timeoutRemainingSeconds == 0)
+    #expect(migrated.timeoutPools.leftFirstHalf == 1)
+    #expect(migrated.timeoutPools.rightFirstHalf == 2)
 }

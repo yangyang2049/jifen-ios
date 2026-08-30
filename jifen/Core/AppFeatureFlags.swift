@@ -7,6 +7,14 @@ import UIKit
 enum AppFeatureFlags {
     private static let watchLinkEntryKey = "JifenWatchLinkEntryEnabled"
 
+    /// iOS 2.1 is an offline-first release. These values intentionally keep
+    /// local Watch/AirPlay features separate from cloud or LAN sync features.
+    static let accountFeaturesEnabled = false
+    static let feedbackEntryEnabled = false
+    static let lanPeerSyncEnabled = false
+    static let recordCrossDeviceSyncEnabled = false
+    static let systemExternalDisplayEnabled = true
+
     /// When true, Setup / Me / scoreboard menus may show Watch-link actions.
     static var watchLinkEntryEnabled: Bool {
         if let value = Bundle.main.object(forInfoDictionaryKey: watchLinkEntryKey) as? Bool {

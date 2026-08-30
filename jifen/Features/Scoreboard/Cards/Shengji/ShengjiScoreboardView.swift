@@ -41,6 +41,7 @@ func shengjiDetailedAction(
 
 struct ShengjiScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scoreboardMatchClockSession) private var matchClockSession
     let initialSetup: SportsSetupResult?
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)?
@@ -116,8 +117,9 @@ struct ShengjiScoreboardView: View {
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             finishedRecordDetailPage
         }
-        .onAppear { onSetupConsumed?(); registerSync() }
+        .onAppear { onSetupConsumed?(); registerSync(); bindMatchClock() }
         .onChange(of: state) { _, _ in LocalScoreboardSyncCoordinator.shared.publishSnapshot() }
+        .onChange(of: matchClockSession?.isVisible) { _, _ in _ = saveRecord() }
         .onDisappear { LocalScoreboardSyncCoordinator.shared.unregisterHost(); saveRecord() }
         .alert(
             NSLocalizedString("save_failed", value: "保存失败", comment: ""),
@@ -330,7 +332,22 @@ struct ShengjiScoreboardView: View {
         actionCount = 0
         startedAt = Date()
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.shengji.canonicalScoreboardIdentifier)
+        matchClockSession?.reset(startedAt: startedAt)
         showGameOverDialog = false
+    }
+
+    private func bindMatchClock() {
+        guard let matchClockSession else { return }
+        var visible = initialSetup?.showMatchTime ?? matchClockSession.isVisible
+        if let recordId = initialResumeSessionId,
+           let record = ManualResumeSessionStore.load(recordID: recordId),
+           let restored = scoreboardBool(
+               record.projectConfiguration?["showMatchTime"]
+                   ?? record.extraData?["showMatchTime"]
+           ) {
+            visible = restored
+        }
+        matchClockSession.bind(startedAt: startedAt, isVisible: visible)
     }
     private func finishMatch() {
         send(.finish)
@@ -407,7 +424,7 @@ struct ShengjiScoreboardView: View {
         }
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
-        return .init(
+        var compact = LocalScoreboardDisplayState(
             gameID: GameType.shengji.canonicalScoreboardIdentifier,
             title: GameType.shengji.displayName,
             leftName: shengjiName(onScreen: .left),
@@ -424,6 +441,14 @@ struct ShengjiScoreboardView: View {
             finished: state.finished,
             revision: 0
         )
+        compact.externalState = ScoreboardDisplayState.enriched(
+            compact: compact,
+            layoutKind: .boardCard,
+            sportState: [
+                "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left")
+            ]
+        )
+        return compact
     }
     @discardableResult
     private func saveRecord() -> Bool {
@@ -436,7 +461,12 @@ struct ShengjiScoreboardView: View {
             detailedActions: detailedActions,
             undoStates: Array(history.suffix(80)),
             finished: state.finished,
-            snapshot: state
+            snapshot: state,
+            extra: ["showMatchTime": matchClockSession?.isVisible ?? false],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.shengji.rawValue,
+                "showMatchTime": matchClockSession?.isVisible ?? false
+            ]
         )
         if !success { showPersistenceError = true }
         return success

@@ -1,6 +1,8 @@
 import XCTest
+import PersistenceCore
 import RecordCore
 import ScoreCore
+import SessionCore
 import UIKit
 @testable import jifen
 
@@ -59,13 +61,13 @@ final class ScoreboardCatalogTests: XCTestCase {
 
     func testCommonNamePolicyExplicitlyPartitionsEveryGameType() {
         let playerGames: Set<jifen.GameType> = [
-            .pingpong, .badminton, .tennis,
+            .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel,
             .checkers, .boxing, .billiards, .eightBall, .nineBall, .snooker,
             .pickleball, .archery, .doudizhu, .uno, .foosball,
             .multiScoreboard, .stopwatch, .go, .xiangqi, .chess
         ]
         let teamGames: Set<jifen.GameType> = [
-            .basketball, .threeBasketball, .football,
+            .basketball, .threeBasketball, .football, .football5v5,
             .volleyball, .beachVolleyball, .airVolleyball,
             .guandan, .shengji, .simpleScore, .counter
         ]
@@ -125,6 +127,41 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertFalse(doubles.matches(scoreboard: summary))
         XCTAssertTrue(family.matches(scoreCoreGameType: .tennisDoubles))
         XCTAssertFalse(singles.matches(scoreCoreGameType: .tennisDoubles))
+    }
+
+    func testRecordsSelectionSelectsAndDeselectsOnlyCurrentVisibleResults() {
+        let scoreA = RecordsTabRecordSelectionID.scoreboard("score-a")
+        let scoreB = RecordsTabRecordSelectionID.scoreboard("score-b")
+        let timerA = RecordsTabRecordSelectionID.timer("timer-a")
+        var selection = RecordsTabSelectionState()
+
+        selection.toggleAll([scoreA, scoreB, timerA])
+        XCTAssertTrue(selection.containsAll([scoreA, scoreB, timerA]))
+        XCTAssertEqual(selection.count, 3)
+        XCTAssertEqual(selection.scoreboardRecordIDs, ["score-a", "score-b"])
+        XCTAssertEqual(selection.timerRecordIDs, ["timer-a"])
+
+        selection.toggleAll([scoreA, timerA])
+        XCTAssertFalse(selection.contains(scoreA))
+        XCTAssertTrue(selection.contains(scoreB), "A current-visible deselect must not remove hidden selections")
+        XCTAssertFalse(selection.contains(timerA))
+    }
+
+    func testRecordsSelectionConvergesAfterSearchFilterTabOrDeletionChanges() {
+        let scoreA = RecordsTabRecordSelectionID.scoreboard("score-a")
+        let scoreB = RecordsTabRecordSelectionID.scoreboard("score-b")
+        let timerA = RecordsTabRecordSelectionID.timer("timer-a")
+        var selection = RecordsTabSelectionState()
+
+        selection.toggleAll([scoreA, scoreB, timerA])
+        selection.reconcile(with: [scoreB, timerA])
+        XCTAssertEqual(selection.count, 2)
+        XCTAssertFalse(selection.contains(scoreA))
+
+        selection.replace(with: [.timer("failed-delete")])
+        XCTAssertEqual(selection.timerRecordIDs, ["failed-delete"])
+        selection.clear()
+        XCTAssertTrue(selection.isEmpty)
     }
 
     func testDialogControlGrayMatchesSegmentedControlFillInLightMode() {
@@ -461,13 +498,30 @@ final class ScoreboardCatalogTests: XCTestCase {
 
     func testVisibleCatalogMatchesReferenceOrder() {
         XCTAssertEqual(GameCatalog.scoreboardItems.map(\.gameType), [
-            .pingpong, .badminton, .tennis, .pickleball, .football, .basketball,
+            .badminton, .tennis, .pingpong, .pickleball, .shuttlecock, .squash, .softTennis, .padel,
+            .football, .football5v5, .basketball,
             .threeBasketball, .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .guandan, .shengji, .uno,
             .foosball, .simpleScore, .multiScoreboard
         ])
-        XCTAssertEqual(GameCatalog.scoreboardItems.count, 23)
+        XCTAssertEqual(GameCatalog.scoreboardItems.count, 28)
+    }
+
+    func testExactScoreboardIdentifiersMatchAndroid31Reference() {
+        let expected: Set<String> = [
+            "football", "football_5v5", "basketball", "three_basketball",
+            "volleyball", "air_volleyball", "beach_volleyball",
+            "pingpong", "pingpong_doubles", "tennis", "tennis_doubles",
+            "badminton", "badminton_doubles", "shuttlecock", "squash",
+            "soft_tennis", "padel", "pickleball", "pickleball_doubles",
+            "archery_dual", "boxing", "billiards", "eight_ball", "nine_ball",
+            "snooker", "guandan", "shengji", "uno", "doudizhu", "foosball",
+            "foosball_doubles", "simple_score", "multi_scoreboard"
+        ]
+
+        XCTAssertEqual(ScoreCore.GameType.allCases.count, 33)
+        XCTAssertEqual(Set(ScoreCore.GameType.allCases.map(\.rawValue)), expected)
     }
 
     func testBilliardsNewMatchUsesFreshUUIDAndClearsControllerLifecycle() throws {
@@ -489,6 +543,515 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(controller.gameStartTime, newStart)
         XCTAssertTrue(controller.gameActions.isEmpty)
         XCTAssertFalse(controller.gameRecordSaved)
+    }
+
+    func testSnookerResetRuntimeClearsUndoAndRecordProjection() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("snooker-reset-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let resumeRepository = ResumeSessionRepository(rootURL: root)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.snooker,
+            state: SnookerState.initial(striker: .right, maxFrames: 5),
+            reducer: SnookerReducer(),
+            participants: [
+                .init(id: TeamID.team0.rawValue, name: "甲", role: "team"),
+                .init(id: TeamID.team1.rawValue, name: "乙", role: "team")
+            ],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: resumeRepository
+        )
+
+        let scored = expectation(description: "score accepted")
+        store.send(.potBall(points: 7), completion: { _, next, _ in
+            store.updateRecordContext(
+                actionLog: ["1|snapshot|potball_points_7|7,0|0,0"],
+                detailedActions: [
+                    .init(type: .scoreChanged, team: .team2, scores: [7, 0], operationCode: "snooker_pot_7")
+                ],
+                actionCount: 1
+            )
+            XCTAssertEqual(next.rightScore, 7)
+            scored.fulfill()
+        })
+        await fulfillment(of: [scored], timeout: 2)
+
+        let scoreFlushed = expectation(description: "score and record projection persisted atomically")
+        store.flush { scoreFlushed.fulfill() }
+        await fulfillment(of: [scoreFlushed], timeout: 2)
+        let restoredAfterScore = try await resumeRepository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: BilliardsSessionStore<SnookerReducer>.ResumeBundle.self
+        )
+        XCTAssertEqual(restoredAfterScore?.currentSession.state.rightScore, 7)
+        let restoredRecordContext = restoredAfterScore.flatMap {
+            ScoreSessionRecordContext.decode($0.auxiliaryPayload)
+        }
+        XCTAssertEqual(restoredRecordContext?.actionCount, 1)
+        XCTAssertEqual(restoredRecordContext?.detailedActions.first?.operationCode, "snooker_pot_7")
+
+        let reset = expectation(description: "runtime reset")
+        store.resetRuntime(to: .initial(striker: .right, maxFrames: 5)) { next in
+            XCTAssertEqual(next, .initial(striker: .right, maxFrames: 5))
+            reset.fulfill()
+        }
+        await fulfillment(of: [reset], timeout: 2)
+
+        XCTAssertEqual(store.recordContext, .init())
+        XCTAssertTrue(store.undoStates.isEmpty)
+        XCTAssertFalse(store.undo(), "Reset is a new runtime boundary and must not restore the old frame")
+    }
+
+    func testBilliardsImmediateSendThenUndoReservesQueuedAcceptedFrameExactlyOnce() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("billiards-send-undo-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let resumeRepository = ResumeSessionRepository(rootURL: root)
+        let initial = SnookerState.initial(striker: .left, maxFrames: 3)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.snooker,
+            state: initial,
+            reducer: SnookerReducer(),
+            participants: [
+                .init(id: TeamID.team0.rawValue, name: "甲", role: "team"),
+                .init(id: TeamID.team1.rawValue, name: "乙", role: "team")
+            ],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: resumeRepository
+        )
+
+        store.send(.potBall(points: 7), completion: { _, next, _ in
+            store.updateRecordContext(
+                actionLog: ["point"],
+                detailedActions: [
+                    .init(type: .scoreChanged, team: .team1, scores: [next.leftScore, next.rightScore], operationCode: "snooker_pot_7")
+                ],
+                actionCount: 1
+            )
+        })
+
+        let undoFinished = expectation(description: "queued score is undone")
+        XCTAssertTrue(store.undo { succeeded, restored in
+            XCTAssertTrue(succeeded)
+            XCTAssertEqual(restored, initial)
+            undoFinished.fulfill()
+        })
+        XCTAssertFalse(store.undo(), "A second rapid Undo must not reserve the same queued frame")
+        await fulfillment(of: [undoFinished], timeout: 2)
+
+        let flushed = expectation(description: "undo persistence flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+
+        XCTAssertEqual(store.state, initial)
+        XCTAssertTrue(store.undoStates.isEmpty)
+        XCTAssertEqual(store.recordContext, .init())
+        let restored = try await resumeRepository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: BilliardsSessionStore<SnookerReducer>.ResumeBundle.self
+        )
+        XCTAssertEqual(restored?.currentSession.state, initial)
+        XCTAssertTrue(restored?.undoFrames.isEmpty == true)
+        XCTAssertEqual(
+            restored.flatMap { ScoreSessionRecordContext.decode($0.auxiliaryPayload) },
+            .init()
+        )
+    }
+
+    func testBilliardsFreshNilDerivedIntentDoesNotAdvertiseUndo() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("billiards-derived-nil-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let initial = SnookerState.initial(striker: .left, maxFrames: 3)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.snooker,
+            state: initial,
+            reducer: SnookerReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+        var completionCalled = false
+
+        store.sendDerived(
+            { _ -> SnookerIntent? in nil },
+            completion: { _, _, _, _ in completionCalled = true }
+        )
+
+        XCTAssertFalse(store.undo(), "A nil derivation must not reserve a future undo frame")
+        let flushed = expectation(description: "nil derivation queue flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+        XCTAssertFalse(completionCalled)
+        XCTAssertEqual(store.state, initial)
+        XCTAssertTrue(store.undoStates.isEmpty)
+    }
+
+    func testBilliardsBoundaryNilDerivedIntentDoesNotAdvertiseUndo() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("billiards-derived-boundary-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let initial = EightBallState.initial(targetPoints: 9)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.eightBall,
+            state: initial,
+            reducer: EightBallReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+
+        store.sendDerived { current in
+            guard current.canAdjustRacks(side: .left, delta: -1) else { return nil }
+            return .adminAdjust(
+                left: current.leftPoints - 1,
+                right: current.rightPoints
+            )
+        }
+
+        XCTAssertFalse(store.undo(), "A lower-bound no-op must not create optimistic Undo capacity")
+        let flushed = expectation(description: "boundary derivation queue flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+        XCTAssertEqual(store.state, initial)
+        XCTAssertTrue(store.undoStates.isEmpty)
+    }
+
+    func testBilliardsRejectedDerivedIntentDoesNotAdvertiseUndo() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("billiards-derived-rejected-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let initial = EightBallState.initial(targetPoints: 9)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.eightBall,
+            state: initial,
+            reducer: EightBallReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+
+        store.sendDerived { _ in
+            .adminAdjust(left: -1, right: 0)
+        }
+
+        XCTAssertFalse(store.undo(), "A reducer-rejected preview must not reserve Undo capacity")
+        let flushed = expectation(description: "rejected derivation queue flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+        XCTAssertEqual(store.state, initial)
+        XCTAssertTrue(store.undoStates.isEmpty)
+    }
+
+    func testSnookerRapidDerivedAbsoluteCorrectionsUseLatestQueuedState() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("snooker-derived-adjust-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.snooker,
+            state: SnookerState.initial(striker: .left, maxFrames: 3),
+            reducer: SnookerReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+
+        for _ in 0..<2 {
+            store.sendDerived(
+                { current in
+                    .adminCorrect(
+                        left: current.leftScore + 1,
+                        right: current.rightScore,
+                        striker: current.striker
+                    )
+                },
+                completion: { _, _, next, _ in
+                    let nextCount = store.recordContext.actionCount + 1
+                    store.updateRecordContext(
+                        actionLog: store.recordContext.actionLog + ["edit-\(nextCount)"],
+                        detailedActions: store.recordContext.detailedActions + [
+                            .init(type: .stateChanged, scores: [next.leftScore, next.rightScore], operationCode: "snooker_edit")
+                        ],
+                        actionCount: nextCount
+                    )
+                }
+            )
+        }
+
+        let flushed = expectation(description: "two derived corrections flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+
+        XCTAssertEqual(store.state.leftScore, 2)
+        XCTAssertEqual(store.undoStates.map(\.leftScore), [0, 1])
+        XCTAssertEqual(store.recordContext.actionCount, 2)
+    }
+
+    func testEightBallRapidDerivedAbsoluteCorrectionsUseLatestQueuedState() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("eight-ball-derived-adjust-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.eightBall,
+            state: EightBallState.initial(targetPoints: 9),
+            reducer: EightBallReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+
+        for _ in 0..<2 {
+            store.sendDerived { current in
+                .adminAdjust(left: current.leftPoints + 1, right: current.rightPoints)
+            }
+        }
+
+        let flushed = expectation(description: "two eight-ball corrections flushed")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+
+        XCTAssertEqual(store.state.leftPoints, 2)
+        XCTAssertEqual(store.undoStates.map(\.leftPoints), [0, 1])
+    }
+
+    func testSnookerQueuedPointThenSettleUsesOneAuthoritativeTerminalTransitionAndSnapshot() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("snooker-point-settle-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.snooker,
+            state: SnookerState.initial(striker: .left, maxFrames: 1),
+            reducer: SnookerReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+        var terminalPresentationState: SnookerState?
+        var finalizedBundle: BilliardsSessionStore<SnookerReducer>.ResumeBundle?
+
+        store.send(.potBallAsSide(side: .left, points: 7), completion: { _, next, _ in
+            store.updateRecordContext(
+                actionLog: ["point"],
+                detailedActions: [
+                    .init(type: .scoreChanged, team: .team1, scores: [next.leftScore, next.rightScore], operationCode: "snooker_pot_7")
+                ],
+                actionCount: 1
+            )
+        })
+
+        let finalized = expectation(description: "settlement state and record context finalized")
+        store.send(
+            .settleFrame(winner: .left),
+            completion: { previous, next, _ in
+                terminalPresentationState = previous
+                store.updateRecordContext(
+                    actionLog: store.recordContext.actionLog + ["settle"],
+                    detailedActions: store.recordContext.detailedActions + [
+                        .init(
+                            type: .setFinished,
+                            team: .team1,
+                            scores: [previous.leftScore, previous.rightScore],
+                            setScores: [next.leftFrames, next.rightFrames],
+                            operationCode: "snooker_settle_frame"
+                        )
+                    ],
+                    actionCount: 2
+                )
+            },
+            afterFinalized: { _, next, _ in
+                XCTAssertTrue(next.finished)
+                finalizedBundle = store.encodedResumeBundle.flatMap {
+                    try? JSONDecoder().decode(
+                        BilliardsSessionStore<SnookerReducer>.ResumeBundle.self,
+                        from: $0
+                    )
+                }
+                finalized.fulfill()
+            }
+        )
+        await fulfillment(of: [finalized], timeout: 2)
+
+        XCTAssertEqual(terminalPresentationState?.leftScore, 7)
+        XCTAssertEqual(terminalPresentationState?.leftFrames, 0)
+        XCTAssertEqual(finalizedBundle?.currentSession.state.leftScore, 7)
+        XCTAssertEqual(finalizedBundle?.currentSession.state.leftFrames, 1)
+        XCTAssertTrue(finalizedBundle?.currentSession.state.finished == true)
+        let context = finalizedBundle.flatMap {
+            ScoreSessionRecordContext.decode($0.auxiliaryPayload)
+        }
+        XCTAssertEqual(context?.actionLog, ["point", "settle"])
+        XCTAssertEqual(context?.actionCount, 2)
+        XCTAssertEqual(context?.detailedActions.last?.operationCode, "snooker_settle_frame")
+    }
+
+    func testSnookerCommittedFinishUndoAndRefinishRefreshesCommitLifecycle() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("snooker-refinish-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.snooker,
+            state: SnookerState.initial(striker: .left, maxFrames: 1),
+            reducer: SnookerReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: ResumeSessionRepository(rootURL: root)
+        )
+
+        let firstFinish = expectation(description: "first formal finish committed")
+        store.send(
+            .finishMatch,
+            completion: { _, _, _ in
+                store.updateRecordContext(
+                    actionLog: ["finish-1"],
+                    detailedActions: [.init(type: .matchFinished, operationCode: "finish")],
+                    actionCount: 1
+                )
+            },
+            afterFinalized: { _, _, _ in
+                store.markFinishedRecordCommitted()
+                firstFinish.fulfill()
+            }
+        )
+        await fulfillment(of: [firstFinish], timeout: 2)
+        XCTAssertTrue(store.hasCommittedFinishedRecord)
+
+        let undone = expectation(description: "terminal hold undo restored live match")
+        XCTAssertTrue(store.undo { succeeded, restored in
+            XCTAssertTrue(succeeded)
+            XCTAssertFalse(restored.finished)
+            undone.fulfill()
+        })
+        await fulfillment(of: [undone], timeout: 2)
+        XCTAssertFalse(store.hasCommittedFinishedRecord)
+        XCTAssertTrue(store.shouldReplaceCommittedFinishedRecord)
+        XCTAssertEqual(store.recordContext, .init())
+
+        var requestedReplacement = false
+        let secondFinish = expectation(description: "replacement finish committed")
+        store.send(
+            .finishMatch,
+            completion: { _, _, _ in
+                store.updateRecordContext(
+                    actionLog: ["finish-2"],
+                    detailedActions: [.init(type: .matchFinished, operationCode: "finish")],
+                    actionCount: 1
+                )
+            },
+            afterFinalized: { _, _, _ in
+                requestedReplacement = store.shouldReplaceCommittedFinishedRecord
+                store.markFinishedRecordCommitted()
+                secondFinish.fulfill()
+            }
+        )
+        await fulfillment(of: [secondFinish], timeout: 2)
+
+        XCTAssertTrue(requestedReplacement)
+        XCTAssertTrue(store.hasCommittedFinishedRecord)
+        XCTAssertFalse(store.shouldReplaceCommittedFinishedRecord)
+        XCTAssertEqual(store.recordContext.actionLog, ["finish-2"])
+    }
+
+    func testStaleFinishedCleanupCannotDeleteSnookerLiveResumeSavedAfterTerminalUndo() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("snooker-cleanup-generation-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let resumeRepository = ResumeSessionRepository(rootURL: root)
+        let store = BilliardsSessionStore(
+            gameType: ScoreCore.GameType.snooker,
+            state: SnookerState.initial(striker: .left, maxFrames: 1),
+            reducer: SnookerReducer(),
+            participants: [],
+            startedAt: Date(timeIntervalSince1970: 1),
+            recordID: UUID().uuidString,
+            resumeRepository: resumeRepository
+        )
+
+        store.send(.potBallAsSide(side: .left, points: 7), completion: { _, next, _ in
+            store.updateRecordContext(
+                actionLog: ["point"],
+                detailedActions: [
+                    .init(type: .scoreChanged, team: .team1, scores: [next.leftScore, next.rightScore], operationCode: "snooker_pot_7")
+                ],
+                actionCount: 1
+            )
+        })
+        let pointFlushed = expectation(description: "pre-finish live snapshot persisted")
+        store.flush { pointFlushed.fulfill() }
+        await fulfillment(of: [pointFlushed], timeout: 2)
+
+        let finished = expectation(description: "terminal state finalized")
+        store.send(
+            .finishMatch,
+            completion: { _, _, _ in
+                store.updateRecordContext(
+                    actionLog: ["point", "finish"],
+                    detailedActions: store.recordContext.detailedActions + [
+                        .init(type: .matchFinished, operationCode: "finish")
+                    ],
+                    actionCount: 2
+                )
+            },
+            afterFinalized: { _, _, _ in
+                store.markFinishedRecordCommitted()
+                finished.fulfill()
+            }
+        )
+        await fulfillment(of: [finished], timeout: 2)
+        // This coordinator holds the exact pre-undo resume generation, just as
+        // the asynchronous formal-record cleanup task does in production.
+        let staleFinishedCoordinator = store.finishedCommitCoordinator
+
+        let undone = expectation(description: "terminal undo persisted a new live generation")
+        XCTAssertTrue(store.undo { succeeded, restored in
+            XCTAssertTrue(succeeded)
+            XCTAssertFalse(restored.finished)
+            undone.fulfill()
+        })
+        await fulfillment(of: [undone], timeout: 2)
+        let undoFlushed = expectation(description: "new live generation flushed")
+        store.flush { undoFlushed.fulfill() }
+        await fulfillment(of: [undoFlushed], timeout: 2)
+
+        let cleanupResult = await staleFinishedCoordinator.cleanupResume(
+            after: FinishedSessionRecordCommit(
+                sessionId: store.sessionId,
+                recordWritten: true
+            )
+        )
+        XCTAssertNil(cleanupResult.cleanupError)
+        let restored = try await resumeRepository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: BilliardsSessionStore<SnookerReducer>.ResumeBundle.self
+        )
+        XCTAssertEqual(restored?.currentSession.status, .live)
+        XCTAssertEqual(restored?.currentSession.state.leftScore, 7)
+        XCTAssertFalse(restored?.currentSession.state.finished ?? true)
+        XCTAssertEqual(
+            ScoreSessionRecordContext.decode(restored?.auxiliaryPayload)?.actionLog,
+            ["point"]
+        )
+        let liveEntries = try await resumeRepository.liveEntries()
+        XCTAssertTrue(liveEntries.contains {
+            $0.sessionId == store.sessionId
+        })
+    }
+
+    func testSnookerRecordHelpersUseNormalizedCodeAndFoulerIdentity() {
+        XCTAssertEqual(
+            snookerNormalizedRecordCode("1|snapshot|potBall(points: 7)|7,0|"),
+            "potball(points: 7)"
+        )
+        XCTAssertEqual(snookerFoulRecordTeam(fouler: .left), .team1)
+        XCTAssertEqual(snookerFoulRecordTeam(fouler: .right), .team2)
     }
 
     func testScoreboardRecordIdentityPreservesResumeIDAndUsesFreshUUIDSuffixes() {
@@ -768,6 +1331,70 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertFalse(viewModel.undo())
     }
 
+    func testFootballScoreUndoDoesNotConsumeInterleavedStoppageHistory() {
+        let controller = FootballScoreboardController()
+        let viewModel = FootballViewModel(controller: controller, gameType: .football)
+
+        viewModel.addStoppage(60)
+        viewModel.addScore(isLeft: true, points: 1)
+
+        XCTAssertEqual(viewModel.leftTeam.score, 1)
+        XCTAssertEqual(viewModel.clockSession.state.stoppageSeconds[0], 60)
+        XCTAssertTrue(viewModel.undo(), "The generic scoreboard undo must consume the goal")
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        XCTAssertEqual(
+            viewModel.clockSession.state.stoppageSeconds[0],
+            60,
+            "Score undo must not consume the football injury-time stack"
+        )
+        XCTAssertTrue(viewModel.canUndoLastStoppage)
+
+        viewModel.undoLastStoppage()
+        XCTAssertEqual(viewModel.clockSession.state.stoppageSeconds[0], 0)
+        XCTAssertFalse(viewModel.canUndoLastStoppage)
+        XCTAssertFalse(viewModel.undo())
+    }
+
+    func testFiveAsideClockToggleDoesNotStealFollowingGoalUndo() {
+        let controller = FootballScoreboardController(gameType: .football5v5)
+        let viewModel = FootballViewModel(
+            controller: controller,
+            gameType: .football5v5,
+            halfLengthSeconds: 20 * 60
+        )
+
+        XCTAssertFalse(viewModel.clockIsRunning)
+        viewModel.toggleClock()
+        XCTAssertTrue(viewModel.clockIsRunning)
+        viewModel.addScore(isLeft: false, points: 1)
+
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.rightTeam.score, 0)
+        XCTAssertTrue(viewModel.clockIsRunning, "Score undo must preserve the independent match clock")
+
+        viewModel.toggleClock()
+        XCTAssertFalse(viewModel.clockIsRunning)
+        XCTAssertFalse(viewModel.undo(), "Clock controls never enter the score undo stack")
+    }
+
+    func testFootballDedicatedStoppageUndoDoesNotResurrectViaScoreUndo() {
+        let controller = FootballScoreboardController()
+        let viewModel = FootballViewModel(controller: controller, gameType: .football)
+
+        viewModel.addScore(isLeft: true, points: 1)
+        viewModel.addStoppage(90)
+        viewModel.undoLastStoppage()
+        XCTAssertEqual(viewModel.clockSession.state.stoppageSeconds[0], 0)
+
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.score, 0)
+        XCTAssertEqual(
+            viewModel.clockSession.state.stoppageSeconds[0],
+            0,
+            "The generic score undo must not redo a separately-undone stoppage addition"
+        )
+    }
+
     func testLineScoreFreshMatchRestoresOriginalSidesAndClearsFinishedState() {
         let controller = SimpleScoreboardController()
         let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
@@ -815,7 +1442,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testTwentyNineModeAuditMatrixIncludesWatchOnlyBasketballTraining() throws {
         let phoneModes = GameCatalog.scoreboardItems.count
             + GameCatalog.scoreboardItems.map(\.gameType).filter(\.supportsSinglesAndDoubles).count
-        XCTAssertEqual(phoneModes, 28)
+        XCTAssertEqual(phoneModes, 36)
 
         let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         let managerSource = try String(
@@ -823,7 +1450,7 @@ final class ScoreboardCatalogTests: XCTestCase {
             encoding: .utf8
         )
         XCTAssertTrue(managerSource.contains("guard record.gameType != .basketballTraining else { return }"))
-        XCTAssertEqual(phoneModes + 1, 29, "第 29 个实际模式是仅手表端的投篮训练，不参与手机联动")
+        XCTAssertEqual(phoneModes + 1, 37, "第 37 个实际模式是仅手表端的投篮训练，不参与手机联动")
     }
 
     func testPickleballUsesTableTennisIcon() throws {
@@ -956,7 +1583,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         }
         XCTAssertEqual(names, ["A", "B", "C"])
         XCTAssertEqual(points.bigGold, 99)
-        XCTAssertEqual(points.foul, 0)
+        XCTAssertEqual(points.foul, 1)
 
         let snooker = SportsSetupResult(team1Name: "A", team2Name: "B", maxSets: 4, servingSide: "right")
         guard case let .snooker(frames, breaker) = snooker.billiardsConfiguration(for: .snooker) else {
@@ -1163,8 +1790,8 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testUnoTargetScorePolicyKeepsPresetsAndCustomValues() {
-        XCTAssertEqual(UnoTargetScorePolicy.presets, [500, 700, 1000])
-        XCTAssertEqual(UnoTargetScorePolicy.allowedRange, 1...9999)
+        XCTAssertEqual(UnoTargetScorePolicy.presets, [300, 500, 700, 1000])
+        XCTAssertEqual(UnoTargetScorePolicy.allowedRange, 1...99999)
 
         let preset = UnoTargetScorePolicy.initialSelection(for: 700)
         XCTAssertEqual(preset.targetScore, 700)
@@ -1179,11 +1806,45 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(invalid.customText, "")
 
         XCTAssertEqual(UnoTargetScorePolicy.sanitizedInput("8a50分"), "850")
-        XCTAssertEqual(UnoTargetScorePolicy.sanitizedInput("123456"), "1234")
+        XCTAssertEqual(UnoTargetScorePolicy.sanitizedInput("123456"), "12345")
         XCTAssertEqual(UnoTargetScorePolicy.customValue(from: "850"), 850)
         XCTAssertNil(UnoTargetScorePolicy.customValue(from: ""))
         XCTAssertNil(UnoTargetScorePolicy.customValue(from: "0"))
-        XCTAssertNil(UnoTargetScorePolicy.customValue(from: "10000"))
+        XCTAssertEqual(UnoTargetScorePolicy.customValue(from: "10000"), 10000)
+        XCTAssertNil(UnoTargetScorePolicy.customValue(from: "100000"))
+    }
+
+    func testFootball31SetupUsesFixedElevenAsideDefaultAndConfigurableFiveAsideRange() {
+        var elevenAside = SportsSetupDraft()
+        elevenAside.initialize(
+            gameType: .football,
+            initialSetup: nil,
+            initialMaxSets: nil,
+            initialPointsPerSet: nil,
+            initialTieBreakPoints: nil
+        )
+        XCTAssertEqual(elevenAside.footballHalfLengthSeconds, 45 * 60)
+
+        var fiveAside = SportsSetupDraft()
+        fiveAside.initialize(
+            gameType: .football5v5,
+            initialSetup: nil,
+            initialMaxSets: nil,
+            initialPointsPerSet: nil,
+            initialTieBreakPoints: nil
+        )
+        XCTAssertEqual(fiveAside.footballHalfLengthSeconds, 20 * 60)
+
+        var outOfRange = SportsSetupResult(team1Name: "A", team2Name: "B")
+        outOfRange.footballHalfLengthSeconds = 91 * 60
+        fiveAside.initialize(
+            gameType: .football5v5,
+            initialSetup: outOfRange,
+            initialMaxSets: nil,
+            initialPointsPerSet: nil,
+            initialTieBreakPoints: nil
+        )
+        XCTAssertEqual(fiveAside.footballHalfLengthSeconds, 90 * 60)
     }
 
     func testOfficialTeamAndSideDefaultParticipantNames() {

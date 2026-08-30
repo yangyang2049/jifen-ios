@@ -69,8 +69,8 @@ struct EightBallScoreboardView: View {
         var id = UUID().uuidString
         var actions = 0
         var restoredHistory: [EightBallState] = []
-        let restoredActionLog: [String] = []
-        let restoredDetailedActions: [DetailedScoreAction] = []
+        var restoredActionLog: [String] = []
+        var restoredDetailedActions: [DetailedScoreAction] = []
         var showFinished = false
         var resumeBundle: BilliardsSessionStore<EightBallReducer>.ResumeBundle?
 
@@ -83,7 +83,10 @@ struct EightBallScoreboardView: View {
                 .flatMap(Int64.init)
                 .map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? start
             id = bundle.currentSession.metadata.extras["recordID"] ?? initialResumeSessionId
-            actions = bundle.timeline.count
+            let recordContext = ScoreSessionRecordContext.decode(bundle.auxiliaryPayload)
+            restoredActionLog = recordContext?.actionLog ?? []
+            restoredDetailedActions = recordContext?.detailedActions ?? []
+            actions = recordContext?.actionCount ?? bundle.timeline.count
             restoredHistory = bundle.undoFrames.map(\.session.state)
             if bundle.currentSession.participants.count >= 2 {
                 left = bundle.currentSession.participants[0].name
@@ -442,15 +445,28 @@ struct EightBallScoreboardView: View {
     }
     private func send(_ intent: EightBallIntent) {
         guard !scoringLocked else { return }
-        sessionStore.send(intent) { _, next, _ in
-            actionCount += 1
-            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: String(describing: intent), scores: [next.leftPoints, next.rightPoints]))
-            appendEightBallAction(intent)
-            if next.finished {
-                _ = saveRecord()
-                if case .finishMatch = intent {} else { manualFinishRequested = false }
-                showGameOverDialog = true
+        sessionStore.send(
+            intent,
+            completion: { _, next, _ in
+                projectAcceptedEightBallIntent(intent, next: next)
+            },
+            afterFinalized: { _, next, _ in
+                if next.finished { _ = saveRecord() }
             }
+        )
+    }
+
+    private func projectAcceptedEightBallIntent(_ intent: EightBallIntent, next: EightBallState) {
+        actionCount += 1
+        actionLog.append(ReducerScoreboardRecordPersistence.snapshot(
+            code: String(describing: intent),
+            scores: [next.leftPoints, next.rightPoints]
+        ))
+        appendEightBallAction(intent)
+        persistRecordContext()
+        if next.finished {
+            if case .finishMatch = intent {} else { manualFinishRequested = false }
+            showGameOverDialog = true
         }
     }
     private func markFinished() {
@@ -480,6 +496,7 @@ struct EightBallScoreboardView: View {
             scores: [state.leftPoints, state.rightPoints],
             operationCode: "eight_ball_edit_names"
         ))
+        persistRecordContext()
     }
 
     private func adjustScore(onScreen screen: MatchSide, delta: Int) {
@@ -490,9 +507,22 @@ struct EightBallScoreboardView: View {
             }
             return
         }
-        let left = state.leftPoints + (side == .left ? delta : 0)
-        let right = state.rightPoints + (side == .right ? delta : 0)
-        send(.adminAdjust(left: left, right: right))
+        sessionStore.sendDerived(
+            { current in
+                let authoritativeSide = TeamScreenLayout(sidesSwapped: current.sidesSwapped)
+                    .engineSide(onScreen: screen)
+                guard current.canAdjustRacks(side: authoritativeSide, delta: delta) else { return nil }
+                let left = current.leftPoints + (authoritativeSide == .left ? delta : 0)
+                let right = current.rightPoints + (authoritativeSide == .right ? delta : 0)
+                return .adminAdjust(left: left, right: right)
+            },
+            completion: { intent, _, next, _ in
+                projectAcceptedEightBallIntent(intent, next: next)
+            },
+            afterFinalized: { _, _, next, _ in
+                if next.finished { _ = saveRecord() }
+            }
+        )
         showGameOverDialog = false
     }
 
@@ -506,14 +536,9 @@ struct EightBallScoreboardView: View {
         guard !scoringLocked else { return false }
         return sessionStore.undo { success, restored in
             guard success else { return }
-            actionCount = max(0, actionCount - 1)
-            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: "undo", scores: [restored.leftPoints, restored.rightPoints]))
-            detailedActions.append(DetailedScoreAction(
-                type: .undo,
-                epochMilliseconds: ReducerScoreboardRecordPersistence.nowMilliseconds(),
-                scores: [restored.leftPoints, restored.rightPoints],
-                operationCode: "undo"
-            ))
+            actionLog = sessionStore.recordContext.actionLog
+            detailedActions = sessionStore.recordContext.detailedActions
+            actionCount = sessionStore.recordContext.actionCount
             showGameOverDialog = restored.finished
         }
     }
@@ -551,6 +576,14 @@ struct EightBallScoreboardView: View {
             gameNumber: gameNumber,
             operationCode: code
         ))
+    }
+
+    private func persistRecordContext() {
+        sessionStore.updateRecordContext(
+            actionLog: actionLog,
+            detailedActions: detailedActions,
+            actionCount: actionCount
+        )
     }
     private func exit() {
         OrientationLock.shared.unlock()
@@ -599,6 +632,8 @@ struct EightBallScoreboardView: View {
 
     private func applyAuthoritativeEightBall(_ remote: EightBallState) {
         sessionStore.rebase(to: remote) { applied in
+            actionCount = max(actionCount, detailedActions.count)
+            persistRecordContext()
             if applied.finished, !scoringLocked {
                 _ = saveRecord()
             }
@@ -705,7 +740,8 @@ struct EightBallScoreboardView: View {
                 "eightBallHandicapBeneficiary": state.handicapBeneficiary == .left ? "team1" : (state.handicapBeneficiary == .right ? "team2" : "none")
             ],
             finishedSessionId: sessionStore.sessionId,
-            finishedCommitCoordinator: sessionStore.finishedCommitCoordinator
+            finishedCommitCoordinator: sessionStore.finishedCommitCoordinator,
+            replaceCommittedFinishedRecord: sessionStore.shouldReplaceCommittedFinishedRecord
         )
         if success, state.finished, actionCount > 0 {
             sessionStore.markFinishedRecordCommitted()

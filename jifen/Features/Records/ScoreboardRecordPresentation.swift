@@ -6,6 +6,143 @@ enum ScoreboardRecordDetailLayout: Equatable {
     case multiScoreTimeline
 }
 
+enum ScoreboardRecordActionTitlePolicy {
+    static func tableTennisAdministrativeTitle(
+        operationCode: String?,
+        teamName: String?
+    ) -> String? {
+        let key: String
+        switch operationCode?.lowercased() {
+        case "yellow_card", "tt_yellow": key = "record_tt_yellow"
+        case "red_card", "tt_red": key = "record_tt_red"
+        case "timeout", "tt_timeout": key = "record_tt_timeout"
+        case "medical_timeout", "tt_medical": key = "record_tt_medical"
+        default: return nil
+        }
+        let fallbackName = teamName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedName = fallbackName.flatMap { $0.isEmpty ? nil : $0 }
+            ?? NSLocalizedString("player", value: "选手", comment: "")
+        let fallbackFormat: String = switch key {
+        case "record_tt_yellow": "%@ 黄牌"
+        case "record_tt_red": "%@ 红牌"
+        case "record_tt_timeout": "%@ 暂停"
+        default: "%@ 医疗暂停"
+        }
+        return String.localizedStringWithFormat(
+            NSLocalizedString(key, value: fallbackFormat, comment: "Table tennis administrative record action"),
+            resolvedName
+        )
+    }
+}
+
+enum DoudizhuRecordRole: Equatable {
+    case landlord
+    case farmer
+}
+
+struct DoudizhuRecordScoreDetail: Equatable {
+    let team: RecordTeam
+    let playerName: String
+    let role: DoudizhuRecordRole?
+    let scoreChange: Int?
+    let isWinner: Bool
+}
+
+/// Android 3.1 `DoudizhuRecordDisplay` and
+/// `ScoreboardDetailRecapBuilder` parity. The view only localizes these typed
+/// values; score allocation and player identity stay testable here.
+enum DoudizhuRecordDetailPolicy {
+    static func scoreLine(for action: DetailedScoreAction) -> String? {
+        scoreLine(scores: action.scores)
+    }
+
+    static func scoreLine(scores: [Int]) -> String? {
+        guard scores.count >= 3 else { return nil }
+        return scores.prefix(3).map { score in
+            score > 0 ? "+\(score)" : "\(score)"
+        }.joined(separator: " / ")
+    }
+
+    static func winnerNames(
+        for action: DetailedScoreAction,
+        record: ScoreboardRecord
+    ) -> [String] {
+        (action.winners ?? []).map { playerName(for: $0, action: action, record: record) }
+    }
+
+    static func scoreDetails(
+        for action: DetailedScoreAction,
+        record: ScoreboardRecord
+    ) -> [DoudizhuRecordScoreDetail] {
+        guard record.gameType == .doudizhu else { return [] }
+        let winners = action.winners ?? []
+        let losers = action.losers ?? []
+        guard !winners.isEmpty, !losers.isEmpty else { return [] }
+
+        let winnerDetails = winners.map { team in
+            DoudizhuRecordScoreDetail(
+                team: team,
+                playerName: playerName(for: team, action: action, record: record),
+                role: role(for: team, action: action),
+                scoreChange: action.scoreChange,
+                isWinner: true
+            )
+        }
+        let loserChange: Int? = action.scoreChange.map { scoreChange in
+            switch winners.count {
+            case 1:
+                return -scoreChange / max(1, losers.count)
+            case 2:
+                return -scoreChange * winners.count
+            default:
+                return 0
+            }
+        }
+        let loserDetails = losers.map { team in
+            DoudizhuRecordScoreDetail(
+                team: team,
+                playerName: playerName(for: team, action: action, record: record),
+                role: role(for: team, action: action),
+                scoreChange: loserChange,
+                isWinner: false
+            )
+        }
+        return winnerDetails + loserDetails
+    }
+
+    static func signedScore(_ score: Int) -> String {
+        score > 0 ? "+\(score)" : "\(score)"
+    }
+
+    private static func role(
+        for team: RecordTeam,
+        action: DetailedScoreAction
+    ) -> DoudizhuRecordRole? {
+        guard let landlord = action.landlord else { return nil }
+        return landlord == team ? .landlord : .farmer
+    }
+
+    private static func playerName(
+        for team: RecordTeam,
+        action: DetailedScoreAction,
+        record: ScoreboardRecord
+    ) -> String {
+        let index = RecordTeam.allCases.firstIndex(of: team) ?? 0
+        if action.participants.indices.contains(index) {
+            let name = action.participants[index].name.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !name.isEmpty { return name }
+        }
+        let participants = record.displayParticipants
+        if participants.indices.contains(index) { return participants[index].name }
+        switch team {
+        case .team1: return record.team1Name
+        case .team2: return record.team2Name
+        case .team3, .team4:
+            return "\(NSLocalizedString("player", value: "选手", comment: "")) \(index + 1)"
+        }
+    }
+}
+
 struct ScoreboardRecordProjectPolicy: Equatable {
     enum RecapKind: String {
         case sets, tennisSets, periods, rounds, frames, events, cardRounds, ranking
@@ -22,7 +159,7 @@ struct ScoreboardRecordProjectPolicy: Equatable {
 
     static func policy(for gameType: GameType) -> Self {
         switch gameType {
-        case .pingpong, .badminton, .pickleball, .volleyball, .beachVolleyball,
+        case .pingpong, .badminton, .shuttlecock, .squash, .pickleball, .volleyball, .beachVolleyball,
              .airVolleyball, .foosball, .archery, .snooker:
             return .init(trendAllowed: true, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: true, recapKind: .sets)
         case .basketball:
@@ -31,9 +168,9 @@ struct ScoreboardRecordProjectPolicy: Equatable {
             return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
         case .billiards, .nineBall, .simpleScore:
             return .init(trendAllowed: true, trendRequiresTwoPlayers: true, trendRequiresNonNegativeScores: true, recapKind: .events)
-        case .tennis:
+        case .tennis, .softTennis, .padel:
             return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .tennisSets)
-        case .football:
+        case .football, .football5v5:
             return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
         case .boxing:
             return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .rounds)

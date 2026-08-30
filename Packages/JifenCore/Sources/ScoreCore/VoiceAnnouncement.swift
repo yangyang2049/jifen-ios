@@ -9,11 +9,23 @@ public enum VoiceAnnouncementPhase: String, Sendable {
     case setEnd = "set_end"
     case matchEnd = "match_end"
     case sideChange = "side_change"
+    case breakStart = "break_start"
+    case breakWarning = "break_warning"
+    case breakResume = "break_resume"
 }
 
 public enum VoiceCriticalPoint: String, Sendable {
     case gamePoint = "game_point"
     case matchPoint = "match_point"
+    case gameBall = "game_ball"
+    case matchBall = "match_ball"
+}
+
+public enum VoiceBreakCue: String, Sendable {
+    case twentySeconds = "twenty_seconds"
+    case halfTime = "half_time"
+    case fifteenSeconds = "fifteen_seconds"
+    case time
 }
 
 public enum VoiceAnnouncementLanguage: String, Sendable {
@@ -27,7 +39,7 @@ public enum VoiceAnnouncementLanguage: String, Sendable {
     }
 }
 
-public struct VoiceSetScore: Equatable, Sendable {
+public struct VoiceSetScore: Codable, Equatable, Sendable {
     public var leftGames: Int
     public var rightGames: Int
 
@@ -69,6 +81,12 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
     public var setScores: [VoiceSetScore]
     /// Pickleball doubles server number (1 or 2). Nil for singles / other sports.
     public var serverNumber: Int?
+    public var sideChange: Bool
+    public var breakCue: VoiceBreakCue?
+    public var breakDurationSeconds: Int?
+    public var secondServer: Bool
+    public var starPointReturnedAdvantages: Int
+    public var maxSets: Int?
 
     public init(
         gameType: GameType,
@@ -96,7 +114,13 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
         tieBreakTarget: Int? = nil,
         tennisDeuceMode: String? = nil,
         setScores: [VoiceSetScore] = [],
-        serverNumber: Int? = nil
+        serverNumber: Int? = nil,
+        sideChange: Bool = false,
+        breakCue: VoiceBreakCue? = nil,
+        breakDurationSeconds: Int? = nil,
+        secondServer: Bool = false,
+        starPointReturnedAdvantages: Int = 0,
+        maxSets: Int? = nil
     ) {
         self.gameType = gameType
         self.phase = phase
@@ -124,12 +148,95 @@ public struct VoiceAnnouncementPayload: Equatable, Sendable {
         self.tennisDeuceMode = tennisDeuceMode
         self.setScores = setScores
         self.serverNumber = serverNumber
+        self.sideChange = sideChange
+        self.breakCue = breakCue
+        self.breakDurationSeconds = breakDurationSeconds
+        self.secondServer = secondServer
+        self.starPointReturnedAdvantages = starPointReturnedAdvantages
+        self.maxSets = maxSets
+    }
+}
+
+/// Android 3.1 suppresses the pickleball-only start call for other sports and
+/// avoids a second "Time" when tennis/padel have already called it at 30 s.
+public enum OfficialBreakVoicePolicy {
+    public static func shouldSpeak(gameType: GameType, cue: OfficialBreakCue) -> Bool {
+        if cue == .start {
+            return gameType == .pickleball || gameType == .pickleballDoubles
+        }
+        if cue == .complete {
+            return gameType != .tennis && gameType != .tennisDoubles && gameType != .padel
+        }
+        return true
+    }
+
+    public static func shouldSpeak(
+        gameType: GameType,
+        cue: OfficialBreakCue,
+        state: OfficialBreakState,
+        officialBreaksEnabled: Bool
+    ) -> Bool {
+        guard officialBreaksEnabled, state.source == .official else { return false }
+        return shouldSpeak(gameType: gameType, cue: cue)
+    }
+}
+
+public enum OfficialBreakVoiceMapper {
+    public static func payload(
+        gameType: GameType,
+        cue: OfficialBreakCue,
+        state: OfficialBreakState,
+        leftName: String,
+        rightName: String,
+        leftScore: Int,
+        rightScore: Int,
+        servingSide: MatchSide?,
+        serverName: String? = nil,
+        serverNumber: Int? = nil,
+        currentSet: Int? = nil
+    ) -> VoiceAnnouncementPayload? {
+        guard OfficialBreakVoicePolicy.shouldSpeak(
+            gameType: gameType,
+            cue: cue,
+            state: state,
+            officialBreaksEnabled: true
+        ) else {
+            return nil
+        }
+        let phase: VoiceAnnouncementPhase = switch cue {
+        case .start: .breakStart
+        case .complete, .earlyResume: .breakResume
+        case .twentySeconds, .halfTime, .fifteenSeconds, .time: .breakWarning
+        }
+        let breakCue: VoiceBreakCue? = switch cue {
+        case .twentySeconds: .twentySeconds
+        case .halfTime: .halfTime
+        case .fifteenSeconds: .fifteenSeconds
+        case .time: .time
+        case .start, .complete, .earlyResume: nil
+        }
+        return VoiceAnnouncementPayload(
+            gameType: gameType,
+            phase: phase,
+            leftTeamName: leftName,
+            rightTeamName: rightName,
+            leftScore: leftScore,
+            rightScore: rightScore,
+            currentSet: currentSet,
+            serverSide: servingSide,
+            serverName: serverName,
+            serverNumber: serverNumber,
+            sideChange: state.afterAction == .exchangeSides || state.afterAction == .advanceAndExchange,
+            breakCue: breakCue,
+            breakDurationSeconds: state.durationSeconds
+        )
     }
 }
 
 public enum VoiceAnnouncementSupport {
     public static func isSupported(_ gameType: GameType) -> Bool {
-        isBadminton(gameType) || isPingpong(gameType) || isTennis(gameType) || isPickleball(gameType)
+        isBadminton(gameType) || isPingpong(gameType) || isTennisFamily(gameType)
+            || isPickleball(gameType) || gameType == .squash || gameType == .shuttlecock
     }
 
     public static func isBadminton(_ gameType: GameType) -> Bool {
@@ -142,6 +249,10 @@ public enum VoiceAnnouncementSupport {
 
     public static func isTennis(_ gameType: GameType) -> Bool {
         gameType == .tennis || gameType == .tennisDoubles
+    }
+
+    public static func isTennisFamily(_ gameType: GameType) -> Bool {
+        isTennis(gameType) || gameType == .softTennis || gameType == .padel
     }
 
     public static func isPickleball(_ gameType: GameType) -> Bool {
@@ -158,6 +269,24 @@ public enum VoiceAnnouncementBatchPolicy {
             && !payload.isInterval
             && !payload.serviceOver
     }
+
+    public static func queuePolicy(_ payloads: [VoiceAnnouncementPayload]) -> VoiceAnnouncementQueuePolicy {
+        guard payloads.count == 1, let payload = payloads.first else { return .flush }
+        switch payload.phase {
+        case .opening, .scoreChange:
+            return .latestScore
+        case .sideChange, .breakStart, .breakWarning:
+            return .append
+        case .gameEnd, .setEnd, .matchEnd, .breakResume:
+            return .flush
+        }
+    }
+}
+
+public enum VoiceAnnouncementQueuePolicy: Equatable, Sendable {
+    case latestScore
+    case flush
+    case append
 }
 
 // MARK: - Message builder (BWF / ITTF / ITF — aligned with HarmonyOS)
@@ -173,7 +302,13 @@ public enum VoiceAnnouncementMessageBuilder {
     // —— Chinese ——
 
     private static func buildChinese(_ payload: VoiceAnnouncementPayload) -> String {
+        if payload.gameType == .squash { return buildSquashZh(payload) }
+        if payload.gameType == .shuttlecock { return buildShuttlecockZh(payload) }
+        if payload.gameType == .softTennis { return buildSoftTennisZh(payload) }
+        if payload.gameType == .padel { return buildPadelZh(payload) }
         switch payload.phase {
+        case .breakStart, .breakWarning, .breakResume:
+            return buildBreakZh(payload)
         case .opening:
             return buildOpeningZh(payload)
         case .scoreChange:
@@ -219,7 +354,13 @@ public enum VoiceAnnouncementMessageBuilder {
     // —— English ——
 
     private static func buildEnglish(_ payload: VoiceAnnouncementPayload) -> String {
+        if payload.gameType == .squash { return buildSquashEn(payload) }
+        if payload.gameType == .shuttlecock { return buildShuttlecockEn(payload) }
+        if payload.gameType == .softTennis { return buildSoftTennisEn(payload) }
+        if payload.gameType == .padel { return buildPadelEn(payload) }
         switch payload.phase {
+        case .breakStart, .breakWarning, .breakResume:
+            return buildBreakEn(payload)
         case .opening:
             return buildOpeningEn(payload)
         case .scoreChange:
@@ -259,6 +400,273 @@ public enum VoiceAnnouncementMessageBuilder {
             return buildBadmintonMatchEndEn(payload)
         case .sideChange:
             return "Change ends"
+        }
+    }
+
+    // —— Official breaks (Android 3.1) ——
+
+    private static func buildBreakZh(_ payload: VoiceAnnouncementPayload) -> String {
+        if payload.phase == .breakWarning {
+            return switch payload.breakCue {
+            case .twentySeconds: "20秒"
+            case .halfTime: "休息过半"
+            case .fifteenSeconds: "15秒"
+            case .time: "时间到"
+            case nil: ""
+            }
+        }
+        if payload.phase == .breakStart {
+            guard VoiceAnnouncementSupport.isPickleball(payload.gameType) else { return "" }
+            let minutes = max(1, (payload.breakDurationSeconds ?? 0) / 60)
+            if (payload.breakDurationSeconds ?? 0) >= 120 {
+                return "局间休息，\(minutes)分钟"
+            }
+            var parts: [String] = []
+            if payload.leftScore != 0 || payload.rightScore != 0 {
+                parts.append(buildPickleballScoreChangeZh(payload))
+            }
+            parts.append("暂停")
+            if payload.sideChange { parts.append("交换场地") }
+            parts.append("\(minutes)分钟")
+            return parts.joined(separator: "，")
+        }
+        guard payload.phase == .breakResume else { return "" }
+        if VoiceAnnouncementSupport.isBadminton(payload.gameType) {
+            let server = resolveServerSide(payload)
+            return "\(sideFirstNumericZh(payload, server))，比赛继续"
+        }
+        if VoiceAnnouncementSupport.isPingpong(payload.gameType) || payload.gameType == .squash || payload.gameType == .shuttlecock {
+            return "时间到，第\(payload.currentSet ?? 1)局，\(resolveServerName(payload))发球，0比0"
+        }
+        if VoiceAnnouncementSupport.isPickleball(payload.gameType) {
+            return "比赛继续，\(buildPickleballScoreChangeZh(payload))"
+        }
+        return "时间到"
+    }
+
+    private static func buildBreakEn(_ payload: VoiceAnnouncementPayload) -> String {
+        if payload.phase == .breakWarning {
+            return switch payload.breakCue {
+            case .twentySeconds: "20 seconds"
+            case .halfTime: "Half-time"
+            case .fifteenSeconds: "15 seconds"
+            case .time: "Time"
+            case nil: ""
+            }
+        }
+        if payload.phase == .breakStart {
+            guard VoiceAnnouncementSupport.isPickleball(payload.gameType) else { return "" }
+            let minutes = max(1, (payload.breakDurationSeconds ?? 0) / 60)
+            let duration = "\(minutes) \(minutes == 1 ? "minute" : "minutes")"
+            if (payload.breakDurationSeconds ?? 0) >= 120 {
+                return "Interval, \(duration)"
+            }
+            var result = ""
+            if payload.leftScore != 0 || payload.rightScore != 0 {
+                result = buildPickleballScoreChangeEn(payload) + ". "
+            }
+            result += "Time-out"
+            if payload.sideChange { result += ", change ends" }
+            return result + ", \(duration)"
+        }
+        guard payload.phase == .breakResume else { return "" }
+        if VoiceAnnouncementSupport.isBadminton(payload.gameType) {
+            let server = resolveServerSide(payload)
+            return "\(sideFirstNumericEn(payload, server)), play"
+        }
+        if VoiceAnnouncementSupport.isPingpong(payload.gameType) {
+            return "Time. Game \(payload.currentSet ?? 1). \(resolveServerName(payload)) serves, love all"
+        }
+        if payload.gameType == .squash {
+            return "Time. Game \(payload.currentSet ?? 1). \(resolveServerName(payload)) to serve, love all"
+        }
+        if payload.gameType == .shuttlecock {
+            return "Time. Game \(payload.currentSet ?? 1), \(resolveServerName(payload)) serves, 0-0"
+        }
+        if VoiceAnnouncementSupport.isPickleball(payload.gameType) {
+            return "Time in, \(buildPickleballScoreChangeEn(payload))"
+        }
+        return "Time"
+    }
+
+    // —— Squash / shuttlecock / soft tennis / padel (Android 3.1) ——
+
+    private static func buildSquashZh(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening:
+            let receiver = payload.receiverName ?? teamName(payload, resolveServerSide(payload).opposite)
+            return "\(resolveServerName(payload))发球，\(receiver)接发，\(payload.maxSets ?? 5)局制，0比0"
+        case .scoreChange:
+            let server = resolveServerSide(payload)
+            var line = sideFirstNumericZh(payload, server)
+            if payload.serviceOver { line = "换发球，\(line)" }
+            if payload.leftScore == 10, payload.rightScore == 10 {
+                line += "，必须领先两分"
+            } else if let point = payload.criticalPoint {
+                line += "，\(point == .matchBall ? "赛点" : "局点")"
+            }
+            return line
+        case .setEnd: return buildBadmintonSetEndZh(payload)
+        case .matchEnd: return buildBadmintonMatchEndZh(payload)
+        case .sideChange: return "交换场地"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakZh(payload)
+        case .gameEnd: return ""
+        }
+    }
+
+    private static func buildSquashEn(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening:
+            let receiver = payload.receiverName ?? teamName(payload, resolveServerSide(payload).opposite)
+            return "\(resolveServerName(payload)) to serve, \(receiver) to receive, best of \(payload.maxSets ?? 5) games, love all"
+        case .scoreChange:
+            let server = resolveServerSide(payload)
+            var line = sideFirstNumericEn(payload, server)
+            if payload.serviceOver { line = "Hand out, \(line)" }
+            if payload.leftScore == 10, payload.rightScore == 10 {
+                line += ", a player must win by 2 points"
+            } else if let point = payload.criticalPoint {
+                line += ", \(point == .matchBall ? "Match ball" : "Game ball")"
+            }
+            return line
+        case .setEnd: return buildBadmintonSetEndEn(payload)
+        case .matchEnd: return buildBadmintonMatchEndEn(payload)
+        case .sideChange: return "Change ends"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakEn(payload)
+        case .gameEnd: return ""
+        }
+    }
+
+    private static func buildShuttlecockZh(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening: return "\(resolveServerName(payload))发球，0比0"
+        case .scoreChange: return sideFirstNumericZh(payload, resolveServerSide(payload))
+        case .setEnd: return buildBadmintonSetEndZh(payload)
+        case .matchEnd: return buildBadmintonMatchEndZh(payload)
+        case .sideChange: return "交换场地"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakZh(payload)
+        case .gameEnd: return ""
+        }
+    }
+
+    private static func buildShuttlecockEn(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening: return "\(resolveServerName(payload)) serves, 0-0"
+        case .scoreChange: return sideFirstNumericEn(payload, resolveServerSide(payload))
+        case .setEnd: return buildBadmintonSetEndEn(payload)
+        case .matchEnd: return buildBadmintonMatchEndEn(payload)
+        case .sideChange: return "Change ends"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakEn(payload)
+        case .gameEnd: return ""
+        }
+    }
+
+    private static func buildSoftTennisZh(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening:
+            let games = payload.maxSets == 9 ? 9 : 7
+            return "\(games)局制，比赛开始"
+        case .scoreChange:
+            if payload.leftScore == payload.rightScore,
+               ((!payload.isTieBreak && payload.leftScore >= 3) || (payload.isTieBreak && payload.leftScore >= 6)) {
+                return "平分"
+            }
+            if let advantage = softTennisAdvantage(payload) {
+                return "\(teamName(payload, advantage))占先"
+            }
+            return sideFirstNumericZh(payload, resolveServerSide(payload))
+        case .gameEnd:
+            return "\(winnerNameZh(payload))胜本局，局分\(payload.leftScore)比\(payload.rightScore)"
+        case .setEnd, .matchEnd:
+            return "比赛结束，\(winnerNameZh(payload))胜，\(formatGameScoreByWinnerZh(.init(leftGames: payload.leftScore, rightGames: payload.rightScore), resolveWinnerSide(payload)))"
+        case .sideChange: return "交换场地"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakZh(payload)
+        }
+    }
+
+    private static func buildSoftTennisEn(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening:
+            let games = payload.maxSets == 9 ? 9 : 7
+            return "\(games)-game match, play ball"
+        case .scoreChange:
+            if payload.leftScore == payload.rightScore,
+               ((!payload.isTieBreak && payload.leftScore >= 3) || (payload.isTieBreak && payload.leftScore >= 6)) {
+                return "Deuce"
+            }
+            if let advantage = softTennisAdvantage(payload) {
+                return "Advantage \(teamName(payload, advantage))"
+            }
+            return sideFirstNumericEn(payload, resolveServerSide(payload))
+        case .gameEnd:
+            return "Game \(winnerNameEn(payload)). \(payload.leftScore)-\(payload.rightScore)"
+        case .setEnd, .matchEnd:
+            return "Game set. Match to \(winnerNameEn(payload)), \(formatGameScoreByWinnerEn(.init(leftGames: payload.leftScore, rightGames: payload.rightScore), resolveWinnerSide(payload)))"
+        case .sideChange: return "Change ends"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakEn(payload)
+        }
+    }
+
+    private static func softTennisAdvantage(_ payload: VoiceAnnouncementPayload) -> MatchSide? {
+        let edge = payload.isTieBreak ? 7 : 4
+        if payload.leftScore >= edge, payload.leftScore - payload.rightScore == 1 { return .left }
+        if payload.rightScore >= edge, payload.rightScore - payload.leftScore == 1 { return .right }
+        return nil
+    }
+
+    private static func buildPadelZh(_ payload: VoiceAnnouncementPayload) -> String {
+        if payload.phase == .scoreChange, !payload.isTieBreak, payload.leftScore == 3, payload.rightScore == 3 {
+            switch payload.tennisDeuceMode {
+            case PadelDeuceMode.goldenPoint.rawValue: return "黄金分，接发方选择"
+            case PadelDeuceMode.starPoint.rawValue:
+                return switch min(2, max(0, payload.starPointReturnedAdvantages)) {
+                case 0: "第一次平分"
+                case 1: "第二次平分"
+                default: "第三次平分，星点"
+                }
+            default: break
+            }
+        }
+        return buildChineseAsTennisFamily(payload)
+    }
+
+    private static func buildPadelEn(_ payload: VoiceAnnouncementPayload) -> String {
+        if payload.phase == .scoreChange, !payload.isTieBreak, payload.leftScore == 3, payload.rightScore == 3 {
+            switch payload.tennisDeuceMode {
+            case PadelDeuceMode.goldenPoint.rawValue: return "Golden point, receiver's choice"
+            case PadelDeuceMode.starPoint.rawValue:
+                return switch min(2, max(0, payload.starPointReturnedAdvantages)) {
+                case 0: "Deuce 1"
+                case 1: "Deuce 2"
+                default: "Deuce 3, Star point"
+                }
+            default: break
+            }
+        }
+        return buildEnglishAsTennisFamily(payload)
+    }
+
+    private static func buildChineseAsTennisFamily(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening: return "\(resolveServerName(payload))发球，比赛开始"
+        case .scoreChange: return buildTennisScoreChangeZh(payload)
+        case .gameEnd: return buildTennisGameEndZh(payload)
+        case .setEnd: return buildTennisSetEndZh(payload, isMatchEnd: false)
+        case .matchEnd: return buildTennisSetEndZh(payload, isMatchEnd: true)
+        case .sideChange: return "交换场地"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakZh(payload)
+        }
+    }
+
+    private static func buildEnglishAsTennisFamily(_ payload: VoiceAnnouncementPayload) -> String {
+        switch payload.phase {
+        case .opening: return "Match start, \(resolveServerName(payload)) to serve"
+        case .scoreChange: return buildTennisScoreChangeEn(payload)
+        case .gameEnd: return buildTennisGameEndEn(payload)
+        case .setEnd: return buildTennisSetEndEn(payload, isMatchEnd: false)
+        case .matchEnd: return buildTennisSetEndEn(payload, isMatchEnd: true)
+        case .sideChange: return "Change ends"
+        case .breakStart, .breakWarning, .breakResume: return buildBreakEn(payload)
         }
     }
 
@@ -319,9 +727,13 @@ public enum VoiceAnnouncementMessageBuilder {
         let line = "\(first)比\(second)"
         if let number = payload.serverNumber, number == 1 || number == 2 {
             let withServer = "\(line)，\(number == 2 ? "二" : "一")号"
-            return payload.serviceOver ? "换发球，\(withServer)" : withServer
+            if payload.serviceOver { return "换发球，\(withServer)" }
+            if payload.secondServer { return "第二发球，\(withServer)" }
+            return withServer
         }
-        return payload.serviceOver ? "换发球，\(line)" : line
+        if payload.serviceOver { return "换发球，\(line)" }
+        if payload.secondServer { return "第二发球，\(line)" }
+        return line
     }
 
     private static func buildPickleballScoreChangeEn(_ payload: VoiceAnnouncementPayload) -> String {
@@ -334,7 +746,9 @@ public enum VoiceAnnouncementMessageBuilder {
         } else {
             line = "\(englishPickleballNumber(first)), \(englishPickleballNumber(second))"
         }
-        return payload.serviceOver ? "Side out, \(line)" : line
+        if payload.serviceOver { return "Side out, \(line)" }
+        if payload.secondServer { return "Second server, \(line)" }
+        return line
     }
 
     private static func englishPickleballNumber(_ value: Int) -> String {
@@ -837,6 +1251,8 @@ public enum RallyVoiceAnnouncementMapper {
         let isRallyVoice = VoiceAnnouncementSupport.isBadminton(gameType)
             || VoiceAnnouncementSupport.isPingpong(gameType)
             || VoiceAnnouncementSupport.isPickleball(gameType)
+            || gameType == .squash
+            || gameType == .shuttlecock
         guard VoiceAnnouncementSupport.isSupported(gameType), isRallyVoice else {
             return []
         }
@@ -908,6 +1324,10 @@ public enum RallyVoiceAnnouncementMapper {
         // Traditional pickleball side-out (no point scored).
         if point == nil, let sideOut, setEnd == nil, !matchFinished {
             let useRally = after.rules.useRallyScoring
+            let secondServer = gameType == .pickleballDoubles
+                && before.servingSide == after.servingSide
+                && before.doubles?.pickleballServerNumber == 1
+                && after.doubles?.pickleballServerNumber == 2
             return [
                 basePayload(
                     gameType: gameType,
@@ -918,7 +1338,8 @@ public enum RallyVoiceAnnouncementMapper {
                     leftSets: after.leftSets,
                     rightSets: after.rightSets,
                     serverSide: sideOut.0,
-                    serviceOver: !useRally,
+                    serviceOver: !useRally && !secondServer,
+                    secondServer: secondServer,
                     serverNumber: pickleballServerNumber(gameType: gameType, state: after)
                 )
             ]
@@ -984,7 +1405,7 @@ public enum RallyVoiceAnnouncementMapper {
                 scoringSide: point.0,
                 serverSide: servingSideAfterPoint,
                 serviceOver: serviceOver,
-                criticalPoint: badmintonCriticalPoint(
+                criticalPoint: rallyCriticalPoint(
                     gameType: gameType,
                     state: before,
                     leftScore: point.1,
@@ -1070,6 +1491,7 @@ public enum RallyVoiceAnnouncementMapper {
         isInterval: Bool = false,
         isManualEnd: Bool = false,
         setScores: [VoiceSetScore] = [],
+        secondServer: Bool = false,
         serverNumber: Int? = nil
     ) -> VoiceAnnouncementPayload {
         let leftPlayers = teamPlayerNames(state.doubles, side: .left)
@@ -1098,7 +1520,9 @@ public enum RallyVoiceAnnouncementMapper {
             isInterval: isInterval,
             isManualEnd: isManualEnd,
             setScores: setScores,
-            serverNumber: serverNumber
+            serverNumber: serverNumber,
+            secondServer: secondServer,
+            maxSets: state.rules.maxSets
         )
     }
 
@@ -1108,13 +1532,14 @@ public enum RallyVoiceAnnouncementMapper {
         return indices.map { names[$0] }.filter { !$0.isEmpty }
     }
 
-    private static func badmintonCriticalPoint(
+    private static func rallyCriticalPoint(
         gameType: GameType,
         state: RallyMatchState,
         leftScore: Int,
         rightScore: Int
     ) -> VoiceCriticalPoint? {
-        guard VoiceAnnouncementSupport.isBadminton(gameType), leftScore != rightScore else { return nil }
+        guard (VoiceAnnouncementSupport.isBadminton(gameType) || gameType == .squash),
+              leftScore != rightScore else { return nil }
         let leaderSide: MatchSide = leftScore > rightScore ? .left : .right
         let leaderScore = max(leftScore, rightScore)
         let trailingScore = min(leftScore, rightScore)
@@ -1127,9 +1552,11 @@ public enum RallyVoiceAnnouncementMapper {
         guard winsAtCap || (reachesTarget && hasWinningMargin) else { return nil }
         let nextLeftSets = state.leftSets + (leaderSide == .left ? 1 : 0)
         let nextRightSets = state.rightSets + (leaderSide == .right ? 1 : 0)
-        return state.rules.isMatchFinished(leftSets: nextLeftSets, rightSets: nextRightSets)
-            ? .matchPoint
-            : .gamePoint
+        let isMatch = state.rules.isMatchFinished(leftSets: nextLeftSets, rightSets: nextRightSets)
+        if gameType == .squash {
+            return isMatch ? .matchBall : .gameBall
+        }
+        return isMatch ? .matchPoint : .gamePoint
     }
 
     private static func badmintonIntervalReached(
@@ -1156,7 +1583,7 @@ public enum TennisVoiceAnnouncementMapper {
         events: [TennisMatchEvent],
         completedSetScores: [VoiceSetScore]
     ) -> [VoiceAnnouncementPayload] {
-        guard VoiceAnnouncementSupport.isTennis(gameType) else {
+        guard VoiceAnnouncementSupport.isTennisFamily(gameType) else {
             return []
         }
 
@@ -1230,7 +1657,9 @@ public enum TennisVoiceAnnouncementMapper {
 
         let namesState = after
         let servingSideAfterPoint = after.servingSide
-        let deuceMode = before.rules.usesNoAdScoring ? "no_ad" : "advantage"
+        let deuceMode = before.rules.familyProfile == .padel
+            ? before.rules.padelDeuceMode.rawValue
+            : (before.rules.usesNoAdScoring ? "no_ad" : "advantage")
 
         let main: VoiceAnnouncementPayload
         if matchFinished {
@@ -1327,7 +1756,7 @@ public enum TennisVoiceAnnouncementMapper {
         gameType: GameType,
         state: TennisMatchState
     ) -> VoiceAnnouncementPayload? {
-        guard VoiceAnnouncementSupport.isTennis(gameType),
+        guard VoiceAnnouncementSupport.isTennisFamily(gameType),
               state.leftPoints == 0,
               state.rightPoints == 0,
               state.leftGames == 0,
@@ -1405,7 +1834,11 @@ public enum TennisVoiceAnnouncementMapper {
             isTieBreak: isTieBreak,
             tieBreakTarget: tieBreakTarget,
             tennisDeuceMode: tennisDeuceMode,
-            setScores: setScores
+            setScores: setScores,
+            starPointReturnedAdvantages: state.starPointReturnedAdvantages ?? 0,
+            maxSets: state.rules.familyProfile == .softTennis
+                ? state.rules.softTennisMatchGames
+                : state.rules.maxSets
         )
     }
 

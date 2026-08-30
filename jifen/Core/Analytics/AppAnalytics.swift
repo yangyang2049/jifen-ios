@@ -53,6 +53,7 @@ enum AnalyticsEvent: String, CaseIterable {
     case watchLinkStart = "watch_link_start"
     case watchLinkResult = "watch_link_result"
     case notificationOpen = "notification_open"
+    case castStatusChange = "cast_status_change"
 }
 
 enum AnalyticsParameter: String, CaseIterable {
@@ -111,9 +112,9 @@ enum AnalyticsScreen: String, CaseIterable {
     case commonPlacesPage = "common_places_page"
     case scoreboardSettingsPage = "scoreboard_settings_page"
     case watchLinkPage = "watch_link_page"
+    case castPage = "cast_page"
     case faqPage = "faq_page"
     case aboutUsPage = "about_us_page"
-    case feedbackPage = "feedback_page"
     case sportsRecordDetail = "sports_record_detail"
     case multiscoreRecordDetail = "multiscore_record_detail"
     case timerRecordDetail = "timer_record_detail"
@@ -605,12 +606,14 @@ extension SportsSetupResult {
 extension AnalyticsScreen {
     static func scoreboard(for gameType: GameType, setup: SportsSetupResult?) -> AnalyticsScreen {
         switch gameType {
-        case .football: return .footballScoreboard
+        case .football, .football5v5: return .footballScoreboard
         case .basketball: return setup?.basketballMode == "three_x_three" ? .threeBasketballScoreboard : .basketballScoreboard
         case .threeBasketball: return .threeBasketballScoreboard
         case .badminton: return setup?.isSingles == false ? .badmintonDoublesScoreboard : .badmintonScoreboard
+        case .shuttlecock, .squash: return .badmintonScoreboard
         case .pingpong: return setup?.isSingles == false ? .pingpongDoublesScoreboard : .pingpongScoreboard
         case .tennis: return setup?.isSingles == false ? .tennisDoublesScoreboard : .tennisScoreboard
+        case .softTennis, .padel: return setup?.isSingles == false ? .tennisDoublesScoreboard : .tennisScoreboard
         case .pickleball: return setup?.isSingles == false ? .pickleballDoublesScoreboard : .pickleballScoreboard
         case .volleyball: return .volleyballScoreboard
         case .beachVolleyball: return .beachVolleyballScoreboard

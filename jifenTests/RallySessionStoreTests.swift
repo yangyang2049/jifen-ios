@@ -24,9 +24,9 @@ final class RallySessionStoreTests: XCTestCase {
 
         XCTAssertEqual(store.state.doubles?.playerNames, ["Red A", "Blue A", "Red B", "Blue B"])
         XCTAssertEqual(store.state.doubles?.serverSlotIndex, 0)
-        XCTAssertEqual(store.state.doubles?.receiverSlotIndex, 3)
+        XCTAssertEqual(store.state.doubles?.receiverSlotIndex, 1)
         XCTAssertEqual(store.state.doubles?.serverName, "Red A")
-        XCTAssertEqual(store.state.doubles?.receiverName, "Blue B")
+        XCTAssertEqual(store.state.doubles?.receiverName, "Blue A")
         guard case .pingPong(let rotation) = store.state.doubles?.rotation else {
             return XCTFail("Expected ping-pong doubles rotation")
         }
@@ -264,7 +264,8 @@ final class RallySessionStoreTests: XCTestCase {
             rules: .foosball(maxSets: 5),
             participants: participants,
             openingServer: .right,
-            voiceAnnouncementEnabled: true
+            voiceAnnouncementEnabled: true,
+            showMatchTimeEnabled: true
         )
         let freshRally = rally.makeFreshMatchStore()
         XCTAssertNotEqual(freshRally.sessionId, rally.sessionId)
@@ -272,6 +273,7 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(freshRally.state.doubles?.playerNames, rally.state.doubles?.playerNames)
         XCTAssertEqual(freshRally.state.openingServerSide, .right)
         XCTAssertTrue(freshRally.voiceAnnouncementEnabled)
+        XCTAssertTrue(freshRally.showMatchTimeEnabled)
 
         let tennisState = TennisMatchState(
             leftName: "Red A/Red B",
@@ -304,6 +306,59 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(freshBasketball.state.rightName, "Away")
         XCTAssertEqual(freshBasketball.state.gameMode, .threeXThree)
         XCTAssertEqual(freshBasketball.state.ruleSet, .nba)
+    }
+
+    func testRallyAndTennisPresentationMetadataSurvivesLiveResume() async throws {
+        let rally = RallySessionStore(
+            leftName: "A",
+            rightName: "B",
+            gameType: .pingpong,
+            rules: .pingPong(),
+            voiceAnnouncementEnabled: true,
+            showMatchTimeEnabled: true
+        )
+        let tennis = TennisSessionStore(
+            leftName: "A",
+            rightName: "B",
+            voiceAnnouncementEnabled: true
+        )
+        defer {
+            Task {
+                try? await ResumeSessionRepository().remove(sessionId: rally.sessionId)
+                try? await ResumeSessionRepository().remove(sessionId: tennis.sessionId)
+            }
+        }
+
+        let rallySaved = expectation(description: "rally presentation metadata saved")
+        rally.persistSnapshot { success in
+            XCTAssertTrue(success)
+            rallySaved.fulfill()
+        }
+        let tennisSaved = expectation(description: "tennis presentation metadata saved")
+        tennis.persistSnapshot { success in
+            XCTAssertTrue(success)
+            tennisSaved.fulfill()
+        }
+        await fulfillment(of: [rallySaved, tennisSaved], timeout: 2)
+
+        let restoredRally = try XCTUnwrap(RallySessionStore(restoring: rally.sessionId))
+        XCTAssertTrue(restoredRally.voiceAnnouncementEnabled)
+        XCTAssertTrue(restoredRally.showMatchTimeEnabled)
+        let restoredTennis = try XCTUnwrap(TennisSessionStore(restoring: tennis.sessionId))
+        XCTAssertTrue(restoredTennis.voiceAnnouncementEnabled)
+
+        restoredRally.setVoiceAnnouncementEnabled(false)
+        restoredRally.setShowMatchTimeEnabled(false)
+        restoredTennis.setVoiceAnnouncementEnabled(false)
+        let rallyFlushed = expectation(description: "rally presentation metadata updated")
+        restoredRally.flush { rallyFlushed.fulfill() }
+        let tennisFlushed = expectation(description: "tennis presentation metadata updated")
+        restoredTennis.flush { tennisFlushed.fulfill() }
+        await fulfillment(of: [rallyFlushed, tennisFlushed], timeout: 2)
+
+        XCTAssertFalse(try XCTUnwrap(RallySessionStore(restoring: rally.sessionId)).voiceAnnouncementEnabled)
+        XCTAssertFalse(try XCTUnwrap(RallySessionStore(restoring: rally.sessionId)).showMatchTimeEnabled)
+        XCTAssertFalse(try XCTUnwrap(TennisSessionStore(restoring: tennis.sessionId)).voiceAnnouncementEnabled)
     }
 
     func testThreeXThreeRapidScoringStopsAtTargetAndFinalSaveIsReusable() async {
@@ -391,6 +446,340 @@ final class RallySessionStoreTests: XCTestCase {
             finalSave.fulfill()
         }
         await fulfillment(of: [finalSave], timeout: 2)
+    }
+
+    func testBasketballUndoRestoresPersistedRecordCheckpointWithoutGhostPeriod() async throws {
+        let repository = ResumeSessionRepository()
+        let store = BasketballSessionStore(
+            leftName: "Home",
+            rightName: "Away",
+            gameMode: .fiveVFive
+        )
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            Task { try? await repository.remove(sessionId: store.sessionId) }
+        }
+
+        store.send(.addPoints(side: .left, points: 2))
+        store.send(.enterOvertime)
+        let initiallySaved = expectation(description: "basketball undo checkpoints persisted")
+        store.flush { initiallySaved.fulfill() }
+        await fulfillment(of: [initiallySaved], timeout: 2)
+
+        XCTAssertEqual(store.actionTimeline.map(\.type), [.scoreChanged, .periodFinished])
+        let savedBundle = try await repository.loadResumeBundle(
+            sessionId: store.sessionId,
+            as: ScoreSessionResumeBundle<
+                BasketballMatchState,
+                BasketballMatchEvent,
+                BasketballMatchIntent
+            >.self
+        )
+        let savedContext = try XCTUnwrap(ScoreSessionRecordContext.decode(savedBundle?.auxiliaryPayload))
+        XCTAssertEqual(savedContext.undoCheckpoints.count, 2)
+
+        let restored = try XCTUnwrap(BasketballSessionStore(restoring: store.sessionId))
+        XCTAssertTrue(restored.state.isOvertime)
+        let undone = expectation(description: "restored basketball period undone")
+        restored.undo { success in
+            XCTAssertTrue(success)
+            undone.fulfill()
+        }
+        await fulfillment(of: [undone], timeout: 2)
+
+        XCTAssertFalse(restored.state.isOvertime)
+        XCTAssertEqual(restored.state.leftScore, 2)
+        XCTAssertEqual(restored.actionTimeline.map(\.type), [.scoreChanged])
+
+        restored.send(.finish)
+        let finished = expectation(description: "basketball record committed after undo")
+        restored.flush { finished.fulfill() }
+        await fulfillment(of: [finished], timeout: 2)
+
+        let record = try XCTUnwrap(
+            ScoreboardRecordManager.shared.getRecordById(store.sessionId.uuidString)
+        )
+        let recordedActions = try XCTUnwrap(record.detailedActions)
+        XCTAssertEqual(recordedActions.map(\.type), [.scoreChanged, .matchFinished])
+        XCTAssertFalse(recordedActions.contains(where: { $0.type == .periodFinished }))
+        XCTAssertTrue(
+            record.setResults?.isEmpty == true,
+            "An undone overtime/period must not survive in set results"
+        )
+    }
+
+    func testRallyUndoRestoresTerminalPointRecordGroupAtomicallyAcrossResume() async throws {
+        let repository = ResumeSessionRepository()
+        var state = RallyMatchEngine.initial(
+            leftName: "A",
+            rightName: "B",
+            rules: .pingPong(maxSets: 3)
+        )
+        state.leftPoints = 10
+        state.rightPoints = 4
+        let store = RallySessionStore(gameType: .pingpong, state: state)
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            Task { try? await repository.remove(sessionId: store.sessionId) }
+        }
+
+        let scored = expectation(description: "rally terminal point recorded")
+        store.send(.pointWon(.left)) { _ in scored.fulfill() }
+        await fulfillment(of: [scored], timeout: 2)
+        let saved = expectation(description: "rally record checkpoint saved")
+        store.flush { saved.fulfill() }
+        await fulfillment(of: [saved], timeout: 2)
+
+        XCTAssertEqual(store.state.leftSets, 1)
+        XCTAssertTrue(store.actionTimeline.contains { $0.operationCode == "point" })
+        XCTAssertTrue(store.actionTimeline.contains { $0.operationCode == "set_completed" })
+        XCTAssertEqual(store.completedSetScores, [.init(leftGames: 11, rightGames: 4)])
+
+        let restored = try XCTUnwrap(RallySessionStore(restoring: store.sessionId))
+        let undone = expectation(description: "restored rally terminal group undone")
+        restored.undo { success in
+            XCTAssertTrue(success)
+            undone.fulfill()
+        }
+        await fulfillment(of: [undone], timeout: 2)
+
+        XCTAssertEqual(restored.state.leftPoints, 10)
+        XCTAssertEqual(restored.state.rightPoints, 4)
+        XCTAssertEqual(restored.state.leftSets, 0)
+        XCTAssertTrue(restored.actionTimeline.isEmpty)
+        XCTAssertTrue(restored.completedSetScores.isEmpty)
+    }
+
+    func testTennisUndoRestoresPointGameAndSetRecordGroupAtomicallyAcrossResume() async throws {
+        let repository = ResumeSessionRepository()
+        var state = TennisMatchState(
+            leftName: "A",
+            rightName: "B",
+            rules: .init(maxSets: 3, gamesPerSet: 6, autoChangeSides: false)
+        )
+        state.leftPoints = 3
+        state.rightPoints = 0
+        state.leftGames = 5
+        state.rightGames = 4
+        let store = TennisSessionStore(gameType: .tennis, state: state)
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            Task { try? await repository.remove(sessionId: store.sessionId) }
+        }
+
+        let scored = expectation(description: "tennis terminal point recorded")
+        store.send(.pointWon(.left)) { _ in scored.fulfill() }
+        await fulfillment(of: [scored], timeout: 2)
+        let saved = expectation(description: "tennis record checkpoint saved")
+        store.flush { saved.fulfill() }
+        await fulfillment(of: [saved], timeout: 2)
+
+        XCTAssertEqual(
+            store.actionTimeline.map(\.operationCode),
+            ["point", "game_completed", "set_completed"]
+        )
+        XCTAssertEqual(store.completedSetScores, [.init(leftGames: 6, rightGames: 4)])
+
+        let restored = try XCTUnwrap(TennisSessionStore(restoring: store.sessionId))
+        let undone = expectation(description: "restored tennis terminal group undone")
+        restored.undo { success in
+            XCTAssertTrue(success)
+            undone.fulfill()
+        }
+        await fulfillment(of: [undone], timeout: 2)
+
+        XCTAssertEqual(restored.state.leftPoints, 3)
+        XCTAssertEqual(restored.state.rightPoints, 0)
+        XCTAssertEqual(restored.state.leftGames, 5)
+        XCTAssertEqual(restored.state.rightGames, 4)
+        XCTAssertEqual(restored.state.leftSets, 0)
+        XCTAssertTrue(restored.actionTimeline.isEmpty)
+        XCTAssertTrue(restored.completedSetScores.isEmpty)
+    }
+
+    func testRallyUndoRemovesOnlyTheLatestTableTennisAdministrativeRecord() async {
+        let repository = ResumeSessionRepository()
+        let store = RallySessionStore(
+            leftName: "A",
+            rightName: "B",
+            gameType: .pingpong,
+            rules: .pingPong()
+        )
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            Task { try? await repository.remove(sessionId: store.sessionId) }
+        }
+
+        let point = expectation(description: "point recorded before card")
+        store.send(.pointWon(.left)) { _ in point.fulfill() }
+        await fulfillment(of: [point], timeout: 2)
+        let card = expectation(description: "red card recorded")
+        store.send(.pingPongAdministrativeAction(type: .redCard, side: .right)) { _ in card.fulfill() }
+        await fulfillment(of: [card], timeout: 2)
+
+        XCTAssertEqual(store.actionTimeline.map(\.operationCode), ["point", "red_card"])
+        XCTAssertTrue(store.state.pingPongAdministrativeStatus(for: .right).hasYellowCard)
+        let undone = expectation(description: "red card undone")
+        store.undo { success in
+            XCTAssertTrue(success)
+            undone.fulfill()
+        }
+        await fulfillment(of: [undone], timeout: 2)
+
+        XCTAssertEqual(store.state.leftPoints, 1)
+        XCTAssertEqual(store.state.pingPongAdministrativeStatus(for: .right).redCardCount, 0)
+        XCTAssertEqual(store.actionTimeline.map(\.operationCode), ["point"])
+    }
+
+    func testLegacyPickleballResumeWithoutSportProfileUsesAndroid31SinglesRules() async throws {
+        typealias Bundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>
+        let repository = ResumeSessionRepository()
+        var rules = RallyRuleSet.pickleball(maxSets: 3)
+        rules.useRallyScoring = true
+        rules.nextSetServerModel = .opening
+        let state = RallyMatchEngine.initial(
+            leftName: "A",
+            rightName: "B",
+            rules: rules,
+            openingServer: .left
+        )
+        let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
+            gameType: .pickleball,
+            ruleFamily: .s1,
+            reducerType: "rally/v1",
+            state: state
+        )
+        let bundle = Bundle(
+            replaySeed: session,
+            currentSession: session,
+            undoFrames: [],
+            timeline: []
+        )
+        defer { Task { try? await repository.remove(sessionId: session.sessionId) } }
+
+        func removingSportProfile(from object: Any) -> Any {
+            if var dictionary = object as? [String: Any] {
+                dictionary.removeValue(forKey: "sportProfile")
+                return dictionary.mapValues { removingSportProfile(from: $0) }
+            }
+            if let array = object as? [Any] {
+                return array.map { removingSportProfile(from: $0) }
+            }
+            return object
+        }
+
+        let encoded = try JSONEncoder().encode(bundle)
+        let json = try JSONSerialization.jsonObject(with: encoded)
+        let legacyData = try JSONSerialization.data(
+            withJSONObject: removingSportProfile(from: json)
+        )
+        let legacyBundle = try JSONDecoder().decode(Bundle.self, from: legacyData)
+        XCTAssertEqual(legacyBundle.currentSession.state.rules.sportProfile, .generic)
+        try await repository.saveResumeBundle(legacyBundle)
+
+        let restored = try XCTUnwrap(RallySessionStore(restoring: session.sessionId))
+        XCTAssertEqual(restored.state.rules.sportProfile, .pickleball)
+        XCTAssertEqual(restored.state.rules.nextSetServerModel, .opening)
+        let scored = expectation(description: "migrated pickleball alternates prior server")
+        restored.send(.pointWon(.left)) { _ in scored.fulfill() }
+        await fulfillment(of: [scored], timeout: 2)
+        XCTAssertEqual(restored.state.servingSide, .right)
+    }
+
+    func testLegacyPingPongDoublesResumeMigratesReceiverSlotsThroughNextSet() async throws {
+        typealias Bundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>
+        let repository = ResumeSessionRepository()
+        var state = RallyMatchEngine.initial(
+            leftName: "Red",
+            rightName: "Blue",
+            rules: .pingPong(maxSets: 3),
+            doubles: .pingPong(
+                playerNames: ["Red A", "Blue A", "Red B", "Blue B"],
+                openingServerSlotIndex: 0,
+                openingReceiverSlotIndex: 3
+            )
+        )
+        state = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 1).state
+        state = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 2).state
+        XCTAssertEqual(state.doubles?.serverSlotIndex, 3)
+        XCTAssertEqual(state.doubles?.receiverSlotIndex, 2)
+        let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
+            gameType: .pingpongDoubles,
+            ruleFamily: .s1,
+            reducerType: "rally/v1",
+            state: state,
+            participants: participants
+        )
+        let bundle = Bundle(
+            replaySeed: session,
+            currentSession: session,
+            undoFrames: [],
+            timeline: []
+        )
+        defer { Task { try? await repository.remove(sessionId: session.sessionId) } }
+        try await repository.saveResumeBundle(bundle)
+
+        let restored = try XCTUnwrap(RallySessionStore(restoring: session.sessionId))
+        XCTAssertEqual(restored.state.doubles?.serverSlotIndex, 1)
+        XCTAssertEqual(restored.state.doubles?.receiverSlotIndex, 2)
+        XCTAssertEqual(restored.state.currentSetReplay?.baselineDoubles?.receiverSlotIndex, 1)
+
+        for _ in 0..<9 {
+            restored.send(.pointWon(.left))
+        }
+        let completed = expectation(description: "migrated ping-pong next set ready")
+        restored.flush { completed.fulfill() }
+        await fulfillment(of: [completed], timeout: 3)
+        XCTAssertEqual(restored.state.leftSets, 1)
+        XCTAssertEqual(restored.state.doubles?.serverSlotIndex, 1)
+        XCTAssertEqual(restored.state.doubles?.receiverSlotIndex, 0)
+    }
+
+    func testRallyRapidQueuedSendsDeliverAtomicBeforeAndAfterTransitions() async {
+        let store = RallySessionStore(
+            leftName: "A",
+            rightName: "B",
+            gameType: .pingpong,
+            rules: .pingPong()
+        )
+        var beforeScores: [Int] = []
+        var afterScores: [Int] = []
+        let transitioned = expectation(description: "two serialized rally transitions")
+        transitioned.expectedFulfillmentCount = 2
+
+        for _ in 0..<2 {
+            store.send(.pointWon(.left), onTransition: { before, after, events in
+                XCTAssertTrue(events.contains { if case .pointScored = $0 { return true }; return false })
+                beforeScores.append(before.leftPoints)
+                afterScores.append(after.leftPoints)
+                transitioned.fulfill()
+            })
+        }
+
+        await fulfillment(of: [transitioned], timeout: 3)
+        XCTAssertEqual(beforeScores, [0, 1])
+        XCTAssertEqual(afterScores, [1, 2])
+    }
+
+    func testTennisRapidQueuedSendsDeliverAtomicBeforeAndAfterTransitions() async {
+        let store = TennisSessionStore(leftName: "A", rightName: "B")
+        var beforeScores: [Int] = []
+        var afterScores: [Int] = []
+        let transitioned = expectation(description: "two serialized tennis transitions")
+        transitioned.expectedFulfillmentCount = 2
+
+        for _ in 0..<2 {
+            store.send(.pointWon(.left), onTransition: { before, after, events in
+                XCTAssertTrue(events.contains { if case .pointScored = $0 { return true }; return false })
+                beforeScores.append(before.leftPoints)
+                afterScores.append(after.leftPoints)
+                transitioned.fulfill()
+            })
+        }
+
+        await fulfillment(of: [transitioned], timeout: 3)
+        XCTAssertEqual(beforeScores, [0, 1])
+        XCTAssertEqual(afterScores, [1, 2])
     }
 
     func testRallyRapidTerminalScoringReusesFinishedPersistence() async {

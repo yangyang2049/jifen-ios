@@ -8,6 +8,80 @@ import XCTest
 
 @MainActor
 final class ScoreboardRecordV4Tests: XCTestCase {
+    func testFootballLegacySyntheticSetScoreNeverReplacesRealGoalScore() {
+        let record = ScoreboardRecord(
+            id: "football-2-0",
+            gameType: .football,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "主队",
+            team2Name: "客队",
+            team1FinalScore: 2,
+            team2FinalScore: 0,
+            team1SetScore: 1,
+            team2SetScore: 1,
+            totalScoreChanges: 2
+        )
+
+        XCTAssertFalse(record.shouldDisplaySecondaryScore)
+        XCTAssertEqual(record.primaryScore.left, 2)
+        XCTAssertEqual(record.primaryScore.right, 0)
+        XCTAssertFalse(record.primaryScore.usesSetScore)
+    }
+
+    func testArcheryOpeningShooterRestoresForAnotherMatch() {
+        let record = makeConfigurationRecord(
+            gameType: .archery,
+            configuration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.archeryDual.rawValue),
+                "servingSide": AnyCodable(MatchSide.right.rawValue)
+            ]
+        )
+
+        XCTAssertEqual(ScoreboardRecordConfiguration.setup(from: record).servingSide, MatchSide.right.rawValue)
+    }
+
+    func testSnookerMatchTitleRestoresAndOverridesParticipantTitle() {
+        let record = makeConfigurationRecord(
+            gameType: .snooker,
+            configuration: ["matchTitle": AnyCodable("  城市大师赛   决赛  ")]
+        )
+
+        XCTAssertEqual(record.configuredMatchTitle, "城市大师赛 决赛")
+        XCTAssertEqual(record.displayMatchTitle, "城市大师赛 决赛")
+        XCTAssertEqual(
+            ScoreboardRecordConfiguration.setup(from: record).matchTitle,
+            "城市大师赛 决赛"
+        )
+    }
+
+    func testMatchTitleIsIgnoredForNonSnookerRecords() {
+        let record = makeConfigurationRecord(
+            gameType: .billiards,
+            configuration: ["matchTitle": AnyCodable("不应显示")]
+        )
+
+        XCTAssertNil(record.configuredMatchTitle)
+        XCTAssertEqual(record.displayMatchTitle, "红队 vs 蓝队")
+    }
+
+    func testRecordNoteTrimsAndTruncatesAtGraphemeBoundaries() {
+        let emoji = String(repeating: "👨‍👩‍👧‍👦", count: 100)
+        let normalized = ScoreboardRecordNote.normalize("  \(emoji)  ")
+
+        XCTAssertNotNil(normalized)
+        XCTAssertLessThanOrEqual(normalized?.unicodeScalars.count ?? 0, 300)
+        XCTAssertTrue(normalized?.last == "👨‍👩‍👧‍👦" || normalized?.last == nil)
+    }
+
+    func testLegacyRecordDecodesWithoutNoteAndNewRecordRoundTripsNote() throws {
+        var record = makeRecord()
+        XCTAssertNil(record.note)
+        record.note = "赛后复盘 👋"
+
+        let decoded = try decoder().decode(ScoreboardRecord.self, from: encode(record))
+        XCTAssertEqual(decoded.note, "赛后复盘 👋")
+    }
+
     func testV3RecordDecodesWithoutV4Fields() throws {
         let old = makeRecord(schemaVersion: 3, actions: ["left +1"])
         var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encode(old)) as? [String: Any])
@@ -42,6 +116,97 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(decoded.schemaVersion, 4)
         XCTAssertEqual(decoded.detailedActions, [action])
         XCTAssertEqual(decoded.setResults, [result])
+    }
+
+    func testDoudizhuRecordDetailShowsThreeSignedScoresRolesAndWinnerChanges() {
+        let record = ScoreboardRecord(
+            id: "doudizhu-detail",
+            gameType: .doudizhu,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "甲",
+            team2Name: "乙",
+            team1FinalScore: 8,
+            team2FinalScore: -4,
+            totalScoreChanges: 1,
+            extraData: [
+                "players": AnyCodable([
+                    ["name": "甲", "finalScore": 8] as [String: Any],
+                    ["name": "乙", "finalScore": -4] as [String: Any],
+                    ["name": "丙", "finalScore": -4] as [String: Any]
+                ])
+            ]
+        )
+        let action = DetailedScoreAction(
+            type: .roundFinished,
+            scores: [8, -4, -4],
+            roundNumber: 1,
+            scoreChange: 8,
+            winner: .team1,
+            landlord: .team1,
+            winners: [.team1],
+            losers: [.team2, .team3],
+            farmers: [.team2, .team3],
+            participants: [
+                .init(id: "player_1", name: "甲", score: 8, role: "landlord"),
+                .init(id: "player_2", name: "乙", score: -4, role: "farmer"),
+                .init(id: "player_3", name: "丙", score: -4, role: "farmer")
+            ],
+            operationCode: "doudizhu_round_landlord_1_farmers_2_3"
+        )
+
+        XCTAssertEqual(DoudizhuRecordDetailPolicy.scoreLine(for: action), "+8 / -4 / -4")
+        XCTAssertEqual(DoudizhuRecordDetailPolicy.scoreLine(scores: [0, 2, -2]), "0 / +2 / -2")
+        XCTAssertEqual(DoudizhuRecordDetailPolicy.winnerNames(for: action, record: record), ["甲"])
+        let details = DoudizhuRecordDetailPolicy.scoreDetails(for: action, record: record)
+        XCTAssertEqual(details.map(\.team), [.team1, .team2, .team3])
+        XCTAssertEqual(details.map(\.playerName), ["甲", "乙", "丙"])
+        XCTAssertEqual(details.map(\.role), [.landlord, .farmer, .farmer])
+        XCTAssertEqual(details.map(\.scoreChange), [8, -4, -4])
+        XCTAssertEqual(details.map(\.isWinner), [true, false, false])
+    }
+
+    func testDoudizhuRecordDetailProjectsTwoFarmerWinnersAndLandlordLoss() {
+        let record = ScoreboardRecord(
+            id: "doudizhu-farmers",
+            gameType: .doudizhu,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "甲",
+            team2Name: "乙",
+            team1FinalScore: -6,
+            team2FinalScore: 3,
+            totalScoreChanges: 1,
+            extraData: [
+                "players": AnyCodable([
+                    ["name": "甲", "finalScore": -6] as [String: Any],
+                    ["name": "乙", "finalScore": 3] as [String: Any],
+                    ["name": "丙", "finalScore": 3] as [String: Any]
+                ])
+            ]
+        )
+        let action = DetailedScoreAction(
+            type: .roundFinished,
+            scores: [-6, 3, 3],
+            roundNumber: 1,
+            scoreChange: 3,
+            loser: .team1,
+            landlord: .team1,
+            winners: [.team2, .team3],
+            losers: [.team1],
+            farmers: [.team2, .team3],
+            participants: [
+                .init(id: "player_1", name: "甲", score: -6, role: "landlord"),
+                .init(id: "player_2", name: "乙", score: 3, role: "farmer"),
+                .init(id: "player_3", name: "丙", score: 3, role: "farmer")
+            ],
+            operationCode: "doudizhu_round_landlord_1_farmers_2_3"
+        )
+
+        XCTAssertEqual(DoudizhuRecordDetailPolicy.winnerNames(for: action, record: record), ["乙", "丙"])
+        let details = DoudizhuRecordDetailPolicy.scoreDetails(for: action, record: record)
+        XCTAssertEqual(details.map(\.team), [.team2, .team3, .team1])
+        XCTAssertEqual(details.map(\.role), [.farmer, .farmer, .landlord])
+        XCTAssertEqual(details.map(\.scoreChange), [3, 3, -6])
+        XCTAssertEqual(details.map(\.isWinner), [true, true, false])
     }
 
     func testUserDefaultsBlobMigratesToIndividualAtomicFilesAndKeepsBackup() throws {
@@ -300,37 +465,99 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         await fulfillment(of: [cleanup], timeout: 2)
     }
 
-    func testAll23ProjectPoliciesMatchDetailMatrix() {
-        let trend: Set<jifen.GameType> = [
-            .pingpong, .badminton, .pickleball, .volleyball, .beachVolleyball,
-            .airVolleyball, .archery, .billiards, .nineBall, .snooker, .foosball,
-            .simpleScore
-        ]
-        let noTrend: Set<jifen.GameType> = [
-            .tennis, .football, .basketball, .threeBasketball, .boxing, .eightBall,
-            .doudizhu, .guandan, .shengji, .uno, .multiScoreboard
-        ]
-        XCTAssertEqual(trend.count + noTrend.count, 23)
-        for game in trend {
+    func testReducerFinishedRecordReplacementOverwritesSnapshotAfterTerminalUndo() async throws {
+        let sessionId = UUID()
+        var storedRecord: ScoreboardRecord? = makeRecord(
+            id: sessionId.uuidString,
+            actions: ["old-finish"],
+            gameType: .snooker
+        )
+        var writeCount = 0
+        let cleanup = expectation(description: "replacement record cleanup scheduled")
+        let coordinator = FinishedSessionCommitCoordinator(
+            recordLookup: { _ in storedRecord },
+            recordWriter: { record in
+                writeCount += 1
+                storedRecord = record
+            },
+            resumeRemover: { _ in cleanup.fulfill() }
+        )
+        var replacementState = SnookerState.initial(striker: .left, maxFrames: 1)
+        replacementState.leftScore = 23
+        replacementState.leftFrames = 1
+        replacementState.finished = true
+
+        let success = ReducerScoreboardRecordPersistence.saveRecord(
+            id: sessionId.uuidString,
+            gameType: .snooker,
+            startedAt: Date(timeIntervalSince1970: 1),
+            leftName: "甲",
+            rightName: "乙",
+            left: replacementState.leftScore,
+            right: replacementState.rightScore,
+            leftSets: replacementState.leftFrames,
+            rightSets: replacementState.rightFrames,
+            actionCount: 2,
+            actions: ["point", "new-finish"],
+            finished: true,
+            snapshot: replacementState,
+            finishedSessionId: sessionId,
+            finishedCommitCoordinator: coordinator,
+            replaceCommittedFinishedRecord: true
+        )
+
+        XCTAssertTrue(success)
+        XCTAssertEqual(writeCount, 1, "The prior formal record must be overwritten exactly once")
+        XCTAssertEqual(storedRecord?.actions, ["point", "new-finish"])
+        XCTAssertEqual(storedRecord?.team1FinalScore, 23)
+        let snapshotData = try XCTUnwrap(storedRecord?.stateSnapshot)
+        XCTAssertEqual(
+            try JSONDecoder().decode(SnookerState.self, from: snapshotData),
+            replacementState
+        )
+        await fulfillment(of: [cleanup], timeout: 2)
+    }
+
+    func testCatalogDrivenRecordPoliciesCover28PublicEntriesAnd33ExactGameTypes() throws {
+        let publicGameTypes = GameCatalog.scoreboardItems.map(\.gameType)
+        XCTAssertEqual(publicGameTypes.count, 28)
+        XCTAssertEqual(Set(publicGameTypes).count, 28)
+
+        let exactGameTypes = ScoreCore.GameType.allCases
+        XCTAssertEqual(exactGameTypes.count, 33)
+        let mappedExactTypes = try exactGameTypes.map { exactType in
+            try XCTUnwrap(jifen.GameType(scoreCoreGameType: exactType), "Missing public catalog mapping for \(exactType)")
+        }
+        XCTAssertEqual(Set(mappedExactTypes), Set(publicGameTypes))
+
+        for game in publicGameTypes {
             let policy = ScoreboardRecordProjectPolicy.policy(for: game)
-            XCTAssertTrue(policy.trendAllowed, "\(game)")
-            XCTAssertEqual(policy.detailLayout, .standard, "\(game)")
-            var record = makeRecord(id: "trend-\(game.rawValue)", gameType: game)
+            XCTAssertEqual(
+                policy.detailLayout,
+                game == .multiScoreboard ? .multiScoreTimeline : .standard,
+                "Unexpected detail layout for \(game)"
+            )
+            var record = makeRecord(id: "catalog-\(game.rawValue)", gameType: game)
             record.detailedActions = [
                 .init(type: .scoreChanged, scores: [1, 0], scoreChange: 1)
             ]
-            XCTAssertTrue(ScoreboardRecordPresentation(record: record).canShowTrend, "\(game)")
+            XCTAssertEqual(
+                ScoreboardRecordPresentation(record: record).canShowTrend,
+                policy.trendAllowed,
+                "Trend presentation diverged from catalog policy for \(game)"
+            )
         }
-        for game in noTrend where game != .multiScoreboard {
-            let policy = ScoreboardRecordProjectPolicy.policy(for: game)
-            XCTAssertFalse(policy.trendAllowed, "\(game)")
-            XCTAssertEqual(policy.detailLayout, .standard, "\(game)")
-            var record = makeRecord(id: "no-trend-\(game.rawValue)", gameType: game)
-            record.detailedActions = [
-                .init(type: .scoreChanged, scores: [1, 0], scoreChange: 1)
-            ]
-            XCTAssertFalse(ScoreboardRecordPresentation(record: record).canShowTrend, "\(game)")
+
+        for exactType in exactGameTypes {
+            let publicType = try XCTUnwrap(jifen.GameType(scoreCoreGameType: exactType))
+            XCTAssertTrue(publicGameTypes.contains(publicType), "\(exactType) is not reachable from GameCatalog")
+            XCTAssertTrue(
+                RecordsProjectFilter(gameType: publicType, scope: .exact(exactType))
+                    .matches(scoreCoreGameType: exactType),
+                "Exact record filter does not match \(exactType)"
+            )
         }
+
         XCTAssertEqual(
             ScoreboardRecordProjectPolicy.policy(for: .multiScoreboard).detailLayout,
             .multiScoreTimeline
@@ -566,6 +793,225 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             "snapshot|score_adjust|0,2",
             "snapshot|reset|0,0"
         ])
+    }
+
+    func testLineScoreFinishUndoResumeAndRefinishKeepsOneTerminalAction() {
+        let controller = SimpleScoreboardController()
+        let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
+        viewModel.adjustScore(isLeft: true, delta: 2)
+        viewModel.endGame()
+
+        XCTAssertTrue(viewModel.gameFinished)
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertFalse(viewModel.gameFinished)
+
+        let resume = LineScoreResumeState(
+            state: viewModel.sessionState,
+            undoHistory: viewModel.resumeHistory,
+            intentTimeline: controller.getGameActions()
+        )
+        let restoredController = SimpleScoreboardController()
+        restoredController.gameActions = resume.intentTimeline
+        let restored = LineScoreViewModel(controller: restoredController, rules: .freeCounter)
+        restored.restoreSession(resume)
+        restored.endGame()
+
+        let bodies = restoredController.getGameActions().map(actionBody)
+        XCTAssertEqual(bodies.filter { $0.contains("|finish|") }.count, 1)
+        XCTAssertEqual(restored.leftTeam.score, 2)
+        XCTAssertTrue(restored.gameFinished)
+        XCTAssertEqual(restored.persistenceRevision, 1)
+    }
+
+    func testBoxingAndArcheryUndoRollbackTerminalRecordActionsAcrossResume() {
+        let boxingController = BoxingScoreboardController()
+        let boxing = BoxingViewModel(controller: boxingController)
+        boxing.setMaxRounds(1)
+        boxing.addRoundScore(leftPoints: 10, rightPoints: 9)
+        XCTAssertTrue(boxing.gameFinished)
+        XCTAssertTrue(boxing.undo())
+
+        let boxingResume = BoxingResumeState(
+            state: BoxingMatchState(
+                leftName: boxing.leftTeam.name,
+                rightName: boxing.rightTeam.name,
+                maxRounds: boxing.maxRounds,
+                leftTotal: boxing.leftTeam.score,
+                rightTotal: boxing.rightTeam.score,
+                leftRoundsWon: boxing.leftTeam.sets ?? 0,
+                rightRoundsWon: boxing.rightTeam.sets ?? 0,
+                currentRound: boxing.currentRound,
+                sidesSwapped: boxing.sidesSwapped,
+                finished: boxing.gameFinished
+            ),
+            undoHistory: boxing.resumeHistory,
+            intentTimeline: boxingController.getGameActions()
+        )
+        let restoredBoxingController = BoxingScoreboardController()
+        restoredBoxingController.gameActions = boxingResume.intentTimeline
+        let restoredBoxing = BoxingViewModel(controller: restoredBoxingController)
+        restoredBoxing.restoreSession(boxingResume)
+        restoredBoxing.addRoundScore(leftPoints: 10, rightPoints: 8)
+        XCTAssertEqual(
+            restoredBoxingController.getGameActions().map(actionBody).filter { $0.hasPrefix("round ") }.count,
+            1
+        )
+        XCTAssertTrue(restoredBoxing.gameFinished)
+
+        let archeryController = BaseScoreboardController(config: .init(gameType: .archery))
+        let archery = ArcheryViewModel(controller: archeryController)
+        archery.recordArrow(value: 10)
+        archery.endGame()
+        XCTAssertTrue(archery.gameFinished)
+        XCTAssertTrue(archery.undo())
+        XCTAssertFalse(archery.gameFinished)
+        XCTAssertFalse(archery.detailedActions.contains { $0.type == .matchFinished })
+
+        let archeryResume = ArcheryResumeState(
+            state: archery.match,
+            undoHistory: archery.resumeHistory,
+            intentTimeline: archeryController.getGameActions(),
+            detailedActions: archery.detailedActions,
+            recordUndoCheckpoints: archery.recordUndoCheckpoints
+        )
+        let restoredArcheryController = BaseScoreboardController(config: .init(gameType: .archery))
+        restoredArcheryController.gameActions = archeryResume.intentTimeline
+        let restoredArchery = ArcheryViewModel(controller: restoredArcheryController)
+        restoredArchery.restoreSession(archeryResume)
+        restoredArchery.endGame()
+        XCTAssertEqual(
+            restoredArchery.detailedActions.filter { $0.type == .matchFinished }.count,
+            1
+        )
+    }
+
+    func testReducerAdaptersOwnTemplateMenuSnapshotsWithoutLegacyDuplicates() {
+        let lineController = SimpleScoreboardController()
+        let line = LineScoreViewModel(controller: lineController, rules: .freeCounter)
+        XCTAssertTrue(line.recordsExchangeActionInternally)
+        XCTAssertTrue(line.recordsResetActionInternally)
+        XCTAssertTrue(line.recordsUndoActionInternally)
+        line.exchangeSides()
+        line.reset()
+        XCTAssertEqual(lineController.getGameActions().map(actionBody), [
+            "snapshot|exchange_side|0,0",
+            "snapshot|reset|0,0"
+        ])
+
+        let boxingController = BoxingScoreboardController()
+        let boxing = BoxingViewModel(controller: boxingController)
+        boxing.exchangeSides()
+        boxing.reset()
+        XCTAssertEqual(boxingController.getGameActions().map(actionBody), [
+            "snapshot|exchange_side|0,0|0,0",
+            "snapshot|reset|0,0|0,0"
+        ])
+
+        let archeryController = BaseScoreboardController(config: .init(gameType: .archery))
+        let archery = ArcheryViewModel(controller: archeryController)
+        archery.exchangeSides()
+        archery.reset()
+        archery.endGame()
+        XCTAssertEqual(archeryController.getGameActions().map(actionBody), [
+            "snapshot|exchange_sides|0,0|0,0",
+            "snapshot|reset|0,0|0,0",
+            "snapshot|finish|0,0|0,0"
+        ])
+        XCTAssertEqual(archery.detailedActions.filter { $0.type == .sideChanged }.count, 1)
+        XCTAssertEqual(archery.detailedActions.filter { $0.type == .reset }.count, 1)
+        XCTAssertEqual(archery.detailedActions.filter { $0.type == .matchFinished }.count, 1)
+    }
+
+    func testLineAndBoxingPersistenceRevisionAdvancesOnlyForAcceptedMutationsAndUndo() {
+        let line = LineScoreViewModel(
+            controller: SimpleScoreboardController(),
+            rules: .freeCounter
+        )
+        XCTAssertEqual(line.persistenceRevision, 0)
+        line.adjustScore(isLeft: true, delta: 0)
+        XCTAssertEqual(line.persistenceRevision, 0)
+        line.adjustScore(isLeft: true, delta: 1)
+        XCTAssertEqual(line.persistenceRevision, 1)
+        XCTAssertTrue(line.undo())
+        XCTAssertEqual(line.persistenceRevision, 2)
+
+        let boxing = BoxingViewModel(controller: BoxingScoreboardController())
+        XCTAssertEqual(boxing.persistenceRevision, 0)
+        boxing.addRoundScore(leftPoints: 10, rightPoints: 9)
+        XCTAssertEqual(boxing.persistenceRevision, 1)
+        XCTAssertTrue(boxing.undo())
+        XCTAssertEqual(boxing.persistenceRevision, 2)
+    }
+
+    func testArcheryAndBoxingNameEditsRoundTripThroughAuthoritativeResumeState() throws {
+        let archeryController = BaseScoreboardController(config: .init(gameType: .archery))
+        let archery = ArcheryViewModel(controller: archeryController)
+        let originalArcheryName = archery.match.leftName
+        archery.startEditName(isLeft: true)
+        archery.updateInput(isLeft: true, value: "  新射手  ")
+        archery.confirmEditName(isLeft: true)
+
+        XCTAssertEqual(archery.match.leftName, "新射手")
+        XCTAssertEqual(archery.leftTeam.name, "新射手")
+        XCTAssertEqual(archery.persistenceRevision, 1)
+        XCTAssertEqual(archery.resumeHistory.count, 1)
+        XCTAssertEqual(archery.recordUndoCheckpoints.count, 1)
+        XCTAssertEqual(archery.detailedActions.last?.operationCode, "archery_edit_names")
+        XCTAssertEqual(
+            archeryController.getGameActions().map(actionBody),
+            ["snapshot|archery_edit_names|0,0|0,0"]
+        )
+
+        let archerySnapshot = ArcheryResumeState(
+            state: archery.match,
+            undoHistory: archery.resumeHistory,
+            intentTimeline: archeryController.getGameActions(),
+            detailedActions: archery.detailedActions,
+            recordUndoCheckpoints: archery.recordUndoCheckpoints
+        )
+        let decodedArchery = try JSONDecoder().decode(
+            ArcheryResumeState.self,
+            from: JSONEncoder().encode(archerySnapshot)
+        )
+        let restoredArcheryController = BaseScoreboardController(config: .init(gameType: .archery))
+        restoredArcheryController.gameActions = decodedArchery.intentTimeline
+        let restoredArchery = ArcheryViewModel(controller: restoredArcheryController)
+        restoredArchery.restoreSession(decodedArchery)
+        XCTAssertEqual(restoredArchery.match.leftName, "新射手")
+        XCTAssertTrue(restoredArchery.undo())
+        XCTAssertEqual(restoredArchery.match.leftName, originalArcheryName)
+
+        let boxingController = BoxingScoreboardController()
+        let boxing = BoxingViewModel(controller: boxingController)
+        let originalBoxingName = boxing.matchState.rightName
+        boxing.startEditName(isLeft: false)
+        boxing.updateInput(isLeft: false, value: "  蓝拳手  ")
+        boxing.confirmEditName(isLeft: false)
+
+        XCTAssertEqual(boxing.matchState.rightName, "蓝拳手")
+        XCTAssertEqual(boxing.rightTeam.name, "蓝拳手")
+        XCTAssertEqual(boxing.persistenceRevision, 1)
+        XCTAssertEqual(
+            boxingController.getGameActions().map(actionBody),
+            ["snapshot|edit_names|0,0|0,0"]
+        )
+
+        let boxingSnapshot = BoxingResumeState(
+            state: boxing.matchState,
+            undoHistory: boxing.resumeHistory,
+            intentTimeline: boxingController.getGameActions()
+        )
+        let decodedBoxing = try JSONDecoder().decode(
+            BoxingResumeState.self,
+            from: JSONEncoder().encode(boxingSnapshot)
+        )
+        let restoredBoxingController = BoxingScoreboardController()
+        restoredBoxingController.gameActions = decodedBoxing.intentTimeline
+        let restoredBoxing = BoxingViewModel(controller: restoredBoxingController)
+        restoredBoxing.restoreSession(decodedBoxing)
+        XCTAssertEqual(restoredBoxing.matchState.rightName, "蓝拳手")
+        XCTAssertTrue(restoredBoxing.undo())
+        XCTAssertEqual(restoredBoxing.matchState.rightName, originalBoxingName)
     }
 
     func testTrendRejectsNegativeAllZeroAndMultiplayerRecords() {
@@ -1112,12 +1558,14 @@ final class ScoreboardRecordV4Tests: XCTestCase {
                 rules: rules,
                 participants: coreType.isDoublesScoreboard ? doublesParticipants : nil,
                 openingServer: .right,
-                voiceAnnouncementEnabled: true
+                voiceAnnouncementEnabled: true,
+                showMatchTimeEnabled: true
             )
             let configuration = ScoreboardRecordConfiguration.rally(
                 gameType: coreType,
                 state: store.state,
-                voiceAnnouncement: true
+                voiceAnnouncement: true,
+                showMatchTime: true
             )
             let record = makeConfigurationRecord(gameType: appType, configuration: configuration)
             let setup = ScoreboardRecordConfiguration.setup(from: record)
@@ -1128,6 +1576,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             XCTAssertEqual(setup.pointsPerSet, rules.pointsToWinSet, coreType.rawValue)
             XCTAssertEqual(setup.servingSide, MatchSide.right.rawValue, coreType.rawValue)
             XCTAssertEqual(setup.voiceAnnouncement, true, coreType.rawValue)
+            XCTAssertEqual(setup.showMatchTime, true, coreType.rawValue)
             if coreType.isDoublesScoreboard {
                 XCTAssertEqual(
                     [setup.team1Player1Name, setup.team2Player1Name, setup.team1Player2Name, setup.team2Player2Name],
@@ -1181,6 +1630,43 @@ final class ScoreboardRecordV4Tests: XCTestCase {
                 )
             }
         }
+    }
+
+    func testTableTennisAdministrativeRecordTitlesMatchAndroid31() {
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
+                operationCode: "yellow_card",
+                teamName: "甲"
+            ),
+            String.localizedStringWithFormat(NSLocalizedString("record_tt_yellow", comment: ""), "甲")
+        )
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
+                operationCode: "tt_red",
+                teamName: "乙"
+            ),
+            String.localizedStringWithFormat(NSLocalizedString("record_tt_red", comment: ""), "乙")
+        )
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
+                operationCode: "timeout",
+                teamName: "甲"
+            ),
+            String.localizedStringWithFormat(NSLocalizedString("record_tt_timeout", comment: ""), "甲")
+        )
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
+                operationCode: "medical_timeout",
+                teamName: "乙"
+            ),
+            String.localizedStringWithFormat(NSLocalizedString("record_tt_medical", comment: ""), "乙")
+        )
+        XCTAssertNil(
+            ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
+                operationCode: "point",
+                teamName: "甲"
+            )
+        )
     }
 
     func testOldRecordModeInferenceSupportsRawSessionAndResumeBundleButLeavesUnknownUnclassified() throws {
@@ -1324,6 +1810,36 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(finished.winner, "left")
     }
 
+    func testClearAllStoredDataRemovesIndexedOrphanAndCorruptArtifacts() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ScoreboardRecordFileStoreClearTests-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try Data("not-json".utf8).write(
+            to: root.appendingPathComponent("orphan.record.json"),
+            options: .atomic
+        )
+        try Data("not-json".utf8).write(
+            to: root.appendingPathComponent("index.json"),
+            options: .atomic
+        )
+        try Data("legacy".utf8).write(
+            to: root.appendingPathComponent("scoreboard-records-v3-backup.json"),
+            options: .atomic
+        )
+
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.clearAllStoredData()
+
+        let remaining = try FileManager.default.contentsOfDirectory(
+            at: root,
+            includingPropertiesForKeys: nil
+        ).map(\.lastPathComponent)
+        XCTAssertEqual(remaining, ["migration-v4-complete"])
+        XCTAssertTrue(store.loadRecords().isEmpty)
+    }
+
     private func makeRecord(
         id: String = "record",
         schemaVersion: Int = 4,
@@ -1375,5 +1891,9 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
+    }
+
+    private func actionBody(_ raw: String) -> String {
+        raw.split(separator: "|", maxSplits: 1).dropFirst().first.map(String.init) ?? raw
     }
 }

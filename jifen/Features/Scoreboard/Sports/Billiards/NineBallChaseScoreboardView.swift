@@ -15,6 +15,24 @@ func nineBallLogicalPlayerIndex(
     return screenIndex == 0 ? 1 : 0
 }
 
+enum NineBallUndoPolicy {
+    static func isAllowed(finished: Bool, gameOverPresented: Bool) -> Bool {
+        !finished && !gameOverPresented
+    }
+
+    @discardableResult
+    static func performIfAllowed(
+        finished: Bool,
+        gameOverPresented: Bool,
+        undo: () -> Bool
+    ) -> Bool {
+        guard isAllowed(finished: finished, gameOverPresented: gameOverPresented) else {
+            return false
+        }
+        return undo()
+    }
+}
+
 struct NineBallChaseScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
@@ -108,8 +126,8 @@ struct NineBallChaseScoreboardView: View {
         var id = UUID().uuidString
         var actions = 0
         var restoredHistory: [NineBallChaseState] = []
-        let restoredActionLog: [String] = []
-        let restoredDetailedActions: [DetailedScoreAction] = []
+        var restoredActionLog: [String] = []
+        var restoredDetailedActions: [DetailedScoreAction] = []
         var showFinished = false
         var resumeBundle: BilliardsSessionStore<NineBallChaseReducer>.ResumeBundle?
 
@@ -122,7 +140,10 @@ struct NineBallChaseScoreboardView: View {
                 .flatMap(Int64.init)
                 .map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? start
             id = bundle.currentSession.metadata.extras["recordID"] ?? initialResumeSessionId
-            actions = bundle.timeline.count
+            let recordContext = ScoreSessionRecordContext.decode(bundle.auxiliaryPayload)
+            restoredActionLog = recordContext?.actionLog ?? []
+            restoredDetailedActions = recordContext?.detailedActions ?? []
+            actions = recordContext?.actionCount ?? bundle.timeline.count
             restoredHistory = bundle.undoFrames.map(\.session.state)
             names = (0..<4).map { initial.resolvedName(at: $0, fallback: names[safe: $0]) }
             showFinished = initial.finished
@@ -352,10 +373,10 @@ struct NineBallChaseScoreboardView: View {
                     }
                 },
                 showEndGame: true,
-                showExchangeSide: state.playerCount == 2,
+                showExchangeSide: false,
                 items: ScoreboardMenuItemBuilder.defaultItems(
                     showEndGame: true,
-                    showExchangeSide: state.playerCount == 2,
+                    showExchangeSide: false,
                     showWhistle: true,
                     showScreenshot: true,
                     showSettleMatch: true,
@@ -388,6 +409,10 @@ struct NineBallChaseScoreboardView: View {
         })
         .simultaneousGesture(DragGesture(minimumDistance: 36).onEnded { value in
             guard !scoringLocked,
+                  NineBallUndoPolicy.isAllowed(
+                    finished: state.finished,
+                    gameOverPresented: showGameOverDialog
+                  ),
                   !showEditPanel,
                   activeChasePlayer == nil,
                   value.translation.width < -60,
@@ -404,7 +429,7 @@ struct NineBallChaseScoreboardView: View {
             onSetupConsumed?()
             typographySession.reload()
             registerSync()
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             if let watchSessionId,
@@ -416,7 +441,7 @@ struct NineBallChaseScoreboardView: View {
             revealImmersiveChrome()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
@@ -833,40 +858,44 @@ struct NineBallChaseScoreboardView: View {
     }
     private func send(_ intent: NineBallChaseIntent) {
         guard !scoringLocked else { return }
-        sessionStore.send(intent) { _, next, events in
-            actionCount += 1
-            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: String(describing: intent), scores: next.playerPoints))
-            for event in events {
-                switch event {
-                case .chaseApplied(let player, let scorePlayer, let kind, let delta):
-                    detailedActions.append(nineBallDetailedAction(
-                        type: kind == .foul ? .foul : .scoreChanged,
-                        team: RecordTeam.allCases.indices.contains(scorePlayer)
-                            ? RecordTeam.allCases[scorePlayer]
-                            : nil,
-                        delta: delta,
-                        code: "nine_ball_\(kind.rawValue)_actor_\(player + 1)_score_\(scorePlayer + 1)"
-                    ))
-                case .sidesExchanged:
-                    detailedActions.append(nineBallDetailedAction(type: .sideChanged, code: "exchange_side"))
-                case .totalsAdjusted:
-                    let type: DetailedScoreActionType
-                    if case .resetScores = intent { type = .reset } else { type = .stateChanged }
-                    detailedActions.append(nineBallDetailedAction(type: type, code: type == .reset ? "reset" : "nine_ball_edit"))
-                    if case .adminCorrect = intent {
-                        playerNames = (0..<4).map { next.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
-                        sessionStore.updateParticipants((0..<next.playerCount).map {
-                            .init(id: "player_\($0 + 1)", name: playerNames[$0], role: "player")
-                        })
+        sessionStore.send(
+            intent,
+            completion: { _, next, events in
+                actionCount += 1
+                actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: String(describing: intent), scores: next.playerPoints))
+                for event in events {
+                    switch event {
+                    case .chaseApplied(let player, let scorePlayer, let kind, let delta):
+                        detailedActions.append(nineBallDetailedAction(
+                            type: kind == .foul ? .foul : .scoreChanged,
+                            team: RecordTeam.allCases.indices.contains(scorePlayer)
+                                ? RecordTeam.allCases[scorePlayer]
+                                : nil,
+                            delta: delta,
+                            code: "nine_ball_\(kind.rawValue)_actor_\(player + 1)_score_\(scorePlayer + 1)"
+                        ))
+                    case .sidesExchanged:
+                        detailedActions.append(nineBallDetailedAction(type: .sideChanged, code: "exchange_side"))
+                    case .totalsAdjusted:
+                        let type: DetailedScoreActionType
+                        if case .resetScores = intent { type = .reset } else { type = .stateChanged }
+                        detailedActions.append(nineBallDetailedAction(type: type, code: type == .reset ? "reset" : "nine_ball_edit"))
+                        if case .adminCorrect = intent {
+                            playerNames = (0..<4).map { next.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
+                            sessionStore.updateParticipants((0..<next.playerCount).map {
+                                .init(id: "player_\($0 + 1)", name: playerNames[$0], role: "player")
+                            })
+                        }
+                    case .matchFinished:
+                        detailedActions.append(nineBallDetailedAction(type: .matchFinished, code: "finish"))
                     }
-                case .matchFinished:
-                    detailedActions.append(nineBallDetailedAction(type: .matchFinished, code: "finish"))
                 }
+                persistRecordContext()
+            },
+            afterFinalized: { _, next, _ in
+                if next.finished { _ = saveRecord() }
             }
-            if next.finished {
-                _ = saveRecord()
-            }
-        }
+        )
     }
     private func markFinished() {
         guard !scoringLocked, !state.finished else { return }
@@ -901,12 +930,17 @@ struct NineBallChaseScoreboardView: View {
     }
     private func undo() -> Bool {
         guard !scoringLocked else { return false }
-        return sessionStore.undo { success, restored in
-            guard success else { return }
-            actionCount = max(0, actionCount - 1)
-            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: "undo", scores: restored.playerPoints))
-            detailedActions.append(nineBallDetailedAction(type: .undo, code: "undo"))
-            showGameOverDialog = restored.finished
+        return NineBallUndoPolicy.performIfAllowed(
+            finished: state.finished,
+            gameOverPresented: showGameOverDialog
+        ) {
+            sessionStore.undo { success, restored in
+                guard success else { return }
+                actionLog = sessionStore.recordContext.actionLog
+                detailedActions = sessionStore.recordContext.detailedActions
+                actionCount = sessionStore.recordContext.actionCount
+                showGameOverDialog = restored.finished
+            }
         }
     }
 
@@ -932,6 +966,14 @@ struct NineBallChaseScoreboardView: View {
             scoreChange: delta,
             participants: participants,
             operationCode: code
+        )
+    }
+
+    private func persistRecordContext() {
+        sessionStore.updateRecordContext(
+            actionLog: actionLog,
+            detailedActions: detailedActions,
+            actionCount: actionCount
         )
     }
     private func showNineBallToast(_ message: String) {
@@ -1043,6 +1085,8 @@ struct NineBallChaseScoreboardView: View {
 
     private func applyAuthoritativeNineBall(_ remote: NineBallChaseState) {
         sessionStore.rebase(to: remote) { applied in
+            actionCount = max(actionCount, detailedActions.count)
+            persistRecordContext()
             if applied.playerNames.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
                 playerNames = (0..<4).map { applied.resolvedName(at: $0, fallback: playerNames[safe: $0]) }
             }
@@ -1132,7 +1176,7 @@ struct NineBallChaseScoreboardView: View {
     private func syncSnapshot() -> LocalScoreboardDisplayState {
         let leftPlayer = state.playerCount == 2 ? logicalPlayer(forScreenIndex: 0) : 0
         let rightPlayer = state.playerCount == 2 ? logicalPlayer(forScreenIndex: 1) : 1
-        return .init(
+        var compact = LocalScoreboardDisplayState(
             gameID: GameType.nineBall.canonicalScoreboardIdentifier,
             title: GameType.nineBall.displayName,
             leftName: playerName(leftPlayer),
@@ -1149,6 +1193,40 @@ struct NineBallChaseScoreboardView: View {
             finished: state.finished,
             revision: 0
         )
+        let displayPlayers = (0..<state.playerCount).map { index in
+            ScoreboardDisplayPlayer(
+                id: "player_\(index)",
+                name: playerName(index),
+                score: state.playerPoints[index],
+                order: index
+            )
+        }
+        compact.externalState = ScoreboardDisplayState.enriched(
+            compact: compact,
+            layoutKind: state.playerCount > 2 ? .multiGrid : .twoSide,
+            players: state.playerCount > 2 ? displayPlayers : nil,
+            sportState: [
+                "chasePlayerCount": .integer(state.playerCount),
+                "multiGridColumns": .integer(state.playerCount > 2 ? state.playerCount : 2)
+            ]
+        )
+        if state.playerCount > 2 {
+            compact.externalState?.teams = displayPlayers.map {
+                ScoreboardDisplayTeam(id: $0.id, name: $0.name, score: $0.score ?? 0, order: $0.order)
+            }
+            if state.finished, let best = state.playerPoints.prefix(state.playerCount).max() {
+                let winners = (0..<state.playerCount).filter { state.playerPoints[$0] == best }
+                compact.externalState?.result = ScoreboardDisplayResult(
+                    ended: true,
+                    winnerID: winners.count == 1 ? "player_\(winners[0])" : "draw"
+                )
+            }
+        }
+        compact.externalState?.appearance = .init(
+            snapshot: appearance,
+            fontCode: typographySession.effectivePreference.font.rawValue
+        )
+        return compact
     }
     @discardableResult
     private func saveRecord() -> Bool {
@@ -1189,7 +1267,8 @@ struct NineBallChaseScoreboardView: View {
                 "nineBallFoul": state.config.foul
             ],
             finishedSessionId: sessionStore.sessionId,
-            finishedCommitCoordinator: sessionStore.finishedCommitCoordinator
+            finishedCommitCoordinator: sessionStore.finishedCommitCoordinator,
+            replaceCommittedFinishedRecord: sessionStore.shouldReplaceCommittedFinishedRecord
         )
         if success, state.finished, actionCount > 0 {
             sessionStore.markFinishedRecordCommitted()

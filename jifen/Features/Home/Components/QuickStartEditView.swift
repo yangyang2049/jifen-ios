@@ -1,17 +1,18 @@
 import SwiftUI
 
 /// 快速开始编辑 — 1:1 对齐鸿蒙 `QuickStartEditDialog`：
-/// 上方两个槽位卡片，下方为当前槽位的选项网格。
+/// 紧凑宽度显示两个槽位，常规宽度显示三个槽位。
 struct QuickStartEditView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
 
     /// 自定义主卡片可选项目（不含秒表，与「新比赛」弹窗一致）
-    private static let editDialogSports: [GameType] = availableSports.filter { $0 != .stopwatch }
+    private static let editDialogSports = QuickStartConfig.selectableGameTypes
 
     private enum Slot: Int, CaseIterable {
         case primary = 1
         case secondary = 2
+        case tertiary = 3
 
         var badge: String { String(rawValue) }
 
@@ -21,6 +22,8 @@ struct QuickStartEditView: View {
                 return NSLocalizedString("home_quick_primary_slot", value: "主卡片", comment: "")
             case .secondary:
                 return NSLocalizedString("home_quick_secondary_slot", value: "副卡片", comment: "")
+            case .tertiary:
+                return NSLocalizedString("home_quick_tertiary_slot", value: "第三卡片", comment: "")
             }
         }
 
@@ -30,6 +33,8 @@ struct QuickStartEditView: View {
                 return NSLocalizedString("home_edit_primary_card", value: "设置主卡片 (大)", comment: "")
             case .secondary:
                 return NSLocalizedString("home_edit_secondary_card", value: "设置副卡片 (小)", comment: "")
+            case .tertiary:
+                return NSLocalizedString("home_edit_tertiary_card", value: "设置第三卡片 (小)", comment: "")
             }
         }
 
@@ -37,16 +42,20 @@ struct QuickStartEditView: View {
             switch self {
             case .primary: return Theme.homePrimaryCardOrange
             case .secondary: return Theme.homeSecondaryCardGreen
+            case .tertiary: return Color(hex: "3B82F6")
             }
         }
     }
 
     var initialPrimary: GameType = .basketball
     var initialSecondary: GameType = .badminton
-    var onSave: ((GameType, GameType) -> Void)?
+    var initialTertiary: GameType = .tennis
+    var showsTertiarySlot: Bool = false
+    var onSave: ((GameType, GameType, GameType?) -> Void)?
 
     @State private var selectedPrimary: GameType
     @State private var selectedSecondary: GameType
+    @State private var selectedTertiary: GameType
     @State private var activeSlot: Slot = .primary
 
     private let optionColumns = Array(
@@ -57,24 +66,44 @@ struct QuickStartEditView: View {
     init(
         initialPrimary: GameType = .basketball,
         initialSecondary: GameType = .badminton,
-        onSave: ((GameType, GameType) -> Void)? = nil
+        initialTertiary: GameType = .tennis,
+        showsTertiarySlot: Bool = false,
+        onSave: ((GameType, GameType, GameType?) -> Void)? = nil
     ) {
         self.initialPrimary = initialPrimary
         self.initialSecondary = initialSecondary
+        self.initialTertiary = initialTertiary
+        self.showsTertiarySlot = showsTertiarySlot
         self.onSave = onSave
         let list = Self.editDialogSports
         let fallbackPrimary = list.first ?? .basketball
         let fallbackSecondary = list.dropFirst().first ?? fallbackPrimary
+        let fallbackTertiary = list.dropFirst(2).first ?? .tennis
         let resolvedPrimary = list.contains(initialPrimary) ? initialPrimary : fallbackPrimary
         let resolvedSecondary = list.contains(initialSecondary) ? initialSecondary : fallbackSecondary
+        let resolvedTertiary = list.contains(initialTertiary) ? initialTertiary : fallbackTertiary
         _selectedPrimary = State(initialValue: resolvedPrimary)
         _selectedSecondary = State(initialValue: resolvedSecondary)
+        _selectedTertiary = State(initialValue: resolvedTertiary)
+    }
+
+    private var visibleSlots: [Slot] {
+        showsTertiarySlot ? Slot.allCases : [.primary, .secondary]
     }
 
     private var activeSport: Binding<GameType> {
         switch activeSlot {
         case .primary: return $selectedPrimary
         case .secondary: return $selectedSecondary
+        case .tertiary: return $selectedTertiary
+        }
+    }
+
+    private func sport(for slot: Slot) -> GameType {
+        switch slot {
+        case .primary: selectedPrimary
+        case .secondary: selectedSecondary
+        case .tertiary: selectedTertiary
         }
     }
 
@@ -83,8 +112,9 @@ struct QuickStartEditView: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 22) {
                     HStack(spacing: 8) {
-                        slotCard(.primary, sport: selectedPrimary)
-                        slotCard(.secondary, sport: selectedSecondary)
+                        ForEach(visibleSlots, id: \.self) { slot in
+                            slotCard(slot, sport: sport(for: slot))
+                        }
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
@@ -136,6 +166,11 @@ struct QuickStartEditView: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.dialogSurfaceBackground)
+        .onChange(of: showsTertiarySlot) { _, isVisible in
+            if !isVisible && activeSlot == .tertiary {
+                activeSlot = .primary
+            }
+        }
     }
 
     private func slotCard(_ slot: Slot, sport: GameType) -> some View {
@@ -186,6 +221,7 @@ struct QuickStartEditView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("quick_start_edit_slot_\(slot.rawValue)")
     }
 
     private func slotCardBackground(isSelected: Bool) -> Color {
@@ -213,7 +249,11 @@ struct QuickStartEditView: View {
             .buttonStyle(.plain)
 
             Button {
-                onSave?(selectedPrimary, selectedSecondary)
+                onSave?(
+                    selectedPrimary,
+                    selectedSecondary,
+                    showsTertiarySlot ? selectedTertiary : nil
+                )
                 dismiss()
             } label: {
                 Text(NSLocalizedString("home_complete_and_save", value: "保存", comment: ""))

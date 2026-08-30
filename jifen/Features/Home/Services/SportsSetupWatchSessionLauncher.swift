@@ -40,7 +40,7 @@ enum SportsSetupWatchSessionLauncher {
             configured.winByTwo = config.winByTwo ?? true
             configured.autoChangeSides = config.autoChangeSides ?? true
             configured.useRallyScoring = config.useRallyScoring ?? false
-            configured.nextSetServerModel = .alternateFromOpening
+            configured.nextSetServerModel = config.isSingles == false ? .alternateFromOpening : .opening
             rules = configured
         case .tennis:
             let tennisType: ScoreCore.GameType = config.isSingles == false ? .tennisDoubles : .tennis
@@ -181,7 +181,7 @@ enum SportsSetupWatchSessionLauncher {
             return .pingPong(
                 playerNames: names,
                 openingServerSlotIndex: openingServer == .left ? 0 : 1,
-                openingReceiverSlotIndex: openingServer == .left ? 3 : 2
+                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)

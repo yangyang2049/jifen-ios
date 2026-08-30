@@ -7,6 +7,21 @@
 
 import SwiftUI
 
+enum AACalculationPolicy {
+    static let participantRange = 2...20
+
+    static func amountPerPerson(totalText: String, participants: Int) -> Double? {
+        guard participantRange.contains(participants),
+              let total = Double(totalText),
+              total.isFinite,
+              total > 0 else {
+            return nil
+        }
+        let value = total / Double(participants)
+        return value.isFinite ? value : nil
+    }
+}
+
 struct AACalculatorView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) private var colorScheme
@@ -293,12 +308,15 @@ struct AACalculatorView: View {
         // Dismiss keyboard
         isAmountFocused = false
 
-        guard let amount = Double(totalAmount), amount > 0 else {
+        guard let calculatedAmount = AACalculationPolicy.amountPerPerson(
+            totalText: totalAmount,
+            participants: participants
+        ) else {
             showToastMessage(NSLocalizedString("aa_enter_valid_amount", value: "请输入有效金额", comment: ""))
             return
         }
 
-        amountPerPerson = amount / Double(participants)
+        amountPerPerson = calculatedAmount
         showResult = true
         VibrationManager.shared.vibrateLight()
         AppAnalytics.track(.toolResult, parameters: [

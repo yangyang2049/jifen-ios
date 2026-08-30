@@ -14,10 +14,12 @@ final class TennisSessionStore {
     private let core: ScoreSessionCore<TennisMatchReducer>
     private let resumeRepository: ResumeSessionRepository
     private var detailedActions: [DetailedScoreAction]
-    private var completedSetScores: [VoiceSetScore] = []
+    private(set) var completedSetScores: [VoiceSetScore] = []
+    private var recordUndoCheckpoints: [ScoreSessionRecordCheckpoint]
     private var lastAppliedRemoteRevision: UInt64?
     private var lastAppliedRemoteGeneration: UInt64?
     private var operationTask: Task<Void, Never>?
+    private var scoreInputFrozen: Bool
     private var lastPersistenceErrorPresentationAt: Date?
     private var hasPersistedFinishedRecord = false
     private let logger = Logger(subsystem: "com.douhua.jifen.ios", category: "TennisPersistence")
@@ -77,7 +79,10 @@ final class TennisSessionStore {
             reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
             state: state,
             participants: Self.participants(for: state),
-            metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
+            metadata: .init(extras: [
+                "startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000)),
+                "voiceAnnouncementEnabled": String(voiceAnnouncementEnabled)
+            ])
         )
         self.init(
             session: session,
@@ -102,11 +107,18 @@ final class TennisSessionStore {
         )
         self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         state = session.state
-        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
-        self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
+        scoreInputFrozen = session.state.officialBreakState?.isRunning == true
+        let initialDetailedActions = ScoreboardRecordManager.shared
+            .getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+        detailedActions = initialDetailedActions
+        completedSetScores = Self.completedSetScores(from: initialDetailedActions)
+        recordUndoCheckpoints = []
+        self.voiceAnnouncementEnabled = Self.metadataBool(
+            session.metadata.extras["voiceAnnouncementEnabled"]
+        ) ?? voiceAnnouncementEnabled
     }
 
-    private init(resumeBundle: ResumeBundle, voiceAnnouncementEnabled: Bool) {
+    private init(resumeBundle: ResumeBundle) {
         let session = resumeBundle.currentSession
         gameType = session.gameType
         sessionId = session.sessionId
@@ -119,8 +131,18 @@ final class TennisSessionStore {
         )
         resumeRepository = ResumeSessionRepository()
         state = session.state
-        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
-        self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
+        scoreInputFrozen = session.state.officialBreakState?.isRunning == true
+        let recordContext = ScoreSessionRecordContext.decode(resumeBundle.auxiliaryPayload)
+        let restoredDetailedActions = recordContext?.detailedActions
+            ?? ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions
+            ?? []
+        detailedActions = restoredDetailedActions
+        completedSetScores = recordContext?.completedSetScores
+            ?? Self.completedSetScores(from: restoredDetailedActions)
+        recordUndoCheckpoints = recordContext?.undoCheckpoints ?? []
+        self.voiceAnnouncementEnabled = Self.metadataBool(
+            session.metadata.extras["voiceAnnouncementEnabled"]
+        ) ?? false
     }
 
     convenience init?(restoring sessionId: UUID) {
@@ -130,10 +152,9 @@ final class TennisSessionStore {
         ) else {
             return nil
         }
-        let voiceAnnouncementEnabled = false
         if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
            bundle.currentSession.status == .live {
-            self.init(resumeBundle: bundle, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
+            self.init(resumeBundle: bundle)
         } else {
             return nil
         }
@@ -153,22 +174,87 @@ final class TennisSessionStore {
         )
     }
 
-    func send(_ intent: TennisMatchIntent, onEvents: (([TennisMatchEvent]) -> Void)? = nil) {
+    func setVoiceAnnouncementEnabled(_ enabled: Bool) {
+        guard voiceAnnouncementEnabled != enabled else { return }
+        voiceAnnouncementEnabled = enabled
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
             guard let self else { return }
+            var metadata = await core.snapshot().metadata
+            metadata.extras["voiceAnnouncementEnabled"] = String(enabled)
+            _ = await core.updateMetadata(metadata)
+            do {
+                try await self.persist(await core.resumeBundle())
+            } catch {
+                self.reportPersistenceFailure(error)
+            }
+        }
+    }
+
+    private static func metadataBool(_ value: String?) -> Bool? {
+        switch value?.lowercased() {
+        case "true", "1": true
+        case "false", "0": false
+        default: nil
+        }
+    }
+
+    /// Closes the UI-to-actor queue gap when an official break starts. The
+    /// reducer remains the final authority once the break state is committed.
+    func setScoreInputFrozen(_ frozen: Bool) {
+        scoreInputFrozen = frozen
+    }
+
+    func send(_ intent: TennisMatchIntent, onEvents: (([TennisMatchEvent]) -> Void)? = nil) {
+        enqueue(intent) { _, _, events in
+            onEvents?(events)
+        }
+    }
+
+    /// Delivers the reducer transition captured after all earlier store work has
+    /// completed. This is the only reliable before/after source for rapid taps.
+    func send(
+        _ intent: TennisMatchIntent,
+        onTransition: @escaping (TennisMatchState, TennisMatchState, [TennisMatchEvent]) -> Void
+    ) {
+        enqueue(intent, onTransition: onTransition)
+    }
+
+    private func enqueue(
+        _ intent: TennisMatchIntent,
+        onTransition: ((TennisMatchState, TennisMatchState, [TennisMatchEvent]) -> Void)?
+    ) {
+        let previousTask = operationTask
+        operationTask = Task { [weak self, core] in
+            _ = await previousTask?.value
+            guard let self else { return }
+            if self.scoreInputFrozen, Self.isScoreChanging(intent) { return }
             let before = self.state
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now) else { return }
+            let dispatchResult: DispatchResult<TennisMatchState, TennisMatchEvent>
+            let recordsUndo: Bool
+            if case .setOfficialBreakState = intent {
+                recordsUndo = false
+                dispatchResult = await core.dispatchNonUndoable(actorId: "phone", intent: intent, at: now)
+            } else {
+                recordsUndo = true
+                dispatchResult = await core.dispatch(actorId: "phone", intent: intent, at: now)
+            }
+            guard case .accepted(let session, let events) = dispatchResult else { return }
+            if recordsUndo {
+                self.recordUndoCheckpoints.append(self.makeRecordUndoCheckpoint())
+            }
             self.state = session.state
             if session.status == .live {
                 self.hasPersistedFinishedRecord = false
             }
-            onEvents?(events)
+            self.append(events: events, at: now, state: session.state)
+            self.updateCompletedSetScores(for: events)
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
+            onTransition?(before, session.state, events)
             await self.synchronizeParticipants(for: session.state)
             let bundle = await core.resumeBundle()
-            self.append(events: events, at: now, state: session.state)
             do {
                 try await self.persist(bundle)
             } catch {
@@ -178,10 +264,20 @@ final class TennisSessionStore {
         }
     }
 
+    private static func isScoreChanging(_ intent: TennisMatchIntent) -> Bool {
+        switch intent {
+        case .pointWon, .adjustPoints, .adjustGames, .adjustSets:
+            true
+        default:
+            false
+        }
+    }
+
     func undo(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
+            let undoneIntentEpochMilliseconds = await core.intentTimeline().last?.epochMilliseconds
             guard await core.undo(actorId: "phone"), let self else {
                 completion?(false)
                 return
@@ -192,17 +288,10 @@ final class TennisSessionStore {
                 self.hasPersistedFinishedRecord = false
             }
             await self.synchronizeParticipants(for: session.state)
+            self.restoreRecordUndoCheckpoint(fallbackEpochMilliseconds: undoneIntentEpochMilliseconds)
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             completion?(true)
             let bundle = await core.resumeBundle()
-            self.detailedActions.append(.init(
-                type: .undo,
-                epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
-                scores: [session.state.leftPoints, session.state.rightPoints],
-                setScores: session.state.rules.setScoringMode == .tiebreakOnly
-                    ? []
-                    : [session.state.leftSets, session.state.rightSets],
-                operationCode: "undo"
-            ))
             do {
                 try await self.persist(bundle)
             } catch {
@@ -243,7 +332,10 @@ final class TennisSessionStore {
             hasPersistedFinishedRecord = false
         }
         mergeRemoteActions(incoming)
+        completedSetScores = Self.completedSetScores(from: detailedActions)
+        recordUndoCheckpoints.removeAll(keepingCapacity: true)
         await synchronizeParticipants(for: session.state)
+        await core.setResumeAuxiliaryPayload(recordContext.encoded)
         let bundle = await core.resumeBundle()
         do {
             try await persist(bundle, persistFormalRecord: persistFormalRecord)
@@ -264,6 +356,7 @@ final class TennisSessionStore {
         let previousTask = operationTask
         operationTask = Task { [core] in
             _ = await previousTask?.value
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             let bundle = await core.resumeBundle()
             do {
                 try await self.persist(bundle)
@@ -310,16 +403,6 @@ final class TennisSessionStore {
     ) {
         guard voiceAnnouncementEnabled else { return }
 
-        // Append completed set first (Android / Harmony order), then flip history on exchange.
-        for event in events {
-            if case let .setCompleted(_, _, leftGames, rightGames, _, _) = event {
-                completedSetScores.append(VoiceSetScore(leftGames: leftGames, rightGames: rightGames))
-            }
-        }
-        if events.contains(where: { if case .matchReset = $0 { return true }; return false }) {
-            completedSetScores = []
-        }
-
         let payloads = TennisVoiceAnnouncementMapper.payloads(
             gameType: gameType,
             before: before,
@@ -329,6 +412,65 @@ final class TennisSessionStore {
             completedSetScores: completedSetScores
         )
         ScoreVoiceAnnouncer.shared.speak(payloads)
+    }
+
+    private var recordContext: ScoreSessionRecordContext {
+        ScoreSessionRecordContext(
+            detailedActions: detailedActions,
+            actionCount: detailedActions.count,
+            completedSetScores: completedSetScores,
+            undoCheckpoints: recordUndoCheckpoints
+        )
+    }
+
+    private func makeRecordUndoCheckpoint() -> ScoreSessionRecordCheckpoint {
+        ScoreSessionRecordCheckpoint(
+            actionLogCount: 0,
+            detailedActionsCount: detailedActions.count,
+            actionCount: detailedActions.count,
+            completedSetScoresCount: completedSetScores.count
+        )
+    }
+
+    private func restoreRecordUndoCheckpoint(fallbackEpochMilliseconds: Int64?) {
+        if let checkpoint = recordUndoCheckpoints.popLast() {
+            detailedActions = Array(detailedActions.prefix(max(0, checkpoint.detailedActionsCount)))
+            completedSetScores = Array(completedSetScores.prefix(max(0, checkpoint.completedSetScoresCount)))
+            return
+        }
+
+        if let fallbackEpochMilliseconds {
+            while detailedActions.last?.epochMilliseconds == fallbackEpochMilliseconds {
+                detailedActions.removeLast()
+            }
+        }
+        completedSetScores = Self.completedSetScores(from: detailedActions)
+    }
+
+    private func updateCompletedSetScores(for events: [TennisMatchEvent]) {
+        if events.contains(where: { if case .matchReset = $0 { return true }; return false }) {
+            completedSetScores.removeAll()
+            return
+        }
+        for event in events {
+            if case let .setCompleted(_, _, leftGames, rightGames, _, _) = event {
+                completedSetScores.append(VoiceSetScore(leftGames: leftGames, rightGames: rightGames))
+            }
+        }
+    }
+
+    private func trimCompletedSetScores(toMatch state: TennisMatchState) {
+        let completedCount = max(0, state.leftSets + state.rightSets)
+        if completedSetScores.count > completedCount {
+            completedSetScores.removeLast(completedSetScores.count - completedCount)
+        }
+    }
+
+    private static func completedSetScores(from actions: [DetailedScoreAction]) -> [VoiceSetScore] {
+        actions.compactMap { action in
+            guard action.type == .setFinished, action.scores.count >= 2 else { return nil }
+            return VoiceSetScore(leftGames: action.scores[0], rightGames: action.scores[1])
+        }
     }
 
     private func append(events: [TennisMatchEvent], at milliseconds: Int64, state: TennisMatchState) {

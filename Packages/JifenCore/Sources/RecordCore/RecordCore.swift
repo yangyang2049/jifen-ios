@@ -91,9 +91,17 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
     public let winner: RecordTeam?
     public let loser: RecordTeam?
     public let landlord: RecordTeam?
+    /// Multi-party round outcome metadata. Optional keeps older v4/v5 records
+    /// source-compatible while preserving Android's typed Doudizhu projection.
+    public let winners: [RecordTeam]?
+    public let losers: [RecordTeam]?
+    public let farmers: [RecordTeam]?
     public let participants: [ParticipantScoreSnapshot]
     /// Stable project-specific operation code such as `snooker_foul_4`.
     public let operationCode: String?
+    /// Typed project-specific value associated with `operationCode`, such as
+    /// the configured Guandan rank restored after a triple-A fallback.
+    public let operationPayload: String?
     public let summary: String?
 
     public init(
@@ -111,8 +119,12 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
         winner: RecordTeam? = nil,
         loser: RecordTeam? = nil,
         landlord: RecordTeam? = nil,
+        winners: [RecordTeam]? = nil,
+        losers: [RecordTeam]? = nil,
+        farmers: [RecordTeam]? = nil,
         participants: [ParticipantScoreSnapshot] = [],
         operationCode: String? = nil,
+        operationPayload: String? = nil,
         summary: String? = nil
     ) {
         self.id = id
@@ -129,8 +141,12 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
         self.winner = winner
         self.loser = loser
         self.landlord = landlord
+        self.winners = winners
+        self.losers = losers
+        self.farmers = farmers
         self.participants = participants
         self.operationCode = operationCode
+        self.operationPayload = operationPayload
         self.summary = summary
     }
 }

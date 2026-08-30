@@ -25,7 +25,9 @@ enum LegalDocuments {
 }
 
 enum LegalConsent {
-    private static let acceptedVersionKey = "legal_documents_accepted_version"
+    /// Exposed inside the app so the local-data reset can preserve the exact
+    /// legal decision while removing every other app preference.
+    static let acceptedVersionKey = "legal_documents_accepted_version"
 
     static func hasAcceptedCurrentDocuments(defaults: UserDefaults = .standard) -> Bool {
         defaults.string(forKey: acceptedVersionKey) == LegalDocuments.currentVersion

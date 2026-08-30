@@ -30,11 +30,11 @@ enum DefaultParticipantNames {
              .volleyball, .beachVolleyball, .airVolleyball,
              .guandan, .shengji:
             return localizedPair("team_a", "Team A", "team_b", "Team B")
-        case .football:
+        case .football, .football5v5:
             return localizedPair("team_home", "Home", "team_away", "Away")
         case .archery:
             return localizedPair("archer_a", "Archer A", "archer_b", "Archer B")
-        case .pingpong, .badminton, .tennis, .pickleball, .foosball,
+        case .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .foosball,
              .billiards, .eightBall, .snooker:
             return localizedPair("player_a", "Player A", "player_b", "Player B")
         case .boxing, .simpleScore, .counter:
@@ -58,6 +58,17 @@ enum DefaultParticipantNames {
             NSLocalizedString("doubles_red_b", value: "Red B", comment: ""),
             NSLocalizedString("doubles_blue_a", value: "Blue A", comment: ""),
             NSLocalizedString("doubles_blue_b", value: "Blue B", comment: "")
+        ]
+    }
+
+    static var shuttlecockTeamMembers: [String] {
+        [
+            NSLocalizedString("shuttlecock_red_1", value: "红队 1", comment: ""),
+            NSLocalizedString("shuttlecock_red_2", value: "红队 2", comment: ""),
+            NSLocalizedString("shuttlecock_red_3", value: "红队 3", comment: ""),
+            NSLocalizedString("shuttlecock_blue_1", value: "蓝队 1", comment: ""),
+            NSLocalizedString("shuttlecock_blue_2", value: "蓝队 2", comment: ""),
+            NSLocalizedString("shuttlecock_blue_3", value: "蓝队 3", comment: "")
         ]
     }
 
@@ -124,7 +135,7 @@ enum DefaultParticipantNames {
 
     private static func supportsDoublesMembers(_ gameType: GameType) -> Bool {
         switch gameType {
-        case .pingpong, .badminton, .tennis, .pickleball, .foosball:
+        case .pingpong, .badminton, .tennis, .softTennis, .padel, .pickleball, .foosball:
             return true
         default:
             return false

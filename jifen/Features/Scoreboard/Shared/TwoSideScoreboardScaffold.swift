@@ -43,6 +43,9 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     /// Optional step-based editor used by rank/score boards that mirror the
     /// badminton singles edit layout instead of accepting raw score text.
     var onEditAdjust: ((Bool, Int) -> Void)? = nil
+    /// Optional vertical panel gesture. `true` identifies the visible left
+    /// panel and the delta is +1 for up / -1 for down.
+    var onPanelSwipe: ((Bool, Int) -> Void)? = nil
     var extraMenuItems: [ScoreboardMenuItem] = []
     var onMenuAction: ((String) -> Void)? = nil
     /// Optional overlay between the halves (e.g. serve triangle). Drawn above panels.
@@ -106,6 +109,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
                     .accessibilityIdentifier("scoreboard_left_panel")
+                    .simultaneousGesture(panelSwipeGesture(isLeft: true))
 
                     scorePanel(
                         isLeft: false,
@@ -119,6 +123,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
                     .accessibilityIdentifier("scoreboard_right_panel")
+                    .simultaneousGesture(panelSwipeGesture(isLeft: false))
                 }
 
                 if !isEditMode, !finished, let seamOverlay {
@@ -192,13 +197,13 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         .onAppear {
             typographySession.switchStyleID(ScoreboardStyleID(gameType: gameType))
             onTypographyChange?(typographySession.effectivePreference)
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
@@ -533,6 +538,17 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                 .background(Circle().fill(Color.white.opacity(0.08)))
         }
         .buttonStyle(.plain)
+    }
+
+    private func panelSwipeGesture(isLeft: Bool) -> some Gesture {
+        DragGesture(minimumDistance: 50).onEnded { value in
+            guard scoringEnabled,
+                  !isEditMode,
+                  !finished,
+                  abs(value.translation.height) > abs(value.translation.width),
+                  abs(value.translation.height) >= 50 else { return }
+            onPanelSwipe?(isLeft, value.translation.height < 0 ? 1 : -1)
+        }
     }
 
     private func toggleEditMode() {

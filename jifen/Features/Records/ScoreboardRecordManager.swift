@@ -153,15 +153,16 @@ struct FinishedSessionCommitCoordinator {
     /// record skips the writer, avoiding duplicate outbox work and analytics.
     func commitRecord(
         _ record: ScoreboardRecord,
-        sessionId: UUID
+        sessionId: UUID,
+        replaceExisting: Bool = false
     ) throws -> FinishedSessionRecordCommit {
         let alreadyCommitted = recordLookup(record.id)?.status == .finished
-        if !alreadyCommitted {
+        if !alreadyCommitted || replaceExisting {
             try recordWriter(record)
         }
         return FinishedSessionRecordCommit(
             sessionId: sessionId,
-            recordWritten: !alreadyCommitted
+            recordWritten: !alreadyCommitted || replaceExisting
         )
     }
 
@@ -364,8 +365,8 @@ final class ScoreboardRecordFileStore {
         if let legacyData, !legacyData.isEmpty {
             let oldRecords = try decoder.decode([ScoreboardRecord].self, from: legacyData)
             try legacyData.write(to: backupURL, options: .atomic)
-            let finishedRecords = oldRecords.filter { $0.status == .finished }
-            for var record in finishedRecords {
+            let historicalRecords = oldRecords.filter { $0.status.isHistorical }
+            for var record in historicalRecords {
                 record.schemaVersion = ScoreboardRecord.currentSchemaVersion
                 let detailed = record.detailedActions ?? ScoreboardRecordActionAdapter.actions(for: record)
                 record.detailedActions = detailed
@@ -373,7 +374,7 @@ final class ScoreboardRecordFileStore {
                 try writeRecord(record)
             }
             let recoveredIDs = Set(loadRecords().map(\.id))
-            guard recoveredIDs == Set(finishedRecords.map(\.id)) else {
+            guard recoveredIDs == Set(historicalRecords.map(\.id)) else {
                 throw CocoaError(.fileReadCorruptFile)
             }
         }
@@ -394,7 +395,7 @@ final class ScoreboardRecordFileStore {
                 indexNeedsRepair = true
                 continue
             }
-            if record.status == .finished {
+            if record.status.isHistorical {
                 records.append(record)
             } else {
                 try? fileManager.removeItem(at: url)
@@ -408,7 +409,7 @@ final class ScoreboardRecordFileStore {
     }
 
     func save(_ record: ScoreboardRecord) throws {
-        guard record.status == .finished else {
+        guard record.status.isHistorical else {
             throw CocoaError(.fileWriteInapplicableStringEncoding)
         }
         try ensureDirectory()
@@ -442,6 +443,18 @@ final class ScoreboardRecordFileStore {
         try? writeIndex(for: loadRecords().filter { candidate in
             !records.contains(where: { $0.id == candidate.id })
         })
+    }
+
+    /// Removes the complete record store, including files that are corrupt or
+    /// absent from the index, then recreates only the migration marker. A
+    /// record-by-record delete cannot guarantee a complete local-data reset
+    /// because unreadable files are deliberately skipped by `loadRecords()`.
+    func clearAllStoredData() throws {
+        if fileManager.fileExists(atPath: rootURL.path) {
+            try fileManager.removeItem(at: rootURL)
+        }
+        try ensureDirectory()
+        try Data("v4".utf8).write(to: migrationMarkerURL, options: .atomic)
     }
 
     func discardDraftFiles() {
@@ -491,7 +504,7 @@ final class ScoreboardRecordFileStore {
             .compactMap { url -> ScoreboardRecord? in
                 guard let data = try? Data(contentsOf: url) else { return nil }
                 guard let record = try? decoder.decode(ScoreboardRecord.self, from: data),
-                      record.status == .finished else {
+                      record.status.isHistorical else {
                     try? fileManager.removeItem(at: url)
                     return nil
                 }
@@ -554,7 +567,7 @@ final class ScoreboardRecordManager {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
-        guard input.status == .finished else {
+        guard input.status.isHistorical else {
             throw CocoaError(.fileWriteUnsupportedScheme)
         }
 
@@ -566,6 +579,7 @@ final class ScoreboardRecordManager {
         if record.winner == nil {
             record.winner = record.winnerIdentity?.legacyToken
         }
+        record.note = ScoreboardRecordNote.normalize(record.note)
         if record.detailedActions == nil {
             record.detailedActions = ScoreboardRecordActionAdapter.actions(for: record)
         }
@@ -588,7 +602,6 @@ final class ScoreboardRecordManager {
         if records.count > maxRecords {
             store.removeRecords(Array(records.dropFirst(maxRecords)))
         }
-        RecordSyncOutbox.shared.enqueueUpsert(record)
         AppAnalytics.scoreboardRecordSaved(record, previous: previousRecord)
         if cleanupResumeAfterWrite,
            let sessionId = ManualResumeSessionStore.sessionID(for: record.id) {
@@ -599,15 +612,29 @@ final class ScoreboardRecordManager {
         notifyRecordsChanged()
     }
 
+    /// Updates only the local annotation while preserving the complete
+    /// finished record. The atomic record write means a failed update leaves
+    /// the previous note (and every other field) untouched.
+    func updateRecordNote(id: String, note: String?) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        migrateIfNeeded()
+        guard var record = store.loadRecords().first(where: { $0.id == id }) else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        record.note = ScoreboardRecordNote.normalize(note)
+        try saveScoreboardRecord(record, cleanupResumeAfterWrite: false)
+    }
+
     func loadAllRecords() -> [ScoreboardRecord] {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
-        return store.loadRecords().filter { $0.status == .finished }
+        return store.loadRecords().filter { $0.status.isHistorical }
     }
 
     func getAllRecordSummaries() -> [ScoreboardRecordSummary] {
-        loadAllRecords().filter { $0.status == .finished }.map { ScoreboardRecordSummary(from: $0) }
+        loadAllRecords().filter { $0.status.isHistorical }.map { ScoreboardRecordSummary(from: $0) }
     }
 
     func getRecordById(_ id: String) -> ScoreboardRecord? {
@@ -619,7 +646,6 @@ final class ScoreboardRecordManager {
         defer { lock.unlock() }
         migrateIfNeeded()
         guard store.delete(id: id) else { return false }
-        RecordSyncOutbox.shared.enqueueDelete(recordID: id)
         AppAnalytics.track(.deleteRecords, parameters: [
             .recordType: .string("scoreboard"),
             .result: .string(AnalyticsResult.success.rawValue)
@@ -628,20 +654,28 @@ final class ScoreboardRecordManager {
         return true
     }
 
-    func clearAllRecords() {
+    @discardableResult
+    func clearAllRecords() -> Bool {
         lock.lock()
         defer { lock.unlock() }
         let records = store.loadRecords()
-        records.forEach { RecordSyncOutbox.shared.enqueueDelete(recordID: $0.id) }
-        store.removeRecords(records)
+        // Remove the legacy aggregate before rebuilding the empty v4 store so
+        // a later migration cannot restore records the user just cleared.
+        defaults.removeObject(forKey: recordsKey)
+        do {
+            try store.clearAllStoredData()
+        } catch {
+            return false
+        }
         if !records.isEmpty {
             AppAnalytics.track(.deleteRecords, parameters: [
                 .recordType: .string("scoreboard"),
                 .actionName: .string("clear_all"),
                 .result: .string(AnalyticsResult.success.rawValue)
             ])
-            notifyRecordsChanged()
         }
+        notifyRecordsChanged()
+        return store.loadRecords().isEmpty
     }
 
     private func notifyRecordsChanged() {

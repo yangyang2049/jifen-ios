@@ -15,6 +15,9 @@ class BaseScoreViewModel: ScoreViewModelProtocol {
     var rightTeam: TeamData = TeamData(name: NSLocalizedString("blue_team", comment: "Blue Team"), score: 0)
     var gameFinished: Bool = false
     var sidesSwapped: Bool = false
+    var recordsUndoActionInternally: Bool { false }
+    var recordsExchangeActionInternally: Bool { false }
+    var recordsResetActionInternally: Bool { false }
     
     // MARK: - Edit State
     

@@ -185,7 +185,135 @@ final class CardResumeAndWinnerIdentityTests: XCTestCase {
         XCTAssertEqual(decoded, snapshot)
         XCTAssertEqual(decoded.detailedActions.first?.type, .roundFinished)
         XCTAssertEqual(decoded.detailedActions.first?.roundNumber, 2)
-        XCTAssertEqual(decoded.detailedActions.first?.operationCode, "guandan_round_finished")
+        XCTAssertEqual(decoded.detailedActions.first?.operationCode, "guandan_upgrade")
+        XCTAssertEqual(decoded.detailedActions.first?.scoreChange, 3)
+    }
+
+    func testGuandanDetailedSettlementRecordsActualCapDeltaAndPassAOutcome() throws {
+        var cappedBefore = GuandanMatchState(
+            phase: .playing,
+            redTeam: .init(name: "红队", currentRank: "K"),
+            blueTeam: .init(name: "蓝队", currentRank: "2")
+        )
+        cappedBefore.lastRoundWinner = .blue
+        let cappedAfter = try XCTUnwrap(guandanRoundStateAfterTap(
+            state: cappedBefore,
+            winner: .red,
+            step: 3,
+            at: 1
+        ))
+        let cappedActions = guandanDetailedActions(
+            for: .applyRoundSettlement(step: 3),
+            previousState: cappedBefore,
+            resultingState: cappedAfter,
+            epochMilliseconds: 1,
+            roundNumber: 1
+        )
+        XCTAssertEqual(cappedActions.count, 1)
+        XCTAssertEqual(cappedActions[0].operationCode, "guandan_upgrade")
+        XCTAssertEqual(cappedActions[0].team, .team1)
+        XCTAssertEqual(cappedActions[0].scoreChange, 1)
+        XCTAssertEqual(cappedActions[0].scores, [14, 2])
+
+        var passBefore = GuandanMatchState(
+            phase: .playing,
+            redTeam: .init(name: "红队", currentRank: "A"),
+            blueTeam: .init(name: "蓝队", currentRank: "8"),
+            lastRoundWinner: .red,
+            isInAStage: true,
+            aStageTeam: .red,
+            aStageMode: .tripleA,
+            passACondition: .notLast
+        )
+        passBefore.redAFailCount = 1
+        let passAfter = try XCTUnwrap(guandanRoundStateAfterTap(
+            state: passBefore,
+            winner: .red,
+            step: 2,
+            at: 2
+        ))
+        let passActions = guandanDetailedActions(
+            for: .applyRoundSettlement(step: 2),
+            previousState: passBefore,
+            resultingState: passAfter,
+            epochMilliseconds: 2,
+            roundNumber: 2
+        )
+        XCTAssertEqual(passActions.map(\.operationCode), ["guandan_upgrade", "gd_pass_a_ok"])
+        XCTAssertEqual(passActions.map(\.roundNumber), [2, 2])
+        XCTAssertEqual(passActions[0].scoreChange, 2)
+        XCTAssertEqual(passActions[1].team, .team1)
+        XCTAssertEqual(passAfter.finalWinner, .red)
+    }
+
+    func testGuandanDetailedSettlementRecordsTripleAFailureAndFallbackResult() throws {
+        let before = GuandanMatchState(
+            phase: .playing,
+            redTeam: .init(name: "红队", currentRank: "A"),
+            blueTeam: .init(name: "蓝队", currentRank: "J"),
+            lastRoundWinner: .red,
+            isInAStage: true,
+            aStageTeam: .red,
+            aStageMode: .tripleA,
+            passACondition: .notLast,
+            tripleAFallbackRank: "J",
+            redAFailCount: 2
+        )
+        let after = try XCTUnwrap(guandanRoundStateAfterTap(
+            state: before,
+            winner: .blue,
+            step: 1,
+            at: 3
+        ))
+        let actions = guandanDetailedActions(
+            for: .applyRoundSettlement(step: 1),
+            previousState: before,
+            resultingState: after,
+            epochMilliseconds: 3,
+            roundNumber: 3
+        )
+
+        XCTAssertEqual(
+            actions.map(\.operationCode),
+            ["guandan_upgrade", "gd_pass_a_fail_triple", "gd_triple_a_fallback"]
+        )
+        XCTAssertEqual(actions.map(\.roundNumber), [3, 3, 3])
+        XCTAssertEqual(actions[0].team, .team2)
+        XCTAssertEqual(actions[0].scoreChange, 1)
+        XCTAssertEqual(actions[1].team, .team1)
+        XCTAssertEqual(actions[1].scoreChange, 3)
+        XCTAssertEqual(actions[2].team, .team1)
+        XCTAssertEqual(actions[2].operationPayload, "J")
+        XCTAssertEqual(actions[2].scores, [11, 12])
+        XCTAssertEqual(after.redTeam.currentRank, "J")
+    }
+
+    func testGuandanFirstRoundAndUndoToLegacyNotStartedRemainScoreable() throws {
+        let untouched = GuandanMatchState.initial(redName: "红队", blueName: "蓝队")
+        let presented = guandanPresentationStartedState(untouched, at: 1)
+        XCTAssertEqual(presented.phase, .playing)
+        XCTAssertEqual(presented.redTeam.currentRank, "2")
+
+        let firstRound = try XCTUnwrap(guandanRoundStateAfterTap(
+            state: untouched,
+            winner: .red,
+            step: 1,
+            at: 2
+        ))
+        XCTAssertEqual(firstRound.phase, .playing)
+        XCTAssertEqual(firstRound.redTeam.currentRank, "3")
+        XCTAssertEqual(firstRound.lastRoundWinner, .red)
+
+        // A legacy undo frame can still be notStarted. A second tap must start
+        // and settle again instead of being accepted as a reducer no-op.
+        let afterUndoAndRetap = try XCTUnwrap(guandanRoundStateAfterTap(
+            state: untouched,
+            winner: .blue,
+            step: 2,
+            at: 3
+        ))
+        XCTAssertEqual(afterUndoAndRetap.blueTeam.currentRank, "4")
+        XCTAssertEqual(afterUndoAndRetap.lastRoundWinner, .blue)
     }
 
     func testSharedReducerSnapshotDecodesWrappedAndLegacyRawState() throws {

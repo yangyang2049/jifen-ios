@@ -1,6 +1,7 @@
 import XCTest
 import LinkCore
 import ScoreCore
+import SwiftUI
 import UIKit
 @testable import jifen
 
@@ -281,6 +282,111 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         XCTAssertEqual(manager.quickStartConfig, persisted)
         XCTAssertEqual(manager.configurationReadCount, 1)
+    }
+
+    func testLegacyTwoSlotQuickStartConfigurationDefaultsTertiaryToTennis() throws {
+        let data = Data(#"{"primarySport":"tennis","secondarySport":"boxing"}"#.utf8)
+
+        let decoded = try JSONDecoder().decode(QuickStartConfig.self, from: data)
+
+        XCTAssertEqual(decoded.primarySport, .tennis)
+        XCTAssertEqual(decoded.secondarySport, .boxing)
+        XCTAssertEqual(decoded.tertiarySport, .tennis)
+    }
+
+    func testQuickStartNormalizesLegacyPingPongIdentifiersToTableTennis() throws {
+        let legacy = Data(
+            #"{"primarySport":"pingpong","secondarySport":"table_tennis"}"#.utf8
+        )
+
+        let decoded = try JSONDecoder().decode(QuickStartConfig.self, from: legacy)
+        XCTAssertEqual(decoded.primarySport, .pingpong)
+        XCTAssertEqual(decoded.secondarySport, .pingpong)
+        XCTAssertEqual(decoded.tertiarySport, .tennis)
+
+        let encoded = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(decoded)) as? [String: String]
+        )
+        XCTAssertEqual(encoded["primarySport"], "table_tennis")
+        XCTAssertEqual(encoded["secondarySport"], "table_tennis")
+    }
+
+    func testQuickStartDefaultsMatchAndroidAndHarmony() {
+        for config in [
+            QuickStartConfig.defaultPhoneConfig,
+            .defaultTabletConfig,
+            .default2In1Config
+        ] {
+            XCTAssertEqual(config.primarySport, .basketball)
+            XCTAssertEqual(config.secondarySport, .badminton)
+            XCTAssertEqual(config.tertiarySport, .tennis)
+        }
+    }
+
+    func testQuickStartSelectableGamesComeFromCatalogAndExcludeStopwatch() {
+        XCTAssertEqual(
+            QuickStartConfig.selectableGameTypes,
+            GameCatalog.quickStartSelectableGameTypes.filter { $0 != .stopwatch }
+        )
+        XCTAssertFalse(QuickStartConfig.selectableGameTypes.contains(.stopwatch))
+    }
+
+    func testQuickStartLayoutUsesTwoSlotsForCompactAndThreeForRegularWidth() {
+        XCTAssertFalse(
+            QuickStartLayoutPolicy.showsTertiarySlot(horizontalSizeClass: .compact, isPad: true)
+        )
+        XCTAssertTrue(
+            QuickStartLayoutPolicy.showsTertiarySlot(horizontalSizeClass: .regular, isPad: false)
+        )
+        XCTAssertTrue(
+            QuickStartLayoutPolicy.showsTertiarySlot(horizontalSizeClass: nil, isPad: true)
+        )
+        XCTAssertFalse(
+            QuickStartLayoutPolicy.showsTertiarySlot(horizontalSizeClass: nil, isPad: false)
+        )
+    }
+
+    func testPhoneCanStartExactlyTheTwelveSupportedWatchScoreboards() {
+        let supported = Set(
+            ScoreCore.GameType.allCases.filter(PhoneWatchLinkService.phoneInteractiveStartSupported)
+        )
+        let expected: Set<ScoreCore.GameType> = [
+            .pingpong, .pingpongDoubles,
+            .badminton, .badmintonDoubles,
+            .tennis, .tennisDoubles,
+            .pickleball, .pickleballDoubles,
+            .archeryDual, .eightBall, .nineBall, .snooker
+        ]
+
+        XCTAssertEqual(supported.count, 12)
+        XCTAssertEqual(supported, expected)
+    }
+
+    func testCompactQuickStartSavePreservesTertiaryAndRegularSaveUpdatesIt() async throws {
+        let suiteName = "QuickStartConfigManagerTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let key = "quick-start-three-slot-test"
+        let initial = QuickStartConfig(
+            primarySport: .basketball,
+            secondarySport: .badminton,
+            tertiarySport: .tennis
+        )
+        defaults.set(try JSONEncoder().encode(initial), forKey: key)
+        let manager = QuickStartConfigManager(userDefaults: defaults, configKey: key)
+
+        try await manager.setSports(primary: .football, secondary: .chess, tertiary: nil)
+        XCTAssertEqual(manager.quickStartConfig.primarySport, .football)
+        XCTAssertEqual(manager.quickStartConfig.secondarySport, .chess)
+        XCTAssertEqual(manager.quickStartConfig.tertiarySport, .tennis)
+
+        try await manager.setSports(primary: .football, secondary: .chess, tertiary: .boxing)
+        XCTAssertEqual(manager.quickStartConfig.tertiarySport, .boxing)
+        let storedData = try XCTUnwrap(defaults.data(forKey: key))
+        XCTAssertEqual(
+            try JSONDecoder().decode(QuickStartConfig.self, from: storedData),
+            manager.quickStartConfig
+        )
     }
 
     func testRetrySchedulerStaysIdleWithoutWorkAndStartsForRestoredOutbox() throws {

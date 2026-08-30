@@ -363,6 +363,38 @@ final class PhoneWatchLinkService {
         lastErrorMessage = nil
     }
 
+    /// Removes only phone-side transient linkage state. It deliberately sends
+    /// no leave/delete message to the paired watch, so clearing this device
+    /// never erases independent Watch data.
+    func clearLocalTransientStateForDataReset() {
+        setupTimeoutTask?.cancel()
+        setupTimeoutTask = nil
+        setupContinuation?.resume(throwing: CancellationError())
+        setupContinuation = nil
+        pendingSetupMessageId = nil
+        ackRetryTask?.cancel()
+        ackRetryTask = nil
+        clearSession()
+
+        terminalOutbox = LinkDurableOutbox()
+        pendingSessionEnds.removeAll()
+        pendingSessionEndInFlight.removeAll()
+        ackRetryTask?.cancel()
+        ackRetryTask = nil
+        mergedDetailedActions.removeAll()
+        publishedFinishedMatchIds.removeAll()
+        finishedRecordId = nil
+        lastSyncedWatchRecordId = nil
+        lastErrorMessage = nil
+
+        contextStore.removeObject(forKey: contextKey)
+        contextStore.removeObject(forKey: "phone_link_context_v1")
+        outboxStore.removeObject(forKey: terminalOutboxKey)
+        outboxStore.removeObject(forKey: pendingSessionEndsKey)
+        outboxStore.removeObject(forKey: "phone_link_terminal_outbox_v1")
+        outboxStore.removeObject(forKey: "phone_link_pending_ack_v1")
+    }
+
     func requestForceTakeoverConfirmation(_ sessionId: UUID) {
         guard activeSession?.sessionId == sessionId,
               activeSession?.role == .phoneFollower else {

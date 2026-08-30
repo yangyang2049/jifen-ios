@@ -197,4 +197,51 @@ struct RallyVoiceAnnouncementMapperTests {
         #expect(pickleballPayload.receiverName == sideOut.state.doubles?.receiverName)
         #expect(pickleballPayload.serverNumber == sideOut.state.doubles?.pickleballServerNumber)
     }
+
+    @Test func pickleballDoublesFirstServerLossAnnouncesSecondServerNotSideOut() {
+        var rules = RallyRuleSet.pickleball()
+        rules.useRallyScoring = false
+        let reducer = RallyMatchReducer()
+        let opening = RallyMatchEngine.initial(
+            leftName: "Red",
+            rightName: "Blue",
+            rules: rules,
+            doubles: .pickleball(playerNames: ["A", "B", "C", "D"])
+        )
+        let firstSideOut = reducer.reduce(state: opening, intent: .pointWon(.right), at: 1)
+        #expect(firstSideOut.state.servingSide == .right)
+        #expect(firstSideOut.state.doubles?.pickleballServerNumber == 1)
+
+        let secondServer = reducer.reduce(state: firstSideOut.state, intent: .pointWon(.left), at: 2)
+        let payload = RallyVoiceAnnouncementMapper.payloads(
+            gameType: .pickleballDoubles,
+            before: firstSideOut.state,
+            after: secondServer.state,
+            events: secondServer.events,
+            completedSetScores: []
+        )[0]
+        #expect(payload.secondServer)
+        #expect(!payload.serviceOver)
+        #expect(VoiceAnnouncementMessageBuilder.build(payload, language: .zhCN).hasPrefix("第二发球"))
+        #expect(VoiceAnnouncementMessageBuilder.build(payload, language: .enUS).hasPrefix("Second server"))
+    }
+
+    @Test func squashAndShuttlecockAreNoLongerFilteredFromVoiceMapping() {
+        for (gameType, rules) in [
+            (GameType.squash, RallyRuleSet.squash()),
+            (.shuttlecock, .shuttlecock())
+        ] {
+            let before = RallyMatchEngine.initial(leftName: "Alice", rightName: "Bob", rules: rules)
+            let result = RallyMatchReducer().reduce(state: before, intent: .pointWon(.left), at: 1)
+            let payloads = RallyVoiceAnnouncementMapper.payloads(
+                gameType: gameType,
+                before: before,
+                after: result.state,
+                events: result.events,
+                completedSetScores: []
+            )
+            #expect(payloads.count == 1)
+            #expect(!VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN).isEmpty)
+        }
+    }
 }

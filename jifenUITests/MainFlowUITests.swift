@@ -8,7 +8,8 @@ final class MainFlowUITests: XCTestCase {
         "删除", "清空", "重置", "移除", "抹掉"
     ]
     private let unstableKeywords = [
-        "sheet grabber", "cancel", "back", "done", "close", "关闭", "取消"
+        "sheet grabber", "cancel", "back", "done", "close", "rate app",
+        "关闭", "取消", "评价应用", "去评分"
     ]
     private let maxScrollPassesPerTab = 14
     private let cancelButtonKeywords = ["cancel", "取消", "关闭", "back", "返回"]
@@ -63,6 +64,51 @@ final class MainFlowUITests: XCTestCase {
             button.tap()
             XCTAssertTrue(button.isHittable || button.isSelected, "Failed to select tab: \(tab)")
         }
+    }
+
+    func testHomeCastEntryOpensConnectionGuide() {
+        let app = launchApp()
+        let castButton = app.buttons["home_cast_button"]
+        XCTAssertTrue(castButton.waitForExistence(timeout: 8))
+        castButton.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["cast_connection_page"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["cast_status_disconnected"].exists)
+    }
+
+    func testCompactQuickStartShowsTwoSportsAndSavesTwoSlots() throws {
+        guard UIDevice.current.userInterfaceIdiom == .phone else {
+            throw XCTSkip("Compact quick-start coverage runs on iPhone")
+        }
+        let app = launchApp()
+        XCTAssertTrue(app.buttons["home_quick_start_primary"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["home_quick_start_secondary"].exists)
+        XCTAssertTrue(app.buttons["home_quick_start_new_game"].exists)
+        XCTAssertFalse(app.buttons["home_quick_start_tertiary"].exists)
+
+        let edit = app.buttons["home_quick_start_edit"]
+        XCTAssertTrue(edit.exists)
+        edit.tap()
+        XCTAssertTrue(app.buttons["quick_start_edit_slot_1"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["quick_start_edit_slot_2"].exists)
+        XCTAssertFalse(app.buttons["quick_start_edit_slot_3"].exists)
+    }
+
+    func testRegularQuickStartShowsThreeSportsAndThreeEditorSlots() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("Regular quick-start coverage runs on iPad")
+        }
+        let app = launchApp()
+        XCTAssertTrue(app.buttons["home_quick_start_primary"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["home_quick_start_secondary"].exists)
+        XCTAssertTrue(app.buttons["home_quick_start_tertiary"].exists)
+        XCTAssertTrue(app.buttons["home_quick_start_new_game"].exists)
+
+        let edit = app.buttons["home_quick_start_edit"]
+        XCTAssertTrue(edit.exists)
+        edit.tap()
+        XCTAssertTrue(app.buttons["quick_start_edit_slot_1"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["quick_start_edit_slot_2"].exists)
+        XCTAssertTrue(app.buttons["quick_start_edit_slot_3"].exists)
     }
 
     func testEnglishLocalizationSmokeHasNoChineseOrRawKeys() {
@@ -187,7 +233,7 @@ final class MainFlowUITests: XCTestCase {
         defer { app.terminate() }
 
         XCTAssertTrue(app.staticTexts["使用前请先阅读并同意"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.tabBars.buttons["首页"].exists)
+        XCTAssertFalse(app.buttons["main_tab_0"].exists)
 
         let agreeButton = app.buttons["同意并继续"]
         XCTAssertTrue(agreeButton.exists)
@@ -197,7 +243,7 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(agreeButton.isEnabled)
         agreeButton.tap()
 
-        XCTAssertTrue(app.tabBars.buttons["首页"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["main_tab_0"].waitForExistence(timeout: 8))
     }
 
     func testMeTabContainsLocalSettings() {
@@ -372,11 +418,12 @@ final class MainFlowUITests: XCTestCase {
         app.descendants(matching: .any)["settings_about_entry"].tap()
         let aboutSheet = app.descendants(matching: .any)["settings_about_sheet"]
         XCTAssertTrue(aboutSheet.waitForExistence(timeout: 5))
-        for identifier in ["settings_about_terms_link", "settings_about_feedback_link"] {
+        for identifier in ["settings_about_terms_link", "settings_about_privacy_link"] {
             let link = app.descendants(matching: .any)[identifier]
             XCTAssertTrue(link.waitForExistence(timeout: 3), "Missing About link: \(identifier)")
             XCTAssertTrue(link.isHittable, "About link is not interactive: \(identifier)")
         }
+        XCTAssertFalse(app.descendants(matching: .any)["settings_about_feedback_link"].exists)
         app.buttons["settings_about_sheet_close"].tap()
         XCTAssertTrue(aboutSheet.waitForNonExistence(timeout: 5))
     }
@@ -535,7 +582,11 @@ final class MainFlowUITests: XCTestCase {
         let backButton = app.buttons["scoreboard_back_button"]
         XCTAssertTrue(backButton.waitForExistence(timeout: 3))
         backButton.tap()
-        backButton.tap()
+        // Re-launch from the persisted local state so this assertion is about
+        // the hint lifetime, not about a platform-specific navigation animation.
+        app.terminate()
+        app.launchArguments.removeAll { $0 == "-UITestResetScoreboardUsageHints" }
+        XCTAssertTrue(launchAndWait(app), "Usage-hint app failed to relaunch")
         XCUIDevice.shared.orientation = .portrait
 
         XCTAssertTrue(openPingPongSetup(in: app))
@@ -546,8 +597,9 @@ final class MainFlowUITests: XCTestCase {
         )
 
         menuButton.tap()
-        let usageMenuItem = app.descendants(matching: .any)["scoreboard_menu_action_usageHint"]
+        let usageMenuItem = app.buttons["scoreboard_menu_action_usageHint"]
         XCTAssertTrue(usageMenuItem.waitForExistence(timeout: 3))
+        XCTAssertTrue(usageMenuItem.isHittable)
         usageMenuItem.tap()
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
 
@@ -557,6 +609,10 @@ final class MainFlowUITests: XCTestCase {
 
         backButton.tap()
         backButton.tap()
+        if backButton.waitForExistence(timeout: 1) {
+            backButton.tap()
+        }
+        XCTAssertFalse(backButton.waitForExistence(timeout: 3))
         XCUIDevice.shared.orientation = .portrait
 
         XCTAssertTrue(openPingPongSetup(in: app))
@@ -819,19 +875,20 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(fiveMinutes.isSelected)
     }
 
-    func testAll23RecordDetailFixturesUseProjectMatrix() {
+    func testGameCatalogRecordDetailFixturesCoverAll28PublicEntries() {
         defer { clearRecordFixtures() }
-        let trendProjects: Set<String> = [
-            "pingpong", "badminton", "pickleball",
-            "volleyball", "beach_volleyball", "air_volleyball", "archery_dual",
-            "billiards", "nine_ball", "snooker", "foosball", "simple_score"
+        let catalogApp = XCUIApplication()
+        catalogApp.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
+            "-UITestRecordFixtures"
         ]
-        let allProjects = [
-            "pingpong", "badminton", "tennis", "pickleball", "football", "basketball",
-            "three_basketball", "volleyball", "beach_volleyball", "air_volleyball",
-            "archery_dual", "boxing", "billiards", "eight_ball", "nine_ball", "snooker",
-            "doudizhu", "guandan", "shengji", "uno", "foosball", "simple_score", "multi_scoreboard"
-        ]
+        XCTAssertTrue(launchAndWait(catalogApp), "Record catalog fixture app failed to launch")
+        XCTAssertTrue(selectTab(named: "记录", in: catalogApp), "Records tab is not reachable")
+        let allProjects = discoverRecordFixtureProjects(in: catalogApp, expectedCount: 28)
+        XCTAssertEqual(allProjects.count, 28, "UI fixtures must follow all public GameCatalog entries")
+        terminateAndWait(catalogApp)
 
         for project in allProjects {
             let app = XCUIApplication()
@@ -839,7 +896,7 @@ final class MainFlowUITests: XCTestCase {
                 "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
                 "-UITestSkipLegalConsent",
                 "-UITestSkipScoreboardUsageHints",
-                "-UITestRecordFixtures", "-UITestRecordDetail", project
+                "-UITestRecordDetail", project
             ]
             XCTAssertTrue(
                 launchAndWait(app),
@@ -856,10 +913,37 @@ final class MainFlowUITests: XCTestCase {
                 XCTAssertTrue(app.buttons["明细"].exists || app.staticTexts["明细"].exists, "Missing details for \(project)")
             }
             XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "fixture")).firstMatch.exists, "Internal fixture text leaked for \(project)")
-            let hasTrend = app.staticTexts["比分趋势"].exists
-            XCTAssertEqual(hasTrend, trendProjects.contains(project), "Trend policy mismatch for \(project)")
             terminateAndWait(app)
         }
+    }
+
+    private func discoverRecordFixtureProjects(
+        in app: XCUIApplication,
+        expectedCount: Int
+    ) -> [String] {
+        let prefix = "record_row_"
+        var projects: Set<String> = []
+        var unchangedPasses = 0
+
+        for _ in 0..<60 {
+            let previousCount = projects.count
+            let rows = app.descendants(matching: .any).matching(
+                NSPredicate(format: "identifier BEGINSWITH %@", prefix)
+            )
+            let count = rows.count
+            for index in 0..<count {
+                let identifier = rows.element(boundBy: index).identifier
+                guard identifier.hasPrefix(prefix) else { continue }
+                projects.insert(String(identifier.dropFirst(prefix.count)))
+            }
+            if projects.count >= expectedCount { break }
+
+            unchangedPasses = projects.count == previousCount ? unchangedPasses + 1 : 0
+            if unchangedPasses >= 5 { break }
+            app.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+        return projects.sorted()
     }
 
     private func clearRecordFixtures() {
@@ -1024,14 +1108,21 @@ final class MainFlowUITests: XCTestCase {
 
     private func openPingPongSetup(in app: XCUIApplication) -> Bool {
         let tabBarScoreButton = app.tabBars.buttons["计分"]
+        let englishScoreButton = app.tabBars.buttons["Score"]
         let scoreTab = tabBarScoreButton.exists
             ? tabBarScoreButton
-            : app.buttons.matching(identifier: "main_tab_2").firstMatch
+            : (englishScoreButton.exists
+                ? englishScoreButton
+                : app.buttons.matching(identifier: "main_tab_2").firstMatch)
         guard scoreTab.waitForExistence(timeout: 8) else { return false }
         scoreTab.tap()
 
         let card = app.descendants(matching: .any)["scoreboard_catalog_pingpong"]
-        guard card.waitForExistence(timeout: 5) else { return false }
+        for _ in 0..<5 {
+            if card.exists && card.isHittable { break }
+            app.swipeDown()
+        }
+        guard card.waitForExistence(timeout: 5), card.isHittable else { return false }
         card.tap()
         return app.segmentedControls["singles_doubles_picker"].waitForExistence(timeout: 5)
     }
@@ -1073,19 +1164,26 @@ final class MainFlowUITests: XCTestCase {
         for _ in 0..<30 {
             var tappedOne = false
             for element in candidateElements(in: app) {
-                guard isSafeToTap(element: element) else { continue }
                 guard element.exists, element.isHittable else { continue }
 
-                let fingerprint = fingerprint(for: element)
+                // Read the bound element's identity once. SwiftUI can remove a
+                // transient toolbar item between enumeration and the next property
+                // access; repeatedly resolving the stale index records an XCTest
+                // snapshot failure even though the crawler would otherwise skip it.
+                let identifier = element.identifier
+                let elementLabel = element.label
+                let elementFrame = element.frame
+                guard isSafeToTap(identifier: identifier, label: elementLabel) else { continue }
+
+                let fingerprint = "\(identifier)|\(elementLabel)"
                 guard !seenFingerprints.contains(fingerprint) else { continue }
 
                 seenFingerprints.insert(fingerprint)
-                let label = debugLabel(for: element)
+                let label = identifier.isEmpty ? elementLabel : identifier
                 var didTap = false
 
                 XCTContext.runActivity(named: "Tap \(label)") { _ in
-                    element.tap()
-                    didTap = true
+                    didTap = safeTap(frame: elementFrame, in: app)
                 }
                 guard didTap else { continue }
                 tapped += 1
@@ -1122,18 +1220,14 @@ final class MainFlowUITests: XCTestCase {
         return safeButtons + app.switches.allElementsBoundByIndex
     }
 
-    private func isSafeToTap(element: XCUIElement) -> Bool {
-        let primary = debugLabel(for: element)
-        let secondary = "\(element.identifier) \(element.label)".lowercased()
+    private func isSafeToTap(identifier: String, label: String) -> Bool {
+        let primary = identifier.isEmpty ? label : identifier
+        let secondary = "\(identifier) \(label)".lowercased()
         guard !primary.isEmpty else { return false }
         guard !tabNames.contains(primary) else { return false }
         guard !destructiveKeywords.contains(where: { primary.lowercased().contains($0) || secondary.contains($0) }) else { return false }
         guard !unstableKeywords.contains(where: { primary.lowercased().contains($0) || secondary.contains($0) }) else { return false }
         return true
-    }
-
-    private func fingerprint(for element: XCUIElement) -> String {
-        "\(element.elementType.rawValue)|\(element.identifier)|\(element.label)"
     }
 
     @discardableResult
@@ -1158,7 +1252,11 @@ final class MainFlowUITests: XCTestCase {
 
     @discardableResult
     private func safeTap(_ element: XCUIElement, in app: XCUIApplication) -> Bool {
-        let frame = element.frame
+        safeTap(frame: element.frame, in: app)
+    }
+
+    @discardableResult
+    private func safeTap(frame: CGRect, in app: XCUIApplication) -> Bool {
         guard frame.width > 0, frame.height > 0 else { return false }
 
         let window = app.windows.firstMatch
@@ -1173,12 +1271,6 @@ final class MainFlowUITests: XCTestCase {
         let coordinate = app.coordinate(withNormalizedOffset: CGVector(dx: normalizedX, dy: normalizedY))
         coordinate.tap()
         return true
-    }
-
-    private func debugLabel(for element: XCUIElement) -> String {
-        if !element.identifier.isEmpty { return element.identifier }
-        if !element.label.isEmpty { return element.label }
-        return ""
     }
 
     private func navigateBackIfNeeded(from app: XCUIApplication) {

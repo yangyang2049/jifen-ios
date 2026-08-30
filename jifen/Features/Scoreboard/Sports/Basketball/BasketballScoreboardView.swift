@@ -26,6 +26,7 @@ struct BasketballScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var isEditMode = false
+    @State private var timeoutPlayPulseGeneration = 0
     @State private var editLeftName = ""
     @State private var editRightName = ""
     @State private var editLeftScore = 0
@@ -119,7 +120,14 @@ struct BasketballScoreboardView: View {
                             BasketballCenterPanel(
                                 state: store.state,
                                 typography: typographyPreference,
-                                onToggleClock: { store.send(.setClockRunning(!store.state.gameRunning)) },
+                                timeoutPlayPulseGeneration: timeoutPlayPulseGeneration,
+                                onToggleClock: {
+                                    if store.state.timeoutActiveSide != nil {
+                                        store.send(.endTimeout, recordsUndo: false)
+                                    } else {
+                                        store.send(.setClockRunning(!store.state.gameRunning))
+                                    }
+                                },
                                 onResetGameClock: { store.send(.resetGameClock) },
                                 onResetShotClock: { store.send(.resetShotClock(seconds: $0)) },
                                 onAdvancePeriod: { store.send(.advanceToNextPeriod) },
@@ -214,7 +222,7 @@ struct BasketballScoreboardView: View {
             onSetupConsumed?()
             typographySession.switchStyleID(ScoreboardStyleID(gameType: appGameType))
             store.startClock()
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
@@ -239,8 +247,17 @@ struct BasketballScoreboardView: View {
                 showGameOverDialog = true
             }
         }
+        .onChange(of: store.state.timeoutRemainingSeconds) { previous, remaining in
+            guard store.state.timeoutActiveSide != nil, previous > 0, remaining == 0 else { return }
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+            showToastMessage(NSLocalizedString(
+                "basketball_timeout_timeup",
+                value: "暂停时间到，点中央播放键恢复比赛",
+                comment: "Basketball timeout finished"
+            ))
+        }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
@@ -297,8 +314,8 @@ struct BasketballScoreboardView: View {
                         beginBasketballEdit()
                     }
                 }
-                .disabled(store.state.finished)
-                .opacity(store.state.finished ? 0.45 : 1)
+                .disabled(store.state.finished || store.state.timeoutActiveSide != nil)
+                .opacity(store.state.finished || store.state.timeoutActiveSide != nil ? 0.45 : 1)
                 .padding(.trailing, ScoreboardConstants.buttonPadding)
                 .padding(.top, ScoreboardConstants.buttonPadding)
             }
@@ -364,6 +381,7 @@ struct BasketballScoreboardView: View {
                 panelSize: panelSize
             )
         } else {
+            let logicalSide = logicalSide(forScreen: screenSide)
             BasketballTeamPanel(
                 name: displayName(for: screenSide),
                 score: displayScore(for: screenSide),
@@ -378,16 +396,30 @@ struct BasketballScoreboardView: View {
                 panelSize: panelSize,
                 outerSafeAreaInset: outerSafeAreaInset,
                 points: BasketballMatchEngine.scoringButtons(store.state),
-                onScore: { store.send(.addPoints(side: logicalSide(forScreen: screenSide), points: $0)) },
-                onFoul: { store.send(.addFoul(side: logicalSide(forScreen: screenSide))) },
-                onRemoveFoul: { store.send(.removeFoul(side: logicalSide(forScreen: screenSide))) },
-                onTimeout: { store.send(.useTimeout(side: logicalSide(forScreen: screenSide))) }
+                timeoutActiveSide: store.state.timeoutActiveSide,
+                timeoutRemainingSeconds: store.state.timeoutRemainingSeconds,
+                timeoutDurationSeconds: BasketballMatchEngine.timeoutDurationSeconds(store.state),
+                logicalSide: logicalSide,
+                onScore: { store.send(.addPoints(side: logicalSide, points: $0)) },
+                onFoul: { store.addFoul(logicalSide) },
+                onRemoveFoul: { store.send(.removeFoul(side: logicalSide)) },
+                onTimeout: { store.send(.useTimeout(side: logicalSide)) },
+                onRestoreTimeout: { store.send(.adjustTimeout(side: logicalSide, delta: 1)) },
+                onTimeoutResumeHint: {
+                    timeoutPlayPulseGeneration += 1
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    showToastMessage(NSLocalizedString(
+                        "basketball_timeout_resume_hint",
+                        value: "点中央播放键恢复比赛",
+                        comment: "Basketball timeout resume hint"
+                    ))
+                }
             )
         }
     }
 
     private func beginBasketballEdit() {
-        guard !store.state.finished else { return }
+        guard !store.state.finished, store.state.timeoutActiveSide == nil else { return }
         editLeftName = displayName(for: .left)
         editRightName = displayName(for: .right)
         editLeftScore = displayScore(for: .left)
@@ -535,7 +567,7 @@ struct BasketballScoreboardView: View {
     private func registerScoreboardSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(
             snapshot: {
-                LocalScoreboardDisplayState(
+                var compact = LocalScoreboardDisplayState(
                     gameID: appGameType.canonicalScoreboardIdentifier,
                     title: appGameType.displayName,
                     leftName: displayName(for: .left),
@@ -552,6 +584,40 @@ struct BasketballScoreboardView: View {
                     finished: store.state.finished,
                     revision: 0
                 )
+                let leftSide = logicalSide(forScreen: .left)
+                let rightSide = logicalSide(forScreen: .right)
+                let leftFouls = leftSide == .left ? store.state.leftFouls : store.state.rightFouls
+                let rightFouls = rightSide == .left ? store.state.leftFouls : store.state.rightFouls
+                let leftTimeouts = leftSide == .left ? store.state.leftTimeouts : store.state.rightTimeouts
+                let rightTimeouts = rightSide == .left ? store.state.leftTimeouts : store.state.rightTimeouts
+                let externalPeriodTitle = store.state.isOvertime
+                    ? "OT"
+                    : (store.state.gameMode == .threeXThree ? "3x3" : "Q\(store.state.currentPeriod)")
+                compact.externalState = ScoreboardDisplayState.enriched(
+                    compact: compact,
+                    layoutKind: .twoSide,
+                    sportState: [
+                        "leftFouls": .integer(leftFouls),
+                        "rightFouls": .integer(rightFouls),
+                        "leftTimeouts": .integer(leftTimeouts),
+                        "rightTimeouts": .integer(rightTimeouts),
+                        "period": .string(externalPeriodTitle),
+                        "shotClock": .integer(store.state.shotTimeSeconds),
+                        "shotClockRunning": .boolean(store.state.shotRunning)
+                    ],
+                    clock: ScoreboardDisplayClock(
+                        elapsedMilliseconds: Int64(store.state.gameTimeSeconds * 1_000),
+                        isRunning: store.state.gameRunning,
+                        countsDown: true,
+                        anchorWallClockMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
+                        label: externalPeriodTitle
+                    )
+                )
+                compact.externalState?.appearance = .init(
+                    snapshot: appearance,
+                    fontCode: typographyPreference.font.rawValue
+                )
+                return compact
             },
             handleIntent: { intent in
                 guard LocalScoreboardMutationPolicy.allowsMutation(
@@ -735,10 +801,18 @@ private struct BasketballTeamPanel: View {
     let panelSize: CGSize
     let outerSafeAreaInset: CGFloat
     let points: [Int]
+    let timeoutActiveSide: MatchSide?
+    let timeoutRemainingSeconds: Int
+    let timeoutDurationSeconds: Int
+    let logicalSide: MatchSide
     let onScore: (Int) -> Void
     let onFoul: () -> Void
     let onRemoveFoul: () -> Void
     let onTimeout: () -> Void
+    let onRestoreTimeout: () -> Void
+    let onTimeoutResumeHint: () -> Void
+
+    @State private var timeoutPendingConfirmation = false
 
     private let bonusYellow = Color(hex: "FACC15")
     private let additionalOuterPadding: CGFloat = 8
@@ -780,6 +854,18 @@ private struct BasketballTeamPanel: View {
         if doubleBonusThreshold > 0, fouls >= doubleBonusThreshold { return "DBL" }
         if fouls >= bonusThreshold { return "BONUS" }
         return nil
+    }
+
+    private var timeoutLocked: Bool { timeoutActiveSide != nil }
+    private var isActiveTimeoutSide: Bool { timeoutActiveSide == logicalSide }
+
+    private var timeoutTone: Color {
+        guard isActiveTimeoutSide else { return .white.opacity(timeouts > 0 ? 0.9 : 0.5) }
+        if timeoutRemainingSeconds == 0 { return Color(hex: "EF4444") }
+        if timeoutRemainingSeconds <= Int(Double(timeoutDurationSeconds) * 0.2) {
+            return Color(hex: "F0883E")
+        }
+        return .white.opacity(0.9)
     }
 
     var body: some View {
@@ -834,28 +920,23 @@ private struct BasketballTeamPanel: View {
                 Spacer()
                 HStack {
                     if isLeftSide { Spacer() }
-                    Button(action: onTimeout) {
-                        Text(String.localizedStringWithFormat(
-                            NSLocalizedString("basketball_timeout_remaining", value: "Timeout (%d)", comment: ""),
-                            timeouts
-                        ))
-                            .font(typography.font.swiftUIFont(
-                                size: min(16, max(12, resolvedTypography.secondaryFontSize * 0.3)),
-                                weight: .semibold
-                            ))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Capsule().fill(Color.white.opacity(0.14)))
-                    }
-                    .buttonStyle(.plain)
-                    .padding(isLeftSide ? .trailing : .leading, 12)
-                    .padding(.bottom, 12)
+                    timeoutChip
+                        .padding(isLeftSide ? .trailing : .leading, 12)
+                        .padding(.bottom, 12)
                     if !isLeftSide { Spacer() }
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onChange(of: timeoutActiveSide) { _, _ in
+            timeoutPendingConfirmation = false
+        }
+        .task(id: timeoutPendingConfirmation) {
+            guard timeoutPendingConfirmation else { return }
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            timeoutPendingConfirmation = false
+        }
     }
 
     private var scoreButtons: some View {
@@ -872,6 +953,8 @@ private struct BasketballTeamPanel: View {
                 .buttonStyle(.plain)
             }
         }
+        .disabled(timeoutLocked)
+        .opacity(timeoutLocked ? 0.45 : 1)
     }
 
     private var foulRow: some View {
@@ -914,6 +997,71 @@ private struct BasketballTeamPanel: View {
                         .onEnded { onFoul() }
                 )
         )
+        .allowsHitTesting(!timeoutLocked)
+        .opacity(timeoutLocked ? 0.45 : 1)
+    }
+
+    private var timeoutChip: some View {
+        Group {
+            if isActiveTimeoutSide {
+                HStack(spacing: 6) {
+                    Image(systemName: "pause.fill")
+                        .font(.system(size: 12, weight: .bold))
+                    Text(String(format: "%d:%02d", timeoutRemainingSeconds / 60, timeoutRemainingSeconds % 60))
+                        .font(typography.font.swiftUIFont(size: 19, weight: .bold))
+                        .monospacedDigit()
+                }
+            } else {
+                Text(timeoutPendingConfirmation
+                    ? NSLocalizedString("basketball_timeout_confirm", value: "确认暂停", comment: "Basketball timeout confirmation")
+                    : String.localizedStringWithFormat(
+                        NSLocalizedString("basketball_timeout_remaining", value: "Timeout (%d)", comment: ""),
+                        timeouts
+                    )
+                )
+                .font(typography.font.swiftUIFont(
+                    size: min(16, max(12, resolvedTypography.secondaryFontSize * 0.3)),
+                    weight: .semibold
+                ))
+            }
+        }
+        .foregroundStyle(timeoutTone)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(
+            Capsule().fill(
+                isActiveTimeoutSide || timeoutPendingConfirmation
+                    ? timeoutTone.opacity(0.16)
+                    : Color.white.opacity(0.14)
+            )
+        )
+        .contentShape(Capsule())
+        .accessibilityIdentifier(isLeftSide ? "basketball_timeout_left" : "basketball_timeout_right")
+        .gesture(
+            LongPressGesture(minimumDuration: 0.5)
+                .onEnded { _ in
+                    guard timeoutActiveSide == nil else {
+                        onTimeoutResumeHint()
+                        return
+                    }
+                    timeoutPendingConfirmation = false
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    onRestoreTimeout()
+                }
+                .exclusively(
+                    before: TapGesture().onEnded {
+                        if timeoutActiveSide != nil {
+                            onTimeoutResumeHint()
+                        } else if timeoutPendingConfirmation {
+                            timeoutPendingConfirmation = false
+                            onTimeout()
+                        } else if timeouts > 0 {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            timeoutPendingConfirmation = true
+                        }
+                    }
+                )
+        )
     }
 }
 
@@ -922,6 +1070,7 @@ private struct BasketballCenterPanel: View {
 
     let state: BasketballMatchState
     let typography: ScoreboardTypographyPreference
+    let timeoutPlayPulseGeneration: Int
     let onToggleClock: () -> Void
     let onResetGameClock: () -> Void
     let onResetShotClock: (Int) -> Void
@@ -975,6 +1124,9 @@ private struct BasketballCenterPanel: View {
                 periodPickerOverlay
             }
         }
+        .onChange(of: state.timeoutActiveSide) { _, activeSide in
+            if activeSide != nil { showPeriodPicker = false }
+        }
     }
 
     private func upperZone(typography: ScoreboardTypographyResult) -> some View {
@@ -1003,6 +1155,8 @@ private struct BasketballCenterPanel: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .disabled(state.timeoutActiveSide != nil)
+                .opacity(state.timeoutActiveSide == nil ? 1 : 0.45)
             } else {
                 Text(periodTitle)
                     .font(self.typography.font.swiftUIFont(
@@ -1013,13 +1167,13 @@ private struct BasketballCenterPanel: View {
                     .frame(height: 40)
             }
 
-            Button(action: onResetGameClock) {
-                Text(clockText(state.gameTimeSeconds))
-                    .font(typographyPreferenceFont(size: typography.scoreFontSize))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-            }
-            .buttonStyle(.plain)
+            Text(clockText(state.gameTimeSeconds))
+                .font(typographyPreferenceFont(size: typography.scoreFontSize))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .contentShape(Rectangle())
+                .onLongPressGesture(minimumDuration: 0.5, perform: onResetGameClock)
+                .accessibilityIdentifier("basketball_game_clock")
 
             if state.canAdvancePeriod && !state.isOvertime {
                 periodActionButton(
@@ -1059,6 +1213,7 @@ private struct BasketballCenterPanel: View {
             ))
             .onAppear { updateClockControlPulse() }
             .onChange(of: state.gameRunning) { _, _ in updateClockControlPulse() }
+            .onChange(of: timeoutPlayPulseGeneration) { _, _ in pulseClockControlOnce() }
             .onChange(of: reduceMotion) { _, _ in updateClockControlPulse() }
         }
         .padding(.top, showsPeriodActionButton ? 8 : 18)
@@ -1132,6 +1287,7 @@ private struct BasketballCenterPanel: View {
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .disabled(state.timeoutActiveSide != nil)
                         }
                     }
 
@@ -1153,6 +1309,7 @@ private struct BasketballCenterPanel: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .disabled(state.timeoutActiveSide != nil)
                 }
                 .padding(12)
                 .frame(width: max(0, proxy.size.width - 16))
@@ -1180,6 +1337,8 @@ private struct BasketballCenterPanel: View {
                 .background(RoundedRectangle(cornerRadius: 8).fill(color))
         }
         .buttonStyle(.plain)
+        .disabled(state.timeoutActiveSide != nil)
+        .opacity(state.timeoutActiveSide == nil ? 1 : 0.45)
     }
 
     private var shouldShowEnterOvertime: Bool {
@@ -1224,6 +1383,15 @@ private struct BasketballCenterPanel: View {
         clockControlPulseScale = 1
         withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
             clockControlPulseScale = 1.12
+        }
+    }
+
+    private func pulseClockControlOnce() {
+        withAnimation(.easeOut(duration: 0.12)) {
+            clockControlPulseScale = 1.15
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+            updateClockControlPulse()
         }
     }
 

@@ -108,6 +108,7 @@ struct ScoreboardNameEditorField: View {
 
 struct ScoreboardTemplate: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     @State private var config: TemplateConfig
     @State private var typographySession: ScoreboardTypographySession
     var onBack: (() -> Void)? = nil
@@ -119,6 +120,9 @@ struct ScoreboardTemplate: View {
     ) {
         self._config = State(initialValue: config)
         self._typographySession = State(initialValue: typographySession ?? ScoreboardTypographySession(
+            styleID: ScoreboardStyleID(gameType: config.gameType)
+        ))
+        self._appearance = State(initialValue: ScoreboardAppearanceSnapshot.current(
             styleID: ScoreboardStyleID(gameType: config.gameType)
         ))
         self.onBack = onBack
@@ -150,7 +154,7 @@ struct ScoreboardTemplate: View {
             )
             ZStack {
                 // Background
-                appearance.theme.palette.background.ignoresSafeArea(.all)
+                appearance.palette.background.ignoresSafeArea(.all)
                 
                 // Main content adapts to landscape and portrait.
                 let contentLayout = isLandscape
@@ -169,8 +173,9 @@ struct ScoreboardTemplate: View {
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
                             scoreboardFont: typographyPreference.font,
-                            palette: appearance.theme.palette,
+                            palette: appearance.palette,
                             backgroundColor: panelColor(forScreen: true),
+                            foregroundColor: panelForegroundColor(forScreen: true),
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
                             secondaryMultiplier: secondaryMultiplier,
@@ -237,8 +242,9 @@ struct ScoreboardTemplate: View {
                             isEditMode: isEditMode,
                             editState: baseViewModel.editState,
                             scoreboardFont: typographyPreference.font,
-                            palette: appearance.theme.palette,
+                            palette: appearance.palette,
                             backgroundColor: panelColor(forScreen: false),
+                            foregroundColor: panelForegroundColor(forScreen: false),
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
                             secondaryMultiplier: secondaryMultiplier,
@@ -490,14 +496,14 @@ struct ScoreboardTemplate: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             applyScreenAwakePreference()
             updateImmersiveChromeForBlockingState()
         }
         .onAppear {
             config.onEditModeChange?(isEditMode)
             typographySession.reload()
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             applyScreenAwakePreference()
             revealImmersiveChrome()
@@ -541,11 +547,20 @@ struct ScoreboardTemplate: View {
         case "displaySettings":
             showMenu = false
             showDisplaySettings = true
+
+        case "usageHint":
+            // Handle this at the template level as well as in MenuDialog so
+            // the coordinator is reached through the launch view's
+            // environment even when the menu card itself is dismissed first.
+            showMenu = false
+            usageHintCoordinator?.presentFromMenu()
             
         case ScoreboardMenuActionID.exchangeSide.rawValue:
             if menuConfirm.armOrConfirm(.exchangeSide) {
                 config.viewModel.exchangeSides()
-                config.controller.recordScoreAction(action: "exchangeSide")
+                if !config.viewModel.recordsExchangeActionInternally {
+                    config.controller.recordScoreAction(action: "exchangeSide")
+                }
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             } else {
                 showToastMessage(ScoreboardMenuConfirmAction.exchangeSide.localizedToast)
@@ -554,7 +569,9 @@ struct ScoreboardTemplate: View {
         case "reset":
             if menuConfirm.armOrConfirm(.reset) {
                 config.viewModel.reset()
-                config.controller.recordScoreAction(action: "reset")
+                if !config.viewModel.recordsResetActionInternally {
+                    config.controller.recordScoreAction(action: "reset")
+                }
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 showToastMessage(NSLocalizedString("has_been_reset", comment: ""))
                 showMenu = false
@@ -566,7 +583,9 @@ struct ScoreboardTemplate: View {
             // Undo (keep dialog open)
             let success = config.viewModel.undo()
             if success {
-                config.controller.recordScoreAction(action: "undo")
+                if !config.viewModel.recordsUndoActionInternally {
+                    config.controller.recordScoreAction(action: "undo")
+                }
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 showToastMessage(NSLocalizedString("undone", value: "已撤销", comment: "Undo done"))
             } else {
@@ -656,7 +675,11 @@ struct ScoreboardTemplate: View {
     }
 
     private func panelColor(forScreen isLeft: Bool) -> Color {
-        logicalIsLeft(forScreen: isLeft) ? appearance.theme.palette.left : appearance.theme.palette.right
+        logicalIsLeft(forScreen: isLeft) ? appearance.palette.left : appearance.palette.right
+    }
+
+    private func panelForegroundColor(forScreen isLeft: Bool) -> Color {
+        appearance.palette.foreground(for: logicalIsLeft(forScreen: isLeft) ? .team0 : .team1)
     }
 
     private var shouldShowChromeButtons: Bool {
@@ -762,7 +785,7 @@ struct ScoreboardTemplate: View {
         let rightIsLogicalLeft = logicalIsLeft(forScreen: false)
         let left = leftIsLogicalLeft ? config.viewModel.leftTeam : config.viewModel.rightTeam
         let right = rightIsLogicalLeft ? config.viewModel.leftTeam : config.viewModel.rightTeam
-        return LocalScoreboardDisplayState(
+        var compact = LocalScoreboardDisplayState(
             gameID: config.gameType.canonicalScoreboardIdentifier,
             title: config.gameType.displayName,
             leftName: left.name,
@@ -784,6 +807,8 @@ struct ScoreboardTemplate: View {
             ),
             revision: 0
         )
+        compact.externalState = config.externalStateEnricher?(compact)
+        return compact
     }
 
     private func syncDetail(for team: TeamData) -> String? {
@@ -914,6 +939,7 @@ struct TeamSection: View {
     let scoreboardFont: ScoreboardFont
     let palette: ScoreboardPalette
     let backgroundColor: Color
+    let foregroundColor: Color
     let scoreMultiplier: Double
     let nameMultiplier: Double
     let secondaryMultiplier: Double
@@ -1017,7 +1043,7 @@ struct TeamSection: View {
                                 Button(action: { onScoreTap(points) }) {
                                     Text("+\(points)")
                                         .font(.system(size: 18, weight: .bold))
-                                        .foregroundColor(palette.foreground)
+                                        .foregroundColor(foregroundColor)
                                         .frame(
                                             width: 60,
                                             height: ScoreboardConstants.minimumTouchTarget
@@ -1033,7 +1059,7 @@ struct TeamSection: View {
                     }
                 }
             }
-            .foregroundStyle(palette.foreground)
+            .foregroundStyle(foregroundColor)
         }
         .sheet(isPresented: $showCommonNameSelector) {
             CommonNameSelectorDialog(nameType: nameType) { selectedName in
@@ -1062,7 +1088,7 @@ struct TeamSection: View {
                     }
                 ))
                 .font(getFont(size: nameEditFontSize, weight: .bold))
-                .foregroundColor(palette.foreground)
+                .foregroundColor(foregroundColor)
                 .multilineTextAlignment(.center)
                 .textFieldStyle(.plain)
                 .focused($isNameFocused)
@@ -1079,7 +1105,7 @@ struct TeamSection: View {
                 } label: {
                     Image(systemName: "chevron.right")
                         .font(.system(size: isTablet ? 20 : 16, weight: .semibold))
-                        .foregroundColor(palette.foreground.opacity(0.9))
+                        .foregroundColor(foregroundColor.opacity(0.9))
                         .frame(width: 24, height: 24)
                 }
                 .buttonStyle(.plain)
@@ -1112,12 +1138,12 @@ struct TeamSection: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            .foregroundColor(palette.foreground)
+            .foregroundColor(foregroundColor)
             .padding(.horizontal, 8)
         } else {
             Text(team.name)
                 .font(getFont(size: nameSize, weight: .bold))
-                .foregroundColor(palette.foreground)
+                .foregroundColor(foregroundColor)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 8)
@@ -1136,7 +1162,7 @@ struct TeamSection: View {
                 Text(scoreText)
                     .font(getFont(size: editFontSize))
                     .monospacedDigit()
-                    .foregroundColor(palette.foreground)
+                    .foregroundColor(foregroundColor)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                 adjustCircleButton(enabled: true, systemName: "plus") {
@@ -1150,7 +1176,7 @@ struct TeamSection: View {
             Text(scoreText)
                 .font(getFont(size: displayFontSize))
                 .monospacedDigit()
-                .foregroundColor(palette.foreground)
+                .foregroundColor(foregroundColor)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
         }
@@ -1186,7 +1212,7 @@ struct TeamSection: View {
                 Text("\(value)")
                     .font(getFont(size: fontSize))
                     .monospacedDigit()
-                    .foregroundColor(palette.secondary)
+                    .foregroundColor(foregroundColor.opacity(0.7))
                 adjustCircleButton(enabled: true, systemName: "plus") {
                     onAdjust(1)
                 }
@@ -1195,7 +1221,7 @@ struct TeamSection: View {
             Text("\(value)")
                 .font(getFont(size: fontSize))
                 .monospacedDigit()
-                .foregroundColor(palette.secondary)
+                .foregroundColor(foregroundColor.opacity(0.7))
         }
     }
 
@@ -1203,7 +1229,7 @@ struct TeamSection: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundColor(enabled ? palette.foreground.opacity(0.75) : palette.foreground.opacity(0.3))
+                .foregroundColor(enabled ? foregroundColor.opacity(0.75) : foregroundColor.opacity(0.3))
                 .frame(width: 50, height: 50)
                 .background(Circle().fill(ScoreboardTheme.auxiliaryButtonBackgroundSubtle))
                 .contentShape(Circle())

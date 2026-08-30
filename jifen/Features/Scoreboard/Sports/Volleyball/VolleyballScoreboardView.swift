@@ -23,6 +23,8 @@ struct VolleyballScoreboardView: View {
             gameType: variant,
             rules: rules,
             openingServer: openingServer,
+            showMatchTimeEnabled: initialSetup?.showMatchTime
+                ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: gameType),
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }

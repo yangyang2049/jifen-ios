@@ -111,6 +111,9 @@ struct jifenApp: App {
         UITestRecordFixtures.installIfRequested()
         AppReviewPrompt.recordLaunchIfAllowed()
         let hasAcceptedLegal = LegalConsent.hasAcceptedCurrentDocuments()
+        PreferencesManager.shared.migrateLegacyDoubleTapSubtractIfNeeded(
+            hasLegalConsent: hasAcceptedLegal
+        )
         _hasAcceptedLegal = State(initialValue: hasAcceptedLegal)
         if hasAcceptedLegal {
             UmengAnalytics.initializeIfConsented()
@@ -226,12 +229,15 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        Task { @MainActor in LocalPeerRoomManager.shared.setPaused(true) }
+        Task { @MainActor in
+            ScoreboardDisplayOutputs.shared.setControllerAway(true)
+        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         Task { @MainActor in
-            LocalPeerRoomManager.shared.setPaused(false)
+            ScoreboardDisplayOutputs.shared.setControllerAway(false)
+            ExternalDisplayCoordinator.shared.refreshStatus()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
     }

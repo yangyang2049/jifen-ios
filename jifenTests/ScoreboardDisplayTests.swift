@@ -1,0 +1,466 @@
+import XCTest
+import ScoreCore
+@testable import jifen
+
+@MainActor
+final class ScoreboardDisplayTests: XCTestCase {
+    func testMatchClockRebindPreservesElapsedOriginAndOnlyPublishesUserChanges() {
+        let originalStart = Date(timeIntervalSince1970: 1_000)
+        let resumedStart = Date(timeIntervalSince1970: 900)
+        let clock = ScoreboardMatchClockSession(isVisible: false, startedAt: originalStart)
+        var visibilityChanges: [Bool] = []
+
+        clock.bind(startedAt: resumedStart, isVisible: true) { visibilityChanges.append($0) }
+
+        XCTAssertEqual(clock.startedAt, resumedStart)
+        XCTAssertTrue(clock.isVisible)
+        XCTAssertEqual(clock.elapsed(at: Date(timeIntervalSince1970: 960)), 60)
+        XCTAssertTrue(visibilityChanges.isEmpty, "Binding restored state is not a user toggle")
+
+        clock.isVisible = false
+        XCTAssertEqual(visibilityChanges, [false])
+        clock.reset(startedAt: originalStart)
+        XCTAssertEqual(clock.elapsed(at: Date(timeIntervalSince1970: 1_015)), 15)
+    }
+
+    func testCompactSnapshotBuildsVersionedTwoSideDisplay() throws {
+        let compact = LocalScoreboardDisplayState(
+            gameID: "badminton",
+            title: "Badminton",
+            leftName: "A",
+            rightName: "B",
+            leftScore: "20",
+            rightScore: "18",
+            leftDetail: "1 set",
+            rightDetail: "0 sets",
+            themeID: "default",
+            fontID: "sports",
+            finished: false,
+            revision: 9
+        )
+
+        let state = ScoreboardDisplayState(compactState: compact)
+        XCTAssertEqual(state.schemaVersion, 1)
+        XCTAssertEqual(state.layoutKind, .twoSide)
+        XCTAssertEqual(state.teams.map(\.score), [20, 18])
+        XCTAssertEqual(state.displayScore(forVisualIndex: 0), "20")
+        XCTAssertEqual(state.detail(forVisualIndex: 0), "1 set")
+
+        let decoded = try JSONDecoder().decode(
+            ScoreboardDisplayState.self,
+            from: JSONEncoder().encode(state)
+        )
+        XCTAssertEqual(decoded, state)
+    }
+
+    func testLayoutResolverCoversAllExternalTemplates() {
+        XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "football"), .twoSide)
+        XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "tennis_doubles"), .doublesCourt)
+        XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "uno"), .multiGrid)
+        XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "doudizhu"), .boardCard)
+        XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "xiangqi"), .boardCard)
+        XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "counter"), .trainingCounter)
+        XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "nine_ball", playerCount: 4), .multiGrid)
+    }
+
+    func testAllThirtyThreeExactScoreboardTypesBuildRoundTripAndPublish() throws {
+        let exactTypes = ScoreCore.GameType.allCases
+        XCTAssertEqual(exactTypes.count, 33)
+        XCTAssertEqual(Set(exactTypes.map(\.rawValue)), expectedExactGameIDs)
+
+        let outputs = ScoreboardDisplayOutputs.shared
+        for (index, gameType) in exactTypes.enumerated() {
+            let initial = fixture(gameID: gameType.rawValue, score: index)
+            XCTAssertEqual(initial.gameType, gameType.rawValue)
+            XCTAssertEqual(initial.layoutKind, expectedLayout(for: gameType))
+
+            let decoded = try JSONDecoder().decode(
+                ScoreboardDisplayState.self,
+                from: JSONEncoder().encode(initial)
+            )
+            XCTAssertEqual(decoded, initial, "Display snapshot did not round-trip for \(gameType.rawValue)")
+
+            let ownerID = "coverage-\(gameType.rawValue)"
+            let leaseID = outputs.bind(ownerID: ownerID, initial: initial)
+            var updated = initial
+            updated.teams[0].score += 1
+            updated.updatedAt += 1
+            outputs.publish(ownerID: ownerID, leaseID: leaseID, state: updated, priority: .urgent)
+
+            XCTAssertEqual(outputs.displayState, updated, "Display output did not publish \(gameType.rawValue)")
+            XCTAssertEqual(outputs.presentationMode, .live)
+            outputs.release(ownerID: ownerID, leaseID: leaseID)
+        }
+        XCTAssertNil(outputs.displayState)
+        XCTAssertEqual(outputs.presentationMode, .waiting)
+    }
+
+    func testRendererDispatchesAllSevenTemplates() {
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: fixture(gameID: "football", score: 1)), .twoSide)
+
+        var doubles = fixture(gameID: "tennis_doubles", score: 1)
+        doubles.layoutKind = .doublesCourt
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: doubles), .doublesCourt)
+
+        var grid = fixture(gameID: "uno", score: 1)
+        grid.layoutKind = .multiGrid
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: grid), .multiGrid)
+
+        var twoTeamCard = fixture(gameID: "guandan", score: 1)
+        twoTeamCard.layoutKind = .boardCard
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: twoTeamCard), .cardTwoTeam)
+
+        var threePlayerCard = fixture(gameID: "doudizhu", score: 1)
+        threePlayerCard.layoutKind = .boardCard
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: threePlayerCard), .cardThreePlayer)
+
+        var twoSeatClock = fixture(gameID: "chess", score: 1)
+        twoSeatClock.layoutKind = .boardCard
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: twoSeatClock), .cardTwoSeat)
+
+        var training = fixture(gameID: "counter", score: 1)
+        training.layoutKind = .trainingCounter
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: training), .trainingCounter)
+    }
+
+    func testClockAndOfficialBreakProjectLocally() {
+        let countingUp = ScoreboardDisplayClock(
+            elapsedMilliseconds: 15_000,
+            isRunning: true,
+            anchorWallClockMilliseconds: 100_000
+        )
+        XCTAssertEqual(countingUp.projectedMilliseconds(atWallClockMilliseconds: 104_500), 19_500)
+
+        let countingDown = ScoreboardDisplayClock(
+            elapsedMilliseconds: 8_000,
+            isRunning: true,
+            countsDown: true,
+            anchorWallClockMilliseconds: 100_000
+        )
+        XCTAssertEqual(countingDown.projectedMilliseconds(atWallClockMilliseconds: 103_000), 5_000)
+        XCTAssertEqual(countingDown.projectedMilliseconds(atWallClockMilliseconds: 120_000), 0)
+
+        let rest = ScoreboardDisplayRest(
+            kind: "technical",
+            phase: "active",
+            remainingSeconds: 60,
+            isRunning: true,
+            updatedWallClockMilliseconds: 100_000
+        )
+        XCTAssertEqual(rest.projectedRemainingSeconds(atWallClockMilliseconds: 112_900), 48)
+        XCTAssertEqual(rest.projectedRemainingSeconds(atWallClockMilliseconds: 170_000), 0)
+    }
+
+    func testBasketballAndFootballClocksKeepTheirDistinctSemantics() {
+        let basketball = ScoreboardDisplayClock(
+            elapsedMilliseconds: 90_000,
+            isRunning: true,
+            countsDown: true,
+            durationMilliseconds: 10 * 60 * 1_000,
+            anchorWallClockMilliseconds: 100_000,
+            label: "Q4"
+        )
+        XCTAssertEqual(basketball.projectedMilliseconds(atWallClockMilliseconds: 112_000), 78_000)
+        XCTAssertEqual(basketball.label, "Q4")
+        XCTAssertTrue(basketball.visible)
+        var basketballState = fixture(gameID: ScoreCore.GameType.basketball.rawValue, score: 88)
+        basketballState.clock = basketball
+        basketballState.sportState?["shotClock"] = .integer(12)
+        XCTAssertTrue(basketballState.clock?.countsDown == true)
+        XCTAssertEqual(basketballState.sportInt("shotClock"), 12)
+
+        let football = ScoreboardDisplayClock(
+            elapsedMilliseconds: 45 * 60 * 1_000,
+            isRunning: true,
+            countsDown: false,
+            anchorWallClockMilliseconds: 100_000,
+            label: "加时赛"
+        )
+        XCTAssertEqual(
+            football.projectedMilliseconds(atWallClockMilliseconds: 112_000),
+            45 * 60 * 1_000 + 12_000
+        )
+        XCTAssertEqual(football.label, "加时赛")
+        var footballState = fixture(gameID: ScoreCore.GameType.football.rawValue, score: 1)
+        footballState.clock = football
+        footballState.sportState?["clockStage"] = .integer(3)
+        XCTAssertFalse(footballState.clock?.countsDown ?? true)
+        XCTAssertEqual(footballState.sportInt("clockStage"), 3)
+
+        var hiddenMatchTime = football
+        hiddenMatchTime.visible = false
+        XCTAssertFalse(hiddenMatchTime.visible)
+        XCTAssertEqual(hiddenMatchTime.projectedMilliseconds(atWallClockMilliseconds: 112_000), 45 * 60 * 1_000 + 12_000)
+    }
+
+    func testCoordinatorPublishesGenericMatchClockAndVisibilityWithoutReplacingSportClock() async {
+        let coordinator = LocalScoreboardSyncCoordinator.shared
+        let outputs = ScoreboardDisplayOutputs.shared
+        let ownerID = "generic-match-clock-test"
+        let startedAt = Date(timeIntervalSince1970: 123_456)
+        let session = ScoreboardMatchClockSession(isVisible: false, startedAt: startedAt)
+
+        coordinator.registerGenericMatchClock(ownerID: ownerID) {
+            session.externalDisplayClock
+        }
+        coordinator.registerHost(
+            snapshot: {
+                self.compactFixture(
+                    gameID: ScoreCore.GameType.volleyball.rawValue,
+                    leftName: "A",
+                    rightName: "B",
+                    leftScore: "1",
+                    rightScore: "0",
+                    revision: 0
+                )
+            },
+            handleIntent: { _ in }
+        )
+        defer {
+            coordinator.unregisterHost()
+            coordinator.unregisterGenericMatchClock(ownerID: ownerID)
+        }
+
+        XCTAssertEqual(outputs.displayState?.clock?.elapsedMilliseconds, 0)
+        XCTAssertEqual(outputs.displayState?.clock?.isRunning, true)
+        XCTAssertEqual(outputs.displayState?.clock?.countsDown, false)
+        XCTAssertEqual(outputs.displayState?.clock?.visible, false)
+        XCTAssertEqual(outputs.displayState?.clock?.anchorWallClockMilliseconds, 123_456_000)
+
+        session.isVisible = true
+        coordinator.publishSnapshot()
+        await Task.yield()
+        XCTAssertEqual(outputs.displayState?.clock?.visible, true)
+
+        let sportClock = ScoreboardDisplayClock(
+            elapsedMilliseconds: 30_000,
+            isRunning: true,
+            countsDown: true,
+            anchorWallClockMilliseconds: 200_000,
+            label: "Q1"
+        )
+        coordinator.registerHost(
+            snapshot: {
+                var compact = self.compactFixture(
+                    gameID: ScoreCore.GameType.basketball.rawValue,
+                    leftName: "A",
+                    rightName: "B",
+                    leftScore: "8",
+                    rightScore: "6",
+                    revision: 0
+                )
+                var external = ScoreboardDisplayState(compactState: compact)
+                external.clock = sportClock
+                compact.externalState = external
+                return compact
+            },
+            handleIntent: { _ in }
+        )
+        XCTAssertEqual(outputs.displayState?.clock, sportClock)
+    }
+
+    func testSideExchangePublishesVisualOrderAndSemanticTeamPlacementTogether() {
+        let outputs = ScoreboardDisplayOutputs.shared
+        let initial = fixture(
+            gameID: ScoreCore.GameType.badminton.rawValue,
+            leftName: "Red",
+            rightName: "Blue",
+            leftScore: "11",
+            rightScore: "8",
+            revision: 1
+        )
+        let leaseID = outputs.bind(ownerID: "side-exchange", initial: initial)
+
+        let swappedCompact = compactFixture(
+            gameID: ScoreCore.GameType.badminton.rawValue,
+            leftName: "Blue",
+            rightName: "Red",
+            leftScore: "8",
+            rightScore: "11",
+            revision: 2
+        )
+        let swapped = ScoreboardDisplayState.enriched(
+            compact: swappedCompact,
+            layoutKind: .twoSide,
+            sportState: ["team0ScreenSide": .string("right")]
+        )
+        outputs.publish(
+            ownerID: "side-exchange",
+            leaseID: leaseID,
+            state: swapped,
+            priority: .urgent
+        )
+
+        XCTAssertEqual(outputs.displayState?.teams.map(\.name), ["Blue", "Red"])
+        XCTAssertEqual(outputs.displayState?.teams.map(\.score), [8, 11])
+        XCTAssertEqual(outputs.displayState?.sportString("team0ScreenSide"), "right")
+        outputs.release(ownerID: "side-exchange", leaseID: leaseID)
+    }
+
+    func testFinishedSnapshotPublishesUrgentlyWithFinalScores() {
+        let outputs = ScoreboardDisplayOutputs.shared
+        let live = fixture(gameID: ScoreCore.GameType.football.rawValue, score: 2)
+        let leaseID = outputs.bind(ownerID: "finished", initial: live)
+        var finished = live
+        finished.result = ScoreboardDisplayResult(
+            ended: true,
+            manualEnd: false,
+            winnerID: "team_0",
+            finalScores: [
+                "team_0": .init(score: 2),
+                "team_1": .init(score: 1)
+            ]
+        )
+        finished.updatedAt += 1
+
+        outputs.finish(ownerID: "finished", leaseID: leaseID, state: finished)
+
+        XCTAssertEqual(outputs.presentationMode, .finished)
+        XCTAssertEqual(outputs.displayState?.result?.winnerID, "team_0")
+        XCTAssertEqual(outputs.displayState?.result?.finalScores?["team_0"]?.score, 2)
+        outputs.release(ownerID: "finished", leaseID: leaseID)
+    }
+
+    func testCompleteDisplayStateRoundTripPreservesSpecializedData() throws {
+        var state = fixture(gameID: "basketball", score: 88)
+        state.matchTitle = "Final"
+        state.players = [
+            .init(id: "p1", name: "A1", teamID: "team_0", slot: "top", order: 0, isServer: true)
+        ]
+        state.sportState = [
+            "period": .string("Q4"),
+            "leftFouls": .integer(4),
+            "shotClockRunning": .boolean(true),
+            "roundScores": .integers([22, 19, 25, 22])
+        ]
+        state.keyPoint = .init(kind: "match", side: "left")
+        state.clock = .init(
+            elapsedMilliseconds: 95_000,
+            isRunning: true,
+            countsDown: true,
+            anchorWallClockMilliseconds: 123_000,
+            label: "Q4"
+        )
+        state.rest = .init(
+            kind: "timeout",
+            phase: "active",
+            remainingSeconds: 30,
+            isRunning: true,
+            updatedWallClockMilliseconds: 123_000
+        )
+        state.result = .init(
+            ended: true,
+            winnerID: "team_0",
+            finalScores: ["team_0": .init(score: 88), "team_1": .init(score: 81)]
+        )
+
+        let decoded = try JSONDecoder().decode(
+            ScoreboardDisplayState.self,
+            from: JSONEncoder().encode(state)
+        )
+        XCTAssertEqual(decoded, state)
+    }
+
+    func testOldCompactPayloadDecodesWithoutExternalState() throws {
+        let json = #"{"gameID":"football","title":"Football","leftName":"A","rightName":"B","leftScore":"1","rightScore":"0","themeID":"default","fontID":"default","finished":false,"revision":2}"#
+        let compact = try JSONDecoder().decode(LocalScoreboardDisplayState.self, from: Data(json.utf8))
+        XCTAssertNil(compact.externalState)
+    }
+
+    func testOutputLeaseRejectsStalePageUpdatesAndRelease() {
+        let first = fixture(gameID: "football", score: 1)
+        let second = fixture(gameID: "basketball", score: 2)
+        let stale = fixture(gameID: "football", score: 99)
+        let outputs = ScoreboardDisplayOutputs.shared
+
+        let firstLease = outputs.bind(ownerID: "first", initial: first)
+        let secondLease = outputs.bind(ownerID: "second", initial: second)
+        outputs.publish(ownerID: "first", leaseID: firstLease, state: stale, priority: .urgent)
+        outputs.release(ownerID: "first", leaseID: firstLease)
+
+        XCTAssertEqual(outputs.displayState?.gameType, "basketball")
+        XCTAssertEqual(outputs.displayState?.teams.first?.score, 2)
+        outputs.release(ownerID: "second", leaseID: secondLease)
+        XCTAssertNil(outputs.displayState)
+        XCTAssertEqual(outputs.presentationMode, .waiting)
+    }
+
+    private func fixture(gameID: String, score: Int) -> ScoreboardDisplayState {
+        let compact = compactFixture(
+            gameID: gameID,
+            leftName: "A",
+            rightName: "B",
+            leftScore: "\(score)",
+            rightScore: "0",
+            revision: UInt64(score)
+        )
+        return ScoreboardDisplayState(compactState: compact)
+    }
+
+    private func fixture(
+        gameID: String,
+        leftName: String,
+        rightName: String,
+        leftScore: String,
+        rightScore: String,
+        revision: UInt64
+    ) -> ScoreboardDisplayState {
+        ScoreboardDisplayState(compactState: compactFixture(
+            gameID: gameID,
+            leftName: leftName,
+            rightName: rightName,
+            leftScore: leftScore,
+            rightScore: rightScore,
+            revision: revision
+        ))
+    }
+
+    private func compactFixture(
+        gameID: String,
+        leftName: String,
+        rightName: String,
+        leftScore: String,
+        rightScore: String,
+        revision: UInt64
+    ) -> LocalScoreboardDisplayState {
+        LocalScoreboardDisplayState(
+            gameID: gameID,
+            title: gameID,
+            leftName: leftName,
+            rightName: rightName,
+            leftScore: leftScore,
+            rightScore: rightScore,
+            themeID: "default",
+            fontID: "default",
+            finished: false,
+            revision: revision
+        )
+    }
+
+    private var expectedExactGameIDs: Set<String> {
+        [
+            "football", "football_5v5", "basketball", "three_basketball",
+            "volleyball", "air_volleyball", "beach_volleyball",
+            "pingpong", "pingpong_doubles", "tennis", "tennis_doubles",
+            "badminton", "badminton_doubles", "shuttlecock", "squash",
+            "soft_tennis", "padel", "pickleball", "pickleball_doubles",
+            "archery_dual", "boxing", "billiards", "eight_ball", "nine_ball",
+            "snooker", "guandan", "shengji", "uno", "doudizhu", "foosball",
+            "foosball_doubles", "simple_score", "multi_scoreboard"
+        ]
+    }
+
+    private func expectedLayout(for gameType: ScoreCore.GameType) -> ScoreboardDisplayLayoutKind {
+        switch gameType {
+        case .pingpongDoubles, .tennisDoubles, .badmintonDoubles,
+             .pickleballDoubles, .foosballDoubles, .padel:
+            .doublesCourt
+        case .uno, .multiScoreboard:
+            .multiGrid
+        case .guandan, .shengji, .doudizhu:
+            .boardCard
+        default:
+            .twoSide
+        }
+    }
+}

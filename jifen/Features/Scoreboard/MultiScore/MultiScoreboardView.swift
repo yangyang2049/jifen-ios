@@ -104,6 +104,7 @@ struct MultiScoreboardView: View {
     @State private var pendingTapIndex: Int?
     @State private var pendingTapAt: Date = .distantPast
     @State private var useLandscapeLayout: Bool
+    @FocusState private var unoNumberFieldFocused: Bool
 
     private let commonNamesManager = CommonNamesManager.shared
     private let doubleTapWindow: TimeInterval = 0.24
@@ -280,14 +281,14 @@ struct MultiScoreboardView: View {
             typographySession.reload()
             applySetupIfNeeded()
             restoreResumeIfNeeded()
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
             revealImmersiveChrome()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
-            appearance = .current()
+            appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
@@ -877,6 +878,10 @@ struct MultiScoreboardView: View {
                         Spacer()
                         TextField("0", text: $unoNumberTotalText)
                             .keyboardType(.numberPad)
+                            .focused($unoNumberFieldFocused)
+                            .onChange(of: unoNumberTotalText) { _, value in
+                                unoNumberTotalText = String(value.filter(\.isNumber).prefix(4))
+                            }
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                             .multilineTextAlignment(.trailing)
@@ -885,6 +890,14 @@ struct MultiScoreboardView: View {
                             .frame(height: 38)
                             .background(Theme.scoreboardDialogControl)
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                        unoNumberFieldFocused = false
+                                    }
+                                }
+                            }
                     }
 
                     unoCountStepper(
@@ -905,6 +918,7 @@ struct MultiScoreboardView: View {
 
                     HStack(spacing: 12) {
                         Button {
+                            unoNumberFieldFocused = false
                             showUnoRoundPanel = false
                         } label: {
                             Text(NSLocalizedString("cancel", value: "取消", comment: ""))
@@ -918,6 +932,7 @@ struct MultiScoreboardView: View {
                         .buttonStyle(.plain)
 
                         Button {
+                            unoNumberFieldFocused = false
                             confirmUnoRound()
                         } label: {
                             Text(NSLocalizedString("uno_confirm_round", value: "确认记分", comment: ""))
@@ -1152,7 +1167,7 @@ struct MultiScoreboardView: View {
             snapshot: {
                 let left = players.first ?? MultiPlayerItem(id: 0, name: "", score: 0)
                 let right = players.dropFirst().first ?? MultiPlayerItem(id: 1, name: "", score: 0)
-                return LocalScoreboardDisplayState(
+                var compact = LocalScoreboardDisplayState(
                     gameID: gameType.canonicalScoreboardIdentifier,
                     title: gameType.displayName,
                     leftName: left.name,
@@ -1171,6 +1186,36 @@ struct MultiScoreboardView: View {
                     finished: gameFinished,
                     revision: 0
                 )
+                let displayPlayers = players.enumerated().map { index, player in
+                    ScoreboardDisplayPlayer(
+                        id: "player_\(player.id)",
+                        name: player.name,
+                        score: player.score,
+                        order: index
+                    )
+                }
+                compact.externalState = ScoreboardDisplayState.enriched(
+                    compact: compact,
+                    layoutKind: .multiGrid,
+                    players: displayPlayers,
+                    sportState: [
+                        "multiGridColumns": .integer(players.count <= 4 ? 2 : 3),
+                        "unoTargetScore": .integer(gameType == .uno ? effectiveTargetScore : 0)
+                    ]
+                )
+                compact.externalState?.teams = displayPlayers.map {
+                    ScoreboardDisplayTeam(
+                        id: $0.id,
+                        name: $0.name,
+                        score: $0.score ?? 0,
+                        order: $0.order
+                    )
+                }
+                compact.externalState?.appearance = .init(
+                    snapshot: appearance,
+                    fontCode: typographySession.effectivePreference.font.rawValue
+                )
+                return compact
             },
             handleIntent: { intent in
                 guard LocalScoreboardMutationPolicy.allowsMutation(

@@ -93,11 +93,16 @@ enum TimerDestination: String, Hashable, CaseIterable, Identifiable {
 
 enum GameCatalog {
     static let scoreboardItems: [ScoreboardCatalogItem] = [
-        ScoreboardCatalogItem(gameType: .pingpong, emoji: "🏓", section: .sports),
         ScoreboardCatalogItem(gameType: .badminton, emoji: "🏸", section: .sports),
         ScoreboardCatalogItem(gameType: .tennis, emoji: "🎾", section: .sports),
+        ScoreboardCatalogItem(gameType: .pingpong, emoji: "🏓", section: .sports),
         ScoreboardCatalogItem(gameType: .pickleball, emoji: "🏓", section: .sports),
+        ScoreboardCatalogItem(gameType: .shuttlecock, emoji: "🏸", section: .sports),
+        ScoreboardCatalogItem(gameType: .squash, emoji: "🎾", section: .sports),
+        ScoreboardCatalogItem(gameType: .softTennis, emoji: "🎾", section: .sports),
+        ScoreboardCatalogItem(gameType: .padel, emoji: "🎾", section: .sports),
         ScoreboardCatalogItem(gameType: .football, emoji: "⚽", section: .sports),
+        ScoreboardCatalogItem(gameType: .football5v5, emoji: "⚽", section: .sports),
         ScoreboardCatalogItem(gameType: .basketball, emoji: "🏀", section: .sports),
         ScoreboardCatalogItem(gameType: .threeBasketball, emoji: "🏀", section: .sports),
         ScoreboardCatalogItem(gameType: .volleyball, emoji: "🏐", section: .sports),

@@ -1,4 +1,3 @@
-import PersistenceCore
 import StoreKit
 import SwiftUI
 import UIKit
@@ -6,7 +5,6 @@ import UIKit
 private enum AppSupportURLs {
     static let website = URL(string: "https://jifenqi.com")!
     static let support = URL(string: "https://jifenqi.com/contact")!
-    static let feedback = URL(string: "https://jifenqi.com/feedback")!
     static let terms = URL(string: "https://jifenqi.com/terms")!
     static let privacy = URL(string: "https://jifenqi.com/privacy")!
     static let wechatGroup = URL(string: "https://jifenqi.com/contact?utm_source=jifenqi_app&utm_medium=app_link&utm_campaign=official_wechat_group&utm_content=about_page")!
@@ -45,12 +43,14 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
     @Environment(AppAppearanceStore.self) private var appearance
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var isTabRoot: Bool = false
     @State private var showClearConfirm = false
     @State private var showAppearancePicker = false
     @State private var showAppShareSheet = false
     @State private var activeSheet: SettingsSheetDestination?
     @State private var clearDataErrorMessage: String?
+    @State private var isClearingData = false
 
     var body: some View {
         NavigationStack {
@@ -209,26 +209,26 @@ struct SettingsView: View {
     }
 
     private func clearAllData() {
-        ScoreboardRecordManager.shared.clearAllRecords()
-        _ = TimerRecordManager.shared.clearAllRecords()
-        _ = LocalBookingManager.shared.clearAllBookings()
-        CommonNamesManager.shared.clearNames(type: .team)
-        CommonNamesManager.shared.clearNames(type: .player)
-        CommonPlacesManager.shared.clearAll()
-        ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
-        TimerRecordsViewModel.shared.loadFromStorage()
+        guard !isClearingData else { return }
+        isClearingData = true
         Task {
-            do {
-                try await ResumeSessionRepository().clear()
+            let result = await LocalDataResetCoordinator.live(
+                watchLinkService: watchLinkService,
+                appearance: appearance
+            ).clearAll()
+            ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+            TimerRecordsViewModel.shared.loadFromStorage()
+            isClearingData = false
+            if result.succeeded {
                 trackClearDataResult(.success)
-            } catch {
+            } else {
                 clearDataErrorMessage = String(
                     format: NSLocalizedString(
                         "clear_data_failed_format",
-                        value: "Some resume data could not be cleared: %@",
-                        comment: "Clear data failure with the underlying error"
+                        value: "部分数据未能清除，可安全重试：\n%@",
+                        comment: "Clear data failure grouped by category"
                     ),
-                    error.localizedDescription
+                    result.localizedFailureSummary
                 )
                 trackClearDataResult(.failed)
             }
@@ -385,6 +385,7 @@ private struct ScoreboardSettingsView: View {
     @State private var forceIPadLandscape = PreferencesManager.shared.forceIPadLandscape
     @State private var keepScreenOn = PreferencesManager.shared.keepScoreboardScreenOn
     @State private var soundEnabled = PreferencesManager.shared.soundEnabled
+    @State private var officialBreaksEnabled = PreferencesManager.shared.officialBreaksEnabled
     @State private var vibrationEnabled = PreferencesManager.shared.vibrationEnabled
     @State private var immersiveMode = PreferencesManager.shared.scoreboardImmersiveModeEnabled
     @State private var touchGuard = PreferencesManager.shared.scoreboardTouchGuardEnabled
@@ -424,6 +425,12 @@ private struct ScoreboardSettingsView: View {
                             title: NSLocalizedString("sound", value: "声音", comment: ""),
                             isOn: $soundEnabled,
                             toggleAccessibilityIdentifier: "scoreboard_sound_toggle"
+                        )
+                        Divider().overlay(Theme.divider)
+                        ScoreboardToggleSettingRow(
+                            title: NSLocalizedString("official_breaks", value: "官方休息", comment: ""),
+                            isOn: $officialBreaksEnabled,
+                            toggleAccessibilityIdentifier: "official_breaks_toggle"
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
@@ -485,6 +492,10 @@ private struct ScoreboardSettingsView: View {
         .onChange(of: soundEnabled) { _, value in
             PreferencesManager.shared.soundEnabled = value
             trackSetting("sound_enabled", value)
+        }
+        .onChange(of: officialBreaksEnabled) { _, value in
+            PreferencesManager.shared.officialBreaksEnabled = value
+            trackSetting("official_breaks_enabled", value)
         }
         .onChange(of: vibrationEnabled) { _, value in
             PreferencesManager.shared.vibrationEnabled = value
@@ -771,21 +782,15 @@ private struct AboutUsView: View {
                             AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
                         })
                         .accessibilityIdentifier("settings_about_privacy_link")
-                        Divider().overlay(Theme.divider)
-                        Link(destination: AppSupportURLs.feedback) {
-                            SettingsNavigationRow(title: NSLocalizedString("about_feedback_row", value: "意见反馈", comment: ""))
+                        if isChineseLocale {
+                            Divider().overlay(Theme.divider)
+                            Link(destination: AppSupportURLs.wechatGroup) {
+                                SettingsNavigationRow(title: NSLocalizedString("about_wechat_group", value: "微信群", comment: ""))
+                            }
+                            .accessibilityIdentifier("settings_about_wechat_link")
+                            Divider().overlay(Theme.divider)
+                            qqGroupRow
                         }
-                        .simultaneousGesture(TapGesture().onEnded {
-                            AppAnalytics.openPage(from: .aboutUsPage, to: .feedbackPage)
-                        })
-                        .accessibilityIdentifier("settings_about_feedback_link")
-                        Divider().overlay(Theme.divider)
-                        Link(destination: AppSupportURLs.wechatGroup) {
-                            SettingsNavigationRow(title: NSLocalizedString("about_wechat_group", value: "微信群", comment: ""))
-                        }
-                        .accessibilityIdentifier("settings_about_wechat_link")
-                        Divider().overlay(Theme.divider)
-                        qqGroupRow
                     }
                     .background(Theme.appCardBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
@@ -850,9 +855,12 @@ private struct AboutUsView: View {
         return short.hasPrefix("v") ? short : "v\(short)"
     }
 
+    private var isChineseLocale: Bool {
+        Locale.current.language.languageCode?.identifier.hasPrefix("zh") == true
+    }
+
     private var companyDisplayName: String {
-        let isChinese = Locale.current.language.languageCode?.identifier.hasPrefix("zh") == true
-        return isChinese
+        isChineseLocale
             ? NSLocalizedString("about_company_zh", value: "重庆豆花科技有限公司", comment: "")
             : NSLocalizedString("about_company_en", value: "Chongqing Douhua Technology Co., Ltd.", comment: "")
     }

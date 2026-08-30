@@ -17,7 +17,10 @@ struct RecordsTab: View {
     @State private var currentTab: Int = 0 // 0: 全部, 1: 计分, 2: 计时
     @State private var searchText: String = ""
     @State private var showClearConfirm = false
+    @State private var showBatchDeleteConfirm = false
+    @State private var isDeletingSelection = false
     @State private var isEditMode = false
+    @State private var recordSelection = RecordsTabSelectionState()
     @State private var selectedTimeFilter: RecordsTimeFilter = .all
     @State private var selectedProjectFilter: RecordsProjectFilter? = nil
     @State private var draftTimeFilter: RecordsTimeFilter = .all
@@ -40,6 +43,9 @@ struct RecordsTab: View {
     var body: some View {
         VStack(spacing: 0) {
             tabChips
+            if isEditMode {
+                batchEditBar
+            }
             content
         }
         .frame(maxWidth: usesPadLayout ? 920 : .infinity, maxHeight: .infinity)
@@ -50,13 +56,13 @@ struct RecordsTab: View {
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("search_team_or_game", value: "搜索队伍或项目", comment: "Search placeholder"),
-            isEnabled: !isEditMode
+            isEnabled: true
         )
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if isEditMode {
                     Button(NSLocalizedString("done", comment: "Done")) {
-                        isEditMode = false
+                        exitEditMode()
                     }
                     .foregroundColor(Theme.accentColor)
                 } else {
@@ -70,7 +76,7 @@ struct RecordsTab: View {
                             Label(NSLocalizedString("filter", value: "筛选", comment: ""), systemImage: "line.3.horizontal.decrease.circle")
                         }
                         Button {
-                            searchText = ""
+                            recordSelection.clear()
                             isEditMode = true
                             AppAnalytics.track(.enterEditMode, parameters: [
                                 .contentType: .string("records")
@@ -101,6 +107,24 @@ struct RecordsTab: View {
             scoreboardVM.ensureLoaded()
             timerVM.ensureLoaded()
         }
+        .onDisappear {
+            exitEditMode()
+        }
+        .onChange(of: searchText) { _, _ in
+            reconcileSelectionWithVisibleRecords()
+        }
+        .onChange(of: selectedTimeFilter) { _, _ in
+            reconcileSelectionWithVisibleRecords()
+        }
+        .onChange(of: selectedProjectFilter) { _, _ in
+            reconcileSelectionWithVisibleRecords()
+        }
+        .onChange(of: scoreboardVM.records.map(\.id)) { _, _ in
+            reconcileSelectionWithVisibleRecords()
+        }
+        .onChange(of: timerVM.records.map(\.id)) { _, _ in
+            reconcileSelectionWithVisibleRecords()
+        }
         .alert(NSLocalizedString("clear_all_records", comment: ""), isPresented: $showClearConfirm) {
             Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
             Button(NSLocalizedString("clear_all_records", comment: ""), role: .destructive) {
@@ -108,6 +132,17 @@ struct RecordsTab: View {
             }
         } message: {
             Text(NSLocalizedString("clear_records_tab_message", comment: ""))
+        }
+        .alert(
+            NSLocalizedString("delete", value: "删除", comment: ""),
+            isPresented: $showBatchDeleteConfirm
+        ) {
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
+            Button(NSLocalizedString("delete", value: "删除", comment: ""), role: .destructive) {
+                deleteSelectedRecords()
+            }
+        } message: {
+            Text(batchDeleteConfirmationMessage)
         }
         .tint(Theme.accentColor)
     }
@@ -226,12 +261,29 @@ struct RecordsTab: View {
 
     private var tabChips: some View {
         HStack(spacing: 8) {
-            chip(title: NSLocalizedString("all", value: "全部", comment: "All"), selected: currentTab == 0) { currentTab = 0 }
-            chip(title: NSLocalizedString("scoreboard", value: "计分", comment: "Scoreboard"), selected: currentTab == 1) { currentTab = 1 }
-            chip(title: NSLocalizedString("timer", value: "计时", comment: "Timer"), selected: currentTab == 2) { currentTab = 2 }
+            chip(title: NSLocalizedString("all", value: "全部", comment: "All"), selected: currentTab == 0) { selectTab(0) }
+            chip(title: NSLocalizedString("scoreboard", value: "计分", comment: "Scoreboard"), selected: currentTab == 1) { selectTab(1) }
+            chip(title: NSLocalizedString("timer", value: "计时", comment: "Timer"), selected: currentTab == 2) { selectTab(2) }
         }
         .padding(.horizontal, Theme.pageHorizontalInset)
         .padding(.bottom, 12)
+    }
+
+    private var batchEditBar: some View {
+        let visibleIDs = filteredRecords().map(\.selectionID)
+        return CommonDataBatchEditBar(
+            allSelected: recordSelection.containsAll(visibleIDs),
+            selectedCount: recordSelection.count,
+            onToggleSelectAll: {
+                recordSelection.toggleAll(visibleIDs)
+            },
+            onDelete: {
+                guard !recordSelection.isEmpty else { return }
+                showBatchDeleteConfirm = true
+            }
+        )
+        .disabled(isDeletingSelection || visibleIDs.isEmpty)
+        .accessibilityIdentifier("records_batch_edit_bar")
     }
 
     private func chip(title: String, selected: Bool, action: @escaping () -> Void) -> some View {
@@ -337,9 +389,7 @@ struct RecordsTab: View {
                 ForEach(groups, id: \.date) { group in
                     Section {
                         ForEach(Array(group.records.enumerated()), id: \.element.id) { index, item in
-                            recordRow(item: item, isEditMode: isEditMode) {
-                                deleteRecord(item)
-                            }
+                            recordRow(item: item, isEditMode: isEditMode)
                             if index < group.records.count - 1 {
                                 Divider()
                                     .overlay(Theme.homeOverlayBorder)
@@ -372,41 +422,39 @@ struct RecordsTab: View {
     }
 
     @ViewBuilder
-    private func recordRow(item: RecordsTabRecordItem, isEditMode: Bool, onDelete: @escaping () -> Void) -> some View {
-        switch item {
-        case .scoreboard(let record):
-            let dest = ScoreboardRecordDetailPage(recordId: record.id)
-            if isEditMode {
-                HStack(spacing: 0) {
-                    scoreboardRowContent(record)
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 18))
-                            .foregroundColor(.red)
-                            .frame(width: 44, height: 44)
+    private func recordRow(item: RecordsTabRecordItem, isEditMode: Bool) -> some View {
+        if isEditMode {
+            let selectionID = item.selectionID
+            Button {
+                recordSelection.toggle(selectionID)
+            } label: {
+                HStack(spacing: Theme.sm) {
+                    Image(systemName: recordSelection.contains(selectionID) ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundStyle(recordSelection.contains(selectionID) ? Theme.accentColor : Theme.textSecondary)
+                        .frame(width: 28, height: 44)
+                    switch item {
+                    case .scoreboard(let record):
+                        scoreboardRowContent(record)
+                    case .timer(let record):
+                        timerRowContent(record)
                     }
                 }
-            } else {
-                NavigationLink(destination: dest) {
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("record_selection_\(selectionID.accessibilityIdentifier)")
+            .accessibilityValue(recordSelection.contains(selectionID) ? "selected" : "not selected")
+        } else {
+            switch item {
+            case .scoreboard(let record):
+                NavigationLink(destination: ScoreboardRecordDetailPage(recordId: record.id)) {
                     scoreboardRowContent(record)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
-            }
-        case .timer(let record):
-            let dest = TimerRecordDetailPage(recordId: record.id)
-            if isEditMode {
-                HStack(spacing: 0) {
-                    timerRowContent(record)
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 18))
-                            .foregroundColor(.red)
-                            .frame(width: 44, height: 44)
-                    }
-                }
-            } else {
-                NavigationLink(destination: dest) {
+            case .timer(let record):
+                NavigationLink(destination: TimerRecordDetailPage(recordId: record.id)) {
                     timerRowContent(record)
                 }
                 .buttonStyle(.plain)
@@ -521,13 +569,67 @@ struct RecordsTab: View {
         .padding(.vertical, Theme.recordRowVerticalPadding)
     }
 
-    private func deleteRecord(_ item: RecordsTabRecordItem) {
-        switch item {
-        case .scoreboard(let r):
-            _ = ScoreboardRecordsViewModel.shared.deleteRecord(r.id)
-        case .timer(let r):
-            _ = TimerRecordsViewModel.shared.deleteRecord(r.id)
+    private func selectTab(_ tab: Int) {
+        guard currentTab != tab else { return }
+        currentTab = tab
+        recordSelection.clear()
+    }
+
+    private func exitEditMode() {
+        isEditMode = false
+        recordSelection.clear()
+        showBatchDeleteConfirm = false
+    }
+
+    private func reconcileSelectionWithVisibleRecords() {
+        guard isEditMode else {
+            recordSelection.clear()
+            return
         }
+        recordSelection.reconcile(with: filteredRecords().map(\.selectionID))
+    }
+
+    private var batchDeleteConfirmationMessage: String {
+        String(
+            format: NSLocalizedString(
+                "records_batch_delete_confirm",
+                value: "确认删除选中的 %d 条记录（计分 %d 条、计时 %d 条）？此操作无法撤销。",
+                comment: "Batch delete score and timer records"
+            ),
+            recordSelection.count,
+            recordSelection.scoreboardRecordIDs.count,
+            recordSelection.timerRecordIDs.count
+        )
+    }
+
+    private func deleteSelectedRecords() {
+        guard !recordSelection.isEmpty, !isDeletingSelection else { return }
+        let scoreboardIDs = recordSelection.scoreboardRecordIDs
+        let timerIDs = recordSelection.timerRecordIDs
+        var failedSelections: Set<RecordsTabRecordSelectionID> = []
+
+        isDeletingSelection = true
+        defer { isDeletingSelection = false }
+
+        for id in scoreboardIDs where !ScoreboardRecordsViewModel.shared.deleteRecord(id) {
+            failedSelections.insert(.scoreboard(id))
+        }
+        for id in timerIDs where !TimerRecordsViewModel.shared.deleteRecord(id) {
+            failedSelections.insert(.timer(id))
+        }
+
+        recordSelection.replace(with: failedSelections)
+        if failedSelections.isEmpty {
+            recordSelection.clear()
+        } else {
+            reconcileSelectionWithVisibleRecords()
+        }
+
+        AppAnalytics.track(.deleteRecords, parameters: [
+            .contentType: .string("records_batch"),
+            .result: .string(failedSelections.isEmpty ? AnalyticsResult.success.rawValue : AnalyticsResult.failed.rawValue),
+            .settingValue: .int(scoreboardIDs.count + timerIDs.count)
+        ])
     }
 
     private func formatDate(_ dateString: String) -> String {
@@ -567,6 +669,7 @@ struct RecordsTab: View {
         _ = TimerRecordManager.shared.clearAllRecords()
         scoreboardVM.refreshRecordsImmediately()
         timerVM.loadFromStorage()
+        exitEditMode()
     }
 
     private var loadingView: some View {
@@ -645,7 +748,13 @@ struct RecordsProjectFilter: Identifiable, Hashable {
         }
     }
 
-    static let allOptions: [Self] = GameType.scoreboardFilterTypes.flatMap { type -> [Self] in
+    private static let catalogRecordTypes: [GameType] = {
+        let scoreboardTypes = GameCatalog.scoreboardItems.map(\.gameType)
+        let timerTypes = GameCatalog.timerBoardGameItems.compactMap(\.mappedGameType)
+        return scoreboardTypes + timerTypes
+    }()
+
+    static let allOptions: [Self] = catalogRecordTypes.flatMap { type -> [Self] in
         switch type {
         case .pingpong:
             return [.init(gameType: type, scope: .family), .init(gameType: type, scope: .exact(.pingpong)), .init(gameType: type, scope: .exact(.pingpongDoubles))]
@@ -663,6 +772,84 @@ struct RecordsProjectFilter: Identifiable, Hashable {
     }
 }
 
+enum RecordsTabRecordSelectionID: Hashable {
+    case scoreboard(String)
+    case timer(String)
+
+    var recordID: String {
+        switch self {
+        case .scoreboard(let id), .timer(let id): id
+        }
+    }
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .scoreboard(let id): "scoreboard_\(id)"
+        case .timer(let id): "timer_\(id)"
+        }
+    }
+}
+
+struct RecordsTabSelectionState: Equatable {
+    private(set) var selected: Set<RecordsTabRecordSelectionID> = []
+
+    var count: Int { selected.count }
+    var isEmpty: Bool { selected.isEmpty }
+
+    var scoreboardRecordIDs: [String] {
+        selected.compactMap { id in
+            guard case .scoreboard(let recordID) = id else { return nil }
+            return recordID
+        }.sorted()
+    }
+
+    var timerRecordIDs: [String] {
+        selected.compactMap { id in
+            guard case .timer(let recordID) = id else { return nil }
+            return recordID
+        }.sorted()
+    }
+
+    func contains(_ id: RecordsTabRecordSelectionID) -> Bool {
+        selected.contains(id)
+    }
+
+    func containsAll(_ visibleIDs: [RecordsTabRecordSelectionID]) -> Bool {
+        let visible = Set(visibleIDs)
+        return !visible.isEmpty && visible.isSubset(of: selected)
+    }
+
+    mutating func toggle(_ id: RecordsTabRecordSelectionID) {
+        if selected.contains(id) {
+            selected.remove(id)
+        } else {
+            selected.insert(id)
+        }
+    }
+
+    mutating func toggleAll(_ visibleIDs: [RecordsTabRecordSelectionID]) {
+        let visible = Set(visibleIDs)
+        guard !visible.isEmpty else { return }
+        if visible.isSubset(of: selected) {
+            selected.subtract(visible)
+        } else {
+            selected.formUnion(visible)
+        }
+    }
+
+    mutating func reconcile(with visibleIDs: [RecordsTabRecordSelectionID]) {
+        selected.formIntersection(Set(visibleIDs))
+    }
+
+    mutating func replace(with ids: Set<RecordsTabRecordSelectionID>) {
+        selected = ids
+    }
+
+    mutating func clear() {
+        selected.removeAll()
+    }
+}
+
 private enum RecordsTabRecordItem: Identifiable {
     case scoreboard(ScoreboardRecordSummary)
     case timer(GameRecordSummary)
@@ -671,6 +858,13 @@ private enum RecordsTabRecordItem: Identifiable {
         switch self {
         case .scoreboard(let r): return "s-\(r.id)"
         case .timer(let r): return "t-\(r.id)"
+        }
+    }
+
+    var selectionID: RecordsTabRecordSelectionID {
+        switch self {
+        case .scoreboard(let r): return .scoreboard(r.id)
+        case .timer(let r): return .timer(r.id)
         }
     }
 

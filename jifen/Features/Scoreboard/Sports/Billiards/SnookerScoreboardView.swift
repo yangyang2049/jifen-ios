@@ -6,6 +6,15 @@ import SessionCore
 import SwiftUI
 import UIKit
 
+func snookerNormalizedRecordCode(_ raw: String) -> String {
+    (raw.split(separator: "|", omittingEmptySubsequences: false)[safe: 2].map(String.init) ?? raw)
+        .lowercased()
+}
+
+func snookerFoulRecordTeam(fouler: MatchSide) -> RecordTeam {
+    fouler == .left ? .team1 : .team2
+}
+
 struct SnookerScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
@@ -21,6 +30,8 @@ struct SnookerScoreboardView: View {
     @State private var recordID: String
     @State private var leftName: String
     @State private var rightName: String
+    @State private var matchTitle: String?
+    @State private var matchTitleDraft: String
     @State private var showFoulPanel = false
     @State private var showSettlePanel = false
     @State private var showRecordPanel = false
@@ -62,6 +73,7 @@ struct SnookerScoreboardView: View {
         let defaults = DefaultParticipantNames.resolve(for: .snooker)
         var left = initialSetup?.team1Name.nonEmpty ?? defaults.left
         var right = initialSetup?.team2Name.nonEmpty ?? defaults.right
+        var title = ScoreboardMatchTitlePolicy.sanitize(initialSetup?.matchTitle)
         let maxFrames: Int
         let firstBreaker: MatchSide
         if case let .some(.snooker(projectedFrames, projectedBreaker)) = initialSetup?.billiardsConfiguration(for: .snooker) {
@@ -76,8 +88,8 @@ struct SnookerScoreboardView: View {
         var id = UUID().uuidString
         var actions = 0
         var restoredHistory: [SnookerState] = []
-        let restoredActionLog: [String] = []
-        let restoredDetailedActions: [DetailedScoreAction] = []
+        var restoredActionLog: [String] = []
+        var restoredDetailedActions: [DetailedScoreAction] = []
         var showFinished = false
         var resumeBundle: BilliardsSessionStore<SnookerReducer>.ResumeBundle?
 
@@ -90,7 +102,15 @@ struct SnookerScoreboardView: View {
                 .flatMap(Int64.init)
                 .map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? start
             id = bundle.currentSession.metadata.extras["recordID"] ?? initialResumeSessionId
-            actions = bundle.timeline.count
+            title = ScoreboardMatchTitlePolicy.sanitize(
+                bundle.currentSession.metadata.title
+                    ?? bundle.currentSession.metadata.extras["matchTitle"]
+                    ?? title
+            )
+            let recordContext = ScoreSessionRecordContext.decode(bundle.auxiliaryPayload)
+            restoredActionLog = recordContext?.actionLog ?? []
+            restoredDetailedActions = recordContext?.detailedActions ?? []
+            actions = recordContext?.actionCount ?? bundle.timeline.count
             restoredHistory = bundle.undoFrames.map(\.session.state)
             if bundle.currentSession.participants.count >= 2 {
                 left = bundle.currentSession.participants[0].name
@@ -111,6 +131,7 @@ struct SnookerScoreboardView: View {
             ],
             startedAt: start,
             recordID: id,
+            metadataTitle: title,
             restoredUndoStates: restoredHistory
         )
         _sessionStore = State(initialValue: store)
@@ -121,6 +142,8 @@ struct SnookerScoreboardView: View {
         _detailedActions = State(initialValue: restoredDetailedActions)
         _leftName = State(initialValue: left)
         _rightName = State(initialValue: right)
+        _matchTitle = State(initialValue: title)
+        _matchTitleDraft = State(initialValue: title ?? "")
         _showGameOverDialog = State(initialValue: showFinished)
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
     }
@@ -134,7 +157,7 @@ struct SnookerScoreboardView: View {
     }
 
     private var scoringLocked: Bool {
-        terminalFrameHold.value != nil || linkScoringLocked
+        terminalFrameHold.value != nil || state.frameCompletePending || linkScoringLocked
     }
 
     var body: some View {
@@ -250,11 +273,71 @@ struct SnookerScoreboardView: View {
                     onShare: {
                         let left = state.maxFrames > 1 ? state.leftFrames : state.leftScore
                         let right = state.maxFrames > 1 ? state.rightFrames : state.rightScore
-                        ScoreboardShareSupport.present(text: "\(leftName) \(left) - \(right) \(rightName)")
+                        let scoreLine = "\(leftName) \(left) - \(right) \(rightName)"
+                        ScoreboardShareSupport.present(
+                            text: [matchTitle, scoreLine].compactMap { $0 }.joined(separator: "\n")
+                        )
                     },
                     onExit: exit
                 )
             }
+
+            if state.frameCompletePending, let winner = state.pendingFrameWinner {
+                snookerFrameResultOverlay(winner: winner)
+                    .zIndex(50)
+            }
+        }
+    }
+
+    private func snookerFrameResultOverlay(winner: MatchSide) -> some View {
+        ZStack {
+            Color.black.opacity(0.62)
+                .ignoresSafeArea()
+
+            VStack(spacing: 14) {
+                Text(String.localizedStringWithFormat(
+                    NSLocalizedString("snooker_frame_result_title", value: "第 %d 局结束", comment: ""),
+                    state.currentFrame
+                ))
+                .font(.headline.bold())
+
+                Text("\(leftName) \(state.leftScore) : \(state.rightScore) \(rightName)")
+                    .font(.title3.bold())
+                    .multilineTextAlignment(.center)
+
+                Text(String.localizedStringWithFormat(
+                    NSLocalizedString("snooker_frame_winner_label", value: "本局胜方：%@", comment: ""),
+                    winner == .left ? leftName : rightName
+                ))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+                Text(String.localizedStringWithFormat(
+                    NSLocalizedString("snooker_frame_result_frames", value: "局分 %d : %d", comment: ""),
+                    state.leftFrames,
+                    state.rightFrames
+                ))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+
+                Button {
+                    confirmPendingFrame()
+                } label: {
+                    Text(NSLocalizedString("snooker_next_frame", value: "下一局", comment: ""))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("snooker_next_frame_button")
+            }
+            .foregroundStyle(.primary)
+            .padding(22)
+            .frame(maxWidth: 420)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .padding(.horizontal, 24)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("snooker_frame_result_dialog")
         }
     }
 
@@ -283,7 +366,8 @@ struct SnookerScoreboardView: View {
             onRightTap: {},
             onUndo: { undo() },
             onReset: { resetMatch() },
-            onExchange: { guard !scoringLocked else { return }; send(.exchangeSides) },
+            // Android 3.1 removes the generic side-exchange action for snooker.
+            onExchange: nil,
             onBack: exit,
             showEndGame: true,
             onEndGame: {
@@ -372,9 +456,16 @@ struct SnookerScoreboardView: View {
             },
             bottomBar: { AnyView(snookerBottomBar) },
             topCenter: { preference, containerSize in
-                AnyView(framePill(preference: preference, containerSize: containerSize))
+                AnyView(snookerTopCenter(preference: preference, containerSize: containerSize))
             },
-            onEditModeChange: { scoreboardEditing = $0 },
+            onEditModeChange: { editing in
+                if editing {
+                    matchTitleDraft = matchTitle ?? ""
+                } else {
+                    commitMatchTitle()
+                }
+                scoreboardEditing = editing
+            },
             onTypographyChange: { preference in
                 typographyPreference = preference
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -462,6 +553,48 @@ struct SnookerScoreboardView: View {
         }
     }
 
+    @ViewBuilder
+    private func snookerTopCenter(
+        preference: ScoreboardTypographyPreference,
+        containerSize: CGSize
+    ) -> some View {
+        VStack(spacing: 6) {
+            if scoreboardEditing {
+                TextField(
+                    NSLocalizedString("match_title_placeholder", value: "例如：2026 城市公开赛", comment: ""),
+                    text: Binding(
+                        get: { matchTitleDraft },
+                        set: { matchTitleDraft = ScoreboardMatchTitlePolicy.limitInput($0) }
+                    )
+                )
+                .font(preference.font.swiftUIFont(size: Theme.usesPadLayout ? 18 : 15, weight: .semibold))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 10)
+                .frame(width: max(150, min(360, containerSize.width * 0.44)), height: 38)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Color.black.opacity(0.3)))
+                .accessibilityIdentifier("snooker_match_title_editor")
+            } else if let matchTitle {
+                Text(matchTitle)
+                    .font(preference.font.swiftUIFont(size: Theme.usesPadLayout ? 20 : 16, weight: .bold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .accessibilityIdentifier("snooker_match_title")
+            }
+            framePill(preference: preference, containerSize: containerSize)
+        }
+    }
+
+    private func commitMatchTitle() {
+        let normalized = ScoreboardMatchTitlePolicy.sanitize(matchTitleDraft)
+        guard normalized != matchTitle else { return }
+        matchTitle = normalized
+        matchTitleDraft = normalized ?? ""
+        sessionStore.updateMetadataTitle(normalized)
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+    }
+
     private var snookerBottomBar: some View {
         let controlSize: CGFloat = Theme.usesPadLayout ? 50 : 44
         let spacing: CGFloat = Theme.usesPadLayout ? 8 : 6
@@ -497,7 +630,7 @@ struct SnookerScoreboardView: View {
             ForEach(balls, id: \.points) { ball in
                 let legal = isLegalSnookerBall(ball.points)
                 Button {
-                    guard !scoringLocked, legal else { return }
+                    guard !scoringLocked else { return }
                     send(.potBall(points: ball.points))
                 } label: {
                     Group {
@@ -530,7 +663,7 @@ struct SnookerScoreboardView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("snooker_ball_\(ball.points)")
-                .disabled(scoringLocked || displayedState.finished || !legal)
+                .disabled(scoringLocked || displayedState.finished)
             }
             Button {
                 guard !scoringLocked else { return }
@@ -579,7 +712,8 @@ struct SnookerScoreboardView: View {
         ).secondaryFontSize
     }
 
-    /// HOS legal-ball highlighting: red stage → red; color stage → any colour; clearance → expected colour only.
+    /// Android 3.1 uses this only to highlight the expected ball. Referee
+    /// exceptions remain manually recordable, so a dimmed ball is not disabled.
     private func isLegalSnookerBall(_ points: Int) -> Bool {
         switch displayedState.nextBallStage {
         case .red:
@@ -806,14 +940,14 @@ struct SnookerScoreboardView: View {
     }
 
     private func snookerRecordTitle(_ raw: String) -> String {
-        let code = raw.split(separator: "|", omittingEmptySubsequences: false)[safe: 2].map(String.init) ?? raw
-        if code.contains("potBall") { return NSLocalizedString("snooker_record_pot", value: "进球", comment: "") }
+        let code = snookerNormalizedRecordCode(raw)
+        if code.contains("potball") { return NSLocalizedString("snooker_record_pot", value: "进球", comment: "") }
         if code.contains("foul") { return NSLocalizedString("snooker_foul_button", value: "犯规", comment: "") }
         if code.contains("handover") { return NSLocalizedString("snooker_handover", value: "交杆", comment: "") }
-        if code.contains("settleFrame") { return NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: "") }
+        if code.contains("settleframe") { return NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: "") }
         if code == "undo" { return NSLocalizedString("undone", value: "已撤销", comment: "") }
         if code == "reset" { return NSLocalizedString("has_been_reset", value: "已重置", comment: "") }
-        if code.contains("adminCorrect") { return NSLocalizedString("edit", value: "编辑", comment: "") }
+        if code.contains("admincorrect") { return NSLocalizedString("edit", value: "编辑", comment: "") }
         return code.replacingOccurrences(of: "_", with: " ")
     }
 
@@ -826,40 +960,88 @@ struct SnookerScoreboardView: View {
 
     private func send(_ intent: SnookerIntent) {
         guard !scoringLocked else { return }
-        sessionStore.send(intent) { previous, next, _ in
-            actionCount += 1
-            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: String(describing: intent), scores: [next.leftScore, next.rightScore], setScores: [next.leftFrames, next.rightFrames]))
-            appendSnookerAction(intent, previousState: previous)
-            if next.finished {
-                _ = saveRecord()
-                showGameOverDialog = true
+        sessionStore.send(
+            intent,
+            completion: { previous, next, _ in
+                projectAcceptedSnookerIntent(intent, previous: previous, next: next)
+            },
+            afterFinalized: { _, next, _ in
+                if next.finished { _ = saveRecord() }
             }
+        )
+    }
+
+    private func projectAcceptedSnookerIntent(
+        _ intent: SnookerIntent,
+        previous: SnookerState,
+        next: SnookerState
+    ) {
+        actionCount += 1
+        actionLog.append(ReducerScoreboardRecordPersistence.snapshot(
+            code: String(describing: intent),
+            scores: [next.leftScore, next.rightScore],
+            setScores: [next.leftFrames, next.rightFrames]
+        ))
+        appendSnookerAction(intent, previousState: previous)
+        if next.leftFrames != previous.leftFrames || next.rightFrames != previous.rightFrames {
+            let winner: MatchSide = next.leftFrames > previous.leftFrames ? .left : .right
+            detailedActions.append(snookerDetailedAction(
+                type: .setFinished,
+                team: winner == .left ? .team1 : .team2,
+                code: "snooker_auto_settle_frame",
+                setNumber: previous.currentFrame,
+                scores: [next.leftScore, next.rightScore],
+                setScores: [next.leftFrames, next.rightFrames]
+            ))
         }
+        persistRecordContext()
+        if next.finished { showGameOverDialog = true }
+    }
+
+    private func confirmPendingFrame() {
+        guard state.frameCompletePending, !linkScoringLocked else { return }
+        sessionStore.send(.confirmNextFrame, completion: { _, next, _ in
+            actionCount += 1
+            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(
+                code: String(describing: SnookerIntent.confirmNextFrame),
+                scores: [next.leftScore, next.rightScore],
+                setScores: [next.leftFrames, next.rightFrames]
+            ))
+            persistRecordContext()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            publishWatchIfNeeded(next)
+        })
     }
 
     private func settleCurrentFrame(winner: MatchSide) {
         guard !scoringLocked else { return }
-        let finalFrame = state
-        sessionStore.send(.settleFrame(winner: winner)) { previous, next, _ in
-            actionCount += 1
-            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(
-                code: String(describing: SnookerIntent.settleFrame(winner: winner)),
-                scores: [previous.leftScore, previous.rightScore],
-                setScores: [next.leftFrames, next.rightFrames]
-            ))
-            appendSnookerAction(.settleFrame(winner: winner), previousState: previous)
-            if next.finished {
-                _ = saveRecord()
-            }
-            terminalFrameHold.begin(finalFrame) {
-                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                publishWatchIfNeeded(state)
-                if state.finished {
-                    showGameOverDialog = true
-                    notifyLinkedFinishIfNeeded()
+        sessionStore.send(
+            .settleFrame(winner: winner),
+            completion: { previous, next, _ in
+                actionCount += 1
+                actionLog.append(ReducerScoreboardRecordPersistence.snapshot(
+                    code: String(describing: SnookerIntent.settleFrame(winner: winner)),
+                    scores: [previous.leftScore, previous.rightScore],
+                    setScores: [next.leftFrames, next.rightFrames]
+                ))
+                appendSnookerAction(.settleFrame(winner: winner), previousState: previous)
+                persistRecordContext()
+                // The held terminal frame must be the exact authoritative
+                // pre-settlement state, including any point queued just before
+                // the settlement tap.
+                terminalFrameHold.begin(previous) {
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                    publishWatchIfNeeded(state)
+                    if state.finished {
+                        showGameOverDialog = true
+                        notifyLinkedFinishIfNeeded()
+                    }
                 }
+            },
+            afterFinalized: { _, next, _ in
+                if next.finished { _ = saveRecord() }
             }
-        }
+        )
     }
 
     private func cancelTerminalFramePresentation() {
@@ -868,13 +1050,14 @@ struct SnookerScoreboardView: View {
 
     private func undo() -> Bool {
         guard !linkScoringLocked,
+              !state.frameCompletePending,
               (!state.finished || terminalFrameHold.value != nil) else { return false }
         cancelTerminalFramePresentation()
         return sessionStore.undo { success, restored in
             guard success else { return }
-            actionCount = max(0, actionCount - 1)
-            actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: "undo", scores: [restored.leftScore, restored.rightScore], setScores: [restored.leftFrames, restored.rightFrames]))
-            detailedActions.append(snookerDetailedAction(type: .undo, code: "undo"))
+            actionLog = sessionStore.recordContext.actionLog
+            detailedActions = sessionStore.recordContext.detailedActions
+            actionCount = sessionStore.recordContext.actionCount
             showGameOverDialog = restored.finished
         }
     }
@@ -931,7 +1114,16 @@ struct SnookerScoreboardView: View {
     private func resetMatch() {
         guard !linkScoringLocked else { return }
         cancelTerminalFramePresentation()
-        send(.reset)
+        let resetState = SnookerState.initial(
+            striker: state.firstBreaker,
+            maxFrames: state.maxFrames
+        )
+        sessionStore.resetRuntime(to: resetState) { _ in
+            actionLog = sessionStore.recordContext.actionLog
+            detailedActions = sessionStore.recordContext.detailedActions
+            actionCount = sessionStore.recordContext.actionCount
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
         foulSwitchTurn = true
         showSettlePanel = false
         showFoulPanel = false
@@ -954,12 +1146,25 @@ struct SnookerScoreboardView: View {
         actionCount += 1
         actionLog.append(ReducerScoreboardRecordPersistence.snapshot(code: "edit_names", scores: [state.leftScore, state.rightScore], setScores: [state.leftFrames, state.rightFrames]))
         detailedActions.append(snookerDetailedAction(type: .stateChanged, code: "snooker_edit_names"))
+        persistRecordContext()
     }
 
     private func adjustSnookerScore(side: MatchSide, delta: Int) {
-        let left = max(0, state.leftScore + (side == .left ? delta : 0))
-        let right = max(0, state.rightScore + (side == .right ? delta : 0))
-        send(.adminCorrect(left: left, right: right, striker: state.striker))
+        guard delta != 0, !scoringLocked else { return }
+        sessionStore.sendDerived(
+            { current in
+                let left = max(0, current.leftScore + (side == .left ? delta : 0))
+                let right = max(0, current.rightScore + (side == .right ? delta : 0))
+                guard left != current.leftScore || right != current.rightScore else { return nil }
+                return .adminCorrect(left: left, right: right, striker: current.striker)
+            },
+            completion: { intent, previous, next, _ in
+                projectAcceptedSnookerIntent(intent, previous: previous, next: next)
+            },
+            afterFinalized: { _, _, next, _ in
+                if next.finished { _ = saveRecord() }
+            }
+        )
         showGameOverDialog = false
     }
 
@@ -982,10 +1187,10 @@ struct SnookerScoreboardView: View {
             delta = points
             code = "snooker_pot_\(points)"
         case .foul(let points, let switchTurn):
-            type = .foul; team = previousState.striker == .left ? .team2 : .team1; delta = points
+            type = .foul; team = snookerFoulRecordTeam(fouler: previousState.striker); delta = points
             code = "snooker_foul_\(points)_\(switchTurn ? "switch" : "continue")"
         case .foulFromSide(let side, let points, let switchTurn):
-            type = .foul; team = side == .left ? .team2 : .team1; delta = points
+            type = .foul; team = snookerFoulRecordTeam(fouler: side); delta = points
             code = "snooker_foul_\(points)_\(switchTurn ? "switch" : "continue")"
         case .miss:
             type = .serveChanged; team = state.striker == .left ? .team1 : .team2; delta = nil; code = "snooker_miss"
@@ -1021,6 +1226,14 @@ struct SnookerScoreboardView: View {
             scores: recordedScores,
             setScores: recordedSetScores
         ))
+    }
+
+    private func persistRecordContext() {
+        sessionStore.updateRecordContext(
+            actionLog: actionLog,
+            detailedActions: detailedActions,
+            actionCount: actionCount
+        )
     }
 
     private func snookerDetailedAction(
@@ -1064,6 +1277,8 @@ struct SnookerScoreboardView: View {
     private func applyAuthoritativeSnooker(_ remote: SnookerState) {
         cancelTerminalFramePresentation()
         sessionStore.rebase(to: remote) { applied in
+            actionCount = max(actionCount, detailedActions.count)
+            persistRecordContext()
             showFoulPanel = false
             showSettlePanel = false
             if applied.finished, !scoringLocked {
@@ -1115,7 +1330,8 @@ struct SnookerScoreboardView: View {
                     .init(id: TeamID.team1.rawValue, name: rightName, role: "team")
                 ],
                 startedAt: newStartedAt,
-                recordID: newRecordID
+                recordID: newRecordID,
+                metadataTitle: matchTitle
             )
             freshStore.persistSnapshot { freshSaved in
                 isStartingNewMatch = false
@@ -1151,6 +1367,13 @@ struct SnookerScoreboardView: View {
         if state.finished, sessionStore.hasCommittedFinishedRecord {
             return true
         }
+        var projectConfiguration: [String: AnyCodable] = [
+            "maxSets": AnyCodable(state.maxFrames),
+            "servingSide": AnyCodable(state.firstBreaker.rawValue)
+        ]
+        if let matchTitle {
+            projectConfiguration["matchTitle"] = AnyCodable(matchTitle)
+        }
         let success = ReducerScoreboardRecordPersistence.saveRecord(
             id: recordID, gameType: .snooker, startedAt: startedAt,
             leftName: leftName, rightName: rightName,
@@ -1158,12 +1381,10 @@ struct SnookerScoreboardView: View {
             leftSets: state.leftFrames, rightSets: state.rightFrames,
             actionCount: actionCount, actions: actionLog, detailedActions: detailedActions, undoStates: sessionStore.undoStates, finished: state.finished, snapshot: state,
             sessionSnapshotData: sessionStore.encodedResumeBundle,
-            projectConfiguration: [
-                "maxSets": state.maxFrames,
-                "servingSide": state.firstBreaker.rawValue
-            ],
+            projectConfiguration: projectConfiguration,
             finishedSessionId: sessionStore.sessionId,
-            finishedCommitCoordinator: sessionStore.finishedCommitCoordinator
+            finishedCommitCoordinator: sessionStore.finishedCommitCoordinator,
+            replaceCommittedFinishedRecord: sessionStore.shouldReplaceCommittedFinishedRecord
         )
         if success, state.finished, actionCount > 0 {
             sessionStore.markFinishedRecordCommitted()

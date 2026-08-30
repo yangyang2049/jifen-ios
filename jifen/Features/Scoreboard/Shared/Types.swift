@@ -20,10 +20,15 @@ func resolvedScoreboardSetupName(_ name: String?, fallback: String) -> String {
 enum GameType: String, Codable, CaseIterable {
     case pingpong = "pingpong"
     case badminton = "badminton"
+    case shuttlecock = "shuttlecock"
+    case squash = "squash"
     case tennis = "tennis"
+    case softTennis = "soft_tennis"
+    case padel = "padel"
     case basketball = "basketball"
     case threeBasketball = "three_basketball"
     case football = "football"
+    case football5v5 = "football_5v5"
     case volleyball = "volleyball"
     case beachVolleyball = "beach_volleyball"
     case airVolleyball = "air_volleyball"
@@ -72,10 +77,15 @@ enum GameType: String, Codable, CaseIterable {
         switch self {
         case .pingpong: return NSLocalizedString("game_pingpong", comment: "Ping Pong")
         case .badminton: return NSLocalizedString("game_badminton", comment: "Badminton")
+        case .shuttlecock: return NSLocalizedString("game_shuttlecock", value: "毽球", comment: "Shuttlecock")
+        case .squash: return NSLocalizedString("game_squash", value: "壁球", comment: "Squash")
         case .tennis: return NSLocalizedString("game_tennis", comment: "Tennis")
+        case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "Soft Tennis")
+        case .padel: return NSLocalizedString("game_padel", value: "板式网球", comment: "Padel")
         case .basketball: return NSLocalizedString("game_basketball", comment: "Basketball")
         case .threeBasketball: return NSLocalizedString("game_three_basketball", value: "三人篮球", comment: "3x3 Basketball")
         case .football: return NSLocalizedString("game_football", comment: "Football")
+        case .football5v5: return NSLocalizedString("game_football_5v5", value: "5×5 足球", comment: "5x5 Football")
         case .volleyball: return NSLocalizedString("game_volleyball", comment: "Volleyball")
         case .beachVolleyball: return NSLocalizedString("game_beach_volleyball", value: "沙滩排球", comment: "Beach Volleyball")
         case .airVolleyball: return NSLocalizedString("game_air_volleyball", value: "气排球", comment: "Air Volleyball")
@@ -106,10 +116,14 @@ enum GameType: String, Codable, CaseIterable {
         switch self {
         case .pingpong: return "🏓"
         case .badminton: return "🏸"
+        case .shuttlecock: return "🏸"
+        case .squash: return "🎾"
         case .tennis: return "🎾"
+        case .softTennis, .padel: return "🎾"
         case .basketball: return "🏀"
         case .threeBasketball: return "🏀"
         case .football: return "⚽"
+        case .football5v5: return "⚽"
         case .volleyball: return "🏐"
         case .beachVolleyball, .airVolleyball: return "🏐"
         case .checkers: return "🏁"
@@ -137,7 +151,7 @@ enum GameType: String, Codable, CaseIterable {
     /// Counter and stopwatch are tools and do not belong in this list.
     static var scoreboardFilterTypes: [GameType] {
         [
-            .pingpong, .badminton, .tennis, .pickleball, .football, .basketball, .threeBasketball,
+            .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .football, .football5v5, .basketball, .threeBasketball,
             .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .guandan, .shengji, .uno, .foosball, .simpleScore, .multiScoreboard,
@@ -158,10 +172,15 @@ enum GameType: String, Codable, CaseIterable {
         switch scoreCoreGameType {
         case .pingpong, .pingpongDoubles: self = .pingpong
         case .badminton, .badmintonDoubles: self = .badminton
+        case .shuttlecock: self = .shuttlecock
+        case .squash: self = .squash
         case .tennis, .tennisDoubles: self = .tennis
+        case .softTennis: self = .softTennis
+        case .padel: self = .padel
         case .basketball: self = .basketball
         case .threeBasketball: self = .threeBasketball
         case .football: self = .football
+        case .football5v5: self = .football5v5
         case .volleyball: self = .volleyball
         case .beachVolleyball: self = .beachVolleyball
         case .airVolleyball: self = .airVolleyball
@@ -285,6 +304,12 @@ protocol ScoreViewModelProtocol: AnyObject {
     var gameFinished: Bool { get }
     /// Screen placement only. `leftTeam`/`rightTeam` remain stable team identities.
     var sidesSwapped: Bool { get }
+    /// Reducer-backed adapters write an undo snapshot after rolling their
+    /// action timeline back. The template must not append a second legacy
+    /// `undo` entry for those adapters.
+    var recordsUndoActionInternally: Bool { get }
+    var recordsExchangeActionInternally: Bool { get }
+    var recordsResetActionInternally: Bool { get }
     
     func addScore(isLeft: Bool, points: Int)
     func subtractScore(isLeft: Bool, points: Int)
@@ -299,6 +324,9 @@ protocol ScoreViewModelProtocol: AnyObject {
 
 extension ScoreViewModelProtocol {
     var sidesSwapped: Bool { false }
+    var recordsUndoActionInternally: Bool { false }
+    var recordsExchangeActionInternally: Bool { false }
+    var recordsResetActionInternally: Bool { false }
 
     func adjustSets(isLeft: Bool, delta: Int) {}
 
@@ -356,6 +384,9 @@ struct TemplateConfig {
     let scoringEnabledProvider: (() -> Bool)?
     /// Optional semantic key-point state for local display snapshots.
     let syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)?
+    /// Adds project-specific clock/foul/metadata to the dedicated display
+    /// while keeping the compact in-process snapshot available.
+    let externalStateEnricher: ((LocalScoreboardDisplayState) -> ScoreboardDisplayState)?
     /// When set, replaces default tap-to-+1 / double-tap scoring for that panel side.
     let onScorePanelTap: ((Bool) -> Void)?
 
@@ -377,6 +408,7 @@ struct TemplateConfig {
         onMenuAction: ((String) -> Void)? = nil,
         scoringEnabledProvider: (() -> Bool)? = nil,
         syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)? = nil,
+        externalStateEnricher: ((LocalScoreboardDisplayState) -> ScoreboardDisplayState)? = nil,
         onScorePanelTap: ((Bool) -> Void)? = nil
     ) {
         self.gameType = gameType
@@ -396,6 +428,7 @@ struct TemplateConfig {
         self.onMenuAction = onMenuAction
         self.scoringEnabledProvider = scoringEnabledProvider
         self.syncKeyPointProvider = syncKeyPointProvider
+        self.externalStateEnricher = externalStateEnricher
         self.onScorePanelTap = onScorePanelTap
     }
 }
@@ -413,12 +446,12 @@ enum NameType: String, Codable {
 enum ScoreboardCommonNamePolicy {
     static func nameType(for gameType: GameType) -> NameType {
         switch gameType {
-        case .pingpong, .badminton, .tennis,
+        case .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel,
              .checkers, .boxing, .billiards, .eightBall, .nineBall, .snooker,
              .pickleball, .archery, .doudizhu, .uno, .foosball,
              .multiScoreboard, .go, .xiangqi, .chess:
             .player
-        case .basketball, .threeBasketball, .football,
+        case .basketball, .threeBasketball, .football, .football5v5,
              .volleyball, .beachVolleyball, .airVolleyball,
              .guandan, .shengji, .simpleScore, .counter:
             .team
@@ -431,7 +464,8 @@ enum ScoreboardCommonNamePolicy {
         switch gameType {
         case .pingpong, .pingpongDoubles,
              .tennis, .tennisDoubles,
-             .badminton, .badmintonDoubles,
+             .badminton, .badmintonDoubles, .shuttlecock, .squash,
+             .softTennis, .padel,
              .pickleball, .pickleballDoubles,
              .foosball, .foosballDoubles:
             .player

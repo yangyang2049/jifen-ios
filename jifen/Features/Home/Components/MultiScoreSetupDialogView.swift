@@ -25,6 +25,7 @@ struct MultiScoreSetupDialogView: View {
     @State private var unoTargetScore: Int
     @State private var unoCustomTargetScoreText: String
     @State private var customAdjustEnabled: Bool
+    @State private var showMatchTime: Bool
     @State private var guandanTripleA: Bool
     @State private var guandanPassACondition: String
     @State private var guandanFallbackRank: String
@@ -135,6 +136,10 @@ struct MultiScoreSetupDialogView: View {
             }
         }()
         _customAdjustEnabled = State(initialValue: initialCustomAdjust)
+        _showMatchTime = State(initialValue: ScoreboardMatchTimePolicy.includesCasualSetupValue(for: gameType)
+            ? (initialSetup?.showMatchTime
+                ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: gameType))
+            : false)
         _guandanTripleA = State(initialValue: initialSetup?.guandanTripleA ?? PreferencesManager.shared.guandanSetupTripleA)
         _guandanPassACondition = State(initialValue: initialSetup?.guandanPassACondition ?? PreferencesManager.shared.guandanSetupPassACondition)
         _guandanFallbackRank = State(initialValue: initialSetup?.guandanTripleAFallbackRank ?? PreferencesManager.shared.guandanSetupTripleAFallbackRank)
@@ -181,6 +186,9 @@ struct MultiScoreSetupDialogView: View {
                         }
                         if gameType == .guandan {
                             guandanSettingsSection
+                        }
+                        if ScoreboardMatchTimePolicy.includesCasualSetupValue(for: gameType) {
+                            matchTimeToggle
                         }
                     case .multiScore, .uno, .doudizhu:
                         if layoutMode != .doudizhu {
@@ -317,6 +325,16 @@ struct MultiScoreSetupDialogView: View {
             }
         }
         .tint(Theme.primary)
+    }
+
+    private var matchTimeToggle: some View {
+        Toggle(isOn: $showMatchTime) {
+            Text(NSLocalizedString("show_match_time", value: "显示时间", comment: ""))
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.textPrimary)
+        }
+        .tint(Theme.primary)
+        .accessibilityIdentifier("casual_setup_show_match_time")
     }
 
     private var guandanSettingsSection: some View {
@@ -501,6 +519,13 @@ struct MultiScoreSetupDialogView: View {
                 result.guandanTripleA = guandanTripleA
                 result.guandanPassACondition = guandanPassACondition
                 result.guandanTripleAFallbackRank = guandanTripleA ? guandanFallbackRank : "2"
+            }
+            if ScoreboardMatchTimePolicy.includesCasualSetupValue(for: gameType) {
+                result.showMatchTime = showMatchTime
+                PreferencesManager.shared.setScoreboardMatchTimeVisible(
+                    showMatchTime,
+                    for: gameType
+                )
             }
             onConfirm?(result)
         case .multiScore, .doudizhu, .uno:

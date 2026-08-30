@@ -4,6 +4,90 @@ import RecordCore
 import ScoreCore
 import SessionCore
 
+/// App-layer context persisted beside a typed `ScoreSessionResumeBundle`.
+/// Reducer state remains the only source of truth for scoring; this payload
+/// preserves the user-facing record/voice timeline across process restoration.
+struct ScoreSessionRecordCheckpoint: Codable, Equatable {
+    var actionLogCount: Int
+    var detailedActionsCount: Int
+    var actionCount: Int
+    var completedSetScoresCount: Int
+}
+
+struct ScoreSessionRecordContext: Codable, Equatable {
+    static let currentSchemaVersion = 1
+
+    var schemaVersion: Int = currentSchemaVersion
+    var actionLog: [String]
+    var detailedActions: [DetailedScoreAction]
+    var actionCount: Int
+    var completedSetScores: [VoiceSetScore]
+    var undoCheckpoints: [ScoreSessionRecordCheckpoint]
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case actionLog
+        case detailedActions
+        case actionCount
+        case completedSetScores
+        case undoCheckpoints
+    }
+
+    init(
+        actionLog: [String] = [],
+        detailedActions: [DetailedScoreAction] = [],
+        actionCount: Int? = nil,
+        completedSetScores: [VoiceSetScore] = [],
+        undoCheckpoints: [ScoreSessionRecordCheckpoint] = []
+    ) {
+        self.actionLog = actionLog
+        self.detailedActions = detailedActions
+        self.actionCount = max(0, actionCount ?? detailedActions.count)
+        self.completedSetScores = completedSetScores
+        self.undoCheckpoints = undoCheckpoints
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        actionLog = try container.decodeIfPresent([String].self, forKey: .actionLog) ?? []
+        detailedActions = try container.decodeIfPresent([DetailedScoreAction].self, forKey: .detailedActions) ?? []
+        actionCount = max(0, try container.decodeIfPresent(Int.self, forKey: .actionCount) ?? detailedActions.count)
+        completedSetScores = try container.decodeIfPresent([VoiceSetScore].self, forKey: .completedSetScores) ?? []
+        undoCheckpoints = try container.decodeIfPresent([ScoreSessionRecordCheckpoint].self, forKey: .undoCheckpoints) ?? []
+    }
+
+    mutating func pushUndoCheckpoint() {
+        undoCheckpoints.append(.init(
+            actionLogCount: actionLog.count,
+            detailedActionsCount: detailedActions.count,
+            actionCount: actionCount,
+            completedSetScoresCount: completedSetScores.count
+        ))
+    }
+
+    @discardableResult
+    mutating func restoreLastUndoCheckpoint() -> Bool {
+        guard let checkpoint = undoCheckpoints.popLast() else { return false }
+        actionLog = Array(actionLog.prefix(max(0, checkpoint.actionLogCount)))
+        detailedActions = Array(detailedActions.prefix(max(0, checkpoint.detailedActionsCount)))
+        actionCount = max(0, checkpoint.actionCount)
+        completedSetScores = Array(completedSetScores.prefix(max(0, checkpoint.completedSetScoresCount)))
+        return true
+    }
+
+    static func decode(_ data: Data?) -> Self? {
+        guard let data,
+              let value = try? JSONDecoder().decode(Self.self, from: data),
+              value.schemaVersion == currentSchemaVersion else { return nil }
+        return value
+    }
+
+    var encoded: Data? {
+        try? JSONEncoder().encode(self)
+    }
+}
+
 enum ReducerScoreboardRecordPersistence {
     static func nowMilliseconds() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
 
@@ -136,7 +220,8 @@ enum ReducerScoreboardRecordPersistence {
         extra: [String: Any] = [:],
         projectConfiguration: [String: Any] = [:],
         finishedSessionId: UUID? = nil,
-        finishedCommitCoordinator: FinishedSessionCommitCoordinator? = nil
+        finishedCommitCoordinator: FinishedSessionCommitCoordinator? = nil,
+        replaceCommittedFinishedRecord: Bool = false
     ) -> Bool {
         guard actionCount > 0 else { return true }
         if !finished, gameType == .eightBall || gameType == .nineBall || gameType == .snooker {
@@ -209,7 +294,8 @@ enum ReducerScoreboardRecordPersistence {
                let sessionId = finishedSessionId ?? ManualResumeSessionStore.sessionID(for: id) {
                 let recordCommit = try finishedCommitCoordinator.commitRecord(
                     record,
-                    sessionId: sessionId
+                    sessionId: sessionId,
+                    replaceExisting: replaceCommittedFinishedRecord
                 )
                 Task {
                     let result = await finishedCommitCoordinator.cleanupResume(after: recordCommit)

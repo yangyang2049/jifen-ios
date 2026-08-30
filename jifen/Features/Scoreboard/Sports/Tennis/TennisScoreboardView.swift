@@ -46,11 +46,14 @@ private struct TennisTieBreakIndicator: View {
 /// Tennis scoreboard driven by `TennisSessionStore` / ScoreCore reducer.
 struct TennisScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var forcedGameType: ScoreCore.GameType? = nil
+    var usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator? = nil
 
     @State private var store: TennisSessionStore
     @State private var watchSessionId: UUID?
@@ -78,32 +81,40 @@ struct TennisScoreboardView: View {
     @State private var isStartingNewMatch = false
     @State private var terminalHold = ScoreboardTerminalHold<TennisTerminalGamePresentation>()
     @State private var didSpeakOpeningAnnouncement = false
+    @State private var openingAnnouncementTask: Task<Void, Never>?
+    @State private var officialBreakSession = OfficialBreakSession()
 
     init(
         onNavigationBack: (() -> Void)? = nil,
         initialSetup: SportsSetupResult? = nil,
         initialResumeSessionId: String? = nil,
-        onSetupConsumed: (() -> Void)? = nil
+        onSetupConsumed: (() -> Void)? = nil,
+        forcedGameType: ScoreCore.GameType? = nil,
+        usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator? = nil
     ) {
         self.onNavigationBack = onNavigationBack
         self.initialSetup = initialSetup
         self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
+        self.forcedGameType = forcedGameType
+        self.usageHintCoordinatorOverride = usageHintCoordinatorOverride
 
         let setup = initialSetup
         let isDoubles = !(setup?.isSingles ?? true)
-        let gameType: ScoreCore.GameType = isDoubles ? .tennisDoubles : .tennis
-        let rules = TennisRuleSet(
-            maxSets: setup?.maxSets ?? 3,
-            tieBreakPoints: setup?.tieBreakPoints == 10 ? 10 : 7,
-            gamesPerSet: setup?.gamesPerSet ?? 6,
-            setScoringMode: setup?.setScoringMode == "tiebreak_only" ? .tiebreakOnly : .regular,
-            matchCompletionMode: setup?.matchCompletionMode ?? .bestOf,
-            usesNoAdScoring: setup?.tennisDeuceMode == "no_ad",
-            autoChangeSides: setup?.autoChangeSides ?? true
-        )
+        let gameType: ScoreCore.GameType = forcedGameType ?? (isDoubles ? .tennisDoubles : .tennis)
+        let rules: TennisRuleSet
+        if gameType == .softTennis {
+            rules = setup?.softTennisRules ?? .softTennis()
+        } else if gameType == .padel {
+            rules = setup?.padelRules ?? .padel()
+        } else {
+            rules = (setup ?? SportsSetupResult(team1Name: "", team2Name: "")).tennisRules
+        }
         let opening: MatchSide = setup?.servingSide == MatchSide.right.rawValue ? .right : .left
-        let defaults = DefaultParticipantNames.resolve(for: .tennis, isSingles: !isDoubles)
+        let defaults = DefaultParticipantNames.resolve(
+            for: GameType(scoreCoreGameType: gameType) ?? .tennis,
+            isSingles: !isDoubles
+        )
         let left = resolvedScoreboardSetupName(
             setup?.team1Name,
             fallback: defaults.left
@@ -146,7 +157,7 @@ struct TennisScoreboardView: View {
     }
     private var terminalGamePresentation: TennisTerminalGamePresentation? { terminalHold.value }
     private var scoringLocked: Bool {
-        terminalGamePresentation != nil || linkScoringLocked
+        terminalGamePresentation != nil || linkScoringLocked || officialBreakSession.inputFrozen
     }
 
     private var linkedNewGameLabel: String {
@@ -247,7 +258,7 @@ struct TennisScoreboardView: View {
                         status: KeyPointResolver.tennis(snapshot: tennisKeyPointSnapshot(store.state)),
                         gameType: store.gameType,
                         sidesSwapped: store.state.sidesSwapped,
-                        doublesTopRow: store.gameType == .tennisDoubles ? tennisDoublesServerIsTopRow : nil,
+                        doublesTopRow: store.state.doublesPlayerNames != nil ? tennisDoublesServerIsTopRow : nil,
                         serveIndicatorSize: serveIndicatorSize
                     )
                 }
@@ -295,10 +306,20 @@ struct TennisScoreboardView: View {
                         showMenu = false
                     },
                     onMenuItemClick: handleMenu,
+                    onUsageHint: { (usageHintCoordinator ?? usageHintCoordinatorOverride)?.presentFromMenu() },
                     showEndGame: true,
                     items: menuItems,
                     analyticsGameType: GameType(scoreCoreGameType: store.gameType) ?? .tennis
                 )
+                if officialBreakSupported, officialBreakSession.state != nil {
+                    OfficialBreakOverlay(
+                        session: $officialBreakSession,
+                        onComplete: completeOfficialBreak,
+                        onCancel: cancelOfficialBreak,
+                        onVoiceCue: speakOfficialBreakCue
+                    )
+                    .zIndex(100)
+                }
                 if shouldShowChrome, !isEditMode, !showMenu, !showGameOverDialog {
                     VStack {
                         Spacer()
@@ -362,13 +383,20 @@ struct TennisScoreboardView: View {
                 }
         )
         .onAppear {
-            appearance = .current()
+            appearance = .current(styleID: ScoreboardStyleID(scoreCoreGameType: store.gameType))
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             onSetupConsumed?()
             if let id = initialResumeSessionId, let uuid = UUID(uuidString: id),
                let restored = TennisSessionStore(restoring: uuid) {
                 store = restored
+                didSpeakOpeningAnnouncement = true
+            }
+            if let savedBreak = store.state.officialBreakState {
+                officialBreakSession = OfficialBreakSession(state: savedBreak)
+                officialBreakSession.reconcileAfterRestore(
+                    nowMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+                )
             }
             typographySession.switchStyleID(ScoreboardStyleID(scoreCoreGameType: store.gameType))
             syncEditNamesFromState()
@@ -391,7 +419,7 @@ struct TennisScoreboardView: View {
             speakOpeningAnnouncementIfNeeded()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
-            appearance = .current()
+            appearance = .current(styleID: ScoreboardStyleID(scoreCoreGameType: store.gameType))
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -516,6 +544,7 @@ struct TennisScoreboardView: View {
             )
         }
         .onDisappear {
+            cancelPendingOpeningAnnouncement()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             flashTask?.cancel()
             cancelTerminalGamePresentation()
@@ -545,15 +574,16 @@ struct TennisScoreboardView: View {
     private func singlesHalf(_ screenSide: MatchSide, size: CGSize) -> some View {
         let side = logicalSide(forScreen: screenSide)
         let isLeft = side == .left
+        let textColor = appearance.palette.foreground(for: isLeft ? .team0 : .team1)
         return ZStack {
-            (isLeft ? appearance.theme.palette.left : appearance.theme.palette.right)
+            (isLeft ? appearance.palette.left : appearance.palette.right)
             if isEditMode {
                 tennisSinglesEditContent(screenSide: screenSide, side: side, size: size)
             } else {
                 tennisSinglesPlayContent(screenSide: screenSide, side: side, size: size)
             }
         }
-        .foregroundStyle(appearance.theme.palette.foreground)
+        .foregroundStyle(textColor)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
         .onTapGesture {
@@ -674,6 +704,7 @@ struct TennisScoreboardView: View {
     private func doublesHalf(_ screenSide: MatchSide, size: CGSize) -> some View {
         let side = logicalSide(forScreen: screenSide)
         let isLeft = side == .left
+        let textColor = appearance.palette.foreground(for: isLeft ? .team0 : .team1)
         let names = store.state.doublesPlayerNames ?? []
         let slots = tennisDoublesDisplaySlots(screenSide: screenSide, logicalSide: side)
         let serverSlot = store.state.finished
@@ -694,7 +725,7 @@ struct TennisScoreboardView: View {
         ).nameFontSize
 
         return ZStack {
-            isLeft ? appearance.theme.palette.left : appearance.theme.palette.right
+            isLeft ? appearance.palette.left : appearance.palette.right
             if isEditMode {
                 tennisDoublesEditContent(
                     screenSide: screenSide,
@@ -730,7 +761,7 @@ struct TennisScoreboardView: View {
                 )
             }
         }
-        .foregroundStyle(appearance.theme.palette.foreground)
+        .foregroundStyle(textColor)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
         .onTapGesture {
@@ -910,7 +941,7 @@ struct TennisScoreboardView: View {
             if !label.isEmpty {
                 Text(label)
                     .font(labelFont)
-                    .foregroundStyle(appearance.theme.palette.secondary)
+                    .foregroundStyle(appearance.palette.secondary)
                     .offset(x: labelHorizontalOffset)
                     .zIndex(1)
             }
@@ -924,8 +955,8 @@ struct TennisScoreboardView: View {
                 Text(value)
                     .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                     .foregroundStyle(useSecondaryColor
-                        ? appearance.theme.palette.secondary
-                        : appearance.theme.palette.foreground)
+                        ? appearance.palette.secondary
+                        : appearance.palette.foreground)
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -953,7 +984,7 @@ struct TennisScoreboardView: View {
         return Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: Theme.usesPadLayout ? 22 : 17, weight: .bold))
-                .foregroundStyle(appearance.theme.palette.foreground)
+                .foregroundStyle(appearance.palette.foreground)
                 .frame(width: visualSize, height: visualSize)
                 .background(Circle().fill(Color.black.opacity(enabled ? 0.24 : 0.1)))
         }
@@ -1050,7 +1081,7 @@ struct TennisScoreboardView: View {
     private func tennisMainScore(side: MatchSide, fontSize: CGFloat) -> some View {
         Text(displayedPointText(for: side))
             .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
-            .foregroundStyle(appearance.theme.palette.foreground)
+            .foregroundStyle(appearance.palette.foreground)
             .monospacedDigit()
             .minimumScaleFactor(0.5)
             .lineLimit(1)
@@ -1099,7 +1130,7 @@ struct TennisScoreboardView: View {
                     .clipShape(RoundedRectangle(cornerRadius: setBoxRadius, style: .continuous))
             }
         }
-        .foregroundStyle(appearance.theme.palette.secondary)
+        .foregroundStyle(appearance.palette.secondary)
         .frame(width: setBoxSize)
     }
 
@@ -1160,8 +1191,8 @@ struct TennisScoreboardView: View {
             Text(name)
                 .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                 .foregroundStyle(isReceiver
-                    ? appearance.theme.palette.secondary
-                    : appearance.theme.palette.foreground.opacity(isServer ? 1 : 0.85))
+                    ? appearance.palette.secondary
+                    : appearance.palette.foreground.opacity(isServer ? 1 : 0.85))
                 .lineLimit(1)
                 .minimumScaleFactor(0.65)
                 .padding(.horizontal, 36)
@@ -1386,19 +1417,32 @@ struct TennisScoreboardView: View {
 
     private func dispatch(_ intent: TennisMatchIntent) {
         guard !scoringLocked else { return }
-        let before = store.state
-        store.send(intent) { events in
-            handleEvents(events, before: before)
+        switch intent {
+        case .pointWon:
+            cancelPendingOpeningAnnouncement()
+        case .adjustPoints, .adjustGames, .adjustSets, .exchangeSides, .reset:
+            cancelPendingOpeningAnnouncement()
+            ScoreVoiceAnnouncer.shared.cancelPendingScore()
+        default:
+            break
         }
+        store.send(intent, onTransition: { before, after, events in
+            handleEvents(events, before: before, after: after)
+        })
         revealImmersiveChrome()
     }
 
-    private func handleEvents(_ events: [TennisMatchEvent], before: TennisMatchState) {
+    private func handleEvents(
+        _ events: [TennisMatchEvent],
+        before: TennisMatchState,
+        after: TennisMatchState
+    ) {
         var sideToast: String?
         var finalPoints: (left: Int, right: Int)?
         var completedGames: (left: Int, right: Int)?
         var matchFinished = false
         var matchReset = false
+        var setCompleted = false
         for event in events {
             switch event {
             case .pointScored(_, let left, let right):
@@ -1411,10 +1455,43 @@ struct TennisScoreboardView: View {
                 sideToast = NSLocalizedString("please_change_sides_manually", value: "请手动换边", comment: "")
             case .matchFinished:
                 matchFinished = true
+            case .setCompleted:
+                setCompleted = true
             case .matchReset:
                 matchReset = true
+            case .officialBreakChanged:
+                break
             default:
                 break
+            }
+        }
+        if preferences.officialBreaksEnabled, officialBreakSession.state == nil, !matchFinished {
+            if setCompleted {
+                switch store.gameType {
+                case .padel:
+                    startOfficialBreak(sport: .padel, kind: .setBreak, durationSeconds: 120, afterAction: .advanceAndExchange)
+                case .softTennis:
+                    break
+                default:
+                    startOfficialBreak(sport: .tennis, kind: .setBreak, durationSeconds: 120, afterAction: .advanceAndExchange)
+                }
+            } else if let completedGames,
+                      (completedGames.left + completedGames.right).isMultiple(of: 2) == false,
+                      store.gameType == .softTennis || completedGames.left + completedGames.right > 1 {
+                let configuration: (OfficialBreakSport, Int) = switch store.gameType {
+                case .softTennis: (.softTennis, 60)
+                case .padel: (.padel, 90)
+                default: (.tennis, 90)
+                }
+                startOfficialBreak(sport: configuration.0, kind: .changeover, durationSeconds: configuration.1, afterAction: .exchangeSides)
+            } else if store.gameType == .softTennis,
+                      after.isTieBreak,
+                      let finalPoints {
+                let totalPoints = finalPoints.left + finalPoints.right
+                let shouldRest = totalPoints == 2 || (totalPoints > 2 && (totalPoints - 2).isMultiple(of: 4))
+                if shouldRest {
+                    startOfficialBreak(sport: .softTennis, kind: .changeover, durationSeconds: 60, afterAction: .exchangeSides)
+                }
             }
         }
         if let finalPoints, (completedGames != nil || matchFinished) {
@@ -1547,8 +1624,8 @@ struct TennisScoreboardView: View {
         let leftSide = logicalSide(forScreen: .left)
         let rightSide = logicalSide(forScreen: .right)
         let appGameType = GameType(scoreCoreGameType: store.gameType) ?? .tennis
-        return LocalScoreboardDisplayState(
-            gameID: appGameType.canonicalScoreboardIdentifier,
+        var compact = LocalScoreboardDisplayState(
+            gameID: store.gameType.rawValue,
             title: appGameType.displayName,
             leftName: leftSide == .left ? state.leftName : state.rightName,
             rightName: rightSide == .left ? state.leftName : state.rightName,
@@ -1572,6 +1649,44 @@ struct TennisScoreboardView: View {
             ),
             revision: 0
         )
+        let isDoubles = state.doublesPlayerNames != nil
+        var displayPlayers: [ScoreboardDisplayPlayer]?
+        if let names = state.doublesPlayerNames {
+            let leftSlots = tennisDoublesDisplaySlots(screenSide: .left, logicalSide: leftSide)
+            let rightSlots = tennisDoublesDisplaySlots(screenSide: .right, logicalSide: rightSide)
+            let serverSlot = TennisDoublesServing.currentServerSlot(in: state)
+            func player(_ id: String, _ slot: Int, _ teamID: String, _ placement: String, _ order: Int) -> ScoreboardDisplayPlayer {
+                ScoreboardDisplayPlayer(
+                    id: id,
+                    name: names.indices.contains(slot) ? names[slot] : "",
+                    teamID: teamID,
+                    slot: placement,
+                    order: order,
+                    isServer: serverSlot == slot
+                )
+            }
+            displayPlayers = [
+                player("left_top", leftSlots.top, "team_0", "top", 0),
+                player("right_top", rightSlots.top, "team_1", "top", 1),
+                player("left_bottom", leftSlots.bottom, "team_0", "bottom", 2),
+                player("right_bottom", rightSlots.bottom, "team_1", "bottom", 3)
+            ]
+        }
+        compact.externalState = ScoreboardDisplayState.enriched(
+            compact: compact,
+            layoutKind: isDoubles ? .doublesCourt : .twoSide,
+            players: displayPlayers,
+            sportState: [
+                "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left"),
+                "servingSide": .string(state.servingSide == leftSide ? "left" : "right")
+            ],
+            rest: officialBreakSession.state.map(ScoreboardDisplayRest.init)
+        )
+        compact.externalState?.appearance = .init(
+            snapshot: appearance,
+            fontCode: typographyPreference.font.rawValue
+        )
+        return compact
     }
 
     private func logicalSide(forScreen side: MatchSide) -> MatchSide {
@@ -1664,15 +1779,19 @@ struct TennisScoreboardView: View {
                 toastMessage = ScoreboardMenuConfirmAction.finish.localizedToast
             }
         case "voiceAnnouncement":
-            store.voiceAnnouncementEnabled.toggle()
+            store.setVoiceAnnouncementEnabled(!store.voiceAnnouncementEnabled)
             if store.voiceAnnouncementEnabled {
                 speakOpeningAnnouncementIfNeeded()
             } else {
+                cancelPendingOpeningAnnouncement()
                 ScoreVoiceAnnouncer.shared.stop()
             }
         case "displaySettings":
             showDisplaySettings = true
             showMenu = false
+        case "usageHint":
+            showMenu = false
+            (usageHintCoordinator ?? usageHintCoordinatorOverride)?.presentFromMenu()
         case "resync":
             watchLinkService.requestScoreResync()
             showMenu = false
@@ -1719,6 +1838,78 @@ struct TennisScoreboardView: View {
         }
     }
 
+    private var officialBreakSupported: Bool {
+        [.tennis, .tennisDoubles, .softTennis, .padel].contains(store.gameType)
+    }
+
+    private func startOfficialBreak(
+        sport: OfficialBreakSport,
+        kind: OfficialBreakKind,
+        durationSeconds: Int,
+        afterAction: OfficialBreakAfterAction
+    ) {
+        guard preferences.officialBreaksEnabled,
+              officialBreakSupported,
+              officialBreakSession.state == nil else { return }
+        officialBreakSession.begin(
+            sport: sport,
+            kind: kind,
+            durationSeconds: durationSeconds,
+            afterAction: afterAction,
+            nowMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        store.setScoreInputFrozen(true)
+        store.send(.setOfficialBreakState(officialBreakSession.state))
+        speakOfficialBreakCue(.start)
+    }
+
+    private func completeOfficialBreak(_ action: OfficialBreakAfterAction) {
+        _ = action
+        officialBreakSession = OfficialBreakSession()
+        store.setScoreInputFrozen(false)
+        store.send(.setOfficialBreakState(nil))
+    }
+
+    private func cancelOfficialBreak() {
+        officialBreakSession = OfficialBreakSession()
+        store.setScoreInputFrozen(false)
+        store.send(.setOfficialBreakState(nil))
+        performUndo()
+    }
+
+    private func speakOfficialBreakCue(_ cue: OfficialBreakCue) {
+        guard store.voiceAnnouncementEnabled,
+              let breakState = officialBreakSession.state,
+              OfficialBreakVoicePolicy.shouldSpeak(
+                gameType: store.gameType,
+                cue: cue,
+                state: breakState,
+                officialBreaksEnabled: preferences.officialBreaksEnabled
+              ),
+              let payload = OfficialBreakVoiceMapper.payload(
+                gameType: store.gameType,
+                cue: cue,
+                state: breakState,
+                leftName: store.state.leftName,
+                rightName: store.state.rightName,
+                leftScore: store.state.leftPoints,
+                rightScore: store.state.rightPoints,
+                servingSide: store.state.servingSide,
+                serverName: tennisOfficialBreakServerName,
+                currentSet: store.state.currentSet
+              ) else { return }
+        ScoreVoiceAnnouncer.shared.speak(payload)
+    }
+
+    private var tennisOfficialBreakServerName: String? {
+        if let names = store.state.doublesPlayerNames,
+           let slot = TennisDoublesServing.currentServerSlot(in: store.state),
+           names.indices.contains(slot), !names[slot].isEmpty {
+            return names[slot]
+        }
+        return store.state.servingSide == .left ? store.state.leftName : store.state.rightName
+    }
+
     private func goBack() {
         cancelTerminalGamePresentation()
         OrientationLock.shared.unlock()
@@ -1748,6 +1939,7 @@ struct TennisScoreboardView: View {
     private func performUndo() {
         guard !isEditMode, !linkScoringLocked else { return }
         cancelTerminalGamePresentation()
+        ScoreVoiceAnnouncer.shared.cancelPendingScore()
         revealImmersiveChrome()
         store.undo { success in
             showToast(success
@@ -1768,13 +1960,34 @@ struct TennisScoreboardView: View {
     private func speakOpeningAnnouncementIfNeeded() {
         guard store.voiceAnnouncementEnabled,
               !didSpeakOpeningAnnouncement,
-              let payload = TennisVoiceAnnouncementMapper.openingPayload(
+              openingAnnouncementTask == nil,
+              TennisVoiceAnnouncementMapper.openingPayload(
                 gameType: store.gameType,
                 state: store.state
-              )
+              ) != nil
         else { return }
-        didSpeakOpeningAnnouncement = true
-        ScoreVoiceAnnouncer.shared.speak(payload)
+        openingAnnouncementTask = Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(2_500))
+            guard !Task.isCancelled,
+                  store.voiceAnnouncementEnabled,
+                  !didSpeakOpeningAnnouncement,
+                  let payload = TennisVoiceAnnouncementMapper.openingPayload(
+                    gameType: store.gameType,
+                    state: store.state
+                  )
+            else {
+                openingAnnouncementTask = nil
+                return
+            }
+            didSpeakOpeningAnnouncement = true
+            openingAnnouncementTask = nil
+            ScoreVoiceAnnouncer.shared.speak(payload)
+        }
+    }
+
+    private func cancelPendingOpeningAnnouncement() {
+        openingAnnouncementTask?.cancel()
+        openingAnnouncementTask = nil
     }
 
     private func shareFinishedMatch() {

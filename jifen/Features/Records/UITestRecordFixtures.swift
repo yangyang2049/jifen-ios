@@ -14,12 +14,7 @@ enum UITestRecordFixtures {
         }
         guard arguments.contains("-UITestRecordFixtures") else { return }
         removeFixtures(from: manager)
-        let gameTypes: [GameType] = [
-            .pingpong, .badminton, .tennis, .pickleball, .football, .basketball,
-            .threeBasketball, .volleyball, .beachVolleyball, .airVolleyball, .archery,
-            .boxing, .billiards, .eightBall, .nineBall, .snooker, .doudizhu,
-            .guandan, .shengji, .uno, .foosball, .simpleScore, .multiScoreboard
-        ]
+        let gameTypes = GameCatalog.scoreboardItems.map(\.gameType)
 
         for (index, gameType) in gameTypes.enumerated() {
             let start = Date().addingTimeInterval(TimeInterval(-index * 60))

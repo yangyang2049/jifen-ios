@@ -5,6 +5,7 @@
 //  斗地主计分：3 人，3 列布局，点击加分、撤销、编辑名称、保存记录。
 //
 
+import RecordCore
 import ScoreCore
 import SwiftUI
 import UIKit
@@ -16,6 +17,17 @@ private let defaultDoudizhuNames = [
 ]
 private var doudizhuTitle: String {
     NSLocalizedString("game_doudizhu", value: "Doudizhu", comment: "")
+}
+
+enum DoudizhuUndoPolicy {
+    static func isAllowed(gameFinished: Bool) -> Bool { !gameFinished }
+
+    @discardableResult
+    static func performIfAllowed(gameFinished: Bool, undo: () -> Void) -> Bool {
+        guard isAllowed(gameFinished: gameFinished) else { return false }
+        undo()
+        return true
+    }
 }
 
 struct DoudizhuPlayerItem: Identifiable {
@@ -32,6 +44,7 @@ struct DoudizhuScoreboardView: View {
     var onNavigationBack: (() -> Void)? = nil
     @State private var players: [DoudizhuPlayerItem]
     @State private var history: [[Int]] = []
+    @State private var historyTimeline: [DoudizhuUndoTimelineCheckpoint] = []
     @State private var actionCount = 0
     @State private var gameStartTime: Date
     @State private var recordID: String
@@ -45,7 +58,9 @@ struct DoudizhuScoreboardView: View {
     @State private var selectedBaseScore = 1
     @State private var selectedMultiplierPower = 0 // 0番=1倍 … 5番=32倍
     @State private var selectedWinners = [false, false, false]
-    @State private var appearance = ScoreboardAppearanceSnapshot.current()
+    @State private var appearance = ScoreboardAppearanceSnapshot.current(
+        styleID: ScoreboardStyleID(gameType: .doudizhu)
+    )
     @State private var typographySession = ScoreboardTypographySession(
         styleID: ScoreboardStyleID(gameType: .doudizhu)
     )
@@ -55,6 +70,7 @@ struct DoudizhuScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var showDisplaySettings = false
     @State private var actions: [String]
+    @State private var detailedActions: [DetailedScoreAction]
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
     @State private var previousIdleTimerDisabled: Bool?
@@ -62,6 +78,7 @@ struct DoudizhuScoreboardView: View {
     private let commonNamesManager = CommonNamesManager.shared
     private let baseScoreOptions = [1, 2, 3]
     private let multiplierPowers = [0, 1, 2, 3, 4, 5]
+    private let reducer = DoudizhuScoreReducer()
 
     private var shouldShowChrome: Bool {
         !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showScorePanel
@@ -85,7 +102,9 @@ struct DoudizhuScoreboardView: View {
         }
         var finished = false
         var restoredActions: [String] = []
+        var restoredDetailedActions: [DetailedScoreAction] = []
         var restoredHistory: [[Int]] = []
+        var restoredHistoryTimeline: [DoudizhuUndoTimelineCheckpoint] = []
         var restoredActionCount = 0
 
         if let initialResumeSessionId,
@@ -93,6 +112,7 @@ struct DoudizhuScoreboardView: View {
             start = record.startTime
             id = record.id
             restoredActions = record.actions
+            restoredDetailedActions = record.detailedActions ?? []
             restoredActionCount = record.totalScoreChanges
             if let data = record.stateSnapshot,
                let resumeState = try? JSONDecoder().decode(DoudizhuResumeState.self, from: data) {
@@ -108,8 +128,12 @@ struct DoudizhuScoreboardView: View {
                         .filter { $0.count == 3 }
                         .suffix(50)
                 )
+                restoredHistoryTimeline = Array(resumeState.undoTimeline.suffix(50))
                 if !resumeState.intentTimeline.isEmpty {
                     restoredActions = resumeState.intentTimeline
+                }
+                if !resumeState.detailedActions.isEmpty {
+                    restoredDetailedActions = resumeState.detailedActions
                 }
                 restoredActionCount = max(
                     max(restoredActionCount, resumeState.actionCount),
@@ -132,25 +156,47 @@ struct DoudizhuScoreboardView: View {
             }
         }
 
+        if restoredHistoryTimeline.count != restoredHistory.count {
+            let historyCount = restoredHistory.count
+            restoredHistoryTimeline = restoredHistory.indices.map { index in
+                let distance = historyCount - index
+                return .init(
+                    actionLogCount: max(0, restoredActions.count - distance),
+                    detailedActionsCount: max(0, restoredDetailedActions.count - distance),
+                    actionCount: max(0, restoredActionCount - distance)
+                )
+            }
+        }
+
         _players = State(initialValue: initialPlayers)
         _history = State(initialValue: restoredHistory)
+        _historyTimeline = State(initialValue: restoredHistoryTimeline)
         _actionCount = State(initialValue: restoredActionCount)
         _gameStartTime = State(initialValue: start)
         _recordID = State(initialValue: id)
         _gameFinished = State(initialValue: finished)
         _showGameOverDialog = State(initialValue: finished)
         _actions = State(initialValue: restoredActions)
+        _detailedActions = State(initialValue: restoredDetailedActions)
         _editNames = State(initialValue: initialPlayers.map(\.name))
     }
 
     /// HOS: left/right follow the scoreboard theme; the center stays success
     /// green except in retro, where all three panels are black.
     private var panelColors: [Color] {
-        let center = appearance.theme == .retro ? Color.black : Color(hex: "4CAF50")
+        let center = appearance.theme == .retro ? Color.black : appearance.styleProfileV2.color(for: .center)
         return [
-            appearance.theme.palette.left,
+            appearance.palette.left,
             center,
-            appearance.theme.palette.right
+            appearance.palette.right
+        ]
+    }
+
+    private var panelTextColors: [Color] {
+        [
+            appearance.palette.foreground(for: .team0),
+            appearance.palette.foreground(for: .center),
+            appearance.palette.foreground(for: .team1)
         ]
     }
 
@@ -159,7 +205,7 @@ struct DoudizhuScoreboardView: View {
             let w = geo.size.width
             let h = geo.size.height
             ZStack {
-                appearance.theme.palette.background.ignoresSafeArea()
+                appearance.palette.background.ignoresSafeArea()
                 HStack(spacing: 0) {
                     ForEach(Array(players.enumerated()), id: \.element.id) { index, p in
                         doudizhuPlayerPanel(
@@ -258,6 +304,7 @@ struct DoudizhuScoreboardView: View {
                 .onEnded { value in
                     guard !isEditMode,
                           !showScorePanel,
+                          DoudizhuUndoPolicy.isAllowed(gameFinished: gameFinished),
                           value.translation.width < -50,
                           abs(value.translation.width) > abs(value.translation.height) else { return }
                     undoLast()
@@ -279,7 +326,7 @@ struct DoudizhuScoreboardView: View {
                 }
                 onSetupConsumed?()
             }
-            appearance = .current()
+            appearance = .current(styleID: ScoreboardStyleID(gameType: .doudizhu))
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
@@ -304,7 +351,7 @@ struct DoudizhuScoreboardView: View {
             }
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
-            appearance = .current()
+            appearance = .current(styleID: ScoreboardStyleID(gameType: .doudizhu))
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
         }
@@ -312,6 +359,66 @@ struct DoudizhuScoreboardView: View {
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: isEditMode) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showScorePanel) { _, _ in updateImmersiveForBlocking() }
+        .scoreboardExternalDisplay(
+            ownerID: "doudizhu-\(recordID)",
+            state: externalDisplayState
+        )
+    }
+
+    private var externalDisplayState: ScoreboardDisplayState {
+        let compact = LocalScoreboardDisplayState(
+            gameID: GameType.doudizhu.canonicalScoreboardIdentifier,
+            title: doudizhuTitle,
+            leftName: players.first?.name ?? "",
+            rightName: players.dropFirst().first?.name ?? "",
+            leftScore: "\(players.first?.score ?? 0)",
+            rightScore: "\(players.dropFirst().first?.score ?? 0)",
+            themeID: appearance.theme.rawValue,
+            fontID: typographySession.effectivePreference.font.rawValue,
+            finished: gameFinished,
+            revision: UInt64(actionCount)
+        )
+        let displayPlayers = players.enumerated().map { index, player in
+            ScoreboardDisplayPlayer(
+                id: "player_\(player.id)",
+                name: player.name,
+                score: player.score,
+                order: index,
+                color: index == 0 ? "#\(appearance.styleProfileV2.team0Hex)"
+                    : (index == 1 ? "#\(appearance.styleProfileV2.centerHex)" : "#\(appearance.styleProfileV2.team1Hex)")
+            )
+        }
+        var value = ScoreboardDisplayState.enriched(
+            compact: compact,
+            layoutKind: .boardCard,
+            players: displayPlayers,
+            sportState: ["multiGridColumns": .integer(3)]
+        )
+        value.teams = displayPlayers.map {
+            ScoreboardDisplayTeam(
+                id: $0.id,
+                name: $0.name,
+                score: $0.score ?? 0,
+                color: $0.color,
+                order: $0.order
+            )
+        }
+        value.appearance = .init(
+            snapshot: appearance,
+            fontCode: typographySession.effectivePreference.font.rawValue
+        )
+        if gameFinished {
+            let best = players.map(\.score).max() ?? 0
+            let winners = players.filter { $0.score == best }
+            value.result = ScoreboardDisplayResult(
+                ended: true,
+                winnerID: winners.count == 1 ? "player_\(winners[0].id)" : "draw",
+                finalScores: Dictionary(uniqueKeysWithValues: players.map {
+                    ("player_\($0.id)", ScoreboardDisplayFinalScore(score: $0.score))
+                })
+            )
+        }
+        return value
     }
 
     private var topTrailingEditButton: some View {
@@ -363,6 +470,9 @@ struct DoudizhuScoreboardView: View {
                 Spacer()
 
                 Button {
+                    selectedBaseScore = 1
+                    selectedMultiplierPower = 0
+                    selectedWinners = [false, false, false]
                     showScorePanel = true
                 } label: {
                     Image(systemName: "plus")
@@ -399,6 +509,7 @@ struct DoudizhuScoreboardView: View {
         player: DoudizhuPlayerItem,
         panelSize: CGSize
     ) -> some View {
+        let textColor = panelTextColors[index % 3]
         let typography = ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
                 profile: .doudizhu,
@@ -428,7 +539,7 @@ struct DoudizhuScoreboardView: View {
                                 size: ScoreboardLayoutMetrics.editMainScoreFontSize(regularSize: scoreSize)
                             ))
                             .monospacedDigit()
-                            .foregroundColor(appearance.theme.palette.foreground)
+                            .foregroundColor(textColor)
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
                         doudizhuEditCircleButton(systemName: "plus") {
@@ -444,6 +555,7 @@ struct DoudizhuScoreboardView: View {
                             text: playerNameBinding(index),
                             nameType: ScoreboardCommonNamePolicy.nameType(for: .doudizhu),
                             scoreboardFont: typographySession.effectivePreference.font,
+                            textColor: textColor,
                             accessibilityIdentifier: "doudizhu_player_\(index)_name_editor"
                         )
                         .padding(.horizontal, 16)
@@ -458,7 +570,7 @@ struct DoudizhuScoreboardView: View {
                     Text("\(player.score)")
                         .font(typographySession.effectivePreference.font.swiftUIFont(size: scoreSize))
                         .monospacedDigit()
-                        .foregroundColor(appearance.theme.palette.foreground)
+                        .foregroundColor(textColor)
                         .minimumScaleFactor(0.4)
                         .lineLimit(1)
                 }
@@ -470,7 +582,7 @@ struct DoudizhuScoreboardView: View {
                             size: nameSize,
                             weight: .bold
                         ))
-                        .foregroundColor(.white)
+                        .foregroundColor(textColor)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                         .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
@@ -493,6 +605,7 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func commitDoudizhuEditNames() {
+        var changed = false
         for index in players.indices where editNames.indices.contains(index) {
             let name = editNames[index].trimmingCharacters(in: .whitespacesAndNewlines)
             guard !name.isEmpty else {
@@ -501,8 +614,10 @@ struct DoudizhuScoreboardView: View {
             }
             guard name != players[index].name else { continue }
             players[index].name = name
+            changed = true
             Task { await commonNamesManager.saveNameIfNeeded(name, .player) }
         }
+        if changed { saveRecord(force: true) }
     }
 
     private func doudizhuEditCircleButton(systemName: String, action: @escaping () -> Void) -> some View {
@@ -517,14 +632,25 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func adjustDoudizhuEditScore(index: Int, delta: Int) {
-        guard players.indices.contains(index) else { return }
-        let (next, overflow) = players[index].score.addingReportingOverflow(delta)
-        guard !overflow else { return }
-        history.append(players.map(\.score))
-        if history.count > 50 { history.removeFirst() }
-        players[index].score = next
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+        let result = reducer.reduce(
+            state: .init(scores: players.map(\.score)),
+            intent: .adjustScore(playerIndex: index, delta: delta),
+            at: timestamp
+        )
+        guard result.accepted else { return }
+        pushUndoSnapshot()
+        applyDoudizhuScores(result.state.scores)
         actionCount += 1
-        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|editScore|\(index),\(delta)")
+        actions.append("\(timestamp)|snapshot|doudizhu_adjust_\(index + 1)|\(result.state.scores.map(String.init).joined(separator: ","))|")
+        detailedActions.append(doudizhuDetailedAction(
+            type: .scoreChanged,
+            epochMilliseconds: timestamp,
+            team: doudizhuRecordTeam(index),
+            scoreChange: delta,
+            operationCode: "doudizhu_adjust_player_\(index + 1)"
+        ))
+        saveRecord()
         VibrationManager.shared.vibrateLight()
     }
 
@@ -620,11 +746,6 @@ struct DoudizhuScoreboardView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 320)
             .background(Theme.scoreboardDialogSurface)
-            .onAppear {
-                if selectedWinners.allSatisfy({ !$0 }) {
-                    selectedWinners = [true, false, false]
-                }
-            }
 
             Button { showScorePanel = false } label: {
                 Image(systemName: "xmark")
@@ -691,18 +812,36 @@ struct DoudizhuScoreboardView: View {
     /// 1 winner → +2x/−x/−x; 2 winners → +x/+x/−2x (x = base × 2^multiplier).
     private func applyDoudizhuRound() {
         guard !gameFinished else { return }
-        guard let deltas = DoudizhuSettlement.deltas(
-            winners: selectedWinners,
-            baseScore: selectedBaseScore,
-            multiplierPower: selectedMultiplierPower
-        ) else { return }
-        history.append(players.map(\.score))
-        if history.count > 50 { history.removeFirst() }
-        for i in players.indices where i < deltas.count {
-            players[i].score += deltas[i]
-        }
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+        let result = reducer.reduce(
+            state: .init(scores: players.map(\.score)),
+            intent: .confirmRound(
+                winners: selectedWinners,
+                baseScore: selectedBaseScore,
+                multiplierPower: selectedMultiplierPower
+            ),
+            at: timestamp
+        )
+        guard result.accepted,
+              case .roundConfirmed(let winners, let losers, let landlord, let farmers, let scoreChange, _) = result.events.first else { return }
+        pushUndoSnapshot()
+        applyDoudizhuScores(result.state.scores)
         actionCount += 1
-        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|settleRound|\(deltas.map { String($0) }.joined(separator: ","))")
+        actions.append("\(timestamp)|snapshot|doudizhu_round|\(result.state.scores.map(String.init).joined(separator: ","))|")
+        detailedActions.append(doudizhuDetailedAction(
+            type: .roundFinished,
+            epochMilliseconds: timestamp,
+            roundNumber: detailedActions.filter { $0.type == .roundFinished }.count + 1,
+            scoreChange: scoreChange,
+            winner: winners.count == 1 ? doudizhuRecordTeam(winners[0]) : nil,
+            loser: losers.count == 1 ? doudizhuRecordTeam(losers[0]) : nil,
+            landlord: doudizhuRecordTeam(landlord),
+            winners: winners.compactMap(doudizhuRecordTeam),
+            losers: losers.compactMap(doudizhuRecordTeam),
+            farmers: farmers.compactMap(doudizhuRecordTeam),
+            operationCode: "doudizhu_round_landlord_\(landlord + 1)_farmers_\(farmers.map { String($0 + 1) }.joined(separator: "_"))"
+        ))
+        saveRecord()
         VibrationManager.shared.vibrateMedium()
     }
 
@@ -775,7 +914,13 @@ struct DoudizhuScoreboardView: View {
     private func markFinished() {
         guard !gameFinished else { return }
         gameFinished = true
-        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|finish")
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+        actions.append("\(timestamp)|finish")
+        detailedActions.append(doudizhuDetailedAction(
+            type: .matchFinished,
+            epochMilliseconds: timestamp,
+            operationCode: "doudizhu_match_finished"
+        ))
         showGameOverDialog = true
         showScorePanel = false
         saveRecord(finished: true)
@@ -807,15 +952,22 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func performMatchReset() {
-        history.append(players.map(\.score))
-        if history.count > 50 { history.removeFirst() }
-        for index in players.indices { players[index].score = 0 }
-        actionCount += 1
-        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|reset")
+        let result = reducer.reduce(
+            state: .init(scores: players.map(\.score)),
+            intent: .resetScores,
+            at: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        guard result.accepted else { return }
+        applyDoudizhuScores(result.state.scores)
+        history.removeAll()
+        historyTimeline.removeAll()
+        actionCount = 0
+        actions.removeAll()
+        detailedActions.removeAll()
         gameFinished = false
         showGameOverDialog = false
         showScorePanel = false
-        saveRecord()
+        saveRecord(force: true)
     }
 
     private func startNewMatch() {
@@ -823,8 +975,10 @@ struct DoudizhuScoreboardView: View {
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.doudizhu.canonicalScoreboardIdentifier)
         gameStartTime = Date()
         history.removeAll()
+        historyTimeline.removeAll()
         actionCount = 0
         actions.removeAll()
+        detailedActions.removeAll()
         for index in players.indices { players[index].score = 0 }
         selectedBaseScore = 1
         selectedMultiplierPower = 0
@@ -844,6 +998,12 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func undoLast() {
+        DoudizhuUndoPolicy.performIfAllowed(gameFinished: gameFinished) {
+            performUndoLast()
+        }
+    }
+
+    private func performUndoLast() {
         guard let last = history.popLast() else {
             toastMessage = NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: "")
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -853,11 +1013,16 @@ struct DoudizhuScoreboardView: View {
             }
             return
         }
+        let timeline = historyTimeline.popLast()
         for i in players.indices where i < last.count {
             players[i].score = last[i]
         }
-        actionCount = max(0, actionCount - 1)
-        actions.append("\(Int64(Date().timeIntervalSince1970 * 1_000))|undo")
+        actionCount = timeline?.actionCount ?? max(0, actionCount - 1)
+        actions = Array(actions.prefix(timeline?.actionLogCount ?? max(0, actions.count - 1)))
+        detailedActions = Array(detailedActions.prefix(
+            timeline?.detailedActionsCount ?? max(0, detailedActions.count - 1)
+        ))
+        saveRecord()
         VibrationManager.shared.vibrateLight()
         toastMessage = NSLocalizedString("undone", value: "已撤销", comment: "Undo done")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -867,10 +1032,10 @@ struct DoudizhuScoreboardView: View {
         }
     }
 
-    private func saveRecord(finished: Bool = false) {
+    private func saveRecord(finished: Bool = false, force: Bool = false) {
         let totalChanges = actionCount
         let hasProgress = totalChanges > 0 || players.contains(where: { $0.score != 0 }) || finished || gameFinished
-        guard hasProgress else { return }
+        guard hasProgress || force else { return }
         let end = Date()
         let isFinished = finished || gameFinished
         let playersEnc: [[String: Any]] = players.map { p in
@@ -882,7 +1047,9 @@ struct DoudizhuScoreboardView: View {
             finished: isFinished,
             undoHistory: history,
             intentTimeline: actions,
-            actionCount: actionCount
+            actionCount: actionCount,
+            detailedActions: detailedActions,
+            undoTimeline: historyTimeline
         )
         let snapshotData: Data
         do {
@@ -916,7 +1083,9 @@ struct DoudizhuScoreboardView: View {
             winner: winnerIdentity?.legacyToken ?? winner,
             winnerIdentity: winnerIdentity,
             actions: actions,
-            totalScoreChanges: max(totalChanges, 1),
+            detailedActions: detailedActions,
+            setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
+            totalScoreChanges: totalChanges,
             extraData: [
                 "players": AnyCodable(playersEnc),
                 "playerNames": AnyCodable(players.map(\.name)),
@@ -933,6 +1102,71 @@ struct DoudizhuScoreboardView: View {
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save doudizhu record \(recordID)")
         }
+    }
+
+    private func pushUndoSnapshot() {
+        history.append(players.map(\.score))
+        historyTimeline.append(.init(
+            actionLogCount: actions.count,
+            detailedActionsCount: detailedActions.count,
+            actionCount: actionCount
+        ))
+        if history.count > 50 {
+            history.removeFirst(history.count - 50)
+            historyTimeline.removeFirst(max(0, historyTimeline.count - 50))
+        }
+    }
+
+    private func applyDoudizhuScores(_ scores: [Int]) {
+        for index in players.indices where scores.indices.contains(index) {
+            players[index].score = scores[index]
+        }
+    }
+
+    private func doudizhuRecordTeam(_ index: Int) -> RecordTeam? {
+        guard RecordTeam.allCases.indices.contains(index) else { return nil }
+        return RecordTeam.allCases[index]
+    }
+
+    private func doudizhuDetailedAction(
+        type: DetailedScoreActionType,
+        epochMilliseconds: Int64,
+        team: RecordTeam? = nil,
+        roundNumber: Int? = nil,
+        scoreChange: Int? = nil,
+        winner: RecordTeam? = nil,
+        loser: RecordTeam? = nil,
+        landlord: RecordTeam? = nil,
+        winners: [RecordTeam]? = nil,
+        losers: [RecordTeam]? = nil,
+        farmers: [RecordTeam]? = nil,
+        operationCode: String
+    ) -> DetailedScoreAction {
+        DetailedScoreAction(
+            type: type,
+            epochMilliseconds: epochMilliseconds,
+            team: team,
+            scores: players.map(\.score),
+            roundNumber: roundNumber,
+            scoreChange: scoreChange,
+            winner: winner,
+            loser: loser,
+            landlord: landlord,
+            winners: winners,
+            losers: losers,
+            farmers: farmers,
+            participants: players.map { player in
+                ParticipantScoreSnapshot(
+                    id: "player_\(player.id + 1)",
+                    name: player.name,
+                    score: player.score,
+                    role: landlord.map {
+                        $0 == doudizhuRecordTeam(player.id) ? "landlord" : "farmer"
+                    }
+                )
+            },
+            operationCode: operationCode
+        )
     }
 
     private func handleExitAttempt(fromMenu: Bool) {
@@ -1015,6 +1249,8 @@ struct DoudizhuResumeState: Codable, Equatable {
     var undoHistory: [[Int]]
     var intentTimeline: [String]
     var actionCount: Int
+    var detailedActions: [DetailedScoreAction]
+    var undoTimeline: [DoudizhuUndoTimelineCheckpoint]
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
@@ -1024,6 +1260,8 @@ struct DoudizhuResumeState: Codable, Equatable {
         case undoHistory
         case intentTimeline
         case actionCount
+        case detailedActions
+        case undoTimeline
     }
 
     init(
@@ -1033,7 +1271,9 @@ struct DoudizhuResumeState: Codable, Equatable {
         finished: Bool,
         undoHistory: [[Int]] = [],
         intentTimeline: [String] = [],
-        actionCount: Int = 0
+        actionCount: Int = 0,
+        detailedActions: [DetailedScoreAction] = [],
+        undoTimeline: [DoudizhuUndoTimelineCheckpoint] = []
     ) {
         self.schemaVersion = schemaVersion
         self.names = names
@@ -1042,6 +1282,8 @@ struct DoudizhuResumeState: Codable, Equatable {
         self.undoHistory = undoHistory
         self.intentTimeline = intentTimeline
         self.actionCount = actionCount
+        self.detailedActions = detailedActions
+        self.undoTimeline = undoTimeline
     }
 
     init(from decoder: Decoder) throws {
@@ -1053,7 +1295,15 @@ struct DoudizhuResumeState: Codable, Equatable {
         undoHistory = try container.decodeIfPresent([[Int]].self, forKey: .undoHistory) ?? []
         intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []
         actionCount = try container.decodeIfPresent(Int.self, forKey: .actionCount) ?? undoHistory.count
+        detailedActions = try container.decodeIfPresent([DetailedScoreAction].self, forKey: .detailedActions) ?? []
+        undoTimeline = try container.decodeIfPresent([DoudizhuUndoTimelineCheckpoint].self, forKey: .undoTimeline) ?? []
     }
+}
+
+struct DoudizhuUndoTimelineCheckpoint: Codable, Equatable {
+    let actionLogCount: Int
+    let detailedActionsCount: Int
+    let actionCount: Int
 }
 
 private func decodedDoudizhuPlayers(

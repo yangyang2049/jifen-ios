@@ -18,8 +18,6 @@ struct StopwatchView: View {
     @State private var state = TimerToolStateStore.loadStopwatch()
     @State private var previousIdleTimerDisabled: Bool?
 
-    private let maximumLapCount = 100
-
     var body: some View {
         ZStack {
             Theme.backgroundColor.ignoresSafeArea()
@@ -123,7 +121,7 @@ struct StopwatchView: View {
                     foreground: Theme.textPrimary,
                     background: Theme.controlBackground,
                     border: Theme.divider,
-                    disabled: state.lapCumulativeMilliseconds.count >= maximumLapCount,
+                    disabled: state.lapCumulativeMilliseconds.count >= StopwatchPolicy.maximumLapCount,
                     action: recordLap
                 )
             } else {
@@ -261,7 +259,8 @@ struct StopwatchView: View {
     }
 
     private func recordLap() {
-        guard state.phase == .running, state.lapCumulativeMilliseconds.count < maximumLapCount else { return }
+        guard state.phase == .running,
+              state.lapCumulativeMilliseconds.count < StopwatchPolicy.maximumLapCount else { return }
         state.lapCumulativeMilliseconds.append(state.elapsedMilliseconds())
         TimerToolStateStore.saveStopwatch(state)
         VibrationManager.shared.vibrateLight()

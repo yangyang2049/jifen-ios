@@ -14,9 +14,12 @@ final class RallySessionStore {
     private let core: ScoreSessionCore<RallyMatchReducer>
     private let resumeRepository: ResumeSessionRepository
     private var detailedActions: [DetailedScoreAction]
+    private(set) var completedSetScores: [VoiceSetScore]
+    private var recordUndoCheckpoints: [ScoreSessionRecordCheckpoint]
     private var lastAppliedRemoteRevision: UInt64?
     private var lastAppliedRemoteGeneration: UInt64?
     private var operationTask: Task<Void, Never>?
+    private var scoreInputFrozen: Bool
     private var lastPersistenceErrorPresentationAt: Date?
     private var hasPersistedFinishedRecord = false
     private let logger = Logger(subsystem: "com.douhua.jifen.ios", category: "RallyPersistence")
@@ -28,6 +31,7 @@ final class RallySessionStore {
     let sessionId: UUID
     let startedAt: Date
     var voiceAnnouncementEnabled: Bool
+    private(set) var showMatchTimeEnabled: Bool
 
     /// HOS-aligned screen placement derived from engine `sidesSwapped`.
     var teamScreenLayout: TeamScreenLayout {
@@ -49,8 +53,11 @@ final class RallySessionStore {
         gameType: ScoreCore.GameType,
         rules: RallyRuleSet,
         participants: [SessionParticipant]? = nil,
+        competitionFormat: CompetitionFormat? = nil,
+        competitionPlayerNames: [String]? = nil,
         openingServer: MatchSide = .left,
         voiceAnnouncementEnabled: Bool = false,
+        showMatchTimeEnabled: Bool = false,
         resumeRepository: ResumeSessionRepository? = nil
     ) {
         let providedParticipants = participants?.filter { !$0.name.isEmpty }
@@ -63,13 +70,16 @@ final class RallySessionStore {
                 for: gameType,
                 participants: providedParticipants,
                 openingServer: openingServer
-            )
+            ),
+            competitionFormat: competitionFormat,
+            competitionPlayerNames: competitionPlayerNames
         )
         self.init(
             gameType: gameType,
             state: initial,
             participants: providedParticipants,
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
+            showMatchTimeEnabled: showMatchTimeEnabled,
             resumeRepository: resumeRepository
         )
     }
@@ -79,6 +89,7 @@ final class RallySessionStore {
         state: RallyMatchState,
         participants: [SessionParticipant]? = nil,
         voiceAnnouncementEnabled: Bool = false,
+        showMatchTimeEnabled: Bool = false,
         resumeRepository: ResumeSessionRepository? = nil
     ) {
         let sessionParticipants = participants ?? [
@@ -91,11 +102,16 @@ final class RallySessionStore {
             reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
             state: state,
             participants: sessionParticipants,
-            metadata: .init(extras: ["startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000))])
+            metadata: .init(extras: [
+                "startedAtEpochMilliseconds": String(Int64(Date().timeIntervalSince1970 * 1_000)),
+                "voiceAnnouncementEnabled": String(voiceAnnouncementEnabled),
+                "showMatchTime": String(showMatchTimeEnabled)
+            ])
         )
         self.init(
             session: session,
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
+            showMatchTimeEnabled: showMatchTimeEnabled,
             resumeRepository: resumeRepository
         )
     }
@@ -103,6 +119,7 @@ final class RallySessionStore {
     private init(
         session: ScoreSession<RallyMatchState, RallyMatchEvent>,
         voiceAnnouncementEnabled: Bool,
+        showMatchTimeEnabled: Bool,
         resumeRepository: ResumeSessionRepository? = nil
     ) {
         gameType = session.gameType
@@ -112,11 +129,22 @@ final class RallySessionStore {
         core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
         self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         state = session.state
-        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
-        self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
+        scoreInputFrozen = session.state.officialBreakState?.isRunning == true
+        let initialDetailedActions = ScoreboardRecordManager.shared
+            .getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
+        detailedActions = initialDetailedActions
+        completedSetScores = Self.completedSetScores(from: initialDetailedActions)
+        recordUndoCheckpoints = []
+        self.voiceAnnouncementEnabled = Self.metadataBool(
+            session.metadata.extras["voiceAnnouncementEnabled"]
+        ) ?? voiceAnnouncementEnabled
+        self.showMatchTimeEnabled = Self.metadataBool(
+            session.metadata.extras["showMatchTime"]
+        ) ?? showMatchTimeEnabled
     }
 
-    private init(resumeBundle: ResumeBundle, voiceAnnouncementEnabled: Bool) {
+    private init(resumeBundle: ResumeBundle) {
+        let resumeBundle = Self.migratedResumeBundle(resumeBundle)
         let session = resumeBundle.currentSession
         gameType = session.gameType
         sessionId = session.sessionId
@@ -129,8 +157,131 @@ final class RallySessionStore {
         )
         resumeRepository = ResumeSessionRepository()
         state = session.state
-        detailedActions = ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
-        self.voiceAnnouncementEnabled = voiceAnnouncementEnabled
+        scoreInputFrozen = session.state.officialBreakState?.isRunning == true
+        let recordContext = ScoreSessionRecordContext.decode(resumeBundle.auxiliaryPayload)
+        let restoredDetailedActions = recordContext?.detailedActions
+            ?? ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions
+            ?? []
+        detailedActions = restoredDetailedActions
+        completedSetScores = recordContext?.completedSetScores
+            ?? Self.completedSetScores(from: restoredDetailedActions)
+        recordUndoCheckpoints = recordContext?.undoCheckpoints ?? []
+        self.voiceAnnouncementEnabled = Self.metadataBool(
+            session.metadata.extras["voiceAnnouncementEnabled"]
+        ) ?? false
+        self.showMatchTimeEnabled = Self.metadataBool(
+            session.metadata.extras["showMatchTime"]
+        ) ?? false
+    }
+
+    /// The exact game type is the migration authority for local snapshots.
+    /// `sportProfile` did not exist in older payloads, and inferring it only
+    /// from a serve model is ambiguous now that Android 3.1 pickleball singles
+    /// returns every set to the opening server. Normalize the current session,
+    /// replay seed, and every undo frame together so undo cannot resurrect the
+    /// pre-migration rules or doubles rotation.
+    private static func migratedResumeBundle(_ bundle: ResumeBundle) -> ResumeBundle {
+        let gameType = bundle.currentSession.gameType
+        return ResumeBundle(
+            replaySeed: migratedSession(bundle.replaySeed, gameType: gameType),
+            currentSession: migratedSession(bundle.currentSession, gameType: gameType),
+            undoFrames: bundle.undoFrames.map {
+                ScoreSessionResumeUndoFrame(
+                    session: migratedSession($0.session, gameType: gameType),
+                    intentCount: $0.intentCount
+                )
+            },
+            timeline: bundle.timeline,
+            auxiliaryPayload: bundle.auxiliaryPayload
+        )
+    }
+
+    private static func migratedSession(
+        _ session: ScoreSession<RallyMatchState, RallyMatchEvent>,
+        gameType: ScoreCore.GameType
+    ) -> ScoreSession<RallyMatchState, RallyMatchEvent> {
+        ScoreSession(
+            sessionId: session.sessionId,
+            gameType: session.gameType,
+            ruleFamily: session.ruleFamily,
+            reducerType: session.reducerType,
+            version: session.version,
+            state: migratedState(session.state, gameType: gameType),
+            events: session.events,
+            status: session.status,
+            participants: session.participants,
+            metadata: session.metadata
+        )
+    }
+
+    private static func migratedState(
+        _ state: RallyMatchState,
+        gameType: ScoreCore.GameType
+    ) -> RallyMatchState {
+        var migrated = state
+        switch gameType {
+        case .pickleball:
+            migrated.rules.sportProfile = .pickleball
+            migrated.rules.nextSetServerModel = .opening
+        case .pickleballDoubles:
+            migrated.rules.sportProfile = .pickleball
+            migrated.rules.nextSetServerModel = .alternateFromOpening
+        default:
+            migrated.rules.sportProfile = .generic
+        }
+
+        guard gameType == .pingpongDoubles else { return migrated }
+        migrated.doubles = migratedPingPongDoubles(migrated.doubles)
+        if let replay = migrated.currentSetReplay {
+            migrated.currentSetReplay = RallyCurrentSetReplay(
+                baselineLeftPoints: replay.baselineLeftPoints,
+                baselineRightPoints: replay.baselineRightPoints,
+                baselineServingSide: replay.baselineServingSide,
+                baselineFirstServerInSet: replay.baselineFirstServerInSet,
+                baselineSidesSwapped: replay.baselineSidesSwapped,
+                baselineDoubles: migratedPingPongDoubles(replay.baselineDoubles),
+                actions: replay.actions
+            )
+        }
+        return migrated
+    }
+
+    /// Early iOS table-tennis doubles snapshots used the visually mirrored
+    /// receiver pair 0→3 / 1→2 as the game-opening default. Android 3.0/3.1
+    /// use the cross-table identity pair 0→1 / 1→0. These slot permutations
+    /// preserve the complete in-game service phase (including deciding-game
+    /// receiver changes), rather than resetting a resumed game to 0–0.
+    private static func migratedPingPongDoubles(
+        _ doubles: RallyDoublesState?
+    ) -> RallyDoublesState? {
+        guard var doubles,
+              case .pingPong(let rotation) = doubles.rotation,
+              rotation.pendingGameOpening == nil else { return doubles }
+
+        let slotMap: [Int]
+        let openingReceiver: Int
+        switch (rotation.openingServerSlotIndex, rotation.openingReceiverSlotIndex) {
+        case (0, 3):
+            slotMap = [0, 3, 2, 1]
+            openingReceiver = 1
+        case (1, 2):
+            slotMap = [2, 1, 0, 3]
+            openingReceiver = 0
+        default:
+            return doubles
+        }
+
+        func migratedSlot(_ slot: Int) -> Int {
+            slotMap.indices.contains(slot) ? slotMap[slot] : slot
+        }
+        doubles.rotation = .pingPong(PingPongDoublesRotationState(
+            serverSlotIndex: migratedSlot(rotation.serverSlotIndex),
+            receiverSlotIndex: migratedSlot(rotation.receiverSlotIndex),
+            openingServerSlotIndex: rotation.openingServerSlotIndex,
+            openingReceiverSlotIndex: openingReceiver,
+            decidingReceiverOrderChanged: rotation.decidingReceiverOrderChanged
+        ))
+        return doubles
     }
 
     convenience init?(restoring sessionId: UUID) {
@@ -140,10 +291,9 @@ final class RallySessionStore {
         ) else {
             return nil
         }
-        let voiceAnnouncementEnabled = false
         if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
            bundle.currentSession.status == .live {
-            self.init(resumeBundle: bundle, voiceAnnouncementEnabled: voiceAnnouncementEnabled)
+            self.init(resumeBundle: bundle)
         } else {
             return nil
         }
@@ -160,25 +310,105 @@ final class RallySessionStore {
             state: resetState,
             participants: Self.participants(for: resetState),
             voiceAnnouncementEnabled: voiceAnnouncementEnabled,
+            showMatchTimeEnabled: showMatchTimeEnabled,
             resumeRepository: resumeRepository
         )
     }
 
-    func send(_ intent: RallyMatchIntent, onEvents: (([RallyMatchEvent]) -> Void)? = nil) {
+    func setVoiceAnnouncementEnabled(_ enabled: Bool) {
+        guard voiceAnnouncementEnabled != enabled else { return }
+        voiceAnnouncementEnabled = enabled
+        persistPresentationMetadata()
+    }
+
+    func setShowMatchTimeEnabled(_ enabled: Bool) {
+        guard showMatchTimeEnabled != enabled else { return }
+        showMatchTimeEnabled = enabled
+        persistPresentationMetadata()
+    }
+
+    private func persistPresentationMetadata() {
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
+            guard let self else { return }
+            var metadata = await core.snapshot().metadata
+            metadata.extras["voiceAnnouncementEnabled"] = String(self.voiceAnnouncementEnabled)
+            metadata.extras["showMatchTime"] = String(self.showMatchTimeEnabled)
+            _ = await core.updateMetadata(metadata)
+            do {
+                try await self.persist(await core.resumeBundle())
+            } catch {
+                self.reportPersistenceFailure(error)
+            }
+        }
+    }
+
+    private static func metadataBool(_ value: String?) -> Bool? {
+        switch value?.lowercased() {
+        case "true", "1": true
+        case "false", "0": false
+        default: nil
+        }
+    }
+
+    /// Closes the UI-to-actor queue gap when an official break starts. The
+    /// reducer remains the final authority once the break state is committed.
+    func setScoreInputFrozen(_ frozen: Bool) {
+        scoreInputFrozen = frozen
+    }
+
+    func send(_ intent: RallyMatchIntent, onEvents: (([RallyMatchEvent]) -> Void)? = nil) {
+        enqueue(intent) { _, _, events in
+            onEvents?(events)
+        }
+    }
+
+    /// Delivers the reducer transition captured at the exact point this intent
+    /// reaches the serialized store queue. UI code must use this callback when
+    /// it needs a before/after pair; reading `state` before calling `send` races
+    /// with earlier queued intents during rapid scoring.
+    func send(
+        _ intent: RallyMatchIntent,
+        onTransition: @escaping (RallyMatchState, RallyMatchState, [RallyMatchEvent]) -> Void
+    ) {
+        enqueue(intent, onTransition: onTransition)
+    }
+
+    private func enqueue(
+        _ intent: RallyMatchIntent,
+        onTransition: ((RallyMatchState, RallyMatchState, [RallyMatchEvent]) -> Void)?
+    ) {
+        let previousTask = operationTask
+        operationTask = Task { [weak self, core] in
+            _ = await previousTask?.value
+            guard let self else { return }
+            if self.scoreInputFrozen, Self.isScoreChanging(intent) { return }
+            let before = self.state
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard case .accepted(let session, let events) = await core.dispatch(actorId: "phone", intent: intent, at: now),
-                  let self else { return }
+            let dispatchResult: DispatchResult<RallyMatchState, RallyMatchEvent>
+            let recordsUndo: Bool
+            if case .setOfficialBreakState = intent {
+                recordsUndo = false
+                dispatchResult = await core.dispatchNonUndoable(actorId: "phone", intent: intent, at: now)
+            } else {
+                recordsUndo = true
+                dispatchResult = await core.dispatch(actorId: "phone", intent: intent, at: now)
+            }
+            guard case .accepted(let session, let events) = dispatchResult else { return }
+            if recordsUndo {
+                self.recordUndoCheckpoints.append(self.makeRecordUndoCheckpoint())
+            }
             self.state = session.state
             if session.status == .live {
                 self.hasPersistedFinishedRecord = false
             }
-            onEvents?(events)
+            self.append(events: events, at: now, state: session.state)
+            self.updateCompletedSetScores(for: events)
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
+            onTransition?(before, session.state, events)
             await self.synchronizeParticipants(for: session.state)
             let bundle = await core.resumeBundle()
-            self.append(events: events, at: now, state: session.state)
             do {
                 try await self.persist(bundle)
             } catch {
@@ -187,10 +417,20 @@ final class RallySessionStore {
         }
     }
 
+    private static func isScoreChanging(_ intent: RallyMatchIntent) -> Bool {
+        switch intent {
+        case .pointWon, .adjustPoints, .adjustSets:
+            true
+        default:
+            false
+        }
+    }
+
     func undo(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
         operationTask = Task { [weak self, core] in
             _ = await previousTask?.value
+            let undoneIntentEpochMilliseconds = await core.intentTimeline().last?.epochMilliseconds
             guard await core.undo(actorId: "phone"), let self else {
                 completion?(false)
                 return
@@ -201,9 +441,10 @@ final class RallySessionStore {
                 self.hasPersistedFinishedRecord = false
             }
             await self.synchronizeParticipants(for: session.state)
+            self.restoreRecordUndoCheckpoint(fallbackEpochMilliseconds: undoneIntentEpochMilliseconds)
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             completion?(true)
             let bundle = await core.resumeBundle()
-            self.detailedActions.append(.init(type: .undo, epochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000), scores: [session.state.leftPoints, session.state.rightPoints], setScores: [session.state.leftSets, session.state.rightSets], setNumber: session.state.currentSet, operationCode: "undo"))
             do {
                 try await self.persist(bundle)
             } catch {
@@ -216,6 +457,7 @@ final class RallySessionStore {
         let previousTask = operationTask
         operationTask = Task { [core] in
             _ = await previousTask?.value
+            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             let bundle = await core.resumeBundle()
             do {
                 try await self.persist(bundle)
@@ -261,7 +503,10 @@ final class RallySessionStore {
             hasPersistedFinishedRecord = false
         }
         mergeRemoteActions(incoming)
+        completedSetScores = Self.completedSetScores(from: detailedActions)
+        recordUndoCheckpoints.removeAll(keepingCapacity: true)
         await synchronizeParticipants(for: session.state)
+        await core.setResumeAuxiliaryPayload(recordContext.encoded)
         let bundle = await core.resumeBundle()
         do {
             try await persist(bundle, persistFormalRecord: persistFormalRecord)
@@ -309,7 +554,81 @@ final class RallySessionStore {
                 detailedActions.append(.init(type: .reset, epochMilliseconds: milliseconds, scores: [0, 0], setScores: [0, 0], operationCode: "reset"))
             case .matchFinished(let winner):
                 detailedActions.append(.init(type: .matchFinished, epochMilliseconds: milliseconds, scores: [state.leftPoints, state.rightPoints], setScores: [state.leftSets, state.rightSets], winner: winner == .left ? .team1 : (winner == .right ? .team2 : nil), operationCode: "finish"))
+            case .pingPongAdministrativeAction(let action):
+                let actionType: DetailedScoreActionType = action.type == .timeout || action.type == .medicalTimeout ? .timeout : .foul
+                detailedActions.append(.init(
+                    type: actionType,
+                    epochMilliseconds: action.epochMilliseconds,
+                    team: action.side == .left ? .team1 : .team2,
+                    scores: [state.leftPoints, state.rightPoints],
+                    setScores: [state.leftSets, state.rightSets],
+                    operationCode: action.type.rawValue
+                ))
+            case .officialBreakChanged:
+                break
             }
+        }
+    }
+
+    private var recordContext: ScoreSessionRecordContext {
+        ScoreSessionRecordContext(
+            detailedActions: detailedActions,
+            actionCount: detailedActions.count,
+            completedSetScores: completedSetScores,
+            undoCheckpoints: recordUndoCheckpoints
+        )
+    }
+
+    private func makeRecordUndoCheckpoint() -> ScoreSessionRecordCheckpoint {
+        ScoreSessionRecordCheckpoint(
+            actionLogCount: 0,
+            detailedActionsCount: detailedActions.count,
+            actionCount: detailedActions.count,
+            completedSetScoresCount: completedSetScores.count
+        )
+    }
+
+    private func restoreRecordUndoCheckpoint(fallbackEpochMilliseconds: Int64?) {
+        if let checkpoint = recordUndoCheckpoints.popLast() {
+            detailedActions = Array(detailedActions.prefix(max(0, checkpoint.detailedActionsCount)))
+            completedSetScores = Array(completedSetScores.prefix(max(0, checkpoint.completedSetScoresCount)))
+            return
+        }
+
+        // Bundles written before record checkpoints were introduced still carry
+        // the engine timeline. Every action produced by one accepted intent uses
+        // that intent's timestamp, so remove the complete trailing action group.
+        if let fallbackEpochMilliseconds {
+            while detailedActions.last?.epochMilliseconds == fallbackEpochMilliseconds {
+                detailedActions.removeLast()
+            }
+        }
+        completedSetScores = Self.completedSetScores(from: detailedActions)
+    }
+
+    private func updateCompletedSetScores(for events: [RallyMatchEvent]) {
+        if events.contains(where: { if case .matchReset = $0 { return true }; return false }) {
+            completedSetScores.removeAll()
+            return
+        }
+        for event in events {
+            if case let .setCompleted(_, _, leftPoints, rightPoints, _, _) = event {
+                completedSetScores.append(VoiceSetScore(leftGames: leftPoints, rightGames: rightPoints))
+            }
+        }
+    }
+
+    private func trimCompletedSetScores(toMatch state: RallyMatchState) {
+        let completedCount = max(0, state.leftSets + state.rightSets)
+        if completedSetScores.count > completedCount {
+            completedSetScores.removeLast(completedSetScores.count - completedCount)
+        }
+    }
+
+    private static func completedSetScores(from actions: [DetailedScoreAction]) -> [VoiceSetScore] {
+        actions.compactMap { action in
+            guard action.type == .setFinished, action.scores.count >= 2 else { return nil }
+            return VoiceSetScore(leftGames: action.scores[0], rightGames: action.scores[1])
         }
     }
 
@@ -419,7 +738,12 @@ final class RallySessionStore {
             projectConfiguration: ScoreboardRecordConfiguration.rally(
                 gameType: gameType,
                 state: state,
-                voiceAnnouncement: voiceAnnouncementEnabled
+                voiceAnnouncement: voiceAnnouncementEnabled,
+                showMatchTime: showMatchTimeEnabled,
+                competitionFormat: gameType == .shuttlecock
+                    ? (state.competitionFormat ?? (state.doubles == nil ? .singles : .doubles))
+                    : nil,
+                competitionPlayerNames: state.competitionPlayerNames
             ),
             stateSnapshot: snapshot,
             status: .finished
@@ -457,10 +781,14 @@ final class RallySessionStore {
             return .pingPong(
                 playerNames: names,
                 openingServerSlotIndex: openingServer == .left ? 0 : 1,
-                openingReceiverSlotIndex: openingServer == .left ? 3 : 2
+                openingReceiverSlotIndex: openingServer == .left ? 1 : 0
             )
         case .badmintonDoubles:
             return .badminton(playerNames: names, servingTeam0: openingServer == .left)
+        case .shuttlecock:
+            return .badminton(playerNames: names, servingTeam0: openingServer == .left)
+        case .squash:
+            return nil
         case .pickleballDoubles:
             return .pickleball(playerNames: names, servingTeam0: openingServer == .left)
         case .foosballDoubles:

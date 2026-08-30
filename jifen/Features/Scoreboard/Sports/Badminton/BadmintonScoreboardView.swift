@@ -6,6 +6,7 @@ struct BadmintonScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator? = nil
 
     var body: some View {
         let isDoubles = initialSetup?.isSingles == false
@@ -27,7 +28,8 @@ struct BadmintonScoreboardView: View {
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
-            onPresented: { onSetupConsumed?() }
+            onPresented: { onSetupConsumed?() },
+            usageHintCoordinatorOverride: usageHintCoordinatorOverride
         )
     }
 

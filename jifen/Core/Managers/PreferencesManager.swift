@@ -10,8 +10,8 @@ import Observation
 import ScoreCore
 
 enum UnoTargetScorePolicy {
-    static let presets = [500, 700, 1000]
-    static let allowedRange = 1...9999
+    static let presets = [300, 500, 700, 1000]
+    static let allowedRange = 1...99999
     static let defaultScore = 500
 
     static func normalized(_ value: Int) -> Int {
@@ -27,7 +27,7 @@ enum UnoTargetScorePolicy {
     }
 
     static func sanitizedInput(_ rawValue: String) -> String {
-        String(rawValue.filter(\.isNumber).prefix(4))
+        String(rawValue.filter(\.isNumber).prefix(5))
     }
 
     static func customValue(from text: String) -> Int? {
@@ -40,99 +40,176 @@ enum UnoTargetScorePolicy {
 @Observable
 class PreferencesManager {
     static let shared = PreferencesManager()
-    
-    private init() {}
-    
-    private let defaults = UserDefaults.standard
+
+    private enum Key {
+        static let vibration = "vibration_enabled"
+        static let sound = "sound_enabled"
+        static let officialBreaks = "official_breaks_enabled"
+        static let language = "language"
+        static let defaultFont = "scoreboard_default_font"
+        static let theme = "scoreboard_theme"
+        static let forceIPadLandscape = "scoreboard_force_ipad_landscape"
+        static let keepScreenOn = "scoreboard_keep_screen_on"
+        static let immersiveMode = "scoreboard_immersive_mode"
+        static let touchGuard = "scoreboard_touch_guard"
+        static let doubleTapSubtract = "scoreboard_double_tap_subtract"
+        static let doubleTapSubtractInitialized = "scoreboard_double_tap_subtract_initialized_v1"
+        static let matchTimePrefix = "scoreboard_match_time_visible_v1_"
+        static let typographyPrefix = "scoreboard_typography_"
+        static let styleProfilePrefix = "scoreboard_style_v2_"
+    }
+
+    private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
     private(set) var scoreboardRevision: UInt64 = 0
     
     // Vibration
     var vibrationEnabled: Bool {
         get {
-            return defaults.bool(forKey: "vibration_enabled", defaultValue: true)
+            return defaults.bool(forKey: Key.vibration, defaultValue: true)
         }
         set {
-            defaults.set(newValue, forKey: "vibration_enabled")
+            defaults.set(newValue, forKey: Key.vibration)
         }
     }
     
     // Sound
     var soundEnabled: Bool {
         get {
-            return defaults.bool(forKey: "sound_enabled", defaultValue: true)
+            return defaults.bool(forKey: Key.sound, defaultValue: true)
         }
         set {
-            defaults.set(newValue, forKey: "sound_enabled")
+            defaults.set(newValue, forKey: Key.sound)
+        }
+    }
+
+    var officialBreaksEnabled: Bool {
+        get { defaults.bool(forKey: Key.officialBreaks, defaultValue: true) }
+        set {
+            defaults.set(newValue, forKey: Key.officialBreaks)
+            notifyScoreboardPreferencesChanged()
         }
     }
     
     // Language
     var language: String {
         get {
-            return defaults.string(forKey: "language") ?? "zh-CN"
+            return defaults.string(forKey: Key.language) ?? "zh-CN"
         }
         set {
-            defaults.set(newValue, forKey: "language")
+            defaults.set(newValue, forKey: Key.language)
         }
     }
     
     // Default font for scoreboards that do not have their own typography yet.
     var defaultScoreboardFont: String {
         get {
-            return defaults.string(forKey: "scoreboard_default_font") ?? ScoreboardFont.default.rawValue
+            return defaults.string(forKey: Key.defaultFont) ?? ScoreboardFont.default.rawValue
         }
         set {
-            defaults.set(newValue, forKey: "scoreboard_default_font")
+            defaults.set(newValue, forKey: Key.defaultFont)
             notifyScoreboardPreferencesChanged()
         }
     }
 
     var scoreboardTheme: String {
-        get { defaults.string(forKey: "scoreboard_theme") ?? ScoreboardTheme.defaultTheme.rawValue }
+        get { defaults.string(forKey: Key.theme) ?? ScoreboardTheme.defaultTheme.rawValue }
         set {
-            defaults.set(newValue, forKey: "scoreboard_theme")
+            defaults.set(newValue, forKey: Key.theme)
             notifyScoreboardPreferencesChanged()
         }
     }
 
     var forceIPadLandscape: Bool {
-        get { defaults.bool(forKey: "scoreboard_force_ipad_landscape", defaultValue: false) }
+        get { defaults.bool(forKey: Key.forceIPadLandscape, defaultValue: false) }
         set {
-            defaults.set(newValue, forKey: "scoreboard_force_ipad_landscape")
+            defaults.set(newValue, forKey: Key.forceIPadLandscape)
             notifyScoreboardPreferencesChanged()
         }
     }
 
     var keepScoreboardScreenOn: Bool {
-        get { defaults.bool(forKey: "scoreboard_keep_screen_on", defaultValue: true) }
+        get { defaults.bool(forKey: Key.keepScreenOn, defaultValue: true) }
         set {
-            defaults.set(newValue, forKey: "scoreboard_keep_screen_on")
+            defaults.set(newValue, forKey: Key.keepScreenOn)
             notifyScoreboardPreferencesChanged()
         }
     }
 
     var scoreboardImmersiveModeEnabled: Bool {
-        get { defaults.bool(forKey: "scoreboard_immersive_mode", defaultValue: false) }
+        get { defaults.bool(forKey: Key.immersiveMode, defaultValue: false) }
         set {
-            defaults.set(newValue, forKey: "scoreboard_immersive_mode")
+            defaults.set(newValue, forKey: Key.immersiveMode)
             notifyScoreboardPreferencesChanged()
         }
     }
 
     var scoreboardTouchGuardEnabled: Bool {
-        get { defaults.bool(forKey: "scoreboard_touch_guard", defaultValue: false) }
+        get { defaults.bool(forKey: Key.touchGuard, defaultValue: false) }
         set {
-            defaults.set(newValue, forKey: "scoreboard_touch_guard")
+            defaults.set(newValue, forKey: Key.touchGuard)
             notifyScoreboardPreferencesChanged()
         }
     }
 
     var scoreboardDoubleTapSubtractEnabled: Bool {
-        get { defaults.bool(forKey: "scoreboard_double_tap_subtract", defaultValue: false) }
+        get { defaults.bool(forKey: Key.doubleTapSubtract, defaultValue: false) }
         set {
-            defaults.set(newValue, forKey: "scoreboard_double_tap_subtract")
+            defaults.set(newValue, forKey: Key.doubleTapSubtract)
+            defaults.set(true, forKey: Key.doubleTapSubtractInitialized)
             notifyScoreboardPreferencesChanged()
         }
+    }
+
+    /// Android-compatible one-time migration. Fresh installs stay disabled;
+    /// an existing legally-consented install without the initialization marker
+    /// keeps the legacy enabled behavior.
+    func migrateLegacyDoubleTapSubtractIfNeeded(hasLegalConsent: Bool) {
+        guard defaults.object(forKey: Key.doubleTapSubtractInitialized) == nil else { return }
+        if defaults.object(forKey: Key.doubleTapSubtract) == nil, hasLegalConsent {
+            defaults.set(true, forKey: Key.doubleTapSubtract)
+        }
+        defaults.set(true, forKey: Key.doubleTapSubtractInitialized)
+        notifyScoreboardPreferencesChanged()
+    }
+
+    func scoreboardMatchTimeVisible(for gameType: GameType) -> Bool {
+        defaults.bool(
+            forKey: Key.matchTimePrefix + matchTimePreferenceID(for: gameType),
+            defaultValue: false
+        )
+    }
+
+    func setScoreboardMatchTimeVisible(_ isVisible: Bool, for gameType: GameType) {
+        defaults.set(isVisible, forKey: Key.matchTimePrefix + matchTimePreferenceID(for: gameType))
+        notifyScoreboardPreferencesChanged()
+    }
+
+    /// Clears settings owned by this manager while making sure the retained
+    /// legal-consent marker cannot be mistaken for an old install on relaunch.
+    func resetToOfflineReleaseDefaults() {
+        let exactKeys = [
+            Key.vibration, Key.sound, Key.officialBreaks, Key.language,
+            Key.defaultFont, Key.theme, Key.forceIPadLandscape, Key.keepScreenOn,
+            Key.immersiveMode, Key.touchGuard, Key.doubleTapSubtract,
+            "linked_score_watch_start_guide_popup_shown_v1",
+            "simpleScoreCustomAdjustEnabled", "multiScoreboardCustomAdjustEnabled",
+            "multiScoreboardPlayerCount", "unoPlayerCount", "unoTargetScore",
+            "guandanSetupTripleA", "guandanSetupPassACondition",
+            "guandanSetupTripleAFallbackRank", "scoreboard_style_v2_recent_colors"
+        ]
+        exactKeys.forEach { defaults.removeObject(forKey: $0) }
+        for key in defaults.dictionaryRepresentation().keys where
+            key.hasPrefix(Key.matchTimePrefix)
+                || key.hasPrefix(Key.typographyPrefix)
+                || key.hasPrefix(Key.styleProfilePrefix) {
+            defaults.removeObject(forKey: key)
+        }
+        defaults.set(true, forKey: Key.doubleTapSubtractInitialized)
+        notifyScoreboardPreferencesChanged()
     }
 
     /// One-shot tip for the Setup “start on watch” split button (aligned with HOS).
@@ -224,12 +301,63 @@ class PreferencesManager {
         defaults.removeObject(forKey: typographyKey(for: styleID))
     }
 
+    /// Missing V2 profiles are intentionally returned in memory only. This
+    /// keeps a first read from silently modifying an existing user's settings.
+    func scoreboardStyleProfileV2(for styleID: ScoreboardStyleID) -> ScoreboardStyleProfileV2 {
+        guard let encoded = defaults.data(forKey: styleProfileV2Key(for: styleID)),
+              let profile = try? JSONDecoder().decode(ScoreboardStyleProfileV2.self, from: encoded) else {
+            let theme = ScoreboardTheme(rawValue: scoreboardTheme) ?? .defaultTheme
+            return .default(for: styleID, theme: theme)
+        }
+        return profile
+    }
+
+    func hasScoreboardStyleProfileV2(for styleID: ScoreboardStyleID) -> Bool {
+        defaults.data(forKey: styleProfileV2Key(for: styleID)) != nil
+    }
+
+    func setScoreboardStyleProfileV2(_ profile: ScoreboardStyleProfileV2, for styleID: ScoreboardStyleID) {
+        guard let encoded = try? JSONEncoder().encode(profile) else { return }
+        defaults.set(encoded, forKey: styleProfileV2Key(for: styleID))
+        notifyScoreboardPreferencesChanged()
+    }
+
+    func resetScoreboardStyleProfileV2(for styleID: ScoreboardStyleID) {
+        defaults.removeObject(forKey: styleProfileV2Key(for: styleID))
+        notifyScoreboardPreferencesChanged()
+    }
+
+    var scoreboardRecentStyleColors: [String] {
+        get { defaults.stringArray(forKey: "scoreboard_style_v2_recent_colors") ?? [] }
+        set { defaults.set(Array(newValue.prefix(8)), forKey: "scoreboard_style_v2_recent_colors") }
+    }
+
+    func rememberScoreboardStyleColors(_ colors: [String]) {
+        var recent = scoreboardRecentStyleColors
+        for raw in colors.reversed() {
+            guard let color = ScoreboardStyleProfileV2.normalizedHex(raw) else { continue }
+            recent.removeAll { $0.caseInsensitiveCompare(color) == .orderedSame }
+            recent.insert(color, at: 0)
+        }
+        scoreboardRecentStyleColors = Array(recent.prefix(8))
+    }
+
     var resolvedDefaultScoreboardFont: ScoreboardFont {
         ScoreboardFont(rawValue: defaultScoreboardFont) ?? .default
     }
 
     private func typographyKey(for styleID: ScoreboardStyleID) -> String {
         "scoreboard_typography_\(styleID.rawValue)"
+    }
+
+    private func styleProfileV2Key(for styleID: ScoreboardStyleID) -> String {
+        "scoreboard_style_v2_\(styleID.rawValue)"
+    }
+
+    private func matchTimePreferenceID(for gameType: GameType) -> String {
+        // The app-level ping-pong type intentionally represents both singles
+        // and doubles. Volleyball variants keep their own raw identifiers.
+        gameType.canonicalScoreboardIdentifier
     }
 
     private func notifyScoreboardPreferencesChanged() {

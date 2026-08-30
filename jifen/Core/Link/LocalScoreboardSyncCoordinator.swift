@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import LinkCore
 import ScoreCore
 
 struct LocalScoreboardKeyPoint: Codable, Equatable {
@@ -71,6 +70,9 @@ struct LocalScoreboardDisplayState: Codable, Equatable {
     var finished: Bool
     var keyPoint: LocalScoreboardKeyPoint? = nil
     var revision: UInt64
+    /// Optional full-fidelity state for the process-local dedicated display.
+    /// The compact fields remain the common in-process scoreboard snapshot.
+    var externalState: ScoreboardDisplayState? = nil
 }
 
 enum LocalScoreboardIntent: String, Codable, CaseIterable {
@@ -93,98 +95,114 @@ enum LocalScoreboardMutationPolicy {
     }
 }
 
-/// Bridges the transport-neutral sync protocol to the currently visible scoreboard.
-/// The host owns all score mutation; remote controllers only submit intents.
+/// Publishes the currently visible scoreboard to a system-managed external
+/// display. The source-compatible intent callback is intentionally dormant in
+/// the offline release; phone-to-phone LAN control is not initialized.
 @MainActor
 final class LocalScoreboardSyncCoordinator: ObservableObject {
     static let shared = LocalScoreboardSyncCoordinator()
 
     @Published private(set) var displayState: LocalScoreboardDisplayState?
-    @Published private(set) var connectionMessage: String?
 
     private var snapshotProvider: (() -> LocalScoreboardDisplayState)?
-    private var intentHandler: ((LocalScoreboardIntent) -> Void)?
     private var revision: UInt64 = 0
-    private let sessionID = UUID()
-    private var gate = RealtimeRevisionGate()
+    private var externalOwnerID: String?
+    private var externalLeaseID: UInt64?
+    private var genericMatchClockOwnerID: String?
+    private var genericMatchClockProvider: (() -> ScoreboardDisplayClock?)?
 
-    private init() {
-        LocalPeerRoomManager.shared.onEnvelope = { [weak self] envelope in
-            self?.receive(envelope)
-        }
-    }
+    private static let genericMatchClockGameIDs: Set<String> = [
+        "pingpong",
+        "volleyball",
+        "air_volleyball",
+        "beach_volleyball",
+        "guandan",
+        "shengji",
+        "simple_score"
+    ]
+
+    private init() {}
 
     func registerHost(
         snapshot: @escaping () -> LocalScoreboardDisplayState,
         handleIntent: @escaping (LocalScoreboardIntent) -> Void
     ) {
+        if let externalOwnerID, let externalLeaseID {
+            ScoreboardDisplayOutputs.shared.release(ownerID: externalOwnerID, leaseID: externalLeaseID)
+        }
         snapshotProvider = snapshot
-        intentHandler = handleIntent
+        // The callback stays in the source-compatible API because every
+        // scoreboard already provides one. The offline release has no remote
+        // controller transport, so intents are never delivered here.
+        _ = handleIntent
+        let ownerID = "local-scoreboard-\(UUID().uuidString)"
+        var initial = snapshot()
+        initial.revision = revision
+        let initialExternalState = decoratedExternalState(for: initial)
+        initial.externalState = initialExternalState
+        externalOwnerID = ownerID
+        externalLeaseID = ScoreboardDisplayOutputs.shared.bind(
+            ownerID: ownerID,
+            initial: initialExternalState
+        )
+        publishSnapshot()
+    }
+
+    /// Adds the launch-scoped, count-up match clock to supported generic
+    /// scoreboards. The owner token prevents a departing page from clearing a
+    /// newer page's provider during a navigation transition.
+    func registerGenericMatchClock(
+        ownerID: String,
+        provider: @escaping () -> ScoreboardDisplayClock?
+    ) {
+        genericMatchClockOwnerID = ownerID
+        genericMatchClockProvider = provider
+        publishSnapshot()
+    }
+
+    func unregisterGenericMatchClock(ownerID: String) {
+        guard genericMatchClockOwnerID == ownerID else { return }
+        genericMatchClockOwnerID = nil
+        genericMatchClockProvider = nil
         publishSnapshot()
     }
 
     func unregisterHost() {
+        if let externalOwnerID, let externalLeaseID {
+            ScoreboardDisplayOutputs.shared.release(ownerID: externalOwnerID, leaseID: externalLeaseID)
+        }
+        externalOwnerID = nil
+        externalLeaseID = nil
         snapshotProvider = nil
-        intentHandler = nil
+        displayState = nil
     }
 
     func publishSnapshot() {
-        guard LocalPeerRoomManager.shared.localRole == .hostController,
-              var state = snapshotProvider?() else { return }
+        guard var state = snapshotProvider?() else { return }
         revision += 1
         state.revision = revision
+        let externalState = decoratedExternalState(for: state)
+        state.externalState = externalState
         displayState = state
-        LocalPeerRoomManager.shared.broadcastPayload(
-            state,
-            kind: .snapshot,
-            sessionID: sessionID,
-            revision: revision
-        )
-    }
-
-    func sendIntent(_ intent: LocalScoreboardIntent) {
-        guard LocalPeerRoomManager.shared.localRole == .remoteController else { return }
-        LocalPeerRoomManager.shared.broadcastPayload(
-            intent,
-            kind: .intent,
-            sessionID: displayState.map { _ in sessionID },
-            revision: displayState?.revision ?? 0
-        )
-    }
-
-    private func receive(_ envelope: RealtimeSyncEnvelope) {
-        switch envelope.kind {
-        case .intent where LocalPeerRoomManager.shared.localRole == .hostController:
-            guard let intent = try? envelope.decodePayload(LocalScoreboardIntent.self) else { return }
-            if intent == .requestSnapshot {
-                publishSnapshot()
-                return
-            }
-            intentHandler?(intent)
-            publishSnapshot()
-
-        case .snapshot where LocalPeerRoomManager.shared.localRole != .hostController:
-            guard let state = try? envelope.decodePayload(LocalScoreboardDisplayState.self) else { return }
-            if gate.roomID == nil {
-                gate.begin(roomID: envelope.roomID, sessionID: envelope.sessionID)
-            }
-            if gate.requiresResync(for: envelope) {
-                connectionMessage = NSLocalizedString("sync_resyncing", value: "正在补齐比分…", comment: "")
-                sendIntent(.requestSnapshot)
-            }
-            guard gate.accept(envelope) else { return }
-            displayState = state
-            connectionMessage = nil
-
-        case .controllerPaused:
-            connectionMessage = NSLocalizedString("sync_host_paused", value: "主控设备暂离", comment: "")
-        case .controllerResumed:
-            connectionMessage = NSLocalizedString("sync_connected", value: "已连接", comment: "")
-            sendIntent(.requestSnapshot)
-        case .matchFinished:
-            connectionMessage = NSLocalizedString("sync_match_finished", value: "比赛已结束", comment: "")
-        default:
-            break
+        if let externalOwnerID, let externalLeaseID {
+            ScoreboardDisplayOutputs.shared.publish(
+                ownerID: externalOwnerID,
+                leaseID: externalLeaseID,
+                state: externalState,
+                priority: state.finished ? .urgent : .normal
+            )
         }
+    }
+
+    private func decoratedExternalState(
+        for state: LocalScoreboardDisplayState
+    ) -> ScoreboardDisplayState {
+        var externalState = state.externalState ?? ScoreboardDisplayState(compactState: state)
+        if externalState.clock == nil,
+           Self.genericMatchClockGameIDs.contains(externalState.gameType),
+           let clock = genericMatchClockProvider?() {
+            externalState.clock = clock
+        }
+        return externalState
     }
 }

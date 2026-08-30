@@ -1,4 +1,5 @@
 import XCTest
+import ScoreCore
 @testable import jifen
 
 @MainActor
@@ -154,6 +155,35 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
         XCTAssertEqual(Array(ordered.suffix(2)).map(\.action), ["frameRecord", "settleFrame"])
     }
 
+    func testAndroid31MatchOrderingSupportsSortedAndTrailingActions() {
+        let items = ScoreboardMenuItemBuilder.defaultItems(
+            showEndGame: true,
+            showExchangeSide: true,
+            showWhistle: false,
+            showScreenshot: false,
+            showDisplaySettings: false,
+            extraItems: [
+                ScoreboardMenuItem(title: "Cards", action: "cards", group: .match, sortOrder: 30),
+                ScoreboardMenuItem(title: "Pause", action: "pause", group: .match, sortOrder: 20),
+                ScoreboardMenuItem(title: "Extra time", action: "extra", group: .match, sortOrder: 10, placeAtEnd: true)
+            ]
+        )
+        let ordered = ScoreboardMenuItemBuilder.orderedMatchItems(
+            items.filter { $0.group == .match }
+        )
+
+        XCTAssertEqual(ordered.first?.action, "undo")
+        XCTAssertLessThan(
+            ordered.firstIndex { $0.action == "pause" }!,
+            ordered.firstIndex { $0.action == "cards" }!
+        )
+        XCTAssertLessThan(
+            ordered.firstIndex { $0.action == "reset" }!,
+            ordered.firstIndex { $0.action == "endGame" }!
+        )
+        XCTAssertEqual(ordered.last?.action, "extra")
+    }
+
     func testReadOnlyLinkedBilliardsDisablesMutatingMenuItemsButKeepsRecordVisible() {
         let items = ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
@@ -173,5 +203,70 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
         }
         XCTAssertEqual(items.first { $0.action == "frameRecord" }?.enabled, true)
         XCTAssertEqual(items.first { $0.action == "displaySettings" }?.enabled, true)
+    }
+
+    func testOfficialBreakOverlayKeepsAdministrativeTitleAndUndoForEveryKind() {
+        let timeout = OfficialBreakState(
+            sport: .pingpong,
+            kind: .timeout,
+            durationSeconds: 60,
+            title: "暂停 · 张三"
+        )
+        let medical = OfficialBreakState(
+            sport: .pingpong,
+            kind: .medical,
+            durationSeconds: 600
+        )
+
+        XCTAssertEqual(OfficialBreakOverlayPresentation.title(for: timeout), "暂停 · 张三")
+        XCTAssertEqual(
+            OfficialBreakOverlayPresentation.title(for: medical),
+            NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
+        )
+        XCTAssertTrue(OfficialBreakOverlayPresentation.showsUndo(for: timeout))
+        XCTAssertTrue(OfficialBreakOverlayPresentation.showsUndo(for: medical))
+    }
+
+    func testFinishedDoudizhuUndoPolicyLeavesScoreAndRecordTimelineUntouched() {
+        var scores = [12, -6, -6]
+        var actionLog = ["round", "finish"]
+        var detailedActionCount = 2
+
+        let performed = DoudizhuUndoPolicy.performIfAllowed(gameFinished: true) {
+            scores = [0, 0, 0]
+            actionLog.removeLast()
+            detailedActionCount -= 1
+        }
+
+        XCTAssertFalse(performed)
+        XCTAssertEqual(scores, [12, -6, -6])
+        XCTAssertEqual(actionLog, ["round", "finish"])
+        XCTAssertEqual(detailedActionCount, 2)
+        XCTAssertFalse(DoudizhuUndoPolicy.isAllowed(gameFinished: true))
+        XCTAssertTrue(DoudizhuUndoPolicy.isAllowed(gameFinished: false))
+    }
+
+    func testFinishedNineBallUndoPolicyLeavesStateAndCommittedTimelineUntouched() {
+        var scores = [9, 5, 2]
+        var actionLog = ["normal_win", "finish"]
+        var committedRecordID: String? = "nine-ball-finished"
+
+        let performed = NineBallUndoPolicy.performIfAllowed(
+            finished: true,
+            gameOverPresented: true
+        ) {
+            scores[0] = 0
+            actionLog.removeLast()
+            committedRecordID = nil
+            return true
+        }
+
+        XCTAssertFalse(performed)
+        XCTAssertEqual(scores, [9, 5, 2])
+        XCTAssertEqual(actionLog, ["normal_win", "finish"])
+        XCTAssertEqual(committedRecordID, "nine-ball-finished")
+        XCTAssertFalse(NineBallUndoPolicy.isAllowed(finished: true, gameOverPresented: false))
+        XCTAssertFalse(NineBallUndoPolicy.isAllowed(finished: false, gameOverPresented: true))
+        XCTAssertTrue(NineBallUndoPolicy.isAllowed(finished: false, gameOverPresented: false))
     }
 }

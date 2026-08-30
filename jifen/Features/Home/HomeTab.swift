@@ -21,10 +21,118 @@ enum HomeLayoutPolicy {
     }
 }
 
+struct HomeResumeSessionScanOutcome<Candidate> {
+    var candidate: Candidate?
+    var recordsNeedRefresh = false
+    var shouldReload = false
+    var hasUnreadableEntry = false
+    var isCancelled = false
+}
+
+/// Selects one resumable match without letting a damaged or concurrently
+/// removed index entry discard an otherwise valid older match. The candidate
+/// is fully decoded before any entries older than it are archived.
+@MainActor
+struct HomeResumeSessionScanner<Candidate> {
+    typealias ReconcileCommittedRecord = @MainActor (ResumeSessionSummary) async -> Bool
+    typealias ArchiveIfExpired = @MainActor (UUID) async throws -> ResumeSessionDisposition?
+    typealias Abandon = @MainActor (UUID) async throws -> ResumeSessionDisposition
+    typealias CandidateLoader = @MainActor (ResumeSessionSummary) -> Candidate?
+    typealias FailureHandler = @MainActor (Error, ResumeSessionSummary) -> Void
+
+    let reconcileCommittedRecord: ReconcileCommittedRecord
+    let archiveIfExpired: ArchiveIfExpired
+    let abandon: Abandon
+    let loadCandidate: CandidateLoader
+    let onFailure: FailureHandler
+
+    func scan(_ entries: [ResumeSessionSummary]) async -> HomeResumeSessionScanOutcome<Candidate> {
+        var outcome = HomeResumeSessionScanOutcome<Candidate>()
+        var candidateIndex: Int?
+        var hasUnresolvedNewerEntry = false
+
+        // Entries are newest-first. Reconcile terminal/expired entries while
+        // searching, but do not prune anything older than the candidate until
+        // that candidate's snapshot and payload have both decoded.
+        for (index, entry) in entries.enumerated() {
+            guard !Task.isCancelled else {
+                outcome.isCancelled = true
+                return outcome
+            }
+
+            if await reconcileCommittedRecord(entry) {
+                continue
+            }
+
+            do {
+                if let disposition = try await archiveIfExpired(entry.sessionId) {
+                    outcome.recordsNeedRefresh = outcome.recordsNeedRefresh
+                        || disposition.containsHistoricalRecord
+                    continue
+                }
+            } catch {
+                onFailure(error, entry)
+                outcome.shouldReload = true
+                outcome.hasUnreadableEntry = true
+                hasUnresolvedNewerEntry = true
+                continue
+            }
+
+            guard let candidate = loadCandidate(entry) else {
+                // The index and snapshot may have crossed during an atomic
+                // save. Leave the entry untouched and give the repository one
+                // bounded reload instead of failing the entire Home scan.
+                outcome.shouldReload = true
+                outcome.hasUnreadableEntry = true
+                hasUnresolvedNewerEntry = true
+                continue
+            }
+
+            outcome.candidate = candidate
+            candidateIndex = index
+            break
+        }
+
+        guard let candidateIndex else { return outcome }
+
+        // If a newer entry could not be resolved, showing this valid fallback
+        // is safe, but deleting anything behind it is not. A later reload can
+        // determine the true ordering once the concurrent write settles.
+        guard !hasUnresolvedNewerEntry else { return outcome }
+
+        for entry in entries.dropFirst(candidateIndex + 1) {
+            guard !Task.isCancelled else {
+                outcome.isCancelled = true
+                return outcome
+            }
+
+            if await reconcileCommittedRecord(entry) {
+                continue
+            }
+
+            do {
+                let disposition = try await abandon(entry.sessionId)
+                outcome.recordsNeedRefresh = outcome.recordsNeedRefresh
+                    || disposition.containsHistoricalRecord
+            } catch {
+                // One damaged/missing entry must not prevent later entries from
+                // being reconciled. Every successful cleanup remains
+                // record-first and the failed item is safe to retry.
+                onFailure(error, entry)
+                outcome.shouldReload = true
+                outcome.hasUnreadableEntry = true
+            }
+        }
+
+        return outcome
+    }
+}
+
 struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
@@ -35,6 +143,8 @@ struct HomeTab: View {
     @State private var showDiscardConfirmationToast = false
     @State private var discardConfirmationToken = UUID()
     @State private var resumeLoadErrorMessage: String?
+    @State private var resumeLoadTask: Task<Void, Never>?
+    @State private var resumeLoadGeneration = UUID()
     @AppStorage("home_discard_chip_shown_count") private var discardConfirmationToastShownCount = 0
     @State private var showCreateBookingSheet = false
     @State private var path = NavigationPath()
@@ -74,6 +184,7 @@ struct HomeTab: View {
         case commonNames
         case commonPlaces
         case bookingDetail(bookingId: String)
+        case cast
     }
 
     private var isDarkTheme: Bool {
@@ -90,7 +201,13 @@ struct HomeTab: View {
                 let contentWidth = geo.size.width - Theme.pageHorizontalInset * 2
                 // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
                 VStack(spacing: 0) {
-                    HomeHeaderView(headerDate: headerDate)
+                    HomeHeaderView(
+                        headerDate: headerDate,
+                        onCastTapped: {
+                            AppAnalytics.openPage(from: .homeTab, to: .castPage)
+                            path.append(NavigationDestination.cast)
+                        }
+                    )
                         .padding(.horizontal, Theme.pageHorizontalInset)
 
                     ScrollView(showsIndicators: false) {
@@ -107,15 +224,21 @@ struct HomeTab: View {
                 QuickStartEditView(
                     initialPrimary: quickStartManager.quickStartConfig.primarySport,
                     initialSecondary: quickStartManager.quickStartConfig.secondarySport,
-                    onSave: { primary, secondary in
+                    initialTertiary: quickStartManager.quickStartConfig.tertiarySport,
+                    showsTertiarySlot: showsTertiaryQuickStartSlot,
+                    onSave: { primary, secondary, tertiary in
+                        let identifiers = [primary, secondary] + (tertiary.map { [$0] } ?? [])
                         AppAnalytics.track(.saveQuickStart, parameters: [
                             .contentType: .string("quick_start"),
-                            .itemID: .string("\(primary.analyticsIdentifier),\(secondary.analyticsIdentifier)"),
+                            .itemID: .string(identifiers.map(\.analyticsIdentifier).joined(separator: ",")),
                             .result: .string(AnalyticsResult.success.rawValue)
                         ])
                         Task {
-                            try? await quickStartManager.setPrimarySport(primary)
-                            try? await quickStartManager.setSecondarySport(secondary)
+                            try? await quickStartManager.setSports(
+                                primary: primary,
+                                secondary: secondary,
+                                tertiary: tertiary
+                            )
                         }
                     }
                 )
@@ -190,9 +313,8 @@ struct HomeTab: View {
                         .toolbar(.hidden, for: .tabBar)
                 case .schedule:
                     SchedulePage(
-                        onStartGame: { gameType in
-                            pendingScoreboardEntryPoint = .bookingDetail
-                            pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                        onStartBooking: { request in
+                            await startScheduledBooking(request)
                         },
                         onChanged: {
                             loadUpcomingBookings()
@@ -208,15 +330,17 @@ struct HomeTab: View {
                 case .bookingDetail(let bookingId):
                     BookingDetailPage(
                         bookingId: bookingId,
-                        onStartGame: { gameType in
-                            pendingScoreboardEntryPoint = .bookingDetail
-                            pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                        onStartBooking: { request in
+                            await startScheduledBooking(request)
                         },
                         onChanged: {
                             loadUpcomingBookings()
                         }
                     )
                     .toolbar(.hidden, for: .tabBar)
+                case .cast:
+                    CastConnectionView()
+                        .toolbar(.hidden, for: .tabBar)
                 }
             }
             .navigationDestination(for: ToolItem.self) { tool in
@@ -320,6 +444,13 @@ struct HomeTab: View {
         #endif
     }
 
+    private var showsTertiaryQuickStartSlot: Bool {
+        QuickStartLayoutPolicy.showsTertiarySlot(
+            horizontalSizeClass: horizontalSizeClass,
+            isPad: Theme.usesPadLayout
+        )
+    }
+
     // MARK: - Setup dialog support (aligned with HarmonyOS)
 
     /// 所有计分项目均先弹出 setup（至少输入名字）
@@ -385,68 +516,111 @@ struct HomeTab: View {
     }
 
     private func loadUnfinishedRecord() {
+        resumeLoadTask?.cancel()
+        let generation = UUID()
+        resumeLoadGeneration = generation
+
         if let linked = watchLinkService.linkedResumeDescriptor {
             // When a linked descriptor exists we must resolve it here and return.
-            // Falling through to the repository Task would recurse indefinitely
-            // because the descriptor never clears on its own.
-            if let summary = UnfinishedGameSummary(linked: linked) {
-                unfinishedRecord = summary
-            } else {
-                unfinishedRecord = nil
-            }
+            // It also invalidates any older local scan so that scan can never
+            // clear a newer Watch result after one of its awaits returns.
+            resumeLoadTask = nil
+            unfinishedRecord = UnfinishedGameSummary(linked: linked)
+            resumeLoadErrorMessage = nil
             return
         }
-        Task {
+
+        resumeLoadTask = Task { @MainActor in
+            defer {
+                if resumeLoadGeneration == generation {
+                    resumeLoadTask = nil
+                }
+            }
+
             let repository = ResumeSessionRepository()
-            // At most one Resume GameBar: prune any stacked live sessions first.
             do {
-                if let entry = try await repository.retainNewestLiveSession() {
-                    let coordinator = FinishedSessionCommitCoordinator(
-                        resumeRemover: { sessionId in
-                            try await repository.remove(sessionId: sessionId)
-                        }
-                    )
-                    let committedRecordID = ManualResumeSessionStore.recordID(
-                        for: entry.sessionId
-                    ) ?? entry.sessionId.uuidString
-                    if let reconciliation = await coordinator.reconcileCommittedRecord(
-                        recordID: committedRecordID,
-                        sessionId: entry.sessionId
-                    ) {
-                        // A crash after record commit but before cleanup must not
-                        // resurrect the match as an unfinished GameBar entry.
+                let finishedCoordinator = FinishedSessionCommitCoordinator(
+                    resumeRemover: { sessionId in
+                        try await repository.remove(sessionId: sessionId)
+                    }
+                )
+                let lifecycleCoordinator = AbandonedResumeSessionCoordinator()
+                let scanner = HomeResumeSessionScanner<UnfinishedGameSummary>(
+                    reconcileCommittedRecord: { entry in
+                        let committedRecordID = ManualResumeSessionStore.recordID(
+                            for: entry.sessionId
+                        ) ?? entry.sessionId.uuidString
+                        guard let reconciliation = await finishedCoordinator.reconcileCommittedRecord(
+                            recordID: committedRecordID,
+                            sessionId: entry.sessionId
+                        ) else { return false }
                         if let cleanupError = reconciliation.cleanupError {
                             ScoreboardPersistenceFailureReporter.report(
                                 cleanupError,
                                 context: "Failed to reconcile finished resume \(entry.sessionId.uuidString)"
                             )
                         }
-                        unfinishedRecord = nil
-                        resumeLoadErrorMessage = nil
-                        return
-                    }
-                    guard let summary = UnfinishedGameSummary(session: entry) else {
-                        unfinishedRecord = nil
-                        resumeLoadErrorMessage = NSLocalizedString(
-                            "resume_load_invalid",
-                            value: "The saved match is damaged and cannot be resumed.",
-                            comment: ""
+                        return true
+                    },
+                    archiveIfExpired: { sessionID in
+                        try await lifecycleCoordinator.archiveIfExpired(sessionID: sessionID)
+                    },
+                    abandon: { sessionID in
+                        try await lifecycleCoordinator.abandon(sessionID: sessionID)
+                    },
+                    loadCandidate: { entry in
+                        UnfinishedGameSummary(session: entry)
+                    },
+                    onFailure: { error, entry in
+                        #if DEBUG
+                        print(
+                            "[HomeTab] Resume entry \(entry.sessionId.uuidString) "
+                                + "could not be reconciled: \(error.localizedDescription)"
                         )
-                        return
+                        #endif
                     }
-                    guard watchLinkService.linkedResumeDescriptor == nil else {
-                        loadUnfinishedRecord()
-                        return
-                    }
-                    unfinishedRecord = summary
+                )
+
+                var outcome = await scanner.scan(try await repository.liveEntries())
+                var recordsNeedRefresh = outcome.recordsNeedRefresh
+
+                // A missing envelope can be a harmless index/snapshot race.
+                // Reload once, never recursively, and keep all per-entry
+                // failures isolated inside the scanner.
+                if outcome.shouldReload {
+                    await Task.yield()
+                    guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
+                    let retriedOutcome = await scanner.scan(try await repository.liveEntries())
+                    recordsNeedRefresh = recordsNeedRefresh || retriedOutcome.recordsNeedRefresh
+                    outcome = retriedOutcome
+                }
+
+                guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
+
+                if recordsNeedRefresh {
+                    ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+                }
+
+                guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
+                if let linked = watchLinkService.linkedResumeDescriptor {
+                    unfinishedRecord = UnfinishedGameSummary(linked: linked)
                     resumeLoadErrorMessage = nil
                     return
                 }
-                unfinishedRecord = nil
-                resumeLoadErrorMessage = nil
+
+                unfinishedRecord = outcome.candidate
+                resumeLoadErrorMessage = outcome.candidate == nil && outcome.hasUnreadableEntry
+                    ? NSLocalizedString(
+                        "resume_load_invalid",
+                        value: "The saved match is damaged and cannot be resumed.",
+                        comment: ""
+                    )
+                    : nil
             } catch {
-                guard watchLinkService.linkedResumeDescriptor == nil else {
-                    loadUnfinishedRecord()
+                guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
+                if let linked = watchLinkService.linkedResumeDescriptor {
+                    unfinishedRecord = UnfinishedGameSummary(linked: linked)
+                    resumeLoadErrorMessage = nil
                     return
                 }
                 unfinishedRecord = nil
@@ -533,17 +707,21 @@ struct HomeTab: View {
 
     private func discardUnfinishedGame() {
         guard let unfinishedRecord else { return }
-        AppAnalytics.track(.scoreboardMenuAction, parameters: [
-            .gameType: .string(unfinishedRecord.gameType.analyticsIdentifier),
-            .actionName: .string("discard_unfinished"),
-            .result: .string(AnalyticsResult.success.rawValue)
-        ])
         switch unfinishedRecord.source {
         case .resume(let sessionId):
             Task {
                 do {
-                    try await ResumeSessionRepository().remove(sessionId: sessionId)
-                    ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+                    let disposition = try await AbandonedResumeSessionCoordinator().abandon(
+                        sessionID: sessionId
+                    )
+                    AppAnalytics.track(.scoreboardMenuAction, parameters: [
+                        .gameType: .string(unfinishedRecord.gameType.analyticsIdentifier),
+                        .actionName: .string("discard_unfinished"),
+                        .result: .string(AnalyticsResult.success.rawValue)
+                    ])
+                    if disposition.containsHistoricalRecord {
+                        ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
+                    }
                     loadUnfinishedRecord()
                 } catch {
                     NotificationCenter.default.post(
@@ -554,6 +732,11 @@ struct HomeTab: View {
             }
         case .linked(let sessionId):
             watchLinkService.leaveSession(sessionId)
+            AppAnalytics.track(.scoreboardMenuAction, parameters: [
+                .gameType: .string(unfinishedRecord.gameType.analyticsIdentifier),
+                .actionName: .string("discard_unfinished"),
+                .result: .string(AnalyticsResult.success.rawValue)
+            ])
             loadUnfinishedRecord()
         }
     }
@@ -575,6 +758,27 @@ struct HomeTab: View {
                 )
             )
         }
+    }
+
+    /// A scheduled start is accepted only after its exact initial state is in
+    /// the resume repository. The detail page completes the booking after this
+    /// returns true, which also removes its pending reminders.
+    private func startScheduledBooking(_ request: BookingStartRequest) async -> Bool {
+        guard let resumeSessionId = await BookingStartPersistence.persist(request) else {
+            return false
+        }
+        pendingScoreboardEntryPoint = .bookingDetail
+        path.append(
+            NavigationDestination.scoreboard(
+                ScoreboardNavigationTarget(
+                    gameType: request.gameType,
+                    recordId: resumeSessionId,
+                    setupResult: request.setup,
+                    analyticsEntryPoint: .bookingDetail
+                )
+            )
+        )
+        return true
     }
 
     @ViewBuilder
@@ -749,6 +953,8 @@ struct HomeTab: View {
         QuickStartGridView(
             primarySport: quickStartManager.quickStartConfig.primarySport,
             secondarySport: quickStartManager.quickStartConfig.secondarySport,
+            tertiarySport: quickStartManager.quickStartConfig.tertiarySport,
+            showsTertiarySlot: showsTertiaryQuickStartSlot,
             showSectionTitle: showSectionTitle,
             onPrimaryClick: { gameType in
                 if quickStartTimerTypes.contains(gameType) {
@@ -767,6 +973,22 @@ struct HomeTab: View {
                 if quickStartTimerTypes.contains(gameType) {
                     onNavigateToTab?(3, gameType)
                 } else {
+                    pendingScoreboardEntryPoint = .homeQuickStartSecondary
+                    AppAnalytics.track(.scoreItemSelect, parameters: [
+                        .gameType: .string(gameType.analyticsIdentifier),
+                        .sourcePage: .string(AnalyticsScreen.homeTab.rawValue),
+                        .entryPoint: .string(AnalyticsEntryPoint.homeQuickStartSecondary.rawValue)
+                    ])
+                    pendingScoreboardSetupItem = ScoreboardSetupItem(gameType: gameType)
+                }
+            },
+            onTertiaryClick: { gameType in
+                if quickStartTimerTypes.contains(gameType) {
+                    onNavigateToTab?(3, gameType)
+                } else {
+                    // Tertiary is the third small quick-start card. Reuse the
+                    // existing secondary-card analytics entry point rather than
+                    // broadening analytics scope for this local feature port.
                     pendingScoreboardEntryPoint = .homeQuickStartSecondary
                     AppAnalytics.track(.scoreItemSelect, parameters: [
                         .gameType: .string(gameType.analyticsIdentifier),

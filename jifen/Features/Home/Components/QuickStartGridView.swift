@@ -3,11 +3,14 @@ import SwiftUI
 struct QuickStartGridView: View {
     let primarySport: GameType
     let secondarySport: GameType
+    let tertiarySport: GameType
+    let showsTertiarySlot: Bool
     /// 横屏两栏时由 HomeTab 绘制统一标题行，此处仅显示网格
     var showSectionTitle: Bool = true
 
     var onPrimaryClick: ((GameType) -> Void)? = nil
     var onSecondaryClick: ((GameType) -> Void)? = nil
+    var onTertiaryClick: ((GameType) -> Void)? = nil
     var onNewGameClick: (() -> Void)? = nil
     var onEditClick: (() -> Void)? = nil
 
@@ -40,6 +43,7 @@ struct QuickStartGridView: View {
                     .frame(width: 44, height: 44)
                     .background(Color.clear) // backgroundColor(Color.Transparent)
                     .cornerRadius(22) // borderRadius(22)
+                    .accessibilityIdentifier("home_quick_start_edit")
                 }
                 .frame(maxWidth: .infinity) // width('100%')
                 .padding(.bottom, Theme.sectionContentSpacing)
@@ -59,20 +63,22 @@ struct QuickStartGridView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("home_quick_start_primary")
 
                     VStack(spacing: Theme.md) {
-                        Button(action: {
-                            onSecondaryClick?(secondarySport)
-                        }) {
-                            BentoCardView( // Secondary Card
-                                title: getGameName(type: secondarySport),
-                                subtitle: isQuickStartTimerType(secondarySport) ? startTimerText : startGameText,
-                                icon: getGameIcon(type: secondarySport),
-                                gradientColors: getGameGradient(type: secondarySport)
+                        quickStartSportButton(
+                            secondarySport,
+                            identifier: "home_quick_start_secondary",
+                            action: onSecondaryClick
+                        )
+
+                        if showsTertiarySlot {
+                            quickStartSportButton(
+                                tertiarySport,
+                                identifier: "home_quick_start_tertiary",
+                                action: onTertiaryClick
                             )
                         }
-                        .buttonStyle(.plain)
-                        .frame(maxHeight: .infinity) // Added for equal height
 
                         // Custom New Game Card matching small sports cards layout
                         Button(action: { onNewGameClick?() }) {
@@ -106,10 +112,31 @@ struct QuickStartGridView: View {
                         }
                         .buttonStyle(.plain)
                         .frame(maxHeight: .infinity) // Added for equal height
+                        .accessibilityIdentifier("home_quick_start_new_game")
                     }
                 }
             }
-            .frame(height: 240)
+            .frame(height: showsTertiarySlot ? 320 : 240)
         }
+    }
+
+    private func quickStartSportButton(
+        _ sport: GameType,
+        identifier: String,
+        action: ((GameType) -> Void)?
+    ) -> some View {
+        Button {
+            action?(sport)
+        } label: {
+            BentoCardView(
+                title: getGameName(type: sport),
+                subtitle: isQuickStartTimerType(sport) ? startTimerText : startGameText,
+                icon: getGameIcon(type: sport),
+                gradientColors: getGameGradient(type: sport)
+            )
+        }
+        .buttonStyle(.plain)
+        .frame(maxHeight: .infinity)
+        .accessibilityIdentifier(identifier)
     }
 }

@@ -12,7 +12,12 @@ import SessionCore
 
 enum ScoreboardRecordStatus: String, Codable {
     case draft
+    case abandoned
     case finished
+
+    var isHistorical: Bool {
+        self != .draft
+    }
 }
 
 /// Stable winner identity for record schema v5.
@@ -145,6 +150,9 @@ struct ScoreboardRecord: Codable, Identifiable {
     var projectConfiguration: [String: AnyCodable]?
     var stateSnapshot: Data?
     var syncMetadata: [String: String]?
+    /// Optional user-authored local annotation. It is deliberately outside
+    /// the score snapshot so editing it never changes replay semantics.
+    var note: String?
     var status: ScoreboardRecordStatus = .finished
     
     enum CodingKeys: String, CodingKey {
@@ -170,6 +178,7 @@ struct ScoreboardRecord: Codable, Identifiable {
         case projectConfiguration
         case stateSnapshot
         case syncMetadata
+        case note
         case status
     }
 
@@ -195,6 +204,7 @@ struct ScoreboardRecord: Codable, Identifiable {
         projectConfiguration: [String: AnyCodable]? = nil,
         stateSnapshot: Data? = nil,
         syncMetadata: [String: String]? = nil,
+        note: String? = nil,
         status: ScoreboardRecordStatus = .finished
     ) {
         self.schemaVersion = Self.currentSchemaVersion
@@ -219,6 +229,7 @@ struct ScoreboardRecord: Codable, Identifiable {
         self.projectConfiguration = projectConfiguration
         self.stateSnapshot = stateSnapshot
         self.syncMetadata = syncMetadata
+        self.note = note
         self.status = status
     }
 
@@ -248,7 +259,31 @@ struct ScoreboardRecord: Codable, Identifiable {
         projectConfiguration = try container.decodeIfPresent([String: AnyCodable].self, forKey: .projectConfiguration)
         stateSnapshot = try container.decodeIfPresent(Data.self, forKey: .stateSnapshot)
         syncMetadata = try container.decodeIfPresent([String: String].self, forKey: .syncMetadata)
+        note = try container.decodeIfPresent(String.self, forKey: .note)
         status = try container.decodeIfPresent(ScoreboardRecordStatus.self, forKey: .status) ?? .finished
+    }
+}
+
+enum ScoreboardRecordNote {
+    static let maximumUnicodeScalars = 300
+
+    /// Trims whitespace first, then truncates only at Character boundaries.
+    /// This preserves extended grapheme clusters such as emoji plus skin-tone
+    /// modifiers and flags instead of splitting their scalar sequence.
+    static func normalize(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+
+        var result = ""
+        var scalarCount = 0
+        for character in trimmed {
+            let nextCount = character.unicodeScalars.count
+            guard scalarCount + nextCount <= maximumUnicodeScalars else { break }
+            result.append(character)
+            scalarCount += nextCount
+        }
+        return result.isEmpty ? nil : result
     }
 }
 
@@ -525,7 +560,8 @@ extension ScoreboardRecord {
     /// Tiebreak-only tennis has no games layer. Old records may still contain
     /// zero-valued set-score fields, but they must not be presented as Games.
     var shouldDisplaySecondaryScore: Bool {
-        !isTennisTiebreakOnly && team1SetScore != nil && team2SetScore != nil
+        guard gameType != .football, gameType != .football5v5 else { return false }
+        return !isTennisTiebreakOnly && team1SetScore != nil && team2SetScore != nil
     }
 
     /// 详情页与分享卡片的"大比分"优先展示局分（几局几胜）或盘分（网球几盘几胜）；
@@ -562,7 +598,15 @@ extension ScoreboardRecord {
         resolvedScoreCoreGameType?.scoreboardDisplayName ?? gameType.displayName
     }
 
+    var configuredMatchTitle: String? {
+        guard gameType == .snooker else { return nil }
+        return ScoreboardMatchTitlePolicy.sanitize(
+            scoreboardString(mergedProjectConfiguration["matchTitle"])
+        )
+    }
+
     var displayMatchTitle: String {
+        if let configuredMatchTitle { return configuredMatchTitle }
         let names = displayParticipants.map(\.name)
         return names.isEmpty ? "\(team1Name) vs \(team2Name)" : names.joined(separator: " vs ")
     }
@@ -653,7 +697,15 @@ extension ScoreboardRecordSummary {
         resolvedScoreCoreGameType?.scoreboardDisplayName ?? gameType.displayName
     }
 
+    var configuredMatchTitle: String? {
+        guard gameType == .snooker else { return nil }
+        return ScoreboardMatchTitlePolicy.sanitize(
+            scoreboardString(mergedProjectConfiguration["matchTitle"])
+        )
+    }
+
     var displayMatchTitle: String {
+        if let configuredMatchTitle { return configuredMatchTitle }
         let names = displayParticipants.map(\.name)
         return names.isEmpty ? "\(team1Name) vs \(team2Name)" : names.joined(separator: " vs ")
     }
@@ -673,7 +725,10 @@ enum ScoreboardRecordConfiguration {
     static func rally(
         gameType: ScoreCore.GameType,
         state: RallyMatchState,
-        voiceAnnouncement: Bool
+        voiceAnnouncement: Bool,
+        showMatchTime: Bool = false,
+        competitionFormat: CompetitionFormat? = nil,
+        competitionPlayerNames: [String]? = nil
     ) -> [String: AnyCodable] {
         let rules = state.rules
         var result: [String: AnyCodable] = [
@@ -685,10 +740,19 @@ enum ScoreboardRecordConfiguration {
             "autoChangeSides": AnyCodable(rules.autoChangeSides),
             "servingSide": AnyCodable(state.openingServerSide.rawValue),
             "voiceAnnouncement": AnyCodable(voiceAnnouncement),
+            "showMatchTime": AnyCodable(showMatchTime),
             "targetScore": AnyCodable(rules.pointsToWinSet),
             "winByTwo": AnyCodable(rules.finalSetWinByTwo ?? rules.winByTwo),
             "useRallyScoring": AnyCodable(rules.useRallyScoring)
         ]
+        result["ruleProfileVersion"] = AnyCodable(1)
+        let resolvedFormat = competitionFormat ?? {
+            if gameType == .shuttlecock {
+                return state.doubles == nil ? CompetitionFormat.team : .doubles
+            }
+            return gameType.isDoublesScoreboard ? .doubles : .singles
+        }()
+        result["competitionFormat"] = AnyCodable(resolvedFormat.rawValue)
         if let cap = rules.finalSetPointCap ?? rules.pointCap {
             result["scoreCap"] = AnyCodable(cap)
         }
@@ -697,6 +761,14 @@ enum ScoreboardRecordConfiguration {
             result["team2Player1Name"] = AnyCodable(names[1])
             result["team1Player2Name"] = AnyCodable(names[2])
             result["team2Player2Name"] = AnyCodable(names[3])
+        }
+        if let names = competitionPlayerNames, names.count >= 6 {
+            result["team1Player1Name"] = AnyCodable(names[0])
+            result["team1Player2Name"] = AnyCodable(names[1])
+            result["team1Player3Name"] = AnyCodable(names[2])
+            result["team2Player1Name"] = AnyCodable(names[3])
+            result["team2Player2Name"] = AnyCodable(names[4])
+            result["team2Player3Name"] = AnyCodable(names[5])
         }
         return result
     }
@@ -709,19 +781,30 @@ enum ScoreboardRecordConfiguration {
         let rules = state.rules
         var result: [String: AnyCodable] = [
             Key.scoreCoreGameType: AnyCodable(gameType.rawValue),
-            Key.isSingles: AnyCodable(gameType != .tennisDoubles),
+            Key.isSingles: AnyCodable(state.doublesPlayerNames == nil),
             "maxSets": AnyCodable(rules.maxSets),
             "matchCompletionMode": AnyCodable(rules.matchCompletionMode.rawValue),
             "tieBreakPoints": AnyCodable(rules.tieBreakPoints),
             "setScoringMode": AnyCodable(rules.setScoringMode.rawValue),
             "autoChangeSides": AnyCodable(rules.autoChangeSides),
-            "tennisDeuceMode": AnyCodable(rules.usesNoAdScoring ? "no_ad" : "advantage"),
+            "tennisDeuceMode": AnyCodable(
+                rules.familyProfile == .padel
+                    ? rules.padelDeuceMode.rawValue
+                    : (rules.usesNoAdScoring ? "no_ad" : "advantage")
+            ),
+            "ruleProfileVersion": AnyCodable(1),
             "servingSide": AnyCodable(state.openingServerSide.rawValue),
             "voiceAnnouncement": AnyCodable(voiceAnnouncement)
         ]
         if rules.setScoringMode != .tiebreakOnly {
             result["gamesPerSet"] = AnyCodable(rules.gamesPerSet)
         }
+        if rules.familyProfile == .softTennis {
+            result["softTennisMatchGames"] = AnyCodable(rules.softTennisMatchGames ?? 7)
+        }
+        result["competitionFormat"] = AnyCodable(
+            state.doublesPlayerNames == nil ? CompetitionFormat.singles.rawValue : CompetitionFormat.doubles.rawValue
+        )
         if let names = state.doublesPlayerNames, names.count >= 4 {
             result["team1Player1Name"] = AnyCodable(names[0])
             result["team2Player1Name"] = AnyCodable(names[1])
@@ -761,6 +844,8 @@ enum ScoreboardRecordConfiguration {
         setup.team1Player2Name = scoreboardString(data["team1Player2Name"])
         setup.team2Player1Name = scoreboardString(data["team2Player1Name"])
         setup.team2Player2Name = scoreboardString(data["team2Player2Name"])
+        setup.team1Player3Name = scoreboardString(data["team1Player3Name"])
+        setup.team2Player3Name = scoreboardString(data["team2Player3Name"])
         setup.basketballMode = scoreboardString(data["basketballMode"])
         setup.basketballRuleSet = scoreboardString(data["basketballRuleSet"])
         setup.tennisDeuceMode = scoreboardString(data["tennisDeuceMode"])
@@ -772,6 +857,17 @@ enum ScoreboardRecordConfiguration {
         setup.winByTwo = scoreboardBool(data["winByTwo"])
         setup.scoreCap = scoreboardInt(data["scoreCap"])
         setup.useRallyScoring = scoreboardBool(data["useRallyScoring"])
+        if let raw = scoreboardString(data["competitionFormat"]) {
+            setup.competitionFormat = CompetitionFormat(rawValue: raw)
+        }
+        setup.softTennisMatchGames = scoreboardInt(data["softTennisMatchGames"])
+        if let raw = scoreboardString(data["padelDeuceMode"] ?? data["tennisDeuceMode"]) {
+            setup.padelDeuceMode = PadelDeuceMode(rawValue: raw)
+        }
+        setup.ruleProfileVersion = scoreboardInt(data["ruleProfileVersion"])
+        setup.footballHalfLengthSeconds = scoreboardInt(data["footballHalfLengthSeconds"])
+        setup.showMatchTime = scoreboardBool(data["showMatchTime"])
+        setup.matchTitle = ScoreboardMatchTitlePolicy.sanitize(scoreboardString(data["matchTitle"]))
         setup.maxRounds = scoreboardInt(data["maxRounds"])
         setup.eightBallHandicapRacks = scoreboardInt(data["eightBallHandicapRacks"])
         setup.eightBallHandicapBeneficiary = scoreboardString(data["eightBallHandicapBeneficiary"])
@@ -794,7 +890,7 @@ enum ScoreboardRecordConfiguration {
 extension GameType {
     var supportsSinglesAndDoubles: Bool {
         switch self {
-        case .pingpong, .badminton, .tennis, .pickleball, .foosball: return true
+        case .pingpong, .badminton, .tennis, .pickleball, .foosball, .softTennis, .padel, .shuttlecock: return true
         default: return false
         }
     }
@@ -806,6 +902,11 @@ extension GameType {
         case .tennis: return isSingles ? .tennis : .tennisDoubles
         case .pickleball: return isSingles ? .pickleball : .pickleballDoubles
         case .foosball: return isSingles ? .foosball : .foosballDoubles
+        case .shuttlecock: return .shuttlecock
+        case .squash: return .squash
+        case .softTennis: return .softTennis
+        case .padel: return .padel
+        case .football5v5: return .football5v5
         default: return scoreCoreGameType
         }
     }
@@ -833,6 +934,11 @@ extension ScoreCore.GameType {
         case .pickleballDoubles: return NSLocalizedString("game_pickleball_doubles", value: "匹克球双打", comment: "")
         case .foosball: return NSLocalizedString("game_foosball_singles", value: "桌上足球单打", comment: "")
         case .foosballDoubles: return NSLocalizedString("game_foosball_doubles", value: "桌上足球双打", comment: "")
+        case .shuttlecock: return NSLocalizedString("game_shuttlecock", value: "毽球", comment: "")
+        case .squash: return NSLocalizedString("game_squash", value: "壁球", comment: "")
+        case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "")
+        case .padel: return NSLocalizedString("game_padel", value: "板式网球", comment: "")
+        case .football5v5: return NSLocalizedString("game_football_5v5", value: "5×5 足球", comment: "")
         default: return scoreboardAppGameType(for: self)?.displayName ?? rawValue
         }
     }
@@ -886,7 +992,7 @@ private func scoreboardString(_ value: AnyCodable?) -> String? {
     value?.value as? String
 }
 
-private func scoreboardBool(_ value: AnyCodable?) -> Bool? {
+func scoreboardBool(_ value: AnyCodable?) -> Bool? {
     if let bool = value?.value as? Bool { return bool }
     if let int = value?.value as? Int { return int != 0 }
     if let string = value?.value as? String { return (string as NSString).boolValue }

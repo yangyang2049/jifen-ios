@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+enum TenSecondChallengePolicy {
+    static let targetMilliseconds: TimeInterval = 10_000
+    static let automaticStopMilliseconds: TimeInterval = 59_990
+
+    static func absoluteDifference(milliseconds: TimeInterval) -> TimeInterval {
+        abs(max(0, milliseconds) - targetMilliseconds)
+    }
+}
+
 struct TenSecondChallengeView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isRunning = false
@@ -17,7 +26,6 @@ struct TenSecondChallengeView: View {
 
     @State private var timer: Timer?
     @State private var startTimestamp: Date?
-    private let targetTime: TimeInterval = 10.0 // 10 seconds = 10000ms
     private let hintShownKey = "ten_second_hint_shown"
 
     var body: some View {
@@ -166,7 +174,7 @@ struct TenSecondChallengeView: View {
                 currentTime = elapsed
                 
                 // Auto stop at 59.99 seconds
-                if elapsed >= 59990 {
+                if elapsed >= TenSecondChallengePolicy.automaticStopMilliseconds {
                     stopChallenge()
                     timer.invalidate()
                 }
@@ -185,8 +193,7 @@ struct TenSecondChallengeView: View {
         let finalTime = currentTime
 
         // Calculate difference from 10 seconds
-        let targetTimeMs: TimeInterval = 10000 // 10 seconds in milliseconds
-        let difference = abs(finalTime - targetTimeMs)
+        let difference = TenSecondChallengePolicy.absoluteDifference(milliseconds: finalTime)
         lastDifference = difference
 
         // Vibration feedback based on accuracy

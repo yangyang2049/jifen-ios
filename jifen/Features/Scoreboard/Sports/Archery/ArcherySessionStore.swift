@@ -3,29 +3,40 @@ import Observation
 import RecordCore
 import ScoreCore
 
+struct ArcheryRecordUndoCheckpoint: Codable, Equatable {
+    let recordedActionCount: Int?
+    let detailedActionCount: Int?
+
+    static let legacy = Self(recordedActionCount: nil, detailedActionCount: nil)
+}
+
 struct ArcheryResumeState: Codable, Equatable {
-    var schemaVersion = 3
+    var schemaVersion = 4
     let state: ArcheryMatchState
     let undoHistory: [ArcheryMatchState]
     let intentTimeline: [String]
     let detailedActions: [DetailedScoreAction]
+    let recordUndoCheckpoints: [ArcheryRecordUndoCheckpoint]
 
     private enum CodingKeys: String, CodingKey {
-        case schemaVersion, state, undoHistory, intentTimeline, detailedActions
+        case schemaVersion, state, undoHistory, intentTimeline, detailedActions, recordUndoCheckpoints
     }
 
     init(
-        schemaVersion: Int = 3,
+        schemaVersion: Int = 4,
         state: ArcheryMatchState,
         undoHistory: [ArcheryMatchState],
         intentTimeline: [String],
-        detailedActions: [DetailedScoreAction] = []
+        detailedActions: [DetailedScoreAction] = [],
+        recordUndoCheckpoints: [ArcheryRecordUndoCheckpoint]? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.state = state
         self.undoHistory = undoHistory
         self.intentTimeline = intentTimeline
         self.detailedActions = detailedActions
+        self.recordUndoCheckpoints = recordUndoCheckpoints
+            ?? Array(repeating: .legacy, count: undoHistory.count)
     }
 
     init(from decoder: Decoder) throws {
@@ -35,6 +46,10 @@ struct ArcheryResumeState: Codable, Equatable {
         undoHistory = try container.decodeIfPresent([ArcheryMatchState].self, forKey: .undoHistory) ?? []
         intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []
         detailedActions = try container.decodeIfPresent([DetailedScoreAction].self, forKey: .detailedActions) ?? []
+        recordUndoCheckpoints = try container.decodeIfPresent(
+            [ArcheryRecordUndoCheckpoint].self,
+            forKey: .recordUndoCheckpoints
+        ) ?? Array(repeating: .legacy, count: undoHistory.count)
     }
 }
 

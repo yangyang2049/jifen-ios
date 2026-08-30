@@ -238,6 +238,38 @@ public struct GuandanSessionReducer: DomainReducer {
             break
         }
 
+        // Phase-bound intents must be rejected rather than accepted with an
+        // unchanged state. ScoreSessionCore records every accepted intent as
+        // an undo frame, so a no-op acceptance would make Undo appear to work
+        // while restoring the exact same match state.
+        switch intent {
+        case .startMatch:
+            guard state.phase == .notStarted else {
+                return .rejected(state: state, reason: "Match has already started")
+            }
+        case .beginRoundResult:
+            guard state.phase == .playing else {
+                return .rejected(state: state, reason: "Round result is unavailable in the current phase")
+            }
+        case .cancelRoundResult:
+            guard state.phase == .roundResult else {
+                return .rejected(state: state, reason: "No pending round result")
+            }
+        case .applyRoundSettlement(let step):
+            guard state.phase == .roundResult, state.roundWinner != nil else {
+                return .rejected(state: state, reason: "No round result to settle")
+            }
+            guard (1 ... 3).contains(step) else {
+                return .rejected(state: state, reason: "Round settlement step must be between 1 and 3")
+            }
+        case .recordPassA:
+            guard state.phase == .aStage, state.aStageTeam != nil else {
+                return .rejected(state: state, reason: "Pass-A result is unavailable in the current phase")
+            }
+        case .setRedTeamName, .setBlueTeamName, .adjustRank, .adminCorrect, .exchangeSides, .reset, .finish:
+            break
+        }
+
         let before = state
         var next = state
         switch intent {

@@ -13,6 +13,11 @@ public struct TennisRuleSet: Codable, Equatable, Sendable {
     public var matchCompletionMode: MatchCompletionMode
     public var usesNoAdScoring: Bool
     public var autoChangeSides: Bool
+    public var familyProfile: TennisFamilyRuleProfile
+    public var padelDeuceMode: PadelDeuceMode
+    /// Soft tennis is one 7- or 9-game match rather than a best-of-sets
+    /// tennis match. Nil for regular tennis and padel.
+    public var softTennisMatchGames: Int?
 
     public init(
         maxSets: Int = 3,
@@ -21,15 +26,23 @@ public struct TennisRuleSet: Codable, Equatable, Sendable {
         setScoringMode: TennisSetScoringMode = .regular,
         matchCompletionMode: MatchCompletionMode = .bestOf,
         usesNoAdScoring: Bool = false,
-        autoChangeSides: Bool = true
+        autoChangeSides: Bool = true,
+        familyProfile: TennisFamilyRuleProfile = .tennis,
+        padelDeuceMode: PadelDeuceMode = .advantage,
+        softTennisMatchGames: Int? = nil
     ) {
         self.maxSets = setScoringMode == .tiebreakOnly ? 1 : max(1, maxSets)
         self.tieBreakPoints = max(1, tieBreakPoints)
-        self.gamesPerSet = gamesPerSet == 4 ? 4 : 6
+        self.gamesPerSet = [4, 6, 7, 9].contains(gamesPerSet) ? gamesPerSet : 6
         self.setScoringMode = setScoringMode
         self.matchCompletionMode = setScoringMode == .tiebreakOnly ? .bestOf : matchCompletionMode
         self.usesNoAdScoring = usesNoAdScoring
         self.autoChangeSides = autoChangeSides
+        self.familyProfile = familyProfile
+        self.padelDeuceMode = padelDeuceMode
+        self.softTennisMatchGames = familyProfile == .softTennis
+            ? (softTennisMatchGames == 9 ? 9 : 7)
+            : nil
     }
 
     public func isMatchFinished(leftSets: Int, rightSets: Int) -> Bool {
@@ -39,19 +52,33 @@ public struct TennisRuleSet: Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case maxSets, tieBreakPoints, gamesPerSet, setScoringMode
         case matchCompletionMode, usesNoAdScoring, autoChangeSides
+        case familyProfile, padelDeuceMode, softTennisMatchGames
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        let familyProfile = try container.decodeIfPresent(TennisFamilyRuleProfile.self, forKey: .familyProfile) ?? .tennis
+        let storedGamesPerSet = try container.decodeIfPresent(Int.self, forKey: .gamesPerSet) ?? 6
+        // Early iOS 2.1 drafts stored 7/9 in gamesPerSet. Migrate those
+        // snapshots into the dedicated whole-match field while decoding.
+        let softMatchGames = try container.decodeIfPresent(Int.self, forKey: .softTennisMatchGames)
+            ?? (familyProfile == .softTennis && [7, 9].contains(storedGamesPerSet) ? storedGamesPerSet : nil)
         self.init(
             maxSets: try container.decodeIfPresent(Int.self, forKey: .maxSets) ?? 3,
             tieBreakPoints: try container.decodeIfPresent(Int.self, forKey: .tieBreakPoints) ?? 7,
-            gamesPerSet: try container.decodeIfPresent(Int.self, forKey: .gamesPerSet) ?? 6,
+            gamesPerSet: familyProfile == .softTennis ? 4 : storedGamesPerSet,
             setScoringMode: try container.decodeIfPresent(TennisSetScoringMode.self, forKey: .setScoringMode) ?? .regular,
             matchCompletionMode: try container.decodeIfPresent(MatchCompletionMode.self, forKey: .matchCompletionMode) ?? .bestOf,
             usesNoAdScoring: try container.decodeIfPresent(Bool.self, forKey: .usesNoAdScoring) ?? false,
-            autoChangeSides: try container.decodeIfPresent(Bool.self, forKey: .autoChangeSides) ?? true
+            autoChangeSides: try container.decodeIfPresent(Bool.self, forKey: .autoChangeSides) ?? true,
+            familyProfile: familyProfile,
+            padelDeuceMode: try container.decodeIfPresent(PadelDeuceMode.self, forKey: .padelDeuceMode) ?? .advantage,
+            softTennisMatchGames: softMatchGames
         )
+    }
+
+    public var softTennisFinalGameAt: Int {
+        softTennisMatchGames == 9 ? 4 : 3
     }
 }
 
@@ -77,6 +104,9 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
     /// Doubles only. First server for the current set in A1, B1, A2, B2 order.
     /// Optional so protocol-v1 snapshots decode without migration.
     public var doublesFirstServerSlotInSet: Int?
+    /// Padel star-point state. Nil is treated as zero for legacy snapshots.
+    public var starPointReturnedAdvantages: Int?
+    public var officialBreakState: OfficialBreakState?
 
     public init(
         leftName: String,
@@ -104,6 +134,8 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
         doublesFirstServerSlotInSet = self.doublesPlayerNames == nil
             ? nil
             : (openingServer == .left ? 0 : 1)
+        starPointReturnedAdvantages = 0
+        officialBreakState = nil
     }
 
     /// Team display preferring individual doubles names when present.
@@ -138,6 +170,8 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
         if isTieBreak {
             let deuceEdge = max(0, rules.tieBreakPoints - 1)
             maximum = opponent < deuceEdge ? deuceEdge : opponent + 1
+        } else if rules.familyProfile == .softTennis {
+            maximum = opponent < 3 ? 3 : opponent + 1
         } else {
             maximum = 4
         }
@@ -149,10 +183,15 @@ public struct TennisMatchState: Codable, Equatable, Sendable {
         guard delta != 0, rules.setScoringMode != .tiebreakOnly else { return false }
         let nextLeft = leftGames + (side == .left ? delta : 0)
         let nextRight = rightGames + (side == .right ? delta : 0)
-        let maximum = rules.gamesPerSet + 1
+        let maximum = rules.familyProfile == .softTennis
+            ? rules.softTennisFinalGameAt + 1
+            : rules.gamesPerSet + 1
+        let maxTotalGames = rules.familyProfile == .softTennis
+            ? (rules.softTennisMatchGames ?? 7)
+            : rules.gamesPerSet * 2 + 1
         return nextLeft >= 0 && nextRight >= 0
             && nextLeft <= maximum && nextRight <= maximum
-            && nextLeft + nextRight <= rules.gamesPerSet * 2 + 1
+            && nextLeft + nextRight <= maxTotalGames
     }
 
     public func canAdjustSets(side: MatchSide, delta: Int) -> Bool {
@@ -198,7 +237,8 @@ public enum TennisDoublesServing {
             firstServerSlot: firstSlot,
             completedGames: state.leftGames + state.rightGames,
             isTieBreak: state.isTieBreak,
-            tieBreakPointsPlayed: state.leftPoints + state.rightPoints
+            tieBreakPointsPlayed: state.leftPoints + state.rightPoints,
+            familyProfile: state.rules.familyProfile
         )
     }
 
@@ -207,8 +247,8 @@ public enum TennisDoublesServing {
         return resolveTennisDoublesReceiverSlot(
             serverSlotIndex: serverSlot,
             pointIndexInGame: max(0, state.leftPoints + state.rightPoints),
-            team0FirstReceiverSlotIndex: 2,
-            team1FirstReceiverSlotIndex: 3
+            team0FirstReceiverSlotIndex: 0,
+            team1FirstReceiverSlotIndex: 1
         )
     }
 
@@ -216,13 +256,17 @@ public enum TennisDoublesServing {
         firstServerSlot: Int,
         completedGames: Int,
         isTieBreak: Bool,
-        tieBreakPointsPlayed: Int
+        tieBreakPointsPlayed: Int,
+        familyProfile: TennisFamilyRuleProfile = .tennis
     ) -> Int {
         let openingSlot = normalized(firstServerSlot + max(0, completedGames))
         guard isTieBreak else { return openingSlot }
         let played = max(0, tieBreakPointsPlayed)
         guard played > 0 else { return openingSlot }
-        return normalized(openingSlot + 1 + (played - 1) / 2)
+        let offset = familyProfile == .softTennis
+            ? played / 2
+            : 1 + (played - 1) / 2
+        return normalized(openingSlot + offset)
     }
 
     public static func side(for slot: Int) -> MatchSide {
@@ -244,6 +288,7 @@ public enum TennisMatchIntent: Codable, Equatable, Sendable {
     case exchangeSides
     case finish
     case reset
+    case setOfficialBreakState(OfficialBreakState?)
 }
 
 public enum TennisMatchEvent: Codable, Equatable, Sendable {
@@ -256,6 +301,7 @@ public enum TennisMatchEvent: Codable, Equatable, Sendable {
     case adminAdjusted
     case matchFinished(winner: MatchSide?)
     case matchReset
+    case officialBreakChanged(OfficialBreakState?)
 }
 
 public struct TennisMatchReducer: DomainReducer {
@@ -266,6 +312,15 @@ public struct TennisMatchReducer: DomainReducer {
         intent: TennisMatchIntent,
         at epochMilliseconds: Int64
     ) -> ReduceResult<TennisMatchState, TennisMatchEvent> {
+        if state.officialBreakState?.isRunning == true {
+            switch intent {
+            case .pointWon, .adjustPoints, .adjustGames, .adjustSets:
+                return .rejected(state: state, reason: "Scoring is unavailable during an official break")
+            default:
+                break
+            }
+        }
+
         if state.finished {
             switch intent {
             case .adjustSets, .reset: break
@@ -274,7 +329,10 @@ public struct TennisMatchReducer: DomainReducer {
         }
 
         switch intent {
-        case .pointWon(let side): return scorePoint(state: state, side: side)
+        case .pointWon(let side):
+            return state.rules.familyProfile == .softTennis
+                ? scoreSoftTennisPoint(state: state, side: side)
+                : scorePoint(state: state, side: side)
         case .adjustPoints(let side, let delta):
             guard state.canAdjustPoints(side: side, delta: delta) else {
                 return .rejected(state: state, reason: "Point score overflow")
@@ -293,12 +351,17 @@ public struct TennisMatchReducer: DomainReducer {
                 side: side,
                 delta: delta,
                 keyPath: side == .left ? \.leftGames : \.rightGames,
-                range: 0 ... (state.rules.gamesPerSet + 1)
+                range: 0 ... (state.rules.familyProfile == .softTennis
+                    ? state.rules.softTennisFinalGameAt + 1
+                    : state.rules.gamesPerSet + 1)
             )
             guard result.accepted else { return result }
             var next = result.state
+            let tieBreakGames = next.rules.familyProfile == .softTennis
+                ? next.rules.softTennisFinalGameAt
+                : next.rules.gamesPerSet
             let shouldUseTieBreak = next.rules.setScoringMode == .tiebreakOnly
-                || (next.leftGames == next.rules.gamesPerSet && next.rightGames == next.rules.gamesPerSet)
+                || (next.leftGames == tieBreakGames && next.rightGames == tieBreakGames)
             if shouldUseTieBreak != state.isTieBreak {
                 next.leftPoints = 0
                 next.rightPoints = 0
@@ -354,6 +417,10 @@ public struct TennisMatchReducer: DomainReducer {
                 ),
                 events: [.matchReset]
             )
+        case .setOfficialBreakState(let breakState):
+            var next = state
+            next.officialBreakState = breakState
+            return .init(state: next, events: [.officialBreakChanged(breakState)])
         }
     }
 
@@ -382,26 +449,54 @@ public struct TennisMatchReducer: DomainReducer {
                 completeSet(state: &next, winner: winner, events: &events)
             } else {
                 events.append(.pointScored(side: side, left: next.leftPoints, right: next.rightPoints))
-                let crossedSixPointBoundary = pointsBefore > 0 && pointsBefore / 6 != (next.leftPoints + next.rightPoints) / 6
-                if crossedSixPointBoundary { applySideChange(state: &next, events: &events) }
+                let boundary = state.rules.familyProfile == .softTennis ? 2 : 6
+                let crossedPointBoundary = pointsBefore > 0 && pointsBefore / boundary != (next.leftPoints + next.rightPoints) / boundary
+                if crossedPointBoundary { applySideChange(state: &next, events: &events) }
                 synchronizeServingState(&next)
             }
             return .init(state: next, events: events)
         }
 
+        // Android keeps deuce in its canonical 3:3 representation. Losing an
+        // advantage returns to deuce instead of allowing synthetic 4:4, 5:5…
+        // values to accumulate (the star-point counter advances only here).
+        let returnedFromAdvantage = (state.leftPoints == 4 && state.rightPoints == 3 && side == .right)
+            || (state.rightPoints == 4 && state.leftPoints == 3 && side == .left)
+        if returnedFromAdvantage {
+            next.leftPoints = 3
+            next.rightPoints = 3
+        }
+        let isDeuce = next.leftPoints >= 3 && next.rightPoints >= 3
+        let starPointReached = state.rules.familyProfile == .padel
+            && state.rules.padelDeuceMode == .starPoint
+            && (state.starPointReturnedAdvantages ?? 0) >= 2
+            && isDeuce
         let winsGame: Bool
-        if state.rules.usesNoAdScoring, next.leftPoints >= 3, next.rightPoints >= 3 {
+        if starPointReached {
+            winsGame = true
+        } else if state.rules.familyProfile == .padel,
+                  state.rules.padelDeuceMode == .goldenPoint,
+                  isDeuce {
+            winsGame = true
+        } else if state.rules.usesNoAdScoring, next.leftPoints >= 3, next.rightPoints >= 3 {
             winsGame = next.leftPoints != next.rightPoints
         } else {
             winsGame = max(next.leftPoints, next.rightPoints) >= 4 && abs(next.leftPoints - next.rightPoints) >= 2
         }
         events.append(.pointScored(side: side, left: next.leftPoints, right: next.rightPoints))
+        if !winsGame,
+           state.rules.familyProfile == .padel,
+           state.rules.padelDeuceMode == .starPoint,
+           returnedFromAdvantage {
+            next.starPointReturnedAdvantages = (state.starPointReturnedAdvantages ?? 0) + 1
+        }
         guard winsGame else { return .init(state: next, events: events) }
 
         let gameWinner: MatchSide = next.leftPoints > next.rightPoints ? .left : .right
         if gameWinner == .left { next.leftGames += 1 } else { next.rightGames += 1 }
         next.leftPoints = 0
         next.rightPoints = 0
+        next.starPointReturnedAdvantages = 0
         events.append(.gameCompleted(winner: gameWinner, leftGames: next.leftGames, rightGames: next.rightGames, tieBreak: false))
 
         if setWinner(next) == gameWinner {
@@ -417,6 +512,96 @@ public struct TennisMatchReducer: DomainReducer {
             synchronizeServingState(&next)
         }
         return .init(state: next, events: events)
+    }
+
+    private func scoreSoftTennisPoint(
+        state: TennisMatchState,
+        side: MatchSide
+    ) -> ReduceResult<TennisMatchState, TennisMatchEvent> {
+        var next = state
+        var events: [TennisMatchEvent] = []
+        let finalGameAt = state.rules.softTennisFinalGameAt
+        let finalGame = state.isTieBreak
+            || (state.leftGames == finalGameAt && state.rightGames == finalGameAt)
+        let pointsBefore = state.leftPoints + state.rightPoints
+
+        next.isTieBreak = finalGame
+        if side == .left { next.leftPoints += 1 } else { next.rightPoints += 1 }
+        events.append(.pointScored(side: side, left: next.leftPoints, right: next.rightPoints))
+
+        if finalGame {
+            let won = max(next.leftPoints, next.rightPoints) >= state.rules.tieBreakPoints
+                && abs(next.leftPoints - next.rightPoints) >= 2
+            if won {
+                let winner: MatchSide = next.leftPoints > next.rightPoints ? .left : .right
+                if winner == .left { next.leftGames += 1 } else { next.rightGames += 1 }
+                events.append(.gameCompleted(
+                    winner: winner,
+                    leftGames: next.leftGames,
+                    rightGames: next.rightGames,
+                    tieBreak: true
+                ))
+                next.leftPoints = 0
+                next.rightPoints = 0
+                completeSoftTennisMatch(state: &next, winner: winner, events: &events)
+            } else {
+                let total = next.leftPoints + next.rightPoints
+                if pointsBefore > 0, total / 2 != pointsBefore / 2 {
+                    applySideChange(state: &next, events: &events)
+                }
+                synchronizeServingState(&next)
+            }
+            return .init(state: next, events: events)
+        }
+
+        let won = max(next.leftPoints, next.rightPoints) >= 4
+            && abs(next.leftPoints - next.rightPoints) >= 2
+        guard won else { return .init(state: next, events: events) }
+
+        let winner: MatchSide = next.leftPoints > next.rightPoints ? .left : .right
+        if winner == .left { next.leftGames += 1 } else { next.rightGames += 1 }
+        next.leftPoints = 0
+        next.rightPoints = 0
+        events.append(.gameCompleted(
+            winner: winner,
+            leftGames: next.leftGames,
+            rightGames: next.rightGames,
+            tieBreak: false
+        ))
+
+        if next.leftGames >= finalGameAt + 1 || next.rightGames >= finalGameAt + 1 {
+            completeSoftTennisMatch(state: &next, winner: winner, events: &events)
+            return .init(state: next, events: events)
+        }
+
+        if next.leftGames == finalGameAt && next.rightGames == finalGameAt {
+            next.isTieBreak = true
+        }
+        if (next.leftGames + next.rightGames).isMultiple(of: 2) == false {
+            applySideChange(state: &next, events: &events)
+        }
+        synchronizeServingState(&next)
+        return .init(state: next, events: events)
+    }
+
+    private func completeSoftTennisMatch(
+        state: inout TennisMatchState,
+        winner: MatchSide,
+        events: inout [TennisMatchEvent]
+    ) {
+        state.leftSets = winner == .left ? 1 : 0
+        state.rightSets = winner == .right ? 1 : 0
+        state.isTieBreak = false
+        state.finished = true
+        events.append(.setCompleted(
+            winner: winner,
+            setNumber: 1,
+            leftGames: state.leftGames,
+            rightGames: state.rightGames,
+            leftSets: state.leftSets,
+            rightSets: state.rightSets
+        ))
+        events.append(.matchFinished(winner: winner))
     }
 
     private func completeSet(
@@ -512,6 +697,11 @@ public struct TennisMatchReducer: DomainReducer {
     private func synchronizeServingState(_ state: inout TennisMatchState) {
         if let slot = TennisDoublesServing.currentServerSlot(in: state) {
             state.servingSide = TennisDoublesServing.side(for: slot)
+        } else if state.isTieBreak, state.rules.familyProfile == .softTennis {
+            let block = (state.leftPoints + state.rightPoints) / 2
+            state.servingSide = block.isMultiple(of: 2)
+                ? state.firstServerInSet
+                : state.firstServerInSet.opposite
         } else if state.isTieBreak {
             state.servingSide = tieBreakServer(
                 first: state.firstServerInSet,

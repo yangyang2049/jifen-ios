@@ -110,6 +110,18 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         }
     }
 
+    /// Stable checkpoint used by reducer-backed view models to keep the
+    /// persisted action timeline on the same undo boundary as reducer state.
+    /// The timestamped strings remain a compatibility format; only their
+    /// count is needed to restore an exact prefix.
+    var recordedActionCount: Int {
+        gameActions.count
+    }
+
+    func restoreRecordedActions(to count: Int) {
+        gameActions = Array(gameActions.prefix(max(0, min(count, gameActions.count))))
+    }
+
     /// Starts a distinct match lifecycle without carrying record or undo state
     /// from the previous match into a "play again" flow.
     func beginNewMatch(at startTime: Date = Date()) {

@@ -71,17 +71,25 @@ public struct ScoreSessionResumeBundle<
     public let currentSession: ScoreSession<State, Event>
     public let undoFrames: [ScoreSessionResumeUndoFrame<State, Event>]
     public let timeline: [SessionIntentRecord<Intent>]
+    /// App-layer resume context that must travel with the typed engine bundle
+    /// but does not belong in reducer state or every undo frame. Examples are
+    /// the user-facing detailed action timeline and record presentation data.
+    /// Keeping this payload on the outer bundle avoids duplicating a growing
+    /// action log into every historical session snapshot.
+    public let auxiliaryPayload: Data?
 
     public init(
         replaySeed: ScoreSession<State, Event>,
         currentSession: ScoreSession<State, Event>,
         undoFrames: [ScoreSessionResumeUndoFrame<State, Event>],
-        timeline: [SessionIntentRecord<Intent>]
+        timeline: [SessionIntentRecord<Intent>],
+        auxiliaryPayload: Data? = nil
     ) {
         self.replaySeed = replaySeed
         self.currentSession = currentSession
         self.undoFrames = undoFrames
         self.timeline = timeline
+        self.auxiliaryPayload = auxiliaryPayload
     }
 }
 
@@ -108,6 +116,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
     private var currentSession: ScoreSession<State, Event>
     private var undoStack: [UndoFrame] = []
     private var timeline: [SessionIntentRecord<Intent>] = []
+    private var resumeAuxiliaryPayload: Data?
 
     public init(
         seedSession: ScoreSession<State, Event>,
@@ -133,6 +142,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         self.canUndo = canUndo
         self.shouldFinish = shouldFinish
         self.currentSession = seedSession
+        self.resumeAuxiliaryPayload = nil
     }
 
     public init(
@@ -152,6 +162,7 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
             UndoFrame(session: $0.session, intentCount: $0.intentCount)
         }
         timeline = resumeBundle.timeline
+        resumeAuxiliaryPayload = resumeBundle.auxiliaryPayload
     }
 
     public func snapshot() -> ScoreSession<State, Event> {
@@ -165,8 +176,15 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
             undoFrames: undoStack.map {
                 ScoreSessionResumeUndoFrame(session: $0.session, intentCount: $0.intentCount)
             },
-            timeline: timeline
+            timeline: timeline,
+            auxiliaryPayload: resumeAuxiliaryPayload
         )
+    }
+
+    /// Replaces app-owned resume context without creating an undo frame or
+    /// changing reducer/session versions. The next `resumeBundle()` includes it.
+    public func setResumeAuxiliaryPayload(_ payload: Data?) {
+        resumeAuxiliaryPayload = payload
     }
 
     public func intentTimeline() -> [SessionIntentRecord<Intent>] {
@@ -204,6 +222,43 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
         undoStack = undoStack.map {
             UndoFrame(
                 session: replacingParticipants(in: $0.session),
+                intentCount: $0.intentCount
+            )
+        }
+        return currentSession
+    }
+
+    /// Updates non-scoring session metadata without creating an undo frame.
+    /// Replay seed and existing undo frames are rewritten so undoing a score
+    /// never resurrects an obsolete title or other local presentation data.
+    @discardableResult
+    public func updateMetadata(_ metadata: SessionMetadata) -> ScoreSession<State, Event> {
+        func replacingMetadata(
+            in session: ScoreSession<State, Event>,
+            version: UInt64? = nil
+        ) -> ScoreSession<State, Event> {
+            ScoreSession(
+                sessionId: session.sessionId,
+                gameType: session.gameType,
+                ruleFamily: session.ruleFamily,
+                reducerType: session.reducerType,
+                version: version ?? session.version,
+                state: session.state,
+                events: session.events,
+                status: session.status,
+                participants: session.participants,
+                metadata: metadata
+            )
+        }
+
+        replaySeed = replacingMetadata(in: replaySeed)
+        currentSession = replacingMetadata(
+            in: currentSession,
+            version: currentSession.version + 1
+        )
+        undoStack = undoStack.map {
+            UndoFrame(
+                session: replacingMetadata(in: $0.session),
                 intentCount: $0.intentCount
             )
         }

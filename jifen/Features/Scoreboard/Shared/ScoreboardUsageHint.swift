@@ -17,6 +17,7 @@ struct ScoreboardUsageHintDescriptor: Equatable, Hashable, Identifiable {
     var localizationKey: String {
         switch gameType {
         case .football: "scoreboard_usage_hint_football"
+        case .football5v5: "scoreboard_usage_hint_football_5v5"
         case .basketball: "scoreboard_usage_hint_basketball"
         case .threeBasketball: "scoreboard_usage_hint_three_basketball"
         case .volleyball: "scoreboard_usage_hint_volleyball"
@@ -28,6 +29,10 @@ struct ScoreboardUsageHintDescriptor: Equatable, Hashable, Identifiable {
         case .tennisDoubles: "scoreboard_usage_hint_tennis_doubles"
         case .badminton: "scoreboard_usage_hint_badminton"
         case .badmintonDoubles: "scoreboard_usage_hint_badminton_doubles"
+        case .shuttlecock: "scoreboard_usage_hint_shuttlecock"
+        case .squash: "scoreboard_usage_hint_squash"
+        case .softTennis: "scoreboard_usage_hint_soft_tennis"
+        case .padel: "scoreboard_usage_hint_padel"
         case .pickleball: "scoreboard_usage_hint_pickleball"
         case .pickleballDoubles: "scoreboard_usage_hint_pickleball_doubles"
         case .archeryDual: "scoreboard_usage_hint_archery"
@@ -169,10 +174,20 @@ private struct ScoreboardUsageHintCoordinatorEnvironmentKey: EnvironmentKey {
     static let defaultValue: ScoreboardUsageHintCoordinator? = nil
 }
 
+private struct ScoreboardUsageHintPresenterEnvironmentKey: EnvironmentKey {
+    static let defaultValue: (() -> Void)? = nil
+}
+
 extension EnvironmentValues {
     var scoreboardUsageHintCoordinator: ScoreboardUsageHintCoordinator? {
         get { self[ScoreboardUsageHintCoordinatorEnvironmentKey.self] }
         set { self[ScoreboardUsageHintCoordinatorEnvironmentKey.self] = newValue }
+    }
+
+
+    var scoreboardUsageHintPresenter: (() -> Void)? {
+        get { self[ScoreboardUsageHintPresenterEnvironmentKey.self] }
+        set { self[ScoreboardUsageHintPresenterEnvironmentKey.self] = newValue }
     }
 }
 

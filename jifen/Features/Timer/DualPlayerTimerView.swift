@@ -180,6 +180,52 @@ struct DualPlayerTimerView: View {
         } message: {
             Text(NSLocalizedString("timer_stop_confirm_message", value: "停止后将结束本局。", comment: "Confirm stop message"))
         }
+        .scoreboardExternalDisplay(
+            ownerID: "board-timer-\(gameType.rawValue)",
+            state: externalDisplayState
+        )
+    }
+
+    private var externalDisplayState: ScoreboardDisplayState {
+        let leftID = displayedPlayerID(isLeftSide: true)
+        let rightID = displayedPlayerID(isLeftSide: false)
+        let leftClock = clockFor(leftID)
+        let rightClock = clockFor(rightID)
+        let appearance = ScoreboardAppearanceSnapshot.current(
+            styleID: ScoreboardStyleID(rawValue: gameType.canonicalScoreboardIdentifier)
+        )
+        let compact = LocalScoreboardDisplayState(
+            gameID: gameType.canonicalScoreboardIdentifier,
+            title: gameType.displayName,
+            leftName: playerName(for: leftID),
+            rightName: playerName(for: rightID),
+            leftScore: "\(Int(displaySeconds(for: leftClock)))",
+            rightScore: "\(Int(displaySeconds(for: rightClock)))",
+            themeID: appearance.theme.rawValue,
+            fontID: appearance.font.rawValue,
+            finished: gameState == .finished,
+            revision: UInt64(max(0, totalMoves))
+        )
+        var value = ScoreboardDisplayState.enriched(
+            compact: compact,
+            layoutKind: .boardCard,
+            sportState: [
+                "leftClock": .string(formatClockText(leftClock)),
+                "rightClock": .string(formatClockText(rightClock)),
+                "activeSide": .string(activePlayer == leftID ? "left" : "right"),
+                "timerMode": .string(config.timeMode.rawValue),
+                "moveCount": .integer(totalMoves)
+            ]
+        )
+        value.appearance = .init(snapshot: appearance)
+        if gameState == .finished {
+            value.result = ScoreboardDisplayResult(
+                ended: true,
+                manualEnd: winnerPlayer == nil,
+                winnerID: winnerPlayer == leftID ? "team_0" : (winnerPlayer == rightID ? "team_1" : "draw")
+            )
+        }
+        return value
     }
 
     // MARK: - Panels

@@ -131,7 +131,7 @@ public struct RallyDoublesState: Codable, Equatable, Sendable {
     public static func pingPong(
         playerNames: [String],
         openingServerSlotIndex: DoublesPlayerSlotIndex = 0,
-        openingReceiverSlotIndex: DoublesPlayerSlotIndex = 3,
+        openingReceiverSlotIndex: DoublesPlayerSlotIndex = 1,
         requiresOpeningConfirmation: Bool = false
     ) -> Self {
         .init(

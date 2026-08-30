@@ -6,6 +6,7 @@ struct PingPongScoreboardView: View {
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
+    var usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator? = nil
 
     var body: some View {
         let isDoubles = initialSetup?.isSingles == false
@@ -24,24 +25,18 @@ struct PingPongScoreboardView: View {
             participants: rallyParticipants,
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
+            showMatchTimeEnabled: initialSetup?.showMatchTime
+                ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: .pingpong),
             initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
-            onPresented: { onSetupConsumed?() }
+            onPresented: { onSetupConsumed?() },
+            usageHintCoordinatorOverride: usageHintCoordinatorOverride
         )
     }
 
     private var rules: RallyRuleSet {
-        var rules = RallyRuleSet.pingPong(
-            maxSets: initialSetup?.maxSets ?? 5,
-            matchCompletionMode: initialSetup?.matchCompletionMode ?? .bestOf
-        )
-        let target = max(1, initialSetup?.pointsPerSet ?? 11)
-        let coreType: ScoreCore.GameType = initialSetup?.isSingles == false ? .pingpongDoubles : .pingpong
-        rules.pointsToWinSet = target
-        rules.decidingSetSideSwitchPoint = RallyRuleSet.decidingSetSideSwitchPoint(for: coreType, pointsPerSet: target)
-        rules.autoChangeSides = initialSetup?.autoChangeSides ?? true
-        return rules
+        (initialSetup ?? SportsSetupResult(team1Name: "", team2Name: "")).pingPongRules
     }
 
     private var openingServer: MatchSide {
