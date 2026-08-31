@@ -449,6 +449,12 @@ extension ScoreboardRecord {
                let winner = state.finalWinner {
                 return .team(winner == .red ? .team0 : .team1)
             }
+            // 跨端回退：安卓记录无 stateSnapshot blob，但 extraData 已摊平 guandanFinalWinner
+            // （"red"/"blue"，与安卓 sideToRb 取值一致），据此恢复胜者身份。
+            if let finalWinnerRaw = scoreboardString(mergedProjectConfiguration["guandanFinalWinner"]),
+               finalWinnerRaw == "red" || finalWinnerRaw == "blue" {
+                return .team(finalWinnerRaw == "red" ? .team0 : .team1)
+            }
         case .shengji:
             if let stateSnapshot,
                let state = ReducerScoreboardRecordPersistence.decodeSnapshot(

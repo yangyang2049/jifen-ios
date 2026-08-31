@@ -1774,6 +1774,35 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(setup.voiceAnnouncement, true)
     }
 
+    /// 跨端回退：安卓 guandan 记录无 stateSnapshot blob，仅 extraData 摊平 guandanFinalWinner，
+    /// resolvedWinnerIdentity 必须据此恢复胜者（否则回 nil，即 BUG-1 的跨端后果）。
+    func testGuandanWinnerResolvesFromFlattenedExtraDataWhenNoStateSnapshot() {
+        let record = ScoreboardRecord(
+            id: "android-guandan",
+            gameType: .guandan,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "甲",
+            team2Name: "乙",
+            team1FinalScore: 2,
+            team2FinalScore: 1,
+            totalScoreChanges: 1,
+            extraData: [
+                "guandanFinalWinner": AnyCodable("red")
+            ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.guandan.rawValue)
+            ]
+        )
+        XCTAssertEqual(record.resolvedWinnerIdentity, .team(.team0))
+
+        // 蓝方胜者映射为 team1
+        var blueRecord = record
+        blueRecord.extraData = [
+            "guandanFinalWinner": AnyCodable("blue")
+        ]
+        XCTAssertEqual(blueRecord.resolvedWinnerIdentity, .team(.team1))
+    }
+
     func testWinnerResolutionUsesPositionsForDuplicateNamesAndSupportsMultipleWinners() {
         XCTAssertEqual(
             GameOverWinnerResolver.indices(
