@@ -430,9 +430,16 @@ enum AbandonedResumeRecordBuilder {
                 leftScore: state.leftIndex,
                 rightScore: state.rightIndex,
                 operationCount: count,
-                configuration: [
-                    ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(envelope.gameType.rawValue)
-                ]
+                configuration: {
+                    var config: [String: AnyCodable] = [
+                        ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(envelope.gameType.rawValue)
+                    ]
+                    // 对齐安卓 ShengjiRecordProjector.toExtraData：庄家左右 → "red"/"blue"
+                    if let dealer = state.dealer {
+                        config["shengjiBanker"] = AnyCodable(dealer == .left ? "red" : "blue")
+                    }
+                    return config
+                }()
             )
 
         case .archery:

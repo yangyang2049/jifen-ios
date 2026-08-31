@@ -1751,6 +1751,29 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(setup.guandanTripleAFallbackRank, "K")
     }
 
+    /// 向后兼容：旧版 iOS 记录用 `voiceAnnouncement` 键（影响所有抢分运动 + 网球），
+    /// 升级后读取端必须仍能识别（`voiceAnnouncementEnabled` 优先，缺失时回退旧键）。
+    func testLegacyVoiceAnnouncementKeyStillRestores() {
+        let record = ScoreboardRecord(
+            id: "legacy-voice",
+            gameType: .tennis,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "红队",
+            team2Name: "蓝队",
+            team1FinalScore: 0,
+            team2FinalScore: 0,
+            totalScoreChanges: 0,
+            extraData: [
+                "voiceAnnouncement": AnyCodable(true)
+            ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.tennis.rawValue)
+            ]
+        )
+        let setup = ScoreboardRecordConfiguration.setup(from: record)
+        XCTAssertEqual(setup.voiceAnnouncement, true)
+    }
+
     func testWinnerResolutionUsesPositionsForDuplicateNamesAndSupportsMultipleWinners() {
         XCTAssertEqual(
             GameOverWinnerResolver.indices(

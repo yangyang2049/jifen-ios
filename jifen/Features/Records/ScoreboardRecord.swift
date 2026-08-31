@@ -739,7 +739,7 @@ enum ScoreboardRecordConfiguration {
             "pointsPerSet": AnyCodable(rules.pointsToWinSet),
             "autoChangeSides": AnyCodable(rules.autoChangeSides),
             "servingSide": AnyCodable(state.openingServerSide.rawValue),
-            "voiceAnnouncement": AnyCodable(voiceAnnouncement),
+            "voiceAnnouncementEnabled": AnyCodable(voiceAnnouncement),
             "showMatchTime": AnyCodable(showMatchTime),
             "targetScore": AnyCodable(rules.pointsToWinSet),
             "winByTwo": AnyCodable(rules.finalSetWinByTwo ?? rules.winByTwo),
@@ -794,7 +794,7 @@ enum ScoreboardRecordConfiguration {
             ),
             "ruleProfileVersion": AnyCodable(1),
             "servingSide": AnyCodable(state.openingServerSide.rawValue),
-            "voiceAnnouncement": AnyCodable(voiceAnnouncement)
+            "voiceAnnouncementEnabled": AnyCodable(voiceAnnouncement)
         ]
         if rules.setScoringMode != .tiebreakOnly {
             result["gamesPerSet"] = AnyCodable(rules.gamesPerSet)
@@ -852,7 +852,7 @@ enum ScoreboardRecordConfiguration {
             ?? tennisState.map { $0.rules.usesNoAdScoring ? "no_ad" : "advantage" }
         setup.servingSide = scoreboardString(data["servingSide"])
             ?? tennisState?.openingServerSide.rawValue
-        setup.voiceAnnouncement = scoreboardBool(data["voiceAnnouncement"])
+        setup.voiceAnnouncement = scoreboardBool(data["voiceAnnouncementEnabled"]) ?? scoreboardBool(data["voiceAnnouncement"])
         setup.targetScore = scoreboardInt(data["targetScore"] ?? data["unoTargetScore"])
         setup.winByTwo = scoreboardBool(data["winByTwo"])
         setup.scoreCap = scoreboardInt(data["scoreCap"])
