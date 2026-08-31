@@ -8,33 +8,32 @@ enum GuandanLocalScoreboardAction: Equatable {
     case settleRound(side: GuandanSide, step: Int)
     case adjustRank(side: GuandanSide, delta: Int)
     case undo
-    case exchangeSides
     case none
 }
 
-func guandanLogicalSide(onScreen screenSide: MatchSide, sidesSwapped: Bool) -> GuandanSide {
-    TeamScreenLayout(sidesSwapped: sidesSwapped).engineSide(onScreen: screenSide) == .left
+func guandanLogicalSide(onScreen screenSide: MatchSide) -> GuandanSide {
+    // Guandan never swaps screen sides; red/team0 is always the left (stable) logical identity.
+    TeamScreenLayout(sidesSwapped: false).engineSide(onScreen: screenSide) == .left
         ? .red
         : .blue
 }
 
 func guandanLocalScoreboardAction(
-    for intent: LocalScoreboardIntent,
-    sidesSwapped: Bool
+    for intent: LocalScoreboardIntent
 ) -> GuandanLocalScoreboardAction {
     switch intent {
     case .addLeft:
-        .settleRound(side: guandanLogicalSide(onScreen: .left, sidesSwapped: sidesSwapped), step: 1)
+        .settleRound(side: guandanLogicalSide(onScreen: .left), step: 1)
     case .addRight:
-        .settleRound(side: guandanLogicalSide(onScreen: .right, sidesSwapped: sidesSwapped), step: 1)
+        .settleRound(side: guandanLogicalSide(onScreen: .right), step: 1)
     case .subtractLeft:
-        .adjustRank(side: guandanLogicalSide(onScreen: .left, sidesSwapped: sidesSwapped), delta: -1)
+        .adjustRank(side: guandanLogicalSide(onScreen: .left), delta: -1)
     case .subtractRight:
-        .adjustRank(side: guandanLogicalSide(onScreen: .right, sidesSwapped: sidesSwapped), delta: -1)
+        .adjustRank(side: guandanLogicalSide(onScreen: .right), delta: -1)
     case .undo:
         .undo
     case .exchangeSides:
-        .exchangeSides
+        .none
     case .requestSnapshot:
         .none
     }
@@ -45,8 +44,8 @@ func guandanLocalDisplayState(
     typography: ScoreboardTypographyPreference,
     themeID: String
 ) -> LocalScoreboardDisplayState {
-    let leftSide = guandanLogicalSide(onScreen: .left, sidesSwapped: state.sidesSwapped)
-    let rightSide = guandanLogicalSide(onScreen: .right, sidesSwapped: state.sidesSwapped)
+    let leftSide = guandanLogicalSide(onScreen: .left)
+    let rightSide = guandanLogicalSide(onScreen: .right)
     var compact = LocalScoreboardDisplayState(
         gameID: GameType.guandan.canonicalScoreboardIdentifier,
         title: GameType.guandan.displayName,
@@ -68,7 +67,7 @@ func guandanLocalDisplayState(
         compact: compact,
         layoutKind: .boardCard,
         sportState: [
-            "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left")
+            "team0ScreenSide": .string("left")
         ]
     )
     return compact
@@ -317,8 +316,6 @@ func guandanDetailedActions(
         return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, team: recordTeam(winner), scores: scores, operationCode: "guandan_round_winner_selected")]
     case .cancelRoundResult:
         return [.init(type: .stateChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_round_result_cancelled")]
-    case .exchangeSides:
-        return [.init(type: .sideChanged, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_sides_exchanged")]
     case .reset:
         return [.init(type: .reset, epochMilliseconds: epochMilliseconds, scores: scores, operationCode: "guandan_reset")]
     case .finish:
@@ -498,7 +495,7 @@ struct GuandanScoreboardView: View {
                         send(.adjustRank(side: side, delta: -1))
                     }
                 },
-                seamOverlay: state.lastRoundWinner == nil ? nil : {
+                seamOverlay: state.lastRoundWinner == nil ? nil : { indicatorColor in
                     AnyView(
                         GeometryReader { geo in
                             let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
@@ -507,7 +504,7 @@ struct GuandanScoreboardView: View {
                             CenterLineServeIndicator(
                                 isLeftServing: state.lastRoundWinner == guandanSide(onScreen: .left),
                                 triangleSize: indicatorSize,
-                                color: ScoreboardTheme.serverIndicatorColor
+                                color: indicatorColor
                             )
                             .position(x: geo.size.width / 2, y: geo.size.height / 2)
                         }
@@ -522,7 +519,7 @@ struct GuandanScoreboardView: View {
                     typographyPreference = preference
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 },
-                sidesSwapped: state.sidesSwapped,
+                sidesSwapped: false,
                 center: { _, _ in
                     EmptyView()
                 }
@@ -629,7 +626,7 @@ struct GuandanScoreboardView: View {
     }
 
     private func guandanSide(onScreen screen: MatchSide) -> GuandanSide {
-        guandanLogicalSide(onScreen: screen, sidesSwapped: state.sidesSwapped)
+        guandanLogicalSide(onScreen: screen)
     }
 
     private func guandanName(onScreen screen: MatchSide) -> String {
@@ -842,15 +839,13 @@ struct GuandanScoreboardView: View {
                 scoringLocked: false
             ) else { return }
 
-            switch guandanLocalScoreboardAction(for: intent, sidesSwapped: state.sidesSwapped) {
+            switch guandanLocalScoreboardAction(for: intent) {
             case .settleRound(let side, let step):
                 applyGuandanRound(side: side, step: step)
             case .adjustRank(let side, let delta):
                 send(.adjustRank(side: side, delta: delta))
             case .undo:
                 _ = undo()
-            case .exchangeSides:
-                send(.exchangeSides)
             case .none:
                 break
             }
@@ -904,9 +899,18 @@ struct GuandanScoreboardView: View {
             totalScoreChanges: max(actionCount, history.count),
             extraData: [
                 "schemaVersion": AnyCodable(3),
-                "guandanTripleA": AnyCodable(state.aStageMode == .tripleA),
+                "guandanTripleAEnabled": AnyCodable(state.aStageMode == .tripleA),
                 "guandanPassACondition": AnyCodable(state.passACondition.rawValue),
                 "guandanTripleAFallbackRank": AnyCodable(state.tripleAFallbackRank),
+                "guandanPhase": AnyCodable(state.projectedPhaseName),
+                "guandanRedRank": AnyCodable(state.redTeam.currentRank),
+                "guandanBlueRank": AnyCodable(state.blueTeam.currentRank),
+                "guandanIsInAStage": AnyCodable(state.isInAStage),
+                "guandanRoundWinner": AnyCodable(state.lastRoundWinner?.rawValue),
+                "guandanAStageTeam": AnyCodable(state.aStageTeam?.rawValue),
+                "guandanFinalWinner": AnyCodable(state.finalWinner?.rawValue),
+                "guandanRedAFailCount": AnyCodable(state.aFailCount(for: .red)),
+                "guandanBlueAFailCount": AnyCodable(state.aFailCount(for: .blue)),
                 "showMatchTime": AnyCodable(matchClockSession?.isVisible ?? false)
             ],
             projectConfiguration: [

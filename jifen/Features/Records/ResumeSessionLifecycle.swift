@@ -398,9 +398,18 @@ enum AbandonedResumeRecordBuilder {
                 operationCount: count,
                 configuration: [
                     ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(envelope.gameType.rawValue),
-                    "guandanTripleA": AnyCodable(state.aStageMode == .tripleA),
+                    "guandanTripleAEnabled": AnyCodable(state.aStageMode == .tripleA),
                     "guandanPassACondition": AnyCodable(state.passACondition.rawValue),
-                    "guandanTripleAFallbackRank": AnyCodable(state.tripleAFallbackRank)
+                    "guandanTripleAFallbackRank": AnyCodable(state.tripleAFallbackRank),
+                    "guandanPhase": AnyCodable(state.projectedPhaseName),
+                    "guandanRedRank": AnyCodable(state.redTeam.currentRank),
+                    "guandanBlueRank": AnyCodable(state.blueTeam.currentRank),
+                    "guandanIsInAStage": AnyCodable(state.isInAStage),
+                    "guandanRoundWinner": AnyCodable(state.lastRoundWinner?.rawValue),
+                    "guandanAStageTeam": AnyCodable(state.aStageTeam?.rawValue),
+                    "guandanFinalWinner": AnyCodable(state.finalWinner?.rawValue),
+                    "guandanRedAFailCount": AnyCodable(state.aFailCount(for: .red)),
+                    "guandanBlueAFailCount": AnyCodable(state.aFailCount(for: .blue))
                 ]
             )
 

@@ -54,13 +54,11 @@ public struct GuandanMatchState: Codable, Equatable, Sendable {
     public var finalWinner: GuandanSide?
     public var redAFailCount: Int
     public var blueAFailCount: Int
-    /// Presentation-only placement. Red/team0 remains the stable logical identity.
-    public var sidesSwapped: Bool
 
     private enum CodingKeys: String, CodingKey {
         case phase, redTeam, blueTeam, roundWinner, lastRoundWinner, roundUpgrade
         case isInAStage, aStageTeam, aStageMode, passACondition, tripleAFallbackRank
-        case finalWinner, redAFailCount, blueAFailCount, sidesSwapped
+        case finalWinner, redAFailCount, blueAFailCount
     }
 
     public init(
@@ -77,8 +75,7 @@ public struct GuandanMatchState: Codable, Equatable, Sendable {
         tripleAFallbackRank: String = "2",
         finalWinner: GuandanSide? = nil,
         redAFailCount: Int = 0,
-        blueAFailCount: Int = 0,
-        sidesSwapped: Bool = false
+        blueAFailCount: Int = 0
     ) {
         self.phase = phase
         self.redTeam = redTeam
@@ -94,7 +91,6 @@ public struct GuandanMatchState: Codable, Equatable, Sendable {
         self.finalWinner = finalWinner
         self.redAFailCount = redAFailCount
         self.blueAFailCount = blueAFailCount
-        self.sidesSwapped = sidesSwapped
     }
 
     public init(from decoder: Decoder) throws {
@@ -113,8 +109,7 @@ public struct GuandanMatchState: Codable, Equatable, Sendable {
             tripleAFallbackRank: try container.decode(String.self, forKey: .tripleAFallbackRank),
             finalWinner: try container.decodeIfPresent(GuandanSide.self, forKey: .finalWinner),
             redAFailCount: try container.decode(Int.self, forKey: .redAFailCount),
-            blueAFailCount: try container.decode(Int.self, forKey: .blueAFailCount),
-            sidesSwapped: try container.decodeIfPresent(Bool.self, forKey: .sidesSwapped) ?? false
+            blueAFailCount: try container.decode(Int.self, forKey: .blueAFailCount)
         )
     }
 
@@ -136,6 +131,19 @@ public struct GuandanMatchState: Codable, Equatable, Sendable {
 
     public func aFailCount(for side: GuandanSide) -> Int {
         max(0, side == .red ? redAFailCount : blueAFailCount)
+    }
+
+    /// Cross-platform phase name matching Android `GuandanGamePhase.name`
+    /// (uppercase Kotlin enum names). Used when projecting guandan records so
+    /// iOS-written `extraData.guandanPhase` is byte-compatible with Android/HOS.
+    public var projectedPhaseName: String {
+        switch phase {
+        case .notStarted: return "NOT_STARTED"
+        case .playing: return "PLAYING"
+        case .roundResult: return "ROUND_RESULT"
+        case .aStage: return "A_STAGE"
+        case .finished: return "FINISHED"
+        }
     }
 
     /// Android/HOS `guandanDisplayRank`: triple-A shows A1/A2/A3 while at A.
@@ -170,7 +178,6 @@ public enum GuandanSessionIntent: Codable, Sendable {
     case setBlueTeamName(String)
     case adjustRank(side: GuandanSide, delta: Int)
     case adminCorrect(redName: String, blueName: String, redRank: String, blueRank: String)
-    case exchangeSides
     case reset
     case finish
 }
@@ -179,7 +186,6 @@ public enum GuandanSessionEvent: Codable, Equatable, Sendable {
     case matchStarted(team1Score: Int, team2Score: Int)
     case roundSettlementApplied(winner: GuandanSide, step: Int)
     case passARecorded(side: GuandanSide, success: Bool, prevAttempt: Int)
-    case sidesExchanged
 }
 
 public struct GuandanSessionReducer: DomainReducer {
@@ -210,10 +216,6 @@ public struct GuandanSessionReducer: DomainReducer {
             next.phase = .playing
             next.finalWinner = nil
             return .init(state: next)
-        case .exchangeSides:
-            var next = state
-            next.sidesSwapped.toggle()
-            return .init(state: next, events: [.sidesExchanged])
         case .reset:
             var next = GuandanMatchState.initial(
                 redName: state.redTeam.name,
@@ -266,7 +268,7 @@ public struct GuandanSessionReducer: DomainReducer {
             guard state.phase == .aStage, state.aStageTeam != nil else {
                 return .rejected(state: state, reason: "Pass-A result is unavailable in the current phase")
             }
-        case .setRedTeamName, .setBlueTeamName, .adjustRank, .adminCorrect, .exchangeSides, .reset, .finish:
+        case .setRedTeamName, .setBlueTeamName, .adjustRank, .adminCorrect, .reset, .finish:
             break
         }
 
@@ -283,7 +285,7 @@ public struct GuandanSessionReducer: DomainReducer {
             next = applyRoundSettlement(next, step: step)
         case .recordPassA(let success):
             next = recordPassA(next, success: success)
-        case .setRedTeamName, .setBlueTeamName, .adjustRank, .adminCorrect, .exchangeSides, .reset, .finish:
+        case .setRedTeamName, .setBlueTeamName, .adjustRank, .adminCorrect, .reset, .finish:
             break
         }
         return .init(state: next, events: buildEvents(before: before, intent: intent, next: next))

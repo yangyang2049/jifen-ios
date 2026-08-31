@@ -872,7 +872,7 @@ enum ScoreboardRecordConfiguration {
         setup.eightBallHandicapRacks = scoreboardInt(data["eightBallHandicapRacks"])
         setup.eightBallHandicapBeneficiary = scoreboardString(data["eightBallHandicapBeneficiary"])
         setup.multiScoreCustomAdjustEnabled = scoreboardBool(data["multiScoreCustomAdjustEnabled"])
-        setup.guandanTripleA = scoreboardBool(data["guandanTripleA"])
+        setup.guandanTripleA = scoreboardBool(data["guandanTripleAEnabled"]) ?? scoreboardBool(data["guandanTripleA"])
         setup.guandanPassACondition = scoreboardString(data["guandanPassACondition"])
         setup.guandanTripleAFallbackRank = scoreboardString(data["guandanTripleAFallbackRank"])
         setup.playerNames = record.displayParticipants.map(\.name)

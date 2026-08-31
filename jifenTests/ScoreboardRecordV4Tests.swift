@@ -1707,7 +1707,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             team2FinalScore: 1,
             totalScoreChanges: 1,
             extraData: [
-                "guandanTripleA": AnyCodable(true),
+                "guandanTripleAEnabled": AnyCodable(true),
                 "guandanPassACondition": AnyCodable("double_up"),
                 "guandanTripleAFallbackRank": AnyCodable("K"),
                 "multiScoreCustomAdjustEnabled": AnyCodable(true),
@@ -1723,6 +1723,32 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(setup.guandanTripleAFallbackRank, "K")
         XCTAssertEqual(setup.multiScoreCustomAdjustEnabled, true)
         XCTAssertEqual(setup.targetScore, 700)
+    }
+
+    /// 向后兼容：旧版 iOS 记录用 `guandanTripleA` 键，升级后读取端必须仍能识别。
+    func testGuandanLegacyTripleAKeyStillRestores() {
+        let record = ScoreboardRecord(
+            id: "legacy-guandan",
+            gameType: .guandan,
+            startTime: Date(timeIntervalSince1970: 1),
+            team1Name: "甲",
+            team2Name: "乙",
+            team1FinalScore: 2,
+            team2FinalScore: 1,
+            totalScoreChanges: 1,
+            extraData: [
+                "guandanTripleA": AnyCodable(true),
+                "guandanPassACondition": AnyCodable("double_up"),
+                "guandanTripleAFallbackRank": AnyCodable("K")
+            ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.guandan.rawValue)
+            ]
+        )
+        let setup = ScoreboardRecordConfiguration.setup(from: record)
+        XCTAssertEqual(setup.guandanTripleA, true)
+        XCTAssertEqual(setup.guandanPassACondition, "double_up")
+        XCTAssertEqual(setup.guandanTripleAFallbackRank, "K")
     }
 
     func testWinnerResolutionUsesPositionsForDuplicateNamesAndSupportsMultipleWinners() {

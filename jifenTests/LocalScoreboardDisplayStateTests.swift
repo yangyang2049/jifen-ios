@@ -119,19 +119,18 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         state.phase = .playing
         state.redTeam.currentRank = "5"
         state.blueTeam.currentRank = "9"
-        state.sidesSwapped = true
 
         XCTAssertEqual(
-            guandanLocalScoreboardAction(for: .addLeft, sidesSwapped: true),
-            .settleRound(side: .blue, step: 1)
+            guandanLocalScoreboardAction(for: .addLeft),
+            .settleRound(side: .red, step: 1)
         )
         XCTAssertEqual(
-            guandanLocalScoreboardAction(for: .subtractRight, sidesSwapped: true),
-            .adjustRank(side: .red, delta: -1)
+            guandanLocalScoreboardAction(for: .subtractRight),
+            .adjustRank(side: .blue, delta: -1)
         )
         XCTAssertEqual(
-            guandanLocalScoreboardAction(for: .exchangeSides, sidesSwapped: true),
-            .exchangeSides
+            guandanLocalScoreboardAction(for: .exchangeSides),
+            .none
         )
 
         let snapshot = guandanLocalDisplayState(
@@ -139,10 +138,10 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
             typography: .default(font: .default),
             themeID: "default"
         )
-        XCTAssertEqual(snapshot.leftName, "Blue")
-        XCTAssertEqual(snapshot.rightName, "Red")
-        XCTAssertEqual(snapshot.leftScore, "9")
-        XCTAssertEqual(snapshot.rightScore, "5")
+        XCTAssertEqual(snapshot.leftName, "Red")
+        XCTAssertEqual(snapshot.rightName, "Blue")
+        XCTAssertEqual(snapshot.leftScore, "5")
+        XCTAssertEqual(snapshot.rightScore, "9")
     }
 
     @MainActor
@@ -868,18 +867,28 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
 
     func testStyleV2SupportsCrossPlatformThemesAndAutomaticContrast() {
         XCTAssertEqual(Set(ScoreboardTheme.allCases.map(\.rawValue)), [
+            "default", "pro_dark", "electronic", "retro", "brb", "wrb",
+            "ddz_classic", "ddz_pro_dark", "ddz_electronic", "ddz_retro", "ddz_brb", "ddz_wrb"
+        ])
+        XCTAssertEqual(ScoreboardTheme.genericOptions.map(\.rawValue), [
             "default", "pro_dark", "electronic", "retro", "brb", "wrb"
+        ])
+        XCTAssertEqual(ScoreboardTheme.doudizhuOptions.map(\.rawValue), [
+            "ddz_classic", "ddz_pro_dark", "ddz_electronic", "ddz_retro", "ddz_brb", "ddz_wrb"
         ])
         XCTAssertEqual(ScoreboardStyleProfileV2.autoTextHex(for: "FFFFFF"), "111111")
         XCTAssertEqual(ScoreboardStyleProfileV2.autoTextHex(for: "000000"), "FFFFFF")
 
+        // 斗地主 wrb：白面板 + 左红/中绿/右蓝固定文字（对齐安卓 defaultDoudizhuStyleProfileV2）。
         let wrb = ScoreboardStyleProfileV2.default(
             for: ScoreboardStyleID(gameType: .doudizhu),
             theme: .wrb
         )
+        XCTAssertEqual(wrb.themeCode, "ddz_wrb")
         XCTAssertEqual(wrb.team0Hex, "FFFFFF")
-        XCTAssertEqual(wrb.team0TextHex, "FF3B30")
-        XCTAssertEqual(wrb.team1TextHex, "007AFF")
+        XCTAssertEqual(wrb.team0TextHex, "FF0000")
+        XCTAssertEqual(wrb.team1TextHex, "1E5BFF")
+        XCTAssertEqual(wrb.centerTextHex, "1B5E20")
         XCTAssertFalse(wrb.autoContrast)
     }
 

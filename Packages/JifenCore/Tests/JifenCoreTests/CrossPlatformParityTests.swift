@@ -572,14 +572,6 @@ import SessionCore
     #expect(shengjiExchanged.state.rightIndex == 2)
     #expect(shengjiExchanged.state.dealer == .right)
 
-    let guandanReducer = GuandanSessionReducer()
-    let guandan = GuandanMatchState.initial(redName: "红队", blueName: "蓝队")
-    let guandanExchanged = guandanReducer.reduce(state: guandan, intent: .exchangeSides, at: 2)
-    #expect(guandanExchanged.accepted)
-    #expect(guandanExchanged.state.sidesSwapped)
-    #expect(guandanExchanged.state.redTeam == guandan.redTeam)
-    #expect(guandanExchanged.state.blueTeam == guandan.blueTeam)
-
     let snookerReducer = SnookerReducer()
     var snooker = SnookerState.initial(striker: .right, maxFrames: 5)
     snooker.leftScore = 24
@@ -595,7 +587,6 @@ import SessionCore
 
     for value in [
         try JSONEncoder().encode(shengji),
-        try JSONEncoder().encode(guandan),
         try JSONEncoder().encode(snooker)
     ] {
         var object = try #require(JSONSerialization.jsonObject(with: value) as? [String: Any])
@@ -603,8 +594,6 @@ import SessionCore
         let legacy = try JSONSerialization.data(withJSONObject: object)
         if object["leftIndex"] != nil {
             #expect(try JSONDecoder().decode(ShengjiTierState.self, from: legacy).sidesSwapped == false)
-        } else if object["redTeam"] != nil {
-            #expect(try JSONDecoder().decode(GuandanMatchState.self, from: legacy).sidesSwapped == false)
         } else {
             #expect(try JSONDecoder().decode(SnookerState.self, from: legacy).sidesSwapped == false)
         }
