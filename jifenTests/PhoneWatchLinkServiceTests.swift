@@ -1,5 +1,6 @@
 import XCTest
 import LinkCore
+import RecordCore
 import ScoreCore
 import SwiftUI
 import UIKit
@@ -582,6 +583,65 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let latest = try XCTUnwrap(service.latestRemoteSnapshot)
         XCTAssertEqual(latest.revision, 3)
         XCTAssertEqual(latest.snapshot.rallyState?.finished, true)
+    }
+
+    // MARK: - Detailed action incremental merge
+
+    func testMergeDetailedActionsKeepsConcurrentLocalActionsAndDeduplicates() {
+        let store = InMemoryLinkDataStore()
+        let service = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        let localOld = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        let localNew = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 3_000,
+            team: .team2, scores: [1, 1]
+        )
+        service.mergeDetailedActions([localOld, localNew])
+
+        // Watch snapshot overlaps localOld and adds a concurrent remote action.
+        let watchNew = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 2_000,
+            team: .team1, scores: [2, 1]
+        )
+        let replayedLocalOld = DetailedScoreAction(
+            id: localOld.id, type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        service.mergeDetailedActions([replayedLocalOld, watchNew])
+
+        XCTAssertEqual(
+            service.mergedDetailedActions.map(\.id),
+            [localOld.id, watchNew.id, localNew.id],
+            "Union by id keeps concurrent remote actions, dedups overlaps, sorts by epoch"
+        )
+    }
+
+    func testMergeDetailedActionsKeepsLocalActionsWhenIncomingIsEmpty() {
+        let store = InMemoryLinkDataStore()
+        let service = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: store,
+            outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+
+        let local = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        service.mergeDetailedActions([local])
+        service.mergeDetailedActions(nil)
+        service.mergeDetailedActions([])
+
+        XCTAssertEqual(service.mergedDetailedActions.map(\.id), [local.id])
     }
 
     private func makeContext(

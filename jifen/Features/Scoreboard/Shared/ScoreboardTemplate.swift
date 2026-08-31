@@ -142,8 +142,24 @@ struct ScoreboardTemplate: View {
     @State private var immersiveGeneration = 0
     @State private var previousIdleTimerDisabled: Bool?
     @State private var showDisplaySettings = false
+    @State private var styleEditorUiState = ScoreboardStyleEditorUiState()
+    @State private var styleEditorController: ScoreboardStyleEditorController?
     private let doubleTapWindow: TimeInterval = 0.24
     private var scoringEnabled: Bool { config.scoringEnabledProvider?() ?? true }
+
+    private var isStyleEditing: Bool { styleEditorController?.isEditing == true }
+
+    private func openStyleEditor() {
+        let styleID = typographySession.styleID
+        if styleEditorController?.styleID != styleID {
+            styleEditorController = ScoreboardStyleEditorController(
+                styleID: styleID,
+                capabilities: ScoreboardStyleV2Registry.capabilities(for: styleID)
+            )
+        }
+        styleEditorController?.updateFromPreferences()
+        styleEditorController?.open(typographySession: typographySession)
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -176,6 +192,7 @@ struct ScoreboardTemplate: View {
                             palette: appearance.palette,
                             backgroundColor: panelColor(forScreen: true),
                             foregroundColor: panelForegroundColor(forScreen: true),
+                            styleProfile: appearance.styleProfileV2,
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
                             secondaryMultiplier: secondaryMultiplier,
@@ -227,6 +244,18 @@ struct ScoreboardTemplate: View {
                                                 showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
+                                    } else if scoringEnabled,
+                                              supportsPanelSwipeScoring,
+                                              !isEditMode,
+                                              abs(value.translation.height) > 50 && abs(value.translation.width) < 50 {
+                                        pendingTapSide = nil
+                                        tapGeneration += 1
+                                        if value.translation.height < 0 {
+                                            config.viewModel.addScore(isLeft: leftLogicalIsLeft, points: 1)
+                                        } else {
+                                            config.viewModel.subtractScore(isLeft: leftLogicalIsLeft, points: 1)
+                                        }
+                                        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                                     }
                                 }
                         )
@@ -245,6 +274,7 @@ struct ScoreboardTemplate: View {
                             palette: appearance.palette,
                             backgroundColor: panelColor(forScreen: false),
                             foregroundColor: panelForegroundColor(forScreen: false),
+                            styleProfile: appearance.styleProfileV2,
                             scoreMultiplier: scoreMultiplier,
                             nameMultiplier: nameMultiplier,
                             secondaryMultiplier: secondaryMultiplier,
@@ -296,6 +326,18 @@ struct ScoreboardTemplate: View {
                                                 showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
+                                    } else if scoringEnabled,
+                                              supportsPanelSwipeScoring,
+                                              !isEditMode,
+                                              abs(value.translation.height) > 50 && abs(value.translation.width) < 50 {
+                                        pendingTapSide = nil
+                                        tapGeneration += 1
+                                        if value.translation.height < 0 {
+                                            config.viewModel.addScore(isLeft: rightLogicalIsLeft, points: 1)
+                                        } else {
+                                            config.viewModel.subtractScore(isLeft: rightLogicalIsLeft, points: 1)
+                                        }
+                                        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                                     }
                                 }
                         )
@@ -407,9 +449,9 @@ struct ScoreboardTemplate: View {
                 .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing]) // Full screen, not in safe area
                 }
 
-                // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用
+                // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用，并传入指示器色
                 if !isEditMode, let provider = config.contentOverlayProvider {
-                    provider(isEditMode)
+                    provider(isEditMode, appearance.serverIndicatorColor)
                 }
 
                 if shouldShowImmersiveRevealZones {
@@ -437,6 +479,7 @@ struct ScoreboardTemplate: View {
                             || config.gameType == .basketball
                             || config.gameType == .simpleScore,
                         showExchangeSide: true,
+                        styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
                         showSettleMatch: config.showSettleMatch,
                         resetConfirming: menuConfirm.resetConfirming,
                         exchangeConfirming: menuConfirm.exchangeConfirming,
@@ -456,6 +499,8 @@ struct ScoreboardTemplate: View {
                 }
                 
             }
+            .animation(.easeInOut(duration: 0.2), value: showMenu)
+            .animation(.easeInOut(duration: 0.2), value: showToast)
             .ignoresSafeArea(.all) // Ignore safe area for entire ZStack
             .background(
                 // Two-finger gesture detector
@@ -521,6 +566,13 @@ struct ScoreboardTemplate: View {
             session: typographySession,
             metrics: templateTypographyMetrics
         )
+        .scoreboardStyleEditOverlay(
+            controller: styleEditorController,
+            typographySession: typographySession,
+            uiState: styleEditorUiState,
+            onCancel: { styleEditorController?.cancel() }
+        )
+        .onChange(of: isStyleEditing) { _, _ in updateImmersiveChromeForBlockingState() }
         // Screenshot dialog removed - iOS auto-saves after permission is granted
     }
     
@@ -546,7 +598,11 @@ struct ScoreboardTemplate: View {
 
         case "displaySettings":
             showMenu = false
-            showDisplaySettings = true
+            if ScoreboardStyleV2Registry.isEnabled(typographySession.styleID) {
+                openStyleEditor()
+            } else {
+                showDisplaySettings = true
+            }
 
         case "usageHint":
             // Handle this at the template level as well as in MenuDialog so
@@ -683,11 +739,11 @@ struct ScoreboardTemplate: View {
     }
 
     private var shouldShowChromeButtons: Bool {
-        !hideButtonsForScreenshot && (!appearance.immersiveMode || isEditMode || chromeButtonsVisible)
+        !isStyleEditing && !hideButtonsForScreenshot && (!appearance.immersiveMode || isEditMode || chromeButtonsVisible)
     }
 
     private var shouldShowImmersiveRevealZones: Bool {
-        appearance.immersiveMode && !isEditMode && !showMenu && !showDisplaySettings && !chromeButtonsVisible
+        appearance.immersiveMode && !isStyleEditing && !isEditMode && !showMenu && !showDisplaySettings && !chromeButtonsVisible
     }
 
     private var typographyPreference: ScoreboardTypographyPreference {
@@ -756,6 +812,17 @@ struct ScoreboardTemplate: View {
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 }
             }
+    }
+
+    /// 对齐安卓 scoreboardPanelSwipeGestures：仅单次 1 分的面板类运动支持上滑加分/下滑减分。
+    /// 简单计分的自定义调分模式（onScorePanelTap 非 nil）不启用手势计分，与安卓一致。
+    private var supportsPanelSwipeScoring: Bool {
+        switch config.gameType {
+        case .football, .football5v5, .billiards, .simpleScore:
+            return config.onScorePanelTap == nil
+        default:
+            return false
+        }
     }
 
     private func registerScoreboardSync() {
@@ -940,6 +1007,8 @@ struct TeamSection: View {
     let palette: ScoreboardPalette
     let backgroundColor: Color
     let foregroundColor: Color
+    /// V2 样式 profile：nil 时所有元素色回落 foregroundColor（未接入白名单的项目）。
+    var styleProfile: ScoreboardStyleProfileV2? = nil
     let scoreMultiplier: Double
     let nameMultiplier: Double
     let secondaryMultiplier: Double
@@ -969,6 +1038,34 @@ struct TeamSection: View {
     private var isTablet: Bool {
         Theme.usesPadLayout
     }
+
+    private var styleSlotKey: ScoreboardStyleSlotKeyV2 {
+        isLeft ? .sideLeft : .sideRight
+    }
+
+    /// 元素级文字色：V2 配置优先；未配置时回落面板默认色（可选透明度语义）。
+    private func elementColor(
+        _ element: ScoreboardStyleElementKeyV2,
+        fallback: Color? = nil,
+        fallbackOpacity: Double? = nil
+    ) -> Color {
+        guard let styleProfile else {
+            if let fallback { return fallback }
+            return fallbackOpacity.map { foregroundColor.opacity($0) } ?? foregroundColor
+        }
+        if hasElementColor(element) {
+            return Color(hex: styleProfile.resolvedElementTextHex(element, slotKey: styleSlotKey))
+        }
+        if let fallback { return fallback }
+        return fallbackOpacity.map { foregroundColor.opacity($0) } ?? foregroundColor
+    }
+
+    private func hasElementColor(_ element: ScoreboardStyleElementKeyV2) -> Bool {
+        guard let styleProfile else { return false }
+        return styleProfile.elements?.first(where: { $0.elementKey == element })?
+            .textColors.first(where: { $0.slotKey == styleSlotKey }) != nil
+    }
+
     private var scoreboardScreenWidth: CGFloat {
         max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
     }
@@ -1131,19 +1228,20 @@ struct TeamSection: View {
             VStack(spacing: 2) {
                 Text(doublesNames.0)
                     .font(getFont(size: doublesNameSize, weight: .bold))
+                    .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text(doublesNames.1)
                     .font(getFont(size: doublesNameSize, weight: .bold))
+                    .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            .foregroundColor(foregroundColor)
             .padding(.horizontal, 8)
         } else {
             Text(team.name)
                 .font(getFont(size: nameSize, weight: .bold))
-                .foregroundColor(foregroundColor)
+                .foregroundColor(elementColor(.teamName, fallback: foregroundColor))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 8)
@@ -1176,7 +1274,7 @@ struct TeamSection: View {
             Text(scoreText)
                 .font(getFont(size: displayFontSize))
                 .monospacedDigit()
-                .foregroundColor(foregroundColor)
+                .foregroundColor(elementColor(.mainScore, fallback: foregroundColor))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
         }
@@ -1189,6 +1287,7 @@ struct TeamSection: View {
                 secondaryValueRow(
                     value: sets,
                     fontSize: fontSize,
+                    element: .setScore,
                     onAdjust: onSetsAdjust.map { adjust in { delta in adjust(isLeft, delta) } }
                 )
             }
@@ -1196,6 +1295,7 @@ struct TeamSection: View {
                 secondaryValueRow(
                     value: games,
                     fontSize: fontSize,
+                    element: .setGameScore,
                     onAdjust: onGamesAdjust.map { adjust in { delta in adjust(isLeft, delta) } }
                 )
             }
@@ -1203,7 +1303,12 @@ struct TeamSection: View {
     }
 
     @ViewBuilder
-    private func secondaryValueRow(value: Int, fontSize: CGFloat, onAdjust: ((Int) -> Void)?) -> some View {
+    private func secondaryValueRow(
+        value: Int,
+        fontSize: CGFloat,
+        element: ScoreboardStyleElementKeyV2,
+        onAdjust: ((Int) -> Void)?
+    ) -> some View {
         if isEditMode, let onAdjust {
             HStack(spacing: 16) {
                 adjustCircleButton(enabled: value > 0, systemName: "minus") {
@@ -1221,7 +1326,7 @@ struct TeamSection: View {
             Text("\(value)")
                 .font(getFont(size: fontSize))
                 .monospacedDigit()
-                .foregroundColor(foregroundColor.opacity(0.7))
+                .foregroundColor(elementColor(element, fallbackOpacity: 0.7))
         }
     }
 

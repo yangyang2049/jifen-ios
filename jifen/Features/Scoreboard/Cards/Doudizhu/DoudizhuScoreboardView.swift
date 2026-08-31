@@ -69,6 +69,7 @@ struct DoudizhuScoreboardView: View {
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var showDisplaySettings = false
+    @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
     @State private var actions: [String]
     @State private var detailedActions: [DetailedScoreAction]
     @State private var chromeVisible = true
@@ -81,7 +82,8 @@ struct DoudizhuScoreboardView: View {
     private let reducer = DoudizhuScoreReducer()
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showScorePanel
+        !styleEditorEntry.isEditing
+            && (!appearance.immersiveMode || chromeVisible || isEditMode || showMenu || showDisplaySettings || showScorePanel)
     }
 
     init(
@@ -183,21 +185,20 @@ struct DoudizhuScoreboardView: View {
 
     /// HOS: left/right follow the scoreboard theme; the center stays success
     /// green except in retro, where all three panels are black.
+    private var doudizhuSlotKeys: [ScoreboardStyleSlotKeyV2] { [.sideLeft, .sideCenter, .sideRight] }
+
+    private func slotKey(for index: Int) -> ScoreboardStyleSlotKeyV2 {
+        doudizhuSlotKeys[index % 3]
+    }
+
     private var panelColors: [Color] {
-        let center = appearance.theme == .retro ? Color.black : appearance.styleProfileV2.color(for: .center)
-        return [
-            appearance.palette.left,
-            center,
-            appearance.palette.right
-        ]
+        doudizhuSlotKeys.map { Color(hex: appearance.styleProfileV2.slotBackgroundHex($0)) }
     }
 
     private var panelTextColors: [Color] {
-        [
-            appearance.palette.foreground(for: .team0),
-            appearance.palette.foreground(for: .center),
-            appearance.palette.foreground(for: .team1)
-        ]
+        doudizhuSlotKeys.map {
+            appearance.elementForeground(.teamName, slotKey: $0)
+        }
     }
 
     var body: some View {
@@ -282,6 +283,10 @@ struct DoudizhuScoreboardView: View {
                     .allowsHitTesting(false)
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showMenu)
+            .animation(.easeInOut(duration: 0.2), value: showScorePanel)
+            .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+            .animation(.easeInOut(duration: 0.2), value: toastMessage)
             .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         }
         .ignoresSafeArea(.all)
@@ -339,6 +344,11 @@ struct DoudizhuScoreboardView: View {
             isPresented: $showDisplaySettings,
             session: typographySession,
             metrics: ScoreboardTypographyProfile.doudizhu.adjustableMetrics
+        )
+        .scoreboardStyleEditorEntry(
+            styleEditorEntry,
+            typographySession: typographySession,
+            onEditingChange: { _ in updateImmersiveForBlocking() }
         )
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
@@ -570,7 +580,7 @@ struct DoudizhuScoreboardView: View {
                     Text("\(player.score)")
                         .font(typographySession.effectivePreference.font.swiftUIFont(size: scoreSize))
                         .monospacedDigit()
-                        .foregroundColor(textColor)
+                        .foregroundColor(appearance.elementForeground(.mainScore, slotKey: slotKey(for: index)))
                         .minimumScaleFactor(0.4)
                         .lineLimit(1)
                 }
@@ -859,6 +869,8 @@ struct DoudizhuScoreboardView: View {
             showExchangeSide: false,
             showWhistle: true,
             showScreenshot: true,
+            showDisplaySettings: true,
+            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
             showSettleMatch: true,
             resetConfirming: menuConfirm.resetConfirming,
             finishConfirming: menuConfirm.finishConfirming,
@@ -904,8 +916,14 @@ struct DoudizhuScoreboardView: View {
         case "exit":
             handleExitAttempt(fromMenu: true)
         case "displaySettings":
-            showDisplaySettings = true
             showMenu = false
+            // 白名单项目打开新样式编辑器（对齐安卓 useStyleEditLabel 分叉）。
+            if !styleEditorEntry.handleDisplaySettings(
+                styleID: typographySession.styleID,
+                typographySession: typographySession
+            ) {
+                showDisplaySettings = true
+            }
         default:
             break
         }
@@ -1224,7 +1242,8 @@ struct DoudizhuScoreboardView: View {
                   !isEditMode,
                   !showMenu,
                   !showDisplaySettings,
-                  !showScorePanel else { return }
+                  !showScorePanel,
+                  !styleEditorEntry.isEditing else { return }
             let now = Date().timeIntervalSince1970 * 1000
             if exitClickTime > 0, now - exitClickTime < 2000 { return }
             chromeVisible = false
@@ -1232,7 +1251,7 @@ struct DoudizhuScoreboardView: View {
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || isEditMode || showScorePanel || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || isEditMode || showScorePanel || styleEditorEntry.isEditing || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {

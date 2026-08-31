@@ -2,8 +2,12 @@ import Foundation
 
 /// Pure board-timer voice helpers aligned with Harmony `soundManager` / `gameTimerViewModel`.
 ///
-/// Wired clips (same as Harmony `SoundType`): start/pause/resume/stop/end, red/black/white,
+/// Wired clips (same as Harmony `SoundType`): start/pause/resume/stop/end,
 /// start_seconds / last_seconds. Locale-aware names append `_en` where Harmony has an English asset.
+///
+/// Player switch cues intentionally do NOT announce colors ("红方/黑方/白方"):
+/// the Android board timer has no color announcements, so both platforms play the
+/// neutral `ding` clip (Android `res/raw/ding.mp3`, byte-identical on iOS).
 ///
 /// Bundle also contains Harmony rawfile leftovers `one`…`ten` that are **not** in Harmony
 /// `SoundType` / board-timer playback — keep for asset parity, do not announce from DualPlayer.
@@ -15,12 +19,6 @@ public enum BoardTimerVoice {
         case resume
         case stop
         case end
-    }
-
-    public enum PlayerColorSound: String, Sendable {
-        case red
-        case black
-        case white
     }
 
     public enum ByoyomiPhrase: String, Sendable {
@@ -60,21 +58,6 @@ public enum BoardTimerVoice {
 
     public static func postStartPlayerAnnouncementDelayMs(locale: Locale = .current) -> Int {
         postStartPlayerAnnouncementDelayMs(isEnglish: isEnglishLocale(locale))
-    }
-
-    /// Harmony `playPlayerSound` color map. Player IDs are 1-based.
-    public static func playerColorSound(gameTypeRawValue: String, playerID: Int) -> PlayerColorSound? {
-        guard playerID == 1 || playerID == 2 else { return nil }
-        switch gameTypeRawValue {
-        case "go":
-            return playerID == 1 ? .black : .white
-        case "xiangqi", "checkers":
-            return playerID == 1 ? .red : .black
-        case "chess":
-            return playerID == 1 ? .white : .black
-        default:
-            return nil
-        }
     }
 
     /// Go byoyomi period-start phrase. `periodsRemaining == 1` → last period.

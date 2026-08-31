@@ -81,7 +81,7 @@ enum GameType: String, Codable, CaseIterable {
         case .squash: return NSLocalizedString("game_squash", value: "壁球", comment: "Squash")
         case .tennis: return NSLocalizedString("game_tennis", comment: "Tennis")
         case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "Soft Tennis")
-        case .padel: return NSLocalizedString("game_padel", value: "板式网球", comment: "Padel")
+        case .padel: return NSLocalizedString("game_padel", value: "板网球", comment: "Padel")
         case .basketball: return NSLocalizedString("game_basketball", comment: "Basketball")
         case .threeBasketball: return NSLocalizedString("game_three_basketball", value: "三人篮球", comment: "3x3 Basketball")
         case .football: return NSLocalizedString("game_football", comment: "Football")
@@ -371,8 +371,9 @@ struct TemplateConfig {
     let isDoublesModeProvider: (() -> Bool)?
     let scoreTextProvider: ((Bool, TeamData) -> String)?
     let tapToAddEnabled: Bool
-    /// 插在左右半区之上、编辑/底部按钮与菜单之下的中间层；参数为 isEditMode，编辑模式下可隐藏或禁用交互（如射箭不发球箭头、不响应半区点击）
-    let contentOverlayProvider: ((Bool) -> AnyView)?
+    /// 插在左右半区之上、编辑/底部按钮与菜单之下的中间层；第一个参数为 isEditMode（编辑模式下可隐藏或禁用交互），
+    /// 第二个参数为当前样式的发球指示器色（未配置时回落默认绿），编辑模式下不提供。
+    let contentOverlayProvider: ((Bool, Color) -> AnyView)?
     /// 编辑模式变化时回调，供父视图隐藏发球指示器等（编辑模式下不显示）
     let onEditModeChange: ((Bool) -> Void)?
     let showEndGame: Bool
@@ -399,7 +400,7 @@ struct TemplateConfig {
         isDoublesModeProvider: (() -> Bool)? = nil,
         scoreTextProvider: ((Bool, TeamData) -> String)? = nil,
         tapToAddEnabled: Bool = true,
-        contentOverlayProvider: ((Bool) -> AnyView)? = nil,
+        contentOverlayProvider: ((Bool, Color) -> AnyView)? = nil,
         onEditModeChange: ((Bool) -> Void)? = nil,
         showEndGame: Bool = false,
         showSettleMatch: Bool = false,

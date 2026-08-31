@@ -3,11 +3,18 @@ import XCTest
 
 @MainActor
 final class OfflineReleaseBoundaryTests: XCTestCase {
+    func testAPIDateParserAcceptsNodeISOString() {
+        XCTAssertNotNil(APIDateParser.date(from: "2026-09-08T01:40:54.123Z"))
+        XCTAssertNotNil(APIDateParser.date(from: "2026-09-08T01:40:54Z"))
+        XCTAssertNil(APIDateParser.date(from: "not-a-date"))
+    }
+
     func testServerBackedProductionCapabilitiesStayDisabled() {
-        XCTAssertFalse(AppFeatureFlags.accountFeaturesEnabled)
-        XCTAssertFalse(AppFeatureFlags.feedbackEntryEnabled)
+        XCTAssertTrue(AppFeatureFlags.accountFeaturesEnabled)
+        // 反馈功能已对全部语言开放（与安卓端一致）。
+        XCTAssertTrue(AppFeatureFlags.feedbackEntryEnabled)
         XCTAssertFalse(AppFeatureFlags.lanPeerSyncEnabled)
-        XCTAssertFalse(AppFeatureFlags.recordCrossDeviceSyncEnabled)
+        XCTAssertTrue(AppFeatureFlags.recordCrossDeviceSyncEnabled)
         XCTAssertTrue(AppFeatureFlags.systemExternalDisplayEnabled)
     }
 

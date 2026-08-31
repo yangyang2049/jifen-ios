@@ -349,29 +349,30 @@ final class BasketballSessionStore {
         state: BasketballMatchState
     ) -> DetailedScoreAction? {
         let action: DetailedScoreAction
+        let gameTimeSeconds = state.gameTimeSeconds
         switch intent {
         case .addPoints(let side, let points, _):
-            action = .init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, scoreChange: points, operationCode: "basketball_score_\(points)")
+            action = .init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, scoreChange: points, operationCode: "basketball_score_\(points)")
         case .adjustScore(let side, let delta):
-            action = .init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, scoreChange: delta, operationCode: "score_adjust")
+            action = .init(type: .scoreChanged, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, scoreChange: delta, operationCode: "score_adjust")
         case .addFoul(let side), .removeFoul(let side):
-            action = .init(type: .foul, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: String(describing: intent))
+            action = .init(type: .foul, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: String(describing: intent))
         case .useTimeout(let side):
-            action = .init(type: .timeout, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: "timeout")
+            action = .init(type: .timeout, epochMilliseconds: milliseconds, team: side == .left ? .team1 : .team2, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: "timeout")
         case .endTimeout:
-            action = .init(type: .timeout, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: "timeout_end")
+            action = .init(type: .timeout, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: "timeout_end")
         case .advanceToNextPeriod, .enterOvertime:
-            action = .init(type: .periodFinished, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: max(1, state.currentPeriod - (state.isOvertime ? 0 : 1)), operationCode: state.isOvertime ? "overtime" : "period_finished")
+            action = .init(type: .periodFinished, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: max(1, state.currentPeriod - (state.isOvertime ? 0 : 1)), gameTimeSeconds: gameTimeSeconds, operationCode: state.isOvertime ? "overtime" : "period_finished")
         case .exchangeSides:
-            action = .init(type: .sideChanged, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: "exchange_sides")
+            action = .init(type: .sideChanged, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: "exchange_sides")
         case .reset:
-            action = .init(type: .reset, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: "reset")
+            action = .init(type: .reset, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: "reset")
         case .finish:
-            action = .init(type: .matchFinished, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, winner: state.leftScore == state.rightScore ? nil : (state.leftScore > state.rightScore ? .team1 : .team2), operationCode: "finish")
+            action = .init(type: .matchFinished, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, winner: state.leftScore == state.rightScore ? nil : (state.leftScore > state.rightScore ? .team1 : .team2), operationCode: "finish")
         case .tickClock, .tickTimeout:
             return nil
         default:
-            action = .init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, operationCode: String(describing: intent))
+            action = .init(type: .stateChanged, epochMilliseconds: milliseconds, scores: [state.leftScore, state.rightScore], periodNumber: state.currentPeriod, gameTimeSeconds: gameTimeSeconds, operationCode: String(describing: intent))
         }
         return action
     }

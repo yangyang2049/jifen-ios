@@ -43,10 +43,12 @@ struct RecentRowView: View {
                         .foregroundColor(Theme.homeNeutralCardTextPrimary)
 
                     if !activity.description.isEmpty {
-                        Text(activity.description)
-                            .font(.system(size: Theme.fontCaption)) // fontSize(12)
-                            .foregroundColor(Theme.homeNeutralCardTextSecondary)
-                            .padding(.leading, Theme.md) // margin({ left: 16 })
+                    Text(activity.description)
+                        .font(.system(size: Theme.fontCaption)) // fontSize(12)
+                        .foregroundColor(Theme.homeNeutralCardTextSecondary)
+                        .padding(.leading, Theme.md) // margin({ left: 16 })
+                        .lineLimit(1) // 单行显示，超出省略号
+                        .truncationMode(.tail)
                     }
 
                     Spacer() // Blank()
@@ -99,6 +101,8 @@ struct RecentRowView: View {
                         Text(activity.title) // Text(this.activity.title || getGameName(this.activity.gameType))
                             .font(.system(size: Theme.fontBody2, weight: .medium)) // fontSize(14), fontWeight(FontWeight.Medium)
                             .foregroundColor(Theme.homeNeutralCardTextPrimary)
+                            .lineLimit(1) // 单行显示，超出省略号
+                            .truncationMode(.tail)
 
                         HStack(spacing: Theme.sm) { // Row({ space: 8 })
                             Text(formatTime(activity.timestamp))

@@ -30,6 +30,7 @@ struct ScoreboardMenuItem: Identifiable, Equatable {
     var icon: String? = nil
     var customText: String? = nil
     var customTextScale: CGFloat = 1
+    var backgroundColor: Color? = nil
     var keepDialogOpen: Bool = false
     var confirming: Bool = false
     var enabled: Bool = true
@@ -66,6 +67,7 @@ enum ScoreboardMenuItemBuilder {
         showWhistle: Bool = true,
         showScreenshot: Bool = true,
         showDisplaySettings: Bool = true,
+        styleEditorEnabled: Bool = false,
         showSettleMatch: Bool = false,
         resetConfirming: Bool = false,
         exchangeConfirming: Bool = false,
@@ -167,7 +169,10 @@ enum ScoreboardMenuItemBuilder {
         if showDisplaySettings {
             items.append(
                 ScoreboardMenuItem(
-                    title: NSLocalizedString("scoreboard_display_settings", value: "显示设置", comment: ""),
+                    // 白名单项目直接进样式编辑 overlay（对齐安卓 useStyleEditLabel 分叉）。
+                    title: styleEditorEnabled
+                        ? NSLocalizedString("scoreboard_style_edit", value: "样式", comment: "")
+                        : NSLocalizedString("scoreboard_display_settings", value: "显示设置", comment: ""),
                     action: "displaySettings",
                     group: .tools,
                     customText: "Aa"
@@ -252,7 +257,7 @@ struct MenuDialog: View {
     private let cardBackground = Theme.scoreboardDialogControl
     private let sectionStrip = Color.white.opacity(0.06)
     private let secondaryText = Theme.scoreboardDialogTextSecondary
-    private let confirmBackground = Color(hex: "4CAF50").opacity(0.5)
+    private let confirmBackground = Color(hex: "4CAF50").opacity(0.55)
 
     private var resolvedItems: [ScoreboardMenuItem] {
         items ?? ScoreboardMenuItemBuilder.defaultItems(
@@ -310,6 +315,7 @@ struct MenuDialog: View {
                 Theme.scoreboardDialogScrim
                     .ignoresSafeArea()
                     .onTapGesture(perform: onClose)
+                    .transition(.opacity)
 
                 VStack(spacing: 0) {
                     if syncItems.isEmpty {
@@ -336,6 +342,7 @@ struct MenuDialog: View {
                 .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: 12)
                 .contentShape(Rectangle())
                 .onTapGesture { }
+                .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 .overlay(alignment: .topTrailing) {
                     Text(" ")
                         .font(.system(size: 1))
@@ -378,7 +385,7 @@ struct MenuDialog: View {
 
     private func topStrip(items: [ScoreboardMenuItem]) -> some View {
         HStack(spacing: 4) {
-            Color.clear.frame(width: 40, height: 32)
+            Color.clear.frame(width: 36, height: 32)
 
             HStack(spacing: 4) {
                 ForEach(items) { item in
@@ -573,7 +580,8 @@ struct MenuDialog: View {
     private func cardFill(item: ScoreboardMenuItem, stripItem: Bool) -> Color {
         if item.confirming { return confirmBackground }
         if stripItem { return .clear }
-        return cardBackground
+        // 对齐安卓：extra 菜单项可携带自定义底色（如斯诺克浅绿高亮卡）。
+        return item.backgroundColor ?? cardBackground
     }
 
     private func iconSize(_ size: ScoreboardMenuCardSize) -> CGFloat {

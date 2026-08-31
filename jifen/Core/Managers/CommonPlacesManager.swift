@@ -1,5 +1,9 @@
 import Foundation
 
+extension Notification.Name {
+    static let commonPlacesDidChange = Notification.Name("jifen.commonPlacesDidChange")
+}
+
 struct CommonPlace: Codable, Hashable, Identifiable {
     let id: UUID
     var name: String
@@ -19,11 +23,13 @@ enum CommonPlacesError: Error {
 final class CommonPlacesManager {
     static let shared = CommonPlacesManager()
 
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
     private let storageKey = "jifen-v2.commonPlaces"
-    private let maxPlaces = 50
+    private let maxPlaces = 200
 
-    private init() {}
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
 
     func getAllPlaces() -> [CommonPlace] {
         guard let data = defaults.data(forKey: storageKey),
@@ -99,11 +105,29 @@ final class CommonPlacesManager {
 
     func clearAll() {
         defaults.removeObject(forKey: storageKey)
+        NotificationCenter.default.post(name: .commonPlacesDidChange, object: nil)
+    }
+
+    /// Applies the backend canonical snapshot while preserving stable UUIDs
+    /// for unchanged local places.
+    func replacePlacesFromCloud(_ names: [String]) {
+        let existing = Dictionary(uniqueKeysWithValues: getAllPlaces().map {
+            (normalizedKey($0.name), $0.id)
+        })
+        var seen = Set<String>()
+        let places = names.compactMap { raw -> CommonPlace? in
+            let name = normalize(raw)
+            let key = normalizedKey(name)
+            guard !name.isEmpty, seen.insert(key).inserted else { return nil }
+            return CommonPlace(id: existing[key] ?? UUID(), name: name)
+        }
+        save(Array(places.prefix(maxPlaces)))
     }
 
     private func save(_ places: [CommonPlace]) {
         guard let data = try? JSONEncoder().encode(places) else { return }
         defaults.set(data, forKey: storageKey)
+        NotificationCenter.default.post(name: .commonPlacesDidChange, object: nil)
     }
 
     private func normalize(_ raw: String) -> String {

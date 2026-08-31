@@ -192,6 +192,8 @@ struct BasketballScoreboardView: View {
                 )
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .animation(.easeInOut(duration: 0.2), value: showToast)
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -1167,13 +1169,15 @@ private struct BasketballCenterPanel: View {
                     .frame(height: 40)
             }
 
-            Text(clockText(state.gameTimeSeconds))
-                .font(typographyPreferenceFont(size: typography.scoreFontSize))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-                .contentShape(Rectangle())
-                .onLongPressGesture(minimumDuration: 0.5, perform: onResetGameClock)
-                .accessibilityIdentifier("basketball_game_clock")
+            if showsGameClock {
+                Text(clockText(state.gameTimeSeconds))
+                    .font(typographyPreferenceFont(size: typography.scoreFontSize))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .contentShape(Rectangle())
+                    .onLongPressGesture(minimumDuration: 0.5, perform: onResetGameClock)
+                    .accessibilityIdentifier("basketball_game_clock")
+            }
 
             if state.canAdvancePeriod && !state.isOvertime {
                 periodActionButton(
@@ -1352,6 +1356,13 @@ private struct BasketballCenterPanel: View {
 
     private var showsPeriodActionButton: Bool {
         state.canAdvancePeriod || shouldShowEnterOvertime
+    }
+
+    /// 三人篮球加时赛只走 12 秒进攻钟，比赛钟恒为 00:00 且不推进。
+    /// 此时隐藏比赛钟：避免显示一个冻结的 00:00，也避免长按触发 resetGameClock
+    /// （会 isOvertime=false 并把时钟灌回 10:00，等于静默退出加时）。与安卓一致。
+    private var showsGameClock: Bool {
+        !(state.gameMode == .threeXThree && state.isOvertime)
     }
 
     private var periodTitle: String {

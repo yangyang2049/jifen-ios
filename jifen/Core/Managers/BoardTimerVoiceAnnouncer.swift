@@ -24,12 +24,9 @@ final class BoardTimerVoiceAnnouncer {
         playBaseName(sound.rawValue)
     }
 
-    func playPlayerColor(gameType: GameType, playerID: Int) {
-        guard let color = BoardTimerVoice.playerColorSound(
-            gameTypeRawValue: gameType.rawValue,
-            playerID: playerID
-        ) else { return }
-        playBaseName(color.rawValue, preferSecondaryChannel: true)
+    /// Player switch cue: neutral ding (Android parity — no color announcements).
+    func playPlayerSwitchCue() {
+        playBaseName(BoardTimerVoice.countdownCompletionSoundBaseName, preferSecondaryChannel: true, localeAware: false)
     }
 
     func playByoyomiPhrase(periodsRemaining: Int) {
@@ -47,18 +44,18 @@ final class BoardTimerVoiceAnnouncer {
         playBaseName(BoardTimerVoice.countdownCompletionSoundBaseName, localeAware: false)
     }
 
-    /// Start clip, then announce player 1 after Harmony delay (cancelled if interrupted).
-    func playStartThenSchedulePlayer1(gameType: GameType) {
+    /// Start clip, then play the player switch cue after the start clip ends.
+    func playStartThenSchedulePlayer1() {
         cancelScheduled()
         playControl(.start)
         let delayMs = BoardTimerVoice.postStartPlayerAnnouncementDelayMs()
-        schedulePlayerColor(gameType: gameType, playerID: 1, delayMs: delayMs)
+        schedulePlayerCue(delayMs: delayMs)
     }
 
-    func playResumeWithCurrentPlayer(gameType: GameType, playerID: Int) {
+    func playResumeWithSwitchCue() {
         cancelScheduled()
         playControl(.resume)
-        playPlayerColor(gameType: gameType, playerID: playerID)
+        playPlayerSwitchCue()
     }
 
     func cancelScheduled() {
@@ -69,13 +66,13 @@ final class BoardTimerVoiceAnnouncer {
 
     // MARK: - Private
 
-    private func schedulePlayerColor(gameType: GameType, playerID: Int, delayMs: Int) {
+    private func schedulePlayerCue(delayMs: Int) {
         scheduleToken &+= 1
         let token = scheduleToken
         let work = DispatchWorkItem { [weak self] in
             Task { @MainActor in
                 guard let self, token == self.scheduleToken else { return }
-                self.playPlayerColor(gameType: gameType, playerID: playerID)
+                self.playPlayerSwitchCue()
             }
         }
         scheduledWorkItem = work

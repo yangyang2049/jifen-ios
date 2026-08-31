@@ -10,6 +10,13 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
     case retro = "retro"
     case brb = "brb"
     case wrb = "wrb"
+    // 斗地主专属主题（ddz_*，独立命名空间，对齐安卓 SUPPORTED_DOUDIZHU_THEMES）。
+    case ddzClassic = "ddz_classic"
+    case ddzProDark = "ddz_pro_dark"
+    case ddzElectronic = "ddz_electronic"
+    case ddzRetro = "ddz_retro"
+    case ddzBrb = "ddz_brb"
+    case ddzWrb = "ddz_wrb"
 
     var id: String { rawValue }
 
@@ -27,6 +34,102 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
             return NSLocalizedString("scoreboard_theme_brb", value: "黑红蓝", comment: "")
         case .wrb:
             return NSLocalizedString("scoreboard_theme_wrb", value: "白红蓝", comment: "")
+        case .ddzClassic:
+            return NSLocalizedString("theme_doudizhu_classic", value: "经典", comment: "")
+        case .ddzProDark:
+            return NSLocalizedString("theme_doudizhu_pro_dark", value: "专业深色", comment: "")
+        case .ddzElectronic:
+            return NSLocalizedString("theme_doudizhu_electronic", value: "电子屏", comment: "")
+        case .ddzRetro:
+            return NSLocalizedString("theme_doudizhu_retro", value: "复古", comment: "")
+        case .ddzBrb:
+            return NSLocalizedString("theme_doudizhu_brb", value: "黑红蓝", comment: "")
+        case .ddzWrb:
+            return NSLocalizedString("theme_doudizhu_wrb", value: "白红蓝", comment: "")
+        }
+    }
+
+    /// 非斗地主项目的主题选项（对齐安卓 SUPPORTED_SCOREBOARD_THEMES）。
+    static var genericOptions: [ScoreboardTheme] {
+        [.defaultTheme, .proDark, .electronic, .retro, .brb, .wrb]
+    }
+
+    /// 斗地主项目的主题选项（对齐安卓 SUPPORTED_DOUDIZHU_THEMES）。
+    static var doudizhuOptions: [ScoreboardTheme] {
+        [.ddzClassic, .ddzProDark, .ddzElectronic, .ddzRetro, .ddzBrb, .ddzWrb]
+    }
+
+    var isDoudizhuTheme: Bool { rawValue.hasPrefix("ddz_") }
+
+    /// 斗地主主题码规范化：旧通用主题码迁移到 ddz_*，未知码回落经典斗地主（对齐安卓 doudizhuThemeOrDefault）。
+    static func doudizhuNormalized(_ raw: String) -> ScoreboardTheme {
+        switch raw {
+        case "default", "ddz_classic", "": return .ddzClassic
+        case "pro_dark": return .ddzProDark
+        case "electronic": return .ddzElectronic
+        case "retro": return .ddzRetro
+        case "brb": return .ddzBrb
+        case "wrb": return .ddzWrb
+        default: return isDoudizhuCode(raw) ? (ScoreboardTheme(rawValue: raw) ?? .ddzClassic) : .ddzClassic
+        }
+    }
+
+    private static func isDoudizhuCode(_ raw: String) -> Bool {
+        ScoreboardTheme.doudizhuOptions.contains { $0.rawValue == raw }
+    }
+
+    // MARK: 主题基色（hex，1:1 对齐安卓 ui/theme/ScoreboardTheme.kt）
+
+    /// 左侧面板底色。
+    var leftPanelHex: String {
+        switch self {
+        case .defaultTheme, .ddzClassic: return "C62828"
+        case .proDark: return "8E2428"
+        case .ddzProDark: return "972828"
+        case .wrb, .ddzWrb: return "FFFFFF"
+        case .electronic, .retro, .brb, .ddzElectronic, .ddzRetro, .ddzBrb: return "000000"
+        }
+    }
+
+    /// 右侧面板底色。
+    var rightPanelHex: String {
+        switch self {
+        case .defaultTheme: return "007AFF"
+        case .proDark, .ddzProDark: return "155A9C"
+        case .ddzClassic: return "1565C0"
+        case .wrb, .ddzWrb: return "FFFFFF"
+        case .electronic, .retro, .brb, .ddzElectronic, .ddzRetro, .ddzBrb: return "000000"
+        }
+    }
+
+    /// 中间面板底色（斗地主三栏 / 通用主题的 center 兜底）。
+    var centerPanelHex: String {
+        switch self {
+        case .defaultTheme: return "1B5E20"
+        case .proDark: return "15171A"
+        case .ddzClassic: return "34C759"
+        case .ddzProDark: return "1B1B1F"
+        case .ddzWrb: return "FFFFFF"
+        case .electronic, .retro, .brb, .wrb, .ddzElectronic, .ddzRetro, .ddzBrb: return "000000"
+        }
+    }
+
+    /// 主分数前景色。
+    var foregroundHex: String {
+        switch self {
+        case .proDark, .ddzProDark: return "F7F8FA"
+        case .retro, .ddzRetro: return "00FF00"
+        case .wrb, .ddzWrb: return "111111"
+        case .defaultTheme, .electronic, .brb, .ddzClassic, .ddzElectronic, .ddzBrb: return "FFFFFF"
+        }
+    }
+
+    /// 计分板本体背景（面板之外的底色）。
+    var backgroundHex: String {
+        switch self {
+        case .wrb, .ddzWrb: return "FFFFFF"
+        case .ddzProDark: return "15171A"
+        default: return "000000"
         }
     }
 
@@ -36,8 +139,8 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
         case .defaultTheme:
             return ScoreboardPalette(
                 background: .black,
-                left: Color(hex: "FF3B30"),
-                right: Color(hex: "007AFF"),
+                left: Color(hex: leftPanelHex),
+                right: Color(hex: rightPanelHex),
                 foreground: .white,
                 secondary: .white.opacity(0.7),
                 chrome: .black.opacity(0.28)
@@ -45,10 +148,10 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
         case .proDark:
             return ScoreboardPalette(
                 background: .black,
-                left: Color(hex: "972828"),
-                right: Color(hex: "007AFF"),
-                foreground: .white,
-                secondary: .white.opacity(0.7),
+                left: Color(hex: leftPanelHex),
+                right: Color(hex: rightPanelHex),
+                foreground: Color(hex: foregroundHex),
+                secondary: Color(hex: foregroundHex).opacity(0.68),
                 chrome: Color(hex: "111820").opacity(0.92)
             )
         case .electronic:
@@ -65,8 +168,8 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
                 background: .black,
                 left: .black,
                 right: .black,
-                foreground: Color(hex: "4CAF50"),
-                secondary: Color(hex: "4CAF50").opacity(0.6),
+                foreground: Color(hex: foregroundHex),
+                secondary: Color(hex: foregroundHex).opacity(0.6),
                 chrome: .black.opacity(0.9)
             )
         case .brb:
@@ -83,9 +186,170 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
                 background: .white,
                 left: .white,
                 right: .white,
-                foreground: Color(hex: "111111"),
-                secondary: Color(hex: "111111").opacity(0.7),
+                foreground: Color(hex: foregroundHex),
+                secondary: Color(hex: foregroundHex).opacity(0.7),
                 chrome: .black.opacity(0.72)
+            )
+        case .ddzClassic:
+            return ScoreboardPalette(
+                background: .black,
+                left: Color(hex: leftPanelHex),
+                right: Color(hex: rightPanelHex),
+                foreground: .white,
+                secondary: .white.opacity(0.7),
+                chrome: .black.opacity(0.28)
+            )
+        case .ddzProDark:
+            return ScoreboardPalette(
+                background: Color(hex: "15171A"),
+                left: Color(hex: leftPanelHex),
+                right: Color(hex: rightPanelHex),
+                foreground: Color(hex: foregroundHex),
+                secondary: Color(hex: foregroundHex).opacity(0.68),
+                chrome: Color(hex: "111820").opacity(0.92)
+            )
+        case .ddzElectronic:
+            return ScoreboardPalette(
+                background: .black,
+                left: .black,
+                right: .black,
+                foreground: .white,
+                secondary: .white.opacity(0.72),
+                chrome: .black.opacity(0.82)
+            )
+        case .ddzRetro:
+            return ScoreboardPalette(
+                background: .black,
+                left: .black,
+                right: .black,
+                foreground: Color(hex: foregroundHex),
+                secondary: Color(hex: foregroundHex).opacity(0.6),
+                chrome: .black.opacity(0.9)
+            )
+        case .ddzBrb:
+            return ScoreboardPalette(
+                background: .black,
+                left: .black,
+                right: .black,
+                foreground: .white,
+                secondary: .white.opacity(0.7),
+                chrome: .black.opacity(0.9)
+            )
+        case .ddzWrb:
+            return ScoreboardPalette(
+                background: .white,
+                left: .white,
+                right: .white,
+                foreground: Color(hex: foregroundHex),
+                secondary: Color(hex: foregroundHex).opacity(0.7),
+                chrome: .black.opacity(0.72)
+            )
+        }
+    }
+
+    /// 主题迷你预览（对齐安卓 ic_theme_*：背景 + 左右侧 + 前景数字 "3 2"）。
+    struct PreviewDescriptor: Equatable {
+        var backgroundHex: String
+        var leftHex: String?
+        var centerHex: String?
+        var rightHex: String?
+        var seamHex: String?
+        var leftDigitHex: String
+        var centerDigitHex: String?
+        var rightDigitHex: String
+    }
+
+    var previewDescriptor: PreviewDescriptor {
+        switch self {
+        case .defaultTheme:
+            // 经典：左右面板铺满，白色数字（ic_theme_classic）。
+            return .init(
+                backgroundHex: leftPanelHex,
+                leftHex: leftPanelHex, centerHex: nil, rightHex: rightPanelHex,
+                seamHex: nil,
+                leftDigitHex: "FFFFFF", centerDigitHex: nil, rightDigitHex: "FFFFFF"
+            )
+        case .proDark:
+            // 专业深色：暗底 + 暗红/深蓝半区 + 暗色中缝 + 浅色数字（ic_theme_pro_dark）。
+            return .init(
+                backgroundHex: "15171A",
+                leftHex: leftPanelHex, centerHex: nil, rightHex: rightPanelHex,
+                seamHex: "15171A",
+                leftDigitHex: "F7F8FA", centerDigitHex: nil, rightDigitHex: "F7F8FA"
+            )
+        case .electronic:
+            // 电子屏：纯黑底 + 细缝 + 白色数字（ic_theme_electronic）。
+            return .init(
+                backgroundHex: "000000",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "1A1A1A",
+                leftDigitHex: "FFFFFF", centerDigitHex: nil, rightDigitHex: "FFFFFF"
+            )
+        case .retro:
+            // 复古：纯黑底 + 细缝 + 绿色数字（ic_theme_retro）。
+            return .init(
+                backgroundHex: "000000",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "1A1A1A",
+                leftDigitHex: "00FF00", centerDigitHex: nil, rightDigitHex: "00FF00"
+            )
+        case .brb:
+            // 黑红蓝：纯黑底 + 细缝 + 红/蓝数字（ic_theme_brb）。
+            return .init(
+                backgroundHex: "000000",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "1A1A1A",
+                leftDigitHex: "FF0000", centerDigitHex: nil, rightDigitHex: "1E5BFF"
+            )
+        case .wrb:
+            // 白红蓝：纯白底 + 浅缝 + 红/蓝数字（ic_theme_wrb）。
+            return .init(
+                backgroundHex: "FFFFFF",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "E5E5EA",
+                leftDigitHex: "FF0000", centerDigitHex: nil, rightDigitHex: "1E5BFF"
+            )
+        case .ddzClassic:
+            return .init(
+                backgroundHex: leftPanelHex,
+                leftHex: leftPanelHex, centerHex: centerPanelHex, rightHex: rightPanelHex,
+                seamHex: nil,
+                leftDigitHex: "FFFFFF", centerDigitHex: "FFFFFF", rightDigitHex: "FFFFFF"
+            )
+        case .ddzProDark:
+            return .init(
+                backgroundHex: leftPanelHex,
+                leftHex: leftPanelHex, centerHex: centerPanelHex, rightHex: rightPanelHex,
+                seamHex: nil,
+                leftDigitHex: "FFFFFF", centerDigitHex: "FFFFFF", rightDigitHex: "FFFFFF"
+            )
+        case .ddzElectronic:
+            return .init(
+                backgroundHex: "000000",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "1A1A1A",
+                leftDigitHex: "FFFFFF", centerDigitHex: "FFFFFF", rightDigitHex: "FFFFFF"
+            )
+        case .ddzRetro:
+            return .init(
+                backgroundHex: "000000",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "1A1A1A",
+                leftDigitHex: "4CAF50", centerDigitHex: "4CAF50", rightDigitHex: "4CAF50"
+            )
+        case .ddzBrb:
+            return .init(
+                backgroundHex: "000000",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "1A1A1A",
+                leftDigitHex: "FF0000", centerDigitHex: "34C759", rightDigitHex: "1E5BFF"
+            )
+        case .ddzWrb:
+            return .init(
+                backgroundHex: "FFFFFF",
+                leftHex: nil, centerHex: nil, rightHex: nil,
+                seamHex: "E5E5EA",
+                leftDigitHex: "FF0000", centerDigitHex: "1B5E20", rightDigitHex: "1E5BFF"
             )
         }
     }
@@ -93,7 +357,6 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
     /// Auxiliary button fill on colored team panels (HOS SCOREBOARD_AUXILIARY_BUTTON_BG).
     static let auxiliaryButtonBackground = Color.white.opacity(0.14)
     static let auxiliaryButtonBackgroundSubtle = Color.white.opacity(0.08)
-    static let serverIndicatorColor = Color(hex: "30D158")
 }
 
 struct ScoreboardPalette {
@@ -132,7 +395,7 @@ struct ScoreboardPalette {
 
 /// Per-project V2 appearance values. Colors are persisted as hex strings so
 /// the profile stays local, Codable, and independent of SwiftUI's Color type.
-struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
+nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
     var themeCode: String
     var team0Hex: String
     var team1Hex: String
@@ -143,11 +406,27 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
     var foregroundHex: String
     var backgroundHex: String
     var autoContrast: Bool
+    /// V2 槽位化扩展（安卓互通字段）。nil = 尚未用新编辑器保存过，读旧扁平字段。
+    var panels: [ScoreboardStylePanelV2]?
+    var elements: [ScoreboardStyleElementV2]?
+    var serverIndicatorColorHex: String?
 
     static func `default`(
         for styleID: ScoreboardStyleID,
         theme: ScoreboardTheme = .defaultTheme
     ) -> Self {
+        guard let capabilities = ScoreboardStyleV2Registry.capabilities(for: styleID) else {
+            // 未注册样式编辑的项目：维持旧扁平默认（无 V2 槽位数据）。
+            return legacyFlatDefault(theme: theme)
+        }
+        if capabilities.slotKeys.contains(.sideCenter) {
+            return doudizhuDefault(theme: theme, capabilities: capabilities)
+        }
+        return genericDefault(theme: theme, capabilities: capabilities)
+    }
+
+    /// 未注册样式编辑项目的旧扁平默认（历史行为，保持不变）。
+    private static func legacyFlatDefault(theme: ScoreboardTheme) -> Self {
         let panels: (String, String, String, String, String)
         switch theme {
         case .defaultTheme:
@@ -172,6 +451,8 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
                 team0TextHex: "FF3B30", team1TextHex: "007AFF", centerTextHex: "4CAF50",
                 foregroundHex: "111111", backgroundHex: "FFFFFF", autoContrast: false
             )
+        case .ddzClassic, .ddzProDark, .ddzElectronic, .ddzRetro, .ddzBrb, .ddzWrb:
+            return legacyFlatDefault(theme: .defaultTheme)
         }
         return Self(
             themeCode: theme.rawValue,
@@ -187,10 +468,177 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         )
     }
 
+    /// 1:1 对齐安卓 defaultScoreboardStyleProfileV2（通用双侧项目）：
+    /// V2 panels（左右槽位）+ 每槽位文字色 + 渲染键并集（brb/wrb）。
+    private static func genericDefault(
+        theme: ScoreboardTheme,
+        capabilities: ScoreboardStyleEditCapabilities
+    ) -> Self {
+        // ddz_* 主题码不属于通用项目，回落 default（对齐安卓 SUPPORTED_SCOREBOARD_THEMES 校验）。
+        let normalizedTheme: ScoreboardTheme = theme.isDoudizhuTheme ? .defaultTheme : theme
+        let isBrbWrb = normalizedTheme == .brb || normalizedTheme == .wrb
+        let leftPanel: String
+        let rightPanel: String
+        switch normalizedTheme {
+        case .wrb:
+            leftPanel = "FFFFFF"; rightPanel = "FFFFFF"
+        case .brb:
+            leftPanel = "000000"; rightPanel = "000000"
+        default:
+            leftPanel = normalizedTheme.leftPanelHex
+            rightPanel = normalizedTheme.rightPanelHex
+        }
+
+        let slotTextColors = genericSlotTextColors(normalizedTheme, slotKeys: capabilities.slotKeys)
+        // wrb/brb：可编辑键与渲染键的并集全部 MANUAL 红/蓝，避免白底回退白字不可见
+        // （对齐安卓 brbWrbProfileElements + BRB_WRB_DISPLAY_ELEMENT_KEYS）。
+        var elementKeys = capabilities.elementKeys
+        if isBrbWrb {
+            for key in [ScoreboardStyleElementKeyV2.teamName, .playerName, .mainScore, .gameScore, .setScore, .setGameScore]
+            where !elementKeys.contains(key) {
+                elementKeys.append(key)
+            }
+        }
+        let elements = elementKeys.map { key in
+            ScoreboardStyleElementV2(elementKey: key, textColors: slotTextColors)
+        }
+
+        var profile = Self(
+            themeCode: normalizedTheme.rawValue,
+            team0Hex: leftPanel,
+            team1Hex: rightPanel,
+            centerHex: normalizedTheme.centerPanelHex,
+            team0TextHex: "FFFFFF",
+            team1TextHex: "FFFFFF",
+            centerTextHex: "FFFFFF",
+            foregroundHex: normalizedTheme.foregroundHex,
+            backgroundHex: normalizedTheme.backgroundHex,
+            autoContrast: !isBrbWrb
+        )
+        profile.panels = [
+            ScoreboardStylePanelV2(slotKey: .sideLeft, backgroundColorHex: leftPanel),
+            ScoreboardStylePanelV2(slotKey: .sideRight, backgroundColorHex: rightPanel)
+        ]
+        profile.elements = elements
+        profile.serverIndicatorColorHex = "30D158"
+        profile.mirrorFlatTextFromElements()
+        return profile
+    }
+
+    /// 通用主题的每槽位文字色（对齐安卓 brbWrbTextColors）：
+    /// pro_dark 全槽位固定白字；brb/wrb 左红右蓝；其余 AUTO 自动对比。
+    private static func genericSlotTextColors(
+        _ theme: ScoreboardTheme,
+        slotKeys: [ScoreboardStyleSlotKeyV2]
+    ) -> [ScoreboardStyleTextColorV2] {
+        if theme == .proDark {
+            return slotKeys.map {
+                ScoreboardStyleTextColorV2(slotKey: $0, colorMode: .manual, colorHex: "FFFFFF")
+            }
+        }
+        if theme == .brb || theme == .wrb {
+            return slotKeys.map {
+                ScoreboardStyleTextColorV2(
+                    slotKey: $0,
+                    colorMode: .manual,
+                    colorHex: $0 == .sideLeft ? "FF0000" : "1E5BFF"
+                )
+            }
+        }
+        return slotKeys.map {
+            ScoreboardStyleTextColorV2(slotKey: $0, colorMode: .auto, colorHex: "FFFFFF")
+        }
+    }
+
+    /// 1:1 对齐安卓 defaultDoudizhuStyleProfileV2：三面板（左/中/右）+ 每槽位文字色。
+    private static func doudizhuDefault(
+        theme: ScoreboardTheme,
+        capabilities: ScoreboardStyleEditCapabilities
+    ) -> Self {
+        let normalizedTheme = ScoreboardTheme.doudizhuNormalized(theme.rawValue)
+        let leftPanel = normalizedTheme.leftPanelHex
+        let centerPanel = normalizedTheme.centerPanelHex
+        let rightPanel = normalizedTheme.rightPanelHex
+
+        var profile = Self(
+            themeCode: normalizedTheme.rawValue,
+            team0Hex: leftPanel,
+            team1Hex: rightPanel,
+            centerHex: centerPanel,
+            team0TextHex: "FFFFFF",
+            team1TextHex: "FFFFFF",
+            centerTextHex: "FFFFFF",
+            foregroundHex: normalizedTheme.foregroundHex,
+            backgroundHex: normalizedTheme.backgroundHex,
+            autoContrast: false
+        )
+        profile.panels = [
+            ScoreboardStylePanelV2(slotKey: .sideLeft, backgroundColorHex: leftPanel),
+            ScoreboardStylePanelV2(slotKey: .sideCenter, backgroundColorHex: centerPanel),
+            ScoreboardStylePanelV2(slotKey: .sideRight, backgroundColorHex: rightPanel)
+        ]
+        profile.elements = capabilities.elementKeys.map { key in
+            ScoreboardStyleElementV2(
+                elementKey: key,
+                textColors: capabilities.slotKeys.map { slot in
+                    doudizhuSlotTextColor(normalizedTheme.rawValue, slot: slot, elementKey: key)
+                }
+            )
+        }
+        profile.serverIndicatorColorHex = "30D158"
+        profile.mirrorFlatTextFromElements()
+        return profile
+    }
+
+    /// 斗地主主题的每槽位文字色（对齐安卓 doudizhuSlotTextColor）：
+    /// 专业深色固定白字，ddz_brb/ddz_wrb 左红/中绿/右蓝，ddz_retro 主分绿，其余走 AUTO。
+    private static func doudizhuSlotTextColor(
+        _ themeCode: String,
+        slot: ScoreboardStyleSlotKeyV2,
+        elementKey: ScoreboardStyleElementKeyV2
+    ) -> ScoreboardStyleTextColorV2 {
+        let manual: Bool
+        switch themeCode {
+        case "ddz_classic":
+            manual = slot == .sideCenter && (elementKey == .teamName || elementKey == .mainScore)
+        case "ddz_pro_dark", "ddz_brb", "ddz_wrb":
+            manual = elementKey == .teamName || elementKey == .mainScore
+        case "ddz_retro":
+            manual = elementKey == .mainScore
+        default:
+            manual = false
+        }
+        guard manual else {
+            return ScoreboardStyleTextColorV2(slotKey: slot, colorMode: .auto, colorHex: "FFFFFF")
+        }
+        let color: String
+        switch themeCode {
+        case "ddz_classic", "ddz_pro_dark":
+            color = "FFFFFF"
+        case "ddz_retro":
+            color = "4CAF50"
+        case "ddz_wrb":
+            switch slot {
+            case .sideLeft: color = "FF0000"
+            case .sideCenter: color = "1B5E20"
+            default: color = "1E5BFF"
+            }
+        default: // ddz_brb
+            switch slot {
+            case .sideLeft: color = "FF0000"
+            case .sideCenter: color = "34C759"
+            default: color = "1E5BFF"
+            }
+        }
+        return ScoreboardStyleTextColorV2(slotKey: slot, colorMode: .manual, colorHex: color)
+    }
+
     private enum CodingKeys: String, CodingKey {
         case themeCode, team0Hex, team1Hex, centerHex
         case team0TextHex, team1TextHex, centerTextHex
         case foregroundHex, backgroundHex, autoContrast
+        case panels, elements
+        case serverIndicatorColorHex = "serverIndicatorColor"
     }
 
     init(from decoder: Decoder) throws {
@@ -205,6 +653,9 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         team0TextHex = try values.decodeIfPresent(String.self, forKey: .team0TextHex) ?? foregroundHex
         team1TextHex = try values.decodeIfPresent(String.self, forKey: .team1TextHex) ?? foregroundHex
         centerTextHex = try values.decodeIfPresent(String.self, forKey: .centerTextHex) ?? foregroundHex
+        panels = try values.decodeIfPresent([ScoreboardStylePanelV2].self, forKey: .panels)
+        elements = try values.decodeIfPresent([ScoreboardStyleElementV2].self, forKey: .elements)
+        serverIndicatorColorHex = try values.decodeIfPresent(String.self, forKey: .serverIndicatorColorHex)
     }
 
     init(
@@ -217,7 +668,10 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         centerTextHex: String,
         foregroundHex: String,
         backgroundHex: String,
-        autoContrast: Bool
+        autoContrast: Bool,
+        panels: [ScoreboardStylePanelV2]? = nil,
+        elements: [ScoreboardStyleElementV2]? = nil,
+        serverIndicatorColorHex: String? = nil
     ) {
         self.themeCode = themeCode
         self.team0Hex = team0Hex
@@ -229,6 +683,9 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         self.foregroundHex = foregroundHex
         self.backgroundHex = backgroundHex
         self.autoContrast = autoContrast
+        self.panels = panels
+        self.elements = elements
+        self.serverIndicatorColorHex = serverIndicatorColorHex
     }
 
     func color(for slot: ScoreboardStyleSlot) -> Color {
@@ -254,7 +711,7 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         case .center: configured = centerTextHex
         }
         guard autoContrast else { return configured }
-        return Self.autoTextHex(for: panelHex(for: slot))
+        return resolvedAutoTextHex(forSlot: ScoreboardStyleSlotKeyV2.legacySlot(for: slot))
     }
 
     func panelHex(for slot: ScoreboardStyleSlot) -> String {
@@ -265,7 +722,7 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         }
     }
 
-    static func normalizedHex(_ value: String) -> String? {
+    nonisolated static func normalizedHex(_ value: String) -> String? {
         let raw = value.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "#", with: "")
         guard raw.count == 6, raw.allSatisfy({ $0.isHexDigit }) else { return nil }
         return raw.uppercased()
@@ -284,12 +741,542 @@ struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         let whiteContrast = 1.05 / (luminance + 0.05)
         return blackContrast > whiteContrast ? "111111" : "FFFFFF"
     }
+
+    // MARK: V2 槽位化访问（编辑器/渲染桥接）
+
+    /// 是否包含新编辑器写入的数据。
+    var hasV2StyleData: Bool {
+        panels != nil || elements != nil || serverIndicatorColorHex != nil
+    }
+
+    /// 面板背景：优先 V2 panels，缺失回落旧扁平字段。
+    func slotBackgroundHex(_ slotKey: ScoreboardStyleSlotKeyV2) -> String {
+        if let panel = panels?.first(where: { $0.slotKey == slotKey }) {
+            return panel.backgroundColorHex
+        }
+        guard let legacy = slotKey.legacySlot else { return "000000" }
+        return panelHex(for: legacy)
+    }
+
+    /// 自动对比文字色（1:1 对齐安卓 resolvedAutoTextColor）：
+    /// pro_dark 系固定白字；default 主题左右面板等于主题基色时固定白字
+    /// （纯红/纯蓝上 WCAG 数学会误选黑色，与主题设计不符）。
+    func resolvedAutoTextHex(forSlot slotKey: ScoreboardStyleSlotKeyV2) -> String {
+        let background = slotBackgroundHex(slotKey)
+        if themeCode == "pro_dark" || themeCode == "ddz_pro_dark" {
+            return "FFFFFF"
+        }
+        if themeCode == "default" {
+            let defaultBackground: String?
+            switch slotKey {
+            case .sideLeft: defaultBackground = ScoreboardTheme.defaultTheme.leftPanelHex
+            case .sideRight: defaultBackground = ScoreboardTheme.defaultTheme.rightPanelHex
+            default: defaultBackground = nil
+            }
+            if let defaultBackground,
+               Self.normalizedHex(background) == Self.normalizedHex(defaultBackground) {
+                return "FFFFFF"
+            }
+        }
+        return Self.autoTextHex(for: background)
+    }
+
+    /// 用 mainScore 元素的解析结果镜像旧扁平文字字段（默认样式构造辅助）。
+    mutating func mirrorFlatTextFromElements() {
+        func flatText(_ slotKey: ScoreboardStyleSlotKeyV2) -> String? {
+            guard let color = elements?.first(where: { $0.elementKey == .mainScore })?
+                .textColors.first(where: { $0.slotKey == slotKey }) else {
+                return nil
+            }
+            return color.colorMode == .manual ? color.colorHex : resolvedAutoTextHex(forSlot: slotKey)
+        }
+        if let value = flatText(.sideLeft) { team0TextHex = value }
+        if let value = flatText(.sideRight) { team1TextHex = value }
+        if let value = flatText(.sideCenter) { centerTextHex = value }
+    }
+
+    /// 元素文字色解析：元素 manual 色优先；auto/缺失回落旧扁平 auto 对比。
+    func resolvedElementTextHex(
+        _ elementKey: ScoreboardStyleElementKeyV2,
+        slotKey: ScoreboardStyleSlotKeyV2
+    ) -> String {
+        if let entry = elements?.first(where: { $0.elementKey == elementKey }),
+           let color = entry.textColors.first(where: { $0.slotKey == slotKey }) {
+            switch color.colorMode {
+            case .manual:
+                return color.colorHex
+            case .auto:
+                return resolvedAutoTextHex(forSlot: slotKey)
+            }
+        }
+        guard let legacy = slotKey.legacySlot else {
+            return resolvedAutoTextHex(forSlot: slotKey)
+        }
+        return resolvedTextHex(for: legacy)
+    }
+
+    /// 设置面板背景；同时镜像旧扁平字段，保证未切换的旧渲染路径立即生效。
+    func withPanelBackground(_ hex: String, for slotKey: ScoreboardStyleSlotKeyV2) -> Self {
+        var copy = self
+        let normalized = Self.normalizedHex(hex) ?? "FFFFFF"
+        var list = copy.panels ?? []
+        if let index = list.firstIndex(where: { $0.slotKey == slotKey }) {
+            list[index].backgroundColorHex = normalized
+        } else {
+            list.append(ScoreboardStylePanelV2(slotKey: slotKey, backgroundColorHex: normalized))
+        }
+        copy.panels = list
+        switch slotKey.legacySlot {
+        case .team0: copy.team0Hex = normalized
+        case .team1: copy.team1Hex = normalized
+        case .center: copy.centerHex = normalized
+        case .none: break
+        }
+        return copy
+    }
+
+    /// 设置元素在槽位上的文字颜色。
+    func withElementTextColor(
+        _ elementKey: ScoreboardStyleElementKeyV2,
+        slotKey: ScoreboardStyleSlotKeyV2,
+        mode: ScoreboardStyleColorModeV2,
+        colorHex: String
+    ) -> Self {
+        var copy = self
+        let normalized = Self.normalizedHex(colorHex) ?? "FFFFFF"
+        var list = copy.elements ?? []
+        let newColor = ScoreboardStyleTextColorV2(slotKey: slotKey, colorMode: mode, colorHex: normalized)
+        guard let index = list.firstIndex(where: { $0.elementKey == elementKey }) else {
+            list.append(ScoreboardStyleElementV2(elementKey: elementKey, textColors: [newColor]))
+            copy.elements = list
+            return copy
+        }
+        var colors = list[index].textColors
+        if let colorIndex = colors.firstIndex(where: { $0.slotKey == slotKey }) {
+            colors[colorIndex] = newColor
+        } else {
+            colors.append(newColor)
+        }
+        list[index].textColors = colors
+        copy.elements = list
+        return copy
+    }
+
+    /// 把元素文字配置传播到同侧其余元素（对齐安卓 applyTextColorToSameSide）。
+    func applyingTextColorToSameSide(
+        elementKey: ScoreboardStyleElementKeyV2,
+        slotKey: ScoreboardStyleSlotKeyV2,
+        capabilities: ScoreboardStyleEditCapabilities
+    ) -> Self {
+        guard let source = elements?.first(where: { $0.elementKey == elementKey })?
+            .textColors.first(where: { $0.slotKey == slotKey }) else {
+            return self
+        }
+        var copy = self
+        for key in capabilities.sideElementKeys where key != elementKey {
+            copy = copy.withElementTextColor(
+                key,
+                slotKey: slotKey,
+                mode: source.colorMode,
+                colorHex: source.colorHex
+            )
+        }
+        return copy
+    }
+
+    /// 归一化：丢弃非法色值/空配置（保存前调用，对齐安卓 normalizeScoreboardStyleProfileV2）。
+    func normalized() -> Self {
+        var copy = self
+        if var list = copy.panels {
+            list = list.compactMap { panel in
+                guard let hex = Self.normalizedHex(panel.backgroundColorHex) else { return nil }
+                var cleaned = panel
+                cleaned.backgroundColorHex = hex
+                return cleaned
+            }
+            copy.panels = list.isEmpty ? nil : list
+        }
+        if var list = copy.elements {
+            list = list.compactMap { entry in
+                var cleaned = entry
+                cleaned.textColors = entry.textColors.compactMap { color in
+                    guard let hex = Self.normalizedHex(color.colorHex) else { return nil }
+                    var cleanedColor = color
+                    cleanedColor.colorHex = hex
+                    return cleanedColor
+                }
+                return cleaned.textColors.isEmpty ? nil : cleaned
+            }
+            copy.elements = list.isEmpty ? nil : list
+        }
+        if let indicator = copy.serverIndicatorColorHex {
+            copy.serverIndicatorColorHex = Self.normalizedHex(indicator)
+        }
+        return copy
+    }
 }
 
-enum ScoreboardStyleSlot: String, Codable, Sendable {
+nonisolated enum ScoreboardStyleSlot: String, Codable, Sendable {
     case team0
     case team1
     case center
+}
+
+// MARK: - V2 槽位化样式模型（对齐安卓 ScoreboardStyleV2.kt）
+
+/// camelCase ↔ snake_case（sideLeft ↔ side_left），兼容安卓 JSON 双写法。
+private extension String {
+    var snakeCased: String {
+        map { $0.isUppercase ? "_\($0.lowercased())" : String($0) }.joined()
+    }
+
+    var camelCased: String {
+        let parts = split(separator: "_", omittingEmptySubsequences: true)
+        guard let first = parts.first else { return self }
+        return parts.dropFirst().reduce(String(first)) {
+            $0 + $1.prefix(1).uppercased() + $1.dropFirst()
+        }
+    }
+}
+
+/// 视觉槽位：双侧 + 中间（斗地主等）+ 多人布局 player_N。字符串与安卓互通。
+nonisolated enum ScoreboardStyleSlotKeyV2: String, Codable, Sendable, CaseIterable {
+    case sideLeft = "side_left"
+    case sideCenter = "side_center"
+    case sideRight = "side_right"
+    case player0 = "player_0"
+    case player1 = "player_1"
+    case player2 = "player_2"
+    case player3 = "player_3"
+    case player4 = "player_4"
+    case player5 = "player_5"
+    case player6 = "player_6"
+    case player7 = "player_7"
+    case player8 = "player_8"
+
+    /// 兼容安卓 camelCase / snake_case 双写法（sideLeft ↔ side_left）。
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        if let value = Self.flexible(raw) {
+            self = value
+        } else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "Unknown style slot key: \(raw)"
+            ))
+        }
+    }
+
+    nonisolated static func flexible(_ raw: String) -> Self? {
+        if let value = Self(rawValue: raw) { return value }
+        return Self(rawValue: raw.snakeCased)
+    }
+
+    /// 双侧槽位到既有 ScoreboardStyleSlot 的映射（渲染兼容旧扁平字段）。
+    var legacySlot: ScoreboardStyleSlot? {
+        switch self {
+        case .sideLeft: return .team0
+        case .sideRight: return .team1
+        case .sideCenter: return .center
+        default: return nil
+        }
+    }
+
+    static func legacySlot(for slot: ScoreboardStyleSlot) -> Self {
+        switch slot {
+        case .team0: return .sideLeft
+        case .team1: return .sideRight
+        case .center: return .sideCenter
+        }
+    }
+}
+
+/// 可定制文字元素（对齐安卓 ScoreboardStyleElementKey）。
+nonisolated enum ScoreboardStyleElementKeyV2: String, Codable, Sendable, CaseIterable {
+    case matchTitle
+    case teamName
+    case playerName
+    case mainScore
+    case setScore
+    case gameScore
+    case setGameScore
+
+    /// 兼容安卓 snake_case JSON（main_score ↔ mainScore）。
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        if let value = Self(rawValue: raw) {
+            self = value
+        } else if let value = Self(rawValue: raw.camelCased) {
+            self = value
+        } else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "Unknown style element key: \(raw)"
+            ))
+        }
+    }
+}
+
+nonisolated enum ScoreboardStyleColorModeV2: String, Codable, Sendable {
+    case auto
+    case manual
+}
+
+/// 某元素在某个槽位上的文字颜色配置。
+nonisolated struct ScoreboardStyleTextColorV2: Codable, Equatable, Sendable {
+    var slotKey: ScoreboardStyleSlotKeyV2
+    var colorMode: ScoreboardStyleColorModeV2
+    /// colorMode == manual 时生效（不带 # 的 6 位大写 hex）。
+    var colorHex: String
+
+    init(slotKey: ScoreboardStyleSlotKeyV2, colorMode: ScoreboardStyleColorModeV2, colorHex: String) {
+        self.slotKey = slotKey
+        self.colorMode = colorMode
+        self.colorHex = colorHex
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case slotKey
+        case colorMode
+        case colorHex
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        slotKey = (try? values.decode(ScoreboardStyleSlotKeyV2.self, forKey: .slotKey)) ?? .sideLeft
+        colorMode = (try? values.decode(ScoreboardStyleColorModeV2.self, forKey: .colorMode)) ?? .auto
+        // 非法色值保留原样，交由 normalized() 统一清洗（对齐安卓 normalize 行为）。
+        colorHex = (try? values.decodeIfPresent(String.self, forKey: .colorHex)) ?? "FFFFFF"
+    }
+}
+
+nonisolated struct ScoreboardStylePanelV2: Codable, Equatable, Sendable {
+    var slotKey: ScoreboardStyleSlotKeyV2
+    var backgroundColorHex: String
+
+    private enum CodingKeys: String, CodingKey {
+        case slotKey
+        case backgroundColorHex = "backgroundColor"
+    }
+}
+
+nonisolated struct ScoreboardStyleElementV2: Codable, Equatable, Sendable {
+    var elementKey: ScoreboardStyleElementKeyV2
+    var textColors: [ScoreboardStyleTextColorV2]
+}
+
+/// 编辑能力（对齐安卓 ScoreboardStyleEditCapabilities）：按项目声明可编辑元素/槽位。
+nonisolated struct ScoreboardStyleEditCapabilities: Sendable, Equatable {
+    var elementKeys: [ScoreboardStyleElementKeyV2]
+    var slotKeys: [ScoreboardStyleSlotKeyV2]
+    var supportsServerIndicator: Bool
+    var supportsTheme: Bool
+    var supportsFont: Bool
+    /// 跨槽位全局元素（如斯诺克 matchTitle），取色/传播时同时写左右。
+    var globalElementKeys: Set<ScoreboardStyleElementKeyV2>
+
+    var hasEditableBackground: Bool { !slotKeys.isEmpty }
+    var sideElementKeys: [ScoreboardStyleElementKeyV2] {
+        elementKeys.filter { !globalElementKeys.contains($0) }
+    }
+    func canEditBackground(_ slotKey: ScoreboardStyleSlotKeyV2) -> Bool {
+        slotKeys.contains(slotKey)
+    }
+
+    static func capabilities(
+        elementKeys: [ScoreboardStyleElementKeyV2],
+        slotKeys: [ScoreboardStyleSlotKeyV2] = [.sideLeft, .sideRight],
+        supportsServerIndicator: Bool = true,
+        supportsTheme: Bool = true,
+        supportsFont: Bool = true,
+        globalElementKeys: Set<ScoreboardStyleElementKeyV2> = []
+    ) -> Self {
+        Self(
+            elementKeys: elementKeys,
+            slotKeys: slotKeys,
+            supportsServerIndicator: supportsServerIndicator,
+            supportsTheme: supportsTheme,
+            supportsFont: supportsFont,
+            globalElementKeys: globalElementKeys
+        )
+    }
+}
+
+/// 能力注册表：key = ScoreboardStyleID rawValue（单双打各自独立），1:1 对齐安卓 ScoreboardStyleV2Registry。
+nonisolated enum ScoreboardStyleV2Registry {
+    private static let setBased: [ScoreboardStyleElementKeyV2] = [.teamName, .mainScore, .setScore]
+    private static let plain: [ScoreboardStyleElementKeyV2] = [.teamName, .mainScore]
+    private static let doubles: [ScoreboardStyleElementKeyV2] = [.playerName, .mainScore, .setGameScore]
+    private static let tennis: [ScoreboardStyleElementKeyV2] = [.teamName, .mainScore, .gameScore, .setScore]
+    private static let flexibleSinglesAndDoubles: [ScoreboardStyleElementKeyV2] =
+        [.teamName, .playerName, .mainScore, .gameScore, .setScore, .setGameScore]
+    private static let setBasedOrDoubles: [ScoreboardStyleElementKeyV2] =
+        [.teamName, .playerName, .mainScore, .setScore, .setGameScore]
+
+    private static let capabilities: [String: ScoreboardStyleEditCapabilities] = {
+        var map: [String: ScoreboardStyleEditCapabilities] = [:]
+        for identifier in [
+            "pingpong", "badminton", "volleyball", "air_volleyball",
+            "beach_volleyball", "squash", "pickleball", "foosball"
+        ] {
+            map[identifier] = .capabilities(elementKeys: setBased)
+        }
+        map["shuttlecock"] = .capabilities(elementKeys: setBasedOrDoubles, supportsServerIndicator: false)
+        map["doudizhu"] = .capabilities(
+            elementKeys: plain,
+            slotKeys: [.sideLeft, .sideCenter, .sideRight],
+            supportsServerIndicator: false
+        )
+        for identifier in [
+            "pingpong_doubles", "badminton_doubles", "tennis_doubles",
+            "pickleball_doubles", "padel", "foosball_doubles"
+        ] {
+            map[identifier] = .capabilities(elementKeys: doubles)
+        }
+        map["soft_tennis"] = .capabilities(elementKeys: flexibleSinglesAndDoubles)
+        map["tennis"] = .capabilities(elementKeys: tennis)
+        map["archery_dual"] = .capabilities(elementKeys: setBased)
+        map["snooker"] = .capabilities(
+            elementKeys: [.matchTitle] + setBased,
+            globalElementKeys: [.matchTitle]
+        )
+        map["guandan"] = .capabilities(elementKeys: plain)
+        map["shengji"] = .capabilities(elementKeys: plain)
+        for identifier in [
+            "billiards", "football", "football_5v5", "boxing", "eight_ball", "simple_score"
+        ] {
+            map[identifier] = .capabilities(elementKeys: plain, supportsServerIndicator: false)
+        }
+        return map
+    }()
+
+    static func capabilities(for styleID: ScoreboardStyleID) -> ScoreboardStyleEditCapabilities? {
+        capabilities[styleID.rawValue]
+    }
+
+    static func isEnabled(_ styleID: ScoreboardStyleID) -> Bool {
+        capabilities[styleID.rawValue] != nil
+    }
+
+    static var enabledStyleIDs: Set<ScoreboardStyleID> {
+        Set(capabilities.keys.map(ScoreboardStyleID.init(rawValue:)))
+    }
+}
+
+/// 颜色数学（对齐安卓 ScoreboardStyleColorMath.kt）。
+nonisolated enum ScoreboardStyleColorMath {
+    /// WCAG 对比度（0...21）。
+    static func contrastRatio(_ hexA: String, _ hexB: String) -> Double {
+        func luminance(_ hex: String) -> Double? {
+            guard let value = ScoreboardStyleProfileV2.normalizedHex(hex).flatMap({ Int($0, radix: 16) }) else {
+                return nil
+            }
+            func linear(_ channel: Int) -> Double {
+                let component = Double(channel) / 255
+                return component <= 0.03928 ? component / 12.92 : pow((component + 0.055) / 1.055, 2.4)
+            }
+            return 0.2126 * linear((value >> 16) & 0xFF)
+                + 0.7152 * linear((value >> 8) & 0xFF)
+                + 0.0722 * linear(value & 0xFF)
+        }
+        guard let la = luminance(hexA), let lb = luminance(hexB) else { return 1 }
+        let lighter = max(la, lb), darker = min(la, lb)
+        return (lighter + 0.05) / (darker + 0.05)
+    }
+
+    /// 元素面板红字警示阈值（安卓 styleIsReadableTextColor）。
+    static func isReadableTextColor(_ textHex: String, on backgroundHex: String) -> Bool {
+        contrastRatio(textHex, backgroundHex) >= 3.0
+    }
+
+    struct HSV {
+        var hue: Double // 0...360
+        var saturation: Double // 0...1
+        var value: Double // 0...1
+    }
+
+    static func hsvToHex(_ hsv: HSV) -> String {
+        let h = (hsv.hue.truncatingRemainder(dividingBy: 360) + 360)
+            .truncatingRemainder(dividingBy: 360) / 60
+        let s = min(max(hsv.saturation, 0), 1)
+        let v = min(max(hsv.value, 0), 1)
+        let c = v * s
+        let x = c * (1 - abs(h.truncatingRemainder(dividingBy: 2) - 1))
+        let m = v - c
+        let rgb: [Double]
+        switch h {
+        case 0..<1: rgb = [c, x, 0]
+        case 1..<2: rgb = [x, c, 0]
+        case 2..<3: rgb = [0, c, x]
+        case 3..<4: rgb = [0, x, c]
+        case 4..<5: rgb = [x, 0, c]
+        default: rgb = [c, 0, x]
+        }
+        let hex = rgb.map { String(Int(round(($0 + m) * 255)), radix: 16) }
+            .map { $0.count == 1 ? "0" + $0 : $0 }
+            .joined()
+        return hex.uppercased()
+    }
+
+    static func colorToHsv(_ hex: String) -> HSV? {
+        guard let value = ScoreboardStyleProfileV2.normalizedHex(hex).flatMap({ Int($0, radix: 16) }) else {
+            return nil
+        }
+        let r = Double((value >> 16) & 0xFF) / 255
+        let g = Double((value >> 8) & 0xFF) / 255
+        let b = Double(value & 0xFF) / 255
+        let maxValue = max(r, g, b), minValue = min(r, g, b)
+        let delta = maxValue - minValue
+        let hue: Double
+        if delta == 0 {
+            hue = 0
+        } else if maxValue == r {
+            hue = 60 * (((g - b) / delta).truncatingRemainder(dividingBy: 6))
+        } else if maxValue == g {
+            hue = 60 * ((b - r) / delta + 2)
+        } else {
+            hue = 60 * ((r - g) / delta + 4)
+        }
+        return HSV(
+            hue: hue < 0 ? hue + 360 : hue,
+            saturation: maxValue == 0 ? 0 : delta / maxValue,
+            value: maxValue
+        )
+    }
+
+    /// 色轮坐标 → hex：中心白、边缘饱和，角度即色相。pointX/pointY 相对半径归一（-1...1）。
+    static func colorWheelPointToHex(pointX: Double, pointY: Double) -> String {
+        let distance = sqrt(pointX * pointX + pointY * pointY)
+        let normalized = min(distance, 1)
+        var hue = atan2(pointY, pointX) * 180 / .pi
+        if hue < 0 { hue += 360 }
+        return hsvToHex(HSV(hue: hue, saturation: normalized, value: 1))
+    }
+
+    /// 线性插值两个 hex（t = 0...1）。
+    static func mixHex(_ from: String, _ to: String, t: Double) -> String? {
+        guard let a = ScoreboardStyleProfileV2.normalizedHex(from).flatMap({ Int($0, radix: 16) }),
+              let b = ScoreboardStyleProfileV2.normalizedHex(to).flatMap({ Int($0, radix: 16) }) else {
+            return nil
+        }
+        let clamped = min(max(t, 0), 1)
+        func mix(_ shift: Int) -> Int {
+            let ca = Double((a >> shift) & 0xFF)
+            let cb = Double((b >> shift) & 0xFF)
+            return Int(round(ca + (cb - ca) * clamped))
+        }
+        let hex = String(max(min(mix(16), 255), 0), radix: 16).leftPaddedTo(2)
+            + String(max(min(mix(8), 255), 0), radix: 16).leftPaddedTo(2)
+            + String(max(min(mix(0), 255), 0), radix: 16).leftPaddedTo(2)
+        return hex.uppercased()
+    }
+}
+
+private extension String {
+    /// "f" → "0f"，用于拼 RGB hex。
+    func leftPaddedTo(_ length: Int) -> String {
+        count >= length ? self : String(repeating: "0", count: length - count) + self
+    }
 }
 
 struct ScoreboardStyleIdentity: Equatable, Sendable {
@@ -347,7 +1334,7 @@ enum ScoreboardFont: String, CaseIterable, Identifiable, Codable, Sendable {
     }
 }
 
-struct ScoreboardStyleID: RawRepresentable, Hashable, Codable, Sendable {
+nonisolated struct ScoreboardStyleID: RawRepresentable, Hashable, Codable, Sendable {
     let rawValue: String
 
     nonisolated init(rawValue: String) {
@@ -537,6 +1524,31 @@ struct ScoreboardAppearanceSnapshot: Equatable {
     var palette: ScoreboardPalette {
         theme.palette.applying(styleProfileV2)
     }
+
+    // MARK: V2 渲染取色（对齐安卓渲染读 profile 槽位化字段）
+
+    /// 元素级文字色：V2 元素配置优先；缺失时回落面板级解析色（含 auto 对比）。
+    /// slotKey 为逻辑侧（.sideLeft/.sideRight），渲染端负责换边重映射。
+    func elementForeground(
+        _ elementKey: ScoreboardStyleElementKeyV2,
+        slotKey: ScoreboardStyleSlotKeyV2
+    ) -> Color {
+        Color(hex: styleProfileV2.resolvedElementTextHex(elementKey, slotKey: slotKey))
+    }
+
+    /// 元素是否配置过 V2 文字色。未配置时渲染端应保持旧默认（如 70% 透明度）。
+    func hasElementColor(
+        _ elementKey: ScoreboardStyleElementKeyV2,
+        slotKey: ScoreboardStyleSlotKeyV2
+    ) -> Bool {
+        styleProfileV2.elements?.first(where: { $0.elementKey == elementKey })?
+            .textColors.first(where: { $0.slotKey == slotKey }) != nil
+    }
+
+    /// 发球指示器颜色（未配置时回落默认绿 30D158）。
+    var serverIndicatorColor: Color {
+        Color(hex: styleProfileV2.serverIndicatorColorHex ?? "30D158")
+    }
 }
 
 enum ScoreboardFontMetric: String, CaseIterable, Sendable {
@@ -564,10 +1576,6 @@ struct ScoreboardDisplaySettingsView: View {
     let session: ScoreboardTypographySession
     let metrics: [ScoreboardFontMetric]
     var onClose: () -> Void
-    @State private var styleDraft = ScoreboardStyleProfileV2.default(
-        for: ScoreboardStyleID(rawValue: "default")
-    )
-    @State private var recentColors: [String] = []
     @State private var matchTimeDraft = false
 
     private var isLargeScreen: Bool {
@@ -596,8 +1604,6 @@ struct ScoreboardDisplaySettingsView: View {
         .ignoresSafeArea()
         .onAppear {
             session.beginPreview()
-            styleDraft = PreferencesManager.shared.scoreboardStyleProfileV2(for: session.styleID)
-            recentColors = PreferencesManager.shared.scoreboardRecentStyleColors
             matchTimeDraft = matchClockSession?.isVisible ?? false
         }
         .onDisappear {
@@ -616,7 +1622,6 @@ struct ScoreboardDisplaySettingsView: View {
                     if matchClockSession != nil {
                         matchTimeSection
                     }
-                    styleSection
                     fontSection
                     fontSizeSection
                 }
@@ -651,110 +1656,6 @@ struct ScoreboardDisplaySettingsView: View {
         .padding(.vertical, 20)
     }
 
-    private var styleSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(NSLocalizedString("scoreboard_style_editor", value: "样式与颜色", comment: ""))
-                .font(.system(size: isLargeScreen ? 20 : 16, weight: .medium))
-                .foregroundStyle(.white)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(ScoreboardTheme.allCases) { theme in
-                        let selected = styleDraft.themeCode == theme.rawValue
-                        Button {
-                            styleDraft = .default(for: session.styleID, theme: theme)
-                        } label: {
-                            Text(theme.localizedTitle)
-                                .font(.system(size: isLargeScreen ? 16 : 13, weight: .medium))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 12)
-                                .frame(height: isLargeScreen ? 42 : 36)
-                                .background(selected ? Theme.primary.opacity(0.45) : Color.white.opacity(0.12))
-                                .clipShape(Capsule())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-
-            VStack(spacing: 9) {
-                styleColorRow(
-                    title: NSLocalizedString("scoreboard_style_team0", value: "左侧面板", comment: ""),
-                    value: binding(for: .team0, text: false)
-                )
-                styleColorRow(
-                    title: NSLocalizedString("scoreboard_style_team1", value: "右侧面板", comment: ""),
-                    value: binding(for: .team1, text: false)
-                )
-                if session.styleID.rawValue == GameType.doudizhu.canonicalScoreboardIdentifier {
-                    styleColorRow(
-                        title: NSLocalizedString("scoreboard_style_center", value: "中间面板", comment: ""),
-                        value: binding(for: .center, text: false)
-                    )
-                }
-            }
-
-            if !recentColors.isEmpty {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(NSLocalizedString("scoreboard_style_recent_colors", value: "最近使用", comment: ""))
-                        .font(.system(size: isLargeScreen ? 15 : 12, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.72))
-                    HStack(spacing: 8) {
-                        ForEach(recentColors, id: \.self) { color in
-                            Button {
-                                styleDraft.team0Hex = color
-                            } label: {
-                                Circle()
-                                    .fill(Color(hex: color))
-                                    .frame(width: isLargeScreen ? 34 : 28, height: isLargeScreen ? 34 : 28)
-                                    .overlay(Circle().stroke(Color.white.opacity(0.4)))
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("#\(color)")
-                        }
-                    }
-                }
-            }
-
-            Toggle(
-                NSLocalizedString("scoreboard_style_auto_contrast", value: "自动选择高对比文字", comment: ""),
-                isOn: $styleDraft.autoContrast
-            )
-            .font(.system(size: isLargeScreen ? 17 : 14, weight: .medium))
-            .foregroundStyle(.white)
-            .tint(Theme.primary)
-
-            if !styleDraft.autoContrast {
-                VStack(spacing: 9) {
-                    styleColorRow(
-                        title: NSLocalizedString("scoreboard_style_team0_text", value: "左侧文字", comment: ""),
-                        value: binding(for: .team0, text: true)
-                    )
-                    styleColorRow(
-                        title: NSLocalizedString("scoreboard_style_team1_text", value: "右侧文字", comment: ""),
-                        value: binding(for: .team1, text: true)
-                    )
-                    if session.styleID.rawValue == GameType.doudizhu.canonicalScoreboardIdentifier {
-                        styleColorRow(
-                            title: NSLocalizedString("scoreboard_style_center_text", value: "中间文字", comment: ""),
-                            value: binding(for: .center, text: true)
-                        )
-                    }
-                }
-            }
-
-            Button {
-                let theme = ScoreboardTheme(rawValue: PreferencesManager.shared.scoreboardTheme) ?? .defaultTheme
-                styleDraft = .default(for: session.styleID, theme: theme)
-            } label: {
-                Text(NSLocalizedString("scoreboard_style_reset", value: "恢复默认样式", comment: ""))
-                    .font(.system(size: isLargeScreen ? 18 : 16, weight: .medium))
-                    .foregroundStyle(Color(hex: "F7C948"))
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
     private var matchTimeSection: some View {
         Toggle(isOn: $matchTimeDraft) {
             VStack(alignment: .leading, spacing: 3) {
@@ -772,55 +1673,6 @@ struct ScoreboardDisplaySettingsView: View {
         .foregroundStyle(.white)
         .tint(Theme.primary)
         .accessibilityIdentifier("scoreboard_match_time_toggle")
-    }
-
-    private func styleColorRow(title: String, value: Binding<String>) -> some View {
-        HStack(spacing: 10) {
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(Color(hex: ScoreboardStyleProfileV2.normalizedHex(value.wrappedValue) ?? "000000"))
-                .frame(width: isLargeScreen ? 42 : 34, height: isLargeScreen ? 42 : 34)
-                .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color.white.opacity(0.35)))
-            Text(title)
-                .font(.system(size: isLargeScreen ? 16 : 13, weight: .medium))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            TextField("RRGGBB", text: value)
-                .textInputAutocapitalization(.characters)
-                .autocorrectionDisabled()
-                .font(.system(size: isLargeScreen ? 16 : 13, design: .monospaced))
-                .foregroundStyle(.white)
-                .multilineTextAlignment(.center)
-                .frame(width: isLargeScreen ? 112 : 92, height: isLargeScreen ? 42 : 34)
-                .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
-        }
-        .contextMenu {
-            ForEach(recentColors, id: \.self) { color in
-                Button("#\(color)") { value.wrappedValue = color }
-            }
-        }
-    }
-
-    private func binding(for slot: ScoreboardStyleSlot, text: Bool) -> Binding<String> {
-        Binding {
-            switch (slot, text) {
-            case (.team0, false): styleDraft.team0Hex
-            case (.team1, false): styleDraft.team1Hex
-            case (.center, false): styleDraft.centerHex
-            case (.team0, true): styleDraft.team0TextHex
-            case (.team1, true): styleDraft.team1TextHex
-            case (.center, true): styleDraft.centerTextHex
-            }
-        } set: { newValue in
-            let sanitized = String(newValue.filter(\.isHexDigit).prefix(6)).uppercased()
-            switch (slot, text) {
-            case (.team0, false): styleDraft.team0Hex = sanitized
-            case (.team1, false): styleDraft.team1Hex = sanitized
-            case (.center, false): styleDraft.centerHex = sanitized
-            case (.team0, true): styleDraft.team0TextHex = sanitized
-            case (.team1, true): styleDraft.team1TextHex = sanitized
-            case (.center, true): styleDraft.centerTextHex = sanitized
-            }
-        }
     }
 
     private var fontSection: some View {
@@ -949,22 +1801,6 @@ struct ScoreboardDisplaySettingsView: View {
     }
 
     private func apply() {
-        let fallback = ScoreboardStyleProfileV2.default(
-            for: session.styleID,
-            theme: ScoreboardTheme(rawValue: styleDraft.themeCode) ?? .defaultTheme
-        )
-        styleDraft.team0Hex = ScoreboardStyleProfileV2.normalizedHex(styleDraft.team0Hex) ?? fallback.team0Hex
-        styleDraft.team1Hex = ScoreboardStyleProfileV2.normalizedHex(styleDraft.team1Hex) ?? fallback.team1Hex
-        styleDraft.centerHex = ScoreboardStyleProfileV2.normalizedHex(styleDraft.centerHex) ?? fallback.centerHex
-        styleDraft.team0TextHex = ScoreboardStyleProfileV2.normalizedHex(styleDraft.team0TextHex) ?? fallback.team0TextHex
-        styleDraft.team1TextHex = ScoreboardStyleProfileV2.normalizedHex(styleDraft.team1TextHex) ?? fallback.team1TextHex
-        styleDraft.centerTextHex = ScoreboardStyleProfileV2.normalizedHex(styleDraft.centerTextHex) ?? fallback.centerTextHex
-        let preferences = PreferencesManager.shared
-        preferences.setScoreboardStyleProfileV2(styleDraft, for: session.styleID)
-        preferences.rememberScoreboardStyleColors([
-            styleDraft.team0Hex, styleDraft.team1Hex, styleDraft.centerHex,
-            styleDraft.team0TextHex, styleDraft.team1TextHex, styleDraft.centerTextHex
-        ])
         if let matchClockSession {
             matchClockSession.isVisible = matchTimeDraft
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -1011,48 +1847,16 @@ struct OfficialBreakOverlay: View {
     @State private var emittedVoiceCues: Set<OfficialBreakCue> = []
 
     var body: some View {
-        if let state = session.state {
-            ZStack {
-                Color.black.opacity(0.78).ignoresSafeArea()
-                VStack(spacing: 18) {
-                    Label(OfficialBreakOverlayPresentation.title(for: state), systemImage: "pause.circle.fill")
-                    .font(.title2.weight(.semibold))
-                    Text(state.phase == .preparation
-                         ? NSLocalizedString("official_break_prepare", value: "准备", comment: "")
-                         : NSLocalizedString("official_break_countdown", value: "休息倒计时", comment: ""))
-                        .foregroundStyle(.white.opacity(0.75))
-                    Text(String(format: "%02d:%02d", state.remainingSeconds / 60, state.remainingSeconds % 60))
-                        .font(.system(size: 76, weight: .bold, design: .monospaced))
-                    HStack(spacing: 12) {
-                        Button(NSLocalizedString("official_break_skip", value: "跳过", comment: "")) {
-                            let action = state.afterAction
-                            deliverVoiceCue(.earlyResume)
-                            session.skip()
-                            completeOnce(action)
-                        }
-                        .buttonStyle(.bordered)
-                        if OfficialBreakOverlayPresentation.showsUndo(for: state) {
-                            Button(NSLocalizedString("undo", value: "撤销", comment: "")) {
-                                if session.undo(), session.state == nil {
-                                    onCancel()
-                                }
-                            }
-                            .buttonStyle(.bordered)
-                        }
-                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                            let action = state.afterAction
-                            deliverVoiceCue(.earlyResume)
-                            session.skip()
-                            completeOnce(action)
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
+        ZStack {
+            if let state = session.state {
+                // 1:1 对齐安卓 OfficialBreakPill：轻遮罩保持比分可见，深色圆角卡 + 绿色倒计时。
+                ZStack {
+                    Color.black.opacity(0.08).ignoresSafeArea()
+                        .transition(.opacity)
+                    officialBreakCard(state)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 }
-                .foregroundStyle(.white)
-                .padding(32)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            }
-            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now in
+                .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now in
                 tick = now
                 let previousRemaining = Int64((session.state?.remainingSeconds ?? 0) * 1_000)
                 let completed = session.tick(nowMilliseconds: Int64(now.timeIntervalSince1970 * 1_000))
@@ -1074,6 +1878,65 @@ struct OfficialBreakOverlay: View {
                 emittedVoiceCues = []
             }
         }
+        }
+        .animation(.easeInOut(duration: 0.2), value: session.state != nil)
+    }
+
+    private func officialBreakCard(_ state: OfficialBreakState) -> some View {
+        let title = OfficialBreakOverlayPresentation.title(for: state)
+        let titleLines = title.components(separatedBy: " · ")
+        return VStack(spacing: 10) {
+            VStack(spacing: 2) {
+                Text(titleLines[0])
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .multilineTextAlignment(.center)
+                if titleLines.count > 1 {
+                    Text(titleLines.dropFirst().joined(separator: " · "))
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            Text(String(format: "%02d:%02d", state.remainingSeconds / 60, state.remainingSeconds % 60))
+                .font(.system(size: 44, weight: .bold, design: .monospaced))
+                .foregroundColor(Color(red: 0x31 / 255, green: 0xD1 / 255, blue: 0x58 / 255))
+            HStack(spacing: 8) {
+                if OfficialBreakOverlayPresentation.showsUndo(for: state) {
+                    Button(NSLocalizedString("undo", value: "撤销", comment: "")) {
+                        if session.undo(), session.state == nil {
+                            onCancel()
+                        }
+                    }
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 6)
+                    .frame(minHeight: 36)
+                    .background(Color.white.opacity(0.14), in: Capsule())
+                }
+                Button(NSLocalizedString("official_break_continue", value: "继续", comment: "")) {
+                    let action = state.afterAction
+                    deliverVoiceCue(.earlyResume)
+                    session.skip()
+                    completeOnce(action)
+                }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Color(red: 0x0B / 255, green: 0x0B / 255, blue: 0x0C / 255))
+                .padding(.horizontal, 18)
+                .padding(.vertical, 6)
+                .frame(minHeight: 36)
+                .background(Color.white.opacity(0.92), in: Capsule())
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 14)
+        .background(
+            Color(red: 0x0C / 255, green: 0x0C / 255, blue: 0x0E / 255).opacity(0.8),
+            in: RoundedRectangle(cornerRadius: 32, style: .continuous)
+        )
     }
 
     private func completeOnce(_ action: OfficialBreakAfterAction) {

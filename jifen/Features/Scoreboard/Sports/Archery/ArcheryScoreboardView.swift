@@ -82,13 +82,14 @@ struct ArcheryScoreboardView: View {
                     nameType: ScoreboardCommonNamePolicy.nameType(for: .archery),
                     scoreTextProvider: { _, team in "\(team.score)" },
                     tapToAddEnabled: false,
-                    contentOverlayProvider: { isEditMode in
+                    contentOverlayProvider: { isEditMode, indicatorColor in
                         AnyView(ArcheryMiddleLayer(
                             viewModel: viewModel,
                             showArrowPicker: $showArrowPicker,
                             controller: controller,
                             isEditMode: isEditMode,
-                            scoringLocked: scoringLocked
+                            scoringLocked: scoringLocked,
+                            indicatorColor: indicatorColor
                         ))
                     },
                     onEditModeChange: { editing in
@@ -200,6 +201,10 @@ struct ArcheryScoreboardView: View {
                 )
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .animation(.easeInOut(duration: 0.2), value: showArrowPicker)
+        .animation(.easeInOut(duration: 0.2), value: showSetEndOverlay)
+        .animation(.easeInOut(duration: 0.2), value: showClosestToCenter)
         .overlay(alignment: .bottom) {
             if let toastMessage {
                 ToastView(message: toastMessage)
@@ -207,6 +212,7 @@ struct ArcheryScoreboardView: View {
                     .allowsHitTesting(false)
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: toastMessage)
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
@@ -1324,6 +1330,7 @@ private struct ArcheryMiddleLayer: View {
     var controller: ArcheryScoreboardController
     var isEditMode: Bool
     var scoringLocked: Bool = false
+    var indicatorColor: Color = Color(hex: "30D158")
 
     var body: some View {
         Group {
@@ -1336,7 +1343,8 @@ private struct ArcheryMiddleLayer: View {
                         isLeftServing: viewModel.teamScreenLayout.screenSide(
                             of: viewModel.currentShooterIsLeft ? .team0 : .team1
                         ) == .left,
-                        triangleSize: indicatorSize
+                        triangleSize: indicatorSize,
+                        color: indicatorColor
                     )
                     .position(x: geo.size.width / 2, y: geo.size.height / 2)
                 }

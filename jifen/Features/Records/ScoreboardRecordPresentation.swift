@@ -149,7 +149,7 @@ struct ScoreboardRecordProjectPolicy: Equatable {
     }
 
     let trendAllowed: Bool
-    let trendRequiresTwoPlayers: Bool
+    let trendExcludesMultiParticipant: Bool
     let trendRequiresNonNegativeScores: Bool
     let recapKind: RecapKind
 
@@ -159,29 +159,34 @@ struct ScoreboardRecordProjectPolicy: Equatable {
 
     static func policy(for gameType: GameType) -> Self {
         switch gameType {
+        // Trend visibility mirrors Android CHART_UNSUPPORTED_TYPES deny-list:
+        // football/basketball/boxing/tennis/eight-ball/card games/multi-score
+        // stay hidden; everything else shows when action data allows.
         case .pingpong, .badminton, .shuttlecock, .squash, .pickleball, .volleyball, .beachVolleyball,
              .airVolleyball, .foosball, .archery, .snooker:
-            return .init(trendAllowed: true, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: true, recapKind: .sets)
+            return .init(trendAllowed: true, trendExcludesMultiParticipant: true, trendRequiresNonNegativeScores: true, recapKind: .sets)
         case .basketball:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .periods)
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .periods)
         case .threeBasketball:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .events)
         case .billiards, .nineBall, .simpleScore:
-            return .init(trendAllowed: true, trendRequiresTwoPlayers: true, trendRequiresNonNegativeScores: true, recapKind: .events)
-        case .tennis, .softTennis, .padel:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .tennisSets)
+            return .init(trendAllowed: true, trendExcludesMultiParticipant: true, trendRequiresNonNegativeScores: true, recapKind: .events)
+        case .tennis:
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .tennisSets)
+        case .softTennis, .padel:
+            return .init(trendAllowed: true, trendExcludesMultiParticipant: true, trendRequiresNonNegativeScores: true, recapKind: .tennisSets)
         case .football, .football5v5:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .events)
         case .boxing:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .rounds)
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .rounds)
         case .eightBall:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .frames)
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .frames)
         case .doudizhu, .guandan, .shengji, .uno:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .cardRounds)
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .cardRounds)
         case .multiScoreboard:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .ranking)
+            return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .ranking)
         case .checkers, .counter, .stopwatch, .go, .xiangqi, .chess:
-            return .init(trendAllowed: false, trendRequiresTwoPlayers: false, trendRequiresNonNegativeScores: false, recapKind: .events)
+            return .init(trendAllowed: true, trendExcludesMultiParticipant: true, trendRequiresNonNegativeScores: true, recapKind: .events)
         }
     }
 

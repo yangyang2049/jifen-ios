@@ -1,3 +1,4 @@
+import CoreImage.CIFilterBuiltins
 import RecordCore
 import ScoreCore
 import SwiftUI
@@ -17,10 +18,16 @@ struct ScoreboardRecordDetailPage: View {
         let setup: SportsSetupResult?
     }
 
+    /// 「再来一场」Setup 请求：与首页/计分 Tab 一致，用居中 Setup Dialog 呈现。
+    private struct ReplaySetupRequest: Identifiable {
+        let id = UUID()
+        let record: ScoreboardRecord
+    }
+
     @State private var record: ScoreboardRecord?
     @State private var mode: DetailMode = .recap
     @State private var showingDeleteConfirm = false
-    @State private var showingSetup = false
+    @State private var replaySetupRequest: ReplaySetupRequest?
     @State private var launchRequest: LaunchRequest?
     @State private var explanation: String?
     @State private var shareFileURL: URL?
@@ -29,8 +36,14 @@ struct ScoreboardRecordDetailPage: View {
     @State private var didTrackRecordView = false
     @State private var selectedTrendTabID: String?
     @State private var selectedDetailSectionID: String?
-    @State private var showingNoteEditor = false
-    @State private var noteDraft = ""
+    @State private var noteSheetMode: RecordNoteSheetMode = .none
+    @State private var recordNoteToast: String?
+    @State private var showingScoreCorrection = false
+    @State private var correctionTeam1Text = ""
+    @State private var correctionTeam2Text = ""
+    @State private var correctionSet1Text = ""
+    @State private var correctionSet2Text = ""
+    @State private var correctionError: String?
 
     var body: some View {
         ZStack {
@@ -63,11 +76,18 @@ struct ScoreboardRecordDetailPage: View {
         .sheet(isPresented: $showingShareSheet, onDismiss: cleanupShareFile) {
             if let shareFileURL { AnalyticsActivityView(activityItems: [shareFileURL], contentType: "score_record") }
         }
-        .sheet(isPresented: $showingSetup) {
-            if let record { replaySetupSheet(record) }
+        .sheet(isPresented: $showingScoreCorrection) {
+            if let record { scoreCorrectionSheet(record) }
         }
-        .sheet(isPresented: $showingNoteEditor) {
-            noteEditor
+        .overlay {
+            // 与首页/计分 Tab 同款居中 Setup Dialog（CenteredSetupDialogPresenter），不再用 Bottom Sheet。
+            CenteredSetupDialogPresenter(item: $replaySetupRequest) { request, dismiss, maxDialogHeight in
+                replaySetupDialog(
+                    for: request.record,
+                    maxDialogHeight: maxDialogHeight,
+                    onCancel: dismiss
+                )
+            }
         }
         .navigationDestination(item: $launchRequest) { request in
             ScoreboardLaunchView(
@@ -86,8 +106,15 @@ struct ScoreboardRecordDetailPage: View {
         return ScrollView {
             VStack(spacing: 16) {
                 overviewCard(record)
-                noteCard(record)
                 primaryActions(record, presentation: presentation)
+                RecordNotesSectionView(
+                    recordId: record.id,
+                    note: record.note,
+                    voiceNote: record.voiceNote,
+                    sheetMode: $noteSheetMode,
+                    onNotesChanged: { loadRecord() },
+                    onToast: { recordNoteToast = $0 }
+                )
                 if !record.displayParticipants.isEmpty { rankingCard(record) }
                 switch presentation.detailLayout {
                 case .standard:
@@ -118,9 +145,45 @@ struct ScoreboardRecordDetailPage: View {
             .frame(maxWidth: 720)
             .frame(maxWidth: .infinity)
         }
+        // 笔记 sheet 挂详情页顶层：没有笔记卡片时"笔记"按钮也要能弹出菜单。
+        .sheet(isPresented: Binding(
+            get: { noteSheetMode != .none },
+            set: { if !$0 { noteSheetMode = .none } }
+        )) {
+            RecordNoteSheet(
+                recordId: record.id,
+                note: record.note,
+                sheetMode: $noteSheetMode,
+                onNotesChanged: { loadRecord() },
+                onToast: { recordNoteToast = $0 }
+            )
+        }
+        .overlay(alignment: .bottom) {
+            if let recordNoteToast {
+                Text(recordNoteToast)
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Color.black.opacity(0.75), in: Capsule())
+                    .padding(.bottom, 24)
+                    .task {
+                        try? await Task.sleep(nanoseconds: 1_800_000_000)
+                        self.recordNoteToast = nil
+                    }
+            }
+        }
     }
 
     private func overviewCard(_ record: ScoreboardRecord) -> some View {
+        overviewContent(record, dateText: formattedDate(record.startTime))
+            .padding(18)
+            .background(Theme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    /// 概览卡内容（与安卓 GameInfoCard 对齐），详情页与分享卡共用。
+    private func overviewContent(_ record: ScoreboardRecord, dateText: String) -> some View {
         VStack(spacing: 16) {
             HStack(spacing: 8) {
                 Text(record.gameType.icon).font(.title)
@@ -198,6 +261,19 @@ struct ScoreboardRecordDetailPage: View {
                         isWinner: record.resolvedWinnerRecordTeam == .team2
                     )
                 }
+                if record.status == .finished && record.displayParticipants.isEmpty {
+                    HStack {
+                        Spacer()
+                        Button { openScoreCorrection(record) } label: {
+                            Label(
+                                NSLocalizedString("record_score_correction", value: "纠错", comment: ""),
+                                systemImage: "pencil.line"
+                            )
+                            .font(.footnote)
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
             }
             if let format = recordFormatDescription(record) {
                 Text(format)
@@ -212,9 +288,6 @@ struct ScoreboardRecordDetailPage: View {
             }
             .font(.caption).foregroundStyle(Theme.textSecondary)
         }
-        .padding(18)
-        .background(Theme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func scoreSide(_ name: String, score: Int, isWinner: Bool) -> some View {
@@ -226,37 +299,42 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func primaryActions(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) -> some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 12) {
             Button { handleReplay(record, presentation: presentation) } label: {
                 Label(
                     NSLocalizedString("play_again", value: "再来一场", comment: ""),
                     systemImage: "arrow.clockwise"
                 )
+                .font(.system(size: 17, weight: .semibold))
+                .imageScale(.medium)
                 .frame(maxWidth: .infinity)
-                .frame(minHeight: ScoreboardConstants.minimumTouchTarget)
+                .frame(minHeight: 48)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.borderedProminent)
+            Button { noteSheetMode = .menu } label: {
+                Image(systemName: "square.and.pencil")
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundStyle(Theme.primary)
+                    .frame(width: 48, height: 48)
+                    .contentShape(Rectangle())
+            }
+                .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("record_note_action", value: "笔记", comment: ""))
             Button(action: prepareShare) {
                 Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 26, weight: .semibold))
+                    .font(.system(size: 22, weight: .medium))
                     .foregroundStyle(Theme.primary)
-                    .frame(
-                        width: ScoreboardConstants.minimumTouchTarget + 8,
-                        height: ScoreboardConstants.minimumTouchTarget + 8
-                    )
+                    .frame(width: 48, height: 48)
                     .contentShape(Rectangle())
             }
                 .buttonStyle(.plain)
                 .accessibilityLabel(NSLocalizedString("share", comment: ""))
             Button(role: .destructive) { showingDeleteConfirm = true } label: {
                 Image(systemName: "trash")
-                    .font(.system(size: 26, weight: .semibold))
+                    .font(.system(size: 22, weight: .medium))
                     .foregroundStyle(.red)
-                    .frame(
-                        width: ScoreboardConstants.minimumTouchTarget + 8,
-                        height: ScoreboardConstants.minimumTouchTarget + 8
-                    )
+                    .frame(width: 48, height: 48)
                     .contentShape(Rectangle())
             }
                 .buttonStyle(.plain)
@@ -264,72 +342,90 @@ struct ScoreboardRecordDetailPage: View {
         }
     }
 
-    private func noteCard(_ record: ScoreboardRecord) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label(NSLocalizedString("record_note", value: "备注", comment: ""), systemImage: "note.text")
-                    .font(.headline)
-                Spacer()
-                Button {
-                    noteDraft = record.note ?? ""
-                    showingNoteEditor = true
-                } label: {
-                    Text(record.note == nil ? NSLocalizedString("add", value: "添加", comment: "") : NSLocalizedString("edit", value: "编辑", comment: ""))
-                }
-                .buttonStyle(.borderless)
-            }
-            if let note = record.note, !note.isEmpty {
-                Text(note)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundStyle(Theme.textSecondary)
-                    .textSelection(.enabled)
-            } else {
-                Text(NSLocalizedString("record_note_empty", value: "还没有备注", comment: ""))
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.textSecondary)
-            }
-        }
-        .padding(16)
-        .background(Theme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    private func openScoreCorrection(_ record: ScoreboardRecord) {
+        correctionTeam1Text = "\(record.team1FinalScore)"
+        correctionTeam2Text = "\(record.team2FinalScore)"
+        correctionSet1Text = record.team1SetScore.map(String.init) ?? ""
+        correctionSet2Text = record.team2SetScore.map(String.init) ?? ""
+        correctionError = nil
+        showingScoreCorrection = true
     }
 
-    private var noteEditor: some View {
+    private var correctionTeam1Value: Int? { Int(correctionTeam1Text.trimmingCharacters(in: .whitespaces)) }
+    private var correctionTeam2Value: Int? { Int(correctionTeam2Text.trimmingCharacters(in: .whitespaces)) }
+    private var correctionSet1Value: Int? { Int(correctionSet1Text.trimmingCharacters(in: .whitespaces)) }
+    private var correctionSet2Value: Int? { Int(correctionSet2Text.trimmingCharacters(in: .whitespaces)) }
+
+    private func scoreCorrectionSheet(_ record: ScoreboardRecord) -> some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 8) {
-                TextEditor(text: $noteDraft)
-                    .padding(8)
-                    .frame(minHeight: 180)
-                    .background(Theme.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                Text("\(noteDraft.unicodeScalars.count)/300")
-                    .font(.caption)
-                    .foregroundStyle(Theme.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+            Form {
+                if record.team1SetScore != nil || record.team2SetScore != nil {
+                    Section(NSLocalizedString("record_correction_set_score", value: "局分 / 盘分", comment: "")) {
+                        TextField(record.team1Name, text: $correctionSet1Text)
+                            .keyboardType(.numberPad)
+                        TextField(record.team2Name, text: $correctionSet2Text)
+                            .keyboardType(.numberPad)
+                    }
+                }
+                Section(NSLocalizedString("record_correction_final_score", value: "当局分 / 总分", comment: "")) {
+                    TextField(record.team1Name, text: $correctionTeam1Text)
+                        .keyboardType(.numberPad)
+                    TextField(record.team2Name, text: $correctionTeam2Text)
+                        .keyboardType(.numberPad)
+                }
+                Section {
+                    Text(NSLocalizedString(
+                        "record_correction_hint",
+                        value: "保存后胜者将按新比分重算；原始比分保留在记录中，不影响回放。",
+                        comment: ""
+                    ))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                }
+                if let correctionError {
+                    Text(correctionError).font(.footnote).foregroundStyle(.red)
+                }
             }
-            .padding()
-            .background(Theme.backgroundColor.ignoresSafeArea())
-            .navigationTitle(NSLocalizedString("record_note", value: "备注", comment: ""))
+            .navigationTitle(NSLocalizedString("record_score_correction", value: "纠错", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", comment: "")) { showingNoteEditor = false }
+                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) { showingScoreCorrection = false }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(NSLocalizedString("save", comment: "保存")) { saveNote() }
+                    Button(NSLocalizedString("save", value: "保存", comment: "")) { submitScoreCorrection(record) }
+                        .disabled(correctionTeam1Value == nil || correctionTeam2Value == nil)
                 }
             }
         }
         .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
 
-    private func saveNote() {
+    private func submitScoreCorrection(_ record: ScoreboardRecord) {
+        guard let team1 = correctionTeam1Value, let team2 = correctionTeam2Value else { return }
+        let set1 = correctionSet1Value ?? record.team1SetScore
+        let set2 = correctionSet2Value ?? record.team2SetScore
+        if (set1 == nil) != (set2 == nil) {
+            correctionError = NSLocalizedString(
+                "record_correction_set_mismatch",
+                value: "局分需要两侧同时填写",
+                comment: ""
+            )
+            return
+        }
         do {
-            try ScoreboardRecordManager.shared.updateRecordNote(id: recordId, note: noteDraft)
-            record = ScoreboardRecordManager.shared.getRecordById(recordId)
-            showingNoteEditor = false
+            try ScoreboardRecordManager.shared.updateRecordFinalScores(
+                id: record.id,
+                team1FinalScore: team1,
+                team2FinalScore: team2,
+                team1SetScore: set1,
+                team2SetScore: set2
+            )
+            showingScoreCorrection = false
+            loadRecord()
         } catch {
-            explanation = NSLocalizedString("record_note_save_failed", value: "备注保存失败，原备注已保留。", comment: "")
+            correctionError = error.localizedDescription
         }
     }
 
@@ -368,7 +464,14 @@ struct ScoreboardRecordDetailPage: View {
         let selectedTab = tabs.first { $0.id == selectedTrendTabID } ?? tabs.first
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label(NSLocalizedString("score_trend", value: "比分趋势", comment: ""), systemImage: "chart.xyaxis.line").font(.headline)
+                HStack(spacing: 8) {
+                    RoundedRectangle(cornerRadius: 1.5)
+                        .fill(Theme.primary)
+                        .frame(width: 3, height: 16)
+                    Text(NSLocalizedString("score_trend", value: "比分趋势", comment: ""))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Theme.textPrimary)
+                }
                 Spacer()
                 if tabs.count > 1, let selectedTab {
                     Picker(
@@ -763,55 +866,51 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     @ViewBuilder
-    private func replaySetupSheet(_ record: ScoreboardRecord) -> some View {
+    private func replaySetupDialog(
+        for record: ScoreboardRecord,
+        maxDialogHeight: CGFloat,
+        onCancel: @escaping () -> Void
+    ) -> some View {
         let setup = ScoreboardRecordConfiguration.setup(from: record)
-        NavigationStack {
-            GeometryReader { proxy in
-                let maxDialogHeight = max(280, proxy.size.height - 32)
-
-                Group {
-                    if record.gameType == .nineBall {
-                        NineBallSetupDialogView(
-                            initialSetup: setup,
-                            maxDialogHeight: maxDialogHeight,
-                            onConfirm: startReplay,
-                            onCancel: { showingSetup = false }
-                        )
-                    } else if [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(record.gameType) {
-                        MultiScoreSetupDialogView(
-                            gameType: record.gameType,
-                            defaultPlayerCount: setup.playerCount ?? 4,
-                            initialPlayerNames: setup.playerNames ?? [],
-                            defaultTeam1Name: setup.team1Name,
-                            defaultTeam2Name: setup.team2Name,
-                            initialTargetScore: setup.targetScore ?? 500,
-                            initialSetup: setup,
-                            titleEmoji: record.gameType.icon,
-                            titleKey: localizationKey(for: record.gameType),
-                            titleFallback: record.gameType.displayName,
-                            maxDialogHeight: maxDialogHeight,
-                            onConfirm: startReplay,
-                            onCancel: { showingSetup = false }
-                        )
-                    } else {
-                        SportsSetupDialogView(
-                            gameType: record.gameType,
-                            defaultTeam1Name: setup.team1Name,
-                            defaultTeam2Name: setup.team2Name,
-                            initialMaxSets: setup.maxSets,
-                            initialPointsPerSet: setup.pointsPerSet,
-                            initialTieBreakPoints: setup.tieBreakPoints,
-                            initialSetup: setup,
-                            maxDialogHeight: maxDialogHeight,
-                            onConfirm: startReplay,
-                            onCancel: { showingSetup = false }
-                        )
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Group {
+            if record.gameType == .nineBall {
+                NineBallSetupDialogView(
+                    initialSetup: setup,
+                    maxDialogHeight: maxDialogHeight,
+                    onConfirm: startReplay,
+                    onCancel: onCancel
+                )
+            } else if [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(record.gameType) {
+                MultiScoreSetupDialogView(
+                    gameType: record.gameType,
+                    defaultPlayerCount: setup.playerCount ?? 4,
+                    initialPlayerNames: setup.playerNames ?? [],
+                    defaultTeam1Name: setup.team1Name,
+                    defaultTeam2Name: setup.team2Name,
+                    initialTargetScore: setup.targetScore ?? 500,
+                    initialSetup: setup,
+                    titleEmoji: record.gameType.icon,
+                    titleKey: localizationKey(for: record.gameType),
+                    titleFallback: record.gameType.displayName,
+                    maxDialogHeight: maxDialogHeight,
+                    onConfirm: startReplay,
+                    onCancel: onCancel
+                )
+            } else {
+                SportsSetupDialogView(
+                    gameType: record.gameType,
+                    defaultTeam1Name: setup.team1Name,
+                    defaultTeam2Name: setup.team2Name,
+                    initialMaxSets: setup.maxSets,
+                    initialPointsPerSet: setup.pointsPerSet,
+                    initialTieBreakPoints: setup.tieBreakPoints,
+                    initialSetup: setup,
+                    maxDialogHeight: maxDialogHeight,
+                    onConfirm: startReplay,
+                    onCancel: onCancel
+                )
             }
         }
-        .presentationDetents([.large])
     }
 
     private func handleReplay(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) {
@@ -820,12 +919,12 @@ struct ScoreboardRecordDetailPage: View {
             .actionName: .string("play_again"),
             .entryPoint: .string(AnalyticsEntryPoint.recordReplay.rawValue)
         ])
-        showingSetup = true
+        replaySetupRequest = ReplaySetupRequest(record: record)
     }
 
     private func startReplay(_ setup: SportsSetupResult) {
         guard let record else { return }
-        showingSetup = false
+        replaySetupRequest = nil
         DispatchQueue.main.async {
             launchRequest = LaunchRequest(
                 gameType: record.gameType,
@@ -963,7 +1062,13 @@ struct ScoreboardRecordDetailPage: View {
     private func prepareShare() {
         guard let record, !isPreparingShare else { return }
         isPreparingShare = true
-        let renderer = ImageRenderer(content: RecordDetailShareCardView(record: record).frame(width: 600, height: 640))
+        // 对齐安卓 shareScoreboardRecord：渲染 GameInfoCard（含品牌页脚）位图。
+        let content = overviewContent(record, dateText: formattedDate(record.startTime))
+        let renderer = ImageRenderer(
+            content: RecordDetailShareCardView(content: content)
+                .frame(width: 328)
+                .fixedSize(horizontal: false, vertical: true)
+        )
         renderer.scale = UIScreen.main.scale
         guard let data = renderer.uiImage?.pngData() else { isPreparingShare = false; return }
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("share_record_\(record.id).png")
@@ -1004,17 +1109,27 @@ private struct ScoreTrendChart: View {
     let leftName: String
     let rightName: String
 
+    @Environment(\.colorScheme) private var colorScheme
+
+    // Mirrors Android RecordTrendChart colors: home=red, away=blue.
+    private var trendRed: Color { Color(red: 1, green: 0x3B / 255, blue: 0x30 / 255) }
+    private var trendBlue: Color {
+        colorScheme == .dark
+            ? Color(red: 0x0A / 255, green: 0x84 / 255, blue: 0xFF / 255)
+            : Color(red: 0x00 / 255, green: 0x7A / 255, blue: 0xFF / 255)
+    }
+
     var body: some View {
         VStack(spacing: 8) {
             Canvas { context, size in
                 let points = tab.points
                 let maxScore = max(1, points.flatMap { [$0.left, $0.right] }.max() ?? 1)
-                draw(team: \.left, color: .red, maxScore: maxScore, context: &context, size: size)
-                draw(team: \.right, color: .blue, maxScore: maxScore, context: &context, size: size)
+                draw(team: \.left, color: trendRed, maxScore: maxScore, context: &context, size: size)
+                draw(team: \.right, color: trendBlue, maxScore: maxScore, context: &context, size: size)
             }
             HStack(spacing: 18) {
-                Label(leftName, systemImage: "circle.fill").foregroundStyle(.red)
-                Label(rightName, systemImage: "circle.fill").foregroundStyle(.blue)
+                Label(leftName, systemImage: "circle.fill").foregroundStyle(trendRed)
+                Label(rightName, systemImage: "circle.fill").foregroundStyle(trendBlue)
             }.font(.caption)
         }
     }
@@ -1027,47 +1142,111 @@ private struct ScoreTrendChart: View {
         )
         guard points.count >= 2, xPositions.count == points.count else { return }
 
-        var path = Path()
-        var plottedPoints: [CGPoint] = []
+        var previous: CGPoint?
         for (index, point) in points.enumerated() {
             let score = max(0, min(point[keyPath: team], maxScore))
             let plotted = CGPoint(
                 x: xPositions[index],
                 y: size.height - size.height * CGFloat(score) / CGFloat(maxScore)
             )
-            plottedPoints.append(plotted)
-            if index == 0 {
-                path.move(to: plotted)
-            } else {
-                path.addLine(to: plotted)
+            if let previous {
+                // 对齐安卓 drawSeries：逐段 drawLine + 圆头，保证直线段与斜线段粗细一致。
+                var segment = Path()
+                segment.move(to: previous)
+                segment.addLine(to: plotted)
+                context.stroke(segment, with: .color(color), style: .init(lineWidth: 2, lineCap: .round, lineJoin: .round))
             }
-        }
-        context.stroke(path, with: .color(color), style: .init(lineWidth: 3, lineCap: .round, lineJoin: .round))
-        for point in plottedPoints {
-            context.fill(
-                Path(ellipseIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6)),
-                with: .color(color)
-            )
+            previous = plotted
         }
     }
 }
 
-private struct RecordDetailShareCardView: View {
-    let record: ScoreboardRecord
+/// 分享卡 = 概览内容 + 虚线分隔 + 品牌页脚（应用图标 + 名称 + 下载二维码），1:1 对齐安卓。
+private struct RecordDetailShareCardView<Content: View>: View {
+    let content: Content
+
     var body: some View {
-        VStack(spacing: 24) {
-            Text(record.gameType.icon).font(.system(size: 56))
-            Text(record.competitionDisplayName).font(.largeTitle.bold())
-            Text(record.displayMatchTitle).font(.title3).multilineTextAlignment(.center)
-            let score = record.primaryScore
-            Text("\(score.left) : \(score.right)").font(.system(size: 64, weight: .bold, design: .rounded)).foregroundStyle(Theme.primary)
-            if let duration = record.duration { Label(formatScoreboardDuration(duration), systemImage: "clock") }
-            Spacer()
-            Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "iScore").foregroundStyle(Theme.textSecondary)
+        VStack(spacing: 0) {
+            content
+                .padding(.horizontal, 18)
+                .padding(.top, 18)
+            dashedDivider
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+            brandFooter
+                .padding(.horizontal, 18)
+                .padding(.bottom, 18)
         }
-        .padding(44)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(16)
         .background(Theme.backgroundColor)
-        .foregroundStyle(Theme.textPrimary)
+    }
+
+    private var dashedDivider: some View {
+        Canvas { context, size in
+            var path = Path()
+            path.move(to: CGPoint(x: 0, y: 0))
+            path.addLine(to: CGPoint(x: size.width, y: 0))
+            context.stroke(
+                path,
+                with: .color(Theme.divider),
+                style: StrokeStyle(lineWidth: 1, dash: [4, 4])
+            )
+        }
+        .frame(height: 1)
+    }
+
+    private var brandFooter: some View {
+        HStack(spacing: 12) {
+            HStack(spacing: 10) {
+                appIcon
+                    .resizable()
+                    .frame(width: 36, height: 36)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                Text(appDisplayName)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            qrImage
+                .frame(width: 52, height: 52)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(Color.white)
+                .padding(4)
+        }
+        .frame(height: 60)
+    }
+
+    private var appDisplayName: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
+            ?? (Bundle.main.object(forInfoDictionaryKey: kCFBundleNameKey as String) as? String)
+            ?? "iScore"
+    }
+
+    private var appIcon: Image {
+        if let icons = Bundle.main.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any],
+           let primary = icons["CFBundlePrimaryIcon"] as? [String: Any],
+           let files = primary["CFBundleIconFiles"] as? [String],
+           let last = files.last,
+           let image = UIImage(named: last) {
+            return Image(uiImage: image)
+        }
+        if let image = UIImage(named: "AppIcon") ?? UIImage(named: "AppIcon60x60") {
+            return Image(uiImage: image)
+        }
+        return Image(systemName: "square.grid.2x2")
+    }
+
+    private var qrImage: Image {
+        let filter = CIFilter.qrCodeGenerator()
+        filter.message = Data("https://jifenqi.com/download".utf8)
+        filter.correctionLevel = "M"
+        if let output = filter.outputImage?.transformed(by: CGAffineTransform(scaleX: 8, y: 8)),
+           let cgImage = CIContext().createCGImage(output, from: output.extent) {
+            return Image(uiImage: UIImage(cgImage: cgImage))
+        }
+        return Image(systemName: "qrcode")
     }
 }

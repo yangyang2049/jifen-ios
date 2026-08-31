@@ -18,6 +18,14 @@ extension Notification.Name {
     static let scoreboardRecordsDidChange = Notification.Name("scoreboardRecordsDidChange")
 }
 
+/// 笔记操作失败原因（对齐安卓 RecordNoteRecordingFailureReason / 仓库异常）。
+enum RecordNoteError: Error {
+    case recordMissing
+    case invalidVoiceNote
+    case fileMissing
+    case fileCreateFailed
+}
+
 enum ScoreboardPersistenceFailureReporter {
     nonisolated private static let logger = Logger(
         subsystem: "com.douhua.jifen.ios",
@@ -268,7 +276,7 @@ enum ManualResumeSessionStore {
             gameType: exactGameType,
             startedAtEpochMilliseconds: Int64(record.startTime.timeIntervalSince1970 * 1_000),
             participants: participants,
-            scoreSummary: record.displayScore(),
+            scoreSummary: record.finalScoreLine(),
             payload: payload
         )
     }
@@ -624,6 +632,130 @@ final class ScoreboardRecordManager {
         }
         record.note = ScoreboardRecordNote.normalize(note)
         try saveScoreboardRecord(record, cleanupResumeAfterWrite: false)
+    }
+
+    /// 结果纠错：修改已完成两队制记录的最终比分/局分并重算胜者，变换逻辑见
+    /// `ScoreboardRecordCorrection.applied`。首次纠错时把原始分值写入
+    /// `correction` 留痕；`stateSnapshot` 与 `detailedActions` 保持原样。
+    func updateRecordFinalScores(
+        id: String,
+        team1FinalScore: Int,
+        team2FinalScore: Int,
+        team1SetScore: Int?,
+        team2SetScore: Int?
+    ) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        migrateIfNeeded()
+        guard let record = store.loadRecords().first(where: { $0.id == id }) else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        let corrected = ScoreboardRecordCorrection.applied(
+            to: record,
+            team1FinalScore: team1FinalScore,
+            team2FinalScore: team2FinalScore,
+            team1SetScore: team1SetScore,
+            team2SetScore: team2SetScore
+        )
+        try saveScoreboardRecord(corrected, cleanupResumeAfterWrite: false)
+    }
+
+    // ---- 本地语音笔记（对齐安卓 ScoreboardRecordRepository） ----
+
+    static var voiceNotesDirectoryURL: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        return base.appendingPathComponent("RecordNotes", isDirectory: true)
+    }
+
+    static func voiceNoteFileURL(_ relativePath: String) -> URL {
+        voiceNotesDirectoryURL.appendingPathComponent(relativePath)
+    }
+
+    static func deleteVoiceNoteFile(_ relativePath: String?) {
+        guard let relativePath, !relativePath.isEmpty else { return }
+        try? FileManager.default.removeItem(at: voiceNoteFileURL(relativePath))
+    }
+
+    /// 创建录音临时文件，返回相对路径；录音成功后经 `updateRecordVoiceNote` 转正。
+    static func createVoiceNoteTempFile(recordId: String) throws -> String {
+        let sanitized = String(
+            recordId.map { ($0.isASCII && ($0.isLetter || $0.isNumber)) || $0 == "-" || $0 == "_" ? $0 : "_" }.prefix(48)
+        )
+        let token = Int.random(in: 100_000...999_999)
+        let relativePath = "temp_\(sanitized)_\(Int(Date().timeIntervalSince1970 * 1_000))_\(token).m4a"
+        try FileManager.default.createDirectory(at: voiceNotesDirectoryURL, withIntermediateDirectories: true)
+        let url = voiceNoteFileURL(relativePath)
+        if !FileManager.default.createFile(atPath: url.path, contents: nil) {
+            throw RecordNoteError.fileCreateFailed
+        }
+        return relativePath
+    }
+
+    /// 用临时录音替换当前语音笔记：转正文件名、更新记录字段、清理旧音频。
+    func updateRecordVoiceNote(id: String, tempRelativePath: String, durationMs: Int) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        migrateIfNeeded()
+        guard ScoreboardRecordVoiceNoteLimits.isDurationValid(durationMs) else {
+            throw RecordNoteError.invalidVoiceNote
+        }
+        guard tempRelativePath.hasPrefix("temp_"), tempRelativePath.hasSuffix(".m4a") else {
+            throw RecordNoteError.invalidVoiceNote
+        }
+        guard var record = store.loadRecords().first(where: { $0.id == id }) else {
+            throw RecordNoteError.recordMissing
+        }
+        let tempURL = Self.voiceNoteFileURL(tempRelativePath)
+        let attributes = try? FileManager.default.attributesOfItem(atPath: tempURL.path)
+        if let size = (attributes?[.size] as? NSNumber)?.intValue, size > 0 {
+            // 文件存在且非空
+        } else {
+            throw RecordNoteError.fileMissing
+        }
+        let finalRelativePath = tempRelativePath.hasPrefix("temp_")
+            ? "voice_" + tempRelativePath.dropFirst(5)
+            : tempRelativePath
+        let finalURL = Self.voiceNoteFileURL(finalRelativePath)
+        let previousPath = record.voiceNote?.relativePath
+        if FileManager.default.fileExists(atPath: finalURL.path) {
+            try? FileManager.default.removeItem(at: finalURL)
+        }
+        try FileManager.default.moveItem(at: tempURL, to: finalURL)
+        record.voiceNote = ScoreboardRecordVoiceNote(relativePath: finalRelativePath, durationMs: durationMs)
+        do {
+            try saveScoreboardRecord(record, cleanupResumeAfterWrite: false)
+        } catch {
+            Self.deleteVoiceNoteFile(finalRelativePath)
+            throw error
+        }
+        if previousPath != finalRelativePath {
+            Self.deleteVoiceNoteFile(previousPath)
+        }
+    }
+
+    /// 删除语音笔记：清空记录字段并移除音频文件。
+    func deleteRecordVoiceNote(id: String) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        migrateIfNeeded()
+        guard var record = store.loadRecords().first(where: { $0.id == id }) else {
+            throw RecordNoteError.recordMissing
+        }
+        let previousPath = record.voiceNote?.relativePath
+        record.voiceNote = nil
+        try saveScoreboardRecord(record, cleanupResumeAfterWrite: false)
+        Self.deleteVoiceNoteFile(previousPath)
+    }
+
+    /// 清理未被任何记录引用的遗留音频（临时文件与孤儿正式文件）。
+    static func cleanupOrphanVoiceNoteFiles(referencedPaths: Set<String>) {
+        let fileManager = FileManager.default
+        guard let files = try? fileManager.contentsOfDirectory(atPath: voiceNotesDirectoryURL.path) else { return }
+        for file in files where file.hasSuffix(".m4a") {
+            if file.hasPrefix("temp_") || !referencedPaths.contains(file) {
+                try? fileManager.removeItem(at: voiceNotesDirectoryURL.appendingPathComponent(file))
+            }
+        }
     }
 
     func loadAllRecords() -> [ScoreboardRecord] {

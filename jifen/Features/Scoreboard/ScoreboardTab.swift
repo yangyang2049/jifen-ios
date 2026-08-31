@@ -92,9 +92,7 @@ struct ScoreboardTab: View {
 
     private func sectionGroup(title: String, items: [ScoreboardCatalogItem], availableWidth: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
-            Text(title)
-                .font(.system(size: Theme.fontH5, weight: .medium))
-                .foregroundColor(Theme.textPrimary)
+            SectionTitleView(title: title)
 
             LazyVGrid(columns: gridColumns(availableWidth: availableWidth), spacing: gridSpacing) {
                 ForEach(items) { sport in

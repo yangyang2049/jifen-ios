@@ -135,6 +135,8 @@ struct BoxingScoreboardView: View {
                 )
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .animation(.easeInOut(duration: 0.2), value: showRoundDialog)
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)

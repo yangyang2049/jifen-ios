@@ -11,6 +11,10 @@ enum LegalDocuments {
         localizedURL(path: "privacy")
     }
 
+    static var membershipAgreementURL: URL {
+        localizedURL(path: "membership-agreement")
+    }
+
     private static func localizedURL(path: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"

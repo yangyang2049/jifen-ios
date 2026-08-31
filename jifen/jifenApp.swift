@@ -102,6 +102,7 @@ struct jifenApp: App {
     @UIApplicationDelegateAdaptor(ScoreboardAppDelegate.self) var appDelegate
     @State private var appearance = AppAppearanceStore()
     @State private var watchLinkService = PhoneWatchLinkService()
+    @State private var sessionStore = SessionStore.shared
     @State private var hasAcceptedLegal: Bool
     @State private var showPersistenceFailure = false
     @StateObject private var screenshotSaveCoordinator = ScreenshotSaveCoordinator.shared
@@ -110,14 +111,16 @@ struct jifenApp: App {
         FontRegistrar.registerFonts()
         UITestRecordFixtures.installIfRequested()
         AppReviewPrompt.recordLaunchIfAllowed()
-        let hasAcceptedLegal = LegalConsent.hasAcceptedCurrentDocuments()
-        PreferencesManager.shared.migrateLegacyDoubleTapSubtractIfNeeded(
-            hasLegalConsent: hasAcceptedLegal
-        )
-        _hasAcceptedLegal = State(initialValue: hasAcceptedLegal)
-        if hasAcceptedLegal {
-            UmengAnalytics.initializeIfConsented()
+        // v1 intentionally does NOT present the First Launch Legal Screen (code removed).
+        // Consent is treated as implicitly accepted at launch (same effect as tapping "同意")
+        // so analytics/session flow run.
+        let hadAcceptedLegal = LegalConsent.hasAcceptedCurrentDocuments()
+        if !hadAcceptedLegal {
+            LegalConsent.acceptCurrentDocuments()
         }
+        PreferencesManager.shared.migrateLegacyDoubleTapSubtractIfNeeded(hasLegalConsent: true)
+        _hasAcceptedLegal = State(initialValue: true)
+        UmengAnalytics.initializeIfConsented()
     }
     
     var body: some Scene {
@@ -129,7 +132,13 @@ struct jifenApp: App {
             }
             .environment(appearance)
             .environment(watchLinkService)
+            .environment(sessionStore)
             .preferredColorScheme(appearance.mode.preferredColorScheme)
+            .task(id: hasAcceptedLegal) {
+                guard hasAcceptedLegal || shouldSkipLegalForUITests else { return }
+                guard AppFeatureFlags.accountFeaturesEnabled else { return }
+                await sessionStore.restore()
+            }
             .onReceive(NotificationCenter.default.publisher(for: .scoreboardPersistenceFailed)) { _ in
                 showPersistenceFailure = true
             }
@@ -189,20 +198,10 @@ struct jifenApp: App {
 
     @ViewBuilder
     private var legalGatedContent: some View {
-        if hasAcceptedLegal || shouldSkipLegalForUITests {
-            ContentView()
-                .requestsReviewOnEligibleLaunch()
-        } else {
-            FirstLaunchLegalScreen {
-                LegalConsent.acceptCurrentDocuments()
-                UmengAnalytics.initializeIfConsented()
-                AppAnalytics.track(.submitForm, parameters: [
-                    .contentType: .string("legal_consent"),
-                    .result: .string(AnalyticsResult.success.rawValue)
-                ])
-                hasAcceptedLegal = true
-            }
-        }
+        // v1: the First Launch Legal Screen is intentionally not shown (see init).
+        // Re-add the consent gate below if App Store review later requires it.
+        ContentView()
+            .requestsReviewOnEligibleLaunch()
     }
 
     private var shouldSkipLegalForUITests: Bool {
@@ -239,7 +238,23 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
             ScoreboardDisplayOutputs.shared.setControllerAway(false)
             ExternalDisplayCoordinator.shared.refreshStatus()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+            let permitsBackendAccess = LegalConsent.hasAcceptedCurrentDocuments()
+                || Self.shouldSkipLegalForUITests
+            if permitsBackendAccess, AppFeatureFlags.accountFeaturesEnabled {
+                await SessionStore.shared.restore()
+                if AppFeatureFlags.commonDataCloudSyncEnabled {
+                    CommonDataCloudSyncManager.shared.appBecameActive()
+                }
+            }
         }
+    }
+
+    private static var shouldSkipLegalForUITests: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-UITestSkipLegalConsent")
+        #else
+        false
+        #endif
     }
 
     func userNotificationCenter(

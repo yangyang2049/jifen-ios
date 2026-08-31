@@ -338,12 +338,9 @@ enum ScoreboardLayoutMetrics {
         (regularSize * 1.18).rounded()
     }
 
-    /// Tennis places the point score and the game/set column on the same row.
-    /// Its main score therefore needs a smaller baseline than rally sports,
-    /// whose score can use the complete half-panel width.
-    static func tennisMainScoreScale(hasInlineSecondary: Bool) -> CGFloat {
-        hasInlineSecondary ? 0.78 : 1
-    }
+    /// Tennis main score uses the same half-panel baseline as rally sports
+    /// (Android `tennisMainScoreSp` = `halfPanelMainScoreSp`); the inline
+    /// game/set column is sized from the secondary baseline instead.
 
     /// High custom score caps can produce three- or four-digit rally scores.
     /// Compact them before applying the user's typography multiplier so every

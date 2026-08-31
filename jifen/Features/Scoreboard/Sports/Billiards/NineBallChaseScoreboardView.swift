@@ -400,6 +400,9 @@ struct NineBallChaseScoreboardView: View {
                     .zIndex(30)
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .animation(.easeInOut(duration: 0.2), value: showToast)
+        .animation(.easeInOut(duration: 0.2), value: activeChasePlayer)
         .ignoresSafeArea(.all)
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         .simultaneousGesture(LongPressGesture(minimumDuration: 0.55).onEnded { _ in
@@ -620,27 +623,13 @@ struct NineBallChaseScoreboardView: View {
                 Spacer(minLength: 0)
 
                 if !showEditPanel {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 3), spacing: 4) {
-                        ForEach(Array(NineBallChaseKind.allCases.enumerated()), id: \.element) { index, kind in
-                            VStack(spacing: 1) {
-                                Text(chaseTitle(kind))
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.65)
-                                Text("\(state.playerCounts[player][index])")
-                                    .monospacedDigit()
-                                    .fontWeight(.bold)
-                            }
-                            .font(typographySession.effectivePreference.font.swiftUIFont(
-                                size: max(8, typography.secondaryFontSize * 0.22),
-                                weight: .regular
-                            ))
-                            .frame(maxWidth: .infinity, minHeight: compact ? 30 : 36)
-                            .background(.black.opacity(0.16), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
-                            .accessibilityIdentifier("nine_ball_player_\(player)_count_\(kind.rawValue)")
-                        }
+                    // 安卓 NineBallScoreScreen ChaseStatGrid（edgeToEdge 横排 3-4 人）：
+                    // 3 列 × 2 行、1pt 缝隙、白 11% 直角格、标签 13pt/白 78%、数值 16pt Bold。
+                    VStack(spacing: 1) {
+                        chaseStatRow(player: player, kinds: Array(NineBallChaseKind.allCases.prefix(3)))
+                        chaseStatRow(player: player, kinds: Array(NineBallChaseKind.allCases.suffix(3)))
                     }
-                    .padding(.horizontal, compact ? 6 : 10)
-                    .padding(.bottom, compact ? 8 : 14)
+                    .padding(.bottom, 4)
                 }
             }
 
@@ -660,6 +649,31 @@ struct NineBallChaseScoreboardView: View {
             activeChasePlayer = player
         }
         .accessibilityIdentifier("nine_ball_player_\(player)_tile")
+    }
+
+    private func chaseStatRow(player: Int, kinds: [NineBallChaseKind]) -> some View {
+        HStack(spacing: 1) {
+            ForEach(kinds, id: \.self) { kind in
+                let index = NineBallChaseKind.allCases.firstIndex(of: kind) ?? 0
+                VStack(spacing: 0) {
+                    Text(chaseTitle(kind))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.78))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    Text("\(state.playerCounts[player][index])")
+                        .font(typographySession.effectivePreference.font.swiftUIFont(size: 16, weight: .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 5)
+                .background(.white.opacity(0.11))
+                .accessibilityIdentifier("nine_ball_player_\(player)_count_\(kind.rawValue)")
+            }
+        }
     }
 
     @ViewBuilder

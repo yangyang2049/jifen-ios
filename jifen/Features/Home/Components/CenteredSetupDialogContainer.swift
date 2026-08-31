@@ -202,6 +202,7 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
                     Color.black.opacity(0.48)
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
+                        .transition(.opacity)
                         .onTapGesture {
                             guard allowsBackdropDismiss else { return }
                             requestDismiss()
@@ -215,9 +216,11 @@ struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
                         .shadow(color: .black.opacity(0.28), radius: 28, y: 12)
                         .contentShape(Rectangle())
                         .onTapGesture { }
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .animation(.easeInOut(duration: 0.2), value: item?.id)
         }
         .allowsHitTesting(item != nil)
     }

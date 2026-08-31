@@ -244,6 +244,8 @@ struct EightBallScoreboardView: View {
                 .allowsHitTesting(false)
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .animation(.easeInOut(duration: 0.2), value: overflowToastMessage)
     }
 
     private var finishedRecordDetailPage: some View {
@@ -298,6 +300,15 @@ struct EightBallScoreboardView: View {
                 guard !scoringLocked else { return }
                 adjustScore(onScreen: isLeft ? .left : .right, delta: delta)
             },
+            onPanelSwipe: { isLeft, delta in
+                // 对齐安卓上滑加分/下滑减分（scoreboardPanelSwipeGestures）。
+                guard !scoringLocked, !state.finished else { return }
+                if delta > 0 {
+                    send(.addRack(screenSide(isLeft ? .left : .right)))
+                } else {
+                    adjustScore(onScreen: isLeft ? .left : .right, delta: -1)
+                }
+            },
             extraMenuItems: WatchLinkMenuSupport.extraItems(
                 entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
                 sessionId: watchSessionId,
@@ -320,7 +331,7 @@ struct EightBallScoreboardView: View {
                     }
                 )
             },
-            topCenter: { preference, containerSize in
+            topCenter: { preference, containerSize, _ in
                 AnyView(eightBallTargetPill(preference: preference, containerSize: containerSize))
             },
             onEditModeChange: { scoreboardEditing = $0 },

@@ -116,9 +116,7 @@ struct ProToolsSectionView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header: 标题 + 右侧 > 进入工具页
             HStack {
-                Text(homeToolsText)
-                    .font(.system(size: Theme.fontH5, weight: .medium))
-                    .foregroundColor(Theme.textPrimary)
+                SectionTitleView(title: homeToolsText)
                 Spacer()
                 if !isWide, let onEnterToolsPage = onEnterToolsPage {
                     Button(action: onEnterToolsPage) {

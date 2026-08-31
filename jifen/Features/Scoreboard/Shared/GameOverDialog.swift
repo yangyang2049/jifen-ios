@@ -313,6 +313,7 @@ struct GameOverDialog: View {
             .padding(.horizontal, 20)
         }
         .environment(\.colorScheme, .dark)
+        .transition(.opacity.combined(with: .scale(scale: 0.96)))
         .onAppear {
             AppAnalytics.openDialog(
                 "game_over",

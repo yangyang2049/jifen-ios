@@ -62,6 +62,40 @@ struct RallyVoiceAnnouncementMapperTests {
         #expect(VoiceAnnouncementMessageBuilder.build(capPoint[0], language: .enUS) == "29, match point, 28")
     }
 
+    @Test func volleyballSupportsVoiceAnnouncementAndReportsServiceOver() {
+        // 支持集合应包含排球三类（对齐安卓 isVolleyballVoiceType，2026-08-31 补）
+        #expect(VoiceAnnouncementSupport.isSupported(.volleyball))
+        #expect(VoiceAnnouncementSupport.isSupported(.beachVolleyball))
+        #expect(VoiceAnnouncementSupport.isSupported(.airVolleyball))
+
+        var before = RallyMatchEngine.initial(
+            leftName: "红队",
+            rightName: "蓝队",
+            rules: .volleyball(maxSets: 5),
+            openingServer: .left
+        )
+        before.leftPoints = 5
+        before.rightPoints = 4
+        before.servingSide = .left
+
+        var after = before
+        after.leftPoints = 5
+        after.rightPoints = 6
+        after.servingSide = .right
+
+        let payloads = RallyVoiceAnnouncementMapper.payloads(
+            gameType: .volleyball,
+            before: before,
+            after: after,
+            events: [.pointScored(side: .right, leftPoints: 5, rightPoints: 6)],
+            completedSetScores: []
+        )
+        #expect(payloads.map(\.phase) == [.scoreChange])
+        #expect(payloads[0].serviceOver == true, "排球得分应播报换发球")
+        #expect(payloads[0].criticalPoint == nil, "排球不播局点/赛点，对齐安卓 rallyKeyPoints")
+        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN).contains("换发球"))
+    }
+
     @Test func doublesOpeningUsesActualServerAndReceiverSlots() {
         let names = ["Alice", "Bob", "Carol", "David"]
         let pingpong = RallyMatchEngine.initial(

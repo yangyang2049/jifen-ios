@@ -66,7 +66,6 @@ final class FullAppScreenshotUITests: XCTestCase {
             writeManifest(count: count)
         }
 
-        captureFirstLaunchLegalScreen()
         captureTabRootsAndHomeSecondary()
         captureAllScoreboards()
         captureAllTimers()
@@ -246,6 +245,47 @@ final class FullAppScreenshotUITests: XCTestCase {
         XCTAssertEqual(frameStatus.value as? String, "1|2|3|0")
     }
 
+    /// 回归：Setup 打开"比赛抬头"并输入后，计分板顶部正中必须显示抬头文本。
+    func testSnookerSetupMatchTitleShowsOnScoreboard() {
+        relaunch()
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "snooker", label: "斯诺克"))
+
+        let titleToggle = app.switches.matching(
+            NSPredicate(format: "label CONTAINS %@", "比赛抬头")
+        ).firstMatch
+        XCTAssertTrue(titleToggle.waitForExistence(timeout: 4), "Snooker match title toggle missing")
+        if let toggleValue = titleToggle.value as? String, toggleValue == "0" {
+            titleToggle.tap()
+        }
+
+        let titleInput = app.textFields["setup_snooker_match_title_input"]
+        XCTAssertTrue(titleInput.waitForExistence(timeout: 3), "Match title input did not appear after toggle")
+        titleInput.tap()
+        titleInput.typeText("2026 City Open")
+
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(waitForPriorityScoreboard())
+
+        let title = app.staticTexts["snooker_match_title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 4), "Match title not visible on snooker scoreboard")
+        XCTAssertEqual(title.label, "2026 City Open")
+
+        // 对齐安卓 persistentTopSupplement：编辑模式下抬头编辑器仍可用。
+        let editButton = app.buttons["scoreboard_edit_button"].firstMatch
+        XCTAssertTrue(editButton.waitForExistence(timeout: 3))
+        editButton.tap()
+        let titleEditor = app.textFields["snooker_match_title_editor"]
+        XCTAssertTrue(titleEditor.waitForExistence(timeout: 3), "Match title editor missing in edit mode")
+        if let editorValue = titleEditor.value as? String {
+            XCTAssertTrue(editorValue.contains("2026 City Open"), "Editor should prefill the current title, got \(editorValue)")
+        }
+        editButton.tap()
+        XCTAssertTrue(
+            app.staticTexts["snooker_match_title"].waitForExistence(timeout: 3),
+            "Match title should stay visible after leaving edit mode"
+        )
+    }
+
     func testSnookerFoulPanelPresentsAndDismissesWithoutBlockingTheScoreboard() {
         relaunch()
         XCTAssertTrue(openPriorityScoreboardSetup(id: "snooker", label: "斯诺克"))
@@ -335,26 +375,6 @@ final class FullAppScreenshotUITests: XCTestCase {
         // Ensure portrait for tab navigation
         XCUIDevice.shared.orientation = .portrait
         RunLoop.current.run(until: Date().addingTimeInterval(0.4))
-    }
-
-    private func captureFirstLaunchLegalScreen() {
-        if app != nil {
-            terminateAndWait(app)
-        }
-        app = XCUIApplication()
-        app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
-            "-legal_documents_accepted_version", "",
-            "-UITestDisableAnalytics",
-            "-UITestScreenshotMode", "1"
-        ]
-        XCUIDevice.shared.orientation = .portrait
-        XCTAssertTrue(launchAndWait(app), "Legal screenshot app failed to reach the foreground")
-
-        let title = app.staticTexts["使用前请先阅读并同意"]
-        XCTAssertTrue(title.waitForExistence(timeout: 8), "First-launch legal screen not ready")
-        snap("00_first_launch_legal")
     }
 
     private func launchAndWait(_ app: XCUIApplication) -> Bool {

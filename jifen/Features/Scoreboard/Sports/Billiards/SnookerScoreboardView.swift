@@ -287,6 +287,8 @@ struct SnookerScoreboardView: View {
                     .zIndex(50)
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .animation(.easeInOut(duration: 0.2), value: showFoulPanel)
     }
 
     private func snookerFrameResultOverlay(winner: MatchSide) -> some View {
@@ -391,13 +393,17 @@ struct SnookerScoreboardView: View {
                     title: NSLocalizedString("record", value: "记录", comment: ""),
                     action: "frameRecord",
                     group: .match,
-                    icon: "list.bullet.rectangle"
+                    icon: "list.bullet.rectangle",
+                    backgroundColor: Color(red: 0x30 / 255, green: 0xD1 / 255, blue: 0x58 / 255).opacity(0.20),
+                    sortOrder: 200
                 ),
                 ScoreboardMenuItem(
                     title: NSLocalizedString("snooker_settle_frame", value: "结算本局", comment: ""),
                     action: "settleFrame",
                     group: .match,
-                    icon: "flag"
+                    icon: "flag",
+                    // 对齐安卓：浅绿高亮卡。
+                    backgroundColor: Color(red: 0x30 / 255, green: 0xD1 / 255, blue: 0x58 / 255).opacity(0.20)
                 )
             ] + WatchLinkMenuSupport.extraItems(
                 entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
@@ -439,7 +445,7 @@ struct SnookerScoreboardView: View {
                     break
                 }
             },
-            seamOverlay: {
+            seamOverlay: { indicatorColor in
                 AnyView(
                     GeometryReader { geo in
                         let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
@@ -447,7 +453,8 @@ struct SnookerScoreboardView: View {
                         )
                         CenterLineServeIndicator(
                             isLeftServing: snookerLogicalSide(onScreen: .left) == displayedState.striker,
-                            triangleSize: indicatorSize
+                            triangleSize: indicatorSize,
+                            color: indicatorColor
                         )
                         .position(x: geo.size.width / 2, y: geo.size.height / 2)
                     }
@@ -455,8 +462,8 @@ struct SnookerScoreboardView: View {
                 )
             },
             bottomBar: { AnyView(snookerBottomBar) },
-            topCenter: { preference, containerSize in
-                AnyView(snookerTopCenter(preference: preference, containerSize: containerSize))
+            topCenter: { preference, containerSize, appearance in
+                AnyView(snookerTopCenter(preference: preference, containerSize: containerSize, appearance: appearance))
             },
             onEditModeChange: { editing in
                 if editing {
@@ -556,7 +563,8 @@ struct SnookerScoreboardView: View {
     @ViewBuilder
     private func snookerTopCenter(
         preference: ScoreboardTypographyPreference,
-        containerSize: CGSize
+        containerSize: CGSize,
+        appearance: ScoreboardAppearanceSnapshot
     ) -> some View {
         VStack(spacing: 6) {
             if scoreboardEditing {
@@ -577,13 +585,21 @@ struct SnookerScoreboardView: View {
             } else if let matchTitle {
                 Text(matchTitle)
                     .font(preference.font.swiftUIFont(size: Theme.usesPadLayout ? 20 : 16, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(matchTitleColor(appearance))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .accessibilityIdentifier("snooker_match_title")
             }
             framePill(preference: preference, containerSize: containerSize)
         }
+    }
+
+    /// matchTitle 全局元素色：V2 已配置（.sideCenter 槽）时取元素色，否则保持白色。
+    private func matchTitleColor(_ appearance: ScoreboardAppearanceSnapshot) -> Color {
+        if appearance.hasElementColor(.matchTitle, slotKey: .sideCenter) {
+            return appearance.elementForeground(.matchTitle, slotKey: .sideCenter)
+        }
+        return .white
     }
 
     private func commitMatchTitle() {

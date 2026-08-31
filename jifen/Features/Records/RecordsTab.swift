@@ -11,6 +11,7 @@ import SwiftUI
 import UIKit
 
 struct RecordsTab: View {
+    @Environment(\.dismissSearch) private var dismissSearch
     @State private var scoreboardVM = ScoreboardRecordsViewModel.shared
     @StateObject private var timerVM = TimerRecordsViewModel.shared
 
@@ -56,7 +57,7 @@ struct RecordsTab: View {
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("search_team_or_game", value: "搜索队伍或项目", comment: "Search placeholder"),
-            isEnabled: true
+            isEnabled: !isEditMode
         )
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -78,6 +79,7 @@ struct RecordsTab: View {
                         Button {
                             recordSelection.clear()
                             isEditMode = true
+                            dismissSearch()
                             AppAnalytics.track(.enterEditMode, parameters: [
                                 .contentType: .string("records")
                             ])

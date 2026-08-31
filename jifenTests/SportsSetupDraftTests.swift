@@ -4,6 +4,79 @@ import XCTest
 
 @MainActor
 final class SportsSetupDraftTests: XCTestCase {
+    // MARK: - Match feature matrix (对齐安卓 SportsSetupMatchFeatures)
+
+    func testMatchFeatureMatrixMirrorsAndroid() {
+        // 乒乓球：单打 3 个，双打 2 个。
+        XCTAssertEqual(
+            SportsSetupMatchFeature.features(for: .pingpong, isSingles: true),
+            [.autoChangeSides, .showMatchTime, .voiceAnnouncement]
+        )
+        XCTAssertEqual(
+            SportsSetupMatchFeature.features(for: .pingpong, isSingles: false),
+            [.autoChangeSides, .voiceAnnouncement]
+        )
+        // 拍类：自动换边 + 语音播报。
+        for gameType: jifen.GameType in [.badminton, .tennis, .pickleball, .shuttlecock, .squash, .softTennis, .padel] {
+            XCTAssertEqual(
+                SportsSetupMatchFeature.features(for: gameType, isSingles: true),
+                [.autoChangeSides, .voiceAnnouncement]
+            )
+        }
+        // 排球类：自动换边 + 显示时间 + 语音播报（对齐安卓，3 个排球均含语音播报）。
+        for gameType: jifen.GameType in [.volleyball, .beachVolleyball, .airVolleyball] {
+            XCTAssertEqual(
+                SportsSetupMatchFeature.features(for: gameType, isSingles: true),
+                [.autoChangeSides, .showMatchTime, .voiceAnnouncement]
+            )
+        }
+        // 其余项目严格对齐安卓 else -> emptyList：无功能区块（含语音播报）。
+        for gameType: jifen.GameType in [
+            .basketball, .threeBasketball, .boxing, .archery, .foosball,
+            .billiards, .eightBall, .nineBall, .snooker,
+            .guandan, .doudizhu, .shengji, .uno,
+            .simpleScore, .multiScoreboard, .counter
+        ] {
+            XCTAssertTrue(
+                SportsSetupMatchFeature.features(for: gameType, isSingles: true).isEmpty,
+                "\(gameType.rawValue) should expose no match features"
+            )
+        }
+        // 纯计时与棋类：无功能区块。
+        for gameType: jifen.GameType in [.stopwatch, .football, .football5v5, .go, .xiangqi, .chess, .checkers] {
+            XCTAssertTrue(
+                SportsSetupMatchFeature.features(for: gameType, isSingles: true).isEmpty,
+                "\(gameType.rawValue) should expose no match features"
+            )
+        }
+    }
+
+    func testMakeResultWritesVoiceAnnouncementOnlyWhenFeaturePresent() {
+        // 斯诺克不在矩阵内（安卓无功能区块），不输出该字段。
+        var snookerDraft = SportsSetupDraft()
+        snookerDraft.initialize(
+            gameType: .snooker,
+            initialSetup: nil,
+            initialMaxSets: nil,
+            initialPointsPerSet: nil,
+            initialTieBreakPoints: nil
+        )
+        snookerDraft.voiceAnnouncement = true
+        XCTAssertNil(snookerDraft.makeResult(gameType: .snooker, usesDoublesPlayerInputs: false).voiceAnnouncement)
+
+        // 计时项目矩阵为空，不输出该字段。
+        var stopwatchDraft = SportsSetupDraft()
+        stopwatchDraft.initialize(
+            gameType: .stopwatch,
+            initialSetup: nil,
+            initialMaxSets: nil,
+            initialPointsPerSet: nil,
+            initialTieBreakPoints: nil
+        )
+        stopwatchDraft.voiceAnnouncement = true
+        XCTAssertNil(stopwatchDraft.makeResult(gameType: .stopwatch, usesDoublesPlayerInputs: false).voiceAnnouncement)
+    }
+
     func testInitializationAppliesSportDefaults() {
         var draft = SportsSetupDraft()
 

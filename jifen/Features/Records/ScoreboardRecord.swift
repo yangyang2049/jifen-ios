@@ -153,6 +153,10 @@ struct ScoreboardRecord: Codable, Identifiable {
     /// Optional user-authored local annotation. It is deliberately outside
     /// the score snapshot so editing it never changes replay semantics.
     var note: String?
+    /// 本地语音笔记（相对路径 + 时长），与安卓 ScoreboardRecordVoiceNote 对齐。
+    var voiceNote: ScoreboardRecordVoiceNote?
+    /// 结果纠错留痕：改比分前的原始分值。nil 表示从未纠错。
+    var correction: RecordScoreCorrection?
     var status: ScoreboardRecordStatus = .finished
     
     enum CodingKeys: String, CodingKey {
@@ -179,6 +183,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         case stateSnapshot
         case syncMetadata
         case note
+        case voiceNote
+        case correction
         case status
     }
 
@@ -205,6 +211,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         stateSnapshot: Data? = nil,
         syncMetadata: [String: String]? = nil,
         note: String? = nil,
+        voiceNote: ScoreboardRecordVoiceNote? = nil,
+        correction: RecordScoreCorrection? = nil,
         status: ScoreboardRecordStatus = .finished
     ) {
         self.schemaVersion = Self.currentSchemaVersion
@@ -230,6 +238,8 @@ struct ScoreboardRecord: Codable, Identifiable {
         self.stateSnapshot = stateSnapshot
         self.syncMetadata = syncMetadata
         self.note = note
+        self.voiceNote = voiceNote
+        self.correction = correction
         self.status = status
     }
 
@@ -260,7 +270,72 @@ struct ScoreboardRecord: Codable, Identifiable {
         stateSnapshot = try container.decodeIfPresent(Data.self, forKey: .stateSnapshot)
         syncMetadata = try container.decodeIfPresent([String: String].self, forKey: .syncMetadata)
         note = try container.decodeIfPresent(String.self, forKey: .note)
+        voiceNote = try container.decodeIfPresent(ScoreboardRecordVoiceNote.self, forKey: .voiceNote)
+        correction = try container.decodeIfPresent(RecordScoreCorrection.self, forKey: .correction)
         status = try container.decodeIfPresent(ScoreboardRecordStatus.self, forKey: .status) ?? .finished
+    }
+}
+
+/// 结果纠错留痕：记录纠错前的原始比分，供详情页展示「原比分」与后续审计。
+struct RecordScoreCorrection: Codable, Equatable {
+    var correctedAt: Date
+    var previousTeam1FinalScore: Int
+    var previousTeam2FinalScore: Int
+    var previousTeam1SetScore: Int?
+    var previousTeam2SetScore: Int?
+}
+
+enum ScoreboardRecordCorrection {
+    /// 结果纠错变换：修改最终比分/局分并按展示层级（局分优先，其次当局分，
+    /// 平局无胜者）重算胜者。首次纠错把原始分值写入 `correction` 留痕；
+    /// `stateSnapshot`、`detailedActions` 等回放语义字段保持原样。
+    static func applied(
+        to record: ScoreboardRecord,
+        correctedAt: Date = Date(),
+        team1FinalScore: Int,
+        team2FinalScore: Int,
+        team1SetScore: Int?,
+        team2SetScore: Int?
+    ) -> ScoreboardRecord {
+        var corrected = record
+        if corrected.correction == nil {
+            corrected.correction = RecordScoreCorrection(
+                correctedAt: correctedAt,
+                previousTeam1FinalScore: record.team1FinalScore,
+                previousTeam2FinalScore: record.team2FinalScore,
+                previousTeam1SetScore: record.team1SetScore,
+                previousTeam2SetScore: record.team2SetScore
+            )
+        }
+        corrected.team1FinalScore = team1FinalScore
+        corrected.team2FinalScore = team2FinalScore
+        corrected.team1SetScore = team1SetScore
+        corrected.team2SetScore = team2SetScore
+
+        if let set1 = corrected.team1SetScore, let set2 = corrected.team2SetScore, set1 != set2 {
+            corrected.winnerTeamID = set1 > set2 ? .team0 : .team1
+        } else if team1FinalScore != team2FinalScore {
+            corrected.winnerTeamID = team1FinalScore > team2FinalScore ? .team0 : .team1
+        } else {
+            corrected.winnerIdentity = nil
+            corrected.winner = nil
+        }
+        return corrected
+    }
+}
+
+/// 本地语音笔记元数据：只存相对路径与时长，音频文件由 ScoreboardRecordManager 管理。
+struct ScoreboardRecordVoiceNote: Codable, Equatable {
+    var relativePath: String
+    var durationMs: Int
+}
+
+enum ScoreboardRecordVoiceNoteLimits {
+    static let minimumDurationMs = 2_000
+    static let maximumDurationMs = 60_000
+
+    static func isDurationValid(_ durationMs: Int) -> Bool {
+        durationMs >= minimumDurationMs && durationMs <= maximumDurationMs
     }
 }
 
@@ -618,8 +693,31 @@ extension ScoreboardRecord {
     }
 
     func displayScore(separator: String = " : ") -> String {
+        if let hierarchy = hierarchyScoreLine(separator: separator) {
+            return hierarchy
+        }
+        return finalScoreLine(separator: separator)
+    }
+
+    /// Points-only line ("当局分"). Resume payloads keep this level because the
+    /// user is resuming the game in progress, not the finished sets.
+    func finalScoreLine(separator: String = " : ") -> String {
         let scores = displayParticipants.map { String($0.score) }
         return scores.isEmpty ? "\(team1FinalScore)\(separator)\(team2FinalScore)" : scores.joined(separator: separator)
+    }
+
+    /// Result display hierarchy aligned with Android `ScoreboardRecordDisplay`:
+    /// 盘分/局分 first, falling back to 当局分 ("依次下降").
+    func hierarchyScoreLine(separator: String = " : ") -> String? {
+        ScoreboardRecordScoreHierarchy.line(
+            gameType: gameType,
+            team1SetScore: team1SetScore,
+            team2SetScore: team2SetScore,
+            team1FinalScore: team1FinalScore,
+            team2FinalScore: team2FinalScore,
+            isTennisTiebreakOnly: isTennisTiebreakOnly,
+            separator: separator
+        )
     }
 }
 
@@ -717,8 +815,51 @@ extension ScoreboardRecordSummary {
     }
 
     func displayScore(separator: String = " : ") -> String {
+        if let left = team1SetScore, let right = team2SetScore,
+           let hierarchy = ScoreboardRecordScoreHierarchy.line(
+               gameType: gameType,
+               team1SetScore: left,
+               team2SetScore: right,
+               team1FinalScore: team1FinalScore,
+               team2FinalScore: team2FinalScore,
+               isTennisTiebreakOnly: scoreboardString(mergedProjectConfiguration["setScoringMode"]) == TennisSetScoringMode.tiebreakOnly.rawValue,
+               separator: separator
+           ) {
+            return hierarchy
+        }
         let scores = displayParticipants.map { String($0.score) }
         return scores.isEmpty ? "\(team1FinalScore)\(separator)\(team2FinalScore)" : scores.joined(separator: separator)
+    }
+}
+
+/// Shared result-score hierarchy, mirrored from Android
+/// `helpers/ScoreboardRecordDisplay.kt`: racket/volley families show the
+/// 盘分/局分 level when it is populated, otherwise fall back to 当局分.
+enum ScoreboardRecordScoreHierarchy {
+    static func prefersSetScore(_ gameType: GameType) -> Bool {
+        switch gameType {
+        case .badminton, .shuttlecock, .squash, .padel,
+             .pingpong, .volleyball, .airVolleyball, .beachVolleyball,
+             .tennis, .pickleball, .foosball:
+            return true
+        default:
+            return false
+        }
+    }
+
+    static func line(
+        gameType: GameType,
+        team1SetScore: Int?,
+        team2SetScore: Int?,
+        team1FinalScore: Int,
+        team2FinalScore: Int,
+        isTennisTiebreakOnly: Bool,
+        separator: String
+    ) -> String? {
+        guard prefersSetScore(gameType), !isTennisTiebreakOnly,
+              let left = team1SetScore, let right = team2SetScore else { return nil }
+        guard left + right > 0 || team1FinalScore + team2FinalScore == 0 else { return nil }
+        return "\(left)\(separator)\(right)"
     }
 }
 
@@ -943,7 +1084,7 @@ extension ScoreCore.GameType {
         case .shuttlecock: return NSLocalizedString("game_shuttlecock", value: "毽球", comment: "")
         case .squash: return NSLocalizedString("game_squash", value: "壁球", comment: "")
         case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "")
-        case .padel: return NSLocalizedString("game_padel", value: "板式网球", comment: "")
+        case .padel: return NSLocalizedString("game_padel", value: "板网球", comment: "")
         case .football5v5: return NSLocalizedString("game_football_5v5", value: "5×5 足球", comment: "")
         default: return scoreboardAppGameType(for: self)?.displayName ?? rawValue
         }

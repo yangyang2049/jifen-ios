@@ -169,6 +169,7 @@ struct ShengjiScoreboardView: View {
                 )
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
     }
 
     private var finishedRecordDetailPage: some View {
@@ -209,7 +210,7 @@ struct ShengjiScoreboardView: View {
                     send(.addLevels(side: side, delta: delta))
                 }
             },
-            seamOverlay: state.dealer == nil ? nil : {
+            seamOverlay: state.dealer == nil ? nil : { indicatorColor in
                 AnyView(
                     GeometryReader { geo in
                         let indicatorSize = ScoreboardLayoutMetrics.serveIndicatorSize(
@@ -218,7 +219,7 @@ struct ShengjiScoreboardView: View {
                         CenterLineServeIndicator(
                             isLeftServing: state.dealer == shengjiLogicalSide(onScreen: .left),
                             triangleSize: indicatorSize,
-                            color: ScoreboardTheme.serverIndicatorColor
+                            color: indicatorColor
                         )
                         .position(x: geo.size.width / 2, y: geo.size.height / 2)
                     }

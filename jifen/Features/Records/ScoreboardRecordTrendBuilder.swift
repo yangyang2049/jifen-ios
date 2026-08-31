@@ -24,10 +24,11 @@ enum ScoreboardRecordTrendBuilder {
     ) -> [ScoreboardRecordTrendTab] {
         guard policy.trendAllowed else { return [] }
 
+        // Mirrors Android hasMultiParticipantScores: hide charts for records
+        // with more than two participants (team3/extra players).
         let participants = record.displayParticipants
-        if policy.trendRequiresTwoPlayers,
-           !participants.isEmpty,
-           participants.count != 2 {
+        if policy.trendExcludesMultiParticipant,
+           participants.count > 2 {
             return []
         }
 

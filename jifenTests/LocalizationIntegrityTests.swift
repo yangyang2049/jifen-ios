@@ -194,7 +194,6 @@ final class LocalizationIntegrityTests: XCTestCase {
             "jifen/Features/Activity/TimerRecordDetailPage.swift",
             "jifen/Features/Me/SettingsView.swift",
             "jifen/Features/Me/WatchLinkSettingsView.swift",
-            "jifen/Features/Legal/FirstLaunchLegalScreen.swift",
             "jifen/Features/Schedule/SchedulePage.swift",
             "jifen/Features/Home/Components/CommonDataManagementShared.swift",
             "jifen/Features/Tools/ToolsTab.swift",

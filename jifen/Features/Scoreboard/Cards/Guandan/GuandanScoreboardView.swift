@@ -564,6 +564,7 @@ struct GuandanScoreboardView: View {
                 )
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)

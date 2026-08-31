@@ -236,7 +236,8 @@ public enum OfficialBreakVoiceMapper {
 public enum VoiceAnnouncementSupport {
     public static func isSupported(_ gameType: GameType) -> Bool {
         isBadminton(gameType) || isPingpong(gameType) || isTennisFamily(gameType)
-            || isPickleball(gameType) || gameType == .squash || gameType == .shuttlecock
+            || isPickleball(gameType) || isVolleyball(gameType)
+            || gameType == .squash || gameType == .shuttlecock
     }
 
     public static func isBadminton(_ gameType: GameType) -> Bool {
@@ -257,6 +258,10 @@ public enum VoiceAnnouncementSupport {
 
     public static func isPickleball(_ gameType: GameType) -> Bool {
         gameType == .pickleball || gameType == .pickleballDoubles
+    }
+
+    public static func isVolleyball(_ gameType: GameType) -> Bool {
+        gameType == .volleyball || gameType == .beachVolleyball || gameType == .airVolleyball
     }
 }
 
@@ -1251,6 +1256,7 @@ public enum RallyVoiceAnnouncementMapper {
         let isRallyVoice = VoiceAnnouncementSupport.isBadminton(gameType)
             || VoiceAnnouncementSupport.isPingpong(gameType)
             || VoiceAnnouncementSupport.isPickleball(gameType)
+            || VoiceAnnouncementSupport.isVolleyball(gameType)
             || gameType == .squash
             || gameType == .shuttlecock
         guard VoiceAnnouncementSupport.isSupported(gameType), isRallyVoice else {
@@ -1354,6 +1360,9 @@ public enum RallyVoiceAnnouncementMapper {
                 return before.servingSide != servingSideAfterPoint
             }
             if VoiceAnnouncementSupport.isBadminton(gameType) {
+                return before.servingSide != point.0
+            }
+            if VoiceAnnouncementSupport.isVolleyball(gameType) {
                 return before.servingSide != point.0
             }
             // Pickleball traditional: only server scores — serviceOver only on sideOut path.

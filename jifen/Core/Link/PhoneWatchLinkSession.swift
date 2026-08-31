@@ -654,9 +654,15 @@ extension PhoneWatchLinkService {
     }
 
 
+    /// 对齐鸿蒙增量合并语义：按动作 id 求并集去重，保留双端并发的动作，
+    /// 再按时间戳排序。整体替换会丢失另一端离线期间新增的动作。
     func mergeDetailedActions(_ incoming: [DetailedScoreAction]?) {
         guard let incoming, !incoming.isEmpty else { return }
-        mergedDetailedActions = incoming.sorted {
+        var byID = Dictionary(mergedDetailedActions.map { ($0.id, $0) }, uniquingKeysWith: { _, existing in existing })
+        for action in incoming where byID[action.id] == nil {
+            byID[action.id] = action
+        }
+        mergedDetailedActions = byID.values.sorted {
             ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
         }
     }

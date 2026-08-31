@@ -101,6 +101,7 @@ struct RallyScoreboardView: View {
     @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
+    @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
     @State private var showMenu = false
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
@@ -337,6 +338,8 @@ struct RallyScoreboardView: View {
                     .allowsHitTesting(false)
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+            .animation(.easeInOut(duration: 0.2), value: toastMessage)
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
@@ -457,6 +460,11 @@ struct RallyScoreboardView: View {
             ))
         }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
+        .scoreboardStyleEditorEntry(
+            styleEditorEntry,
+            typographySession: typographySession,
+            onEditingChange: { _ in updateImmersiveForBlocking() }
+        )
         .onChange(of: typographySession.effectivePreference) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
@@ -596,6 +604,10 @@ struct RallyScoreboardView: View {
                     guard !isEditMode else { return }
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
+                    } else if value.translation.height < -50 && abs(value.translation.width) < 50 {
+                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）。
+                        guard !store.state.finished else { return }
+                        handlePointWon(side)
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
@@ -621,26 +633,38 @@ struct RallyScoreboardView: View {
         let nameSize = typography.nameFontSize
         let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
+        // 元素级取色（V2 槽位配置优先；未配置时回落面板级解析色）。
+        let slotKey: ScoreboardStyleSlotKeyV2 = side == .left ? .sideLeft : .sideRight
 
         return VStack(spacing: 0) {
             Text(name)
                 .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
+                .foregroundStyle(appearance.elementForeground(.teamName, slotKey: slotKey))
                 .lineLimit(isFoosballDoubles ? 2 : 1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 8)
             Spacer().frame(height: nameToMain)
             Text("\(score)")
                 .font(typographyPreference.font.swiftUIFont(size: mainSize))
+                .foregroundStyle(appearance.elementForeground(.mainScore, slotKey: slotKey))
                 .monospacedDigit()
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
             Spacer().frame(height: mainToSet)
             Text("\(sets)")
                 .font(typographyPreference.font.swiftUIFont(size: setSize))
+                .foregroundStyle(setsColor(slotKey: slotKey))
                 .monospacedDigit()
-                .foregroundStyle(palette.foreground(for: side == .left ? .team0 : .team1).opacity(0.7))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// 局分色：V2 配置优先；未配置保持旧默认（面板解析色 70% 透明）。
+    private func setsColor(slotKey: ScoreboardStyleSlotKeyV2, element: ScoreboardStyleElementKeyV2 = .setScore) -> Color {
+        if appearance.hasElementColor(element, slotKey: slotKey) {
+            return appearance.elementForeground(element, slotKey: slotKey)
+        }
+        return palette.foreground(for: slotKey.legacySlot == .team0 ? .team0 : .team1).opacity(0.7)
     }
 
     private func singlesEditContent(side: MatchSide, size: CGSize) -> some View {
@@ -734,6 +758,10 @@ struct RallyScoreboardView: View {
                     guard !isEditMode else { return }
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
+                    } else if value.translation.height < -50 && abs(value.translation.width) < 50 {
+                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）。
+                        guard !store.state.finished else { return }
+                        handlePointWon(side)
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
@@ -924,6 +952,10 @@ struct RallyScoreboardView: View {
                     guard !isEditMode else { return }
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
+                    } else if value.translation.height < -50 && abs(value.translation.width) < 50 {
+                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）。
+                        guard !store.state.finished else { return }
+                        handlePointWon(side)
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
@@ -952,11 +984,18 @@ struct RallyScoreboardView: View {
         let secondaryColumnWidth = ScoreboardLayoutMetrics.doublesSecondaryColumnWidth(
             halfViewportWidth: panelSize.width
         )
+        // 元素级取色（V2 槽位配置优先；未配置时回落旧默认）。
+        let slotKey: ScoreboardStyleSlotKeyV2 = side == .left ? .sideLeft : .sideRight
+        let scoreColor = appearance.elementForeground(.mainScore, slotKey: slotKey)
+        let setsColor: Color = appearance.hasElementColor(.setGameScore, slotKey: slotKey)
+            ? appearance.elementForeground(.setGameScore, slotKey: slotKey)
+            : palette.secondary
 
         return HStack(spacing: 0) {
             if screenSide == .left {
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
+                    .foregroundStyle(scoreColor)
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -964,7 +1003,7 @@ struct RallyScoreboardView: View {
                 Text("\(sets)")
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
-                    .foregroundStyle(palette.secondary)
+                    .foregroundStyle(setsColor)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(width: secondaryColumnWidth)
@@ -972,12 +1011,13 @@ struct RallyScoreboardView: View {
                 Text("\(sets)")
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
-                    .foregroundStyle(palette.secondary)
+                    .foregroundStyle(setsColor)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(width: secondaryColumnWidth)
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
+                    .foregroundStyle(scoreColor)
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -1291,7 +1331,8 @@ struct RallyScoreboardView: View {
             let isTopRow = doublesServerIsTopRow(doubles)
             CenterLineServeIndicator(
                 isLeftServing: servingIsLeftScreen,
-                triangleSize: triangleSize
+                triangleSize: triangleSize,
+                color: appearance.serverIndicatorColor
             )
             .position(
                 x: size.width / 2,
@@ -1301,7 +1342,8 @@ struct RallyScoreboardView: View {
         } else {
             CenterLineServeIndicator(
                 isLeftServing: servingIsLeftScreen,
-                triangleSize: triangleSize
+                triangleSize: triangleSize,
+                color: appearance.serverIndicatorColor
             )
                 .position(x: size.width / 2, y: size.height / 2)
                 .allowsHitTesting(false)
@@ -1410,6 +1452,7 @@ struct RallyScoreboardView: View {
             showWhistle: true,
             showScreenshot: true,
             showDisplaySettings: true,
+            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
             showSettleMatch: gameType == .foosball || gameType == .foosballDoubles,
             resetConfirming: menuConfirm.resetConfirming,
             exchangeConfirming: menuConfirm.exchangeConfirming,
@@ -1464,8 +1507,14 @@ struct RallyScoreboardView: View {
                 showToast(ScoreboardMenuConfirmAction.settleMatch.localizedToast)
             }
         case "displaySettings":
-            showDisplaySettings = true
             showMenu = false
+            // 白名单项目打开新样式编辑器（对齐安卓 useStyleEditLabel 分叉）。
+            if !styleEditorEntry.handleDisplaySettings(
+                styleID: typographySession.styleID,
+                typographySession: typographySession
+            ) {
+                showDisplaySettings = true
+            }
         case "usageHint":
             showMenu = false
             activeUsageHintCoordinator?.presentFromMenu()
@@ -1733,14 +1782,16 @@ struct RallyScoreboardView: View {
         )
     }
 
+    private var isStyleEditing: Bool { styleEditorEntry.isEditing }
+
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || isEditMode || showDisplaySettings || showMenu
+        !isStyleEditing && (!appearance.immersiveMode || chromeVisible || isEditMode || showDisplaySettings || showMenu)
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !isEditMode, !showDisplaySettings, !showMenu else { return }
+        guard appearance.immersiveMode, !isEditMode, !showDisplaySettings, !showMenu, !isStyleEditing else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -1753,14 +1804,15 @@ struct RallyScoreboardView: View {
                   appearance.immersiveMode,
                   !isEditMode,
                   !showDisplaySettings,
-                  !showMenu else { return }
+                  !showMenu,
+                  !isStyleEditing else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
         }
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || isEditMode || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || isEditMode || isStyleEditing || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {

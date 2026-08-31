@@ -118,9 +118,7 @@ struct TimerTab: View {
         )
 
         return VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
-            Text(title)
-                .font(.system(size: Theme.fontH5, weight: .medium))
-                .foregroundColor(Theme.textPrimary)
+            SectionTitleView(title: title)
 
             LazyVGrid(columns: columns, spacing: Theme.gridSpacing) {
                 ForEach(items, id: \.self) { dest in

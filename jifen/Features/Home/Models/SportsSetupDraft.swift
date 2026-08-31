@@ -472,6 +472,12 @@ extension SportsSetupDraft {
             break
         }
 
+        // 语音播报开关统一写入：矩阵包含该功能的项目才输出（对齐安卓）。
+        if SportsSetupMatchFeature.features(for: gameType, isSingles: isSingles)
+            .contains(.voiceAnnouncement) {
+            result.voiceAnnouncement = voiceAnnouncement
+        }
+
         return result
     }
 

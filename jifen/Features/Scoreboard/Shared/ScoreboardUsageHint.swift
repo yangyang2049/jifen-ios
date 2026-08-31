@@ -228,9 +228,18 @@ struct ScoreboardUsageHintDialogMetrics: Equatable {
     }
 }
 
+private struct ScoreboardUsageHintBodyHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 struct ScoreboardUsageHintDialog: View {
     let descriptor: ScoreboardUsageHintDescriptor
     let onDismiss: () -> Void
+
+    @State private var bodyTextHeight: CGFloat = 0
 
     var body: some View {
         GeometryReader { proxy in
@@ -255,35 +264,35 @@ struct ScoreboardUsageHintDialog: View {
                     .onTapGesture { }
 
                 VStack(spacing: metrics.contentSpacing) {
-                    ZStack {
-                        Text(NSLocalizedString(
-                            "scoreboard_usage_hint_title",
-                            value: "使用说明",
-                            comment: ""
-                        ))
-                        .font(.system(size: metrics.titleFontSize, weight: .bold))
-                        .foregroundStyle(Theme.scoreboardDialogTextPrimary)
-                        .frame(maxWidth: .infinity)
+                    Text(NSLocalizedString(
+                        "scoreboard_usage_hint_title",
+                        value: "使用说明",
+                        comment: ""
+                    ))
+                    .font(.system(size: metrics.titleFontSize, weight: .bold))
+                    .foregroundStyle(Theme.scoreboardDialogTextPrimary)
+                    .frame(maxWidth: .infinity)
 
-                        HStack {
-                            Spacer()
-                            ScoreboardDialogCloseButton(
-                                action: onDismiss,
-                                accessibilityIdentifier: "scoreboard_usage_hint_close"
-                            )
-                        }
-                    }
-
+                    // 短说明按内容收缩高度，只有长说明才撑到 maximumBodyHeight 出现滚动。
                     ScrollView {
                         Text(descriptor.localizedMessage)
                             .font(.system(size: metrics.bodyFontSize))
                             .lineSpacing(metrics.bodyLineSpacing)
                             .foregroundStyle(Theme.scoreboardDialogTextPrimary.opacity(0.86))
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                GeometryReader { textGeometry in
+                                    Color.clear.preference(
+                                        key: ScoreboardUsageHintBodyHeightKey.self,
+                                        value: textGeometry.size.height
+                                    )
+                                }
+                            )
                             .accessibilityIdentifier("scoreboard_usage_hint_body")
                     }
                     .scrollIndicators(.automatic)
-                    .frame(maxHeight: maximumBodyHeight)
+                    .frame(height: bodyTextHeight > 0 ? min(bodyTextHeight, maximumBodyHeight) : maximumBodyHeight)
+                    .onPreferenceChange(ScoreboardUsageHintBodyHeightKey.self) { bodyTextHeight = $0 }
 
                     Button(action: onDismiss) {
                         Text(NSLocalizedString(

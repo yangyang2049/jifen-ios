@@ -87,6 +87,10 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
     public let gameNumber: Int?
     public let roundNumber: Int?
     public let periodNumber: Int?
+    /// Seconds elapsed on the in-period game clock at the time of the action
+    /// (basketball-style sports only). Optional keeps older records
+    /// source-compatible.
+    public let gameTimeSeconds: Int?
     public let scoreChange: Int?
     public let winner: RecordTeam?
     public let loser: RecordTeam?
@@ -115,6 +119,7 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
         gameNumber: Int? = nil,
         roundNumber: Int? = nil,
         periodNumber: Int? = nil,
+        gameTimeSeconds: Int? = nil,
         scoreChange: Int? = nil,
         winner: RecordTeam? = nil,
         loser: RecordTeam? = nil,
@@ -137,6 +142,7 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
         self.gameNumber = gameNumber
         self.roundNumber = roundNumber
         self.periodNumber = periodNumber
+        self.gameTimeSeconds = gameTimeSeconds
         self.scoreChange = scoreChange
         self.winner = winner
         self.loser = loser

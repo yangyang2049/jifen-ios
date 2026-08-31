@@ -25,11 +25,7 @@ struct QuickStartGridView: View {
             if showSectionTitle {
                 // Header
                 HStack { // Row()
-                    HStack(spacing: Theme.sm) { // Row({ space: Spacing.sm })
-                        Text(quickStartText)
-                            .font(.system(size: Theme.fontH5, weight: .medium)) // FontSizes.h5, FontWeight.Medium
-                            .foregroundColor(Theme.textPrimary) // Colors.textPrimary
-                    }
+                    SectionTitleView(title: quickStartText)
 
                     Spacer() // For justifyContent(FlexAlign.SpaceBetween)
 

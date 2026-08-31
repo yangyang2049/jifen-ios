@@ -97,6 +97,7 @@ struct MultiScoreboardView: View {
     @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
+    @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
     @State private var previousIdleTimerDisabled: Bool?
     @State private var chromeVisible = true
     @State private var immersiveGeneration = 0
@@ -253,6 +254,12 @@ struct MultiScoreboardView: View {
                     )
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showMenu)
+            .animation(.easeInOut(duration: 0.2), value: customAdjustIndex)
+            .animation(.easeInOut(duration: 0.2), value: playerEditIndex)
+            .animation(.easeInOut(duration: 0.2), value: showUnoRoundPanel)
+            .animation(.easeInOut(duration: 0.2), value: toastMessage)
+            .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
         }
         .ignoresSafeArea(.all)
         .navigationTitle(gameType.displayName)
@@ -307,6 +314,7 @@ struct MultiScoreboardView: View {
                 ? ScoreboardTypographyProfile.uno.adjustableMetrics
                 : ScoreboardTypographyProfile.multi.adjustableMetrics
         )
+        .scoreboardStyleEditorEntry(styleEditorEntry, typographySession: typographySession)
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordId)
@@ -539,6 +547,8 @@ struct MultiScoreboardView: View {
             showExchangeSide: false,
             showWhistle: true,
             showScreenshot: true,
+            showDisplaySettings: true,
+            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
             showSettleMatch: true,
             resetConfirming: menuConfirm.resetConfirming,
             finishConfirming: menuConfirm.finishConfirming,
@@ -568,8 +578,14 @@ struct MultiScoreboardView: View {
         case "settleMatch":
             handleSettleAttempt()
         case "displaySettings":
-            showDisplaySettings = true
             showMenu = false
+            // 白名单项目打开新样式编辑器（对齐安卓 useStyleEditLabel 分叉）。
+            if !styleEditorEntry.handleDisplaySettings(
+                styleID: typographySession.styleID,
+                typographySession: typographySession
+            ) {
+                showDisplaySettings = true
+            }
         case "layout":
             toggleLayout()
         case "exit":
@@ -1143,13 +1159,19 @@ struct MultiScoreboardView: View {
     // MARK: - Appearance / sync
 
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || showMenu || showDisplaySettings || showUnoRoundPanel || playerEditIndex != nil
+        !styleEditorEntry.isEditing
+            && (!appearance.immersiveMode || chromeVisible || showMenu || showDisplaySettings || showUnoRoundPanel || playerEditIndex != nil)
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !showMenu, !showDisplaySettings, !showUnoRoundPanel, playerEditIndex == nil else { return }
+        guard appearance.immersiveMode,
+              !showMenu,
+              !showDisplaySettings,
+              !showUnoRoundPanel,
+              playerEditIndex == nil,
+              !styleEditorEntry.isEditing else { return }
         let generation = immersiveGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             guard generation == immersiveGeneration,
@@ -1157,7 +1179,8 @@ struct MultiScoreboardView: View {
                   !showMenu,
                   !showDisplaySettings,
                   !showUnoRoundPanel,
-                  playerEditIndex == nil else { return }
+                  playerEditIndex == nil,
+                  !styleEditorEntry.isEditing else { return }
             chromeVisible = false
         }
     }

@@ -46,7 +46,9 @@
 		F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */; };
 		F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* AppAnalyticsTests.swift */; };
 		F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90000000000000000000001 /* LocalizationIntegrityTests.swift */; };
+		FA0000000000000000000002 /* ScoreboardStyleV2ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* ScoreboardStyleV2ModelTests.swift */; };
 		FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000000000000000000001 /* RemodelFocusUITests.swift */; };
+		FA2000000000000000000002 /* ScoreboardStyleEditorControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */; };
 		FB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */; };
 		FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */; };
 		FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */; };
@@ -139,7 +141,9 @@
 		F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScreenshotSaveCoordinatorTests.swift; sourceTree = "<group>"; };
 		F80000000000000000000001 /* AppAnalyticsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppAnalyticsTests.swift; sourceTree = "<group>"; };
 		F90000000000000000000001 /* LocalizationIntegrityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationIntegrityTests.swift; sourceTree = "<group>"; };
+		FA0000000000000000000001 /* ScoreboardStyleV2ModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardStyleV2ModelTests.swift; sourceTree = "<group>"; };
 		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
+		FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardStyleEditorControllerTests.swift; sourceTree = "<group>"; };
 		FB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneWatchLinkServiceTests.swift; sourceTree = "<group>"; };
 		FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardUsageHintTests.swift; sourceTree = "<group>"; };
 		FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardResumeAndWinnerIdentityTests.swift; sourceTree = "<group>"; };
@@ -274,6 +278,8 @@
 				F20000000000000000000001 /* ScoreboardCatalogTests.swift */,
 				F30000000000000000000001 /* RandomTeamAssignmentTests.swift */,
 				F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */,
+				FA0000000000000000000001 /* ScoreboardStyleV2ModelTests.swift */,
+				FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */,
 				F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */,
 				F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */,
 				F60000000000000000000001 /* AppReviewPromptTests.swift */,
@@ -663,6 +669,8 @@
 				F20000000000000000000002 /* ScoreboardCatalogTests.swift in Sources */,
 				F30000000000000000000002 /* RandomTeamAssignmentTests.swift in Sources */,
 				F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */,
+				FA0000000000000000000002 /* ScoreboardStyleV2ModelTests.swift in Sources */,
+				FA2000000000000000000002 /* ScoreboardStyleEditorControllerTests.swift in Sources */,
 				F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */,
 				F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */,
 				F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */,
@@ -863,8 +871,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 30;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -872,6 +881,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iScoreboard;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "我们需要访问您的相册以保存计分板截图。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = NO;
@@ -886,7 +896,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 2.1;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -912,8 +922,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 30;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -921,6 +932,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iScoreboard;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "我们需要访问您的相册以保存计分板截图。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = NO;
@@ -935,7 +947,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 2.1;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;

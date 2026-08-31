@@ -49,13 +49,15 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     var extraMenuItems: [ScoreboardMenuItem] = []
     var onMenuAction: ((String) -> Void)? = nil
     /// Optional overlay between the halves (e.g. serve triangle). Drawn above panels.
-    var seamOverlay: (() -> AnyView)? = nil
+    /// 参数为当前样式的发球指示器色（未配置时回落默认绿）。
+    var seamOverlay: ((Color) -> AnyView)? = nil
     /// Optional controls rendered directly below each side's main score.
     var panelAccessory: ((Bool) -> AnyView)? = nil
     /// Optional floating bottom dock (e.g. snooker balls).
     var bottomBar: (() -> AnyView)? = nil
     /// Optional top-center pill.
-    var topCenter: ((ScoreboardTypographyPreference, CGSize) -> AnyView)? = nil
+    /// 第三参数为当前样式快照（可用于 matchTitle 等全局元素取色）。
+    var topCenter: ((ScoreboardTypographyPreference, CGSize, ScoreboardAppearanceSnapshot) -> AnyView)? = nil
     var onEditModeChange: ((Bool) -> Void)? = nil
     var onTypographyChange: ((ScoreboardTypographyPreference) -> Void)? = nil
     /// Stable team color placement; supplied values are already screen ordered.
@@ -68,6 +70,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     )
     @State private var preferences = PreferencesManager.shared
     @State private var showDisplaySettings = false
+    @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
     @State private var showMenu = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var previousIdleTimerDisabled: Bool?
@@ -82,8 +85,10 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     @State private var showToast = false
     @State private var toastMessage = ""
 
+    private var isStyleEditing: Bool { styleEditorEntry.isEditing }
+
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu
+        !isStyleEditing && (!appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu)
     }
 
     private var resolvedNameType: NameType {
@@ -94,7 +99,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         GeometryReader { proxy in
             let halfH = proxy.size.height
             ZStack {
-                appearance.theme.palette.background.ignoresSafeArea()
+                appearance.palette.background.ignoresSafeArea()
 
                 HStack(spacing: 0) {
                     scorePanel(
@@ -102,7 +107,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         name: leftName,
                         score: leftScore,
                         detail: leftDetail,
-                        color: sidesSwapped ? appearance.theme.palette.right : appearance.theme.palette.left,
+                        color: sidesSwapped ? appearance.palette.right : appearance.palette.left,
                         panelSize: CGSize(width: proxy.size.width / 2, height: halfH),
                         accessory: panelAccessory?(true),
                         action: onLeftTap
@@ -116,7 +121,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         name: rightName,
                         score: rightScore,
                         detail: rightDetail,
-                        color: sidesSwapped ? appearance.theme.palette.left : appearance.theme.palette.right,
+                        color: sidesSwapped ? appearance.palette.left : appearance.palette.right,
                         panelSize: CGSize(width: proxy.size.width / 2, height: halfH),
                         accessory: panelAccessory?(false),
                         action: onRightTap
@@ -127,12 +132,13 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                 }
 
                 if !isEditMode, !finished, let seamOverlay {
-                    seamOverlay()
+                    seamOverlay(appearance.serverIndicatorColor)
                 }
 
-                if !isEditMode, let topCenter {
+                // 对齐安卓 persistentTopSupplement：编辑模式下保持可见（斯诺克抬头编辑、黑八目标局数）。
+                if let topCenter {
                     VStack {
-                        topCenter(typographySession.effectivePreference, proxy.size)
+                        topCenter(typographySession.effectivePreference, proxy.size, appearance)
                             .padding(.top, ScoreboardConstants.buttonPadding)
                         Spacer()
                     }
@@ -260,7 +266,15 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         } else {
                             showToastMessage(ScoreboardMenuConfirmAction.finish.localizedToast)
                         }
-                    case "displaySettings": showDisplaySettings = true; showMenu = false
+                    case "displaySettings":
+                        showMenu = false
+                        // 白名单项目打开新样式编辑器（对齐安卓 useStyleEditLabel 分叉）。
+                        if !styleEditorEntry.handleDisplaySettings(
+                            styleID: typographySession.styleID,
+                            typographySession: typographySession
+                        ) {
+                            showDisplaySettings = true
+                        }
                     default: onMenuAction?(action)
                     }
                 },
@@ -271,6 +285,8 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     showExchangeSide: onExchange != nil,
                     showWhistle: true,
                     showScreenshot: true,
+                    showDisplaySettings: true,
+                    styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
                     resetConfirming: menuConfirm.resetConfirming,
                     exchangeConfirming: menuConfirm.exchangeConfirming,
                     finishConfirming: menuConfirm.finishConfirming,
@@ -287,12 +303,17 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                 ? [.name, .score]
                 : ScoreboardTypographyProfile.twoSide.adjustableMetrics
         )
+        .scoreboardStyleEditorEntry(
+            styleEditorEntry,
+            typographySession: typographySession,
+            onEditingChange: { _ in updateImmersiveForBlocking() }
+        )
     }
 
     private func revealImmersiveChrome() {
         chromeVisible = true
         immersiveGeneration += 1
-        guard appearance.immersiveMode, !showDisplaySettings, !showMenu else { return }
+        guard appearance.immersiveMode, !showDisplaySettings, !showMenu, !isStyleEditing else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -304,14 +325,15 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             guard generation == immersiveGeneration,
                   appearance.immersiveMode,
                   !showDisplaySettings,
-                  !showMenu else { return }
+                  !showMenu,
+                  !isStyleEditing else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
         }
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || isStyleEditing || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {
@@ -383,6 +405,20 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         .buttonStyle(.plain)
         .accessibilityIdentifier(accessibilityIdentifier(for: systemName))
         .modifier(ScoreboardBackButtonAccessibility(isBack: systemName == "chevron.left"))
+    }
+
+    /// 元素级文字色：V2 已配置时取元素色；未配置回落面板默认（含换边 slot 重映射）。
+    private func elementColor(
+        _ element: ScoreboardStyleElementKeyV2,
+        fallback: Color,
+        isLeftScreen: Bool
+    ) -> Color {
+        let logicalLeft = isLeftScreen ? !sidesSwapped : sidesSwapped
+        let slotKey: ScoreboardStyleSlotKeyV2 = logicalLeft ? .sideLeft : .sideRight
+        if appearance.hasElementColor(element, slotKey: slotKey) {
+            return appearance.elementForeground(element, slotKey: slotKey)
+        }
+        return fallback
     }
 
     private func accessibilityIdentifier(for systemName: String) -> String {
@@ -492,6 +528,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                             size: nameSize,
                             weight: .bold
                         ))
+                        .foregroundStyle(elementColor(.teamName, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                         .padding(.horizontal, 8)
@@ -500,6 +537,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
 
                     Text(score)
                         .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
+                        .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
                         .monospacedDigit()
                         .minimumScaleFactor(0.4)
                         .lineLimit(1)
@@ -513,7 +551,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         Spacer().frame(height: mainToDetailSpacing)
                         Text(detail)
                             .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
-                            .foregroundStyle(appearance.theme.palette.secondary)
+                            .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeft))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
@@ -521,7 +559,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .foregroundStyle(appearance.theme.palette.foreground)
+        .foregroundStyle(appearance.palette.foreground)
         .contentShape(Rectangle())
         .onTapGesture {
             guard !isEditMode, !finished else { return }
@@ -533,7 +571,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(appearance.theme.palette.foreground.opacity(0.75))
+                .foregroundStyle(appearance.palette.foreground.opacity(0.75))
                 .frame(width: 50, height: 50)
                 .background(Circle().fill(Color.white.opacity(0.08)))
         }

@@ -59,6 +59,7 @@ struct TennisScoreboardView: View {
     @State private var watchSessionId: UUID?
     @State private var showMenu = false
     @State private var showDisplaySettings = false
+    @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
     @State private var showGameOverDialog = false
     @State private var showFinishedRecordDetail = false
     @State private var menuConfirm = ScoreboardMenuConfirmState()
@@ -200,14 +201,16 @@ struct TennisScoreboardView: View {
                     if store.state.doublesPlayerNames == nil {
                         CenterLineServeIndicator(
                             isLeftServing: logicalSide(forScreen: .left) == store.state.servingSide,
-                            triangleSize: serveIndicatorSize
+                            triangleSize: serveIndicatorSize,
+                            color: appearance.serverIndicatorColor
                         )
                         .position(x: size.width / 2, y: size.height / 2)
                     } else if let isLeftServing = tennisDoublesServerIsLeftScreen,
                               let isTopRow = tennisDoublesServerIsTopRow {
                         CenterLineServeIndicator(
                             isLeftServing: isLeftServing,
-                            triangleSize: serveIndicatorSize
+                            triangleSize: serveIndicatorSize,
+                            color: appearance.serverIndicatorColor
                         )
                         .position(
                             x: size.width / 2,
@@ -369,6 +372,8 @@ struct TennisScoreboardView: View {
                     }
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+            .animation(.easeInOut(duration: 0.2), value: toastMessage)
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
@@ -493,6 +498,11 @@ struct TennisScoreboardView: View {
             session: typographySession,
             metrics: ScoreboardTypographyProfile.tennis.adjustableMetrics
         )
+        .scoreboardStyleEditorEntry(
+            styleEditorEntry,
+            typographySession: typographySession,
+            onEditingChange: { _ in updateImmersiveForBlocking() }
+        )
         .alert(
             NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
             isPresented: Binding(
@@ -614,6 +624,10 @@ struct TennisScoreboardView: View {
         return VStack(spacing: 0) {
             Text(name)
                 .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
+                .foregroundStyle(appearance.elementForeground(
+                    .teamName,
+                    slotKey: side == .left ? .sideLeft : .sideRight
+                ))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 72)
@@ -1009,9 +1023,6 @@ struct TennisScoreboardView: View {
             side: side,
             name: "",
             size: CGSize(width: panelSize.width, height: height),
-            scoreBaseScale: ScoreboardLayoutMetrics.tennisMainScoreScale(
-                hasInlineSecondary: hasInlineSecondary
-            ),
             secondaryIsInline: hasInlineSecondary,
             referenceHeight: panelSize.height
         )
@@ -1037,14 +1048,18 @@ struct TennisScoreboardView: View {
                     tennisInnerScoreColumn(
                         games: games,
                         sets: sets,
-                        panelSize: CGSize(width: panelSize.width, height: height)
+                        side: side,
+                        mainFontSize: mainSize,
+                        secondaryFontSize: typography.secondaryFontSize
                     )
                     .frame(width: doublesSecondaryColumnWidth)
                 } else {
                     tennisInnerScoreColumn(
                         games: games,
                         sets: sets,
-                        panelSize: CGSize(width: panelSize.width, height: height)
+                        side: side,
+                        mainFontSize: mainSize,
+                        secondaryFontSize: typography.secondaryFontSize
                     )
                     .frame(width: doublesSecondaryColumnWidth)
                     tennisMainScore(side: side, fontSize: mainSize)
@@ -1060,14 +1075,18 @@ struct TennisScoreboardView: View {
                     tennisInnerScoreColumn(
                         games: games,
                         sets: sets,
-                        panelSize: CGSize(width: panelSize.width, height: height)
+                        side: side,
+                        mainFontSize: mainSize,
+                        secondaryFontSize: typography.secondaryFontSize
                     )
                     .padding(.trailing, centerLineClearance)
                 } else {
                     tennisInnerScoreColumn(
                         games: games,
                         sets: sets,
-                        panelSize: CGSize(width: panelSize.width, height: height)
+                        side: side,
+                        mainFontSize: mainSize,
+                        secondaryFontSize: typography.secondaryFontSize
                     )
                     .padding(.leading, centerLineClearance)
                     tennisMainScore(side: side, fontSize: mainSize)
@@ -1081,49 +1100,60 @@ struct TennisScoreboardView: View {
     private func tennisMainScore(side: MatchSide, fontSize: CGFloat) -> some View {
         Text(displayedPointText(for: side))
             .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
-            .foregroundStyle(appearance.palette.foreground)
+            .foregroundStyle(mainScoreColor(side: side))
             .monospacedDigit()
             .minimumScaleFactor(0.5)
             .lineLimit(1)
     }
 
+    /// 主比分色：V2 元素配置优先；未配置保持旧全局前景色。
+    private func mainScoreColor(side: MatchSide) -> Color {
+        let slotKey: ScoreboardStyleSlotKeyV2 = side == .left ? .sideLeft : .sideRight
+        if appearance.hasElementColor(.mainScore, slotKey: slotKey) {
+            return appearance.elementForeground(.mainScore, slotKey: slotKey)
+        }
+        return appearance.palette.foreground
+    }
+
     private func tennisInnerScoreColumn(
         games: Int,
         sets: Int,
-        panelSize: CGSize
+        side: MatchSide,
+        mainFontSize: CGFloat,
+        secondaryFontSize: CGFloat
     ) -> some View {
         let usesPadLayout = Theme.usesPadLayout
-        let baseSize = ScoreboardTypographyResolver.resolve(
-            ScoreboardTypographyLayoutContext(
-                profile: .tennis,
-                containerSize: CGSize(width: min(panelSize.width * 0.34, 150), height: panelSize.height),
-                nameText: "",
-                scoreText: "",
-                secondaryText: "\(games) \(sets)",
-                preference: typographyPreference,
-                horizontalPadding: 8,
-                isLargeScreen: usesPadLayout
-            )
-        ).secondaryFontSize
-        let gameSize = min(baseSize * 1.55, usesPadLayout ? 120 : 90)
-        let setSize = min(baseSize * 1.25, usesPadLayout ? 88 : 66)
+        // 安卓基准：局分 = halfPanelSecondaryScoreSp（与羽毛球辅分同公式）；
+        // 盘分 = 主分 × 0.32，盒子 = 盘分 × 1.45（Pad 1.36）。
+        let gameSize = secondaryFontSize
+        let setSize = (mainFontSize * 0.32).rounded()
         let setBoxSize = max(
-            usesPadLayout ? 72 : 54,
-            min(setSize * 1.34, usesPadLayout ? 126 : 92)
+            usesPadLayout ? 76 : 54,
+            min(setSize * (usesPadLayout ? 1.36 : 1.45), usesPadLayout ? 126 : 92)
         )
         let setBoxRadius = usesPadLayout
             ? min(setBoxSize * 0.3, 28)
             : min(setBoxSize * 0.15, 24)
 
+        // 元素级取色：V2 配置优先；未配置保持旧 secondary（70% 透明）。
+        func elementColor(_ element: ScoreboardStyleElementKeyV2) -> Color {
+            let slotKey: ScoreboardStyleSlotKeyV2 = side == .left ? .sideLeft : .sideRight
+            return appearance.hasElementColor(element, slotKey: slotKey)
+                ? appearance.elementForeground(element, slotKey: slotKey)
+                : appearance.palette.secondary
+        }
+
         return VStack(spacing: usesPadLayout ? 40 : 8) {
             Text("\(games)")
                 .font(typographyPreference.font.swiftUIFont(size: gameSize, weight: .bold))
+                .foregroundStyle(elementColor(.gameScore))
                 .monospacedDigit()
                 .lineLimit(1)
 
             if store.state.leftSets > 0 || store.state.rightSets > 0 {
                 Text("\(sets)")
                     .font(typographyPreference.font.swiftUIFont(size: setSize, weight: .bold))
+                    .foregroundStyle(elementColor(.setScore))
                     .monospacedDigit()
                     .frame(width: setBoxSize, height: setBoxSize)
                     .background(Color.black.opacity(0.16))
@@ -1248,8 +1278,10 @@ struct TennisScoreboardView: View {
         )
     }
 
+    private var isStyleEditing: Bool { styleEditorEntry.isEditing }
+
     private var shouldShowChrome: Bool {
-        !appearance.immersiveMode || chromeVisible || isEditMode || showDisplaySettings || showMenu
+        !isStyleEditing && (!appearance.immersiveMode || chromeVisible || isEditMode || showDisplaySettings || showMenu)
     }
 
     private func revealImmersiveChrome() {
@@ -1259,7 +1291,8 @@ struct TennisScoreboardView: View {
               !isEditMode,
               !showDisplaySettings,
               !showMenu,
-              !showGameOverDialog else { return }
+              !showGameOverDialog,
+              !isStyleEditing else { return }
         let hideDelay: TimeInterval
         if let exitConfirmDeadline, Date() <= exitConfirmDeadline {
             hideDelay = max(exitConfirmDeadline.timeIntervalSinceNow, 0) + 0.05
@@ -1273,14 +1306,15 @@ struct TennisScoreboardView: View {
                   !isEditMode,
                   !showDisplaySettings,
                   !showMenu,
-                  !showGameOverDialog else { return }
+                  !showGameOverDialog,
+                  !isStyleEditing else { return }
             if let exitConfirmDeadline, Date() <= exitConfirmDeadline { return }
             chromeVisible = false
         }
     }
 
     private func updateImmersiveForBlocking() {
-        if showMenu || showDisplaySettings || isEditMode || showGameOverDialog || !appearance.immersiveMode {
+        if showMenu || showDisplaySettings || isEditMode || showGameOverDialog || isStyleEditing || !appearance.immersiveMode {
             immersiveGeneration += 1
             chromeVisible = true
         } else {
@@ -1405,6 +1439,11 @@ struct TennisScoreboardView: View {
                 if value.translation.width < -50,
                    abs(value.translation.height) < 50 {
                     performUndo()
+                } else if value.translation.height < -50,
+                          abs(value.translation.width) < 50 {
+                    // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）。
+                    guard !store.state.finished else { return }
+                    handlePointWon(side)
                 } else if value.translation.height > 50,
                           abs(value.translation.width) < 50 {
                     guard !store.state.finished else { return }
@@ -1734,6 +1773,7 @@ struct TennisScoreboardView: View {
         ), at: 0)
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
+            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
             resetConfirming: menuConfirm.resetConfirming,
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,
@@ -1787,8 +1827,14 @@ struct TennisScoreboardView: View {
                 ScoreVoiceAnnouncer.shared.stop()
             }
         case "displaySettings":
-            showDisplaySettings = true
             showMenu = false
+            // 白名单项目打开新样式编辑器（对齐安卓 useStyleEditLabel 分叉）。
+            if !styleEditorEntry.handleDisplaySettings(
+                styleID: typographySession.styleID,
+                typographySession: typographySession
+            ) {
+                showDisplaySettings = true
+            }
         case "usageHint":
             showMenu = false
             (usageHintCoordinator ?? usageHintCoordinatorOverride)?.presentFromMenu()

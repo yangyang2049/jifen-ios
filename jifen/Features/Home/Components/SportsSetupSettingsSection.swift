@@ -8,8 +8,12 @@ struct SportsSetupSettingsSection: View {
     @State private var showFootballHalfLengthHint = false
 
     var body: some View {
-        buildSettingsSection()
-            .alert(
+        VStack(alignment: .leading, spacing: 16) {
+            buildSettingsSection()
+            // 「比赛功能」区：对齐安卓功能卡片矩阵，所有计分项目统一渲染。
+            SportsSetupMatchFeaturesSection(gameType: gameType, draft: $draft)
+        }
+        .alert(
                 NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"),
                 isPresented: $showFootballHalfLengthHint
             ) {
@@ -62,14 +66,6 @@ struct SportsSetupSettingsSection: View {
                 } else if gameType == .pingpong {
                     buildMatchCompletionSection(useTennisWording: false)
                     buildPointsPerSetSection()
-                    settingsToggle("pingpong_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-                    if ScoreboardMatchTimePolicy.includesSportsSetupValue(
-                        for: gameType,
-                        isSingles: draft.isSingles
-                    ) {
-                        matchTimeToggle
-                    }
-                    settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
                 } else if gameType == .tennis {
                     buildTennisSettings()
                 } else if gameType == .softTennis {
@@ -79,21 +75,14 @@ struct SportsSetupSettingsSection: View {
                 } else if gameType == .badminton {
                     buildMatchCompletionSection(useTennisWording: false)
                     buildPointsPerSetSection()
-                    settingsToggle("badminton_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-                    settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
                 } else if gameType == .pickleball {
                     buildPickleballSettings()
                 } else if gameType == .shuttlecock {
                     buildPointsPerSetSection()
-                    settingsToggle("shuttlecock_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-                    settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
                 } else if gameType == .squash {
                     buildMatchCompletionSection(useTennisWording: false)
-                    settingsToggle("squash_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-                    settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
                 } else if gameType == .volleyball || gameType == .beachVolleyball || gameType == .airVolleyball {
-                    settingsToggle("volleyball_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-                    matchTimeToggle
+                    // 比赛功能（自动换边/显示时间）由底部功能区统一渲染。
                 } else if gameType == .foosball {
                     buildFoosballSettings()
                 } else if gameType == .snooker {
@@ -108,42 +97,69 @@ struct SportsSetupSettingsSection: View {
         }
     }
 
+    /// 对齐安卓 FootballHalfLengthSetup：居中布局，「−/＋」分列时长值左右两侧。
     @ViewBuilder
     private func buildFootballSettings() -> some View {
-        Stepper(
-            value: Binding(
-                get: { draft.footballHalfLengthSeconds / 60 },
-                set: { draft.footballHalfLengthSeconds = min(90, max(1, $0)) * 60 }
-            ),
-            in: 1...90
-        ) {
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"))
-                        .settingsLabelStyle()
-                    Button {
-                        showFootballHalfLengthHint = true
-                    } label: {
-                        Image(systemName: "questionmark.circle")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(NSLocalizedString(
-                        "football_setup_hint_accessibility",
-                        value: "查看计时说明",
-                        comment: "Football timer setup hint accessibility label"
-                    ))
+        let minutes = draft.footballHalfLengthSeconds / 60
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Text(NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"))
+                    .settingsLabelStyle()
+                Button {
+                    showFootballHalfLengthHint = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.textSecondary)
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString(
+                    "football_setup_hint_accessibility",
+                    value: "查看计时说明",
+                    comment: "Football timer setup hint accessibility label"
+                ))
+            }
+
+            HStack(spacing: 12) {
+                footballHalfLengthStepButton(
+                    systemImage: "minus",
+                    isDisabled: minutes <= 1,
+                    action: { draft.footballHalfLengthSeconds = min(90, max(1, minutes - 1)) * 60 }
+                )
                 Text(String(
                     format: NSLocalizedString("minutes_format", value: "%d 分钟", comment: "Minutes"),
-                    draft.footballHalfLengthSeconds / 60
+                    minutes
                 ))
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(Theme.textPrimary)
+                footballHalfLengthStepButton(
+                    systemImage: "plus",
+                    isDisabled: minutes >= 90,
+                    action: { draft.footballHalfLengthSeconds = min(90, max(1, minutes + 1)) * 60 }
+                )
+            }
+            .accessibilityValue("\(minutes)")
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    /// 对齐安卓 HalfLengthStepButton：36pt 圆形按钮，边界处禁用并降透明度。
+    private func footballHalfLengthStepButton(
+        systemImage: String,
+        isDisabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(Theme.textPrimary)
-            }
+                .frame(width: 36, height: 36)
+                .background(Theme.dialogControlBackground)
+                .clipShape(Circle())
+                .opacity(isDisabled ? 0.4 : 1)
         }
-        .accessibilityValue("\(draft.footballHalfLengthSeconds / 60)")
+        .buttonStyle(.plain)
+        .disabled(isDisabled)
     }
 
     @ViewBuilder
@@ -264,8 +280,6 @@ struct SportsSetupSettingsSection: View {
                 }
             }
         }
-        settingsToggle("tennis_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-        settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
     }
 
     @ViewBuilder
@@ -277,8 +291,6 @@ struct SportsSetupSettingsSection: View {
                 numberChip(games, selection: $draft.softTennisMatchGames)
             }
         }
-        settingsToggle("soft_tennis_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-        settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
     }
 
     @ViewBuilder
@@ -297,8 +309,6 @@ struct SportsSetupSettingsSection: View {
             }
             .buttonStyle(.plain)
         }
-        settingsToggle("padel_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-        settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
     }
 
     private func padelModeTitle(_ mode: PadelDeuceMode) -> String {
@@ -351,8 +361,6 @@ struct SportsSetupSettingsSection: View {
             }
         }
         settingsToggle("pickleball_rally_scoring", fallback: "每球得分", value: $draft.pickleballUseRallyScoring)
-        settingsToggle("pickleball_auto_change_sides", fallback: "自动换边", value: $draft.autoChangeSides)
-        settingsToggle("voice_announcement", fallback: "语音播报", value: $draft.voiceAnnouncement)
     }
 
     @ViewBuilder
@@ -657,11 +665,6 @@ struct SportsSetupSettingsSection: View {
                 .foregroundStyle(Theme.textPrimary)
         }
         .tint(Theme.primary)
-    }
-
-    private var matchTimeToggle: some View {
-        settingsToggle("show_match_time", fallback: "显示时间", value: $draft.showMatchTime)
-            .accessibilityIdentifier("sports_setup_show_match_time")
     }
 
     private var matchCompletionPresets: [Int] {

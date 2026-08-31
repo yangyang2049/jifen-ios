@@ -71,6 +71,7 @@ private enum ScreenshotSaveError: Error {
 
 enum ScreenshotSaveOverlayMode: Equatable {
     case hidden
+    case preview
     case needsSettings
     case retry
     case saved
@@ -125,7 +126,7 @@ final class ScreenshotSaveCoordinator: ObservableObject {
     }
 
     var isDialogPresented: Bool {
-        overlayMode == .needsSettings || overlayMode == .retry
+        overlayMode == .preview || overlayMode == .needsSettings || overlayMode == .retry
     }
 
     var primaryButtonTitle: String {
@@ -182,8 +183,59 @@ final class ScreenshotSaveCoordinator: ObservableObject {
 
     /// Async entry point kept internal so the authorization state machine can be tested deterministically.
     func handleCapturedImage(_ image: UIImage) async {
-        let generation = beginOperation(with: image)
-        await processCurrentImage(generation: generation)
+        _ = beginOperation(with: image)
+        // 对齐安卓 ScreenshotPreviewDialog：截屏先弹预览卡（关闭/分享），再进入保存流程。
+        overlayMode = .preview
+    }
+
+    /// 预览卡「关闭」：进入既有的相册保存流程（iOS 行为保留）。
+    func closePreviewAndContinue() {
+        guard overlayMode == .preview else { return }
+        let generation = operationGeneration
+        overlayMode = .hidden
+        processingTask = Task { [weak self] in
+            await self?.processCurrentImage(generation: generation)
+        }
+    }
+
+    /// 预览卡「分享」：写临时 PNG 弹系统分享面板，分享结束后再续保存流程（对齐安卓 ACTION_SEND）。
+    func sharePreviewImage() {
+        guard overlayMode == .preview, let image else { return }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("scoreboard_share_\(Int(Date().timeIntervalSince1970 * 1_000)).png")
+        do {
+            try image.pngData()?.write(to: url, options: .atomic)
+        } catch {
+            closePreviewAndContinue()
+            return
+        }
+        guard let root = UIApplication.shared.connectedScenes
+            .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+            .first else {
+            closePreviewAndContinue()
+            return
+        }
+        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        // iPad 必须提供 popover 锚点，否则 present 即崩（对齐 GameOverDialog 范式）。
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = root.view
+            popover.sourceRect = CGRect(
+                x: root.view.bounds.midX,
+                y: root.view.bounds.midY,
+                width: 0,
+                height: 0
+            )
+            popover.permittedArrowDirections = []
+        }
+        // 分享面板结束后再进入相册保存，避免权限卡/保存反馈被分享面板遮挡。
+        activityVC.completionWithItemsHandler = { [weak self] _, _, _, _ in
+            self?.closePreviewAndContinue()
+        }
+        var top: UIViewController = root
+        while let presented = top.presentedViewController {
+            top = presented
+        }
+        top.present(activityVC, animated: true)
     }
 
     func performPrimaryAction() {
@@ -198,6 +250,8 @@ final class ScreenshotSaveCoordinator: ObservableObject {
             processingTask = Task { [weak self] in
                 await self?.retryCurrentScreenshot()
             }
+        case .preview:
+            closePreviewAndContinue()
         case .hidden, .saved:
             break
         }
@@ -371,7 +425,9 @@ struct ScreenshotSaveOverlay: View {
 
     var body: some View {
         ZStack {
-            if coordinator.isDialogPresented, let image = coordinator.image {
+            if coordinator.overlayMode == .preview, let image = coordinator.image {
+                previewDialog(image: image)
+            } else if coordinator.isDialogPresented, let image = coordinator.image {
                 permissionDialog(image: image)
             }
 
@@ -393,6 +449,50 @@ struct ScreenshotSaveOverlay: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             Task {
                 await coordinator.resumeAfterSettingsIfNeeded()
+            }
+        }
+    }
+
+    /// 1:1 对齐安卓 ScreenshotPreviewDialog：深色圆角卡 + 截图 + 底部「关闭/分享」文字按钮。
+    private func previewDialog(image: UIImage) -> some View {
+        ZStack {
+            Color.black.opacity(0.32)
+                .ignoresSafeArea()
+                .onTapGesture { coordinator.closePreviewAndContinue() }
+            GeometryReader { proxy in
+            let margin: CGFloat = 24
+            let buttonRow: CGFloat = 32
+            let imageMaxHeight = max(120, proxy.size.height / 2 - margin - buttonRow - margin)
+            let cardWidth = min(proxy.size.width - margin * 2, 420)
+
+            VStack(spacing: 12) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: imageMaxHeight)
+                HStack {
+                    Button(action: { coordinator.closePreviewAndContinue() }) {
+                        Text(NSLocalizedString("close", value: "关闭", comment: ""))
+                            .font(.system(size: 15))
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
+                    Button(action: { coordinator.sharePreviewImage() }) {
+                        Text(NSLocalizedString("share", value: "分享", comment: ""))
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Theme.primary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(16)
+            .frame(width: cardWidth)
+            .background(Color(red: 0x1E / 255, green: 0x1E / 255, blue: 0x1E / 255).opacity(0.95))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+            .accessibilityIdentifier("screenshot_preview_dialog")
             }
         }
     }

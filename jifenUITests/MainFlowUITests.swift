@@ -603,7 +603,7 @@ final class MainFlowUITests: XCTestCase {
         usageMenuItem.tap()
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
 
-        app.buttons["scoreboard_usage_hint_close"].tap()
+        app.buttons["scoreboard_usage_hint_confirm"].tap()
         XCTAssertFalse(dialog.waitForExistence(timeout: 1))
         XCTAssertTrue(menuButton.isHittable)
 

@@ -222,18 +222,8 @@ final class ScoreboardCatalogTests: XCTestCase {
         }
     }
 
-    func testTennisInlineScoresReserveCenterLineSpaceAndUseASmallerMainScore() {
-        XCTAssertEqual(
-            ScoreboardLayoutMetrics.tennisMainScoreScale(hasInlineSecondary: true),
-            0.78,
-            accuracy: 0.001
-        )
-        XCTAssertEqual(
-            ScoreboardLayoutMetrics.tennisMainScoreScale(hasInlineSecondary: false),
-            1,
-            accuracy: 0.001
-        )
-
+    func testTennisInlineScoresReserveCenterLineSpace() {
+        // 安卓基准：网球主分与羽毛球共用 halfPanelMainScoreSp，无行内缩减。
         let halfPanel = CGSize(width: 912, height: 1_365)
         let indicator = ScoreboardLayoutMetrics.serveIndicatorSize(halfViewportSize: halfPanel)
         let clearance = ScoreboardLayoutMetrics.tennisCenterLineClearance(halfViewportSize: halfPanel)

@@ -21,8 +21,11 @@ class CommonNamesManager {
     private let processedWatchMutationIDsKey = "processedWatchCommonNameMutationIDsV1"
     private let processedWatchMutationResultsKey = "processedWatchCommonNameMutationResultsV1"
 
-    // Limits the number of common names stored
-    private let maxNames = 50
+    // Keep the local cache large enough for the server's canonical snapshot.
+    // BASIC/VIP trimming remains a server policy and is reflected back after sync.
+    private func maxNames(for type: NameType) -> Int {
+        type == .team ? 200 : 300
+    }
 
     /// 预制名称（红队/蓝队、选手1/2、主队/客队、红方/蓝方、左队/右队等），不写入常用名称，与鸿蒙一致。
     private static let presetNameKeys: Set<String> = {
@@ -72,8 +75,8 @@ class CommonNamesManager {
         guard !names.contains(where: { normalizedKey($0) == key }) else { return }
         names.insert(normalized, at: 0)
 
-        if names.count > maxNames {
-            names = Array(names.prefix(maxNames))
+        if names.count > maxNames(for: type) {
+            names = Array(names.prefix(maxNames(for: type)))
         }
 
         saveNames(names, type: type)
@@ -102,8 +105,8 @@ class CommonNamesManager {
         }
 
         names.insert(normalized, at: 0)
-        if names.count > maxNames {
-            names = Array(names.prefix(maxNames))
+        if names.count > maxNames(for: type) {
+            names = Array(names.prefix(maxNames(for: type)))
         }
 
         saveNames(names, type: type)
@@ -169,8 +172,8 @@ class CommonNamesManager {
         }
 
         names = accepted + names
-        if names.count > maxNames {
-            names = Array(names.prefix(maxNames))
+        if names.count > maxNames(for: type) {
+            names = Array(names.prefix(maxNames(for: type)))
         }
 
         saveNames(names, type: type)
@@ -231,8 +234,8 @@ class CommonNamesManager {
         userDefaults.set(processedResults, forKey: processedWatchMutationResultsKey)
 
         if didChange {
-            userDefaults.set(Array(teams.prefix(maxNames)), forKey: teamsKey)
-            userDefaults.set(Array(players.prefix(maxNames)), forKey: playersKey)
+            userDefaults.set(Array(teams.prefix(maxNames(for: .team))), forKey: teamsKey)
+            userDefaults.set(Array(players.prefix(maxNames(for: .player))), forKey: playersKey)
             incrementRevisionAndNotify()
         }
 
@@ -255,7 +258,6 @@ class CommonNamesManager {
                 return .noChange
             }
             names.insert(value, at: 0)
-            names = Array(names.prefix(maxNames))
             return .applied
 
         case .delete:
@@ -291,8 +293,21 @@ class CommonNamesManager {
 
     private func saveNames(_ names: [String], type: NameType) {
         let key = (type == .team) ? teamsKey : playersKey
-        userDefaults.set(names, forKey: key)
+        userDefaults.set(Array(names.prefix(maxNames(for: type))), forKey: key)
         incrementRevisionAndNotify()
+    }
+
+    /// Replaces the canonical list returned by the backend. The same write
+    /// path increments the Watch revision so phone, cloud and Watch converge.
+    func replaceNamesFromCloud(_ names: [String], type: NameType) {
+        let normalized = names
+            .map(normalizeName)
+            .filter { !$0.isEmpty && !isPresetName($0) }
+        var seen = Set<String>()
+        let deduplicated = normalized.filter {
+            seen.insert(normalizedKey($0)).inserted
+        }
+        saveNames(deduplicated, type: type)
     }
 
     private func incrementRevisionAndNotify() {

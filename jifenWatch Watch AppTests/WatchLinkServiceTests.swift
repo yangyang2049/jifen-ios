@@ -7,6 +7,39 @@ import SessionCore
 
 @MainActor
 final class WatchLinkServiceTests: XCTestCase {
+    func testMergeDetailedActionsKeepsConcurrentLocalActionsAndDeduplicates() {
+        let service = WatchLinkService(
+            transport: WatchLinkTestTransport(),
+            contextStore: WatchLinkTestDataStore(),
+            outboxStore: WatchLinkTestDataStore()
+        )
+
+        let localOld = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        let localNew = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 3_000,
+            team: .team2, scores: [1, 1]
+        )
+        service.mergeDetailedActions([localOld, localNew])
+
+        let watchNew = DetailedScoreAction(
+            id: UUID(), type: .scoreChanged, epochMilliseconds: 2_000,
+            team: .team1, scores: [2, 1]
+        )
+        let replayedLocalOld = DetailedScoreAction(
+            id: localOld.id, type: .scoreChanged, epochMilliseconds: 1_000,
+            team: .team1, scores: [1, 0]
+        )
+        service.mergeDetailedActions([replayedLocalOld, watchNew])
+
+        XCTAssertEqual(
+            service.mergedDetailedActions.map(\.id),
+            [localOld.id, watchNew.id, localNew.id]
+        )
+    }
+
     func testWatchLinkRejectsMismatchedModeBeforeShowingConfirmation() async throws {
         let store = WatchLinkTestDataStore()
         let transport = WatchLinkTestTransport()

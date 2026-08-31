@@ -316,6 +316,23 @@ struct UnfinishedGameSummary {
     }
 }
 
+// 对齐安卓 HomeUnfinishedRecentComponents.kt 的 GameType.isSportsResumeIcon：
+// 运动类未完赛条图标为无背景圆的大 emoji，非运动类（桌上足球、棋牌、简单/多人计分等）保留圆形底色。
+extension GameType {
+    var isSportsResumeIcon: Bool {
+        switch self {
+        case .football, .football5v5, .basketball, .threeBasketball,
+             .volleyball, .airVolleyball, .beachVolleyball,
+             .pingpong, .tennis, .shuttlecock, .squash, .softTennis, .padel,
+             .badminton, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+             .pickleball, .archery:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 struct UnfinishedGameBarView: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -337,11 +354,15 @@ struct UnfinishedGameBarView: View {
             HStack(spacing: 0) {
                 ZStack(alignment: .bottomTrailing) {
                     Text(record.gameType.icon)
-                        .font(.system(size: 28))
-                        .foregroundColor(.white)
+                        .font(.system(size: record.gameType.isSportsResumeIcon ? 36 : 28))
                         .frame(width: iconSize, height: iconSize)
-                        .background(iconBackgroundColor)
-                        .clipShape(Circle())
+                        .background {
+                            // 对齐安卓 UnfinishedPhoneDockBar：运动类无背景圆，
+                            // 仅非运动类（桌上足球、棋牌等）保留圆形底色。
+                            if !record.gameType.isSportsResumeIcon {
+                                Circle().fill(iconBackgroundColor)
+                            }
+                        }
 
                     if case .linked = record.source {
                         Image(systemName: "applewatch")
@@ -372,13 +393,24 @@ struct UnfinishedGameBarView: View {
             .contentShape(Rectangle())
             .onTapGesture(perform: onContinue)
 
+            // 36pt 圆形关闭钮；二次确认态向左展开为红色"丢弃"胶囊（对齐安卓 UnfinishedPhoneDockBar）。
             Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(isClosePending ? .white : Theme.homeNeutralCardTextSecondary)
-                    .frame(width: 36, height: 36)
-                    .background(closeButtonBackgroundColor)
-                    .clipShape(Circle())
+                ZStack {
+                    closeButtonBackgroundColor
+                    ZStack {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(Theme.homeNeutralCardTextSecondary)
+                            .opacity(isClosePending ? 0 : 1)
+                        Text(NSLocalizedString("unfinished_discard_button", value: "放弃", comment: ""))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .opacity(isClosePending ? 1 : 0)
+                    }
+                }
+                .frame(width: isClosePending ? 72 : 36, height: 36)
+                .clipShape(Capsule())
             }
             .buttonStyle(.plain)
             .padding(.trailing, closeButtonGap)
@@ -403,7 +435,7 @@ struct UnfinishedGameBarView: View {
         .background(Theme.homeNeutralCardBackground)
         .clipShape(Capsule())
         .shadow(color: shadowColor, radius: 8, x: 0, y: 0)
-        .animation(.easeInOut(duration: 0.2), value: isClosePending)
+        .animation(.easeInOut(duration: 0.44), value: isClosePending)
     }
 
     private var shadowColor: Color {
@@ -412,7 +444,8 @@ struct UnfinishedGameBarView: View {
 
     private var closeButtonBackgroundColor: Color {
         if isClosePending {
-            return Color(uiColor: .systemRed)
+            // 对齐安卓 ToolWhistleRed。
+            return Color(red: 1, green: 0x3B / 255, blue: 0x30 / 255)
         }
         return Color(uiColor: UIColor { traits in
             if traits.userInterfaceStyle == .dark {

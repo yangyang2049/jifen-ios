@@ -87,11 +87,12 @@ struct SportsSetupParticipantSection: View {
         .accessibilityIdentifier("competition_format_picker")
     }
 
+    /// 对齐安卓 SportsSetupComponents.kt DoublesNameInputs：团队赛每边仅 3 名队员输入，
+    /// 无单独队名输入，队名由 3 个队员名自动拼接（SportsSetupDraft.buildCompetitionTeamName）。
     private var shuttlecockTeamInputs: some View {
         let defaults = DefaultParticipantNames.shuttlecockTeamMembers
         return HStack(alignment: .top, spacing: Theme.sm) {
             VStack(spacing: Theme.sm) {
-                InlineCommonNameTextField(placeholder: defaultTeam1Name, text: $draft.team1Name, onChevronTap: { activeNameInputTarget = .team1 })
                 InlineCommonNameTextField(placeholder: defaults[0], text: $draft.team1Player1Name, onChevronTap: { activeNameInputTarget = .team1Player1 })
                 InlineCommonNameTextField(placeholder: defaults[1], text: $draft.team1Player2Name, onChevronTap: { activeNameInputTarget = .team1Player2 })
                 InlineCommonNameTextField(placeholder: defaults[2], text: $draft.team1Player3Name, onChevronTap: { activeNameInputTarget = .team1Player3 })
@@ -104,7 +105,6 @@ struct SportsSetupParticipantSection: View {
                 .padding(.top, 12)
 
             VStack(spacing: Theme.sm) {
-                InlineCommonNameTextField(placeholder: defaultTeam2Name, text: $draft.team2Name, onChevronTap: { activeNameInputTarget = .team2 })
                 InlineCommonNameTextField(placeholder: defaults[3], text: $draft.team2Player1Name, onChevronTap: { activeNameInputTarget = .team2Player1 })
                 InlineCommonNameTextField(placeholder: defaults[4], text: $draft.team2Player2Name, onChevronTap: { activeNameInputTarget = .team2Player2 })
                 InlineCommonNameTextField(placeholder: defaults[5], text: $draft.team2Player3Name, onChevronTap: { activeNameInputTarget = .team2Player3 })
@@ -227,8 +227,7 @@ struct SportsSetupParticipantSection: View {
         } label: {
             Group {
                 if gameType == .archery {
-                    Image(systemName: "scope")
-                        .font(.system(size: 22, weight: .medium))
+                    ArcheryBowAndArrowPixelShape()
                 } else if gameType == .foosball {
                     Image(systemName: "soccerball")
                         .font(.system(size: 22, weight: .medium))
@@ -316,5 +315,54 @@ struct SportsSetupParticipantSection: View {
         case .team1Player3: draft.team1Player3Name = value
         case .team2Player3: draft.team2Player3Name = value
         }
+    }
+}
+
+/// 1:1 复刻安卓 ic_archery_bow_and_arrow.xml：72×72 视口内的像素风弓箭，
+/// 由 162 条 1 单位高的横条组成，随前景色渲染（选中高亮 / 未选中置灰）。
+private struct ArcheryBowAndArrowPixelShape: Shape {
+    static let pixelRows: [(x: Int, y: Int, width: Int)] = [
+        (4, 4, 4), (4, 5, 4), (4, 6, 6), (62, 6, 4), (4, 7, 10), (59, 7, 7),
+        (5, 8, 21), (56, 8, 10), (6, 9, 25), (53, 9, 13), (8, 10, 26), (50, 10, 16),
+        (9, 11, 27), (49, 11, 16), (11, 12, 27), (49, 12, 16), (11, 13, 28), (50, 13, 15),
+        (11, 14, 29), (52, 14, 12), (11, 15, 6), (21, 15, 20), (52, 15, 12), (12, 16, 6),
+        (24, 16, 18), (51, 16, 13), (12, 17, 6), (26, 17, 17), (50, 17, 13), (12, 18, 6),
+        (28, 18, 15), (49, 18, 14), (12, 19, 6), (29, 19, 13), (48, 19, 9), (58, 19, 5),
+        (12, 20, 6), (30, 20, 11), (47, 20, 9), (58, 20, 4), (12, 21, 7), (31, 21, 9),
+        (46, 21, 9), (58, 21, 4), (13, 22, 6), (32, 22, 7), (45, 22, 9), (59, 22, 2),
+        (13, 23, 6), (33, 23, 5), (44, 23, 9), (13, 24, 6), (33, 24, 4), (43, 24, 9),
+        (13, 25, 6), (34, 25, 2), (42, 25, 9), (13, 26, 7), (34, 26, 1), (41, 26, 9),
+        (14, 27, 6), (40, 27, 9), (14, 28, 6), (39, 28, 9), (14, 29, 6), (38, 29, 9),
+        (53, 29, 2), (14, 30, 6), (37, 30, 9), (52, 30, 4), (14, 31, 6), (36, 31, 9),
+        (51, 31, 6), (15, 32, 6), (35, 32, 9), (50, 32, 8), (15, 33, 6), (34, 33, 9),
+        (49, 33, 10), (15, 34, 6), (33, 34, 9), (48, 34, 12), (15, 35, 6), (32, 35, 9),
+        (47, 35, 13), (15, 36, 6), (31, 36, 9), (46, 36, 15), (15, 37, 7), (30, 37, 9),
+        (45, 37, 16), (16, 38, 6), (29, 38, 9), (47, 38, 15), (16, 39, 6), (28, 39, 9),
+        (49, 39, 13), (16, 40, 5), (27, 40, 9), (50, 40, 12), (16, 41, 4), (26, 41, 9),
+        (51, 41, 12), (16, 42, 3), (25, 42, 9), (52, 42, 11), (17, 43, 1), (24, 43, 9),
+        (53, 43, 10), (23, 44, 9), (54, 44, 9), (22, 45, 9), (54, 45, 9), (21, 46, 9),
+        (55, 46, 9), (20, 47, 9), (55, 47, 9), (19, 48, 9), (56, 48, 8), (18, 49, 9),
+        (56, 49, 8), (17, 50, 9), (32, 50, 3), (56, 50, 8), (10, 51, 15), (31, 51, 9),
+        (57, 51, 7), (9, 52, 15), (30, 52, 15), (57, 52, 7), (8, 53, 15), (29, 53, 22),
+        (57, 53, 7), (7, 54, 15), (28, 54, 28), (57, 54, 7), (6, 55, 15), (29, 55, 35),
+        (5, 56, 16), (34, 56, 30), (4, 57, 17), (40, 57, 24), (5, 58, 16), (45, 58, 20),
+        (13, 59, 8), (51, 59, 14), (13, 60, 8), (56, 60, 9), (13, 61, 8), (60, 61, 5),
+        (13, 62, 7), (60, 62, 6), (13, 63, 6), (61, 63, 5), (13, 64, 5), (62, 64, 6),
+        (13, 65, 4), (62, 65, 6), (13, 66, 3), (63, 66, 5), (14, 67, 1), (64, 67, 4)
+    ]
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let scaleX = rect.width / 72
+        let scaleY = rect.height / 72
+        for row in Self.pixelRows {
+            path.addRect(CGRect(
+                x: rect.minX + CGFloat(row.x) * scaleX,
+                y: rect.minY + CGFloat(row.y) * scaleY,
+                width: CGFloat(row.width) * scaleX,
+                height: scaleY
+            ))
+        }
+        return path
     }
 }

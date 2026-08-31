@@ -37,6 +37,7 @@ struct BookingDetailPage: View {
         .background(Theme.backgroundColor)
         .navigationTitle(NSLocalizedString("schedule_detail_title", value: "球局详情", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .onAppear(perform: reload)
         .analyticsScreen(.bookingDetailPage, source: .scheduleList)
         .sheet(isPresented: $showEditPage) {

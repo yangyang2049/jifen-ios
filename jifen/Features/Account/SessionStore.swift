@@ -1,0 +1,257 @@
+import Foundation
+import Observation
+import UIKit
+
+/// 注销账号结果（对齐安卓 AccountDeletionResult：success + status/message）。
+struct AccountDeletionOutcome: Sendable {
+    let success: Bool
+    let status: String?
+    let message: String?
+}
+
+nonisolated private struct AccountDeletionRequestBody: Encodable, Sendable {
+    var confirmText: String
+    let source = "IOS"
+}
+
+nonisolated private struct AccountDeletionResponse: Decodable, Sendable {
+    var success: Bool?
+    var status: String?
+    var message: String?
+}
+
+@MainActor
+@Observable
+final class SessionStore {
+    static let shared = SessionStore()
+
+    enum State: Equatable {
+        case restoring
+        case signedOut
+        case authenticated
+    }
+
+    private(set) var state: State = .restoring
+    private(set) var user: AppUser?
+    private(set) var isWorking = false
+    var lastError: String?
+
+    private let client: APIClient
+    private let tokenStore: AuthTokenStore
+    private let appleProvider: any AccountIdentityProviding
+    private var didRestore = false
+    private var sessionExpiredObserver: NSObjectProtocol?
+
+    init(client: APIClient = .shared, tokenStore: AuthTokenStore = .shared) {
+        self.client = client
+        self.tokenStore = tokenStore
+        self.appleProvider = ProductionAppleAuthProvider(client: client)
+        sessionExpiredObserver = NotificationCenter.default.addObserver(
+            forName: .apiSessionExpired,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in await self?.expireSession() }
+        }
+    }
+
+    var isAuthenticated: Bool { state == .authenticated && user != nil }
+
+    func restore() async {
+        guard !didRestore else { return }
+        didRestore = true
+        guard await tokenStore.authToken() != nil else {
+            state = .signedOut
+            return
+        }
+        do {
+            user = try await client.request("/api/auth/me", requiresAuth: true)
+            state = .authenticated
+            lastError = nil
+            await CommonDataCloudSyncManager.shared.sessionDidChange(userId: user?.id)
+            await StoreKitPurchaseManager.shared.sessionDidAuthenticate()
+        } catch {
+            if error as? APIClientError == .sessionExpired {
+                await expireSession()
+            } else {
+                // A launch-time network outage must not destroy a still-valid login.
+                // Allow foreground activation to retry the same Keychain session.
+                didRestore = false
+                user = nil
+                state = .signedOut
+                lastError = error.localizedDescription
+            }
+        }
+    }
+
+    func signInWithApple() async {
+        await performAuth { try await appleProvider.signIn() }
+    }
+
+    #if STAGING
+    func saveStagingToken(_ token: String) async throws {
+        try await tokenStore.setStagingToken(token.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+    #endif
+
+    func reloadProfile() async {
+        guard isAuthenticated else { return }
+        do {
+            user = try await client.request("/api/auth/me", requiresAuth: true)
+        } catch {
+            await handle(error)
+        }
+    }
+
+    func updateProfile(name: String) async -> Bool {
+        struct Body: Encodable, Sendable { var name: String }
+        do {
+            let response: ProfileUpdateResponse = try await client.request(
+                "/api/auth/profile",
+                method: .patch,
+                body: Body(name: name),
+                requiresAuth: true
+            )
+            user = response.user
+            return true
+        } catch {
+            await handle(error)
+            return false
+        }
+    }
+
+    func uploadAvatar(_ sourceData: Data) async -> Bool {
+        nonisolated struct UploadResponse: Decodable, Sendable { let url: String }
+        nonisolated struct Body: Encodable, Sendable { let avatarUrl: String }
+        guard let jpegData = Self.prepareAvatarJPEG(sourceData) else {
+            lastError = NSLocalizedString("account_avatar_invalid", value: "无法读取这张图片", comment: "")
+            return false
+        }
+        isWorking = true
+        lastError = nil
+        defer { isWorking = false }
+        do {
+            let boundary = "JifenAvatar-\(UUID().uuidString)"
+            var multipart = Data()
+            multipart.appendUTF8("--\(boundary)\r\n")
+            multipart.appendUTF8("Content-Disposition: form-data; name=\"avatar\"; filename=\"avatar.jpg\"\r\n")
+            multipart.appendUTF8("Content-Type: image/jpeg\r\n\r\n")
+            multipart.append(jpegData)
+            multipart.appendUTF8("\r\n--\(boundary)--\r\n")
+            let upload: UploadResponse = try await client.upload(
+                "/api/auth/upload-avatar",
+                multipartBody: multipart,
+                boundary: boundary
+            )
+            let response: ProfileUpdateResponse = try await client.request(
+                "/api/auth/profile",
+                method: .patch,
+                body: Body(avatarUrl: upload.url),
+                requiresAuth: true
+            )
+            user = response.user
+            return true
+        } catch {
+            await handle(error)
+            return false
+        }
+    }
+
+    func logout() async {
+        let _: SuccessResponse? = try? await client.request(
+            "/api/auth/logout",
+            method: .post,
+            body: EmptyRequest(),
+            requiresAuth: isAuthenticated
+        )
+        await client.clearSession()
+        user = nil
+        state = .signedOut
+        await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
+    }
+
+    private func expireSession() async {
+        await client.clearSession()
+        user = nil
+        state = .signedOut
+        lastError = APIClientError.sessionExpired.localizedDescription
+        await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
+    }
+
+    func deleteAccount() async -> AccountDeletionOutcome? {
+        do {
+            let response: AccountDeletionResponse = try await client.request(
+                "/api/account-deletion/request",
+                method: .post,
+                body: AccountDeletionRequestBody(confirmText: "注销账号"),
+                requiresAuth: true,
+                headers: ["Idempotency-Key": UUID().uuidString]
+            )
+            if response.success == false {
+                return AccountDeletionOutcome(success: false, status: response.status, message: response.message)
+            }
+            await logout()
+            return AccountDeletionOutcome(success: true, status: response.status, message: response.message)
+        } catch {
+            await handle(error)
+            return nil
+        }
+    }
+
+    private func performAuth(_ operation: () async throws -> AuthResponse) async {
+        guard !isWorking else { return }
+        isWorking = true
+        lastError = nil
+        defer { isWorking = false }
+        do {
+            let response = try await operation()
+            guard let expiry = APIDateParser.date(from: response.expiresAt) else {
+                #if DEBUG
+                print("[AppleAuth] local session rejected: invalid expiresAt=\(response.expiresAt)")
+                #endif
+                throw APIClientError.decoding
+            }
+            try await tokenStore.setAuth(token: response.token, expiresAt: expiry)
+            user = response.user
+            state = .authenticated
+            #if DEBUG
+            print("[AppleAuth] local session authenticated")
+            #endif
+            await CommonDataCloudSyncManager.shared.sessionDidChange(userId: response.user.id)
+            await StoreKitPurchaseManager.shared.sessionDidAuthenticate()
+        } catch {
+            await handle(error)
+        }
+    }
+
+    private func handle(_ error: Error) async {
+        lastError = error.localizedDescription
+        if error as? APIClientError == .sessionExpired {
+            await expireSession()
+        }
+    }
+
+    nonisolated private static func prepareAvatarJPEG(_ data: Data) -> Data? {
+        guard var image = UIImage(data: data) else { return nil }
+        let maxSide: CGFloat = 1024
+        let longest = max(image.size.width, image.size.height)
+        if longest > maxSide {
+            let scale = maxSide / longest
+            let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+            let renderer = UIGraphicsImageRenderer(size: size)
+            image = renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }
+        }
+        for quality in stride(from: 0.86, through: 0.32, by: -0.09) {
+            if let output = image.jpegData(compressionQuality: quality), output.count <= 950_000 {
+                return output
+            }
+        }
+        return nil
+    }
+}
+
+nonisolated private extension Data {
+    mutating func appendUTF8(_ value: String) {
+        append(Data(value.utf8))
+    }
+}

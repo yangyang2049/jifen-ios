@@ -916,7 +916,7 @@ struct DualPlayerTimerView: View {
         lastTickAt = Date()
         appendAction(.move, actor: playerName(for: playerID))
         vibrateIfEnabled(heavy: false)
-        speakPlayerColorIfEnabled(playerID: nextPlayer)
+        speakPlayerSwitchCueIfEnabled()
         revealTapHintIfNeeded(for: nextPlayer)
         AppAnalytics.track(.timerSwitchPlayer, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
@@ -938,7 +938,7 @@ struct DualPlayerTimerView: View {
 
     private func speakStartIfEnabled() {
         guard config.voiceEnabled else { return }
-        BoardTimerVoiceAnnouncer.shared.playStartThenSchedulePlayer1(gameType: gameType)
+        BoardTimerVoiceAnnouncer.shared.playStartThenSchedulePlayer1()
     }
 
     private func speakPauseIfEnabled() {
@@ -949,16 +949,13 @@ struct DualPlayerTimerView: View {
 
     private func speakResumeIfEnabled() {
         guard config.voiceEnabled else { return }
-        BoardTimerVoiceAnnouncer.shared.playResumeWithCurrentPlayer(
-            gameType: gameType,
-            playerID: activePlayer
-        )
+        BoardTimerVoiceAnnouncer.shared.playResumeWithSwitchCue()
     }
 
-    private func speakPlayerColorIfEnabled(playerID: Int) {
+    private func speakPlayerSwitchCueIfEnabled() {
         guard config.voiceEnabled else { return }
         BoardTimerVoiceAnnouncer.shared.cancelScheduled()
-        BoardTimerVoiceAnnouncer.shared.playPlayerColor(gameType: gameType, playerID: playerID)
+        BoardTimerVoiceAnnouncer.shared.playPlayerSwitchCue()
     }
 
     private func speakControlIfEnabled(_ sound: BoardTimerVoice.ControlSound) {

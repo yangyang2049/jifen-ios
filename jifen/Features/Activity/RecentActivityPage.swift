@@ -13,7 +13,11 @@ struct RecentActivityPage: View {
 
                 VStack(spacing: 0) {
                     if scoreboardVM.records.isEmpty && timerVM.records.isEmpty {
-                        emptyState
+                        if scoreboardVM.isLoading {
+                            loadingState
+                        } else {
+                            emptyState
+                        }
                     } else {
                         recordsList
                     }
@@ -36,6 +40,14 @@ struct RecentActivityPage: View {
             }
         }
 
+    }
+
+    private var loadingState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
     }
 
     private var emptyState: some View {

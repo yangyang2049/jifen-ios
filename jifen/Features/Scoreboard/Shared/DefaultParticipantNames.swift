@@ -63,12 +63,12 @@ enum DefaultParticipantNames {
 
     static var shuttlecockTeamMembers: [String] {
         [
-            NSLocalizedString("shuttlecock_red_1", value: "红队 1", comment: ""),
-            NSLocalizedString("shuttlecock_red_2", value: "红队 2", comment: ""),
-            NSLocalizedString("shuttlecock_red_3", value: "红队 3", comment: ""),
-            NSLocalizedString("shuttlecock_blue_1", value: "蓝队 1", comment: ""),
-            NSLocalizedString("shuttlecock_blue_2", value: "蓝队 2", comment: ""),
-            NSLocalizedString("shuttlecock_blue_3", value: "蓝队 3", comment: "")
+            NSLocalizedString("shuttlecock_red_1", value: "红A", comment: ""),
+            NSLocalizedString("shuttlecock_red_2", value: "红B", comment: ""),
+            NSLocalizedString("shuttlecock_red_3", value: "红C", comment: ""),
+            NSLocalizedString("shuttlecock_blue_1", value: "蓝A", comment: ""),
+            NSLocalizedString("shuttlecock_blue_2", value: "蓝B", comment: ""),
+            NSLocalizedString("shuttlecock_blue_3", value: "蓝C", comment: "")
         ]
     }
 

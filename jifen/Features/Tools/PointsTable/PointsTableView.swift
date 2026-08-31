@@ -182,6 +182,7 @@ struct PointsTableDetailView: View {
         .background(Theme.backgroundColor.ignoresSafeArea())
         .analyticsScreen(.pointsTableDetail, source: .pointsTable)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(record.name)

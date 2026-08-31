@@ -17,7 +17,6 @@ struct FoosballScoreboardView: View {
             rules: rules,
             participants: isDoubles ? doublesParticipants(initialSetup) : nil,
             openingServer: Self.openingServer(for: initialSetup),
-            voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() }

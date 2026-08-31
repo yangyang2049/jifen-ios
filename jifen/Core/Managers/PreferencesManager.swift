@@ -61,6 +61,9 @@ class PreferencesManager {
 
     private let defaults: UserDefaults
 
+    /// 样式编辑草稿预览（key = styleID.rawValue，仅内存，不参与持久化）。
+    private var styleProfilePreviews: [String: ScoreboardStyleProfileV2] = [:]
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
     }
@@ -304,12 +307,30 @@ class PreferencesManager {
     /// Missing V2 profiles are intentionally returned in memory only. This
     /// keeps a first read from silently modifying an existing user's settings.
     func scoreboardStyleProfileV2(for styleID: ScoreboardStyleID) -> ScoreboardStyleProfileV2 {
+        // 样式编辑中的草稿预览优先（内存态，实时预览用，不落盘）。
+        if let preview = styleProfilePreviews[styleID.rawValue] {
+            return preview
+        }
         guard let encoded = defaults.data(forKey: styleProfileV2Key(for: styleID)),
               let profile = try? JSONDecoder().decode(ScoreboardStyleProfileV2.self, from: encoded) else {
             let theme = ScoreboardTheme(rawValue: scoreboardTheme) ?? .defaultTheme
             return .default(for: styleID, theme: theme)
         }
         return profile
+    }
+
+    /// 样式编辑草稿的内存预览：编辑中渲染层立即生效；保存/取消时清除。
+    /// 对齐安卓「编辑中渲染取 draft」的行为。
+    func setScoreboardStyleProfilePreview(
+        _ profile: ScoreboardStyleProfileV2?,
+        for styleID: ScoreboardStyleID
+    ) {
+        if let profile {
+            styleProfilePreviews[styleID.rawValue] = profile
+        } else {
+            styleProfilePreviews.removeValue(forKey: styleID.rawValue)
+        }
+        notifyScoreboardPreferencesChanged()
     }
 
     func hasScoreboardStyleProfileV2(for styleID: ScoreboardStyleID) -> Bool {

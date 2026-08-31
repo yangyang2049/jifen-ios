@@ -490,7 +490,7 @@ struct HomeTab: View {
 
         let recentRecords = records
             .sorted { $0.timestamp > $1.timestamp }
-            .prefix(10)
+            .prefix(5)
         #if DEBUG
         print("[HomeTab] 📋 Showing \(recentRecords.count) recent records")
         #endif
@@ -1012,9 +1012,7 @@ struct HomeTab: View {
     @ViewBuilder
     private func buildRecentRecordsSection() -> some View {
         VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
-            Text(NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
-                .font(.system(size: Theme.fontH5, weight: .medium))
-                .foregroundColor(Theme.textPrimary)
+            SectionTitleView(title: NSLocalizedString("recent_records", comment: "Recent Records Section Title"))
 
             RecentRecordsSectionView(
                 records: recentActivities,
@@ -1028,9 +1026,7 @@ struct HomeTab: View {
     private func buildScheduleSection() -> some View {
         VStack(alignment: .leading, spacing: Theme.sectionContentSpacing) {
             HStack {
-                Text(NSLocalizedString("schedule_title", value: "我的球局", comment: ""))
-                    .font(.system(size: Theme.fontH5, weight: .medium))
-                    .foregroundColor(Theme.textPrimary)
+                SectionTitleView(title: NSLocalizedString("schedule_title", value: "我的球局", comment: ""))
                 Spacer()
                 Button {
                     AppAnalytics.openPage(from: .homeTab, to: .scheduleList, entryPoint: .scheduleList)

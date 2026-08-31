@@ -82,6 +82,71 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(decoded.note, "赛后复盘 👋")
     }
 
+    func testLegacyRecordDecodesWithoutCorrectionAndCorrectionRoundTrips() throws {
+        let old = makeRecord()
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encode(old)) as? [String: Any])
+        XCTAssertNil(object["correction"])
+
+        let decodedOld = try decoder().decode(ScoreboardRecord.self, from: JSONSerialization.data(withJSONObject: object))
+        XCTAssertNil(decodedOld.correction)
+
+        var record = makeRecord()
+        record.correction = RecordScoreCorrection(
+            correctedAt: Date(timeIntervalSince1970: 1_700_000_100),
+            previousTeam1FinalScore: 11,
+            previousTeam2FinalScore: 7,
+            previousTeam1SetScore: 2,
+            previousTeam2SetScore: 1
+        )
+        let decoded = try decoder().decode(ScoreboardRecord.self, from: encode(record))
+        XCTAssertEqual(decoded.correction, record.correction)
+    }
+
+    func testScoreCorrectionRewritesWinnerPreservesOriginalValuesAndReplayFields() throws {
+        var record = makeRecord()
+        record.team1SetScore = 2
+        record.team2SetScore = 1
+        record.stateSnapshot = Data("snapshot".utf8)
+
+        // 局分优先：局分反转时胜者跟随局分
+        let flipped = ScoreboardRecordCorrection.applied(
+            to: record,
+            team1FinalScore: 5,
+            team2FinalScore: 11,
+            team1SetScore: 1,
+            team2SetScore: 2
+        )
+        XCTAssertEqual(flipped.winnerTeamID, .team1)
+        XCTAssertEqual(flipped.correction?.previousTeam1FinalScore, 11)
+        XCTAssertEqual(flipped.correction?.previousTeam2FinalScore, 7)
+        XCTAssertEqual(flipped.correction?.previousTeam1SetScore, 2)
+        XCTAssertEqual(flipped.correction?.previousTeam2SetScore, 1)
+        XCTAssertEqual(flipped.stateSnapshot, record.stateSnapshot)
+
+        // 局分相同回退当局分；平局清空胜者
+        let tie = ScoreboardRecordCorrection.applied(
+            to: record,
+            team1FinalScore: 8,
+            team2FinalScore: 8,
+            team1SetScore: nil,
+            team2SetScore: nil
+        )
+        XCTAssertNil(tie.winnerTeamID)
+        XCTAssertNil(tie.winner)
+        XCTAssertNil(tie.team1SetScore)
+
+        // 二次纠错不覆盖首次留痕
+        let twice = ScoreboardRecordCorrection.applied(
+            to: flipped,
+            team1FinalScore: 9,
+            team2FinalScore: 3,
+            team1SetScore: 2,
+            team2SetScore: 0
+        )
+        XCTAssertEqual(twice.correction?.previousTeam1FinalScore, 11)
+        XCTAssertEqual(twice.winnerTeamID, .team0)
+    }
+
     func testV3RecordDecodesWithoutV4Fields() throws {
         let old = makeRecord(schemaVersion: 3, actions: ["left +1"])
         var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encode(old)) as? [String: Any])

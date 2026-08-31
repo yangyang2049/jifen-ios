@@ -26,6 +26,7 @@ struct FootballScoreboardView: View {
     @State private var clockTick = Date()
     @State private var showClockPrompt = false
     @State private var didApplyInitialSetup = false
+    @State private var clockPulseScale: CGFloat = 1
 
     init(
         onNavigationBack: (() -> Void)? = nil,
@@ -133,6 +134,7 @@ struct FootballScoreboardView: View {
                 )
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
@@ -273,66 +275,130 @@ struct FootballScoreboardView: View {
         viewModel.restoreLegacyFootballSession()
     }
 
+    /// 对齐安卓 FootballClockPanel：时钟胶囊固定在计分板顶部正中心（TopCenter + 72dp 边距）。
     private var footballClockOverlay: some View {
         VStack {
             HStack(spacing: 12) {
-                Spacer()
-                VStack(spacing: 2) {
-                    Text(clockStageTitle)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(viewModel.formattedClock())
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
-                        .foregroundStyle(viewModel.clockIsTimeUp ? .red : .primary)
-                    if !isFiveAside, viewModel.clockStoppageElapsedSeconds > 0 {
-                        Text(viewModel.formattedStoppageClock())
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
-                            .foregroundStyle(.orange)
-                    }
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .background(.ultraThinMaterial, in: Capsule())
-                if viewModel.allowsManualClockPause {
-                    Button {
-                        viewModel.toggleClock()
-                    } label: {
-                        Image(systemName: viewModel.clockIsRunning ? "pause.fill" : "play.fill")
-                            .frame(width: 44, height: 44)
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
+                Spacer(minLength: 0)
+                footballClockCapsule
                 if viewModel.allowsStoppageTime {
-                    Menu {
-                        Button("+15 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
-                            viewModel.addStoppage(15)
-                        }
-                        Button("+30 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
-                            viewModel.addStoppage(30)
-                        }
-                        Button("+1 \(NSLocalizedString("minute", value: "分钟", comment: ""))") {
-                            viewModel.addStoppage(60)
-                        }
-                        Button("+1 \(NSLocalizedString("minute", value: "分钟", comment: "")) 30 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
-                            viewModel.addStoppage(90)
-                        }
-                        if viewModel.canUndoLastStoppage {
-                            Button(NSLocalizedString("football_undo_stoppage", value: "撤销最近一次补时", comment: "")) {
-                                viewModel.undoLastStoppage()
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "plus.forwardslash.minus")
-                            .frame(width: 44, height: 44)
-                    }
-                    .buttonStyle(.bordered)
+                    stoppageMenu
                 }
+                Spacer(minLength: 0)
             }
             Spacer()
         }
-        .padding(.top, 10)
-        .padding(.horizontal, 18)
+        .padding(.top, 12)
+        .padding(.horizontal, 72)
         .allowsHitTesting(!showGameOverDialog)
+    }
+
+    /// 1:1 复刻安卓 CompactClockCapsule：阶段徽标（1H/2H/1T/2T）+ mm:ss + 补时 + 内联暂停图标，
+    /// 黑色 42% 圆角底（AppRadius.sm = 10），未运行且允许手动暂停时做脉冲呼吸动画。
+    private var footballClockCapsule: some View {
+        let shouldPulse = viewModel.allowsManualClockPause
+            && !viewModel.clockIsRunning
+            && !viewModel.clockPeriodCompleted
+        return HStack(spacing: 10) {
+            Text(clockStageBadge)
+                .font(.system(size: 13, weight: .heavy))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background(clockStageAccent, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+
+            Text(viewModel.formattedClock())
+                .font(.system(size: 22, weight: .heavy))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+
+            if !isFiveAside, viewModel.clockStoppageElapsedSeconds > 0 {
+                Text(viewModel.formattedStoppageClock())
+                    .font(.system(size: 16, weight: .heavy))
+                    .monospacedDigit()
+                    .foregroundStyle(Color(hex: "FFD166"))
+            }
+
+            if viewModel.allowsManualClockPause {
+                Image(systemName: viewModel.clockIsRunning ? "pause.fill" : "play.fill")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(.leading, 2)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(Color.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        // 对齐安卓 resolveBasketballClockPulseScale：900ms 半周期往复，最大放大 1.12，smoothstep≈easeInOut。
+        .scaleEffect(clockPulseScale)
+        .animation(
+            shouldPulse ? .easeInOut(duration: 0.9).repeatForever(autoreverses: true) : .easeInOut(duration: 0.2),
+            value: clockPulseScale
+        )
+        .onChange(of: shouldPulse) { _, pulsing in
+            clockPulseScale = pulsing ? 1.12 : 1
+        }
+        .onAppear {
+            clockPulseScale = shouldPulse ? 1.12 : 1
+        }
+        .onTapGesture {
+            if viewModel.allowsManualClockPause {
+                viewModel.toggleClock()
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(clockStageTitle) \(viewModel.formattedClock())")
+        .accessibilityAddTraits(viewModel.allowsManualClockPause ? [.isButton] : [])
+        .accessibilityIdentifier("football_timer_toggle")
+    }
+
+    /// 11 人制补时加减菜单（iOS 既有功能），样式与时钟胶囊统一的深色圆角底。
+    private var stoppageMenu: some View {
+        Menu {
+            Button("+15 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
+                viewModel.addStoppage(15)
+            }
+            Button("+30 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
+                viewModel.addStoppage(30)
+            }
+            Button("+1 \(NSLocalizedString("minute", value: "分钟", comment: ""))") {
+                viewModel.addStoppage(60)
+            }
+            Button("+1 \(NSLocalizedString("minute", value: "分钟", comment: "")) 30 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
+                viewModel.addStoppage(90)
+            }
+            if viewModel.canUndoLastStoppage {
+                Button(NSLocalizedString("football_undo_stoppage", value: "撤销最近一次补时", comment: "")) {
+                    viewModel.undoLastStoppage()
+                }
+            }
+        } label: {
+            Image(systemName: "plus.forwardslash.minus")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .frame(width: 38, height: 38)
+                .background(Color.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .accessibilityIdentifier("football_stoppage_menu")
+    }
+
+    /// 对齐安卓 CompactClockCapsule 的阶段徽标与强调色。
+    private var clockStageBadge: String {
+        switch viewModel.clockStage {
+        case 1: return "1H"
+        case 2: return "2H"
+        case 3: return "1T"
+        default: return "2T"
+        }
+    }
+
+    private var clockStageAccent: Color {
+        switch viewModel.clockStage {
+        case 1: return Color(hex: "22C55E")
+        case 2: return Color(hex: "38BDF8")
+        case 3: return Color(hex: "F59E0B")
+        default: return Color(hex: "F97316")
+        }
     }
 
     private var clockStageTitle: String {
