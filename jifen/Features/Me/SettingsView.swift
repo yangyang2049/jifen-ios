@@ -596,11 +596,10 @@ private struct MeAccountEntryRow: View {
     private func scanLoginButton(action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: "qr.code.viewfinder")
-                .font(.system(size: 17, weight: .medium))
+                .font(.system(size: 18, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
                 .frame(width: 36, height: 36)
-                .background(Theme.controlBackground, in: Circle())
-                .overlay(Circle().stroke(Theme.divider.opacity(0.7), lineWidth: 1))
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
