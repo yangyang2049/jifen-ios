@@ -97,7 +97,10 @@ struct HomeSharingActiveHeaderView: View {
 
     var body: some View {
         HStack(spacing: 12) {
+            // 对齐安卓 Column(Modifier.weight(1f))：左列占满剩余宽度保持左对齐，
+            // 右侧箭头按钮被推到最右（避免整体内容被居中）。
             leadingColumn
+                .frame(maxWidth: .infinity, alignment: .leading)
             manageButton
         }
         // 对齐安卓：背景先于 contentPadding，绿条全宽贴边，内容由水平内边距承担。
