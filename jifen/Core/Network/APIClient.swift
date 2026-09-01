@@ -24,19 +24,20 @@ nonisolated enum APIDateParser {
 nonisolated struct APIErrorPayload: Decodable, Sendable {
     var error: String?
     var message: String?
+    var nextAvailableAt: String? = nil
 }
 
 nonisolated enum APIClientError: LocalizedError, Equatable {
     case invalidResponse
     case sessionExpired
-    case server(status: Int, code: String?, message: String?)
+    case server(status: Int, code: String?, message: String?, nextAvailableAt: String?)
     case decoding
 
     var errorDescription: String? {
         switch self {
         case .invalidResponse: NSLocalizedString("network_invalid_response", value: "服务器响应无效", comment: "")
         case .sessionExpired: NSLocalizedString("login_expired", value: "登录已失效，请重新登录", comment: "")
-        case .server(_, let code, let message): message ?? code ?? NSLocalizedString("network_request_failed", value: "请求失败，请稍后重试", comment: "")
+        case .server(_, let code, let message, _): message ?? code ?? NSLocalizedString("network_request_failed", value: "请求失败，请稍后重试", comment: "")
         case .decoding: NSLocalizedString("network_invalid_response", value: "服务器响应无效", comment: "")
         }
     }
@@ -169,7 +170,8 @@ actor APIClient {
                 throw APIClientError.server(
                     status: http.statusCode,
                     code: payload?.error,
-                    message: payload?.message
+                    message: payload?.message,
+                    nextAvailableAt: payload?.nextAvailableAt
                 )
             }
             let payload = try decoder.decode(RefreshResponse.self, from: data)
@@ -223,7 +225,8 @@ actor APIClient {
             throw APIClientError.server(
                 status: http.statusCode,
                 code: payload?.error,
-                message: payload?.message
+                message: payload?.message,
+                nextAvailableAt: payload?.nextAvailableAt
             )
         }
         return data

@@ -9,6 +9,7 @@ import SessionCore
 @Observable
 final class BasketballSessionStore {
     private typealias ResumeBundle = ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>
+    private static let clockStartedFlag = "basketballClockStarted"
 
     private let core: ScoreSessionCore<BasketballMatchReducer>
     private let resumeRepository: ResumeSessionRepository
@@ -20,6 +21,7 @@ final class BasketballSessionStore {
     private var timeoutClockAnchorNanoseconds: UInt64?
 
     private(set) var state: BasketballMatchState
+    private(set) var basketballClockStarted: Bool
     var actionTimeline: [DetailedScoreAction] { recordContext.detailedActions }
     let sessionId: UUID
     let startedAt: Date
@@ -80,10 +82,13 @@ final class BasketballSessionStore {
         state = session.state
         let restoredActions = ScoreboardRecordManager.shared
             .getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
-        recordContext = ScoreSessionRecordContext(
+        var initialContext = ScoreSessionRecordContext(
             detailedActions: restoredActions,
             actionCount: restoredActions.count
         )
+        initialContext.presentationFlags[Self.clockStartedFlag] = false
+        recordContext = initialContext
+        basketballClockStarted = false
     }
 
     private init(resumeBundle: ResumeBundle) {
@@ -98,16 +103,22 @@ final class BasketballSessionStore {
         )
         resumeRepository = ResumeSessionRepository()
         state = session.state
-        if let restoredContext = ScoreSessionRecordContext.decode(resumeBundle.auxiliaryPayload) {
-            recordContext = restoredContext
+        var restoredContext: ScoreSessionRecordContext
+        if let decoded = ScoreSessionRecordContext.decode(resumeBundle.auxiliaryPayload) {
+            restoredContext = decoded
         } else {
             let restoredActions = ScoreboardRecordManager.shared
                 .getRecordById(session.sessionId.uuidString)?.detailedActions ?? []
-            recordContext = ScoreSessionRecordContext(
+            restoredContext = ScoreSessionRecordContext(
                 detailedActions: restoredActions,
                 actionCount: restoredActions.count
             )
         }
+        let restoredClockStarted = restoredContext.presentationFlags[Self.clockStartedFlag]
+            ?? Self.inferLegacyClockStarted(from: session.state)
+        restoredContext.presentationFlags[Self.clockStartedFlag] = restoredClockStarted
+        recordContext = restoredContext
+        basketballClockStarted = restoredClockStarted
     }
 
     convenience init?(restoring sessionId: UUID) {
@@ -160,6 +171,7 @@ final class BasketballSessionStore {
                 // intent so both layers can roll back as one operation.
                 self.recordContext.pushUndoCheckpoint()
             }
+            self.updateClockStarted(after: intent, acceptedState: session.state)
             if intent != .tickClock, intent != .tickTimeout {
                 // The final action is part of the formal record and must be in
                 // memory before the record-first commit starts.
@@ -204,6 +216,9 @@ final class BasketballSessionStore {
                 // a stale score/period action after a legacy resume undo.
                 self.rebuildRecordContext(from: session.events)
             }
+            self.basketballClockStarted = self.recordContext.presentationFlags[Self.clockStartedFlag]
+                ?? Self.inferLegacyClockStarted(from: session.state)
+            self.recordContext.presentationFlags[Self.clockStartedFlag] = self.basketballClockStarted
             await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
             completion?(true)
             let bundle = await core.resumeBundle()
@@ -378,6 +393,7 @@ final class BasketballSessionStore {
     }
 
     private func rebuildRecordContext(from events: [BasketballMatchEvent]) {
+        let presentationFlags = recordContext.presentationFlags
         let actions = events.compactMap { event -> DetailedScoreAction? in
             guard case .stateChanged(let at, let intent, _, let after) = event else {
                 return nil
@@ -386,8 +402,49 @@ final class BasketballSessionStore {
         }
         recordContext = ScoreSessionRecordContext(
             detailedActions: actions,
-            actionCount: actions.count
+            actionCount: actions.count,
+            presentationFlags: presentationFlags
         )
+    }
+
+    private func updateClockStarted(
+        after intent: BasketballMatchIntent,
+        acceptedState: BasketballMatchState
+    ) {
+        switch intent {
+        case .setClockRunning(true):
+            if acceptedState.gameRunning || acceptedState.shotRunning {
+                basketballClockStarted = true
+            }
+        case .endTimeout:
+            if acceptedState.gameRunning || acceptedState.shotRunning {
+                basketballClockStarted = true
+            }
+        case .reset:
+            basketballClockStarted = false
+        default:
+            break
+        }
+        recordContext.presentationFlags[Self.clockStartedFlag] = basketballClockStarted
+    }
+
+    /// Drafts written before `basketballClockStarted` existed need a conservative
+    /// one-time inference. Live updates never use this heuristic, so scoring before
+    /// the first tip-off does not incorrectly mark the clock as started.
+    private static func inferLegacyClockStarted(from state: BasketballMatchState) -> Bool {
+        let initial = BasketballMatchEngine.initial(
+            leftName: state.leftName,
+            rightName: state.rightName,
+            gameMode: state.gameMode,
+            ruleSet: state.ruleSet
+        )
+        return state.gameRunning
+            || state.shotRunning
+            || state.gameTimeSeconds < initial.gameTimeSeconds
+            || state.leftScore > 0
+            || state.rightScore > 0
+            || state.currentPeriod > 1
+            || state.isOvertime
     }
 
     private func persist(_ bundle: ResumeBundle) async throws {

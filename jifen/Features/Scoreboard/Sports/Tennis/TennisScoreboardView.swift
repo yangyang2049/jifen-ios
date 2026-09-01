@@ -1686,7 +1686,11 @@ struct TennisScoreboardView: View {
                 finished: state.finished,
                 isEditing: isEditMode
             ),
-            revision: 0
+            revision: 0,
+            leftSets: leftSide == .left ? state.leftSets : state.rightSets,
+            rightSets: rightSide == .left ? state.leftSets : state.rightSets,
+            leftGames: leftSide == .left ? state.leftGames : state.rightGames,
+            rightGames: rightSide == .left ? state.leftGames : state.rightGames
         )
         let isDoubles = state.doublesPlayerNames != nil
         var displayPlayers: [ScoreboardDisplayPlayer]?
@@ -1724,6 +1728,11 @@ struct TennisScoreboardView: View {
         compact.externalState?.appearance = .init(
             snapshot: appearance,
             fontCode: typographyPreference.font.rawValue
+        )
+        compact.externalState?.appearance.fontSizeMultipliers = ScoreboardDisplayAppearance.multipliers(
+            score: typographyPreference.scoreMultiplier,
+            name: typographyPreference.nameMultiplier,
+            secondary: typographyPreference.secondaryMultiplier
         )
         return compact
     }

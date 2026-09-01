@@ -17,6 +17,27 @@ extension ScoreboardDisplayAppearance {
             centerTextHex: "#\(profile.resolvedTextHex(for: .center))"
         )
     }
+
+    /// 对齐安卓 wire 键名（ScoreboardStyleElementKey）。
+    static func multipliers(
+        score: Double?,
+        name: Double?,
+        secondary: Double?
+    ) -> [String: Double]? {
+        guard score != nil || name != nil || secondary != nil else { return nil }
+        var map: [String: Double] = [:]
+        if let score { map["mainScore"] = score }
+        if let name {
+            map["teamName"] = name
+            map["playerName"] = name
+        }
+        if let secondary {
+            map["setScore"] = secondary
+            map["gameScore"] = secondary
+            map["setGameScore"] = secondary
+        }
+        return map
+    }
 }
 
 extension ScoreboardDisplayRest {
@@ -43,6 +64,8 @@ extension ScoreboardDisplayState {
                 id: "team_0",
                 name: state.leftName,
                 score: leftValue,
+                sets: state.leftSets,
+                games: state.leftGames,
                 color: "#\(profile.team0Hex)",
                 order: 0
             ),
@@ -50,6 +73,8 @@ extension ScoreboardDisplayState {
                 id: "team_1",
                 name: state.rightName,
                 score: rightValue,
+                sets: state.rightSets,
+                games: state.rightGames,
                 color: "#\(profile.team1Hex)",
                 order: 1
             )
@@ -83,7 +108,12 @@ extension ScoreboardDisplayState {
                 centerPanelHex: "#\(profile.centerHex)",
                 leftTextHex: "#\(profile.resolvedTextHex(for: .team0))",
                 rightTextHex: "#\(profile.resolvedTextHex(for: .team1))",
-                centerTextHex: "#\(profile.resolvedTextHex(for: .center))"
+                centerTextHex: "#\(profile.resolvedTextHex(for: .center))",
+                fontSizeMultipliers: ScoreboardDisplayAppearance.multipliers(
+                    score: state.scoreMultiplier,
+                    name: state.nameMultiplier,
+                    secondary: state.secondaryMultiplier
+                )
             ),
             result: state.finished ? ScoreboardDisplayResult(
                 ended: true,
@@ -116,6 +146,52 @@ extension ScoreboardDisplayState {
         value.sportState?.merge(sportState) { _, next in next }
         value.clock = clock
         value.rest = rest
+        value.normalizeLogicalTeamIdentityFromVisualCompact()
         return value
+    }
+
+    /// `LocalScoreboardDisplayState` intentionally stores the two visible panels in
+    /// screen order so the lightweight phone/watch projection can render it directly.
+    /// The cross-platform `ScoreboardDisplayState` contract is different: `team_0`
+    /// and `team_1` are stable logical identities, while `team0ScreenSide` carries
+    /// placement. Normalize exactly once at the compact -> rich-state boundary.
+    private mutating func normalizeLogicalTeamIdentityFromVisualCompact() {
+        guard sportString("team0ScreenSide") == "right", teams.count == 2 else { return }
+
+        let visualLeft = teams[0]
+        let visualRight = teams[1]
+        var logicalTeam0 = visualRight
+        logicalTeam0.id = "team_0"
+        logicalTeam0.order = 0
+        logicalTeam0.color = appearance.leftPanelHex
+        var logicalTeam1 = visualLeft
+        logicalTeam1.id = "team_1"
+        logicalTeam1.order = 1
+        logicalTeam1.color = appearance.rightPanelHex
+        teams = [logicalTeam0, logicalTeam1]
+
+        players = players?.map { player in
+            var normalized = player
+            switch player.teamID {
+            case "team_0": normalized.teamID = "team_1"
+            case "team_1": normalized.teamID = "team_0"
+            default: break
+            }
+            return normalized
+        }
+
+        guard var result else { return }
+        switch result.winnerID {
+        case "team_0": result.winnerID = "team_1"
+        case "team_1": result.winnerID = "team_0"
+        default: break
+        }
+        if let visualScores = result.finalScores {
+            var logicalScores = visualScores
+            logicalScores["team_0"] = visualScores["team_1"]
+            logicalScores["team_1"] = visualScores["team_0"]
+            result.finalScores = logicalScores
+        }
+        self.result = result
     }
 }

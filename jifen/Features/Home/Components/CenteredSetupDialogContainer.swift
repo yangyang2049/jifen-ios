@@ -183,6 +183,89 @@ struct CenteredSetupDialogContainer<Content: View>: View {
     }
 }
 
+/// "知道了"说明对话框内容卡：20pt bold 居中标题 + 14pt 次要正文 + 48pt 绿色胶囊确认按钮。
+/// 对齐安卓端说明类弹窗（主题绿 confirm 按钮）规格。
+struct GotItInfoDialogCard: View {
+    let title: String
+    let message: String
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Text(title)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .padding(.top, 24)
+                .padding(.horizontal, 22)
+
+            Text(message)
+                .font(.system(size: 14))
+                .foregroundStyle(.white.opacity(0.72))
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .padding(.top, 10)
+                .padding(.horizontal, 22)
+
+            Button(action: onDismiss) {
+                Text(NSLocalizedString("got_it", value: "知道了", comment: ""))
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(Theme.accentColor)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 20)
+            .padding(.horizontal, 22)
+            .padding(.bottom, 22)
+        }
+    }
+}
+
+/// 托管 Bool binding 的"知道了"说明对话框，遮罩/动画规格与 CenteredSetupDialogPresenter 一致。
+struct GotItInfoDialogPresenter: View {
+    @Binding var isPresented: Bool
+    let title: String
+    let message: String
+
+    var body: some View {
+        GeometryReader { proxy in
+            let cardWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                role: .informational
+            )
+
+            ZStack {
+                if isPresented {
+                    Color.black.opacity(0.48)
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .transition(.opacity)
+                        .onTapGesture { isPresented = false }
+
+                    GotItInfoDialogCard(
+                        title: title,
+                        message: message,
+                        onDismiss: { isPresented = false }
+                    )
+                    .frame(width: cardWidth)
+                    .background(Theme.homeDialogBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .shadow(color: .black.opacity(0.28), radius: 28, y: 12)
+                    .contentShape(Rectangle())
+                    .onTapGesture { }
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .animation(.easeInOut(duration: 0.2), value: isPresented)
+        }
+        .allowsHitTesting(isPresented)
+    }
+}
+
 /// 托管 binding：直接根据 item 插入或移除整块遮罩与 Dialog。
 struct CenteredSetupDialogPresenter<Item: Identifiable, Content: View>: View {
     @Binding var item: Item?

@@ -723,7 +723,8 @@ struct EightBallScoreboardView: View {
         }
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
-        return .init(gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: GameType.eightBall.displayName,
+        var snapshot = LocalScoreboardDisplayState(
+            gameID: GameType.eightBall.canonicalScoreboardIdentifier, title: GameType.eightBall.displayName,
               leftName: displayName(onScreen: .left), rightName: displayName(onScreen: .right),
               leftScore: "\(logical(.left))", rightScore: "\(logical(.right))",
               leftDetail: nil, rightDetail: nil,
@@ -733,6 +734,20 @@ struct EightBallScoreboardView: View {
               nameMultiplier: typographyPreference.nameMultiplier,
               secondaryMultiplier: typographyPreference.secondaryMultiplier,
               finished: state.finished, revision: 0)
+        // 显示端顶部目标数/让局信息（对齐安卓 eight_ball sportState 键）。
+        snapshot.externalState = ScoreboardDisplayState.enriched(
+            compact: snapshot,
+            layoutKind: .twoSide,
+            sportState: [
+                "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left"),
+                "eightBallTargetRacks": .integer(state.targetPoints),
+                "eightBallHandicapRacks": .integer(state.handicapRacks),
+                "eightBallHandicapBeneficiary": .string(
+                    state.handicapBeneficiary == .left ? "team_0" : (state.handicapBeneficiary == .right ? "team_1" : "none")
+                )
+            ]
+        )
+        return snapshot
     }
     @discardableResult
     private func saveRecord() -> Bool {

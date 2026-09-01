@@ -96,6 +96,9 @@ struct ScoreboardDisplayAppearance: Codable, Equatable, Sendable {
     var leftTextHex: String
     var rightTextHex: String
     var centerTextHex: String
+    /// 字号倍率，对齐安卓 DisplayStyleSnapshotV2.fontSizeMultipliers
+    /// （键：mainScore/teamName/playerName/setScore/gameScore/setGameScore）。
+    var fontSizeMultipliers: [String: Double]? = nil
 }
 
 struct ScoreboardDisplayFinalScore: Codable, Equatable, Sendable {
@@ -124,6 +127,12 @@ struct ScoreboardDisplayClock: Codable, Equatable, Sendable {
     var anchorWallClockMilliseconds: Int64
     var label: String? = nil
     var visible: Bool = true
+    /// 足球阶段（1=上半场 2=下半场 3=加时上半场 4=加时下半场），对齐安卓 DisplayMatchClockState.footballHalf
+    var footballHalf: Int? = nil
+    /// 当前半场时长（毫秒），足球专用
+    var footballHalfLengthMs: Int64? = nil
+    /// 补时目标时长（毫秒），足球专用
+    var footballInjuryTargetMs: Int64? = nil
 
     func projectedMilliseconds(atWallClockMilliseconds now: Int64) -> Int64 {
         guard isRunning else { return elapsedMilliseconds }

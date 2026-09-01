@@ -385,6 +385,8 @@ struct TemplateConfig {
     let scoringEnabledProvider: (() -> Bool)?
     /// Optional semantic key-point state for local display snapshots.
     let syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)?
+    /// 项目专属 sportState 键（同步/投屏显示端渲染用，如 archeryCurrentShooter）。
+    let syncSportStateProvider: (() -> [String: ScoreboardDisplayValue])?
     /// Adds project-specific clock/foul/metadata to the dedicated display
     /// while keeping the compact in-process snapshot available.
     let externalStateEnricher: ((LocalScoreboardDisplayState) -> ScoreboardDisplayState)?
@@ -409,6 +411,7 @@ struct TemplateConfig {
         onMenuAction: ((String) -> Void)? = nil,
         scoringEnabledProvider: (() -> Bool)? = nil,
         syncKeyPointProvider: (() -> LocalScoreboardKeyPoint?)? = nil,
+        syncSportStateProvider: (() -> [String: ScoreboardDisplayValue])? = nil,
         externalStateEnricher: ((LocalScoreboardDisplayState) -> ScoreboardDisplayState)? = nil,
         onScorePanelTap: ((Bool) -> Void)? = nil
     ) {
@@ -429,6 +432,7 @@ struct TemplateConfig {
         self.onMenuAction = onMenuAction
         self.scoringEnabledProvider = scoringEnabledProvider
         self.syncKeyPointProvider = syncKeyPointProvider
+        self.syncSportStateProvider = syncSportStateProvider
         self.externalStateEnricher = externalStateEnricher
         self.onScorePanelTap = onScorePanelTap
     }

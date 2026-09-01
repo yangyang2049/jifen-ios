@@ -141,7 +141,13 @@ struct ArcheryScoreboardView: View {
                             break
                         }
                     },
-                    scoringEnabledProvider: { !viewModel.mutationLocked }
+                    scoringEnabledProvider: { !viewModel.mutationLocked },
+                    syncSportStateProvider: {
+                        [
+                            "team0ScreenSide": .string(viewModel.match.sidesSwapped ? "right" : "left"),
+                            "archeryCurrentShooter": .string(viewModel.currentShooterIsLeft ? "team_0" : "team_1")
+                        ]
+                    }
                 ),
                 onBack: {
                     if let id = watchSessionId {

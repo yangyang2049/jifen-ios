@@ -72,7 +72,7 @@ final class RemoteSyncController: ObservableObject {
             MatchWebSocketManager.shared.connect(
                 matchId: match.id,
                 token: token.rtToken,
-                wsUrl: token.wsUrl,
+                wsUrl: token.resolvedWsUrl,
                 displayMode: false
             )
             attach()
@@ -143,7 +143,12 @@ final class RemoteSyncController: ObservableObject {
         do {
             let token = try await MatchSyncAPI.shared.getRtToken(matchId: state.matchId)
             ws.enableAutoReconnect()
-            ws.connect(matchId: state.matchId, token: token.rtToken, wsUrl: token.wsUrl, displayMode: false)
+            ws.connect(
+                matchId: state.matchId,
+                token: token.rtToken,
+                wsUrl: token.resolvedWsUrl,
+                displayMode: false
+            )
             let deadline = Date().addingTimeInterval(Double(Self.forceSyncConnectTimeoutMs) / 1000)
             while Date() < deadline {
                 if ws.isConnected { return true }

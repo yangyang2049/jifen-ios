@@ -73,6 +73,12 @@ struct LocalScoreboardDisplayState: Codable, Equatable {
     /// Optional full-fidelity state for the process-local dedicated display.
     /// The compact fields remain the common in-process scoreboard snapshot.
     var externalState: ScoreboardDisplayState? = nil
+    /// 局分/盘分（对齐安卓 DisplayTeamState.sets：乒乓球/排球/羽毛球等为局数，网球等为盘数）。
+    var leftSets: Int? = nil
+    var rightSets: Int? = nil
+    /// 网球家族的局数/Game（对齐安卓 DisplayTeamState.games）。
+    var leftGames: Int? = nil
+    var rightGames: Int? = nil
 }
 
 enum LocalScoreboardIntent: String, Codable, CaseIterable {

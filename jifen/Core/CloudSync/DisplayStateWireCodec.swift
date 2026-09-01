@@ -113,6 +113,10 @@ enum DisplayStateWireCodec {
         map["leftTeamColor"] = appearance.leftPanelHex
         map["rightTeamColor"] = appearance.rightPanelHex
         map["centerTeamColor"] = appearance.centerPanelHex
+        // 对齐安卓 DisplayAppearanceState.toMap：字号倍率在嵌套 style.fontSizeMultipliers。
+        if let multipliers = appearance.fontSizeMultipliers, !multipliers.isEmpty {
+            map["style"] = ["fontSizeMultipliers": multipliers]
+        }
         return map
     }
 
@@ -131,6 +135,16 @@ enum DisplayStateWireCodec {
             "startedAt": startedAt,
             "elapsedMs": clock.elapsedMilliseconds
         ]
+        // 对齐安卓 DisplayMatchClockState.toMap：足球阶段字段。
+        if let half = clock.footballHalf, (1...4).contains(half) {
+            map["footballHalf"] = half
+        }
+        if let halfLength = clock.footballHalfLengthMs, halfLength >= 0 {
+            map["footballHalfLengthMs"] = halfLength
+        }
+        if let injuryTarget = clock.footballInjuryTargetMs, injuryTarget >= 0 {
+            map["footballInjuryTargetMs"] = injuryTarget
+        }
         if let label = clock.label, !label.isEmpty {
             map["halfLabel"] = label
         }
@@ -251,7 +265,10 @@ enum DisplayStateWireCodec {
             durationMilliseconds: nil,
             anchorWallClockMilliseconds: startedAt,
             label: map["halfLabel"] as? String,
-            visible: visible
+            visible: visible,
+            footballHalf: (map["footballHalf"] as? NSNumber).flatMap { (1...4).contains($0.intValue) ? $0.intValue : nil },
+            footballHalfLengthMs: (map["footballHalfLengthMs"] as? NSNumber).flatMap { $0.int64Value >= 0 ? $0.int64Value : nil },
+            footballInjuryTargetMs: (map["footballInjuryTargetMs"] as? NSNumber).flatMap { $0.int64Value >= 0 ? $0.int64Value : nil }
         )
     }
 
@@ -296,8 +313,23 @@ enum DisplayStateWireCodec {
         if let center = validColor(map["centerTeamColor"]) { appearance.centerPanelHex = center }
         if let background = validColor(map["backgroundHex"]) { appearance.backgroundHex = background }
         if let foreground = validColor(map["foregroundHex"]) { appearance.foregroundHex = foreground }
+        // 安卓 style.fontSizeMultipliers → iOS 倍率（键同安卓 ScoreboardStyleElementKey）。
+        if let style = map["style"] as? [String: Any],
+           let raw = style["fontSizeMultipliers"] as? [String: Any] {
+            var multipliers: [String: Double] = [:]
+            for (key, value) in raw where multiplierKeys.contains(key) {
+                if let number = value as? NSNumber, number.doubleValue > 0 {
+                    multipliers[key] = number.doubleValue
+                }
+            }
+            if !multipliers.isEmpty { appearance.fontSizeMultipliers = multipliers }
+        }
         return appearance
     }
+
+    private static let multiplierKeys: Set<String> = [
+        "mainScore", "teamName", "playerName", "setScore", "gameScore", "setGameScore", "matchTitle"
+    ]
 
     private static func validColor(_ value: Any?) -> String? {
         guard let raw = value as? String else { return nil }
@@ -343,8 +375,12 @@ enum DisplayStateWireCodec {
         "eight_ball": ["eightBallTargetRacks", "eightBallHandicapRacks", "eightBallHandicapBeneficiary"],
         "nine_ball": ["chasePlayerCount", "chasePlayerNames", "chasePlayerCounts", "chaseLeftCounts", "chaseRightCounts", "chasePoints"],
         "archery_dual": ["archeryCurrentShooter"],
-        "basketball": ["basketballCurrentPeriod", "basketballIsOT", "basketballLeftFouls", "basketballRightFouls"],
-        "three_basketball": ["basketballCurrentPeriod", "basketballIsOT", "basketballLeftFouls", "basketballRightFouls"],
+        "basketball": ["basketballCurrentPeriod", "basketballIsOT", "basketballLeftFouls", "basketballRightFouls",
+                       "basketballGameTime", "basketballShotTime", "basketballGameRunning", "basketballShotRunning",
+                       "basketballClockRevision", "basketballClockStarted"],
+        "three_basketball": ["basketballCurrentPeriod", "basketballIsOT", "basketballLeftFouls", "basketballRightFouls",
+                             "basketballGameTime", "basketballShotTime", "basketballGameRunning", "basketballShotRunning",
+                             "basketballClockRevision", "basketballClockStarted"],
         "uno": ["unoRoundCount", "unoTargetScore"],
         "guandan": ["guandanRedRank", "guandanBlueRank", "guandanLeftAFailCount", "guandanRightAFailCount",
                     "guandanTripleAEnabled", "guandanBankerTeam"],

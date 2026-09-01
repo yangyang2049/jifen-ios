@@ -1235,10 +1235,12 @@ struct MultiScoreboardView: View {
                         order: $0.order
                     )
                 }
+                let multipliers = compact.externalState?.appearance.fontSizeMultipliers
                 compact.externalState?.appearance = .init(
                     snapshot: appearance,
                     fontCode: typographySession.effectivePreference.font.rawValue
                 )
+                compact.externalState?.appearance.fontSizeMultipliers = multipliers
                 return compact
             },
             handleIntent: { intent in

@@ -165,6 +165,8 @@
 "game_guandan" = "掼蛋";
 "guandan_level" = "等级";
 "guandan_a_stage" = "闯A中";
+"display_guandan_pass_a" = "过A %d";
+"display_guandan_triple_a" = "三A";
 "guandan_a_fail_format" = "闯A失败 %d/3";
 "guandan_a_stage_team_format" = "%@ 闯A";
 "guandan_pass_a_condition_section" = "过 A 条件";
@@ -549,6 +551,7 @@
 "account_logout" = "退出登录";
 "account_logout_confirm_title" = "退出登录";
 "account_logout_confirm_message" = "确定要退出当前账号吗？";
+"account_logout_confirm_syncing" = "正在进行跨设备同步，退出登录会断开同步，观看端将无法继续接收比分更新。";
 "me_profile_vip_badge" = "VIP";
 "membership_basic_member_title" = "普通用户";
 "membership_title" = "会员";
@@ -788,7 +791,10 @@
 "record_action_team_goal" = "%@ 进球";
 "record_action_team_points" = "%@ +%d";
 "boxing_round_n" = "第 %d 回合";
-"boxing_round_progress" = "第 %d / %d 回合";
+"boxing_round_progress" = "第 %d/%d 回合";
+"display_basketball_period" = "第 %d 节";
+"display_basketball_foul" = "犯规";
+"display_basketball_clock_pause" = "暂停";
 
 /* Stopwatch */
 "stopwatch_total" = "总时长";
@@ -865,7 +871,6 @@
 "watch_sync_status_wait_reply" = "等待手表在线";
 "watch_sync_status_no_connection" = "未连接";
 "watch_sync_status_app_not_installed" = "未安装应用";
-"watch_sync_comm_failure_help_confirm" = "知道了";
 "got_it" = "知道了";
 "linked_score_not_controller" = "当前不是主控端，无法执行该操作。";
 "linked_score_reclaim_denied" = "手表拒绝交还控制权。";
@@ -903,6 +908,8 @@
 "tennis_deuce_option_no_ad" = "无占先";
 "points_per_set" = "每局分数";
 "voice_announcement" = "语音播报";
+"sound_effects_help_title" = "音效";
+"sound_effects_help_message" = "控制掷骰子、抛硬币、倒计时结束等工具音效，关闭后这些音效将静音。";
 "sports_setup_match_features" = "比赛功能";
 "pickleball_target_score" = "目标分";
 "pickleball_score_cap" = "最高分上限";
@@ -1628,7 +1635,7 @@
 // MARK: 通用
 "more" = "更多";
 "publish" = "发布";
-"account_delete" = "删除账户";
+"account_delete" = "注销账号";
 "qr_login_title" = "扫码登录";
 "qr_login_scan_hint" = "对准网页上的登录二维码";
 "qr_login_confirm_subtitle" = "以下设备请求登录你的计分器账号";
@@ -1685,6 +1692,9 @@
 "me_profile_nickname_saving" = "保存中…";
 "me_profile_nickname_empty" = "昵称不能为空";
 "me_profile_nickname_length" = "昵称长度需在 1-20 个字符之间";
+"me_profile_nickname_cooldown" = "昵称修改后需要稍等一会儿，请在 %@ 后再试";
+"me_profile_nickname_cooldown_generic" = "昵称修改后需要稍等一会儿，请稍后再试";
+"me_profile_nickname_review_submitted" = "昵称已提交审核，审核期间仅自己可见";
 "membership_login_required" = "请先登录后购买";
 "membership_purchase_success" = "购买成功，会员状态已更新";
 "membership_purchase_pending" = "购买正在等待确认，确认后会自动更新";

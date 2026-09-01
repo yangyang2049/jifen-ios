@@ -51,7 +51,7 @@ final class RemoteDisplaySession: ObservableObject {
         MatchWebSocketManager.shared.connect(
             matchId: response.matchId,
             token: response.wsToken,
-            wsUrl: response.wsUrl,
+            wsUrl: response.resolvedWsUrl,
             displayMode: true
         )
         registerWsHandlers()

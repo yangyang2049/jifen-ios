@@ -110,12 +110,17 @@ struct FootballScoreboardView: View {
                             elapsedMilliseconds: Int64(viewModel.clockElapsedSeconds * 1_000),
                             isRunning: viewModel.clockIsRunning,
                             anchorWallClockMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
-                            label: clockStageTitle
+                            label: clockStageTitle,
+                            footballHalf: viewModel.clockStage,
+                            footballHalfLengthMs: Int64(viewModel.clockSession.currentPeriodLengthSeconds) * 1_000,
+                            footballInjuryTargetMs: Int64(viewModel.clockSession.currentStoppageSeconds) * 1_000
                         )
                     )
+                    let multipliers = value.appearance.fontSizeMultipliers
                     value.appearance = .init(snapshot: .current(
                         styleID: ScoreboardStyleID(gameType: isFiveAside ? .football5v5 : .football)
                     ))
+                    value.appearance.fontSizeMultipliers = multipliers
                     return value
                 }
             ),

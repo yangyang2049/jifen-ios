@@ -103,7 +103,7 @@ final class SessionStore {
         }
     }
 
-    func updateProfile(name: String) async -> Bool {
+    func updateProfile(name: String) async -> ProfileUpdateOutcome {
         struct Body: Encodable, Sendable { var name: String }
         do {
             let response: ProfileUpdateResponse = try await client.request(
@@ -113,11 +113,49 @@ final class SessionStore {
                 requiresAuth: true
             )
             user = response.user
-            return true
+            lastError = nil
+            if response.user.nameVisibility?.uppercased() == "OWNER_PREVIEW" {
+                return .submittedForReview
+            }
+            return .updated
         } catch {
-            await handle(error)
-            return false
+            if error as? APIClientError == .sessionExpired {
+                await expireSession()
+                return .failed(lastError ?? error.localizedDescription)
+            }
+            let message = Self.profileUpdateErrorMessage(error)
+            lastError = message
+            return .failed(message)
         }
+    }
+
+    private static func profileUpdateErrorMessage(_ error: Error) -> String {
+        guard let apiError = error as? APIClientError,
+              case .server(_, let code, let message, let nextAvailableAt) = apiError,
+              code == "NAME_COOLDOWN"
+        else {
+            return error.localizedDescription
+        }
+
+        if let nextAvailableAt,
+           let date = APIDateParser.date(from: nextAvailableAt) {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            return String(
+                format: NSLocalizedString(
+                    "me_profile_nickname_cooldown",
+                    value: "昵称修改后需要稍等一会儿，请在 %@ 后再试",
+                    comment: ""
+                ),
+                formatter.string(from: date)
+            )
+        }
+        return message ?? NSLocalizedString(
+            "me_profile_nickname_cooldown_generic",
+            value: "昵称修改后需要稍等一会儿，请稍后再试",
+            comment: ""
+        )
     }
 
     func uploadAvatar(_ sourceData: Data) async -> Bool {
@@ -167,6 +205,8 @@ final class SessionStore {
         await client.clearSession()
         user = nil
         state = .signedOut
+        // 登出即终止云端同步会话：发送 LEAVE、断开 WebSocket 并禁止自动重连（对齐安卓端会话随登出终止）。
+        CloudSyncSession.shared.end(reason: "logout")
         await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
     }
 
@@ -175,6 +215,8 @@ final class SessionStore {
         user = nil
         state = .signedOut
         lastError = APIClientError.sessionExpired.localizedDescription
+        // 凭证已失效（401），本地直接断开云端同步 WebSocket，不再发送 LEAVE。
+        CloudSyncSession.shared.endFromServer()
         await CommonDataCloudSyncManager.shared.sessionDidChange(userId: nil)
     }
 

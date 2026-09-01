@@ -56,6 +56,8 @@ struct SettingsView: View {
     @State private var clearDataErrorMessage: String?
     @State private var isClearingData = false
     @State private var toastMessage: String?
+    @State private var soundEffectsEnabled = PreferencesManager.shared.soundEnabled
+    @State private var showSoundEffectsHelp = false
 
     var body: some View {
         NavigationStack {
@@ -163,6 +165,25 @@ struct SettingsView: View {
             } message: {
                 Text(clearDataErrorMessage ?? "")
             }
+            .overlay {
+                GotItInfoDialogPresenter(
+                    isPresented: $showSoundEffectsHelp,
+                    title: NSLocalizedString("sound_effects_help_title", value: "音效", comment: ""),
+                    message: NSLocalizedString(
+                        "sound_effects_help_message",
+                        value: "控制掷骰子、抛硬币、倒计时结束等工具音效，关闭后这些音效将静音。",
+                        comment: ""
+                    )
+                )
+            }
+            .onChange(of: soundEffectsEnabled) { _, value in
+                PreferencesManager.shared.soundEnabled = value
+                AppAnalytics.track(.toggleSetting, parameters: [
+                    .sourcePage: .string(AnalyticsScreen.meTab.rawValue),
+                    .settingName: .string("sound"),
+                    .settingValue: .string(value ? "on" : "off")
+                ])
+            }
         }
     }
 
@@ -254,6 +275,13 @@ struct SettingsView: View {
                 ) {
                     ScoreboardSettingsView()
                 }
+                settingsRowDivider
+                MeSoundToggleRow(
+                    title: NSLocalizedString("sound_effects", value: "音效", comment: ""),
+                    isOn: $soundEffectsEnabled,
+                    toggleAccessibilityIdentifier: "me_sound_effects_toggle",
+                    helpAction: { showSoundEffectsHelp = true }
+                )
                 if AppFeatureFlags.watchLinkEntryEnabled
                     && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice {
                     settingsRowDivider
@@ -595,7 +623,7 @@ private struct MeAccountEntryRow: View {
     // 扫码登录：嵌在名称条右侧、右箭头左侧的图标按钮（对齐安卓扫一扫图标入口）。
     private func scanLoginButton(action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: "qr.code.viewfinder")
+            Image(systemName: "qrcode.viewfinder")
                 .font(.system(size: 18, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
                 .frame(width: 36, height: 36)
@@ -646,7 +674,6 @@ private struct MeAccountEntryRow: View {
 private struct ScoreboardSettingsView: View {
     @State private var forceIPadLandscape = PreferencesManager.shared.forceIPadLandscape
     @State private var keepScreenOn = PreferencesManager.shared.keepScoreboardScreenOn
-    @State private var soundEnabled = PreferencesManager.shared.soundEnabled
     @State private var officialBreaksEnabled = PreferencesManager.shared.officialBreaksEnabled
     @State private var vibrationEnabled = PreferencesManager.shared.vibrationEnabled
     @State private var touchGuard = PreferencesManager.shared.scoreboardTouchGuardEnabled
@@ -670,12 +697,6 @@ private struct ScoreboardSettingsView: View {
                             title: NSLocalizedString("scoreboard_keep_screen_on", value: "屏幕常亮", comment: ""),
                             isOn: $keepScreenOn,
                             toggleAccessibilityIdentifier: "scoreboard_keep_screen_on_toggle"
-                        )
-                        Divider().overlay(Theme.divider)
-                        ScoreboardToggleSettingRow(
-                            title: NSLocalizedString("voice_announcement", value: "语音播报", comment: ""),
-                            isOn: $soundEnabled,
-                            toggleAccessibilityIdentifier: "scoreboard_sound_toggle"
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
@@ -728,10 +749,6 @@ private struct ScoreboardSettingsView: View {
             PreferencesManager.shared.keepScoreboardScreenOn = value
             trackSetting("keep_screen_on", value)
         }
-        .onChange(of: soundEnabled) { _, value in
-            PreferencesManager.shared.soundEnabled = value
-            trackSetting("sound_enabled", value)
-        }
         .onChange(of: officialBreaksEnabled) { _, value in
             PreferencesManager.shared.officialBreaksEnabled = value
             trackSetting("official_breaks_enabled", value)
@@ -748,8 +765,14 @@ private struct ScoreboardSettingsView: View {
             PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled = value
             trackSetting("double_tap_subtract", value)
         }
-        .alert(item: $helpTopic) { topic in
-            Alert(title: Text(topic.title), message: Text(topic.message), dismissButton: .default(Text(NSLocalizedString("got_it", value: "知道了", comment: ""))))
+        .overlay {
+            CenteredSetupDialogPresenter(item: $helpTopic) { topic, dismiss, _ in
+                GotItInfoDialogCard(
+                    title: topic.title,
+                    message: topic.message,
+                    onDismiss: dismiss
+                )
+            }
         }
     }
 
@@ -821,6 +844,39 @@ private struct ScoreboardToggleSettingRow: View {
         .padding(.horizontal, Theme.md)
         .frame(minHeight: 56)
         // 对齐安卓 ScoreboardSettingsSwitchRow：整行可点击切换开关。
+        .contentShape(Rectangle())
+        .onTapGesture { isOn.toggle() }
+    }
+}
+
+/// 我的页音效开关行：标题 + “?”帮助 + Toggle，对齐 MeTab 行样式（56pt 行高）。
+private struct MeSoundToggleRow: View {
+    let title: String
+    @Binding var isOn: Bool
+    let toggleAccessibilityIdentifier: String
+    var helpAction: (() -> Void)? = nil
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Theme.textPrimary)
+            if let helpAction {
+                Button(action: helpAction) {
+                    Image(systemName: "questionmark.circle")
+                        .foregroundColor(Theme.textSecondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("\(toggleAccessibilityIdentifier)_help")
+            }
+            Spacer()
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .accessibilityIdentifier(toggleAccessibilityIdentifier)
+        }
+        .padding(.horizontal, Theme.cardPadding)
+        .frame(minHeight: 56)
+        // 对齐安卓 MeTab 开关行：整行可点击切换开关。
         .contentShape(Rectangle())
         .onTapGesture { isOn.toggle() }
     }

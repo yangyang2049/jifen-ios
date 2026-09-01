@@ -508,6 +508,50 @@ final class RallySessionStoreTests: XCTestCase {
         )
     }
 
+    func testBasketballClockStartedPersistsAndFollowsResetUndo() async throws {
+        let repository = ResumeSessionRepository()
+        let store = BasketballSessionStore(
+            leftName: "Home",
+            rightName: "Away",
+            gameMode: .fiveVFive
+        )
+        defer {
+            Task { try? await repository.remove(sessionId: store.sessionId) }
+        }
+
+        XCTAssertFalse(store.basketballClockStarted)
+
+        store.send(.addPoints(side: .left, points: 2))
+        let scored = expectation(description: "basketball score before clock persisted")
+        store.flush { scored.fulfill() }
+        await fulfillment(of: [scored], timeout: 2)
+        XCTAssertFalse(store.basketballClockStarted, "Scoring alone must not mark the clock as started")
+
+        store.send(.setClockRunning(true))
+        store.send(.setClockRunning(false))
+        let paused = expectation(description: "basketball first clock start persisted")
+        store.flush { paused.fulfill() }
+        await fulfillment(of: [paused], timeout: 2)
+        XCTAssertTrue(store.basketballClockStarted)
+
+        let restored = try XCTUnwrap(BasketballSessionStore(restoring: store.sessionId))
+        XCTAssertTrue(restored.basketballClockStarted)
+
+        restored.send(.reset)
+        let reset = expectation(description: "basketball clock reset persisted")
+        restored.flush { reset.fulfill() }
+        await fulfillment(of: [reset], timeout: 2)
+        XCTAssertFalse(restored.basketballClockStarted)
+
+        let undone = expectation(description: "basketball clock reset undone")
+        restored.undo { success in
+            XCTAssertTrue(success)
+            undone.fulfill()
+        }
+        await fulfillment(of: [undone], timeout: 2)
+        XCTAssertTrue(restored.basketballClockStarted)
+    }
+
     func testRallyUndoRestoresTerminalPointRecordGroupAtomicallyAcrossResume() async throws {
         let repository = ResumeSessionRepository()
         var state = RallyMatchEngine.initial(

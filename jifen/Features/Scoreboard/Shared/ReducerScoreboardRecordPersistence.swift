@@ -12,6 +12,9 @@ struct ScoreSessionRecordCheckpoint: Codable, Equatable {
     var detailedActionsCount: Int
     var actionCount: Int
     var completedSetScoresCount: Int
+    /// Optional presentation-only flags captured with the undo boundary.
+    /// Optional keeps checkpoints written before this field backward-compatible.
+    var presentationFlags: [String: Bool]? = nil
 }
 
 struct ScoreSessionRecordContext: Codable, Equatable {
@@ -23,6 +26,7 @@ struct ScoreSessionRecordContext: Codable, Equatable {
     var actionCount: Int
     var completedSetScores: [VoiceSetScore]
     var undoCheckpoints: [ScoreSessionRecordCheckpoint]
+    var presentationFlags: [String: Bool]
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
@@ -31,6 +35,7 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         case actionCount
         case completedSetScores
         case undoCheckpoints
+        case presentationFlags
     }
 
     init(
@@ -38,13 +43,15 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         detailedActions: [DetailedScoreAction] = [],
         actionCount: Int? = nil,
         completedSetScores: [VoiceSetScore] = [],
-        undoCheckpoints: [ScoreSessionRecordCheckpoint] = []
+        undoCheckpoints: [ScoreSessionRecordCheckpoint] = [],
+        presentationFlags: [String: Bool] = [:]
     ) {
         self.actionLog = actionLog
         self.detailedActions = detailedActions
         self.actionCount = max(0, actionCount ?? detailedActions.count)
         self.completedSetScores = completedSetScores
         self.undoCheckpoints = undoCheckpoints
+        self.presentationFlags = presentationFlags
     }
 
     init(from decoder: Decoder) throws {
@@ -55,6 +62,7 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         actionCount = max(0, try container.decodeIfPresent(Int.self, forKey: .actionCount) ?? detailedActions.count)
         completedSetScores = try container.decodeIfPresent([VoiceSetScore].self, forKey: .completedSetScores) ?? []
         undoCheckpoints = try container.decodeIfPresent([ScoreSessionRecordCheckpoint].self, forKey: .undoCheckpoints) ?? []
+        presentationFlags = try container.decodeIfPresent([String: Bool].self, forKey: .presentationFlags) ?? [:]
     }
 
     mutating func pushUndoCheckpoint() {
@@ -62,7 +70,8 @@ struct ScoreSessionRecordContext: Codable, Equatable {
             actionLogCount: actionLog.count,
             detailedActionsCount: detailedActions.count,
             actionCount: actionCount,
-            completedSetScoresCount: completedSetScores.count
+            completedSetScoresCount: completedSetScores.count,
+            presentationFlags: presentationFlags
         ))
     }
 
@@ -73,6 +82,9 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         detailedActions = Array(detailedActions.prefix(max(0, checkpoint.detailedActionsCount)))
         actionCount = max(0, checkpoint.actionCount)
         completedSetScores = Array(completedSetScores.prefix(max(0, checkpoint.completedSetScoresCount)))
+        if let flags = checkpoint.presentationFlags {
+            presentationFlags = flags
+        }
         return true
     }
 

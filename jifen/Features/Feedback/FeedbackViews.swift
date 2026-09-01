@@ -711,10 +711,15 @@ struct FeedbackDetailView: View {
                         previewStartPage = index
                         previewImages = images
                     } label: {
-                        AsyncImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { image in
-                            image.resizable().scaledToFill()
-                        } placeholder: {
-                            Theme.controlBackground
+                        AsyncImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { phase in
+                            if let image = phase.image {
+                                image.resizable().scaledToFill()
+                            } else {
+                                // 加载中/失败占位（对齐安卓 feedback_placeholder_sports）。
+                                Image("feedback_placeholder_sports")
+                                    .resizable()
+                                    .scaledToFill()
+                            }
                         }
                         .frame(width: 120, height: 120)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -885,10 +890,15 @@ private struct FeedbackImagePreviewPage: View {
             Color.black.ignoresSafeArea()
             TabView(selection: $page) {
                 ForEach(Array(images.enumerated()), id: \.offset) { index, path in
-                    AsyncImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { image in
-                        image.resizable().scaledToFit()
-                    } placeholder: {
-                        ProgressView().tint(.white)
+                    AsyncImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { phase in
+                        if let image = phase.image {
+                            image.resizable().scaledToFit()
+                        } else {
+                            // 加载中/失败占位（对齐安卓 feedback_placeholder_sports）。
+                            Image("feedback_placeholder_sports")
+                                .resizable()
+                                .scaledToFit()
+                        }
                     }
                     .tag(index)
                 }

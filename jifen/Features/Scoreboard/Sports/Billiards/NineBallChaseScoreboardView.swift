@@ -1236,10 +1236,12 @@ struct NineBallChaseScoreboardView: View {
                 )
             }
         }
+        let multipliers = compact.externalState?.appearance.fontSizeMultipliers
         compact.externalState?.appearance = .init(
             snapshot: appearance,
             fontCode: typographySession.effectivePreference.font.rawValue
         )
+        compact.externalState?.appearance.fontSizeMultipliers = multipliers
         return compact
     }
     @discardableResult

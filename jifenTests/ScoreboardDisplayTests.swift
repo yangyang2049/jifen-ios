@@ -259,7 +259,7 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertEqual(outputs.displayState?.clock, sportClock)
     }
 
-    func testSideExchangePublishesVisualOrderAndSemanticTeamPlacementTogether() {
+    func testSideExchangePublishesStableLogicalTeamsAndVisualOverrides() {
         let outputs = ScoreboardDisplayOutputs.shared
         let initial = fixture(
             gameID: ScoreCore.GameType.badminton.rawValue,
@@ -291,10 +291,80 @@ final class ScoreboardDisplayTests: XCTestCase {
             priority: .urgent
         )
 
-        XCTAssertEqual(outputs.displayState?.teams.map(\.name), ["Blue", "Red"])
-        XCTAssertEqual(outputs.displayState?.teams.map(\.score), [8, 11])
+        XCTAssertEqual(outputs.displayState?.teams.map(\.id), ["team_0", "team_1"])
+        XCTAssertEqual(outputs.displayState?.teams.map(\.name), ["Red", "Blue"])
+        XCTAssertEqual(outputs.displayState?.teams.map(\.score), [11, 8])
+        XCTAssertEqual(outputs.displayState?.displayScore(forVisualIndex: 0), "8")
+        XCTAssertEqual(outputs.displayState?.displayScore(forVisualIndex: 1), "11")
         XCTAssertEqual(outputs.displayState?.sportString("team0ScreenSide"), "right")
         outputs.release(ownerID: "side-exchange", leaseID: leaseID)
+    }
+
+    func testSwappedEnrichedStateNormalizesPlayersResultAndWireIdentity() throws {
+        let compact = LocalScoreboardDisplayState(
+            gameID: ScoreCore.GameType.badmintonDoubles.rawValue,
+            title: "Badminton Doubles",
+            leftName: "Blue",
+            rightName: "Red",
+            leftScore: "8",
+            rightScore: "11",
+            leftDetail: nil,
+            rightDetail: nil,
+            themeID: "default",
+            fontID: "default",
+            finished: true,
+            keyPoint: LocalScoreboardKeyPoint(
+                status: KeyPointStatus(kind: .match, side: .left),
+                sidesSwapped: false
+            ),
+            revision: 3,
+            leftSets: 0,
+            rightSets: 2
+        )
+        let state = ScoreboardDisplayState.enriched(
+            compact: compact,
+            layoutKind: .doublesCourt,
+            players: [
+                .init(id: "left_top", name: "Blue A", teamID: "team_0", slot: "top", order: 0),
+                .init(id: "right_top", name: "Red A", teamID: "team_1", slot: "top", order: 1)
+            ],
+            sportState: ["team0ScreenSide": .string("right")]
+        )
+
+        XCTAssertEqual(state.teams.map(\.name), ["Red", "Blue"])
+        XCTAssertEqual(state.teams.map(\.sets), [2, 0])
+        XCTAssertEqual(state.players?.map(\.teamID), ["team_1", "team_0"])
+        XCTAssertEqual(state.result?.winnerID, "team_0")
+        XCTAssertEqual(state.result?.finalScores?["team_0"]?.score, 11)
+        XCTAssertEqual(state.result?.finalScores?["team_1"]?.score, 8)
+        XCTAssertEqual(state.keyPoint?.side, "left", "Key-point side is already a visual side")
+
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let wireTeams = try XCTUnwrap(wire["teams"] as? [[String: Any]])
+        XCTAssertEqual(wireTeams.map { $0["id"] as? String }, ["team_0", "team_1"])
+        XCTAssertEqual(wireTeams.map { $0["name"] as? String }, ["Red", "Blue"])
+    }
+
+    func testConcurrentPurchaseCallersAwaitOneAuthoritativeTransactionTask() async throws {
+        let gate = PurchaseTransactionGate()
+        let counter = PurchaseGateInvocationCounter()
+
+        let first = Task { @MainActor in
+            try await gate.perform(transactionID: 42) {
+                counter.value += 1
+                try await Task.sleep(for: .milliseconds(80))
+            }
+        }
+        try await Task.sleep(for: .milliseconds(10))
+        let second = Task { @MainActor in
+            try await gate.perform(transactionID: 42) {
+                counter.value += 1
+            }
+        }
+
+        try await first.value
+        try await second.value
+        XCTAssertEqual(counter.value, 1)
     }
 
     func testFinishedSnapshotPublishesUrgentlyWithFinalScores() {
@@ -463,4 +533,9 @@ final class ScoreboardDisplayTests: XCTestCase {
             .twoSide
         }
     }
+}
+
+@MainActor
+private final class PurchaseGateInvocationCounter {
+    var value = 0
 }

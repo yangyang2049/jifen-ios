@@ -1830,6 +1830,8 @@ struct RallyScoreboardView: View {
         case .airVolleyball: .airVolleyball
         case .beachVolleyball: .beachVolleyball
         case .foosball, .foosballDoubles: .foosball
+        case .shuttlecock: .shuttlecock
+        case .squash: .squash
         default: .simpleScore
         }
     }
@@ -1862,7 +1864,9 @@ struct RallyScoreboardView: View {
                         finished: store.state.finished,
                         isEditing: isEditMode
                     ),
-                    revision: 0
+                    revision: 0,
+                    leftSets: leftSide == .left ? store.state.leftSets : store.state.rightSets,
+                    rightSets: rightSide == .left ? store.state.leftSets : store.state.rightSets
                 )
                 let layout: ScoreboardDisplayLayoutKind = isDoubles ? .doublesCourt : .twoSide
                 var displayPlayers: [ScoreboardDisplayPlayer]?
@@ -1891,6 +1895,11 @@ struct RallyScoreboardView: View {
                 compact.externalState?.appearance = .init(
                     snapshot: appearance,
                     fontCode: typographyPreference.font.rawValue
+                )
+                compact.externalState?.appearance.fontSizeMultipliers = ScoreboardDisplayAppearance.multipliers(
+                    score: typographyPreference.scoreMultiplier,
+                    name: typographyPreference.nameMultiplier,
+                    secondary: typographyPreference.secondaryMultiplier
                 )
                 return compact
             },

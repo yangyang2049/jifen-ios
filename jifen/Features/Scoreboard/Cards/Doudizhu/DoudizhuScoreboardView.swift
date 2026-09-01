@@ -386,6 +386,9 @@ struct DoudizhuScoreboardView: View {
             rightScore: "\(players.dropFirst().first?.score ?? 0)",
             themeID: appearance.theme.rawValue,
             fontID: typographySession.effectivePreference.font.rawValue,
+            scoreMultiplier: typographySession.effectivePreference.scoreMultiplier,
+            nameMultiplier: typographySession.effectivePreference.nameMultiplier,
+            secondaryMultiplier: typographySession.effectivePreference.secondaryMultiplier,
             finished: gameFinished,
             revision: UInt64(actionCount)
         )
@@ -414,10 +417,12 @@ struct DoudizhuScoreboardView: View {
                 order: $0.order
             )
         }
+        let multipliers = value.appearance.fontSizeMultipliers
         value.appearance = .init(
             snapshot: appearance,
             fontCode: typographySession.effectivePreference.font.rawValue
         )
+        value.appearance.fontSizeMultipliers = multipliers
         if gameFinished {
             let best = players.map(\.score).max() ?? 0
             let winners = players.filter { $0.score == best }

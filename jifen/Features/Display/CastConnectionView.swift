@@ -20,6 +20,7 @@ struct CastConnectionView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var usageExpanded = false
     @State private var tab: ConnectionTab = .cast
+    @State private var initialTabResolved = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -45,7 +46,14 @@ struct CastConnectionView: View {
         .navigationBarTitleDisplayMode(.inline)
         // push 进入时系统自带返回按钮，避免重复。
         .analyticsScreen(.castPage, screenClass: "cast")
-        .onAppear { externalDisplay.refreshStatus() }
+        .onAppear {
+            externalDisplay.refreshStatus()
+            // 首次进入按连接状态选初始 Tab：投屏已连接 → 投屏；跨设备同步已连接 → 跨设备同步；都未连接 → 投屏。
+            if !initialTabResolved {
+                initialTabResolved = true
+                tab = initialTab
+            }
+        }
         .accessibilityIdentifier("cast_connection_page")
     }
 
@@ -162,6 +170,12 @@ struct CastConnectionView: View {
     // MARK: - 状态卡（安卓 CastStatusCard）
 
     private var connected: Bool { externalDisplay.status != .disconnected }
+
+    private var initialTab: ConnectionTab {
+        if connected { return .cast }
+        if CloudSyncSession.shared.isActive { return .remoteSync }
+        return .cast
+    }
 
     private var statusCard: some View {
         VStack(spacing: 10) {

@@ -195,22 +195,6 @@ struct NineBallSetupDialogView: View {
                                 onDismiss: dismissWatchStartGuide
                             )
                         }
-                        .alert(
-                            NSLocalizedString(
-                                "linked_score_watch_not_foreground_title",
-                                value: "请打开手表 App",
-                                comment: ""
-                            ),
-                            isPresented: $showWatchNotForegroundAlert
-                        ) {
-                            Button(NSLocalizedString(
-                                "watch_sync_comm_failure_help_confirm",
-                                value: "知道了",
-                                comment: ""
-                            ), role: .cancel) {}
-                        } message: {
-                            Text(PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription)
-                        }
                     }
                     .frame(maxWidth: .infinity)
                     .clipShape(Capsule())
@@ -223,6 +207,17 @@ struct NineBallSetupDialogView: View {
         .buttonStyle(.plain)
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
+        .overlay {
+            GotItInfoDialogPresenter(
+                isPresented: $showWatchNotForegroundAlert,
+                title: NSLocalizedString(
+                    "linked_score_watch_not_foreground_title",
+                    value: "请打开手表 App",
+                    comment: ""
+                ),
+                message: PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription
+            )
+        }
     }
 
     private func startButton(startOnWatch: Bool) -> some View {

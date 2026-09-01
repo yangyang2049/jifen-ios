@@ -37,6 +37,13 @@ struct RemoteDisplayView: View {
         .ignoresSafeArea()
         .preferredColorScheme(.dark)
         .statusBarHidden(true)
+        // 对齐安卓 RemoteDisplayHost：整页锁定方向（等待/连接/直播/结束均如此），
+        // 手机默认横屏（OrientationPolicy.resolveScoreboardOrientation），
+        // iPad 无强制横屏偏好时跟随设备；推分状态携带 orientation 时按其锁定。
+        .lockOrientation(displayOrientationMask)
+        .onChange(of: session.displayState?.orientation) { _, _ in
+            applyDisplayOrientationPolicy()
+        }
         .toolbar(.hidden, for: .tabBar)
         .toolbar(.hidden, for: .navigationBar)
         .persistentSystemOverlays(.hidden)
@@ -56,6 +63,32 @@ struct RemoteDisplayView: View {
         }
     }
 
+    // MARK: 方向
+
+    private var displayOrientationMask: UIInterfaceOrientationMask {
+        if let orientation = session.displayState?.orientation {
+            return orientationMask(for: orientation)
+        }
+        // 无推分状态时：手机默认横屏；iPad 由 lockOrientation 按偏好决定是否跟随设备。
+        return .landscape
+    }
+
+    private func orientationMask(for orientation: ScoreboardDisplayOrientation) -> UIInterfaceOrientationMask {
+        switch orientation {
+        case .landscape: return .landscape
+        case .portrait: return .portrait
+        }
+    }
+
+    private func applyDisplayOrientationPolicy() {
+        if Theme.usesPadLayout,
+           !PreferencesManager.shared.forceIPadLandscape {
+            OrientationLock.shared.unlock()
+        } else {
+            OrientationLock.shared.lock(displayOrientationMask)
+        }
+    }
+
     // MARK: 内容态
 
     @ViewBuilder
@@ -63,7 +96,7 @@ struct RemoteDisplayView: View {
         switch session.mode {
         case .live, .finished:
             if let state = session.displayState {
-                ScoreboardExternalLiveView(state: state)
+                ScoreboardExternalLiveView(state: state, projection: .synchronizedDisplay)
                     .id("\(state.gameType)-\(state.layoutKind.rawValue)")
                     .transition(.opacity)
             } else {
@@ -81,35 +114,50 @@ struct RemoteDisplayView: View {
         }
     }
 
+    /// 等待/无内容态：App 图标 + 横排翻页时钟 + 等待文案（对齐安卓 DisplayIdleWaitingPanel）。
     private var waitingPanel: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { context in
-            GeometryReader { proxy in
-                let scale = max(0.85, min(1.8, proxy.size.width / 1280))
-                VStack(spacing: 18 * scale) {
-                    Image(systemName: "rectangle.on.rectangle.angled")
-                        .font(.system(size: 74 * scale, weight: .light))
-                        .foregroundStyle(Color(hex: "30D158"))
-                    Text(NSLocalizedString("sync_display_waiting_title", value: "等待分享端推分", comment: ""))
-                        .font(.system(size: 42 * scale, weight: .bold))
-                    Text(NSLocalizedString(
-                        "sync_display_waiting_message",
-                        value: "请在另一台设备打开计分板并开始记分",
-                        comment: ""
+        let isLargeDisplay = Theme.usesPadLayout
+        return GeometryReader { proxy in
+            let baseCardWidth: CGFloat = isLargeDisplay ? 140 : 72
+            let digitPairGap: CGFloat = isLargeDisplay ? 6 : 4
+            let groupGap: CGFloat = isLargeDisplay ? 28 : 16
+            let horizontalPadding: CGFloat = isLargeDisplay ? 64 : 32
+            let minCardWidth: CGFloat = isLargeDisplay ? 96 : 44
+            let availableWidth = max(proxy.size.width - horizontalPadding, 1)
+            let fixedGapWidth = digitPairGap * 3 + groupGap * 2
+            let fittedCardWidth = max((availableWidth - fixedGapWidth) / 6, minCardWidth)
+            let cardWidth = min(baseCardWidth, fittedCardWidth)
+            let cardHeight = cardWidth * 1.5
+
+            VStack(spacing: isLargeDisplay ? 32 : 24) {
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: isLargeDisplay ? 72 : 48, height: isLargeDisplay ? 72 : 48)
+                    .clipShape(RoundedRectangle(
+                        cornerRadius: isLargeDisplay ? 17 : 12,
+                        style: .continuous
                     ))
-                    .font(.system(size: 24 * scale, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.68))
-                    VStack(spacing: 2) {
-                        Text(context.date.formatted(date: .omitted, time: .shortened))
-                            .font(.system(size: 58 * scale, weight: .medium, design: .monospaced))
-                        Text(context.date.formatted(date: .abbreviated, time: .omitted))
-                            .font(.system(size: 20 * scale, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.54))
-                    }
-                    .padding(.top, 18 * scale)
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    FlipClockFace(
+                        date: context.date,
+                        cardWidth: cardWidth,
+                        cardHeight: cardHeight,
+                        digitGap: digitPairGap,
+                        groupGap: groupGap,
+                        showShadow: false,
+                        hideCenterSeam: true
+                    )
                 }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                if session.controllerStatus != .disconnected {
+                    Text(NSLocalizedString("sync_display_waiting_title", value: "等待分享端推分", comment: ""))
+                        .font(.system(size: isLargeDisplay ? 20 : 18, weight: .medium))
+                        .foregroundStyle(Theme.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .padding(.horizontal, 32)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -143,19 +191,26 @@ struct RemoteDisplayView: View {
 
     // MARK: 遮罩
 
+    // 对齐安卓 RemoteDisplayAwayPill：右上角小胶囊（黑 46% + 琥珀圆点），避免遮挡比赛信息。
     private var controllerAwayOverlay: some View {
         VStack {
-            HStack(spacing: 10) {
-                Image(systemName: "iphone.slash")
-                Text(NSLocalizedString("cast_controller_away", value: "控制端暂离", comment: ""))
-                    .fontWeight(.semibold)
+            HStack {
+                Spacer()
+                HStack(spacing: 7) {
+                    Circle()
+                        .fill(Color(hex: "FFC44D").opacity(0.68))
+                        .frame(width: 6, height: 6)
+                    Text(NSLocalizedString("cast_controller_away", value: "控制端暂离", comment: ""))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.72))
+                        .lineLimit(1)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(.black.opacity(0.46), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .padding(.top, 16)
+                .padding(.trailing, 16)
             }
-            .font(.system(size: 24))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 22)
-            .padding(.vertical, 14)
-            .background(.black.opacity(0.72), in: Capsule())
-            .padding(.top, 24)
             Spacer()
         }
         .allowsHitTesting(false)

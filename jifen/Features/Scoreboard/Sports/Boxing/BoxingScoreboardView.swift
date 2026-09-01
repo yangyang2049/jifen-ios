@@ -58,7 +58,13 @@ struct BoxingScoreboardView: View {
                     nameType: ScoreboardCommonNamePolicy.nameType(for: .boxing),
                     scoreTextProvider: { _, team in "\(team.score)" },
                     onEditModeChange: { isEditing = $0 },
-                    showEndGame: true
+                    showEndGame: true,
+                    syncSportStateProvider: {
+                        [
+                            "boxingCurrentRound": .integer(viewModel.currentRound),
+                            "boxingMaxRounds": .integer(viewModel.maxRounds)
+                        ]
+                    }
                 ),
                 typographySession: typographySession,
                 onBack: {

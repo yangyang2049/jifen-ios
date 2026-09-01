@@ -271,6 +271,7 @@ private struct AccountProfileView: View {
     @State private var showRenameDialog = false
     @State private var showLogoutConfirmation = false
     @State private var showAccountDeletion = false
+    @State private var showMembership = false
     @State private var toastMessage: String?
 
     var body: some View {
@@ -291,16 +292,12 @@ private struct AccountProfileView: View {
                     }
                     ProfileThinDivider()
                     if session.user?.isVIP == true {
-                        NavigationLink { MembershipView() } label: {
-                            ProfileInfoRow(
-                                label: NSLocalizedString("me_profile_vip_status_label", value: "会员状态", comment: ""),
-                                value: profileMembershipLabel(session.user),
-                                valueColor: Theme.accentColor,
-                                showChevron: true
-                            ) {}
-                            .allowsHitTesting(false)
-                        }
-                        .buttonStyle(.plain)
+                        ProfileInfoRow(
+                            label: NSLocalizedString("me_profile_vip_status_label", value: "会员状态", comment: ""),
+                            value: profileMembershipLabel(session.user),
+                            valueColor: Theme.accentColor,
+                            showChevron: true
+                        ) { showMembership = true }
                     } else {
                         ProfileInfoRow(
                             label: NSLocalizedString("me_profile_vip_status_label", value: "会员状态", comment: ""),
@@ -344,7 +341,8 @@ private struct AccountProfileView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(role: .destructive) {
+                    // 退出登录保持中性色（对齐安卓 DropdownMenuItem textPrimary，不用 destructive 红色）。
+                    Button {
                         showLogoutConfirmation = true
                     } label: {
                         Label(
@@ -356,9 +354,10 @@ private struct AccountProfileView: View {
                         showAccountDeletion = true
                     } label: {
                         Label(
-                            NSLocalizedString("account_delete", value: "删除账户", comment: ""),
+                            NSLocalizedString("account_delete", value: "注销账号", comment: ""),
                             systemImage: "trash"
                         )
+                        .foregroundStyle(.red)
                     }
                 } label: {
                     Image(systemName: "ellipsis")
@@ -368,6 +367,9 @@ private struct AccountProfileView: View {
         }
         .navigationDestination(isPresented: $showAccountDeletion) {
             AccountDeletionView()
+        }
+        .navigationDestination(isPresented: $showMembership) {
+            MembershipView()
         }
         .overlay {
             if let toastMessage {
@@ -390,9 +392,21 @@ private struct AccountProfileView: View {
                     initialName: profileDisplayText,
                     onDismiss: { showRenameDialog = false },
                     onSubmit: { name in
-                        let updated = await session.updateProfile(name: name)
-                        if updated { showRenameDialog = false }
-                        return updated
+                        switch await session.updateProfile(name: name) {
+                        case .updated:
+                            showRenameDialog = false
+                            return nil
+                        case .submittedForReview:
+                            showRenameDialog = false
+                            showToastMessage(NSLocalizedString(
+                                "me_profile_nickname_review_submitted",
+                                value: "昵称已提交审核，审核期间仅自己可见",
+                                comment: ""
+                            ))
+                            return nil
+                        case .failed(let message):
+                            return message
+                        }
                     }
                 )
             }
@@ -406,12 +420,25 @@ private struct AccountProfileView: View {
             }
             Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
         } message: {
-            Text(NSLocalizedString(
-                "account_logout_confirm_message",
-                value: "确定要退出当前账号吗？",
-                comment: ""
-            ))
+            Text(logoutConfirmMessage)
         }
+    }
+
+    /// 退出登录确认文案：跨设备同步进行中时附加断开同步的说明（对齐安卓/鸿蒙端）。
+    private var logoutConfirmMessage: String {
+        var message = NSLocalizedString(
+            "account_logout_confirm_message",
+            value: "确定要退出当前账号吗？",
+            comment: ""
+        )
+        if CloudSyncSession.shared.isActive {
+            message += "\n\n" + NSLocalizedString(
+                "account_logout_confirm_syncing",
+                value: "正在进行跨设备同步，退出登录会断开同步，观看端将无法继续接收比分更新。",
+                comment: ""
+            )
+        }
+        return message
     }
 
     private var profileDisplayText: String {
@@ -927,11 +954,12 @@ private struct ProfileThinDivider: View {
 private struct NicknameEditDialog: View {
     let initialName: String
     let onDismiss: () -> Void
-    let onSubmit: (String) async -> Bool
+    let onSubmit: (String) async -> String?
 
     @State private var name = ""
     @State private var errorMessage: String?
     @State private var saving = false
+    @State private var failedSubmittedName: String?
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -982,7 +1010,7 @@ private struct NicknameEditDialog: View {
                         background: Theme.accentColor,
                         foreground: .white
                     ) { Task { await submit() } }
-                    .disabled(saving)
+                    .disabled(saving || failedSubmittedName == trimmedName)
                 }
                 .padding(.top, 24)
             }
@@ -1002,6 +1030,11 @@ private struct NicknameEditDialog: View {
                 focused = true
             }
         }
+        .onChange(of: name) { _, _ in
+            guard failedSubmittedName != nil else { return }
+            failedSubmittedName = nil
+            errorMessage = nil
+        }
     }
 
     private func dialogButton(title: String, background: Color, foreground: Color, action: @escaping () -> Void) -> some View {
@@ -1017,7 +1050,8 @@ private struct NicknameEditDialog: View {
     }
 
     private func submit() async {
-        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !saving else { return }
+        let trimmed = trimmedName
         guard !trimmed.isEmpty else {
             errorMessage = NSLocalizedString("me_profile_nickname_empty", value: "昵称不能为空", comment: "")
             return
@@ -1026,9 +1060,18 @@ private struct NicknameEditDialog: View {
             errorMessage = NSLocalizedString("me_profile_nickname_length", value: "昵称长度需在 1-20 个字符之间", comment: "")
             return
         }
+        guard failedSubmittedName != trimmed else { return }
         errorMessage = nil
         saving = true
-        _ = await onSubmit(trimmed)
+        let failureMessage = await onSubmit(trimmed)
         saving = false
+        if let failureMessage, !failureMessage.isEmpty {
+            errorMessage = failureMessage
+            failedSubmittedName = trimmed
+        }
+    }
+
+    private var trimmedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

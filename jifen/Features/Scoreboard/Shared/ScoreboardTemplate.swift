@@ -872,9 +872,24 @@ struct ScoreboardTemplate: View {
                 finished: config.viewModel.gameFinished,
                 isEditing: isEditMode
             ),
-            revision: 0
+            revision: 0,
+            leftSets: left.sets,
+            rightSets: right.sets,
+            leftGames: left.games,
+            rightGames: right.games
         )
         compact.externalState = config.externalStateEnricher?(compact)
+        if let sportState = config.syncSportStateProvider?(), !sportState.isEmpty {
+            if compact.externalState != nil {
+                compact.externalState?.sportState?.merge(sportState) { _, next in next }
+            } else {
+                compact.externalState = ScoreboardDisplayState.enriched(
+                    compact: compact,
+                    layoutKind: .resolve(gameID: compact.gameID),
+                    sportState: sportState
+                )
+            }
+        }
         return compact
     }
 

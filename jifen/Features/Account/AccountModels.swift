@@ -22,6 +22,7 @@ nonisolated struct AppUser: Codable, Equatable, Identifiable, Sendable {
     var nickname: String?
     var nameSource: String?
     var nameUpdatedAt: Int64?
+    var nameVisibility: String? = nil
     var email: String?
     var avatarUrl: String?
     var avatar: String?
@@ -52,6 +53,12 @@ nonisolated struct ProfileUpdateResponse: Decodable, Sendable {
     var user: AppUser
 }
 
+nonisolated enum ProfileUpdateOutcome: Equatable, Sendable {
+    case updated
+    case submittedForReview
+    case failed(String)
+}
+
 nonisolated struct SuccessResponse: Decodable, Sendable {
     var success: Bool
 }
@@ -59,4 +66,3 @@ nonisolated struct SuccessResponse: Decodable, Sendable {
 nonisolated extension String {
     fileprivate var nilIfEmpty: String? { isEmpty ? nil : self }
 }
-

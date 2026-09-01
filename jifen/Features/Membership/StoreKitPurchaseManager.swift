@@ -20,6 +20,31 @@ nonisolated enum PurchaseFlowState: Equatable {
     case failed(String)
 }
 
+/// Coalesces concurrent StoreKit delivery paths for the same transaction.
+/// Every caller awaits the authoritative acknowledgement instead of treating
+/// "already processing" as an immediate success.
+@MainActor
+final class PurchaseTransactionGate {
+    private var inFlight: [UInt64: Task<Void, Error>] = [:]
+
+    func perform(
+        transactionID: UInt64,
+        operation: @escaping @MainActor @Sendable () async throws -> Void
+    ) async throws {
+        if let existing = inFlight[transactionID] {
+            try await existing.value
+            return
+        }
+
+        let task = Task { @MainActor in
+            try await operation()
+        }
+        inFlight[transactionID] = task
+        defer { inFlight.removeValue(forKey: transactionID) }
+        try await task.value
+    }
+}
+
 @MainActor
 @Observable
 final class StoreKitPurchaseManager: PurchaseProviding {
@@ -43,6 +68,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
 
     private let client: APIClient
     private let tokenStore: AuthTokenStore
+    private let transactionGate = PurchaseTransactionGate()
     private var updatesTask: Task<Void, Never>?
 
     init(client: APIClient = .shared, tokenStore: AuthTokenStore = .shared) {
@@ -107,6 +133,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                     transaction,
                     signedTransactionInfo: verification.jwsRepresentation
                 )
+                await SessionStore.shared.reloadProfile()
                 state = .succeeded
                 message = NSLocalizedString("membership_purchase_success", value: "购买成功，会员状态已更新", comment: "")
             case .pending:
@@ -150,6 +177,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                     transaction,
                     signedTransactionInfo: result.jwsRepresentation
                 )
+                await SessionStore.shared.reloadProfile()
                 state = .succeeded
                 message = NSLocalizedString("membership_purchase_success", value: "购买成功，会员状态已更新", comment: "")
             } catch {
@@ -163,6 +191,18 @@ final class StoreKitPurchaseManager: PurchaseProviding {
         signedTransactionInfo: String
     ) async throws {
         guard Self.productIDs.contains(transaction.productID) else { return }
+        try await transactionGate.perform(transactionID: transaction.id) { [self] in
+            try await performAcknowledgement(
+                transaction,
+                signedTransactionInfo: signedTransactionInfo
+            )
+        }
+    }
+
+    private func performAcknowledgement(
+        _ transaction: Transaction,
+        signedTransactionInfo: String
+    ) async throws {
         #if STAGING
         guard let stagingToken = await tokenStore.stagingToken(), !stagingToken.isEmpty else {
             throw AppleAuthError.stagingTokenRequired
@@ -186,12 +226,12 @@ final class StoreKitPurchaseManager: PurchaseProviding {
         try await tokenStore.setPendingIapTransactions(pending)
         #endif
         await transaction.finish()
-        await SessionStore.shared.reloadProfile()
     }
 
     #if STAGING
     private func retryStagingUnfinishedTransactions() async {
         guard SessionStore.shared.isAuthenticated else { return }
+        var didAck = false
         for await result in Transaction.unfinished {
             guard case .verified(let transaction) = result,
                   Self.productIDs.contains(transaction.productID)
@@ -201,9 +241,13 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                     transaction,
                     signedTransactionInfo: result.jwsRepresentation
                 )
+                didAck = true
             } catch {
                 // Leave the transaction unfinished so a later authenticated launch can retry.
             }
+        }
+        if didAck {
+            await SessionStore.shared.reloadProfile()
         }
     }
     #endif
@@ -222,6 +266,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
     private func retryPendingServerAcknowledgements() async {
         guard SessionStore.shared.isAuthenticated else { return }
         var remaining = Set(await tokenStore.pendingIapTransactions())
+        var didVerify = false
         for await result in Transaction.unfinished {
             guard case .verified(let transaction) = result else { continue }
             let value = result.jwsRepresentation
@@ -230,6 +275,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                 try await verifyWithServer(value)
                 await transaction.finish()
                 remaining.remove(value)
+                didVerify = true
             } catch {
                 // Keep the JWS so the next launch can retry without finishing the transaction.
             }
@@ -238,11 +284,16 @@ final class StoreKitPurchaseManager: PurchaseProviding {
             do {
                 try await verifyWithServer(value)
                 remaining.remove(value)
+                didVerify = true
             } catch {
                 // Still not acknowledged by the business server.
             }
         }
         try? await tokenStore.setPendingIapTransactions(Array(remaining))
+        // 整批补验只刷新一次会员状态，避免逐笔 verify 后各请求一次 /api/auth/me。
+        if didVerify {
+            await SessionStore.shared.reloadProfile()
+        }
     }
     #endif
 
@@ -279,4 +330,3 @@ nonisolated private enum PurchaseError: LocalizedError {
         }
     }
 }
-

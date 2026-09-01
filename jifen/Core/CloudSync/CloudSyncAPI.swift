@@ -35,7 +35,11 @@ nonisolated struct CloudRtTokenResponse: Codable, Sendable {
     var rtToken: String
     var matchId: String
     var role: String?
-    var wsUrl: String
+    var wsUrl: String?
+
+    var resolvedWsUrl: String {
+        WebSocketEndpointResolver.resolve(serverURL: wsUrl)
+    }
 }
 
 nonisolated struct CloudShortCodeResponse: Codable, Sendable {
@@ -50,7 +54,11 @@ nonisolated struct CloudJoinByCodeResponse: Codable, Sendable {
     var matchId: String
     var wsToken: String
     var match: CloudMatch?
-    var wsUrl: String
+    var wsUrl: String?
+
+    var resolvedWsUrl: String {
+        WebSocketEndpointResolver.resolve(serverURL: wsUrl)
+    }
 }
 
 nonisolated struct CloudCreateMatchRequest: Encodable, Sendable {
@@ -154,7 +162,7 @@ enum CloudSyncGameTypes {
 
 enum CloudSyncErrorMapper {
     static func joinFailureMessage(_ error: Error) -> String {
-        if let apiError = error as? APIClientError, case .server(_, let code, let message) = apiError {
+        if let apiError = error as? APIClientError, case .server(_, let code, let message, _) = apiError {
             switch code {
             case "CODE_EXPIRED":
                 return NSLocalizedString("sync_code_expired", value: "短码已过期，请让分享端重新生成短码", comment: "")

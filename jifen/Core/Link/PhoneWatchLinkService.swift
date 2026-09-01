@@ -206,7 +206,15 @@ final class PhoneWatchLinkService {
         self.outboxStore = outboxStore
         self.recordSink = recordSink ?? DefaultPhoneLinkRecordSink()
         self.clock = clock
-        connectivityStatus = transport.status
+        // 先用中性占位值完成属性初始化；真实状态在 activate() 之后读取，
+        // 避免激活前访问 WCSession 属性触发 "WCSession has not been activated" 警告。
+        connectivityStatus = WatchConnectivityStatus(
+            isSupported: true,
+            isActivated: false,
+            isPaired: false,
+            isWatchAppInstalled: false,
+            isReachable: false
+        )
         if contextStore.data(forKey: legacyCleanupMarkerKey) == nil {
             contextStore.removeObject(forKey: "phone_link_context_v1")
             outboxStore.removeObject(forKey: "phone_link_terminal_outbox_v1")
@@ -258,6 +266,8 @@ final class PhoneWatchLinkService {
             }
         }
         transport.activate()
+        // activate() 之后才读取 WCSession 属性，避免 "WCSession has not been activated" 系统警告。
+        connectivityStatus = transport.status
         #if DEBUG
         print("[PhoneLink] PhoneWatchLinkService init: activate() called, onWatchRecordData wired")
         #endif

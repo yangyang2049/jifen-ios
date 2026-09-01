@@ -163,6 +163,8 @@
 "game_pickleball" = "Pickleball";
 "game_guandan" = "Guandan";
 "guandan_level" = "Level";
+"display_guandan_pass_a" = "Pass A %d";
+"display_guandan_triple_a" = "Triple A";
 "guandan_a_stage" = "Passing A";
 "guandan_a_fail_format" = "A fails %d/3";
 "guandan_a_stage_team_format" = "%@ at A";
@@ -549,6 +551,7 @@
 "account_logout" = "Sign Out";
 "account_logout_confirm_title" = "Sign Out";
 "account_logout_confirm_message" = "Are you sure you want to sign out of the current account?";
+"account_logout_confirm_syncing" = "Cross-device score sync is in progress. Signing out will disconnect the sync, and viewer devices will stop receiving score updates.";
 "me_profile_vip_badge" = "VIP";
 "membership_basic_member_title" = "Member";
 "membership_title" = "Membership";
@@ -788,7 +791,10 @@
 "record_action_team_goal" = "%@ goal";
 "record_action_team_points" = "%@ +%d";
 "boxing_round_n" = "Round %d";
-"boxing_round_progress" = "Round %d / %d";
+"boxing_round_progress" = "Round %d/%d";
+"display_basketball_period" = "Q%d";
+"display_basketball_foul" = "Fouls";
+"display_basketball_clock_pause" = "TIMEOUT";
 
 /* Stopwatch */
 "stopwatch_total" = "Total";
@@ -865,7 +871,6 @@
 "watch_sync_status_wait_reply" = "Waiting for watch";
 "watch_sync_status_no_connection" = "Not connected";
 "watch_sync_status_app_not_installed" = "App not installed";
-"watch_sync_comm_failure_help_confirm" = "Got it";
 "got_it" = "Got It";
 "linked_score_not_controller" = "This device is not the controller, so that action can’t be performed.";
 "linked_score_reclaim_denied" = "The watch declined to return control.";
@@ -900,6 +905,8 @@
 "tennis_deuce_option_no_ad" = "No-ad";
 "points_per_set" = "Points per set";
 "voice_announcement" = "Voice announcement";
+"sound_effects_help_title" = "Sound effects";
+"sound_effects_help_message" = "Controls tool sounds such as dice rolls, coin flips and countdown alerts. Turn off to mute them.";
 "sports_setup_match_features" = "Match features";
 "pickleball_target_score" = "Target score";
 "pickleball_score_cap" = "Score cap";
@@ -1685,6 +1692,9 @@
 "me_profile_nickname_saving" = "Saving…";
 "me_profile_nickname_empty" = "Nickname can't be empty";
 "me_profile_nickname_length" = "Nickname must be 1-20 characters";
+"me_profile_nickname_cooldown" = "You recently changed your nickname. You can change it again after %@.";
+"me_profile_nickname_cooldown_generic" = "You recently changed your nickname. Please try again in a moment.";
+"me_profile_nickname_review_submitted" = "Nickname submitted for review and is visible only to you for now.";
 "membership_login_required" = "Sign in before purchasing";
 "membership_purchase_success" = "Purchase successful. Membership updated.";
 "membership_purchase_pending" = "Purchase pending confirmation. Membership updates automatically once confirmed.";

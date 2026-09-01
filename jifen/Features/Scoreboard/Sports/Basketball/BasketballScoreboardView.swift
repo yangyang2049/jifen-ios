@@ -588,37 +588,35 @@ struct BasketballScoreboardView: View {
                 )
                 let leftSide = logicalSide(forScreen: .left)
                 let rightSide = logicalSide(forScreen: .right)
-                let leftFouls = leftSide == .left ? store.state.leftFouls : store.state.rightFouls
-                let rightFouls = rightSide == .left ? store.state.leftFouls : store.state.rightFouls
-                let leftTimeouts = leftSide == .left ? store.state.leftTimeouts : store.state.rightTimeouts
-                let rightTimeouts = rightSide == .left ? store.state.leftTimeouts : store.state.rightTimeouts
-                let externalPeriodTitle = store.state.isOvertime
-                    ? "OT"
-                    : (store.state.gameMode == .threeXThree ? "3x3" : "Q\(store.state.currentPeriod)")
+                let screenLeftFouls = leftSide == .left ? store.state.leftFouls : store.state.rightFouls
+                let screenRightFouls = rightSide == .left ? store.state.leftFouls : store.state.rightFouls
+                let team0OnLeft = leftSide == .left
+                let logicalLeftFouls = team0OnLeft ? screenLeftFouls : screenRightFouls
+                let logicalRightFouls = team0OnLeft ? screenRightFouls : screenLeftFouls
+                // 对齐安卓：篮球不发送通用 clock，节次/时间由显示端 BasketballClockPill 承载。
                 compact.externalState = ScoreboardDisplayState.enriched(
                     compact: compact,
                     layoutKind: .twoSide,
                     sportState: [
-                        "leftFouls": .integer(leftFouls),
-                        "rightFouls": .integer(rightFouls),
-                        "leftTimeouts": .integer(leftTimeouts),
-                        "rightTimeouts": .integer(rightTimeouts),
-                        "period": .string(externalPeriodTitle),
-                        "shotClock": .integer(store.state.shotTimeSeconds),
-                        "shotClockRunning": .boolean(store.state.shotRunning)
-                    ],
-                    clock: ScoreboardDisplayClock(
-                        elapsedMilliseconds: Int64(store.state.gameTimeSeconds * 1_000),
-                        isRunning: store.state.gameRunning,
-                        countsDown: true,
-                        anchorWallClockMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
-                        label: externalPeriodTitle
-                    )
+                        "team0ScreenSide": .string(team0OnLeft ? "left" : "right"),
+                        "basketballLeftFouls": .integer(logicalLeftFouls),
+                        "basketballRightFouls": .integer(logicalRightFouls),
+                        "basketballCurrentPeriod": .integer(store.state.currentPeriod),
+                        "basketballIsOT": .boolean(store.state.isOvertime),
+                        "basketballGameTime": .integer(store.state.gameTimeSeconds),
+                        "basketballShotTime": .integer(store.state.shotTimeSeconds),
+                        "basketballClockRevision": .integer(Int(Date().timeIntervalSince1970)),
+                        "basketballGameRunning": .boolean(store.state.gameRunning),
+                        "basketballShotRunning": .boolean(store.state.shotRunning),
+                        "basketballClockStarted": .boolean(store.basketballClockStarted)
+                    ]
                 )
+                let multipliers = compact.externalState?.appearance.fontSizeMultipliers
                 compact.externalState?.appearance = .init(
                     snapshot: appearance,
                     fontCode: typographyPreference.font.rawValue
                 )
+                compact.externalState?.appearance.fontSizeMultipliers = multipliers
                 return compact
             },
             handleIntent: { intent in

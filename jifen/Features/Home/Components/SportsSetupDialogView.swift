@@ -226,22 +226,6 @@ struct SportsSetupDialogView: View {
                                 onDismiss: dismissWatchStartGuide
                             )
                         }
-                        .alert(
-                            NSLocalizedString(
-                                "linked_score_watch_not_foreground_title",
-                                value: "请打开手表 App",
-                                comment: ""
-                            ),
-                            isPresented: $showWatchNotForegroundAlert
-                        ) {
-                            Button(NSLocalizedString(
-                                "watch_sync_comm_failure_help_confirm",
-                                value: "知道了",
-                                comment: ""
-                            ), role: .cancel) {}
-                        } message: {
-                            Text(PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription)
-                        }
                     }
                     .frame(maxWidth: .infinity)
                     .clipShape(Capsule())
@@ -254,6 +238,17 @@ struct SportsSetupDialogView: View {
         .padding(.horizontal, 20)
         .padding(.top, 20)
         .padding(.bottom, 24)
+        .overlay {
+            GotItInfoDialogPresenter(
+                isPresented: $showWatchNotForegroundAlert,
+                title: NSLocalizedString(
+                    "linked_score_watch_not_foreground_title",
+                    value: "请打开手表 App",
+                    comment: ""
+                ),
+                message: PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription
+            )
+        }
         .alert(
             NSLocalizedString("linked_score_setup_exit_title", value: "退出同步计分？", comment: ""),
             isPresented: $showExitWhileSendingConfirm

@@ -1111,7 +1111,7 @@ struct SnookerScoreboardView: View {
     }
     private func syncSnapshot() -> LocalScoreboardDisplayState {
         let display = displayedState
-        return .init(
+        var snapshot = LocalScoreboardDisplayState(
             gameID: GameType.snooker.canonicalScoreboardIdentifier,
             title: GameType.snooker.displayName,
             leftName: snookerName(onScreen: .left),
@@ -1126,8 +1126,24 @@ struct SnookerScoreboardView: View {
             nameMultiplier: typographyPreference.nameMultiplier,
             secondaryMultiplier: typographyPreference.secondaryMultiplier,
             finished: display.finished,
-            revision: 0
+            revision: 0,
+            leftSets: snookerValue(onScreen: .left, left: display.leftFrames, right: display.rightFrames),
+            rightSets: snookerValue(onScreen: .right, left: display.leftFrames, right: display.rightFrames)
         )
+        // 显示端顶部信息条/单杆分（对齐安卓 snooker sportState 键，逻辑侧口径）。
+        snapshot.externalState = ScoreboardDisplayState.enriched(
+            compact: snapshot,
+            layoutKind: .twoSide,
+            sportState: [
+                "snookerLeftBreak": .integer(display.leftBreak),
+                "snookerRightBreak": .integer(display.rightBreak),
+                "snookerMaxFrames": .integer(display.maxFrames),
+                "currentSet": .integer(display.currentFrame),
+                "team0ScreenSide": .string(display.sidesSwapped ? "right" : "left"),
+                "servingTeam": .string(display.striker == .left ? "team_0" : "team_1")
+            ]
+        )
+        return snapshot
     }
     private func resetMatch() {
         guard !linkScoringLocked else { return }

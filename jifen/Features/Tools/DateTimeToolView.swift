@@ -124,9 +124,37 @@ struct DateTimeToolView: View {
     }
 }
 
-private struct FlipClockFace: View {
+struct FlipClockFace: View {
     let date: Date
     let layout: FlipClockLayoutMetrics
+    var showShadow: Bool = true
+    var hideCenterSeam: Bool = false
+
+    init(date: Date, layout: FlipClockLayoutMetrics) {
+        self.date = date
+        self.layout = layout
+    }
+
+    /// 固定尺寸横排布局（对齐安卓 DisplayIdleWaitingPanel 的 FlipClockFace 调用）。
+    init(
+        date: Date,
+        cardWidth: CGFloat,
+        cardHeight: CGFloat,
+        digitGap: CGFloat,
+        groupGap: CGFloat,
+        showShadow: Bool = true,
+        hideCenterSeam: Bool = false
+    ) {
+        self.date = date
+        self.layout = FlipClockLayoutMetrics(
+            cardWidth: cardWidth,
+            cardHeight: cardHeight,
+            digitGap: digitGap,
+            groupGap: groupGap
+        )
+        self.showShadow = showShadow
+        self.hideCenterSeam = hideCenterSeam
+    }
 
     private var digits: [Int] {
         let components = Calendar.current.dateComponents([.hour, .minute, .second], from: date)
@@ -161,12 +189,16 @@ private struct FlipClockFace: View {
             FlipDigitView(
                 digit: digits[index],
                 cardWidth: layout.cardWidth,
-                cardHeight: layout.cardHeight
+                cardHeight: layout.cardHeight,
+                showShadow: showShadow,
+                hideCenterSeam: hideCenterSeam
             )
             FlipDigitView(
                 digit: digits[index + 1],
                 cardWidth: layout.cardWidth,
-                cardHeight: layout.cardHeight
+                cardHeight: layout.cardHeight,
+                showShadow: showShadow,
+                hideCenterSeam: hideCenterSeam
             )
         }
     }
@@ -176,7 +208,7 @@ private struct FlipClockFace: View {
     }
 }
 
-private struct FlipDigitView: View {
+struct FlipDigitView: View {
     private static let seamHeight: CGFloat = 2.6
     private static let flipOutDuration: TimeInterval = 0.175
     private static let flipInDuration: TimeInterval = 0.215
@@ -184,6 +216,8 @@ private struct FlipDigitView: View {
     let digit: Int
     let cardWidth: CGFloat
     let cardHeight: CGFloat
+    let showShadow: Bool
+    let hideCenterSeam: Bool
 
     @State private var displayDigit: Int
     @State private var topFlapDigit: Int
@@ -197,11 +231,19 @@ private struct FlipDigitView: View {
     @State private var topFlapZIndex: Double = 3
     @State private var bottomFlapZIndex: Double = 2
 
-    init(digit: Int, cardWidth: CGFloat, cardHeight: CGFloat) {
+    init(
+        digit: Int,
+        cardWidth: CGFloat,
+        cardHeight: CGFloat,
+        showShadow: Bool = true,
+        hideCenterSeam: Bool = false
+    ) {
         let normalizedDigit = min(max(digit, 0), 9)
         self.digit = normalizedDigit
         self.cardWidth = cardWidth
         self.cardHeight = cardHeight
+        self.showShadow = showShadow
+        self.hideCenterSeam = hideCenterSeam
         _displayDigit = State(initialValue: normalizedDigit)
         _topFlapDigit = State(initialValue: normalizedDigit)
         _bottomFlapDigit = State(initialValue: normalizedDigit)
@@ -213,6 +255,7 @@ private struct FlipDigitView: View {
                 digit: displayDigit,
                 cardWidth: cardWidth,
                 cardHeight: cardHeight,
+                panelHeight: panelHeight,
                 half: .top
             )
             .zIndex(0)
@@ -221,15 +264,17 @@ private struct FlipDigitView: View {
                 digit: displayDigit,
                 cardWidth: cardWidth,
                 cardHeight: cardHeight,
+                panelHeight: panelHeight,
                 half: .bottom
             )
-            .offset(y: halfHeight)
+            .offset(y: bottomOffset)
             .zIndex(0)
 
             FlipDigitHalf(
                 digit: topFlapDigit,
                 cardWidth: cardWidth,
                 cardHeight: cardHeight,
+                panelHeight: panelHeight,
                 half: .top,
                 shadeOpacity: topShadeOpacity
             )
@@ -245,6 +290,7 @@ private struct FlipDigitView: View {
                 digit: bottomFlapDigit,
                 cardWidth: cardWidth,
                 cardHeight: cardHeight,
+                panelHeight: panelHeight,
                 half: .bottom,
                 shadeOpacity: bottomShadeOpacity,
                 highlightOpacity: bottomHighlightOpacity
@@ -255,28 +301,35 @@ private struct FlipDigitView: View {
                 anchor: .top,
                 perspective: perspective
             )
-            .offset(y: halfHeight)
+            .offset(y: bottomOffset)
             .zIndex(bottomFlapZIndex)
 
-            Color(hex: "0A0A0A")
-                .frame(width: cardWidth, height: Self.seamHeight)
-                .offset(y: halfHeight - Self.seamHeight / 2)
-                .zIndex(10)
+            if !hideCenterSeam {
+                Color(hex: "0A0A0A")
+                    .frame(width: cardWidth, height: Self.seamHeight)
+                    .offset(y: cardHeight / 2 - Self.seamHeight / 2)
+                    .zIndex(10)
+            }
         }
         .frame(width: cardWidth, height: cardHeight, alignment: .top)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .shadow(
-            color: .black.opacity(0.58 + hingeShadowOpacity * 0.22),
-            radius: 6 + hingeShadowOpacity * 10,
-            y: 3 + hingeShadowOpacity * 5
+            color: .black.opacity(showShadow ? 0.58 + hingeShadowOpacity * 0.22 : 0),
+            radius: showShadow ? 6 + hingeShadowOpacity * 10 : 0,
+            y: showShadow ? 3 + hingeShadowOpacity * 5 : 0
         )
         .task(id: digit) {
             await flip(to: digit)
         }
     }
 
-    private var halfHeight: CGFloat {
-        cardHeight / 2
+    /// 半面板高度：隐藏中缝时上下留出 seam 间距（对齐安卓 hideCenterSeam 布局）。
+    private var panelHeight: CGFloat {
+        hideCenterSeam ? (cardHeight - Self.seamHeight) / 2 : cardHeight / 2
+    }
+
+    private var bottomOffset: CGFloat {
+        hideCenterSeam ? panelHeight + Self.seamHeight : cardHeight / 2
     }
 
     private var perspective: CGFloat {
@@ -337,7 +390,7 @@ private struct FlipDigitView: View {
     }
 }
 
-private struct FlipDigitHalf: View {
+struct FlipDigitHalf: View {
     enum Half {
         case top
         case bottom
@@ -346,6 +399,7 @@ private struct FlipDigitHalf: View {
     let digit: Int
     let cardWidth: CGFloat
     let cardHeight: CGFloat
+    let panelHeight: CGFloat
     let half: Half
     var shadeOpacity: Double = 0
     var highlightOpacity: Double = 0
@@ -369,7 +423,7 @@ private struct FlipDigitHalf: View {
                     anchor: .center
                 )
             }
-            .frame(width: cardWidth, height: halfHeight)
+            .frame(width: cardWidth, height: panelHeight)
 
             if shadeOpacity > 0 {
                 Color.black.opacity(shadeOpacity)
@@ -379,12 +433,8 @@ private struct FlipDigitHalf: View {
                 Color.white.opacity(highlightOpacity)
             }
         }
-        .frame(width: cardWidth, height: halfHeight)
+        .frame(width: cardWidth, height: panelHeight)
         .clipShape(halfShape)
-    }
-
-    private var halfHeight: CGFloat {
-        cardHeight / 2
     }
 
     private var halfShape: UnevenRoundedRectangle {
@@ -397,7 +447,7 @@ private struct FlipDigitHalf: View {
     }
 }
 
-private struct FlipClockLayoutMetrics {
+struct FlipClockLayoutMetrics {
     private static let landscapeCardAspect: CGFloat = 1.55
 
     let isHorizontal: Bool
@@ -405,6 +455,15 @@ private struct FlipClockLayoutMetrics {
     let cardHeight: CGFloat
     let digitGap: CGFloat
     let groupGap: CGFloat
+
+    /// 固定卡片尺寸（宽高显式指定，横排）。
+    init(cardWidth: CGFloat, cardHeight: CGFloat, digitGap: CGFloat, groupGap: CGFloat) {
+        isHorizontal = true
+        self.cardWidth = cardWidth
+        self.cardHeight = cardHeight
+        self.digitGap = digitGap
+        self.groupGap = groupGap
+    }
 
     init(size: CGSize, isPad: Bool) {
         isHorizontal = isPad || size.width > size.height
