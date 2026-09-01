@@ -91,6 +91,8 @@ struct CustomConfirmDialog: View {
     var cancelText: String? = nil
     var confirmColor: Color = customDialogConfirmRed
     let onConfirm: () -> Void
+    /// 取消按钮独立回调；未提供时与点遮罩一样走 onDismiss（安卓 dismissOnClickOutside 语义）。
+    var onCancel: (() -> Void)? = nil
     let onDismiss: () -> Void
 
     var body: some View {
@@ -109,7 +111,7 @@ struct CustomConfirmDialog: View {
                             title: cancelText,
                             background: Theme.controlBackground,
                             foreground: Theme.textPrimary,
-                            action: onDismiss
+                            action: onCancel ?? onDismiss
                         )
                     }
                     CustomDialogPillButton(

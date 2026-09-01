@@ -363,6 +363,8 @@ struct SnookerScoreboardView: View {
             rightScore: "\(snookerValue(onScreen: .right, left: displayedState.leftScore, right: displayedState.rightScore))",
             leftDetail: "\(snookerValue(onScreen: .left, left: displayedState.leftBreak, right: displayedState.rightBreak))",
             rightDetail: "\(snookerValue(onScreen: .right, left: displayedState.leftBreak, right: displayedState.rightBreak))",
+            // 手机端当杆分数与大分数同行（外侧、底端对齐）；平板端保持在大分数下方。
+            inlineSecondaryScore: !Theme.usesPadLayout,
             finished: displayedState.finished || terminalFrameHold.value != nil,
             onLeftTap: {},
             onRightTap: {},

@@ -694,8 +694,8 @@ struct SportsSetupSettingsSection: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(Theme.textSecondary)
                 }
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Theme.textPrimary)
+                .font(.system(size: 14))
+                .foregroundColor(Theme.textSecondary)
                 .frame(maxWidth: .infinity, minHeight: 40)
                 .contentShape(Rectangle())
             }

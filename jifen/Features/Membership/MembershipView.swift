@@ -3,6 +3,13 @@ import SwiftUI
 
 // 对齐安卓 MembershipCenterScreen（AccountMembershipScreens.kt）：
 // Hero 头部 → VIP 时横幅 + 身份面板 → 权益标题 + 权益列表 → 方案卡 → 底部购买栏。
+/// 方案类型（对齐鸿蒙 VipPage：月/年并排一行，终身独占一行）。
+enum MembershipPlanKind {
+    case monthly
+    case yearly
+    case lifetime
+}
+
 struct MembershipView: View {
     @Environment(SessionStore.self) private var session
     @State private var manager = StoreKitPurchaseManager.shared
@@ -56,7 +63,8 @@ struct MembershipView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .safeAreaInset(edge: .bottom) {
-            if !isVIP {
+            // 商品读取完成后再显示开通栏，避免 Loading 期间出现不可用的购买按钮。
+            if !isVIP && !manager.products.isEmpty {
                 purchaseBottomBar
             }
         }
@@ -65,7 +73,7 @@ struct MembershipView: View {
             await session.reloadProfile()
         }
         .navigationDestination(item: $agreementPage) { page in
-            MembershipAgreementWebPage(url: page.url)
+            MembershipAgreementWebPage(page: page)
         }
         .sheet(isPresented: $showLoginSheet) {
             AccountLoginSheet()
@@ -89,8 +97,26 @@ struct MembershipView: View {
         }
     }
 
+    private func planKind(for id: String) -> MembershipPlanKind {
+        switch id {
+        case StoreKitPurchaseManager.monthlyProductID: return .monthly
+        case StoreKitPurchaseManager.yearlyProductID: return .yearly
+        default: return .lifetime
+        }
+    }
+
+    private func productForPlan(_ kind: MembershipPlanKind) -> Product? {
+        orderedProducts.first { planKind(for: $0.id) == kind }
+    }
+
     private var selectedProduct: Product? {
         orderedProducts.first { $0.id == selectedProductID } ?? orderedProducts.first
+    }
+
+    /// 当前选中的是否为自动续订商品（月卡/年卡），决定协议行是否包含自动续费条款。
+    private var isSubscriptionSelected: Bool {
+        guard let id = selectedProduct?.id else { return false }
+        return planKind(for: id) != .lifetime
     }
 
     // MARK: - Hero（对齐安卓 MembershipHeroHeader）
@@ -235,8 +261,7 @@ struct MembershipView: View {
         .frame(maxWidth: .infinity)
     }
 
-    // MARK: - 方案卡（对齐安卓 MembershipLifetimePlanCard，扩展为 月/年/终身 三卡选择）
-
+    // MARK: - 方案卡（对齐鸿蒙 VipPage PlanCard：第一行 月/年 并排，第二行 终身 占满）
     @ViewBuilder
     private var planCards: some View {
         if manager.products.isEmpty {
@@ -246,20 +271,28 @@ struct MembershipView: View {
                         .font(.system(size: 14))
                         .foregroundColor(Theme.textSecondary)
                 } else {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                        Text(NSLocalizedString("membership_loading_products", value: "正在读取 App Store 商品…", comment: ""))
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textSecondary)
-                    }
+                    // 商品读取中：只显示一个大号加载指示，不暴露读取来源。
+                    ProgressView()
+                        .controlSize(.large)
+                        .scaleEffect(1.5)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 48)
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
         } else {
-            VStack(spacing: 12) {
-                ForEach(orderedProducts, id: \.id) { product in
-                    planCard(product)
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    if let monthly = productForPlan(.monthly) {
+                        planCard(monthly)
+                    }
+                    if let yearly = productForPlan(.yearly) {
+                        planCard(yearly)
+                    }
+                }
+                if let lifetime = productForPlan(.lifetime) {
+                    planCard(lifetime)
                 }
             }
             .padding(.top, 16)
@@ -280,35 +313,37 @@ struct MembershipView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text(plan.subtitle)
                         .font(.system(size: 12))
-                        .foregroundColor(Theme.accentColor)
+                        .foregroundColor(isSelected ? Theme.accentColor : Theme.textSecondary)
                         .padding(.top, 6)
                     Spacer(minLength: 0)
                     Text(product.displayPrice)
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(Theme.accentColor)
+                        .foregroundColor(isSelected ? Theme.accentColor : Theme.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(14)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
-                Text(plan.badge)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 6)
-                    .background(
-                        UnevenRoundedRectangle(
-                            topLeadingRadius: 0,
-                            bottomLeadingRadius: 14,
-                            bottomTrailingRadius: 0,
-                            topTrailingRadius: 18
+                if !plan.badge.isEmpty {
+                    Text(plan.badge)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(
+                            UnevenRoundedRectangle(
+                                topLeadingRadius: 0,
+                                bottomLeadingRadius: 14,
+                                bottomTrailingRadius: 0,
+                                topTrailingRadius: 18
+                            )
+                            .fill(Theme.accentColor)
                         )
-                        .fill(Theme.accentColor)
-                    )
+                }
             }
             .frame(height: 128)
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 18).fill(Theme.accentColor.opacity(0.12)))
+            .background(RoundedRectangle(cornerRadius: 18).fill(isSelected ? Theme.accentColor.opacity(0.12) : Theme.appCardBackground))
             .overlay(
                 RoundedRectangle(cornerRadius: 18)
                     .strokeBorder(isSelected ? Theme.accentColor : Theme.divider, lineWidth: isSelected ? 2 : 1)
@@ -320,20 +355,20 @@ struct MembershipView: View {
     }
 
     private func planInfo(for id: String) -> (title: String, subtitle: String, badge: String) {
-        switch id {
-        case StoreKitPurchaseManager.monthlyProductID:
+        switch planKind(for: id) {
+        case .monthly:
             return (
                 NSLocalizedString("membership_monthly_plan_title", value: "月卡会员", comment: ""),
                 NSLocalizedString("membership_monthly_subtitle", value: "自动续订，可随时取消", comment: ""),
-                NSLocalizedString("membership_monthly_badge", value: "月卡", comment: "")
+                ""
             )
-        case StoreKitPurchaseManager.yearlyProductID:
+        case .yearly:
             return (
                 NSLocalizedString("membership_yearly_plan_title", value: "年卡会员", comment: ""),
                 NSLocalizedString("membership_yearly_subtitle", value: "自动续订，可随时取消", comment: ""),
-                NSLocalizedString("membership_yearly_badge", value: "年卡", comment: "")
+                NSLocalizedString("membership_yearly_badge", value: "推荐", comment: "")
             )
-        default:
+        case .lifetime:
             return (
                 NSLocalizedString("membership_lifetime_plan_title", value: "终身会员", comment: ""),
                 NSLocalizedString("vip_one_time_purchase", value: "一次性购买，永久有效", comment: ""),
@@ -411,8 +446,45 @@ struct MembershipView: View {
         .disabled(isBusy)
     }
 
+    /// 协议行（对齐安卓/鸿蒙 VipPage）：
+    /// 月卡/年卡 → 已阅读并同意《自动续费服务条款》《会员协议》；终身 → 已阅读并同意《会员协议》。
     private var agreementRow: some View {
-        HStack(spacing: 2) {
+        let autoRenewURL = LegalDocuments.autoRenewalTermsURL
+        let membershipURL = LegalDocuments.membershipAgreementURL
+        let linkFont = Font.system(size: 12, weight: .medium)
+
+        var text = AttributedString(
+            NSLocalizedString("vip_agreement_plain_prefix", value: "已阅读并同意", comment: "")
+        )
+        text.foregroundColor = Theme.textSecondary
+        text.font = Font.system(size: 12)
+
+        if isSubscriptionSelected {
+            var renewLink = AttributedString(
+                NSLocalizedString("vip_auto_renew_terms_link", value: "《自动续费服务条款》", comment: "")
+            )
+            renewLink.link = autoRenewURL
+            renewLink.foregroundColor = Theme.accentColor
+            renewLink.font = linkFont
+            text += renewLink
+            // 中文靠《》书名号分隔；英文需要 " and " 连接两个链接。
+            var separator = AttributedString(
+                NSLocalizedString("vip_agreement_link_separator", value: "", comment: "")
+            )
+            separator.foregroundColor = Theme.textSecondary
+            separator.font = Font.system(size: 12)
+            text += separator
+        }
+
+        var membershipLink = AttributedString(
+            NSLocalizedString("vip_membership_agreement_link", value: "《会员协议》", comment: "")
+        )
+        membershipLink.link = membershipURL
+        membershipLink.foregroundColor = Theme.accentColor
+        membershipLink.font = linkFont
+        text += membershipLink
+
+        return HStack(alignment: .top, spacing: 2) {
             Button {
                 acceptedTerms.toggle()
                 if acceptedTerms { agreementHint = false }
@@ -425,27 +497,41 @@ struct MembershipView: View {
             }
             .buttonStyle(.plain)
 
-            Text(NSLocalizedString("vip_lifetime_agreement_prefix", value: "已阅读并同意", comment: ""))
-                .font(.system(size: 12))
-                .foregroundColor(Theme.textSecondary)
-                .lineLimit(1)
-                .onTapGesture { acceptedTerms.toggle() }
-
-            Text(NSLocalizedString("vip_membership_agreement_link", value: "《会员协议》", comment: ""))
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(Theme.accentColor)
-                .lineLimit(1)
-                .onTapGesture { agreementPage = MembershipAgreementPage() }
+            Text(text)
+                .lineSpacing(3)
+                .padding(.top, 8)
+                .environment(\.openURL, OpenURLAction { url in
+                    if url == autoRenewURL {
+                        agreementPage = MembershipAgreementPage(kind: .autoRenewal)
+                        return .handled
+                    }
+                    if url == membershipURL {
+                        agreementPage = MembershipAgreementPage(kind: .membership)
+                        return .handled
+                    }
+                    return .systemAction
+                })
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .trailing) {
             if agreementHint {
-                Text(NSLocalizedString("vip_agreement_hint", value: "请阅读并同意会员协议", comment: ""))
+                Text(agreementHintText)
                     .font(.system(size: 12))
                     .foregroundColor(.red)
+                    .multilineTextAlignment(.trailing)
                     .padding(.leading, 8)
             }
         }
+    }
+
+    private var agreementHintText: String {
+        isSubscriptionSelected
+            ? NSLocalizedString(
+                "vip_agreement_subscription_hint",
+                value: "请阅读并同意自动续费服务条款和会员协议",
+                comment: ""
+            )
+            : NSLocalizedString("vip_agreement_hint", value: "请阅读并同意会员协议", comment: "")
     }
 
     private func startPurchase() async {
@@ -475,19 +561,40 @@ struct MembershipView: View {
     }
 }
 
-/// 会员协议网页（对齐安卓 LegalConfig.MEMBERSHIP_AGREEMENT_URL）。
+/// 会员协议网页（对齐安卓 LegalConfig：会员协议 / 自动续费服务条款）。
+enum MembershipAgreementKind: Hashable {
+    case membership
+    case autoRenewal
+}
+
 struct MembershipAgreementPage: Identifiable, Hashable {
-    let id = UUID()
-    var url: URL { LegalDocuments.membershipAgreementURL }
+    let kind: MembershipAgreementKind
+    var id: MembershipAgreementKind { kind }
+
+    var url: URL {
+        switch kind {
+        case .membership: return LegalDocuments.membershipAgreementURL
+        case .autoRenewal: return LegalDocuments.autoRenewalTermsURL
+        }
+    }
+
+    var title: String {
+        switch kind {
+        case .membership:
+            return NSLocalizedString("vip_membership_agreement_title", value: "会员协议", comment: "")
+        case .autoRenewal:
+            return NSLocalizedString("vip_auto_renew_terms_title", value: "自动续费服务条款", comment: "")
+        }
+    }
 }
 
 private struct MembershipAgreementWebPage: View {
-    let url: URL
+    let page: MembershipAgreementPage
 
     var body: some View {
-        LoginLegalWebView(url: url)
+        LoginLegalWebView(url: page.url)
             .background(Theme.backgroundColor)
-            .navigationTitle(NSLocalizedString("vip_membership_agreement_title", value: "会员协议", comment: ""))
+            .navigationTitle(page.title)
             .navigationBarTitleDisplayMode(.inline)
     }
 }

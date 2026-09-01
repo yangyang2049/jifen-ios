@@ -4,12 +4,36 @@ import XCTest
 
 @MainActor
 final class ScreenshotSaveCoordinatorTests: XCTestCase {
+    /// 轮询等待异步保存/授权流程落地（处理 task 在 MainActor 上的调度延迟）。
+    private func waitForOverlay(
+        _ coordinator: ScreenshotSaveCoordinator,
+        _ mode: ScreenshotSaveOverlayMode,
+        timeout: TimeInterval = 2
+    ) async {
+        let start = Date()
+        while Date().timeIntervalSince(start) < timeout {
+            if coordinator.overlayMode == mode { return }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+    }
+
+    /// 新流程（对齐安卓）：截屏 → 预览卡 → 关闭后才进入保存/授权流程。
+    private func dismissPreviewAndProcess(_ coordinator: ScreenshotSaveCoordinator) {
+        coordinator.closePreviewAndContinue()
+    }
+
     func testAuthorizedCaptureSavesWithoutPermissionDialog() async {
         let photoLibrary = FakeScreenshotPhotoLibraryService(status: .allowed)
         let coordinator = makeCoordinator(photoLibrary: photoLibrary)
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(UIImage())
+        XCTAssertEqual(coordinator.overlayMode, .preview)
+        XCTAssertEqual(photoLibrary.requestCount, 0)
+        XCTAssertEqual(photoLibrary.saveAttemptCount, 0)
+
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .saved)
 
         XCTAssertEqual(photoLibrary.requestCount, 0)
         XCTAssertEqual(photoLibrary.saveAttemptCount, 1)
@@ -26,6 +50,10 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(UIImage())
+        XCTAssertEqual(coordinator.overlayMode, .preview)
+
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .saved)
 
         XCTAssertEqual(photoLibrary.requestCount, 1)
         XCTAssertEqual(photoLibrary.saveAttemptCount, 1)
@@ -43,10 +71,15 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(firstImage)
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .needsSettings)
         XCTAssertEqual(photoLibrary.requestCount, 1)
         XCTAssertEqual(coordinator.overlayMode, .needsSettings)
 
         await coordinator.handleCapturedImage(secondImage)
+        XCTAssertEqual(coordinator.overlayMode, .preview)
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .needsSettings)
 
         XCTAssertEqual(photoLibrary.requestCount, 1)
         XCTAssertEqual(photoLibrary.saveAttemptCount, 0)
@@ -64,6 +97,8 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(pendingImage)
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .needsSettings)
         coordinator.performPrimaryAction()
 
         XCTAssertTrue(didOpenSettings)
@@ -85,6 +120,8 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(pendingImage)
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .retry)
 
         XCTAssertEqual(coordinator.overlayMode, .retry)
         XCTAssertTrue(coordinator.image === pendingImage)
@@ -92,6 +129,9 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
 
         photoLibrary.saveError = nil
         await coordinator.retryCurrentScreenshot()
+        XCTAssertEqual(coordinator.overlayMode, .preview)
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .saved)
 
         XCTAssertEqual(photoLibrary.saveAttemptCount, 2)
         XCTAssertEqual(photoLibrary.savedImages.count, 1)
@@ -107,7 +147,13 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(firstImage)
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .saved)
+
         await coordinator.handleCapturedImage(secondImage)
+        XCTAssertEqual(coordinator.overlayMode, .preview)
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .saved)
 
         XCTAssertEqual(photoLibrary.saveAttemptCount, 2)
         XCTAssertEqual(photoLibrary.savedImages.count, 2)
@@ -128,6 +174,8 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(UIImage())
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .needsSettings)
         coordinator.pauseDialogCountdown()
         try? await Task.sleep(for: .milliseconds(100))
 
@@ -147,6 +195,8 @@ final class ScreenshotSaveCoordinatorTests: XCTestCase {
         defer { coordinator.cancelCurrentScreenshot() }
 
         await coordinator.handleCapturedImage(UIImage())
+        dismissPreviewAndProcess(coordinator)
+        await waitForOverlay(coordinator, .needsSettings)
         try? await Task.sleep(for: .milliseconds(100))
 
         XCTAssertEqual(coordinator.overlayMode, .hidden)

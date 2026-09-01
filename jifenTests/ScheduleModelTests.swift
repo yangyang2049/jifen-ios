@@ -377,9 +377,9 @@ final class ScheduleModelTests: XCTestCase {
 
     func testCommonPlacesKeepNewestSavedPlaceAtCapacity() throws {
         let manager = CommonPlacesManager.shared
-        for index in 0..<50 { try manager.addPlace("Court \(index)") }
+        for index in 0..<CommonPlacesManager.maxPlaces { try manager.addPlace("Court \(index)") }
         manager.savePlaceIfNeeded("New Court")
-        XCTAssertEqual(manager.getAllPlaces().count, 50)
+        XCTAssertEqual(manager.getAllPlaces().count, CommonPlacesManager.maxPlaces)
         XCTAssertEqual(manager.getAllPlaces().first?.name, "New Court")
     }
 

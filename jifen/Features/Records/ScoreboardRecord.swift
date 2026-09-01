@@ -1209,15 +1209,17 @@ private func scoreboardRecordParticipants(gameType: GameType, from extraData: [S
 
 struct AnyCodable: Codable {
     let value: Any
-    
+
     init(_ value: Any) {
         self.value = value
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        
-        if let bool = try? container.decode(Bool.self) {
+
+        if container.decodeNil() {
+            value = NSNull()
+        } else if let bool = try? container.decode(Bool.self) {
             value = bool
         } else if let int = try? container.decode(Int.self) {
             value = int
@@ -1233,11 +1235,13 @@ struct AnyCodable: Codable {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "AnyCodable value cannot be decoded")
         }
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        
+
         switch value {
+        case is NSNull:
+            try container.encodeNil()
         case let bool as Bool:
             try container.encode(bool)
         case let int as Int:
@@ -1257,7 +1261,19 @@ struct AnyCodable: Codable {
         case let dictionary as [String: Any]:
             try container.encode(dictionary.mapValues { AnyCodable($0) })
         default:
-            throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: container.codingPath, debugDescription: "AnyCodable value cannot be encoded"))
+            // 任意 Optional（如 `String?.none`）编码为 JSON null；非 nil 的
+            // Optional 已在上面按实际类型匹配，不会走到这里。
+            if Self.isNilValue(value) {
+                try container.encodeNil()
+            } else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: container.codingPath, debugDescription: "AnyCodable value cannot be encoded"))
+            }
         }
+    }
+
+    /// 通过 Mirror 识别任意 `Optional.none`（含 `Optional<String>.none` 等泛型包装）。
+    private static func isNilValue(_ value: Any) -> Bool {
+        let mirror = Mirror(reflecting: value)
+        return mirror.displayStyle == .optional && mirror.children.first == nil
     }
 }

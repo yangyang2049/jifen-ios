@@ -255,7 +255,7 @@ struct MenuDialog: View {
 
     private let dialogBackground = Theme.scoreboardDialogSurface
     private let cardBackground = Theme.scoreboardDialogControl
-    private let sectionStrip = Color.white.opacity(0.06)
+    private let sectionStrip = Color.white.opacity(0.10) // 安卓 sbTheme.menuCloseBg（深色主题 白 10%）
     private let secondaryText = Theme.scoreboardDialogTextSecondary
     private let confirmBackground = Color(hex: "4CAF50").opacity(0.55)
 
@@ -284,10 +284,6 @@ struct MenuDialog: View {
         return shortSide > 0 ? shortSide : 320
     }
 
-    private var isCompact: Bool {
-        containerShortSide < 400
-    }
-
     private var dialogWidth: CGFloat {
         Theme.dialogWidth(
             availableWidth: containerSize.width > 0
@@ -297,16 +293,34 @@ struct MenuDialog: View {
         )
     }
 
-    private var syncCardHeight: CGFloat { isCompact ? 44 : 48 }
+    // 对齐安卓 ScoreboardOperationMenuDialog 的固定尺寸（无 compact 分支，Dialog 高度 wrap_content）。
+    private var syncCardHeight: CGFloat { 48 }
     private var matchCardHeight: CGFloat { 72 }
-    private var toolsCardWidth: CGFloat { isCompact ? 44 : 48 }
-    private var toolsCardHeight: CGFloat { ScoreboardConstants.minimumTouchTarget }
-    private var sectionPaddingV: CGFloat { isCompact ? 8 : 10 }
-    private var toolsRowGap: CGFloat { isCompact ? 10 : 12 }
+    private var toolsCardWidth: CGFloat { 48 }
+    private var toolsCardHeight: CGFloat { 44 }
+    private var topBarPadding: CGFloat { 8 }
+    private var gridVerticalPadding: CGFloat { 10 }
+    private var toolsRowGap: CGFloat { 12 }
+    private var closeHeaderHeight: CGFloat { 56 }
+    private var topBarHeight: CGFloat { syncCardHeight + topBarPadding * 2 }
+    private var toolsBarHeight: CGFloat { toolsCardHeight + gridVerticalPadding * 2 }
+
     private var maxMatchSectionHeight: CGFloat {
-        let headerHeight = syncCardHeight + sectionPaddingV * 2
-        let toolsHeight = toolItems.isEmpty ? 0 : toolsCardHeight + sectionPaddingV * 2 + 2
+        let headerHeight = syncItems.isEmpty ? closeHeaderHeight : topBarHeight
+        let toolsHeight = toolItems.isEmpty ? 0 : toolsBarHeight
         return max(matchCardHeight + 16, containerShortSide - headerHeight - toolsHeight - 32)
+    }
+
+    /// Wrap height of the match grid: fixed 72pt rows, 6pt row gap and
+    /// vertical section padding — fully determined by the item count, so no
+    /// runtime measurement is needed (Android wrap_content behavior).
+    private var wrappedMatchSectionHeight: CGFloat {
+        let rows = max(1, Int(ceil(Double(matchItems.count) / 3)))
+        return CGFloat(rows) * matchCardHeight + CGFloat(rows - 1) * 6 + gridVerticalPadding * 2
+    }
+
+    private var resolvedMatchSectionHeight: CGFloat {
+        min(wrappedMatchSectionHeight, maxMatchSectionHeight)
     }
 
     var body: some View {
@@ -325,10 +339,13 @@ struct MenuDialog: View {
                     }
 
                     if !matchItems.isEmpty {
-                        ScrollView(.vertical, showsIndicators: matchItems.count > 6) {
+                        ScrollView(
+                            .vertical,
+                            showsIndicators: wrappedMatchSectionHeight > maxMatchSectionHeight + 1
+                        ) {
                             matchGrid(items: matchItems)
                         }
-                        .frame(maxHeight: maxMatchSectionHeight)
+                        .frame(height: resolvedMatchSectionHeight)
                     }
 
                     if !toolItems.isEmpty {
@@ -378,9 +395,9 @@ struct MenuDialog: View {
             Spacer()
             closeButton
         }
-        .padding(.leading, 4)
-        .padding(.top, sectionPaddingV)
-        .frame(height: syncCardHeight + sectionPaddingV)
+        .padding(.horizontal, topBarPadding)
+        .padding(.top, topBarPadding)
+        .frame(height: closeHeaderHeight)
     }
 
     private func topStrip(items: [ScoreboardMenuItem]) -> some View {
@@ -398,8 +415,9 @@ struct MenuDialog: View {
 
             closeButton
         }
-        .padding(.leading, 4)
-        .padding(.vertical, sectionPaddingV)
+        // 对齐安卓 ScoreboardOperationTopBar：背景先于内边距，条带横向贴边无 margin。
+        .padding(.horizontal, topBarPadding)
+        .padding(.vertical, topBarPadding)
         .background(sectionStrip)
     }
 
@@ -436,7 +454,7 @@ struct MenuDialog: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, sectionPaddingV)
+        .padding(.vertical, gridVerticalPadding)
     }
 
     private func toolsBar(items: [ScoreboardMenuItem]) -> some View {
@@ -447,8 +465,8 @@ struct MenuDialog: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, sectionPaddingV)
-        .padding(.bottom, sectionPaddingV + 2)
+        // 对齐安卓 ScoreboardOperationToolsBar：背景先于内边距，条带横向贴边无 margin。
+        .padding(.vertical, gridVerticalPadding)
         .background(sectionStrip)
     }
 
@@ -457,7 +475,6 @@ struct MenuDialog: View {
             action: onClose,
             accessibilityIdentifier: "scoreboard_menu_close_button"
         )
-        .padding(.trailing, 8)
     }
 
     // MARK: - Card
@@ -587,8 +604,8 @@ struct MenuDialog: View {
     private func iconSize(_ size: ScoreboardMenuCardSize) -> CGFloat {
         switch size {
         case .large: return 28
-        case .medium: return isCompact ? 18 : 20
-        case .small: return isCompact ? 16 : 18
+        case .medium: return 20
+        case .small: return 18
         }
     }
 

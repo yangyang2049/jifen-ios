@@ -324,7 +324,8 @@ struct CommonPlacesManagementView: View {
                 }
             }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                // 等 sheet 呈现动画（约 0.5s）完成后再聚焦，过早赋值会被动画吞掉
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
                     isEditorFocused = true
                 }
             }
@@ -369,7 +370,8 @@ struct CommonPlacesManagementView: View {
                 }
             }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                // 等 sheet 呈现动画（约 0.5s）完成后再聚焦，过早赋值会被动画吞掉
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
                     isEditorFocused = true
                 }
             }

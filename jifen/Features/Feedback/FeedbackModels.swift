@@ -8,9 +8,9 @@ nonisolated enum FeedbackType: String, Codable, CaseIterable, Identifiable, Send
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .feedback: NSLocalizedString("feedback_type_feedback", value: "意见反馈", comment: "")
+        case .feedback: NSLocalizedString("feedback_type_feedback", value: "一般反馈", comment: "")
         case .featureRequest: NSLocalizedString("feedback_type_feature", value: "功能建议", comment: "")
-        case .bugReport: NSLocalizedString("feedback_type_bug", value: "问题报告", comment: "")
+        case .bugReport: NSLocalizedString("feedback_type_bug", value: "问题反馈", comment: "")
         }
     }
 }

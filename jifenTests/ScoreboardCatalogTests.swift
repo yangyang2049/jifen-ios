@@ -410,14 +410,15 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertTrue(ToolItem.allTools.contains { $0.id == "fullscreen_barrage" })
     }
 
-    func testHomeUsesWideLayoutOnlyForWideIPadWindows() {
+    func testHomeUsesWideLayoutForWideIPadWindowsRegardlessOfOrientation() {
+        // 对齐安卓 isWideScreen()：iPad 窗口宽 >= 768 即双列，不区分横竖屏。
         XCTAssertTrue(
             HomeLayoutPolicy.usesWideLayout(
                 size: CGSize(width: 1_366, height: 1_024),
                 isPad: true
             )
         )
-        XCTAssertFalse(
+        XCTAssertTrue(
             HomeLayoutPolicy.usesWideLayout(
                 size: CGSize(width: 1_024, height: 1_366),
                 isPad: true

@@ -13,11 +13,20 @@ import UIKit
 
 enum HomeLayoutPolicy {
     static let minimumWideWidth: CGFloat = 768
+    /// 对齐安卓 isTablet()：窗口最小边 >= 600 视为平板档（首页边距用 64）。
+    static let minimumTabletSmallestSide: CGFloat = 600
+    /// 对齐安卓 AppSpacing.screenHorizontalTablet。
+    static let tabletHorizontalInset: CGFloat = 64
 
     static func usesWideLayout(size: CGSize, isPad: Bool) -> Bool {
-        isPad
-            && size.width >= minimumWideWidth
-            && size.width > size.height
+        // 对齐安卓 isWideScreen()：窗口宽 >= 768 即双列，不区分横竖屏。
+        isPad && size.width >= minimumWideWidth
+    }
+
+    static func horizontalInset(size: CGSize) -> CGFloat {
+        min(size.width, size.height) >= minimumTabletSmallestSide
+            ? tabletHorizontalInset
+            : Theme.pageHorizontalInset
     }
 }
 
@@ -198,21 +207,21 @@ struct HomeTab: View {
                     size: geo.size,
                     isPad: Theme.usesPadLayout
                 )
-                let contentWidth = geo.size.width - Theme.pageHorizontalInset * 2
+                let contentWidth = geo.size.width - HomeLayoutPolicy.horizontalInset(size: geo.size) * 2
                 // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
                 VStack(spacing: 0) {
                     HomeHeaderView(
                         headerDate: headerDate,
+                        horizontalInset: HomeLayoutPolicy.horizontalInset(size: geo.size),
                         onCastTapped: {
                             AppAnalytics.openPage(from: .homeTab, to: .castPage)
                             path.append(NavigationDestination.cast)
                         }
                     )
-                        .padding(.horizontal, Theme.pageHorizontalInset)
 
                     ScrollView(showsIndicators: false) {
                         buildContent(isWide: isWide, contentWidth: contentWidth)
-                            .padding(.horizontal, Theme.pageHorizontalInset)
+                            .padding(.horizontal, HomeLayoutPolicy.horizontalInset(size: geo.size))
                             .padding(.top, Theme.sectionSpacing)
                             .padding(.bottom, Theme.tabContentBottomPadding)
                     }

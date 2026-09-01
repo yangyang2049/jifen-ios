@@ -1,26 +1,22 @@
 {
   "images" : [
     {
-      "filename" : "AppLogo.png",
-      "idiom" : "universal",
-      "scale" : "1x"
+      "filename" : "icon_light.png",
+      "idiom" : "universal"
     },
     {
-      "filename" : "AppLogo@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "AppLogo@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "icon_dark.png",
+      "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
-  },
-  "properties" : {
-    "template-rendering-intent" : "original"
   }
 }

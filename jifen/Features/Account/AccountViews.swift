@@ -270,6 +270,7 @@ private struct AccountProfileView: View {
     @Environment(SessionStore.self) private var session
     @State private var showRenameDialog = false
     @State private var showLogoutConfirmation = false
+    @State private var showAccountDeletion = false
     @State private var toastMessage: String?
 
     var body: some View {
@@ -330,8 +331,7 @@ private struct AccountProfileView: View {
                         showChevron: false
                     ) {}
                 }
-
-                accountActionsCard
+                .background(RoundedRectangle(cornerRadius: 16).fill(Theme.appCardBackground))
             }
             .padding(16)
             .frame(maxWidth: Theme.meTabContentMaxWidth)
@@ -343,13 +343,31 @@ private struct AccountProfileView: View {
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink {
-                    QRLoginApprovalView()
+                Menu {
+                    Button(role: .destructive) {
+                        showLogoutConfirmation = true
+                    } label: {
+                        Label(
+                            NSLocalizedString("account_logout", value: "退出登录", comment: ""),
+                            systemImage: "rectangle.portrait.and.arrow.right"
+                        )
+                    }
+                    Button(role: .destructive) {
+                        showAccountDeletion = true
+                    } label: {
+                        Label(
+                            NSLocalizedString("account_delete", value: "删除账户", comment: ""),
+                            systemImage: "trash"
+                        )
+                    }
                 } label: {
-                    Image(systemName: "qrcode.viewfinder")
+                    Image(systemName: "ellipsis")
                 }
-                .accessibilityLabel(NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
+                .accessibilityLabel(NSLocalizedString("more", value: "更多", comment: ""))
             }
+        }
+        .navigationDestination(isPresented: $showAccountDeletion) {
+            AccountDeletionView()
         }
         .overlay {
             if let toastMessage {
@@ -430,29 +448,6 @@ private struct AccountProfileView: View {
                 if toastMessage == message { toastMessage = nil }
             }
         }
-    }
-
-    private var accountActionsCard: some View {
-        VStack(spacing: 0) {
-            Button {
-                showLogoutConfirmation = true
-            } label: {
-                Text(NSLocalizedString("account_logout", value: "退出登录", comment: ""))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Theme.destructiveText)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 54)
-            }
-            ProfileThinDivider()
-            NavigationLink { AccountDeletionView() } label: {
-                Text(NSLocalizedString("account_delete", value: "删除账户", comment: ""))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Theme.destructiveText)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 54)
-            }
-        }
-        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.appCardBackground))
     }
 }
 
@@ -843,7 +838,8 @@ private struct ProfileAvatarFallback: View {
     }
 }
 
-/// 信息行（对齐安卓 ProfileInfoRow / ProfileNicknameRow）。
+/// 信息行（对齐安卓 ProfileInfoRow / ProfileNicknameRow）：
+/// 表格布局——左边名称左对齐，右边信息右对齐，两端分别对齐。
 private struct ProfileInfoRow: View {
     let label: String
     let value: String
@@ -853,17 +849,18 @@ private struct ProfileInfoRow: View {
 
     var body: some View {
         Button(action: onClick) {
-            HStack(spacing: 8) {
+            HStack(spacing: 12) {
                 Text(label)
                     .font(.system(size: 14))
                     .foregroundColor(Theme.textSecondary)
                     .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Text(value)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(valueColor)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .layoutPriority(1)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 if showChevron {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
@@ -889,17 +886,18 @@ private struct ProfileNicknameRow: View {
 
     var body: some View {
         Button(action: onClick) {
-            HStack(spacing: 8) {
+            HStack(spacing: 12) {
                 Text(label)
                     .font(.system(size: 14))
                     .foregroundColor(Theme.textSecondary)
                     .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Text(value)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .layoutPriority(1)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 Image(systemName: "pencil")
                     .font(.system(size: 15))
                     .foregroundColor(Theme.textSecondary)
@@ -999,7 +997,10 @@ private struct NicknameEditDialog: View {
         }
         .onAppear {
             name = initialName
-            focused = true
+            // 等弹窗过渡动画（0.2s easeInOut）完成后再聚焦，过早赋值会被动画吞掉
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                focused = true
+            }
         }
     }
 

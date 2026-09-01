@@ -98,7 +98,8 @@ private struct ScoreboardExternalWaitingView: View {
     }
 }
 
-private struct ScoreboardExternalLiveView: View {
+/// 直播态外接屏视图；同时被投屏（外部显示器）与跨设备同步显示端（RemoteDisplayView）复用。
+struct ScoreboardExternalLiveView: View {
     let state: ScoreboardDisplayState
 
     private var template: ScoreboardExternalTemplate {

@@ -23,8 +23,9 @@ struct FootballScoreboardView: View {
     @State private var showGameOverDialog: Bool = false
     @State private var showFinishedRecordDetail = false
     @State private var recordID: String
-    @State private var clockTick = Date()
-    @State private var showClockPrompt = false
+    @State private var showPostRegulationDialog = false
+    @State private var showSwitchHalfConfirm = false
+    @State private var lastOutcomeSignature: String? = nil
     @State private var didApplyInitialSetup = false
     @State private var clockPulseScale: CGFloat = 1
 
@@ -65,6 +66,38 @@ struct FootballScoreboardView: View {
                 scoreFontSize: 120,
                 nameType: ScoreboardCommonNamePolicy.nameType(for: .football),
                 showSettleMatch: true,
+                extraMenuItemsProvider: {
+                    // 对齐安卓 S1DualSideScoreRouteScreen 的足球菜单项。
+                    var items: [ScoreboardMenuItem] = []
+                    if firstHalfEnded {
+                        items.append(ScoreboardMenuItem(
+                            title: NSLocalizedString("football_switch_half", value: "进入下半场", comment: ""),
+                            action: "footballSwitchHalf",
+                            group: .tools
+                        ))
+                    }
+                    if regulationEndedTied {
+                        items.append(ScoreboardMenuItem(
+                            title: NSLocalizedString("football_post_regulation_action", value: "赛后处理", comment: ""),
+                            action: "footballPostRegulation",
+                            group: .match,
+                            customText: "ET",
+                            sortOrder: 10,
+                            placeAtEnd: true
+                        ))
+                    }
+                    return items
+                },
+                onMenuAction: { action in
+                    switch action {
+                    case "footballSwitchHalf":
+                        _ = viewModel.advanceClockStage()
+                    case "footballPostRegulation":
+                        showPostRegulationDialog = true
+                    default:
+                        break
+                    }
+                },
                 externalStateEnricher: { compact in
                     var value = ScoreboardDisplayState.enriched(
                         compact: compact,
@@ -133,8 +166,18 @@ struct FootballScoreboardView: View {
                     }
                 )
             }
+
+            if showPostRegulationDialog {
+                postRegulationDialog
+            }
+
+            if showSwitchHalfConfirm {
+                switchHalfConfirmDialog
+            }
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .animation(.easeInOut(duration: 0.2), value: showPostRegulationDialog)
+        .animation(.easeInOut(duration: 0.2), value: showSwitchHalfConfirm)
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
@@ -151,32 +194,11 @@ struct FootballScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(.landscape)
-        .confirmationDialog(
-            clockPromptTitle,
-            isPresented: $showClockPrompt,
-            titleVisibility: .visible
-        ) {
-            if canAdvanceClock {
-                Button(clockAdvanceLabel) { _ = viewModel.advanceClockStage() }
-            }
-            if shouldOfferOvertime {
-                Button(NSLocalizedString("football_enter_overtime", value: "进入加时", comment: "")) {
-                    _ = viewModel.advanceClockStage()
-                }
-            }
-            Button(NSLocalizedString("finish", value: "结束比赛", comment: ""), role: .destructive) {
-                viewModel.endGame()
-            }
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-        } message: {
-            Text(clockPromptMessage)
-        }
-        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { now in
-            clockTick = now
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            // 先处理时钟到期，再统一发布一次快照，确保广播的是到期后的最新状态。
+            _ = viewModel.checkClockExpiry()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-            if viewModel.checkClockExpiry() {
-                showClockPrompt = true
-            }
+            refreshFootballOutcomePrompt()
         }
         .onChange(of: viewModel.clockRevision) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -195,6 +217,7 @@ struct FootballScoreboardView: View {
                 onSetupConsumed?()
             }
             restoreResumeIfNeeded()
+            refreshFootballOutcomePrompt()
             // Hide tab bar
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first,
@@ -275,22 +298,89 @@ struct FootballScoreboardView: View {
         viewModel.restoreLegacyFootballSession()
     }
 
-    /// 对齐安卓 FootballClockPanel：时钟胶囊固定在计分板顶部正中心（TopCenter + 72dp 边距）。
+    /// 对齐安卓 FootballClockPanel：上半场结束/加时上半场结束/常规时间平局时用持久决策卡片替换时钟胶囊，
+    /// 其余情况显示时钟胶囊（整半场跑满时追加红色完成提示）。
     private var footballClockOverlay: some View {
         VStack {
             HStack(spacing: 12) {
                 Spacer(minLength: 0)
-                footballClockCapsule
-                if viewModel.allowsStoppageTime {
-                    stoppageMenu
+                if firstHalfEnded {
+                    footballBreakCard(
+                        title: NSLocalizedString("football_first_half_over", value: "上半场结束", comment: ""),
+                        titleColor: Color(hex: "FFD9D9"),
+                        background: Color(hex: "EF4444").opacity(0.08),
+                        buttonTitle: NSLocalizedString("football_switch_half", value: "进入下半场", comment: "")
+                    ) {
+                        showSwitchHalfConfirm = true
+                    }
+                } else if extraTimeFirstHalfEnded {
+                    footballBreakCard(
+                        title: NSLocalizedString("football_extra_time_first_over", value: "加时赛上半场结束", comment: ""),
+                        titleColor: Color(hex: "FFE4B5"),
+                        background: Color(hex: "F59E0B").opacity(0.12),
+                        buttonTitle: NSLocalizedString("football_switch_extra_time_half", value: "进入加时赛下半场", comment: "")
+                    ) {
+                        _ = viewModel.advanceClockStage()
+                    }
+                } else if regulationEndedTied {
+                    footballBreakCard(
+                        title: NSLocalizedString("football_enter_extra_time_title", value: "常规时间结束", comment: ""),
+                        titleColor: Color(hex: "DDF5FF"),
+                        background: Color(hex: "38BDF8").opacity(0.12),
+                        buttonTitle: NSLocalizedString("football_post_regulation_action", value: "赛后处理", comment: "")
+                    ) {
+                        showPostRegulationDialog = true
+                    }
+                } else {
+                    footballClockCapsule
+                    if viewModel.allowsStoppageTime {
+                        stoppageMenu
+                    }
                 }
                 Spacer(minLength: 0)
+            }
+            if completionHintVisible {
+                Text(viewModel.clockStage == 4
+                    ? NSLocalizedString("football_extra_time_finished", value: "加时赛结束", comment: "")
+                    : NSLocalizedString("football_injury_finished", value: "补时结束", comment: ""))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color(hex: "FF6B6B"))
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 4)
             }
             Spacer()
         }
         .padding(.top, 12)
         .padding(.horizontal, 72)
         .allowsHitTesting(!showGameOverDialog)
+    }
+
+    /// 对齐安卓 HalftimeBreakCard / ExtraTimeBreakCard / PostRegulationDecisionCard：
+    /// 14dp 圆角、横向 18 纵向 12 内边距、纵向 8 间距，14pt heavy 标题 + 主色胶囊按钮。
+    private func footballBreakCard(
+        title: String,
+        titleColor: Color,
+        background: Color,
+        buttonTitle: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        VStack(spacing: 8) {
+            Text(title)
+                .font(.system(size: 14, weight: .heavy))
+                .foregroundColor(titleColor)
+            Button(action: action) {
+                Text(buttonTitle)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .frame(height: 36)
+                    .background(Capsule().fill(Theme.primary))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(background))
     }
 
     /// 1:1 复刻安卓 CompactClockCapsule：阶段徽标（1H/2H/1T/2T）+ mm:ss + 补时 + 内联暂停图标，
@@ -410,42 +500,94 @@ struct FootballScoreboardView: View {
         }
     }
 
-    private var clockPromptTitle: String {
-        switch viewModel.clockStage {
-        case 1:
-            return NSLocalizedString("football_half_time", value: "中场休息", comment: "")
-        case 2:
-            return NSLocalizedString("football_full_time", value: "常规时间结束", comment: "")
-        case 3:
-            return NSLocalizedString("football_extra_time_break", value: "加时中场休息", comment: "")
-        default:
-            return NSLocalizedString("football_extra_time_finished", value: "加时赛结束", comment: "")
+    // MARK: - 对齐安卓 FootballClockPanel 的阶段判定
+
+    private var firstHalfEnded: Bool {
+        viewModel.clockStage == 1 && viewModel.clockPeriodCompleted
+    }
+
+    private var extraTimeFirstHalfEnded: Bool {
+        viewModel.clockStage == 3 && viewModel.clockPeriodCompleted
+    }
+
+    /// 常规时间（下半场）跑满且打平：需要用户决策进入加时还是以平局结束。
+    private var regulationEndedTied: Bool {
+        !isFiveAside
+            && viewModel.clockStage == 2
+            && viewModel.clockPeriodCompleted
+            && viewModel.leftTeam.score == viewModel.rightTeam.score
+    }
+
+    /// 胶囊分支下整半场跑满的红色提示（上半场/加时上半场由决策卡片接管）。
+    private var completionHintVisible: Bool {
+        viewModel.clockPeriodCompleted && !firstHalfEnded && !extraTimeFirstHalfEnded
+    }
+
+    /// 对齐安卓 S1DualSideScoreRouteScreen 的 outcome 弹窗签名触发：
+    /// 进入“常规时间打平待决策”状态时自动弹出；比分变化（重新打平）后再次弹出。
+    private func refreshFootballOutcomePrompt() {
+        guard !showGameOverDialog else { return }
+        guard regulationEndedTied else {
+            if showPostRegulationDialog {
+                showPostRegulationDialog = false
+            }
+            lastOutcomeSignature = nil
+            return
+        }
+        let signature = "\(viewModel.clockStage):\(viewModel.leftTeam.score):\(viewModel.rightTeam.score)"
+        if lastOutcomeSignature != signature {
+            lastOutcomeSignature = signature
+            showPostRegulationDialog = true
         }
     }
 
-    private var clockPromptMessage: String {
-        if shouldOfferOvertime {
-            return NSLocalizedString("football_overtime_prompt", value: "常规时间打平，是否进入加时？", comment: "")
-        }
-        if canAdvanceClock {
-            return NSLocalizedString("football_continue_prompt", value: "继续比赛？", comment: "")
-        }
-        return NSLocalizedString("football_finish_prompt", value: "比赛时间已结束。", comment: "")
+    // MARK: - 决策弹窗（复刻安卓 AlertDialog 文案 + 项目自定义深卡样式）
+
+    private var postRegulationDialog: some View {
+        CustomConfirmDialog(
+            title: NSLocalizedString("football_enter_extra_time_title", value: "常规时间结束", comment: ""),
+            message: String(
+                format: NSLocalizedString(
+                    "football_enter_extra_time_message",
+                    value: "常规时间及补时结束，比分为 %1$d–%2$d。是否进入上下半场各 15 分钟的加时赛？",
+                    comment: ""
+                ),
+                viewModel.leftTeam.score,
+                viewModel.rightTeam.score
+            ),
+            confirmText: NSLocalizedString("football_enter_extra_time", value: "进入加时赛", comment: ""),
+            cancelText: NSLocalizedString("football_end_as_draw", value: "以平局结束", comment: ""),
+            confirmColor: Theme.primary,
+            onConfirm: {
+                if viewModel.advanceClockStage() {
+                    showPostRegulationDialog = false
+                }
+            },
+            onCancel: {
+                showPostRegulationDialog = false
+                viewModel.endGame()
+            },
+            onDismiss: {
+                showPostRegulationDialog = false
+            }
+        )
     }
 
-    private var canAdvanceClock: Bool {
-        if isFiveAside { return viewModel.clockStage == 1 }
-        return viewModel.clockStage == 1 || viewModel.clockStage == 3
-    }
-
-    private var shouldOfferOvertime: Bool {
-        !isFiveAside && viewModel.clockStage == 2 && viewModel.leftTeam.score == viewModel.rightTeam.score
-    }
-
-    private var clockAdvanceLabel: String {
-        viewModel.clockStage == 1
-            ? NSLocalizedString("football_start_second_half", value: "开始下半场", comment: "")
-            : NSLocalizedString("football_start_next_period", value: "进入下一阶段", comment: "")
+    private var switchHalfConfirmDialog: some View {
+        CustomConfirmDialog(
+            title: NSLocalizedString("football_switch_half_title", value: "进入下半场？", comment: ""),
+            message: NSLocalizedString("football_switch_half_message", value: "上半场将暂停，且不能切回。", comment: ""),
+            confirmText: NSLocalizedString("confirm", value: "确认", comment: ""),
+            cancelText: NSLocalizedString("cancel", value: "取消", comment: ""),
+            confirmColor: Theme.primary,
+            onConfirm: {
+                showSwitchHalfConfirm = false
+                _ = viewModel.advanceClockStage()
+            },
+            onDismiss: {
+                showSwitchHalfConfirm = false
+            }
+        )
     }
 }
 

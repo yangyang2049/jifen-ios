@@ -51,6 +51,7 @@ struct SettingsView: View {
     @State private var showAppearancePicker = false
     @State private var showAppShareSheet = false
     @State private var showAccountLoginSheet = false
+    @State private var showQRLogin = false
     @State private var activeSheet: SettingsSheetDestination?
     @State private var clearDataErrorMessage: String?
     @State private var isClearingData = false
@@ -79,6 +80,9 @@ struct SettingsView: View {
             }
             .navigationTitle(NSLocalizedString(isTabRoot ? "tab_me" : "settings", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $showQRLogin) {
+                QRLoginApprovalView()
+            }
             // Use `.automatic` on the Me tab root so pushed pages can hide the tab bar.
             .toolbar(isTabRoot ? .automatic : .hidden, for: .tabBar)
             .toolbar {
@@ -208,7 +212,8 @@ struct SettingsView: View {
             loggedIn: session.isAuthenticated,
             displayName: session.user?.displayName ?? "",
             avatarURL: avatarURL,
-            subtitle: accountSubtitle
+            subtitle: accountSubtitle,
+            onScanLogin: session.isAuthenticated ? { showQRLogin = true } : nil
         )
     }
 
@@ -232,7 +237,7 @@ struct SettingsView: View {
         SettingsSection {
             NavigationLink { FeedbackListView() } label: {
                 SettingsNavigationRow(
-                    title: NSLocalizedString("feedback_title", value: "反馈社区", comment: ""),
+                    title: NSLocalizedString("me_feedback_entry", value: "反馈社区", comment: ""),
                     subtitle: NSLocalizedString("feedback_entry_subtitle", value: "功能建议与问题反馈", comment: "")
                 )
             }
@@ -556,6 +561,7 @@ private struct MeAccountEntryRow: View {
     let displayName: String
     let avatarURL: URL?
     let subtitle: String
+    var onScanLogin: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 16) {
@@ -573,6 +579,9 @@ private struct MeAccountEntryRow: View {
                     .lineLimit(1)
             }
             Spacer()
+            if let onScanLogin {
+                scanLoginButton(action: onScanLogin)
+            }
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))
                 .foregroundColor(Theme.textSecondary)
@@ -581,6 +590,21 @@ private struct MeAccountEntryRow: View {
         .padding(.vertical, 16)
         .frame(minHeight: 92)
         .contentShape(Rectangle())
+    }
+
+    // 扫码登录：嵌在名称条右侧、右箭头左侧的图标按钮（对齐安卓扫一扫图标入口）。
+    private func scanLoginButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: "qr.code.viewfinder")
+                .font(.system(size: 17, weight: .medium))
+                .foregroundColor(Theme.textPrimary)
+                .frame(width: 36, height: 36)
+                .background(Theme.controlBackground, in: Circle())
+                .overlay(Circle().stroke(Theme.divider.opacity(0.7), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
+        .accessibilityIdentifier("settings_qr_login_entry")
     }
 
     private var avatar: some View {

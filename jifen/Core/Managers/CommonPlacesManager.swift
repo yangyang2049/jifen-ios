@@ -23,9 +23,11 @@ enum CommonPlacesError: Error {
 final class CommonPlacesManager {
     static let shared = CommonPlacesManager()
 
+    /// 常用地点容量上限（支持批量导入，2026-08 从 50 上调至 200）。
+    static let maxPlaces = 200
+
     private let defaults: UserDefaults
     private let storageKey = "jifen-v2.commonPlaces"
-    private let maxPlaces = 200
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -46,7 +48,7 @@ final class CommonPlacesManager {
         var places = getAllPlaces()
         guard !places.contains(where: { normalizedKey($0.name) == normalizedKey(name) }) else { return }
         places.insert(CommonPlace(name: name), at: 0)
-        save(Array(places.prefix(maxPlaces)))
+        save(Array(places.prefix(Self.maxPlaces)))
     }
 
     @discardableResult
@@ -59,7 +61,7 @@ final class CommonPlacesManager {
         }
         let place = CommonPlace(name: name)
         places.insert(place, at: 0)
-        save(Array(places.prefix(maxPlaces)))
+        save(Array(places.prefix(Self.maxPlaces)))
         return place
     }
 
@@ -79,7 +81,7 @@ final class CommonPlacesManager {
             accepted.append(CommonPlace(name: name))
         }
         places = accepted + places
-        save(Array(places.prefix(maxPlaces)))
+        save(Array(places.prefix(Self.maxPlaces)))
         return (accepted.count, skipped)
     }
 
@@ -121,7 +123,7 @@ final class CommonPlacesManager {
             guard !name.isEmpty, seen.insert(key).inserted else { return nil }
             return CommonPlace(id: existing[key] ?? UUID(), name: name)
         }
-        save(Array(places.prefix(maxPlaces)))
+        save(Array(places.prefix(Self.maxPlaces)))
     }
 
     private func save(_ places: [CommonPlace]) {

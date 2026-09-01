@@ -235,6 +235,8 @@ struct RecordNoteSheet: View {
     @State private var smoothedAmplitude: Float = 0
     @State private var recordingPeak: Float = 0
 
+    @FocusState private var isTextEditorFocused: Bool
+
     var body: some View {
         Group {
             switch sheetMode {
@@ -285,6 +287,24 @@ struct RecordNoteSheet: View {
             // 从卡片"查看/编辑"进入时预填当前笔记；从菜单进入编辑则保留上次草稿（原行为）。
             if sheetMode == .editText || sheetMode == .viewText {
                 textDraft = note ?? ""
+            }
+            if sheetMode == .editText {
+                scheduleTextEditorFocus()
+            }
+        }
+        .onChange(of: sheetMode) { _, newMode in
+            // 从菜单切到文字编辑时自动聚焦打开键盘
+            if newMode == .editText {
+                scheduleTextEditorFocus()
+            }
+        }
+    }
+
+    /// 等 sheet 呈现/内容切换动画完成后再聚焦，过早赋值会被动画吞掉。
+    private func scheduleTextEditorFocus() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
+            if sheetMode == .editText {
+                isTextEditorFocused = true
             }
         }
     }
@@ -347,6 +367,7 @@ struct RecordNoteSheet: View {
                 get: { textDraft },
                 set: { textDraft = String($0.prefix(maxTextNoteLength)) }
             ))
+            .focused($isTextEditorFocused)
             .scrollContentBackground(.hidden)
             .padding(8)
             .frame(height: 176)

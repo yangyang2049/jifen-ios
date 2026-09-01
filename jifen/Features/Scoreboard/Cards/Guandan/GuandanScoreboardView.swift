@@ -512,7 +512,7 @@ struct GuandanScoreboardView: View {
                     )
                 },
                 panelAccessory: { isLeft in
-                    AnyView(guandanPanelActions(side: guandanSide(onScreen: isLeft ? .left : .right)))
+                    AnyView(guandanPanelActions(side: guandanSide(onScreen: isLeft ? .left : .right), isLeftScreen: isLeft))
                 },
                 onEditModeChange: { scoreboardEditing = $0 },
                 onTypographyChange: { preference in
@@ -565,6 +565,7 @@ struct GuandanScoreboardView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
+        .cloudSyncSharingEntryOverlay()
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)
@@ -635,9 +636,9 @@ struct GuandanScoreboardView: View {
     }
 
     @ViewBuilder
-    private func guandanPanelActions(side: GuandanSide) -> some View {
+    private func guandanPanelActions(side: GuandanSide, isLeftScreen: Bool) -> some View {
         if state.phase != .finished {
-            HStack(spacing: 12) {
+            HStack(spacing: Theme.usesPadLayout ? 24 : 20) {
                 ForEach([1, 2, 3], id: \.self) { step in
                     scoreboardCardActionButton("+\(step)") {
                         applyGuandanRound(side: side, step: step)
@@ -645,6 +646,12 @@ struct GuandanScoreboardView: View {
                     .accessibilityIdentifier("guandan_round_\(side.rawValue)_plus_\(step)")
                 }
             }
+            // 用户反馈：按钮贴近底部两角的返回/菜单按钮易误触。
+            // 整排向屏幕中心平移（offset 不影响上下布局，仅水平移动含点击区域）。
+            .offset(x: isLeftScreen
+                ? (Theme.usesPadLayout ? 40 : 32)
+                : (Theme.usesPadLayout ? -40 : -32)
+            )
         }
     }
 

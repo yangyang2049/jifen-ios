@@ -114,6 +114,7 @@ struct ShengjiScoreboardView: View {
 
     var body: some View {
         shengjiContent
+        .cloudSyncSharingEntryOverlay()
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             finishedRecordDetailPage
         }

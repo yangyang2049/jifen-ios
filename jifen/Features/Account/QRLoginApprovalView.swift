@@ -88,7 +88,6 @@ nonisolated private struct QRConfirmResponse: Decodable, Sendable {
 
 struct QRLoginApprovalView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var manualPayload = ""
     @State private var parsed: QRLoginPayload?
     @State private var scanResponse: QRScanResponse?
     @State private var errorMessage: String?
@@ -96,67 +95,175 @@ struct QRLoginApprovalView: View {
     @State private var scannerPaused = false
 
     var body: some View {
-        VStack(spacing: 18) {
+        ZStack {
+            Theme.backgroundColor.ignoresSafeArea()
             if let parsed, let scanResponse {
-                Image(systemName: "desktopcomputer.and.arrow.down")
-                    .font(.system(size: 52))
-                Text(NSLocalizedString("qr_login_confirm_title", value: "确认网页登录", comment: ""))
-                    .font(.title2.bold())
-                Text(scanResponse.targetDeviceName ?? readablePlatform(scanResponse.targetPlatform ?? parsed.targetPlatform))
-                    .foregroundStyle(.secondary)
-                HStack {
-                    Button(NSLocalizedString("deny", value: "拒绝", comment: ""), role: .destructive) {
-                        Task { await confirm(approve: false) }
-                    }
-                    .buttonStyle(.bordered)
-                    Button(NSLocalizedString("approve", value: "确认登录", comment: "")) {
-                        Task { await confirm(approve: true) }
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
+                confirmContent(scanResponse, fallbackPlatform: parsed.targetPlatform)
             } else if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
-                QRDataScannerView(paused: scannerPaused) { raw in
-                    Task { await receive(raw) }
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .overlay(alignment: .bottom) {
-                    Text(NSLocalizedString("qr_login_scan_hint", value: "扫描计分器网页上的登录二维码", comment: ""))
-                        .font(.footnote)
-                        .padding(10)
-                        .background(.regularMaterial, in: Capsule())
-                        .padding()
-                }
+                scannerContent
             } else {
-                manualEntry
+                // 相机不可用（不支持/权限被拒）时的占位提示。
+                cameraUnavailablePlaceholder
             }
-            if let errorMessage { Text(errorMessage).font(.footnote).foregroundStyle(.red) }
         }
-        .padding()
         .navigationTitle(NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .overlay { if isWorking { ProgressView().controlSize(.large) } }
-        .safeAreaInset(edge: .bottom) {
-            if parsed == nil && DataScannerViewController.isSupported {
-                DisclosureGroup(NSLocalizedString("qr_login_manual", value: "手动粘贴二维码内容", comment: "")) {
-                    manualEntry
-                }
-                .padding()
-                .background(.thinMaterial)
+        .overlay(alignment: .top) {
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 6)
             }
         }
     }
 
-    private var manualEntry: some View {
-        VStack(spacing: 10) {
-            TextField(NSLocalizedString("qr_login_payload_placeholder", value: "粘贴二维码内容或链接", comment: ""), text: $manualPayload, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-            Button(NSLocalizedString("continue", value: "继续", comment: "")) {
-                Task { await receive(manualPayload) }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(manualPayload.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    // 扫码态：相机全屏 + 通栏底部渐变提示横幅。
+    private var scannerContent: some View {
+        QRDataScannerView(paused: scannerPaused) { raw in
+            Task { await receive(raw) }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(edges: .bottom)
+        .overlay(alignment: .bottom) { scanHintBanner }
+    }
+
+    private var scanHintBanner: some View {
+        Text(NSLocalizedString("qr_login_scan_hint", value: "对准网页上的登录二维码", comment: ""))
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(.white)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 46)
+            .padding(.bottom, 30)
+            .background(
+                LinearGradient(
+                    colors: [.black.opacity(0), .black.opacity(0.75)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            )
+            .accessibilityIdentifier("qr_login_scan_hint")
+    }
+
+    // 确认态：App 徽标 + 设备信息大卡 + 全宽胶囊按钮（对齐方案 A demo）。
+    private func confirmContent(_ scanResponse: QRScanResponse, fallbackPlatform: String?) -> some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 10)
+            appLogoBadge
+                .padding(.bottom, 22)
+            Text(NSLocalizedString("qr_login_confirm_title", value: "确认网页登录", comment: ""))
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(Theme.textPrimary)
+            Text(NSLocalizedString("qr_login_confirm_subtitle", value: "以下设备请求登录你的计分器账号", comment: ""))
+                .font(.system(size: 15))
+                .foregroundStyle(Theme.textSecondary)
+                .padding(.top, 8)
+            deviceCard(scanResponse, fallbackPlatform: fallbackPlatform)
+                .padding(.top, 22)
+            Spacer()
+            HStack(spacing: 12) {
+                Button {
+                    Task { await confirm(approve: false) }
+                } label: {
+                    Text(NSLocalizedString("deny", value: "拒绝", comment: ""))
+                        .font(.system(size: 16.5, weight: .bold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .frame(maxWidth: .infinity, minHeight: 54)
+                        .background(Theme.divider.opacity(0.45), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isWorking)
+
+                Button {
+                    Task { await confirm(approve: true) }
+                } label: {
+                    Text(NSLocalizedString("approve", value: "确认登录", comment: ""))
+                        .font(.system(size: 16.5, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, minHeight: 54)
+                        .background(Theme.accentColor, in: Capsule())
+                        .shadow(color: Theme.accentColor.opacity(0.35), radius: 12, y: 6)
+                }
+                .buttonStyle(.plain)
+                .disabled(isWorking)
+                .accessibilityIdentifier("qr_login_approve_button")
+            }
+            Text(NSLocalizedString("qr_login_confirm_fine_print", value: "确认后网页端将立即进入你的账号", comment: ""))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+                .padding(.top, 14)
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // App 徽标：复用应用图标（自动适配亮/暗外观）。
+    private var appLogoBadge: some View {
+        Image("AppLogo")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 92, height: 92)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(Theme.divider.opacity(0.5), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.14), radius: 18, y: 8)
+    }
+
+    private func deviceCard(_ scanResponse: QRScanResponse, fallbackPlatform: String?) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: "laptopcomputer.and.iphone")
+                .font(.system(size: 24, weight: .medium))
+                .foregroundStyle(Theme.accentColor)
+                .frame(width: 52, height: 52)
+                .background(Theme.accentColor.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(NSLocalizedString("qr_login_confirm_device_label", value: "登录设备", comment: ""))
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(Theme.textSecondary)
+                Text(scanResponse.targetDeviceName ?? readablePlatform(scanResponse.targetPlatform ?? fallbackPlatform))
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 20))
+                .foregroundStyle(Color(hex: "22C55E"))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .background(Theme.controlBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Theme.divider.opacity(0.6), lineWidth: 1)
+        )
+    }
+
+    // 相机不可用（不支持/权限被拒）时的占位提示。
+    private var cameraUnavailablePlaceholder: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "camera.on.rectangle")
+                .font(.system(size: 48))
+                .foregroundStyle(Theme.textSecondary)
+            Text(NSLocalizedString("qr_login_camera_unavailable", value: "相机不可用", comment: ""))
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(Theme.textPrimary)
+            Text(NSLocalizedString("qr_login_camera_unavailable_hint", value: "请在系统设置中允许使用相机后重试", comment: ""))
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func receive(_ raw: String) async {

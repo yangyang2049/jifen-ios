@@ -15,6 +15,10 @@ enum LegalDocuments {
         localizedURL(path: "membership-agreement")
     }
 
+    static var autoRenewalTermsURL: URL {
+        localizedURL(path: "auto-renewal")
+    }
+
     private static func localizedURL(path: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"

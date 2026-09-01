@@ -1,4 +1,5 @@
 import LinkCore
+import PersistenceCore
 import RecordCore
 import ScoreCore
 import XCTest
@@ -314,6 +315,110 @@ final class CardResumeAndWinnerIdentityTests: XCTestCase {
         ))
         XCTAssertEqual(afterUndoAndRetap.blueTeam.currentRank, "4")
         XCTAssertEqual(afterUndoAndRetap.lastRoundWinner, .blue)
+    }
+
+    /// 复现真机“掼蛋 +1 后弹保存失败”：按 GuandanScoreboardView.saveRecord 的
+    /// 完整链路（编码快照 → 未结束走 ManualResumeSessionStore.save）走一遍。
+    func testGuandanSaveAfterFirstPlusOneRoundPersists() throws {
+        let recordID = ScoreboardRecordIdentity.next(prefix: GameType.guandan.canonicalScoreboardIdentifier)
+        let state = GuandanMatchState.initial(redName: "红队", blueName: "蓝队")
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
+        let settled = try XCTUnwrap(guandanRoundStateAfterTap(
+            state: state,
+            winner: .red,
+            step: 1,
+            at: timestamp
+        ))
+
+        var actionLog: [String] = []
+        var detailedActions: [DetailedScoreAction] = []
+        let snapshotCode = ReducerScoreboardRecordPersistence.normalizedOperationCode("round_red_plus_1")
+        let scores = [
+            GuandanMatchState.rankDisplayScore(settled.redTeam.currentRank),
+            GuandanMatchState.rankDisplayScore(settled.blueTeam.currentRank)
+        ]
+        actionLog.append("\(timestamp)|snapshot|\(snapshotCode)|\(scores.map(String.init).joined(separator: ","))|")
+        detailedActions.append(DetailedScoreAction(
+            type: .matchStarted,
+            epochMilliseconds: timestamp,
+            scores: [2, 2],
+            operationCode: "guandan_match_started"
+        ))
+        detailedActions.append(contentsOf: guandanDetailedActions(
+            for: .applyRoundSettlement(step: 1),
+            previousState: state,
+            resultingState: settled,
+            epochMilliseconds: timestamp,
+            roundNumber: 1
+        ))
+
+        let history = [state]
+        let historyTimeline = [GuandanUndoTimelineCheckpoint(
+            actionLogCount: 0,
+            detailedActionsCount: 0,
+            actionCount: 0
+        )]
+
+        let snapshotData = try JSONEncoder().encode(GuandanResumeState(
+            state: settled,
+            undoHistory: history,
+            intentTimeline: actionLog,
+            detailedActions: detailedActions,
+            actionCount: 1,
+            undoTimeline: historyTimeline
+        ))
+
+        let start = Date()
+        let record = ScoreboardRecord(
+            id: recordID,
+            gameType: .guandan,
+            startTime: start,
+            endTime: Date(),
+            duration: Date().timeIntervalSince(start),
+            team1Name: settled.redTeam.name,
+            team2Name: settled.blueTeam.name,
+            team1FinalScore: GuandanMatchState.rankDisplayScore(settled.redTeam.currentRank),
+            team2FinalScore: GuandanMatchState.rankDisplayScore(settled.blueTeam.currentRank),
+            actions: actionLog,
+            detailedActions: detailedActions,
+            setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
+            totalScoreChanges: 1,
+            extraData: [
+                "schemaVersion": AnyCodable(3),
+                "guandanTripleAEnabled": AnyCodable(settled.aStageMode == .tripleA),
+                "guandanPassACondition": AnyCodable(settled.passACondition.rawValue),
+                "guandanTripleAFallbackRank": AnyCodable(settled.tripleAFallbackRank),
+                "guandanPhase": AnyCodable(settled.projectedPhaseName),
+                "guandanRedRank": AnyCodable(settled.redTeam.currentRank),
+                "guandanBlueRank": AnyCodable(settled.blueTeam.currentRank),
+                "guandanIsInAStage": AnyCodable(settled.isInAStage),
+                "guandanRoundWinner": AnyCodable(settled.lastRoundWinner?.rawValue),
+                "guandanAStageTeam": AnyCodable(settled.aStageTeam?.rawValue),
+                "guandanFinalWinner": AnyCodable(settled.finalWinner?.rawValue),
+                "guandanRedAFailCount": AnyCodable(settled.aFailCount(for: .red)),
+                "guandanBlueAFailCount": AnyCodable(settled.aFailCount(for: .blue)),
+                "showMatchTime": AnyCodable(false)
+            ],
+            projectConfiguration: [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.guandan.rawValue),
+                "showMatchTime": AnyCodable(false)
+            ],
+            stateSnapshot: snapshotData,
+            status: .finished
+        )
+
+        try ScoreboardLifecyclePersistence.save(record, finished: false)
+
+        let restored = ManualResumeSessionStore.load(recordID: recordID)
+        XCTAssertEqual(restored?.recordId, recordID)
+
+        // 清理测试写入的 resume 会话，避免污染测试容器目录。
+        if let sessionId = ManualResumeSessionStore.sessionID(for: recordID) {
+            let repository = ResumeSessionRepository()
+            Task {
+                try? await repository.remove(sessionId: sessionId)
+            }
+        }
     }
 
     func testSharedReducerSnapshotDecodesWrappedAndLegacyRawState() throws {

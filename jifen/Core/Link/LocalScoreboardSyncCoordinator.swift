@@ -145,7 +145,16 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
             ownerID: ownerID,
             initial: initialExternalState
         )
+        attachCloudSyncIfSharing(gameType: initialExternalState.gameType)
         publishSnapshot()
+    }
+
+    /// 云同步分享中进入记分页：绑定项目并进入 IN_GAME（对齐安卓 ScoreboardDisplayEffects）。
+    private func attachCloudSyncIfSharing(gameType: String) {
+        guard CloudSyncSession.shared.isSharingActive() else { return }
+        guard CloudSyncSession.shared.canAttach(gameType: gameType) else { return }
+        Task { await CloudSyncSession.shared.controller?.updateMatchGameType(gameType) }
+        CloudSyncSession.shared.markInGame(gameType: gameType)
     }
 
     /// Adds the launch-scoped, count-up match clock to supported generic
@@ -168,6 +177,9 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
     }
 
     func unregisterHost() {
+        if CloudSyncSession.shared.state?.phase == .inGame {
+            CloudSyncSession.shared.markSharing()
+        }
         if let externalOwnerID, let externalLeaseID {
             ScoreboardDisplayOutputs.shared.release(ownerID: externalOwnerID, leaseID: externalLeaseID)
         }
@@ -192,6 +204,8 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
                 priority: state.finished ? .urgent : .normal
             )
         }
+        // 云同步第二路分发（本地投屏与云端共用同一 DisplayState 组装）。
+        CloudSyncSession.shared.publish(externalState)
     }
 
     private func decoratedExternalState(

@@ -290,6 +290,7 @@ struct DoudizhuScoreboardView: View {
             .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         }
         .ignoresSafeArea(.all)
+        .cloudSyncSharingEntryOverlay(respectsSafeArea: true)
         .navigationTitle(NSLocalizedString("game_doudizhu", comment: "Doudizhu"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

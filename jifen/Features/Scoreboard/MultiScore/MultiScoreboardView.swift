@@ -262,6 +262,7 @@ struct MultiScoreboardView: View {
             .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
         }
         .ignoresSafeArea(.all)
+        .cloudSyncSharingEntryOverlay(respectsSafeArea: true)
         .navigationTitle(gameType.displayName)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

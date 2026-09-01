@@ -25,6 +25,9 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     let rightScore: String
     let leftDetail: String?
     let rightDetail: String?
+    /// 手机端副分数（如斯诺克当杆分数）与大分数同行显示：底端基线对齐、置于外侧，
+    /// 空间有限的屏幕避免上下堆叠；平板端空间充足，保持在大分数下方。
+    var inlineSecondaryScore: Bool = false
     let finished: Bool
     let onLeftTap: () -> Void
     let onRightTap: () -> Void
@@ -535,25 +538,39 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
 
                     Spacer().frame(height: typography.nameToScoreSpacing)
 
-                    Text(score)
-                        .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
-                        .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.4)
-                        .lineLimit(1)
+                    if inlineSecondaryScore, !Theme.usesPadLayout, let detail {
+                        // 同行布局：副分数与大分数底端基线对齐（lastTextBaseline 消除
+                        // 行高差异造成的错位），置于屏幕外侧——左侧面板在左、右侧面板在右。
+                        HStack(alignment: .lastTextBaseline, spacing: 8) {
+                            if isLeft {
+                                inlineDetailText(detail, fontSize: setSize, isLeftScreen: isLeft)
+                                inlineMainScoreText(score, fontSize: mainSize, isLeftScreen: isLeft)
+                            } else {
+                                inlineMainScoreText(score, fontSize: mainSize, isLeftScreen: isLeft)
+                                inlineDetailText(detail, fontSize: setSize, isLeftScreen: isLeft)
+                            }
+                        }
+                    } else {
+                        Text(score)
+                            .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
+                            .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
+                            .monospacedDigit()
+                            .minimumScaleFactor(0.4)
+                            .lineLimit(1)
+
+                        if let detail {
+                            Spacer().frame(height: mainToDetailSpacing)
+                            Text(detail)
+                                .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
+                                .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeft))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                    }
 
                     if let accessory {
                         accessory
                             .padding(.top, 8)
-                    }
-
-                    if let detail {
-                        Spacer().frame(height: mainToDetailSpacing)
-                        Text(detail)
-                            .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
-                            .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeft))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -565,6 +582,25 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             guard !isEditMode, !finished else { return }
             action()
         }
+    }
+
+    /// 同行布局中的大分数（与下方布局样式保持一致：等宽数字、可缩放）。
+    private func inlineMainScoreText(_ score: String, fontSize: CGFloat, isLeftScreen: Bool) -> some View {
+        Text(score)
+            .font(typographySession.effectivePreference.font.swiftUIFont(size: fontSize))
+            .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeftScreen))
+            .monospacedDigit()
+            .minimumScaleFactor(0.4)
+            .lineLimit(1)
+    }
+
+    /// 同行布局中的副分数（斯诺克当杆分数），样式与下方布局一致。
+    private func inlineDetailText(_ detail: String, fontSize: CGFloat, isLeftScreen: Bool) -> some View {
+        Text(detail)
+            .font(typographySession.effectivePreference.font.swiftUIFont(size: fontSize))
+            .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeftScreen))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
     }
 
     private func editCircleButton(systemName: String, action: @escaping () -> Void) -> some View {

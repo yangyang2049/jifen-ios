@@ -36,6 +36,10 @@ enum ScoreboardPersistenceFailureReporter {
 
     nonisolated static func report(_ error: Error, context: String, forcePresentation: Bool = false) {
         logger.error("\(context, privacy: .public): \(String(describing: error), privacy: .public)")
+        // DEBUG 构建额外打印到控制台，方便在 Xcode 里直接看到具体失败原因。
+        #if DEBUG
+        print("[ScoreboardPersistence] 保存失败：\(context) - \(String(describing: error))")
+        #endif
         lock.lock()
         let now = Date()
         let shouldPresent = forcePresentation

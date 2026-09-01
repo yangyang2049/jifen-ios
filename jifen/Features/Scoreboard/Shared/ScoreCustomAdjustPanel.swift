@@ -12,6 +12,8 @@ struct ScoreCustomAdjustPanel: View {
     @State private var showCustomInput = false
     @State private var showInvalidToast = false
 
+    @FocusState private var isCustomFieldFocused: Bool
+
     private let presets = Array(1...9)
 
     var body: some View {
@@ -126,6 +128,7 @@ struct ScoreCustomAdjustPanel: View {
                             )
                             .keyboardType(.numberPad)
                             .textFieldStyle(.plain)
+                            .focused($isCustomFieldFocused)
                             .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                             .padding(.horizontal, 14)
                             .frame(height: 50)
@@ -163,6 +166,15 @@ struct ScoreCustomAdjustPanel: View {
             }
         }
         .environment(\.colorScheme, .dark)
+        .onChange(of: showCustomInput) { _, shown in
+            // 点击"…"出现自定义输入框后自动聚焦打开键盘，稍等视图插入完成
+            guard shown else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                if showCustomInput {
+                    isCustomFieldFocused = true
+                }
+            }
+        }
     }
 
     private func signButton(

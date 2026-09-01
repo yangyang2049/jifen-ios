@@ -1,13 +1,55 @@
 import SwiftUI
 
-/// 投屏连接页：1:1 对齐安卓 DisplayConnectionScreen.kt 的 CastEntryPanel
-/// （说明卡可折叠在上 + 状态卡居中在下；iOS 无"云端同步"Tab，保持单页）。
+/// 投屏与同步连接页：1:1 对齐安卓 DisplayConnectionScreen（双 Tab：投屏 / 跨设备同步）。
 struct CastConnectionView: View {
+    enum ConnectionTab: String, CaseIterable {
+        case cast
+        case remoteSync
+
+        var title: String {
+            switch self {
+            case .cast:
+                NSLocalizedString("display_connection_tab_cast", value: "投屏", comment: "")
+            case .remoteSync:
+                NSLocalizedString("display_connection_tab_remote_sync", value: "跨设备同步", comment: "")
+            }
+        }
+    }
+
     @ObservedObject private var externalDisplay = ExternalDisplayCoordinator.shared
     @Environment(\.colorScheme) private var colorScheme
     @State private var usageExpanded = false
+    @State private var tab: ConnectionTab = .cast
 
     var body: some View {
+        VStack(spacing: 0) {
+            Picker("", selection: $tab) {
+                ForEach(ConnectionTab.allCases, id: \.self) { item in
+                    Text(item.title).tag(item)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+
+            switch tab {
+            case .cast:
+                castContent
+            case .remoteSync:
+                CloudSyncEntryPanel()
+            }
+        }
+        .background(Theme.backgroundColor.ignoresSafeArea())
+        .navigationTitle(NSLocalizedString("display_connection_title", value: "投屏与同步", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
+        // push 进入时系统自带返回按钮，避免重复。
+        .analyticsScreen(.castPage, screenClass: "cast")
+        .onAppear { externalDisplay.refreshStatus() }
+        .accessibilityIdentifier("cast_connection_page")
+    }
+
+    private var castContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 16) {
                 usageCard
@@ -19,13 +61,6 @@ struct CastConnectionView: View {
             .frame(maxWidth: Theme.secondaryPageContentMaxWidth)
             .frame(maxWidth: .infinity)
         }
-        .background(Theme.backgroundColor.ignoresSafeArea())
-        .navigationTitle(NSLocalizedString("cast_title", value: "投屏", comment: ""))
-        .navigationBarTitleDisplayMode(.inline)
-        // push 进入时系统自带返回按钮，避免重复。
-        .analyticsScreen(.castPage, screenClass: "cast")
-        .onAppear { externalDisplay.refreshStatus() }
-        .accessibilityIdentifier("cast_connection_page")
     }
 
     // MARK: - 说明卡（安卓 CastUsageCard）
