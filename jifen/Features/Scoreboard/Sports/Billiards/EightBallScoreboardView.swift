@@ -309,6 +309,15 @@ struct EightBallScoreboardView: View {
                     adjustScore(onScreen: isLeft ? .left : .right, delta: -1)
                 }
             },
+            onDoubleTapSubtract: { isLeft in
+                // 对齐安卓 subtractRack：终局后不再减；减分下限由 canAdjustRacks 守住（含让杆）。
+                guard !scoringLocked else {
+                    showToastMessage(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
+                    return
+                }
+                guard !state.finished else { return }
+                adjustScore(onScreen: isLeft ? .left : .right, delta: -1)
+            },
             extraMenuItems: WatchLinkMenuSupport.extraItems(
                 entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
                 sessionId: watchSessionId,

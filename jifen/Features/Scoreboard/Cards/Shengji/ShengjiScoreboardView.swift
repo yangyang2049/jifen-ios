@@ -211,6 +211,11 @@ struct ShengjiScoreboardView: View {
                     send(.addLevels(side: side, delta: delta))
                 }
             },
+            extraMenuItems: shengjiMatchClockMenuItems,
+            onMenuAction: { action in
+                guard action == "toggleMatchTime" else { return }
+                toggleMatchClockVisibility()
+            },
             seamOverlay: state.dealer == nil ? nil : { indicatorColor in
                 AnyView(
                     GeometryReader { geo in
@@ -351,6 +356,30 @@ struct ShengjiScoreboardView: View {
         }
         matchClockSession.bind(startedAt: startedAt, isVisible: visible)
     }
+
+    /// 对齐安卓 ShengjiScoreScreen 的 toggleMatchTime 菜单项。
+    private var shengjiMatchClockMenuItems: [ScoreboardMenuItem] {
+        let visible = matchClockSession?.isVisible
+            ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: .shengji)
+        return [
+            ScoreboardMenuItem(
+                title: visible
+                    ? NSLocalizedString("hide_match_time", value: "隐藏时间", comment: "")
+                    : NSLocalizedString("show_match_time", value: "显示时间", comment: ""),
+                action: "toggleMatchTime",
+                group: .tools,
+                icon: "clock",
+                keepDialogOpen: true
+            )
+        ]
+    }
+
+    private func toggleMatchClockVisibility() {
+        guard let session = matchClockSession else { return }
+        session.isVisible.toggle()
+        PreferencesManager.shared.setScoreboardMatchTimeVisible(session.isVisible, for: .shengji)
+    }
+
     private func finishMatch() {
         send(.finish)
     }

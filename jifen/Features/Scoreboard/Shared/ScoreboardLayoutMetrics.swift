@@ -457,7 +457,9 @@ enum ScoreboardTypographyProfile: Sendable {
 
     var adjustableMetrics: [ScoreboardFontMetric] {
         switch self {
-        case .doudizhu, .multi:
+        // 对齐安卓 ScoreboardFontSizePanelItems：斗地主=2、多分数板/UNO MultiScore=2、
+        // 篮球(含3x3) TeamScore=2；九球 NineBall=3（队名/大分数/追分详情）。
+        case .doudizhu, .multi, .uno, .basketball:
             return [.name, .score]
         default:
             return [.name, .score, .secondary]
@@ -653,11 +655,14 @@ enum ScoreboardTypographyResolver {
 }
 
 enum ScoreboardPlayerGridLayout {
-    static func nineBallRows(playerCount: Int, containerSize: CGSize) -> [[Int]] {
+    /// forceWide：对齐安卓 NineBallScoreScreen useLandscapeLayout，2 人局可由用户
+    /// 菜单强制横/竖排（nil 时沿用按人数与容器比例的默认判断）。
+    static func nineBallRows(playerCount: Int, containerSize: CGSize, forceWide: Bool? = nil) -> [[Int]] {
         let safeCount = min(4, max(2, playerCount))
         let indices = Array(0..<safeCount)
-        let usesWideLayout = safeCount <= 2
-            || containerSize.width >= containerSize.height * 0.9
+        let usesWideLayout = forceWide
+            ?? (safeCount <= 2
+                || containerSize.width >= containerSize.height * 0.9)
         guard !usesWideLayout else { return [indices] }
         if safeCount == 3 {
             return indices.map { [$0] }

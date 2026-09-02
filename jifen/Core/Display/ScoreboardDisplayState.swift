@@ -96,9 +96,23 @@ struct ScoreboardDisplayAppearance: Codable, Equatable, Sendable {
     var leftTextHex: String
     var rightTextHex: String
     var centerTextHex: String
+    /// 逐元素文字色（主分/盘局分），对齐安卓 wire scoreColor/secondaryScoreColor 与本地逐元素 style。
+    /// 为 nil 时回落旧扁平 leftTextHex/rightTextHex。
+    var leftScoreHex: String? = nil
+    var rightScoreHex: String? = nil
+    var leftSecondaryHex: String? = nil
+    var rightSecondaryHex: String? = nil
+    var centerSecondaryHex: String? = nil
     /// 字号倍率，对齐安卓 DisplayStyleSnapshotV2.fontSizeMultipliers
     /// （键：mainScore/teamName/playerName/setScore/gameScore/setGameScore）。
     var fontSizeMultipliers: [String: Double]? = nil
+
+    /// 主分文字色（逐元素优先，回落扁平文字色）。
+    var leftMainTextHex: String { leftScoreHex ?? leftTextHex }
+    var rightMainTextHex: String { rightScoreHex ?? rightTextHex }
+    /// 盘/局分文字色（逐元素优先，回落扁平文字色）。
+    var leftSecondaryTextHex: String { leftSecondaryHex ?? leftTextHex }
+    var rightSecondaryTextHex: String { rightSecondaryHex ?? rightTextHex }
 }
 
 struct ScoreboardDisplayFinalScore: Codable, Equatable, Sendable {

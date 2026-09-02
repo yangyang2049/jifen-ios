@@ -73,12 +73,14 @@ struct ScoreboardNameEditorField: View {
             .padding(.trailing, 6)
             .frame(width: min(preferredWidth, proxy.size.width), height: fieldHeight)
             .background(
+                // 对齐安卓 ScoreboardNameEditField：填充/边框随主题控制色（textColor）派生，
+                // 白底主题（wrb）下传入深色控制色，避免白字白底看不见。
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white.opacity(0.15))
+                    .fill(textColor.opacity(0.15))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.white.opacity(0.6), lineWidth: 2)
+                    .stroke(textColor.opacity(0.6), lineWidth: 2)
             )
             .frame(maxWidth: .infinity, alignment: .center)
         }
@@ -146,6 +148,12 @@ struct ScoreboardTemplate: View {
     @State private var styleEditorController: ScoreboardStyleEditorController?
     private let doubleTapWindow: TimeInterval = 0.24
     private var scoringEnabled: Bool { config.scoringEnabledProvider?() ?? true }
+
+    /// 双击减分 / 防误触清单按 ScoreCore 精确类型判定：`config.gameType` 是粗粒度
+    /// 目录类型（不区分单双打），这里结合双打态解析出精确类型。
+    private var exactScoreCoreGameType: ScoreCore.GameType? {
+        config.gameType.scoreCoreGameType(isSingles: config.isDoublesModeProvider?() != true)
+    }
 
     private var isStyleEditing: Bool { styleEditorController?.isEditing == true }
 
@@ -479,7 +487,6 @@ struct ScoreboardTemplate: View {
                             || config.gameType == .basketball
                             || config.gameType == .simpleScore,
                         showExchangeSide: true,
-                        styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
                         showSettleMatch: config.showSettleMatch,
                         resetConfirming: menuConfirm.resetConfirming,
                         exchangeConfirming: menuConfirm.exchangeConfirming,
@@ -785,7 +792,9 @@ struct ScoreboardTemplate: View {
                 if pendingTapSide == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
                     pendingTapSide = nil
                     tapGeneration += 1
-                    if appearance.doubleTapSubtract {
+                    // 对齐安卓：仅支持清单内的项目才双击减分，其余项目双击等价于两次加分。
+                    if appearance.doubleTapSubtract,
+                       exactScoreCoreGameType.map(ScoreboardUsageHintHelper.supportsDoubleTapSubtract) == true {
                         config.viewModel.subtractScore(isLeft: isLeft, points: 1)
                     } else {
                         config.viewModel.addScore(isLeft: isLeft, points: 2)
@@ -902,13 +911,12 @@ struct ScoreboardTemplate: View {
     }
 
     private func isScoreTouchAllowed(location: CGPoint, panelSize: CGSize) -> Bool {
-        guard appearance.touchGuard else { return true }
-        return CGRect(
-            x: panelSize.width * 0.2,
-            y: panelSize.height * 0.2,
-            width: panelSize.width * 0.6,
-            height: panelSize.height * 0.6
-        ).contains(location)
+        ScoreboardTouchGuard.isAllowed(
+            location: location,
+            panelSize: panelSize,
+            gameType: exactScoreCoreGameType,
+            enabled: appearance.touchGuard
+        )
     }
 
     private func applyScreenAwakePreference() {
@@ -1226,10 +1234,12 @@ struct TeamSection: View {
             .padding(.leading, 10)
             .padding(.trailing, 6)
             .frame(maxWidth: nameEditMaxWidth, minHeight: nameEditHeight, maxHeight: nameEditHeight)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.15)))
+            // 对齐安卓 ScoreboardNameEditField：填充/边框用主题控制色，
+            // 白底主题（wrb）下避免白框白底看不见。
+            .background(RoundedRectangle(cornerRadius: 8).fill(palette.control.opacity(0.15)))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.white.opacity(0.6), lineWidth: 2)
+                    .stroke(palette.control.opacity(0.6), lineWidth: 2)
             )
             .frame(maxWidth: .infinity)
             .padding(.horizontal, nameEditSideInset)

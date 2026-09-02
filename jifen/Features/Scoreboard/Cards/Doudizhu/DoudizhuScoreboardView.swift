@@ -873,24 +873,14 @@ struct DoudizhuScoreboardView: View {
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: false,
-            showWhistle: true,
+            // 对齐安卓 DoudizhuScoreScreen：菜单无哨子项。
+            showWhistle: false,
             showScreenshot: true,
             showDisplaySettings: true,
-            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
             showSettleMatch: true,
             resetConfirming: menuConfirm.resetConfirming,
             finishConfirming: menuConfirm.finishConfirming,
-            settleConfirming: menuConfirm.settleConfirming,
-            extraItems: [
-                ScoreboardMenuItem(
-                    title: NSLocalizedString("exit", value: "退出", comment: "Exit"),
-                    action: "exit",
-                    group: .match,
-                    icon: "rectangle.portrait.and.arrow.right",
-                    keepDialogOpen: true,
-                    confirming: menuConfirm.exitConfirming
-                )
-            ]
+            settleConfirming: menuConfirm.settleConfirming
         ).map { item in
             if item.action == "undo" {
                 return ScoreboardMenuItem(
@@ -919,8 +909,6 @@ struct DoudizhuScoreboardView: View {
             confirmSettle()
         case "reset":
             confirmReset()
-        case "exit":
-            handleExitAttempt(fromMenu: true)
         case "displaySettings":
             showMenu = false
             // 白名单项目打开新样式编辑器（对齐安卓 useStyleEditLabel 分叉）。

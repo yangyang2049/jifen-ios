@@ -31,6 +31,10 @@ struct BasketballScoreboardView: View {
     @State private var editRightName = ""
     @State private var editLeftScore = 0
     @State private var editRightScore = 0
+    @State private var editLeftFouls = 0
+    @State private var editRightFouls = 0
+    @State private var editLeftTimeouts = 0
+    @State private var editRightTimeouts = 0
     @State private var isStartingNewMatch = false
 
     init(
@@ -378,6 +382,8 @@ struct BasketballScoreboardView: View {
             BasketballEditTeamPanel(
                 name: isScreenLeft ? $editLeftName : $editRightName,
                 score: isScreenLeft ? $editLeftScore : $editRightScore,
+                fouls: isScreenLeft ? $editLeftFouls : $editRightFouls,
+                timeouts: isScreenLeft ? $editLeftTimeouts : $editRightTimeouts,
                 color: color,
                 typography: typographyPreference,
                 panelSize: panelSize
@@ -426,6 +432,10 @@ struct BasketballScoreboardView: View {
         editRightName = displayName(for: .right)
         editLeftScore = displayScore(for: .left)
         editRightScore = displayScore(for: .right)
+        editLeftFouls = displayFouls(for: .left)
+        editRightFouls = displayFouls(for: .right)
+        editLeftTimeouts = displayTimeouts(for: .left)
+        editRightTimeouts = displayTimeouts(for: .right)
         if store.state.gameRunning {
             store.send(.setClockRunning(false), recordsUndo: false)
         }
@@ -436,11 +446,11 @@ struct BasketballScoreboardView: View {
 
     private func commitBasketballEdits() {
         guard isEditMode else { return }
-        let edits: [(MatchSide, String, Int)] = [
-            (.left, editLeftName, editLeftScore),
-            (.right, editRightName, editRightScore),
+        let edits: [(MatchSide, String, Int, Int, Int)] = [
+            (.left, editLeftName, editLeftScore, editLeftFouls, editLeftTimeouts),
+            (.right, editRightName, editRightScore, editRightFouls, editRightTimeouts),
         ]
-        for (screenSide, proposedName, proposedScore) in edits {
+        for (screenSide, proposedName, proposedScore, proposedFouls, proposedTimeouts) in edits {
             let logical = logicalSide(forScreen: screenSide)
             let trimmed = proposedName.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmed.isEmpty, trimmed != displayName(for: screenSide) {
@@ -449,6 +459,23 @@ struct BasketballScoreboardView: View {
             let delta = max(0, proposedScore) - displayScore(for: screenSide)
             if delta != 0 {
                 store.send(.adjustScore(side: logical, delta: delta))
+            }
+            // 对齐安卓编辑模式：犯规/暂停为原始意图修正，不扰动比赛时钟。
+            let foulDelta = max(0, proposedFouls) - displayFouls(for: screenSide)
+            if foulDelta != 0 {
+                if foulDelta > 0 {
+                    for _ in 0..<foulDelta {
+                        store.addFoul(logical, stopClocks: false)
+                    }
+                } else {
+                    for _ in 0..<(-foulDelta) {
+                        store.send(.removeFoul(side: logical))
+                    }
+                }
+            }
+            let timeoutDelta = max(0, proposedTimeouts) - displayTimeouts(for: screenSide)
+            if timeoutDelta != 0 {
+                store.send(.adjustTimeout(side: logical, delta: timeoutDelta))
             }
         }
         isEditMode = false
@@ -719,6 +746,8 @@ struct BasketballScoreboardView: View {
 private struct BasketballEditTeamPanel: View {
     @Binding var name: String
     @Binding var score: Int
+    @Binding var fouls: Int
+    @Binding var timeouts: Int
     let color: Color
     let typography: ScoreboardTypographyPreference
     let panelSize: CGSize
@@ -743,7 +772,7 @@ private struct BasketballEditTeamPanel: View {
         ZStack {
             color
 
-            VStack(spacing: 24) {
+            VStack(spacing: 18) {
                 ScoreboardNameEditorField(
                     placeholder: NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
                     text: $name,
@@ -769,9 +798,67 @@ private struct BasketballEditTeamPanel: View {
                         score = min(999, score + 1)
                     }
                 }
+
+                // 对齐安卓 BasketballScoreRouteScreen 编辑模式：底部「犯规/暂停」±调整行。
+                HStack(spacing: 12) {
+                    metricAdjust(
+                        label: NSLocalizedString("basketball_fouls", value: "犯规", comment: ""),
+                        value: fouls,
+                        minusEnabled: fouls > 0
+                    ) { fouls = max(0, fouls - 1) } plus: { fouls = min(99, fouls + 1) }
+                        .frame(maxWidth: .infinity)
+                    metricAdjust(
+                        label: NSLocalizedString("basketball_timeout", value: "暂停", comment: ""),
+                        value: timeouts,
+                        minusEnabled: timeouts > 0
+                    ) { timeouts = max(0, timeouts - 1) } plus: { timeouts = min(99, timeouts + 1) }
+                        .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, 4)
+                .padding(.bottom, 10)
             }
             .foregroundStyle(.white)
             .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelSize.height))
+        }
+    }
+
+    /// 对齐安卓 BasketballEditMetricAdjust：标签 + 小号 ±调整行（值 22pt）。
+    private func metricAdjust(
+        label: String,
+        value: Int,
+        minusEnabled: Bool,
+        minus: @escaping () -> Void,
+        plus: @escaping () -> Void
+    ) -> some View {
+        VStack(spacing: 2) {
+            Text(label)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.white.opacity(0.9))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            HStack(spacing: 4) {
+                Button(action: minus) {
+                    Image(systemName: "minus")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(minusEnabled ? .white.opacity(0.8) : .white.opacity(0.3))
+                        .frame(width: 38, height: 38)
+                        .background(Circle().fill(Color.white.opacity(0.1)))
+                }
+                .buttonStyle(.plain)
+                .disabled(!minusEnabled)
+                Text("\(value)")
+                    .font(.system(size: 22, weight: .semibold))
+                    .monospacedDigit()
+                    .frame(minWidth: 34)
+                Button(action: plus) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .frame(width: 38, height: 38)
+                        .background(Circle().fill(Color.white.opacity(0.1)))
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 

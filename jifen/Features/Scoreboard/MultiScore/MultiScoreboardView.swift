@@ -546,19 +546,23 @@ struct MultiScoreboardView: View {
         var items = ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: false,
-            showWhistle: true,
+            // 对齐安卓 MultiScoreScreen：UNO/多分数板菜单无哨子项。
+            showWhistle: false,
             showScreenshot: true,
             showDisplaySettings: true,
-            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
-            showSettleMatch: true,
+            // 对齐安卓 showSettleMatchOption = !isUno：UNO 无结算项。
+            showSettleMatch: gameType != .uno,
             resetConfirming: menuConfirm.resetConfirming,
             finishConfirming: menuConfirm.finishConfirming,
             settleConfirming: menuConfirm.settleConfirming
         )
         // 旋转方向与结算同属“赛后操作”一类，放在「结束比赛」之后（orderedMatchItems 会把结算置底）。
+        // 对齐安卓 ScoreboardMenuDialog：文案显示目标状态（当前横屏 → 竖屏，当前竖屏 → 横屏）。
         items.append(
             ScoreboardMenuItem(
-                title: NSLocalizedString("scoreboard_rotate_orientation", value: "旋转方向", comment: ""),
+                title: useLandscapeLayout
+                    ? NSLocalizedString("multi_score_portrait", value: "竖屏", comment: "")
+                    : NSLocalizedString("multi_score_landscape", value: "横屏", comment: ""),
                 action: "layout",
                 group: .match,
                 icon: "rotate.left"

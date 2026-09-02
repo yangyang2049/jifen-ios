@@ -3,6 +3,45 @@ import Observation
 import ScoreCore
 import SwiftUI
 
+/// 对齐安卓 ScoreboardUsageHintHelper：双击减分的支持项目清单与提示文案选择。
+enum ScoreboardUsageHintHelper {
+    static func supportsDoubleTapSubtract(_ gameType: ScoreCore.GameType) -> Bool {
+        switch gameType {
+        case .pingpong, .pingpongDoubles,
+             .badminton, .badmintonDoubles,
+             .volleyball, .beachVolleyball, .airVolleyball,
+             .pickleball, .pickleballDoubles,
+             .tennis, .tennisDoubles,
+             .football, .football5v5,
+             .foosball, .foosballDoubles,
+             .billiards, .eightBall,
+             .simpleScore, .multiScoreboard:
+            return true
+        default:
+            return false
+        }
+    }
+
+    static func doubleTapHintLocalizationKey(_ gameType: ScoreCore.GameType) -> String {
+        switch gameType {
+        case .eightBall: "scoreboard_usage_hint_double_tap_rack"
+        case .multiScoreboard: "scoreboard_usage_hint_double_tap_player"
+        default: "scoreboard_usage_hint_double_tap_point"
+        }
+    }
+
+    /// 对齐安卓：斗地主/掼蛋/升级/UNO/多分数板屏固定传 touchGuardEnabled=false，
+    /// 不启用防误触，使用说明中也不出现防误触行。
+    static func disablesTouchGuard(_ gameType: ScoreCore.GameType) -> Bool {
+        switch gameType {
+        case .doudizhu, .guandan, .shengji, .uno, .multiScoreboard:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 struct ScoreboardUsageHintDescriptor: Equatable, Hashable, Identifiable {
     let gameType: ScoreCore.GameType
 
@@ -54,6 +93,31 @@ struct ScoreboardUsageHintDescriptor: Equatable, Hashable, Identifiable {
 
     var localizedMessage: String {
         NSLocalizedString(localizationKey, comment: "Scoreboard-specific usage instructions")
+    }
+
+    /// 对齐安卓 ScoreboardUsageHintHelper.scoreboardUsageHintResIds：
+    /// 基础说明 + （双击减分开启且该项目支持时）双击说明 + （防误触开启时）防误触说明。
+    var hintLineLocalizationKeys: [String] {
+        var keys = [localizationKey]
+        let preferences = PreferencesManager.shared
+        if preferences.scoreboardDoubleTapSubtractEnabled,
+           ScoreboardUsageHintHelper.supportsDoubleTapSubtract(gameType) {
+            keys.append(ScoreboardUsageHintHelper.doubleTapHintLocalizationKey(gameType))
+        }
+        if preferences.scoreboardTouchGuardEnabled,
+           !ScoreboardUsageHintHelper.disablesTouchGuard(gameType) {
+            keys.append("scoreboard_usage_hint_touch_guard")
+        }
+        return keys
+    }
+
+    var hintLines: [String] {
+        // 对齐安卓：每条资源按 \n 拆分为独立行，空行过滤。
+        hintLineLocalizationKeys
+            .map { NSLocalizedString($0, comment: "Scoreboard-specific usage instructions") }
+            .flatMap { $0.components(separatedBy: "\n") }
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
     }
 
     static func resolve(
@@ -273,22 +337,28 @@ struct ScoreboardUsageHintDialog: View {
                     .foregroundStyle(Theme.scoreboardDialogTextPrimary)
                     .frame(maxWidth: .infinity)
 
-                    // 短说明按内容收缩高度，只有长说明才撑到 maximumBodyHeight 出现滚动。
+                    // 对齐安卓 ScoreboardUsageHintDialog：每条说明独立成行（含动态追加的
+                    // 双击减分/防误触说明），短说明按内容收缩高度，只有长说明才撑到
+                    // maximumBodyHeight 出现滚动。
                     ScrollView {
-                        Text(descriptor.localizedMessage)
-                            .font(.system(size: metrics.bodyFontSize))
-                            .lineSpacing(metrics.bodyLineSpacing)
-                            .foregroundStyle(Theme.scoreboardDialogTextPrimary.opacity(0.86))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(
-                                GeometryReader { textGeometry in
-                                    Color.clear.preference(
-                                        key: ScoreboardUsageHintBodyHeightKey.self,
-                                        value: textGeometry.size.height
-                                    )
-                                }
-                            )
-                            .accessibilityIdentifier("scoreboard_usage_hint_body")
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(Array(descriptor.hintLines.enumerated()), id: \.offset) { _, line in
+                                Text(line)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        .font(.system(size: metrics.bodyFontSize))
+                        .lineSpacing(metrics.bodyLineSpacing)
+                        .foregroundStyle(Theme.scoreboardDialogTextPrimary.opacity(0.86))
+                        .background(
+                            GeometryReader { textGeometry in
+                                Color.clear.preference(
+                                    key: ScoreboardUsageHintBodyHeightKey.self,
+                                    value: textGeometry.size.height
+                                )
+                            }
+                        )
+                        .accessibilityIdentifier("scoreboard_usage_hint_body")
                     }
                     .scrollIndicators(.automatic)
                     .frame(height: bodyTextHeight > 0 ? min(bodyTextHeight, maximumBodyHeight) : maximumBodyHeight)

@@ -125,6 +125,9 @@ struct RallyScoreboardView: View {
     @State private var officialBreakSession = OfficialBreakSession()
     @State private var showPingPongPauseDialog = false
     @State private var showPingPongCardsDialog = false
+    @State private var pendingTapSide: MatchSide?
+    @State private var pendingTapAt: Date = .distantPast
+    @State private var tapGeneration = 0
 
     init(
         leftName: String,
@@ -178,6 +181,65 @@ struct RallyScoreboardView: View {
         _typographySession = State(initialValue: ScoreboardTypographySession(
             styleID: ScoreboardStyleID(scoreCoreGameType: self.gameType)
         ))
+    }
+
+    private let doubleTapWindow: TimeInterval = 0.24
+
+    /// 对齐安卓 S1DualSideScoreRouteScreen：只有「单击 = 1 分」的 Rally 项目才把双击映射成减 1 分，
+    /// 其余项目双击等价于两次加分。判定复用使用说明的双击减分清单（两者在 Rally 承载的项目上一致）。
+    private var onePointDoubleTapEnabled: Bool {
+        appearance.doubleTapSubtract
+            && !scoringLocked
+            && ScoreboardUsageHintHelper.supportsDoubleTapSubtract(gameType)
+    }
+
+    private func commitPointWon(_ side: MatchSide) {
+        guard !isEditMode, !store.state.finished else { return }
+        handlePointWon(side)
+    }
+
+    /// 对齐安卓 ScoreboardDoubleTapSubtractHandler：挂起窗口内同侧第二次点击 = 减 1 分，
+    /// 异侧点击则先把挂起的这一次结算掉，再为新的半区重新挂起。
+    private func handlePanelTap(_ side: MatchSide) {
+        guard !isEditMode, !store.state.finished else { return }
+        guard onePointDoubleTapEnabled else {
+            cancelPendingTap()
+            handlePointWon(side)
+            return
+        }
+        let now = Date()
+        if let pendingSide = pendingTapSide {
+            if pendingSide == side, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
+                cancelPendingTap()
+                dispatch(.adjustPoints(side: side, delta: -1))
+                return
+            }
+            cancelPendingTap()
+            handlePointWon(pendingSide)
+        }
+        pendingTapSide = side
+        pendingTapAt = now
+        tapGeneration += 1
+        let generation = tapGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
+            guard generation == tapGeneration, pendingTapSide == side else { return }
+            pendingTapSide = nil
+            commitPointWon(side)
+        }
+    }
+
+    private func cancelPendingTap() {
+        tapGeneration += 1
+        pendingTapSide = nil
+    }
+
+    private func isScoreTouchAllowed(location: CGPoint, panelSize: CGSize) -> Bool {
+        ScoreboardTouchGuard.isAllowed(
+            location: location,
+            panelSize: panelSize,
+            gameType: gameType,
+            enabled: appearance.touchGuard
+        )
     }
 
     private var isDoubles: Bool { store.state.doubles != nil }
@@ -400,8 +462,11 @@ struct RallyScoreboardView: View {
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current(styleID: ScoreboardStyleID(scoreCoreGameType: gameType))
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            // 对齐安卓 LaunchedEffect(onePointDoubleTapEnabled)：开关关掉时立刻丢掉挂起的单击。
+            if !onePointDoubleTapEnabled { cancelPendingTap() }
             revealImmersiveChrome()
         }
+        .onChange(of: onePointDoubleTapEnabled) { _, _ in cancelPendingTap() }
         .onChange(of: store.state) { _, state in
             if terminalSetPresentation == nil {
                 publishCurrentRallyState()
@@ -594,18 +659,23 @@ struct RallyScoreboardView: View {
         .foregroundStyle(textColor)
         .frame(width: size.width, height: size.height)
         .contentShape(Rectangle())
-        .onTapGesture {
-            guard !isEditMode, !store.state.finished else { return }
-            handlePointWon(side)
-        }
         .gesture(
+            SpatialTapGesture(count: 1)
+                .onEnded { value in
+                    guard isScoreTouchAllowed(location: value.location, panelSize: size) else { return }
+                    handlePanelTap(side)
+                }
+        )
+        .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
                     guard !isEditMode else { return }
+                    cancelPendingTap()
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
                     } else if value.translation.height < -50 && abs(value.translation.width) < 50 {
-                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）。
+                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）；
+                        // 滑动与点击互斥，先清掉挂起的单击再立即结算。
                         guard !store.state.finished else { return }
                         handlePointWon(side)
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
@@ -694,6 +764,7 @@ struct RallyScoreboardView: View {
                 text: isLeft ? $editLeftName : $editRightName,
                 nameType: primaryNameType,
                 scoreboardFont: typographyPreference.font,
+                textColor: palette.control,
                 onSubmit: commitSinglesNamesIfNeeded,
                 onSelection: { _ in commitSinglesNamesIfNeeded() },
                 accessibilityIdentifier: isLeft
@@ -748,18 +819,23 @@ struct RallyScoreboardView: View {
         .foregroundStyle(textColor)
         .frame(width: size.width, height: size.height)
         .contentShape(Rectangle())
-        .onTapGesture {
-            guard !isEditMode, !store.state.finished else { return }
-            handlePointWon(side)
-        }
         .gesture(
+            SpatialTapGesture(count: 1)
+                .onEnded { value in
+                    guard isScoreTouchAllowed(location: value.location, panelSize: size) else { return }
+                    handlePanelTap(side)
+                }
+        )
+        .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
                     guard !isEditMode else { return }
+                    cancelPendingTap()
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
                     } else if value.translation.height < -50 && abs(value.translation.width) < 50 {
-                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）。
+                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）；
+                        // 滑动与点击互斥，先清掉挂起的单击再立即结算。
                         guard !store.state.finished else { return }
                         handlePointWon(side)
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
@@ -844,6 +920,7 @@ struct RallyScoreboardView: View {
             ),
             nameType: .player,
             scoreboardFont: typographyPreference.font,
+            textColor: palette.control,
             accessibilityIdentifier: "foosball_doubles_player_\(slot)_editor"
         )
     }
@@ -942,18 +1019,23 @@ struct RallyScoreboardView: View {
         .foregroundStyle(textColor)
         .frame(width: size.width, height: size.height)
         .contentShape(Rectangle())
-        .onTapGesture {
-            guard !isEditMode, !store.state.finished else { return }
-            handlePointWon(side)
-        }
         .gesture(
+            SpatialTapGesture(count: 1)
+                .onEnded { value in
+                    guard isScoreTouchAllowed(location: value.location, panelSize: size) else { return }
+                    handlePanelTap(side)
+                }
+        )
+        .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
                     guard !isEditMode else { return }
+                    cancelPendingTap()
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
                     } else if value.translation.height < -50 && abs(value.translation.width) < 50 {
-                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）。
+                        // 对齐安卓上滑加分（scoreboardPanelSwipeGestures onAdd）；
+                        // 滑动与点击互斥，先清掉挂起的单击再立即结算。
                         guard !store.state.finished else { return }
                         handlePointWon(side)
                     } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
@@ -1119,6 +1201,7 @@ struct RallyScoreboardView: View {
                     ),
                     nameType: .player,
                     scoreboardFont: typographyPreference.font,
+                    textColor: palette.control,
                     accessibilityIdentifier: "rally_doubles_player_\(slot)_editor"
                 )
             } else {
@@ -1222,7 +1305,8 @@ struct RallyScoreboardView: View {
                 .font(.system(size: Swift.min(20, size * 0.4), weight: .bold))
                 .foregroundStyle(enabled ? palette.foreground.opacity(0.75) : palette.foreground.opacity(0.3))
                 .frame(width: size, height: size)
-                .background(Circle().fill(Color.white.opacity(0.08)))
+                // 对齐安卓 ScoreEditAdjustRows：按钮底色用主题控制色（白底主题为深色）。
+                .background(Circle().fill(palette.control.opacity(0.12)))
         }
         .disabled(!enabled)
         .buttonStyle(.plain)
@@ -1422,6 +1506,13 @@ struct RallyScoreboardView: View {
         }
     }
 
+    /// 对齐安卓 S1DualSideScoreRouteScreen.supportsMatchTime：Rally 类项目中仅
+    /// 乒乓球单打/毽球/壁球/排球/沙滩排球/气排球提供"显示/隐藏比赛时间"菜单项。
+    private static func supportsMatchClockToggle(_ gameType: GameType) -> Bool {
+        [.pingpong, .shuttlecock, .squash, .volleyball, .beachVolleyball, .airVolleyball]
+            .contains(gameType)
+    }
+
     private var menuItems: [ScoreboardMenuItem] {
         var extras: [ScoreboardMenuItem] = []
         extras.append(contentsOf: WatchLinkMenuSupport.extraItems(
@@ -1443,6 +1534,22 @@ struct RallyScoreboardView: View {
                 )
             )
         }
+        // 对齐安卓 S1DualSideScoreRouteScreen supportsMatchTime：乒乓球(单打)/毽球/壁球/三种排球
+        // 的"显示/隐藏比赛时间"菜单项（双打不支持，与安卓一致）。
+        if Self.supportsMatchClockToggle(appGameType) {
+            let visible = matchClockSession?.isVisible ?? store.showMatchTimeEnabled
+            extras.append(
+                ScoreboardMenuItem(
+                    title: visible
+                        ? NSLocalizedString("hide_match_time", value: "隐藏时间", comment: "")
+                        : NSLocalizedString("show_match_time", value: "显示时间", comment: ""),
+                    action: "toggleMatchTime",
+                    group: .tools,
+                    icon: "clock",
+                    keepDialogOpen: true
+                )
+            )
+        }
         if [.pingpong, .pingpongDoubles].contains(gameType) {
             extras.append(contentsOf: pingPongAdministrativeMenuItems)
         }
@@ -1452,7 +1559,6 @@ struct RallyScoreboardView: View {
             showWhistle: true,
             showScreenshot: true,
             showDisplaySettings: true,
-            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
             showSettleMatch: gameType == .foosball || gameType == .foosballDoubles,
             resetConfirming: menuConfirm.resetConfirming,
             exchangeConfirming: menuConfirm.exchangeConfirming,
@@ -1531,6 +1637,10 @@ struct RallyScoreboardView: View {
             showPingPongPauseDialog = true
         case "pingpongCards":
             showPingPongCardsDialog = true
+        case "toggleMatchTime":
+            guard let session = matchClockSession else { break }
+            session.isVisible.toggle()
+            PreferencesManager.shared.setScoreboardMatchTimeVisible(session.isVisible, for: appGameType)
         case "resync":
             watchLinkService.requestScoreResync()
             showMenu = false

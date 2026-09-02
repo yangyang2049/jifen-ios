@@ -84,6 +84,19 @@ struct TennisScoreboardView: View {
     @State private var didSpeakOpeningAnnouncement = false
     @State private var openingAnnouncementTask: Task<Void, Never>?
     @State private var officialBreakSession = OfficialBreakSession()
+    @State private var pendingTapSide: MatchSide?
+    @State private var pendingTapAt: Date = .distantPast
+    @State private var tapGeneration = 0
+
+    private let doubleTapWindow: TimeInterval = 0.24
+
+    /// 对齐安卓 TennisScoreScreen：网球/网球双打走 240ms 挂起窗口，双击 = 减 1 分；
+    /// 软式网球与板网球不在清单内，双击等价于两次加分。
+    private var onePointDoubleTapEnabled: Bool {
+        appearance.doubleTapSubtract
+            && !scoringLocked
+            && ScoreboardUsageHintHelper.supportsDoubleTapSubtract(store.gameType)
+    }
 
     init(
         onNavigationBack: (() -> Void)? = nil,
@@ -426,9 +439,12 @@ struct TennisScoreboardView: View {
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current(styleID: ScoreboardStyleID(scoreCoreGameType: store.gameType))
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            // 对齐安卓 LaunchedEffect(onePointDoubleTapEnabled)：开关关掉时立刻丢掉挂起的单击。
+            if !onePointDoubleTapEnabled { cancelPendingTap() }
             revealImmersiveChrome()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
+        .onChange(of: onePointDoubleTapEnabled) { _, _ in cancelPendingTap() }
         .onChange(of: store.state) { _, state in
             if terminalGamePresentation == nil {
                 publishCurrentTennisState()
@@ -596,16 +612,14 @@ struct TennisScoreboardView: View {
         .foregroundStyle(textColor)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
-        .onTapGesture {
-            guard !isEditMode, !store.state.finished, !scoringLocked else { return }
-            handlePointWon(side)
-        }
-        .onTapGesture(count: 2) {
-            guard !isEditMode, !store.state.finished,
-                  appearance.doubleTapSubtract, !scoringLocked else { return }
-            dispatch(.adjustPoints(side: side, delta: -1))
-        }
-        .gesture(scoreboardDragGesture(for: side))
+        .gesture(
+            SpatialTapGesture(count: 1)
+                .onEnded { value in
+                    guard isScoreTouchAllowed(location: value.location, panelSize: size) else { return }
+                    handlePanelTap(side)
+                }
+        )
+        .simultaneousGesture(scoreboardDragGesture(for: side))
     }
 
     private func tennisSinglesPlayContent(
@@ -778,16 +792,14 @@ struct TennisScoreboardView: View {
         .foregroundStyle(textColor)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
-        .onTapGesture {
-            guard !isEditMode, !store.state.finished, !scoringLocked else { return }
-            handlePointWon(side)
-        }
-        .onTapGesture(count: 2) {
-            guard !isEditMode, !store.state.finished,
-                  appearance.doubleTapSubtract, !scoringLocked else { return }
-            dispatch(.adjustPoints(side: side, delta: -1))
-        }
-        .gesture(scoreboardDragGesture(for: side))
+        .gesture(
+            SpatialTapGesture(count: 1)
+                .onEnded { value in
+                    guard isScoreTouchAllowed(location: value.location, panelSize: size) else { return }
+                    handlePanelTap(side)
+                }
+        )
+        .simultaneousGesture(scoreboardDragGesture(for: side))
     }
 
     private func tennisDoublesEditContent(
@@ -906,6 +918,7 @@ struct TennisScoreboardView: View {
             text: side == .left ? $editLeftName : $editRightName,
             nameType: ScoreboardCommonNamePolicy.nameType(for: .tennis),
             scoreboardFont: typographyPreference.font,
+            textColor: appearance.palette.control,
             accessibilityIdentifier: side == .left
                 ? "tennis_left_name_edit"
                 : "tennis_right_name_edit"
@@ -932,6 +945,7 @@ struct TennisScoreboardView: View {
             ),
             nameType: .player,
             scoreboardFont: typographyPreference.font,
+            textColor: appearance.palette.control,
             accessibilityIdentifier: "tennis_doubles_player_\(slot)_edit"
         )
     }
@@ -1413,6 +1427,55 @@ struct TennisScoreboardView: View {
         // 网球双打无位置轮转（发球人整个发球局固定，局间才换），得分时不闪烁。
     }
 
+    private func commitPointWon(_ side: MatchSide) {
+        guard !isEditMode, !store.state.finished else { return }
+        handlePointWon(side)
+    }
+
+    /// 对齐安卓 ScoreboardDoubleTapSubtractHandler：挂起窗口内同侧第二次点击 = 减 1 分，
+    /// 异侧点击则先把挂起的这一次结算掉，再为新的半区重新挂起。
+    private func handlePanelTap(_ side: MatchSide) {
+        guard !isEditMode, !store.state.finished else { return }
+        guard onePointDoubleTapEnabled else {
+            cancelPendingTap()
+            handlePointWon(side)
+            return
+        }
+        let now = Date()
+        if let pendingSide = pendingTapSide {
+            if pendingSide == side, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
+                cancelPendingTap()
+                dispatch(.adjustPoints(side: side, delta: -1))
+                return
+            }
+            cancelPendingTap()
+            handlePointWon(pendingSide)
+        }
+        pendingTapSide = side
+        pendingTapAt = now
+        tapGeneration += 1
+        let generation = tapGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
+            guard generation == tapGeneration, pendingTapSide == side else { return }
+            pendingTapSide = nil
+            commitPointWon(side)
+        }
+    }
+
+    private func cancelPendingTap() {
+        tapGeneration += 1
+        pendingTapSide = nil
+    }
+
+    private func isScoreTouchAllowed(location: CGPoint, panelSize: CGSize) -> Bool {
+        ScoreboardTouchGuard.isAllowed(
+            location: location,
+            panelSize: panelSize,
+            gameType: store.gameType,
+            enabled: appearance.touchGuard
+        )
+    }
+
     private func runDoublesFlash(slots: Set<Int>) {
         flashTask?.cancel()
         flashTask = Task { @MainActor in
@@ -1436,6 +1499,8 @@ struct TennisScoreboardView: View {
         DragGesture(minimumDistance: 50)
             .onEnded { value in
                 guard !isEditMode, !scoringLocked else { return }
+                // 滑动与点击互斥，先清掉挂起的单击再结算。
+                cancelPendingTap()
                 if value.translation.width < -50,
                    abs(value.translation.height) < 50 {
                     performUndo()
@@ -1782,7 +1847,6 @@ struct TennisScoreboardView: View {
         ), at: 0)
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
-            styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
             resetConfirming: menuConfirm.resetConfirming,
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,

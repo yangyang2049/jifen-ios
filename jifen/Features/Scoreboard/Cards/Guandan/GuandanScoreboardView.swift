@@ -495,6 +495,11 @@ struct GuandanScoreboardView: View {
                         send(.adjustRank(side: side, delta: -1))
                     }
                 },
+                extraMenuItems: guandanMatchClockMenuItems,
+                onMenuAction: { action in
+                    guard action == "toggleMatchTime" else { return }
+                    toggleMatchClockVisibility()
+                },
                 seamOverlay: state.lastRoundWinner == nil ? nil : { indicatorColor in
                     AnyView(
                         GeometryReader { geo in
@@ -795,6 +800,29 @@ struct GuandanScoreboardView: View {
             visible = restored
         }
         matchClockSession.bind(startedAt: gameStartAt, isVisible: visible)
+    }
+
+    /// 对齐安卓 GuandanScoreboardScreen 的 toggleMatchTime 菜单项。
+    private var guandanMatchClockMenuItems: [ScoreboardMenuItem] {
+        let visible = matchClockSession?.isVisible
+            ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: .guandan)
+        return [
+            ScoreboardMenuItem(
+                title: visible
+                    ? NSLocalizedString("hide_match_time", value: "隐藏时间", comment: "")
+                    : NSLocalizedString("show_match_time", value: "显示时间", comment: ""),
+                action: "toggleMatchTime",
+                group: .tools,
+                icon: "clock",
+                keepDialogOpen: true
+            )
+        ]
+    }
+
+    private func toggleMatchClockVisibility() {
+        guard let session = matchClockSession else { return }
+        session.isVisible.toggle()
+        PreferencesManager.shared.setScoreboardMatchTimeVisible(session.isVisible, for: .guandan)
     }
 
     private func finishMatch() {

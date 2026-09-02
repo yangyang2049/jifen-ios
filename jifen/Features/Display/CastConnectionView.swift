@@ -238,6 +238,19 @@ struct CastConnectionView: View {
                     Spacer(minLength: 0)
                 }
                 .padding(.top, 4)
+
+                if externalDisplay.status == .dedicated {
+                    Text(NSLocalizedString(
+                        "cast_display_stop_hint",
+                        value: "如需结束投屏，请在系统控制中心断开连接。",
+                        comment: ""
+                    ))
+                    .font(.system(size: 12))
+                    .lineSpacing(3)
+                    .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
         .padding(20)

@@ -14,8 +14,35 @@ extension ScoreboardDisplayAppearance {
             centerPanelHex: "#\(profile.centerHex)",
             leftTextHex: "#\(profile.resolvedTextHex(for: .team0))",
             rightTextHex: "#\(profile.resolvedTextHex(for: .team1))",
-            centerTextHex: "#\(profile.resolvedTextHex(for: .center))"
+            centerTextHex: "#\(profile.resolvedTextHex(for: .center))",
+            leftScoreHex: ScoreboardDisplayAppearance.resolvedMainHex(profile, .sideLeft),
+            rightScoreHex: ScoreboardDisplayAppearance.resolvedMainHex(profile, .sideRight),
+            leftSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideLeft),
+            rightSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideRight),
+            centerSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideCenter)
         )
+    }
+
+    /// 主分元素（mainScore）手动色优先；auto/缺失回落扁平文字色。
+    fileprivate static func resolvedMainHex(
+        _ profile: ScoreboardStyleProfileV2,
+        _ slotKey: ScoreboardStyleSlotKeyV2
+    ) -> String {
+        return "#\(profile.resolvedElementTextHex(.mainScore, slotKey: slotKey))"
+    }
+
+    /// 盘/局分元素色：setGameScore → setScore → gameScore 首个手动色优先；否则回落扁平文字色。
+    fileprivate static func resolvedSecondaryHex(
+        _ profile: ScoreboardStyleProfileV2,
+        _ slotKey: ScoreboardStyleSlotKeyV2
+    ) -> String {
+        let keys: [ScoreboardStyleElementKeyV2] = [.setGameScore, .setScore, .gameScore]
+        for key in keys {
+            if profile.elementHasManualColor(key, slotKey: slotKey) {
+                return "#\(profile.resolvedElementTextHex(key, slotKey: slotKey))"
+            }
+        }
+        return "#\(profile.resolvedTextHex(for: slotKey.legacySlot ?? .team0))"
     }
 
     /// 对齐安卓 wire 键名（ScoreboardStyleElementKey）。
@@ -109,6 +136,11 @@ extension ScoreboardDisplayState {
                 leftTextHex: "#\(profile.resolvedTextHex(for: .team0))",
                 rightTextHex: "#\(profile.resolvedTextHex(for: .team1))",
                 centerTextHex: "#\(profile.resolvedTextHex(for: .center))",
+                leftScoreHex: ScoreboardDisplayAppearance.resolvedMainHex(profile, .sideLeft),
+                rightScoreHex: ScoreboardDisplayAppearance.resolvedMainHex(profile, .sideRight),
+                leftSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideLeft),
+                rightSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideRight),
+                centerSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideCenter),
                 fontSizeMultipliers: ScoreboardDisplayAppearance.multipliers(
                     score: state.scoreMultiplier,
                     name: state.nameMultiplier,

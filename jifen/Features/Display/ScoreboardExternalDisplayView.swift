@@ -76,30 +76,68 @@ struct ScoreboardExternalDisplayRootView: View {
     }
 }
 
+/// 「投屏已就绪」等待面板（对齐安卓 CastScoreboardPresentation.ProjectionWaiting）：
+/// APP 图标 + 标题/副标题 + 日期 + 横排翻页时钟（含秒）。
 private struct ScoreboardExternalWaitingView: View {
+    private static func projectionDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "yyyy.MM.dd · EEEE"
+        return formatter.string(from: date)
+    }
+
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             GeometryReader { proxy in
                 let scale = max(0.85, min(1.8, proxy.size.width / 1280))
-                VStack(spacing: 18 * scale) {
-                    Image(systemName: "rectangle.on.rectangle.angled")
-                        .font(.system(size: 74 * scale, weight: .light))
-                        .foregroundStyle(Color(hex: "30D158"))
-                    Text(NSLocalizedString("cast_ready_title", value: "投屏已就绪", comment: ""))
-                        .font(.system(size: 42 * scale, weight: .bold))
-                    Text(NSLocalizedString("cast_ready_message", value: "请在控制端打开一个计分板", comment: ""))
-                        .font(.system(size: 24 * scale, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.68))
-                    VStack(spacing: 2) {
-                        Text(context.date.formatted(date: .omitted, time: .shortened))
-                            .font(.system(size: 58 * scale, weight: .medium, design: .monospaced))
-                        Text(context.date.formatted(date: .abbreviated, time: .omitted))
-                            .font(.system(size: 20 * scale, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.54))
+                let isLandscape = proxy.size.width > proxy.size.height
+                let horizontalPadding: CGFloat = 32 * scale
+                let availableWidth = max(proxy.size.width - horizontalPadding * 2, 1)
+                let digitPairGap: CGFloat = 6 * scale
+                let groupGap: CGFloat = 28 * scale
+                let fixedGapWidth = digitPairGap * 3 + groupGap * 2
+                let baseCardWidth: CGFloat = (isLandscape ? 148 : 96) * scale
+                let fittedCardWidth = max((availableWidth - fixedGapWidth) / 6, 40)
+                let cardWidth = min(baseCardWidth, fittedCardWidth)
+                let cardHeight = cardWidth * 1.5
+                let iconSize = min(96 * scale, 128)
+
+                VStack(spacing: 0) {
+                    Spacer()
+                    // 图标 + 标题 相对整体中心略微上移（对齐安卓 offset(y = -16*scale)）。
+                    VStack(spacing: 0) {
+                        AppLogoImage(size: iconSize)
+                        Text(NSLocalizedString("cast_ready_title", value: "投屏已就绪", comment: ""))
+                            .font(.system(size: 38 * scale, weight: .medium))
+                            .foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 12 * scale)
+                        Text(NSLocalizedString("cast_ready_message", value: "请在控制端打开一个计分板", comment: ""))
+                            .font(.system(size: 16 * scale, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.68))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24 * scale)
+                            .padding(.top, 6 * scale)
                     }
-                    .padding(.top, 18 * scale)
+                    .offset(y: -16 * scale)
+                    Text(Self.projectionDate(context.date))
+                        .font(.system(size: 16 * scale, weight: .medium))
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 72 * scale)
+                    Color.clear.frame(height: 24 * scale)
+                    // 横排翻页时钟（含时分秒，对齐安卓 FlipClockFace）。
+                    FlipClockFace(
+                        date: context.date,
+                        cardWidth: cardWidth,
+                        cardHeight: cardHeight,
+                        digitGap: digitPairGap,
+                        groupGap: groupGap,
+                        showShadow: true,
+                        hideCenterSeam: false
+                    )
+                    Spacer()
                 }
-                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(hex: "071017"))
             }
@@ -330,6 +368,10 @@ private struct DisplayTwoSideSideModel {
     var showGames: Bool
     var panelHex: String
     var textHex: String
+    /// 主分文字色（逐元素，默认回滚 textHex）。
+    var mainHex: String
+    /// 盘/局分文字色（逐元素，默认回滚 textHex）。
+    var secondaryHex: String
 }
 
 private struct DisplayTwoSideRenderModel {
@@ -357,6 +399,8 @@ private struct DisplayTwoSideRenderModel {
     // 顶部浮层（对齐安卓 SportInfoBadge / BasketballFoulStrip / 标题带）。
     var titleBandHeight: CGFloat
     var contentTopInset: CGFloat
+    /// 底部浮层预留（对齐安卓 contentBottomInset：本机投屏时面板整体上移，避免角分压在篮球时钟/追分带上）。
+    var contentBottomInset: CGFloat
     var overlaySecondaryFontSize: CGFloat
     var overlayChromeScale: CGFloat
     var floatingEdgeInset: CGFloat
@@ -416,31 +460,11 @@ struct ScoreboardExternalLiveView: View {
     private var topChrome: some View {
         GeometryReader { proxy in
             let chrome = DisplayTypographyResolver.chromeScale(for: proxy.size).clamped(1, 1.5)
-            let isTablet = min(proxy.size.width, proxy.size.height) >= 600
-            let isLarge = isTablet || chrome > 1
-            let isSnooker = state.gameType == "snooker"
-            // 标题带高度（对齐安卓 displayMatchTitleBandHeight：斯诺克跨设备端更大字号需额外留白）。
-            let titleBand: CGFloat = {
-                if isSnooker {
-                    return projection.isLocalProjection
-                        ? (isLarge ? 64 : 44) * chrome * 2
-                        : (isLarge ? 64 : 56) * chrome
-                }
-                return (isLarge ? 64 : 44) * chrome
-            }()
-            // 比赛时钟距顶（对齐安卓 matchClockTopInset = titleBand + 12*scale + 12*(scale-1)）。
-            let clockTopInset = (isSnooker ? titleBand : 0) + 12 * chrome + 12 * (chrome - 1)
+            // 比赛时钟距顶（对齐安卓 matchClockTopInset = 12*scale + 12*(scale-1)）。
+            // 顶部不再渲染项目名标题带（对齐安卓 DisplaySurfaceHost 仅在真实 matchTitle 非空时渲染，
+            // iOS 各计分板同步快照统一使用 displayName 填充 title，故一律不展示）。
+            let clockTopInset = 12 * chrome + 12 * (chrome - 1)
             ZStack(alignment: .top) {
-                if let title = state.matchTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
-                    matchTitleBadge(
-                        title: title,
-                        bandHeight: titleBand,
-                        chrome: chrome,
-                        isTablet: isTablet,
-                        isLarge: isLarge,
-                        isSnooker: isSnooker
-                    )
-                }
                 if let clock = state.clock, clock.visible {
                     ScoreboardExternalClockView(
                         clock: clock,
@@ -453,33 +477,6 @@ struct ScoreboardExternalLiveView: View {
                 }
             }
         }
-    }
-
-    /// 对齐安卓 DisplayMatchTitle：TopCenter、无底色、Medium、maxLines 1、自动缩字。
-    private func matchTitleBadge(
-        title: String,
-        bandHeight: CGFloat,
-        chrome: CGFloat,
-        isTablet: Bool,
-        isLarge: Bool,
-        isSnooker: Bool
-    ) -> some View {
-        let transmitted = state.appearance.fontSizeMultipliers?["matchTitle"] ?? 1
-        let multiplier = CGFloat(transmitted) * (isSnooker && !projection.isLocalProjection ? 1.25 : 1)
-        let baseSize: CGFloat = (isSnooker && projection.isLocalProjection)
-            ? (isLarge ? 56 : 48)
-            : (isLarge ? 24 : 18) * chrome * multiplier
-        let maxLimit: CGFloat = (isSnooker && projection.isLocalProjection) ? (isTablet ? 56 : 48) : 54
-        let maxSize = min(baseSize, maxLimit)
-        let minSize = (isLarge ? 14 : 12) * chrome
-        return Text(title)
-            .font(displayFont(size: maxSize, weight: .medium))
-            .foregroundStyle(.white)
-            .lineLimit(1)
-            .minimumScaleFactor(maxSize > 0 ? min(1, minSize / maxSize) : 1)
-            .frame(maxWidth: .infinity)
-            .frame(height: bandHeight)
-            .padding(.horizontal, (isLarge ? 64 : 32) * chrome)
     }
 
     @ViewBuilder
@@ -561,11 +558,9 @@ struct ScoreboardExternalLiveView: View {
         let baseTennisSetsFontSize = (tokens.tennisSets * secondaryMultiplier * secondaryScale).clamped(18, 160)
         let baseLabelStatFontSize = (tokens.labelStat * secondaryScale).clamped(14, 96)
 
-        let hasRemoteSnookerTitle = isSnooker && !projection.isLocalProjection && !(state.matchTitle ?? "").isEmpty
-        let baseNameScoreGap: CGFloat = hasRemoteSnookerTitle
-            ? (baseScoreFontSize * 0.12).clamped(12, 30)
-            : (baseScoreFontSize * 0.24).clamped(24, 60)
-        let baseMainScoreSecondaryGap: CGFloat = hasRemoteSnookerTitle ? 0 : (isSnooker ? 2 : 8)
+        // 顶部不再预留标题带（对齐安卓：未渲染顶部 matchTitle 时不预留 displayMatchTitleBandHeight）。
+        let baseNameScoreGap: CGFloat = (baseScoreFontSize * 0.24).clamped(24, 60)
+        let baseMainScoreSecondaryGap: CGFloat = isSnooker ? 2 : 8
 
         // 垂直预算（对齐安卓 availableHeight/verticalScale）。
         let matchTimeScale = projection.isLocalProjection
@@ -573,17 +568,8 @@ struct ScoreboardExternalLiveView: View {
             : chrome
         let chromeGap = 8 * chrome
 
-        // 标题带（对齐安卓 displayMatchTitleBandHeight：斯诺克标题带占位）。
-        let hasSnookerTitle = isSnooker && !(state.matchTitle ?? "").isEmpty
-        let titleBandHeight: CGFloat = {
-            guard hasSnookerTitle else { return 0 }
-            let isLarge = !isPhone || chrome > 1
-            return projection.isLocalProjection
-                ? (isLarge ? 64 : 44) * chrome * 2
-                : (isLarge ? 64 : 56) * chrome
-        }()
-        let matchClockTopInset = titleBandHeight + 12 * chrome + 12 * (chrome - 1)
-        var nextTopInset: CGFloat = titleBandHeight
+        let matchClockTopInset = 12 * chrome + 12 * (chrome - 1)
+        var nextTopInset: CGFloat = 0
         if state.clock?.visible == true {
             nextTopInset = matchClockTopInset + 40 * matchTimeScale + chromeGap
         }
@@ -595,7 +581,7 @@ struct ScoreboardExternalLiveView: View {
             sportInfo.text = ""
         }
         let hasSportInfo = !sportInfo.text.isEmpty || sportInfo.segments != nil || sportInfo.targetRacks != nil
-        let sportInfoTopInset = hasSportInfo ? max(nextTopInset, titleBandHeight + 12 * chrome) : 0
+        let sportInfoTopInset = hasSportInfo ? max(nextTopInset, 12 * chrome) : 0
         if hasSportInfo {
             let sportInfoHeight = max(tokens.meta * secondaryScale * 1.2, 18 * chrome) + 14 * chrome
             nextTopInset = sportInfoTopInset + sportInfoHeight + chromeGap
@@ -610,7 +596,7 @@ struct ScoreboardExternalLiveView: View {
             nextTopInset = basketballFoulTopInset + foulHeight + chromeGap
         }
 
-        let contentTopInset = projection.isLocalProjection ? nextTopInset : titleBandHeight
+        let contentTopInset = projection.isLocalProjection ? nextTopInset : 0
         // 本机投屏时为底部浮层（篮球时钟条/九球追分带）预留高度（对齐安卓 contentBottomInset）。
         let contentBottomInset: CGFloat = {
             guard projection.isLocalProjection else { return 0 }
@@ -706,8 +692,9 @@ struct ScoreboardExternalLiveView: View {
             serverShowLeft: false,
             serverShowRight: false,
             arrowSize: 0,
-            titleBandHeight: titleBandHeight,
+            titleBandHeight: 0,
             contentTopInset: contentTopInset,
+            contentBottomInset: contentBottomInset,
             overlaySecondaryFontSize: tokens.meta * secondaryScale,
             overlayChromeScale: chrome.clamped(1, 1.5),
             floatingEdgeInset: floatingEdgeInset,
@@ -776,6 +763,8 @@ struct ScoreboardExternalLiveView: View {
         let team = state.teams.first(where: { $0.id == (isLogicalTeam0 ? "team_0" : "team_1") })
         let panelHex = isLeft ? state.appearance.leftPanelHex : state.appearance.rightPanelHex
         let textHex = isLeft ? state.appearance.leftTextHex : state.appearance.rightTextHex
+        let mainHex = isLeft ? state.appearance.leftMainTextHex : state.appearance.rightMainTextHex
+        let secondaryHex = isLeft ? state.appearance.leftSecondaryTextHex : state.appearance.rightSecondaryTextHex
 
         var secondaryText = ""
         switch gameType {
@@ -837,7 +826,9 @@ struct ScoreboardExternalLiveView: View {
             showSets: showSets,
             showGames: showGames,
             panelHex: team?.color ?? panelHex,
-            textHex: textHex
+            textHex: textHex,
+            mainHex: mainHex,
+            secondaryHex: secondaryHex
         )
     }
 
@@ -1026,7 +1017,9 @@ struct ScoreboardExternalLiveView: View {
             showSets: showSets,
             showGames: showGames,
             panelHex: team?.color ?? (isLeft ? state.appearance.leftPanelHex : state.appearance.rightPanelHex),
-            textHex: isLeft ? state.appearance.leftTextHex : state.appearance.rightTextHex
+            textHex: isLeft ? state.appearance.leftTextHex : state.appearance.rightTextHex,
+            mainHex: isLeft ? state.appearance.leftMainTextHex : state.appearance.rightMainTextHex,
+            secondaryHex: isLeft ? state.appearance.leftSecondaryTextHex : state.appearance.rightSecondaryTextHex
         )
     }
 
@@ -1417,7 +1410,7 @@ private struct DisplayTwoSideSurface: View {
         let edge = EdgeInsets(
             top: model.contentTopInset,
             leading: isLeft ? edgeInset : 0,
-            bottom: 0,
+            bottom: model.contentBottomInset,
             trailing: isLeft ? 0 : edgeInset
         )
         return Group {
@@ -1446,7 +1439,7 @@ private struct DisplayTwoSideSurface: View {
             Spacer(minLength: model.nameScoreGap)
             Text(side.scoreText)
                 .font(scoreFont(size: model.scoreFontSize))
-                .foregroundStyle(Color(hex: side.textHex))
+                .foregroundStyle(Color(hex: side.mainHex))
                 .lineLimit(1)
                 .minimumScaleFactor(0.3)
             if side.showSecondary {
@@ -1456,7 +1449,7 @@ private struct DisplayTwoSideSurface: View {
                 Text(side.secondaryText.isEmpty ? "0" : side.secondaryText)
                     .font(scoreFont(size: snookerSecondaryFontSize))
                     .foregroundStyle(
-                        side.secondaryText.isEmpty ? Color.clear : Color(hex: side.textHex).opacity(0.9)
+                        side.secondaryText.isEmpty ? Color.clear : Color(hex: side.secondaryHex).opacity(0.9)
                     )
                     .lineLimit(1)
             }
@@ -1464,7 +1457,7 @@ private struct DisplayTwoSideSurface: View {
                 Spacer(minLength: (model.setsFontSize * 0.24).clamped(8, 20))
                 Text(side.setsText)
                     .font(scoreFont(size: model.setsFontSize))
-                    .foregroundStyle(Color(hex: side.textHex).opacity(0.85))
+                    .foregroundStyle(Color(hex: side.secondaryHex).opacity(0.85))
                     .lineLimit(1)
                     .padding(.horizontal, 4)
             }
@@ -1509,7 +1502,7 @@ private struct DisplayTwoSideSurface: View {
             if side.showSecondary {
                 Text(side.secondaryText)
                     .font(scoreFont(size: model.labelStatFontSize))
-                    .foregroundStyle(Color(hex: side.textHex).opacity(0.85))
+                    .foregroundStyle(Color(hex: side.secondaryHex).opacity(0.85))
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .padding(.bottom, 28)
             }
@@ -1519,7 +1512,7 @@ private struct DisplayTwoSideSurface: View {
     private func tennisMainScore(side: DisplayTwoSideSideModel) -> some View {
         Text(side.scoreText)
             .font(scoreFont(size: model.scoreFontSize))
-            .foregroundStyle(Color(hex: side.textHex))
+            .foregroundStyle(Color(hex: side.mainHex))
             .lineLimit(1)
             .minimumScaleFactor(0.4)
             .frame(width: model.tennisMainScoreWidth)
@@ -1530,13 +1523,13 @@ private struct DisplayTwoSideSurface: View {
             if side.showGames {
                 Text(side.gamesText)
                     .font(scoreFont(size: model.gamesFontSize))
-                    .foregroundStyle(Color(hex: side.textHex).opacity(0.85))
+                    .foregroundStyle(Color(hex: side.secondaryHex).opacity(0.85))
                     .lineLimit(1)
             }
             if side.showSets {
                 Text(side.setsText)
                     .font(scoreFont(size: model.tennisSetsFontSize))
-                    .foregroundStyle(Color(hex: side.textHex).opacity(0.85))
+                    .foregroundStyle(Color(hex: side.secondaryHex).opacity(0.85))
                     .lineLimit(1)
                     .frame(
                         width: model.tennisSetScoreBoxSize,
@@ -1694,6 +1687,10 @@ private struct DisplayDoublesSideRenderModel {
     var showGames: Bool
     var panelHex: String
     var textHex: String
+    /// 主分文字色（逐元素，默认回滚 textHex）。
+    var mainHex: String
+    /// 盘/局分文字色（逐元素，默认回滚 textHex）。
+    var secondaryHex: String
 }
 
 private struct DisplayDoublesRenderModel {
@@ -1818,12 +1815,12 @@ private struct DisplayDoublesCourtSurface: View {
     private func rallyCluster(side: DisplayDoublesSideRenderModel, isLeft: Bool) -> some View {
         let main = Text(side.scoreText)
             .font(scoreFont(size: model.scoreFontSize))
-            .foregroundStyle(Color(hex: side.textHex))
+            .foregroundStyle(Color(hex: side.mainHex))
             .lineLimit(1)
             .minimumScaleFactor(0.3)
         let sets = Text(side.showSets ? side.setsText : "")
             .font(scoreFont(size: model.setsFontSize))
-            .foregroundStyle(Color(hex: side.textHex).opacity(0.85))
+            .foregroundStyle(Color(hex: side.secondaryHex).opacity(0.85))
             .lineLimit(1)
             .minimumScaleFactor(0.3)
         return Group {
@@ -1846,12 +1843,12 @@ private struct DisplayDoublesCourtSurface: View {
         let stats = VStack(spacing: verticalGap) {
             Text(side.gamesText)
                 .font(scoreFont(size: model.gamesFontSize))
-                .foregroundStyle(Color(hex: side.textHex).opacity(0.85))
+                .foregroundStyle(Color(hex: side.secondaryHex).opacity(0.85))
                 .lineLimit(1)
             if side.showSets {
                 Text(side.setsText)
                     .font(scoreFont(size: model.setsFontSize))
-                    .foregroundStyle(Color(hex: side.textHex).opacity(0.85))
+                    .foregroundStyle(Color(hex: side.secondaryHex).opacity(0.85))
                     .lineLimit(1)
                     .frame(width: boxSize, height: boxSize)
                     .background(Color.black.opacity(0.16), in: RoundedRectangle(cornerRadius: model.isTablet ? 14 : 10))
@@ -1860,7 +1857,7 @@ private struct DisplayDoublesCourtSurface: View {
         .frame(width: innerGroupWidth)
         let main = Text(side.scoreText)
             .font(scoreFont(size: model.scoreFontSize))
-            .foregroundStyle(Color(hex: side.textHex))
+            .foregroundStyle(Color(hex: side.mainHex))
             .lineLimit(1)
             .minimumScaleFactor(0.3)
             .frame(maxWidth: .infinity)
@@ -1940,15 +1937,147 @@ private struct DisplayDoublesCourtSurface: View {
     }
 }
 
-// MARK: - multi_grid / card_two_seat / training_counter（保持既有表现）
+// MARK: - multi_grid（对齐安卓 MultiGridSurface）；card_two_seat / training_counter 仍走 legacy
 
+/// 对齐安卓 DisplayMultiGridSurface + MultiGridTile：
+/// 固定深底 #111827、无幻影标题带、seamless 网格无间距/外边距、
+/// winner 3pt #FBBF24 描边 + 左上 ★、斗地主 name 置顶其余居中、字号按安卓 band 比例派生。
 private struct DisplayMultiGridSurface: View {
     let state: ScoreboardDisplayState
     let viewport: CGSize
     let cardStyle: Bool
 
     var body: some View {
-        LegacyExternalLayouts.multiGrid(state: state, viewport: viewport, cardStyle: cardStyle)
+        let players = LegacyExternalLayouts.resolvedPlayers(state)
+        let requestedColumns = state.sportInt("multiGridColumns")
+        let columns = max(1, requestedColumns ?? (cardStyle ? 3 : (players.count <= 4 ? 2 : 3)))
+        let rows = max(1, Int(ceil(Double(players.count) / Double(columns))))
+        let seamless = Self.isSeamless(gameType: state.gameType, count: players.count)
+        let gap: CGFloat = seamless ? 0 : 4
+        let outer: CGFloat = seamless ? 0 : 4
+        let cellWidth = max(1, (viewport.width - outer * 2 - gap * CGFloat(columns - 1)) / CGFloat(columns))
+        let cellHeight = max(1, (viewport.height - outer * 2 - gap * CGFloat(rows - 1)) / CGFloat(rows))
+        let scoreBand = max(8, cellHeight * 0.50)
+        let nameBand = max(8, cellHeight * 0.30)
+        let scoreFont = max(40, min(scoreBand * 0.88 / 1.02, cellWidth * 0.58))
+        let nameFont = min(max(22, nameBand * 0.483), 42 * 1.16)
+        let winnerID = (state.result?.ended ?? false) ? state.result?.winnerID : nil
+        let manualEnd = state.result?.manualEnd ?? false
+
+        return ZStack {
+            Color(hex: "111827")
+            VStack(spacing: gap) {
+                ForEach(0..<rows, id: \.self) { row in
+                    HStack(spacing: gap) {
+                        ForEach(0..<columns, id: \.self) { col in
+                            let index = row * columns + col
+                            Group {
+                                if index < players.count {
+                                    let player = players[index]
+                                    let slot = LegacyExternalLayouts.colorSlot(index: index, state: state)
+                                    Self.GridTile(
+                                        name: player.name,
+                                        score: player.score ?? 0,
+                                        nameOnTop: cardStyle,
+                                        nameFont: nameFont,
+                                        scoreFont: scoreFont,
+                                        panelColor: Color(hex: player.color ?? slot.panel),
+                                        textColor: Color(hex: slot.text),
+                                        isWinner: !manualEnd && winnerID != nil && winnerID == player.id
+                                    )
+                                } else {
+                                    Self.GridTile(
+                                        name: "",
+                                        score: 0,
+                                        nameOnTop: cardStyle,
+                                        nameFont: nameFont,
+                                        scoreFont: scoreFont,
+                                        panelColor: Color(hex: "1F2937"),
+                                        textColor: .white.opacity(0.6),
+                                        placeholder: true,
+                                        isWinner: false
+                                    )
+                                }
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .padding(outer)
+        }
+    }
+
+    private static func isSeamless(gameType: String?, count: Int) -> Bool {
+        switch gameType {
+        case "multi_scoreboard", "uno", "doudizhu": return true
+        case "nine_ball": return count >= 3 && count <= 4
+        default: return false
+        }
+    }
+
+    private struct GridTile: View {
+        let name: String
+        let score: Int
+        let nameOnTop: Bool
+        let nameFont: CGFloat
+        let scoreFont: CGFloat
+        let panelColor: Color
+        let textColor: Color
+        var placeholder = false
+        var isWinner = false
+
+        var body: some View {
+            ZStack {
+                panelColor
+                if isWinner {
+                    RoundedRectangle(cornerRadius: 0).strokeBorder(Color(hex: "FBBF24"), lineWidth: 3)
+                }
+                if placeholder {
+                    Text("—")
+                        .font(.system(size: scoreFont * 0.7, weight: .bold))
+                        .foregroundStyle(textColor)
+                } else if nameOnTop {
+                    Text(name)
+                        .font(.system(size: nameFont, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, max(14, nameFont * 0.5))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    Text("\(score)")
+                        .font(.system(size: scoreFont, weight: .bold))
+                        .foregroundStyle(textColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.3)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                } else {
+                    VStack(spacing: 12) {
+                        Text(name)
+                            .font(.system(size: nameFont, weight: .bold))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.5)
+                            .multilineTextAlignment(.center)
+                        Text("\(score)")
+                            .font(.system(size: scoreFont, weight: .bold))
+                            .foregroundStyle(textColor)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.3)
+                    }
+                }
+                if isWinner {
+                    Text("★")
+                        .font(.system(size: max(scoreFont * 0.28, 18), weight: .bold))
+                        .foregroundStyle(Color(hex: "FBBF24"))
+                        .padding(8)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                }
+            }
+            .clipped()
+        }
     }
 }
 
@@ -1968,42 +2097,8 @@ private struct DisplayTrainingCounterSurface: View {
     }
 }
 
-/// 旧版网格/座次/训练布局（本次未按安卓重写，保持既有表现）。
+/// 旧版座次（棋类）/训练计数布局（未按安卓重写的遗留实现）。
 private enum LegacyExternalLayouts {
-    static func multiGrid(state: ScoreboardDisplayState, viewport: CGSize, cardStyle: Bool) -> some View {
-        let metrics = LegacyMetrics(size: viewport)
-        let players = resolvedPlayers(state)
-        let requestedColumns = state.sportInt("multiGridColumns")
-        let columns = requestedColumns ?? (cardStyle ? 3 : (players.count <= 4 ? 2 : 3))
-        return LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: max(1, columns)),
-            spacing: 0
-        ) {
-            ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
-                let slot = colorSlot(index: index, state: state)
-                VStack(spacing: metrics.gap) {
-                    Text(player.name)
-                        .font(font(state, size: metrics.name, weight: .semibold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.4)
-                    Text("\(player.score ?? 0)")
-                        .font(font(state, size: cardStyle ? metrics.cardScore : metrics.multiScore))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.3)
-                    if let rank = player.rank {
-                        Text("#\(rank)")
-                            .font(font(state, size: metrics.detail, weight: .semibold))
-                            .opacity(0.72)
-                    }
-                }
-                .foregroundStyle(Color(hex: slot.text))
-                .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                .background(Color(hex: player.color ?? slot.panel))
-            }
-        }
-        .padding(.top, metrics.title * 1.5)
-    }
-
     static func twoSeat(state: ScoreboardDisplayState) -> some View {
         HStack(spacing: 0) {
             ForEach(0..<2, id: \.self) { index in
@@ -2045,14 +2140,14 @@ private enum LegacyExternalLayouts {
         .background(Color(hex: state.appearance.centerPanelHex))
     }
 
-    private static func resolvedPlayers(_ state: ScoreboardDisplayState) -> [ScoreboardDisplayPlayer] {
+    fileprivate static func resolvedPlayers(_ state: ScoreboardDisplayState) -> [ScoreboardDisplayPlayer] {
         if let players = state.players, !players.isEmpty { return players.sorted { $0.order < $1.order } }
         return state.teams.map {
             ScoreboardDisplayPlayer(id: $0.id, name: $0.name, score: $0.score, order: $0.order, color: $0.color)
         }
     }
 
-    private static func colorSlot(index: Int, state: ScoreboardDisplayState) -> (panel: String, text: String) {
+    fileprivate static func colorSlot(index: Int, state: ScoreboardDisplayState) -> (panel: String, text: String) {
         switch index % 3 {
         case 0: (state.appearance.leftPanelHex, state.appearance.leftTextHex)
         case 1: (state.appearance.centerPanelHex, state.appearance.centerTextHex)
@@ -2064,18 +2159,6 @@ private enum LegacyExternalLayouts {
         (ScoreboardFont(rawValue: state.appearance.fontCode) ?? .default)
             .swiftUIFont(size: size, weight: weight)
     }
-}
-
-private struct LegacyMetrics {
-    let size: CGSize
-
-    private var scale: CGFloat { max(0.72, min(2.4, min(size.width / 1280, size.height / 720))) }
-    var gap: CGFloat { 18 * scale }
-    var title: CGFloat { 32 * scale }
-    var name: CGFloat { 42 * scale }
-    var multiScore: CGFloat { 112 * scale }
-    var cardScore: CGFloat { 142 * scale }
-    var detail: CGFloat { 30 * scale }
 }
 
 // MARK: - 计时 / 休息遮罩

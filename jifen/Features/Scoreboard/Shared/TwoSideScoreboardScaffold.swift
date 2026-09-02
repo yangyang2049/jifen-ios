@@ -49,6 +49,11 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     /// Optional vertical panel gesture. `true` identifies the visible left
     /// panel and the delta is +1 for up / -1 for down.
     var onPanelSwipe: ((Bool, Int) -> Void)? = nil
+    /// Optional double-tap subtract. `true` identifies the visible left panel.
+    /// Only boards whose exact type is in the double-tap-subtract whitelist
+    /// (e.g. eight-ball, aligned with the Android `ScoreboardTemplate`) enable
+    /// the 240 ms suspend window; other boards keep immediate single taps.
+    var onDoubleTapSubtract: ((Bool) -> Void)? = nil
     var extraMenuItems: [ScoreboardMenuItem] = []
     var onMenuAction: ((String) -> Void)? = nil
     /// Optional overlay between the halves (e.g. serve triangle). Drawn above panels.
@@ -88,10 +93,84 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     @State private var showToast = false
     @State private var toastMessage = ""
 
+    // 双击减分挂起窗口（对齐安卓 ScoreboardDoubleTapSubtractHandler 240ms）。
+    @State private var pendingTapIsLeft: Bool?
+    @State private var pendingTapAt: Date = .distantPast
+    @State private var tapGeneration = 0
+    private let doubleTapWindow: TimeInterval = 0.24
+
     private var isStyleEditing: Bool { styleEditorEntry.isEditing }
+
+    /// `gameType`（jifen 层）按 canonical id 解析出的精确项目类型；Scaffold 承载的
+    /// 八球/斯诺克/掼蛋/升级在两种类型上一一对应，无单双打歧义。
+    private var exactScoreCoreGameType: ScoreCore.GameType? {
+        gameType.scoreCoreGameType
+    }
+
+    /// 对齐安卓 ScoreboardTemplate：双击减分只在精确类型命中白名单且宿主提供
+    /// `onDoubleTapSubtract` 时启用（否则单击立即结算，不给非白名单项目加延迟）。
+    private var doubleTapSubtractEnabled: Bool {
+        appearance.doubleTapSubtract
+            && scoringEnabled
+            && onDoubleTapSubtract != nil
+            && (exactScoreCoreGameType.map(ScoreboardUsageHintHelper.supportsDoubleTapSubtract) ?? false)
+    }
 
     private var shouldShowChrome: Bool {
         !isStyleEditing && (!appearance.immersiveMode || chromeVisible || showDisplaySettings || showMenu)
+    }
+
+    private func isScoreTouchAllowed(location: CGPoint, panelSize: CGSize) -> Bool {
+        ScoreboardTouchGuard.isAllowed(
+            location: location,
+            panelSize: panelSize,
+            gameType: exactScoreCoreGameType,
+            enabled: appearance.touchGuard
+        )
+    }
+
+    /// 对齐安卓 ScoreboardDoubleTapSubtractHandler：挂起窗口内同侧第二次点击 = 减分，
+    /// 异侧点击则先把挂起的这一次结算掉，再为新的半区重新挂起。
+    private func handlePanelTap(isLeft: Bool) {
+        guard !isEditMode, !finished else { return }
+        guard doubleTapSubtractEnabled else {
+            cancelPendingTap()
+            commitPanelAction(isLeft)
+            return
+        }
+        let now = Date()
+        if let pendingIsLeft = pendingTapIsLeft {
+            if pendingIsLeft == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
+                cancelPendingTap()
+                onDoubleTapSubtract?(isLeft)
+                return
+            }
+            cancelPendingTap()
+            commitPanelAction(pendingIsLeft)
+        }
+        pendingTapIsLeft = isLeft
+        pendingTapAt = now
+        tapGeneration += 1
+        let generation = tapGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
+            guard generation == tapGeneration, pendingTapIsLeft == isLeft else { return }
+            pendingTapIsLeft = nil
+            commitPanelAction(isLeft)
+        }
+    }
+
+    private func commitPanelAction(_ isLeft: Bool) {
+        guard !isEditMode, !finished else { return }
+        if isLeft {
+            onLeftTap()
+        } else {
+            onRightTap()
+        }
+    }
+
+    private func cancelPendingTap() {
+        tapGeneration += 1
+        pendingTapIsLeft = nil
     }
 
     private var resolvedNameType: NameType {
@@ -112,8 +191,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         detail: leftDetail,
                         color: sidesSwapped ? appearance.palette.right : appearance.palette.left,
                         panelSize: CGSize(width: proxy.size.width / 2, height: halfH),
-                        accessory: panelAccessory?(true),
-                        action: onLeftTap
+                        accessory: panelAccessory?(true)
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
                     .accessibilityIdentifier("scoreboard_left_panel")
@@ -126,8 +204,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         detail: rightDetail,
                         color: sidesSwapped ? appearance.palette.left : appearance.palette.right,
                         panelSize: CGSize(width: proxy.size.width / 2, height: halfH),
-                        accessory: panelAccessory?(false),
-                        action: onRightTap
+                        accessory: panelAccessory?(false)
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
                     .accessibilityIdentifier("scoreboard_right_panel")
@@ -214,8 +291,11 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            // 对齐安卓 LaunchedEffect(doubleTapSubtractEnabled)：开关关掉时立刻丢掉挂起的单击。
+            if !doubleTapSubtractEnabled { cancelPendingTap() }
             revealImmersiveChrome()
         }
+        .onChange(of: doubleTapSubtractEnabled) { _, _ in cancelPendingTap() }
         .onChange(of: showMenu) { _, isOpen in
             if !isOpen { menuConfirm.clear() }
             updateImmersiveForBlocking()
@@ -289,7 +369,6 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     showWhistle: true,
                     showScreenshot: true,
                     showDisplaySettings: true,
-                    styleEditorEnabled: ScoreboardStyleV2Registry.isEnabled(typographySession.styleID),
                     resetConfirming: menuConfirm.resetConfirming,
                     exchangeConfirming: menuConfirm.exchangeConfirming,
                     finishConfirming: menuConfirm.finishConfirming,
@@ -444,8 +523,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         detail: String?,
         color: Color,
         panelSize: CGSize,
-        accessory: AnyView?,
-        action: @escaping () -> Void
+        accessory: AnyView?
     ) -> some View {
         let typography = ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
@@ -502,6 +580,8 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         ))
                         .multilineTextAlignment(.center)
                         .textFieldStyle(.plain)
+                        // 白底主题下主题前景为深色；深色主题下与默认白一致。
+                        .foregroundStyle(appearance.palette.foreground)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -514,7 +594,8 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                             : NSLocalizedString("setup_team_name", value: "队伍名称", comment: ""),
                         text: isLeft ? $editLeftName : $editRightName,
                         nameType: resolvedNameType,
-                        scoreboardFont: typographySession.effectivePreference.font
+                        scoreboardFont: typographySession.effectivePreference.font,
+                        textColor: appearance.palette.control
                     )
                     .padding(.horizontal, 16)
                     .padding(.top, topPad)
@@ -578,10 +659,13 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         }
         .foregroundStyle(appearance.palette.foreground)
         .contentShape(Rectangle())
-        .onTapGesture {
-            guard !isEditMode, !finished else { return }
-            action()
-        }
+        .gesture(
+            SpatialTapGesture(count: 1)
+                .onEnded { value in
+                    guard isScoreTouchAllowed(location: value.location, panelSize: panelSize) else { return }
+                    handlePanelTap(isLeft: isLeft)
+                }
+        )
     }
 
     /// 同行布局中的大分数（与下方布局样式保持一致：等宽数字、可缩放）。
@@ -609,7 +693,8 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(appearance.palette.foreground.opacity(0.75))
                 .frame(width: 50, height: 50)
-                .background(Circle().fill(Color.white.opacity(0.08)))
+                // 对齐安卓 ScoreEditAdjustRows：按钮底色用主题控制色（白底主题为深色）。
+                .background(Circle().fill(appearance.palette.control.opacity(0.12)))
         }
         .buttonStyle(.plain)
     }
@@ -621,6 +706,8 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                   !finished,
                   abs(value.translation.height) > abs(value.translation.width),
                   abs(value.translation.height) >= 50 else { return }
+            // 滑动与点击互斥，先清掉挂起的单击再结算。
+            cancelPendingTap()
             onPanelSwipe?(isLeft, value.translation.height < 0 ? 1 : -1)
         }
     }

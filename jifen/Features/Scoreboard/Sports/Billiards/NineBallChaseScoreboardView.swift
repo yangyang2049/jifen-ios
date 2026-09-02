@@ -62,6 +62,10 @@ struct NineBallChaseScoreboardView: View {
     @State private var editPlayerScores: [String] = []
     @State private var activeChasePlayer: Int?
     @State private var exitConfirmDeadline: Date?
+    /// 对齐安卓 NineBallScoreScreen useLandscapeLayout：2 人局的横/竖布局切换。
+    @State private var useLandscapeLayout: Bool = UserDefaults.standard.object(
+        forKey: "nine_ball_use_landscape_layout"
+    ) as? Bool ?? true
     @State private var showToast = false
     @State private var toastMessage = ""
     @State private var chromeVisible = true
@@ -83,6 +87,42 @@ struct NineBallChaseScoreboardView: View {
             || showMenu
             || showEditPanel
             || activeChasePlayer != nil
+    }
+
+    /// 对齐安卓 NineBallScoreScreen：非 3-4 人局提供"横/竖屏切换"菜单项，
+    /// 文案显示目标状态（当前横屏 → 竖屏，当前竖屏 → 横屏）。
+    private var nineBallMenuItems: [ScoreboardMenuItem] {
+        var items = ScoreboardMenuItemBuilder.defaultItems(
+            showEndGame: true,
+            showExchangeSide: false,
+            showWhistle: true,
+            showScreenshot: true,
+            showSettleMatch: true,
+            resetConfirming: menuConfirm.resetConfirming,
+            exchangeConfirming: menuConfirm.exchangeConfirming,
+            finishConfirming: menuConfirm.finishConfirming,
+            settleConfirming: menuConfirm.settleConfirming,
+            scoringEnabled: !scoringLocked,
+            extraItems: WatchLinkMenuSupport.extraItems(
+                entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+                sessionId: watchSessionId,
+                isFollower: watchLinkService.isFollower,
+                watchBackgrounded: watchLinkService.watchBackgrounded
+            )
+        )
+        if !(3...4).contains(state.playerCount) {
+            items.append(
+                ScoreboardMenuItem(
+                    title: useLandscapeLayout
+                        ? NSLocalizedString("multi_score_portrait", value: "竖屏", comment: "")
+                        : NSLocalizedString("multi_score_landscape", value: "横屏", comment: ""),
+                    action: "layout",
+                    group: .match,
+                    icon: "rotate.left"
+                )
+            )
+        }
+        return items
     }
 
     private let nineBallActionOrder: [NineBallChaseKind] = [
@@ -178,7 +218,8 @@ struct NineBallChaseScoreboardView: View {
     private func nineBallGridRows(containerSize: CGSize) -> [[Int]] {
         ScoreboardPlayerGridLayout.nineBallRows(
             playerCount: state.playerCount,
-            containerSize: containerSize
+            containerSize: containerSize,
+            forceWide: state.playerCount == 2 ? useLandscapeLayout : nil
         )
     }
 
@@ -363,6 +404,10 @@ struct NineBallChaseScoreboardView: View {
                             watchLinkService.requestForceTakeoverConfirmation(id)
                         }
                         showMenu = false
+                    case "layout":
+                        // 对齐安卓 NineBallScoreScreen onToggleLayout：切换并持久化，onChange 统一落盘。
+                        useLandscapeLayout.toggle()
+                        showMenu = false
                     case "endLink":
                         if let id = watchSessionId {
                             watchLinkService.leaveSession(id)
@@ -374,24 +419,7 @@ struct NineBallChaseScoreboardView: View {
                 },
                 showEndGame: true,
                 showExchangeSide: false,
-                items: ScoreboardMenuItemBuilder.defaultItems(
-                    showEndGame: true,
-                    showExchangeSide: false,
-                    showWhistle: true,
-                    showScreenshot: true,
-                    showSettleMatch: true,
-                    resetConfirming: menuConfirm.resetConfirming,
-                    exchangeConfirming: menuConfirm.exchangeConfirming,
-                    finishConfirming: menuConfirm.finishConfirming,
-                    settleConfirming: menuConfirm.settleConfirming,
-                    scoringEnabled: !scoringLocked,
-                    extraItems: WatchLinkMenuSupport.extraItems(
-                        entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-                        sessionId: watchSessionId,
-                        isFollower: watchLinkService.isFollower,
-                        watchBackgrounded: watchLinkService.watchBackgrounded
-                    )
-                ),
+                items: nineBallMenuItems,
                 analyticsGameType: .nineBall
             )
 
@@ -427,7 +455,11 @@ struct NineBallChaseScoreboardView: View {
             }
         })
         .navigationBarBackButtonHidden(true).toolbar(.hidden, for: .navigationBar)
-        .lockOrientation(.landscape)
+        .lockOrientation(useLandscapeLayout ? .landscape : .portrait)
+        .onChange(of: useLandscapeLayout) { _, newValue in
+            UserDefaults.standard.set(newValue, forKey: "nine_ball_use_landscape_layout")
+            OrientationLock.shared.rotate(to: newValue ? .landscape : .portrait)
+        }
         .onAppear {
             onSetupConsumed?()
             typographySession.reload()
@@ -605,6 +637,7 @@ struct NineBallChaseScoreboardView: View {
                             ),
                             nameType: ScoreboardCommonNamePolicy.nameType(for: .nineBall),
                             scoreboardFont: typographySession.effectivePreference.font,
+                            textColor: appearance.palette.control,
                             accessibilityIdentifier: "nine_ball_player_\(player)_name_editor"
                         )
                     } else {

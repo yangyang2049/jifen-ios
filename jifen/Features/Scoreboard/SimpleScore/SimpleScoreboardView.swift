@@ -67,6 +67,31 @@ struct SimpleScoreboardView: View {
                     },
                     showEndGame: true,
                     showSettleMatch: true,
+                    extraMenuItemsProvider: { [matchClockSession] in
+                        // 对齐安卓 S1DualSideScoreRouteScreen supportsMatchTime：简单计分提供
+                        // "显示/隐藏比赛时间"菜单项。
+                        let visible = matchClockSession?.isVisible
+                            ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: .simpleScore)
+                        return [
+                            ScoreboardMenuItem(
+                                title: visible
+                                    ? NSLocalizedString("hide_match_time", value: "隐藏时间", comment: "")
+                                    : NSLocalizedString("show_match_time", value: "显示时间", comment: ""),
+                                action: "toggleMatchTime",
+                                group: .tools,
+                                icon: "clock",
+                                keepDialogOpen: true
+                            )
+                        ]
+                    },
+                    onMenuAction: { [matchClockSession] action in
+                        guard action == "toggleMatchTime", let session = matchClockSession else { return }
+                        session.isVisible.toggle()
+                        PreferencesManager.shared.setScoreboardMatchTimeVisible(
+                            session.isVisible,
+                            for: .simpleScore
+                        )
+                    },
                     onScorePanelTap: customAdjustEnabled
                         ? { isLeft in
                             guard !viewModel.gameFinished else { return }

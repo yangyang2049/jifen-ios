@@ -133,6 +133,16 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
         }
     }
 
+    /// 计分板本体上的控制色（编辑名称输入框文字/边框、编辑±按钮底色等）。
+    /// 对齐安卓 ScoreboardTheme.controlColor：默认白色；白底主题（wrb / 斗地主 wrb）
+    /// 用深色 #111111，避免白字白底看不见。
+    var controlColor: Color {
+        switch self {
+        case .wrb, .ddzWrb: return Color(hex: "111111")
+        default: return .white
+        }
+    }
+
     var palette: ScoreboardPalette {
         // Aligned with HOS scoreboardTheme.ts
         switch self {
@@ -188,7 +198,8 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
                 right: .white,
                 foreground: Color(hex: foregroundHex),
                 secondary: Color(hex: foregroundHex).opacity(0.7),
-                chrome: .black.opacity(0.72)
+                chrome: .black.opacity(0.72),
+                control: controlColor
             )
         case .ddzClassic:
             return ScoreboardPalette(
@@ -242,7 +253,8 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
                 right: .white,
                 foreground: Color(hex: foregroundHex),
                 secondary: Color(hex: foregroundHex).opacity(0.7),
-                chrome: .black.opacity(0.72)
+                chrome: .black.opacity(0.72),
+                control: controlColor
             )
         }
     }
@@ -369,6 +381,8 @@ struct ScoreboardPalette {
     var leftForeground: Color = .white
     var rightForeground: Color = .white
     var centerForeground: Color = .white
+    /// 控制色：默认白；白底主题为深色（见 ScoreboardTheme.controlColor）。
+    var control: Color = .white
 
     func applying(_ profile: ScoreboardStyleProfileV2) -> ScoreboardPalette {
         ScoreboardPalette(
@@ -380,7 +394,8 @@ struct ScoreboardPalette {
             chrome: chrome,
             leftForeground: profile.textColor(for: .team0),
             rightForeground: profile.textColor(for: .team1),
-            centerForeground: profile.textColor(for: .center)
+            centerForeground: profile.textColor(for: .center),
+            control: ScoreboardTheme(rawValue: profile.themeCode)?.controlColor ?? .white
         )
     }
 
@@ -813,6 +828,18 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
             return resolvedAutoTextHex(forSlot: slotKey)
         }
         return resolvedTextHex(for: legacy)
+    }
+
+    /// 指定元素在指定槽位是否有手动色（供投屏/同步端逐元素配色）。
+    func elementHasManualColor(
+        _ elementKey: ScoreboardStyleElementKeyV2,
+        slotKey: ScoreboardStyleSlotKeyV2
+    ) -> Bool {
+        guard let color = elements?.first(where: { $0.elementKey == elementKey })?
+            .textColors.first(where: { $0.slotKey == slotKey }) else {
+            return false
+        }
+        return color.colorMode == .manual
     }
 
     /// 设置面板背景；同时镜像旧扁平字段，保证未切换的旧渲染路径立即生效。
@@ -1973,33 +2000,32 @@ extension View {
 
 private extension ScoreboardFontMetric {
     func localizedTitle(styleID: ScoreboardStyleID) -> String {
+        // 仅非样式编辑项目（篮球/3x3/九球/UNO/多分数板）会打开旧版字号面板。
+        let isUnoOrMulti = styleID.rawValue == ScoreCore.GameType.uno.rawValue
+            || styleID.rawValue == ScoreCore.GameType.multiScoreboard.rawValue
         switch self {
-        case .score: return NSLocalizedString("scoreboard_font_metric_score", value: "主比分", comment: "")
-        case .name: return NSLocalizedString("scoreboard_font_metric_name", value: "名称", comment: "")
+        case .score:
+            if isUnoOrMulti {
+                return NSLocalizedString("scoreboard_font_metric_main_score", value: "主分数", comment: "")
+            }
+            if usesTeamScorePanel(styleID) {
+                return NSLocalizedString("scoreboard_font_metric_large_score", value: "大分数", comment: "")
+            }
+            return NSLocalizedString("scoreboard_font_metric_score", value: "主比分", comment: "")
+        case .name:
+            if isUnoOrMulti {
+                return NSLocalizedString("scoreboard_font_metric_player_name", value: "选手名", comment: "")
+            }
+            if usesTeamScorePanel(styleID) {
+                return NSLocalizedString("scoreboard_font_metric_team_name", value: "队名", comment: "")
+            }
+            return NSLocalizedString("scoreboard_font_metric_name", value: "名称", comment: "")
         case .secondary:
             switch styleID.rawValue {
-            case ScoreCore.GameType.basketball.rawValue, ScoreCore.GameType.threeBasketball.rawValue:
-                return NSLocalizedString(
-                    "scoreboard_font_metric_basketball_secondary",
-                    value: "计时/犯规",
-                    comment: ""
-                )
             case ScoreCore.GameType.nineBall.rawValue:
                 return NSLocalizedString(
                     "scoreboard_font_metric_nine_ball_secondary",
                     value: "追分详情",
-                    comment: ""
-                )
-            case ScoreCore.GameType.uno.rawValue:
-                return NSLocalizedString(
-                    "scoreboard_font_metric_uno_secondary",
-                    value: "目标/分差",
-                    comment: ""
-                )
-            case ScoreCore.GameType.boxing.rawValue:
-                return NSLocalizedString(
-                    "scoreboard_font_metric_boxing_secondary",
-                    value: "回合信息",
                     comment: ""
                 )
             default:
@@ -2010,6 +2036,13 @@ private extension ScoreboardFontMetric {
                 )
             }
         }
+    }
+
+    /// 对齐安卓 fontSizePanelItems=TeamScore 的项目（篮球/3x3/九球）：队名 + 大分数。
+    private func usesTeamScorePanel(_ styleID: ScoreboardStyleID) -> Bool {
+        styleID.rawValue == ScoreCore.GameType.basketball.rawValue
+            || styleID.rawValue == ScoreCore.GameType.threeBasketball.rawValue
+            || styleID.rawValue == ScoreCore.GameType.nineBall.rawValue
     }
 }
 

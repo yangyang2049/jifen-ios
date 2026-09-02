@@ -67,7 +67,6 @@ enum ScoreboardMenuItemBuilder {
         showWhistle: Bool = true,
         showScreenshot: Bool = true,
         showDisplaySettings: Bool = true,
-        styleEditorEnabled: Bool = false,
         showSettleMatch: Bool = false,
         resetConfirming: Bool = false,
         exchangeConfirming: Bool = false,
@@ -169,10 +168,9 @@ enum ScoreboardMenuItemBuilder {
         if showDisplaySettings {
             items.append(
                 ScoreboardMenuItem(
-                    // 白名单项目直接进样式编辑 overlay（对齐安卓 useStyleEditLabel 分叉）。
-                    title: styleEditorEnabled
-                        ? NSLocalizedString("scoreboard_style_edit", value: "样式", comment: "")
-                        : NSLocalizedString("scoreboard_display_settings", value: "显示设置", comment: ""),
+                    // 对齐安卓：所有计分板菜单项统一为“样式”（registry 项目进全屏样式
+                    // 编辑器，非 registry 项目进旧版字号面板，标签相同）。
+                    title: NSLocalizedString("scoreboard_style_edit", value: "样式", comment: ""),
                     action: "displaySettings",
                     group: .tools,
                     customText: "Aa"

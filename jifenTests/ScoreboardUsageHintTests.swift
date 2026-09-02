@@ -1,3 +1,4 @@
+import CoreGraphics
 import ScoreCore
 @testable import jifen
 import XCTest
@@ -203,6 +204,104 @@ final class ScoreboardUsageHintTests: XCTestCase {
         XCTAssertEqual(compactPad.bodyFontSize, compactPhone.bodyFontSize)
         XCTAssertEqual(compactPad.bodyLineSpacing, compactPhone.bodyLineSpacing)
         XCTAssertEqual(compactPad.buttonHeight, compactPhone.buttonHeight)
+    }
+
+    func testDoubleTapSubtractWhitelistMatchesAndroidTrueSource() {
+        // 对齐安卓 supportsScoreboardDoubleTapSubtract：白名单逐项核对。
+        let supported: Set<ScoreCore.GameType> = [
+            .pingpong, .pingpongDoubles,
+            .badminton, .badmintonDoubles,
+            .volleyball, .beachVolleyball, .airVolleyball,
+            .pickleball, .pickleballDoubles,
+            .tennis, .tennisDoubles,
+            .football, .football5v5,
+            .foosball, .foosballDoubles,
+            .billiards, .eightBall,
+            .simpleScore, .multiScoreboard
+        ]
+        for type in ScoreCore.GameType.allCases {
+            XCTAssertEqual(
+                ScoreboardUsageHintHelper.supportsDoubleTapSubtract(type),
+                supported.contains(type),
+                "白名单不一致：\(type.rawValue)"
+            )
+        }
+    }
+
+    func testTouchGuardBlacklistMatchesAndroidTrueSource() {
+        // 对齐安卓：斗地主/掼蛋/升级/UNO/多分数板固定不启用防误触。
+        let disabled: Set<ScoreCore.GameType> = [.doudizhu, .guandan, .shengji, .uno, .multiScoreboard]
+        for type in ScoreCore.GameType.allCases {
+            XCTAssertEqual(
+                ScoreboardUsageHintHelper.disablesTouchGuard(type),
+                disabled.contains(type),
+                "防误触豁免不一致：\(type.rawValue)"
+            )
+        }
+    }
+
+    func testTouchGuardOffAllowsAnyLocation() {
+        let size = CGSize(width: 400, height: 800)
+        XCTAssertTrue(ScoreboardTouchGuard.isAllowed(
+            location: CGPoint(x: 4, y: 4),
+            panelSize: size,
+            gameType: .pingpong,
+            enabled: false
+        ))
+        XCTAssertTrue(ScoreboardTouchGuard.isAllowed(
+            location: CGPoint(x: 399, y: 799),
+            panelSize: size,
+            gameType: .pingpong,
+            enabled: false
+        ))
+    }
+
+    func testTouchGuardCenterRegionGeometry() {
+        // 400×800 → 可点区域应为居中 60%：x∈[80,320)、y∈[160,640)。
+        let size = CGSize(width: 400, height: 800)
+        let enabled = true
+        XCTAssertTrue(ScoreboardTouchGuard.isAllowed(
+            location: CGPoint(x: 200, y: 400),
+            panelSize: size,
+            gameType: .pingpong,
+            enabled: enabled
+        ))
+        XCTAssertTrue(ScoreboardTouchGuard.isAllowed(
+            location: CGPoint(x: 80, y: 160),
+            panelSize: size,
+            gameType: .pingpong,
+            enabled: enabled
+        ))
+        XCTAssertFalse(ScoreboardTouchGuard.isAllowed(
+            location: CGPoint(x: 79, y: 160),
+            panelSize: size,
+            gameType: .pingpong,
+            enabled: enabled
+        ))
+        XCTAssertFalse(ScoreboardTouchGuard.isAllowed(
+            location: CGPoint(x: 200, y: 159),
+            panelSize: size,
+            gameType: .pingpong,
+            enabled: enabled
+        ))
+        XCTAssertFalse(ScoreboardTouchGuard.isAllowed(
+            location: CGPoint(x: 5, y: 700),
+            panelSize: size,
+            gameType: .pingpong,
+            enabled: enabled
+        ))
+    }
+
+    func testTouchGuardBlacklistIgnoresLocationEvenWhenEnabled() {
+        let size = CGSize(width: 400, height: 800)
+        for type in [ScoreCore.GameType.guandan, .shengji, .doudizhu, .uno, .multiScoreboard] {
+            XCTAssertTrue(ScoreboardTouchGuard.isAllowed(
+                location: CGPoint(x: 5, y: 700),
+                panelSize: size,
+                gameType: type,
+                enabled: true
+            ), "黑名单项目仍被防误触拦截：\(type.rawValue)")
+        }
     }
 
     private var singlesDoublesFamilies: [(

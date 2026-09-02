@@ -104,12 +104,9 @@ enum DisplayStateWireCodec {
             "theme": appearance.theme,
             "fontCode": appearance.fontCode
         ]
-        if appearance.leftTextHex != appearance.rightTextHex {
-            map["scoreColor"] = appearance.leftTextHex
-            map["secondaryScoreColor"] = appearance.rightTextHex
-        } else {
-            map["scoreColor"] = appearance.leftTextHex
-        }
+        // 主分/盘局分逐元素色（Android DisplayAppearanceState 全局键：scoreColor=主分，secondaryScoreColor=盘局分）。
+        map["scoreColor"] = appearance.leftMainTextHex
+        map["secondaryScoreColor"] = appearance.leftSecondaryTextHex
         map["leftTeamColor"] = appearance.leftPanelHex
         map["rightTeamColor"] = appearance.rightPanelHex
         map["centerTeamColor"] = appearance.centerPanelHex
@@ -306,8 +303,17 @@ enum DisplayStateWireCodec {
         guard let map else { return appearance }
         if let theme = map["theme"] as? String, !theme.isEmpty { appearance.theme = theme }
         if let fontCode = map["fontCode"] as? String, !fontCode.isEmpty { appearance.fontCode = fontCode }
-        if let scoreColor = validColor(map["scoreColor"]) { appearance.leftTextHex = scoreColor; appearance.rightTextHex = scoreColor }
-        if let secondary = validColor(map["secondaryScoreColor"]) { appearance.rightTextHex = secondary }
+        // 主分/盘局分逐元素色（对齐安卓 DisplayAppearanceState：scoreColor=主分，secondaryScoreColor=盘局分）。
+        if let scoreColor = validColor(map["scoreColor"]) {
+            appearance.leftTextHex = scoreColor
+            appearance.rightTextHex = scoreColor
+            appearance.leftScoreHex = scoreColor
+            appearance.rightScoreHex = scoreColor
+        }
+        if let secondary = validColor(map["secondaryScoreColor"]) {
+            appearance.leftSecondaryHex = secondary
+            appearance.rightSecondaryHex = secondary
+        }
         if let left = validColor(map["leftTeamColor"]) { appearance.leftPanelHex = left }
         if let right = validColor(map["rightTeamColor"]) { appearance.rightPanelHex = right }
         if let center = validColor(map["centerTeamColor"]) { appearance.centerPanelHex = center }
