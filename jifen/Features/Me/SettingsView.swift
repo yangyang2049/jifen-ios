@@ -50,7 +50,6 @@ struct SettingsView: View {
     @Environment(SessionStore.self) private var session
     var isTabRoot: Bool = false
     @State private var showClearConfirm = false
-    @State private var showAppearancePicker = false
     @State private var showAppShareSheet = false
     @State private var showAccountLoginSheet = false
     @State private var showQRLogin = false
@@ -59,7 +58,6 @@ struct SettingsView: View {
     @State private var isClearingData = false
     @State private var toastMessage: String?
     @State private var soundEffectsEnabled = PreferencesManager.shared.soundEnabled
-    @State private var showSoundEffectsHelp = false
 
     var body: some View {
         NavigationStack {
@@ -107,55 +105,26 @@ struct SettingsView: View {
             .sheet(isPresented: $showAccountLoginSheet) {
                 AccountLoginSheet()
             }
-            // 外观模式：对齐安卓 CustomListDialog（深卡 + 选中绿勾 + 底部取消胶囊）
-            .overlay {
-                if showAppearancePicker {
-                    CustomListDialog(
-                        title: NSLocalizedString("appearance_mode_title", value: "外观模式", comment: ""),
-                        options: AppAppearanceMode.allCases,
-                        selectedID: { $0.rawValue },
-                        onSelect: { mode in
-                            appearance.mode = mode
-                            AppAnalytics.track(.toggleSetting, parameters: [
-                                .settingName: .string("app_appearance"),
-                                .settingValue: .string(mode.rawValue)
-                            ])
-                            showAppearancePicker = false
-                        },
-                        bottomButtonText: NSLocalizedString("cancel", comment: ""),
-                        onDismiss: { showAppearancePicker = false }
-                    ) { mode in
-                        CustomDialogCheckRow(
-                            title: mode.localizedTitle,
-                            isSelected: appearance.mode == mode
-                        )
-                    }
+            .alert(
+                NSLocalizedString("clear_data_confirm_title", value: "清除全部数据？", comment: ""),
+                isPresented: $showClearConfirm
+            ) {
+                Button(NSLocalizedString("clear_data_confirm_action", value: "清除", comment: ""), role: .destructive) {
+                    clearAllData()
                 }
-            }
-            // 清除数据确认：对齐安卓 CustomConfirmDialog（深卡 + 红色确认胶囊）
-            .overlay {
-                if showClearConfirm {
-                    CustomConfirmDialog(
-                        title: NSLocalizedString("clear_data_confirm_title", value: "清除全部数据？", comment: ""),
-                        message: NSLocalizedString("clear_data_confirm_message", value: "将删除所有本地记录、预约、提醒、常用名称和常用地点，且无法恢复。", comment: ""),
-                        confirmText: NSLocalizedString("clear_data_confirm_action", value: "清除", comment: ""),
-                        cancelText: NSLocalizedString("cancel", comment: ""),
-                        onConfirm: {
-                            // 立即关闭，防止破坏性操作被重复提交（同安卓）。
-                            showClearConfirm = false
-                            clearAllData()
-                        },
-                        onDismiss: { showClearConfirm = false }
-                    )
-                }
+                Button(NSLocalizedString("cancel", comment: ""), role: .cancel) { }
+            } message: {
+                Text(NSLocalizedString(
+                    "clear_data_confirm_message",
+                    value: "将删除所有本地记录、预约、提醒、常用名称和常用地点，且无法恢复。",
+                    comment: ""
+                ))
             }
             .overlay {
                 if let toastMessage {
                     ToastView(message: toastMessage)
                 }
             }
-            .animation(.easeInOut(duration: 0.15), value: showAppearancePicker)
-            .animation(.easeInOut(duration: 0.15), value: showClearConfirm)
             .animation(.easeInOut(duration: 0.2), value: toastMessage)
             .alert(
                 NSLocalizedString("clear_data_failed_title", value: "清除失败", comment: ""),
@@ -166,17 +135,6 @@ struct SettingsView: View {
                 }
             } message: {
                 Text(clearDataErrorMessage ?? "")
-            }
-            .overlay {
-                GotItInfoDialogPresenter(
-                    isPresented: $showSoundEffectsHelp,
-                    title: NSLocalizedString("sound_effects_help_title", value: "音效", comment: ""),
-                    message: NSLocalizedString(
-                        "sound_effects_help_message",
-                        value: "控制掷骰子、抛硬币、倒计时结束等工具音效，关闭后这些音效将静音。",
-                        comment: ""
-                    )
-                )
             }
             .onChange(of: soundEffectsEnabled) { _, value in
                 PreferencesManager.shared.soundEnabled = value
@@ -296,19 +254,36 @@ struct SettingsView: View {
                     title: NSLocalizedString("sound_effects", value: "音效", comment: ""),
                     isOn: $soundEffectsEnabled,
                     toggleAccessibilityIdentifier: "me_sound_effects_toggle",
-                    helpAction: { showSoundEffectsHelp = true }
+                    helpTitle: NSLocalizedString("sound_effects_help_title", value: "音效", comment: ""),
+                    helpMessage: NSLocalizedString(
+                        "sound_effects_help_message",
+                        value: "控制掷骰子、抛硬币、倒计时结束等工具音效，关闭后这些音效将静音。",
+                        comment: ""
+                    )
                 )
                 settingsRowDivider
-                Button {
-                    AppAnalytics.openDialog("appearance_picker", source: .meTab)
-                    showAppearancePicker = true
+                Menu {
+                    ForEach(AppAppearanceMode.allCases, id: \.self) { mode in
+                        Button {
+                            appearance.mode = mode
+                            AppAnalytics.track(.toggleSetting, parameters: [
+                                .settingName: .string("app_appearance"),
+                                .settingValue: .string(mode.rawValue)
+                            ])
+                        } label: {
+                            if appearance.mode == mode {
+                                Label(mode.localizedTitle, systemImage: "checkmark")
+                            } else {
+                                Text(mode.localizedTitle)
+                            }
+                        }
+                    }
                 } label: {
                     SettingsNavigationRow(
                         title: NSLocalizedString("appearance_mode_title", value: "外观模式", comment: ""),
                         value: appearance.mode.localizedTitle
                     )
                 }
-                .buttonStyle(.plain)
                 settingsRowDivider
                 Button {
                     AppAnalytics.openDialog("clear_data_confirm", source: .meTab)
@@ -465,9 +440,7 @@ struct SettingsView: View {
     }
 
     private var settingsRowDivider: some View {
-        Divider()
-            .overlay(Theme.divider)
-            .opacity(0.45)
+        SettingsRowDivider()
     }
 }
 
@@ -522,6 +495,15 @@ struct MeTab: View {
 }
 
 // MARK: - Supporting Views
+
+/// 我的 Tab 列表页统一的条目分割线：Theme.divider 45% 透明度。
+private struct SettingsRowDivider: View {
+    var body: some View {
+        Divider()
+            .overlay(Theme.divider)
+            .opacity(0.45)
+    }
+}
 
 struct SettingsSection<Content: View>: View {
     let title: String?
@@ -646,7 +628,6 @@ private struct MeAccountEntryRow: View {
         ZStack {
             Circle()
                 .fill(Theme.controlBackground)
-                .overlay(Circle().stroke(Theme.divider.opacity(0.7), lineWidth: 1.5))
             if loggedIn, let avatarURL {
                 AsyncImage(url: avatarURL) { image in
                     image
@@ -686,7 +667,6 @@ private struct ScoreboardSettingsView: View {
     @State private var vibrationEnabled = PreferencesManager.shared.vibrationEnabled
     @State private var touchGuard = PreferencesManager.shared.scoreboardTouchGuardEnabled
     @State private var doubleTapSubtract = PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled
-    @State private var helpTopic: ScoreboardSettingHelp?
 
     var body: some View {
         ScrollView {
@@ -717,14 +697,14 @@ private struct ScoreboardSettingsView: View {
                             title: NSLocalizedString("scoreboard_touch_guard", value: "触摸防误触", comment: ""),
                             isOn: $touchGuard,
                             toggleAccessibilityIdentifier: "scoreboard_touch_guard_toggle",
-                            helpAction: { helpTopic = .touchGuard }
+                            help: .touchGuard
                         )
                         Divider().overlay(Theme.divider)
                         ScoreboardToggleSettingRow(
                             title: NSLocalizedString("scoreboard_double_tap_subtract", value: "双击减分", comment: ""),
                             isOn: $doubleTapSubtract,
                             toggleAccessibilityIdentifier: "scoreboard_double_tap_subtract_toggle",
-                            helpAction: { helpTopic = .doubleTapSubtract }
+                            help: .doubleTapSubtract
                         )
                     }
                 }
@@ -734,7 +714,7 @@ private struct ScoreboardSettingsView: View {
                         title: NSLocalizedString("official_break_game", value: "局中/局间官方休息", comment: ""),
                         isOn: $officialBreaksEnabled,
                         toggleAccessibilityIdentifier: "official_breaks_toggle",
-                        helpAction: { helpTopic = .officialBreak }
+                        help: .officialBreak
                     )
                 }
             }
@@ -773,15 +753,6 @@ private struct ScoreboardSettingsView: View {
             PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled = value
             trackSetting("double_tap_subtract", value)
         }
-        .overlay {
-            CenteredSetupDialogPresenter(item: $helpTopic) { topic, dismiss, _ in
-                GotItInfoDialogCard(
-                    title: topic.title,
-                    message: topic.message,
-                    onDismiss: dismiss
-                )
-            }
-        }
     }
 
     private func trackSetting(_ name: String, _ value: Bool) {
@@ -798,12 +769,10 @@ private struct ScoreboardSettingsView: View {
     }
 }
 
-private enum ScoreboardSettingHelp: String, Identifiable {
+private enum ScoreboardSettingHelp {
     case touchGuard
     case doubleTapSubtract
     case officialBreak
-
-    var id: String { rawValue }
 
     var title: String {
         switch self {
@@ -823,26 +792,31 @@ private enum ScoreboardSettingHelp: String, Identifiable {
             return NSLocalizedString("scoreboard_official_break_help_message", value: "开启后，支持的项目会在局中或局间按规则自动进入官方休息；休息期间暂停计分，可跳过并可撤销。", comment: "")
         }
     }
+
+    /// 该行位于页面底部，气泡固定向锚点上方展开，避免小屏（如 iPhone SE）下方空间不足被裁切。
+    var prefersAboveAnchor: Bool {
+        self == .officialBreak
+    }
 }
 
 private struct ScoreboardToggleSettingRow: View {
     let title: String
     @Binding var isOn: Bool
     let toggleAccessibilityIdentifier: String
-    var helpAction: (() -> Void)? = nil
+    var help: ScoreboardSettingHelp? = nil
 
     var body: some View {
         HStack(spacing: 10) {
             Text(title)
                 .font(.system(size: 16))
                 .foregroundColor(Theme.textPrimary)
-            if let helpAction {
-                Button(action: helpAction) {
-                    Image(systemName: "questionmark.circle")
-                        .foregroundColor(Theme.textSecondary)
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("\(toggleAccessibilityIdentifier)_help")
+            if let help {
+                SystemHelpButton(
+                    title: help.title,
+                    message: help.message,
+                    accessibilityIdentifier: "\(toggleAccessibilityIdentifier)_help",
+                    preferredArrowEdge: help.prefersAboveAnchor ? .bottom : nil
+                )
             }
             Spacer()
             Toggle("", isOn: $isOn)
@@ -862,20 +836,20 @@ private struct MeSoundToggleRow: View {
     let title: String
     @Binding var isOn: Bool
     let toggleAccessibilityIdentifier: String
-    var helpAction: (() -> Void)? = nil
+    var helpTitle: String? = nil
+    var helpMessage: String? = nil
 
     var body: some View {
         HStack(spacing: 6) {
             Text(title)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(Theme.textPrimary)
-            if let helpAction {
-                Button(action: helpAction) {
-                    Image(systemName: "questionmark.circle")
-                        .foregroundColor(Theme.textSecondary)
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("\(toggleAccessibilityIdentifier)_help")
+            if let helpTitle, let helpMessage {
+                SystemHelpButton(
+                    title: helpTitle,
+                    message: helpMessage,
+                    accessibilityIdentifier: "\(toggleAccessibilityIdentifier)_help"
+                )
             }
             Spacer()
             Toggle("", isOn: $isOn)
@@ -998,7 +972,7 @@ private struct AboutUsView: View {
                             AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
                         })
                         .accessibilityIdentifier("settings_about_terms_link")
-                        Divider().overlay(Theme.divider)
+                        SettingsRowDivider()
                         Link(destination: AppSupportURLs.privacy) {
                             SettingsNavigationRow(title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: ""))
                         }
@@ -1007,12 +981,12 @@ private struct AboutUsView: View {
                         })
                         .accessibilityIdentifier("settings_about_privacy_link")
                         if isChineseLocale {
-                            Divider().overlay(Theme.divider)
+                            SettingsRowDivider()
                             Link(destination: AppSupportURLs.wechatGroup) {
                                 SettingsNavigationRow(title: NSLocalizedString("about_wechat_group", value: "微信群", comment: ""))
                             }
                             .accessibilityIdentifier("settings_about_wechat_link")
-                            Divider().overlay(Theme.divider)
+                            SettingsRowDivider()
                             qqGroupRow
                         }
                     }

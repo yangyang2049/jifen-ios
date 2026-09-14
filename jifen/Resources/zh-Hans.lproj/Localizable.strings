@@ -177,7 +177,8 @@
 "game_doudizhu" = "斗地主";
 "game_simple_score" = "简单计分";
 "score_custom_adjust_label" = "自定义加减分";
-"score_custom_adjust_setup_desc" = "点按队伍或玩家时打开加减分面板。";
+"score_custom_adjust_help_title" = "计分方式说明";
+"score_custom_adjust_help" = "自定义模式：点按格子打开加减分面板，可输入任意分值。\n\n传统模式：点按格子加 1 分；开启“双击减分”后，双击减 1 分。\n\n两种模式均支持负数，长按格子可编辑名称和分数。";
 "score_custom_adjust_increment" = "加分";
 "score_custom_adjust_decrement" = "减分";
 "score_custom_adjust_custom_value_placeholder" = "自定义分值";
@@ -354,6 +355,7 @@
 "dice_count_1" = "1颗";
 "dice_count_2" = "2颗";
 "dice_count_3" = "3颗";
+"dice_count_title" = "骰子数量";
 
 /* Points Table Tool */
 "points_table_title" = "积分榜";
@@ -494,7 +496,7 @@
 "me_password_login_button_loading" = "登录中...";
 "account_login_agreement_toggle" = "同意用户协议和隐私政策";
 "account_login_agreement_prefix" = "已阅读并同意";
-"account_login_agreement_and" = "和";
+"account_login_agreement_and" = " 和 ";
 "account_login_agreement_terms" = "《服务条款》";
 "account_login_agreement_privacy" = "《隐私政策》";
 "account_logout" = "退出登录";

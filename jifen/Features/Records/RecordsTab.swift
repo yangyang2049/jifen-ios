@@ -258,7 +258,6 @@ struct RecordsTab: View {
             }
         }
         .presentationDetents([.medium, .large])
-        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private var tabChips: some View {

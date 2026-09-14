@@ -6,13 +6,16 @@ enum UITestRecordFixtures {
     static func installIfRequested() {
         #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
+        let shouldClear = arguments.contains("-UITestClearRecordFixtures")
+        let shouldInstall = arguments.contains("-UITestRecordFixtures")
+        guard shouldClear || shouldInstall else { return }
+
         let manager = ScoreboardRecordManager.shared
-        if arguments.contains("-UITestClearRecordFixtures") {
+        if shouldClear {
             removeFixtures(from: manager)
             ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
             return
         }
-        guard arguments.contains("-UITestRecordFixtures") else { return }
         removeFixtures(from: manager)
         let gameTypes = GameCatalog.scoreboardItems.map(\.gameType)
 

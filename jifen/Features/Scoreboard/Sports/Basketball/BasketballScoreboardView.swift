@@ -408,7 +408,10 @@ struct BasketballScoreboardView: View {
                 timeoutRemainingSeconds: store.state.timeoutRemainingSeconds,
                 timeoutDurationSeconds: BasketballMatchEngine.timeoutDurationSeconds(store.state),
                 logicalSide: logicalSide,
-                onScore: { store.send(.addPoints(side: logicalSide, points: $0)) },
+                onScore: {
+                    VibrationManager.shared.vibrateLight()
+                    store.send(.addPoints(side: logicalSide, points: $0))
+                },
                 onFoul: { store.addFoul(logicalSide) },
                 onRemoveFoul: { store.send(.removeFoul(side: logicalSide)) },
                 onTimeout: { store.send(.useTimeout(side: logicalSide)) },
@@ -863,7 +866,11 @@ private struct BasketballEditTeamPanel: View {
     }
 
     private func adjustButton(systemName: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button(action: {
+            // 对齐安卓 ScoreEditAdjustRows：编辑面板比分 ± 按钮轻震反馈。
+            VibrationManager.shared.vibrateLight()
+            action()
+        }) {
             Image(systemName: systemName)
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(.white.opacity(0.8))

@@ -74,7 +74,8 @@ final class BookingStartPersistenceTests: XCTestCase {
                 let request = try XCTUnwrap(booking.makeStartRequest())
                 XCTAssertEqual(request.gameType.scoreCoreGameType, fixture.exactType)
 
-                let persistedValue = try XCTUnwrap(await BookingStartPersistence.persist(request))
+                let persistenceResult = await BookingStartPersistence.persist(request)
+                let persistedValue = try XCTUnwrap(persistenceResult)
                 let sessionID = try XCTUnwrap(UUID(uuidString: persistedValue))
                 persistedIDs.append(sessionID)
                 let envelope = try XCTUnwrap(
@@ -112,7 +113,8 @@ final class BookingStartPersistenceTests: XCTestCase {
                     gameType: .pickleball,
                     setup: setup
                 )
-                let persisted = try XCTUnwrap(await BookingStartPersistence.persist(request))
+                let persistenceResult = await BookingStartPersistence.persist(request)
+                let persisted = try XCTUnwrap(persistenceResult)
                 let sessionID = try XCTUnwrap(UUID(uuidString: persisted))
                 persistedIDs.append(sessionID)
                 let payload = try XCTUnwrap(

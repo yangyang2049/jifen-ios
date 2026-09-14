@@ -91,10 +91,10 @@ struct CastConnectionView: View {
                         comment: ""
                     ))
                     .font(.system(size: 13))
-                    .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                    .foregroundStyle(Theme.textSecondary)
                     Image(systemName: usageExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                        .foregroundStyle(Theme.textSecondary)
                 }
                 .contentShape(Rectangle())
             }
@@ -134,7 +134,7 @@ struct CastConnectionView: View {
                     ))
                     .font(.system(size: 12))
                     .lineSpacing(3)
-                    .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                    .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                     Text(NSLocalizedString(
@@ -144,7 +144,7 @@ struct CastConnectionView: View {
                     ))
                     .font(.system(size: 12))
                     .lineSpacing(3)
-                    .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                    .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
@@ -247,7 +247,7 @@ struct CastConnectionView: View {
                     ))
                     .font(.system(size: 12))
                     .lineSpacing(3)
-                    .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                    .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                 }

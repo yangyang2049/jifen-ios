@@ -160,12 +160,9 @@ struct QuickStartEditView: View {
                 NSLocalizedString("home_customize_quick_start", value: "自定义快捷入口", comment: "")
             )
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Theme.dialogSurfaceBackground, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Theme.dialogSurfaceBackground)
         .onChange(of: showsTertiarySlot) { _, isVisible in
             if !isVisible && activeSlot == .tertiary {
                 activeSlot = .primary

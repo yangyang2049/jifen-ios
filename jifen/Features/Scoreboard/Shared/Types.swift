@@ -17,7 +17,7 @@ func resolvedScoreboardSetupName(_ name: String?, fallback: String) -> String {
     return trimmed.isEmpty ? fallback : trimmed
 }
 
-enum GameType: String, Codable, CaseIterable {
+enum GameType: String, Codable, CaseIterable, Sendable {
     case pingpong = "pingpong"
     case badminton = "badminton"
     case shuttlecock = "shuttlecock"
@@ -168,7 +168,7 @@ enum GameType: String, Codable, CaseIterable {
         }
     }
 
-    init?(scoreCoreGameType: ScoreCore.GameType) {
+    nonisolated init?(scoreCoreGameType: ScoreCore.GameType) {
         switch scoreCoreGameType {
         case .pingpong, .pingpongDoubles: self = .pingpong
         case .badminton, .badmintonDoubles: self = .badminton

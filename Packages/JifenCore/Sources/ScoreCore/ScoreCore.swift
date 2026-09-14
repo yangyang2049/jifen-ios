@@ -153,12 +153,6 @@ public struct TeamScreenLayout: Codable, Equatable, Sendable {
     }
 }
 
-/// Setup name adapter: SportsSetup `team1`/`team2` → team0/team1 identity.
-public enum TeamSetupMapping {
-    public static func team0Name(team1Name: String, team2Name: String) -> String { team1Name }
-    public static func team1Name(team1Name: String, team2Name: String) -> String { team2Name }
-}
-
 /// S1 dual-side rally family (= Android/HOS S1 DualSide).
 public typealias S1DualSideMatchSide = MatchSide
 

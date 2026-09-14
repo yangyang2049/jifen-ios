@@ -69,7 +69,7 @@ final class ScoreboardStyleEditorControllerTests: XCTestCase {
         controller.updateDraft(controller.active.withPanelBackground("112233", for: .sideLeft))
 
         // 模拟外部配置变化（编辑中必须跳过）
-        controller.updateFromPreferences(preferences)
+        controller.updateFromPreferences()
         XCTAssertEqual(controller.draft.slotBackgroundHex(.sideLeft), "112233")
     }
 
@@ -85,7 +85,7 @@ final class ScoreboardStyleEditorControllerTests: XCTestCase {
 
         // 保存一份新样式后，非编辑态同步生效
         preferences.setScoreboardStyleProfileV2(original.withPanelBackground("445566", for: .sideRight), for: controller.styleID)
-        controller.updateFromPreferences(preferences)
+        controller.updateFromPreferences()
         XCTAssertEqual(controller.effective.slotBackgroundHex(.sideRight), "445566")
     }
 
@@ -112,7 +112,7 @@ final class ScoreboardStyleEditorControllerTests: XCTestCase {
             .withPanelBackground("112233", for: .sideLeft)
             .withElementTextColor(.mainScore, slotKey: .sideRight, mode: .manual, colorHex: "#00ff88"))
 
-        let result = controller.save(preferences: preferences)
+        let result = controller.save()
         guard case .success = result else {
             return XCTFail("save should succeed")
         }
@@ -135,7 +135,7 @@ final class ScoreboardStyleEditorControllerTests: XCTestCase {
         draft.panels = [ScoreboardStylePanelV2(slotKey: .sideLeft, backgroundColorHex: "ZZZZZZ")]
         controller.updateDraft(draft)
 
-        _ = controller.save(preferences: preferences)
+        _ = controller.save()
         XCTAssertNil(controller.active.panels, "非法色值面板应在保存时被清洗")
     }
 
@@ -148,7 +148,7 @@ final class ScoreboardStyleEditorControllerTests: XCTestCase {
             print("  resolvedText t0=\(themed.resolvedTextHex(for: .team0)) t1=\(themed.resolvedTextHex(for: .team1)) slotL=\(themed.slotBackgroundHex(.sideLeft)) slotR=\(themed.slotBackgroundHex(.sideRight))")
         }
         controller.updateDraft(ScoreboardStyleProfileV2.default(for: controller.styleID, theme: .brb))
-        _ = controller.save(preferences: preferences)
+        _ = controller.save()
         let snapshot = ScoreboardAppearanceSnapshot.current(styleID: controller.styleID, preferences)
         print("SNAPSHOT theme=\(snapshot.theme.rawValue) palette.bg-l-r=\(snapshot.palette.left) fg=\(snapshot.palette.foreground)")
     }
@@ -159,7 +159,7 @@ final class ScoreboardStyleEditorControllerTests: XCTestCase {
         controller.updateDraft(controller.active.withPanelBackground("112233", for: .sideLeft))
         XCTAssertTrue(controller.canResetDraft)
 
-        controller.resetDraft(preferences: preferences)
+        controller.resetDraft()
         XCTAssertFalse(controller.canResetDraft)
         XCTAssertEqual(controller.draft, ScoreboardStyleProfileV2.default(for: controller.styleID))
     }
@@ -176,7 +176,7 @@ final class ScoreboardStyleEditorControllerTests: XCTestCase {
         controller.updateDraft(controller.active.withPanelBackground("112233", for: .sideLeft))
         XCTAssertTrue(controller.canResetDraft)
 
-        controller.resetDraft(preferences: preferences)
+        controller.resetDraft()
         // 主题不得丢失
         XCTAssertEqual(controller.draft.themeCode, ScoreboardTheme.brb.rawValue)
         XCTAssertEqual(controller.draft, ScoreboardStyleProfileV2.default(for: controller.styleID, theme: .brb))

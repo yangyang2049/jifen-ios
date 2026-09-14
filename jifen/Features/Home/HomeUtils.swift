@@ -47,20 +47,6 @@ func getGameGradient(type: GameType) -> [Color] {
     return GAME_GRADIENTS[type] ?? [Color(hex: "#71717A"), Color(hex: "#3F3F46")] // Default gray if not found
 }
 
-func getGameStats(type: GameType) -> String {
-    // Placeholder for now, can be connected to real stats later
-    return NSLocalizedString("home_start_game", comment: "Start Game")
-}
-
-func getPlusIcon() -> String {
-    // Use emoji for reliable + icon display
-    return "➕"
-}
-
-// Game types excluded from Quick Start config (计时器、计数器、跳棋)
-// Quick Start options should stay fully aligned with Scoreboard/Timer tabs.
-let availableSports: [GameType] = GameCatalog.quickStartSelectableGameTypes
-
 let quickStartTextTimerTypes: Set<GameType> = quickStartTimerTypes
 
 func isQuickStartTimerType(_ type: GameType) -> Bool {

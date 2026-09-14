@@ -133,7 +133,7 @@ struct MembershipView: View {
                 ? NSLocalizedString("vip_subtitle_active", value: "已解锁全部会员专属功能", comment: "")
                 : NSLocalizedString("vip_subtitle", value: "成为会员，解锁更完整的计分体验", comment: ""))
                 .font(.system(size: 14))
-                .foregroundColor(Color(uiColor: .tertiaryLabel))
+                .foregroundColor(Theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 5)
         }
@@ -261,7 +261,9 @@ struct MembershipView: View {
         .frame(maxWidth: .infinity)
     }
 
-    // MARK: - 方案卡（对齐鸿蒙 VipPage PlanCard：第一行 月/年 并排，第二行 终身 占满）
+    // MARK: - 方案卡（对齐安卓 AccountMembershipScreens.kt）：
+    // 手机端一行一个横向卡（MembershipPlanCardHorizontal：标题/副标题在左，价格在右）；
+    // 平板端月/年并排一行、终身独占一行（竖卡）。
     @ViewBuilder
     private var planCards: some View {
         if manager.products.isEmpty {
@@ -281,7 +283,7 @@ struct MembershipView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
-        } else {
+        } else if Theme.usesPadLayout {
             VStack(spacing: 10) {
                 HStack(spacing: 10) {
                     if let monthly = productForPlan(.monthly) {
@@ -296,7 +298,65 @@ struct MembershipView: View {
                 }
             }
             .padding(.top, 16)
+        } else {
+            VStack(spacing: 8) {
+                if let monthly = productForPlan(.monthly) {
+                    horizontalPlanCard(monthly)
+                }
+                if let yearly = productForPlan(.yearly) {
+                    horizontalPlanCard(yearly)
+                }
+                if let lifetime = productForPlan(.lifetime) {
+                    horizontalPlanCard(lifetime)
+                }
+            }
+            .padding(.top, 16)
         }
+    }
+
+    /// 手机端横向方案卡（对齐安卓 MembershipPlanCardHorizontal）：
+    /// 左侧标题/副标题、右侧价格，终身在价格下方显示徽标。
+    private func horizontalPlanCard(_ product: Product) -> some View {
+        let isSelected = selectedProduct?.id == product.id
+        let plan = planInfo(for: product.id)
+        return Button {
+            withAnimation(.easeInOut(duration: 0.15)) { selectedProductID = product.id }
+        } label: {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(plan.title)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Theme.textPrimary)
+                        .lineLimit(1)
+                    Text(plan.subtitle)
+                        .font(.system(size: 11))
+                        .foregroundColor(isSelected ? Theme.accentColor : Theme.textSecondary)
+                        .lineLimit(2)
+                }
+                Spacer(minLength: 10)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(product.displayPrice)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(isSelected ? Theme.accentColor : Theme.textPrimary)
+                    if planKind(for: product.id) == .lifetime {
+                        Text(plan.badge)
+                            .font(.system(size: 10))
+                            .foregroundColor(Theme.accentColor)
+                    }
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity)
+            .background(RoundedRectangle(cornerRadius: 16).fill(isSelected ? Theme.accentColor.opacity(0.12) : Theme.appCardBackground))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(isSelected ? Theme.accentColor : Theme.divider, lineWidth: isSelected ? 2 : 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func planCard(_ product: Product) -> some View {
@@ -397,7 +457,7 @@ struct MembershipView: View {
             if !session.isAuthenticated {
                 Text(NSLocalizedString("vip_login_hint", value: "购买前请先登录账号", comment: ""))
                     .font(.system(size: 12))
-                    .foregroundColor(Color(uiColor: .tertiaryLabel))
+                    .foregroundColor(Theme.textSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 8)
             }
@@ -452,13 +512,13 @@ struct MembershipView: View {
     private var agreementRow: some View {
         let autoRenewURL = LegalDocuments.autoRenewalTermsURL
         let membershipURL = LegalDocuments.membershipAgreementURL
-        let linkFont = Font.system(size: 12, weight: .medium)
+        let linkFont = Font.system(size: 13, weight: .medium)
 
         var text = AttributedString(
             NSLocalizedString("vip_agreement_plain_prefix", value: "已阅读并同意", comment: "")
         )
         text.foregroundColor = Theme.textSecondary
-        text.font = Font.system(size: 12)
+        text.font = Font.system(size: 13)
 
         if isSubscriptionSelected {
             var renewLink = AttributedString(
@@ -473,7 +533,7 @@ struct MembershipView: View {
                 NSLocalizedString("vip_agreement_link_separator", value: "", comment: "")
             )
             separator.foregroundColor = Theme.textSecondary
-            separator.font = Font.system(size: 12)
+            separator.font = Font.system(size: 13)
             text += separator
         }
 
@@ -485,7 +545,7 @@ struct MembershipView: View {
         membershipLink.font = linkFont
         text += membershipLink
 
-        return HStack(alignment: .top, spacing: 2) {
+        return HStack(alignment: .center, spacing: 2) {
             Button {
                 acceptedTerms.toggle()
                 if acceptedTerms { agreementHint = false }
@@ -498,9 +558,9 @@ struct MembershipView: View {
             }
             .buttonStyle(.plain)
 
+            // 单行时纵向居中、与左侧勾选圈对齐（对齐安卓 AgreementRow CenterVertically）。
             Text(text)
                 .lineSpacing(3)
-                .padding(.top, 8)
                 .environment(\.openURL, OpenURLAction { url in
                     if url == autoRenewURL {
                         agreementPage = MembershipAgreementPage(kind: .autoRenewal)

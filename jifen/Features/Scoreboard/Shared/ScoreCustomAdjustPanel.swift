@@ -204,6 +204,8 @@ struct ScoreCustomAdjustPanel: View {
     }
 
     private func apply(_ value: Int) {
+        // 对齐安卓 ScoreEditAdjustRows：调分提交时轻震反馈。
+        VibrationManager.shared.vibrateLight()
         onAdjust(sign * value)
         onDismiss()
     }

@@ -207,10 +207,12 @@ struct ScoreboardTemplate: View {
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
                                 guard !isStyleEditing else { return }
+                                VibrationManager.shared.vibrateLight()
                                 config.viewModel.addScore(isLeft: leftLogicalIsLeft, points: points)
                             },
                             onScoreSubtract: { points in
                                 guard !isStyleEditing else { return }
+                                VibrationManager.shared.vibrateLight()
                                 config.viewModel.subtractScore(isLeft: leftLogicalIsLeft, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
@@ -261,8 +263,10 @@ struct ScoreboardTemplate: View {
                                         pendingTapSide = nil
                                         tapGeneration += 1
                                         if value.translation.height < 0 {
+                                            VibrationManager.shared.vibrateLight()
                                             config.viewModel.addScore(isLeft: leftLogicalIsLeft, points: 1)
                                         } else {
+                                            VibrationManager.shared.vibrateLight()
                                             config.viewModel.subtractScore(isLeft: leftLogicalIsLeft, points: 1)
                                         }
                                         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -291,10 +295,12 @@ struct ScoreboardTemplate: View {
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
                                 guard !isStyleEditing else { return }
+                                VibrationManager.shared.vibrateLight()
                                 config.viewModel.addScore(isLeft: rightLogicalIsLeft, points: points)
                             },
                             onScoreSubtract: { points in
                                 guard !isStyleEditing else { return }
+                                VibrationManager.shared.vibrateLight()
                                 config.viewModel.subtractScore(isLeft: rightLogicalIsLeft, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
@@ -345,8 +351,10 @@ struct ScoreboardTemplate: View {
                                         pendingTapSide = nil
                                         tapGeneration += 1
                                         if value.translation.height < 0 {
+                                            VibrationManager.shared.vibrateLight()
                                             config.viewModel.addScore(isLeft: rightLogicalIsLeft, points: 1)
                                         } else {
+                                            VibrationManager.shared.vibrateLight()
                                             config.viewModel.subtractScore(isLeft: rightLogicalIsLeft, points: 1)
                                         }
                                         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -788,6 +796,7 @@ struct ScoreboardTemplate: View {
                 if let onScorePanelTap = config.onScorePanelTap {
                     pendingTapSide = nil
                     tapGeneration += 1
+                    VibrationManager.shared.vibrateLight()
                     onScorePanelTap(isLeft)
                     revealImmersiveChrome()
                     return
@@ -799,8 +808,10 @@ struct ScoreboardTemplate: View {
                     // 对齐安卓：仅支持清单内的项目才双击减分，其余项目双击等价于两次加分。
                     if appearance.doubleTapSubtract,
                        exactScoreCoreGameType.map(ScoreboardUsageHintHelper.supportsDoubleTapSubtract) == true {
+                        VibrationManager.shared.vibrateLight()
                         config.viewModel.subtractScore(isLeft: isLeft, points: 1)
                     } else {
+                        VibrationManager.shared.vibrateLight()
                         config.viewModel.addScore(isLeft: isLeft, points: 2)
                     }
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -809,6 +820,7 @@ struct ScoreboardTemplate: View {
                 }
 
                 if let previousSide = pendingTapSide, previousSide != isLeft {
+                    VibrationManager.shared.vibrateLight()
                     config.viewModel.addScore(isLeft: previousSide, points: 1)
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 }
@@ -821,6 +833,7 @@ struct ScoreboardTemplate: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
                     guard generation == tapGeneration, pendingTapSide == isLeft else { return }
                     pendingTapSide = nil
+                    VibrationManager.shared.vibrateLight()
                     config.viewModel.addScore(isLeft: isLeft, points: 1)
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 }
@@ -980,8 +993,10 @@ struct ScoreboardTemplate: View {
             return
         }
         if delta > 0 {
+            VibrationManager.shared.vibrateLight()
             viewModel.addScore(isLeft: isLeft, points: delta)
         } else {
+            VibrationManager.shared.vibrateLight()
             viewModel.subtractScore(isLeft: isLeft, points: -delta)
         }
     }

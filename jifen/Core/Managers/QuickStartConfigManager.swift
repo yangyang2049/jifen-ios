@@ -31,10 +31,6 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
         }
     }
 
-    func `init`() async {
-        // No-op for UserDefaults, but can be used for more complex setup if needed
-    }
-
     /// Resolves device-specific defaults without reading UserDefaults again.
     /// A persisted configuration always wins and is decoded only in `init`.
     func configureDefaultsIfNeeded(isLargeScreen: Bool, is2in1: Bool) {
@@ -47,30 +43,6 @@ final class QuickStartConfigManager: ObservableObject { // Add ObservableObject
                 ? .defaultTabletConfig
                 : .defaultPhoneConfig
         }
-    }
-
-    func setPrimarySport(_ primary: GameType) async throws {
-        var currentConfig = self.quickStartConfig // Access the published config
-        currentConfig.primarySport = primary
-        try await saveConfig(currentConfig)
-        didResolveInitialConfig = true
-        self.quickStartConfig = currentConfig // Update published property
-    }
-
-    func setSecondarySport(_ secondary: GameType) async throws {
-        var currentConfig = self.quickStartConfig // Access the published config
-        currentConfig.secondarySport = secondary
-        try await saveConfig(currentConfig)
-        didResolveInitialConfig = true
-        self.quickStartConfig = currentConfig // Update published property
-    }
-
-    func setTertiarySport(_ tertiary: GameType) async throws {
-        var currentConfig = quickStartConfig
-        currentConfig.tertiarySport = tertiary
-        try await saveConfig(currentConfig)
-        didResolveInitialConfig = true
-        quickStartConfig = currentConfig
     }
 
     /// Saves the visible quick-start slots in one write. Compact layouts pass

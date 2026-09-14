@@ -45,6 +45,10 @@ struct SnookerScoreboardView: View {
     @State private var typographyPreference = PreferencesManager.shared.scoreboardTypography(
         for: ScoreboardStyleID(gameType: .snooker)
     )
+    // 对齐安卓 SnookerScoreScreen：点分数面板后底栏上下抖动提示。
+    @State private var bottomBarAttentionTrigger = 0
+    @State private var bottomBarShakeOffset: CGFloat = 0
+    @State private var bottomBarShakeTask: Task<Void, Never>?
 
     private let balls: [(points: Int, color: Color, label: String)] = [
         (1, Color(hex: "FF3B30"), "1"),
@@ -178,9 +182,14 @@ struct SnookerScoreboardView: View {
         .onChange(of: sessionStore.persistenceFailureSignal) { _, signal in
             if signal > 0 { showPersistenceError = true }
         }
+        .onChange(of: bottomBarAttentionTrigger) { _, trigger in
+            guard trigger > 0 else { return }
+            runBottomBarShake()
+        }
 
         .onDisappear {
             cancelTerminalFramePresentation()
+            bottomBarShakeTask?.cancel()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
 
             sessionStore.flush {
@@ -321,8 +330,9 @@ struct SnookerScoreboardView: View {
             // 手机端当杆分数与大分数同行（外侧、底端对齐）；平板端保持在大分数下方。
             inlineSecondaryScore: !Theme.usesPadLayout,
             finished: displayedState.finished || terminalFrameHold.value != nil,
-            onLeftTap: {},
-            onRightTap: {},
+            // 对齐安卓 panelAttentionCallbacks.onTap：点击分数面板时底栏抖动提示。
+            onLeftTap: { bottomBarAttentionTrigger += 1 },
+            onRightTap: { bottomBarAttentionTrigger += 1 },
             onUndo: { undo() },
             onReset: { resetMatch() },
             // Android 3.1 removes the generic side-exchange action for snooker.
@@ -393,6 +403,7 @@ struct SnookerScoreboardView: View {
                 )
             },
             bottomBar: { AnyView(snookerBottomBar) },
+            panelContentBottomInset: Theme.usesPadLayout ? 112 : 86,
             topCenter: { preference, containerSize, appearance in
                 AnyView(snookerTopCenter(preference: preference, containerSize: containerSize, appearance: appearance))
             },
@@ -559,6 +570,30 @@ struct SnookerScoreboardView: View {
         }
         .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
         .padding(.bottom, 16)
+        .offset(y: bottomBarShakeOffset)
+    }
+
+    /// 对齐安卓 SnookerBottomBar 的 attentionShake：垂直方向 2 轮衰减抖动，
+    /// 每轮 -amp(50ms) → +amp(100ms) → 0(50ms)，振幅 0.75 → 0.585，
+    /// 位移手机 5pt / 平板 6pt。
+    private func runBottomBarShake() {
+        bottomBarShakeTask?.cancel()
+        bottomBarShakeOffset = 0
+        let distance: CGFloat = Theme.usesPadLayout ? 6 : 5
+        let amplitudes: [CGFloat] = [0.75, 0.585]
+        bottomBarShakeTask = Task { @MainActor in
+            for amplitude in amplitudes {
+                withAnimation(.easeInOut(duration: 0.05)) { bottomBarShakeOffset = -amplitude * distance }
+                try? await Task.sleep(nanoseconds: 50_000_000)
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeInOut(duration: 0.1)) { bottomBarShakeOffset = amplitude * distance }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeInOut(duration: 0.05)) { bottomBarShakeOffset = 0 }
+                try? await Task.sleep(nanoseconds: 50_000_000)
+                guard !Task.isCancelled else { return }
+            }
+        }
     }
 
     private func snookerBottomBarControls(
@@ -848,7 +883,6 @@ struct SnookerScoreboardView: View {
         }
         .environment(\.font, .body)
         .presentationDetents([.height(260)])
-        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private var snookerRecordSheet: some View {
@@ -881,7 +915,6 @@ struct SnookerScoreboardView: View {
         }
         .environment(\.font, .body)
         .presentationDetents([.medium, .large])
-        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private func snookerRecordTitle(_ raw: String) -> String {

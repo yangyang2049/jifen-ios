@@ -47,7 +47,7 @@
 | `foosball` | 5/7/8、局数、决胜净胜/封顶、进球后发球 | 通用菜单回归 | 单打精确类型与发球规则 | 完成 | Android Foosball；iOS `RallyMatch.swift` 的 `.foosball()` profile | `foosball*` |
 | `foosball_doubles` | 单打底座 + 四人姓名 | 双打布局回归 | 精确双打类型、四人身份 | 完成 | Android Foosball；iOS `RallyMatch.swift`, `DoublesRotation.swift` | `foosballDoubles*` |
 | `simple_score` | 可负分、自定义步长 | 通用改分保护 | 旧 `simpleScore` 可解码，写出规范标识 | 完成 | iOS `ScoreCore.GameType` compatibility decode | `canonicalGameTypeDecoder*` |
-| `multi_scoreboard` | 3–9 人、增删改名、排名、赢家、撤销 | 通用菜单回归 | 多人状态、赢家与动作流水 | 完成 | Android Multi；iOS `S3Placeholder.swift`, `MultiScoreboardView.swift` | `multiParticipant*`, `testMultiScore*` |
+| `multi_scoreboard` | 3–9 人、增删改名、排名、赢家、撤销 | 通用菜单回归 | 多人状态、赢家与动作流水 | 完成 | Android Multi；iOS `MultiParticipantReducer.swift`, `MultiScoreboardView.swift` | `multiParticipant*`, `testMultiScore*` |
 
 ## 第二轮 Score Engine → 数据控制层 → 计分板纵向自检
 

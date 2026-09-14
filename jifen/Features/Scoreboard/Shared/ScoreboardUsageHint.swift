@@ -5,7 +5,7 @@ import SwiftUI
 
 /// 对齐安卓 ScoreboardUsageHintHelper：双击减分的支持项目清单与提示文案选择。
 enum ScoreboardUsageHintHelper {
-    static func supportsDoubleTapSubtract(_ gameType: ScoreCore.GameType) -> Bool {
+    nonisolated static func supportsDoubleTapSubtract(_ gameType: ScoreCore.GameType) -> Bool {
         switch gameType {
         case .pingpong, .pingpongDoubles,
              .badminton, .badmintonDoubles,
@@ -22,7 +22,7 @@ enum ScoreboardUsageHintHelper {
         }
     }
 
-    static func doubleTapHintLocalizationKey(_ gameType: ScoreCore.GameType) -> String {
+    nonisolated static func doubleTapHintLocalizationKey(_ gameType: ScoreCore.GameType) -> String {
         switch gameType {
         case .eightBall: "scoreboard_usage_hint_double_tap_rack"
         case .multiScoreboard: "scoreboard_usage_hint_double_tap_player"
@@ -32,7 +32,7 @@ enum ScoreboardUsageHintHelper {
 
     /// 对齐安卓：斗地主/掼蛋/升级/UNO/多分数板屏固定传 touchGuardEnabled=false，
     /// 不启用防误触，使用说明中也不出现防误触行。
-    static func disablesTouchGuard(_ gameType: ScoreCore.GameType) -> Bool {
+    nonisolated static func disablesTouchGuard(_ gameType: ScoreCore.GameType) -> Bool {
         switch gameType {
         case .doudizhu, .guandan, .shengji, .uno, .multiScoreboard:
             return true

@@ -120,7 +120,6 @@ final class ExternalDisplayCoordinator: ObservableObject {
         ) { _ in
             Task { @MainActor [weak self] in self?.refreshStatus() }
         })
-        refreshStatus()
     }
 
     deinit {

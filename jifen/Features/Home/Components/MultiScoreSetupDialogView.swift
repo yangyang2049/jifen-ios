@@ -309,22 +309,26 @@ struct MultiScoreSetupDialogView: View {
         }
     }
 
+    /// 对齐安卓 CardGameSetupDialog.CustomAdjustSetupOption：标题 + "?"帮助 + 右侧 Toggle，无副标题。
     private var customAdjustToggle: some View {
-        Toggle(isOn: $customAdjustEnabled) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(NSLocalizedString("score_custom_adjust_label", value: "自定义加减分", comment: ""))
-                    .font(.system(size: 14))
-                    .foregroundStyle(Theme.textPrimary)
-            Text(NSLocalizedString(
-                    "score_custom_adjust_setup_desc",
-                    value: "点按队伍或玩家时打开加减分面板。",
+        HStack(spacing: 6) {
+            Text(NSLocalizedString("score_custom_adjust_label", value: "自定义加减分", comment: ""))
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.textPrimary)
+            SystemHelpButton(
+                title: NSLocalizedString("score_custom_adjust_help_title", value: "计分方式说明", comment: ""),
+                message: NSLocalizedString(
+                    "score_custom_adjust_help",
+                    value: "自定义模式：点按格子打开加减分面板，可输入任意分值。\n\n传统模式：点按格子加 1 分；开启“双击减分”后，双击减 1 分。\n\n两种模式均支持负数，长按格子可编辑名称和分数。",
                     comment: ""
-                ))
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
-            }
+                ),
+                iconFontSize: 14
+            )
+            Spacer()
+            Toggle("", isOn: $customAdjustEnabled)
+                .labelsHidden()
+                .tint(Theme.primary)
         }
-        .tint(Theme.primary)
     }
 
     private var matchTimeToggle: some View {

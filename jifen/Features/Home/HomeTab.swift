@@ -41,13 +41,12 @@ struct HomeResumeSessionScanOutcome<Candidate> {
 /// Selects one resumable match without letting a damaged or concurrently
 /// removed index entry discard an otherwise valid older match. The candidate
 /// is fully decoded before any entries older than it are archived.
-@MainActor
 struct HomeResumeSessionScanner<Candidate> {
-    typealias ReconcileCommittedRecord = @MainActor (ResumeSessionSummary) async -> Bool
-    typealias ArchiveIfExpired = @MainActor (UUID) async throws -> ResumeSessionDisposition?
-    typealias Abandon = @MainActor (UUID) async throws -> ResumeSessionDisposition
-    typealias CandidateLoader = @MainActor (ResumeSessionSummary) -> Candidate?
-    typealias FailureHandler = @MainActor (Error, ResumeSessionSummary) -> Void
+    typealias ReconcileCommittedRecord = (ResumeSessionSummary) async -> Bool
+    typealias ArchiveIfExpired = (UUID) async throws -> ResumeSessionDisposition?
+    typealias Abandon = (UUID) async throws -> ResumeSessionDisposition
+    typealias CandidateLoader = (ResumeSessionSummary) async -> Candidate?
+    typealias FailureHandler = (Error, ResumeSessionSummary) -> Void
 
     let reconcileCommittedRecord: ReconcileCommittedRecord
     let archiveIfExpired: ArchiveIfExpired
@@ -87,7 +86,7 @@ struct HomeResumeSessionScanner<Candidate> {
                 continue
             }
 
-            guard let candidate = loadCandidate(entry) else {
+            guard let candidate = await loadCandidate(entry) else {
                 // The index and snapshot may have crossed during an atomic
                 // save. Leave the entry untouched and give the repository one
                 // bounded reload instead of failing the entire Home scan.
@@ -265,7 +264,6 @@ struct HomeTab: View {
                         }
                     }
                 )
-                .presentationBackground(Theme.dialogSurfaceBackground)
             }
             .sheet(isPresented: $showNewGameDialog) {
                 NewGameDialogView(
@@ -408,7 +406,6 @@ struct HomeTab: View {
             loadData()
             configureQuickStartDefaultsForCurrentDevice()
             scoreboardVM.ensureLoaded()
-            updateRecentActivities()
             loadUpcomingBookings()
             loadUnfinishedRecord()
             #if DEBUG
@@ -584,7 +581,7 @@ struct HomeTab: View {
                         try await lifecycleCoordinator.abandon(sessionID: sessionID)
                     },
                     loadCandidate: { entry in
-                        UnfinishedGameSummary(session: entry)
+                        await UnfinishedGameSummary.load(session: entry)
                     },
                     onFailure: { error, entry in
                         #if DEBUG

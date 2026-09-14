@@ -4,16 +4,96 @@
 //
 //  对齐安卓 ui/dialog/CustomConfirmDialog.kt：
 //  - CustomConfirmDialog：圆角 16 深卡、标题/正文居中、胶囊双按钮（取消在左、确认在右）
-//  - CustomListDialog：标题 + 列表内容 + 底部全宽胶囊按钮
 //  手机卡片宽 280，regular 布局 400（安卓 confirmDialogMaxWidthDp）。
 //
 
 import SwiftUI
 
+/// 与触发按钮保持空间关系的系统帮助 Popover。
+/// 不指定呈现背景，让 iOS 26 使用 Liquid Glass，旧系统自动回退到原生材质。
+/// 小屏（如 iPhone SE）上靠下的按钮下方空间不足，会自动改为向锚点上方展开。
+struct SystemHelpButton: View {
+    let title: String
+    let message: String
+    var iconFontSize: CGFloat = 15
+    var accessibilityIdentifier: String? = nil
+    /// 手动指定箭头边（.top = 气泡在锚点下方展开、.bottom = 在上方展开）；nil 时自动判断。
+    var preferredArrowEdge: Edge? = nil
+
+    @State private var isPresented = false
+    @State private var fitsBelowAnchor = true
+
+    var body: some View {
+        Button {
+            isPresented = true
+        } label: {
+            Image(systemName: "questionmark.circle")
+                .font(.system(size: iconFontSize, weight: .semibold))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 28, height: 28)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .modifier(OptionalAccessibilityIdentifier(identifier: accessibilityIdentifier))
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { fitsBelowAnchor = Self.popoverFitsBelow(geo.frame(in: .global)) }
+                    .onChange(of: isPresented) { _, presented in
+                        guard presented else { return }
+                        fitsBelowAnchor = Self.popoverFitsBelow(geo.frame(in: .global))
+                    }
+            }
+        )
+        .popover(
+            isPresented: $isPresented,
+            attachmentAnchor: .rect(.bounds),
+            arrowEdge: preferredArrowEdge ?? (fitsBelowAnchor ? .top : .bottom)
+        ) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(20)
+            .frame(idealWidth: 280, maxWidth: 320, alignment: .leading)
+            .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    /// 估算锚点下方的可用空间能否容纳气泡（内容约 260pt 高，含边距）；
+    /// 放不下且上方空间更大时返回 false（气泡改在锚点上方展开）。
+    private static func popoverFitsBelow(_ anchorFrame: CGRect) -> Bool {
+        let windowHeight = UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.keyWindow?.bounds.height }
+            .first ?? UIScreen.main.bounds.height
+        let below = windowHeight - anchorFrame.maxY
+        let above = anchorFrame.minY
+        return below >= min(260, above)
+    }
+}
+
+private struct OptionalAccessibilityIdentifier: ViewModifier {
+    let identifier: String?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let identifier {
+            content.accessibilityIdentifier(identifier)
+        } else {
+            content
+        }
+    }
+}
+
 /// 安卓 ToolWhistleRed
 private let customDialogConfirmRed = Color(hex: "FF3B30")
-/// 安卓选中项绿色勾（MeTabScreen 外观弹窗 Check tint）
-private let customDialogCheckGreen = Color(hex: "22C55E")
 
 private var customDialogMaxWidth: CGFloat {
     Theme.usesPadLayout ? 400 : 280
@@ -123,63 +203,5 @@ struct CustomConfirmDialog: View {
                 }
             }
         }
-    }
-}
-
-struct CustomListDialog<Option: Identifiable, Content: View>: View {
-    let title: String
-    let options: [Option]
-    /// 当前选中项 id；命中时行尾显示绿色勾。
-    let selectedID: (Option) -> String
-    let onSelect: (Option) -> Void
-    var bottomButtonText: String
-    let onDismiss: () -> Void
-    @ViewBuilder let optionRow: (Option) -> Content
-
-    var body: some View {
-        CustomDialogScrim(onDismiss: onDismiss) {
-            CustomDialogCard(title: title) {
-                VStack(spacing: 0) {
-                    ForEach(options) { option in
-                        optionRow(option)
-                            .contentShape(Rectangle())
-                            .onTapGesture { onSelect(option) }
-                    }
-                }
-                .padding(.bottom, 16)
-
-                CustomDialogPillButton(
-                    title: bottomButtonText,
-                    background: Theme.controlBackground,
-                    foreground: Theme.textPrimary,
-                    action: onDismiss
-                )
-            }
-        }
-    }
-}
-
-/// 安卓外观弹窗同款选项行：文本 + 行尾选中绿勾（未选中留 20pt 占位）。
-struct CustomDialogCheckRow: View {
-    let title: String
-    let isSelected: Bool
-
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 16))
-                .foregroundColor(Theme.textPrimary)
-            Spacer()
-            if isSelected {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(customDialogCheckGreen)
-                    .frame(width: 20, height: 20)
-            } else {
-                Color.clear
-                    .frame(width: 20, height: 20)
-            }
-        }
-        .padding(.vertical, 10)
     }
 }

@@ -114,10 +114,12 @@ struct jifenApp: App {
         // Consent is treated as implicitly accepted at launch (same effect as tapping "同意")
         // so analytics/session flow run.
         let hadAcceptedLegal = LegalConsent.hasAcceptedCurrentDocuments()
+        PreferencesManager.shared.migrateLegacyDoubleTapSubtractIfNeeded(
+            hasLegalConsent: hadAcceptedLegal
+        )
         if !hadAcceptedLegal {
             LegalConsent.acceptCurrentDocuments()
         }
-        PreferencesManager.shared.migrateLegacyDoubleTapSubtractIfNeeded(hasLegalConsent: true)
         _hasAcceptedLegal = State(initialValue: true)
         UmengAnalytics.initializeIfConsented()
     }

@@ -260,7 +260,7 @@ struct DualTimerSetupView: View {
 
             Text(suffix)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(Theme.textSecondary.opacity(0.7))
+                .foregroundColor(Theme.textSecondary)
                 .padding(.trailing, 8)
                 .padding(.bottom, 6)
         }

@@ -64,7 +64,6 @@ struct CommonNameSelectorDialog: View {
         // the environment from its presenter, so reset it at the sheet root to
         // keep all system-provided navigation text at a normal dialog size.
         .environment(\.font, .body)
-        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 }
 
@@ -110,4 +109,3 @@ struct InlineCommonNameTextField: View {
         .cornerRadius(cornerRadius)
     }
 }
-

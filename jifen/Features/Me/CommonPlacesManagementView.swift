@@ -332,7 +332,6 @@ struct CommonPlacesManagementView: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 
     private var editSheet: some View {
@@ -376,7 +375,6 @@ struct CommonPlacesManagementView: View {
                 }
             }
         }
-        .presentationBackground(Theme.dialogSurfaceBackground)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }

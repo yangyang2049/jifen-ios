@@ -40,7 +40,7 @@ struct CloudSyncEntryPanel: View {
                     ))
                     .font(.system(size: 12))
                     .lineSpacing(4)
-                    .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                    .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 4)
@@ -68,17 +68,21 @@ struct CloudSyncEntryPanel: View {
                 RemoteDisplayView(session: joinedSession)
             }
         }
-        .overlay {
-            if showEndConfirm {
-                CloudSyncEndConfirmDialog(
-                    onCancel: { showEndConfirm = false },
-                    onConfirm: {
-                        showEndConfirm = false
-                        CloudSyncSession.shared.end()
-                        showToast(NSLocalizedString("scoreboard_sharing_ended", value: "已结束同步", comment: ""))
-                    }
-                )
+        .alert(
+            NSLocalizedString("sync_end_confirm_title", value: "结束同步？", comment: ""),
+            isPresented: $showEndConfirm
+        ) {
+            Button(NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""), role: .destructive) {
+                CloudSyncSession.shared.end()
+                showToast(NSLocalizedString("scoreboard_sharing_ended", value: "已结束同步", comment: ""))
             }
+            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
+        } message: {
+            Text(NSLocalizedString(
+                "sync_end_confirm_message",
+                value: "结束同步后将断开与当前显示端的连接。",
+                comment: ""
+            ))
         }
         .overlay {
             if let toastMessage {
@@ -87,7 +91,6 @@ struct CloudSyncEntryPanel: View {
                     .allowsHitTesting(false)
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: showEndConfirm)
     }
 
     private var isSharingActive: Bool { session.isActive && session.controller?.state.isSharing == true }
@@ -491,10 +494,10 @@ struct CloudSyncIntroCard: View {
                             comment: ""
                         ))
                         .font(.system(size: 13))
-                        .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                        .foregroundStyle(Theme.textSecondary)
                         Image(systemName: expanded ? "chevron.up" : "chevron.down")
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
                 .contentShape(Rectangle())
@@ -540,7 +543,7 @@ struct CloudSyncIntroCard: View {
                     ))
                     .font(.system(size: 12))
                     .lineSpacing(4)
-                    .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                    .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
@@ -618,7 +621,7 @@ struct CloudSyncRoleCard<Content: View>: View {
                     if collapsible {
                         Image(systemName: expanded ? "chevron.up" : "chevron.down")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Theme.homeNeutralCardTextTertiary)
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -639,65 +642,6 @@ struct CloudSyncRoleCard<Content: View>: View {
         }
         .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .animation(.easeInOut(duration: 0.2), value: expanded)
-    }
-}
-
-// MARK: - 结束同步确认对话框（项目自定义对话框规范）
-
-struct CloudSyncEndConfirmDialog: View {
-    let onCancel: () -> Void
-    let onConfirm: () -> Void
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.48)
-                .ignoresSafeArea()
-                .transition(.opacity)
-                .onTapGesture { onCancel() }
-
-            VStack(spacing: 16) {
-                Text(NSLocalizedString("sync_end_confirm_title", value: "结束同步？", comment: ""))
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(Theme.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text(NSLocalizedString(
-                    "sync_end_confirm_message",
-                    value: "结束同步后将断开与当前显示端的连接。",
-                    comment: ""
-                ))
-                .font(.system(size: 14))
-                .lineSpacing(4)
-                .foregroundStyle(Theme.textSecondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-
-                HStack(spacing: 8) {
-                    Button(action: onCancel) {
-                        Text(NSLocalizedString("cancel", value: "取消", comment: ""))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(Theme.textPrimary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                    }
-                    .background(Theme.homeNeutralCardTextTertiary.opacity(0.14),
-                                in: Capsule())
-
-                    Button(action: onConfirm) {
-                        Text(NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                    }
-                    .background(Color(hex: "FF3B30"), in: Capsule())
-                }
-            }
-            .padding(20)
-            .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .frame(width: 280)
-            .transition(.opacity.combined(with: .scale(0.96)))
-        }
     }
 }
 
@@ -767,17 +711,21 @@ struct CloudSyncScoreboardSharingEntry: View {
                 .transition(.opacity)
             }
         }
-        .overlay {
-            if showEndConfirm {
-                CloudSyncEndConfirmDialog(
-                    onCancel: { showEndConfirm = false },
-                    onConfirm: {
-                        showEndConfirm = false
-                        CloudSyncSession.shared.end()
-                        showToast(NSLocalizedString("scoreboard_sharing_ended", value: "已结束同步", comment: ""))
-                    }
-                )
+        .alert(
+            NSLocalizedString("sync_end_confirm_title", value: "结束同步？", comment: ""),
+            isPresented: $showEndConfirm
+        ) {
+            Button(NSLocalizedString("sync_end_sharing", value: "结束同步", comment: ""), role: .destructive) {
+                CloudSyncSession.shared.end()
+                showToast(NSLocalizedString("scoreboard_sharing_ended", value: "已结束同步", comment: ""))
             }
+            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
+        } message: {
+            Text(NSLocalizedString(
+                "sync_end_confirm_message",
+                value: "结束同步后将断开与当前显示端的连接。",
+                comment: ""
+            ))
         }
     }
 
@@ -975,4 +923,3 @@ extension View {
         }
     }
 }
-

@@ -299,6 +299,7 @@ struct ArcheryScoreboardView: View {
                                 let value = archeryScoreGrid[row][col]
                                 Button {
 
+                                    VibrationManager.shared.vibrateLight()
                                     viewModel.recordArrow(value: value == -1 ? nil : value)
                                     showArrowPicker = false
                                 } label: {

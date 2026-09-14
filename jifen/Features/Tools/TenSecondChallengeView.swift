@@ -54,7 +54,7 @@ struct TenSecondChallengeView: View {
 
                         Text(NSLocalizedString("target_10_seconds", comment: "Target is 10.00 seconds"))
                             .font(.system(size: 14))
-                            .foregroundColor(Theme.textSecondary.opacity(0.8))
+                            .foregroundColor(Theme.textSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.horizontal, 32)

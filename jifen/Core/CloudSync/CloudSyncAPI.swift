@@ -155,7 +155,7 @@ enum CloudSyncGameTypes {
     }
 
     /// 首页预开房占位类型（对齐安卓 CLOUD_SYNC_PLACEHOLDER_GAME_TYPE）。
-    static let placeholder = "simple_score"
+    nonisolated static let placeholder = "simple_score"
 }
 
 // MARK: - 错误文案映射（对齐安卓 resolveJoinDisplayError）

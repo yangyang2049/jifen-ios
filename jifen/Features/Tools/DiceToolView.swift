@@ -58,12 +58,6 @@ struct DiceToolView: View {
 
             diceCountSelectView
 
-            if showDiceCountDialog {
-                diceCountDialogView
-                    .transition(.opacity)
-                    .zIndex(3)
-            }
-
             if showEnterToast {
                 ToastView(message: NSLocalizedString("tap_to_roll", value: "Tap to roll", comment: "Tap to roll dice"))
                     .transition(.opacity)
@@ -91,85 +85,49 @@ struct DiceToolView: View {
 
     private var diceCountSelectView: some View {
         VStack {
-            HStack(spacing: 4) {
-                Text(diceCountLabel(diceCount))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+            Button {
+                showDiceCountDialog = true
+            } label: {
+                HStack(spacing: 4) {
+                    Text(diceCountLabel(diceCount))
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
 
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Color.white.opacity(0.15))
-            .clipShape(Capsule())
-            .padding(.top, 16)
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showDiceCountDialog = true
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.white.opacity(0.15))
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 16)
+            .confirmationDialog(
+                NSLocalizedString("dice_count_title", value: "骰子数量", comment: ""),
+                isPresented: $showDiceCountDialog,
+                titleVisibility: .visible
+            ) {
+                ForEach(1...3, id: \.self) { count in
+                    Button(diceCount == count ? "\(diceCountLabel(count)) ✓" : diceCountLabel(count)) {
+                        selectDiceCount(count)
+                    }
+                }
+                Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
             }
 
             Spacer()
         }
     }
 
-    private var diceCountDialogView: some View {
-        ZStack(alignment: .top) {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        showDiceCountDialog = false
-                    }
-                }
-
-            VStack(spacing: 0) {
-                diceCountOptionButton(1)
-                dialogDivider
-                diceCountOptionButton(2)
-                dialogDivider
-                diceCountOptionButton(3)
-            }
-            .frame(width: 220)
-            .background(Color(hex: "1C1C1E"))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.white.opacity(0.14), lineWidth: 1)
-            )
-            .padding(.top, 68)
-        }
-    }
-
-    private var dialogDivider: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.12))
-            .frame(height: 1)
-    }
-
-    private func diceCountOptionButton(_ count: Int) -> some View {
-        let isSelected = diceCount == count
-        return Button {
+    private func selectDiceCount(_ count: Int) {
             diceCount = count
             AppAnalytics.track(.toolSettingChange, parameters: [
                 .toolID: .string("dice"),
                 .settingName: .string("dice_count"),
                 .settingValue: .string(String(count))
             ])
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showDiceCountDialog = false
-            }
-        } label: {
-            Text(diceCountLabel(count))
-                .font(.system(size: 18, weight: isSelected ? .medium : .regular))
-                .foregroundColor(isSelected ? Theme.accentColor : .white)
-                .frame(maxWidth: .infinity, minHeight: 52)
-                .background(isSelected ? Color.white.opacity(0.08) : Color.clear)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
     }
 
     private func diceCountLabel(_ count: Int) -> String {

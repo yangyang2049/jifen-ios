@@ -3,8 +3,8 @@ import ScoreCore
 import SessionCore
 import SwiftUI
 
-struct UnfinishedGameSummary {
-    enum Source {
+struct UnfinishedGameSummary: Sendable {
+    enum Source: Sendable {
         case resume(UUID)
     }
 
@@ -21,7 +21,13 @@ struct UnfinishedGameSummary {
         }
     }
 
-    init?(session entry: ResumeSessionSummary) {
+    nonisolated static func load(session entry: ResumeSessionSummary) async -> Self? {
+        await Task.detached(priority: .userInitiated) {
+            Self(session: entry)
+        }.value
+    }
+
+    nonisolated init?(session entry: ResumeSessionSummary) {
         guard let appGameType = GameType(scoreCoreGameType: entry.gameType) else { return nil }
         source = .resume(entry.sessionId)
         gameType = appGameType
@@ -113,7 +119,7 @@ struct UnfinishedGameSummary {
 
 
 
-    static func matchTitle(
+    nonisolated static func matchTitle(
         participants: [SessionParticipant],
         gameType: ScoreCore.GameType
     ) -> String {

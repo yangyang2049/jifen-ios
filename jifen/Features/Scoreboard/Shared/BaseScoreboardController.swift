@@ -225,13 +225,11 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         do {
             try ScoreboardLifecyclePersistence.save(record, finished: isFinished)
             
-            // Mark as saved only if not already saved (to prevent duplicate notifications)
+            // A finished record may be persisted repeatedly while the result UI
+            // remains visible. Publish the expensive refresh only on the first
+            // successful finished write for this match.
             if isFinished, !gameRecordSaved {
                 gameRecordSaved = true
-            }
-
-            // Notify ViewModel to refresh
-            if isFinished {
                 DispatchQueue.main.async {
                     ScoreboardRecordsViewModel.shared.refreshRecords()
                     #if DEBUG
@@ -260,10 +258,6 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
     
     func getGameStartTime() -> Date {
         return gameStartTime
-    }
-    
-    func isRecordSaved() -> Bool {
-        return gameRecordSaved
     }
     
     // MARK: - Double Tap Exit

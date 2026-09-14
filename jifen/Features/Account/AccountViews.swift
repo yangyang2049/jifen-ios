@@ -35,7 +35,7 @@ struct AccountLoginSheet: View {
             .navigationTitle(NSLocalizedString("account_login_title", value: "登录", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .topBarTrailing) {
                     ModalCloseButton { dismiss() }
                 }
             }
@@ -97,9 +97,9 @@ private struct AccountLoginView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
                 AppLogoImage(size: 72)
-                    .padding(.top, 32)
+                    .padding(.top, 12)
                 Text(NSLocalizedString("account_login_subtitle", value: "登录后同步常用数据、反馈和实时比分", comment: ""))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -387,7 +387,7 @@ private struct LoginAgreementBar: View {
                     value: "已阅读并同意",
                     comment: ""
                 ))
-                .font(.caption)
+                .font(.footnote)
                 .foregroundStyle(Theme.textSecondary)
 
                 HStack(spacing: 0) {
@@ -400,7 +400,7 @@ private struct LoginAgreementBar: View {
                     .foregroundStyle(Theme.textSecondary)
                     legalButton(.privacy)
                 }
-                .font(.caption)
+                .font(.footnote)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -573,30 +573,28 @@ private struct AccountProfileView: View {
                 .transition(.opacity)
             }
         }
-        .overlay {
-            if showRenameDialog {
-                NicknameEditDialog(
-                    initialName: profileDisplayText,
-                    onDismiss: { showRenameDialog = false },
-                    onSubmit: { name in
-                        switch await session.updateProfile(name: name) {
-                        case .updated:
-                            showRenameDialog = false
-                            return nil
-                        case .submittedForReview:
-                            showRenameDialog = false
-                            showToastMessage(NSLocalizedString(
-                                "me_profile_nickname_review_submitted",
-                                value: "昵称已提交审核，审核期间仅自己可见",
-                                comment: ""
-                            ))
-                            return nil
-                        case .failed(let message):
-                            return message
-                        }
+        .sheet(isPresented: $showRenameDialog) {
+            NicknameEditDialog(
+                initialName: profileDisplayText,
+                onDismiss: { showRenameDialog = false },
+                onSubmit: { name in
+                    switch await session.updateProfile(name: name) {
+                    case .updated:
+                        showRenameDialog = false
+                        return nil
+                    case .submittedForReview:
+                        showRenameDialog = false
+                        showToastMessage(NSLocalizedString(
+                            "me_profile_nickname_review_submitted",
+                            value: "昵称已提交审核，审核期间仅自己可见",
+                            comment: ""
+                        ))
+                        return nil
+                    case .failed(let message):
+                        return message
                     }
-                )
-            }
+                }
+            )
         }
         .alert(
             NSLocalizedString("account_logout_confirm_title", value: "退出登录", comment: ""),
@@ -672,7 +670,7 @@ private extension String {
 }
 
 /// 注销账号页（对齐安卓 AccountDeletionScreen）：
-/// 影响说明卡 + VIP 会员警告卡 + 红色注销按钮 + CustomConfirmDialog 二次确认。
+/// 影响说明卡 + VIP 会员警告卡 + 红色注销按钮 + 系统 Alert 二次确认。
 struct AccountDeletionView: View {
     @Environment(SessionStore.self) private var session
     @Environment(\.dismiss) private var dismiss
@@ -740,18 +738,16 @@ struct AccountDeletionView: View {
             loading = false
             if session.user == nil { dismiss() }
         }
-        .overlay {
-            if showConfirm {
-                CustomConfirmDialog(
-                    title: NSLocalizedString("account_deletion_confirm_title", value: "确认注销账号？", comment: ""),
-                    message: confirmMessage,
-                    confirmText: NSLocalizedString("account_deletion_confirm_action", value: "确认注销", comment: ""),
-                    cancelText: NSLocalizedString("account_deletion_confirm_cancel", value: "再想想", comment: ""),
-                    confirmColor: whistleRed,
-                    onConfirm: { Task { await submit() } },
-                    onDismiss: { if !submitting { showConfirm = false } }
-                )
+        .alert(
+            NSLocalizedString("account_deletion_confirm_title", value: "确认注销账号？", comment: ""),
+            isPresented: $showConfirm
+        ) {
+            Button(NSLocalizedString("account_deletion_confirm_action", value: "确认注销", comment: ""), role: .destructive) {
+                Task { await submit() }
             }
+            Button(NSLocalizedString("account_deletion_confirm_cancel", value: "再想想", comment: ""), role: .cancel) { }
+        } message: {
+            Text(confirmMessage)
         }
     }
 
@@ -1137,7 +1133,7 @@ private struct ProfileThinDivider: View {
     }
 }
 
-/// 修改昵称弹窗（对齐安卓 NicknameEditDialog / CustomPromptDialog）。
+/// 修改昵称表单使用系统 Sheet；字段与业务校验保持不变。
 private struct NicknameEditDialog: View {
     let initialName: String
     let onDismiss: () -> Void
@@ -1150,70 +1146,61 @@ private struct NicknameEditDialog: View {
     @FocusState private var focused: Bool
 
     var body: some View {
-        ZStack {
-            Theme.scoreboardDialogScrim
-                .ignoresSafeArea()
-                .onTapGesture { if !saving { onDismiss() } }
-                .transition(.opacity)
-
-            VStack(spacing: 0) {
-                Text(NSLocalizedString("me_profile_nickname_edit_title", value: "修改昵称", comment: ""))
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Theme.textPrimary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.bottom, 16)
-
-                TextField(
-                    NSLocalizedString("me_profile_nickname_edit_placeholder", value: "请输入昵称", comment: ""),
-                    text: $name
-                )
-                .font(.system(size: 16))
+        VStack(spacing: 0) {
+            Text(NSLocalizedString("me_profile_nickname_edit_title", value: "修改昵称", comment: ""))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(Theme.textPrimary)
-                .focused($focused)
-                .padding(.horizontal, 12)
-                .frame(height: 44)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Theme.controlBackground))
-                .submitLabel(.done)
-                .onSubmit { Task { await submit() } }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 16)
 
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(.system(size: 13))
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, 8)
-                }
-
-                HStack(spacing: 16) {
-                    dialogButton(
-                        title: NSLocalizedString("cancel", value: "取消", comment: ""),
-                        background: Theme.controlBackground,
-                        foreground: Theme.textPrimary
-                    ) { onDismiss() }
-                    dialogButton(
-                        title: saving
-                            ? NSLocalizedString("me_profile_nickname_saving", value: "保存中…", comment: "")
-                            : NSLocalizedString("save", value: "保存", comment: ""),
-                        background: Theme.accentColor,
-                        foreground: .white
-                    ) { Task { await submit() } }
-                    .disabled(saving || failedSubmittedName == trimmedName)
-                }
-                .padding(.top, 24)
-            }
-            .padding(24)
-            .frame(maxWidth: Theme.usesPadLayout ? 400 : 280)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Theme.cardBackground)
-                    .shadow(color: .black.opacity(0.25), radius: 8)
+            TextField(
+                NSLocalizedString("me_profile_nickname_edit_placeholder", value: "请输入昵称", comment: ""),
+                text: $name
             )
-            .transition(.opacity.combined(with: .scale(scale: 0.96)))
+            .font(.system(size: 16))
+            .foregroundColor(Theme.textPrimary)
+            .focused($focused)
+            .padding(.horizontal, 12)
+            .frame(height: 44)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.controlBackground))
+            .submitLabel(.done)
+            .onSubmit { Task { await submit() } }
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.system(size: 13))
+                    .foregroundColor(.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 8)
+            }
+
+            HStack(spacing: 16) {
+                dialogButton(
+                    title: NSLocalizedString("cancel", value: "取消", comment: ""),
+                    background: Theme.controlBackground,
+                    foreground: Theme.textPrimary
+                ) { onDismiss() }
+                dialogButton(
+                    title: saving
+                        ? NSLocalizedString("me_profile_nickname_saving", value: "保存中…", comment: "")
+                        : NSLocalizedString("save", value: "保存", comment: ""),
+                    background: Theme.accentColor,
+                    foreground: .white
+                ) { Task { await submit() } }
+                .disabled(saving || failedSubmittedName == trimmedName)
+            }
+            .padding(.top, 24)
         }
+        .padding(24)
+        .frame(maxWidth: 400)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+        .interactiveDismissDisabled(saving)
         .onAppear {
             name = initialName
-            // 等弹窗过渡动画（0.2s easeInOut）完成后再聚焦，过早赋值会被动画吞掉
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            // 等系统 Sheet 呈现动画完成后再聚焦，避免焦点请求被转场吞掉。
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
                 focused = true
             }
         }

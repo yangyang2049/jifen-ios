@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1000000000000000000001 /* AccountPasswordLoginTests.swift */; };
 		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		965C159E985F20631D21A33B /* libPods-jifen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BA32E923C2E9F7C8F57C31 /* libPods-jifen.a */; };
 		A677233A94ECB03AD7AF0BE4 /* libPods-jifenUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E8AB24DA4FF2490079C73D1 /* libPods-jifenUITests.a */; };
 		A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */; };
+		AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1000000000000000000001 /* AccountPasswordLoginTests.swift */; };
 		B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D82E75ABD730744578E876 /* ScheduleModelTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
@@ -43,6 +43,7 @@
 		FA0000000000000000000002 /* ScoreboardStyleV2ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* ScoreboardStyleV2ModelTests.swift */; };
 		FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000000000000000000001 /* RemodelFocusUITests.swift */; };
 		FA2000000000000000000002 /* ScoreboardStyleEditorControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */; };
+		FB1000000000000000000002 /* BookingStartPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1000000000000000000001 /* BookingStartPersistenceTests.swift */; };
 		FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */; };
 		FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */; };
 		FD2000000000000000000002 /* SportsSetupDraftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD2000000000000000000001 /* SportsSetupDraftTests.swift */; };
@@ -68,7 +69,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AB1000000000000000000001 /* AccountPasswordLoginTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountPasswordLoginTests.swift; sourceTree = "<group>"; };
 		02CC5F5C2DA8DFA643CF9FB2 /* Pods-jifenUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifenUITests.release.xcconfig"; path = "Target Support Files/Pods-jifenUITests/Pods-jifenUITests.release.xcconfig"; sourceTree = "<group>"; };
 		07D82E75ABD730744578E876 /* ScheduleModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleModelTests.swift; sourceTree = "<group>"; };
 		0D3AE5812EB33C2C449E1CE7 /* libPods-jifenTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-jifenTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -81,6 +81,7 @@
 		92BA32E923C2E9F7C8F57C31 /* libPods-jifen.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-jifen.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6C476D58990954AF104F51A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
+		AB1000000000000000000001 /* AccountPasswordLoginTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountPasswordLoginTests.swift; sourceTree = "<group>"; };
 		ADF591EA95BEE5FD53840744 /* Pods-jifenTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifenTests.debug.xcconfig"; path = "Target Support Files/Pods-jifenTests/Pods-jifenTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		BE051DBBE1A0AEA1D03E08C3 /* Pods-jifenTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifenTests.release.xcconfig"; path = "Target Support Files/Pods-jifenTests/Pods-jifenTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -107,6 +108,7 @@
 		FA0000000000000000000001 /* ScoreboardStyleV2ModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardStyleV2ModelTests.swift; sourceTree = "<group>"; };
 		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
 		FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardStyleEditorControllerTests.swift; sourceTree = "<group>"; };
+		FB1000000000000000000001 /* BookingStartPersistenceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BookingStartPersistenceTests.swift; sourceTree = "<group>"; };
 		FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardUsageHintTests.swift; sourceTree = "<group>"; };
 		FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardResumeAndWinnerIdentityTests.swift; sourceTree = "<group>"; };
 		FD2000000000000000000001 /* SportsSetupDraftTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SportsSetupDraftTests.swift; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 				F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */,
 				FA0000000000000000000001 /* ScoreboardStyleV2ModelTests.swift */,
 				FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */,
+				FB1000000000000000000001 /* BookingStartPersistenceTests.swift */,
 				F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */,
 				F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */,
 				F60000000000000000000001 /* AppReviewPromptTests.swift */,
@@ -506,6 +509,7 @@
 				F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */,
 				FA0000000000000000000002 /* ScoreboardStyleV2ModelTests.swift in Sources */,
 				FA2000000000000000000002 /* ScoreboardStyleEditorControllerTests.swift in Sources */,
+				FB1000000000000000000002 /* BookingStartPersistenceTests.swift in Sources */,
 				F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */,
 				F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */,
 				F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */,
@@ -547,7 +551,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -708,7 +712,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
@@ -759,7 +763,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
@@ -793,7 +797,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -817,7 +821,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -842,7 +846,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

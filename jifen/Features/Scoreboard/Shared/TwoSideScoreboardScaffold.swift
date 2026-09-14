@@ -55,6 +55,10 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     var panelAccessory: ((Bool) -> AnyView)? = nil
     /// Optional floating bottom dock (e.g. snooker balls).
     var bottomBar: (() -> AnyView)? = nil
+    /// 底部浮动操作栏项目（如斯诺克）把名称/分数内容簇在扣除底栏区域后的空间里居中，
+    /// 对齐安卓 SnookerHalfContent.bottomBarAvoidancePadding（手机 86dp / 平板 112dp），
+    /// 避免内容离底栏太近而顶部留白过多。默认 0 不影响其他项目。
+    var panelContentBottomInset: CGFloat = 0
     /// Optional top-center pill.
     /// 第三参数为当前样式快照（可用于 matchTitle 等全局元素取色）。
     var topCenter: ((ScoreboardTypographyPreference, CGSize, ScoreboardAppearanceSnapshot) -> AnyView)? = nil
@@ -136,6 +140,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         if let pendingIsLeft = pendingTapIsLeft {
             if pendingIsLeft == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
                 cancelPendingTap()
+                VibrationManager.shared.vibrateLight()
                 onDoubleTapSubtract?(isLeft)
                 return
             }
@@ -155,6 +160,8 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
 
     private func commitPanelAction(_ isLeft: Bool) {
         guard !isEditMode, !finished else { return }
+        // 对齐安卓 ScoreboardTeamPanel：面板单击结算（加分/打开面板）统一轻震反馈。
+        VibrationManager.shared.vibrateLight()
         if isLeft {
             onLeftTap()
         } else {
@@ -655,6 +662,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                             .padding(.top, 8)
                     }
                 }
+                .padding(.bottom, panelContentBottomInset)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }

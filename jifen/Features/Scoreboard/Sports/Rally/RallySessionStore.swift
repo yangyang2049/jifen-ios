@@ -283,18 +283,13 @@ final class RallySessionStore {
     }
 
     convenience init?(restoring sessionId: UUID) {
-        guard let data = try? ResumeSessionRepository.loadPayload(
+        guard let bundle = ScoreSessionPersistenceSupport.loadLiveResumeBundle(
             sessionId: sessionId,
-            expectedKind: .scoreSessionBundle
+            as: ResumeBundle.self
         ) else {
             return nil
         }
-        if let bundle = try? JSONDecoder().decode(ResumeBundle.self, from: data),
-           bundle.currentSession.status == .live {
-            self.init(resumeBundle: bundle)
-        } else {
-            return nil
-        }
+        self.init(resumeBundle: bundle)
     }
 
     func makeFreshMatchStore() -> RallySessionStore {
@@ -626,32 +621,15 @@ final class RallySessionStore {
     private func persist(
         _ bundle: ResumeBundle
     ) async throws {
-        let session = bundle.currentSession
-        if session.status == .live {
-            try await resumeRepository.saveResumeBundle(bundle)
-            return
-        }
-        guard let record = try makeFinishedRecord(session) else { return }
-        let coordinator = FinishedSessionCommitCoordinator(
-            resumeRemover: { [resumeRepository] sessionId in
-                try await resumeRepository.remove(sessionId: sessionId)
-            }
+        let reachedFinishedCommit = try await ScoreSessionPersistenceSupport.persist(
+            bundle,
+            repository: resumeRepository,
+            alreadyPersistedFinishedRecord: hasPersistedFinishedRecord,
+            makeFinishedRecord: makeFinishedRecord,
+            onCleanupFailure: { reportPersistenceFailure($0) }
         )
-        let result: FinishedSessionCommitResult
-        if hasPersistedFinishedRecord {
-            result = await coordinator.cleanupResume(after: FinishedSessionRecordCommit(
-                sessionId: sessionId,
-                recordWritten: false
-            ))
-        } else {
-            result = try await coordinator.commit(record, sessionId: sessionId)
-        }
-        hasPersistedFinishedRecord = true
-        if result.recordWritten {
-            ScoreboardRecordsViewModel.shared.refreshRecords()
-        }
-        if let cleanupError = result.cleanupError {
-            reportPersistenceFailure(cleanupError)
+        if reachedFinishedCommit {
+            hasPersistedFinishedRecord = true
         }
     }
 

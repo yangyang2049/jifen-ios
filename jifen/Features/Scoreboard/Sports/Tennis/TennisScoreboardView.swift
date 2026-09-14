@@ -869,7 +869,11 @@ struct TennisScoreboardView: View {
         let hitTargetSize = size == nil
             ? visualSize
             : max(ScoreboardConstants.minimumTouchTarget, visualSize)
-        return Button(action: action) {
+        return Button(action: {
+            // 对齐安卓 ScoreEditAdjustRows：编辑面板 ± 按钮轻震反馈。
+            VibrationManager.shared.vibrateLight()
+            action()
+        }) {
             Image(systemName: systemName)
                 .font(.system(size: Theme.usesPadLayout ? 22 : 17, weight: .bold))
                 .foregroundStyle(appearance.palette.foreground)
@@ -1285,6 +1289,7 @@ struct TennisScoreboardView: View {
 
     private func handlePointWon(_ side: MatchSide) {
 
+        VibrationManager.shared.vibrateLight()
         dispatch(.pointWon(side))
         // 网球双打无位置轮转（发球人整个发球局固定，局间才换），得分时不闪烁。
     }
@@ -1307,6 +1312,7 @@ struct TennisScoreboardView: View {
         if let pendingSide = pendingTapSide {
             if pendingSide == side, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
                 cancelPendingTap()
+                VibrationManager.shared.vibrateLight()
                 dispatch(.adjustPoints(side: side, delta: -1))
                 return
             }
@@ -1376,6 +1382,7 @@ struct TennisScoreboardView: View {
                     guard !store.state.finished else { return }
                     let points = side == .left ? store.state.leftPoints : store.state.rightPoints
                     guard points > 0 else { return }
+                    VibrationManager.shared.vibrateLight()
                     dispatch(.adjustPoints(side: side, delta: -1))
                 }
             }

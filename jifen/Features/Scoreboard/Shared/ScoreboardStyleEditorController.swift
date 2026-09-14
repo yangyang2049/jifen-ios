@@ -14,9 +14,9 @@ import SwiftUI
 @Observable
 @MainActor
 final class ScoreboardStyleEditorController {
-        let styleID: ScoreboardStyleID
-        let capabilities: ScoreboardStyleEditCapabilities
-        private let prefs: PreferencesManager
+    let styleID: ScoreboardStyleID
+    let capabilities: ScoreboardStyleEditCapabilities
+    private let prefs: PreferencesManager
 
     private(set) var active: ScoreboardStyleProfileV2
     private(set) var draft: ScoreboardStyleProfileV2
@@ -43,7 +43,7 @@ final class ScoreboardStyleEditorController {
     init(
         styleID: ScoreboardStyleID,
         capabilities: ScoreboardStyleEditCapabilities?,
-        preferences: PreferencesManager = .shared
+        preferences: PreferencesManager
     ) {
         let initialProfile = preferences.scoreboardStyleProfileV2(for: styleID)
         self.styleID = styleID
@@ -54,18 +54,29 @@ final class ScoreboardStyleEditorController {
         self.revision = preferences.scoreboardRevision
     }
 
+    convenience init(
+        styleID: ScoreboardStyleID,
+        capabilities: ScoreboardStyleEditCapabilities?
+    ) {
+        self.init(
+            styleID: styleID,
+            capabilities: capabilities,
+            preferences: .shared
+        )
+    }
+
     /// 外部配置变化时同步；编辑中跳过，避免覆盖未保存草稿。
-    func updateFromPreferences(_ preferences: PreferencesManager = .shared) {
+    func updateFromPreferences() {
         if isEditing || isSaving { return }
-        active = preferences.scoreboardStyleProfileV2(for: styleID)
+        active = prefs.scoreboardStyleProfileV2(for: styleID)
         draft = active
-        revision = preferences.scoreboardRevision
+        revision = prefs.scoreboardRevision
     }
 
     func open(typographySession: ScoreboardTypographySession?) {
         draft = active
         // 清掉上次会话可能遗留的预览（draft == active 无需预览）。
-        PreferencesManager.shared.setScoreboardStyleProfilePreview(nil, for: styleID)
+        prefs.setScoreboardStyleProfilePreview(nil, for: styleID)
         self.typographySession = typographySession
         isEditing = true
     }
@@ -73,23 +84,23 @@ final class ScoreboardStyleEditorController {
     func updateDraft(_ value: ScoreboardStyleProfileV2) {
         draft = value.normalized()
         // 草稿推入内存预览：渲染层经 scoreboardRevision 通知立即取到 draft。
-        PreferencesManager.shared.setScoreboardStyleProfilePreview(draft, for: styleID)
+        prefs.setScoreboardStyleProfilePreview(draft, for: styleID)
     }
 
     /// 恢复默认样式（对齐安卓 resetDraft：重置为「当前主题下」的默认样式 + 默认字号）。
     /// theme 取自用户全局主题，避免重置后主题被刷回 default（主题丢失）。
-    func resetDraft(preferences: PreferencesManager = .shared) {
-        let theme = ScoreboardTheme(rawValue: preferences.scoreboardTheme) ?? .defaultTheme
+    func resetDraft() {
+        let theme = ScoreboardTheme(rawValue: prefs.scoreboardTheme) ?? .defaultTheme
         draft = ScoreboardStyleProfileV2.default(for: styleID, theme: theme)
-        preferences.setScoreboardStyleProfilePreview(draft, for: styleID)
-        typographySession?.resetPreview(preferences: preferences)
+        prefs.setScoreboardStyleProfilePreview(draft, for: styleID)
+        typographySession?.resetPreview(preferences: prefs)
     }
 
     /// 取消编辑：丢弃草稿与字号预览。
-    func cancel(preferences: PreferencesManager = .shared) {
+    func cancel() {
         guard !isSaving else { return }
         draft = active
-        preferences.setScoreboardStyleProfilePreview(nil, for: styleID)
+        prefs.setScoreboardStyleProfilePreview(nil, for: styleID)
         typographySession?.cancelPreview()
         typographySession = nil
         isEditing = false
@@ -98,7 +109,7 @@ final class ScoreboardStyleEditorController {
     /// 保存事务：写本项目 styleID profile + revision++（PreferencesManager 内部自增并通知渲染）。
     /// 字号预览若有改动也在此一并落盘。
     @discardableResult
-    func save(preferences: PreferencesManager = .shared) -> Result<Void, Error> {
+    func save() -> Result<Void, Error> {
         guard !isSaving else {
             return .failure(ScoreboardStyleEditorError.saveInProgress)
         }
@@ -107,15 +118,15 @@ final class ScoreboardStyleEditorController {
 
         let next = draft.normalized()
         // 字号预览（若编辑过）随保存一起写回。
-        typographySession?.applyPreview(preferences: preferences)
+        typographySession?.applyPreview(preferences: prefs)
         typographySession = nil
-        preferences.setScoreboardStyleProfileV2(next, for: styleID)
+        prefs.setScoreboardStyleProfileV2(next, for: styleID)
         // 清除草稿预览（正式 profile 已落盘）。
-        preferences.setScoreboardStyleProfilePreview(nil, for: styleID)
+        prefs.setScoreboardStyleProfilePreview(nil, for: styleID)
 
         active = next
         draft = next
-        revision = preferences.scoreboardRevision
+        revision = prefs.scoreboardRevision
         isEditing = false
         return .success(())
     }

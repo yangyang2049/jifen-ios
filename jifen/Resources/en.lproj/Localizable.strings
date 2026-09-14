@@ -176,7 +176,8 @@
 "game_doudizhu" = "Doudizhu";
 "game_simple_score" = "Simple Score";
 "score_custom_adjust_label" = "Custom scoring";
-"score_custom_adjust_setup_desc" = "Tap a team or player to open the plus/minus panel.";
+"score_custom_adjust_help_title" = "Scoring modes";
+"score_custom_adjust_help" = "Custom mode: tap a cell to open the adjust panel and enter any value.\n\nStandard mode: tap a cell to add 1 point; with \"Double-tap subtract\" on, double-tap to subtract 1.\n\nBoth modes allow negative scores; long-press a cell to edit name and score.";
 "score_custom_adjust_increment" = "Add";
 "score_custom_adjust_decrement" = "Subtract";
 "score_custom_adjust_custom_value_placeholder" = "Custom points";
@@ -354,6 +355,7 @@
 "dice_count_1" = "1 die";
 "dice_count_2" = "2 dice";
 "dice_count_3" = "3 dice";
+"dice_count_title" = "Number of Dice";
 
 /* Points Table Tool */
 "points_table_title" = "Standings";

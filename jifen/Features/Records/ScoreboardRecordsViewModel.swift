@@ -110,21 +110,6 @@ final class ScoreboardRecordsViewModel {
         }
     }
 
-    // MARK: - Get Records
-    // These getters can be removed if direct access to @Published properties is preferred,
-    // but keeping them doesn't hurt.
-    func getRecords() -> [ScoreboardRecordSummary] {
-        return records
-    }
-    
-    func getGroupedRecords() -> [ScoreboardRecordGroup] {
-        return groupedRecords
-    }
-    
-    func getIsLoading() -> Bool {
-        return isLoading
-    }
-    
     // MARK: - Delete Record
 
     func deleteRecord(_ id: String) -> Bool {

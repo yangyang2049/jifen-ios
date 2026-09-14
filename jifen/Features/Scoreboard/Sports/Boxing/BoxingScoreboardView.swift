@@ -126,6 +126,7 @@ struct BoxingScoreboardView: View {
                     leftScore: $roundLeftPoints,
                     rightScore: $roundRightPoints,
                     onConfirm: {
+                        VibrationManager.shared.vibrateLight()
                         if viewModel.sidesSwapped {
                             viewModel.addRoundScore(leftPoints: roundRightPoints, rightPoints: roundLeftPoints)
                         } else {
@@ -414,6 +415,7 @@ private struct BoxingRoundDialog: View {
 
     private func scoreButton(value: Int, selected: Binding<Int>, size: CGFloat) -> some View {
         Button {
+            VibrationManager.shared.vibrateLight()
             selected.wrappedValue = value
         } label: {
             Text("\(value)")

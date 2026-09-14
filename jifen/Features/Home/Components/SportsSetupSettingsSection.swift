@@ -5,7 +5,6 @@ struct SportsSetupSettingsSection: View {
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
     @State private var completionModeExpanded = false
-    @State private var showFootballHalfLengthHint = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -13,18 +12,6 @@ struct SportsSetupSettingsSection: View {
             // 「比赛功能」区：对齐安卓功能卡片矩阵，所有计分项目统一渲染。
             SportsSetupMatchFeaturesSection(gameType: gameType, draft: $draft)
         }
-        .alert(
-                NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"),
-                isPresented: $showFootballHalfLengthHint
-            ) {
-                Button(NSLocalizedString("done", value: "完成", comment: ""), role: .cancel) {}
-            } message: {
-                Text(NSLocalizedString(
-                    "football_setup_hint",
-                    value: "默认每半场 20 分钟；进入比赛后，点击顶部计时器开始或暂停。",
-                    comment: "5x5 football timer setup hint"
-                ))
-            }
     }
 
     private func getChipBackgroundColor(selected: Bool) -> Color {
@@ -105,19 +92,16 @@ struct SportsSetupSettingsSection: View {
             HStack(spacing: 6) {
                 Text(NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"))
                     .settingsLabelStyle()
-                Button {
-                    showFootballHalfLengthHint = true
-                } label: {
-                    Image(systemName: "questionmark.circle")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Theme.textSecondary)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(NSLocalizedString(
-                    "football_setup_hint_accessibility",
-                    value: "查看计时说明",
-                    comment: "Football timer setup hint accessibility label"
-                ))
+                SystemHelpButton(
+                    title: NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"),
+                    message: NSLocalizedString(
+                        "football_setup_hint",
+                        value: "默认每半场 20 分钟；进入比赛后，点击顶部计时器开始或暂停。",
+                        comment: "5x5 football timer setup hint"
+                    ),
+                    iconFontSize: 14,
+                    accessibilityIdentifier: "football_half_length_help"
+                )
             }
 
             HStack(spacing: 12) {

@@ -522,32 +522,30 @@ struct FeedbackDetailView: View {
             }
         }
         .task { await load() }
-        .overlay {
-            if showDeleteConfirm {
-                CustomConfirmDialog(
-                    title: NSLocalizedString("feedback_delete_dialog_title", value: "删除反馈", comment: ""),
-                    message: NSLocalizedString(
-                        "feedback_delete_confirm_message",
-                        value: "确定要删除这条反馈吗？删除后不可恢复。",
-                        comment: ""
-                    ),
-                    confirmText: NSLocalizedString("feedback_delete_button", value: "删除", comment: ""),
-                    cancelText: NSLocalizedString("cancel", value: "取消", comment: ""),
-                    onConfirm: { Task { await deleteItem() } },
-                    onDismiss: { showDeleteConfirm = false }
-                )
-                .transition(.opacity.combined(with: .scale(scale: 0.96)))
-            } else if showReport {
+        .alert(
+            NSLocalizedString("feedback_delete_dialog_title", value: "删除反馈", comment: ""),
+            isPresented: $showDeleteConfirm
+        ) {
+            Button(NSLocalizedString("feedback_delete_button", value: "删除", comment: ""), role: .destructive) {
+                Task { await deleteItem() }
+            }
+            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
+        } message: {
+            Text(NSLocalizedString(
+                "feedback_delete_confirm_message",
+                value: "确定要删除这条反馈吗？删除后不可恢复。",
+                comment: ""
+            ))
+        }
+        .sheet(isPresented: $showReport) {
+            NavigationStack {
                 FeedbackReportDialog(
                     feedbackId: feedbackId,
                     onSubmitted: { Task { await load() } },
                     onDismiss: { showReport = false }
                 )
-                .transition(.opacity.combined(with: .scale(scale: 0.96)))
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: showDeleteConfirm)
-        .animation(.easeInOut(duration: 0.2), value: showReport)
         .fullScreenCover(isPresented: Binding(
             get: { !previewImages.isEmpty },
             set: { if !$0 { previewImages = [] } }
@@ -921,7 +919,7 @@ private struct FeedbackImagePreviewPage: View {
     }
 }
 
-/// 举报弹窗（对齐安卓举报 Dialog）：原因单选 + 补充说明 + 取消/提交。
+/// 举报表单使用系统 Sheet：原因单选 + 补充说明 + 取消/提交。
 private struct FeedbackReportDialog: View {
     let feedbackId: String
     let onSubmitted: () -> Void
@@ -946,21 +944,12 @@ private struct FeedbackReportDialog: View {
     ]
 
     var body: some View {
-        ZStack {
-            Theme.scoreboardDialogScrim
-                .ignoresSafeArea()
-                .onTapGesture { if !isSubmitting { onDismiss() } }
-
+        ScrollView {
             VStack(spacing: 0) {
-                Text(NSLocalizedString("feedback_report_btn", value: "举报", comment: ""))
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Theme.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 Text(NSLocalizedString("feedback_report_reason_hint", value: "请选择举报原因", comment: ""))
                     .font(.system(size: 13))
                     .foregroundColor(Theme.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 16)
 
                 VStack(spacing: 12) {
                     ForEach(reasons) { item in
@@ -985,37 +974,6 @@ private struct FeedbackReportDialog: View {
                     if value.count > 500 { detail = String(value.prefix(500)) }
                 }
 
-                HStack(spacing: 12) {
-                    Button {
-                        onDismiss()
-                    } label: {
-                        Text(NSLocalizedString("cancel", value: "取消", comment: ""))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(Theme.textPrimary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 44)
-                            .background(Capsule().fill(Theme.controlBackground))
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isSubmitting)
-
-                    Button {
-                        Task { await submit() }
-                    } label: {
-                        Text(isSubmitting
-                            ? NSLocalizedString("feedback_report_submitting", value: "提交中…", comment: "")
-                            : NSLocalizedString("feedback_report_submit", value: "提交", comment: ""))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 44)
-                            .background(Capsule().fill(Theme.accentColor.opacity(isSubmitting ? 0.5 : 1)))
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(reason == nil || isSubmitting)
-                }
-                .padding(.top, 16)
-
                 if let errorText {
                     Text(errorText)
                         .font(.system(size: 13))
@@ -1023,13 +981,38 @@ private struct FeedbackReportDialog: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 10)
                 }
+                Button {
+                    Task { await submit() }
+                } label: {
+                    Text(isSubmitting
+                        ? NSLocalizedString("feedback_report_submitting", value: "提交中…", comment: "")
+                        : NSLocalizedString("feedback_report_submit", value: "提交", comment: ""))
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(Capsule().fill(Theme.accentColor.opacity(isSubmitting ? 0.5 : 1)))
+                }
+                .buttonStyle(.plain)
+                .disabled(reason == nil || isSubmitting)
+                .padding(.top, 20)
             }
-            .hideKeyboardOnTap()
             .padding(20)
-            .frame(maxWidth: Theme.usesPadLayout ? 400 : 280)
-            .background(RoundedRectangle(cornerRadius: 16).fill(Theme.cardBackground))
-            .padding(.horizontal, 24)
+            .frame(maxWidth: 520)
+            .frame(maxWidth: .infinity)
         }
+        .hideKeyboardOnTap()
+        .navigationTitle(NSLocalizedString("feedback_report_btn", value: "举报", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(NSLocalizedString("cancel", value: "取消", comment: ""), action: onDismiss)
+                    .disabled(isSubmitting)
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .interactiveDismissDisabled(isSubmitting)
     }
 
     private func submit() async {

@@ -206,6 +206,7 @@ struct RallyScoreboardView: View {
         if let pendingSide = pendingTapSide {
             if pendingSide == side, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
                 cancelPendingTap()
+                VibrationManager.shared.vibrateLight()
                 dispatch(.adjustPoints(side: side, delta: -1))
                 return
             }
@@ -574,6 +575,7 @@ struct RallyScoreboardView: View {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
                         guard points > 0 else { return }
+                        VibrationManager.shared.vibrateLight()
                         dispatch(.adjustPoints(side: side, delta: -1))
                     }
                 }
@@ -739,6 +741,7 @@ struct RallyScoreboardView: View {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
                         guard points > 0 else { return }
+                        VibrationManager.shared.vibrateLight()
                         dispatch(.adjustPoints(side: side, delta: -1))
                     }
                 }
@@ -941,6 +944,7 @@ struct RallyScoreboardView: View {
                         guard !store.state.finished else { return }
                         let points = side == .left ? store.state.leftPoints : store.state.rightPoints
                         guard points > 0 else { return }
+                        VibrationManager.shared.vibrateLight()
                         dispatch(.adjustPoints(side: side, delta: -1))
                     }
                 }
@@ -1208,7 +1212,11 @@ struct RallyScoreboardView: View {
         size: CGFloat = 50,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        Button(action: {
+            // 对齐安卓 ScoreEditAdjustRows：编辑面板 ± 按钮轻震反馈。
+            VibrationManager.shared.vibrateLight()
+            action()
+        }) {
             Image(systemName: systemName)
                 .font(.system(size: Swift.min(20, size * 0.4), weight: .bold))
                 .foregroundStyle(enabled ? palette.foreground.opacity(0.75) : palette.foreground.opacity(0.3))
@@ -1252,6 +1260,7 @@ struct RallyScoreboardView: View {
            gameType == .badmintonDoubles || gameType == .pickleballDoubles {
             pendingDoublesFlash = PendingDoublesFlash(previousDoubles: doubles)
         }
+        VibrationManager.shared.vibrateLight()
         dispatch(.pointWon(side), onApplied: processPendingDoublesFlash)
         revealImmersiveChrome()
     }

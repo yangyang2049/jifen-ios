@@ -79,7 +79,7 @@ struct QuickStartGridView: View {
                         // Custom New Game Card matching small sports cards layout
                         Button(action: { onNewGameClick?() }) {
                             ZStack {
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: Theme.xxl)
                                     .fill(
                                         LinearGradient(
                                             gradient: Gradient(colors: [Theme.primary, Theme.primaryDark]),

@@ -595,6 +595,7 @@ struct NineBallChaseScoreboardView: View {
                 finished: state.finished,
                 scoringLocked: scoringLocked
             ) else { return }
+            VibrationManager.shared.vibrateLight()
             activeChasePlayer = player
         }
         .accessibilityIdentifier("nine_ball_player_\(player)_tile")
@@ -629,7 +630,10 @@ struct NineBallChaseScoreboardView: View {
     private func nineBallScoreContent(player: Int, scoreText: String, displayedScoreSize: CGFloat) -> some View {
         if showEditPanel {
             HStack(spacing: 12) {
-                Button { adjustEditingScore(player: player, delta: -1) } label: {
+                Button {
+                    VibrationManager.shared.vibrateLight()
+                    adjustEditingScore(player: player, delta: -1)
+                } label: {
                     Image(systemName: "minus")
                         .frame(
                             width: ScoreboardConstants.minimumTouchTarget,
@@ -642,7 +646,10 @@ struct NineBallChaseScoreboardView: View {
                     .minimumScaleFactor(0.42)
                     .lineLimit(1)
                     .monospacedDigit()
-                Button { adjustEditingScore(player: player, delta: 1) } label: {
+                Button {
+                    VibrationManager.shared.vibrateLight()
+                    adjustEditingScore(player: player, delta: 1)
+                } label: {
                     Image(systemName: "plus")
                         .frame(
                             width: ScoreboardConstants.minimumTouchTarget,
@@ -700,6 +707,7 @@ struct NineBallChaseScoreboardView: View {
                         ForEach(nineBallActionOrder, id: \.self) { kind in
                             Button {
 
+                                VibrationManager.shared.vibrateLight()
                                 send(.chaseEvent(player: player, kind: kind))
                                 activeChasePlayer = nil
                             } label: {

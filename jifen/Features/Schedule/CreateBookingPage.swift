@@ -50,7 +50,6 @@ struct CreateBookingPage: View {
     @State private var reminders: Set<Int> = Set(LocalBooking.defaultReminderMinutes)
     @State private var didLoadInitial = false
     @State private var ignoresNextDateReconciliation = false
-    @State private var showReminderHelp = false
     @State private var showCommonPlaces = false
     @State private var namePickerTarget: BookingNamePickerTarget?
     @State private var saveErrorMessage: String?
@@ -143,15 +142,6 @@ struct CreateBookingPage: View {
                 normalizeReminderSelection()
             }
             .analyticsScreen(.createBookingPage, source: isEditing ? .bookingDetailPage : .scheduleList)
-            .alert(NSLocalizedString("schedule_reminder_help_title", value: "提醒说明", comment: ""), isPresented: $showReminderHelp) {
-                Button(NSLocalizedString("confirm", comment: ""), role: .cancel) { }
-            } message: {
-                Text(NSLocalizedString(
-                    "schedule_reminder_help_message",
-                    value: "这些提醒为本地通知，由设备在预约时间前触发。\n- 需开启系统通知权限\n- 修改或取消预约时，相关提醒会同步更新或移除",
-                    comment: ""
-                ))
-            }
             .alert(
                 NSLocalizedString("schedule_save_failed", value: "无法保存预约", comment: ""),
                 isPresented: Binding(
@@ -361,12 +351,16 @@ struct CreateBookingPage: View {
                 Text(NSLocalizedString("schedule_reminders", value: "提醒", comment: ""))
                     .font(.subheadline)
                     .foregroundColor(Theme.textSecondary)
-                Button { showReminderHelp = true } label: {
-                    Image(systemName: "questionmark.circle")
-                        .font(.system(size: 16))
-                        .foregroundColor(Theme.textSecondary)
-                }
-                .buttonStyle(.plain)
+                SystemHelpButton(
+                    title: NSLocalizedString("schedule_reminder_help_title", value: "提醒说明", comment: ""),
+                    message: NSLocalizedString(
+                        "schedule_reminder_help_message",
+                        value: "这些提醒为本地通知，由设备在预约时间前触发。\n- 需开启系统通知权限\n- 修改或取消预约时，相关提醒会同步更新或移除",
+                        comment: ""
+                    ),
+                    iconFontSize: 16,
+                    accessibilityIdentifier: "schedule_reminder_help"
+                )
                 Spacer()
             }
             HStack(spacing: 10) {

@@ -77,8 +77,7 @@ final class SessionStore {
             user = try await client.request("/api/auth/me", requiresAuth: true)
             state = .authenticated
             lastError = nil
-            await CommonDataCloudSyncManager.shared.sessionDidChange(userId: user?.id)
-            await StoreKitPurchaseManager.shared.sessionDidAuthenticate()
+            await runPostAuthenticationWarmup(userId: user?.id)
         } catch {
             if error as? APIClientError == .sessionExpired {
                 await expireSession()
@@ -279,11 +278,18 @@ final class SessionStore {
             #if DEBUG
             print("[AccountAuth] local session authenticated")
             #endif
-            await CommonDataCloudSyncManager.shared.sessionDidChange(userId: response.user.id)
-            await StoreKitPurchaseManager.shared.sessionDidAuthenticate()
+            await runPostAuthenticationWarmup(userId: response.user.id)
         } catch {
             await handle(error)
         }
+    }
+
+    private func runPostAuthenticationWarmup(userId: String?) async {
+        async let commonDataSync: Void = CommonDataCloudSyncManager.shared.sessionDidChange(
+            userId: userId
+        )
+        async let purchaseSync: Void = StoreKitPurchaseManager.shared.sessionDidAuthenticate()
+        _ = await (commonDataSync, purchaseSync)
     }
 
     private func handle(_ error: Error) async {
