@@ -16,8 +16,6 @@ final class TennisSessionStore {
     private var detailedActions: [DetailedScoreAction]
     private(set) var completedSetScores: [VoiceSetScore] = []
     private var recordUndoCheckpoints: [ScoreSessionRecordCheckpoint]
-    private var lastAppliedRemoteRevision: UInt64?
-    private var lastAppliedRemoteGeneration: UInt64?
     private var operationTask: Task<Void, Never>?
     private var scoreInputFrozen: Bool
     private var lastPersistenceErrorPresentationAt: Date?
@@ -300,57 +298,9 @@ final class TennisSessionStore {
         }
     }
 
-    @discardableResult
-    func applyAuthoritativeState(
-        _ state: TennisMatchState,
-        detailedActions incoming: [DetailedScoreAction],
-        revision: UInt64,
-        matchGeneration: UInt64? = nil,
-        persistFormalRecord: Bool = true
-    ) async -> Bool {
-        if let matchGeneration {
-            if lastAppliedRemoteGeneration != matchGeneration {
-                // Watch started a new linked match (再来一场). The new match's
-                // revisions restart from 0, so drop the stale gate from the
-                // previous match rather than discarding every new snapshot.
-                lastAppliedRemoteGeneration = matchGeneration
-                lastAppliedRemoteRevision = nil
-            }
-        }
-        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
-            return false
-        }
-        lastAppliedRemoteRevision = revision
-        _ = await operationTask?.value
-        let session = await core.rebase(
-            to: state,
-            status: state.finished ? .finished : .live
-        )
-        guard lastAppliedRemoteRevision == revision else { return false }
-        self.state = session.state
-        if session.status == .live || !persistFormalRecord {
-            hasPersistedFinishedRecord = false
-        }
-        mergeRemoteActions(incoming)
-        completedSetScores = Self.completedSetScores(from: detailedActions)
-        recordUndoCheckpoints.removeAll(keepingCapacity: true)
-        await synchronizeParticipants(for: session.state)
-        await core.setResumeAuxiliaryPayload(recordContext.encoded)
-        let bundle = await core.resumeBundle()
-        do {
-            try await persist(bundle, persistFormalRecord: persistFormalRecord)
-        } catch {
-            reportPersistenceFailure(error)
-        }
-        return true
-    }
 
-    func mergeRemoteActions(_ incoming: [DetailedScoreAction]) {
-        guard !incoming.isEmpty else { return }
-        detailedActions = incoming.sorted {
-            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
-        }
-    }
+
+
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         let previousTask = operationTask
@@ -552,16 +502,14 @@ final class TennisSessionStore {
     }
 
     private func persist(
-        _ bundle: ResumeBundle,
-        persistFormalRecord: Bool = true
+        _ bundle: ResumeBundle
     ) async throws {
         let session = bundle.currentSession
         if session.status == .live {
             try await resumeRepository.saveResumeBundle(bundle)
             return
         }
-        guard persistFormalRecord,
-              let record = try makeFinishedRecord(session) else { return }
+        guard let record = try makeFinishedRecord(session) else { return }
         let coordinator = FinishedSessionCommitCoordinator(
             resumeRemover: { [resumeRepository] sessionId in
                 try await resumeRepository.remove(sessionId: sessionId)

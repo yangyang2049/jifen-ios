@@ -5,7 +5,6 @@ import SwiftUI
 /// 追分开局设置。人数与事件分值直接写入 `SportsSetupResult`，计分板不再
 /// 根据页面默认值二次猜测，和鸿蒙/安卓的 setup -> reducer 契约保持一致。
 struct NineBallSetupDialogView: View {
-    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     private let commonNamesManager = CommonNamesManager.shared
 
     var initialSetup: SportsSetupResult? = nil
@@ -26,20 +25,7 @@ struct NineBallSetupDialogView: View {
     @State private var normalWin = 4
     @State private var ballInHand = 1
     @State private var foul = 1
-    @State private var isSendingSetupToWatch = false
     @State private var setupSendErrorText = ""
-    @State private var showExitWhileSendingConfirm = false
-    @State private var showWatchNotForegroundAlert = false
-    @State private var showWatchStartGuide = false
-
-    private var canStartOnWatch: Bool {
-        AppFeatureFlags.watchLinkEntryEnabled
-            && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice
-            && AppFeatureFlags.isWatchLinkSupportedSetup(
-                gameType: .nineBall,
-                nineBallPlayerCount: playerCount
-            )
-    }
 
     var body: some View {
         AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
@@ -104,26 +90,6 @@ struct NineBallSetupDialogView: View {
             }
         }
         .onAppear(perform: applyInitialSetup)
-        .task(id: canStartOnWatch) {
-            await presentWatchStartGuideIfNeeded()
-        }
-        .alert(
-            NSLocalizedString("linked_score_setup_exit_title", value: "退出同步计分？", comment: ""),
-            isPresented: $showExitWhileSendingConfirm
-        ) {
-            Button(NSLocalizedString("linked_score_setup_exit_confirm", value: "退出", comment: ""), role: .destructive) {
-                watchLinkService.cancelPendingSetupHandshake()
-                isSendingSetupToWatch = false
-                onCancel?()
-            }
-            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-        } message: {
-            Text(NSLocalizedString(
-                "linked_score_setup_exit_message",
-                value: "现在正在等待手表确认。退出后将取消本次同步计分。",
-                comment: ""
-            ))
-        }
     }
 
     @ViewBuilder
@@ -147,82 +113,18 @@ struct NineBallSetupDialogView: View {
                 }
                 .buttonStyle(.plain)
 
-                if canStartOnWatch {
-                    HStack(spacing: 0) {
-                        startButton(startOnWatch: false)
-                            .clipShape(UnevenRoundedRectangle(
-                                topLeadingRadius: 22,
-                                bottomLeadingRadius: 22,
-                                bottomTrailingRadius: 0,
-                                topTrailingRadius: 0
-                            ))
-
-                        Button {
-                            dismissWatchStartGuide()
-                            Task { await confirm(startOnWatch: true) }
-                        } label: {
-                            Group {
-                                if isSendingSetupToWatch {
-                                    ProgressView().tint(.white)
-                                } else {
-                                    Image(systemName: "applewatch")
-                                        .font(.system(size: 20, weight: .semibold))
-                                }
-                            }
-                            .frame(width: 50, height: 44)
-                            .foregroundStyle(.white)
-                            .background(Theme.primary.opacity(0.78))
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(isSendingSetupToWatch)
-                        .clipShape(UnevenRoundedRectangle(
-                            topLeadingRadius: 0,
-                            bottomLeadingRadius: 0,
-                            bottomTrailingRadius: 22,
-                            topTrailingRadius: 22
-                        ))
-                        .accessibilityLabel(NSLocalizedString(
-                            "linked_score_start_on_watch",
-                            value: "在手表开始",
-                            comment: ""
-                        ))
-                        .popover(
-                            isPresented: $showWatchStartGuide,
-                            attachmentAnchor: .rect(.bounds),
-                            arrowEdge: .bottom
-                        ) {
-                            LinkedScoreWatchStartGuidePopover(
-                                onDismiss: dismissWatchStartGuide
-                            )
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
+                startButton()
                     .clipShape(Capsule())
-                } else {
-                    startButton(startOnWatch: false)
-                        .clipShape(Capsule())
-                }
             }
         }
         .buttonStyle(.plain)
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
-        .overlay {
-            GotItInfoDialogPresenter(
-                isPresented: $showWatchNotForegroundAlert,
-                title: NSLocalizedString(
-                    "linked_score_watch_not_foreground_title",
-                    value: "请打开手表 App",
-                    comment: ""
-                ),
-                message: PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription
-            )
-        }
     }
 
-    private func startButton(startOnWatch: Bool) -> some View {
+    private func startButton() -> some View {
         Button {
-            Task { await confirm(startOnWatch: startOnWatch) }
+            Task { await confirm() }
         } label: {
             Text(NSLocalizedString("start_game", comment: ""))
                 .fontWeight(.medium)
@@ -232,8 +134,6 @@ struct NineBallSetupDialogView: View {
                 .background(Theme.primary)
         }
         .buttonStyle(.plain)
-        .disabled(isSendingSetupToWatch)
-        .opacity(isSendingSetupToWatch ? 0.7 : 1)
     }
 
     private func applyInitialSetup() {
@@ -336,51 +236,11 @@ struct NineBallSetupDialogView: View {
     }
 
     private func requestCancel() {
-        if isSendingSetupToWatch {
-            showExitWhileSendingConfirm = true
-        } else {
-            onCancel?()
-        }
-    }
-
-    private func dismissWatchStartGuide() {
-        showWatchStartGuide = false
-        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
+        onCancel?()
     }
 
     @MainActor
-    private func presentWatchStartGuideIfNeeded() async {
-        guard canStartOnWatch else {
-            showWatchStartGuide = false
-            return
-        }
-        guard !PreferencesManager.shared.linkedScoreWatchStartGuideShown else {
-            showWatchStartGuide = false
-            return
-        }
-
-        do {
-            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.showDelay)
-        } catch {
-            return
-        }
-        guard !Task.isCancelled,
-              canStartOnWatch,
-              !PreferencesManager.shared.linkedScoreWatchStartGuideShown else { return }
-
-        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
-        showWatchStartGuide = true
-
-        do {
-            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.visibleDuration)
-        } catch {
-            return
-        }
-        showWatchStartGuide = false
-    }
-
-    @MainActor
-    private func confirm(startOnWatch: Bool = false) async {
+    private func confirm() async {
         let names = Array(playerNames.prefix(playerCount)).enumerated().map { index, value in
             let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty ? playerLabel(index) : trimmed
@@ -407,41 +267,6 @@ struct NineBallSetupDialogView: View {
             playerCount: playerCount,
             playerNames: names
         )
-
-        if startOnWatch {
-            guard canStartOnWatch else {
-                setupSendErrorText = PhoneWatchLinkService.InteractiveStartError.watchUnavailable.localizedDescription
-                return
-            }
-            isSendingSetupToWatch = true
-            setupSendErrorText = ""
-            do {
-                guard case let .some(.nineBall(projectedNames, nineConfig)) = result.billiardsConfiguration(for: .nineBall) else {
-                    return
-                }
-                let nine = NineBallChaseState.initial(
-                    config: nineConfig,
-                    playerCount: projectedNames.count,
-                    playerNames: projectedNames
-                )
-                result.linkedWatchSessionId = try await watchLinkService.startInteractiveOnWatch(
-                    snapshot: .nineBall(nine),
-                    gameType: .nineBall
-                )
-                result.startOnWatch = true
-            } catch {
-                isSendingSetupToWatch = false
-                if let startError = error as? PhoneWatchLinkService.InteractiveStartError,
-                   case .watchAppNotForeground = startError {
-                    setupSendErrorText = ""
-                    showWatchNotForegroundAlert = true
-                } else {
-                    setupSendErrorText = error.localizedDescription
-                }
-                return
-            }
-            isSendingSetupToWatch = false
-        }
 
         onConfirm(result)
     }

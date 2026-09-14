@@ -6,15 +6,7 @@ import SessionCore
 import SwiftUI
 import UIKit
 
-enum TwoSideScoreboardText {
-    static var linkedNewGameOnWatch: String {
-        NSLocalizedString(
-            "game_over_new_game_on_watch",
-            value: "再来一场\n（请在手表端操作）",
-            comment: ""
-        )
-    }
-}
+
 
 /// Two-side 50/50 scaffold aligned with the HOS boards for eight-ball, shengji, and guandan.
 struct TwoSideScoreboardScaffold<Center: View>: View {
@@ -66,6 +58,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     /// Optional top-center pill.
     /// 第三参数为当前样式快照（可用于 matchTitle 等全局元素取色）。
     var topCenter: ((ScoreboardTypographyPreference, CGSize, ScoreboardAppearanceSnapshot) -> AnyView)? = nil
+    var topCenterEditable: Bool = false
     var onEditModeChange: ((Bool) -> Void)? = nil
     var onTypographyChange: ((ScoreboardTypographyPreference) -> Void)? = nil
     /// Stable team color placement; supplied values are already screen ordered.
@@ -132,6 +125,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     /// 对齐安卓 ScoreboardDoubleTapSubtractHandler：挂起窗口内同侧第二次点击 = 减分，
     /// 异侧点击则先把挂起的这一次结算掉，再为新的半区重新挂起。
     private func handlePanelTap(isLeft: Bool) {
+        guard !isStyleEditing else { return }
         guard !isEditMode, !finished else { return }
         guard doubleTapSubtractEnabled else {
             cancelPendingTap()
@@ -194,6 +188,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         accessory: panelAccessory?(true)
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
+                    .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("scoreboard_left_panel")
                     .simultaneousGesture(panelSwipeGesture(isLeft: true))
 
@@ -207,6 +202,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         accessory: panelAccessory?(false)
                     )
                     .frame(width: proxy.size.width / 2, height: halfH)
+                    .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("scoreboard_right_panel")
                     .simultaneousGesture(panelSwipeGesture(isLeft: false))
                 }
@@ -215,8 +211,8 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     seamOverlay(appearance.serverIndicatorColor)
                 }
 
-                // 对齐安卓 persistentTopSupplement：编辑模式下保持可见（斯诺克抬头编辑、黑八目标局数）。
-                if let topCenter {
+                // Only editable content (the Snooker title) remains during editing.
+                if let topCenter, topCenterEditable || (!isEditMode && !isStyleEditing && !showDisplaySettings) {
                     VStack {
                         topCenter(typographySession.effectivePreference, proxy.size, appearance)
                             .padding(.top, ScoreboardConstants.buttonPadding)
@@ -225,7 +221,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                 }
 
                 // Compact center hints (target text etc.) sit mid-bottom above optional bottom bar.
-                if !isEditMode {
+                if !isEditMode && !isStyleEditing && !showDisplaySettings {
                     VStack {
                         Spacer()
                         center(typographySession.effectivePreference, proxy.size)
@@ -234,10 +230,11 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     .allowsHitTesting(false)
                 }
 
-                if !isEditMode, let bottomBar {
+                if !isEditMode && !isStyleEditing && !showDisplaySettings, let bottomBar {
                     VStack {
                         Spacer()
                         bottomBar()
+                            .disabled(isStyleEditing)
                     }
                     .zIndex(20)
                 }
@@ -259,12 +256,12 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.55).onEnded { _ in
-                guard !isEditMode else { return }
+                guard !isStyleEditing, !isEditMode else { return }
                 showMenu = true
                 revealImmersiveChrome()
             })
             .simultaneousGesture(DragGesture(minimumDistance: 36).onEnded { value in
-                guard scoringEnabled,
+                guard !isStyleEditing, scoringEnabled,
                       !isEditMode,
                       value.translation.width < -60,
                       abs(value.translation.width) > abs(value.translation.height) else { return }
@@ -613,6 +610,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                             weight: .bold
                         ))
                         .foregroundStyle(elementColor(.teamName, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
+                .styleElementSelectable(.teamName, slotKey: isLeft ? .sideLeft : .sideRight)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                         .padding(.horizontal, 8)
@@ -622,7 +620,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     if inlineSecondaryScore, !Theme.usesPadLayout, let detail {
                         // 同行布局：副分数与大分数底端基线对齐（lastTextBaseline 消除
                         // 行高差异造成的错位），置于屏幕外侧——左侧面板在左、右侧面板在右。
-                        HStack(alignment: .lastTextBaseline, spacing: 8) {
+                        HStack(alignment: .lastTextBaseline, spacing: ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: panelSize.width)) {
                             if isLeft {
                                 inlineDetailText(detail, fontSize: setSize, isLeftScreen: isLeft)
                                 inlineMainScoreText(score, fontSize: mainSize, isLeftScreen: isLeft)
@@ -635,6 +633,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         Text(score)
                             .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
                             .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
+                .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
                             .monospacedDigit()
                             .minimumScaleFactor(0.4)
                             .lineLimit(1)
@@ -644,13 +643,15 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                             Text(detail)
                                 .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
                                 .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeft))
+                .styleElementSelectable(.setScore, slotKey: isLeft ? .sideLeft : .sideRight)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                         }
                     }
 
-                    if let accessory {
+                    if let accessory, !isStyleEditing && !showDisplaySettings {
                         accessory
+                            .disabled(isStyleEditing)
                             .padding(.top, 8)
                     }
                 }
@@ -673,6 +674,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         Text(score)
             .font(typographySession.effectivePreference.font.swiftUIFont(size: fontSize))
             .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeftScreen))
+                .styleElementSelectable(.mainScore, slotKey: isLeftScreen ? .sideLeft : .sideRight)
             .monospacedDigit()
             .minimumScaleFactor(0.4)
             .lineLimit(1)
@@ -683,6 +685,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         Text(detail)
             .font(typographySession.effectivePreference.font.swiftUIFont(size: fontSize))
             .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeftScreen))
+                .styleElementSelectable(.setScore, slotKey: isLeftScreen ? .sideLeft : .sideRight)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }
@@ -701,7 +704,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
 
     private func panelSwipeGesture(isLeft: Bool) -> some Gesture {
         DragGesture(minimumDistance: 50).onEnded { value in
-            guard scoringEnabled,
+            guard !isStyleEditing, scoringEnabled,
                   !isEditMode,
                   !finished,
                   abs(value.translation.height) > abs(value.translation.width),

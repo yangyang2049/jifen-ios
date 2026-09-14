@@ -18,8 +18,6 @@ class CommonNamesManager {
     private let teamsKey = "commonTeamNames"
     private let playersKey = "commonPlayerNames"
     private let revisionKey = "commonNamesSyncRevisionV2"
-    private let processedWatchMutationIDsKey = "processedWatchCommonNameMutationIDsV1"
-    private let processedWatchMutationResultsKey = "processedWatchCommonNameMutationResultsV1"
 
     // Keep the local cache large enough for the server's canonical snapshot.
     // BASIC/VIP trimming remains a server policy and is reflected back after sync.
@@ -52,13 +50,7 @@ class CommonNamesManager {
         return 0
     }
 
-    func currentSyncSnapshot() -> CommonNamesSyncSnapshot {
-        CommonNamesSyncSnapshot(
-            teams: getNames(type: .team),
-            players: getNames(type: .player),
-            revision: currentRevision
-        )
-    }
+
 
     private func isPresetName(_ normalized: String) -> Bool {
         Self.presetNameKeys.contains(normalized.lowercased())
@@ -191,105 +183,9 @@ class CommonNamesManager {
         saveNames([], type: type)
     }
 
-    func applyWatchMutations(_ mutations: [CommonNameMutation]) -> CommonNameMutationAcknowledgement {
-        var teams = getNames(type: .team)
-        var players = getNames(type: .player)
-        var processed = Set(userDefaults.stringArray(forKey: processedWatchMutationIDsKey) ?? [])
-        var processedOrder = userDefaults.stringArray(forKey: processedWatchMutationIDsKey) ?? []
-        var processedResults = userDefaults.dictionary(forKey: processedWatchMutationResultsKey) as? [String: String] ?? [:]
-        var results: [CommonNameMutationResult] = []
-        var didChange = false
 
-        for mutation in mutations {
-            let id = mutation.id.uuidString
-            if processed.contains(id) {
-                let previousStatus = processedResults[id].flatMap(CommonNameMutationResultStatus.init(rawValue:))
-                    ?? .noChange
-                results.append(.init(mutationId: mutation.id, status: previousStatus))
-                continue
-            }
 
-            let status: CommonNameMutationResultStatus
-            switch mutation.nameType {
-            case .team:
-                status = apply(mutation, to: &teams)
-            case .player:
-                status = apply(mutation, to: &players)
-            }
-            if status == .applied {
-                didChange = true
-            }
-            results.append(.init(mutationId: mutation.id, status: status))
-            processed.insert(id)
-            processedOrder.append(id)
-            processedResults[id] = status.rawValue
-        }
 
-        if processedOrder.count > 500 {
-            processedOrder = Array(processedOrder.suffix(500))
-        }
-        let retainedIDs = Set(processedOrder)
-        processedResults = processedResults.filter { retainedIDs.contains($0.key) }
-        userDefaults.set(processedOrder, forKey: processedWatchMutationIDsKey)
-        userDefaults.set(processedResults, forKey: processedWatchMutationResultsKey)
-
-        if didChange {
-            userDefaults.set(Array(teams.prefix(maxNames(for: .team))), forKey: teamsKey)
-            userDefaults.set(Array(players.prefix(maxNames(for: .player))), forKey: playersKey)
-            incrementRevisionAndNotify()
-        }
-
-        return CommonNameMutationAcknowledgement(
-            snapshot: currentSyncSnapshot(),
-            results: results
-        )
-    }
-
-    private func apply(
-        _ mutation: CommonNameMutation,
-        to names: inout [String]
-    ) -> CommonNameMutationResultStatus {
-        switch mutation.kind {
-        case .add:
-            guard let raw = mutation.newName else { return .invalid }
-            let value = normalizeWatchMutationName(raw)
-            guard !value.isEmpty, !isPresetName(value) else { return .invalid }
-            if names.contains(where: { normalizedKey($0) == normalizedKey(value) }) {
-                return .noChange
-            }
-            names.insert(value, at: 0)
-            return .applied
-
-        case .delete:
-            guard let raw = mutation.originalName else { return .invalid }
-            let key = normalizedKey(raw)
-            guard !key.isEmpty else { return .invalid }
-            let before = names.count
-            names.removeAll { normalizedKey($0) == key }
-            return names.count == before ? .noChange : .applied
-
-        case .rename:
-            guard let oldRaw = mutation.originalName,
-                  let newRaw = mutation.newName else { return .invalid }
-            let oldKey = normalizedKey(oldRaw)
-            guard !oldKey.isEmpty else { return .invalid }
-            let newValue = normalizeWatchMutationName(newRaw)
-            guard !newValue.isEmpty, !isPresetName(newValue) else { return .invalid }
-            let newKey = normalizedKey(newValue)
-            guard let oldIndex = names.firstIndex(where: { normalizedKey($0) == oldKey }) else {
-                return names.contains(where: { normalizedKey($0) == newKey }) ? .noChange : .conflict
-            }
-            if let duplicateIndex = names.firstIndex(where: { normalizedKey($0) == newKey }),
-               duplicateIndex != oldIndex {
-                return .conflict
-            }
-            if normalizedKey(names[oldIndex]) == newKey, names[oldIndex] == newValue {
-                return .noChange
-            }
-            names[oldIndex] = newValue
-            return .applied
-        }
-    }
 
     private func saveNames(_ names: [String], type: NameType) {
         let key = (type == .team) ? teamsKey : playersKey
@@ -298,7 +194,7 @@ class CommonNamesManager {
     }
 
     /// Replaces the canonical list returned by the backend. The same write
-    /// path increments the Watch revision so phone, cloud and Watch converge.
+    /// path notifies phone views when cloud data changes.
     func replaceNamesFromCloud(_ names: [String], type: NameType) {
         let normalized = names
             .map(normalizeName)
@@ -316,9 +212,7 @@ class CommonNamesManager {
         NotificationCenter.default.post(name: .commonNamesDidChange, object: nil)
     }
 
-    private func normalizeWatchMutationName(_ raw: String) -> String {
-        String(normalizeName(raw).prefix(24))
-    }
+
 
     private func normalizeName(_ raw: String) -> String {
         raw

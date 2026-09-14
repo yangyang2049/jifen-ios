@@ -15,6 +15,7 @@ private enum SettingsSheetDestination: String, Identifiable {
     case scoreboardSettings
     case faq
     case about
+    case feedback
 
     var id: String { rawValue }
 
@@ -23,6 +24,7 @@ private enum SettingsSheetDestination: String, Identifiable {
         case .scoreboardSettings: "settings_scoreboard_entry"
         case .faq: "settings_faq_entry"
         case .about: "settings_about_entry"
+        case .feedback: "settings_feedback_entry"
         }
     }
 
@@ -31,6 +33,7 @@ private enum SettingsSheetDestination: String, Identifiable {
         case .scoreboardSettings: "settings_scoreboard_sheet"
         case .faq: "settings_faq_sheet"
         case .about: "settings_about_sheet"
+        case .feedback: "settings_feedback_sheet"
         }
     }
 
@@ -44,7 +47,6 @@ struct SettingsView: View {
     @Environment(\.requestReview) private var requestReview
     @Environment(\.openURL) private var openURL
     @Environment(AppAppearanceStore.self) private var appearance
-    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     @Environment(SessionStore.self) private var session
     var isTabRoot: Bool = false
     @State private var showClearConfirm = false
@@ -256,13 +258,27 @@ struct SettingsView: View {
 
     private var feedbackCard: some View {
         SettingsSection {
-            NavigationLink { FeedbackListView() } label: {
-                SettingsNavigationRow(
-                    title: NSLocalizedString("me_feedback_entry", value: "反馈社区", comment: ""),
-                    subtitle: NSLocalizedString("feedback_entry_subtitle", value: "功能建议与问题反馈", comment: "")
-                )
+            // 对齐安卓平板端：iPad 上反馈社区以对话框（form sheet）呈现。
+            if Theme.usesPadLayout {
+                Button {
+                    activeSheet = .feedback
+                } label: {
+                    SettingsNavigationRow(
+                        title: NSLocalizedString("me_feedback_entry", value: "反馈社区", comment: ""),
+                        subtitle: NSLocalizedString("feedback_entry_subtitle", value: "功能建议与问题反馈", comment: "")
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("settings_feedback_entry")
+            } else {
+                NavigationLink { FeedbackListView() } label: {
+                    SettingsNavigationRow(
+                        title: NSLocalizedString("me_feedback_entry", value: "反馈社区", comment: ""),
+                        subtitle: NSLocalizedString("feedback_entry_subtitle", value: "功能建议与问题反馈", comment: "")
+                    )
+                }
+                .accessibilityIdentifier("settings_feedback_entry")
             }
-            .accessibilityIdentifier("settings_feedback_entry")
         }
     }
 
@@ -282,16 +298,6 @@ struct SettingsView: View {
                     toggleAccessibilityIdentifier: "me_sound_effects_toggle",
                     helpAction: { showSoundEffectsHelp = true }
                 )
-                if AppFeatureFlags.watchLinkEntryEnabled
-                    && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice {
-                    settingsRowDivider
-                    NavigationLink { WatchLinkSettingsView() } label: {
-                        SettingsNavigationRow(title: NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
-                    }
-                    .simultaneousGesture(TapGesture().onEnded {
-                        AppAnalytics.openPage(from: .meTab, to: .watchLinkPage, entryPoint: .meTab)
-                    })
-                }
                 settingsRowDivider
                 Button {
                     AppAnalytics.openDialog("appearance_picker", source: .meTab)
@@ -392,7 +398,6 @@ struct SettingsView: View {
         isClearingData = true
         Task {
             let result = await LocalDataResetCoordinator.live(
-                watchLinkService: watchLinkService,
                 appearance: appearance
             ).clearAll()
             ScoreboardRecordsViewModel.shared.refreshRecordsImmediately()
@@ -493,6 +498,8 @@ private struct SettingsFormSheet: View {
             FAQView()
         case .about:
             AboutUsView()
+        case .feedback:
+            FeedbackListView()
         }
     }
 }
@@ -503,6 +510,7 @@ private extension SettingsSheetDestination {
         case .scoreboardSettings: return .scoreboardSettingsPage
         case .faq: return .faqPage
         case .about: return .aboutUsPage
+        case .feedback: return .feedbackPage
         }
     }
 }
@@ -889,10 +897,12 @@ private struct FAQItem: Identifiable {
 }
 
 private struct FAQView: View {
-    @State private var expandedID: Int?
+    /// 对齐安卓 FaqScreen：默认展开第一条，同一时间只展开一条。
+    @State private var expandedID: Int? = 1
 
+    /// 对齐安卓 faq_q1-q8/q10/q11：跳过 9 号条目。
     private var items: [FAQItem] {
-        [1, 2, 3, 5, 6, 7, 8].map { index in
+        [1, 2, 3, 4, 5, 6, 7, 8, 10, 11].map { index in
             FAQItem(
                 id: index,
                 question: NSLocalizedString("faq_question_\(index)", value: "", comment: ""),
@@ -903,36 +913,50 @@ private struct FAQView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: Theme.sm) {
+            // 对齐安卓：全部条目收在一张 12pt 圆角卡片内，条目间用分隔线。
+            VStack(spacing: 0) {
                 ForEach(items) { item in
-                    Button { expandedID = expandedID == item.id ? nil : item.id } label: {
-                        VStack(alignment: .leading, spacing: Theme.sm) {
-                            HStack {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Button {
+                            expandedID = expandedID == item.id ? nil : item.id
+                        } label: {
+                            HStack(spacing: 12) {
                                 Text(item.question)
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Theme.textPrimary)
                                     .multilineTextAlignment(.leading)
-                                Spacer()
-                                Image(systemName: expandedID == item.id ? "chevron.up" : "chevron.down")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(Theme.textSecondary)
+                                    .rotationEffect(.degrees(expandedID == item.id ? 90 : 0))
                             }
-                            if expandedID == item.id {
-                                Text(item.answer)
-                                    .font(.system(size: 14))
-                                    .foregroundColor(Theme.textSecondary)
-                                    .multilineTextAlignment(.leading)
-                                    .accessibilityIdentifier("settings_faq_answer_\(item.id)")
-                            }
+                            .padding(Theme.compactCardPadding)
+                            .contentShape(Rectangle())
                         }
-                        .padding(Theme.md)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Theme.appCardBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("settings_faq_question_\(item.id)")
+                        if expandedID == item.id {
+                            Text(item.answer)
+                                .font(.system(size: 14))
+                                .foregroundColor(Theme.textSecondary)
+                                .multilineTextAlignment(.leading)
+                                // 对齐安卓：答案只有左右下 12 内边距，上间距由问题行提供。
+                                .padding(.leading, Theme.compactCardPadding)
+                                .padding(.trailing, Theme.compactCardPadding)
+                                .padding(.bottom, Theme.compactCardPadding)
+                                .accessibilityIdentifier("settings_faq_answer_\(item.id)")
+                        }
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("settings_faq_question_\(item.id)")
+                    if item.id != items.last?.id {
+                        Divider()
+                            .overlay(Theme.divider)
+                            .opacity(0.45)
+                    }
                 }
             }
+            .background(Theme.appCardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
             .frame(maxWidth: Theme.meTabContentMaxWidth)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, Theme.pageHorizontalInset)

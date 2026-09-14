@@ -129,6 +129,16 @@ final class ScoreboardStyleV2ModelTests: XCTestCase {
         )
     }
 
+    func testLegacyDefaultPanelsKeepWhiteTextWithoutDisablingCustomAutoContrast() {
+        for id in ["basketball", "three_basketball", "nine_ball", "multi_scoreboard", "uno"] {
+            var profile = ScoreboardStyleProfileV2.default(for: ScoreboardStyleID(rawValue: id))
+            XCTAssertEqual(profile.resolvedTextHex(for: .team0), "FFFFFF", id)
+            XCTAssertEqual(profile.resolvedTextHex(for: .center), "FFFFFF", id)
+            profile.team0Hex = "FFFFFF"
+            XCTAssertEqual(profile.resolvedTextHex(for: .team0), "111111", id)
+        }
+    }
+
     func testBrbWrbDefaultsUseFixedManualTextColors() {
         let brb = ScoreboardStyleProfileV2.default(for: ScoreboardStyleID(rawValue: "pingpong"), theme: .brb)
         XCTAssertEqual(brb.panels?.first(where: { $0.slotKey == .sideLeft })?.backgroundColorHex, "000000")

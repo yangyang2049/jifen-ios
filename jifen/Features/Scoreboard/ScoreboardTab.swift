@@ -26,12 +26,15 @@ struct ScoreboardTab: View {
                             sectionGroup(
                                 title: section.title,
                                 items: GameCatalog.scoreboardItems(in: section),
-                                availableWidth: max(0, proxy.size.width - Theme.pageHorizontalInset * 2)
+                                availableWidth: max(0, min(proxy.size.width, usesPadLayout ? 1080 : .infinity) - Theme.pageHorizontalInset * 2)
                             )
                         }
                     }
+                    // 对齐 Timer tab：iPad 内容区限宽 1080 并水平居中。
+                    .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, Theme.pageHorizontalInset)
-                    .padding(.top, Theme.md)
+                    .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
                     .padding(.bottom, Theme.tabContentBottomPadding)
                 }
                 .background(Theme.backgroundColor)
@@ -115,12 +118,8 @@ struct ScoreboardTab: View {
     }
 
     private func gridColumns(availableWidth: CGFloat) -> [GridItem] {
-        let count: Int
-        if usesPadLayout {
-            count = min(6, max(1, Int((availableWidth + gridSpacing) / (150 + gridSpacing))))
-        } else {
-            count = availableWidth + Theme.padding * 2 < 360 ? 2 : 3
-        }
+        // 对齐 Timer tab：iPad 固定一行 4 个。
+        let count = usesPadLayout ? 4 : (availableWidth + Theme.padding * 2 < 360 ? 2 : 3)
         return Array(repeating: GridItem(.flexible(), spacing: gridSpacing), count: count)
     }
 

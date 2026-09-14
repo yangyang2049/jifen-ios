@@ -1331,71 +1331,9 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(legacyPresentation.recapGroupingQuality, .overallFallback)
     }
 
-    func testStandaloneWatchIngestKeepsStructuredActions() throws {
-        let id = "watch-ingest-\(UUID().uuidString)"
-        let actions = [
-            DetailedScoreAction(type: .matchStarted, epochMilliseconds: 1_000, scores: [0, 0]),
-            DetailedScoreAction(type: .scoreChanged, epochMilliseconds: 2_000, team: .team1, scores: [1, 0], scoreChange: 1, operationCode: "point"),
-            DetailedScoreAction(type: .setFinished, epochMilliseconds: 3_000, scores: [21, 19], setScores: [1, 0], setNumber: 1, winner: .team1)
-        ]
-        let payload = WatchRecordTransferPayload(
-            id: id,
-            gameType: "badminton",
-            startTimeEpochMilliseconds: 1_000,
-            endTimeEpochMilliseconds: 4_000,
-            durationSeconds: 3,
-            team1Name: "甲",
-            team2Name: "乙",
-            team1FinalScore: 21,
-            team2FinalScore: 19,
-            team1SetScore: 1,
-            team2SetScore: 0,
-            winner: "甲",
-            actions: ["point"],
-            detailedActions: actions,
-            totalScoreChanges: 1,
-            projectConfiguration: ["isDoubles": "true"]
-        )
 
-        let record = try WatchStandaloneRecordIngestor.makeRecord(payload)
-        XCTAssertEqual(record.detailedActions, actions)
-        XCTAssertEqual(record.setResults?.first?.scores, [21, 19])
-        XCTAssertEqual(record.totalScoreChanges, 1)
-        XCTAssertEqual(record.resolvedScoreCoreGameType, .badmintonDoubles)
-        XCTAssertEqual(ScoreboardRecordConfiguration.setup(from: record).isSingles, false)
-    }
 
-    func testLinkedWatchIngestKeepsSameTimeline() throws {
-        let id = "w_link_ingest_\(UUID().uuidString)"
-        let action = DetailedScoreAction(
-            type: .scoreChanged,
-            epochMilliseconds: 2_000,
-            team: .team2,
-            scores: [0, 1],
-            scoreChange: 1,
-            operationCode: "point"
-        )
-        var state = RallyMatchEngine.initial(leftName: "甲", rightName: "乙", rules: .badminton())
-        state.rightPoints = 1
-        let payload = LinkMatchFinishedPayload(
-            snapshot: .rally(state),
-            recordId: id,
-            winnerSide: .right,
-            startTimeEpochMilliseconds: 1_000,
-            endTimeEpochMilliseconds: 3_000,
-            durationSeconds: 2,
-            totalScoreChanges: 1,
-            detailedActions: [action]
-        )
 
-        let record = try LinkedMatchRecordIngestor.makeRecord(
-            payload: payload,
-            gameType: ScoreCore.GameType.badmintonDoubles
-        )
-        XCTAssertEqual(record.detailedActions, [action])
-        XCTAssertEqual(record.totalScoreChanges, 1)
-        XCTAssertEqual(record.resolvedScoreCoreGameType, .badmintonDoubles)
-    }
 
     func testTiebreakOnlyTennisConfigurationAndLegacyOverviewOmitGames() {
         for coreType in [ScoreCore.GameType.tennis, .tennisDoubles] {
@@ -1476,87 +1414,9 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertNil(setup.gamesPerSet)
     }
 
-    func testLinkedTiebreakOnlyTennisRecordUsesPointsAndStripsGamesData() throws {
-        var state = TennisMatchState(
-            leftName: "甲",
-            rightName: "乙",
-            rules: TennisRuleSet(
-                maxSets: 1,
-                tieBreakPoints: 10,
-                setScoringMode: .tiebreakOnly
-            )
-        )
-        state.leftPoints = 10
-        state.rightPoints = 8
-        state.finished = true
-        let action = DetailedScoreAction(
-            type: .matchFinished,
-            scores: [10, 8],
-            setScores: [0, 0],
-            winner: .team1
-        )
-        let payload = LinkMatchFinishedPayload(
-            snapshot: .tennis(state),
-            recordId: "linked-tennis-tiebreak",
-            winnerSide: .left,
-            startTimeEpochMilliseconds: 1_000,
-            endTimeEpochMilliseconds: 3_000,
-            durationSeconds: 2,
-            totalScoreChanges: 18,
-            detailedActions: [action]
-        )
 
-        let record = try LinkedMatchRecordIngestor.makeRecord(
-            payload: payload,
-            gameType: .tennis
-        )
 
-        XCTAssertEqual(record.team1FinalScore, 10)
-        XCTAssertEqual(record.team2FinalScore, 8)
-        XCTAssertNil(record.team1SetScore)
-        XCTAssertNil(record.team2SetScore)
-        XCTAssertEqual(record.detailedActions?.first?.setScores, [])
-        XCTAssertNil(record.projectConfiguration?["gamesPerSet"])
-    }
 
-    func testStandaloneWatchTiebreakOnlyTennisRecordStripsGamesData() throws {
-        let action = DetailedScoreAction(
-            type: .matchFinished,
-            scores: [7, 5],
-            setScores: [0, 0],
-            winner: .team1
-        )
-        let payload = WatchRecordTransferPayload(
-            id: "watch-tennis-tiebreak",
-            gameType: "tennis_doubles",
-            startTimeEpochMilliseconds: 1_000,
-            endTimeEpochMilliseconds: 3_000,
-            durationSeconds: 2,
-            team1Name: "甲",
-            team2Name: "乙",
-            team1FinalScore: 7,
-            team2FinalScore: 5,
-            team1SetScore: 0,
-            team2SetScore: 0,
-            winner: "甲",
-            actions: [],
-            detailedActions: [action],
-            totalScoreChanges: 12,
-            projectConfiguration: [
-                "setScoringMode": "tiebreak_only",
-                "tieBreakPoints": "7"
-            ]
-        )
-
-        let record = try WatchStandaloneRecordIngestor.makeRecord(payload)
-
-        XCTAssertEqual(record.team1FinalScore, 7)
-        XCTAssertEqual(record.team2FinalScore, 5)
-        XCTAssertNil(record.team1SetScore)
-        XCTAssertNil(record.team2SetScore)
-        XCTAssertEqual(record.detailedActions?.first?.setScores, [])
-        XCTAssertEqual(record.resolvedScoreCoreGameType, .tennisDoubles)
-    }
 
     func testTiebreakOnlyTennisPresentationOmitsRedundantMatchFinishedAction() {
         for coreType in [ScoreCore.GameType.tennis, .tennisDoubles] {
@@ -1907,11 +1767,8 @@ final class ScoreboardRecordV4Tests: XCTestCase {
     func testCompletedMatchChineseResourcesUsePlayAnotherMatchWording() throws {
         let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         let phone = try String(contentsOf: repositoryRoot.appendingPathComponent("jifen/Resources/zh-Hans.lproj/Localizable.strings"), encoding: .utf8)
-        let watch = try String(contentsOf: repositoryRoot.appendingPathComponent("jifenWatch Watch App/Resources/zh-Hans.lproj/Localizable.strings"), encoding: .utf8)
         XCTAssertTrue(phone.contains(#""play_again" = "再来一场";"#))
         XCTAssertFalse(phone.contains(#""play_again" = "再来一局";"#))
-        XCTAssertTrue(watch.contains(#""watch_play_again" = "再来一场";"#))
-        XCTAssertFalse(watch.contains(#""watch_play_again" = "再来一局";"#))
     }
 
     func testAnyCodableEncodesNestedPlayerPayloadWithNegativeScores() throws {

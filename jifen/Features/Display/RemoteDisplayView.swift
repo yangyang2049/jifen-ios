@@ -96,7 +96,7 @@ struct RemoteDisplayView: View {
         switch session.mode {
         case .live, .finished:
             if let state = session.displayState {
-                ScoreboardExternalLiveView(state: state, projection: .synchronizedDisplay)
+                ScoreboardExternalLiveView(state: state, projection: .synchronizedDisplay, onExit: exitImmediately)
                     .id("\(state.gameType)-\(state.layoutKind.rawValue)")
                     .transition(.opacity)
             } else {

@@ -135,7 +135,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
         XCTAssertFalse(coordinator.isPresented)
     }
 
-    func testAutomaticPresentationPolicyExcludesRecordReplayAndWatchLinkedStarts() {
+    func testAutomaticPresentationPolicyExcludesRecordReplay() {
         XCTAssertTrue(ScoreboardUsageHintAutomaticPresentationPolicy.allows(
             requested: true,
             setup: nil
@@ -145,19 +145,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
             setup: nil
         ))
 
-        var watchSetup = SportsSetupResult(team1Name: "A", team2Name: "B")
-        watchSetup.startOnWatch = true
-        XCTAssertFalse(ScoreboardUsageHintAutomaticPresentationPolicy.allows(
-            requested: true,
-            setup: watchSetup
-        ))
 
-        watchSetup.startOnWatch = false
-        watchSetup.linkedWatchSessionId = UUID()
-        XCTAssertFalse(ScoreboardUsageHintAutomaticPresentationPolicy.allows(
-            requested: true,
-            setup: watchSetup
-        ))
     }
 
     func testUsageHintMenuActionRemainsAvailableWhileWatchScoringIsLocked() {

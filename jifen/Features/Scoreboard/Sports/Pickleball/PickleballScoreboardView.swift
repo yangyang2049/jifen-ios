@@ -25,7 +25,6 @@ struct PickleballScoreboardView: View {
             participants: initialSetup?.isSingles == false ? doublesParticipants(initialSetup) : nil,
             openingServer: openingServer,
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement ?? false,
-            initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() },

@@ -40,9 +40,6 @@ struct ScoreboardMenuItem: Identifiable, Equatable {
 
 enum ScoreboardMenuActionPolicy {
     private static let actionsAllowedWhileScoringLocked: Set<String> = [
-        "resync",
-        "takeover",
-        "endLink",
         "usageHint",
         "displaySettings",
         "screenshot",
@@ -351,7 +348,10 @@ struct MenuDialog: View {
                     }
                 }
                 .frame(width: dialogWidth)
-                .frame(maxHeight: max(180, containerShortSide - 16))
+                // 高度完全 wrap_content：头部/底栏固定，中部网格由
+                // resolvedMatchSectionHeight 按行数撑开（上限 maxMatchSectionHeight
+                // 保证总高不超出屏幕）。不要用 frame(maxHeight:)——flexible frame
+                // 会把钳制后的提议高度当成自身尺寸，把卡片撑到接近全屏。
                 .background(dialogBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: 12)
@@ -482,11 +482,14 @@ struct MenuDialog: View {
             guard item.enabled else { return }
             trackMenuAction(item)
             if item.action == "usageHint" {
-                onClose()
-                // Let the menu leave the hierarchy before presenting the
-                // blocking usage overlay. Presenting both in one transaction
-                // can leave the second-open card unhittable in landscape.
-                DispatchQueue.main.async {
+                // 对齐安卓：关菜单与弹使用说明同帧完成，无中间帧闪烁。
+                // 必须同时禁用菜单退场动画：若退场与使用说明的插入在同一
+                // 事务内动画竞争，退场会被打断、半透明遮罩可能滞留屏幕
+                // 拦截后续点击（历史 landscape "unhittable" 问题的根因）。
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    onClose()
                     if let usageHintPresenter {
                         usageHintPresenter()
                     } else if let onUsageHint {

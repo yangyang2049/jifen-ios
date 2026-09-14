@@ -2,68 +2,9 @@ import LinkCore
 import ScoreCore
 import SwiftUI
 
-enum LinkedScoreWatchStartGuidePolicy {
-    static let showDelay: Duration = .milliseconds(120)
-    static let visibleDuration: Duration = .milliseconds(4_800)
-}
-
-struct LinkedScoreWatchStartGuidePopover: View {
-    let onDismiss: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: "applewatch")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Theme.textPrimary)
-
-                Text(NSLocalizedString(
-                    "linked_score_watch_start_guide_title",
-                    value: "手表主控计分",
-                    comment: ""
-                ))
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
-
-                Spacer(minLength: 6)
-
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(Theme.textSecondary)
-                        .frame(width: 28, height: 28)
-                        .background(Theme.dialogControlBackground)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-                .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
-                .accessibilityIdentifier("linked_score_watch_start_guide_close")
-            }
-
-            Text(NSLocalizedString(
-                "linked_score_watch_start_guide_message",
-                value: "点右侧手表按钮发送到手表，由手表主控；手机同步显示并保存记录。",
-                comment: ""
-            ))
-            .font(.system(size: 12))
-            .lineSpacing(3)
-            .foregroundStyle(Theme.textSecondary)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(12)
-        .frame(width: 268, alignment: .leading)
-        .presentationCompactAdaptation(.popover)
-    }
-}
-
 // MARK: - SportsSetupDialogView
 
 struct SportsSetupDialogView: View {
-    @Environment(PhoneWatchLinkService.self) private var watchLinkService
-
     var gameType: GameType
     var defaultTeam1Name: String
     var defaultTeam2Name: String
@@ -77,11 +18,7 @@ struct SportsSetupDialogView: View {
     var onCancel: (() -> Void)?
 
     @State private var draft = SportsSetupDraft()
-    @State private var isSendingSetupToWatch = false
     @State private var setupSendErrorText = ""
-    @State private var showExitWhileSendingConfirm = false
-    @State private var showWatchNotForegroundAlert = false
-    @State private var showWatchStartGuide = false
     // Managers
     private let commonNamesManager = CommonNamesManager.shared
 
@@ -117,9 +54,6 @@ struct SportsSetupDialogView: View {
         }
         .onAppear {
             initializeView()
-        }
-        .task(id: canStartOnWatch) {
-            await presentWatchStartGuideIfNeeded()
         }
         .onChange(of: draft.isSingles) { _, newValue in
             guard shouldShowSinglesDoublesAtTop() else { return }
@@ -177,136 +111,18 @@ struct SportsSetupDialogView: View {
                 }
                 .buttonStyle(.plain)
 
-                if canStartOnWatch {
-                    HStack(spacing: 0) {
-                        startButton(startOnWatch: false)
-                            .clipShape(UnevenRoundedRectangle(
-                                topLeadingRadius: 22,
-                                bottomLeadingRadius: 22,
-                                bottomTrailingRadius: 0,
-                                topTrailingRadius: 0
-                            ))
-
-                        Button {
-                            dismissWatchStartGuide()
-                            Task { await confirmSetup(startOnWatch: true) }
-                        } label: {
-                            Group {
-                                if isSendingSetupToWatch {
-                                    ProgressView()
-                                        .tint(.white)
-                                } else {
-                                    Image(systemName: "applewatch")
-                                        .font(.system(size: 20, weight: .semibold))
-                                }
-                            }
-                            .frame(width: 50, height: 44)
-                            .foregroundStyle(.white)
-                            .background(Theme.primary.opacity(0.78))
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(isSendingSetupToWatch)
-                        .clipShape(UnevenRoundedRectangle(
-                            topLeadingRadius: 0,
-                            bottomLeadingRadius: 0,
-                            bottomTrailingRadius: 22,
-                            topTrailingRadius: 22
-                        ))
-                        .accessibilityLabel(NSLocalizedString(
-                            "linked_score_start_on_watch",
-                            value: "在手表开始",
-                            comment: "Start scoreboard on watch"
-                        ))
-                        .popover(
-                            isPresented: $showWatchStartGuide,
-                            attachmentAnchor: .rect(.bounds),
-                            arrowEdge: .bottom
-                        ) {
-                            LinkedScoreWatchStartGuidePopover(
-                                onDismiss: dismissWatchStartGuide
-                            )
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
+                startButton()
                     .clipShape(Capsule())
-                } else {
-                    startButton(startOnWatch: false)
-                        .clipShape(Capsule())
-                }
             }
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)
         .padding(.bottom, 24)
-        .overlay {
-            GotItInfoDialogPresenter(
-                isPresented: $showWatchNotForegroundAlert,
-                title: NSLocalizedString(
-                    "linked_score_watch_not_foreground_title",
-                    value: "请打开手表 App",
-                    comment: ""
-                ),
-                message: PhoneWatchLinkService.InteractiveStartError.watchAppNotForeground.localizedDescription
-            )
-        }
-        .alert(
-            NSLocalizedString("linked_score_setup_exit_title", value: "退出同步计分？", comment: ""),
-            isPresented: $showExitWhileSendingConfirm
-        ) {
-            Button(NSLocalizedString("linked_score_setup_exit_confirm", value: "退出", comment: ""), role: .destructive) {
-                watchLinkService.cancelPendingSetupHandshake()
-                isSendingSetupToWatch = false
-                onCancel?()
-            }
-            Button(NSLocalizedString("cancel", comment: "Cancel button"), role: .cancel) {}
-        } message: {
-            Text(NSLocalizedString(
-                "linked_score_setup_exit_message",
-                value: "现在正在等待手表确认。退出后将取消本次同步计分。",
-                comment: ""
-            ))
-        }
     }
 
-    private func dismissWatchStartGuide() {
-        showWatchStartGuide = false
-        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
-    }
-
-    @MainActor
-    private func presentWatchStartGuideIfNeeded() async {
-        guard canStartOnWatch else {
-            showWatchStartGuide = false
-            return
-        }
-        guard !PreferencesManager.shared.linkedScoreWatchStartGuideShown else {
-            showWatchStartGuide = false
-            return
-        }
-
-        do {
-            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.showDelay)
-        } catch {
-            return
-        }
-        guard !Task.isCancelled,
-              canStartOnWatch,
-              !PreferencesManager.shared.linkedScoreWatchStartGuideShown else { return }
-
-        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
-        showWatchStartGuide = true
-
-        do {
-            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.visibleDuration)
-        } catch {
-            return
-        }
-        showWatchStartGuide = false
-    }
-
-    private func startButton(startOnWatch: Bool) -> some View {
+    private func startButton() -> some View {
         Button {
-            Task { await confirmSetup(startOnWatch: startOnWatch) }
+            Task { await confirmSetup() }
         } label: {
             Text(NSLocalizedString("start_game", comment: "Start Game button"))
                 .font(.system(size: 16, weight: .medium))
@@ -316,16 +132,10 @@ struct SportsSetupDialogView: View {
                 .background(Theme.primary)
         }
         .buttonStyle(.plain)
-        .disabled(isSendingSetupToWatch)
-        .opacity(isSendingSetupToWatch ? 0.7 : 1)
     }
 
     private func requestCancelDialog() {
-        if isSendingSetupToWatch {
-            showExitWhileSendingConfirm = true
-        } else {
-            onCancel?()
-        }
+        onCancel?()
     }
 
     private func cancelDialog() {
@@ -363,20 +173,7 @@ struct SportsSetupDialogView: View {
         return shouldShowSinglesDoublesAtTop() && !draft.isSingles
     }
 
-    private var supportsWatchProject: Bool {
-        AppFeatureFlags.isWatchLinkSupportedSetup(
-            gameType: gameType,
-            isSingles: shouldShowSinglesDoublesAtTop() ? draft.isSingles : nil
-        )
-    }
-
-    private var canStartOnWatch: Bool {
-        AppFeatureFlags.watchLinkEntryEnabled
-            && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice
-            && supportsWatchProject
-    }
-
-    private func confirmSetup(startOnWatch: Bool = false) async {
+    private func confirmSetup() async {
         if supportsMatchCompletionMode, !draft.hasValidMatchCompletionSets {
             return
         }
@@ -405,34 +202,6 @@ struct SportsSetupDialogView: View {
             return
         }
 
-        if startOnWatch {
-            guard canStartOnWatch else {
-                setupSendErrorText = PhoneWatchLinkService.InteractiveStartError.watchUnavailable.localizedDescription
-                return
-            }
-            isSendingSetupToWatch = true
-            setupSendErrorText = ""
-            do {
-                finalConfig.linkedWatchSessionId = try await SportsSetupWatchSessionLauncher.start(
-                    gameType: gameType,
-                    config: finalConfig,
-                    using: watchLinkService
-                )
-                finalConfig.startOnWatch = true
-            } catch {
-                isSendingSetupToWatch = false
-                if let startError = error as? PhoneWatchLinkService.InteractiveStartError,
-                   case .watchAppNotForeground = startError {
-                    setupSendErrorText = ""
-                    showWatchNotForegroundAlert = true
-                } else {
-                    setupSendErrorText = error.localizedDescription
-                }
-                return
-            }
-            isSendingSetupToWatch = false
-        }
-        
         if shouldUseDoublesPlayerInputs() || (gameType == .shuttlecock && draft.competitionFormat == .team) {
             let playerNames = [
                 draft.team1Player1Name,

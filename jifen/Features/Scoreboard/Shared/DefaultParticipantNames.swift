@@ -38,7 +38,7 @@ enum DefaultParticipantNames {
              .billiards, .eightBall, .snooker:
             return localizedPair("player_a", "Player A", "player_b", "Player B")
         case .boxing, .simpleScore, .counter:
-            return localizedPair("watch_team_red", "Red", "watch_team_blue", "Blue")
+            return localizedPair("scoreboard_team_red", "Red", "scoreboard_team_blue", "Blue")
         case .nineBall, .doudizhu, .uno, .multiScoreboard:
             return localizedPair("player1_name", "Player 1", "player2_name", "Player 2")
         case .go:
@@ -48,7 +48,7 @@ enum DefaultParticipantNames {
         case .chess:
             return localizedPair("timer_white_player", "White", "timer_black_player", "Black")
         case .stopwatch:
-            return localizedPair("watch_team_red", "Red", "watch_team_blue", "Blue")
+            return localizedPair("scoreboard_team_red", "Red", "scoreboard_team_blue", "Blue")
         }
     }
 

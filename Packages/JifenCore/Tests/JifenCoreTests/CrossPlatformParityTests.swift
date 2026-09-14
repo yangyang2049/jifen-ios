@@ -1236,21 +1236,7 @@ import SessionCore
     #expect(try JSONDecoder().decode(RallyRuleSet.self, from: unknownData).matchCompletionMode == .bestOf)
 }
 
-@Test func linkedRallySnapshotPreservesPlayAllMode() throws {
-    let state = RallyMatchEngine.initial(
-        leftName: "A",
-        rightName: "B",
-        rules: .badminton(maxSets: 4, matchCompletionMode: .playAll)
-    )
-    let snapshot = LinkedScoreboardSnapshot.rally(state)
-    let restored = try JSONDecoder().decode(
-        LinkedScoreboardSnapshot.self,
-        from: JSONEncoder().encode(snapshot)
-    )
 
-    #expect(restored.rallyState?.rules.matchCompletionMode == .playAll)
-    #expect(restored.rallyState?.rules.maxSets == 4)
-}
 
 @Test func badmintonDeuceRequiresTwoPointLeadBeforeCapLikeHarmony() {
     let reducer = RallyMatchReducer()
@@ -1760,73 +1746,11 @@ import SessionCore
     #expect(right.serverIsTop == false)
 }
 
-@Test func linkedRallySnapshotPreservesDoublesNamesAndRotation() throws {
-    let reducer = RallyMatchReducer()
-    var state = RallyMatchEngine.initial(
-        leftName: "Red",
-        rightName: "Blue",
-        rules: .pingPong(),
-        doubles: .pingPong(playerNames: ["Red A", "Blue A", "Red B", "Blue B"])
-    )
-    state = reducer.reduce(state: state, intent: .pointWon(.left), at: 1).state
-    state = reducer.reduce(state: state, intent: .pointWon(.right), at: 2).state
-    let setup = LinkedScoreboardSetup(
-        gameType: .pingpongDoubles,
-        maxSets: 5,
-        initialSnapshot: .rally(state)
-    )
 
-    let restored = try JSONDecoder().decode(
-        LinkedScoreboardSetup.self,
-        from: JSONEncoder().encode(setup)
-    )
 
-    #expect(restored.initialSnapshot?.rallyState?.doubles?.playerNames == [
-        "Red A", "Blue A", "Red B", "Blue B"
-    ])
-    #expect(restored.initialSnapshot?.rallyState?.doubles?.serverSlotIndex == 1)
-    #expect(restored.initialSnapshot?.rallyState?.doubles?.receiverSlotIndex == 2)
-}
 
-@Test func linkRevisionGateRejectsDuplicateOutOfOrderAndWrongSessionSnapshots() {
-    let activeSession = UUID()
-    let otherSession = UUID()
-    var gate = LinkRevisionGate()
 
-    let began = gate.beginSession(activeSession)
-    let acceptedFirst = gate.accept(sessionId: activeSession, revision: 1)
-    let acceptedDuplicate = gate.accept(sessionId: activeSession, revision: 1)
-    let acceptedOlder = gate.accept(sessionId: activeSession, revision: 0)
-    let acceptedOtherSession = gate.accept(sessionId: otherSession, revision: 2)
-    let acceptedSecond = gate.accept(sessionId: activeSession, revision: 2)
 
-    #expect(began)
-    #expect(acceptedFirst)
-    #expect(!acceptedDuplicate)
-    #expect(!acceptedOlder)
-    #expect(!acceptedOtherSession)
-    #expect(acceptedSecond)
-    #expect(gate.latestRevision == 2)
-}
-
-@Test func linkRevisionGateDoesNotResetForDuplicateSetup() {
-    let sessionId = UUID()
-    var gate = LinkRevisionGate()
-
-    let began = gate.beginSession(sessionId)
-    let accepted = gate.accept(sessionId: sessionId, revision: 4)
-    let duplicateSetup = gate.beginSession(sessionId)
-
-    #expect(began)
-    #expect(accepted)
-    #expect(!duplicateSetup)
-    #expect(gate.latestRevision == 4)
-
-    gate.endSession(sessionId)
-    let restarted = gate.beginSession(sessionId)
-    #expect(restarted)
-    #expect(gate.latestRevision == 0)
-}
 
 @Test func threeByThreeOvertimeFinishesAfterTwoAdditionalPoints() {
     var state = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .threeXThree)

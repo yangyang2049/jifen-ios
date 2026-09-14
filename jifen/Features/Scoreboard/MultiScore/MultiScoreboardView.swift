@@ -172,6 +172,7 @@ struct MultiScoreboardView: View {
                 scoreboardGrid(geo: geo)
 
                 if gameType == .uno,
+                   !showDisplaySettings,
                    !showUnoRoundPanel,
                    playerEditIndex == nil,
                    customAdjustIndex == nil,
@@ -1197,7 +1198,7 @@ struct MultiScoreboardView: View {
                 let right = players.dropFirst().first ?? MultiPlayerItem(id: 1, name: "", score: 0)
                 var compact = LocalScoreboardDisplayState(
                     gameID: gameType.canonicalScoreboardIdentifier,
-                    title: gameType.displayName,
+                    title: "",
                     leftName: left.name,
                     rightName: right.name,
                     leftScore: "\(left.score)",

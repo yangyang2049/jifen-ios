@@ -215,11 +215,7 @@ class PreferencesManager {
         notifyScoreboardPreferencesChanged()
     }
 
-    /// One-shot tip for the Setup “start on watch” split button (aligned with HOS).
-    var linkedScoreWatchStartGuideShown: Bool {
-        get { defaults.bool(forKey: "linked_score_watch_start_guide_popup_shown_v1", defaultValue: false) }
-        set { defaults.set(newValue, forKey: "linked_score_watch_start_guide_popup_shown_v1") }
-    }
+
 
     /// Aligns with Android/HOS `simpleScoreCustomAdjustEnabled`.
     var simpleScoreCustomAdjustEnabled: Bool {

@@ -1,0 +1,10 @@
+{
+  "activeWatchResidueMatches": 0,
+  "oldRecordsCompatible": true,
+  "WatchConnectivityLinked": false,
+  "scanRoots": [
+    "jifen",
+    "Packages/JifenCore/Sources",
+    "jifen.xcodeproj/project.pbxproj"
+  ]
+}

@@ -82,7 +82,7 @@ struct ScoreboardStyleElementSelectableModifier: ViewModifier {
     var slotKey: ScoreboardStyleSlotKeyV2?
     var borderWidth: CGFloat = 2
     var cornerRadius: CGFloat = 10
-    var contentPadding: CGFloat = 6
+    var contentPadding: CGFloat = 0
 
     @Environment(\.scoreboardStyleEditingActive) private var editing
     @Environment(\.scoreboardStyleEditorUiState) private var uiState
@@ -96,7 +96,8 @@ struct ScoreboardStyleElementSelectableModifier: ViewModifier {
                 )
                 .padding(contentPadding)
                 .contentShape(RoundedRectangle(cornerRadius: cornerRadius + contentPadding, style: .continuous))
-                .onTapGesture { uiState.openElement(elementKey, slot: slotKey ?? .sideLeft) }
+                .highPriorityGesture(TapGesture().onEnded { uiState.openElement(elementKey, slot: slotKey ?? .sideLeft) })
+                .accessibilityIdentifier("style_element_\(elementKey.rawValue)_\((slotKey ?? .sideLeft).rawValue)")
         } else {
             content
         }
@@ -109,7 +110,7 @@ extension View {
         slotKey: ScoreboardStyleSlotKeyV2? = nil,
         borderWidth: CGFloat = 2,
         cornerRadius: CGFloat = 10,
-        contentPadding: CGFloat = 6
+        contentPadding: CGFloat = 0
     ) -> some View {
         modifier(ScoreboardStyleElementSelectableModifier(
             elementKey: elementKey,
@@ -196,15 +197,6 @@ private extension ScoreboardStyleProfileV2 {
     }
 }
 
-/// 元素字号 ↔ 排版偏好指标映射（iOS 字号按 score/name/secondary 三档统一管理）。
-private func fontMetric(for elementKey: ScoreboardStyleElementKeyV2) -> ScoreboardFontMetric {
-    switch elementKey {
-    case .mainScore: return .score
-    case .teamName, .playerName: return .name
-    case .matchTitle, .setScore, .gameScore, .setGameScore: return .secondary
-    }
-}
-
 // MARK: - 主悬浮层
 
 /// 全屏样式编辑悬浮层（对齐安卓 ScoreboardStyleEditOverlay）。
@@ -228,13 +220,9 @@ struct ScoreboardStyleEditOverlayView: View {
 
     var body: some View {
         ZStack {
-            // 编辑模式下拦截穿透到底层计分视图的点击（对齐安卓 interactionLocked）。
-            Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture { }
-
             if uiState.activePanel == .none {
                 topControls
+                    .frame(maxHeight: .infinity, alignment: .top)
                 paletteEntry
             } else {
                 modalPanel
@@ -256,7 +244,7 @@ struct ScoreboardStyleEditOverlayView: View {
         .task {
             recentColors = PreferencesManager.shared.scoreboardRecentStyleColors
             let defaults = UserDefaults.standard
-            showUsageHint = defaults.string(forKey: StyleEditPalette.usageHintShownKey) != "true"
+            showUsageHint = !defaults.bool(forKey: StyleEditPalette.usageHintShownKey)
         }
         .onChange(of: uiState.activePanel) { _, panel in
             if panel != .none {
@@ -373,7 +361,8 @@ struct ScoreboardStyleEditOverlayView: View {
         _ capabilities: ScoreboardStyleEditCapabilities
     ) -> some View {
         let buttonHeight: CGFloat = isLargeLayout ? 56 : 48
-        return ScrollView(.horizontal, showsIndicators: false) {
+        return GeometryReader { geometry in
+            ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
                 HStack(spacing: 0) {
@@ -387,10 +376,15 @@ struct ScoreboardStyleEditOverlayView: View {
                 }
                 if capabilities.supportsServerIndicator {
                     paletteDivider
-                    paletteColorButton(
-                        title: NSLocalizedString("scoreboard_style_serve", value: "指示", comment: ""),
+                    paletteTextButton(
+                        top: {
+                            Image(systemName: "triangle.fill")
+                                .font(.system(size: 17))
+                                .rotationEffect(.degrees(-90))
+                                .foregroundStyle((draft.serverIndicatorColorHex ?? "30D158").styleColor)
+                        },
+                        bottom: NSLocalizedString("scoreboard_style_serve", value: "指示", comment: ""),
                         width: isLargeLayout ? 68 : 60,
-                        circles: (draft.serverIndicatorColorHex ?? "30D158", nil),
                         action: { uiState.openPanel(.server) }
                     )
                 }
@@ -432,17 +426,16 @@ struct ScoreboardStyleEditOverlayView: View {
                 )
                 paletteDivider
                 Button(action: { paletteExpanded = false }) {
-                    VStack(spacing: 2) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(.white)
-                        Text(NSLocalizedString("scoreboard_style_collapse_tools", value: "收起样式工具", comment: ""))
-                            .font(.system(size: 9))
-                            .foregroundStyle(.white.opacity(0.68))
-                    }
-                    .frame(width: isLargeLayout ? 56 : 50, height: buttonHeight)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: isLargeLayout ? 56 : 50, height: buttonHeight)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(Text(NSLocalizedString(
+                    "scoreboard_style_collapse_tools", value: "收起样式工具", comment: ""
+                )))
             }
             .padding(.horizontal, isLargeLayout ? 12 : 10)
             .padding(.vertical, 4)
@@ -452,7 +445,10 @@ struct ScoreboardStyleEditOverlayView: View {
                 .strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
                 Spacer(minLength: 0)
             }
+            .frame(minWidth: geometry.size.width)
+            }
         }
+        .frame(height: buttonHeight + 8)
     }
 
     private var paletteDivider: some View {
@@ -744,41 +740,42 @@ struct ScoreboardStyleEditOverlayView: View {
     // MARK: 面板容器
 
     private var modalPanel: some View {
-        GeometryReader { proxy in
-            let isGlobal = uiState.activePanel == .background ||
-                uiState.activePanel == .font ||
-                uiState.activePanel == .theme ||
-                uiState.activePanel == .server
-            let panelAlignment: Alignment = {
-                if isGlobal { return .center }
-                if uiState.activeElementSlot == .sideLeft { return .trailing }
-                if uiState.activeElementSlot == .sideRight { return .leading }
-                return .center
-            }()
-            let maxWidth = proxy.size.width - (isLargeLayout ? 64 : 44)
-            let maxHeight = proxy.size.height - (isLargeLayout ? 48 : 40)
-            let width = min(
-                max(isLargeLayout ? 440.0 : 300.0, proxy.size.width * 0.40),
-                isLargeLayout ? 560.0 : 420.0,
-                proxy.size.width * 0.48
-            )
-            let height: CGFloat? = switch uiState.activePanel {
-            case .element: maxHeight * 0.92
-            case .font: maxHeight * 0.62
-            default: maxHeight * 0.84
-            }
+        ZStack {
+            Color.black.opacity(0.28)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { uiState.closePanel() }
 
-            ZStack {
-                Color.black.opacity(0.28)
-                    .contentShape(Rectangle())
-                    .onTapGesture { uiState.closePanel() }
+            GeometryReader { proxy in
+                let isGlobal = uiState.activePanel == .background ||
+                    uiState.activePanel == .font ||
+                    uiState.activePanel == .theme ||
+                    uiState.activePanel == .server
+                let panelAlignment: Alignment = {
+                    if isGlobal { return .center }
+                    if uiState.activeElementSlot == .sideLeft { return .trailing }
+                    if uiState.activeElementSlot == .sideRight { return .leading }
+                    return .center
+                }()
+                let maxWidth = proxy.size.width - (isLargeLayout ? 64 : 44)
+                let maxHeight = proxy.size.height - (isLargeLayout ? 48 : 40)
+                let width = min(
+                    max(isLargeLayout ? 440.0 : 300.0, proxy.size.width * 0.40),
+                    isLargeLayout ? 560.0 : 420.0,
+                    proxy.size.width * 0.48
+                )
+                let height: CGFloat? = switch uiState.activePanel {
+                case .element: maxHeight * 0.92
+                case .font: maxHeight * 0.62
+                default: maxHeight * 0.84
+                }
 
                 panelCard(width: min(width, maxWidth), height: min(height ?? maxHeight, maxHeight))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: panelAlignment)
             }
+            .padding(.horizontal, isLargeLayout ? 32 : 22)
+            .padding(.vertical, isLargeLayout ? 24 : 20)
         }
-        .padding(.horizontal, isLargeLayout ? 32 : 22)
-        .padding(.vertical, isLargeLayout ? 24 : 20)
         .ignoresSafeArea(edges: .bottom)
     }
 
@@ -1195,9 +1192,8 @@ struct ScoreboardStyleEditOverlayView: View {
     }
 
     private var elementPanel: some View {
-        let metric = fontMetric(for: uiState.activeElementKey)
         let range = ScoreboardFontSizePolicy.range(isLargeScreen: isLargeLayout)
-        let multiplier = typographySession?.effectivePreference.multiplier(for: metric) ?? 1
+        let multiplier = typographySession?.effectivePreference.multiplier(for: uiState.activeElementKey) ?? 1
         return VStack(spacing: 12) {
             VStack(spacing: 6) {
                 HStack {
@@ -1216,7 +1212,7 @@ struct ScoreboardStyleEditOverlayView: View {
                 Slider(
                     value: Binding(
                         get: { multiplier },
-                        set: { typographySession?.updateMultiplier($0, for: metric, isLargeScreen: isLargeLayout) }
+                        set: { typographySession?.updateElementMultiplier($0, for: uiState.activeElementKey, isLargeScreen: isLargeLayout) }
                     ),
                     in: range
                 )
@@ -1662,6 +1658,8 @@ extension View {
                 .transition(.opacity)
             }
         }
+        .environment(\.scoreboardStyleEditorUiState, uiState)
+        .environment(\.scoreboardStyleEditingActive, controller?.isEditing == true)
         .animation(.easeInOut(duration: 0.2), value: controller?.isEditing == true)
     }
 }

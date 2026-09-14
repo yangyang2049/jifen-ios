@@ -101,7 +101,7 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
         XCTAssertFalse(released)
     }
 
-    func testScreenshotIsAllowedWhileWatchFollowerScoringIsLocked() {
+    func testScreenshotIsAllowedWhileScoringIsLocked() {
         XCTAssertTrue(ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked("screenshot"))
         XCTAssertFalse(ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked("undo"))
         XCTAssertFalse(ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked("reset"))

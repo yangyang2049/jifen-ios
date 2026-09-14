@@ -1,0 +1,11 @@
+{
+  "source": "actual HOS sanitizeDisplayStyleSnapshotV2 extracted verbatim",
+  "iosStyle": {
+    "fontSizeMultipliers": {
+      "mainScore": 1.5,
+      "playerName": 1.5
+    }
+  },
+  "iosAccepted": false,
+  "validControlAccepted": true
+}

@@ -1,0 +1,194 @@
+{
+  "appearance" : {
+    "centerTeamColor" : "#1B5E20",
+    "fontCode" : "default",
+    "leftTeamColor" : "#C62828",
+    "rightTeamColor" : "#007AFF",
+    "scoreColor" : "#FF0000",
+    "secondaryScoreColor" : "#FFFFFF",
+    "style" : {
+      "elements" : [
+        {
+          "elementKey" : "matchTitle",
+          "textColors" : [
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_left"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_right"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_center"
+            }
+          ]
+        },
+        {
+          "elementKey" : "teamName",
+          "textColors" : [
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_left"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_right"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_center"
+            }
+          ]
+        },
+        {
+          "elementKey" : "playerName",
+          "textColors" : [
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_left"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_right"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_center"
+            }
+          ]
+        },
+        {
+          "elementKey" : "setScore",
+          "textColors" : [
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_left"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_right"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_center"
+            }
+          ]
+        },
+        {
+          "elementKey" : "gameScore",
+          "textColors" : [
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_left"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_right"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_center"
+            }
+          ]
+        },
+        {
+          "elementKey" : "setGameScore",
+          "textColors" : [
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_left"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_right"
+            },
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_center"
+            }
+          ]
+        },
+        {
+          "elementKey" : "mainScore",
+          "textColors" : [
+            {
+              "color" : "#FFFFFF",
+              "slotKey" : "side_center"
+            },
+            {
+              "color" : "#FF0000",
+              "slotKey" : "side_left"
+            },
+            {
+              "color" : "#00FF00",
+              "slotKey" : "side_right"
+            }
+          ]
+        }
+      ],
+      "fontCode" : "default",
+      "fontSizeMultipliers" : {
+        "mainScore" : 1.5,
+        "playerName" : 1.5
+      },
+      "panels" : [
+        {
+          "backgroundColor" : "#C62828",
+          "slotKey" : "side_left"
+        },
+        {
+          "backgroundColor" : "#007AFF",
+          "slotKey" : "side_right"
+        },
+        {
+          "backgroundColor" : "#1B5E20",
+          "slotKey" : "side_center"
+        }
+      ],
+      "serverIndicatorColor" : "#30D158",
+      "styleRevision" : 0,
+      "themeCode" : "default",
+      "version" : 2
+    },
+    "theme" : "default"
+  },
+  "gameType" : "badminton_doubles",
+  "layoutKind" : "doubles_court",
+  "orientation" : "landscape",
+  "rest" : {
+    "afterAction" : "none",
+    "endsAt" : 160000,
+    "kind" : "game_break",
+    "phase" : "countdown",
+    "prepareRemaining" : 0,
+    "remainingMs" : 60000,
+    "revision" : 100000,
+    "sport" : "badminton",
+    "startedAt" : 100000,
+    "version" : 1
+  },
+  "schemaVersion" : 1,
+  "sportState" : {
+    "leftDisplayScore" : "8",
+    "rightDisplayScore" : "0"
+  },
+  "teams" : [
+    {
+      "color" : "#C62828",
+      "id" : "team_0",
+      "name" : "A",
+      "order" : 0,
+      "score" : 8
+    },
+    {
+      "color" : "#007AFF",
+      "id" : "team_1",
+      "name" : "B",
+      "order" : 1,
+      "score" : 0
+    }
+  ],
+  "updatedAt" : 8
+}

@@ -784,8 +784,9 @@ nonisolated struct ScoreboardStyleProfileV2: Codable, Equatable, Sendable {
         if themeCode == "default" {
             let defaultBackground: String?
             switch slotKey {
-            case .sideLeft: defaultBackground = ScoreboardTheme.defaultTheme.leftPanelHex
+            case .sideLeft: defaultBackground = panels == nil ? "FF3B30" : ScoreboardTheme.defaultTheme.leftPanelHex
             case .sideRight: defaultBackground = ScoreboardTheme.defaultTheme.rightPanelHex
+            case .sideCenter: defaultBackground = panels == nil ? "4CAF50" : nil
             default: defaultBackground = nil
             }
             if let defaultBackground,
@@ -1322,6 +1323,25 @@ enum ScoreboardFont: String, CaseIterable, Identifiable, Codable, Sendable {
     case sevenSegment = "seven_segment"
     case sports = "sports"
 
+    /// Persisted iOS names remain compatible; transport names follow Android/HarmonyOS.
+    init?(displayCode: String) {
+        switch displayCode {
+        case "digital", "harmony_digit": self = .monospaced
+        case "teko": self = .sports
+        default:
+            guard let font = Self(rawValue: displayCode) else { return nil }
+            self = font
+        }
+    }
+
+    var wireCode: String {
+        switch self {
+        case .monospaced: "digital"
+        case .sports: "teko"
+        default: rawValue
+        }
+    }
+
     var id: String { rawValue }
 
     var localizedTitle: String {
@@ -1397,6 +1417,7 @@ struct ScoreboardTypographyPreference: Codable, Equatable, Sendable {
     var scoreMultiplier: Double
     var nameMultiplier: Double
     var secondaryMultiplier: Double
+    var elementMultipliers: [String: Double]? = nil
 
     static func `default`(font: ScoreboardFont) -> ScoreboardTypographyPreference {
         ScoreboardTypographyPreference(
@@ -1423,6 +1444,30 @@ struct ScoreboardTypographyPreference: Codable, Equatable, Sendable {
         }
     }
 
+    func multiplier(for element: ScoreboardStyleElementKeyV2) -> Double {
+        if let value = elementMultipliers?[element.rawValue] { return value }
+        switch element {
+        case .mainScore: return scoreMultiplier
+        case .teamName, .playerName: return nameMultiplier
+        case .setScore, .gameScore, .setGameScore, .matchTitle: return secondaryMultiplier
+        }
+    }
+
+    var resolvedElementMultipliers: [String: Double] {
+        Dictionary(uniqueKeysWithValues: ScoreboardStyleElementKeyV2.allCases.map { ($0.rawValue, multiplier(for: $0)) })
+    }
+
+    func resolved(for styleID: ScoreboardStyleID) -> ScoreboardTypographyPreference {
+        var copy = self
+        let keys = ScoreboardStyleV2Registry.capabilities(for: styleID)?.elementKeys ?? []
+        copy.scoreMultiplier = multiplier(for: ScoreboardStyleElementKeyV2.mainScore)
+        copy.nameMultiplier = multiplier(for: keys.contains(.playerName) && !keys.contains(.teamName) ? .playerName : .teamName)
+        let secondary: ScoreboardStyleElementKeyV2 = keys.contains(.gameScore)
+            ? .gameScore : (keys.contains(.setGameScore) && !keys.contains(.setScore) ? .setGameScore : .setScore)
+        copy.secondaryMultiplier = multiplier(for: secondary)
+        return copy
+    }
+
     func normalized(isLargeScreen: Bool) -> ScoreboardTypographyPreference {
         var copy = self
         for metric in ScoreboardFontMetric.allCases {
@@ -1430,6 +1475,9 @@ struct ScoreboardTypographyPreference: Codable, Equatable, Sendable {
                 ScoreboardFontSizePolicy.normalized(multiplier(for: metric), isLargeScreen: isLargeScreen),
                 for: metric
             )
+        }
+        copy.elementMultipliers = elementMultipliers?.mapValues {
+            ScoreboardFontSizePolicy.normalized($0, isLargeScreen: isLargeScreen)
         }
         return copy
     }
@@ -1451,7 +1499,7 @@ final class ScoreboardTypographySession {
     }
 
     var effectivePreference: ScoreboardTypographyPreference {
-        previewPreference ?? appliedPreference
+        (previewPreference ?? appliedPreference).resolved(for: styleID)
     }
 
     func switchStyleID(
@@ -1491,6 +1539,17 @@ final class ScoreboardTypographySession {
             ScoreboardFontSizePolicy.normalized(value, isLargeScreen: isLargeScreen),
             for: metric
         )
+        resetRequested = false
+    }
+
+    func updateElementMultiplier(_ value: Double, for element: ScoreboardStyleElementKeyV2, isLargeScreen: Bool) {
+        beginPreview()
+        guard var preview = previewPreference else { return }
+        if preview.elementMultipliers == nil {
+            preview.elementMultipliers = preview.resolvedElementMultipliers
+        }
+        preview.elementMultipliers?[element.rawValue] = ScoreboardFontSizePolicy.normalized(value, isLargeScreen: isLargeScreen)
+        previewPreference = preview
         resetRequested = false
     }
 

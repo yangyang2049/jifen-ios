@@ -1,4 +1,3 @@
-import LinkCore
 import ScoreCore
 import SessionCore
 import SwiftUI
@@ -86,7 +85,6 @@ struct RallyScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
     @Environment(\.scoreboardMatchClockSession) private var matchClockSession
-    @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
     let gameType: ScoreCore.GameType
     let onNavigationBack: (() -> Void)?
@@ -94,7 +92,6 @@ struct RallyScoreboardView: View {
     let usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator?
     @State private var voiceAnnouncementEnabled: Bool
     @State private var store: RallySessionStore
-    @State private var watchSessionId: UUID?
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var toastMessage: String?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
@@ -140,7 +137,6 @@ struct RallyScoreboardView: View {
         openingServer: MatchSide = .left,
         voiceAnnouncementEnabled: Bool = false,
         showMatchTimeEnabled: Bool = false,
-        initialWatchSessionId: UUID? = nil,
         initialResumeSessionId: String? = nil,
         onNavigationBack: (() -> Void)? = nil,
         onPresented: @escaping () -> Void = {},
@@ -149,7 +145,6 @@ struct RallyScoreboardView: View {
         self.onNavigationBack = onNavigationBack
         self.onPresented = onPresented
         self.usageHintCoordinatorOverride = usageHintCoordinatorOverride
-        _watchSessionId = State(initialValue: initialWatchSessionId)
 
         if let initialResumeSessionId,
            let sessionId = UUID(uuidString: initialResumeSessionId),
@@ -252,24 +247,15 @@ struct RallyScoreboardView: View {
         return gameType == .foosballDoubles
     }
     private var terminalSetPresentation: RallyTerminalSetPresentation? { terminalHold.value }
-    private var linkScoringLocked: Bool {
-        watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
-    }
+
     private var scoringLocked: Bool {
-        terminalSetPresentation != nil || linkScoringLocked || officialBreakSession.inputFrozen
+        isStyleEditing || terminalSetPresentation != nil || officialBreakSession.inputFrozen
     }
     private var palette: ScoreboardPalette { appearance.palette }
     private var activeUsageHintCoordinator: ScoreboardUsageHintCoordinator? {
         usageHintCoordinator ?? usageHintCoordinatorOverride
     }
-    private var linkedNewGameLabel: String {
-        NSLocalizedString(
-            "game_over_new_game_on_watch",
-            value: "再来一场\n（请在手表端操作）",
-            comment: ""
-        )
-    }
+
 
     /// Legacy foosball sessions keep their previous no-indicator behavior.
     private var showsServeIndicator: Bool {
@@ -306,7 +292,7 @@ struct RallyScoreboardView: View {
                     serveIndicatorOverlay(size: proxy.size, triangleSize: serveIndicatorSize)
                 }
 
-                if !isEditMode && !store.state.finished && terminalSetPresentation == nil {
+                if !isEditMode && !isStyleEditing && !showDisplaySettings && !store.state.finished && terminalSetPresentation == nil {
                     ScoreboardKeyPointBadgeLayer(
                         status: KeyPointResolver.rally(state: store.state),
                         gameType: gameType,
@@ -316,7 +302,7 @@ struct RallyScoreboardView: View {
                     )
                 }
 
-                if [.pingpong, .pingpongDoubles].contains(gameType) {
+                if !isEditMode && !isStyleEditing && !showDisplaySettings && [.pingpong, .pingpongDoubles].contains(gameType) {
                     pingPongAdministrativeMarkerOverlay
                 }
 
@@ -360,7 +346,7 @@ struct RallyScoreboardView: View {
                         rightName: store.state.rightName,
                         leftScore: displayScores.left,
                         rightScore: displayScores.right,
-                        newGameLabel: scoringLocked ? linkedNewGameLabel : nil,
+                        newGameLabel: nil,
                         newGameDisabled: scoringLocked || isStartingNewMatch,
                         onNewGame: {
                             startNewMatch()
@@ -375,9 +361,7 @@ struct RallyScoreboardView: View {
                             shareFinishedMatch()
                         },
                         onExit: {
-                            if let id = watchSessionId {
-                                watchLinkService.leaveSessionIfMatchFinished(id)
-                            }
+
                             store.persistSnapshot { success in
                                 guard success else { return }
                                 if let onNavigationBack {
@@ -432,20 +416,7 @@ struct RallyScoreboardView: View {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
-            if let watchSessionId,
-               let update = watchLinkService.attachPage(sessionId: watchSessionId),
-               let rally = update.snapshot.rallyState {
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    rally,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision,
-                    matchGeneration: update.matchGeneration,
-                    persistFormalRecord: false
-                )
-                if applied, rally.finished { showGameOverDialog = true }
-            }
-            }
+
             revealImmersiveChrome()
             if store.state.finished {
                 showGameOverDialog = true
@@ -470,48 +441,9 @@ struct RallyScoreboardView: View {
         .onChange(of: store.state) { _, state in
             if terminalSetPresentation == nil {
                 publishCurrentRallyState()
-                if state.finished { notifyLinkedFinishIfNeeded() }
             }
         }
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId,
-                  let update,
-                  update.sessionId == watchSessionId,
-                  let rally = update.snapshot.rallyState else { return }
-            let snapshotFinished = rally.finished
-            cancelTerminalSetPresentation()
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    rally,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision,
-                    matchGeneration: update.matchGeneration,
-                    persistFormalRecord: false
-                )
-                if applied {
-                    // Reactive to the linked device's finished flag (mirrors
-                    // HarmonyOS: follower auto-shows the finish dialog when the
-                    // received snapshot is finished, and dismisses it when a new
-                    // unfinished match arrives after 再来一场).
-                    showGameOverDialog = snapshotFinished
-                }
-            }
-        }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId,
-                  let pending,
-                  pending.sessionId == watchSessionId,
-                  let state = pending.snapshot.rallyState else { return }
-            cancelTerminalSetPresentation()
-            Task {
-                _ = await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: pending.detailedActions,
-                    revision: pending.revision
-                )
-                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
-            }
-        }
+
         .onChange(of: showMenu) { _, isOpen in
             if !isOpen { menuConfirm.clear() }
             updateImmersiveForBlocking()
@@ -548,16 +480,8 @@ struct RallyScoreboardView: View {
             cancelTerminalSetPresentation()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
-            // Capture before leave — ending the session clears follower role.
-            let skipPersist = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
-            if let watchSessionId {
-                watchLinkService.detachPage(sessionId: watchSessionId)
-            }
-            // Linked follower finishes are ingested via matchFinished — do not write a resume or second record.
-            if !skipPersist {
-                store.persistSnapshot()
-            }
+
+            store.persistSnapshot()
         }
         .scoreboardDisplaySettingsOverlay(
             isPresented: $showDisplaySettings,
@@ -605,38 +529,6 @@ struct RallyScoreboardView: View {
             }
             .disabled(!pingPongAdministrativeActionAvailable(.redCard, side: .right))
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
-        }
-        .alert(
-            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-            isPresented: Binding(
-                get: { watchLinkService.pendingReclaimRequest != nil },
-                set: { presented in
-                    if !presented, watchLinkService.pendingReclaimRequest != nil {
-                        watchLinkService.resolveReclaimRequest(
-                            accepted: false,
-                            snapshot: nil,
-                            detailedActions: []
-                        )
-                    }
-                }
-            )
-        ) {
-            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: true,
-                    snapshot: .rally(store.state),
-                    detailedActions: store.actionTimeline
-                )
-            }
-            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: false,
-                    snapshot: nil,
-                    detailedActions: []
-                )
-            }
-        } message: {
-            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
         }
     }
 
@@ -706,10 +598,13 @@ struct RallyScoreboardView: View {
         // 元素级取色（V2 槽位配置优先；未配置时回落面板级解析色）。
         let slotKey: ScoreboardStyleSlotKeyV2 = side == .left ? .sideLeft : .sideRight
 
+        let nameElement: ScoreboardStyleElementKeyV2 = isFoosballDoubles ? .playerName : .teamName
+        let secondaryElement: ScoreboardStyleElementKeyV2 = isFoosballDoubles ? .setGameScore : .setScore
         return VStack(spacing: 0) {
             Text(name)
                 .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
-                .foregroundStyle(appearance.elementForeground(.teamName, slotKey: slotKey))
+                .foregroundStyle(appearance.elementForeground(nameElement, slotKey: slotKey))
+                .styleElementSelectable(nameElement, slotKey: slotKey)
                 .lineLimit(isFoosballDoubles ? 2 : 1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 8)
@@ -717,13 +612,15 @@ struct RallyScoreboardView: View {
             Text("\(score)")
                 .font(typographyPreference.font.swiftUIFont(size: mainSize))
                 .foregroundStyle(appearance.elementForeground(.mainScore, slotKey: slotKey))
+                .styleElementSelectable(.mainScore, slotKey: slotKey)
                 .monospacedDigit()
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
             Spacer().frame(height: mainToSet)
             Text("\(sets)")
                 .font(typographyPreference.font.swiftUIFont(size: setSize))
-                .foregroundStyle(setsColor(slotKey: slotKey))
+                .foregroundStyle(setsColor(slotKey: slotKey, element: secondaryElement))
+                .styleElementSelectable(secondaryElement, slotKey: slotKey)
                 .monospacedDigit()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -853,19 +750,20 @@ struct RallyScoreboardView: View {
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
         let slots = isLeft ? (0, 2) : (1, 3)
-        let joinedName = [editDoublesNames[slots.0], editDoublesNames[slots.1]].max(by: { $0.count < $1.count }) ?? ""
+        let topInset = ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: size.height)
+        let fieldHeight = ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: max(size.width * 2, size.height))
+        let nameToMain: CGFloat = 16
         let typography = resolvedTypography(
-            name: joinedName,
+            name: "",
             score: "\(score)",
             secondary: "\(sets)",
-            size: size,
-            reservedHeight: 48
+            size: CGSize(width: size.width, height: max(1, size.height - topInset - 16)),
+            reservedHeight: fieldHeight * 2 + 6 + nameToMain
         )
         let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
             regularSize: typography.scoreFontSize
         )
         let setSize = typography.secondaryFontSize
-        let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
 
         return VStack(spacing: 0) {
@@ -897,8 +795,9 @@ struct RallyScoreboardView: View {
                 onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
             )
         }
+        .padding(.top, topInset)
+        .padding(.bottom, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: size.height))
     }
 
     private func foosballDoublesEditNameField(slot: Int) -> some View {
@@ -1078,6 +977,7 @@ struct RallyScoreboardView: View {
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .foregroundStyle(scoreColor)
+                        .styleElementSelectable(.mainScore, slotKey: slotKey)
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -1086,6 +986,7 @@ struct RallyScoreboardView: View {
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(setsColor)
+                        .styleElementSelectable(.setGameScore, slotKey: slotKey)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(width: secondaryColumnWidth)
@@ -1094,12 +995,14 @@ struct RallyScoreboardView: View {
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(setsColor)
+                        .styleElementSelectable(.setGameScore, slotKey: slotKey)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(width: secondaryColumnWidth)
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .foregroundStyle(scoreColor)
+                        .styleElementSelectable(.mainScore, slotKey: slotKey)
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -1170,6 +1073,10 @@ struct RallyScoreboardView: View {
         let isServer = doubles?.serverSlotIndex == slot
         let isReceiver = doubles?.receiverSlotIndex == slot
         let nameColor: Color = {
+            let key: ScoreboardStyleSlotKeyV2 = slot.isMultiple(of: 2) ? .sideLeft : .sideRight
+            if appearance.hasElementColor(.playerName, slotKey: key) {
+                return appearance.elementForeground(.playerName, slotKey: key)
+            }
             if isServer { return palette.foreground }
             if isReceiver { return palette.secondary }
             return palette.foreground.opacity(0.85)
@@ -1208,6 +1115,7 @@ struct RallyScoreboardView: View {
                 Text(name)
                     .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
                     .foregroundStyle(nameColor)
+                    .styleElementSelectable(.playerName, slotKey: slot.isMultiple(of: 2) ? .sideLeft : .sideRight)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
                     .padding(.horizontal, 8)
@@ -1337,10 +1245,7 @@ struct RallyScoreboardView: View {
     }
 
     private func handlePointWon(_ side: MatchSide) {
-        guard !scoringLocked else {
-            showToast(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
-            return
-        }
+
         // 仅羽毛球/匹克球双打有位置轮转，发球方得分时高亮该队两人以提示换位；
         // 乒乓球、桌上足球双打无轮转，不闪烁。
         if let doubles = store.state.doubles,
@@ -1515,12 +1420,7 @@ struct RallyScoreboardView: View {
 
     private var menuItems: [ScoreboardMenuItem] {
         var extras: [ScoreboardMenuItem] = []
-        extras.append(contentsOf: WatchLinkMenuSupport.extraItems(
-            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-            sessionId: watchSessionId,
-            isFollower: watchLinkService.isFollower,
-            watchBackgrounded: watchLinkService.watchBackgrounded
-        ))
+        extras.append(contentsOf: [])
         if VoiceAnnouncementSupport.isSupported(gameType) {
             extras.append(
                 ScoreboardMenuItem(
@@ -1564,17 +1464,13 @@ struct RallyScoreboardView: View {
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,
             settleConfirming: menuConfirm.settleConfirming,
-            scoringEnabled: !linkScoringLocked,
+            scoringEnabled: true,
             extraItems: extras
         )
     }
 
     private func handleMenuAction(_ action: String) {
-        if linkScoringLocked,
-           !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
-            showToast(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
-            return
-        }
+
         menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
@@ -1641,39 +1537,8 @@ struct RallyScoreboardView: View {
             guard let session = matchClockSession else { break }
             session.isVisible.toggle()
             PreferencesManager.shared.setScoreboardMatchTimeVisible(session.isVisible, for: appGameType)
-        case "resync":
-            watchLinkService.requestScoreResync()
-            showMenu = false
-        case "takeover":
-            Task {
-                if let id = watchSessionId {
-                    if let update = watchLinkService.latestRemoteSnapshot,
-                       update.sessionId == id,
-                       let state = update.snapshot.rallyState {
-                        _ = await store.applyAuthoritativeState(
-                            state,
-                            detailedActions: update.detailedActions,
-                            revision: update.revision
-                        )
-                    }
-                    do {
-                        try await watchLinkService.takeover(sessionId: id)
-                    } catch {
-                        showToast(error.localizedDescription)
-                    }
-                }
-                showMenu = false
-            }
-        case "forceTakeover":
-            if let id = watchSessionId {
-                watchLinkService.requestForceTakeoverConfirmation(id)
-            }
-            showMenu = false
         case "endLink":
-            if let id = watchSessionId {
-                watchLinkService.leaveSession(id)
-                watchSessionId = nil
-            }
+
             showMenu = false
         default:
             break
@@ -1953,7 +1818,7 @@ struct RallyScoreboardView: View {
                 let rightSide = logicalSide(forScreen: .right)
                 var compact = LocalScoreboardDisplayState(
                     gameID: store.gameType.rawValue,
-                    title: appGameType.displayName,
+                    title: "",
                     leftName: leftSide == .left ? store.state.leftName : store.state.rightName,
                     rightName: rightSide == .left ? store.state.leftName : store.state.rightName,
                     leftScore: "\(leftSide == .left ? store.state.leftPoints : store.state.rightPoints)",
@@ -2065,9 +1930,7 @@ struct RallyScoreboardView: View {
     private func back() {
         cancelTerminalSetPresentation()
         OrientationLock.shared.unlock()
-        if let id = watchSessionId {
-            watchLinkService.leaveSessionIfMatchFinished(id)
-        }
+
         store.flush {
             if let onNavigationBack {
                 onNavigationBack()
@@ -2269,7 +2132,7 @@ struct RallyScoreboardView: View {
                 showToast(sideToast)
             }
             if matchFinished {
-                notifyLinkedFinishIfNeeded()
+
                 showGameOverDialog = true
             }
         }
@@ -2295,29 +2158,9 @@ struct RallyScoreboardView: View {
 
     private func publishCurrentRallyState() {
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        guard let watchSessionId, watchLinkService.isController else { return }
-        watchLinkService.syncWatch(
-            sessionId: watchSessionId,
-            gameType: gameType,
-            state: store.state,
-            detailedActions: store.actionTimeline
-        )
     }
 
-    private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.isController else { return }
-        let state = store.state
-        let winner: MatchSide? = state.leftSets == state.rightSets
-            ? nil
-            : (state.leftSets > state.rightSets ? .left : .right)
-        watchLinkService.notifyMatchFinished(
-            sessionId: watchSessionId,
-            snapshot: .rally(state),
-            recordId: store.sessionId.uuidString,
-            winnerSide: winner,
-            manualEnd: manualFinishRequested
-        )
-    }
+
 
     private func handleVoiceAnnouncement(
         before: RallyMatchState,
@@ -2399,16 +2242,7 @@ struct RallyScoreboardView: View {
                 showGameOverDialog = false
                 syncEditNamesFromState()
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                if let watchSessionId {
-                    let participantNames = freshStore.state.doubles?.playerNames
-                        ?? [freshStore.state.leftName, freshStore.state.rightName]
-                    watchLinkService.prepareControllerForNewMatch(
-                        sessionId: watchSessionId,
-                        gameType: gameType,
-                        snapshot: .rally(freshStore.state),
-                        participantNames: participantNames
-                    )
-                }
+
                 speakOpeningAnnouncementIfNeeded()
             }
         }
@@ -2436,7 +2270,6 @@ struct RallyScoreboardView: View {
 
     private func performUndo() {
         guard !isEditMode,
-              !linkScoringLocked,
               (!store.state.finished || terminalSetPresentation != nil) else { return }
         cancelTerminalSetPresentation()
         ScoreVoiceAnnouncer.shared.cancelPendingScore()

@@ -118,7 +118,7 @@ struct BasketballScoreboardView: View {
                     .frame(width: sideW)
 
                     Group {
-                        if isEditMode {
+                        if isEditMode || showDisplaySettings {
                             Color.black
                         } else {
                             BasketballCenterPanel(
@@ -598,7 +598,7 @@ struct BasketballScoreboardView: View {
             snapshot: {
                 var compact = LocalScoreboardDisplayState(
                     gameID: appGameType.canonicalScoreboardIdentifier,
-                    title: appGameType.displayName,
+                    title: "",
                     leftName: displayName(for: .left),
                     rightName: displayName(for: .right),
                     leftScore: "\(displayScore(for: .left))",

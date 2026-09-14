@@ -8,7 +8,6 @@ enum LocalDataResetCategory: String, CaseIterable, Sendable {
     case resumeSessions
     case localPreferencesAndTools
     case legacySyncData
-    case watchLinkState
 
     var localizedTitle: String {
         switch self {
@@ -24,8 +23,6 @@ enum LocalDataResetCategory: String, CaseIterable, Sendable {
             NSLocalizedString("clear_data_category_preferences", value: "设置与工具数据", comment: "")
         case .legacySyncData:
             NSLocalizedString("clear_data_category_legacy_sync", value: "旧同步数据", comment: "")
-        case .watchLinkState:
-            NSLocalizedString("clear_data_category_watch", value: "临时手表联动状态", comment: "")
         }
     }
 }
@@ -65,7 +62,6 @@ struct LocalDataResetCoordinator {
     }
 
     static func live(
-        watchLinkService: PhoneWatchLinkService,
         appearance: AppAppearanceStore,
         defaults: UserDefaults = .standard,
         fileManager: FileManager = .default
@@ -93,9 +89,7 @@ struct LocalDataResetCoordinator {
             LocalDataResetStep(category: .resumeSessions) {
                 try await ResumeSessionRepository().clear()
             },
-            LocalDataResetStep(category: .watchLinkState) {
-                watchLinkService.clearLocalTransientStateForDataReset()
-            },
+
             LocalDataResetStep(category: .legacySyncData) {
                 try AnonymousIdentityProvider.shared.clearLocalIdentity()
                 try LocalDataResetFileCleaner.removeLegacyRecordSyncOutbox(

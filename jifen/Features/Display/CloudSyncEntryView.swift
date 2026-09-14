@@ -462,7 +462,8 @@ private struct ConnectedDisplayCard: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        // 父级角色卡是 cardBackground（白色），设备行用 Sheet 内控件统一的灰色做出卡片区分。
+        .background(Theme.dialogControlBackground, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 

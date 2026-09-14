@@ -56,8 +56,12 @@ enum SportsSetupMatchFeature: Equatable, CaseIterable {
 /// 「比赛功能」分组（对齐安卓 SportsSetupMatchFeaturesSection）：
 /// 标题 Secondary 居中；2/3 张卡片一行各占均分，单功能回退横条开关。
 struct SportsSetupMatchFeaturesSection: View {
+    @Environment(\.locale) private var locale
+
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
+
+    private let featureCardSpacing: CGFloat = 8
 
     private var features: [SportsSetupMatchFeature] {
         SportsSetupMatchFeature.features(for: gameType, isSingles: draft.isSingles)
@@ -74,20 +78,37 @@ struct SportsSetupMatchFeaturesSection: View {
                 if features.count == 1 {
                     singleSwitch(features[0])
                 } else {
-                    HStack(spacing: 8) {
-                        ForEach(features, id: \.self) { feature in
-                            SportsSetupFeatureCard(
-                                feature: feature,
-                                isOn: isOn(feature)
-                            ) {
-                                toggle(feature)
+                    GeometryReader { proxy in
+                        let cardWidth = SportsSetupFeatureCardLayout.cardWidth(
+                            availableWidth: proxy.size.width,
+                            itemCount: features.count,
+                            preferredMaxWidth: preferredFeatureCardWidth,
+                            spacing: featureCardSpacing
+                        )
+
+                        HStack(spacing: featureCardSpacing) {
+                            ForEach(features, id: \.self) { feature in
+                                SportsSetupFeatureCard(
+                                    feature: feature,
+                                    isOn: isOn(feature)
+                                ) {
+                                    toggle(feature)
+                                }
+                                .frame(width: cardWidth)
                             }
                         }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(height: SportsSetupFeatureCardLayout.cardHeight)
                 }
             }
         }
+    }
+
+    /// 中文保持 74pt 与安卓一致；其他语言最多放宽到 96pt，但窄屏会按
+    /// 实际可用宽度等分收缩，避免三卡布局越出 Setup 对话框。
+    private var preferredFeatureCardWidth: CGFloat {
+        locale.language.languageCode?.identifier == "zh" ? 74 : 96
     }
 
     @ViewBuilder
@@ -130,8 +151,24 @@ struct SportsSetupMatchFeaturesSection: View {
     }
 }
 
+enum SportsSetupFeatureCardLayout {
+    static let cardHeight: CGFloat = 74
+
+    static func cardWidth(
+        availableWidth: CGFloat,
+        itemCount: Int,
+        preferredMaxWidth: CGFloat,
+        spacing: CGFloat
+    ) -> CGFloat {
+        guard itemCount > 0 else { return 0 }
+        let totalSpacing = spacing * CGFloat(max(0, itemCount - 1))
+        let fittingWidth = max(0, availableWidth - totalSpacing) / CGFloat(itemCount)
+        return min(max(0, preferredMaxWidth), fittingWidth)
+    }
+}
+
 /// 功能切换卡片（对齐安卓 SportsSetupFeatureCard）：
-/// 74pt 方卡、圆角 14、图标 22 + 12pt 两行文字；
+/// 74pt 高卡片（中文宽 74pt，其他语言最多 96pt）、圆角 14、图标 22 + 12pt 两行文字；
 /// 选中浅绿底 + 描边 1.5 + 强调色内容，未选中中性底，无勾选标记。
 struct SportsSetupFeatureCard: View {
     let feature: SportsSetupMatchFeature
@@ -148,9 +185,12 @@ struct SportsSetupFeatureCard: View {
                     .font(.system(size: 12, weight: isOn ? .medium : .regular))
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
+                    // 英文长词在最窄对话框内仍可能回落到接近 74pt，允许轻微缩字兜底。
+                    .minimumScaleFactor(0.85)
             }
             .foregroundStyle(contentColor)
-            .frame(width: 74, height: 74)
+            .frame(maxWidth: .infinity)
+            .frame(height: SportsSetupFeatureCardLayout.cardHeight)
             .background(containerColor, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)

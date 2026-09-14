@@ -1,4 +1,3 @@
-import LinkCore
 import ScoreCore
 import SwiftUI
 import UIKit
@@ -47,7 +46,6 @@ private struct TennisTieBreakIndicator: View {
 struct TennisScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
-    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var onNavigationBack: (() -> Void)? = nil
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
@@ -56,7 +54,6 @@ struct TennisScoreboardView: View {
     var usageHintCoordinatorOverride: ScoreboardUsageHintCoordinator? = nil
 
     @State private var store: TennisSessionStore
-    @State private var watchSessionId: UUID?
     @State private var showMenu = false
     @State private var showDisplaySettings = false
     @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
@@ -162,25 +159,15 @@ struct TennisScoreboardView: View {
         _typographySession = State(initialValue: ScoreboardTypographySession(
             styleID: ScoreboardStyleID(scoreCoreGameType: gameType)
         ))
-        _watchSessionId = State(initialValue: setup?.linkedWatchSessionId)
     }
 
-    private var linkScoringLocked: Bool {
-        watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
-    }
+
     private var terminalGamePresentation: TennisTerminalGamePresentation? { terminalHold.value }
     private var scoringLocked: Bool {
-        terminalGamePresentation != nil || linkScoringLocked || officialBreakSession.inputFrozen
+        isStyleEditing || terminalGamePresentation != nil || officialBreakSession.inputFrozen
     }
 
-    private var linkedNewGameLabel: String {
-        NSLocalizedString(
-            "game_over_new_game_on_watch",
-            value: "再来一场\n（请在手表端操作）",
-            comment: ""
-        )
-    }
+
 
     private var finishedWinnerName: String {
         switch winnerSide(for: store.state) {
@@ -206,6 +193,7 @@ struct TennisScoreboardView: View {
                 HStack(spacing: 0) {
                     let halfSize = CGSize(width: size.width / 2, height: size.height)
                     half(.left, size: halfSize)
+                        .zIndex(isEditMode ? 1 : 0)
                     half(.right, size: halfSize)
                 }
                 if terminalGamePresentation == nil,
@@ -261,7 +249,7 @@ struct TennisScoreboardView: View {
                     }
                     .zIndex(2)
                 }
-                if terminalGamePresentation == nil, store.state.isTieBreak {
+                if terminalGamePresentation == nil, !isEditMode, !isStyleEditing, !showDisplaySettings, store.state.isTieBreak {
                     TennisTieBreakIndicator(targetPoints: store.state.rules.tieBreakPoints)
                         .position(TennisTieBreakIndicatorLayout.topCenter(
                             viewportSize: size,
@@ -269,7 +257,7 @@ struct TennisScoreboardView: View {
                         ))
                         .zIndex(3)
                 }
-                if terminalGamePresentation == nil, !isEditMode, !store.state.finished {
+                if terminalGamePresentation == nil, !isEditMode, !isStyleEditing, !showDisplaySettings, !store.state.finished {
                     ScoreboardKeyPointBadgeLayer(
                         status: KeyPointResolver.tennis(snapshot: tennisKeyPointSnapshot(store.state)),
                         gameType: store.gameType,
@@ -293,7 +281,7 @@ struct TennisScoreboardView: View {
                         rightScore: store.state.rules.setScoringMode == .tiebreakOnly
                             ? store.state.rightPoints
                             : store.state.rightSets,
-                        newGameLabel: scoringLocked ? linkedNewGameLabel : nil,
+                        newGameLabel: nil,
                         newGameDisabled: scoringLocked || isStartingNewMatch,
                         onNewGame: {
                             startNewMatch()
@@ -327,6 +315,7 @@ struct TennisScoreboardView: View {
                     items: menuItems,
                     analyticsGameType: GameType(scoreCoreGameType: store.gameType) ?? .tennis
                 )
+                .zIndex(200)
                 if officialBreakSupported, officialBreakSession.state != nil {
                     OfficialBreakOverlay(
                         session: $officialBreakSession,
@@ -419,19 +408,7 @@ struct TennisScoreboardView: View {
             typographySession.switchStyleID(ScoreboardStyleID(scoreCoreGameType: store.gameType))
             syncEditNamesFromState()
             registerScoreboardSync()
-            if let watchSessionId,
-               let update = watchLinkService.attachPage(sessionId: watchSessionId),
-               let tennis = update.snapshot.tennisState {
-                Task {
-                    _ = await store.applyAuthoritativeState(
-                        tennis,
-                        detailedActions: update.detailedActions,
-                        revision: update.revision,
-                        matchGeneration: update.matchGeneration,
-                        persistFormalRecord: false
-                    )
-                }
-            }
+
             revealImmersiveChrome()
             if store.state.finished { showGameOverDialog = true }
             speakOpeningAnnouncementIfNeeded()
@@ -450,49 +427,9 @@ struct TennisScoreboardView: View {
                 publishCurrentTennisState()
             }
             if state.finished, !isEditMode {
-                if terminalGamePresentation == nil { notifyLinkedFinishIfNeeded() }
             }
         }
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId,
-                  let update,
-                  update.sessionId == watchSessionId,
-                  let tennis = update.snapshot.tennisState else { return }
-            let snapshotFinished = tennis.finished
-            cancelTerminalGamePresentation()
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    tennis,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision,
-                    matchGeneration: update.matchGeneration,
-                    persistFormalRecord: false
-                )
-                if applied {
-                    // Reactive to the linked device's finished flag (mirrors
-                    // HarmonyOS: follower auto-shows the finish dialog when the
-                    // received snapshot is finished, and dismisses it when a new
-                    // unfinished match arrives after 再来一场).
-                    showGameOverDialog = snapshotFinished
-                }
-            }
-        }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId,
-                  let pending,
-                  pending.sessionId == watchSessionId,
-                  let state = pending.snapshot.tennisState else { return }
-            cancelTerminalGamePresentation()
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: pending.detailedActions,
-                    revision: pending.revision
-                )
-                if applied, state.finished { showGameOverDialog = true }
-                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
-            }
-        }
+
         .onChange(of: showMenu) { _, isOpen in
             if !isOpen { menuConfirm.clear() }
             updateImmersiveForBlocking()
@@ -519,38 +456,6 @@ struct TennisScoreboardView: View {
             typographySession: typographySession,
             onEditingChange: { _ in updateImmersiveForBlocking() }
         )
-        .alert(
-            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-            isPresented: Binding(
-                get: { watchLinkService.pendingReclaimRequest != nil },
-                set: { presented in
-                    if !presented, watchLinkService.pendingReclaimRequest != nil {
-                        watchLinkService.resolveReclaimRequest(
-                            accepted: false,
-                            snapshot: nil,
-                            detailedActions: []
-                        )
-                    }
-                }
-            )
-        ) {
-            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: true,
-                    snapshot: .tennis(store.state),
-                    detailedActions: store.actionTimeline
-                )
-            }
-            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: false,
-                    snapshot: nil,
-                    detailedActions: []
-                )
-            }
-        } message: {
-            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
-        }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)
@@ -577,14 +482,8 @@ struct TennisScoreboardView: View {
             if let previousIdleTimerDisabled {
                 UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
             }
-            let skipPersist = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
-            if let watchSessionId {
-                watchLinkService.detachPage(sessionId: watchSessionId)
-            }
-            if !skipPersist {
-                store.persistSnapshot()
-            }
+
+            store.persistSnapshot()
         }
     }
 
@@ -642,6 +541,7 @@ struct TennisScoreboardView: View {
                     .teamName,
                     slotKey: side == .left ? .sideLeft : .sideRight
                 ))
+                .styleElementSelectable(.teamName, slotKey: side == .left ? .sideLeft : .sideRight)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 72)
@@ -691,36 +591,7 @@ struct TennisScoreboardView: View {
             )
 
             if store.state.rules.setScoringMode != .tiebreakOnly {
-                tennisEditAdjustRow(
-                    label: screenSide == .left
-                        ? NSLocalizedString("tennis_game_score", value: "局分", comment: "")
-                        : "",
-                    value: "\(games)",
-                    fontSize: secondarySize,
-                    canDecrement: games > 0,
-                    useSecondaryColor: true,
-                    labelHorizontalOffset: ScoreboardLayoutMetrics.sharedCenterLabelHorizontalOffset(
-                        halfViewportWidth: size.width,
-                        sourceScreenSide: screenSide
-                    ),
-                    onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
-                    onIncrement: { adjustGamesInEdit(side: side, delta: 1) }
-                )
-                tennisEditAdjustRow(
-                    label: screenSide == .left
-                        ? NSLocalizedString("tennis_set_score", value: "盘分", comment: "")
-                        : "",
-                    value: "\(sets)",
-                    fontSize: secondarySize,
-                    canDecrement: sets > 0,
-                    useSecondaryColor: true,
-                    labelHorizontalOffset: ScoreboardLayoutMetrics.sharedCenterLabelHorizontalOffset(
-                        halfViewportWidth: size.width,
-                        sourceScreenSide: screenSide
-                    ),
-                    onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                    onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
-                )
+                tennisEditGamesAndSets(side: side, games: games, sets: sets, fontSize: secondarySize)
             }
         }
         .padding(.horizontal, Theme.usesPadLayout ? 36 : 16)
@@ -867,40 +738,8 @@ struct TennisScoreboardView: View {
                 )
 
                 if hasSecondaryRows {
-                    tennisEditAdjustRow(
-                        label: screenSide == .left
-                            ? NSLocalizedString("tennis_game_score", value: "局分", comment: "")
-                            : "",
-                        value: "\(games)",
-                        fontSize: editLayout.secondaryFontSize,
-                        canDecrement: games > 0,
-                        useSecondaryColor: true,
-                        controlSize: editLayout.controlVisualSize,
-                        labelFontSize: editLayout.labelFontSize,
-                        labelHorizontalOffset: ScoreboardLayoutMetrics.sharedCenterLabelHorizontalOffset(
-                            halfViewportWidth: size.width,
-                            sourceScreenSide: screenSide
-                        ),
-                        onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
-                        onIncrement: { adjustGamesInEdit(side: side, delta: 1) }
-                    )
-                    tennisEditAdjustRow(
-                        label: screenSide == .left
-                            ? NSLocalizedString("tennis_set_score", value: "盘分", comment: "")
-                            : "",
-                        value: "\(sets)",
-                        fontSize: editLayout.secondaryFontSize,
-                        canDecrement: sets > 0,
-                        useSecondaryColor: true,
-                        controlSize: editLayout.controlVisualSize,
-                        labelFontSize: editLayout.labelFontSize,
-                        labelHorizontalOffset: ScoreboardLayoutMetrics.sharedCenterLabelHorizontalOffset(
-                            halfViewportWidth: size.width,
-                            sourceScreenSide: screenSide
-                        ),
-                        onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
-                        onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
-                    )
+                    tennisEditGamesAndSets(side: side, games: games, sets: sets,
+                        fontSize: editLayout.secondaryFontSize)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -950,6 +789,26 @@ struct TennisScoreboardView: View {
         )
     }
 
+    private func tennisEditGamesAndSets(side: MatchSide, games: Int, sets: Int, fontSize: CGFloat) -> some View {
+        HStack(spacing: Theme.usesPadLayout ? 16 : 8) {
+            tennisEditAdjustRow(
+                label: NSLocalizedString("game_short", value: "局", comment: ""),
+                value: "\(games)", fontSize: fontSize, canDecrement: games > 0,
+                useSecondaryColor: true, compact: true,
+                onDecrement: { dispatch(.adjustGames(side: side, delta: -1)) },
+                onIncrement: { adjustGamesInEdit(side: side, delta: 1) }
+            ).frame(maxWidth: .infinity)
+            tennisEditAdjustRow(
+                label: NSLocalizedString("set_short", value: "盘", comment: ""),
+                value: "\(sets)", fontSize: fontSize, canDecrement: sets > 0,
+                useSecondaryColor: true, compact: true,
+                onDecrement: { dispatch(.adjustSets(side: side, delta: -1)) },
+                onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
+            ).frame(maxWidth: .infinity)
+        }
+        .accessibilityIdentifier(side == .left ? "tennis_left_games_sets" : "tennis_right_games_sets")
+    }
+
     private func tennisEditAdjustRow(
         label: String,
         value: String,
@@ -959,6 +818,7 @@ struct TennisScoreboardView: View {
         controlSize: CGFloat? = nil,
         labelFontSize: CGFloat? = nil,
         labelHorizontalOffset: CGFloat = 0,
+        compact: Bool = false,
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) -> some View {
@@ -973,7 +833,7 @@ struct TennisScoreboardView: View {
                     .offset(x: labelHorizontalOffset)
                     .zIndex(1)
             }
-            HStack(spacing: Theme.usesPadLayout ? 20 : 10) {
+            HStack(spacing: compact ? 4 : (Theme.usesPadLayout ? 20 : 10)) {
                 tennisEditControl(
                     systemName: "minus",
                     enabled: canDecrement,
@@ -988,7 +848,7 @@ struct TennisScoreboardView: View {
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
-                    .frame(minWidth: Theme.usesPadLayout ? 100 : 70)
+                    .frame(minWidth: compact ? 32 : (Theme.usesPadLayout ? 100 : 70))
                 tennisEditControl(
                     systemName: "plus",
                     enabled: true,
@@ -1115,6 +975,7 @@ struct TennisScoreboardView: View {
         Text(displayedPointText(for: side))
             .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
             .foregroundStyle(mainScoreColor(side: side))
+            .styleElementSelectable(.mainScore, slotKey: side == .left ? .sideLeft : .sideRight)
             .monospacedDigit()
             .minimumScaleFactor(0.5)
             .lineLimit(1)
@@ -1140,7 +1001,8 @@ struct TennisScoreboardView: View {
         // 安卓基准：局分 = halfPanelSecondaryScoreSp（与羽毛球辅分同公式）；
         // 盘分 = 主分 × 0.32，盒子 = 盘分 × 1.45（Pad 1.36）。
         let gameSize = secondaryFontSize
-        let setSize = (mainFontSize * 0.32).rounded()
+        let setSize = (mainFontSize * 0.32 / max(0.01, typographyPreference.scoreMultiplier)
+            * typographyPreference.multiplier(for: store.state.doublesPlayerNames != nil ? ScoreboardStyleElementKeyV2.setGameScore : .setScore)).rounded()
         let setBoxSize = max(
             usesPadLayout ? 76 : 54,
             min(setSize * (usesPadLayout ? 1.36 : 1.45), usesPadLayout ? 126 : 92)
@@ -1161,6 +1023,7 @@ struct TennisScoreboardView: View {
             Text("\(games)")
                 .font(typographyPreference.font.swiftUIFont(size: gameSize, weight: .bold))
                 .foregroundStyle(elementColor(.gameScore))
+                .styleElementSelectable(store.state.doublesPlayerNames != nil ? .setGameScore : .gameScore, slotKey: side == .left ? .sideLeft : .sideRight)
                 .monospacedDigit()
                 .lineLimit(1)
 
@@ -1168,6 +1031,7 @@ struct TennisScoreboardView: View {
                 Text("\(sets)")
                     .font(typographyPreference.font.swiftUIFont(size: setSize, weight: .bold))
                     .foregroundStyle(elementColor(.setScore))
+                .styleElementSelectable(store.state.doublesPlayerNames != nil ? .setGameScore : .setScore, slotKey: side == .left ? .sideLeft : .sideRight)
                     .monospacedDigit()
                     .frame(width: setBoxSize, height: setBoxSize)
                     .background(Color.black.opacity(0.16))
@@ -1234,9 +1098,10 @@ struct TennisScoreboardView: View {
             }
             Text(name)
                 .font(typographyPreference.font.swiftUIFont(size: fontSize, weight: .bold))
-                .foregroundStyle(isReceiver
-                    ? appearance.palette.secondary
-                    : appearance.palette.foreground.opacity(isServer ? 1 : 0.85))
+                .foregroundStyle(appearance.hasElementColor(.playerName, slotKey: slot.isMultiple(of: 2) ? .sideLeft : .sideRight)
+                    ? appearance.elementForeground(.playerName, slotKey: slot.isMultiple(of: 2) ? .sideLeft : .sideRight)
+                    : (isReceiver ? appearance.palette.secondary : appearance.palette.foreground.opacity(isServer ? 1 : 0.85)))
+                .styleElementSelectable(.playerName, slotKey: slot.isMultiple(of: 2) ? .sideLeft : .sideRight)
                 .lineLimit(1)
                 .minimumScaleFactor(0.65)
                 .padding(.horizontal, 36)
@@ -1419,10 +1284,7 @@ struct TennisScoreboardView: View {
     }
 
     private func handlePointWon(_ side: MatchSide) {
-        guard !scoringLocked else {
-            showToast(NSLocalizedString("linked_score_watch_control_readonly_toast", value: "手表计分中，手机暂不能计分", comment: ""))
-            return
-        }
+
         dispatch(.pointWon(side))
         // 网球双打无位置轮转（发球人整个发球局固定，局间才换），得分时不闪烁。
     }
@@ -1639,7 +1501,7 @@ struct TennisScoreboardView: View {
             publishCurrentTennisState()
             if let sideToast { showToast(sideToast) }
             if matchFinished {
-                notifyLinkedFinishIfNeeded()
+
                 showGameOverDialog = true
             }
         }
@@ -1674,25 +1536,9 @@ struct TennisScoreboardView: View {
 
     private func publishCurrentTennisState() {
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        guard let watchSessionId, watchLinkService.isController else { return }
-        watchLinkService.syncWatch(
-            sessionId: watchSessionId,
-            gameType: store.gameType,
-            state: store.state,
-            detailedActions: store.actionTimeline
-        )
     }
 
-    private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.isController else { return }
-        watchLinkService.notifyMatchFinished(
-            sessionId: watchSessionId,
-            snapshot: .tennis(store.state),
-            recordId: store.sessionId.uuidString,
-            winnerSide: winnerSide(for: store.state),
-            manualEnd: manualFinishRequested
-        )
-    }
+
 
     private func registerScoreboardSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(
@@ -1727,10 +1573,11 @@ struct TennisScoreboardView: View {
         let state = store.state
         let leftSide = logicalSide(forScreen: .left)
         let rightSide = logicalSide(forScreen: .right)
-        let appGameType = GameType(scoreCoreGameType: store.gameType) ?? .tennis
         var compact = LocalScoreboardDisplayState(
             gameID: store.gameType.rawValue,
-            title: appGameType.displayName,
+            // matchTitle 只承载用户设置的比赛抬头（当前仅斯诺克支持），未设置传空，
+            // wire 编码会省略 matchTitle，显示端不渲染抬头带（对齐安卓）。
+            title: "",
             leftName: leftSide == .left ? state.leftName : state.rightName,
             rightName: rightSide == .left ? state.leftName : state.rightName,
             leftScore: state.scoreDisplay(for: leftSide),
@@ -1784,10 +1631,7 @@ struct TennisScoreboardView: View {
             compact: compact,
             layoutKind: isDoubles ? .doublesCourt : .twoSide,
             players: displayPlayers,
-            sportState: [
-                "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left"),
-                "servingSide": .string(state.servingSide == leftSide ? "left" : "right")
-            ],
+            sportState: tennisSyncSportState(state),
             rest: officialBreakSession.state.map(ScoreboardDisplayRest.init)
         )
         compact.externalState?.appearance = .init(
@@ -1806,6 +1650,42 @@ struct TennisScoreboardView: View {
         TeamScreenLayout(
             sidesSwapped: terminalGamePresentation?.sidesSwapped ?? store.state.sidesSwapped
         ).engineSide(onScreen: side)
+    }
+
+    /// 跨设备同播网球 sportState，对齐安卓 TennisScoreScreen cloudSportState 契约：
+    /// 逻辑身份 team_0 = 引擎左方（与 team0ScreenSide 归一化一致），显示端据此还原占先/发球。
+    private func tennisSyncSportState(_ state: TennisMatchState) -> [String: ScoreboardDisplayValue] {
+        var sport: [String: ScoreboardDisplayValue] = [
+            "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left"),
+            "servingTeam": .string(state.servingSide == .left ? "team_0" : "team_1"),
+            "currentSet": .integer(state.currentSet),
+            "tennisIsTieBreak": .boolean(state.isTieBreak),
+            "tennisTiebreakOnly": .boolean(state.rules.setScoringMode == .tiebreakOnly),
+            "ruleProfileVersion": .integer(1),
+            "competitionFormat": .string(state.doublesPlayerNames == nil ? "singles" : "doubles")
+        ]
+        if state.rules.familyProfile == .softTennis, let matchGames = state.rules.softTennisMatchGames {
+            sport["softTennisMatchGames"] = .integer(matchGames)
+        }
+        if store.gameType == .padel {
+            sport["padelDeuceMode"] = .string(state.rules.padelDeuceMode.rawValue)
+            sport["starPointReturnedAdvantages"] = .integer(state.starPointReturnedAdvantages ?? 0)
+        }
+        // 平分/占先：点数序数 >=3 且分差 <=1；协议比分序号与引擎步进值一致（0/1/2/3/4）。
+        let isDeuce = !state.isTieBreak
+            && state.leftPoints >= 3 && state.rightPoints >= 3
+            && abs(state.leftPoints - state.rightPoints) <= 1
+        sport["tennisIsDeuce"] = .boolean(isDeuce)
+        let advantage: String
+        if isDeuce && state.leftPoints > state.rightPoints {
+            advantage = "team_0"
+        } else if isDeuce && state.rightPoints > state.leftPoints {
+            advantage = "team_1"
+        } else {
+            advantage = "none"
+        }
+        sport["tennisAdvantage"] = .string(advantage)
+        return sport
     }
 
     private func tennisKeyPointSnapshot(_ state: TennisMatchState) -> TennisKeyPointSnapshot {
@@ -1828,7 +1708,7 @@ struct TennisScoreboardView: View {
     }
 
     private var menuItems: [ScoreboardMenuItem] {
-        var extras: [ScoreboardMenuItem] = [
+        let extras: [ScoreboardMenuItem] = [
             ScoreboardMenuItem(
                 title: store.voiceAnnouncementEnabled
                     ? NSLocalizedString("voice_announcement_on", value: "语音：开", comment: "")
@@ -1839,29 +1719,19 @@ struct TennisScoreboardView: View {
                 keepDialogOpen: true
             )
         ]
-        extras.insert(contentsOf: WatchLinkMenuSupport.extraItems(
-            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-            sessionId: watchSessionId,
-            isFollower: watchLinkService.isFollower,
-            watchBackgrounded: watchLinkService.watchBackgrounded
-        ), at: 0)
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             resetConfirming: menuConfirm.resetConfirming,
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,
-            scoringEnabled: !linkScoringLocked,
+            scoringEnabled: true,
             extraItems: extras
         )
     }
 
     private func handleMenu(_ action: String) {
         guard !isEditMode else { return }
-        if linkScoringLocked,
-           !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
-            toastMessage = NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: "")
-            return
-        }
+
         menuConfirm.prepare(forMenuAction: action)
         switch action {
         case "undo":
@@ -1911,39 +1781,8 @@ struct TennisScoreboardView: View {
         case "usageHint":
             showMenu = false
             (usageHintCoordinator ?? usageHintCoordinatorOverride)?.presentFromMenu()
-        case "resync":
-            watchLinkService.requestScoreResync()
-            showMenu = false
-        case "takeover":
-            Task {
-                if let id = watchSessionId {
-                    if let update = watchLinkService.latestRemoteSnapshot,
-                       update.sessionId == id,
-                       let state = update.snapshot.tennisState {
-                        _ = await store.applyAuthoritativeState(
-                            state,
-                            detailedActions: update.detailedActions,
-                            revision: update.revision
-                        )
-                    }
-                    do {
-                        try await watchLinkService.takeover(sessionId: id)
-                    } catch {
-                        showToast(error.localizedDescription)
-                    }
-                }
-                showMenu = false
-            }
-        case "forceTakeover":
-            if let id = watchSessionId {
-                watchLinkService.requestForceTakeoverConfirmation(id)
-            }
-            showMenu = false
         case "endLink":
-            if let id = watchSessionId {
-                watchLinkService.leaveSession(id)
-                watchSessionId = nil
-            }
+
             showMenu = false
         case "exit":
             if menuConfirm.armOrConfirm(.exit) {
@@ -2032,9 +1871,7 @@ struct TennisScoreboardView: View {
     private func goBack() {
         cancelTerminalGamePresentation()
         OrientationLock.shared.unlock()
-        if let id = watchSessionId {
-            watchLinkService.leaveSessionIfMatchFinished(id)
-        }
+
         store.flush {
             if let onNavigationBack {
                 onNavigationBack()
@@ -2056,7 +1893,7 @@ struct TennisScoreboardView: View {
     }
 
     private func performUndo() {
-        guard !isEditMode, !linkScoringLocked else { return }
+        guard !isEditMode else { return }
         cancelTerminalGamePresentation()
         ScoreVoiceAnnouncer.shared.cancelPendingScore()
         revealImmersiveChrome()
@@ -2141,16 +1978,7 @@ struct TennisScoreboardView: View {
                 showGameOverDialog = false
                 syncEditNamesFromState()
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                if let watchSessionId {
-                    let participantNames = freshStore.state.doublesPlayerNames
-                        ?? [freshStore.state.leftName, freshStore.state.rightName]
-                    watchLinkService.prepareControllerForNewMatch(
-                        sessionId: watchSessionId,
-                        gameType: freshStore.gameType,
-                        snapshot: .tennis(freshStore.state),
-                        participantNames: participantNames
-                    )
-                }
+
                 speakOpeningAnnouncementIfNeeded()
             }
         }

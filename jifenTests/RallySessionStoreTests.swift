@@ -110,40 +110,7 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertTrue(result.state.sidesSwapped)
     }
 
-    func testPickleballAuthoritativeRebaseContinuesFromWatchScore() async {
-        let store = RallySessionStore(
-            leftName: "A",
-            rightName: "B",
-            gameType: .pickleball,
-            rules: .pickleball()
-        )
-        var watchState = store.state
-        watchState.leftPoints = 5
-        watchState.rightPoints = 2
 
-        let applied = await store.applyAuthoritativeState(
-            watchState,
-            detailedActions: [],
-            revision: 7
-        )
-        XCTAssertTrue(applied)
-
-        let scored = expectation(description: "score continues from rebased state")
-        store.send(.pointWon(.left)) { _ in scored.fulfill() }
-        await fulfillment(of: [scored], timeout: 2)
-        XCTAssertEqual(store.state.leftPoints, 6)
-        XCTAssertEqual(store.state.rightPoints, 2)
-
-        var staleState = watchState
-        staleState.leftPoints = 1
-        let staleApplied = await store.applyAuthoritativeState(
-            staleState,
-            detailedActions: [],
-            revision: 6
-        )
-        XCTAssertFalse(staleApplied)
-        XCTAssertEqual(store.state.leftPoints, 6)
-    }
 
     func testRallyRapidOperationsPersistUndoBundleAcrossRestore() async throws {
         let store = RallySessionStore(
@@ -174,31 +141,7 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(restored.state.leftPoints, 2)
     }
 
-    func testTennisAuthoritativeRebaseContinuesFromThirtyFifteen() async {
-        let store = TennisSessionStore(
-            leftName: "A",
-            rightName: "B",
-            rules: .init(autoChangeSides: false)
-        )
-        var watchState = store.state
-        watchState.leftPoints = 2
-        watchState.rightPoints = 1
 
-        let applied = await store.applyAuthoritativeState(
-            watchState,
-            detailedActions: [],
-            revision: 4
-        )
-        XCTAssertTrue(applied)
-
-        let scored = expectation(description: "tennis score continues from rebased state")
-        store.send(.pointWon(.left)) { _ in scored.fulfill() }
-        await fulfillment(of: [scored], timeout: 2)
-        XCTAssertEqual(store.state.leftPoints, 3)
-        XCTAssertEqual(store.state.rightPoints, 1)
-        XCTAssertEqual(store.state.scoreDisplay(for: .left), "40")
-        XCTAssertEqual(store.state.scoreDisplay(for: .right), "15")
-    }
 
     func testTennisTerminalGameEventsPreserveFinalPointAndSetScoresForPresentation() {
         var state = TennisMatchState(
@@ -921,45 +864,7 @@ final class RallySessionStoreTests: XCTestCase {
         await fulfillment(of: [firstReuse, secondReuse], timeout: 2)
     }
 
-    func testFollowerFinishedRallyKeepsLastLiveResumeUntilFormalRecordArrives() async throws {
-        let resumeRoot = FileManager.default.temporaryDirectory
-            .appendingPathComponent("follower-finished-rally-\(UUID().uuidString)", isDirectory: true)
-        let resumeRepository = ResumeSessionRepository(rootURL: resumeRoot)
-        defer { try? FileManager.default.removeItem(at: resumeRoot) }
-        let store = RallySessionStore(
-            leftName: "A",
-            rightName: "B",
-            gameType: .pingpong,
-            rules: .pingPong(),
-            resumeRepository: resumeRepository
-        )
-        let liveSaved = expectation(description: "live follower resume saved")
-        store.persistSnapshot { success in
-            XCTAssertTrue(success)
-            liveSaved.fulfill()
-        }
-        await fulfillment(of: [liveSaved], timeout: 2)
 
-        let finishedState = RallyMatchReducer().reduce(
-            state: store.state,
-            intent: .finish,
-            at: 1
-        ).state
-        let applied = await store.applyAuthoritativeState(
-            finishedState,
-            detailedActions: [],
-            revision: 1,
-            persistFormalRecord: false
-        )
-
-        XCTAssertTrue(applied)
-        let retained = try await resumeRepository.loadResumeBundle(
-            sessionId: store.sessionId,
-            as: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>.self
-        )
-        XCTAssertEqual(retained?.currentSession.status, .live)
-        XCTAssertFalse(retained?.currentSession.state.finished ?? true)
-    }
 
     func testFinishedBilliardsStoreDoesNotDeleteResumeBeforeFormalRecordCommit() async throws {
         let resumeRoot = FileManager.default.temporaryDirectory

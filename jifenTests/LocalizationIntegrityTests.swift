@@ -17,7 +17,6 @@ final class LocalizationIntegrityTests: XCTestCase {
     func testLocalizedResourcePairsStayInSync() throws {
         let pairs = [
             ("phone", "jifen/Resources/en.lproj/Localizable.strings", "jifen/Resources/zh-Hans.lproj/Localizable.strings"),
-            ("watch", "jifenWatch Watch App/Resources/en.lproj/Localizable.strings", "jifenWatch Watch App/Resources/zh-Hans.lproj/Localizable.strings"),
             ("phone Info.plist", "jifen/Resources/en.lproj/InfoPlist.strings", "jifen/Resources/zh-Hans.lproj/InfoPlist.strings")
         ]
 
@@ -46,16 +45,11 @@ final class LocalizationIntegrityTests: XCTestCase {
             sourceDirectory: "jifen",
             stringsPath: "jifen/Resources/en.lproj/Localizable.strings"
         )
-        try assertStaticKeysExist(
-            sourceDirectory: "jifenWatch Watch App",
-            stringsPath: "jifenWatch Watch App/Resources/en.lproj/Localizable.strings"
-        )
     }
 
     func testEnglishResourcesDoNotContainUnexpectedChineseOrBlankValues() throws {
         let tables = [
             "jifen/Resources/en.lproj/Localizable.strings",
-            "jifenWatch Watch App/Resources/en.lproj/Localizable.strings",
             "jifen/Resources/en.lproj/InfoPlist.strings"
         ]
         let allowedChineseKeys: Set<String> = ["about_company_zh"]
@@ -83,10 +77,13 @@ final class LocalizationIntegrityTests: XCTestCase {
             "faq_question_1", "faq_answer_1",
             "faq_question_2", "faq_answer_2",
             "faq_question_3", "faq_answer_3",
+            "faq_question_4", "faq_answer_4",
             "faq_question_5", "faq_answer_5",
             "faq_question_6", "faq_answer_6",
             "faq_question_7", "faq_answer_7",
-            "faq_question_8", "faq_answer_8"
+            "faq_question_8", "faq_answer_8",
+            "faq_question_10", "faq_answer_10",
+            "faq_question_11", "faq_answer_11"
         ]
         XCTAssertEqual(expected.filter { !phoneKeys.contains($0) }, [])
     }
@@ -127,26 +124,6 @@ final class LocalizationIntegrityTests: XCTestCase {
             englishPath: "jifen/Resources/en.lproj/Localizable.strings",
             chinesePath: "jifen/Resources/zh-Hans.lproj/Localizable.strings"
         )
-
-        let watchExpected: [String: (english: String, chinese: String)] = [
-            "watch_team_red": ("Red", "红方"),
-            "watch_team_blue": ("Blue", "蓝方"),
-            "team_a": ("Team A", "A队"),
-            "team_b": ("Team B", "B队"),
-            "player_a": ("Player A", "选手A"),
-            "player_b": ("Player B", "选手B"),
-            "archer_a": ("Archer A", "射手A"),
-            "archer_b": ("Archer B", "射手B"),
-            "watch_setup_red_a": ("Red A", "红A"),
-            "watch_setup_red_b": ("Red B", "红B"),
-            "watch_setup_blue_a": ("Blue A", "蓝A"),
-            "watch_setup_blue_b": ("Blue B", "蓝B")
-        ]
-        try assertLocalizedValues(
-            watchExpected,
-            englishPath: "jifenWatch Watch App/Resources/en.lproj/Localizable.strings",
-            chinesePath: "jifenWatch Watch App/Resources/zh-Hans.lproj/Localizable.strings"
-        )
     }
 
     func testTennisSetupUsesNaturalMatchAndTiebreakTerminology() throws {
@@ -170,7 +147,7 @@ final class LocalizationIntegrityTests: XCTestCase {
         let pattern = #"(?:Text|Button|Label|navigationTitle|alert|confirmationDialog|Section|Picker|TextField|SecureField|accessibilityLabel|accessibilityHint)\s*\(\s*\"([^\"]*[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF][^\"]*)\""#
         var failures: [String] = []
 
-        for directory in ["jifen", "jifenWatch Watch App"] {
+        for directory in ["jifen"] {
             for file in try swiftFiles(in: directory) {
                 let source = try String(contentsOf: file, encoding: .utf8)
                 for match in captures(pattern: pattern, in: source) {
@@ -193,7 +170,6 @@ final class LocalizationIntegrityTests: XCTestCase {
             "jifen/Features/Activity/RecentActivityPage.swift",
             "jifen/Features/Activity/TimerRecordDetailPage.swift",
             "jifen/Features/Me/SettingsView.swift",
-            "jifen/Features/Me/WatchLinkSettingsView.swift",
             "jifen/Features/Schedule/SchedulePage.swift",
             "jifen/Features/Home/Components/CommonDataManagementShared.swift",
             "jifen/Features/Tools/ToolsTab.swift",

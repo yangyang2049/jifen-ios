@@ -1,0 +1,73 @@
+{
+  "decoded" : {
+    "font" : "default",
+    "leftMainText" : "#FFFFFF",
+    "leftPanel" : "#EF4444",
+    "rightMainText" : "#FFFFFF",
+    "theme" : "default"
+  },
+  "incoming" : {
+    "appearance" : {
+      "style" : {
+        "elements" : [
+          {
+            "elementKey" : "mainScore",
+            "textColors" : [
+              {
+                "color" : "#FF0000",
+                "slotKey" : "side_left"
+              },
+              {
+                "color" : "#00FF00",
+                "slotKey" : "side_right"
+              }
+            ]
+          }
+        ],
+        "fontCode" : "sports",
+        "fontSizeMultipliers" : {
+          "mainScore" : 1.5
+        },
+        "panels" : [
+          {
+            "backgroundColor" : "#112233",
+            "slotKey" : "side_left"
+          },
+          {
+            "backgroundColor" : "#223344",
+            "slotKey" : "side_right"
+          }
+        ],
+        "serverIndicatorColor" : "#FF00FF",
+        "styleRevision" : 1,
+        "themeCode" : "electronic",
+        "version" : 2
+      }
+    },
+    "gameType" : "badminton_doubles",
+    "layoutKind" : "doubles_court",
+    "orientation" : "landscape",
+    "schemaVersion" : 1,
+    "sportState" : {
+      "leftDisplayScore" : "8",
+      "rightDisplayScore" : "0"
+    },
+    "teams" : [
+      {
+        "color" : "#C62828",
+        "id" : "team_0",
+        "name" : "A",
+        "order" : 0,
+        "score" : 8
+      },
+      {
+        "color" : "#007AFF",
+        "id" : "team_1",
+        "name" : "B",
+        "order" : 1,
+        "score" : 0
+      }
+    ],
+    "updatedAt" : 8
+  }
+}

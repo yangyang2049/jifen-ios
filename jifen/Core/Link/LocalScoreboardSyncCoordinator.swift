@@ -218,6 +218,20 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
         for state: LocalScoreboardDisplayState
     ) -> ScoreboardDisplayState {
         var externalState = state.externalState ?? ScoreboardDisplayState(compactState: state)
+        if externalState.teams.count == 2, externalState.gameType != "doudizhu",
+           externalState.layoutKind != .multiGrid, let style = externalState.appearance.style {
+            let projected = style.projected(team0OnRight: externalState.sportString("team0ScreenSide") == "right")
+            externalState.appearance.style = projected
+            externalState.appearance.leftPanelHex = projected.panelColor(slot: "side_left") ?? externalState.appearance.leftPanelHex
+            externalState.appearance.rightPanelHex = projected.panelColor(slot: "side_right") ?? externalState.appearance.rightPanelHex
+            externalState.appearance.leftScoreHex = projected.renderColor("mainScore", slot: "side_left") ?? externalState.appearance.leftScoreHex
+            externalState.appearance.rightScoreHex = projected.renderColor("mainScore", slot: "side_right") ?? externalState.appearance.rightScoreHex
+        }
+        let typography = PreferencesManager.shared.scoreboardTypography(for: ScoreboardStyleID(rawValue: state.gameID))
+        if let elements = typography.elementMultipliers {
+            externalState.appearance.fontSizeMultipliers = (externalState.appearance.fontSizeMultipliers ?? [:])
+                .merging(elements) { _, element in element }
+        }
         if externalState.clock == nil,
            Self.genericMatchClockGameIDs.contains(externalState.gameType),
            let clock = genericMatchClockProvider?() {

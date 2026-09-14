@@ -19,7 +19,8 @@ extension ScoreboardDisplayAppearance {
             rightScoreHex: ScoreboardDisplayAppearance.resolvedMainHex(profile, .sideRight),
             leftSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideLeft),
             rightSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideRight),
-            centerSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideCenter)
+            centerSecondaryHex: ScoreboardDisplayAppearance.resolvedSecondaryHex(profile, .sideCenter),
+            style: ScoreboardDisplayStyle(profile: profile, fontCode: fontCode ?? snapshot.font.rawValue)
         )
     }
 
@@ -74,18 +75,37 @@ extension ScoreboardDisplayRest {
             phase: state.phase.rawValue,
             remainingSeconds: state.remainingSeconds,
             isRunning: state.isRunning,
-            updatedWallClockMilliseconds: state.updatedWallClockMilliseconds
+            updatedWallClockMilliseconds: state.updatedWallClockMilliseconds,
+            sport: state.sport.rawValue, afterAction: state.afterAction.rawValue
         )
     }
 }
 
 extension ScoreboardDisplayState {
+    /// 网球家族 wire 比分：对齐安卓 `toProtocolTennisPointScore` 协议契约。
+    /// 常规局显示串 0/15/30/40/AD 统一转成点数序号 0/1/2/3/4（软式网球序号即原始步进值），
+    /// 抢七等实际分数是纯数字串，原样透传；显示端由 tennisIsDeuce/tennisAdvantage 表达占先。
+    static func wireProtocolScore(gameID: String, display: String) -> Int {
+        let tennisFamilyGameIDs: Set<String> = ["tennis", "tennis_doubles", "soft_tennis", "padel"]
+        guard tennisFamilyGameIDs.contains(gameID) else {
+            return Int(display) ?? 0
+        }
+        switch display {
+        case "0": return 0
+        case "15": return 1
+        case "30": return 2
+        case "40": return 3
+        case "AD": return 4
+        default: return Int(display) ?? 0
+        }
+    }
+
     init(compactState state: LocalScoreboardDisplayState) {
         let profile = ScoreboardAppearanceSnapshot.current(
             styleID: ScoreboardStyleID(rawValue: state.gameID)
         ).styleProfileV2
-        let leftValue = Int(state.leftScore) ?? 0
-        let rightValue = Int(state.rightScore) ?? 0
+        let leftValue = Self.wireProtocolScore(gameID: state.gameID, display: state.leftScore)
+        let rightValue = Self.wireProtocolScore(gameID: state.gameID, display: state.rightScore)
         let teams = [
             ScoreboardDisplayTeam(
                 id: "team_0",
@@ -145,7 +165,8 @@ extension ScoreboardDisplayState {
                     score: state.scoreMultiplier,
                     name: state.nameMultiplier,
                     secondary: state.secondaryMultiplier
-                )
+                ),
+                style: ScoreboardDisplayStyle(profile: profile, fontCode: state.fontID)
             ),
             result: state.finished ? ScoreboardDisplayResult(
                 ended: true,
@@ -183,7 +204,7 @@ extension ScoreboardDisplayState {
     }
 
     /// `LocalScoreboardDisplayState` intentionally stores the two visible panels in
-    /// screen order so the lightweight phone/watch projection can render it directly.
+    /// screen order so the lightweight display projection can render it directly.
     /// The cross-platform `ScoreboardDisplayState` contract is different: `team_0`
     /// and `team_1` are stable logical identities, while `team0ScreenSide` carries
     /// placement. Normalize exactly once at the compact -> rich-state boundary.

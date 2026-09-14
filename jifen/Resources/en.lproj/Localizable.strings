@@ -11,7 +11,6 @@
 "tab_records" = "Records";
 "tab_timer" = "Timer";
 "tab_me" = "Me";
-"tab_tools" = "Tools";
 "all" = "All";
 "scoreboard" = "Score";
 "timer" = "Timer";
@@ -27,7 +26,6 @@
 "home_start_game" = "Start Match";
 "home_start_timer" = "Start Timer";
 "home_new_game_short" = "New Game";
-"home_all_items" = "All Items";
 "home_tools" = "Tools";
 "home_no_records" = "No recent records";
 "home_view_all_records" = "View all records";
@@ -57,8 +55,8 @@
 /* Default Team Names */
 "red_team" = "Red";
 "blue_team" = "Blue";
-"watch_team_red" = "Red";
-"watch_team_blue" = "Blue";
+"scoreboard_team_red" = "Red";
+"scoreboard_team_blue" = "Blue";
 "team_a" = "Team A";
 "team_b" = "Team B";
 "archer_a" = "Archer A";
@@ -78,7 +76,6 @@
 "doubles_blue_a" = "Blue A";
 "doubles_blue_b" = "Blue B";
 "singles_doubles" = "Singles / Doubles";
-"badminton_singles_doubles" = "Singles / Doubles";
 
 /* Timer Settings */
 "timer_settings_for" = "Timer settings for";
@@ -140,8 +137,6 @@
 "timer_action_manual_stop" = "Stopped manually";
 "timer_action_game_end" = "Game ended";
 "timer_action_game_end_winner_format" = "Game ended, %@ wins";
-"cube_hold_to_start" = "Hold 0.5s to start";
-"cube_hold" = "Hold to start";
 "cube_timer_release_to_start" = "Release hands to start timing";
 "cube_timer_place_hands" = "Place both hands on screen to prepare";
 "cube_timer_no_touchscreen_hint" = "💡 No touchscreen available, works on phones and tablets";
@@ -164,12 +159,8 @@
 "game_billiards" = "Billiards";
 "game_pickleball" = "Pickleball";
 "game_guandan" = "Guandan";
-"guandan_level" = "Level";
 "display_guandan_pass_a" = "Pass A %d";
 "display_guandan_triple_a" = "Triple A";
-"guandan_a_stage" = "Passing A";
-"guandan_a_fail_format" = "A fails %d/3";
-"guandan_a_stage_team_format" = "%@ at A";
 "guandan_pass_a_condition_section" = "Pass-A Condition";
 "guandan_pass_a_not_last" = "Not Last (+2/3)";
 "guandan_pass_a_double_up" = "Double Up (+3)";
@@ -178,15 +169,10 @@
 "doudizhu_player_adam" = "Adam";
 "doudizhu_player_bob" = "Bob";
 "doudizhu_player_chris" = "Chris";
-"shengji_claim_dealer_left" = "Red Claims";
-"shengji_claim_dealer_right" = "Blue Claims";
 "shengji_claim_dealer" = "Claim";
 "guandan_edit_level_wrap_confirm_title" = "Return rank to 2?";
 "guandan_edit_level_wrap_confirm_message" = "Increasing again will reset this team's rank to 2.";
 "shengji_take_dealer" = "Take Dealer";
-"guandan_select_upgrade" = "Choose upgrade";
-"guandan_upgrade_step_format" = "+%d";
-"guandan_tap_winner" = "Tap the winner to settle the round";
 "game_doudizhu" = "Doudizhu";
 "game_simple_score" = "Simple Score";
 "score_custom_adjust_label" = "Custom scoring";
@@ -207,26 +193,19 @@
 
 /* Setup Titles */
 "football_setup_title" = "Football Setup";
-"basketball_setup_title" = "Basketball Setup";
 "volleyball_setup_title" = "Volleyball Setup";
 "pingpong_setup_title" = "Ping Pong Setup";
-"badminton_setup_title" = "Badminton Setup";
-"tennis_setup_title" = "Tennis Setup";
 "setup" = "Setup";
 "setup_suffix" = " Setup";
 
 /* Settings Labels */
-"sets_label" = "Sets";
 "points_per_set_label" = "Points per Set";
-"auto_change_sides" = "Auto Change Sides";
+"auto_change_sides" = "Auto change sides";
 "start_game" = "Start";
 
 /* Ping Pong Settings */
 "pingpong_set_count_label" = "Set Count";
 "pingpong_auto_change_sides" = "Auto change sides";
-"best_of_3_sets" = "Best of 3";
-"best_of_5_sets" = "Best of 5";
-"best_of_7_sets" = "Best of 7";
 "pingpong_set_option_best_of_3" = "Best of 3";
 "pingpong_set_option_best_of_5" = "Best of 5";
 "pingpong_set_option_best_of_7" = "Best of 7";
@@ -237,10 +216,8 @@
 "tennis_scoring_mode_regular" = "Standard";
 "tennis_scoring_mode_tiebreak_7" = "7-Point Tiebreak";
 "tennis_scoring_mode_tiebreak_10" = "10-Point Tiebreak";
-"tennis_games_per_set_label" = "Games per set";
 "tennis_games_per_set_4" = "4-game set";
 "tennis_games_per_set_6" = "6-game set";
-"tennis_set_tiebreak_label" = "Set tiebreak";
 "tennis_format_tiebreak_7" = "7-Point Tiebreak";
 "tennis_format_tiebreak_10" = "10-Point Tiebreak";
 "tennis_short_set_help" = "First to 4 games by two; at 4-4, play a 7-point tiebreak";
@@ -254,15 +231,8 @@
 "points_21" = "21 points";
 
 /* Tennis Settings */
-"tennis_set_count_label" = "Set Count";
-"tennis_tiebreak_label" = "Tiebreak";
-"tennis_auto_change_sides" = "Auto change sides";
-"sets_1" = "1 set";
-"sets_3_best_of_2" = "Best of 3";
-"sets_5_best_of_3" = "Best of 5";
 
 /* Badminton Settings */
-"badminton_auto_change_sides" = "Auto change sides";
 
 /* Volleyball Settings */
 "volleyball_auto_change_sides" = "Auto change sides";
@@ -274,10 +244,7 @@
 "save" = "Save";
 "reset" = "Reset";
 "back" = "Back";
-"team_or_player_name" = "Team or Player Name";
-"tap_to_quick_use" = "Tap to quick use";
 "game_ended" = "Game Ended";
-"back_to_new_game" = "Back to New Game";
 
 /* Time Formats */
 "minutes_ago" = "%d minutes ago";
@@ -285,15 +252,12 @@
 "days_ago" = "%d days ago";
 "today" = "Today";
 "yesterday" = "Yesterday";
-"date_format" = "%d/%d";
 
 /* Duration Format */
-"duration_hms" = "%dh %dm %ds";
 "duration_ms" = "%dm %ds";
 "duration_s" = "%ds";
 
 /* Activity Page */
-"advanced_filter" = "Advanced Filter";
 "edit" = "Edit";
 "done" = "Done";
 "close" = "Close";
@@ -301,7 +265,6 @@
 "items" = "items";
 
 /* Messages */
-"load_recent_game" = "Loaded recent game";
 "duplicate_names_warning" = "Duplicate names warning";
 "undone" = "Undone";
 "change_sides" = "Change Sides";
@@ -321,30 +284,22 @@
 "match_completion_play_all_tennis_description" = "Play all five sets; the match may end in a draw";
 "match_completion_custom_placeholder" = "Enter 1-99";
 "match_completion_invalid_sets" = "Classic requires an odd number from 1-99; Play all accepts 1-99.";
-"match_completion_finish_confirmation" = "Not all sets have been played. Tap finish again within 2 seconds.";
-"match_draw" = "Match drawn";
 "has_been_reset" = "Has been reset";
 "no_undo_available" = "No undo available";
 "screenshot_failed" = "Screenshot failed";
 "screenshot_saved" = "Screenshot saved";
-"unknown_error" = "Unknown error";
 "please_allow_photo_access" = "Please allow photo access in Settings";
 "open_settings" = "Settings";
 "retry" = "Retry";
 "save_failed" = "Save failed: %@";
-"font_changed" = "Font changed";
 
 /* Set/Game End Messages */
 "set_ended_winner" = "Set %d ended, %@ won, score %d-%d";
-"game_ended_score" = "Game %d ended, score %d-%d";
 "winner_wins" = "%@ Wins";
 "winner" = "Winner";
 
 /* Rest Countdown */
 "set_break" = "Set Break";
-"halftime_break" = "Halftime Break";
-"rest_title_set_end" = "End of Game %d";
-"rest_title_mid_game" = "Game %d · Mid-game break";
 
 /* Scoreboard Tab */
 "scoreboard_title" = "Score";
@@ -361,7 +316,6 @@
 "tool_whistle" = "Whistle";
 "tool_random_team" = "Random Team";
 "tool_red_yellow_card" = "Red/Yellow Card";
-"tool_points_table" = "Standings";
 "tool_time" = "Flip Clock";
 "tool_aa_calculator" = "AA Calculator";
 "tool_ten_second" = "10s Challenge";
@@ -377,7 +331,6 @@
 "players_6" = "6 Players";
 "players_8" = "8 Players";
 "players_count_format" = "%d Players";
-"random_grouping" = "Random Grouping";
 "simulate" = "Simulate";
 "try_again" = "Try Again";
 "place_fingers_on_blocks" = "Place fingers on blocks (%d/%d)";
@@ -428,11 +381,8 @@
 "points_table_min_teams" = "Keep at least 2 teams";
 "points_table_tap_again_to_delete_team" = "Tap again to delete team";
 "points_table_team_deleted_toast" = "Team deleted";
-"no_players" = "No players";
-"add_player" = "Add Player";
 "player_name" = "Player Name";
 "add" = "Add";
-"add_player_title" = "Add Player";
 
 /* Ten Second Challenge */
 "ten_second_title" = "10s Challenge";
@@ -451,7 +401,6 @@
 "swipe_to_switch" = "Swipe left/right to switch";
 
 /* Time Tool */
-"time_tool_title" = "Flip Clock";
 "rotate_display" = "Rotate display";
 
 /* AA Calculator Tool */
@@ -465,10 +414,8 @@
 "enter_valid_amount" = "Please enter valid amount";
 
 /* Fullscreen Barrage */
-"fullscreen_barrage" = "Fullscreen Barrage";
-"enter_barrage_content" = "Enter barrage content";
+"fullscreen_barrage" = "Barrage";
 "show" = "Show";
-"barrage_content" = "Barrage Content";
 "barrage_text_label" = "Message";
 "barrage_input_placeholder" = "Enter text to display";
 "barrage_font_size" = "Font Size";
@@ -488,21 +435,15 @@
 "menu_swap_sides" = "Swap Sides";
 "menu_reset" = "Reset";
 "menu_undo" = "Undo";
-"archery_wait_turn" = "Opponent's turn to shoot";
 
 /* Font Selection */
-"select_font" = "Select Font";
 "font_default" = "Default";
-"font_digital" = "Digital";
-"font_harmony_digit" = "HarmonyOS Digit";
 "font_seven_segment" = "LED Digit";
 
 /* Save Screenshot */
-"save_screenshot" = "Save Screenshot";
 "filename" = "Filename";
 
 /* Rest Countdown Overlay */
-"rest_countdown" = "Rest Countdown";
 
 /* Game Finished Overlay */
 "game_winner_format" = "%@ Wins";
@@ -510,7 +451,6 @@
 /* Records Tab */
 "clear_all_records" = "Clear All Records";
 "clear_records_tab_message" = "Score and timer records in the Records tab will be deleted. This cannot be undone. Common names, common places, and bookings will not be deleted.";
-"clear_all_records_message" = "This deletes local score and timer records, resumes and drafts, bookings and reminders, common names and places, standings, quick starts, stopwatch/countdown state, and match, layout, style, font, and tool preferences. Legal consent and system permission decisions remain. Apple Watch data and Photos are not deleted remotely. This cannot be undone.";
 "clear_data" = "Clear data";
 "clear_data_failed_title" = "Clear Failed";
 "clear_data_failed_format" = "Some data could not be cleared. It is safe to retry:\n%@";
@@ -520,7 +460,6 @@
 "clear_data_category_resume" = "Resumes and drafts";
 "clear_data_category_preferences" = "Settings and tool data";
 "clear_data_category_legacy_sync" = "Legacy sync data";
-"clear_data_category_watch" = "Temporary Watch link state";
 "clear_data_verification_failed" = "Local data remains after clearing";
 
 /* Settings */
@@ -545,6 +484,14 @@
 "account_login_title" = "Sign In";
 "account_login_subtitle" = "Sign in to sync common data, feedback, and live scores";
 "account_login_agreement_hint" = "Please read and agree to the Terms of Service and Privacy Policy first";
+"me_login_password_title" = "Email/Password Sign-in";
+"me_password_login_entry" = "Email/Password Sign-in";
+"me_login_email_placeholder" = "Enter email or phone number";
+"me_login_password_placeholder" = "Enter password";
+"me_login_enter_email" = "Please enter email or phone number";
+"me_login_enter_password" = "Please enter password";
+"me_password_login_button" = "Sign in";
+"me_password_login_button_loading" = "Signing in...";
 "account_login_agreement_toggle" = "Agree to the Terms of Service and Privacy Policy";
 "account_login_agreement_prefix" = "I have read and agree to";
 "account_login_agreement_and" = " and ";
@@ -560,19 +507,12 @@
 "membership_entry_title_active" = "VIP Membership";
 "membership_entry_summary" = "Lifetime VIP, one-time purchase";
 "membership_entry_summary_active" = "You are a VIP member. Thank you for your support";
-"basketball_mode" = "Game mode";
-"dark_mode" = "Dark Mode";
-"light_mode" = "Light Mode";
-"sound_vibration" = "Sound & Vibration";
 "sound_effects" = "Sound Effects";
 "vibration" = "Vibration";
 "language" = "Language";
-"app_language" = "App Language";
 "about" = "About";
 "version" = "Version";
 "privacy_policy" = "Privacy Policy";
-"support_contact" = "Support & Contact";
-"developer" = "Developer";
 "accessibility" = "Accessibility";
 "common_names_manage" = "Common Names";
 "common_names_team" = "Team Names";
@@ -594,8 +534,6 @@
 "deselect_all" = "Deselect All";
 "sync_unavailable_offline" = "Local-network sync is unavailable in this offline release";
 
-"settings_features" = "Feature Settings";
-"settings_help_support" = "Help & Support";
 "scoreboard_settings_title" = "Scoreboard Settings";
 "sound" = "Sound";
 "settings_rate_app" = "Rate App";
@@ -603,41 +541,26 @@
 "settings_faq" = "FAQ";
 "about_us_title" = "About Us";
 "about_version_format" = "Version %@";
-"about_legal" = "Information";
 "about_wechat_group" = "WeChat Group";
 "about_qq_group_label" = "QQ Group";
-"about_qq_group_number" = "825096333";
 "about_copy_qq_toast" = "QQ group number copied";
 "about_company_zh" = "重庆豆花科技有限公司";
 "about_company_en" = "Chongqing Douhua Technology Co., Ltd.";
 "terms_of_service" = "Terms of Service";
 
 /* First-launch legal consent */
-"legal_consent_title" = "Please Review Before Using";
-"legal_consent_subtitle" = "Please read and agree to the Terms of Service and Privacy Policy before using the app.";
-"legal_summary_title" = "How We Use Data";
-"legal_summary_body" = "• Scores, timers, match records, and bookings are stored on this device.\n• Third-party SDKs include Umeng Analytics to measure app usage and improve the product experience. See the Privacy Policy for details.";
-"legal_consent_checkbox_markdown" = "I have read and agree to the [Terms of Service](%@) and [Privacy Policy](%@)";
-"legal_consent_toggle" = "Agree to the Terms of Service and Privacy Policy";
-"legal_decline" = "Not Now";
-"legal_decline_title" = "Your Consent Is Required";
-"legal_decline_message" = "Until you agree, the app will not initialize Umeng Analytics or open its main features. You can close the app and decide later.";
-"legal_decline_acknowledge" = "OK";
-"legal_agree_continue" = "Agree and Continue";
 "home_common_names_desc" = "Teams and players";
 "common_places_title" = "Common Places";
 "home_common_places_desc" = "Venues, courts, places";
 "common_places_add" = "Add Place";
 "common_places_edit_title" = "Edit Place";
 "common_places_placeholder" = "Enter a place";
-"common_places_batch_add" = "Batch Add";
 "common_places_clear" = "Clear Places";
 "common_places_clear_message" = "All common places will be cleared. This cannot be undone.";
 "common_places_search_placeholder" = "Search places";
 "common_places_no_records" = "No Common Places";
 "common_places_no_search_results" = "No Results";
 "common_places_usage_desc" = "Places entered in bookings are saved here for quick selection next time.";
-"common_places_use_count" = "Used %d times";
 "common_places_batch_hint" = "One place per line, or separate with commas";
 "common_places_empty_name" = "Place cannot be empty";
 "common_places_already_exists" = "This place already exists";
@@ -651,22 +574,27 @@
 "common_places_deleted" = "Deleted";
 "common_places_batch_delete_confirm" = "Delete %d selected places?";
 "schedule_pick_common_place" = "Select a common place";
-"faq_question_1" = "How do I start a match?";
-"faq_answer_1" = "Tap New Match or a favorite sport on Home, then set names and match rules.";
-"faq_question_2" = "Where are records stored?";
-"faq_answer_2" = "Match and timer records are stored locally on this device and appear in Records.";
-"faq_question_3" = "How do I undo a mistake?";
-"faq_answer_3" = "Use Undo on the scoreboard to restore the most recent score or state change.";
-"faq_question_5" = "What are Classic and Play All?";
-"faq_answer_5" = "Classic ends after a player wins a majority of sets. Play All completes every scheduled set and may end in a draw.";
-"faq_question_6" = "What are common names and places for?";
-"faq_answer_6" = "They speed up team, player, and venue entry and remain stored only on this device.";
-"faq_question_7" = "How do I schedule a match?";
-"faq_answer_7" = "Open My Games on Home, create a booking, and set its time, place, and local reminders.";
-"faq_question_8" = "What does Clear Data remove?";
-"faq_answer_8" = "It removes local records, resumes, bookings and reminders, common data, standings, quick starts, timer state, and app preferences. Legal consent and system permission decisions remain; Apple Watch data and Photos are not deleted remotely.";
+"faq_question_1" = "How do I start a match quickly?";
+"faq_answer_1" = "On Home, pick a sport, or open New match for more options. Add frequent sports and setups to Quick start so the next match opens faster.\n\nSports that need team names, sets, format, or serving rules open Game setup first. After confirming, the scoreboard opens; some settings can still be adjusted during scoring.";
+"faq_question_2" = "How do I score and fix mistakes?";
+"faq_answer_2" = "Ball sports usually let you tap the left/right or top/bottom side to award a point, while sets, serve, and side changes follow the rules. Basketball, football, and simple scoreboards show common point values. Billiards, archery, boxing, and card games use score, round, or result panels.\n\nIf you make a mistake, use Undo or Back first. For manual fixes, open the edit/settings entry from the scoreboard. Not every sport has separate plus and minus buttons.";
+"faq_question_3" = "I left the scoreboard. How do I continue or review it?";
+"faq_answer_3" = "On the Home tab, an unfinished match shows a bottom banner (Continue match); tap it to resume scoring right where you left off. Finished and saved matches are available in Records.\n\nIf the entry is gone, the match may have ended, been deleted, or local data may have been cleared. Records are mainly for reviewing results and may not support continuing the original match flow.";
+"faq_question_4" = "How do I delete records or clear data?";
+"faq_answer_4" = "During a match, use Undo, Back, or the edit entry if the current sport supports it.\n\nFor saved matches, open the item in Records and delete it there. Me → Clear data removes local scoring, timer, unfinished match, saved record, and some local setting data. This cannot be undone.";
+"faq_question_5" = "How do I connect a display or another phone?";
+"faq_answer_5" = "To show scores on another phone or tablet, on the display device open Sync score → Join match and follow the page to create a code or QR code; connect from the controller side after entering a match and the score syncs to the display. Keep both devices online and avoid locking the screen or moving the app to the background; if sync gets stuck, leave on both sides and reconnect.\n\nTo cast the scoreboard to a TV or large screen, use your phone system wireless display (Miracast). Open wireless display from the system Control Center and connect to the TV; once the app detects the connected screen, the scoreboard appears on it automatically. The app relies on the system cast and cannot search for TVs on its own, and disconnecting the system cast also ends the projection. Different brands may name it differently (e.g. wireless display or multi-screen interaction); complete the connection in the system first.";
+"faq_question_6" = "I cannot find my sport. What should I do?";
+"faq_answer_6" = "Start with the closest sport. If only names, sets, teams, or starting order differ, adjust them in Game setup and add the setup to Quick start.\n\nIf the current sports cannot cover the rules, send Feedback with the sport name, common format, scoring method, and expected flow.";
+"faq_question_7" = "How do membership, sign-in, and new devices work?";
+"faq_answer_7" = "Membership benefits and purchase records are tied to the current account. Sign in before buying, redeeming, or restoring membership. On a new device, sign in with the same account and refresh Membership Center.\n\nIf payment succeeds but membership is not active, refresh the membership page first. If it is still wrong, send Feedback with the order number, purchase time, and signed-in account.";
+"faq_question_8" = "How do I report a problem or suggest a feature?";
+"faq_answer_8" = "Open Me → Feedback and choose bug report or feature suggestion. Include the sport, steps, expected result, and actual result. For display or membership issues, also include device model, system version, and app version.";
+"faq_question_10" = "How do I back up my data or move it to a new phone?";
+"faq_answer_10" = "Sign in to your account so your common names, places, and match records are tied to it. With the membership Cloud sync, your data syncs across devices. On a new phone, sign in with the same account and your data restores automatically. Without sign-in, data is stored only on the current device.";
+"faq_question_11" = "How are my data and privacy handled?";
+"faq_answer_11" = "The Privacy Policy explains what data is used and why. The microphone is used only when recording voice notes, and the camera only when scanning a QR code to sign in; both are processed locally on your device.";
 "common_names_add" = "Add";
-"common_names_batch_add" = "Batch Add";
 "common_names_edit_title" = "Edit Name";
 "common_names_team_placeholder" = "Enter team name";
 "common_names_player_placeholder" = "Enter player name";
@@ -676,13 +604,9 @@
 "common_names_added" = "Added";
 "common_names_updated" = "Updated";
 "common_names_deleted" = "Deleted";
-"common_names_add_failed" = "Failed to add";
 "common_names_update_failed" = "Failed to update";
 "common_names_batch_empty" = "Please enter at least one valid name";
 "common_names_batch_result" = "Added %d, skipped %d";
-"common_names_delete_message" = "Delete \"%@\"?";
-"feature_coming_soon" = "Feature coming soon";
-"language_restart_note" = "Language change requires app restart to take effect";
 "vs_separator" = " vs ";
 
 /* Record Detail Page */
@@ -691,18 +615,13 @@
 "confirm_delete_record_message" = "Are you sure you want to delete this match record? This action cannot be undone.";
 "delete_record" = "Delete Record";
 "share" = "Share";
-"share_match_record" = "Match record";
 "share_preparing" = "Preparing sharing...";
-"deleting_record" = "Deleting record...";
 "record_not_found" = "Record not found";
 "record_may_deleted" = "Record may have been deleted";
-"record_start_time" = "Start Time";
-"record_end_time" = "End Time";
 "record_duration" = "Duration";
 "match_record" = "Match Record";
 "no_actions_recorded" = "No actions recorded";
 "date" = "Date";
-"set_end_winner_format" = "Set %d ended, %@ won";
 "game_started" = "Game started";
 "schedule_title" = "My Matches";
 "schedule_new_booking" = "Book New Match";
@@ -713,7 +632,6 @@
 "schedule_time_status_starting_soon" = "Starting Soon";
 "schedule_time_status_ready" = "Ready";
 "schedule_time_status_overdue" = "Overdue";
-"schedule_entry_hint" = "View schedule and create bookings";
 "schedule_create_title" = "Book New Match";
 "schedule_detail_title" = "Booking Details";
 "schedule_sport" = "Sport";
@@ -722,11 +640,8 @@
 "schedule_duration" = "Duration";
 "schedule_duration_minutes" = "Duration %d min";
 "schedule_duration_short" = "%d min";
-"schedule_place_and_format" = "Location & Format";
 "schedule_location" = "Location";
 "schedule_location_placeholder" = "Enter location";
-"schedule_match_format" = "Format";
-"schedule_match_format_placeholder" = "Format (optional)";
 "schedule_reminders" = "Reminders";
 "schedule_reminder_hours_before" = "%d hours before";
 "schedule_reminder_minutes_before" = "%d minutes before";
@@ -738,7 +653,6 @@
 "schedule_cancel_booking" = "Cancel Booking";
 "schedule_cancel_confirm_message" = "Cancel this booking?";
 "schedule_booking_not_found" = "Booking not found";
-"schedule_empty_state" = "No schedules yet. Tap below to create one.";
 "schedule_status_pending" = "Pending";
 "schedule_status_completed" = "Completed";
 "schedule_status_cancelled" = "Cancelled";
@@ -789,9 +703,6 @@
 "unfinished_abandon_confirm" = "Tap again to discard the game";
 
 /* Record detail / Boxing */
-"record_action_team_scored" = "%@ scored";
-"record_action_team_goal" = "%@ goal";
-"record_action_team_points" = "%@ +%d";
 "boxing_round_n" = "Round %d";
 "boxing_round_progress" = "Round %d/%d";
 "display_basketball_period" = "Q%d";
@@ -799,89 +710,9 @@
 "display_basketball_clock_pause" = "TIMEOUT";
 
 /* Stopwatch */
-"stopwatch_total" = "Total";
-"stopwatch_lap" = "Lap";
-"stopwatch_lap_list_title" = "Lap Times";
-"stopwatch_lap_no" = "No.";
-"stopwatch_lap_segment" = "Lap";
-"stopwatch_lap_total" = "Total";
-"linked_score_watch_unavailable" = "Apple Watch is not connected. Open ScoreKeeper on your watch and try again.";
-"linked_score_watch_not_foreground_title" = "Open the Watch App";
-"linked_score_watch_not_foreground_message" = "Open All-in-one Scorekeeper on your Apple Watch and keep it in the foreground, then try again.";
-"linked_score_start_on_watch" = "Start on Apple Watch";
-"linked_score_start_confirm_title" = "Start on Apple Watch?";
-"linked_score_start_confirm_message" = "A start request will be sent to your watch. Confirm on the watch to begin; the phone will follow the score.";
-"linked_score_setup_exit_title" = "Leave linked scoring?";
-"linked_score_setup_exit_message" = "Waiting for watch confirmation. Leaving will cancel this linked start.";
-"linked_score_setup_exit_confirm" = "Leave";
-"linked_score_watch_start_guide_title" = "Watch-controlled scoring";
-"linked_score_watch_start_guide_message" = "Tap the watch button on the right to send the match. The watch controls scoring; the phone follows and saves the record.";
-"linked_score_watch_rejected" = "The watch rejected the linked session.";
-"linked_score_watch_timeout" = "Timed out waiting for watch confirmation.";
-"linked_score_takeover" = "Take over scoring";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
-"linked_watch_backgrounded" = "⚠️ Watch backgrounded, take over?";
-"linked_score_watch_reclaim_title" = "Watch requests control";
-"linked_score_watch_reclaim_message" = "Allow the watch to take over scoring within 5 seconds?";
-"linked_score_phone_follower" = "Scoring is controlled by the watch";
-"linked_score_confirm_title" = "Phone requests linked scoring";
-"linked_score_phone_started_scoreboard" = "Phone started scoring";
-"linked_score_accept" = "Accept";
-"linked_score_reject" = "Decline";
-"linked_score_setup_rules" = "%d sets | %d pts";
-"linked_score_setup_rules_sets" = "%d sets";
-"linked_score_setup_rules_3x3" = "3x3";
-"linked_score_setup_rules_5v5" = "5v5";
-"linked_score_sport_badminton" = "🏸 Badminton Singles";
-"linked_score_sport_badminton_doubles" = "🏸 Badminton Doubles";
-"linked_score_sport_pingpong" = "🏓 Table Tennis Singles";
-"linked_score_sport_pingpong_doubles" = "🏓 Table Tennis Doubles";
-"linked_score_sport_tennis" = "🎾 Tennis Singles";
-"linked_score_sport_tennis_doubles" = "🎾 Tennis Doubles";
-"linked_score_sport_pickleball" = "🏓 Pickleball Singles";
-"linked_score_sport_pickleball_doubles" = "🏓 Pickleball Doubles";
-"linked_score_sport_archery" = "🏹 Archery";
-"linked_score_sport_eight_ball" = "🎱 Eight-ball";
-"linked_score_sport_nine_ball" = "🎱 Nine-ball Chase";
-"linked_score_sport_snooker" = "🎱 Snooker";
-"watch_link_title" = "Watch Link";
-"watch_link_help" = "In supported setup dialogs, choose “Start on Apple Watch” to score on the watch while the phone follows the match.";
-"watch_sync_hero_title" = "Phone–Watch Link";
-"watch_sync_hero_description" = "Live scoring between phone and watch; common names sync to the watch automatically; finished watch matches sync back to the phone (except basketball training).";
-"watch_sync_action_refresh" = "Refresh";
-"watch_sync_usage_title" = "How to use";
-"watch_sync_usage_prerequisite" = "Make sure ScoreKeeper is installed on both phone and watch, and keep them paired.";
-"watch_sync_usage_tab_live_scoring" = "Live scoring";
-"watch_sync_usage_tab_common_names" = "Common names";
-"watch_sync_usage_tab_watch_records" = "Watch records";
-"watch_sync_usage_step_1" = "Choose a supported sport on the phone.";
-"watch_sync_usage_step_2" = "Send to the watch; after confirmation the watch controls scoring.";
-"watch_sync_usage_step_3" = "The phone follows live; finished matches sync back.";
-"watch_sync_common_names_step_1" = "Manage common names on the phone.";
-"watch_sync_common_names_step_2" = "Names sync to the watch automatically — no manual step.";
-"watch_sync_common_names_step_3" = "Use synced names when starting on the watch.";
-"watch_sync_watch_records_step_1" = "Finished watch matches sync to the phone automatically (rally sports, archery, eight-ball / nine-ball / snooker; basketball training stays on watch).";
-"watch_sync_watch_records_step_2" = "Phone Records and Recent mark them as “Watch record synced”.";
-"watch_sync_watch_records_step_3" = "Keep phone and watch paired — no manual sync needed.";
-"watch_sync_device_apple_watch" = "Apple Watch";
-"watch_sync_install_not_paired" = "Apple Watch not paired";
-"watch_sync_install_missing" = "Watch app not installed";
-"watch_sync_install_ready" = "Watch app installed and reachable";
-"watch_sync_install_not_reachable" = "Watch app installed, currently unreachable";
-"watch_sync_status_ready" = "Ready";
-"watch_sync_status_wait_reply" = "Waiting for watch";
-"watch_sync_status_no_connection" = "Not connected";
-"watch_sync_status_app_not_installed" = "App not installed";
 "got_it" = "Got It";
-"linked_score_not_controller" = "This device is not the controller, so that action can’t be performed.";
-"linked_score_reclaim_denied" = "The watch declined to return control.";
-"linked_score_waiting_controller" = "Waiting for the controller";
-"linked_score_unsupported_record_type" = "Unsupported watch record type: %@";
 "record_detail_synced_from_watch_hint" = "This record was synced from the watch to this phone.";
 "record_detail_synced_from_watch_badge" = "Watch record synced";
-"record_detail_linked_scoreboard_badge" = "Linked match";
-"record_detail_linked_scoreboard_hint" = "Started on phone, controlled on watch. The phone stayed synced and saved the record.";
 "yes" = "Yes";
 "no" = "No";
 "game_badminton_doubles" = "Badminton Doubles";
@@ -902,7 +733,6 @@
 "basketball_rule_fiba_summary" = "FIBA: 10-minute periods with timeouts split by half.";
 "basketball_rule_nba_summary" = "NBA: 12-minute periods with 7 regulation timeouts.";
 "boxing_rounds" = "Rounds";
-"tennis_deuce_mode" = "Deuce scoring";
 "tennis_deuce_option_advantage" = "Advantage";
 "tennis_deuce_option_no_ad" = "No-ad";
 "points_per_set" = "Points per set";
@@ -936,7 +766,6 @@
 "style_common_colors" = "Common colors";
 "style_custom_color" = "Custom color";
 "style_current_color" = "Current color";
-"style_color_wheel_hint" = "Tap or drag to pick a color";
 "scoreboard_style_background" = "Background";
 "scoreboard_style_serve" = "Serve";
 "scoreboard_style_theme" = "Theme";
@@ -1039,30 +868,9 @@
 "game_shengji" = "Shengji";
 "game_uno" = "UNO";
 "game_foosball" = "Foosball";
-"sync_title" = "Local Network Sync";
-"sync_description" = "Connect up to 8 devices on the same local network. The host applies the rules, controllers send actions, and displays are read-only.";
 "sync_guest_device_name" = "Guest %@";
-"sync_device_name" = "Device Name";
-"sync_create_room" = "Create Sync Room";
-"sync_join_role" = "Join As";
-"sync_role_host" = "Host Controller";
-"sync_role_controller" = "Remote Controller";
-"sync_role_display" = "Display";
-"sync_short_code" = "6-digit Code";
 "sync_invalid_code" = "Enter a 6-digit sync code";
-"sync_scan_qr" = "Scan Sync QR Code";
-"sync_join_room" = "Join Room";
-"sync_room_code" = "Sync Code";
-"sync_pending_requests" = "Pending Approval";
-"sync_participants" = "Connected Devices";
-"sync_end_room" = "End Room";
-"sync_leave_room" = "Leave Room";
-"sync_waiting_scoreboard" = "Waiting for the Host";
-"sync_waiting_snapshot" = "The live score will appear here when the host opens a scoreboard.";
-"sync_resyncing" = "Catching up with the score…";
-"sync_host_paused" = "Host is temporarily away";
 "sync_connected" = "Connected";
-"sync_match_finished" = "Match finished";
 "sync_sets_format" = "%d sets";
 "sync_games_format" = "%d games";
 "tennis_sync_sets_format" = "%d sets";
@@ -1070,36 +878,21 @@
 "sync_players_format" = "%d players";
 "approve" = "Allow";
 "reject" = "Reject";
-"sync_camera_unavailable_title" = "Camera Unavailable";
-"sync_camera_unavailable_message" = "Allow camera access in Settings, or join with the 6-digit sync code.";
-"setup_break_side" = "Opening Break";
 "setup_opening_break_side" = "First-Frame Break";
 "setup_first_shooter" = "First Archer";
 "foosball_final_win_by_two" = "Win Final Set by 2";
 "foosball_final_score_cap" = "Final Set Score Cap";
 "foosball_mode_1v1" = "1V1";
 "foosball_mode_2v2" = "2V2";
-"foosball_default_red_doubles" = "Red A/Red B";
-"foosball_default_blue_doubles" = "Blue A/Blue B";
 "player_a" = "Player A";
 "player_b" = "Player B";
 "snooker_frames" = "Frames";
-"eight_ball_race_to" = "Race To";
 "eight_ball_frames" = "Frames";
 "eight_ball_handicap" = "Handicap";
-"eight_ball_team1_gets" = "Red Receives";
-"eight_ball_team2_gets" = "Blue Receives";
 "eight_ball_left_lets_right" = "Left Gives";
 "eight_ball_right_lets_left" = "Right Gives";
-"eight_ball_handicap_racks_format" = "%d-rack handicap";
-"eight_ball_target_format" = "Race to %d";
-"eight_ball_tap_rack" = "Tap a score panel to record a rack";
-"eight_ball_handicap_summary" = "%d-rack handicap";
 "uno_target_score" = "Target Score";
-"uno_number_points" = "Number points";
-"uno_card_bonuses" = "Action cards";
 "uno_round_total_format" = "Round total %d";
-"uno_round_settle_title" = "UNO Round Score";
 "uno_target_badge" = "Target %d";
 "uno_round_sheet_title" = "UNO scoring";
 "uno_round_winner" = "Round winner";
@@ -1113,16 +906,10 @@
 "uno_confirm_round" = "Confirm score";
 "uno_select_winner_toast" = "Select the round winner";
 "uno_zero_score_toast" = "Round score cannot be 0. Enter the value of remaining cards.";
-"uno_gap_format" = "%d to go";
 "press_again_to_end" = "Press again to end the match";
 "doudizhu_settle_preview_one" = "Settle: winner +%d, others −%d each";
 "doudizhu_settle_preview_two" = "Settle: winners +%d each, loser −%d";
 "doudizhu_select_one_or_two_winners" = "Select 1 or 2 winners";
-"shengji_tap_winner" = "Tap the winner to settle";
-"shengji_resolve_winner" = "Round winner";
-"shengji_resolve_delta" = "Levels up (0 = dealer only)";
-"shengji_confirm_resolve" = "Confirm";
-"shengji_resolve_title" = "Resolve Round";
 "archery_closest_title" = "Shoot-off · Closest to Center";
 "archery_closest_message" = "Tied at %d — pick the closer arrow";
 "nine_ball_chase_points" = "Event Points";
@@ -1135,6 +922,12 @@
 "nine_ball_increase_points" = "Increase %@ points";
 "nine_ball_ball_in_hand" = "Ball in Hand";
 "nine_ball_foul" = "Foul";
+"chase_chalk_big" = "B";
+"chase_chalk_small" = "S";
+"chase_chalk_golden" = "9";
+"chase_chalk_normal" = "W";
+"chase_chalk_ball_in_hand" = "H";
+"chase_chalk_foul" = "F";
 "multi_score_player_default_format" = "Player %d";
 "snooker_handover" = "Handover";
 "snooker_next_frame" = "Next Frame";
@@ -1143,15 +936,8 @@
 "snooker_frame_result_frames" = "Frames %d : %d";
 "snooker_settle_frame" = "Settle Frame";
 "snooker_settle_frame_title" = "Choose Frame Winner";
-"shengji_select_dealer" = "Choose the dealer, then track levels";
-"snooker_frame_break_format" = "%d frames · Break %d";
-"snooker_current_frame_format" = "Frame %d / %d";
 "snooker_foul_format" = "Foul %d";
 "shengji_dealer" = "Dealer";
-"shengji_red_dealer" = "Red Dealer";
-"shengji_blue_dealer" = "Blue Dealer";
-"shengji_red_minus_one" = "Red -1";
-"shengji_blue_minus_one" = "Blue -1";
 "timer_countdown_mode_quick" = "Quick";
 "timer_countdown_mode_sports" = "Sports";
 "timer_countdown_edit_time" = "Edit time";
@@ -1249,18 +1035,14 @@
 "record_details" = "Details";
 "record_detail_legacy_unavailable" = "This legacy record has no reliable game or time data. Showing the match overview instead.";
 "record_unavailable" = "Unable to Continue";
-"record_set_score_format" = "Games %d : %d";
 "record_score_changed" = "Score changed";
 "record_set_finished" = "Game finished";
 "record_round_finished" = "Round finished";
 "record_period_finished" = "Period finished";
 "record_serve_changed" = "Serve changed";
 "record_state_changed" = "State changed";
-"continue_game" = "Continue Match";
 "play_again" = "Play Again";
-"archive_record_read_only_message" = "This archived record is read-only and cannot be resumed.";
 "scoreboard_save_failed" = "Could not save. Please try again.";
-"game_over_new_game_on_watch" = "New Game\n(Use watch)";
 "game_pingpong_singles" = "Table Tennis Singles";
 "game_badminton_singles" = "Badminton Singles";
 "game_tennis_singles" = "Tennis Singles";
@@ -1288,6 +1070,7 @@
 "doudizhu_base_score" = "Base Score";
 "doudizhu_confirm_with_score" = "Confirm (Base: %d)";
 "doudizhu_multiplier" = "Multiplier";
+"doudizhu_fan_suffix" = "x";
 "doudizhu_winner" = "Winner";
 "doudizhu_role_landlord" = "Landlord";
 "doudizhu_role_farmer" = "Farmer";
@@ -1306,7 +1089,6 @@
 "menu_end_game" = "End Match";
 "nine_ball_foul_opponent_points" = "Opponent +%d";
 "record" = "Record";
-"record_date" = "Match Date";
 "record_detail" = "Record Details";
 "record_empty" = "No Records";
 "record_time" = "Match Time";
@@ -1315,6 +1097,7 @@
 "schedule_notification_title" = "Match Reminder";
 "snooker_current_frame_short" = "Frame %d/%d";
 "snooker_foul_button" = "Foul";
+"snooker_foul_short" = "F";
 "snooker_record_pot" = "Pot";
 "tab_timer_record" = "Timer Record";
 "team_name" = "Team Name";
@@ -1322,7 +1105,6 @@
 "ten_second_start" = "Start";
 "ten_second_stop" = "Stop";
 "tennis_game_score" = "Games";
-"tennis_point_score" = "Points";
 "tennis_set_score" = "Sets";
 "this_month" = "This Month";
 "this_week" = "This Week";
@@ -1330,7 +1112,7 @@
 "timeout" = "Timeout";
 "timer_record_time" = "Recorded At";
 "undo" = "Undo";
-"watch_set_end_format" = "Game %d Finished";
+"scoreboard_set_end_format" = "Game %d Finished";
 "winner_named_format" = "%@ Wins";
 "basketball_fouls_count" = "Fouls %d";
 "basketball_timeout_remaining" = "Timeout (%d)";
@@ -1342,23 +1124,7 @@
 "basketball_next_period" = "Next Period";
 "basketball_extra_overtime" = "Extra OT";
 "basketball_enter_overtime" = "Overtime";
-"linked_score_error_title" = "Link Failed";
-"linked_score_force_takeover" = "Force Take Over";
-"linked_score_force_takeover_confirm" = "Take Over Anyway";
-"linked_score_force_takeover_warning" = "Unsynced Watch actions may be lost. The phone will continue from the last confirmed score.";
-"linked_score_no_confirmed_snapshot" = "There is no confirmed match snapshot to take over safely.";
-"linked_score_not_follower" = "The phone is not the follower, so takeover is not needed.";
-"linked_score_status_timeout" = "Timed out waiting for the Watch status.";
-"linked_score_phone_controller" = "Phone controls";
-"linked_score_watch_controller" = "Watch controls";
-"linked_score_watch_control_readonly_toast" = "Watch controls scoring.";
-"linked_score_connected" = "Connected";
-"linked_score_disconnected" = "Disconnected";
-"linked_score_interrupted" = "Interrupted";
 "setup_score_cap_below_target" = "The score cap cannot be lower than the points per game.";
-"linked_score_persistence_failed" = "Could not save link recovery data: %@";
-"linked_score_control_timeout" = "Timed out switching control. Please try again.";
-"linked_score_sync_timeout" = "Score sync timed out and will continue after reconnecting.";
 "resume_load_failed_title" = "Unable to Resume Match";
 "resume_load_failed_format" = "Could not load the saved match: %@";
 "resume_load_invalid" = "The saved match is damaged and cannot be resumed.";
@@ -1367,7 +1133,6 @@
 "game_soft_tennis" = "Soft Tennis";
 "game_padel" = "Padel";
 "game_football_5v5" = "5x5 Football";
-"soft_tennis_games_per_set" = "Games per set";
 "padel_deuce_mode" = "Deuce rule";
 "padel_advantage" = "Advantage";
 "padel_golden_point" = "Golden point";
@@ -1398,10 +1163,7 @@
 "football_undo_stoppage" = "Undo stoppage time";
 "medical_timeout" = "Medical timeout";
 "official_break" = "Official break";
-"official_break_countdown" = "%d seconds remaining";
 "official_break_prepare" = "Get ready";
-"official_break_skip" = "Skip break";
-"official_break_start" = "Start official break";
 "official_breaks" = "Official breaks";
 "official_break_mid_game" = "Mid-game break";
 "official_break_game" = "Game break";
@@ -1409,7 +1171,6 @@
 "official_break_changeover" = "Changeover break";
 "official_break_continue" = "Resume";
 "record_note" = "Note";
-"record_note_empty" = "Add a note";
 "red_card" = "Red card";
 "yellow_card" = "Yellow card";
 "record_tt_yellow" = "%@ Yellow Card";
@@ -1423,14 +1184,12 @@
 "scoreboard_usage_hint_padel" = "👆 Tap the left or right score area to record a point\n↩️ Swipe left to undo\n🎾 Padel supports advantage, golden-point, and star-point deuce modes";
 "scoreboard_usage_hint_football_5v5" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n⏯️ Tap the clock to pause or resume timing";
 /* Dedicated AirPlay display */
-"cast_title" = "Cast";
 "cast_active" = "Casting";
 "home_sync_entry" = "Sync score";
 "home_sync_sharing" = "Syncing score";
 "home_sync_connected_device" = "%@ connected";
 "home_sync_connected_devices" = "%d devices connected";
 "home_sync_copy" = "Copy";
-"cast_disconnected" = "Not Connected";
 "cast_mirroring" = "Connected · Mirroring";
 "cast_intro_title" = "How to use cast";
 "cast_intro_overview" = "AirPlay Screen Mirroring is recommended. Once connected and detected, the scoreboard shows up on the big screen automatically.";
@@ -1456,12 +1215,9 @@
 "cast_match_finished" = "Match Finished";
 "cast_winner_format" = "%@ Wins";
 "cast_result_draw" = "Result Confirmed";
-"cast_official_break" = "Official Break";
-"cast_shot_clock_format" = "Shot %d";
 
 "record_note_action" = "Note";
 "record_note_title" = "Notes";
-"record_note_more_actions" = "More note actions";
 "record_note_text_title" = "Text note";
 "record_note_voice_title" = "Voice note";
 "record_note_text_action_hint" = "Add or edit a text note for this match";
@@ -1490,7 +1246,6 @@
 "record_note_voice_save_failed" = "Recording finished but couldn't be saved. Your previous voice note is unchanged.";
 "record_note_record_unavailable" = "This match record no longer exists, so the note can't be saved.";
 "record_note_voice_unavailable" = "Voice note unavailable";
-"record_note_voice_play_failed" = "Voice note playback failed, please retry";
 
 // MARK: Cast & Remote Sync (mirrors Android RemoteSyncEntryPanel / RemoteDisplayScreen)
 "display_connection_title" = "Cast & Sync";
@@ -1549,7 +1304,6 @@
 "sync_controller_disconnected" = "The controller has disconnected";
 "sync_session_ended" = "Session has ended";
 "sync_display_waiting_title" = "Waiting for the sharing device";
-"sync_display_waiting_message" = "Open a scoreboard on the other device and start scoring";
 "sync_display_error_generic" = "Connection lost";
 "sync_display_disconnected_title" = "Connection to the sharing device lost";
 "sync_display_disconnected_message" = "Trying to reconnect automatically. You can also exit the display.";
@@ -1729,3 +1483,10 @@
 "theme_doudizhu_retro" = "Retro";
 "theme_doudizhu_brb" = "Black Red Blue";
 "theme_doudizhu_wrb" = "White Red Blue";
+
+"display_exit" = "Exit display";
+"scoreboard_scoring_locked" = "Scoring is currently unavailable";
+
+"game_short" = "Games";
+"set_short" = "Sets";
+"football_injury_title" = "Stoppage time";

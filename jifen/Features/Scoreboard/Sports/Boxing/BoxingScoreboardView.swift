@@ -26,7 +26,6 @@ struct BoxingScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
-    @State private var isEditing = false
     @State private var recordID: String
 
     init(
@@ -57,7 +56,15 @@ struct BoxingScoreboardView: View {
                     viewModel: viewModel,
                     nameType: ScoreboardCommonNamePolicy.nameType(for: .boxing),
                     scoreTextProvider: { _, team in "\(team.score)" },
-                    onEditModeChange: { isEditing = $0 },
+                    contentOverlayProvider: { _, _ in
+                        AnyView(VStack(spacing: 0) {
+                            roundTitle
+                                .padding(.top, ScoreboardConstants.buttonPadding + 4)
+                            Spacer()
+                            centerAddRoundButton
+                                .padding(.bottom, ScoreboardConstants.buttonPadding)
+                        })
+                    },
                     showEndGame: true,
                     syncSportStateProvider: {
                         [
@@ -111,15 +118,6 @@ struct BoxingScoreboardView: View {
                 )
             }
 
-            if !isEditing {
-                VStack(spacing: 0) {
-                    roundTitle
-                        .padding(.top, ScoreboardConstants.buttonPadding + 4)
-                    Spacer()
-                    centerAddRoundButton
-                        .padding(.bottom, 96)
-                }
-            }
 
             if showRoundDialog {
                 BoxingRoundDialog(
@@ -243,15 +241,16 @@ struct BoxingScoreboardView: View {
             showRoundDialog = true
             controller.performVibration(type: .light)
         } label: {
-            Text("+")
-                .font(.system(size: 32, weight: .bold))
+            Image(systemName: "plus")
+                .font(.system(size: ScoreboardConstants.buttonIconSize, weight: .bold))
                 .foregroundColor(.white)
-                .frame(width: 64, height: 64)
+                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
                 .background(Color.black.opacity(0.2))
                 .clipShape(Circle())
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("boxing_add_round")
         .disabled(viewModel.gameFinished)
         .opacity(viewModel.gameFinished ? 0.45 : 1)
     }
@@ -345,14 +344,14 @@ private struct BoxingRoundDialog: View {
 
                 HStack(spacing: 0) {
                     teamScoreSelector(
-                        name: leftTeamName.isEmpty ? NSLocalizedString("watch_team_red", value: "红方", comment: "Red") : leftTeamName,
+                        name: leftTeamName.isEmpty ? NSLocalizedString("scoreboard_team_red", value: "红方", comment: "Red") : leftTeamName,
                         selected: $leftScore,
                         buttonSize: scoreButtonSize
                     )
                     .frame(maxWidth: .infinity)
 
                     teamScoreSelector(
-                        name: rightTeamName.isEmpty ? NSLocalizedString("watch_team_blue", value: "蓝方", comment: "Blue") : rightTeamName,
+                        name: rightTeamName.isEmpty ? NSLocalizedString("scoreboard_team_blue", value: "蓝方", comment: "Blue") : rightTeamName,
                         selected: $rightScore,
                         buttonSize: scoreButtonSize
                     )

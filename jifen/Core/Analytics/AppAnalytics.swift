@@ -50,8 +50,6 @@ enum AnalyticsEvent: String, CaseIterable {
 
     // Cross-platform schema extensions introduced by the iOS engagement pass.
     case shareResult = "share_result"
-    case watchLinkStart = "watch_link_start"
-    case watchLinkResult = "watch_link_result"
     case notificationOpen = "notification_open"
     case castStatusChange = "cast_status_change"
 }
@@ -111,10 +109,10 @@ enum AnalyticsScreen: String, CaseIterable {
     case commonNamesPage = "common_names_page"
     case commonPlacesPage = "common_places_page"
     case scoreboardSettingsPage = "scoreboard_settings_page"
-    case watchLinkPage = "watch_link_page"
     case castPage = "cast_page"
     case faqPage = "faq_page"
     case aboutUsPage = "about_us_page"
+    case feedbackPage = "feedback_page"
     case sportsRecordDetail = "sports_record_detail"
     case multiscoreRecordDetail = "multiscore_record_detail"
     case timerRecordDetail = "timer_record_detail"
@@ -182,7 +180,6 @@ enum AnalyticsEntryPoint: String, Hashable {
     case bookingNotification = "booking_notification"
     case meTab = "me_tab"
     case autoAfterLaunchThreshold = "auto_after_launch_threshold"
-    case watchLink = "watch_link"
     case homeTools = "home_tools"
     case toolsPage = "tools_page"
 }

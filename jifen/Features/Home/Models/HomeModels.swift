@@ -254,8 +254,6 @@ struct SportsSetupResult: Codable, Hashable {
     var nineBallNormalWin: Int? = nil
     var nineBallBallInHand: Int? = nil
     var nineBallFoul: Int? = nil
-    var startOnWatch: Bool? = nil
-    var linkedWatchSessionId: UUID? = nil
     var playerCount: Int? = nil // 多人计分：3-9
     var playerNames: [String]? = nil // 多人计分玩家名
     /// Simple score: tap opens ±N panel instead of +1. Aligns with Android/HOS.
@@ -294,7 +292,7 @@ enum ScoreboardMatchTitlePolicy {
 }
 
 /// Typed projection used by every billiards entry path (fresh setup, resume,
-/// replay and Watch setup). `SportsSetupResult` remains the compatibility
+/// replay and quick setup). `SportsSetupResult` remains the compatibility
 /// payload for existing records and navigation state.
 enum BilliardsSetupConfiguration: Codable, Equatable {
     case billiards

@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 import ScoreCore
 @testable import jifen
 
@@ -437,6 +438,55 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertNil(compact.externalState)
     }
 
+    /// 对齐安卓 toProtocolTennisPointScore：网球家族常规局显示串转协议序数，
+    /// 抢七整数字符串透传，非网球项目不受影响。
+    func testTennisFamilyCompactScoreUsesProtocolOrdinals() {
+        func teamScore(_ gameID: String, _ display: String) -> Int {
+            ScoreboardDisplayState(compactState: compactFixture(
+                gameID: gameID,
+                leftName: "A",
+                rightName: "B",
+                leftScore: display,
+                rightScore: "0",
+                revision: 1
+            )).teams[0].score
+        }
+        XCTAssertEqual(teamScore("tennis", "0"), 0)
+        XCTAssertEqual(teamScore("tennis", "15"), 1)
+        XCTAssertEqual(teamScore("tennis", "30"), 2)
+        XCTAssertEqual(teamScore("tennis", "40"), 3)
+        XCTAssertEqual(teamScore("tennis", "AD"), 4)
+        XCTAssertEqual(teamScore("tennis", "7"), 7, "抢七实际分数应原样透传")
+        XCTAssertEqual(teamScore("tennis_doubles", "30"), 2)
+        XCTAssertEqual(teamScore("soft_tennis", "15"), 1, "软式网球 wire 用原始步进值")
+        XCTAssertEqual(teamScore("padel", "AD"), 4)
+        XCTAssertEqual(teamScore("football", "15"), 15, "非网球家族不转换")
+    }
+
+    /// 未设置比赛抬头时 wire 不携带 matchTitle（对齐安卓），设置了才透传。
+    func testWireEncodeOmitsMatchTitleWhenUserTitleUnset() {
+        func encodedTitle(_ compact: LocalScoreboardDisplayState) -> String? {
+            DisplayStateWireCodec.encode(ScoreboardDisplayState(compactState: compact))?["matchTitle"] as? String
+        }
+        XCTAssertNil(encodedTitle(compactFixture(
+            gameID: "snooker",
+            leftName: "A",
+            rightName: "B",
+            leftScore: "0",
+            rightScore: "0",
+            revision: 1
+        )), "未设置抬头不应传出 matchTitle")
+        XCTAssertEqual(encodedTitle(compactFixture(
+            gameID: "snooker",
+            leftName: "A",
+            rightName: "B",
+            leftScore: "0",
+            rightScore: "0",
+            revision: 1,
+            title: "决赛"
+        )), "决赛")
+    }
+
     func testOutputLeaseRejectsStalePageUpdatesAndRelease() {
         let first = fixture(gameID: "football", score: 1)
         let second = fixture(gameID: "basketball", score: 2)
@@ -453,6 +503,354 @@ final class ScoreboardDisplayTests: XCTestCase {
         outputs.release(ownerID: "second", leaseID: secondLease)
         XCTAssertNil(outputs.displayState)
         XCTAssertEqual(outputs.presentationMode, .waiting)
+    }
+
+    /// Panel layout inspection only: direct UI state bypasses the currently disconnected element taps.
+    func testAuditStylePanelSnapshots() throws {
+        let hintKey = "scoreboard_style_edit_usage_hint_v1_shown"
+        let previousHint = UserDefaults.standard.object(forKey: hintKey)
+        UserDefaults.standard.set("true", forKey: hintKey)
+        defer {
+            if let previousHint { UserDefaults.standard.set(previousHint, forKey: hintKey) }
+            else { UserDefaults.standard.removeObject(forKey: hintKey) }
+        }
+        for styleID in ScoreboardStyleV2Registry.enabledStyleIDs.sorted(by: { $0.rawValue < $1.rawValue }) {
+            let typography = ScoreboardTypographySession(styleID: styleID)
+            let controller = ScoreboardStyleEditorController(styleID: styleID,
+                capabilities: ScoreboardStyleV2Registry.capabilities(for: styleID))
+            controller.open(typographySession: typography)
+            defer { controller.cancel() }
+            for (panelName, panel) in [("background", ScoreboardStyleEditPanel.background),
+                                       ("theme", .theme), ("font", .font), ("element", .element)] {
+                let ui = ScoreboardStyleEditorUiState()
+                if panel == .element { ui.openElement(.mainScore, slot: .sideLeft) }
+                else { ui.openPanel(panel) }
+                let size = CGSize(width: 852, height: 393)
+                let content = ZStack {
+                    Color.gray
+                    ScoreboardStyleEditOverlayView(controller: controller, typographySession: typography,
+                        uiState: ui, onCancel: {})
+                }.frame(width: size.width, height: size.height)
+                // ScrollView content needs a hosted UIKit hierarchy; ImageRenderer omits it.
+                let window = UIWindow(frame: CGRect(origin: .zero, size: size))
+                let hosting = UIHostingController(rootView: content)
+                window.rootViewController = hosting
+                window.isHidden = false
+                hosting.view.frame = window.bounds
+                hosting.view.layoutIfNeeded()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+                let image = UIGraphicsImageRenderer(size: size).image { _ in
+                    hosting.view.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+                }
+                window.isHidden = true
+                let attachment = XCTAttachment(image: image)
+                attachment.name = "panel_\(styleID.rawValue)_\(panelName)"
+                attachment.lifetime = .keepAlways
+                add(attachment)
+            }
+        }
+    }
+
+    /// Records actual wire output for independent Android/HarmonyOS contract validation.
+    func testAuditWireProtocolEvidence() throws {
+        var state = fixture(gameID: "badminton_doubles", score: 8)
+        state.appearance.fontSizeMultipliers = ["mainScore": 1.5, "playerName": 1.5]
+        state.appearance.leftScoreHex = "#FF0000"
+        state.appearance.rightScoreHex = "#00FF00"
+        state.rest = ScoreboardDisplayRest(kind: "game_break", phase: "countdown",
+            remainingSeconds: 60, isRunning: true, updatedWallClockMilliseconds: 100_000)
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state, atWallClockMilliseconds: 100_000))
+        let attachment = XCTAttachment(data: try JSONSerialization.data(withJSONObject: wire, options: [.prettyPrinted, .sortedKeys]),
+            uniformTypeIdentifier: "public.json")
+        attachment.name = "audit-ios-outgoing-wire"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        var incoming = wire
+        incoming["appearance"] = ["style": [
+            "version": 2, "themeCode": "electronic", "fontCode": "sports",
+            "fontSizeMultipliers": ["mainScore": 1.5],
+            "panels": [["slotKey": "side_left", "backgroundColor": "#112233"],
+                       ["slotKey": "side_right", "backgroundColor": "#223344"]],
+            "elements": [["elementKey": "mainScore", "textColors": [
+                ["slotKey": "side_left", "color": "#FF0000"],
+                ["slotKey": "side_right", "color": "#00FF00"]]]],
+            "serverIndicatorColor": "#FF00FF", "styleRevision": 1
+        ]]
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(incoming))
+        let result: [String: Any] = [
+            "incoming": incoming,
+            "decoded": ["theme": decoded.appearance.theme, "font": decoded.appearance.fontCode,
+                        "leftPanel": decoded.appearance.leftPanelHex,
+                        "leftMainText": decoded.appearance.leftMainTextHex,
+                        "rightMainText": decoded.appearance.rightMainTextHex]
+        ]
+        let decodeAttachment = XCTAttachment(data: try JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys]),
+            uniformTypeIdentifier: "public.json")
+        decodeAttachment.name = "audit-ios-incoming-wire"
+        decodeAttachment.lifetime = .keepAlways
+        add(decodeAttachment)
+    }
+
+    func testV2StyleAndOfficialBreakInteroperability() throws {
+        var state = fixture(gameID: "badminton_doubles", score: 8)
+        state.appearance.style = nil
+        state.appearance.fontSizeMultipliers = ["mainScore": 1.5, "playerName": 0.8, "_local": 2]
+        state.appearance.leftScoreHex = "#FF0000"
+        state.appearance.rightScoreHex = "#00FF00"
+        state.appearance.rightSecondaryHex = "#123456"
+        state.rest = ScoreboardDisplayRest(kind: "game_break", phase: "countdown", remainingSeconds: 60,
+            isRunning: true, updatedWallClockMilliseconds: 100_000, afterAction: "exchange_sides")
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state, atWallClockMilliseconds: 102_000))
+        let appearance = try XCTUnwrap(wire["appearance"] as? [String: Any])
+        let style = try XCTUnwrap(appearance["style"] as? [String: Any])
+        XCTAssertEqual(style["version"] as? Int, 2)
+        XCTAssertNotNil(style["panels"] as? [[String: Any]])
+        XCTAssertNotNil(style["elements"] as? [[String: Any]])
+        XCTAssertNotNil(style["serverIndicatorColor"] as? String)
+        XCTAssertEqual(style["styleRevision"] as? Int, 0)
+        XCTAssertNil((style["fontSizeMultipliers"] as? [String: Double])?["_local"])
+        let rest = try XCTUnwrap(wire["rest"] as? [String: Any])
+        XCTAssertEqual(rest["sport"] as? String, "badminton")
+        XCTAssertEqual(rest["remainingMs"] as? Int, 58_000)
+        XCTAssertEqual(rest["afterAction"] as? String, "exchange_sides")
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+        XCTAssertEqual(decoded.appearance.rightMainTextHex, "#00FF00")
+        XCTAssertEqual(decoded.appearance.style?.color("setScore", slot: "side_right"), "#123456")
+        XCTAssertEqual(decoded.appearance.fontSizeMultipliers?["mainScore"], 1.5)
+        XCTAssertEqual(decoded.rest?.remainingSeconds, 58)
+        state.rest?.phase = "preparation"
+        state.rest?.remainingSeconds = 5
+        let prepareWire = try XCTUnwrap(DisplayStateWireCodec.encode(state, atWallClockMilliseconds: 100_000))
+        let prepare = try XCTUnwrap(prepareWire["rest"] as? [String: Any])
+        XCTAssertEqual(prepare["phase"] as? String, "prepare")
+        XCTAssertEqual(prepare["remainingMs"] as? Int, 0)
+        XCTAssertEqual(prepare["prepareRemaining"] as? Int, 5)
+        XCTAssertEqual(DisplayStateWireCodec.decode(prepareWire)?.rest?.phase, "preparation")
+    }
+
+    func testV2ColorsFollowTeamsAfterSideExchange() throws {
+        let state = fixture(gameID: "badminton", score: 8)
+        let source = try XCTUnwrap(state.appearance.style)
+        let projected = source.projected(team0OnRight: true)
+        XCTAssertEqual(projected.panelColor(slot: "side_left"), source.panelColor(slot: "side_right"))
+        XCTAssertEqual(projected.panelColor(slot: "side_right"), source.panelColor(slot: "side_left"))
+        XCTAssertEqual(projected.slot(for: "team_0", fallback: "side_left"), "side_right")
+        XCTAssertEqual(projected.renderColor("mainScore", slot: "side_left"), source.renderColor("mainScore", slot: "side_right"))
+    }
+
+    func testEightBallHandicapReservesSecondaryRowForBothSides() {
+        XCTAssertTrue(ScoreboardExternalSecondaryRowPolicy.shouldShow(
+            secondaryText: "+2",
+            gameType: "eight_ball",
+            eightBallHandicapRacks: 2,
+            eightBallHandicapBeneficiary: "team1"
+        ))
+        XCTAssertTrue(ScoreboardExternalSecondaryRowPolicy.shouldShow(
+            secondaryText: "",
+            gameType: "eight_ball",
+            eightBallHandicapRacks: 2,
+            eightBallHandicapBeneficiary: "team1"
+        ))
+        XCTAssertFalse(ScoreboardExternalSecondaryRowPolicy.shouldShow(
+            secondaryText: "",
+            gameType: "eight_ball",
+            eightBallHandicapRacks: 0,
+            eightBallHandicapBeneficiary: "team1"
+        ))
+        XCTAssertFalse(ScoreboardExternalSecondaryRowPolicy.shouldShow(
+            secondaryText: "",
+            gameType: "nine_ball",
+            eightBallHandicapRacks: 2,
+            eightBallHandicapBeneficiary: "team1"
+        ))
+    }
+
+    func testV2AlphaColorsRetainRGBAOrderAcrossLegacyRendering() throws {
+        var state = fixture(gameID: "badminton", score: 8)
+        state.appearance.style = nil
+        state.appearance.leftScoreHex = "#80112233"
+        state.appearance.rightScoreHex = "#CC445566"
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+        XCTAssertEqual(decoded.appearance.style?.color("mainScore", slot: "side_left"), "#11223380")
+        XCTAssertEqual(decoded.appearance.leftMainTextHex, "#80112233")
+        XCTAssertEqual(decoded.appearance.rightMainTextHex, "#CC445566")
+        XCTAssertEqual(ScoreboardDisplayStyle.renderHex("#11223380"), "#80112233")
+        XCTAssertEqual(ScoreboardDisplayStyle.wireHex("#80112233"), "#11223380")
+    }
+
+    func testFontWireCodesMatchAndroidAndHarmony() throws {
+        for (local, wireCode) in [(ScoreboardFont.monospaced, "digital"), (.sports, "teko"), (.sevenSegment, "seven_segment")] {
+            var state = fixture(gameID: "tennis", score: 3)
+            state.appearance.fontCode = local.rawValue
+            let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+            let appearance = try XCTUnwrap(wire["appearance"] as? [String: Any])
+            let style = try XCTUnwrap(appearance["style"] as? [String: Any])
+            XCTAssertEqual(appearance["fontCode"] as? String, wireCode)
+            XCTAssertEqual(style["fontCode"] as? String, wireCode)
+            XCTAssertEqual(DisplayStateWireCodec.decode(wire)?.appearance.fontCode, local.rawValue)
+        }
+        XCTAssertEqual(ScoreboardFont(displayCode: "harmony_digit"), .monospaced)
+    }
+
+    func testDoublesSecondaryStyleUsesTheSportElementAndMultiplier() throws {
+        for game in ["badminton_doubles", "tennis_doubles", "padel"] {
+            var state = fixture(gameID: game, score: 3)
+            state.teams[0].sets = 2; state.teams[1].sets = 1
+            state.teams[0].games = 5; state.teams[1].games = 4
+            let key = "setGameScore"
+            var style = try XCTUnwrap(state.appearance.style)
+            for index in style.elements.indices where style.elements[index].elementKey == key {
+                style.elements[index].textColors = [
+                    .init(slotKey: "side_left", color: "#FF00FF"),
+                    .init(slotKey: "side_right", color: "#FF00FF")
+                ]
+            }
+            state.appearance.style = style
+            var counts: [Int] = []
+            for multiplier in [0.8, 1.5] {
+                // Include every role, as real V2 snapshots do. Unused default roles must
+                // not override the active sport's combined or set-score settings.
+                state.appearance.fontSizeMultipliers = Dictionary(uniqueKeysWithValues:
+                    ScoreboardStyleElementKeyV2.allCases.map { ($0.rawValue, $0.rawValue == key ? multiplier : 1) })
+                let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+                let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+                let renderer = ImageRenderer(content: ScoreboardExternalLiveView(state: decoded,
+                    projection: .synchronizedDisplay).frame(width: 1194, height: 834))
+                renderer.scale = 1
+                let image = try XCTUnwrap(renderer.uiImage)
+                let cgImage = try XCTUnwrap(image.cgImage)
+                var pixels = [UInt8](repeating: 0, count: cgImage.width * cgImage.height * 4)
+                pixels.withUnsafeMutableBytes { buffer in
+                    let context = CGContext(data: buffer.baseAddress, width: cgImage.width,
+                        height: cgImage.height, bitsPerComponent: 8, bytesPerRow: cgImage.width * 4,
+                        space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+                    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+                }
+                counts.append(stride(from: 0, to: pixels.count, by: 4).filter {
+                    pixels[$0] > 200 && pixels[$0 + 1] < 70 && pixels[$0 + 2] > 200
+                }.count)
+                let attachment = XCTAttachment(image: image)
+                attachment.name = "remediation_\(game)_secondary_\(multiplier)x"
+                attachment.lifetime = .keepAlways
+                add(attachment)
+            }
+            XCTAssertGreaterThan(counts[0], 100, "\(game): selected secondary color was ignored")
+            XCTAssertGreaterThan(Double(counts[1]), Double(counts[0]) * 1.2,
+                "\(game): selected secondary multiplier was ignored")
+        }
+    }
+
+    func testTeamCourtPreservesSixPlayersAndLayout() throws {
+        var state = fixture(gameID: "shuttlecock", score: 12)
+        state.layoutKind = .teamCourt
+        let names = ["红 A", "红 B", "红 C", "蓝 A", "蓝 B", "蓝 C"]
+        state.sportState = ["teamCourtPlayers": .strings(names)]
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+        XCTAssertEqual(decoded.layoutKind, .teamCourt)
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: decoded), .teamCourt)
+        XCTAssertEqual(decoded.sportState?["teamCourtPlayers"], .strings(names))
+        let renderer = ImageRenderer(content: ScoreboardExternalLiveView(state: decoded,
+            projection: .synchronizedDisplay).frame(width: 1194, height: 834))
+        let attachment = XCTAttachment(image: try XCTUnwrap(renderer.uiImage))
+        attachment.name = "remediation_team_court_landscape"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    /// Synthetic states rendered through the production display surfaces, without a network room.
+    func testAuditDisplaySurfaceSnapshots() throws {
+        FontRegistrar.registerFonts()
+        let sizes: [(String, CGSize)] = [
+            ("phone", CGSize(width: 852, height: 393)),
+            ("tablet", CGSize(width: 1194, height: 834))
+        ]
+        for type in ScoreCore.GameType.allCases {
+            for (sizeName, size) in sizes {
+                for local in [true, false] {
+                    for multiplier in [1.0, 1.5, 2.0] {
+                        var state = fixture(gameID: type.rawValue, score: 18)
+                        state.teams[0].name = "红方长名称 ABC Team"
+                        state.teams[1].name = "蓝方长名称 XYZ Team"
+                        state.teams[1].score = 12
+                        state.teams[0].sets = 2; state.teams[1].sets = 1
+                        state.teams[0].games = 5; state.teams[1].games = 4
+                        state.appearance.fontSizeMultipliers = [
+                            "mainScore": multiplier, "teamName": multiplier,
+                            "playerName": multiplier, "setScore": multiplier,
+                            "gameScore": multiplier, "setGameScore": multiplier,
+                            "matchTitle": multiplier
+                        ]
+                        state.sportState?["leftDisplayScore"] = nil
+                        state.sportState?["rightDisplayScore"] = nil
+                        let playerCount = type.rawValue == "doudizhu" ? 3 : 4
+                        state.players = (0..<playerCount).map { i in
+                            ScoreboardDisplayPlayer(id: "p\(i)", name: "球员\(i + 1) Long Name",
+                                score: i * 11, teamID: state.teams[i / 2].id,
+                                slot: i % 2 == 0 ? "top" : "bottom", order: i, isServer: i == 0)
+                        }
+                        state.sportState = (state.sportState ?? [:]).merging(["servingTeam": .string("team_0"), "archeryCurrentShooter": .string("team_0")]) { _, new in new }
+                        if type.rawValue.contains("tennis") || type.rawValue == "padel" {
+                            state.teams[0].score = 3; state.teams[1].score = 2
+                        }
+                        let content = ScoreboardExternalLiveView(state: state,
+                            projection: local ? .localProjection : .synchronizedDisplay)
+                            .frame(width: size.width, height: size.height)
+                            .environment(\.locale, Locale(identifier: "zh_CN"))
+                        let renderer = ImageRenderer(content: content)
+                        renderer.scale = 1
+                        let image = try XCTUnwrap(renderer.uiImage)
+                        let attachment = XCTAttachment(image: image)
+                        attachment.name = "display_\(type.rawValue)_\(sizeName)_\(local ? "cast" : "sync")_\(String(format: "%g", multiplier))x"
+                        attachment.lifetime = .keepAlways
+                        add(attachment)
+                    }
+                }
+            }
+        }
+    }
+
+    func testFollowupMultiplayerHorizontalVariants() throws {
+        for gameID in ["nine_ball", "multi_scoreboard", "uno"] {
+            for count in [3, 4] {
+                for local in [true, false] {
+                    var state = fixture(gameID: gameID, score: 0)
+                    state.layoutKind = .multiGrid
+                    state.players = (0..<count).map { index in
+                        ScoreboardDisplayPlayer(id: "player_\(index)", name: "Player \(index + 1) Long Name",
+                            score: [0, 8, 128, -999][index], order: index)
+                    }
+                    state.sportState = ["multiGridColumns": .integer(count)]
+                    if gameID == "nine_ball" {
+                        state.sportState?["chasePlayerCount"] = .integer(count)
+                        state.sportState?["chasePlayerCounts"] = .integersArrays(Array(repeating: [1, 2, 3, 4, 5, 6], count: count))
+                    }
+                    let renderer = ImageRenderer(content: ScoreboardExternalLiveView(state: state,
+                        projection: local ? .localProjection : .synchronizedDisplay)
+                        .frame(width: 852, height: 393))
+                    let image = try XCTUnwrap(renderer.uiImage)
+                    if gameID == "nine_ball" {
+                        let cg = try XCTUnwrap(image.cgImage)
+                        var pixels = [UInt8](repeating: 0, count: cg.width * cg.height * 4)
+                        pixels.withUnsafeMutableBytes { buffer in
+                            let context = CGContext(data: buffer.baseAddress, width: cg.width,
+                                height: cg.height, bitsPerComponent: 8, bytesPerRow: cg.width * 4,
+                                space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+                            context.draw(cg, in: CGRect(x: 0, y: 0, width: cg.width, height: cg.height))
+                        }
+                        let blackPixels = stride(from: 0, to: pixels.count, by: 4).filter {
+                            pixels[$0] < 15 && pixels[$0 + 1] < 15 && pixels[$0 + 2] < 15
+                        }.count
+                        XCTAssertEqual(blackPixels, 0, "Default chase scores must remain white on colored panels")
+                    }
+                    let attachment = XCTAttachment(image: image)
+                    attachment.name = "remediation_\(gameID)_\(count)_players_\(local ? "cast" : "sync")"
+                    attachment.lifetime = .keepAlways
+                    add(attachment)
+                }
+            }
+        }
     }
 
     private func fixture(gameID: String, score: Int) -> ScoreboardDisplayState {
@@ -491,11 +889,12 @@ final class ScoreboardDisplayTests: XCTestCase {
         rightName: String,
         leftScore: String,
         rightScore: String,
-        revision: UInt64
+        revision: UInt64,
+        title: String = ""
     ) -> LocalScoreboardDisplayState {
         LocalScoreboardDisplayState(
             gameID: gameID,
-            title: gameID,
+            title: title,
             leftName: leftName,
             rightName: rightName,
             leftScore: leftScore,

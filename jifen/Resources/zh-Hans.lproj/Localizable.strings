@@ -11,7 +11,6 @@
 "tab_records" = "记录";
 "tab_timer" = "计时";
 "tab_me" = "我的";
-"tab_tools" = "工具";
 "all" = "全部";
 "scoreboard" = "计分";
 "timer" = "计时";
@@ -27,7 +26,6 @@
 "home_start_game" = "开始比赛";
 "home_start_timer" = "开始计时";
 "home_new_game_short" = "新比赛";
-"home_all_items" = "全部项目";
 "home_tools" = "工具";
 "home_no_records" = "暂无最近记录";
 "home_view_all_records" = "查看全部记录";
@@ -57,8 +55,8 @@
 /* Default Team Names */
 "red_team" = "红方";
 "blue_team" = "蓝方";
-"watch_team_red" = "红方";
-"watch_team_blue" = "蓝方";
+"scoreboard_team_red" = "红方";
+"scoreboard_team_blue" = "蓝方";
 "team_a" = "A队";
 "team_b" = "B队";
 "archer_a" = "射手A";
@@ -78,7 +76,6 @@
 "doubles_blue_a" = "蓝A";
 "doubles_blue_b" = "蓝B";
 "singles_doubles" = "单双打";
-"badminton_singles_doubles" = "单双打";
 
 /* Timer Settings */
 "timer_settings_for" = "计时器设置";
@@ -140,8 +137,6 @@
 "timer_action_manual_stop" = "手动停止";
 "timer_action_game_end" = "比赛结束";
 "timer_action_game_end_winner_format" = "比赛结束，%@ 获胜";
-"cube_hold_to_start" = "长按下方按钮 0.5 秒开始";
-"cube_hold" = "长按开始";
 "cube_timer_release_to_start" = "松开双手开始计时";
 "cube_timer_place_hands" = "双手放在屏幕上准备";
 "cube_timer_no_touchscreen_hint" = "💡 没有触摸屏无法工作，可在手机平板上使用";
@@ -165,12 +160,8 @@
 "game_billiards" = "台球";
 "game_pickleball" = "匹克球";
 "game_guandan" = "掼蛋";
-"guandan_level" = "等级";
-"guandan_a_stage" = "闯A中";
 "display_guandan_pass_a" = "过A %d";
 "display_guandan_triple_a" = "三A";
-"guandan_a_fail_format" = "闯A失败 %d/3";
-"guandan_a_stage_team_format" = "%@ 闯A";
 "guandan_pass_a_condition_section" = "过 A 条件";
 "guandan_pass_a_not_last" = "不能末游（+2/3）";
 "guandan_pass_a_double_up" = "双上（+3）";
@@ -179,15 +170,10 @@
 "doudizhu_player_adam" = "刘备";
 "doudizhu_player_bob" = "关羽";
 "doudizhu_player_chris" = "张飞";
-"shengji_claim_dealer_left" = "红方抢庄";
-"shengji_claim_dealer_right" = "蓝方抢庄";
 "shengji_claim_dealer" = "抢庄";
 "guandan_edit_level_wrap_confirm_title" = "级牌回到 2？";
 "guandan_edit_level_wrap_confirm_message" = "继续增加会将该队级牌重置为 2。";
 "shengji_take_dealer" = "上台";
-"guandan_select_upgrade" = "选择升几级";
-"guandan_upgrade_step_format" = "升%d";
-"guandan_tap_winner" = "点击胜方半区结算本局";
 "game_doudizhu" = "斗地主";
 "game_simple_score" = "简单计分";
 "score_custom_adjust_label" = "自定义加减分";
@@ -207,16 +193,12 @@
 
 /* Setup Titles */
 "football_setup_title" = "足球设置";
-"basketball_setup_title" = "篮球设置";
 "volleyball_setup_title" = "排球设置";
 "pingpong_setup_title" = "乒乓球设置";
-"badminton_setup_title" = "羽毛球设置";
-"tennis_setup_title" = "网球设置";
 "setup" = "设置";
 "setup_suffix" = "设置";
 
 /* Settings Labels */
-"sets_label" = "局数";
 "points_per_set_label" = "每局分数";
 "auto_change_sides" = "自动换边";
 "start_game" = "开始";
@@ -224,9 +206,6 @@
 /* Ping Pong Settings */
 "pingpong_set_count_label" = "局数";
 "pingpong_auto_change_sides" = "自动换边";
-"best_of_3_sets" = "3局2胜";
-"best_of_5_sets" = "5局3胜";
-"best_of_7_sets" = "7局4胜";
 "pingpong_set_option_best_of_3" = "3局2胜";
 "pingpong_set_option_best_of_5" = "5局3胜";
 "pingpong_set_option_best_of_7" = "7局4胜";
@@ -237,10 +216,8 @@
 "tennis_scoring_mode_regular" = "标准赛制";
 "tennis_scoring_mode_tiebreak_7" = "抢七赛";
 "tennis_scoring_mode_tiebreak_10" = "抢十赛";
-"tennis_games_per_set_label" = "每盘局数";
 "tennis_games_per_set_4" = "四局制";
 "tennis_games_per_set_6" = "六局制";
-"tennis_set_tiebreak_label" = "决胜局";
 "tennis_format_tiebreak_7" = "抢七决胜局";
 "tennis_format_tiebreak_10" = "抢十决胜局";
 "tennis_short_set_help" = "先胜 4 局且领先 2 局；4:4 时进行抢七决胜局";
@@ -254,15 +231,8 @@
 "points_21" = "21分";
 
 /* Tennis Settings */
-"tennis_set_count_label" = "盘数";
-"tennis_tiebreak_label" = "决胜局";
-"tennis_auto_change_sides" = "自动换边";
-"sets_1" = "1盘";
-"sets_3_best_of_2" = "3盘2胜";
-"sets_5_best_of_3" = "5盘3胜";
 
 /* Badminton Settings */
-"badminton_auto_change_sides" = "自动换边";
 
 /* Volleyball Settings */
 "volleyball_auto_change_sides" = "自动换边";
@@ -274,10 +244,7 @@
 "save" = "保存";
 "reset" = "重置";
 "back" = "返回";
-"team_or_player_name" = "队伍或选手名称";
-"tap_to_quick_use" = "点击快速使用";
 "game_ended" = "比赛结束";
-"back_to_new_game" = "返回新比赛";
 
 /* Time Formats */
 "minutes_ago" = "%d分钟前";
@@ -285,15 +252,12 @@
 "days_ago" = "%d天前";
 "today" = "今天";
 "yesterday" = "昨天";
-"date_format" = "%d月%d日";
 
 /* Duration Format */
-"duration_hms" = "%d时%d分%d秒";
 "duration_ms" = "%d分%d秒";
 "duration_s" = "%d秒";
 
 /* 活动页面 */
-"advanced_filter" = "高级筛选";
 "edit" = "编辑";
 "done" = "完成";
 "close" = "关闭";
@@ -301,7 +265,6 @@
 "items" = "项";
 
 /* Messages */
-"load_recent_game" = "已加载最近游戏";
 "duplicate_names_warning" = "名称重复警告";
 "undone" = "已撤销";
 "change_sides" = "换边";
@@ -321,30 +284,22 @@
 "match_completion_play_all_tennis_description" = "如五盘全部打完，可能出现平局";
 "match_completion_custom_placeholder" = "输入 1-99";
 "match_completion_invalid_sets" = "经典模式请输入 1-99 的奇数；打满模式请输入 1-99。";
-"match_completion_finish_confirmation" = "尚未打满，2 秒内再次点击结束比赛。";
-"match_draw" = "比赛平局";
 "has_been_reset" = "已重置";
 "no_undo_available" = "没有可撤销的操作";
 "screenshot_failed" = "截图失败";
 "screenshot_saved" = "截图已保存";
-"unknown_error" = "未知错误";
 "please_allow_photo_access" = "请在设置中允许访问相册";
 "open_settings" = "去设置";
 "retry" = "重试";
 "save_failed" = "保存失败: %@";
-"font_changed" = "字体已更改";
 
 /* Set/Game End Messages */
 "set_ended_winner" = "第%d局结束，%@获胜，比分 %d-%d";
-"game_ended_score" = "第%d局结束，局分 %d-%d";
 "winner_wins" = "%@ 获胜";
 "winner" = "赢家";
 
 /* Rest Countdown */
 "set_break" = "局间休息";
-"halftime_break" = "中场休息";
-"rest_title_set_end" = "第%d局结束";
-"rest_title_mid_game" = "第%d局 · 局中间隙";
 
 /* Scoreboard Tab */
 "scoreboard_title" = "计分";
@@ -361,7 +316,6 @@
 "tool_whistle" = "哨子";
 "tool_random_team" = "随机分组";
 "tool_red_yellow_card" = "红黄牌";
-"tool_points_table" = "积分榜";
 "tool_time" = "翻页时钟";
 "tool_aa_calculator" = "AA计算器";
 "tool_ten_second" = "十秒挑战";
@@ -377,7 +331,6 @@
 "players_6" = "6人";
 "players_8" = "8人";
 "players_count_format" = "%d人";
-"random_grouping" = "随机分组";
 "simulate" = "一键分组";
 "try_again" = "再来一次";
 "place_fingers_on_blocks" = "请将手指放在方块上 (%d/%d)";
@@ -428,11 +381,8 @@
 "points_table_min_teams" = "至少保留 2 支队伍";
 "points_table_tap_again_to_delete_team" = "再点一次删除该队伍";
 "points_table_team_deleted_toast" = "已删除队伍";
-"no_players" = "暂无玩家";
-"add_player" = "添加玩家";
 "player_name" = "玩家名称";
 "add" = "添加";
-"add_player_title" = "添加玩家";
 
 /* Ten Second Challenge */
 "ten_second_title" = "十秒挑战";
@@ -451,7 +401,6 @@
 "swipe_to_switch" = "左右滑动切换";
 
 /* Time Tool */
-"time_tool_title" = "翻页时钟";
 "rotate_display" = "旋转屏幕";
 
 /* AA Calculator Tool */
@@ -466,9 +415,7 @@
 
 /* Fullscreen Barrage */
 "fullscreen_barrage" = "全屏弹幕";
-"enter_barrage_content" = "输入弹幕内容";
 "show" = "显示";
-"barrage_content" = "弹幕内容";
 "barrage_text_label" = "弹幕文字";
 "barrage_input_placeholder" = "输入要展示的内容";
 "barrage_font_size" = "字体大小";
@@ -488,21 +435,15 @@
 "menu_swap_sides" = "换边";
 "menu_reset" = "重置";
 "menu_undo" = "撤销";
-"archery_wait_turn" = "轮到对方射箭";
 
 /* Font Selection */
-"select_font" = "选择字体";
 "font_default" = "默认";
-"font_digital" = "数字";
-"font_harmony_digit" = "鸿蒙数字";
 "font_seven_segment" = "LED数字";
 
 /* Save Screenshot */
-"save_screenshot" = "保存截图";
 "filename" = "文件名";
 
 /* Rest Countdown Overlay */
-"rest_countdown" = "休息倒计时";
 
 /* Game Finished Overlay */
 "game_winner_format" = "%@ 获胜";
@@ -510,7 +451,6 @@
 /* Records Tab */
 "clear_all_records" = "删除全部记录";
 "clear_records_tab_message" = "将删除“记录”中的计分记录和计时记录，此操作无法撤销。不会删除常用名称、常用地点或预约记录。";
-"clear_all_records_message" = "将删除本机计分/计时记录、续局与草稿、球局预约和提醒、常用名称与地点、积分表、快捷入口、秒表/倒计时状态，以及开局、布局、样式、字体和工具偏好。保留法律同意状态和系统权限决定；不会远程删除 Apple Watch 数据或系统相册内容。此操作无法撤销。";
 "clear_data" = "清除数据";
 "clear_data_failed_title" = "清除失败";
 "clear_data_failed_format" = "部分数据未能清除，可安全重试：\n%@";
@@ -520,7 +460,6 @@
 "clear_data_category_resume" = "续局与草稿";
 "clear_data_category_preferences" = "设置与工具数据";
 "clear_data_category_legacy_sync" = "旧同步数据";
-"clear_data_category_watch" = "临时手表联动状态";
 "clear_data_verification_failed" = "清除后仍检测到本地数据";
 
 /* Settings */
@@ -545,6 +484,14 @@
 "account_login_title" = "登录";
 "account_login_subtitle" = "登录后同步常用数据、反馈和实时比分";
 "account_login_agreement_hint" = "请先阅读并同意用户协议和隐私政策";
+"me_login_password_title" = "账号密码登录";
+"me_password_login_entry" = "账号密码登录";
+"me_login_email_placeholder" = "请输入邮箱或手机号";
+"me_login_password_placeholder" = "请输入密码";
+"me_login_enter_email" = "请输入邮箱或手机号";
+"me_login_enter_password" = "请输入密码";
+"me_password_login_button" = "登录";
+"me_password_login_button_loading" = "登录中...";
 "account_login_agreement_toggle" = "同意用户协议和隐私政策";
 "account_login_agreement_prefix" = "已阅读并同意";
 "account_login_agreement_and" = "和";
@@ -560,19 +507,12 @@
 "membership_entry_title_active" = "VIP 会员";
 "membership_entry_summary" = "终身 VIP，一次买断";
 "membership_entry_summary_active" = "您已是 VIP 会员，感谢您的支持";
-"basketball_mode" = "赛制";
-"dark_mode" = "深色模式";
-"light_mode" = "浅色模式";
-"sound_vibration" = "声音与振动";
 "sound_effects" = "音效";
 "vibration" = "振动";
 "language" = "语言";
-"app_language" = "应用语言";
 "about" = "关于";
 "version" = "版本";
 "privacy_policy" = "隐私政策";
-"support_contact" = "联系与支持";
-"developer" = "开发者";
 "accessibility" = "辅助功能";
 "common_names_manage" = "常用名称管理";
 "common_names_team" = "队伍名称";
@@ -594,8 +534,6 @@
 "deselect_all" = "取消全选";
 "sync_unavailable_offline" = "此离线版本不提供局域网同步";
 
-"settings_features" = "功能设置";
-"settings_help_support" = "帮助与支持";
 "scoreboard_settings_title" = "计分设置";
 "sound" = "声音";
 "settings_rate_app" = "给个好评";
@@ -603,41 +541,26 @@
 "settings_faq" = "常见问题";
 "about_us_title" = "关于我们";
 "about_version_format" = "版本 %@";
-"about_legal" = "相关信息";
 "about_wechat_group" = "微信群";
 "about_qq_group_label" = "QQ 群";
-"about_qq_group_number" = "825096333";
 "about_copy_qq_toast" = "已复制 QQ 群号";
 "about_company_zh" = "重庆豆花科技有限公司";
 "about_company_en" = "Chongqing Douhua Technology Co., Ltd.";
 "terms_of_service" = "用户协议";
 
 /* First-launch legal consent */
-"legal_consent_title" = "使用前请先阅读并同意";
-"legal_consent_subtitle" = "为保障你的相关权利，请在使用前阅读并同意《用户协议》和《隐私政策》。";
-"legal_summary_title" = "我们如何使用数据";
-"legal_summary_body" = "• 计分、计时、比赛记录和球局预约等数据保存在当前设备。\n• 第三方 SDK 包含友盟统计，用于统计应用使用情况和改进产品体验，具体处理方式详见《隐私政策》。";
-"legal_consent_checkbox_markdown" = "我已阅读并同意[《用户协议》](%@)和[《隐私政策》](%@)";
-"legal_consent_toggle" = "同意用户协议和隐私政策";
-"legal_decline" = "暂不同意";
-"legal_decline_title" = "需要你的同意";
-"legal_decline_message" = "在你同意前，应用不会初始化友盟统计，也不会进入主要功能。你可以关闭应用，稍后再决定。";
-"legal_decline_acknowledge" = "知道了";
-"legal_agree_continue" = "同意并继续";
 "home_common_names_desc" = "队名、球员名";
 "common_places_title" = "常用地点";
 "home_common_places_desc" = "球馆、球场、地点";
 "common_places_add" = "添加地点";
 "common_places_edit_title" = "编辑地点";
 "common_places_placeholder" = "输入地点";
-"common_places_batch_add" = "批量添加";
 "common_places_clear" = "清空地点";
 "common_places_clear_message" = "将清空所有常用地点，此操作无法撤销。";
 "common_places_search_placeholder" = "搜索地点";
 "common_places_no_records" = "暂无常用地点";
 "common_places_no_search_results" = "无搜索结果";
 "common_places_usage_desc" = "预约球局中输入的地点会自动保存在这里，下次可以快速选择。";
-"common_places_use_count" = "使用 %d 次";
 "common_places_batch_hint" = "每行一个地点，或用逗号分隔";
 "common_places_empty_name" = "地点不能为空";
 "common_places_already_exists" = "该地点已存在";
@@ -651,22 +574,27 @@
 "common_places_deleted" = "已删除";
 "common_places_batch_delete_confirm" = "确认删除选中的 %d 个地点？";
 "schedule_pick_common_place" = "选择常用地点";
-"faq_question_1" = "如何开始一场比赛？";
-"faq_answer_1" = "在首页点击新比赛或常用项目，完成双方名称和赛制设置后即可开始。";
-"faq_question_2" = "比赛记录保存在哪里？";
-"faq_answer_2" = "比赛与计时记录保存在当前设备本地，可在记录页查看。";
-"faq_question_3" = "如何撤销误操作？";
-"faq_answer_3" = "计分页面提供撤销操作，可恢复最近一次比分或比赛状态变化。";
-"faq_question_5" = "什么是经典和打满模式？";
-"faq_answer_5" = "经典模式在一方取得过半胜局时结束；打满模式会完成设定的全部局数，可能出现平局。";
-"faq_question_6" = "常用名称和地点有什么用？";
-"faq_answer_6" = "它们用于快速填写队伍、球员和球局地点，均只保存在本机。";
-"faq_question_7" = "如何预约球局？";
-"faq_answer_7" = "在首页进入我的球局，创建预约并设置时间、地点和本地提醒。";
-"faq_question_8" = "清除数据会删除什么？";
-"faq_answer_8" = "会删除本机记录、续局、预约与提醒、常用资料、积分表、快捷入口、计时状态及各项本地偏好；保留法律同意和系统权限决定，不会远程删除 Apple Watch 数据或系统相册内容。";
+"faq_question_1" = "怎么快速开始一场比赛？";
+"faq_answer_1" = "在首页选择项目，或进入「新比赛」挑选更多项目。常用的项目和配置可以加入「快速开始」，下次直接进入。\n\n需要队名、局数、赛制、发球规则的项目，会先打开「比赛设置」。确认后进入计分板，部分设置也可以在计分过程中继续调整。";
+"faq_question_2" = "比赛中怎么记分和改错？";
+"faq_answer_2" = "球类项目通常点左右或上下半区记一分，局分、发球权和换边会按规则推进。篮球、足球、简单计分会提供常用分值；台球、射箭、拳击、牌类等会打开对应的得分、回合或结果面板。\n\n记错时先用「撤销」或「回退」。需要直接改比分、队名或规则时，再从计分板的编辑/设置入口进入；不是每个项目都会显示独立的加分、减分按钮。";
+"faq_question_3" = "退出计分后怎么继续或查看？";
+"faq_answer_3" = "未结束的比赛会在首页底部显示一条「继续比赛」横幅，点按即可回到比赛继续计分。已结束并保存的比赛，可以在底部「记录」中查看详情。\n\n如果横幅消失，可能是比赛已结束、已删除，或本机数据被清理。记录页主要用于回看结果，不一定支持继续编辑原比赛进程。";
+"faq_question_4" = "怎么删除记录或清除数据？";
+"faq_answer_4" = "比赛进行中，优先用当前项目支持的撤销、回退或编辑入口修正误操作。\n\n已保存的比赛，请进入「记录」详情后删除。「我的 → 清除数据」会清空本机计分、计时、未完成比赛、历史记录和部分本地设置，且无法恢复。";
+"faq_question_5" = "怎么连接大屏或另一台手机？";
+"faq_answer_5" = "要把比分显示在另一台手机或平板上：在显示端进入「同步比分 → 加入比赛」，按页面提示生成短码/二维码；主控端进入比赛后连接，比分会同步到显示端。两端需保持网络稳定，尽量不要锁屏或切到后台；若同步卡住，请双方退出后重新连接。\n\n要把计分板投屏到电视或大屏：请使用手机系统的无线投屏（Miracast）。从系统控制中心开启无线投屏并连接电视，应用检测到已连接的屏幕后，计分板会自动显示到大屏。应用依赖系统投屏能力，不会自己搜索电视；在系统中断开投屏，本次投屏也会结束。不同品牌可能将无线投屏称为“无线显示”或“多屏互动”，请先在系统中完成连接。";
+"faq_question_6" = "没有我想要的项目怎么办？";
+"faq_answer_6" = "先选择最接近的项目使用。如果只是名称、局数、队伍、先后手不同，优先在「比赛设置」中调整，并把常用配置加入「快速开始」。\n\n如果现有项目确实覆盖不了规则，请通过「意见反馈」说明项目名称、常用赛制、记分方式和期望的操作流程。";
+"faq_question_7" = "会员、登录和换设备怎么处理？";
+"faq_answer_7" = "会员权益和购买记录会绑定到当前账号。购买、兑换或恢复会员前，建议先登录；换设备时请使用同一账号进入「会员中心」刷新状态。\n\n如果支付成功但会员未生效，请先回到会员页刷新，仍异常再通过「意见反馈」提交订单号、购买时间和当前登录账号，方便排查。";
+"faq_question_8" = "遇到问题或想提建议怎么办？";
+"faq_answer_8" = "进入「我的 → 意见反馈」，选择问题反馈或功能建议。描述时尽量写清项目名称、操作步骤、期望结果和实际结果；如果是显示端或会员问题，也请带上设备型号、系统版本和应用版本。";
+"faq_question_10" = "怎么备份数据或换手机时迁移数据？";
+"faq_answer_10" = "登录账号后，常用名称、常用地点和比赛记录等会绑定到你的账号。开通会员的「云端同步」后，数据可在不同设备间同步；换手机时用同一账号登录即可自动恢复。未登录时，数据仅保存在当前设备，不会上传。";
+"faq_question_11" = "我的数据和隐私是怎么处理的？";
+"faq_answer_11" = "《隐私政策》说明了数据的用途与范围。麦克风仅在录制语音笔记时使用，摄像头仅在扫描二维码登录时使用，均在本地处理。";
 "common_names_add" = "添加";
-"common_names_batch_add" = "批量添加";
 "common_names_edit_title" = "编辑名称";
 "common_names_team_placeholder" = "输入队伍名称";
 "common_names_player_placeholder" = "输入选手名称";
@@ -676,13 +604,9 @@
 "common_names_added" = "已添加";
 "common_names_updated" = "已更新";
 "common_names_deleted" = "已删除";
-"common_names_add_failed" = "添加失败";
 "common_names_update_failed" = "更新失败";
 "common_names_batch_empty" = "请输入至少一个有效名称";
 "common_names_batch_result" = "已添加 %d 个，跳过 %d 个";
-"common_names_delete_message" = "确认删除“%@”？";
-"feature_coming_soon" = "功能即将上线";
-"language_restart_note" = "语言切换需要重启应用后生效";
 "vs_separator" = " vs ";
 
 /* Record Detail Page */
@@ -691,18 +615,13 @@
 "confirm_delete_record_message" = "确定要删除这条比赛记录吗？此操作无法撤销。";
 "delete_record" = "删除记录";
 "share" = "分享";
-"share_match_record" = "比赛记录";
 "share_preparing" = "准备分享...";
-"deleting_record" = "正在删除记录...";
 "record_not_found" = "未找到记录";
 "record_may_deleted" = "记录可能已被删除";
-"record_start_time" = "开始时间";
-"record_end_time" = "结束时间";
 "record_duration" = "持续时间";
 "match_record" = "比赛记录";
 "no_actions_recorded" = "未记录任何操作";
 "date" = "日期";
-"set_end_winner_format" = "第%d局结束，%@胜";
 "game_started" = "比赛开始";
 "schedule_title" = "我的球局";
 "schedule_new_booking" = "预约新球局";
@@ -713,7 +632,6 @@
 "schedule_time_status_starting_soon" = "即将开始";
 "schedule_time_status_ready" = "可开赛";
 "schedule_time_status_overdue" = "已过时间";
-"schedule_entry_hint" = "查看全部日程与预约新球局";
 "schedule_create_title" = "预约新球局";
 "schedule_detail_title" = "球局详情";
 "schedule_sport" = "项目";
@@ -722,11 +640,8 @@
 "schedule_duration" = "时长";
 "schedule_duration_minutes" = "时长 %d 分钟";
 "schedule_duration_short" = "%d分钟";
-"schedule_place_and_format" = "地点与赛制";
 "schedule_location" = "地点";
 "schedule_location_placeholder" = "输入地点";
-"schedule_match_format" = "赛制";
-"schedule_match_format_placeholder" = "赛制（可选）";
 "schedule_reminders" = "提醒";
 "schedule_reminder_hours_before" = "%d 小时前";
 "schedule_reminder_minutes_before" = "%d 分钟前";
@@ -738,7 +653,6 @@
 "schedule_cancel_booking" = "取消预约";
 "schedule_cancel_confirm_message" = "确认取消这场预约吗？";
 "schedule_booking_not_found" = "未找到该预约";
-"schedule_empty_state" = "暂无日程，点击下方按钮预约球局";
 "schedule_status_pending" = "待进行";
 "schedule_status_completed" = "已完成";
 "schedule_status_cancelled" = "已取消";
@@ -789,9 +703,6 @@
 "unfinished_abandon_confirm" = "再点击一次丢弃比赛";
 
 /* Record detail / Boxing */
-"record_action_team_scored" = "%@ 得分";
-"record_action_team_goal" = "%@ 进球";
-"record_action_team_points" = "%@ +%d";
 "boxing_round_n" = "第 %d 回合";
 "boxing_round_progress" = "第 %d/%d 回合";
 "display_basketball_period" = "第 %d 节";
@@ -799,89 +710,9 @@
 "display_basketball_clock_pause" = "暂停";
 
 /* Stopwatch */
-"stopwatch_total" = "总时长";
-"stopwatch_lap" = "分段";
-"stopwatch_lap_list_title" = "分段记录";
-"stopwatch_lap_no" = "序号";
-"stopwatch_lap_segment" = "本段";
-"stopwatch_lap_total" = "总时长";
-"linked_score_watch_unavailable" = "Apple Watch 未连接，请打开手表端全能计分器后重试。";
-"linked_score_watch_not_foreground_title" = "请打开手表 App";
-"linked_score_watch_not_foreground_message" = "请先在 Apple Watch 上打开「全能计分器」，保持应用在前台，然后再试一次。";
-"linked_score_start_on_watch" = "在手表开始";
-"linked_score_start_confirm_title" = "在手表开始？";
-"linked_score_start_confirm_message" = "将向手表发送开局请求，请在手表上确认后开始计分；手机将跟随显示。";
-"linked_score_setup_exit_title" = "退出同步计分？";
-"linked_score_setup_exit_message" = "现在正在等待手表确认。退出后将取消本次同步计分。";
-"linked_score_setup_exit_confirm" = "退出";
-"linked_score_watch_start_guide_title" = "手表主控计分";
-"linked_score_watch_start_guide_message" = "点右侧手表按钮发送到手表，由手表主控；手机同步显示并保存记录。";
-"linked_score_watch_rejected" = "手表拒绝了联动开局。";
-"linked_score_watch_timeout" = "等待手表确认超时，请重试。";
-"linked_score_takeover" = "接管计分";
-"linked_score_resync" = "同步积分";
-"linked_score_end" = "结束联动";
-"linked_watch_backgrounded" = "⚠️ 手表已进入后台，建议接管计分";
-"linked_score_watch_reclaim_title" = "手表请求重新接管";
-"linked_score_watch_reclaim_message" = "是否允许手表在 5 秒内重新接管计分？";
-"linked_score_phone_follower" = "当前由手表计分";
-"linked_score_confirm_title" = "手机请求联动计分";
-"linked_score_phone_started_scoreboard" = "手机已发起计分";
-"linked_score_accept" = "接受";
-"linked_score_reject" = "拒绝";
-"linked_score_setup_rules" = "%d局 | %d分";
-"linked_score_setup_rules_sets" = "%d盘";
-"linked_score_setup_rules_3x3" = "3x3";
-"linked_score_setup_rules_5v5" = "5v5";
-"linked_score_sport_badminton" = "🏸 羽毛球单打";
-"linked_score_sport_badminton_doubles" = "🏸 羽毛球双打";
-"linked_score_sport_pingpong" = "🏓 乒乓球单打";
-"linked_score_sport_pingpong_doubles" = "🏓 乒乓球双打";
-"linked_score_sport_tennis" = "🎾 网球单打";
-"linked_score_sport_tennis_doubles" = "🎾 网球双打";
-"linked_score_sport_pickleball" = "🏓 匹克球单打";
-"linked_score_sport_pickleball_doubles" = "🏓 匹克球双打";
-"linked_score_sport_archery" = "🏹 射箭";
-"linked_score_sport_eight_ball" = "🎱 黑八";
-"linked_score_sport_nine_ball" = "🎱 追分";
-"linked_score_sport_snooker" = "🎱 斯诺克";
-"watch_link_title" = "手表联动";
-"watch_link_help" = "在支持项目的开局设置中选择「在手表开始」，即可由手表计分、手机跟随显示。";
-"watch_sync_hero_title" = "手机手表联动";
-"watch_sync_hero_description" = "双端同步计分；常用名称自动同步到手表；手表完赛记录自动回传到手机（投篮训练除外）。";
-"watch_sync_action_refresh" = "刷新连接";
-"watch_sync_usage_title" = "使用说明";
-"watch_sync_usage_prerequisite" = "使用前请确认手机和手表均已安装全能计分器，并保持配对连接。";
-"watch_sync_usage_tab_live_scoring" = "双端计分";
-"watch_sync_usage_tab_common_names" = "常用名称";
-"watch_sync_usage_tab_watch_records" = "手表记录";
-"watch_sync_usage_step_1" = "在手机选择支持的计分项目。";
-"watch_sync_usage_step_2" = "点击发送到手表，手表确认后主控计分。";
-"watch_sync_usage_step_3" = "手机实时同步比分，完赛后记录回传保存。";
-"watch_sync_common_names_step_1" = "在手机维护常用名称。";
-"watch_sync_common_names_step_2" = "手机自动同步到手表，无需手动操作。";
-"watch_sync_common_names_step_3" = "手表开局时可直接选用已同步名称。";
-"watch_sync_watch_records_step_1" = "手表完赛后自动回传记录到手机（羽/乒/网/匹、射箭、黑八/追分/斯诺克；投篮训练暂不回传）。";
-"watch_sync_watch_records_step_2" = "手机记录页与最近记录会标示「手表记录已同步」。";
-"watch_sync_watch_records_step_3" = "手机与手表保持配对即可，无需手动同步。";
-"watch_sync_device_apple_watch" = "Apple Watch";
-"watch_sync_install_not_paired" = "尚未配对 Apple Watch";
-"watch_sync_install_missing" = "手表未安装全能计分器";
-"watch_sync_install_ready" = "手表应用已安装且可达";
-"watch_sync_install_not_reachable" = "手表应用已安装，当前不可达";
-"watch_sync_status_ready" = "可同步";
-"watch_sync_status_wait_reply" = "等待手表在线";
-"watch_sync_status_no_connection" = "未连接";
-"watch_sync_status_app_not_installed" = "未安装应用";
 "got_it" = "知道了";
-"linked_score_not_controller" = "当前不是主控端，无法执行该操作。";
-"linked_score_reclaim_denied" = "手表拒绝交还控制权。";
-"linked_score_waiting_controller" = "等待控制端确认";
-"linked_score_unsupported_record_type" = "无法同步不支持的手表记录类型：%@";
 "record_detail_synced_from_watch_hint" = "这条记录已从手表同步到手机";
 "record_detail_synced_from_watch_badge" = "手表记录已同步";
-"record_detail_linked_scoreboard_badge" = "双端联动比赛";
-"record_detail_linked_scoreboard_hint" = "本场由手机发起，手表主控计分，手机同步显示并保存记录";
 "yes" = "是";
 "no" = "否";
 "game_badminton_doubles" = "羽毛球双打";
@@ -905,7 +736,6 @@
 "basketball_rule_fiba_summary" = "FIBA：每节 10 分钟，上下半场分别计算暂停。";
 "basketball_rule_nba_summary" = "NBA：每节 12 分钟，常规赛 7 次暂停。";
 "boxing_rounds" = "回合数";
-"tennis_deuce_mode" = "平分规则";
 "tennis_deuce_option_advantage" = "占先";
 "tennis_deuce_option_no_ad" = "无占先";
 "points_per_set" = "每局分数";
@@ -939,7 +769,6 @@
 "style_common_colors" = "常用颜色";
 "style_custom_color" = "自定义颜色";
 "style_current_color" = "当前颜色";
-"style_color_wheel_hint" = "点击或拖动选色";
 "scoreboard_style_background" = "背景";
 "scoreboard_style_serve" = "指示";
 "scoreboard_style_theme" = "主题";
@@ -1039,30 +868,9 @@
 "game_shengji" = "升级";
 "game_uno" = "UNO";
 "game_foosball" = "桌上足球";
-"sync_title" = "局域网同步";
-"sync_description" = "同一局域网内最多连接 8 台设备。主控负责规则计算，副控发送操作，展示端只显示比分。";
 "sync_guest_device_name" = "访客 %@";
-"sync_device_name" = "设备昵称";
-"sync_create_room" = "创建同步房间";
-"sync_join_role" = "加入角色";
-"sync_role_host" = "主控端";
-"sync_role_controller" = "副控端";
-"sync_role_display" = "展示端";
-"sync_short_code" = "6 位同步码";
 "sync_invalid_code" = "请输入 6 位同步码";
-"sync_scan_qr" = "扫描同步二维码";
-"sync_join_room" = "加入房间";
-"sync_room_code" = "同步码";
-"sync_pending_requests" = "待批准";
-"sync_participants" = "已连接设备";
-"sync_end_room" = "结束房间";
-"sync_leave_room" = "退出房间";
-"sync_waiting_scoreboard" = "等待主控打开计分板";
-"sync_waiting_snapshot" = "连接成功后，比分会自动显示在这里。";
-"sync_resyncing" = "正在补齐比分…";
-"sync_host_paused" = "主控设备暂离";
 "sync_connected" = "已连接";
-"sync_match_finished" = "比赛已结束";
 "sync_sets_format" = "%d 局";
 "sync_games_format" = "%d 盘";
 "tennis_sync_sets_format" = "%d 盘";
@@ -1070,36 +878,21 @@
 "sync_players_format" = "共 %d 人";
 "approve" = "允许";
 "reject" = "拒绝";
-"sync_camera_unavailable_title" = "无法使用相机";
-"sync_camera_unavailable_message" = "请在系统设置中允许相机权限，或使用 6 位同步码加入。";
-"setup_break_side" = "开球方";
 "setup_opening_break_side" = "首局开球方";
 "setup_first_shooter" = "首发选手";
 "foosball_final_win_by_two" = "决胜局净胜 2 分";
 "foosball_final_score_cap" = "决胜局最高分上限";
 "foosball_mode_1v1" = "1V1";
 "foosball_mode_2v2" = "2V2";
-"foosball_default_red_doubles" = "红A/红B";
-"foosball_default_blue_doubles" = "蓝A/蓝B";
 "player_a" = "选手A";
 "player_b" = "选手B";
 "snooker_frames" = "局数";
-"eight_ball_race_to" = "抢局";
 "eight_ball_frames" = "局数";
 "eight_ball_handicap" = "让局";
-"eight_ball_team1_gets" = "红方受让";
-"eight_ball_team2_gets" = "蓝方受让";
 "eight_ball_left_lets_right" = "左让右";
 "eight_ball_right_lets_left" = "右让左";
-"eight_ball_handicap_racks_format" = "受让 %d 局";
-"eight_ball_target_format" = "抢 %d";
-"eight_ball_tap_rack" = "点击比分区记一局";
-"eight_ball_handicap_summary" = "让局 %d";
 "uno_target_score" = "目标分";
-"uno_number_points" = "数字分";
-"uno_card_bonuses" = "功能牌";
 "uno_round_total_format" = "本局 %d 分";
-"uno_round_settle_title" = "UNO 回合计分";
 "uno_target_badge" = "目标 %d";
 "uno_round_sheet_title" = "UNO 结算";
 "uno_round_winner" = "本局赢家";
@@ -1113,16 +906,10 @@
 "uno_confirm_round" = "确认记分";
 "uno_select_winner_toast" = "请选择本局赢家";
 "uno_zero_score_toast" = "本局分数不能为 0，请输入赢家手中剩余牌的分值";
-"uno_gap_format" = "差 %d";
 "press_again_to_end" = "再按一次结束比赛";
 "doudizhu_settle_preview_one" = "结算：赢家 +%d，另两人各 −%d";
 "doudizhu_settle_preview_two" = "结算：两赢家各 +%d，输家 −%d";
 "doudizhu_select_one_or_two_winners" = "请选择 1 或 2 位赢家";
-"shengji_tap_winner" = "点击胜方半区结算本局";
-"shengji_resolve_winner" = "本局胜方";
-"shengji_resolve_delta" = "升几级（0 = 仅转庄）";
-"shengji_confirm_resolve" = "确认结算";
-"shengji_resolve_title" = "本局结算";
 "archery_closest_title" = "一箭决胜 · 近心";
 "archery_closest_message" = "双方同环 %d，请选择更近心的一方";
 "nine_ball_chase_points" = "事件分值";
@@ -1135,6 +922,12 @@
 "nine_ball_increase_points" = "增加%@分值";
 "nine_ball_ball_in_hand" = "自由球";
 "nine_ball_foul" = "犯规";
+"chase_chalk_big" = "大";
+"chase_chalk_small" = "小";
+"chase_chalk_golden" = "九";
+"chase_chalk_normal" = "胜";
+"chase_chalk_ball_in_hand" = "让";
+"chase_chalk_foul" = "犯";
 "multi_score_player_default_format" = "玩家 %d";
 "snooker_handover" = "交杆";
 "snooker_next_frame" = "下一局";
@@ -1143,15 +936,8 @@
 "snooker_frame_result_frames" = "局分 %d : %d";
 "snooker_settle_frame" = "结算本局";
 "snooker_settle_frame_title" = "选择本局胜方";
-"shengji_select_dealer" = "先选庄家，再记升级";
-"snooker_frame_break_format" = "%d 局 · 单杆 %d";
-"snooker_current_frame_format" = "第 %d / %d 局";
 "snooker_foul_format" = "罚%d";
 "shengji_dealer" = "庄家";
-"shengji_red_dealer" = "红方庄";
-"shengji_blue_dealer" = "蓝方庄";
-"shengji_red_minus_one" = "红方 -1";
-"shengji_blue_minus_one" = "蓝方 -1";
 "timer_countdown_mode_quick" = "快捷";
 "timer_countdown_mode_sports" = "比赛";
 "timer_countdown_edit_time" = "编辑时间";
@@ -1249,17 +1035,13 @@
 "record_details" = "明细";
 "record_detail_legacy_unavailable" = "旧记录缺少可靠的分局或时间信息，已降级显示比赛总览。";
 "record_unavailable" = "无法继续";
-"record_set_score_format" = "局分 %d : %d";
 "record_score_changed" = "比分变化";
 "record_set_finished" = "本局结束";
 "record_round_finished" = "本回合结束";
 "record_period_finished" = "本节结束";
 "record_serve_changed" = "交换发球";
 "record_state_changed" = "状态变化";
-"continue_game" = "继续比赛";
 "play_again" = "再来一场";
-"game_over_new_game_on_watch" = "再来一场\n（请在手表端操作）";
-"archive_record_read_only_message" = "这条归档记录仅可查看，无法继续比赛。";
 "scoreboard_save_failed" = "保存失败，请稍后重试";
 "game_pingpong_singles" = "乒乓球单打";
 "game_badminton_singles" = "羽毛球单打";
@@ -1288,6 +1070,7 @@
 "doudizhu_base_score" = "底分";
 "doudizhu_confirm_with_score" = "确认（底分：%d）";
 "doudizhu_multiplier" = "番数";
+"doudizhu_fan_suffix" = "番";
 "doudizhu_winner" = "获胜者";
 "doudizhu_role_landlord" = "地主";
 "doudizhu_role_farmer" = "农民";
@@ -1306,7 +1089,6 @@
 "menu_end_game" = "结束比赛";
 "nine_ball_foul_opponent_points" = "对手 +%d";
 "record" = "记录";
-"record_date" = "比赛日期";
 "record_detail" = "记录详情";
 "record_empty" = "暂无记录";
 "record_time" = "比赛时间";
@@ -1315,6 +1097,7 @@
 "schedule_notification_title" = "约球提醒";
 "snooker_current_frame_short" = "第 %d/%d 局";
 "snooker_foul_button" = "犯规";
+"snooker_foul_short" = "犯";
 "snooker_record_pot" = "进球";
 "tab_timer_record" = "计时记录";
 "team_name" = "队名";
@@ -1322,7 +1105,6 @@
 "ten_second_start" = "开始";
 "ten_second_stop" = "停止";
 "tennis_game_score" = "局分";
-"tennis_point_score" = "小分";
 "tennis_set_score" = "盘分";
 "this_month" = "本月";
 "this_week" = "本周";
@@ -1330,7 +1112,7 @@
 "timeout" = "暂停";
 "timer_record_time" = "记录时间";
 "undo" = "撤销";
-"watch_set_end_format" = "第 %d 局结束";
+"scoreboard_set_end_format" = "第 %d 局结束";
 "winner_named_format" = "%@ 获胜";
 "basketball_fouls_count" = "犯规 %d";
 "basketball_timeout_remaining" = "暂停（%d）";
@@ -1342,23 +1124,7 @@
 "basketball_next_period" = "下一节";
 "basketball_extra_overtime" = "再加时";
 "basketball_enter_overtime" = "进入加时";
-"linked_score_error_title" = "联动失败";
-"linked_score_force_takeover" = "强制接管";
-"linked_score_force_takeover_confirm" = "仍要接管";
-"linked_score_force_takeover_warning" = "未同步的手表操作可能丢失。手机会基于最后一次已确认的比分继续。";
-"linked_score_no_confirmed_snapshot" = "没有已确认的比赛快照，无法安全强制接管。";
-"linked_score_not_follower" = "当前手机不是跟随端，无需接管。";
-"linked_score_status_timeout" = "等待手表状态响应超时。";
-"linked_score_phone_controller" = "手机主控";
-"linked_score_watch_controller" = "手表主控";
-"linked_score_watch_control_readonly_toast" = "手表计分中，手机暂不能计分";
-"linked_score_connected" = "已连接";
-"linked_score_disconnected" = "已断开";
-"linked_score_interrupted" = "已中断";
 "setup_score_cap_below_target" = "封顶分不能低于每局分数。";
-"linked_score_persistence_failed" = "无法保存联动恢复数据：%@";
-"linked_score_control_timeout" = "控制权切换超时，请重试。";
-"linked_score_sync_timeout" = "比分同步超时，将在重新连接后继续同步。";
 "resume_load_failed_title" = "无法继续比赛";
 "resume_load_failed_format" = "无法读取已保存的比赛：%@";
 "resume_load_invalid" = "已保存的比赛数据已损坏，无法继续。";
@@ -1367,7 +1133,6 @@
 "game_soft_tennis" = "软式网球";
 "game_padel" = "板网球";
 "game_football_5v5" = "5×5 足球";
-"soft_tennis_games_per_set" = "每盘局数";
 "padel_deuce_mode" = "平分规则";
 "padel_advantage" = "占先";
 "padel_golden_point" = "黄金分";
@@ -1398,10 +1163,7 @@
 "football_undo_stoppage" = "撤销补时";
 "medical_timeout" = "医疗暂停";
 "official_break" = "官方休息";
-"official_break_countdown" = "剩余 %d 秒";
 "official_break_prepare" = "准备";
-"official_break_skip" = "跳过休息";
-"official_break_start" = "开始官方休息";
 "official_breaks" = "官方休息";
 "official_break_mid_game" = "局中休息";
 "official_break_game" = "局间休息";
@@ -1409,7 +1171,6 @@
 "official_break_changeover" = "换边休息";
 "official_break_continue" = "继续";
 "record_note" = "备注";
-"record_note_empty" = "添加备注";
 "red_card" = "红牌";
 "yellow_card" = "黄牌";
 "record_tt_yellow" = "%@ 黄牌";
@@ -1423,14 +1184,12 @@
 "scoreboard_usage_hint_padel" = "👆 点击左右比分区为对应一方记分\n↩️ 左滑撤销上一步\n🎾 板网球支持占先、黄金分和星星分平分模式";
 "scoreboard_usage_hint_football_5v5" = "👆 点击左/右比分区为对应一方加 1 球\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n⏯️ 点击计时区域可暂停或继续计时";
 /* AirPlay 专用扩展屏 */
-"cast_title" = "投屏";
 "cast_active" = "投屏中";
 "home_sync_entry" = "投屏与同步";
 "home_sync_sharing" = "同步比分中";
 "home_sync_connected_device" = "%@ 已连接";
 "home_sync_connected_devices" = "%d 台设备已连接";
 "home_sync_copy" = "复制";
-"cast_disconnected" = "未连接";
 "cast_mirroring" = "已连接 · 镜像模式";
 "cast_intro_title" = "投屏怎么用";
 "cast_intro_overview" = "建议优先使用系统“屏幕镜像”（AirPlay）。连接成功并被检测到后，计分板会自动显示到大屏。";
@@ -1456,12 +1215,9 @@
 "cast_match_finished" = "比赛结束";
 "cast_winner_format" = "%@ 获胜";
 "cast_result_draw" = "比赛结果已确认";
-"cast_official_break" = "比赛休息";
-"cast_shot_clock_format" = "进攻 %d";
 
 "record_note_action" = "笔记";
 "record_note_title" = "笔记";
-"record_note_more_actions" = "笔记更多操作";
 "record_note_text_title" = "文字笔记";
 "record_note_voice_title" = "语音笔记";
 "record_note_text_action_hint" = "添加或编辑本场文字笔记";
@@ -1490,7 +1246,6 @@
 "record_note_voice_save_failed" = "录音已完成，但保存失败，原语音未修改";
 "record_note_record_unavailable" = "比赛记录不存在，无法保存笔记";
 "record_note_voice_unavailable" = "语音不可用";
-"record_note_voice_play_failed" = "语音播放失败，请重试";
 
 // MARK: 投屏与同步 / 跨设备同步（对齐安卓 RemoteSyncEntryPanel / RemoteDisplayScreen）
 "display_connection_title" = "投屏与同步";
@@ -1549,7 +1304,6 @@
 "sync_controller_disconnected" = "控制端已断开连接";
 "sync_session_ended" = "会话已结束";
 "sync_display_waiting_title" = "等待分享端推分";
-"sync_display_waiting_message" = "请在另一台设备打开计分板并开始记分";
 "sync_display_error_generic" = "连接已断开";
 "sync_display_disconnected_title" = "与分享端的连接已断开";
 "sync_display_disconnected_message" = "正在尝试自动重连，你也可以退出显示端";
@@ -1729,3 +1483,10 @@
 "theme_doudizhu_retro" = "复古";
 "theme_doudizhu_brb" = "黑红蓝";
 "theme_doudizhu_wrb" = "白红蓝";
+
+"display_exit" = "退出显示";
+"scoreboard_scoring_locked" = "当前不可计分";
+
+"game_short" = "局";
+"set_short" = "盘";
+"football_injury_title" = "伤停补时";

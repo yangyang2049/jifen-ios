@@ -500,34 +500,7 @@ final class CardResumeAndWinnerIdentityTests: XCTestCase {
         XCTAssertNil(draft.winnerIdentity)
     }
 
-    func testWatchDoudizhuIngestKeepsThirdParticipantWinnerIdentity() throws {
-        let payload = WatchRecordTransferPayload(
-            id: "doudizhu-third",
-            gameType: "doudizhu",
-            startTimeEpochMilliseconds: 1_000,
-            endTimeEpochMilliseconds: 2_000,
-            durationSeconds: 1,
-            team1Name: "甲",
-            team2Name: "乙",
-            team1FinalScore: -2,
-            team2FinalScore: -1,
-            team1SetScore: 0,
-            team2SetScore: 0,
-            winner: "丙",
-            actions: [],
-            totalScoreChanges: 1,
-            participants: [
-                .init(name: "甲", score: -2),
-                .init(name: "乙", score: -1),
-                .init(name: "丙", score: 3)
-            ]
-        )
 
-        let record = try WatchStandaloneRecordIngestor.makeRecord(payload)
-        XCTAssertEqual(record.winnerIdentity, .participant(index: 2))
-        XCTAssertEqual(record.winner, "player_2")
-        XCTAssertEqual(record.resolvedWinnerName, "丙")
-    }
 
     private func makeRecord(
         id: String = UUID().uuidString,

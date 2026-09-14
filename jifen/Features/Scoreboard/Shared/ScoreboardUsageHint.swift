@@ -180,7 +180,7 @@ enum ScoreboardUsageHintAutomaticPresentationPolicy {
         setup: SportsSetupResult?
     ) -> Bool {
         guard requested else { return false }
-        return setup?.startOnWatch != true && setup?.linkedWatchSessionId == nil
+        return true
     }
 }
 

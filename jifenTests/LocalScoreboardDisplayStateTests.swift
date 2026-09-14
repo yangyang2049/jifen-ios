@@ -757,6 +757,25 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertEqual(preferences.scoreboardTypography(for: configured).font, .monospaced)
     }
 
+    func testElementTypographyKeepsIndependentRolesAndPersists() {
+        let preferences = PreferencesManager.shared
+        let style = ScoreboardStyleID(rawValue: "test_\(UUID().uuidString)")
+        defer { preferences.resetScoreboardTypography(for: style) }
+        let session = ScoreboardTypographySession(styleID: style, preferences: preferences)
+        session.updateElementMultiplier(1.4, for: .gameScore, isLargeScreen: false)
+        XCTAssertEqual(session.effectivePreference.multiplier(for: ScoreboardStyleElementKeyV2.gameScore), 1.4, accuracy: 0.0001)
+        XCTAssertEqual(session.effectivePreference.multiplier(for: ScoreboardStyleElementKeyV2.setScore), 1)
+        XCTAssertEqual(session.effectivePreference.multiplier(for: ScoreboardStyleElementKeyV2.matchTitle), 1)
+        session.updateElementMultiplier(1.2, for: .setScore, isLargeScreen: false)
+        session.applyPreview(preferences: preferences)
+        let restored = ScoreboardTypographySession(styleID: style, preferences: preferences)
+        XCTAssertEqual(restored.effectivePreference.multiplier(for: ScoreboardStyleElementKeyV2.gameScore), 1.4, accuracy: 0.0001)
+        XCTAssertEqual(restored.effectivePreference.multiplier(for: ScoreboardStyleElementKeyV2.setScore), 1.2, accuracy: 0.0001)
+        restored.updateElementMultiplier(1.5, for: .matchTitle, isLargeScreen: false)
+        restored.cancelPreview()
+        XCTAssertEqual(restored.effectivePreference.multiplier(for: ScoreboardStyleElementKeyV2.matchTitle), 1)
+    }
+
     func testTypographySessionPreviewsCancelsAppliesAndResetsAtomically() {
         let preferences = PreferencesManager.shared
         let style = ScoreboardStyleID(rawValue: "test_\(UUID().uuidString)")

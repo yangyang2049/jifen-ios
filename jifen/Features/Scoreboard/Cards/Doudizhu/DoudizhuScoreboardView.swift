@@ -379,7 +379,7 @@ struct DoudizhuScoreboardView: View {
     private var externalDisplayState: ScoreboardDisplayState {
         let compact = LocalScoreboardDisplayState(
             gameID: GameType.doudizhu.canonicalScoreboardIdentifier,
-            title: doudizhuTitle,
+            title: "",
             leftName: players.first?.name ?? "",
             rightName: players.dropFirst().first?.name ?? "",
             leftScore: "\(players.first?.score ?? 0)",
@@ -556,6 +556,7 @@ struct DoudizhuScoreboardView: View {
                             ))
                             .monospacedDigit()
                             .foregroundColor(textColor)
+                        .styleElementSelectable(.teamName, slotKey: slotKey(for: index))
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
                         doudizhuEditCircleButton(systemName: "plus") {
@@ -587,6 +588,7 @@ struct DoudizhuScoreboardView: View {
                         .font(typographySession.effectivePreference.font.swiftUIFont(size: scoreSize))
                         .monospacedDigit()
                         .foregroundColor(appearance.elementForeground(.mainScore, slotKey: slotKey(for: index)))
+                        .styleElementSelectable(.mainScore, slotKey: slotKey(for: index))
                         .minimumScaleFactor(0.4)
                         .lineLimit(1)
                 }
@@ -599,6 +601,7 @@ struct DoudizhuScoreboardView: View {
                             weight: .bold
                         ))
                         .foregroundColor(textColor)
+                        .styleElementSelectable(.teamName, slotKey: slotKey(for: index))
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                         .padding(.top, ScoreboardLayoutMetrics.nameTopPadding(panelHeight: panelSize.height))
@@ -692,16 +695,18 @@ struct DoudizhuScoreboardView: View {
 
                     settleColumn(title: NSLocalizedString("doudizhu_multiplier", value: "番数", comment: "")) {
                         VStack(spacing: 8) {
+                            // 对齐安卓 doudizhu_fan_suffix：中文“番”，英文“x”。
+                            let fanSuffix = NSLocalizedString("doudizhu_fan_suffix", value: "番", comment: "")
                             HStack(spacing: 8) {
                                 ForEach([0, 1, 2], id: \.self) { power in
-                                    settleChip("\(power)番", selected: selectedMultiplierPower == power) {
+                                    settleChip("\(power)\(fanSuffix)", selected: selectedMultiplierPower == power) {
                                         selectedMultiplierPower = power
                                     }
                                 }
                             }
                             HStack(spacing: 8) {
                                 ForEach([3, 4, 5], id: \.self) { power in
-                                    settleChip("\(power)番", selected: selectedMultiplierPower == power) {
+                                    settleChip("\(power)\(fanSuffix)", selected: selectedMultiplierPower == power) {
                                         selectedMultiplierPower = power
                                     }
                                 }

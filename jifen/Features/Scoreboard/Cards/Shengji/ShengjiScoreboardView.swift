@@ -457,7 +457,7 @@ struct ShengjiScoreboardView: View {
     private func syncSnapshot() -> LocalScoreboardDisplayState {
         var compact = LocalScoreboardDisplayState(
             gameID: GameType.shengji.canonicalScoreboardIdentifier,
-            title: GameType.shengji.displayName,
+            title: "",
             leftName: shengjiName(onScreen: .left),
             rightName: shengjiName(onScreen: .right),
             leftScore: level(shengjiValue(onScreen: .left, left: state.leftIndex, right: state.rightIndex)),

@@ -40,7 +40,9 @@ enum DisplayStateWireCodec {
         if let clock = encodeClock(state.clock, now: now) {
             map["clock"] = clock
         }
-        // rest（官方休息态）两端 wire 模型差异较大，v1 不透传，显示端优雅降级。
+        if let rest = state.rest, let wire = encodeRest(rest, gameType: state.gameType, now: now) {
+            map["rest"] = wire
+        }
         return map
     }
 
@@ -102,7 +104,7 @@ enum DisplayStateWireCodec {
     private static func encodeAppearance(_ appearance: ScoreboardDisplayAppearance) -> [String: Any] {
         var map: [String: Any] = [
             "theme": appearance.theme,
-            "fontCode": appearance.fontCode
+            "fontCode": ScoreboardFont(displayCode: appearance.fontCode)?.wireCode ?? "default"
         ]
         // 主分/盘局分逐元素色（Android DisplayAppearanceState 全局键：scoreColor=主分，secondaryScoreColor=盘局分）。
         map["scoreColor"] = appearance.leftMainTextHex
@@ -110,10 +112,21 @@ enum DisplayStateWireCodec {
         map["leftTeamColor"] = appearance.leftPanelHex
         map["rightTeamColor"] = appearance.rightPanelHex
         map["centerTeamColor"] = appearance.centerPanelHex
-        // 对齐安卓 DisplayAppearanceState.toMap：字号倍率在嵌套 style.fontSizeMultipliers。
-        if let multipliers = appearance.fontSizeMultipliers, !multipliers.isEmpty {
-            map["style"] = ["fontSizeMultipliers": multipliers]
-        }
+        var style = appearance.style ?? ScoreboardDisplayStyle(appearance: appearance)
+        style.themeCode = appearance.theme
+        style.fontCode = ScoreboardFont(displayCode: appearance.fontCode)?.wireCode ?? "default"
+        style.fontSizeMultipliers = (appearance.fontSizeMultipliers ?? style.fontSizeMultipliers)
+            .filter { !$0.key.hasPrefix("_") && $0.value.isFinite && $0.value > 0 }
+        // Flat compatibility fields are kept in sync with the resolved V2 main colors.
+        var main = style.elements.first { $0.elementKey == "mainScore" }
+            ?? .init(elementKey: "mainScore", textColors: [])
+        main.textColors.removeAll { ["side_left", "side_right"].contains($0.slotKey) }
+        main.textColors += [.init(slotKey: "side_left", color: ScoreboardDisplayStyle.wireHex(appearance.leftMainTextHex)),
+                            .init(slotKey: "side_right", color: ScoreboardDisplayStyle.wireHex(appearance.rightMainTextHex))]
+        style.elements.removeAll { $0.elementKey == "mainScore" }
+        style.elements.append(main)
+        if let data = try? JSONEncoder().encode(style),
+           let wire = try? JSONSerialization.jsonObject(with: data) { map["style"] = wire }
         return map
     }
 
@@ -203,7 +216,7 @@ enum DisplayStateWireCodec {
         let result = (map["result"] as? [String: Any]).flatMap(decodeResult)
         let keyPoint = (map["keyPoint"] as? [String: Any]).flatMap(decodeKeyPoint)
         let clock = (map["clock"] as? [String: Any]).flatMap(decodeClock)
-        let rest = (map["rest"] as? [String: Any]).flatMap(decodeRest)
+        let rest = (map["rest"] as? [String: Any]).flatMap { decodeRest($0) }
         let appearance = decodeAppearance(map["appearance"] as? [String: Any], gameType: gameType)
 
         return ScoreboardDisplayState(
@@ -269,21 +282,36 @@ enum DisplayStateWireCodec {
         )
     }
 
+    private static func encodeRest(_ rest: ScoreboardDisplayRest, gameType: String, now: Int64) -> [String: Any]? {
+        let sport = rest.sport ?? gameType.replacingOccurrences(of: "_doubles", with: "")
+        guard ["badminton", "pingpong", "tennis", "pickleball", "squash", "shuttlecock", "soft_tennis", "padel"].contains(sport) else { return nil }
+        let seconds = rest.projectedRemainingSeconds(atWallClockMilliseconds: now)
+        guard seconds > 0 else { return nil }
+        let preparing = rest.phase == "preparation" || rest.phase == "prepare"
+        return ["version": 1, "sport": sport, "kind": rest.kind,
+                "phase": preparing ? "prepare" : "countdown",
+                "startedAt": now, "endsAt": now + Int64(seconds) * 1000,
+                "remainingMs": preparing ? 0 : seconds * 1000,
+                "prepareRemaining": preparing ? seconds : 0,
+                "revision": rest.revision ?? max(0, rest.updatedWallClockMilliseconds),
+                "afterAction": rest.afterAction ?? "none"]
+    }
+
     private static func decodeRest(_ map: [String: Any]) -> ScoreboardDisplayRest? {
-        guard let phase = map["phase"] as? String,
-              let remainingMs = int64(map["remainingMs"]), remainingMs >= 0 else {
-            return nil
-        }
-        // kind 取安卓 MID_GAME/GAME_BREAK/SET_BREAK 等的 wire 值，尽量映射；未知则丢弃。
-        let rawKind = (map["kind"] as? String) ?? ""
-        let kind = rawKind.isEmpty ? "set_break" : rawKind.lowercased()
-        return ScoreboardDisplayRest(
-            kind: kind,
-            phase: phase.lowercased(),
-            remainingSeconds: Int(remainingMs / 1000),
-            isRunning: phase.lowercased() == "countdown",
-            updatedWallClockMilliseconds: currentWallClockMs()
-        )
+        guard int(map["version"]) == 1,
+              let phase = map["phase"] as? String, ["countdown", "prepare"].contains(phase),
+              let remainingMs = int64(map["remainingMs"]), remainingMs >= 0,
+              let started = int64(map["startedAt"]), started >= 0,
+              let ends = int64(map["endsAt"]), ends >= started,
+              let revision = int64(map["revision"]), revision >= 0,
+              let kind = map["kind"] as? String,
+              ["mid_game", "game_break", "set_break", "changeover", "timeout", "medical"].contains(kind) else { return nil }
+        let prepare = int(map["prepareRemaining"]) ?? 0
+        guard phase == "prepare" ? (prepare > 0 && remainingMs == 0) : (prepare == 0 && remainingMs <= ends - started) else { return nil }
+        return ScoreboardDisplayRest(kind: kind, phase: phase == "prepare" ? "preparation" : phase,
+            remainingSeconds: phase == "prepare" ? prepare : Int((remainingMs + 999) / 1000),
+            isRunning: true, updatedWallClockMilliseconds: currentWallClockMs(),
+            sport: map["sport"] as? String, afterAction: map["afterAction"] as? String, revision: revision)
     }
 
     /// 安卓 DisplayAppearanceState → iOS appearance；缺省字段用本地主题兜底。
@@ -302,7 +330,7 @@ enum DisplayStateWireCodec {
         )
         guard let map else { return appearance }
         if let theme = map["theme"] as? String, !theme.isEmpty { appearance.theme = theme }
-        if let fontCode = map["fontCode"] as? String, !fontCode.isEmpty { appearance.fontCode = fontCode }
+        if let fontCode = map["fontCode"] as? String, !fontCode.isEmpty { appearance.fontCode = ScoreboardFont(displayCode: fontCode)?.rawValue ?? "default" }
         // 主分/盘局分逐元素色（对齐安卓 DisplayAppearanceState：scoreColor=主分，secondaryScoreColor=盘局分）。
         if let scoreColor = validColor(map["scoreColor"]) {
             appearance.leftTextHex = scoreColor
@@ -319,23 +347,64 @@ enum DisplayStateWireCodec {
         if let center = validColor(map["centerTeamColor"]) { appearance.centerPanelHex = center }
         if let background = validColor(map["backgroundHex"]) { appearance.backgroundHex = background }
         if let foreground = validColor(map["foregroundHex"]) { appearance.foregroundHex = foreground }
-        // 安卓 style.fontSizeMultipliers → iOS 倍率（键同安卓 ScoreboardStyleElementKey）。
-        if let style = map["style"] as? [String: Any],
-           let raw = style["fontSizeMultipliers"] as? [String: Any] {
-            var multipliers: [String: Double] = [:]
-            for (key, value) in raw where multiplierKeys.contains(key) {
-                if let number = value as? NSNumber, number.doubleValue > 0 {
-                    multipliers[key] = number.doubleValue
-                }
+        if let raw = map["style"] as? [String: Any], int(raw["version"]) == 2,
+           let theme = raw["themeCode"] as? String, let font = raw["fontCode"] as? String,
+           let panels = raw["panels"] as? [[String: Any]],
+           let elements = raw["elements"] as? [[String: Any]],
+           let serverColor = validColor(raw["serverIndicatorColor"]),
+           let revision = raw["styleRevision"] as? NSNumber,
+           revision.doubleValue.isFinite, revision.doubleValue >= 0 {
+            var style = ScoreboardDisplayStyle(appearance: appearance)
+            style.themeCode = theme
+            style.fontCode = font
+            style.serverIndicatorColor = serverColor
+            style.styleRevision = revision.int64Value
+            var panelSlots = Set<String>()
+            style.panels = panels.compactMap { panel in
+                guard let slot = panel["slotKey"] as? String, !slot.isEmpty,
+                      let color = validColor(panel["backgroundColor"]), panelSlots.insert(slot).inserted else { return nil }
+                return .init(slotKey: slot, participantId: panel["participantId"] as? String, backgroundColor: color)
             }
-            if !multipliers.isEmpty { appearance.fontSizeMultipliers = multipliers }
+            var elementKeys = Set<String>()
+            style.elements = elements.compactMap { element in
+                guard let key = element["elementKey"] as? String, !key.isEmpty,
+                      !elementKeys.contains(key), let colors = element["textColors"] as? [[String: Any]] else { return nil }
+                var colorSlots = Set<String>()
+                let textColors: [ScoreboardDisplayStyle.TextColor] = colors.compactMap { color in
+                    guard let slot = color["slotKey"] as? String, !slot.isEmpty,
+                          let hex = validColor(color["color"]), colorSlots.insert(slot).inserted else { return nil }
+                    return .init(slotKey: slot, color: hex)
+                }
+                guard !textColors.isEmpty else { return nil }
+                elementKeys.insert(key)
+                return .init(elementKey: key, textColors: textColors)
+            }
+            style.fontSizeMultipliers = (raw["fontSizeMultipliers"] as? [String: Double] ?? [:]).filter {
+                !$0.key.hasPrefix("_") && $0.value.isFinite && $0.value > 0
+            }
+            if !style.panels.isEmpty {
+                appearance.style = style
+                appearance.theme = style.themeCode
+                appearance.fontCode = ScoreboardFont(displayCode: style.fontCode)?.rawValue ?? "default"
+                appearance.fontSizeMultipliers = style.fontSizeMultipliers
+                for panel in style.panels {
+                    switch panel.slotKey {
+                    case "side_left": appearance.leftPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
+                    case "side_right": appearance.rightPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
+                    case "side_center": appearance.centerPanelHex = ScoreboardDisplayStyle.renderHex(panel.backgroundColor)
+                    default: break
+                    }
+                }
+                appearance.leftScoreHex = style.renderColor("mainScore", slot: "side_left") ?? appearance.leftScoreHex
+                appearance.rightScoreHex = style.renderColor("mainScore", slot: "side_right") ?? appearance.rightScoreHex
+                appearance.leftSecondaryHex = style.renderColor("setGameScore", slot: "side_left")
+                    ?? style.renderColor("setScore", slot: "side_left") ?? appearance.leftSecondaryHex
+                appearance.rightSecondaryHex = style.renderColor("setGameScore", slot: "side_right")
+                    ?? style.renderColor("setScore", slot: "side_right") ?? appearance.rightSecondaryHex
+            }
         }
         return appearance
     }
-
-    private static let multiplierKeys: Set<String> = [
-        "mainScore", "teamName", "playerName", "setScore", "gameScore", "setGameScore", "matchTitle"
-    ]
 
     private static func validColor(_ value: Any?) -> String? {
         guard let raw = value as? String else { return nil }
@@ -417,6 +486,7 @@ enum DisplayStateWireCodec {
         case .boolean(let value): return value
         case .strings(let value): return value
         case .integers(let value): return value
+        case .integersArrays(let value): return value
         }
     }
 
@@ -434,6 +504,13 @@ enum DisplayStateWireCodec {
             return .string(string)
         case let strings as [String]:
             return .strings(strings)
+        case let arrays as [[Any]]:
+            // 嵌套整数数组（九球 chasePlayerCounts），来自安卓/鸿蒙的 JSON wire 格式。
+            let rows: [[Int]] = arrays.map { row in
+                row.compactMap { ($0 as? NSNumber)?.intValue }
+            }
+            guard rows.allSatisfy({ !$0.isEmpty }) else { return nil }
+            return .integersArrays(rows)
         case let integers as [NSNumber]:
             return .integers(integers.map(\.intValue))
         default:

@@ -1,0 +1,1 @@
+saved bool=true, string read=1, will show=true

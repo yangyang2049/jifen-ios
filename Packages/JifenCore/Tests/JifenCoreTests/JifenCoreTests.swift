@@ -21,144 +21,17 @@ private struct CounterReducer: DomainReducer {
     }
 }
 
-@Test func linkEnvelopeRoundTripsTheSessionProtocol() throws {
-    let sessionId = UUID()
-    let envelope = LinkEnvelope(
-        sessionId: sessionId,
-        kind: .stateSnapshot,
-        sender: .phone,
-        senderSequence: 4,
-        sessionRevision: 7,
-        sentAtEpochMilliseconds: 123,
-        payload: Data([0x01, 0x02])
-    )
 
-    let decoded = try JSONDecoder().decode(LinkEnvelope<Data>.self, from: JSONEncoder().encode(envelope))
-    #expect(decoded.sessionId == sessionId)
-    #expect(decoded.kind == .stateSnapshot)
-    #expect(decoded.sender == .phone)
-    #expect(decoded.payload == Data([0x01, 0x02]))
-}
 
-@Test func linkedScoreboardSetupPreservesTheInitialState() throws {
-    var state = RallyMatchEngine.initial(leftName: "Home", rightName: "Away", rules: .badminton())
-    state.leftPoints = 14
-    state.rightPoints = 12
-    let setup = LinkedScoreboardSetup(
-        gameType: .badminton,
-        initialSnapshot: .rally(state)
-    )
-    let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
 
-    #expect(decoded == setup)
-    guard case .rally(let restored)? = decoded.initialSnapshot else {
-        #expect(Bool(false))
-        return
-    }
-    #expect(restored.leftName == "Home")
-    #expect(restored.leftPoints == 14)
-    #expect(restored.rightPoints == 12)
-}
 
-@Test func linkedSetupAndFinishedPayloadPreserveRequiredDetailedActions() throws {
-    let action = DetailedScoreAction(
-        type: .scoreChanged,
-        epochMilliseconds: 123,
-        team: .team1,
-        scores: [1, 0],
-        scoreChange: 1,
-        operationCode: "point"
-    )
-    let state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton())
-    let setup = LinkedScoreboardSetup(
-        gameType: .badminton,
-        initialSnapshot: .rally(state),
-        detailedActions: [action],
-        participantNames: ["Alice", "Bob"]
-    )
-    let decodedSetup = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
-    #expect(decodedSetup.detailedActions == [action])
-    #expect(decodedSetup.participantNames == ["Alice", "Bob"])
 
-    let finished = LinkMatchFinishedPayload(
-        snapshot: .rally(state),
-        recordId: "record",
-        detailedActions: [action],
-        participantNames: ["Alice", "Bob"]
-    )
-    let decodedFinished = try JSONDecoder().decode(
-        LinkMatchFinishedPayload.self,
-        from: JSONEncoder().encode(finished)
-    )
-    #expect(decodedFinished.detailedActions == [action])
-    #expect(decodedFinished.participantNames == ["Alice", "Bob"])
-}
 
-@Test func formalV1SetupRequiresCapabilities() throws {
-    let json = """
-    {
-      "gameType": "badminton",
-      "detailedActions": [],
-      "participantNames": []
-    }
-    """
-    #expect(throws: DecodingError.self) {
-        _ = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: Data(json.utf8))
-    }
-}
 
-@Test func linkedRallySetupPreservesSetsAndServer() throws {
-    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .pingPong(maxSets: 7))
-    state.leftPoints = 10
-    state.rightPoints = 9
-    state.leftSets = 2
-    state.rightSets = 1
-    state.servingSide = .right
 
-    let setup = LinkedScoreboardSetup(
-        gameType: .pingpongDoubles,
-        maxSets: 7,
-        initialSnapshot: .rally(state)
-    )
-    let decoded = try JSONDecoder().decode(LinkedScoreboardSetup.self, from: JSONEncoder().encode(setup))
 
-    guard case .rally(let restored)? = decoded.initialSnapshot else {
-        #expect(Bool(false))
-        return
-    }
-    #expect(restored == state)
-    #expect(restored.rules.maxSets == 7)
-    #expect(restored.servingSide == .right)
-}
 
-@Test func stateSnapshotEnvelopePreservesSessionAndRevision() throws {
-    let sessionId = UUID()
-    var state = RallyMatchEngine.initial(leftName: "Red", rightName: "Blue", rules: .badminton())
-    state.leftPoints = 18
-    state.rightPoints = 16
 
-    let envelope = LinkEnvelope(
-        sessionId: sessionId,
-        kind: .stateSnapshot,
-        sender: .phone,
-        senderSequence: 9,
-        sessionRevision: 4,
-        sentAtEpochMilliseconds: 456,
-        payload: LinkedScoreboardSetup(
-            gameType: .badminton,
-            maxSets: state.rules.maxSets,
-            initialSnapshot: .rally(state)
-        )
-    )
-    let decoded = try JSONDecoder().decode(
-        LinkEnvelope<LinkedScoreboardSetup>.self,
-        from: JSONEncoder().encode(envelope)
-    )
-
-    #expect(decoded.sessionId == sessionId)
-    #expect(decoded.sessionRevision == 4)
-    #expect(decoded.payload.initialSnapshot?.rallyState == state)
-}
 
 @Test func sessionUndoAndReplayUseOneTimeline() async throws {
     let seed = ScoreSession<CounterReducer.State, CounterReducer.Event>(
@@ -259,26 +132,7 @@ private struct CounterReducer: DomainReducer {
     #expect(try await session.replay().state.value == 45)
 }
 
-@Test func resumeDiscardEnvelopeRoundTripsReason() throws {
-    let sessionId = UUID()
-    let envelope = LinkEnvelope(
-        sessionId: sessionId,
-        kind: .resumeDiscarded,
-        sender: .watch,
-        senderSequence: 5,
-        sessionRevision: 9,
-        sentAtEpochMilliseconds: 456,
-        payload: LinkResumeDiscardPayload(reason: .resumeBarClose)
-    )
-    let decoded = try JSONDecoder().decode(
-        LinkEnvelope<LinkResumeDiscardPayload>.self,
-        from: JSONEncoder().encode(envelope)
-    )
 
-    #expect(decoded.sessionId == sessionId)
-    #expect(decoded.kind == .resumeDiscarded)
-    #expect(decoded.payload.reason == .resumeBarClose)
-}
 
 @Test func standardBasketballClockOnlyAcceptsFourteenOrTwentyFour() {
     let reducer = BasketballClockReducer()

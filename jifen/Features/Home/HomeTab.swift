@@ -142,7 +142,6 @@ struct HomeTab: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(PhoneWatchLinkService.self) private var watchLinkService
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
     @State private var unfinishedRecord: UnfinishedGameSummary?
@@ -157,6 +156,7 @@ struct HomeTab: View {
     @AppStorage("home_discard_chip_shown_count") private var discardConfirmationToastShownCount = 0
     @State private var showCreateBookingSheet = false
     @State private var path = NavigationPath()
+    @State private var homeSheet: HomeFormSheetDestination?
     @State private var didHandleUITestRoute = false
     /// When user selects a scoreboard game from New Game or Quick Start, show setup first for supported sports.
     @State private var pendingScoreboardSetupItem: ScoreboardSetupItem? = nil
@@ -196,6 +196,15 @@ struct HomeTab: View {
         case cast
     }
 
+    /// iPad 上以对话框（form sheet）呈现的首页页面（对齐安卓平板端 Dialog 形态）。
+    enum HomeFormSheetDestination: String, Identifiable {
+        case commonNames
+        case commonPlaces
+        case cast
+
+        var id: String { rawValue }
+    }
+
     private var isDarkTheme: Bool {
         colorScheme == .dark
     }
@@ -215,7 +224,12 @@ struct HomeTab: View {
                         horizontalInset: HomeLayoutPolicy.horizontalInset(size: geo.size),
                         onCastTapped: {
                             AppAnalytics.openPage(from: .homeTab, to: .castPage)
-                            path.append(NavigationDestination.cast)
+                            // 对齐安卓平板端：iPad 上投屏与同步以对话框（form sheet）呈现。
+                            if Theme.usesPadLayout {
+                                homeSheet = .cast
+                            } else {
+                                path.append(NavigationDestination.cast)
+                            }
                         }
                     )
 
@@ -358,6 +372,9 @@ struct HomeTab: View {
                     .toolbar(.hidden, for: .tabBar)
             }
         }
+        .sheet(item: $homeSheet) { destination in
+            HomeFormSheet(destination: destination)
+        }
         .safeAreaInset(edge: .bottom) {
             if let unfinishedRecord {
                 VStack(spacing: Theme.sm) {
@@ -411,9 +428,7 @@ struct HomeTab: View {
             updateRecentActivities()
             loadUnfinishedRecord()
         }
-        .onChange(of: watchLinkService.resumeStateToken) { _, _ in
-            loadUnfinishedRecord()
-        }
+
         .onChange(of: unfinishedRecord?.recordIdentifier) { _, _ in
             resetDiscardConfirmation()
         }
@@ -529,15 +544,6 @@ struct HomeTab: View {
         let generation = UUID()
         resumeLoadGeneration = generation
 
-        if let linked = watchLinkService.linkedResumeDescriptor {
-            // When a linked descriptor exists we must resolve it here and return.
-            // It also invalidates any older local scan so that scan can never
-            // clear a newer Watch result after one of its awaits returns.
-            resumeLoadTask = nil
-            unfinishedRecord = UnfinishedGameSummary(linked: linked)
-            resumeLoadErrorMessage = nil
-            return
-        }
 
         resumeLoadTask = Task { @MainActor in
             defer {
@@ -611,11 +617,7 @@ struct HomeTab: View {
                 }
 
                 guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
-                if let linked = watchLinkService.linkedResumeDescriptor {
-                    unfinishedRecord = UnfinishedGameSummary(linked: linked)
-                    resumeLoadErrorMessage = nil
-                    return
-                }
+
 
                 unfinishedRecord = outcome.candidate
                 resumeLoadErrorMessage = outcome.candidate == nil && outcome.hasUnreadableEntry
@@ -627,11 +629,7 @@ struct HomeTab: View {
                     : nil
             } catch {
                 guard resumeLoadGeneration == generation, !Task.isCancelled else { return }
-                if let linked = watchLinkService.linkedResumeDescriptor {
-                    unfinishedRecord = UnfinishedGameSummary(linked: linked)
-                    resumeLoadErrorMessage = nil
-                    return
-                }
+
                 unfinishedRecord = nil
                 resumeLoadErrorMessage = String(
                     format: NSLocalizedString(
@@ -656,10 +654,6 @@ struct HomeTab: View {
             recordId = unfinishedRecord.recordIdentifier
             setupResult = nil
             automaticallyShowsUsageHint = true
-        case .linked:
-            recordId = nil
-            setupResult = unfinishedRecord.linkedSetupResult
-            automaticallyShowsUsageHint = false
         }
         path.append(
             NavigationDestination.scoreboard(
@@ -739,14 +733,6 @@ struct HomeTab: View {
                     )
                 }
             }
-        case .linked(let sessionId):
-            watchLinkService.leaveSession(sessionId)
-            AppAnalytics.track(.scoreboardMenuAction, parameters: [
-                .gameType: .string(unfinishedRecord.gameType.analyticsIdentifier),
-                .actionName: .string("discard_unfinished"),
-                .result: .string(AnalyticsResult.success.rawValue)
-            ])
-            loadUnfinishedRecord()
         }
     }
 
@@ -940,11 +926,20 @@ struct HomeTab: View {
         CommonDataSectionView(
             onNamesTapped: {
                 AppAnalytics.openPage(from: .homeTab, to: .commonNamesPage)
-                path.append(NavigationDestination.commonNames)
+                // 对齐安卓平板端：iPad 上常用名称以对话框（form sheet）呈现。
+                if Theme.usesPadLayout {
+                    homeSheet = .commonNames
+                } else {
+                    path.append(NavigationDestination.commonNames)
+                }
             },
             onPlacesTapped: {
                 AppAnalytics.openPage(from: .homeTab, to: .commonPlacesPage)
-                path.append(NavigationDestination.commonPlaces)
+                if Theme.usesPadLayout {
+                    homeSheet = .commonPlaces
+                } else {
+                    path.append(NavigationDestination.commonPlaces)
+                }
             }
         )
     }
@@ -1170,4 +1165,36 @@ struct HomeTab: View {
 
 #Preview {
     HomeTab()
+}
+
+/// iPad 首页对话框容器（对齐本机 SettingsFormSheet：NavigationStack + 右上角关闭 + form sheet）。
+private struct HomeFormSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let destination: HomeTab.HomeFormSheetDestination
+
+    var body: some View {
+        NavigationStack {
+            destinationContent
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ModalCloseButton { dismiss() }
+                    }
+                }
+        }
+        .background(Theme.backgroundColor.ignoresSafeArea())
+        .presentationSizing(.form)
+        .presentationDragIndicator(.visible)
+    }
+
+    @ViewBuilder
+    private var destinationContent: some View {
+        switch destination {
+        case .commonNames:
+            CommonNamesManagementView()
+        case .commonPlaces:
+            CommonPlacesManagementView()
+        case .cast:
+            CastConnectionView()
+        }
+    }
 }

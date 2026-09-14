@@ -1,6 +1,7 @@
 import CoreGraphics
 import Foundation
 import ScoreCore
+import UIKit
 
 struct TennisDoublesEditLayoutMetrics: Equatable, Sendable {
     let mainFontSize: CGFloat
@@ -567,16 +568,21 @@ enum ScoreboardTypographyResolver {
         let mainToSecondarySpacing = context.secondaryIsInline && hasScore && hasSecondary
             ? ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: size.width)
             : 0
+        let measurementFont = context.preference.font.postScriptName.flatMap { UIFont(name: $0, size: 100) }
+            ?? UIFont.systemFont(ofSize: 100, weight: .bold)
+        let lineHeightRatio = measurementFont.lineHeight / measurementFont.pointSize
         let secondaryLineHeight = context.secondaryText.isEmpty || context.secondaryIsInline
             ? 0
-            : secondarySize * 1.2
-        let nameLineHeight = hasName ? nameSize * 1.2 : 0
+            : secondarySize * lineHeightRatio
+        let nameLineHeight = hasName ? nameSize * lineHeightRatio : 0
         let nameScoreGap = hasName && hasScore ? baseGap : 0
         let reservedHeight = max(0, context.reservedHeight)
             + profileReservedHeight
             + nameLineHeight
             + secondaryLineHeight
             + nameScoreGap
+            + ((!isGrid && !context.secondaryIsInline && hasSecondary)
+                ? ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height) : 0)
 
         let requestedScoreBase: CGFloat
         if isGrid {
@@ -595,7 +601,12 @@ enum ScoreboardTypographyResolver {
             requestedScoreBase = ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: referenceHeight)
                 * context.scoreBaseScale
         }
-        let requestedScore = requestedScoreBase * CGFloat(context.preference.scoreMultiplier)
+        // Match Android's bounded half-panel base before applying the user multiplier.
+        // A single digit must not expand simply because a narrow grid cell is tall.
+        let boundedScoreBase = isGrid
+            ? min(requestedScoreBase, ScoreboardLayoutMetrics.mainScoreFontSize(halfViewportHeight: referenceHeight))
+            : requestedScoreBase
+        let requestedScore = boundedScoreBase * CGFloat(context.preference.scoreMultiplier)
         let inlineSecondaryWidth = context.secondaryIsInline && hasSecondary
             ? estimatedTextWidth(text: context.secondaryText, fontSize: secondarySize)
                 + mainToSecondarySpacing
@@ -606,7 +617,7 @@ enum ScoreboardTypographyResolver {
             availableWidth: max(1, availableWidth - inlineSecondaryWidth),
             minimum: scoreMinimum
         )
-        let verticalLimit = max(1, (size.height - reservedHeight) * 0.88)
+        let verticalLimit = max(1, (size.height - reservedHeight - 2) / max(1, lineHeightRatio))
         let scoreSize = max(1, min(widthLimitedScore, verticalLimit))
 
         let nameScale = min(1, nameSize / max(1, requestedName))

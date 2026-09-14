@@ -332,6 +332,7 @@ struct FeedbackListView: View {
             if hasAppearedOnce { Task { await load(reset: true) } }
             hasAppearedOnce = true
         }
+        .analyticsScreen(.feedbackPage, source: .meTab)
     }
 
     /// 筛选行：右侧下拉筛选（全部/一般反馈/功能建议/问题反馈），对齐安卓 FeedbackFilterRow。

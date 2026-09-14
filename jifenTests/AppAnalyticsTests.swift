@@ -48,6 +48,7 @@ final class AppAnalyticsTests: XCTestCase {
     }
 
     func testAllGameTimerAndToolCatalogEntriesHaveAnalyticsMappings() {
+        XCTAssertEqual(AnalyticsScreen.feedbackPage.rawValue, "feedback_page")
         for gameType in GameType.allCases {
             XCTAssertFalse(gameType.analyticsIdentifier.isEmpty)
             XCTAssertFalse(AnalyticsScreen.scoreboard(for: gameType, setup: nil).rawValue.isEmpty)

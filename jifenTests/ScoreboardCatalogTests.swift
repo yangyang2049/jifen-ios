@@ -1404,44 +1404,36 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertFalse(fresh.finished)
     }
 
-    func testPhoneWatchStartScopeMatchesExistingWatchMatchProjectsOnly() {
-        let supported: Set<jifen.GameType> = [
-            .pingpong, .badminton, .tennis, .pickleball,
-            .archery, .eightBall, .nineBall, .snooker
-        ]
-        let actual = Set(GameCatalog.scoreboardItems.map(\.gameType).filter {
-            AppFeatureFlags.isWatchLinkSupportedProject($0)
-        })
-        XCTAssertEqual(actual, supported)
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.basketball))
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.threeBasketball))
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.foosball))
-        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: true))
-        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: false))
-        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 2))
-        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 4))
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .nineBall, nineBallPlayerCount: 5))
+
+
+
+
+    func testSportsSetupFeatureCardsShrinkToFitCompactDialogs() {
+        XCTAssertEqual(
+            SportsSetupFeatureCardLayout.cardWidth(
+                availableWidth: 248,
+                itemCount: 3,
+                preferredMaxWidth: 96,
+                spacing: 8
+            ),
+            232.0 / 3.0,
+            accuracy: 0.000_001
+        )
+        XCTAssertEqual(
+            SportsSetupFeatureCardLayout.cardWidth(
+                availableWidth: 440,
+                itemCount: 3,
+                preferredMaxWidth: 96,
+                spacing: 8
+            ),
+            96
+        )
     }
 
-    func testWatchLinkEntryIsAvailableOnlyOnPhone() {
-        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedHostDevice(.phone))
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.pad))
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.mac))
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.tv))
-    }
-
-    func testTwentyNineModeAuditMatrixIncludesWatchOnlyBasketballTraining() throws {
+    func testScoreboardModeAuditMatrixCount() throws {
         let phoneModes = GameCatalog.scoreboardItems.count
             + GameCatalog.scoreboardItems.map(\.gameType).filter(\.supportsSinglesAndDoubles).count
         XCTAssertEqual(phoneModes, 36)
-
-        let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-        let managerSource = try String(
-            contentsOf: repositoryRoot.appendingPathComponent("jifenWatch Watch App/Managers/WatchRecordManager.swift"),
-            encoding: .utf8
-        )
-        XCTAssertTrue(managerSource.contains("guard record.gameType != .basketballTraining else { return }"))
-        XCTAssertEqual(phoneModes + 1, 37, "第 37 个实际模式是仅手表端的投篮训练，不参与手机联动")
     }
 
     func testPickleballUsesTableTennisIcon() throws {
@@ -1736,8 +1728,8 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testStandardTeamNamesNormalizeEmptyAndLegacyLabelsWithoutReplacingCustomNames() {
-        let expectedRed = NSLocalizedString("watch_team_red", value: "红方", comment: "")
-        let expectedBlue = NSLocalizedString("watch_team_blue", value: "蓝方", comment: "")
+        let expectedRed = NSLocalizedString("scoreboard_team_red", value: "红方", comment: "")
+        let expectedBlue = NSLocalizedString("scoreboard_team_blue", value: "蓝方", comment: "")
 
         let emptyNames = BaseScoreViewModel()
         emptyNames.leftTeam.name = ""
@@ -1845,10 +1837,10 @@ final class ScoreboardCatalogTests: XCTestCase {
         assertDefaultParticipantPair(.beachVolleyball, "team_a", "team_b")
         assertDefaultParticipantPair(.airVolleyball, "team_a", "team_b")
         assertDefaultParticipantPair(.football, "team_home", "team_away")
-        assertDefaultParticipantPair(.boxing, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.boxing, "scoreboard_team_red", "scoreboard_team_blue")
         assertDefaultParticipantPair(.guandan, "team_a", "team_b")
         assertDefaultParticipantPair(.shengji, "team_a", "team_b")
-        assertDefaultParticipantPair(.simpleScore, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.simpleScore, "scoreboard_team_red", "scoreboard_team_blue")
     }
 
     func testIndividualDefaultParticipantNamesDoNotUseTeamLabels() {
@@ -1949,8 +1941,8 @@ final class ScoreboardCatalogTests: XCTestCase {
         assertDefaultParticipantPair(.xiangqi, "timer_red_player", "timer_black_player")
         assertDefaultParticipantPair(.chess, "timer_white_player", "timer_black_player")
         assertDefaultParticipantPair(.checkers, "timer_red_player", "timer_black_player")
-        assertDefaultParticipantPair(.counter, "watch_team_red", "watch_team_blue")
-        assertDefaultParticipantPair(.stopwatch, "watch_team_red", "watch_team_blue")
+        assertDefaultParticipantPair(.counter, "scoreboard_team_red", "scoreboard_team_blue")
+        assertDefaultParticipantPair(.stopwatch, "scoreboard_team_red", "scoreboard_team_blue")
     }
 
     func testEveryGameTypeResolvesToNonEmptyDefaultParticipantNames() {

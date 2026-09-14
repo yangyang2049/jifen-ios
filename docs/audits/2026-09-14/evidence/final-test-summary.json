@@ -1,0 +1,31 @@
+{
+  "ui-archery": {
+    "passed": true,
+    "errors": 0
+  },
+  "ui-completion": {
+    "passed": true,
+    "errors": 0
+  },
+  "ui-foosball": {
+    "passed": true,
+    "errors": 0
+  },
+  "ui-snooker": {
+    "passed": true,
+    "errors": 0
+  },
+  "ui-archery-phone": {
+    "passed": true,
+    "errors": 0
+  },
+  "unit-handoff": {
+    "passed": true,
+    "errors": 0,
+    "tests": 428
+  },
+  "core": {
+    "passed": true,
+    "tests": 219
+  }
+}

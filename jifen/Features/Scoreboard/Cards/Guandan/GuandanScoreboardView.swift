@@ -48,7 +48,7 @@ func guandanLocalDisplayState(
     let rightSide = guandanLogicalSide(onScreen: .right)
     var compact = LocalScoreboardDisplayState(
         gameID: GameType.guandan.canonicalScoreboardIdentifier,
-        title: GameType.guandan.displayName,
+        title: "",
         leftName: leftSide == .red ? state.redTeam.name : state.blueTeam.name,
         rightName: rightSide == .red ? state.redTeam.name : state.blueTeam.name,
         leftScore: state.displayRank(for: leftSide),

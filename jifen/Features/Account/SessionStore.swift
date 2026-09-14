@@ -20,6 +20,15 @@ nonisolated private struct AccountDeletionResponse: Decodable, Sendable {
     var message: String?
 }
 
+nonisolated enum PasswordLoginEndpoint {
+    static let path = "/api/auth/login/email"
+
+    struct Body: Encodable, Sendable {
+        var email: String
+        var password: String
+    }
+}
+
 @MainActor
 @Observable
 final class SessionStore {
@@ -86,6 +95,17 @@ final class SessionStore {
 
     func signInWithApple() async {
         await performAuth { try await appleProvider.signIn() }
+    }
+
+    /// 账号密码登录（对齐安卓 AuthRepository.loginWithEmail：POST api/auth/login/email）。
+    func signInWithEmail(account: String, password: String) async {
+        await performAuth {
+            try await self.client.request(
+                PasswordLoginEndpoint.path,
+                method: .post,
+                body: PasswordLoginEndpoint.Body(email: account, password: password)
+            )
+        }
     }
 
     #if STAGING
@@ -249,7 +269,7 @@ final class SessionStore {
             let response = try await operation()
             guard let expiry = APIDateParser.date(from: response.expiresAt) else {
                 #if DEBUG
-                print("[AppleAuth] local session rejected: invalid expiresAt=\(response.expiresAt)")
+                print("[AccountAuth] local session rejected: invalid expiresAt=\(response.expiresAt)")
                 #endif
                 throw APIClientError.decoding
             }
@@ -257,7 +277,7 @@ final class SessionStore {
             user = response.user
             state = .authenticated
             #if DEBUG
-            print("[AppleAuth] local session authenticated")
+            print("[AccountAuth] local session authenticated")
             #endif
             await CommonDataCloudSyncManager.shared.sessionDidChange(userId: response.user.id)
             await StoreKitPurchaseManager.shared.sessionDidAuthenticate()

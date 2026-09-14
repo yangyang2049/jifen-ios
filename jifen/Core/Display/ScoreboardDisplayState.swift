@@ -8,6 +8,7 @@ enum ScoreboardDisplayOrientation: String, Codable, Sendable {
 enum ScoreboardDisplayLayoutKind: String, Codable, Sendable {
     case twoSide = "two_side"
     case doublesCourt = "doubles_court"
+    case teamCourt = "team_court"
     case multiGrid = "multi_grid"
     case boardCard = "board_card"
     case trainingCounter = "training_counter"
@@ -20,6 +21,8 @@ enum ScoreboardDisplayValue: Codable, Equatable, Sendable {
     case boolean(Bool)
     case strings([String])
     case integers([Int])
+    /// 嵌套整数数组（九球 chasePlayerCounts：每个逻辑玩家一行的计数表）。
+    case integersArrays([[Int]])
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -28,6 +31,7 @@ enum ScoreboardDisplayValue: Codable, Equatable, Sendable {
         if let value = try? container.decode(Double.self) { self = .double(value); return }
         if let value = try? container.decode(String.self) { self = .string(value); return }
         if let value = try? container.decode([Int].self) { self = .integers(value); return }
+        if let value = try? container.decode([[Int]].self) { self = .integersArrays(value); return }
         self = .strings(try container.decode([String].self))
     }
 
@@ -40,6 +44,7 @@ enum ScoreboardDisplayValue: Codable, Equatable, Sendable {
         case .boolean(let value): try container.encode(value)
         case .strings(let value): try container.encode(value)
         case .integers(let value): try container.encode(value)
+        case .integersArrays(let value): try container.encode(value)
         }
     }
 
@@ -106,6 +111,7 @@ struct ScoreboardDisplayAppearance: Codable, Equatable, Sendable {
     /// 字号倍率，对齐安卓 DisplayStyleSnapshotV2.fontSizeMultipliers
     /// （键：mainScore/teamName/playerName/setScore/gameScore/setGameScore）。
     var fontSizeMultipliers: [String: Double]? = nil
+    var style: ScoreboardDisplayStyle? = nil
 
     /// 主分文字色（逐元素优先，回落扁平文字色）。
     var leftMainTextHex: String { leftScoreHex ?? leftTextHex }
@@ -164,6 +170,9 @@ struct ScoreboardDisplayRest: Codable, Equatable, Sendable {
     var remainingSeconds: Int
     var isRunning: Bool
     var updatedWallClockMilliseconds: Int64
+    var sport: String? = nil
+    var afterAction: String? = nil
+    var revision: Int64? = nil
 
     func projectedRemainingSeconds(atWallClockMilliseconds now: Int64) -> Int {
         guard isRunning else { return remainingSeconds }

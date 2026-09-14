@@ -356,6 +356,218 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
+    func testAuditSpecialEditorsAndPaletteOptions() {
+        for item in [(id: "pingpong", label: "乒乓球"), (id: "snooker", label: "斯诺克"),
+                     (id: "doudizhu", label: "斗地主"), (id: "uno", label: "UNO"),
+                     (id: "multiScoreboard", label: "多人计分")] {
+            XCTAssertTrue(openPriorityScoreboardSetup(id: item.id, label: item.label))
+            XCTAssertTrue(tapStart())
+            XCUIDevice.shared.orientation = .landscapeRight
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+            if item.id == "doudizhu" {
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+                XCTAssertTrue(app.descendants(matching: .any)["doudizhu_player_0_name_editor"].firstMatch.waitForExistence(timeout: 2))
+                snap("audit_doudizhu_02_edit", settle: 0.3)
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+            } else if ["uno", "multiScoreboard"].contains(item.id) {
+                app.staticTexts["玩家 1"].firstMatch.press(forDuration: 1.2)
+                XCTAssertTrue(app.descendants(matching: .any)["multi_score_player_name_editor"].firstMatch.waitForExistence(timeout: 2))
+                snap("audit_\(item.id)_02_edit", settle: 0.3)
+                let cancel = app.buttons["取消"].firstMatch
+                if cancel.exists, cancel.isHittable { cancel.tap() }
+            }
+            XCTAssertTrue(openPriorityScoreboardMenu())
+            app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+            let hint = app.buttons["知道了"].firstMatch
+            if hint.waitForExistence(timeout: 0.4), hint.isHittable { hint.tap() }
+            if ["uno", "multiScoreboard"].contains(item.id) {
+                snap("audit_\(item.id)_legacy_settings", settle: 0.3)
+                continue
+            }
+            for (index, title) in ["背景", "主题", "字体"].enumerated() {
+                let palette = app.buttons["样式与颜色"].firstMatch
+                XCTAssertTrue(palette.waitForExistence(timeout: 2))
+                if palette.isHittable { palette.tap() }
+                let entry = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", title)).firstMatch
+                XCTAssertTrue(entry.waitForExistence(timeout: 2))
+                if entry.isHittable { entry.tap() }
+                snap("audit_\(item.id)_\(8 + index)_palette_panel", settle: 0.3)
+                let complete = app.buttons["完成当前面板"].firstMatch
+                XCTAssertTrue(complete.waitForExistence(timeout: 2))
+                if complete.isHittable { complete.tap() }
+            }
+            app.buttons["退出样式编辑"].firstMatch.tap()
+        }
+    }
+
+    func testAuditDoublesEditing() {
+        for item in [(id: "pingpong", label: "乒乓球"), (id: "badminton", label: "羽毛球"),
+                     (id: "tennis", label: "网球"), (id: "pickleball", label: "匹克球")] {
+            XCTAssertTrue(openPriorityScoreboardSetup(id: item.id, label: item.label))
+            XCTAssertTrue(selectSinglesDoublesMode(doubles: true))
+            XCTAssertTrue(tapStart())
+            XCTAssertTrue(waitForPriorityScoreboard())
+            snap("audit_\(item.id)_doubles_01_board", settle: 0.3)
+            let editID = item.id == "tennis" ? "tennis_scoreboard_edit_button" : "scoreboard_edit_button"
+            let edit = app.buttons[editID].firstMatch
+            XCTAssertTrue(edit.waitForExistence(timeout: 2))
+            edit.tap()
+            snap("audit_\(item.id)_doubles_02_edit", settle: 0.3)
+            edit.tap()
+            XCTAssertTrue(openPriorityScoreboardMenu())
+            app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+            let hint = app.buttons["知道了"].firstMatch
+            if hint.waitForExistence(timeout: 0.5), hint.isHittable { hint.tap() }
+            for key in ["mainScore", "playerName", "setGameScore"] {
+                let element = app.descendants(matching: .any)["style_element_\(key)_side_left"].firstMatch
+                XCTAssertTrue(element.waitForExistence(timeout: 2), "Missing doubles element \(item.id) \(key)")
+                if element.exists { element.tap() }
+                let slider = app.sliders.firstMatch
+                XCTAssertTrue(slider.waitForExistence(timeout: 2))
+                if slider.exists { slider.adjust(toNormalizedSliderPosition: 1) }
+                snap("audit_\(item.id)_doubles_\(key)_panel", settle: 0.2)
+                let close = app.buttons["完成当前面板"].firstMatch
+                if close.exists { close.tap() }
+            }
+            snap("audit_\(item.id)_doubles_03_style_max", settle: 0.3)
+            app.buttons["退出样式编辑"].firstMatch.tap()
+        }
+    }
+
+    func testFollowupBoxingAndStoppageControls() {
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "boxing", label: "拳击"))
+        XCTAssertTrue(tapStart())
+        XCUIDevice.shared.orientation = .landscapeRight
+        let add = app.buttons["boxing_add_round"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 3))
+        XCTAssertEqual(add.frame.midX, app.frame.midX, accuracy: 4)
+        XCTAssertGreaterThan(add.frame.midY, app.frame.height * 0.8)
+        add.tap()
+        snap("audit_boxing_10_add_round", settle: 0.2)
+
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "football", label: "足球"))
+        XCTAssertTrue(tapStart())
+        XCUIDevice.shared.orientation = .landscapeRight
+        XCTAssertFalse(app.descendants(matching: .any)["football_stoppage_menu"].exists)
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        let injury = app.descendants(matching: .any)["scoreboard_menu_action_footballInjury"].firstMatch
+        XCTAssertTrue(injury.waitForExistence(timeout: 3))
+        injury.tap()
+        let addMinute = app.buttons["football_stoppage_add_60"].firstMatch
+        XCTAssertTrue(addMinute.waitForExistence(timeout: 3))
+        addMinute.tap()
+        XCTAssertTrue(app.staticTexts["+1:00"].firstMatch.waitForExistence(timeout: 2))
+        snap("audit_football_10_stoppage_settings", settle: 0.2)
+        app.buttons["football_stoppage_undo"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["+0:00"].firstMatch.waitForExistence(timeout: 2))
+    }
+
+    /// Current catalog audit. Each snapshot is produced by navigating the real app.
+    func testAuditAllScoreboardEditingSurfaces() {
+        let added = [(id: "shuttlecock", label: "毽球"), (id: "squash", label: "壁球"),
+                     (id: "soft_tennis", label: "软式网球"), (id: "padel", label: "板式网球"),
+                     (id: "football_5v5", label: "五人制足球")]
+        let filter = ProcessInfo.processInfo.environment["AUDIT_GAME"] ?? ProcessInfo.processInfo.environment["TEST_RUNNER_AUDIT_GAME"]
+        for item in scoreboards + added where filter == nil || filter!.split(separator: ",").contains(Substring(item.id)) {
+            XCTContext.runActivity(named: "Audit \(item.id)") { _ in
+                guard openPriorityScoreboardSetup(id: item.id, label: item.label) else {
+                    XCTFail("Missing setup: \(item.id)"); return
+                }
+                guard tapStart() else { XCTFail("Cannot start \(item.id)"); return }
+                XCUIDevice.shared.orientation = .landscapeRight
+                RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+                revealScoreboardChrome(fromLeftCorner: true)
+                snap("audit_\(item.id)_01_board", settle: 0.3)
+                let standardEdit = app.buttons["scoreboard_edit_button"].firstMatch
+                let tennisEdit = app.buttons["tennis_scoreboard_edit_button"].firstMatch
+                let edit = standardEdit.exists ? standardEdit : (tennisEdit.exists ? tennisEdit : app.buttons["pencil"].firstMatch)
+                if item.id == "doudizhu" {
+                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+                    XCTAssertTrue(app.descendants(matching: .any)["doudizhu_player_0_name_editor"].firstMatch.waitForExistence(timeout: 2))
+                    snap("audit_doudizhu_02_edit", settle: 0.3)
+                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.09)).tap()
+                } else if edit.waitForExistence(timeout: 2), edit.isHittable {
+                    edit.tap()
+                    snap("audit_\(item.id)_02_edit", settle: 0.3)
+                    if edit.exists, edit.isHittable { edit.tap() }
+                } else if ["uno", "multiScoreboard"].contains(item.id) {
+                    app.staticTexts["玩家 1"].firstMatch.press(forDuration: 1.2)
+                    XCTAssertTrue(app.descendants(matching: .any)["multi_score_player_name_editor"].firstMatch.waitForExistence(timeout: 2))
+                    snap("audit_\(item.id)_02_edit", settle: 0.3)
+                    app.buttons["取消"].firstMatch.tap()
+                } else {
+                    XCTFail("Missing edit control: \(item.id)")
+                }
+                guard openPriorityScoreboardMenu() else {
+                    XCTFail("Missing menu: \(item.id)"); return
+                }
+                snap("audit_\(item.id)_03_menu", settle: 0.2)
+                XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "手表")).firstMatch.exists)
+                let settings = app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch
+                guard settings.waitForExistence(timeout: 2) else {
+                    XCTFail("Missing style entry: \(item.id)"); return
+                }
+                settings.tap()
+                let hint = app.buttons["知道了"].firstMatch
+                if hint.waitForExistence(timeout: 0.5), hint.isHittable { hint.tap() }
+                let legacyStyle = ["basketball", "three_basketball", "nine_ball", "uno", "multiScoreboard"].contains(item.id)
+                if !legacyStyle {
+                    XCTAssertTrue(app.descendants(matching: .any)["scoreboard_style_editor"].firstMatch.waitForExistence(timeout: 3))
+                }
+                snap("audit_\(item.id)_04_style", settle: 0.3)
+                // Select the rendered score text to open the actual typography panel.
+                if !legacyStyle {
+                    let score = app.descendants(matching: .any)["style_element_mainScore_side_left"].firstMatch
+                    XCTAssertTrue(score.waitForExistence(timeout: 2), "Missing selectable score: \(item.id)")
+                    let originalScore = score.exists ? score.label : ""
+                    if score.exists { score.tap() }
+                    snap("audit_\(item.id)_05_text_panel", settle: 0.3)
+                    let slider = app.sliders.firstMatch
+                    XCTAssertTrue(slider.waitForExistence(timeout: 2), "Typography panel unreachable: \(item.id)")
+                    if slider.exists, slider.isHittable {
+                        slider.adjust(toNormalizedSliderPosition: 1)
+                        snap("audit_\(item.id)_06_max_font", settle: 0.3)
+                    }
+                    let close = app.buttons["完成当前面板"].firstMatch
+                    if close.exists { close.tap() }
+                    if score.exists { XCTAssertEqual(score.label, originalScore, "Style editing changed the score") }
+                    if item.id == "snooker" {
+                        for identifier in ["snooker_ball_1", "snooker_foul_button", "snooker_action_handover"] {
+                            let action = app.buttons[identifier].firstMatch
+                            XCTAssertFalse(action.exists, "Scoring control remained visible during style editing: \(identifier)")
+                        }
+                    }
+                }
+                let palette = app.buttons["样式与颜色"].firstMatch
+                if palette.exists, palette.isHittable {
+                    palette.tap()
+                    snap("audit_\(item.id)_07_palette", settle: 0.2)
+                    for (index, title) in ["背景", "主题", "字体"].enumerated() {
+                        let entry = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", title))
+                            .allElementsBoundByIndex.first(where: { $0.isHittable })
+                        if let entry {
+                            entry.tap()
+                            snap("audit_\(item.id)_\(8 + index)_palette_panel", settle: 0.3)
+                            let close = app.buttons["完成当前面板"].firstMatch
+                            XCTAssertTrue(close.waitForExistence(timeout: 1))
+                            if close.exists, close.isHittable { close.tap() }
+                            if index < 2, palette.exists, palette.isHittable { palette.tap() }
+                        }
+                    }
+                }
+                let cancel = app.buttons["退出样式编辑"].firstMatch
+                if cancel.exists, cancel.isHittable { cancel.tap() }
+                if !legacyStyle {
+                    XCTAssertTrue(openPriorityScoreboardMenu())
+                    app.descendants(matching: .any)["scoreboard_menu_action_displaySettings"].firstMatch.tap()
+                    XCTAssertFalse(app.buttons["知道了"].firstMatch.waitForExistence(timeout: 0.5), "Usage hint reappeared")
+                    let exit = app.buttons["退出样式编辑"].firstMatch
+                    if exit.exists { exit.tap() }
+                }
+            }
+        }
+    }
+
     // MARK: - Launch
 
     private func relaunch() {
@@ -562,18 +774,9 @@ final class FullAppScreenshotUITests: XCTestCase {
             byLabel.tap()
         }
 
-        dismissWatchStartGuideIfNeeded()
         return app.buttons["开始"].waitForExistence(timeout: 4)
             || app.buttons["Start"].waitForExistence(timeout: 1)
             || app.buttons["确认"].waitForExistence(timeout: 1)
-    }
-
-    private func dismissWatchStartGuideIfNeeded() {
-        let closeButton = app.buttons["linked_score_watch_start_guide_close"]
-        if closeButton.waitForExistence(timeout: 0.8), closeButton.isHittable {
-            closeButton.tap()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
-        }
     }
 
     private func selectSinglesDoublesMode(doubles: Bool) -> Bool {
@@ -857,17 +1060,9 @@ final class FullAppScreenshotUITests: XCTestCase {
         closeMeDestination("settings_scoreboard_sheet_close")
 
         selectTab("我的")
-        if app.staticTexts["手表联动"].exists || app.buttons["手表联动"].exists
-            || app.staticTexts["Watch Link"].exists || app.buttons["Watch Link"].exists {
-            tapRow("手表联动")
-            if !(app.navigationBars["手表联动"].waitForExistence(timeout: 2)
-                || app.navigationBars["Watch Link"].waitForExistence(timeout: 1)) {
-                tapRow("Watch Link")
-            }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
-            snap("41b_me_watch_link")
-            navigateBack()
-        }
+        XCTAssertFalse(app.staticTexts["手表联动"].exists)
+        XCTAssertFalse(app.buttons["手表联动"].exists)
+        XCTAssertFalse(app.buttons["Watch Link"].exists)
 
         selectTab("我的")
         tapRow("外观")
@@ -968,12 +1163,6 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     @discardableResult
     private func tapStart() -> Bool {
-        // 首次进入支持手表联动的项目时，关闭锚定在手表按钮上的一次性引导。
-        let guideDismiss = app.buttons["linked_score_watch_start_guide_close"]
-        if guideDismiss.waitForExistence(timeout: 0.8), guideDismiss.isHittable {
-            guideDismiss.tap()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
-        }
         for label in ["开始", "Start", "确认"] {
             let button = app.buttons[label]
             if button.waitForExistence(timeout: 1.2), button.isHittable {

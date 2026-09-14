@@ -60,10 +60,10 @@ struct ToolItemView: View {
                 .cornerRadius(Theme.cornerRadius)
                 .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1)
 
-                // Label
+                // Label（对齐 Score/Timer 卡片：regular 字重 + 主文字色）
                 Text(tool.title)
-                    .font(.system(size: Theme.fontBody2, weight: .bold))
-                    .foregroundColor(isDarkTheme ? Theme.textSecondary : Theme.textSecondary)
+                    .font(.system(size: Theme.fontBody2))
+                    .foregroundColor(Theme.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .minimumScaleFactor(0.8)

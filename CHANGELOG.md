@@ -14,6 +14,7 @@
 - **OrientationLock UIKit 警告**：`requestGeometryUpdate` 失败时的 fallback 不再调用 `UIDevice.current.setValue(_, forKey: "orientation")` 与 `attemptRotationToDeviceOrientation()`（系统不支持），仅重置 `isPortraitUpdateInFlight`，依赖 `supportedInterfaceOrientations` 更新后由系统处理旋转，消除 "Setting UIDevice.orientation is not supported" 控制台报错。
 
 ### Removed
+- **移除 Apple Watch 应用与手机侧联动**：删除 Watch App、Watch 测试目标、WatchConnectivity/WatchLink 手机侧服务、手表入口与专用共享模块；保留历史记录中 `syncFrom == watch` 的只读兼容以及清空本地数据时对旧偏好键的清理，不再启动任何手表通信。
 - **篮球 24 秒/12 秒进攻计时器**：移除独立的篮球进攻计时器（BasketballCountdownView）及其在计时 Tab 的入口、GameCatalog 枚举 case、本地化文案（timer_basketball_24s/12s）和相关测试。篮球计分板内嵌的 shot clock 不受影响。与鸿蒙、安卓三端同步删除。
 - **Watch 隐私协议与退出流程**：移除 Watch 端独立隐私协议页与「退出」逻辑（原抄自鸿蒙，Apple 未强制要求）。删除 WatchPrivacyAgreementView、WatchAppExit 及 WatchPreferences.privacyAccepted；Watch 启动后直接进入 WatchTabView。
 - **新比赛弹窗中移除秒表**：GameCatalog.newGameDialogGameTypes 过滤掉 .stopwatch，新比赛弹窗不再展示秒表；秒表仍在计时 Tab 与工具中使用。

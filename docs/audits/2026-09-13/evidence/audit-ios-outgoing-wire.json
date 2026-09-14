@@ -1,0 +1,42 @@
+{
+  "appearance" : {
+    "centerTeamColor" : "#1B5E20",
+    "fontCode" : "default",
+    "leftTeamColor" : "#C62828",
+    "rightTeamColor" : "#007AFF",
+    "scoreColor" : "#FF0000",
+    "secondaryScoreColor" : "#FFFFFF",
+    "style" : {
+      "fontSizeMultipliers" : {
+        "mainScore" : 1.5,
+        "playerName" : 1.5
+      }
+    },
+    "theme" : "default"
+  },
+  "gameType" : "badminton_doubles",
+  "layoutKind" : "doubles_court",
+  "orientation" : "landscape",
+  "schemaVersion" : 1,
+  "sportState" : {
+    "leftDisplayScore" : "8",
+    "rightDisplayScore" : "0"
+  },
+  "teams" : [
+    {
+      "color" : "#C62828",
+      "id" : "team_0",
+      "name" : "A",
+      "order" : 0,
+      "score" : 8
+    },
+    {
+      "color" : "#007AFF",
+      "id" : "team_1",
+      "name" : "B",
+      "order" : 1,
+      "score" : 0
+    }
+  ],
+  "updatedAt" : 8
+}

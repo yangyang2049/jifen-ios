@@ -5,7 +5,6 @@ let package = Package(
     name: "JifenCore",
     platforms: [
         .iOS(.v18),
-        .watchOS(.v10),
         .macOS(.v13)
     ],
     products: [

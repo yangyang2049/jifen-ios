@@ -417,6 +417,7 @@ struct MembershipView: View {
         .padding(.top, 10)
         .padding(.bottom, 8)
         .frame(maxWidth: Theme.meTabContentMaxWidth)
+        .frame(maxWidth: .infinity)
         .background(
             Rectangle()
                 .fill(Theme.cardBackground)

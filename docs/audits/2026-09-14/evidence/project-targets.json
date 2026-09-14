@@ -1,0 +1,23 @@
+{
+  "project" : {
+    "configurations" : [
+      "Debug",
+      "Release"
+    ],
+    "name" : "jifen",
+    "schemes" : [
+      "jifen",
+      "LinkCore",
+      "PersistenceCore",
+      "RecordCore",
+      "ScoreCore",
+      "SessionCore",
+      "TimerCore"
+    ],
+    "targets" : [
+      "jifen",
+      "jifenTests",
+      "jifenUITests"
+    ]
+  }
+}

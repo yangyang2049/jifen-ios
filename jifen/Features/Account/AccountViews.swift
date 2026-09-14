@@ -28,14 +28,17 @@ struct AccountLoginSheet: View {
 
     var body: some View {
         NavigationStack {
-            AccountLoginView(onOpenLegal: { selectedDetent = .large })
-                .navigationTitle(NSLocalizedString("account_login_title", value: "登录", comment: ""))
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        ModalCloseButton { dismiss() }
-                    }
+            AccountLoginView(
+                onOpenLegal: { selectedDetent = .large },
+                onOpenPasswordLogin: { selectedDetent = .large }
+            )
+            .navigationTitle(NSLocalizedString("account_login_title", value: "登录", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    ModalCloseButton { dismiss() }
                 }
+            }
         }
         .presentationDetents([.height(440), .large], selection: $selectedDetent)
         .presentationDragIndicator(.visible)
@@ -84,7 +87,9 @@ private struct AccountLoginView: View {
     @State private var agreementAccepted = false
     @State private var agreementError: String?
     @State private var legalDocument: LoginLegalDocument?
+    @State private var showPasswordLogin = false
     var onOpenLegal: () -> Void = {}
+    var onOpenPasswordLogin: () -> Void = {}
     #if STAGING
     @State private var showStagingToken = false
     @State private var stagingToken = ""
@@ -104,6 +109,21 @@ private struct AccountLoginView: View {
                     Task { await startAppleLogin() }
                 }
                 .frame(height: 50)
+                .disabled(session.isWorking)
+
+                // 对齐安卓 LoginScreen 次按钮：账号密码登录（自测/审核测试用）。
+                Button {
+                    onOpenPasswordLogin()
+                    showPasswordLogin = true
+                } label: {
+                    Text(NSLocalizedString("me_password_login_entry", value: "账号密码登录", comment: ""))
+                        .font(.system(size: 16))
+                        .foregroundColor(Theme.textPrimary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.controlBackground))
+                }
+                .buttonStyle(.plain)
                 .disabled(session.isWorking)
 
                 loginAgreement
@@ -136,6 +156,12 @@ private struct AccountLoginView: View {
         .background(Theme.backgroundColor.ignoresSafeArea())
         .navigationDestination(item: $legalDocument) { document in
             LoginLegalWebPage(document: document)
+        }
+        .navigationDestination(isPresented: $showPasswordLogin) {
+            PasswordLoginView(onOpenLegal: onOpenLegal)
+        }
+        .onChange(of: agreementAccepted) { _, accepted in
+            if accepted { agreementError = nil }
         }
         #if STAGING
         .alert(NSLocalizedString("staging_token_title", value: "Staging 临时密钥", comment: ""), isPresented: $showStagingToken) {
@@ -174,10 +200,172 @@ private struct AccountLoginView: View {
     }
 
     private var loginAgreement: some View {
+        LoginAgreementBar(agreementAccepted: $agreementAccepted) { document in
+            onOpenLegal()
+            legalDocument = document
+        }
+    }
+}
+
+/// 账号密码登录页（对齐安卓 PasswordLoginScreen）：
+/// 邮箱/手机号 + 密码 + 协议勾选，供自测与审核测试使用。
+private struct PasswordLoginView: View {
+    @Environment(SessionStore.self) private var session
+    var onOpenLegal: () -> Void = {}
+
+    @State private var account = ""
+    @State private var password = ""
+    @State private var agreementAccepted = false
+    @State private var localError: String?
+    @State private var legalDocument: LoginLegalDocument?
+    @FocusState private var focusedField: Field?
+
+    private enum Field { case account, password }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                AppLogoImage(size: 72)
+                    .padding(.top, 32)
+                Text(NSLocalizedString("me_login_password_title", value: "账号密码登录", comment: ""))
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(Theme.textPrimary)
+
+                TextField(
+                    NSLocalizedString("me_login_email_placeholder", value: "请输入邮箱或手机号", comment: ""),
+                    text: $account
+                )
+                .font(.system(size: 16))
+                .foregroundColor(Theme.textPrimary)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .textContentType(.username)
+                .focused($focusedField, equals: .account)
+                .submitLabel(.next)
+                .onSubmit { focusedField = .password }
+                .padding(.horizontal, 12)
+                .frame(height: 48)
+                .background(
+                    RoundedRectangle(cornerRadius: 12).fill(Theme.controlBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .strokeBorder(Theme.divider, lineWidth: 1)
+                        )
+                )
+
+                SecureField(
+                    NSLocalizedString("me_login_password_placeholder", value: "请输入密码", comment: ""),
+                    text: $password
+                )
+                .font(.system(size: 16))
+                .foregroundColor(Theme.textPrimary)
+                .textContentType(.password)
+                .focused($focusedField, equals: .password)
+                .submitLabel(.done)
+                .onSubmit { Task { await submit() } }
+                .padding(.horizontal, 12)
+                .frame(height: 48)
+                .background(
+                    RoundedRectangle(cornerRadius: 12).fill(Theme.controlBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .strokeBorder(Theme.divider, lineWidth: 1)
+                        )
+                )
+
+                Button {
+                    Task { await submit() }
+                } label: {
+                    HStack(spacing: 8) {
+                        if session.isWorking {
+                            ProgressView()
+                                .tint(.white)
+                                .frame(width: 20, height: 20)
+                            Text(NSLocalizedString("me_password_login_button_loading", value: "登录中...", comment: ""))
+                        } else {
+                            Text(NSLocalizedString("me_password_login_button", value: "登录", comment: ""))
+                        }
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.accentColor.opacity(session.isWorking ? 0.48 : 1)))
+                }
+                .buttonStyle(.plain)
+                .disabled(session.isWorking)
+
+                LoginAgreementBar(agreementAccepted: $agreementAccepted) { document in
+                    onOpenLegal()
+                    legalDocument = document
+                }
+
+                if let error = localError ?? session.lastError {
+                    Text(error).font(.footnote).foregroundStyle(.red).multilineTextAlignment(.center)
+                }
+            }
+            .padding(24)
+            .frame(maxWidth: 480)
+            .frame(maxWidth: .infinity)
+        }
+        .background(Theme.backgroundColor.ignoresSafeArea())
+        .navigationDestination(item: $legalDocument) { document in
+            LoginLegalWebPage(document: document)
+        }
+        .onAppear { focusedField = .account }
+        .onChange(of: account) { _, _ in localError = nil }
+        .onChange(of: password) { _, _ in localError = nil }
+        .onChange(of: session.isAuthenticated) { _, authenticated in
+            // 登录成功后清掉历史错误，避免返回登录主页时残留。
+            if authenticated { localError = nil }
+        }
+    }
+
+    private func submit() async {
+        guard !session.isWorking else { return }
+        let trimmedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
+        // 账号允许去掉首尾空白；密码必须原样提交，避免合法密码因客户端改写而无法登录。
+        let submittedPassword = password
+        if !agreementAccepted {
+            localError = NSLocalizedString(
+                "account_login_agreement_hint",
+                value: "请先阅读并同意用户协议和隐私政策",
+                comment: ""
+            )
+            return
+        }
+        if trimmedAccount.isEmpty || !PasswordLoginInputValidator.isEmailOrPhoneAccount(trimmedAccount) {
+            localError = NSLocalizedString("me_login_enter_email", value: "请输入邮箱或手机号", comment: "")
+            return
+        }
+        if submittedPassword.isEmpty {
+            localError = NSLocalizedString("me_login_enter_password", value: "请输入密码", comment: "")
+            return
+        }
+        focusedField = nil
+        await session.signInWithEmail(account: trimmedAccount, password: submittedPassword)
+    }
+
+}
+
+nonisolated enum PasswordLoginInputValidator {
+    /// 对齐安卓 isEmailOrPhoneAccount：包含 @ 视为邮箱，否则按手机号校验。
+    static func isEmailOrPhoneAccount(_ value: String) -> Bool {
+        if value.contains("@") { return true }
+        return value.range(of: #"^\+?[0-9][0-9 -]{5,20}$"#, options: .regularExpression) != nil
+    }
+}
+
+/// 登录协议勾选条（对齐安卓 LoginAgreementBar），登录主页与密码登录页共用。
+private struct LoginAgreementBar: View {
+    @Binding var agreementAccepted: Bool
+    var onOpen: (LoginLegalDocument) -> Void
+
+    var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Button {
                 agreementAccepted.toggle()
-                if agreementAccepted { agreementError = nil }
             } label: {
                 Image(systemName: agreementAccepted ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 21, weight: .semibold))
@@ -222,8 +410,7 @@ private struct AccountLoginView: View {
 
     private func legalButton(_ document: LoginLegalDocument) -> some View {
         Button(document.linkTitle) {
-            onOpenLegal()
-            legalDocument = document
+            onOpen(document)
         }
         .buttonStyle(.plain)
         .foregroundStyle(Theme.accentColor)

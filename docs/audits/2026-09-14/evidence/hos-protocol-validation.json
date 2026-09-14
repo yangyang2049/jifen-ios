@@ -1,0 +1,163 @@
+{
+  "iosAccepted": true,
+  "officialBreakAccepted": true,
+  "oldIncompleteStyleRejected": true,
+  "style": {
+    "version": 2,
+    "themeCode": "default",
+    "fontCode": "default",
+    "fontSizeMultipliers": {
+      "mainScore": 1.5,
+      "playerName": 1.5
+    },
+    "panels": [
+      {
+        "slotKey": "side_left",
+        "backgroundColor": "#C62828"
+      },
+      {
+        "slotKey": "side_right",
+        "backgroundColor": "#007AFF"
+      },
+      {
+        "slotKey": "side_center",
+        "backgroundColor": "#1B5E20"
+      }
+    ],
+    "elements": [
+      {
+        "elementKey": "matchTitle",
+        "textColors": [
+          {
+            "slotKey": "side_left",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_right",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_center",
+            "color": "#FFFFFF"
+          }
+        ]
+      },
+      {
+        "elementKey": "teamName",
+        "textColors": [
+          {
+            "slotKey": "side_left",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_right",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_center",
+            "color": "#FFFFFF"
+          }
+        ]
+      },
+      {
+        "elementKey": "playerName",
+        "textColors": [
+          {
+            "slotKey": "side_left",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_right",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_center",
+            "color": "#FFFFFF"
+          }
+        ]
+      },
+      {
+        "elementKey": "setScore",
+        "textColors": [
+          {
+            "slotKey": "side_left",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_right",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_center",
+            "color": "#FFFFFF"
+          }
+        ]
+      },
+      {
+        "elementKey": "gameScore",
+        "textColors": [
+          {
+            "slotKey": "side_left",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_right",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_center",
+            "color": "#FFFFFF"
+          }
+        ]
+      },
+      {
+        "elementKey": "setGameScore",
+        "textColors": [
+          {
+            "slotKey": "side_left",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_right",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_center",
+            "color": "#FFFFFF"
+          }
+        ]
+      },
+      {
+        "elementKey": "mainScore",
+        "textColors": [
+          {
+            "slotKey": "side_center",
+            "color": "#FFFFFF"
+          },
+          {
+            "slotKey": "side_left",
+            "color": "#FF0000"
+          },
+          {
+            "slotKey": "side_right",
+            "color": "#00FF00"
+          }
+        ]
+      }
+    ],
+    "serverIndicatorColor": "#30D158",
+    "styleRevision": 0
+  },
+  "rest": {
+    "version": 1,
+    "sport": "badminton",
+    "kind": "game_break",
+    "phase": "countdown",
+    "startedAt": 100000,
+    "endsAt": 160000,
+    "remainingMs": 60000,
+    "prepareRemaining": 0,
+    "revision": 100000,
+    "afterAction": "none"
+  }
+}

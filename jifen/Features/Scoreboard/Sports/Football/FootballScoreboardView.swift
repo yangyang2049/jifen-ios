@@ -25,6 +25,7 @@ struct FootballScoreboardView: View {
     @State private var recordID: String
     @State private var showPostRegulationDialog = false
     @State private var showSwitchHalfConfirm = false
+    @State private var showStoppageSettings = false
     @State private var lastOutcomeSignature: String? = nil
     @State private var didApplyInitialSetup = false
     @State private var clockPulseScale: CGFloat = 1
@@ -65,10 +66,18 @@ struct FootballScoreboardView: View {
                 viewModel: viewModel,
                 scoreFontSize: 120,
                 nameType: ScoreboardCommonNamePolicy.nameType(for: .football),
+                contentOverlayProvider: { _, _ in AnyView(footballClockOverlay) },
                 showSettleMatch: true,
                 extraMenuItemsProvider: {
                     // 对齐安卓 S1DualSideScoreRouteScreen 的足球菜单项。
                     var items: [ScoreboardMenuItem] = []
+                    if viewModel.allowsStoppageTime {
+                        items.append(ScoreboardMenuItem(
+                            title: NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""),
+                            action: "footballInjury", group: .match,
+                            icon: "clock.badge.plus", placeAtEnd: true
+                        ))
+                    }
                     if firstHalfEnded {
                         items.append(ScoreboardMenuItem(
                             title: NSLocalizedString("football_switch_half", value: "进入下半场", comment: ""),
@@ -90,6 +99,8 @@ struct FootballScoreboardView: View {
                 },
                 onMenuAction: { action in
                     switch action {
+                    case "footballInjury":
+                        showStoppageSettings = true
                     case "footballSwitchHalf":
                         _ = viewModel.advanceClockStage()
                     case "footballPostRegulation":
@@ -133,7 +144,6 @@ struct FootballScoreboardView: View {
                 }
             )
 
-            footballClockOverlay
 
             if showGameOverDialog {
                 GameOverDialog(
@@ -174,6 +184,10 @@ struct FootballScoreboardView: View {
 
             if showPostRegulationDialog {
                 postRegulationDialog
+            }
+
+            if showStoppageSettings {
+                stoppageSettingsPanel
             }
 
             if showSwitchHalfConfirm {
@@ -338,9 +352,6 @@ struct FootballScoreboardView: View {
                     }
                 } else {
                     footballClockCapsule
-                    if viewModel.allowsStoppageTime {
-                        stoppageMenu
-                    }
                 }
                 Spacer(minLength: 0)
             }
@@ -447,36 +458,6 @@ struct FootballScoreboardView: View {
         .accessibilityIdentifier("football_timer_toggle")
     }
 
-    /// 11 人制补时加减菜单（iOS 既有功能），样式与时钟胶囊统一的深色圆角底。
-    private var stoppageMenu: some View {
-        Menu {
-            Button("+15 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
-                viewModel.addStoppage(15)
-            }
-            Button("+30 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
-                viewModel.addStoppage(30)
-            }
-            Button("+1 \(NSLocalizedString("minute", value: "分钟", comment: ""))") {
-                viewModel.addStoppage(60)
-            }
-            Button("+1 \(NSLocalizedString("minute", value: "分钟", comment: "")) 30 \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
-                viewModel.addStoppage(90)
-            }
-            if viewModel.canUndoLastStoppage {
-                Button(NSLocalizedString("football_undo_stoppage", value: "撤销最近一次补时", comment: "")) {
-                    viewModel.undoLastStoppage()
-                }
-            }
-        } label: {
-            Image(systemName: "plus.forwardslash.minus")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .frame(width: 38, height: 38)
-                .background(Color.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-        }
-        .accessibilityIdentifier("football_stoppage_menu")
-    }
-
     /// 对齐安卓 CompactClockCapsule 的阶段徽标与强调色。
     private var clockStageBadge: String {
         switch viewModel.clockStage {
@@ -576,6 +557,43 @@ struct FootballScoreboardView: View {
                 showPostRegulationDialog = false
             }
         )
+    }
+
+    private var stoppageSettingsPanel: some View {
+        ZStack {
+            Theme.scoreboardDialogScrim.ignoresSafeArea()
+                .onTapGesture { showStoppageSettings = false }
+            VStack(spacing: 20) {
+                Text(NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""))
+                    .font(.headline)
+                Text("+\(viewModel.clockSession.currentStoppageSeconds / 60):\(String(format: "%02d", viewModel.clockSession.currentStoppageSeconds % 60))")
+                    .font(.system(size: 32, weight: .bold)).monospacedDigit()
+                HStack(spacing: 12) {
+                    ForEach([15, 30, 60, 90], id: \.self) { seconds in
+                        Button("+\(seconds) \(NSLocalizedString("seconds_short", value: "秒", comment: ""))") {
+                            viewModel.addStoppage(seconds)
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityIdentifier("football_stoppage_add_\(seconds)")
+                    }
+                }
+                HStack {
+                    Button(NSLocalizedString("football_undo_stoppage", value: "撤销最近一次补时", comment: "")) {
+                        viewModel.undoLastStoppage()
+                    }.disabled(!viewModel.canUndoLastStoppage)
+                        .accessibilityIdentifier("football_stoppage_undo")
+                    Spacer()
+                    Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                        showStoppageSettings = false
+                    }
+                }
+            }
+            .padding(24).frame(maxWidth: 440)
+            .foregroundStyle(.white)
+            .background(Color(white: 0.16), in: RoundedRectangle(cornerRadius: 20))
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("football_stoppage_settings")
+        }
     }
 
     private var switchHalfConfirmDialog: some View {

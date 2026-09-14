@@ -25,8 +25,8 @@
 	<string>扫描受信任的计分器登录二维码时需要使用相机。</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>录制语音笔记需要使用麦克风。</string>
-	<key>JifenWatchLinkEntryEnabled</key>
-	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>JifenReviewPromptLaunchThreshold</key>
 	<integer>5</integer>
 	<key>UMENG_APP_KEY</key>

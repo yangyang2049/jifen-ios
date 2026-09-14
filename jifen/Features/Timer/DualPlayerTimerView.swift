@@ -196,7 +196,7 @@ struct DualPlayerTimerView: View {
         )
         let compact = LocalScoreboardDisplayState(
             gameID: gameType.canonicalScoreboardIdentifier,
-            title: gameType.displayName,
+            title: "",
             leftName: playerName(for: leftID),
             rightName: playerName(for: rightID),
             leftScore: "\(Int(displaySeconds(for: leftClock)))",

@@ -85,7 +85,10 @@ enum UITestScreenshotStore {
         let oriented = UIImage(cgImage: cgImage, scale: source.scale, orientation: orientation)
         let format = UIGraphicsImageRendererFormat()
         format.scale = source.scale
-        let targetSize = CGSize(width: source.size.height, height: source.size.width)
+        // UIImage.size may already reflect EXIF orientation. Use raw pixels to
+        // avoid swapping an already-oriented size and stretching landscape captures.
+        let targetSize = CGSize(width: CGFloat(cgImage.height) / source.scale,
+                                height: CGFloat(cgImage.width) / source.scale)
         let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
         let flattened = renderer.image { _ in
             oriented.draw(in: CGRect(origin: .zero, size: targetSize))

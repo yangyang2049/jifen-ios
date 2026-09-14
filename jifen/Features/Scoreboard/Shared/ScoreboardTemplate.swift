@@ -206,9 +206,11 @@ struct ScoreboardTemplate: View {
                             secondaryMultiplier: secondaryMultiplier,
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
+                                guard !isStyleEditing else { return }
                                 config.viewModel.addScore(isLeft: leftLogicalIsLeft, points: points)
                             },
                             onScoreSubtract: { points in
+                                guard !isStyleEditing else { return }
                                 config.viewModel.subtractScore(isLeft: leftLogicalIsLeft, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
@@ -233,15 +235,15 @@ struct ScoreboardTemplate: View {
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
+                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("scoreboard_left_panel")
                         .contentShape(Rectangle())
-                        .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
                         .gesture(scoreTapGesture(isLeft: leftLogicalIsLeft, panelSize: panelSize))
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
-                                    if scoringEnabled,
+                                    if !isStyleEditing, scoringEnabled,
                                        value.translation.width < -50 && abs(value.translation.height) < 50 {
                                         if !isEditMode {
                                             let success = config.viewModel.undo()
@@ -252,7 +254,7 @@ struct ScoreboardTemplate: View {
                                                 showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
-                                    } else if scoringEnabled,
+                                    } else if !isStyleEditing, scoringEnabled,
                                               supportsPanelSwipeScoring,
                                               !isEditMode,
                                               abs(value.translation.height) > 50 && abs(value.translation.width) < 50 {
@@ -288,9 +290,11 @@ struct ScoreboardTemplate: View {
                             secondaryMultiplier: secondaryMultiplier,
                             fontRefreshTrigger: 0,
                             onScoreTap: { points in
+                                guard !isStyleEditing else { return }
                                 config.viewModel.addScore(isLeft: rightLogicalIsLeft, points: points)
                             },
                             onScoreSubtract: { points in
+                                guard !isStyleEditing else { return }
                                 config.viewModel.subtractScore(isLeft: rightLogicalIsLeft, points: points)
                             },
                             onScoreAdjust: { (isLeft, delta) in
@@ -315,15 +319,15 @@ struct ScoreboardTemplate: View {
                             scoringOptions: config.controller.getScoringOptions()
                         )
                         .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
+                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("scoreboard_right_panel")
                         .contentShape(Rectangle())
-                        .allowsHitTesting(!isEditMode || true) // Allow hit testing for buttons in edit mode
                         .gesture(scoreTapGesture(isLeft: rightLogicalIsLeft, panelSize: panelSize))
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 50)
                                 .onEnded { value in
                                     // Swipe left to undo
-                                    if scoringEnabled,
+                                    if !isStyleEditing, scoringEnabled,
                                        value.translation.width < -50 && abs(value.translation.height) < 50 {
                                         if !isEditMode {
                                             let success = config.viewModel.undo()
@@ -334,7 +338,7 @@ struct ScoreboardTemplate: View {
                                                 showToastMessage(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
                                             }
                                         }
-                                    } else if scoringEnabled,
+                                    } else if !isStyleEditing, scoringEnabled,
                                               supportsPanelSwipeScoring,
                                               !isEditMode,
                                               abs(value.translation.height) > 50 && abs(value.translation.width) < 50 {
@@ -458,7 +462,7 @@ struct ScoreboardTemplate: View {
                 }
 
                 // 中间层：仅比左右半区高一层，在编辑/底部按钮与菜单之下（如射箭的发球箭头+半区点击）；传入 isEditMode 以便编辑时隐藏/禁用，并传入指示器色
-                if !isEditMode, let provider = config.contentOverlayProvider {
+                if !isEditMode && !isStyleEditing && !showDisplaySettings, let provider = config.contentOverlayProvider {
                     provider(isEditMode, appearance.serverIndicatorColor)
                 }
 
@@ -588,7 +592,7 @@ struct ScoreboardTemplate: View {
     private func handleMenuItemClick(_ action: String) {
         if !scoringEnabled,
            !ScoreboardMenuActionPolicy.isAllowedWhileScoringLocked(action) {
-            showToastMessage(NSLocalizedString("linked_score_phone_follower", value: "当前由手表计分", comment: ""))
+            showToastMessage(NSLocalizedString("scoreboard_scoring_locked", value: "当前不可计分", comment: ""))
             return
         }
         config.controller.performVibration(type: .medium)
@@ -776,7 +780,7 @@ struct ScoreboardTemplate: View {
     private func scoreTapGesture(isLeft: Bool, panelSize: CGSize) -> some Gesture {
         SpatialTapGesture(count: 1)
             .onEnded { value in
-                guard scoringEnabled,
+                guard !isStyleEditing, scoringEnabled,
                       !isEditMode,
                       config.tapToAddEnabled,
                       config.gameType != .boxing else { return }
@@ -863,7 +867,7 @@ struct ScoreboardTemplate: View {
         let right = rightIsLogicalLeft ? config.viewModel.leftTeam : config.viewModel.rightTeam
         var compact = LocalScoreboardDisplayState(
             gameID: config.gameType.canonicalScoreboardIdentifier,
-            title: config.gameType.displayName,
+            title: "",
             leftName: left.name,
             rightName: right.name,
             leftScore: scoreText(for: left, isLeft: leftIsLogicalLeft),
@@ -1008,7 +1012,10 @@ extension View {
                !PreferencesManager.shared.forceIPadLandscape {
                 OrientationLock.shared.unlock()
             } else {
-                OrientationLock.shared.lock(orientation)
+                // 用 rotate 而非 lock：lock 只改支持方向，设备若停在另一方向
+                // （如持机竖屏进入计分板），UI 会以横屏布局渲染在竖屏窗口里，
+                // 直到某个外部触发才纠正。rotate 会主动请求几何旋转立即到位。
+                OrientationLock.shared.rotate(to: orientation)
             }
         }
         .onDisappear {
@@ -1254,11 +1261,13 @@ struct TeamSection: View {
                 Text(doublesNames.0)
                     .font(getFont(size: doublesNameSize, weight: .bold))
                     .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
+                .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text(doublesNames.1)
                     .font(getFont(size: doublesNameSize, weight: .bold))
                     .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
+                .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
@@ -1267,6 +1276,7 @@ struct TeamSection: View {
             Text(team.name)
                 .font(getFont(size: nameSize, weight: .bold))
                 .foregroundColor(elementColor(.teamName, fallback: foregroundColor))
+                .styleElementSelectable(.teamName, slotKey: isLeft ? .sideLeft : .sideRight)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 8)
@@ -1300,6 +1310,7 @@ struct TeamSection: View {
                 .font(getFont(size: displayFontSize))
                 .monospacedDigit()
                 .foregroundColor(elementColor(.mainScore, fallback: foregroundColor))
+                .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
         }
@@ -1352,6 +1363,7 @@ struct TeamSection: View {
                 .font(getFont(size: fontSize))
                 .monospacedDigit()
                 .foregroundColor(elementColor(element, fallbackOpacity: 0.7))
+                .styleElementSelectable(element, slotKey: isLeft ? .sideLeft : .sideRight)
         }
     }
 

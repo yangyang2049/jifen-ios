@@ -27,7 +27,6 @@ struct PingPongScoreboardView: View {
             voiceAnnouncementEnabled: initialSetup?.voiceAnnouncement == true,
             showMatchTimeEnabled: initialSetup?.showMatchTime
                 ?? PreferencesManager.shared.scoreboardMatchTimeVisible(for: .pingpong),
-            initialWatchSessionId: initialSetup?.linkedWatchSessionId,
             initialResumeSessionId: initialResumeSessionId,
             onNavigationBack: onNavigationBack,
             onPresented: { onSetupConsumed?() },
