@@ -335,9 +335,11 @@ struct DoudizhuScoreboardView: View {
             appearance = .current(styleID: ScoreboardStyleID(gameType: .doudizhu))
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
+            registerSync()
             revealImmersiveChrome()
         }
         .onDisappear {
+            LocalScoreboardSyncCoordinator.shared.unregisterHost()
             saveRecord(finished: gameFinished)
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
@@ -365,19 +367,26 @@ struct DoudizhuScoreboardView: View {
             appearance = .current(styleID: ScoreboardStyleID(gameType: .doudizhu))
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
+        .onChange(of: typographySession.effectivePreference) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
+        .onChange(of: syncSnapshot()) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: isEditMode) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showScorePanel) { _, _ in updateImmersiveForBlocking() }
-        .scoreboardExternalDisplay(
-            ownerID: "doudizhu-\(recordID)",
-            state: externalDisplayState
-        )
     }
 
-    private var externalDisplayState: ScoreboardDisplayState {
-        let compact = LocalScoreboardDisplayState(
+    private func registerSync() {
+        LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { _ in }
+    }
+
+    private func syncSnapshot() -> LocalScoreboardDisplayState {
+        var compact = LocalScoreboardDisplayState(
             gameID: GameType.doudizhu.canonicalScoreboardIdentifier,
             title: "",
             leftName: players.first?.name ?? "",
@@ -434,7 +443,8 @@ struct DoudizhuScoreboardView: View {
                 })
             )
         }
-        return value
+        compact.externalState = value
+        return compact
     }
 
     private var topTrailingEditButton: some View {
@@ -1003,6 +1013,7 @@ struct DoudizhuScoreboardView: View {
         gameFinished = false
         showGameOverDialog = false
         showScorePanel = false
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func confirmSettle() {

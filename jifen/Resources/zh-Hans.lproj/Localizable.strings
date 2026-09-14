@@ -1175,10 +1175,16 @@
 "record_note" = "备注";
 "red_card" = "红牌";
 "yellow_card" = "黄牌";
+"select_player" = "选择选手";
+"first_red_penalty" = "黄红牌，对手 +1";
+"second_red_penalty" = "第二张红牌，对手 +2";
+"report_referee_forfeit" = "报告裁判并确认判负";
+"confirm_forfeit" = "确认判负";
 "record_tt_yellow" = "%@ 黄牌";
 "record_tt_red" = "%@ 红牌";
 "record_tt_timeout" = "%@ 暂停";
 "record_tt_medical" = "%@ 医疗暂停";
+"record_tt_forfeit" = "%@ 判负";
 "player" = "选手";
 "scoreboard_usage_hint_shuttlecock" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 团队毽球按所选目标分和赛制计分";
 "scoreboard_usage_hint_squash" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 壁球默认五局三胜，领先两分获胜";

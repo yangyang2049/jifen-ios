@@ -358,6 +358,12 @@ enum ScoreboardLayoutMetrics {
         return indicatorSize + Swift.max(12, indicatorSize * 0.25)
     }
 
+    /// Reserves a two-character point-score column from the first frame so
+    /// 0 → 15 → 30 → 40 → AD never moves the adjacent game/set column.
+    static func tennisMainScoreColumnWidth(fontSize: CGFloat) -> CGFloat {
+        Swift.min(520, Swift.max(108, fontSize * 1.78))
+    }
+
     /// Singles uses matching top and bottom regions so its score row is truly
     /// centered in the complete panel rather than in the space below the name.
     static func tennisSinglesNameRegionHeight(panelHeight: CGFloat, nameFontSize: CGFloat) -> CGFloat {

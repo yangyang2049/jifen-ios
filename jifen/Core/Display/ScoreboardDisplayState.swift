@@ -173,6 +173,7 @@ struct ScoreboardDisplayRest: Codable, Equatable, Sendable {
     var sport: String? = nil
     var afterAction: String? = nil
     var revision: Int64? = nil
+    var title: String? = nil
 
     func projectedRemainingSeconds(atWallClockMilliseconds now: Int64) -> Int {
         guard isRunning else { return remainingSeconds }

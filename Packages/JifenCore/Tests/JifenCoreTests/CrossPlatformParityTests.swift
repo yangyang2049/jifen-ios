@@ -1595,9 +1595,11 @@ import SessionCore
     let encoded = try JSONEncoder().encode(state)
     var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
     object.removeValue(forKey: "currentSetReplay")
+    object.removeValue(forKey: "pingPongForfeitSide")
     let legacy = try JSONSerialization.data(withJSONObject: object)
     let decoded = try JSONDecoder().decode(RallyMatchState.self, from: legacy)
     #expect(decoded.currentSetReplay == nil)
+    #expect(decoded.pingPongForfeitSide == nil)
     #expect(decoded.leftPoints == 0)
 }
 

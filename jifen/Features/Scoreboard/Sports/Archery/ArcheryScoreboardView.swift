@@ -498,7 +498,7 @@ struct ArcheryScoreboardView: View {
         pendingContinueUpdate = nil
         pendingClosestContinue = nil
         showGameOverDialog = false
-
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func restoreResumeIfNeeded() {

@@ -300,6 +300,7 @@ struct MultiScoreboardView: View {
             appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: typographySession.effectivePreference) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -457,7 +458,7 @@ struct MultiScoreboardView: View {
                     isLargeScreen: Theme.usesPadLayout
                 )
             )
-            VStack(spacing: typography.nameToScoreSpacing) {
+            ZStack {
                 Text(player.name)
                     .font(typographySession.effectivePreference.font.swiftUIFont(
                         size: typography.nameFontSize,
@@ -467,13 +468,15 @@ struct MultiScoreboardView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .padding(.horizontal, Theme.sm)
+                    .padding(.top, 12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
                 Text("\(player.score)")
                     .font(typographySession.effectivePreference.font.swiftUIFont(size: typography.scoreFontSize))
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -861,82 +864,89 @@ struct MultiScoreboardView: View {
                         .foregroundStyle(Theme.primary)
                     }
 
-                    Text(NSLocalizedString("uno_round_winner", value: "本局赢家", comment: ""))
-                        .font(.system(size: 13))
-                        .foregroundStyle(Theme.scoreboardDialogTextSecondary)
+                    HStack(alignment: .top, spacing: 20) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(NSLocalizedString("uno_round_winner", value: "本局赢家", comment: ""))
+                                .font(.system(size: 13))
+                                .foregroundStyle(Theme.scoreboardDialogTextSecondary)
 
-                    LazyVGrid(
-                        columns: Array(
-                            repeating: GridItem(.flexible(), spacing: 8),
-                            count: min(5, max(2, players.count))
-                        ),
-                        spacing: 8
-                    ) {
-                        ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
-                            Button {
-                                unoSelectedWinnerIndex = index
-                                VibrationManager.shared.vibrateLight()
-                            } label: {
-                                Text(player.name)
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundStyle(Theme.scoreboardDialogTextPrimary)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: ScoreboardConstants.minimumTouchTarget)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                            .fill(unoSelectedWinnerIndex == index ? Theme.primary : Theme.scoreboardDialogControl)
-                                    )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-
-                    HStack {
-                        Text(NSLocalizedString("uno_number_total", value: "数字牌合计", comment: ""))
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
-                        Spacer()
-                        TextField("0", text: $unoNumberTotalText)
-                            .keyboardType(.numberPad)
-                            .focused($unoNumberFieldFocused)
-                            .onChange(of: unoNumberTotalText) { _, value in
-                                unoNumberTotalText = String(value.filter(\.isNumber).prefix(4))
-                            }
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 100)
-                            .padding(.horizontal, 10)
-                            .frame(height: 38)
-                            .background(Theme.scoreboardDialogControl)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            .toolbar {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    Spacer()
-                                    Button(NSLocalizedString("done", value: "完成", comment: "")) {
-                                        unoNumberFieldFocused = false
+                            LazyVGrid(
+                                columns: [GridItem(.flexible()), GridItem(.flexible())],
+                                spacing: 8
+                            ) {
+                                ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
+                                    Button {
+                                        unoSelectedWinnerIndex = index
+                                        VibrationManager.shared.vibrateLight()
+                                    } label: {
+                                        Text(player.name)
+                                            .font(.system(size: 13, weight: .medium))
+                                            .foregroundStyle(Theme.scoreboardDialogTextPrimary)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.7)
+                                            .frame(maxWidth: .infinity)
+                                            .frame(height: ScoreboardConstants.minimumTouchTarget)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                                    .fill(unoSelectedWinnerIndex == index ? Theme.primary : Theme.scoreboardDialogControl)
+                                            )
                                     }
+                                    .buttonStyle(.plain)
                                 }
                             }
-                    }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
 
-                    unoCountStepper(
-                        title: NSLocalizedString("uno_action_20_count", value: "20 分功能牌张数", comment: ""),
-                        hint: NSLocalizedString("uno_action_20_hint", value: "+2 / 跳过 / 反转 x20", comment: ""),
-                        value: $unoAction20
-                    )
-                    unoCountStepper(
-                        title: NSLocalizedString("uno_wild_40_count", value: "40 分万能牌张数", comment: ""),
-                        hint: NSLocalizedString("uno_wild_40_hint", value: "洗手牌 / 自定义万能牌 x40", comment: ""),
-                        value: $unoWild40
-                    )
-                    unoCountStepper(
-                        title: NSLocalizedString("uno_wild_50_count", value: "50 分万能牌张数", comment: ""),
-                        hint: NSLocalizedString("uno_wild_50_hint", value: "万能牌 / +4 x50", comment: ""),
-                        value: $unoWild50
-                    )
+                        Divider().overlay(Color.white.opacity(0.12))
+
+                        VStack(spacing: 10) {
+                            HStack {
+                                Text(NSLocalizedString("uno_number_total", value: "数字牌合计", comment: ""))
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundStyle(Theme.scoreboardDialogTextPrimary)
+                                Spacer()
+                                TextField("0", text: $unoNumberTotalText)
+                                    .keyboardType(.numberPad)
+                                    .focused($unoNumberFieldFocused)
+                                    .onChange(of: unoNumberTotalText) { _, value in
+                                        unoNumberTotalText = String(value.filter(\.isNumber).prefix(4))
+                                    }
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundStyle(Theme.scoreboardDialogTextPrimary)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 100)
+                                    .padding(.horizontal, 10)
+                                    .frame(height: 38)
+                                    .background(Theme.scoreboardDialogControl)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                    .toolbar {
+                                        ToolbarItemGroup(placement: .keyboard) {
+                                            Spacer()
+                                            Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                                                unoNumberFieldFocused = false
+                                            }
+                                        }
+                                    }
+                            }
+
+                            unoCountStepper(
+                                title: NSLocalizedString("uno_action_20_count", value: "20 分功能牌张数", comment: ""),
+                                hint: NSLocalizedString("uno_action_20_hint", value: "+2 / 跳过 / 反转 x20", comment: ""),
+                                value: $unoAction20
+                            )
+                            unoCountStepper(
+                                title: NSLocalizedString("uno_wild_40_count", value: "40 分万能牌张数", comment: ""),
+                                hint: NSLocalizedString("uno_wild_40_hint", value: "洗手牌 / 自定义万能牌 x40", comment: ""),
+                                value: $unoWild40
+                            )
+                            unoCountStepper(
+                                title: NSLocalizedString("uno_wild_50_count", value: "50 分万能牌张数", comment: ""),
+                                hint: NSLocalizedString("uno_wild_50_hint", value: "万能牌 / +4 x50", comment: ""),
+                                value: $unoWild50
+                            )
+                        }
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                    }
 
                     HStack(spacing: 12) {
                         Button {
@@ -969,7 +979,7 @@ struct MultiScoreboardView: View {
                     }
                 }
                 .padding(18)
-                .frame(maxWidth: 720)
+                .frame(maxWidth: 900)
                 .background(Theme.scoreboardDialogSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 .padding(.horizontal, 16)
@@ -1226,9 +1236,9 @@ struct MultiScoreboardView: View {
                 compact.externalState = ScoreboardDisplayState.enriched(
                     compact: compact,
                     layoutKind: .multiGrid,
+                    orientation: useLandscapeLayout ? .landscape : .portrait,
                     players: displayPlayers,
                     sportState: [
-                        "multiGridColumns": .integer(players.count <= 4 ? 2 : 3),
                         "unoTargetScore": .integer(gameType == .uno ? effectiveTargetScore : 0)
                     ]
                 )

@@ -56,6 +56,16 @@ enum ScoreboardServeGeometry {
         let badgeHalfHeight: CGFloat = 14
         return triangleCenterY - triangleSize / 2 - gap - badgeHalfHeight
     }
+
+    static func tableTennisCardsCenterY(
+        height: CGFloat,
+        keyPointVisible: Bool,
+        scale: CGFloat = 1
+    ) -> CGFloat {
+        // 行政牌始终位于发球标识上方；关键分牌出现时再上移一档，
+        // 避免黄/红牌、GP/MP 与中心发球箭头挤在一起。
+        height / 2 - (keyPointVisible ? 104 : 72) * scale
+    }
 }
 
 enum ServeTriangleDirection: Equatable {

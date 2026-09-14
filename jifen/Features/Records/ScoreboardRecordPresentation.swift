@@ -17,6 +17,7 @@ enum ScoreboardRecordActionTitlePolicy {
         case "red_card", "tt_red": key = "record_tt_red"
         case "timeout", "tt_timeout": key = "record_tt_timeout"
         case "medical_timeout", "tt_medical": key = "record_tt_medical"
+        case "forfeit", "tt_forfeit": key = "record_tt_forfeit"
         default: return nil
         }
         let fallbackName = teamName?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -26,7 +27,8 @@ enum ScoreboardRecordActionTitlePolicy {
         case "record_tt_yellow": "%@ 黄牌"
         case "record_tt_red": "%@ 红牌"
         case "record_tt_timeout": "%@ 暂停"
-        default: "%@ 医疗暂停"
+        case "record_tt_medical": "%@ 医疗暂停"
+        default: "%@ 判负"
         }
         return String.localizedStringWithFormat(
             NSLocalizedString(key, value: fallbackFormat, comment: "Table tennis administrative record action"),

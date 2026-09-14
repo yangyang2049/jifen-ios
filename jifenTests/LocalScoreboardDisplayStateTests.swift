@@ -142,6 +142,11 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         XCTAssertEqual(snapshot.rightName, "Blue")
         XCTAssertEqual(snapshot.leftScore, "5")
         XCTAssertEqual(snapshot.rightScore, "9")
+        XCTAssertEqual(snapshot.externalState?.sportString("guandanRedRank"), "5")
+        XCTAssertEqual(snapshot.externalState?.sportString("guandanBlueRank"), "9")
+        XCTAssertEqual(snapshot.externalState?.sportInt("guandanLeftAFailCount"), 0)
+        XCTAssertEqual(snapshot.externalState?.sportInt("guandanRightAFailCount"), 0)
+        XCTAssertNil(snapshot.externalState?.sportString("guandanBankerTeam"))
     }
 
     @MainActor

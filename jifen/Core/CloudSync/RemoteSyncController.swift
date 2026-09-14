@@ -27,6 +27,7 @@ final class RemoteSyncController: ObservableObject {
     private var connectionCancellable: AnyCancellable?
     private var lastPushedMatchEnded = false
     private var activeGameType = CloudSyncGameTypes.placeholder
+    private var gameTypeUpdateRevision: UInt64 = 0
     private var wsHandlerIDs: [(WsMessageType, UUID)] = []
 
     func isAttached() -> Bool { attached }
@@ -163,14 +164,45 @@ final class RemoteSyncController: ObservableObject {
 
     // MARK: 项目绑定
 
-    func updateMatchGameType(_ gameType: String) async {
+    @discardableResult
+    func updateMatchGameType(_ gameType: String, requestSnapshot: Bool = true) async -> Bool {
         activeGameType = gameType
+        gameTypeUpdateRevision &+= 1
+        let requestRevision = gameTypeUpdateRevision
         let matchId = state.matchId
-        guard !matchId.isEmpty else { return }
-        _ = try? await MatchSyncAPI.shared.updateMatchGameType(matchId: matchId, gameType: gameType)
-        if state.isSharing {
+        guard !matchId.isEmpty else { return false }
+
+        // MainActor methods are re-entrant across this request. If an older
+        // screen's slower request lands after a newer binding, send the latest
+        // value again before allowing the caller to enter IN_GAME.
+        var pendingGameType = gameType
+        while true {
+            guard !Task.isCancelled else { return false }
+            do {
+                _ = try await MatchSyncAPI.shared.updateMatchGameType(
+                    matchId: matchId,
+                    gameType: pendingGameType
+                )
+            } catch {
+                guard state.matchId == matchId else { return false }
+                if pendingGameType != activeGameType {
+                    pendingGameType = activeGameType
+                    continue
+                }
+                state.errorMessage = CloudSyncErrorMapper.genericFailureMessage(error)
+                return false
+            }
+            guard !Task.isCancelled, state.matchId == matchId else { return false }
+            if pendingGameType == activeGameType { break }
+            pendingGameType = activeGameType
+        }
+
+        if requestSnapshot,
+           requestRevision == gameTypeUpdateRevision,
+           state.isSharing {
             snapshotRequestListener?()
         }
+        return true
     }
 
     // MARK: 推分

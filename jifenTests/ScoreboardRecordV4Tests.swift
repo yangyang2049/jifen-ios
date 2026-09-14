@@ -1586,6 +1586,13 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             ),
             String.localizedStringWithFormat(NSLocalizedString("record_tt_medical", comment: ""), "乙")
         )
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
+                operationCode: "forfeit",
+                teamName: "甲"
+            ),
+            String.localizedStringWithFormat(NSLocalizedString("record_tt_forfeit", comment: ""), "甲")
+        )
         XCTAssertNil(
             ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
                 operationCode: "point",

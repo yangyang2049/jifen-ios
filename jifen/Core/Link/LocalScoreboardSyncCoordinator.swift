@@ -116,6 +116,7 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
     private var externalLeaseID: UInt64?
     private var genericMatchClockOwnerID: String?
     private var genericMatchClockProvider: (() -> ScoreboardDisplayClock?)?
+    private var cloudAttachTask: Task<Void, Never>?
 
     private static let genericMatchClockGameIDs: Set<String> = [
         "pingpong",
@@ -133,6 +134,8 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
         snapshot: @escaping () -> LocalScoreboardDisplayState,
         handleIntent: @escaping (LocalScoreboardIntent) -> Void
     ) {
+        cloudAttachTask?.cancel()
+        cloudAttachTask = nil
         if let externalOwnerID, let externalLeaseID {
             ScoreboardDisplayOutputs.shared.release(ownerID: externalOwnerID, leaseID: externalLeaseID)
         }
@@ -151,16 +154,26 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
             ownerID: ownerID,
             initial: initialExternalState
         )
-        attachCloudSyncIfSharing(gameType: initialExternalState.gameType)
-        publishSnapshot()
+        displayState = initial
+        attachCloudSyncIfSharing(gameType: initialExternalState.gameType, ownerID: ownerID)
     }
 
     /// 云同步分享中进入记分页：绑定项目并进入 IN_GAME（对齐安卓 ScoreboardDisplayEffects）。
-    private func attachCloudSyncIfSharing(gameType: String) {
+    private func attachCloudSyncIfSharing(gameType: String, ownerID: String) {
         guard CloudSyncSession.shared.isSharingActive() else { return }
         guard CloudSyncSession.shared.canAttach(gameType: gameType) else { return }
-        Task { await CloudSyncSession.shared.controller?.updateMatchGameType(gameType) }
-        CloudSyncSession.shared.markInGame(gameType: gameType)
+        guard let controller = CloudSyncSession.shared.controller else { return }
+        cloudAttachTask = Task { @MainActor [weak self, weak controller] in
+            guard let self, let controller else { return }
+            guard await controller.updateMatchGameType(gameType, requestSnapshot: false) else { return }
+            guard !Task.isCancelled,
+                  self.externalOwnerID == ownerID,
+                  self.snapshotProvider != nil,
+                  CloudSyncSession.shared.isSessionController(controller),
+                  CloudSyncSession.shared.canAttach(gameType: gameType) else { return }
+            // markInGame requests exactly one fresh, fully decorated snapshot.
+            CloudSyncSession.shared.markInGame(gameType: gameType)
+        }
     }
 
     /// Adds the launch-scoped, count-up match clock to supported generic
@@ -183,6 +196,8 @@ final class LocalScoreboardSyncCoordinator: ObservableObject {
     }
 
     func unregisterHost() {
+        cloudAttachTask?.cancel()
+        cloudAttachTask = nil
         if CloudSyncSession.shared.state?.phase == .inGame {
             CloudSyncSession.shared.markSharing()
         }

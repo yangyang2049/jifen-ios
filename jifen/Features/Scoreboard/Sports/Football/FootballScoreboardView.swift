@@ -286,6 +286,7 @@ struct FootballScoreboardView: View {
         viewModel.restoreSession(state: freshState, history: [])
         viewModel.resetClock()
         showGameOverDialog = false
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func restoreResumeIfNeeded() {

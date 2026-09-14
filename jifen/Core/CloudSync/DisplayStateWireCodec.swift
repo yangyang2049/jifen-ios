@@ -288,13 +288,17 @@ enum DisplayStateWireCodec {
         let seconds = rest.projectedRemainingSeconds(atWallClockMilliseconds: now)
         guard seconds > 0 else { return nil }
         let preparing = rest.phase == "preparation" || rest.phase == "prepare"
-        return ["version": 1, "sport": sport, "kind": rest.kind,
-                "phase": preparing ? "prepare" : "countdown",
-                "startedAt": now, "endsAt": now + Int64(seconds) * 1000,
-                "remainingMs": preparing ? 0 : seconds * 1000,
-                "prepareRemaining": preparing ? seconds : 0,
-                "revision": rest.revision ?? max(0, rest.updatedWallClockMilliseconds),
-                "afterAction": rest.afterAction ?? "none"]
+        var encoded: [String: Any] = ["version": 1, "sport": sport, "kind": rest.kind,
+                                      "phase": preparing ? "prepare" : "countdown",
+                                      "startedAt": now, "endsAt": now + Int64(seconds) * 1000,
+                                      "remainingMs": preparing ? 0 : seconds * 1000,
+                                      "prepareRemaining": preparing ? seconds : 0,
+                                      "revision": rest.revision ?? max(0, rest.updatedWallClockMilliseconds),
+                                      "afterAction": rest.afterAction ?? "none"]
+        if let title = rest.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
+            encoded["title"] = title
+        }
+        return encoded
     }
 
     private static func decodeRest(_ map: [String: Any]) -> ScoreboardDisplayRest? {
@@ -311,7 +315,10 @@ enum DisplayStateWireCodec {
         return ScoreboardDisplayRest(kind: kind, phase: phase == "prepare" ? "preparation" : phase,
             remainingSeconds: phase == "prepare" ? prepare : Int((remainingMs + 999) / 1000),
             isRunning: true, updatedWallClockMilliseconds: currentWallClockMs(),
-            sport: map["sport"] as? String, afterAction: map["afterAction"] as? String, revision: revision)
+            sport: map["sport"] as? String,
+            afterAction: map["afterAction"] as? String,
+            revision: revision,
+            title: map["title"] as? String)
     }
 
     /// 安卓 DisplayAppearanceState → iOS appearance；缺省字段用本地主题兜底。
@@ -420,10 +427,10 @@ enum DisplayStateWireCodec {
     // MARK: - sportState 投影（对齐安卓 projectDisplaySportState）
 
     private static let commonSportKeys: Set<String> = [
-        "currentSet", "servingTeam", "serverSlotIndex", "team0ScreenSide",
+        "currentSet", "servingTeam", "servingSide", "serverSlotIndex", "team0ScreenSide",
         "multiGridColumns", "multiGridTileGap", "multiGridOuterPadding",
         "multiGridNamePlacement", "multiGridNameTopPadding", "multiGridLargeScore",
-        "leftDisplayScore", "rightDisplayScore", "leftDetail", "rightDetail"
+        "leftDisplayScore", "rightDisplayScore", "leftDetail", "rightDetail", "resultScoreLevel"
     ]
 
     private static let sportKeysByGameType: [String: Set<String>] = [

@@ -76,7 +76,9 @@ extension ScoreboardDisplayRest {
             remainingSeconds: state.remainingSeconds,
             isRunning: state.isRunning,
             updatedWallClockMilliseconds: state.updatedWallClockMilliseconds,
-            sport: state.sport.rawValue, afterAction: state.afterAction.rawValue
+            sport: state.sport.rawValue,
+            afterAction: state.afterAction.rawValue,
+            title: state.title
         )
     }
 }
@@ -128,16 +130,28 @@ extension ScoreboardDisplayState {
         ]
         var sport: [String: ScoreboardDisplayValue] = [
             "leftDisplayScore": .string(state.leftScore),
-            "rightDisplayScore": .string(state.rightScore)
+            "rightDisplayScore": .string(state.rightScore),
+            // Compact snapshots carry every score level, but the result card
+            // needs to know which level represents the match result. Producers
+            // with custom one-set/tiebreak-only rules may override this value
+            // while enriching the snapshot.
+            "resultScoreLevel": .string(
+                state.leftSets != nil || state.rightSets != nil ? "sets" : "score"
+            )
         ]
         if let detail = state.leftDetail { sport["leftDetail"] = .string(detail) }
         if let detail = state.rightDetail { sport["rightDetail"] = .string(detail) }
         let layout = ScoreboardDisplayLayoutKind.resolve(gameID: state.gameID)
-        let winner: String? = if state.finished {
-            leftValue == rightValue ? "draw" : (leftValue > rightValue ? "team_0" : "team_1")
-        } else {
-            nil
-        }
+        let winner: String? = state.finished
+            ? Self.finishedWinnerID(
+                leftScore: leftValue,
+                rightScore: rightValue,
+                leftSets: state.leftSets,
+                rightSets: state.rightSets,
+                leftGames: state.leftGames,
+                rightGames: state.rightGames
+            )
+            : nil
         self.init(
             gameType: state.gameID,
             orientation: layout == .multiGrid ? .portrait : .landscape,
@@ -172,8 +186,16 @@ extension ScoreboardDisplayState {
                 ended: true,
                 winnerID: winner,
                 finalScores: [
-                    "team_0": .init(score: leftValue),
-                    "team_1": .init(score: rightValue)
+                    "team_0": .init(
+                        score: leftValue,
+                        sets: state.leftSets ?? 0,
+                        games: state.leftGames ?? 0
+                    ),
+                    "team_1": .init(
+                        score: rightValue,
+                        sets: state.rightSets ?? 0,
+                        games: state.rightGames ?? 0
+                    )
                 ]
             ) : nil,
             updatedAt: state.revision,
@@ -184,9 +206,30 @@ extension ScoreboardDisplayState {
         )
     }
 
+    private static func finishedWinnerID(
+        leftScore: Int,
+        rightScore: Int,
+        leftSets: Int?,
+        rightSets: Int?,
+        leftGames: Int?,
+        rightGames: Int?
+    ) -> String {
+        let setScores = (leftSets ?? 0, rightSets ?? 0)
+        if setScores.0 != setScores.1 {
+            return setScores.0 > setScores.1 ? "team_0" : "team_1"
+        }
+        let gameScores = (leftGames ?? 0, rightGames ?? 0)
+        if gameScores.0 != gameScores.1 {
+            return gameScores.0 > gameScores.1 ? "team_0" : "team_1"
+        }
+        if leftScore == rightScore { return "draw" }
+        return leftScore > rightScore ? "team_0" : "team_1"
+    }
+
     static func enriched(
         compact: LocalScoreboardDisplayState,
         layoutKind: ScoreboardDisplayLayoutKind,
+        orientation: ScoreboardDisplayOrientation? = nil,
         players: [ScoreboardDisplayPlayer]? = nil,
         sportState: [String: ScoreboardDisplayValue] = [:],
         clock: ScoreboardDisplayClock? = nil,
@@ -194,7 +237,7 @@ extension ScoreboardDisplayState {
     ) -> ScoreboardDisplayState {
         var value = ScoreboardDisplayState(compactState: compact)
         value.layoutKind = layoutKind
-        value.orientation = layoutKind == .multiGrid ? .portrait : .landscape
+        value.orientation = orientation ?? (layoutKind == .multiGrid ? .portrait : .landscape)
         value.players = players
         value.sportState?.merge(sportState) { _, next in next }
         value.clock = clock

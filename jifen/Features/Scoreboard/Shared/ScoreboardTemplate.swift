@@ -563,6 +563,7 @@ struct ScoreboardTemplate: View {
             appearance = .current(styleID: typographySession.styleID)
             applyScreenAwakePreference()
             updateImmersiveChromeForBlockingState()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onAppear {
             config.onEditModeChange?(isEditMode)
@@ -1527,6 +1528,5 @@ struct ToastView: View {
                 )
                 .padding(.bottom, Self.bottomPadding)
         }
-        .animation(.easeInOut(duration: 0.2), value: message)
     }
 }

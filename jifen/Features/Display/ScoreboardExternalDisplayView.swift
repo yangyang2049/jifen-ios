@@ -52,6 +52,53 @@ enum ScoreboardExternalProjection {
     var isLocalProjection: Bool { self == .localProjection }
 }
 
+enum DisplayServeIndicatorSizing {
+    static func singles(baseSize: CGFloat, projection: ScoreboardExternalProjection) -> CGFloat {
+        guard baseSize > 0 else { return 0 }
+        return projection.isLocalProjection
+            ? baseSize.clamped(36, 84)
+            : baseSize.clamped(36, 64)
+    }
+
+    static func doubles(
+        scoreFontSize: CGFloat,
+        tennisDoubles: Bool,
+        projection: ScoreboardExternalProjection
+    ) -> CGFloat {
+        let baseSize = scoreFontSize * (tennisDoubles ? 0.26 : 0.30)
+        if projection.isLocalProjection {
+            return baseSize.clamped(30, 64)
+        }
+        return baseSize.clamped(36, 64)
+    }
+}
+
+enum ScoreboardExternalResultScorePresentation {
+    static func score(
+        forTeamID teamID: String,
+        visualIndex: Int,
+        state: ScoreboardDisplayState
+    ) -> String {
+        let team = state.teams.first(where: { $0.id == teamID })
+        let finalScore = state.result?.finalScores?[teamID]
+        switch state.sportString("resultScoreLevel") {
+        case "sets":
+            return "\(finalScore?.sets ?? team?.sets ?? 0)"
+        case "games":
+            return "\(finalScore?.games ?? team?.games ?? 0)"
+        default:
+            // Preserve display-only tennis values such as AD when the live
+            // score and authoritative final numeric value describe the same
+            // level. Older payloads without the explicit level also retain
+            // their established points-only rendering.
+            if let finalScore, finalScore.score != team?.score {
+                return "\(finalScore.score)"
+            }
+            return state.displayScore(forVisualIndex: visualIndex)
+        }
+    }
+}
+
 struct ScoreboardExternalDisplayRootView: View {
     @ObservedObject private var outputs = ScoreboardDisplayOutputs.shared
 
@@ -164,7 +211,7 @@ private struct ScoreboardExternalWaitingView: View {
 
 // MARK: - 安卓 DisplayTypographyResolver 移植（display/ui/DisplayTypographyResolver.kt）
 
-private struct DisplayTypographyTokens {
+struct DisplayTypographyTokens {
     var score: CGFloat
     var name: CGFloat
     var sets: CGFloat
@@ -178,7 +225,7 @@ private struct DisplayTypographyTokens {
     var panelEdgeInset: CGFloat
 }
 
-private enum DisplayTypographyResolver {
+enum DisplayTypographyResolver {
     // 安卓常量（DisplayTypographyResolver.kt）
     private static let primaryScoreMax: CGFloat = 480
     private static let primaryScoreMin: CGFloat = 72
@@ -223,9 +270,22 @@ private enum DisplayTypographyResolver {
         return 1 + min(heightProgress, halfPanelProgress)
     }
 
+    static func secondaryScoreScale(for viewport: CGSize, gameType: String) -> CGFloat {
+        // 局分属于所有双边记分板的同一层级；此前乒羽网单独锁死为 1，
+        // 导致同一投屏尺寸下明显小于排球。统一沿用大屏副分缩放。
+        _ = gameType
+        return secondaryScoreScale(for: viewport)
+    }
+
     /// 双打姓名缩放（extensionDoublesNameScaleForViewport）。
     static func doublesNameScale(for viewport: CGSize) -> CGFloat {
         1 + (secondaryScoreScale(for: viewport) - 1) * 0.7
+    }
+
+    /// 单打投屏姓名不能明显小于同尺寸双打姓名；在大屏上从 40pt 基线
+    /// 平滑提升到约 80pt，手机横屏基线保持不变。
+    static func singlesNameScale(for viewport: CGSize) -> CGFloat {
+        1 + (secondaryScoreScale(for: viewport) - 1) / 3
     }
 
     static func twoSideTokens(width: CGFloat, height: CGFloat, isPhone: Bool) -> DisplayTypographyTokens {
@@ -280,9 +340,8 @@ private enum DisplayTypographyResolver {
         )
     }
 
-    static func tennisMainScoreWidth(fontSize: CGFloat, scoreText: String) -> CGFloat {
-        let widthFactor: CGFloat = scoreText.count > 1 ? 1.78 : 1.45
-        return (fontSize * widthFactor).clamped(108, 520)
+    static func tennisMainScoreWidth(fontSize: CGFloat) -> CGFloat {
+        ScoreboardLayoutMetrics.tennisMainScoreColumnWidth(fontSize: fontSize)
     }
 
     static func tennisSetScoreBoxSize(fontSize: CGFloat) -> CGFloat {
@@ -338,6 +397,21 @@ private enum DisplayTypographyResolver {
     }
 }
 
+enum ExternalTennisScoreProjection {
+    static func hidesTransientCompletedGameOrdinal(
+        rawScore: Int,
+        isTieBreak: Bool,
+        isDeuce: Bool,
+        isLocalProjection: Bool
+    ) -> Bool {
+        // Both the phone scoreboard and the 1:1 synchronized receiver hide the
+        // reducer's one-frame completed-game ordinal. TV projection follows the
+        // same display contract; the context flag remains for wire compatibility.
+        _ = isLocalProjection
+        return rawScore == 4 && !isTieBreak && !isDeuce
+    }
+}
+
 private extension CGFloat {
     func clamped(_ minValue: CGFloat, _ maxValue: CGFloat) -> CGFloat {
         Swift.min(Swift.max(self, minValue), maxValue)
@@ -353,7 +427,7 @@ private let displayNeedsSetsTypes: Set<String> = [
     "badminton", "badminton_doubles",
     "shuttlecock", "squash", "padel",
     "pickleball", "pickleball_doubles",
-    "foosball", "foosball_doubles", "archery_dual"
+    "foosball", "foosball_doubles", "archery_dual", "boxing"
 ]
 private let displayNeedsTwoSideServerTypes: Set<String> = [
     "pingpong", "badminton", "squash",
@@ -461,16 +535,34 @@ struct ScoreboardExternalLiveView: View {
 
     var body: some View {
         GeometryReader { proxy in
+            let twoSideModel = resolvedTwoSideModel(viewport: proxy.size)
+            let doublesModel = template == .doublesCourt ? buildDoublesModel(viewport: proxy.size) : nil
             ZStack {
                 Color(hex: state.appearance.backgroundHex)
-                templateBody(viewport: proxy.size)
+                templateBody(viewport: proxy.size, twoSideModel: twoSideModel, doublesModel: doublesModel)
+
+                ScoreboardExternalKeyPointBadgeLayer(
+                    state: state,
+                    projection: projection,
+                    viewport: proxy.size,
+                    doublesModel: doublesModel,
+                    twoSideModel: twoSideModel
+                )
+
+                if state.gameType == "pingpong" || state.gameType == "pingpong_doubles" {
+                    ScoreboardExternalTableTennisMarkerLayer(
+                        state: state,
+                        projection: projection,
+                        keyPointVisible: state.keyPoint != nil && state.result?.ended != true
+                    )
+                }
 
                 snookerMatchTitleOverlay(viewport: proxy.size)
 
                 topChrome
 
                 if let rest = state.rest {
-                    ScoreboardExternalRestOverlay(rest: rest, viewport: proxy.size)
+                    ScoreboardExternalRestOverlay(rest: rest, viewport: proxy.size, projection: projection)
                 }
                 if state.result?.ended == true {
                     resultOverlay(viewport: proxy.size)
@@ -492,14 +584,14 @@ struct ScoreboardExternalLiveView: View {
             let isLocal = projection.isLocalProjection
             let multiplier = CGFloat(state.appearance.fontSizeMultipliers?["matchTitle"] ?? 1)
             let maximumSize: CGFloat = isLocal
-                ? (isLarge ? 56 : 48)
+                ? (isLarge ? 36 : 32)
                 : ((isLarge ? 24 : 18) * chromeAll * multiplier)
                     .clamped((isLarge ? 14 : 12) * chromeAll, 54)
             let minimumSize: CGFloat = isLocal
-                ? (isLarge ? 56 : 48)
+                ? (isLarge ? 24 : 22)
                 : (isLarge ? 14 : 12) * chromeAll
             let bandHeight: CGFloat = isLocal
-                ? (isLarge ? 64 : 44) * chromeAll * 2
+                ? (isLarge ? 64 : 52) * chromeAll
                 : (isLarge ? 64 : 56) * chromeAll
             Text(matchTitle)
                 .font(displayFont(size: maximumSize, weight: .medium))
@@ -537,19 +629,36 @@ struct ScoreboardExternalLiveView: View {
     }
 
     @ViewBuilder
-    private func templateBody(viewport: CGSize) -> some View {
+    private func templateBody(
+        viewport: CGSize,
+        twoSideModel: DisplayTwoSideRenderModel?,
+        doublesModel: DisplayDoublesRenderModel?
+    ) -> some View {
         // 对齐安卓 DisplaySurfaceHost：CARD_TWO_SEAT / TRAINING_COUNTER 均复用 TwoSideSurface。
         switch template {
         case .twoSide, .cardTwoTeam, .cardTwoSeat, .trainingCounter:
-            DisplayTwoSideSurface(state: state, model: buildTwoSideModel(viewport: viewport), projection: projection)
+            if let twoSideModel {
+                DisplayTwoSideSurface(state: state, model: twoSideModel, projection: projection)
+            }
         case .doublesCourt:
-            DisplayDoublesCourtSurface(state: state, model: buildDoublesModel(viewport: viewport), projection: projection)
+            if let doublesModel {
+                DisplayDoublesCourtSurface(state: state, model: doublesModel, projection: projection)
+            }
         case .teamCourt:
             teamCourtSurface(viewport: viewport)
         case .multiGrid:
             DisplayMultiGridSurface(state: state, viewport: viewport, cardStyle: false, projection: projection)
         case .cardThreePlayer:
             DisplayMultiGridSurface(state: state, viewport: viewport, cardStyle: true, projection: projection)
+        }
+    }
+
+    private func resolvedTwoSideModel(viewport: CGSize) -> DisplayTwoSideRenderModel? {
+        switch template {
+        case .twoSide, .cardTwoTeam, .cardTwoSeat, .trainingCounter:
+            buildTwoSideModel(viewport: viewport)
+        default:
+            nil
         }
     }
 
@@ -560,36 +669,45 @@ struct ScoreboardExternalLiveView: View {
             return []
         }()
         let multipliers = projection.isLocalProjection ? [:] : (state.appearance.fontSizeMultipliers ?? [:])
-        let nameScale = CGFloat(multipliers["playerName"] ?? 1).clamped(0.8, 1.5)
-        let scoreScale = CGFloat(multipliers["mainScore"] ?? 1).clamped(0.8, 1.5)
-        return HStack(spacing: 0) {
-            ForEach(0..<2) { visualIndex in
-                let logicalIndex = logicalTeam0(isOnScreenSide: visualIndex == 0) ? 0 : 1
-                let slot = visualIndex == 0 ? "side_left" : "side_right"
-                let team = state.teams.first { $0.id == "team_\(logicalIndex)" }
-                let names = Array(roster.dropFirst(logicalIndex * 3).prefix(3))
-                let panel = visualIndex == 0 ? state.appearance.leftPanelHex : state.appearance.rightPanelHex
-                VStack(spacing: 12) {
-                    ForEach(Array(names.enumerated()), id: \.offset) { entry in
-                        Text(entry.element)
-                            .font(.system(size: min(viewport.height * 0.065, 48) * nameScale, weight: .bold))
-                            .foregroundStyle(Color(hex: state.appearance.style?.renderColor("playerName", slot: slot) ?? "#FFFFFF"))
-                            .lineLimit(1).minimumScaleFactor(0.5)
-                    }
-                    if names.isEmpty { Text(team?.name ?? "").lineLimit(2) }
-                    Text(state.displayScore(forVisualIndex: visualIndex))
-                        .font(displayFont(size: min(viewport.width * 0.22, viewport.height * 0.32) * scoreScale))
-                        .foregroundStyle(Color(hex: state.appearance.style?.renderColor("mainScore", slot: slot) ?? "#FFFFFF"))
-                        .lineLimit(1).minimumScaleFactor(0.3)
-                    if let sets = team?.sets {
-                        Text("\(sets)")
-                            .font(displayFont(size: min(viewport.height * 0.10, 72)))
-                            .foregroundStyle(Color(hex: state.appearance.style?.renderColor("setScore", slot: slot) ?? "#FFFFFF"))
-                    }
+        let preference = ScoreboardTypographyPreference(
+            font: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default,
+            scoreMultiplier: multipliers["mainScore"] ?? 1,
+            nameMultiplier: multipliers["playerName"] ?? multipliers["teamName"] ?? 1,
+            secondaryMultiplier: multipliers["setGameScore"] ?? multipliers["setScore"] ?? 1
+        )
+        return ZStack {
+            HStack(spacing: 0) {
+                ForEach(0..<2) { visualIndex in
+                    let logicalIndex = logicalTeam0(isOnScreenSide: visualIndex == 0) ? 0 : 1
+                    let slot = visualIndex == 0 ? "side_left" : "side_right"
+                    let team = state.teams.first { $0.id == "team_\(logicalIndex)" }
+                    let names = Array(roster.dropFirst(logicalIndex * 3).prefix(3))
+                    let panel = visualIndex == 0 ? state.appearance.leftPanelHex : state.appearance.rightPanelHex
+                    TeamCourtScoreboardPanel(
+                        names: names,
+                        fallbackName: team?.name ?? "",
+                        scoreText: state.displayScore(forVisualIndex: visualIndex),
+                        setsText: "\(team?.sets ?? 0)",
+                        panelSize: CGSize(width: viewport.width / 2, height: viewport.height),
+                        preference: preference,
+                        panelColor: Color(hex: panel),
+                        nameColor: Color(hex: state.appearance.style?.renderColor("playerName", slot: slot) ?? "#FFFFFF"),
+                        scoreColor: Color(hex: state.appearance.style?.renderColor("mainScore", slot: slot) ?? "#FFFFFF"),
+                        setsColor: Color(hex: state.appearance.style?.renderColor("setScore", slot: slot) ?? "#FFFFFF")
+                    )
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(hex: panel))
+            }
+            if let servingSide = state.sportString("servingSide") {
+                let isLeft = servingSide == "left"
+                let arrowSize = projection.isLocalProjection
+                    ? min(viewport.height * 0.12, viewport.width * 0.06).clamped(36, 84)
+                    : ScoreboardLayoutMetrics.serveIndicatorSize(
+                        halfViewportSize: CGSize(width: viewport.width / 2, height: viewport.height)
+                    )
+                ServingTriangle(pointLeft: isLeft, colorHex: ScoreboardDisplayStyle.renderHex(state.appearance.style?.serverIndicatorColor ?? "#30D158"))
+                    .frame(width: arrowSize, height: arrowSize)
+                    .offset(x: isLeft ? -arrowSize / 2 : arrowSize / 2)
+                    .allowsHitTesting(false)
             }
         }
     }
@@ -605,7 +723,7 @@ struct ScoreboardExternalLiveView: View {
             : 1
         let syncNameScale = DisplayTypographyResolver.synchronizedNameScale(for: viewport, isLocalProjection: projection.isLocalProjection)
         let secondaryScale = projection.isLocalProjection
-            ? DisplayTypographyResolver.secondaryScoreScale(for: viewport)
+            ? DisplayTypographyResolver.secondaryScoreScale(for: viewport, gameType: gameType)
             : 1
         let isTablet = min(viewport.width, viewport.height) >= 600
         let isPhone = !isTablet
@@ -636,7 +754,7 @@ struct ScoreboardExternalLiveView: View {
             multipliers?["setScore"] ?? multipliers?["gameScore"] ?? multipliers?["setGameScore"] ?? 1
         ).clamped(minimumMultiplier, 1.5)
 
-        let baseScoreFontSize: CGFloat = {
+        let projectedScoreFontSize: CGFloat = {
             switch statMode {
             case .tennis: return (tokens.score * 0.78 * mainMultiplier).clamped(56, 320)
             case .label: return (tokens.score * mainMultiplier).clamped(56, 480)
@@ -645,17 +763,85 @@ struct ScoreboardExternalLiveView: View {
         }()
         let tennisNameScale: CGFloat = statMode == .tennis ? 1.16 : 1
         let centered = displayCenteredNameTypes.contains(gameType)
-        let baseNameFontSize: CGFloat = {
+        let projectedNameFontSize: CGFloat = {
             let base = centered
                 ? tokens.name * 1.08
                 : tokens.name
-            return (base * tennisNameScale * nameMultiplier * chrome * syncNameScale).clamped(18, 96)
+            let projectionNameScale = projection.isLocalProjection
+                ? DisplayTypographyResolver.singlesNameScale(for: viewport)
+                : 1
+            return (
+                base * tennisNameScale * nameMultiplier * chrome * syncNameScale * projectionNameScale
+            ).clamped(18, 96)
         }()
-        let baseSetsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale).clamped(18, 160)
+        let projectedSetsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale).clamped(18, 160)
         let gamesMultiplier = CGFloat(multipliers?["gameScore"] ?? Double(secondaryMultiplier)).clamped(minimumMultiplier, 1.5)
-        let baseGamesFontSize = (tokens.games * gamesMultiplier * secondaryScale).clamped(18, 160)
-        let baseTennisSetsFontSize = (tokens.tennisSets * secondaryMultiplier * secondaryScale).clamped(18, 160)
-        let baseLabelStatFontSize = (tokens.labelStat * secondaryScale).clamped(14, 96)
+        let projectedGamesFontSize = (tokens.games * gamesMultiplier * secondaryScale).clamped(18, 160)
+        let projectedTennisSetsFontSize = (tokens.tennisSets * secondaryMultiplier * secondaryScale).clamped(18, 160)
+        let projectedLabelStatFontSize = (tokens.labelStat * secondaryScale).clamped(14, 96)
+
+        // The synchronized receiver is a button-free copy of the phone
+        // scoreboard. Use the same measured typography resolver and profiles;
+        // basketball keeps its dedicated receiver presentation by design.
+        let usesPhoneTypography = !projection.isLocalProjection
+            && gameType != "basketball"
+            && gameType != "three_basketball"
+        let phoneTypography: ScoreboardTypographyResult? = {
+            guard usesPhoneTypography else { return nil }
+            let profile: ScoreboardTypographyProfile
+            if isTennisFamily {
+                profile = .tennis
+            } else if displayNeedsSetsTypes.contains(gameType) {
+                profile = .rally
+            } else if ["eight_ball", "nine_ball", "snooker", "guandan", "shengji"].contains(gameType) {
+                profile = .twoSide
+            } else {
+                profile = .standard
+            }
+            let preference = ScoreboardTypographyPreference(
+                font: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default,
+                scoreMultiplier: state.appearance.fontSizeMultipliers?["mainScore"] ?? 1,
+                nameMultiplier: state.appearance.fontSizeMultipliers?["teamName"]
+                    ?? state.appearance.fontSizeMultipliers?["playerName"] ?? 1,
+                secondaryMultiplier: state.appearance.fontSizeMultipliers?["setGameScore"]
+                    ?? state.appearance.fontSizeMultipliers?["setScore"]
+                    ?? state.appearance.fontSizeMultipliers?["gameScore"] ?? 1
+            )
+            let panelSize = CGSize(width: viewport.width / 2, height: viewport.height)
+            func resolve(_ side: DisplayTwoSideSideModel) -> ScoreboardTypographyResult {
+                let secondary = [side.secondaryText, side.gamesText, side.setsText]
+                    .filter { !$0.isEmpty }
+                    .joined(separator: " ")
+                return ScoreboardTypographyResolver.resolve(
+                    ScoreboardTypographyLayoutContext(
+                        profile: profile,
+                        containerSize: panelSize,
+                        nameText: side.name,
+                        scoreText: side.scoreText,
+                        secondaryText: secondary,
+                        preference: preference,
+                        horizontalPadding: 20,
+                        secondaryIsInline: isTennisFamily,
+                        isLargeScreen: isTablet
+                    )
+                )
+            }
+            let leftTypography = resolve(left)
+            let rightTypography = resolve(right)
+            return ScoreboardTypographyResult(
+                nameFontSize: min(leftTypography.nameFontSize, rightTypography.nameFontSize),
+                scoreFontSize: min(leftTypography.scoreFontSize, rightTypography.scoreFontSize),
+                secondaryFontSize: min(leftTypography.secondaryFontSize, rightTypography.secondaryFontSize),
+                nameToScoreSpacing: min(leftTypography.nameToScoreSpacing, rightTypography.nameToScoreSpacing),
+                mainToSecondarySpacing: min(leftTypography.mainToSecondarySpacing, rightTypography.mainToSecondarySpacing)
+            )
+        }()
+        let baseScoreFontSize = phoneTypography?.scoreFontSize ?? projectedScoreFontSize
+        let baseNameFontSize = phoneTypography?.nameFontSize ?? projectedNameFontSize
+        let baseSetsFontSize = phoneTypography?.secondaryFontSize ?? projectedSetsFontSize
+        let baseGamesFontSize = phoneTypography?.secondaryFontSize ?? projectedGamesFontSize
+        let baseTennisSetsFontSize = phoneTypography?.secondaryFontSize ?? projectedTennisSetsFontSize
+        let baseLabelStatFontSize = phoneTypography?.secondaryFontSize ?? projectedLabelStatFontSize
 
         // 顶部标题带（对齐安卓 titleBandHeight：仅斯诺克且真实比赛抬头非空时预留，
         // 其余项目名一律不渲染、不预留）。
@@ -666,14 +852,14 @@ struct ScoreboardExternalLiveView: View {
         let titleBandHeight: CGFloat = {
             guard isSnooker, hasMatchTitle else { return 0 }
             if projection.isLocalProjection {
-                return (titleIsLarge ? 64 : 44) * chromeAll * 2
+                return (titleIsLarge ? 64 : 52) * chromeAll
             }
             return (titleIsLarge ? 64 : 56) * chromeAll
         }()
         let hasRemoteSnookerTitle = isSnooker && !projection.isLocalProjection && hasMatchTitle
-        let baseNameScoreGap: CGFloat = hasRemoteSnookerTitle
+        let baseNameScoreGap: CGFloat = phoneTypography?.nameToScoreSpacing ?? (hasRemoteSnookerTitle
             ? (baseScoreFontSize * 0.12).clamped(12, 30)
-            : (baseScoreFontSize * 0.24).clamped(24, 60)
+            : (baseScoreFontSize * 0.24).clamped(24, 60))
         let baseMainScoreSecondaryGap: CGFloat = hasRemoteSnookerTitle ? 0 : (isSnooker ? 2 : 8)
 
         // 垂直预算（对齐安卓 availableHeight/verticalScale）。
@@ -696,11 +882,15 @@ struct ScoreboardExternalLiveView: View {
         if hasRealtimeBasketballClock {
             sportInfo.text = ""
         }
-        let hasSportInfo = !sportInfo.text.isEmpty || sportInfo.segments != nil || sportInfo.targetRacks != nil
+        let hasSportInfo = (!sportInfo.text.isEmpty || sportInfo.segments != nil || sportInfo.targetRacks != nil)
+            && !isSnooker
         let sportInfoTopInset = hasSportInfo ? max(nextTopInset, titleBandHeight + 12 * chrome) : 0
         if hasSportInfo {
             let sportInfoHeight = max(tokens.meta * secondaryScale * 1.2, 18 * chrome) + 14 * chrome
             nextTopInset = sportInfoTopInset + sportInfoHeight + chromeGap
+        } else if isSnooker, sportInfo.segments != nil {
+            let inlineHeight = max(tokens.meta * 1.2, 18 * chrome) + 8 * chrome
+            nextTopInset = max(nextTopInset, titleBandHeight + inlineHeight)
         }
 
         // 篮球犯规条（对齐安卓 BasketballFoulStrip）。
@@ -777,7 +967,6 @@ struct ScoreboardExternalLiveView: View {
 
         // 网球横向预算（对齐安卓 resolveTennisProjectionContentScale）。
         let baseTennisGap = min(32 * chrome, viewport.width * 0.025)
-        let longestScoreText = sides.map { $0.scoreText }.max(by: { $0.count < $1.count }) ?? "0"
         let horizontalScale: CGFloat = {
             guard statMode == .tennis else { return 1 }
             let availableWidth = max(viewport.width / 2 - 24 - min(tokens.panelEdgeInset, viewport.width * 0.02), 1)
@@ -788,8 +977,7 @@ struct ScoreboardExternalLiveView: View {
                 setsFontSize: baseTennisSetsFontSize,
                 showGames: sides.contains { $0.showGames },
                 showSets: sides.contains { $0.showSets },
-                baseGap: baseTennisGap,
-                scoreText: longestScoreText
+                baseGap: baseTennisGap
             )
         }()
         let contentScale = min(verticalScale, horizontalScale)
@@ -808,12 +996,11 @@ struct ScoreboardExternalLiveView: View {
             mainScoreSecondaryGap: baseMainScoreSecondaryGap * contentScale,
             panelTopPadding: tokens.panelTopPadding,
             panelEdgeInset: min(tokens.panelEdgeInset, viewport.width * 0.02),
-            nameMaxLines: projection.isLocalProjection ? 1 : 2,
-            nameHorizontalPadding: projection.isLocalProjection ? (16 * chrome).clamped(16, 24) : 0,
+            nameMaxLines: 1,
+            nameHorizontalPadding: projection.isLocalProjection ? (16 * chrome).clamped(16, 24) : 16,
             tennisContentGap: baseTennisGap * contentScale,
             tennisMainScoreWidth: DisplayTypographyResolver.tennisMainScoreWidth(
-                fontSize: baseScoreFontSize * contentScale,
-                scoreText: longestScoreText
+                fontSize: baseScoreFontSize * contentScale
             ),
             tennisSetScoreBoxSize: DisplayTypographyResolver.tennisSetScoreBoxSize(
                 fontSize: baseTennisSetsFontSize * contentScale
@@ -843,9 +1030,14 @@ struct ScoreboardExternalLiveView: View {
         ).applyingServerIndicator(
             state: state,
             gameType: gameType,
-            arrowSize: baseScoreFontSize * contentScale * 0.30 > 0
-                ? (baseScoreFontSize * contentScale * 0.30).clamped(30, 72)
-                : 0
+            arrowSize: projection.isLocalProjection
+                ? DisplayServeIndicatorSizing.singles(
+                    baseSize: baseScoreFontSize * contentScale * 0.30,
+                    projection: projection
+                )
+                : ScoreboardLayoutMetrics.serveIndicatorSize(
+                    halfViewportSize: CGSize(width: viewport.width / 2, height: viewport.height)
+                )
         )
     }
 
@@ -857,13 +1049,11 @@ struct ScoreboardExternalLiveView: View {
         setsFontSize: CGFloat,
         showGames: Bool,
         showSets: Bool,
-        baseGap: CGFloat,
-        scoreText: String
+        baseGap: CGFloat
     ) -> CGFloat {
         func groupWidth(_ scale: CGFloat) -> CGFloat {
             let mainWidth = DisplayTypographyResolver.tennisMainScoreWidth(
-                fontSize: scoreFontSize * scale,
-                scoreText: scoreText
+                fontSize: scoreFontSize * scale
             )
             guard showGames || showSets else { return mainWidth }
             let setBox: CGFloat = showSets
@@ -1023,18 +1213,30 @@ struct ScoreboardExternalLiveView: View {
         if state.sportString(isLeft ? "leftDisplayScore" : "rightDisplayScore") != nil {
             return rawScoreText
         }
-        if state.sportBoolValue("tennisIsTieBreak") == true { return "\(rawScore)" }
+        let isTieBreak = state.sportBoolValue("tennisIsTieBreak") == true
+        let isDeuce = state.sportBoolValue("tennisIsDeuce") == true
+        if isTieBreak { return "\(rawScore)" }
         if gameType == "soft_tennis" {
             let opponent = opponentScore(isLeft: isLeft)
             return formatSoftTennisPoint(rawScore, opponentScore: opponent)
         }
-        if state.sportBoolValue("tennisIsDeuce") == true {
+        if isDeuce {
             if state.sportString("tennisDeuceMode") == "no_ad" { return "40" }
             let advantage = state.sportString("tennisAdvantage")
             guard let advantage, !advantage.isEmpty, advantage != "none" else { return "40" }
             let advantageScreenSide = servingScreenSide(forTeam: advantage)
             let hasAdvantage = isLeft ? advantageScreenSide == "left" : advantageScreenSide == "right"
             return hasAdvantage ? "AD" : "40"
+        }
+        if ExternalTennisScoreProjection.hidesTransientCompletedGameOrdinal(
+            rawScore: rawScore,
+            isTieBreak: isTieBreak,
+            isDeuce: isDeuce,
+            isLocalProjection: projection.isLocalProjection
+        ) {
+            // Completed games can briefly publish ordinal 4 before games/sets
+            // catch up. Do not flash a false AD during that transition.
+            return "0"
         }
         return formatTennisPointScore(rawScore)
     }
@@ -1073,7 +1275,7 @@ struct ScoreboardExternalLiveView: View {
             : 1
         let syncNameScale = DisplayTypographyResolver.synchronizedNameScale(for: viewport, isLocalProjection: projection.isLocalProjection)
         let secondaryScale = projection.isLocalProjection
-            ? DisplayTypographyResolver.secondaryScoreScale(for: viewport)
+            ? DisplayTypographyResolver.secondaryScoreScale(for: viewport, gameType: gameType)
             : 1
         let nameScale = projection.isLocalProjection
             ? DisplayTypographyResolver.doublesNameScale(for: viewport)
@@ -1093,13 +1295,71 @@ struct ScoreboardExternalLiveView: View {
             multipliers?[secondaryKey] ?? multipliers?["setScore"] ?? multipliers?["setGameScore"] ?? 1
         ).clamped(minimumMultiplier, 1.5)
 
-        let scoreFontSize = (tokens.score * scoreMultiplier).clamped(48, 360)
-        let nameFontSize = (tokens.name * nameMultiplier * nameScale * syncNameScale).clamped(24, 80)
-        let gamesFontSize = (tokens.games * secondaryMultiplier * secondaryScale).clamped(18, 160)
-        let setsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale).clamped(18, 160)
+        let projectedScoreFontSize = (tokens.score * scoreMultiplier).clamped(48, 360)
+        let projectedNameFontSize = (tokens.name * nameMultiplier * nameScale * syncNameScale).clamped(24, 80)
+        let projectedGamesFontSize = (tokens.games * secondaryMultiplier * secondaryScale).clamped(18, 160)
+        let projectedSetsFontSize = (tokens.sets * secondaryMultiplier * secondaryScale).clamped(18, 160)
 
         let left = buildDoublesSide(isLeft: true, gameType: gameType)
         let right = buildDoublesSide(isLeft: false, gameType: gameType)
+        let phoneTypography: (score: CGFloat, name: CGFloat, secondary: CGFloat)? = {
+            guard !projection.isLocalProjection else { return nil }
+            let preference = ScoreboardTypographyPreference(
+                font: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default,
+                scoreMultiplier: state.appearance.fontSizeMultipliers?["mainScore"] ?? 1,
+                nameMultiplier: state.appearance.fontSizeMultipliers?["playerName"]
+                    ?? state.appearance.fontSizeMultipliers?["teamName"] ?? 1,
+                secondaryMultiplier: state.appearance.fontSizeMultipliers?["setGameScore"]
+                    ?? state.appearance.fontSizeMultipliers?["setScore"] ?? 1
+            )
+            let halfSize = CGSize(width: viewport.width / 2, height: viewport.height)
+            let longestName = [left.topName, left.bottomName, right.topName, right.bottomName]
+                .max(by: { $0.count < $1.count }) ?? ""
+            let name = ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: tennisDoubles ? .tennis : .rally,
+                    containerSize: halfSize,
+                    nameText: longestName,
+                    scoreText: "",
+                    preference: preference,
+                    horizontalPadding: 8,
+                    isLargeScreen: isTablet
+                )
+            ).nameFontSize
+            let scoreRegion = CGSize(
+                width: halfSize.width,
+                height: ScoreboardLayoutMetrics.doublesScoreRegionHeight(panelHeight: halfSize.height)
+            )
+            func resolveScore(_ side: DisplayDoublesSideRenderModel) -> ScoreboardTypographyResult {
+                ScoreboardTypographyResolver.resolve(
+                    ScoreboardTypographyLayoutContext(
+                        profile: tennisDoubles ? .tennis : .rally,
+                        containerSize: scoreRegion,
+                        nameText: "",
+                        scoreText: side.scoreText,
+                        secondaryText: side.setsText,
+                        preference: preference,
+                        horizontalPadding: 8,
+                        secondaryIsInline: true,
+                        referenceHeight: halfSize.height,
+                        isLargeScreen: isTablet
+                    )
+                )
+            }
+            let leftScore = resolveScore(left)
+            let rightScore = resolveScore(right)
+            return (
+                min(leftScore.scoreFontSize, rightScore.scoreFontSize),
+                name,
+                ScoreboardLayoutMetrics.doublesSecondaryScoreFontSize(
+                    regularSize: min(leftScore.secondaryFontSize, rightScore.secondaryFontSize)
+                )
+            )
+        }()
+        let scoreFontSize = phoneTypography?.score ?? projectedScoreFontSize
+        let nameFontSize = phoneTypography?.name ?? projectedNameFontSize
+        let gamesFontSize = phoneTypography?.secondary ?? projectedGamesFontSize
+        let setsFontSize = phoneTypography?.secondary ?? projectedSetsFontSize
 
         // 发球指示（对齐安卓 doublesServerPlayer + DoublesServeIndicator）。
         var serverVisible = false
@@ -1134,8 +1394,16 @@ struct ScoreboardExternalLiveView: View {
             nameLineHeight: max(nameFontSize * 1.2, nameFontSize),
             gamesFontSize: gamesFontSize,
             setsFontSize: setsFontSize,
-            arrowSize: tennisDoubles ? (scoreFontSize * 0.26).clamped(24, 52) : (scoreFontSize * 0.30).clamped(30, 72),
-            nameMaxLines: projection.isLocalProjection ? 1 : 2,
+            arrowSize: projection.isLocalProjection
+                ? DisplayServeIndicatorSizing.doubles(
+                    scoreFontSize: scoreFontSize,
+                    tennisDoubles: tennisDoubles,
+                    projection: projection
+                )
+                : ScoreboardLayoutMetrics.serveIndicatorSize(
+                    halfViewportSize: CGSize(width: viewport.width / 2, height: viewport.height)
+                ),
+            nameMaxLines: 1,
             nameHorizontalPadding: projection.isLocalProjection ? (16 * chrome).clamped(16, 24) : 8,
             nameCenterGutter: projection.isLocalProjection ? (tokens.badge + 12 * chrome) / 2 : 8,
             mainSecondarySpacing: projection.isLocalProjection ? min(64 * chrome, 96) : 32,
@@ -1306,9 +1574,39 @@ struct ScoreboardExternalLiveView: View {
         let chrome = DisplayTypographyResolver.chromeScale(for: viewport)
         let winnerID = state.result?.winnerID
         let winnerName = state.teams.first(where: { $0.id == winnerID })?.name
+        let leftTeamID = logicalTeam0(isOnScreenSide: true) ? "team_0" : "team_1"
+        let rightTeamID = logicalTeam0(isOnScreenSide: false) ? "team_0" : "team_1"
+        let leftTeam = state.teams.first(where: { $0.id == leftTeamID })
+        let rightTeam = state.teams.first(where: { $0.id == rightTeamID })
         return VStack(spacing: 10 * chrome) {
             Text(NSLocalizedString("cast_match_finished", value: "比赛结束", comment: ""))
                 .font(displayFont(size: 32 * chrome, weight: .bold))
+            if let leftTeam, let rightTeam {
+                HStack(spacing: 28 * chrome) {
+                    resultSide(
+                        name: leftTeam.name,
+                        score: ScoreboardExternalResultScorePresentation.score(
+                            forTeamID: leftTeamID,
+                            visualIndex: 0,
+                            state: state
+                        ),
+                        chrome: chrome
+                    )
+                    Text(":")
+                        .font(displayFont(size: 30 * chrome, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.55))
+                    resultSide(
+                        name: rightTeam.name,
+                        score: ScoreboardExternalResultScorePresentation.score(
+                            forTeamID: rightTeamID,
+                            visualIndex: 1,
+                            state: state
+                        ),
+                        chrome: chrome
+                    )
+                }
+                .padding(.vertical, 6 * chrome)
+            }
             Text(winnerName.map {
                 String(format: NSLocalizedString("cast_winner_format", value: "%@ 获胜", comment: ""), $0)
             } ?? NSLocalizedString("cast_result_draw", value: "比赛结果已确认", comment: ""))
@@ -1329,6 +1627,19 @@ struct ScoreboardExternalLiveView: View {
         .padding(.vertical, 30 * chrome)
         .background(.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 15 * chrome))
         .shadow(color: .black.opacity(0.4), radius: 24)
+    }
+
+    private func resultSide(name: String, score: String, chrome: CGFloat) -> some View {
+        VStack(spacing: 4 * chrome) {
+            Text(name)
+                .font(displayFont(size: 18 * chrome, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text(score)
+                .font(displayFont(size: 40 * chrome, weight: .bold))
+                .monospacedDigit()
+        }
+        .frame(minWidth: 112 * chrome)
     }
 
     private func displayFont(size: CGFloat, weight: Font.Weight = .bold) -> Font {
@@ -1354,10 +1665,12 @@ private struct DisplayTwoSideSurface: View {
             }
             // 发球指示三角（对齐安卓 TwoSideServerIndicator）。
             serverIndicator
-            // 关键分徽标。
-            keyPointBadge
             // 顶部信息条（对齐安卓 SportInfoBadge：篮球节次/拳击回合/斯诺克局数/黑八目标）。
-            sportInfoBadge
+            if state.gameType == "snooker" {
+                snookerInlineFrameInfo
+            } else {
+                sportInfoBadge
+            }
             // 篮球犯规条（对齐安卓 BasketballFoulStrip）。
             basketballFoulStrip
             // 篮球时钟条（对齐安卓 BasketballClockPill：底部居中）。
@@ -1413,6 +1726,29 @@ private struct DisplayTwoSideSurface: View {
             .background(.black.opacity(0.32), in: RoundedRectangle(cornerRadius: 14 * model.overlayChromeScale))
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.top, topPadding)
+        }
+    }
+
+    @ViewBuilder
+    private var snookerInlineFrameInfo: some View {
+        if let segments = model.sportInfoSegments {
+            HStack(spacing: 8 * model.overlayChromeScale) {
+                Text(segments.leading)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                Text(segments.center)
+                    .font(.system(size: model.overlaySecondaryFontSize * 0.72, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.70))
+                    .fixedSize()
+                Text(segments.trailing)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .font(.system(size: model.overlaySecondaryFontSize, weight: .bold))
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .padding(.horizontal, 24 * model.overlayChromeScale)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .padding(.top, model.titleBandHeight + 4 * model.overlayChromeScale)
+            .allowsHitTesting(false)
         }
     }
 
@@ -1639,12 +1975,7 @@ private struct DisplayTwoSideSurface: View {
                 if model.mainScoreSecondaryGap > 0 {
                     Spacer().frame(height: model.mainScoreSecondaryGap)
                 }
-                Text(side.secondaryText.isEmpty ? "0" : side.secondaryText)
-                    .font(scoreFont(size: snookerSecondaryFontSize))
-                    .foregroundStyle(
-                        side.secondaryText.isEmpty ? Color.clear : Color(hex: side.secondaryHex)
-                    )
-                    .lineLimit(1)
+                secondaryScore(side: side)
             }
             if side.showSets {
                 Spacer().frame(height: (model.setsFontSize * 0.24).clamped(8, 20))
@@ -1657,6 +1988,22 @@ private struct DisplayTwoSideSurface: View {
         }
         .padding(.horizontal, max(0, 16 - model.panelEdgeInset) + model.panelEdgeInset * 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder
+    private func secondaryScore(side: DisplayTwoSideSideModel) -> some View {
+        let content = Text(side.secondaryText.isEmpty ? "0" : side.secondaryText)
+            .font(scoreFont(size: snookerSecondaryFontSize))
+            .foregroundStyle(side.secondaryText.isEmpty ? Color.clear : Color(hex: side.secondaryHex))
+            .lineLimit(1)
+        if state.gameType == "snooker" {
+            content
+                .frame(minWidth: snookerSecondaryFontSize * 1.45, minHeight: snookerSecondaryFontSize * 1.15)
+                .padding(.horizontal, snookerSecondaryFontSize * 0.22)
+                .background(Color.black.opacity(0.34), in: Capsule())
+        } else {
+            content
+        }
     }
 
     /// 网球系面板：名称置顶，主分与局分/盘分同行（对齐安卓 TennisSideContent）。
@@ -1768,35 +2115,6 @@ private struct DisplayTwoSideSurface: View {
                             .frame(width: model.arrowSize, height: model.arrowSize)
                     }
                 }
-        }
-    }
-
-    @ViewBuilder
-    private var keyPointBadge: some View {
-        if let keyPoint = state.keyPoint, state.result?.ended != true {
-            let isLeft = keyPoint.side == "left"
-            VStack {
-                Spacer()
-                Text(keyPointTitle(keyPoint.kind))
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(.black.opacity(0.52), in: Capsule())
-                    .padding(.bottom, 40)
-            }
-            .frame(maxWidth: .infinity, alignment: isLeft ? .leading : .trailing)
-            .padding(.horizontal, 24)
-            .allowsHitTesting(false)
-        }
-    }
-
-    private func keyPointTitle(_ kind: String) -> String {
-        switch kind {
-        case "game": NSLocalizedString("key_point_game", value: "局点", comment: "")
-        case "set": NSLocalizedString("key_point_set", value: "盘点", comment: "")
-        case "match": NSLocalizedString("key_point_match", value: "赛点", comment: "")
-        default: kind
         }
     }
 
@@ -2011,7 +2329,6 @@ private struct DisplayDoublesCourtSurface: View {
                 .frame(maxWidth: .infinity)
                 // 发球指示三角。
                 serverIndicator(proxy: proxy)
-                keyPointBadge
             }
         }
     }
@@ -2143,47 +2460,6 @@ private struct DisplayDoublesCourtSurface: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    @ViewBuilder
-    private var keyPointBadge: some View {
-        if let keyPoint = state.keyPoint, state.result?.ended != true {
-            let leftVisible = keyPoint.side == "left"
-            let rightVisible = keyPoint.side == "right"
-            HStack(spacing: 0) {
-                if leftVisible {
-                    badge(kind: keyPoint.kind)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    Color.clear.frame(maxWidth: .infinity)
-                }
-                if rightVisible {
-                    badge(kind: keyPoint.kind)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    Color.clear.frame(maxWidth: .infinity)
-                }
-            }
-            .allowsHitTesting(false)
-        }
-    }
-
-    private func badge(kind: String) -> some View {
-        Text(keyPointTitle(kind))
-            .font(.system(size: 24, weight: .bold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(.black.opacity(0.52), in: Capsule())
-    }
-
-    private func keyPointTitle(_ kind: String) -> String {
-        switch kind {
-        case "game": NSLocalizedString("key_point_game", value: "局点", comment: "")
-        case "set": NSLocalizedString("key_point_set", value: "盘点", comment: "")
-        case "match": NSLocalizedString("key_point_match", value: "赛点", comment: "")
-        default: kind
-        }
-    }
-
     private func scoreFont(size: CGFloat) -> Font {
         (ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default)
             .swiftUIFont(size: size, weight: .bold)
@@ -2194,7 +2470,7 @@ private struct DisplayDoublesCourtSurface: View {
 
 /// 对齐安卓 DisplayMultiGridSurface + MultiGridTile：
 /// 固定深底 #111827、无幻影标题带、seamless 网格无间距/外边距、
-/// winner 3pt #FBBF24 描边 + 左上 ★、斗地主 name 置顶其余居中、字号按安卓 band 比例派生。
+/// winner 3pt #FBBF24 描边 + 左上 ★、姓名固定顶部、主分独立居中、字号按实际格宽派生。
 private struct DisplayMultiGridSurface: View {
     let state: ScoreboardDisplayState
     let viewport: CGSize
@@ -2203,14 +2479,18 @@ private struct DisplayMultiGridSurface: View {
 
     var body: some View {
         let players = LegacyExternalLayouts.resolvedPlayers(state)
-        let requestedColumns = state.sportInt("multiGridColumns")
-        let columns = max(1, requestedColumns ?? (cardStyle ? 3 : (players.count <= 4 ? 2 : 3)))
-        let rows = max(1, Int(ceil(Double(players.count) / Double(columns))))
+        let layoutRows = Self.layoutRows(
+            state: state,
+            players: players,
+            cardStyle: cardStyle,
+            viewport: viewport,
+            projection: projection
+        )
         let seamless = Self.isSeamless(gameType: state.gameType, count: players.count)
         let gap: CGFloat = seamless ? 0 : 4
         let outer: CGFloat = seamless ? 0 : 4
-        let cellWidth = max(1, (viewport.width - outer * 2 - gap * CGFloat(columns - 1)) / CGFloat(columns))
-        let cellHeight = max(1, (viewport.height - outer * 2 - gap * CGFloat(rows - 1)) / CGFloat(rows))
+        let rowCount = max(1, layoutRows.count)
+        let cellHeight = max(1, (viewport.height - outer * 2 - gap * CGFloat(rowCount - 1)) / CGFloat(rowCount))
         // 九球追分带高度（对齐安卓 chaseStatsBandHeight，格内容高度 = 格高 - 追分带）。
         let chaseStatsBandHeight: CGFloat = {
             guard state.gameType == "nine_ball", players.count >= 3, players.count <= 4 else { return 0 }
@@ -2218,33 +2498,30 @@ private struct DisplayMultiGridSurface: View {
             let uiScale = (min(viewport.width, viewport.height) / 360).clamped(1.5, 2)
             return (54 * uiScale).clamped(54, 92)
         }()
-        let tileContentHeight = max(1, cellHeight - chaseStatsBandHeight)
-        let scoreBand = max(8, tileContentHeight * 0.50)
-        let nameBand = max(8, tileContentHeight * 0.30)
-        let multipliers = projection.isLocalProjection ? [:] : (state.appearance.fontSizeMultipliers ?? [:])
-        let minimumMultiplier = min(viewport.width, viewport.height) >= 600 ? 0.7 : 0.8
-        let scoreMultiplier = CGFloat(multipliers["mainScore"] ?? 1).clamped(minimumMultiplier, 1.5)
-        let nameMultiplier = CGFloat(multipliers["playerName"] ?? multipliers["teamName"] ?? 1).clamped(minimumMultiplier, 1.5)
-        let scoreFont = (min(scoreBand * 0.88 / 1.02, cellWidth * 0.58).clamped(36, 120) * scoreMultiplier).clamped(24, 180)
-        let nameFont = (min(max(22, nameBand * 0.483), 42 * 1.16) * nameMultiplier).clamped(14, 108)
         let winnerID = (state.result?.ended ?? false) ? state.result?.winnerID : nil
         let manualEnd = state.result?.manualEnd ?? false
-        // 名称行数与水平边距（对齐安卓 displayProjectionNameHorizontalPadding：本机投屏 16*chrome，远程 0）。
+        // 同步端沿用本机单行名称；电视端保留大屏 chrome 内边距。
         let isLocal = projection.isLocalProjection
         let chrome = DisplayTypographyResolver.chromeScale(for: viewport).clamped(1, 1.5)
-        let nameMaxLines = isLocal ? 1 : 2
-        let nameHorizontalPadding: CGFloat = isLocal ? (16 * chrome).clamped(16, 24) : 0
+        let nameMaxLines = 1
+        let nameHorizontalPadding: CGFloat = isLocal ? (16 * chrome).clamped(16, 24) : 12
 
         return ZStack {
             Color(hex: "111827")
             VStack(spacing: gap) {
-                ForEach(0..<rows, id: \.self) { row in
+                ForEach(Array(layoutRows.enumerated()), id: \.offset) { _, row in
+                    let columnCount = max(1, row.count)
+                    let cellWidth = max(1, (viewport.width - outer * 2 - gap * CGFloat(columnCount - 1)) / CGFloat(columnCount))
                     HStack(spacing: gap) {
-                        ForEach(0..<columns, id: \.self) { col in
-                            let index = row * columns + col
+                        ForEach(Array(row.enumerated()), id: \.offset) { _, playerIndex in
                             Group {
-                                if index < players.count {
+                                if let index = playerIndex, players.indices.contains(index) {
                                     let player = players[index]
+                                    let typography = resolvedTypography(
+                                        player: player,
+                                        cellSize: CGSize(width: cellWidth, height: cellHeight),
+                                        chaseStatsBandHeight: chaseStatsBandHeight
+                                    )
                                     let slot = LegacyExternalLayouts.colorSlot(index: index, state: state)
                                     let styleSlot = state.appearance.style?.panels.first(where: { $0.participantId == player.id })?.slotKey
                                         ?? (state.gameType == "doudizhu" ? ["side_left", "side_center", "side_right"][index % 3] : "player_\(index)")
@@ -2255,14 +2532,13 @@ private struct DisplayMultiGridSurface: View {
                                     Self.GridTile(
                                         name: player.name,
                                         score: player.score ?? 0,
-                                        nameOnTop: cardStyle || !state.displayChaseCounts(playerIndex: index).isEmpty,
                                         chaseStats: state.displayChaseCounts(playerIndex: index),
                                         chaseStatsBandHeight: chaseStatsBandHeight,
                                         fontCode: state.appearance.fontCode,
                                         nameMaxLines: nameMaxLines,
                                         nameHorizontalPadding: nameHorizontalPadding,
-                                        nameFont: nameFont,
-                                        scoreFont: scoreFont,
+                                        nameFont: typography.nameFontSize,
+                                        scoreFont: typography.scoreFontSize,
                                         panelColor: Color(hex: panelHex ?? player.color ?? slot.panel),
                                         textColor: Color(hex: scoreHex ?? "#FFFFFF"),
                                         nameColor: Color(hex: nameHex ?? "#FFFFFF"),
@@ -2272,14 +2548,13 @@ private struct DisplayMultiGridSurface: View {
                                     Self.GridTile(
                                         name: "",
                                         score: 0,
-                                        nameOnTop: cardStyle,
                                         chaseStats: [],
                                         chaseStatsBandHeight: chaseStatsBandHeight,
                                         fontCode: state.appearance.fontCode,
                                         nameMaxLines: nameMaxLines,
                                         nameHorizontalPadding: nameHorizontalPadding,
-                                        nameFont: nameFont,
-                                        scoreFont: scoreFont,
+                                        nameFont: 24,
+                                        scoreFont: 48,
                                         panelColor: Color(hex: "1F2937"),
                                         textColor: .white.opacity(0.6),
                                         placeholder: true,
@@ -2294,6 +2569,136 @@ private struct DisplayMultiGridSurface: View {
                 }
             }
             .padding(outer)
+
+            if state.gameType == "uno", let target = state.sportInt("unoTargetScore"), target > 0 {
+                unoTargetBadge(target: target)
+            }
+        }
+    }
+
+    private var typographyPreference: ScoreboardTypographyPreference {
+        let multipliers = state.appearance.fontSizeMultipliers ?? [:]
+        return ScoreboardTypographyPreference(
+            font: ScoreboardFont(displayCode: state.appearance.fontCode) ?? .default,
+            scoreMultiplier: multipliers["mainScore"] ?? 1,
+            nameMultiplier: multipliers["playerName"] ?? multipliers["teamName"] ?? 1,
+            secondaryMultiplier: multipliers["setGameScore"] ?? multipliers["setScore"] ?? multipliers["gameScore"] ?? 1
+        )
+    }
+
+    private func resolvedTypography(
+        player: ScoreboardDisplayPlayer,
+        cellSize: CGSize,
+        chaseStatsBandHeight: CGFloat
+    ) -> ScoreboardTypographyResult {
+        let profile: ScoreboardTypographyProfile
+        let horizontalPadding: CGFloat
+        let reservedHeight: CGFloat
+        let scoreBaseScale: CGFloat
+        switch state.gameType {
+        case "doudizhu":
+            profile = .doudizhu
+            horizontalPadding = 16
+            reservedHeight = 32
+            scoreBaseScale = 0.85
+        case "nine_ball":
+            profile = .nineBall
+            let compact = cellSize.height < 300 || cellSize.width < 230
+            horizontalPadding = compact ? 8 : 14
+            reservedHeight = compact ? 48 : 58
+            scoreBaseScale = 1
+        case "uno":
+            profile = .uno
+            horizontalPadding = 12
+            reservedHeight = 44
+            scoreBaseScale = 1
+        default:
+            profile = .multi
+            horizontalPadding = 12
+            reservedHeight = 20
+            scoreBaseScale = 1
+        }
+        let detail = state.gameType == "nine_ball"
+            ? state.displayChaseCounts(playerIndex: player.order).map(String.init).joined(separator: " ")
+            : ""
+        return ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: profile,
+                containerSize: cellSize,
+                nameText: player.name,
+                scoreText: "\(player.score ?? 0)",
+                secondaryText: detail,
+                preference: typographyPreference,
+                horizontalPadding: horizontalPadding,
+                reservedHeight: reservedHeight + chaseStatsBandHeight,
+                scoreBaseScale: scoreBaseScale,
+                isLargeScreen: min(viewport.width, viewport.height) >= 600
+            )
+        )
+    }
+
+    private func unoTargetBadge(target: Int) -> some View {
+        let text = String(
+            format: NSLocalizedString("uno_target_badge", value: "目标 %d", comment: ""),
+            target
+        )
+        let size = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .uno,
+                containerSize: CGSize(width: min(viewport.width * 0.5, 320), height: max(80, viewport.height * 0.22)),
+                nameText: "",
+                scoreText: "",
+                secondaryText: text,
+                preference: typographyPreference,
+                horizontalPadding: 20,
+                isLargeScreen: min(viewport.width, viewport.height) >= 600
+            )
+        ).secondaryFontSize
+        return VStack {
+            Spacer()
+            Text(text)
+                .font(typographyPreference.font.swiftUIFont(size: max(13, size * 0.45), weight: .medium))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Capsule().fill(Color.black.opacity(0.35)))
+                .padding(.bottom, ScoreboardConstants.buttonPadding)
+        }
+        .allowsHitTesting(false)
+    }
+
+    private static func layoutRows(
+        state: ScoreboardDisplayState,
+        players: [ScoreboardDisplayPlayer],
+        cardStyle: Bool,
+        viewport: CGSize,
+        projection: ScoreboardExternalProjection
+    ) -> [[Int?]] {
+        if cardStyle {
+            return [Array(players.indices).map(Optional.some)]
+        }
+        if state.gameType == "multi_scoreboard" || state.gameType == "uno" {
+            return ScoreboardPlayerGridLayout.multiRows(
+                playerCount: players.count,
+                // 手机横竖屏偏好不能改变电视端布局；投屏按实际宽高决定。
+                usesWideLayout: projection.isLocalProjection
+                    ? viewport.width >= viewport.height
+                    : state.orientation == .landscape
+            )
+        }
+        if state.gameType == "nine_ball" {
+            return ScoreboardPlayerGridLayout.nineBallRows(
+                playerCount: players.count,
+                containerSize: viewport,
+                forceWide: players.count == 2
+                    ? (projection.isLocalProjection ? true : state.orientation == .landscape)
+                    : nil
+            ).map { $0.map(Optional.some) }
+        }
+        let columns = max(1, state.sportInt("multiGridColumns") ?? (players.count <= 4 ? 2 : 3))
+        return stride(from: 0, to: players.count, by: columns).map { start in
+            let end = min(start + columns, players.count)
+            return Array(start..<end).map(Optional.some)
         }
     }
 
@@ -2308,7 +2713,6 @@ private struct DisplayMultiGridSurface: View {
     private struct GridTile: View {
         let name: String
         let score: Int
-        let nameOnTop: Bool
         var chaseStats: [Int] = []
         var chaseStatsBandHeight: CGFloat = 0
         var fontCode: String = ""
@@ -2333,64 +2737,24 @@ private struct DisplayMultiGridSurface: View {
                         .font(.system(size: scoreFont * 0.7, weight: .bold))
                         .foregroundStyle(textColor)
                 } else if !chaseStats.isEmpty {
-                    // 九球 3-4 人：名称置顶 + 主分居中 + 底部追分带（对齐安卓 GridTile chaseStats 分支）。
-                    Text(name)
-                        .font(.system(size: nameFont, weight: .bold))
-                        .foregroundStyle(nameColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, nameHorizontalPadding)
-                        .padding(.top, max(14, nameFont * 0.5))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    Text("\(score)")
-                        .font(scoreDisplayFont(size: scoreFont))
-                        .foregroundStyle(textColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.3)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                        .padding(.bottom, chaseStatsBandHeight)
+                    // 九球 3-4 人：姓名与主分作为一个整体，在追分条上方居中。
+                    GeometryReader { proxy in
+                        let availableHeight = max(1, proxy.size.height - chaseStatsBandHeight)
+                        centeredParticipantContent(availableHeight: availableHeight)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: availableHeight)
+                            .frame(maxHeight: .infinity, alignment: .top)
+                    }
                     DisplayChaseStatsStrip(
                         stats: chaseStats,
                         bandHeight: chaseStatsBandHeight,
                         fontCode: fontCode
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                } else if nameOnTop {
-                    GeometryReader { proxy in
-                        let headerHeight = min(proxy.size.height * 0.28, nameFont * 1.2 * CGFloat(nameMaxLines) + 14)
-                        let fittedScore = min(scoreFont, max(24, (proxy.size.height - 2 * headerHeight) / 1.2))
-                        ZStack {
-                            Text(name)
-                                .font(.system(size: nameFont, weight: .bold))
-                                .foregroundStyle(nameColor)
-                                .lineLimit(nameMaxLines).minimumScaleFactor(0.5)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, max(8, nameHorizontalPadding))
-                                .frame(height: max(1, headerHeight - 12))
-                                .padding(.top, 12)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                            Text("\(score)")
-                                .font(scoreDisplayFont(size: fittedScore))
-                                .foregroundStyle(textColor)
-                                .lineLimit(1).minimumScaleFactor(0.3)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                    }
                 } else {
-                    VStack(spacing: 12) {
-                        Text(name)
-                            .font(.system(size: nameFont, weight: .bold))
-                            .foregroundStyle(nameColor)
-                            .lineLimit(nameMaxLines)
-                            .minimumScaleFactor(0.5)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, nameHorizontalPadding)
-                        Text("\(score)")
-                            .font(scoreDisplayFont(size: scoreFont))
-                            .foregroundStyle(textColor)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.3)
+                    GeometryReader { proxy in
+                        centeredParticipantContent(availableHeight: proxy.size.height)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
                 if isWinner {
@@ -2404,11 +2768,36 @@ private struct DisplayMultiGridSurface: View {
             .clipped()
         }
 
-        private func scoreDisplayFont(size: CGFloat) -> Font {
-            guard !fontCode.isEmpty, let font = ScoreboardFont(displayCode: fontCode) else {
-                return .system(size: size, weight: .bold)
+        private func centeredParticipantContent(availableHeight: CGFloat) -> some View {
+            let requestedNameHeight = nameFont * 1.2 * CGFloat(nameMaxLines)
+            let requestedGap = (nameFont * 0.28).clamped(8, 22)
+            let requestedScoreHeight = scoreFont * 1.02
+            let requestedHeight = requestedNameHeight + requestedGap + requestedScoreHeight
+            let contentScale = min(1, max(0.35, availableHeight / max(requestedHeight, 1)))
+            let fittedName = max(12, nameFont * contentScale)
+            let fittedScore = max(24, scoreFont * contentScale)
+
+            return VStack(spacing: requestedGap * contentScale) {
+                Text(name)
+                    .font(scoreDisplayFont(size: fittedName, weight: .bold))
+                    .foregroundStyle(nameColor)
+                    .lineLimit(nameMaxLines)
+                    .minimumScaleFactor(0.5)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, max(8, nameHorizontalPadding))
+                Text("\(score)")
+                    .font(scoreDisplayFont(size: fittedScore))
+                    .foregroundStyle(textColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.3)
             }
-            return font.swiftUIFont(size: size, weight: .bold)
+        }
+
+        private func scoreDisplayFont(size: CGFloat, weight: Font.Weight = .bold) -> Font {
+            guard !fontCode.isEmpty, let font = ScoreboardFont(displayCode: fontCode) else {
+                return .system(size: size, weight: weight)
+            }
+            return font.swiftUIFont(size: size, weight: weight)
         }
     }
 }
@@ -2439,6 +2828,7 @@ private struct ScoreboardExternalClockView: View {
     let clock: ScoreboardDisplayClock
     let fontCode: String
     let timeScale: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
@@ -2446,6 +2836,7 @@ private struct ScoreboardExternalClockView: View {
                 atWallClockMilliseconds: Int64(context.date.timeIntervalSince1970 * 1_000)
             )
             let football = footballPresentation(projectedMs: projectedMs)
+            let shouldPulse = !reduceMotion && !clock.isRunning && projectedMs == 0
             VStack(spacing: 2 * timeScale) {
                 if let football {
                     HStack(spacing: 10 * timeScale) {
@@ -2476,6 +2867,13 @@ private struct ScoreboardExternalClockView: View {
             .padding(.horizontal, 14 * timeScale)
             .padding(.vertical, 6 * timeScale)
             .background(.black.opacity(0.32), in: RoundedRectangle(cornerRadius: 8 * timeScale))
+            .phaseAnimator(shouldPulse ? [false, true] : [false]) { content, emphasized in
+                content
+                    .scaleEffect(shouldPulse ? (emphasized ? 1.03 : 0.97) : 1)
+                    .opacity(shouldPulse ? (emphasized ? 1 : 0.78) : 1)
+            } animation: { _ in
+                .easeInOut(duration: 0.7)
+            }
         }
     }
 
@@ -2525,9 +2923,116 @@ private struct ScoreboardExternalClockView: View {
     }
 }
 
+private struct ScoreboardExternalKeyPointBadgeLayer: View {
+    let state: ScoreboardDisplayState
+    let projection: ScoreboardExternalProjection
+    let viewport: CGSize
+    let doublesModel: DisplayDoublesRenderModel?
+    let twoSideModel: DisplayTwoSideRenderModel?
+
+    var body: some View {
+        if let keyPoint = state.keyPoint, state.result?.ended != true {
+            let isLeft = keyPoint.side == "left"
+            let scale = projection.isLocalProjection
+                ? ((min(viewport.width, viewport.height) / 360).clamped(1.5, 2) * 0.8)
+                : 1
+            let badgeWidth = 56 * scale
+            let triangleSize = doublesModel?.arrowSize ?? twoSideModel?.arrowSize ?? 0
+            let doublesTopRow: Bool? = if let doublesModel,
+                                                  doublesModel.serverVisible,
+                                                  doublesModel.serverPointLeft == isLeft {
+                doublesModel.serverTopRow
+            } else {
+                nil
+            }
+            ScoreboardKeyPointBadge(kind: keyPoint.kind, gameType: state.gameType, scale: scale)
+                .position(
+                    x: ScoreboardServeGeometry.keyPointBadgeCenterX(
+                        width: viewport.width,
+                        isLeftSide: isLeft,
+                        innerGap: 12 * scale,
+                        badgeHalfWidth: badgeWidth / 2
+                    ),
+                    y: badgeCenterY(
+                        doublesTopRow: doublesTopRow,
+                        triangleSize: triangleSize,
+                        scale: scale
+                    )
+                )
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("external_key_point_badge")
+        }
+    }
+
+    private func badgeCenterY(
+        doublesTopRow: Bool?,
+        triangleSize: CGFloat,
+        scale: CGFloat
+    ) -> CGFloat {
+        if state.gameType == "foosball", let model = twoSideModel {
+            // 桌上足球的局点/赛点属于局分区域，放在主分与底部局分之间。
+            return min(
+                viewport.height - 40 * scale,
+                viewport.height / 2 + model.scoreFontSize * 0.50
+            )
+        }
+        if doublesModel != nil && doublesTopRow == nil {
+            return viewport.height / 2
+        }
+        return ScoreboardServeGeometry.keyPointBadgeCenterY(
+            height: viewport.height,
+            doublesTopRow: doublesTopRow,
+            largeWindow: min(viewport.width, viewport.height) >= 600,
+            triangleSize: triangleSize
+        )
+    }
+
+}
+
+private struct ScoreboardExternalTableTennisMarkerLayer: View {
+    let state: ScoreboardDisplayState
+    let projection: ScoreboardExternalProjection
+    let keyPointVisible: Bool
+
+    var body: some View {
+        GeometryReader { proxy in
+            let scale = projection.isLocalProjection
+                ? ((min(proxy.size.width, proxy.size.height) / 360).clamped(1.5, 2) * 0.8)
+                : 1
+            HStack(spacing: 34 * scale) {
+                TableTennisAdministrativeCards(status: status(forScreenLeft: true), alignment: .trailing, scale: scale)
+                TableTennisAdministrativeCards(status: status(forScreenLeft: false), alignment: .leading, scale: scale)
+            }
+            .frame(width: proxy.size.width, height: 24 * scale)
+            .position(
+                x: proxy.size.width / 2,
+                y: ScoreboardServeGeometry.tableTennisCardsCenterY(
+                    height: proxy.size.height,
+                    keyPointVisible: keyPointVisible,
+                    scale: scale
+                )
+            )
+        }
+        .allowsHitTesting(false)
+        .accessibilityIdentifier("external_table_tennis_cards")
+    }
+
+    private func status(forScreenLeft screenLeft: Bool) -> TableTennisAdministrativeMarkerStatus {
+        let team0OnLeft = state.sportString("team0ScreenSide") != "right"
+        let logicalTeam0 = screenLeft == team0OnLeft
+        let prefix = logicalTeam0 ? "tableTennisTeam0" : "tableTennisTeam1"
+        return .init(
+            timeoutUsed: state.sportBoolValue("\(prefix)TimeoutUsed") ?? false,
+            hasYellowCard: state.sportBoolValue("\(prefix)Yellow") ?? false,
+            redCardCount: state.sportInt("\(prefix)RedCount") ?? 0
+        )
+    }
+}
+
 private struct ScoreboardExternalRestOverlay: View {
     let rest: ScoreboardDisplayRest
     let viewport: CGSize
+    let projection: ScoreboardExternalProjection
 
     var body: some View {
         // 1:1 对齐安卓显示端 OfficialBreakPill（showAction=false，scale=1f）：
@@ -2536,31 +3041,52 @@ private struct ScoreboardExternalRestOverlay: View {
             let remaining = rest.projectedRemainingSeconds(
                 atWallClockMilliseconds: Int64(context.date.timeIntervalSince1970 * 1_000)
             )
+            let scale = projection.isLocalProjection
+                ? DisplayTypographyResolver.chromeScale(for: viewport).clamped(1, 1.5)
+                : 1
+            let titleLines = officialBreakTitle.components(separatedBy: " · ")
             ZStack {
                 Color.black.opacity(0.08).ignoresSafeArea()
-                VStack(spacing: 10) {
-                    Text(officialBreakTitle)
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .multilineTextAlignment(.center)
+                VStack(spacing: 10 * scale) {
+                    VStack(spacing: 2 * scale) {
+                        Text(titleLines[0])
+                            .font(.system(size: 18 * scale, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .multilineTextAlignment(.center)
+                        if titleLines.count > 1 {
+                            Text(titleLines.dropFirst().joined(separator: " · "))
+                                .font(.system(size: 16 * scale, weight: .medium))
+                                .foregroundColor(.white)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
                     Text(rest.phase == "preparation" ? "\(remaining)" : officialBreakClock(remaining))
-                        .font(.system(size: 44, weight: .bold, design: .monospaced))
+                        .font(.system(size: 44 * scale, weight: .bold, design: .monospaced))
                         .monospacedDigit()
                         .foregroundColor(Color(red: 0x31 / 255, green: 0xD1 / 255, blue: 0x58 / 255))
-                        .contentTransition(.numericText())
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 14)
+                .frame(minWidth: 156 * scale)
+                .padding(.horizontal, 24 * scale)
+                .padding(.vertical, 14 * scale)
                 .background(
                     Color(red: 0x0C / 255, green: 0x0C / 255, blue: 0x0E / 255).opacity(0.8),
-                    in: RoundedRectangle(cornerRadius: 32, style: .continuous)
+                    in: RoundedRectangle(cornerRadius: 32 * scale, style: .continuous)
                 )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 32 * scale, style: .continuous)
+                        .stroke(.white.opacity(0.16), lineWidth: max(1, scale))
+                }
+                .shadow(color: .black.opacity(0.35), radius: 14 * scale, y: 6 * scale)
             }
         }
     }
 
     private var officialBreakTitle: String {
+        if let title = rest.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
+            return title
+        }
         switch rest.kind {
         case "mid_game": return NSLocalizedString("official_break_mid_game", value: "局中休息", comment: "")
         case "set_break": return NSLocalizedString("official_break_set", value: "盘间休息", comment: "")

@@ -1175,10 +1175,16 @@
 "record_note" = "Note";
 "red_card" = "Red card";
 "yellow_card" = "Yellow card";
+"select_player" = "Select player";
+"first_red_penalty" = "Yellow-red card · opponent +1";
+"second_red_penalty" = "Second red card · opponent +2";
+"report_referee_forfeit" = "Report to referee and confirm forfeit";
+"confirm_forfeit" = "Confirm forfeit";
 "record_tt_yellow" = "%@ Yellow Card";
 "record_tt_red" = "%@ Red Card";
 "record_tt_timeout" = "%@ Timeout";
 "record_tt_medical" = "%@ Medical Timeout";
+"record_tt_forfeit" = "%@ Forfeit";
 "player" = "Player";
 "scoreboard_usage_hint_shuttlecock" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Team shuttlecock scoring follows the selected target and set rules";
 "scoreboard_usage_hint_squash" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Squash uses best-of-five games with two-point advantage";

@@ -341,6 +341,7 @@ struct ShengjiScoreboardView: View {
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.shengji.canonicalScoreboardIdentifier)
         matchClockSession?.reset(startedAt: startedAt)
         showGameOverDialog = false
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func bindMatchClock() {
@@ -472,12 +473,18 @@ struct ShengjiScoreboardView: View {
             finished: state.finished,
             revision: 0
         )
+        var sportState: [String: ScoreboardDisplayValue] = [
+            "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left"),
+            "shengjiRedRank": .string(level(state.leftIndex)),
+            "shengjiBlueRank": .string(level(state.rightIndex))
+        ]
+        if let dealer = state.dealer {
+            sportState["shengjiBankerTeam"] = .string(dealer == .left ? "team_0" : "team_1")
+        }
         compact.externalState = ScoreboardDisplayState.enriched(
             compact: compact,
             layoutKind: .boardCard,
-            sportState: [
-                "team0ScreenSide": .string(state.sidesSwapped ? "right" : "left")
-            ]
+            sportState: sportState
         )
         return compact
     }

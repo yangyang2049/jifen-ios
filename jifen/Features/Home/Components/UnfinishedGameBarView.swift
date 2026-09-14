@@ -163,23 +163,6 @@ struct UnfinishedGameSummary: Sendable {
 
 }
 
-// 对齐安卓 HomeUnfinishedRecentComponents.kt 的 GameType.isSportsResumeIcon：
-// 运动类未完赛条图标为无背景圆的大 emoji，非运动类（桌上足球、棋牌、简单/多人计分等）保留圆形底色。
-extension GameType {
-    var isSportsResumeIcon: Bool {
-        switch self {
-        case .football, .football5v5, .basketball, .threeBasketball,
-             .volleyball, .airVolleyball, .beachVolleyball,
-             .pingpong, .tennis, .shuttlecock, .squash, .softTennis, .padel,
-             .badminton, .boxing, .billiards, .eightBall, .nineBall, .snooker,
-             .pickleball, .archery:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 struct UnfinishedGameBarView: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -201,16 +184,8 @@ struct UnfinishedGameBarView: View {
             HStack(spacing: 0) {
                 ZStack(alignment: .bottomTrailing) {
                     Text(record.gameType.icon)
-                        .font(.system(size: record.gameType.isSportsResumeIcon ? 36 : 28))
+                        .font(.system(size: 36))
                         .frame(width: iconSize, height: iconSize)
-                        .background {
-                            // 对齐安卓 UnfinishedPhoneDockBar：运动类无背景圆，
-                            // 仅非运动类（桌上足球、棋牌等）保留圆形底色。
-                            if !record.gameType.isSportsResumeIcon {
-                                Circle().fill(iconBackgroundColor)
-                            }
-                        }
-
                 }
                 .padding(.trailing, 16)
 
@@ -290,10 +265,6 @@ struct UnfinishedGameBarView: View {
             }
             return .tertiarySystemFill
         })
-    }
-
-    private var iconBackgroundColor: Color {
-        (getGameGradient(type: record.gameType).first ?? Color(hex: "#71717A")).opacity(0.5)
     }
 
     private var displayScore: String {

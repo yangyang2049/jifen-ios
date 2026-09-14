@@ -60,10 +60,6 @@ struct NineBallChaseScoreboardView: View {
     @State private var editPlayerScores: [String] = []
     @State private var activeChasePlayer: Int?
     @State private var exitConfirmDeadline: Date?
-    /// 对齐安卓 NineBallScoreScreen useLandscapeLayout：2 人局的横/竖布局切换。
-    @State private var useLandscapeLayout: Bool = UserDefaults.standard.object(
-        forKey: "nine_ball_use_landscape_layout"
-    ) as? Bool ?? true
     @State private var showToast = false
     @State private var toastMessage = ""
     @State private var chromeVisible = true
@@ -85,10 +81,8 @@ struct NineBallChaseScoreboardView: View {
             || activeChasePlayer != nil
     }
 
-    /// 对齐安卓 NineBallScoreScreen：非 3-4 人局提供"横/竖屏切换"菜单项，
-    /// 文案显示目标状态（当前横屏 → 竖屏，当前竖屏 → 横屏）。
     private var nineBallMenuItems: [ScoreboardMenuItem] {
-        var items = ScoreboardMenuItemBuilder.defaultItems(
+        ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: false,
             showWhistle: true,
@@ -101,19 +95,6 @@ struct NineBallChaseScoreboardView: View {
             scoringEnabled: !scoringLocked,
             extraItems: []
         )
-        if !(3...4).contains(state.playerCount) {
-            items.append(
-                ScoreboardMenuItem(
-                    title: useLandscapeLayout
-                        ? NSLocalizedString("multi_score_portrait", value: "竖屏", comment: "")
-                        : NSLocalizedString("multi_score_landscape", value: "横屏", comment: ""),
-                    action: "layout",
-                    group: .match,
-                    icon: "rotate.left"
-                )
-            )
-        }
-        return items
     }
 
     private let nineBallActionOrder: [NineBallChaseKind] = [
@@ -209,7 +190,7 @@ struct NineBallChaseScoreboardView: View {
         ScoreboardPlayerGridLayout.nineBallRows(
             playerCount: state.playerCount,
             containerSize: containerSize,
-            forceWide: state.playerCount == 2 ? useLandscapeLayout : nil
+            forceWide: state.playerCount == 2 ? true : nil
         )
     }
 
@@ -374,10 +355,6 @@ struct NineBallChaseScoreboardView: View {
                             showNineBallToast(ScoreboardMenuConfirmAction.exchangeSide.localizedToast)
                         }
                     case "displaySettings": showDisplaySettings = true; showMenu = false
-                    case "layout":
-                        // 对齐安卓 NineBallScoreScreen onToggleLayout：切换并持久化，onChange 统一落盘。
-                        useLandscapeLayout.toggle()
-                        showMenu = false
                     case "endLink":
 
                         showMenu = false
@@ -422,11 +399,7 @@ struct NineBallChaseScoreboardView: View {
             }
         })
         .navigationBarBackButtonHidden(true).toolbar(.hidden, for: .navigationBar)
-        .lockOrientation(useLandscapeLayout ? .landscape : .portrait)
-        .onChange(of: useLandscapeLayout) { _, newValue in
-            UserDefaults.standard.set(newValue, forKey: "nine_ball_use_landscape_layout")
-            OrientationLock.shared.rotate(to: newValue ? .landscape : .portrait)
-        }
+        .lockOrientation(.landscape)
         .onAppear {
             onSetupConsumed?()
             typographySession.reload()
@@ -441,6 +414,7 @@ struct NineBallChaseScoreboardView: View {
             appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: showMenu) { _, _ in updateImmersiveForBlocking() }
         .onChange(of: showDisplaySettings) { _, _ in updateImmersiveForBlocking() }
@@ -1118,6 +1092,7 @@ struct NineBallChaseScoreboardView: View {
         compact.externalState = ScoreboardDisplayState.enriched(
             compact: compact,
             layoutKind: state.playerCount > 2 ? .multiGrid : .twoSide,
+            orientation: .landscape,
             players: state.playerCount > 2 ? displayPlayers : nil,
             sportState: [
                 "chasePlayerCount": .integer(state.playerCount),

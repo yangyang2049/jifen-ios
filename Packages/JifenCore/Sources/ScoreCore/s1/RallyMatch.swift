@@ -325,6 +325,9 @@ public struct RallyMatchState: Codable, Equatable, Sendable {
     /// Optional administrative actions added for table-tennis 2.1. Keeping
     /// this optional lets 2.0 snapshots decode unchanged.
     public var pingPongAdministrativeActions: [PingPongAdministrativeAction]?
+    /// The penalized side when the referee confirms a loss after two red cards.
+    /// Optional so snapshots written before this rule was introduced still decode.
+    public var pingPongForfeitSide: MatchSide?
     /// New-sport setup metadata kept in the local snapshot so team formats
     /// and names survive draft recovery and record restart.
     public var competitionFormat: CompetitionFormat?
@@ -339,6 +342,7 @@ public enum PingPongAdministrativeActionType: String, Codable, Equatable, Sendab
     case medicalTimeout = "medical_timeout"
     case yellowCard = "yellow_card"
     case redCard = "red_card"
+    case forfeit
 }
 
 public struct PingPongAdministrativeAction: Codable, Equatable, Sendable, Identifiable {
@@ -367,6 +371,29 @@ public struct PingPongAdministrativeStatus: Equatable, Sendable {
     public let redCardCount: Int
 }
 
+public enum PingPongPenaltyStage: String, Codable, Equatable, Sendable {
+    case yellow
+    case firstRed = "first_red"
+    case secondRed = "second_red"
+    case report
+
+    public var administrativeActionType: PingPongAdministrativeActionType? {
+        switch self {
+        case .yellow: .yellowCard
+        case .firstRed, .secondRed: .redCard
+        case .report: nil
+        }
+    }
+
+    public var opponentPenaltyPoints: Int {
+        switch self {
+        case .firstRed: 1
+        case .secondRed: 2
+        case .yellow, .report: 0
+        }
+    }
+}
+
 public extension RallyMatchState {
     func pingPongAdministrativeStatus(for side: MatchSide) -> PingPongAdministrativeStatus {
         let actions = (pingPongAdministrativeActions ?? []).filter { $0.side == side }
@@ -378,6 +405,14 @@ public extension RallyMatchState {
             hasYellowCard: actions.contains { $0.type == .yellowCard || $0.type == .redCard },
             redCardCount: actions.filter { $0.type == .redCard }.count
         )
+    }
+
+    func pingPongPenaltyStage(for side: MatchSide) -> PingPongPenaltyStage {
+        let status = pingPongAdministrativeStatus(for: side)
+        if status.redCardCount >= 2 { return .report }
+        if status.redCardCount == 1 { return .secondRed }
+        if status.hasYellowCard { return .firstRed }
+        return .yellow
     }
 }
 
@@ -426,6 +461,7 @@ public enum RallyMatchIntent: Codable, Sendable {
     case finish
     case reset
     case pingPongAdministrativeAction(type: PingPongAdministrativeActionType, side: MatchSide)
+    case pingPongForfeit(side: MatchSide)
     case setOfficialBreakState(OfficialBreakState?)
 }
 
@@ -469,6 +505,7 @@ public enum RallyMatchEngine {
             doubles: doubles,
             currentSetReplay: nil,
             pingPongAdministrativeActions: nil,
+            pingPongForfeitSide: nil,
             competitionFormat: competitionFormat,
             competitionPlayerNames: competitionPlayerNames,
             officialBreakState: nil
@@ -545,23 +582,57 @@ public struct RallyMatchReducer: DomainReducer {
             guard state.rules.servingModel == .pingPongTwoServes, !state.finished else {
                 return .rejected(state: state, reason: "Administrative action is unavailable")
             }
-            var next = state
-            var actions = next.pingPongAdministrativeActions ?? []
             let status = state.pingPongAdministrativeStatus(for: side)
             if type == .timeout, status.timeoutUsed {
                 return .rejected(state: state, reason: "Timeout has already been used")
             }
-            if type == .redCard, status.redCardCount >= 2 {
-                return .rejected(state: state, reason: "Red card limit reached")
+            if type == .forfeit {
+                return .rejected(state: state, reason: "Use the forfeit confirmation intent")
+            }
+            if type == .yellowCard || type == .redCard {
+                guard state.pingPongPenaltyStage(for: side).administrativeActionType == type else {
+                    return .rejected(state: state, reason: "Penalty must follow the automatic sequence")
+                }
             }
             let action = PingPongAdministrativeAction(
                 type: type,
                 side: side,
                 epochMilliseconds: epochMilliseconds
             )
-            actions.append(action)
-            next.pingPongAdministrativeActions = actions
-            return .init(state: next, events: [.pingPongAdministrativeAction(action)])
+            var next = state
+            next.pingPongAdministrativeActions = (next.pingPongAdministrativeActions ?? []) + [action]
+            let penaltyPoints = state.pingPongPenaltyStage(for: side).opponentPenaltyPoints
+            guard penaltyPoints > 0 else {
+                return .init(state: next, events: [.pingPongAdministrativeAction(action)])
+            }
+
+            var events: [RallyMatchEvent] = [.pingPongAdministrativeAction(action)]
+            for _ in 0..<penaltyPoints where !next.finished {
+                let pointResult = pointWon(side.opposite, state: next)
+                guard pointResult.accepted else { break }
+                next = pointResult.state
+                events.append(contentsOf: pointResult.events)
+            }
+            return .init(state: next, events: events)
+        case .pingPongForfeit(let side):
+            guard state.rules.servingModel == .pingPongTwoServes,
+                  !state.finished,
+                  state.pingPongPenaltyStage(for: side) == .report else {
+                return .rejected(state: state, reason: "Forfeit is unavailable before two red cards")
+            }
+            let action = PingPongAdministrativeAction(
+                type: .forfeit,
+                side: side,
+                epochMilliseconds: epochMilliseconds
+            )
+            var next = state
+            next.pingPongAdministrativeActions = (next.pingPongAdministrativeActions ?? []) + [action]
+            next.pingPongForfeitSide = side
+            next.finished = true
+            return .init(
+                state: next,
+                events: [.pingPongAdministrativeAction(action), .matchFinished(winner: side.opposite)]
+            )
         case .setOfficialBreakState(let breakState):
             var next = state
             next.officialBreakState = breakState
@@ -1223,6 +1294,9 @@ public struct RallyMatchReducer: DomainReducer {
     }
 
     private func winner(of state: RallyMatchState) -> MatchSide? {
-        state.leftSets == state.rightSets ? nil : (state.leftSets > state.rightSets ? .left : .right)
+        if let forfeitingSide = state.pingPongForfeitSide {
+            return forfeitingSide.opposite
+        }
+        return state.leftSets == state.rightSets ? nil : (state.leftSets > state.rightSets ? .left : .right)
     }
 }

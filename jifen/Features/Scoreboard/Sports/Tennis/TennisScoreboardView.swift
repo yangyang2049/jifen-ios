@@ -913,6 +913,10 @@ struct TennisScoreboardView: View {
         let doublesSecondaryColumnWidth = ScoreboardLayoutMetrics.doublesSecondaryColumnWidth(
             halfViewportWidth: panelSize.width
         )
+        let singlesMainScoreWidth = min(
+            ScoreboardLayoutMetrics.tennisMainScoreColumnWidth(fontSize: mainSize),
+            panelSize.width * 0.46
+        )
 
         if !hasInlineSecondary {
             tennisMainScore(side: side, fontSize: mainSize)
@@ -950,6 +954,7 @@ struct TennisScoreboardView: View {
             HStack(spacing: scoreSpacing) {
                 if screenSide == .left {
                     tennisMainScore(side: side, fontSize: mainSize)
+                        .frame(width: singlesMainScoreWidth)
                     tennisInnerScoreColumn(
                         games: games,
                         sets: sets,
@@ -968,6 +973,7 @@ struct TennisScoreboardView: View {
                     )
                     .padding(.leading, centerLineClearance)
                     tennisMainScore(side: side, fontSize: mainSize)
+                        .frame(width: singlesMainScoreWidth)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -1668,6 +1674,7 @@ struct TennisScoreboardView: View {
             "currentSet": .integer(state.currentSet),
             "tennisIsTieBreak": .boolean(state.isTieBreak),
             "tennisTiebreakOnly": .boolean(state.rules.setScoringMode == .tiebreakOnly),
+            "resultScoreLevel": .string(state.rules.setScoringMode == .tiebreakOnly ? "score" : "sets"),
             "ruleProfileVersion": .integer(1),
             "competitionFormat": .string(state.doublesPlayerNames == nil ? "singles" : "doubles")
         ]

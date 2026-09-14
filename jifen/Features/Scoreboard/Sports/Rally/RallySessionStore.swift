@@ -639,7 +639,13 @@ final class RallySessionStore {
         guard session.status == .finished, state.finished else { return nil }
         guard let appGameType = GameType(scoreCoreGameType: gameType) else { return nil }
         let snapshot = try JSONEncoder().encode(session)
-        let winner: String? = state.finished && state.leftSets != state.rightSets ? (state.leftSets > state.rightSets ? "left" : "right") : nil
+        let winner: String? = if let forfeitingSide = state.pingPongForfeitSide {
+            forfeitingSide == .left ? "right" : "left"
+        } else if state.finished && state.leftSets != state.rightSets {
+            state.leftSets > state.rightSets ? "left" : "right"
+        } else {
+            nil
+        }
         let record = ScoreboardRecord(
             id: sessionId.uuidString,
             gameType: appGameType,

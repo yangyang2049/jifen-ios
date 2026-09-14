@@ -172,6 +172,7 @@ struct BilliardsScoreboardView: View {
         recordID = BilliardsRecordIdentity.next()
         viewModel.restoreSession(state: freshState, history: [])
         showGameOverDialog = false
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func restoreResumeIfNeeded() {

@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import ScoreCore
+import SessionCore
 
 private final class TestFootballClock: @unchecked Sendable, FootballClock {
     var monotonic: Int64 = 0
@@ -375,7 +376,7 @@ private final class TestFootballClock: @unchecked Sendable, FootballClock {
     #expect(try decoder.decode(OfficialBreakKind.self, from: Data("\"medical_timeout\"".utf8)) == .medical)
 }
 
-@Test func pingPongAdministrativeRulesMatchAndroid31Limits() {
+@Test func pingPongAdministrativePenaltySequenceAwardsPointsAndForfeits() {
     let reducer = RallyMatchReducer()
     var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
     state = reducer.reduce(state: state, intent: .pingPongAdministrativeAction(type: .timeout, side: .left), at: 1).state
@@ -386,11 +387,113 @@ private final class TestFootballClock: @unchecked Sendable, FootballClock {
         intent: .pingPongAdministrativeAction(type: .yellowCard, side: .left),
         at: 4
     )
-    #expect(repeatedYellow.accepted)
-    state = repeatedYellow.state
+    #expect(!repeatedYellow.accepted)
+    #expect(!reducer.reduce(
+        state: state,
+        intent: .pingPongAdministrativeAction(type: .redCard, side: .right),
+        at: 4
+    ).accepted)
     state = reducer.reduce(state: state, intent: .pingPongAdministrativeAction(type: .redCard, side: .left), at: 5).state
     #expect(state.pingPongAdministrativeStatus(for: .left).hasYellowCard)
+    #expect(state.rightPoints == 1)
     state = reducer.reduce(state: state, intent: .pingPongAdministrativeAction(type: .redCard, side: .left), at: 6).state
     #expect(!reducer.reduce(state: state, intent: .pingPongAdministrativeAction(type: .redCard, side: .left), at: 7).accepted)
     #expect(state.pingPongAdministrativeStatus(for: .left).redCardCount == 2)
+    #expect(state.rightPoints == 3)
+    #expect(state.pingPongPenaltyStage(for: .left) == .report)
+
+    let forfeited = reducer.reduce(state: state, intent: .pingPongForfeit(side: .left), at: 8)
+    #expect(forfeited.accepted)
+    #expect(forfeited.state.finished)
+    #expect(forfeited.state.pingPongForfeitSide == .left)
+    #expect(forfeited.events.contains(.matchFinished(winner: .right)))
+}
+
+@Test func pingPongTwoPointPenaltyCarriesUnusedPointIntoNextSet() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
+    state = reducer.reduce(
+        state: state,
+        intent: .pingPongAdministrativeAction(type: .yellowCard, side: .left),
+        at: 1
+    ).state
+    state = reducer.reduce(
+        state: state,
+        intent: .pingPongAdministrativeAction(type: .redCard, side: .left),
+        at: 2
+    ).state
+    for timestamp in 3...11 {
+        state = reducer.reduce(state: state, intent: .pointWon(.right), at: Int64(timestamp)).state
+    }
+
+    let result = reducer.reduce(
+        state: state,
+        intent: .pingPongAdministrativeAction(type: .redCard, side: .left),
+        at: 12
+    )
+
+    #expect(result.accepted)
+    #expect(result.state.rightSets == 1)
+    #expect(result.state.rightPoints == 1)
+    #expect(!result.state.finished)
+}
+
+@Test func pingPongTwoPointPenaltyDropsUnusedPointWhenMatchEnds() {
+    let reducer = RallyMatchReducer()
+    var state = RallyMatchEngine.initial(
+        leftName: "A",
+        rightName: "B",
+        rules: .pingPong(maxSets: 1)
+    )
+    state = reducer.reduce(
+        state: state,
+        intent: .pingPongAdministrativeAction(type: .yellowCard, side: .left),
+        at: 1
+    ).state
+    state = reducer.reduce(
+        state: state,
+        intent: .pingPongAdministrativeAction(type: .redCard, side: .left),
+        at: 2
+    ).state
+    for timestamp in 3...11 {
+        state = reducer.reduce(state: state, intent: .pointWon(.right), at: Int64(timestamp)).state
+    }
+
+    let result = reducer.reduce(
+        state: state,
+        intent: .pingPongAdministrativeAction(type: .redCard, side: .left),
+        at: 12
+    )
+
+    #expect(result.accepted)
+    #expect(result.state.rightSets == 1)
+    #expect(result.state.rightPoints == 11)
+    #expect(result.state.finished)
+}
+
+@Test func pingPongPenaltyIntentIsAtomicForTimelineUndo() async {
+    let seed = ScoreSession<RallyMatchState, RallyMatchEvent>(
+        gameType: .pingpong,
+        ruleFamily: .s1,
+        reducerType: "rally/v1",
+        state: RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
+    )
+    let session = ScoreSessionCore(seedSession: seed, reducer: RallyMatchReducer())
+    _ = await session.dispatch(
+        actorId: "phone",
+        intent: .pingPongAdministrativeAction(type: .yellowCard, side: .left),
+        at: 1
+    )
+    _ = await session.dispatch(
+        actorId: "phone",
+        intent: .pingPongAdministrativeAction(type: .redCard, side: .left),
+        at: 2
+    )
+    #expect(await session.snapshot().state.rightPoints == 1)
+    #expect(await session.snapshot().state.pingPongAdministrativeStatus(for: .left).redCardCount == 1)
+
+    #expect(await session.undo(actorId: "phone"))
+    #expect(await session.snapshot().state.rightPoints == 0)
+    #expect(await session.snapshot().state.pingPongAdministrativeStatus(for: .left).redCardCount == 0)
+    #expect(await session.snapshot().state.pingPongAdministrativeStatus(for: .left).hasYellowCard)
 }

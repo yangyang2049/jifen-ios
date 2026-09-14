@@ -63,12 +63,21 @@ func guandanLocalDisplayState(
         finished: state.phase == .finished,
         revision: 0
     )
+    var sportState: [String: ScoreboardDisplayValue] = [
+        "team0ScreenSide": .string("left"),
+        "guandanRedRank": .string(state.displayRank(for: .red)),
+        "guandanBlueRank": .string(state.displayRank(for: .blue)),
+        "guandanLeftAFailCount": .integer(state.aFailCount(for: .red)),
+        "guandanRightAFailCount": .integer(state.aFailCount(for: .blue)),
+        "guandanTripleAEnabled": .boolean(state.aStageMode == .tripleA)
+    ]
+    if let banker = state.aStageTeam ?? state.lastRoundWinner {
+        sportState["guandanBankerTeam"] = .string(banker == .red ? "team_0" : "team_1")
+    }
     compact.externalState = ScoreboardDisplayState.enriched(
         compact: compact,
         layoutKind: .boardCard,
-        sportState: [
-            "team0ScreenSide": .string("left")
-        ]
+        sportState: sportState
     )
     return compact
 }
@@ -786,6 +795,7 @@ struct GuandanScoreboardView: View {
         matchClockSession?.reset(startedAt: gameStartAt)
         pendingEditWrapSide = nil
         showGameOverDialog = false
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func bindMatchClock() {

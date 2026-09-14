@@ -266,6 +266,7 @@ struct BasketballScoreboardView: View {
             appearance = .current(styleID: typographySession.styleID)
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: typographySession.effectivePreference) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()

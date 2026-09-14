@@ -600,11 +600,15 @@ final class RallySessionStoreTests: XCTestCase {
         let point = expectation(description: "point recorded before card")
         store.send(.pointWon(.left)) { _ in point.fulfill() }
         await fulfillment(of: [point], timeout: 2)
-        let card = expectation(description: "red card recorded")
+        let yellow = expectation(description: "yellow card recorded")
+        store.send(.pingPongAdministrativeAction(type: .yellowCard, side: .right)) { _ in yellow.fulfill() }
+        await fulfillment(of: [yellow], timeout: 2)
+        let card = expectation(description: "red card and penalty point recorded")
         store.send(.pingPongAdministrativeAction(type: .redCard, side: .right)) { _ in card.fulfill() }
         await fulfillment(of: [card], timeout: 2)
 
-        XCTAssertEqual(store.actionTimeline.map(\.operationCode), ["point", "red_card"])
+        XCTAssertEqual(store.state.leftPoints, 2)
+        XCTAssertEqual(store.actionTimeline.map(\.operationCode), ["point", "yellow_card", "red_card", "point"])
         XCTAssertTrue(store.state.pingPongAdministrativeStatus(for: .right).hasYellowCard)
         let undone = expectation(description: "red card undone")
         store.undo { success in
@@ -615,7 +619,77 @@ final class RallySessionStoreTests: XCTestCase {
 
         XCTAssertEqual(store.state.leftPoints, 1)
         XCTAssertEqual(store.state.pingPongAdministrativeStatus(for: .right).redCardCount, 0)
-        XCTAssertEqual(store.actionTimeline.map(\.operationCode), ["point"])
+        XCTAssertTrue(store.state.pingPongAdministrativeStatus(for: .right).hasYellowCard)
+        XCTAssertEqual(store.actionTimeline.map(\.operationCode), ["point", "yellow_card"])
+    }
+
+    func testShuttlecockTeamProjectionUsesAllSixConfiguredPlayers() {
+        let names = ["红 A", "红 B", "红 C", "蓝 A", "蓝 B", "蓝 C"]
+        let state = RallyMatchEngine.initial(
+            leftName: "红队",
+            rightName: "蓝队",
+            rules: .shuttlecock(),
+            competitionFormat: .team,
+            competitionPlayerNames: names
+        )
+        XCTAssertEqual(
+            RallyDisplayProjectionResolver.teamCourtRoster(gameType: .shuttlecock, state: state),
+            names
+        )
+        XCTAssertNil(RallyDisplayProjectionResolver.teamCourtRoster(gameType: .badminton, state: state))
+    }
+
+    func testTableTennisForfeitPersistsWinnerAndUndoRestoresLivePenaltyState() async {
+        let repository = ResumeSessionRepository()
+        let store = RallySessionStore(leftName: "A", rightName: "B", gameType: .pingpong, rules: .pingPong())
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(store.sessionId.uuidString)
+            Task { try? await repository.remove(sessionId: store.sessionId) }
+        }
+
+        for (index, intent) in [
+            RallyMatchIntent.pingPongAdministrativeAction(type: .yellowCard, side: .left),
+            .pingPongAdministrativeAction(type: .redCard, side: .left),
+            .pingPongAdministrativeAction(type: .redCard, side: .left),
+            .pingPongForfeit(side: .left)
+        ].enumerated() {
+            let applied = expectation(description: "penalty step \(index)")
+            store.send(intent) { _ in applied.fulfill() }
+            await fulfillment(of: [applied], timeout: 2)
+        }
+        let flushed = expectation(description: "forfeit persisted")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+
+        XCTAssertTrue(store.state.finished)
+        XCTAssertEqual(store.state.pingPongForfeitSide, .left)
+        let record = ScoreboardRecordManager.shared.getRecordById(store.sessionId.uuidString)
+        XCTAssertEqual(record?.winner, "right")
+        XCTAssertEqual(record?.detailedActions?.suffix(2).map(\.operationCode), ["forfeit", "finish"])
+
+        let undone = expectation(description: "forfeit undone")
+        store.undo { success in
+            XCTAssertTrue(success)
+            undone.fulfill()
+        }
+        await fulfillment(of: [undone], timeout: 2)
+        XCTAssertFalse(store.state.finished)
+        XCTAssertNil(store.state.pingPongForfeitSide)
+        XCTAssertEqual(store.state.pingPongAdministrativeStatus(for: .left).redCardCount, 2)
+        XCTAssertEqual(store.state.rightPoints, 3)
+        XCTAssertEqual(store.actionTimeline.suffix(3).map(\.operationCode), ["red_card", "point", "point"])
+    }
+
+    func testTableTennisForfeitPresentationOverridesALeadingScore() {
+        var state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .pingPong())
+        state.leftPoints = 10
+        state.rightPoints = 3
+        state.leftSets = 2
+        state.rightSets = 0
+        state.pingPongForfeitSide = .left
+        state.finished = true
+
+        XCTAssertEqual(RallyFinishedScorePresentation.winnerSide(for: state), .right)
     }
 
     func testLegacyPickleballResumeWithoutSportProfileUsesAndroid31SinglesRules() async throws {

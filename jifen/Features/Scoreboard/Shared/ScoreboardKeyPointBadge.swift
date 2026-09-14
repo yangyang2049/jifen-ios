@@ -1,6 +1,45 @@
 import ScoreCore
 import SwiftUI
 
+enum ScoreboardKeyPointBadgePresentation {
+    static func label(kind: String, gameType: String) -> String {
+        if kind == "match" {
+            return NSLocalizedString("scoreboard_key_point_match", value: "MP", comment: "Match point")
+        }
+        if gameType == "tennis" || gameType == "tennis_doubles" {
+            return NSLocalizedString("scoreboard_key_point_set", value: "SP", comment: "Set point")
+        }
+        if ["volleyball", "air_volleyball", "beach_volleyball"].contains(gameType) {
+            return NSLocalizedString("scoreboard_key_point_volleyball_set", value: "SP", comment: "Volleyball set point")
+        }
+        return NSLocalizedString("scoreboard_key_point_game", value: "GP", comment: "Game point")
+    }
+
+    static func background(kind: String, gameType: String) -> Color {
+        kind == "set" && (gameType == "tennis" || gameType == "tennis_doubles")
+            ? Color(hex: "FFB340")
+            : Color(hex: "FFD60A")
+    }
+}
+
+struct ScoreboardKeyPointBadge: View {
+    let kind: String
+    let gameType: String
+    var scale: CGFloat = 1
+
+    var body: some View {
+        Text(ScoreboardKeyPointBadgePresentation.label(kind: kind, gameType: gameType))
+            .font(.system(size: 12 * scale, weight: .heavy, design: .rounded))
+            .tracking(0.8 * scale)
+            .foregroundStyle(Color(hex: "111111"))
+            .frame(width: 56 * scale, height: 28 * scale)
+            .background(
+                ScoreboardKeyPointBadgePresentation.background(kind: kind, gameType: gameType),
+                in: RoundedRectangle(cornerRadius: 7 * scale)
+            )
+    }
+}
+
 struct ScoreboardKeyPointBadgeLayer: View {
     let status: KeyPointStatus?
     let gameType: ScoreCore.GameType
@@ -15,12 +54,15 @@ struct ScoreboardKeyPointBadgeLayer: View {
                 let screenSide = TeamScreenLayout(sidesSwapped: sidesSwapped)
                     .screenSide(of: TeamScreenLayout.teamID(forEngine: status.side))
                 let largeWindow = min(proxy.size.width, proxy.size.height) >= 600
-                Text(label(for: status.kind))
-                    .font(.system(size: 12, weight: .heavy, design: .rounded))
-                    .tracking(0.8)
-                    .foregroundStyle(Color(hex: "111111"))
-                    .frame(width: 56, height: 28)
-                    .background(background(for: status.kind), in: RoundedRectangle(cornerRadius: 7))
+                let kindCode: String = switch status.kind {
+                case .game: "game"
+                case .set: "set"
+                case .match: "match"
+                }
+                ScoreboardKeyPointBadge(
+                    kind: kindCode,
+                    gameType: gameType.rawValue
+                )
                     .position(
                         x: ScoreboardServeGeometry.keyPointBadgeCenterX(
                             width: proxy.size.width,
@@ -50,23 +92,4 @@ struct ScoreboardKeyPointBadgeLayer: View {
         }
     }
 
-    private func label(for kind: KeyPointKind) -> String {
-        if kind == .match {
-            return NSLocalizedString("scoreboard_key_point_match", value: "MP", comment: "Match point")
-        }
-        if gameType == .tennis || gameType == .tennisDoubles {
-            return NSLocalizedString("scoreboard_key_point_set", value: "SP", comment: "Set point")
-        }
-        if gameType == .volleyball || gameType == .airVolleyball || gameType == .beachVolleyball {
-            return NSLocalizedString("scoreboard_key_point_volleyball_set", value: "SP", comment: "Volleyball set point")
-        }
-        return NSLocalizedString("scoreboard_key_point_game", value: "GP", comment: "Game point")
-    }
-
-    private func background(for kind: KeyPointKind) -> Color {
-        if kind == .set && (gameType == .tennis || gameType == .tennisDoubles) {
-            return Color(hex: "FFB340")
-        }
-        return Color(hex: "FFD60A")
-    }
 }

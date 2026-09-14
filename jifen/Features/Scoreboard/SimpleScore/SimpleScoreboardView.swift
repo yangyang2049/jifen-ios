@@ -226,6 +226,7 @@ struct SimpleScoreboardView: View {
         viewModel.restoreSession(state: freshState, history: [])
         adjustTargetIsLeft = nil
         showGameOverDialog = false
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func bindMatchClock() {

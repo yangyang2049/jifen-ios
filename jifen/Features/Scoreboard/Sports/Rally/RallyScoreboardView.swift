@@ -22,6 +22,14 @@ enum RallyFinishedScorePresentation {
         }
         return (state.leftPoints, state.rightPoints)
     }
+
+    static func winnerSide(for state: RallyMatchState) -> MatchSide? {
+        if let forfeitingSide = state.pingPongForfeitSide {
+            return forfeitingSide.opposite
+        }
+        guard state.leftSets != state.rightSets else { return nil }
+        return state.leftSets > state.rightSets ? .left : .right
+    }
 }
 
 /// Resolves a controller-side subtract action through the current screen layout,
@@ -81,6 +89,127 @@ enum RallyDoublesFlashResolver {
 }
 import UIKit
 
+struct TableTennisAdministrativeMarkerStatus: Equatable {
+    let timeoutUsed: Bool
+    let hasYellowCard: Bool
+    let redCardCount: Int
+}
+
+enum TableTennisAdministrativeMarkerPolicy {
+    static func displayedRedCardCount(_ count: Int) -> Int {
+        min(2, max(0, count))
+    }
+}
+
+struct TableTennisAdministrativeCards: View {
+    let status: TableTennisAdministrativeMarkerStatus
+    var alignment: Alignment = .center
+    var scale: CGFloat = 1
+
+    var body: some View {
+        HStack(spacing: 3 * scale) {
+            if status.timeoutUsed { card(color: .white) }
+            if status.hasYellowCard { card(color: .yellow) }
+            ForEach(0..<TableTennisAdministrativeMarkerPolicy.displayedRedCardCount(status.redCardCount), id: \.self) { _ in
+                card(color: .red)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: alignment)
+    }
+
+    private func card(color: Color) -> some View {
+        RoundedRectangle(cornerRadius: 2 * scale)
+            .fill(color)
+            .overlay {
+                RoundedRectangle(cornerRadius: 2 * scale)
+                    .stroke(.black.opacity(0.22), lineWidth: max(0.75, scale * 0.75))
+            }
+            .frame(width: 14 * scale, height: 21 * scale)
+    }
+}
+
+enum RallyDisplayProjectionResolver {
+    static func teamCourtRoster(gameType: ScoreCore.GameType, state: RallyMatchState) -> [String]? {
+        guard gameType == .shuttlecock,
+              state.competitionFormat == .team,
+              let names = state.competitionPlayerNames,
+              names.count >= 6 else { return nil }
+        return Array(names.prefix(6))
+    }
+}
+
+/// Pure six-player team presentation shared by the phone scoreboard and the
+/// synchronized receiver. Interaction remains owned by the phone panel.
+struct TeamCourtScoreboardPanel: View {
+    let names: [String]
+    let fallbackName: String
+    let scoreText: String
+    let setsText: String
+    let panelSize: CGSize
+    let preference: ScoreboardTypographyPreference
+    let panelColor: Color
+    let nameColor: Color
+    let scoreColor: Color
+    let setsColor: Color
+
+    var body: some View {
+        let visibleNames = names.isEmpty ? [fallbackName] : names
+        let longestName = visibleNames.max(by: { $0.count < $1.count }) ?? ""
+        let firstPass = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .rally,
+                containerSize: panelSize,
+                nameText: longestName,
+                scoreText: scoreText,
+                secondaryText: setsText,
+                preference: preference,
+                horizontalPadding: 16,
+                isLargeScreen: min(panelSize.width, panelSize.height) >= 600
+            )
+        )
+        let extraNameHeight = CGFloat(max(0, visibleNames.count - 1)) * (firstPass.nameFontSize * 1.2 + 6)
+        let typography = ScoreboardTypographyResolver.resolve(
+            ScoreboardTypographyLayoutContext(
+                profile: .rally,
+                containerSize: panelSize,
+                nameText: longestName,
+                scoreText: scoreText,
+                secondaryText: setsText,
+                preference: preference,
+                horizontalPadding: 16,
+                reservedHeight: extraNameHeight,
+                isLargeScreen: min(panelSize.width, panelSize.height) >= 600
+            )
+        )
+        return VStack(spacing: 0) {
+            VStack(spacing: 6) {
+                ForEach(Array(visibleNames.enumerated()), id: \.offset) { _, name in
+                    Text(name)
+                        .font(preference.font.swiftUIFont(size: typography.nameFontSize, weight: .bold))
+                        .foregroundStyle(nameColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+            }
+            Spacer().frame(height: typography.nameToScoreSpacing)
+            Text(scoreText)
+                .font(preference.font.swiftUIFont(size: typography.scoreFontSize))
+                .foregroundStyle(scoreColor)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Spacer().frame(height: ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: panelSize.height))
+            Text(setsText)
+                .font(preference.font.swiftUIFont(size: typography.secondaryFontSize))
+                .foregroundStyle(setsColor)
+                .monospacedDigit()
+        }
+        .padding(.horizontal, 16)
+        .frame(width: panelSize.width, height: panelSize.height)
+        .background(panelColor)
+    }
+}
+
 struct RallyScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scoreboardUsageHintCoordinator) private var usageHintCoordinator
@@ -121,7 +250,10 @@ struct RallyScoreboardView: View {
     @State private var terminalHold = ScoreboardTerminalHold<RallyTerminalSetPresentation>()
     @State private var officialBreakSession = OfficialBreakSession()
     @State private var showPingPongPauseDialog = false
+    @State private var showPingPongMedicalDialog = false
     @State private var showPingPongCardsDialog = false
+    @State private var pingPongPenaltySelectedSide: MatchSide?
+    @State private var showPingPongPenaltyConfirmation = false
     @State private var pendingTapSide: MatchSide?
     @State private var pendingTapAt: Date = .distantPast
     @State private var tapGeneration = 0
@@ -239,6 +371,9 @@ struct RallyScoreboardView: View {
     }
 
     private var isDoubles: Bool { store.state.doubles != nil }
+    private var teamCourtRoster: [String]? {
+        RallyDisplayProjectionResolver.teamCourtRoster(gameType: gameType, state: store.state)
+    }
     private var primaryNameType: NameType {
         ScoreboardCommonNamePolicy.rallyNameType(for: gameType)
     }
@@ -277,7 +412,10 @@ struct RallyScoreboardView: View {
                 palette.background.ignoresSafeArea()
 
                 HStack(spacing: 0) {
-                    if isFoosballDoubles {
+                    if teamCourtRoster != nil, !isEditMode {
+                        teamCourtHalf(screenSide: .left, size: CGSize(width: proxy.size.width / 2, height: halfH))
+                        teamCourtHalf(screenSide: .right, size: CGSize(width: proxy.size.width / 2, height: halfH))
+                    } else if isFoosballDoubles {
                         foosballDoublesHalf(screenSide: .left, size: CGSize(width: proxy.size.width / 2, height: halfH))
                         foosballDoublesHalf(screenSide: .right, size: CGSize(width: proxy.size.width / 2, height: halfH))
                     } else if isDoubles {
@@ -437,6 +575,7 @@ struct RallyScoreboardView: View {
             // 对齐安卓 LaunchedEffect(onePointDoubleTapEnabled)：开关关掉时立刻丢掉挂起的单击。
             if !onePointDoubleTapEnabled { cancelPendingTap() }
             revealImmersiveChrome()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: onePointDoubleTapEnabled) { _, _ in cancelPendingTap() }
         .onChange(of: store.state) { _, state in
@@ -497,11 +636,18 @@ struct RallyScoreboardView: View {
             Button(pingPongAdministrativeChoiceTitle(.timeout, side: .left)) {
                 dispatch(.pingPongAdministrativeAction(type: .timeout, side: .left))
             }
-            .disabled(!pingPongAdministrativeActionAvailable(.timeout, side: .left))
+            .disabled(!pingPongTimeoutAvailable(side: .left))
             Button(pingPongAdministrativeChoiceTitle(.timeout, side: .right)) {
                 dispatch(.pingPongAdministrativeAction(type: .timeout, side: .right))
             }
-            .disabled(!pingPongAdministrativeActionAvailable(.timeout, side: .right))
+            .disabled(!pingPongTimeoutAvailable(side: .right))
+            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
+        }
+        .confirmationDialog(
+            NSLocalizedString("medical_timeout", value: "医疗暂停", comment: ""),
+            isPresented: $showPingPongMedicalDialog,
+            titleVisibility: .visible
+        ) {
             Button(pingPongAdministrativeChoiceTitle(.medicalTimeout, side: .left)) {
                 dispatch(.pingPongAdministrativeAction(type: .medicalTimeout, side: .left))
             }
@@ -511,29 +657,79 @@ struct RallyScoreboardView: View {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
         }
         .confirmationDialog(
-            NSLocalizedString("tool_red_yellow_card", value: "红黄牌", comment: ""),
+            NSLocalizedString("select_player", value: "选择选手", comment: ""),
             isPresented: $showPingPongCardsDialog,
             titleVisibility: .visible
         ) {
-            Button(pingPongAdministrativeChoiceTitle(.yellowCard, side: .left)) {
-                dispatch(.pingPongAdministrativeAction(type: .yellowCard, side: .left))
-            }
-            Button(pingPongAdministrativeChoiceTitle(.yellowCard, side: .right)) {
-                dispatch(.pingPongAdministrativeAction(type: .yellowCard, side: .right))
-            }
-            Button(pingPongAdministrativeChoiceTitle(.redCard, side: .left)) {
-                dispatch(.pingPongAdministrativeAction(type: .redCard, side: .left))
-            }
-            .disabled(!pingPongAdministrativeActionAvailable(.redCard, side: .left))
-            Button(pingPongAdministrativeChoiceTitle(.redCard, side: .right)) {
-                dispatch(.pingPongAdministrativeAction(type: .redCard, side: .right))
-            }
-            .disabled(!pingPongAdministrativeActionAvailable(.redCard, side: .right))
+            Button(pingPongPenaltySelectionTitle(side: .left)) { selectPingPongPenaltySide(.left) }
+            Button(pingPongPenaltySelectionTitle(side: .right)) { selectPingPongPenaltySide(.right) }
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
+        }
+        .confirmationDialog(
+            pingPongPenaltyConfirmationTitle,
+            isPresented: $showPingPongPenaltyConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(pingPongPenaltyConfirmButtonTitle, role: pingPongPenaltyConfirmationRole) {
+                confirmPingPongPenalty()
+            }
+            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {
+                pingPongPenaltySelectedSide = nil
+            }
         }
     }
 
     // MARK: - Singles
+
+    private func teamCourtHalf(screenSide: MatchSide, size: CGSize) -> some View {
+        let side = logicalSide(forScreen: screenSide)
+        let logicalIndex = side == .left ? 0 : 1
+        let names = Array((teamCourtRoster ?? []).dropFirst(logicalIndex * 3).prefix(3))
+        let slotKey: ScoreboardStyleSlotKeyV2 = side == .left ? .sideLeft : .sideRight
+        let panel = side == .left ? palette.left : palette.right
+        let fallback = side == .left ? store.state.leftName : store.state.rightName
+        let score = side == .left ? store.state.leftPoints : store.state.rightPoints
+        let sets = side == .left ? store.state.leftSets : store.state.rightSets
+
+        return TeamCourtScoreboardPanel(
+            names: names,
+            fallbackName: fallback,
+            scoreText: "\(score)",
+            setsText: "\(sets)",
+            panelSize: size,
+            preference: typographyPreference,
+            panelColor: panel,
+            nameColor: appearance.elementForeground(.playerName, slotKey: slotKey),
+            scoreColor: appearance.elementForeground(.mainScore, slotKey: slotKey),
+            setsColor: setsColor(slotKey: slotKey)
+        )
+        .contentShape(Rectangle())
+        .gesture(
+            SpatialTapGesture(count: 1)
+                .onEnded { value in
+                    guard isScoreTouchAllowed(location: value.location, panelSize: size) else { return }
+                    handlePanelTap(side)
+                }
+        )
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 50)
+                .onEnded { value in
+                    cancelPendingTap()
+                    if value.translation.width < -50 && abs(value.translation.height) < 50 {
+                        performUndo()
+                    } else if value.translation.height < -50 && abs(value.translation.width) < 50 {
+                        guard !store.state.finished else { return }
+                        handlePointWon(side)
+                    } else if value.translation.height > 50 && abs(value.translation.width) < 50 {
+                        guard !store.state.finished else { return }
+                        let points = side == .left ? store.state.leftPoints : store.state.rightPoints
+                        guard points > 0 else { return }
+                        VibrationManager.shared.vibrateLight()
+                        dispatch(.adjustPoints(side: side, delta: -1))
+                    }
+                }
+        )
+    }
 
     private func singlesHalf(screenSide: MatchSide, size: CGSize) -> some View {
         let side = logicalSide(forScreen: screenSide)
@@ -1540,6 +1736,8 @@ struct RallyScoreboardView: View {
             }
         case "pingpongPause":
             showPingPongPauseDialog = true
+        case "pingpongMedical":
+            showPingPongMedicalDialog = true
         case "pingpongCards":
             showPingPongCardsDialog = true
         case "toggleMatchTime":
@@ -1639,6 +1837,13 @@ struct RallyScoreboardView: View {
                 sortOrder: 20
             ),
             ScoreboardMenuItem(
+                title: NSLocalizedString("medical_timeout", value: "医疗暂停", comment: ""),
+                action: "pingpongMedical",
+                group: .match,
+                customText: "+",
+                sortOrder: 25
+            ),
+            ScoreboardMenuItem(
                 title: NSLocalizedString("tool_red_yellow_card", value: "红黄牌", comment: ""),
                 action: "pingpongCards",
                 group: .match,
@@ -1649,14 +1854,8 @@ struct RallyScoreboardView: View {
         ]
     }
 
-    private func pingPongAdministrativeActionAvailable(_ type: PingPongAdministrativeActionType, side: MatchSide) -> Bool {
-        let status = store.state.pingPongAdministrativeStatus(for: side)
-        switch type {
-        case .timeout: return !status.timeoutUsed
-        case .yellowCard: return true
-        case .redCard: return status.redCardCount < 2
-        case .medicalTimeout: return true
-        }
+    private func pingPongTimeoutAvailable(side: MatchSide) -> Bool {
+        !store.state.pingPongAdministrativeStatus(for: side).timeoutUsed
     }
 
     private func pingPongAdministrativeChoiceTitle(
@@ -1668,38 +1867,100 @@ struct RallyScoreboardView: View {
         case .medicalTimeout: NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
         case .yellowCard: NSLocalizedString("yellow_card", value: "黄牌", comment: "")
         case .redCard: NSLocalizedString("red_card", value: "红牌", comment: "")
+        case .forfeit: NSLocalizedString("confirm_forfeit", value: "确认判负", comment: "")
         }
         let name = side == .left ? store.state.leftName : store.state.rightName
-        return "\(action) · \(name)"
+        return "\(name) · \(action)"
     }
 
     private var pingPongAdministrativeMarkerOverlay: some View {
-        HStack(spacing: 0) {
-            pingPongAdministrativeMarkers(forScreen: .left)
-            pingPongAdministrativeMarkers(forScreen: .right)
+        GeometryReader { proxy in
+            let keyPointVisible = KeyPointResolver.rally(state: store.state) != nil
+            HStack(spacing: 34) {
+                TableTennisAdministrativeCards(
+                    status: pingPongMarkerStatus(forScreen: .left),
+                    alignment: .trailing
+                )
+                TableTennisAdministrativeCards(
+                    status: pingPongMarkerStatus(forScreen: .right),
+                    alignment: .leading
+                )
+            }
+            .frame(width: proxy.size.width, height: 24)
+            .position(
+                x: proxy.size.width / 2,
+                y: ScoreboardServeGeometry.tableTennisCardsCenterY(
+                    height: proxy.size.height,
+                    keyPointVisible: keyPointVisible
+                )
+            )
         }
         .allowsHitTesting(false)
     }
 
-    private func pingPongAdministrativeMarkers(forScreen screenSide: MatchSide) -> some View {
+    private func pingPongMarkerStatus(forScreen screenSide: MatchSide) -> TableTennisAdministrativeMarkerStatus {
         let logicalSide = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped).engineSide(onScreen: screenSide)
         let status = store.state.pingPongAdministrativeStatus(for: logicalSide)
-        return HStack(spacing: 6) {
-            if status.timeoutUsed { Label("1", systemImage: "pause.circle.fill") }
-            if status.medicalTimeoutCount > 0 { Label("\(status.medicalTimeoutCount)", systemImage: "cross.case.fill") }
-            if status.hasYellowCard { RoundedRectangle(cornerRadius: 2).fill(.yellow).frame(width: 14, height: 20) }
-            if status.redCardCount > 0 {
-                HStack(spacing: 2) {
-                    ForEach(0..<status.redCardCount, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: 2).fill(.red).frame(width: 14, height: 20)
-                    }
-                }
-            }
+        return .init(
+            timeoutUsed: status.timeoutUsed,
+            hasYellowCard: status.hasYellowCard,
+            redCardCount: status.redCardCount
+        )
+    }
+
+    private func selectPingPongPenaltySide(_ side: MatchSide) {
+        pingPongPenaltySelectedSide = side
+        DispatchQueue.main.async { showPingPongPenaltyConfirmation = true }
+    }
+
+    private func pingPongPenaltySelectionTitle(side: MatchSide) -> String {
+        let name = side == .left ? store.state.leftName : store.state.rightName
+        return "\(name) · \(pingPongPenaltyActionDescription(for: side))"
+    }
+
+    private var pingPongPenaltyConfirmationTitle: String {
+        guard let side = pingPongPenaltySelectedSide else { return "" }
+        let name = side == .left ? store.state.leftName : store.state.rightName
+        return "\(name) · \(pingPongPenaltyActionDescription(for: side))"
+    }
+
+    private var pingPongPenaltyConfirmButtonTitle: String {
+        guard let side = pingPongPenaltySelectedSide else {
+            return NSLocalizedString("confirm", value: "确认", comment: "")
         }
-        .font(.caption.bold())
-        .foregroundStyle(.white)
-        .padding(8)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        return store.state.pingPongPenaltyStage(for: side) == .report
+            ? NSLocalizedString("confirm_forfeit", value: "确认判负", comment: "")
+            : NSLocalizedString("confirm", value: "确认", comment: "")
+    }
+
+    private var pingPongPenaltyConfirmationRole: ButtonRole? {
+        guard let side = pingPongPenaltySelectedSide,
+              store.state.pingPongPenaltyStage(for: side) == .report else { return nil }
+        return .destructive
+    }
+
+    private func pingPongPenaltyActionDescription(for side: MatchSide) -> String {
+        switch store.state.pingPongPenaltyStage(for: side) {
+        case .yellow:
+            return NSLocalizedString("yellow_card", value: "黄牌", comment: "")
+        case .firstRed:
+            return NSLocalizedString("first_red_penalty", value: "黄红牌，对手 +1", comment: "")
+        case .secondRed:
+            return NSLocalizedString("second_red_penalty", value: "第二张红牌，对手 +2", comment: "")
+        case .report:
+            return NSLocalizedString("report_referee_forfeit", value: "报告裁判并确认判负", comment: "")
+        }
+    }
+
+    private func confirmPingPongPenalty() {
+        guard let side = pingPongPenaltySelectedSide else { return }
+        let stage = store.state.pingPongPenaltyStage(for: side)
+        pingPongPenaltySelectedSide = nil
+        if let actionType = stage.administrativeActionType {
+            dispatch(.pingPongAdministrativeAction(type: actionType, side: side))
+        } else {
+            dispatch(.pingPongForfeit(side: side))
+        }
     }
 
     // MARK: - Multipliers / chrome state
@@ -1852,9 +2113,15 @@ struct RallyScoreboardView: View {
                     leftSets: leftSide == .left ? store.state.leftSets : store.state.rightSets,
                     rightSets: rightSide == .left ? store.state.leftSets : store.state.rightSets
                 )
-                let layout: ScoreboardDisplayLayoutKind = isDoubles ? .doublesCourt : .twoSide
+                let teamCourtNames = RallyDisplayProjectionResolver.teamCourtRoster(
+                    gameType: gameType,
+                    state: store.state
+                )
+                let layout: ScoreboardDisplayLayoutKind = teamCourtNames != nil
+                    ? .teamCourt
+                    : (isDoubles ? .doublesCourt : .twoSide)
                 var displayPlayers: [ScoreboardDisplayPlayer]?
-                if isDoubles, let doubles = store.state.doubles {
+                if layout == .doublesCourt, let doubles = store.state.doubles {
                     let leftNames = doublesCornerNames(screenSide: .left)
                     let rightNames = doublesCornerNames(screenSide: .right)
                     let servingIsLeft = store.state.servingSide == leftSide
@@ -1866,16 +2133,41 @@ struct RallyScoreboardView: View {
                         .init(id: "right_bottom", name: rightNames.1, teamID: "team_1", slot: "bottom", order: 3, isServer: !servingIsLeft && !serverIsTop)
                     ]
                 }
+                var sportState: [String: ScoreboardDisplayValue] = [
+                    "team0ScreenSide": .string(store.state.sidesSwapped ? "right" : "left"),
+                    "servingSide": .string(store.state.servingSide == leftSide ? "left" : "right"),
+                    "resultScoreLevel": .string(store.state.rules.maxSets == 1 ? "score" : "sets")
+                ]
+                if [.pingpong, .pingpongDoubles].contains(gameType) {
+                    let team0Status = store.state.pingPongAdministrativeStatus(for: .left)
+                    let team1Status = store.state.pingPongAdministrativeStatus(for: .right)
+                    sportState.merge([
+                        "tableTennisTeam0TimeoutUsed": .boolean(team0Status.timeoutUsed),
+                        "tableTennisTeam0Yellow": .boolean(team0Status.hasYellowCard),
+                        "tableTennisTeam0RedCount": .integer(team0Status.redCardCount),
+                        "tableTennisTeam1TimeoutUsed": .boolean(team1Status.timeoutUsed),
+                        "tableTennisTeam1Yellow": .boolean(team1Status.hasYellowCard),
+                        "tableTennisTeam1RedCount": .integer(team1Status.redCardCount)
+                    ]) { _, new in new }
+                }
+                if let teamCourtNames {
+                    sportState["competitionFormat"] = .string("team")
+                    sportState["teamCourtPlayers"] = .strings(teamCourtNames)
+                }
                 compact.externalState = ScoreboardDisplayState.enriched(
                     compact: compact,
                     layoutKind: layout,
                     players: displayPlayers,
-                    sportState: [
-                        "team0ScreenSide": .string(store.state.sidesSwapped ? "right" : "left"),
-                        "servingSide": .string(store.state.servingSide == leftSide ? "left" : "right")
-                    ],
+                    sportState: sportState,
                     rest: officialBreakSession.state.map(ScoreboardDisplayRest.init)
                 )
+                if store.state.finished,
+                   store.state.pingPongForfeitSide != nil,
+                   let winnerSide = RallyFinishedScorePresentation.winnerSide(for: store.state),
+                   var result = compact.externalState?.result {
+                    result.winnerID = winnerSide == .left ? "team_0" : "team_1"
+                    compact.externalState?.result = result
+                }
                 compact.externalState?.appearance = .init(
                     snapshot: appearance,
                     fontCode: typographyPreference.font.rawValue
@@ -2040,6 +2332,7 @@ struct RallyScoreboardView: View {
                 case .medicalTimeout: label = NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
                 case .yellowCard: label = NSLocalizedString("yellow_card", value: "黄牌", comment: "")
                 case .redCard: label = NSLocalizedString("red_card", value: "红牌", comment: "")
+                case .forfeit: label = NSLocalizedString("confirm_forfeit", value: "确认判负", comment: "")
                 }
                 sideToast = label
                 if action.type == .timeout || action.type == .medicalTimeout {
@@ -2134,11 +2427,14 @@ struct RallyScoreboardView: View {
         )
         terminalHold.begin(presentation) {
             publishCurrentRallyState()
-            if let setToast {
-                showToast(setToast)
-            }
-            if let sideToast {
-                showToast(sideToast)
+            // 决胜局直接交给比赛结果面板，避免“本局结束” toast 与结果重复。
+            if !matchFinished {
+                if let setToast {
+                    showToast(setToast)
+                }
+                if let sideToast {
+                    showToast(sideToast)
+                }
             }
             if matchFinished {
 
@@ -2217,8 +2513,11 @@ struct RallyScoreboardView: View {
     }
 
     private var finishedWinnerName: String {
-        if store.state.leftSets == store.state.rightSets { return "" }
-        return store.state.leftSets > store.state.rightSets ? store.state.leftName : store.state.rightName
+        switch RallyFinishedScorePresentation.winnerSide(for: store.state) {
+        case .left: store.state.leftName
+        case .right: store.state.rightName
+        case nil: ""
+        }
     }
 
     private func shareFinishedMatch() {

@@ -270,6 +270,7 @@ struct BoxingScoreboardView: View {
         roundRightPoints = 10
         showRoundDialog = false
         showGameOverDialog = false
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }
 
     private func restoreResumeIfNeeded() {

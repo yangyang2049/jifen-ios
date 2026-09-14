@@ -298,6 +298,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             // 对齐安卓 LaunchedEffect(doubleTapSubtractEnabled)：开关关掉时立刻丢掉挂起的单击。
             if !doubleTapSubtractEnabled { cancelPendingTap() }
             revealImmersiveChrome()
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: doubleTapSubtractEnabled) { _, _ in cancelPendingTap() }
         .onChange(of: showMenu) { _, isOpen in
