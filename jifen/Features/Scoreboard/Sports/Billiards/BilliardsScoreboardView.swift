@@ -69,8 +69,11 @@ struct BilliardsScoreboardView: View {
                 ),
                 onBack: {
                     saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
-                    onNavigationBack?()
-                    dismiss()
+                    if let onNavigationBack {
+                        onNavigationBack()
+                    } else {
+                        dismiss()
+                    }
                 }
             )
 
@@ -96,8 +99,10 @@ struct BilliardsScoreboardView: View {
                     },
                     onExit: {
                         saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
-                        onNavigationBack?()
-                        dismiss()
+                        performScoreboardExit(
+                            onNavigationBack: onNavigationBack,
+                            dismiss: dismiss
+                        )
                     }
                 )
             }

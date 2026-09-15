@@ -694,11 +694,10 @@ struct BasketballScoreboardView: View {
 
     private func back() {
         store.flush {
-            if let onNavigationBack {
-                onNavigationBack()
-            } else {
-                dismiss()
-            }
+            performScoreboardExit(
+                onNavigationBack: onNavigationBack,
+                dismiss: dismiss
+            )
         }
     }
 

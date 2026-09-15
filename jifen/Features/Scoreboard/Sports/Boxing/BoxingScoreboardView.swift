@@ -79,8 +79,11 @@ struct BoxingScoreboardView: View {
                         recordID: recordID,
                         isGameFinished: viewModel.gameFinished
                     )
-                    onNavigationBack?()
-                    dismiss()
+                    if let onNavigationBack {
+                        onNavigationBack()
+                    } else {
+                        dismiss()
+                    }
                 }
             )
 
@@ -112,8 +115,10 @@ struct BoxingScoreboardView: View {
                             recordID: recordID,
                             isGameFinished: viewModel.gameFinished
                         )
-                        onNavigationBack?()
-                        dismiss()
+                        performScoreboardExit(
+                            onNavigationBack: onNavigationBack,
+                            dismiss: dismiss
+                        )
                     }
                 )
             }

@@ -503,11 +503,10 @@ struct RallyScoreboardView: View {
 
                             store.persistSnapshot { success in
                                 guard success else { return }
-                                if let onNavigationBack {
-                                    onNavigationBack()
-                                } else {
-                                    dismiss()
-                                }
+                                performScoreboardExit(
+                                    onNavigationBack: onNavigationBack,
+                                    dismiss: dismiss
+                                )
                             }
                         }
                     )
@@ -2230,14 +2229,12 @@ struct RallyScoreboardView: View {
 
     private func back() {
         cancelTerminalSetPresentation()
-        OrientationLock.shared.unlock()
 
         store.flush {
-            if let onNavigationBack {
-                onNavigationBack()
-            } else {
-                dismiss()
-            }
+            performScoreboardExit(
+                onNavigationBack: onNavigationBack,
+                dismiss: dismiss
+            )
         }
     }
 

@@ -140,6 +140,27 @@ private struct ScoreboardMatchTimeDisplay: View {
 }
 
 /// Single scoreboard launch route shared by Home, Scoreboard and record replay.
+private struct IPadForcedLandscapeSurface: ViewModifier {
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        GeometryReader { proxy in
+            let rotatesContent = isEnabled && proxy.size.height > proxy.size.width
+            let contentSize = rotatesContent
+                ? CGSize(width: proxy.size.height, height: proxy.size.width)
+                : proxy.size
+
+            content
+                .frame(width: contentSize.width, height: contentSize.height)
+                .rotationEffect(.degrees(rotatesContent ? 90 : 0))
+                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("scoreboard_orientation_surface")
+                .accessibilityValue(rotatesContent ? "content_rotated_landscape" : "window_orientation")
+        }
+    }
+}
+
 struct ScoreboardLaunchView: View {
     let gameType: GameType
     var setupResult: SportsSetupResult?
@@ -153,6 +174,9 @@ struct ScoreboardLaunchView: View {
     @State private var analyticsContext: MatchAnalyticsContext
     @State private var usageHintCoordinator: ScoreboardUsageHintCoordinator?
     @State private var manuallyPresentedUsageHint = false
+    @State private var iPadLandscapeHintIsPresented = false
+    @State private var forceIPadLandscape: Bool
+    @State private var iPadOrientationOwnerID = UUID()
     @State private var matchClockSession: ScoreboardMatchClockSession?
     @State private var matchClockOutputOwnerID = "scoreboard-match-clock-\(UUID().uuidString)"
 
@@ -187,6 +211,7 @@ struct ScoreboardLaunchView: View {
         _usageHintCoordinator = State(initialValue: usageDescriptor.map {
             ScoreboardUsageHintCoordinator(descriptor: $0)
         })
+        _forceIPadLandscape = State(initialValue: PreferencesManager.shared.forceIPadLandscape)
         if ScoreboardMatchTimePolicy.supportsGenericClock(
             for: gameType,
             setup: setupResult,
@@ -324,10 +349,35 @@ struct ScoreboardLaunchView: View {
                     .zIndex(5_000)
             }
         }
-        .allowsHitTesting(!usageHintIsPresented)
-        .accessibilityHidden(usageHintIsPresented)
+        .allowsHitTesting(!blockingHintIsPresented)
+        .accessibilityHidden(blockingHintIsPresented)
         .overlay {
-            if let usageHintCoordinator, usageHintIsPresented {
+            if iPadLandscapeHintIsPresented {
+                CustomConfirmDialog(
+                    title: NSLocalizedString(
+                        "scoreboard_landscape_hint_title",
+                        value: "横屏体验更佳",
+                        comment: ""
+                    ),
+                    message: NSLocalizedString(
+                        "scoreboard_landscape_hint_message",
+                        value: "计分板更适合横屏显示。可直接旋转设备，或开启强制横屏。",
+                        comment: ""
+                    ),
+                    confirmText: NSLocalizedString(
+                        "scoreboard_landscape_hint_confirm",
+                        value: "开启横屏",
+                        comment: ""
+                    ),
+                    cancelText: NSLocalizedString("cancel", value: "取消", comment: ""),
+                    confirmColor: Theme.accentColor,
+                    onConfirm: enableForcedIPadLandscape,
+                    onCancel: dismissIPadLandscapeHint,
+                    onDismiss: dismissIPadLandscapeHint
+                )
+                .accessibilityIdentifier("scoreboard_ipad_landscape_hint")
+                .zIndex(20_000)
+            } else if let usageHintCoordinator, usageHintIsPresented {
                 ScoreboardUsageHintDialog(
                     descriptor: usageHintCoordinator.descriptor,
                     onDismiss: dismissUsageHint
@@ -337,31 +387,89 @@ struct ScoreboardLaunchView: View {
         }
         .task {
             await Task.yield()
-            if ScoreboardUsageHintAutomaticPresentationPolicy.allows(
-                requested: automaticallyShowsUsageHint,
-                setup: setupResult
-            ) {
-                usageHintCoordinator?.presentAutomaticallyIfNeeded()
+            presentIPadLandscapeHintIfNeeded()
+            if !iPadLandscapeHintIsPresented {
+                presentAutomaticUsageHintIfNeeded()
             }
         }
         .onAppear {
+            if Theme.usesPadLayout {
+                OrientationLock.shared.beginScoreboardOrientation(
+                    ownerID: iPadOrientationOwnerID,
+                    orientation: forceIPadLandscape ? .landscape : nil
+                )
+            }
             analyticsContext.trackLaunch(isResume: initialResumeSessionId != nil)
             registerMatchClockOutput()
         }
         .onDisappear {
+            // Central fallback for scoreboards with custom chrome or game-over exits.
+            if Theme.usesPadLayout {
+                OrientationLock.shared.endScoreboardOrientation(ownerID: iPadOrientationOwnerID)
+            }
             LocalScoreboardSyncCoordinator.shared.unregisterGenericMatchClock(
                 ownerID: matchClockOutputOwnerID
             )
         }
+        // iPadOS 26 resizable windows can reject interface-orientation geometry
+        // requests. Rotate and swap the scoreboard surface in a portrait window
+        // so the user's explicit landscape preference remains effective there.
+        .modifier(IPadForcedLandscapeSurface(
+            isEnabled: Theme.usesPadLayout && forceIPadLandscape
+        ))
     }
 
     private var usageHintIsPresented: Bool {
         manuallyPresentedUsageHint || usageHintCoordinator?.isPresented == true
     }
 
+    private var blockingHintIsPresented: Bool {
+        iPadLandscapeHintIsPresented || usageHintIsPresented
+    }
+
     private func dismissUsageHint() {
         usageHintCoordinator?.dismissAndMarkShown()
         manuallyPresentedUsageHint = false
+    }
+
+    private func presentIPadLandscapeHintIfNeeded() {
+        let preferences = PreferencesManager.shared
+        iPadLandscapeHintIsPresented = ScoreboardOrientationPolicy.shouldShowIPadLandscapeHint(
+            usesPadLayout: Theme.usesPadLayout,
+            forceIPadLandscape: preferences.forceIPadLandscape,
+            hasShownHint: preferences.hasShownIPadLandscapeHint,
+            interfaceOrientation: OrientationLock.shared.currentInterfaceOrientation
+        )
+    }
+
+    private func dismissIPadLandscapeHint() {
+        PreferencesManager.shared.hasShownIPadLandscapeHint = true
+        iPadLandscapeHintIsPresented = false
+        presentAutomaticUsageHintIfNeeded()
+    }
+
+    private func enableForcedIPadLandscape() {
+        let preferences = PreferencesManager.shared
+        preferences.hasShownIPadLandscapeHint = true
+        preferences.forceIPadLandscape = true
+        forceIPadLandscape = true
+        iPadLandscapeHintIsPresented = false
+        OrientationLock.shared.updateScoreboardOrientation(
+            ownerID: iPadOrientationOwnerID,
+            orientation: .landscape
+        )
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            presentAutomaticUsageHintIfNeeded()
+        }
+    }
+
+    private func presentAutomaticUsageHintIfNeeded() {
+        if ScoreboardUsageHintAutomaticPresentationPolicy.allows(
+            requested: automaticallyShowsUsageHint,
+            setup: setupResult
+        ) {
+            usageHintCoordinator?.presentAutomaticallyIfNeeded()
+        }
     }
 
     private func registerMatchClockOutput() {

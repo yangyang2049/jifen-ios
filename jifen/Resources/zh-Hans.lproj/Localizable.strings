@@ -831,6 +831,9 @@
 "scoreboard_font_seven_segment" = "LED数字";
 "scoreboard_font_sports" = "运动";
 "scoreboard_force_ipad_landscape" = "iPad 强制横屏";
+"scoreboard_landscape_hint_title" = "横屏体验更佳";
+"scoreboard_landscape_hint_message" = "计分板更适合横屏显示。可直接旋转设备，或开启强制横屏。";
+"scoreboard_landscape_hint_confirm" = "开启横屏";
 "scoreboard_keep_screen_on" = "屏幕常亮";
 "scoreboard_immersive_mode" = "沉浸模式";
 "scoreboard_touch_guard" = "触摸防误触";

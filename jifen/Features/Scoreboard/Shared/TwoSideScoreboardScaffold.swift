@@ -465,8 +465,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             return
         }
         exitConfirmDeadline = nil
-        OrientationLock.shared.unlock()
-        onBack()
+        OrientationLock.shared.unlockBeforeScoreboardExit(then: onBack)
     }
 
     private func showToastMessage(_ message: String) {

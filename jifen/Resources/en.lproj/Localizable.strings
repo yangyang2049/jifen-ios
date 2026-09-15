@@ -828,6 +828,9 @@
 "scoreboard_font_seven_segment" = "LED Digit";
 "scoreboard_font_sports" = "Sports";
 "scoreboard_force_ipad_landscape" = "Force Landscape on iPad";
+"scoreboard_landscape_hint_title" = "Better in Landscape";
+"scoreboard_landscape_hint_message" = "Scoreboards work best in landscape. Rotate your device, or always use landscape for scoreboards.";
+"scoreboard_landscape_hint_confirm" = "Always Use Landscape";
 "scoreboard_keep_screen_on" = "Keep Screen On";
 "scoreboard_immersive_mode" = "Immersive Mode";
 "scoreboard_touch_guard" = "Touch Guard";

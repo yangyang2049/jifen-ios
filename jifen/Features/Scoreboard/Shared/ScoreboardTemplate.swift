@@ -420,7 +420,6 @@ struct ScoreboardTemplate: View {
 
                                 // Handle double tap exit
                                 if config.controller.handleExitClick() {
-                                    OrientationLock.shared.unlock()
                                     performBack()
                                 } else {
                                     toastMessage = NSLocalizedString("press_again_to_exit", comment: "Press again to exit")
@@ -974,11 +973,7 @@ struct ScoreboardTemplate: View {
     }
 
     private func performBack() {
-        if let onBack {
-            onBack()
-        } else {
-            dismiss()
-        }
+        performScoreboardExit(onNavigationBack: onBack, dismiss: dismiss)
     }
 
     /// 编辑模式下局分 ±：显式按具体 ViewModel 类型调用 adjustSets，避免协议默认实现被误派发导致局分不改（与射箭修复一致）。
@@ -1019,24 +1014,58 @@ struct ScoreboardTemplate: View {
     }
 }
 
+/// The only imperative work needed before a scoreboard destination is popped.
+/// The TabBar itself remains owned by SwiftUI's navigation hierarchy.
+func performScoreboardExit(
+    onNavigationBack: (() -> Void)?,
+    dismiss: DismissAction
+) {
+    OrientationLock.shared.unlockBeforeScoreboardExit {
+        if let onNavigationBack {
+            onNavigationBack()
+        } else {
+            dismiss()
+        }
+    }
+}
+
 // MARK: - Orientation Lock Extension
+
+private struct ScoreboardOrientationLockModifier: ViewModifier {
+    let requestedOrientation: UIInterfaceOrientationMask
+    @State private var ownerID = UUID()
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                OrientationLock.shared.beginScoreboardOrientation(
+                    ownerID: ownerID,
+                    orientation: resolvedOrientation
+                )
+            }
+            .onChange(of: requestedOrientation.rawValue) { _, _ in
+                OrientationLock.shared.updateScoreboardOrientation(
+                    ownerID: ownerID,
+                    orientation: resolvedOrientation
+                )
+            }
+            .onDisappear {
+                OrientationLock.shared.endScoreboardOrientation(ownerID: ownerID)
+            }
+    }
+
+    private var resolvedOrientation: UIInterfaceOrientationMask? {
+        ScoreboardOrientationPolicy.requestedOrientation(
+            requestedOrientation,
+            usesPadLayout: Theme.usesPadLayout,
+            forceIPadLandscape: PreferencesManager.shared.forceIPadLandscape
+        )
+    }
+}
 
 extension View {
     func lockOrientation(_ orientation: UIInterfaceOrientationMask) -> some View {
-        self.onAppear {
-            if Theme.usesPadLayout,
-               !PreferencesManager.shared.forceIPadLandscape {
-                OrientationLock.shared.unlock()
-            } else {
-                // 用 rotate 而非 lock：lock 只改支持方向，设备若停在另一方向
-                // （如持机竖屏进入计分板），UI 会以横屏布局渲染在竖屏窗口里，
-                // 直到某个外部触发才纠正。rotate 会主动请求几何旋转立即到位。
-                OrientationLock.shared.rotate(to: orientation)
-            }
-        }
-        .onDisappear {
-            OrientationLock.shared.unlock()
-        }
+        modifier(ScoreboardOrientationLockModifier(requestedOrientation: orientation))
     }
 }
 

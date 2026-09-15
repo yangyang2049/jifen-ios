@@ -487,8 +487,11 @@ struct GuandanScoreboardView: View {
                 onExchange: nil,
                 onBack: {
                     saveRecord()
-                    onNavigationBack?()
-                    dismiss()
+                    if let onNavigationBack {
+                        onNavigationBack()
+                    } else {
+                        dismiss()
+                    }
                 },
                 showEndGame: true,
                 onEndGame: finishMatch,
@@ -572,8 +575,10 @@ struct GuandanScoreboardView: View {
                     },
                     onExit: {
                         saveRecord()
-                        onNavigationBack?()
-                        dismiss()
+                        performScoreboardExit(
+                            onNavigationBack: onNavigationBack,
+                            dismiss: dismiss
+                        )
                     }
                 )
             }

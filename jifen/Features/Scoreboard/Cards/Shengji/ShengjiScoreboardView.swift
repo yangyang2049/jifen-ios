@@ -430,7 +430,10 @@ struct ShengjiScoreboardView: View {
             roundNumber: nextDetailedRoundNumber
         ))
     }
-    private func exit() { saveRecord(); onNavigationBack?(); dismiss() }
+    private func exit() {
+        saveRecord()
+        performScoreboardExit(onNavigationBack: onNavigationBack, dismiss: dismiss)
+    }
     private func registerSync() {
         LocalScoreboardSyncCoordinator.shared.registerHost(snapshot: syncSnapshot) { intent in
             guard LocalScoreboardMutationPolicy.allowsMutation(

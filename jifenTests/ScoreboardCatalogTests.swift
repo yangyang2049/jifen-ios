@@ -443,6 +443,74 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(OrientationLock.defaultOrientation(for: .phone), .portrait)
     }
 
+    func testScoreboardOrientationPolicyKeepsIPadNaturalUntilUserOptsIn() {
+        XCTAssertEqual(
+            ScoreboardOrientationPolicy.requestedOrientation(
+                .landscape,
+                usesPadLayout: false,
+                forceIPadLandscape: false
+            ),
+            .landscape
+        )
+        XCTAssertNil(
+            ScoreboardOrientationPolicy.requestedOrientation(
+                .landscape,
+                usesPadLayout: true,
+                forceIPadLandscape: false
+            )
+        )
+        XCTAssertEqual(
+            ScoreboardOrientationPolicy.requestedOrientation(
+                .portrait,
+                usesPadLayout: true,
+                forceIPadLandscape: true
+            ),
+            .landscape
+        )
+    }
+
+    func testIPadLandscapeHintOnlyAppearsOnceWhenEnteringInPortrait() {
+        XCTAssertTrue(
+            ScoreboardOrientationPolicy.shouldShowIPadLandscapeHint(
+                usesPadLayout: true,
+                forceIPadLandscape: false,
+                hasShownHint: false,
+                interfaceOrientation: .portrait
+            )
+        )
+        XCTAssertFalse(
+            ScoreboardOrientationPolicy.shouldShowIPadLandscapeHint(
+                usesPadLayout: true,
+                forceIPadLandscape: false,
+                hasShownHint: false,
+                interfaceOrientation: .landscapeLeft
+            )
+        )
+        XCTAssertFalse(
+            ScoreboardOrientationPolicy.shouldShowIPadLandscapeHint(
+                usesPadLayout: true,
+                forceIPadLandscape: true,
+                hasShownHint: false,
+                interfaceOrientation: .portrait
+            )
+        )
+        XCTAssertFalse(
+            ScoreboardOrientationPolicy.shouldShowIPadLandscapeHint(
+                usesPadLayout: true,
+                forceIPadLandscape: false,
+                hasShownHint: true,
+                interfaceOrientation: .portrait
+            )
+        )
+    }
+
+    func testOrientationMaskMatchingCoversPortraitAndLandscapeFamilies() {
+        XCTAssertTrue(OrientationLock.interfaceOrientation(.portrait, isAllowedBy: .portrait))
+        XCTAssertFalse(OrientationLock.interfaceOrientation(.landscapeLeft, isAllowedBy: .portrait))
+        XCTAssertTrue(OrientationLock.interfaceOrientation(.landscapeLeft, isAllowedBy: .landscape))
+        XCTAssertTrue(OrientationLock.interfaceOrientation(.landscapeRight, isAllowedBy: .all))
+    }
+
     func testPadHomeShowsAtMostTenToolsAndPhoneKeepsCuratedTools() {
         XCTAssertEqual(
             HomeToolsLayoutPolicy.tools(isPad: true).map(\.id),

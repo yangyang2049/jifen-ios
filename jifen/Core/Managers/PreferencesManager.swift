@@ -49,6 +49,7 @@ class PreferencesManager {
         static let defaultFont = "scoreboard_default_font"
         static let theme = "scoreboard_theme"
         static let forceIPadLandscape = "scoreboard_force_ipad_landscape"
+        static let iPadLandscapeHintShown = "scoreboard_ipad_landscape_hint_shown_v1"
         static let keepScreenOn = "scoreboard_keep_screen_on"
         static let immersiveMode = "scoreboard_immersive_mode"
         static let touchGuard = "scoreboard_touch_guard"
@@ -134,6 +135,21 @@ class PreferencesManager {
         }
     }
 
+    var hasShownIPadLandscapeHint: Bool {
+        get { defaults.bool(forKey: Key.iPadLandscapeHintShown, defaultValue: false) }
+        set { defaults.set(newValue, forKey: Key.iPadLandscapeHintShown) }
+    }
+
+    #if DEBUG
+    func resetIPadOrientationPreferencesForUITestsIfRequested() {
+        guard ProcessInfo.processInfo.arguments.contains("-UITestResetIPadOrientationPreferences") else {
+            return
+        }
+        defaults.removeObject(forKey: Key.forceIPadLandscape)
+        defaults.removeObject(forKey: Key.iPadLandscapeHintShown)
+    }
+    #endif
+
     var keepScoreboardScreenOn: Bool {
         get { defaults.bool(forKey: Key.keepScreenOn, defaultValue: true) }
         set {
@@ -196,7 +212,8 @@ class PreferencesManager {
     func resetToOfflineReleaseDefaults() {
         let exactKeys = [
             Key.vibration, Key.sound, Key.officialBreaks, Key.language,
-            Key.defaultFont, Key.theme, Key.forceIPadLandscape, Key.keepScreenOn,
+            Key.defaultFont, Key.theme, Key.forceIPadLandscape, Key.iPadLandscapeHintShown,
+            Key.keepScreenOn,
             Key.immersiveMode, Key.touchGuard, Key.doubleTapSubtract,
             "linked_score_watch_start_guide_popup_shown_v1",
             "simpleScoreCustomAdjustEnabled", "multiScoreboardCustomAdjustEnabled",

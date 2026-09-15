@@ -563,6 +563,167 @@ final class MainFlowUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    func testCompactPhoneKeyboardScoreboardExitRestoresPortraitTabBar() throws {
+        guard UIDevice.current.userInterfaceIdiom == .phone else {
+            throw XCTSkip("iPhone-only orientation regression")
+        }
+
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
+        ]
+        XCTAssertTrue(launchAndWait(app), "Compact iPhone app failed to reach the foreground")
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+        guard app.windows.firstMatch.frame.height <= 700 else {
+            throw XCTSkip("Run this regression on iPhone SE 2 or another compact iPhone")
+        }
+
+        let scoreTab = app.buttons["main_tab_2"]
+        XCTAssertTrue(scoreTab.waitForExistence(timeout: 8))
+        scoreTab.tap()
+        let football = app.descendants(matching: .any)["scoreboard_catalog_football"]
+        for _ in 0..<5 where !(football.exists && football.isHittable) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(football.waitForExistence(timeout: 5))
+        football.tap()
+
+        let nameField = app.textFields.firstMatch
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5))
+        nameField.tap()
+        nameField.typeText("SE")
+        let start = app.buttons["开始"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        start.tap()
+
+        let back = app.descendants(matching: .any)["scoreboard_back_button"]
+        XCTAssertTrue(back.waitForExistence(timeout: 8))
+        XCUIDevice.shared.orientation = .portrait
+        back.tap()
+        back.tap()
+
+        XCTAssertTrue(scoreTab.waitForExistence(timeout: 8))
+        XCTAssertTrue(scoreTab.isHittable)
+        XCTAssertLessThan(app.windows.firstMatch.frame.width, app.windows.firstMatch.frame.height)
+
+        let homeTab = app.buttons["main_tab_0"]
+        XCTAssertTrue(homeTab.waitForExistence(timeout: 5))
+        homeTab.tap()
+        XCTAssertTrue(homeTab.isSelected)
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "SE2 home after keyboard scoreboard exit"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
+    func testIPadScoreboardKeepsNaturalOrientationAndOffersOneTimeLandscapeOptIn() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("iPad-only orientation policy")
+        }
+
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
+            "-UITestResetIPadOrientationPreferences"
+        ]
+        XCTAssertTrue(launchAndWait(app), "iPad app failed to reach the foreground")
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(openPingPongSetup(in: app))
+        app.buttons["开始"].tap()
+
+        let hint = app.descendants(matching: .any)["scoreboard_ipad_landscape_hint"]
+        XCTAssertTrue(hint.waitForExistence(timeout: 8))
+        XCTAssertLessThan(app.windows.firstMatch.frame.width, app.windows.firstMatch.frame.height)
+        app.buttons["取消"].tap()
+        XCTAssertFalse(hint.waitForExistence(timeout: 2))
+
+        let surface = app.descendants(matching: .any)["scoreboard_orientation_surface"]
+        XCTAssertTrue(surface.waitForExistence(timeout: 5))
+        XCTAssertEqual(surface.value as? String, "window_orientation")
+
+        app.terminate()
+        app.launchArguments.removeAll { $0 == "-UITestResetIPadOrientationPreferences" }
+        XCTAssertTrue(launchAndWait(app), "iPad app failed to relaunch")
+
+        XCTAssertTrue(openPingPongSetup(in: app))
+        app.buttons["开始"].tap()
+        XCTAssertFalse(hint.waitForExistence(timeout: 2), "iPad landscape hint must only appear once")
+    }
+
+    func testIPadLandscapeOptInRotatesCurrentScoreboard() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("iPad-only orientation policy")
+        }
+
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
+            "-UITestResetIPadOrientationPreferences"
+        ]
+        XCTAssertTrue(launchAndWait(app), "iPad app failed to reach the foreground")
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(openPingPongSetup(in: app))
+        app.buttons["开始"].tap()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["scoreboard_ipad_landscape_hint"]
+                .waitForExistence(timeout: 8)
+        )
+        app.buttons["开启横屏"].tap()
+
+        let deadline = Date().addingTimeInterval(5)
+        var landscapeApplied = false
+        while Date() < deadline, !landscapeApplied {
+            let windowFrame = app.windows.firstMatch.frame
+            let surface = app.descendants(matching: .any)["scoreboard_orientation_surface"]
+            landscapeApplied = windowFrame.width > windowFrame.height
+                || surface.value as? String == "content_rotated_landscape"
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        XCTAssertTrue(landscapeApplied, "Forced landscape must rotate the scene or its scoreboard surface")
+
+        app.terminate()
+        app.launchArguments.removeAll { $0 == "-UITestResetIPadOrientationPreferences" }
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(launchAndWait(app), "iPad app failed to relaunch with landscape preference")
+        XCTAssertTrue(openPingPongSetup(in: app))
+        app.buttons["开始"].tap()
+        XCTAssertFalse(
+            app.descendants(matching: .any)["scoreboard_ipad_landscape_hint"]
+                .waitForExistence(timeout: 2)
+        )
+        let relaunchedSurface = app.descendants(matching: .any)["scoreboard_orientation_surface"]
+        XCTAssertTrue(relaunchedSurface.waitForExistence(timeout: 5))
+        let relaunchedWindowFrame = app.windows.firstMatch.frame
+        XCTAssertTrue(
+            relaunchedWindowFrame.width > relaunchedWindowFrame.height
+                || relaunchedSurface.value as? String == "content_rotated_landscape",
+            "Saved landscape preference must rotate the scene or its scoreboard surface"
+        )
+    }
+
     func testScoreboardUsageHintSupportsFirstEntryAndMenuReopen() {
         let app = XCUIApplication()
         app.launchArguments += [

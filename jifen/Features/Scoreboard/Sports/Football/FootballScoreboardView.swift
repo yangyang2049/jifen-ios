@@ -173,11 +173,10 @@ struct FootballScoreboardView: View {
                             recordID: recordID,
                             isGameFinished: viewModel.gameFinished
                         )
-                        if let onNavigationBack {
-                            onNavigationBack()
-                        } else {
-                            dismiss()
-                        }
+                        performScoreboardExit(
+                            onNavigationBack: onNavigationBack,
+                            dismiss: dismiss
+                        )
                     }
                 )
             }
@@ -237,12 +236,6 @@ struct FootballScoreboardView: View {
             }
             restoreResumeIfNeeded()
             refreshFootballOutcomePrompt()
-            // Hide tab bar
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first,
-               let tabBarController = window.rootViewController?.findTabBarController() {
-                tabBarController.tabBar.isHidden = true
-            }
         }
         .onChange(of: viewModel.gameFinished) { _, newValue in
             if newValue {
@@ -268,12 +261,6 @@ struct FootballScoreboardView: View {
                 isGameFinished: viewModel.gameFinished
             )
 
-            // Show tab bar when leaving
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first,
-               let tabBarController = window.rootViewController?.findTabBarController() {
-                tabBarController.tabBar.isHidden = false
-            }
         }
     }
 

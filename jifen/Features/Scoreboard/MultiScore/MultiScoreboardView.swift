@@ -249,8 +249,10 @@ struct MultiScoreboardView: View {
                         },
                         onExit: {
                             persistRecord(finished: gameFinished)
-                            onNavigationBack?()
-                            dismiss()
+                            performScoreboardExit(
+                                onNavigationBack: onNavigationBack,
+                                dismiss: dismiss
+                            )
                         }
                     )
                 }
@@ -270,10 +272,6 @@ struct MultiScoreboardView: View {
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .lockOrientation(useLandscapeLayout ? .landscape : .portrait)
-        .onChange(of: useLandscapeLayout) { _, newValue in
-            guard !(Theme.usesPadLayout && !PreferencesManager.shared.forceIPadLandscape) else { return }
-            OrientationLock.shared.rotate(to: newValue ? .landscape : .portrait)
-        }
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
@@ -1499,9 +1497,10 @@ struct MultiScoreboardView: View {
                 showMenu = false
                 cancelPlayerEdit()
                 persistRecord(finished: gameFinished)
-                OrientationLock.shared.unlock()
-                onNavigationBack?()
-                dismiss()
+                performScoreboardExit(
+                    onNavigationBack: onNavigationBack,
+                    dismiss: dismiss
+                )
                 return
             }
             showTransientToast(ScoreboardMenuConfirmAction.exit.localizedToast)
@@ -1514,9 +1513,10 @@ struct MultiScoreboardView: View {
             toastMessage = nil
             cancelPlayerEdit()
             persistRecord(finished: gameFinished)
-            OrientationLock.shared.unlock()
-            onNavigationBack?()
-            dismiss()
+            performScoreboardExit(
+                onNavigationBack: onNavigationBack,
+                dismiss: dismiss
+            )
             return
         }
 

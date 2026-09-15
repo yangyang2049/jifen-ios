@@ -41,9 +41,6 @@ struct RemoteDisplayView: View {
         // 手机默认横屏（OrientationPolicy.resolveScoreboardOrientation），
         // iPad 无强制横屏偏好时跟随设备；推分状态携带 orientation 时按其锁定。
         .lockOrientation(displayOrientationMask)
-        .onChange(of: session.displayState?.orientation) { _, _ in
-            applyDisplayOrientationPolicy()
-        }
         .toolbar(.hidden, for: .tabBar)
         .toolbar(.hidden, for: .navigationBar)
         .persistentSystemOverlays(.hidden)
@@ -77,15 +74,6 @@ struct RemoteDisplayView: View {
         switch orientation {
         case .landscape: return .landscape
         case .portrait: return .portrait
-        }
-    }
-
-    private func applyDisplayOrientationPolicy() {
-        if Theme.usesPadLayout,
-           !PreferencesManager.shared.forceIPadLandscape {
-            OrientationLock.shared.unlock()
-        } else {
-            OrientationLock.shared.lock(displayOrientationMask)
         }
     }
 

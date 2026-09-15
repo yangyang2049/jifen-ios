@@ -1040,12 +1040,12 @@ struct SnookerScoreboardView: View {
     }
     private func exit() {
         cancelTerminalFramePresentation()
-        OrientationLock.shared.unlock()
-
         sessionStore.flush {
             _ = saveRecord()
-            onNavigationBack?()
-            dismiss()
+            performScoreboardExit(
+                onNavigationBack: onNavigationBack,
+                dismiss: dismiss
+            )
         }
     }
     private func registerSync() {

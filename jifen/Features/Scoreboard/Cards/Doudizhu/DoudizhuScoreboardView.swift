@@ -268,8 +268,10 @@ struct DoudizhuScoreboardView: View {
                         },
                         onExit: {
                             saveRecord(finished: gameFinished)
-                            onNavigationBack?()
-                            dismiss()
+                            performScoreboardExit(
+                                onNavigationBack: onNavigationBack,
+                                dismiss: dismiss
+                            )
                         }
                     )
                 }
@@ -1203,9 +1205,10 @@ struct DoudizhuScoreboardView: View {
                 toastMessage = nil
                 showMenu = false
                 saveRecord(finished: gameFinished)
-                OrientationLock.shared.unlock()
-                onNavigationBack?()
-                dismiss()
+                performScoreboardExit(
+                    onNavigationBack: onNavigationBack,
+                    dismiss: dismiss
+                )
                 return
             }
             toastMessage = ScoreboardMenuConfirmAction.exit.localizedToast
@@ -1217,9 +1220,10 @@ struct DoudizhuScoreboardView: View {
             exitClickTime = 0
             toastMessage = nil
             saveRecord(finished: gameFinished)
-            OrientationLock.shared.unlock()
-            onNavigationBack?()
-            dismiss()
+            performScoreboardExit(
+                onNavigationBack: onNavigationBack,
+                dismiss: dismiss
+            )
             return
         }
 
