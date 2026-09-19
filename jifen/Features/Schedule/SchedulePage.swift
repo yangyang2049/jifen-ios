@@ -107,13 +107,17 @@ struct SchedulePage: View {
                             AppAnalytics.openPage(from: .scheduleList, to: .createBookingPage, entryPoint: .scheduleList)
                             showCreatePage = true
                         } label: {
-                            Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .background(Theme.accentColor)
-                                .clipShape(Capsule())
+                            HStack(spacing: 6) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 17, weight: .semibold))
+                                Text(NSLocalizedString("schedule_create_title", value: "预约新球局", comment: ""))
+                            }
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .background(Theme.accentColor)
+                            .clipShape(Capsule())
                         }
                     }
                 }
