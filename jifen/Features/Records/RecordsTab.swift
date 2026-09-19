@@ -42,6 +42,14 @@ struct RecordsTab: View {
     }
 
     var body: some View {
+        NavigationStack {
+            recordsContent
+        }
+    }
+
+    /// 导航栈由 Records Tab 自己持有（与 Home/Score/Timer/Me 一致），
+    /// MainTabView 不再外层包栈，避免双 NavigationStack。
+    private var recordsContent: some View {
         VStack(spacing: 0) {
             tabChips
             if isEditMode {
@@ -389,14 +397,21 @@ struct RecordsTab: View {
             LazyVStack(alignment: .leading, spacing: 0, pinnedViews: .sectionHeaders) {
                 ForEach(groups, id: \.date) { group in
                     Section {
-                        ForEach(Array(group.records.enumerated()), id: \.element.id) { index, item in
-                            recordRow(item: item, isEditMode: isEditMode)
-                            if index < group.records.count - 1 {
-                                Divider()
-                                    .overlay(Theme.homeOverlayBorder)
-                                    .padding(.leading, 56)
+                        // 每个日期一张大卡片，行间沿用分割线（对齐安卓卡片式列表）。
+                        VStack(spacing: 0) {
+                            ForEach(Array(group.records.enumerated()), id: \.element.id) { index, item in
+                                recordRow(item: item, isEditMode: isEditMode)
+                                    .padding(.horizontal, Theme.cardPadding)
+                                if index < group.records.count - 1 {
+                                    Divider()
+                                        .overlay(Theme.homeOverlayBorder)
+                                        .padding(.leading, Theme.cardPadding + 56)
+                                }
                             }
                         }
+                        .background(Theme.appCardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+                        .padding(.bottom, Theme.md)
                     } header: {
                         sectionHeader(displayDate: group.displayDate, count: group.records.count)
                     }

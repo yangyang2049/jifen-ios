@@ -88,15 +88,15 @@ struct MainTabView: View {
         screen: AnalyticsScreen,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        NavigationStack {
-            content()
-                .analyticsScreen(screen, screenClass: screen.rawValue)
-        }
-        .tag(tag)
-        .tabItem {
-            Label(NSLocalizedString(titleKey, comment: ""), systemImage: systemImage)
-                .accessibilityIdentifier("main_tab_\(tag)")
-        }
+        // 每个 Tab 内容自己持有 NavigationStack（RecordsTab.swift / TimerTab.swift / ScoreboardTab.swift / HomeTab.swift），
+        // 这里不再包栈：双 NavigationStack 会让 toolbar 状态冒泡路径变长，且历史上出过导航异常。
+        content()
+            .analyticsScreen(screen, screenClass: screen.rawValue)
+            .tag(tag)
+            .tabItem {
+                Label(NSLocalizedString(titleKey, comment: ""), systemImage: systemImage)
+                    .accessibilityIdentifier("main_tab_\(tag)")
+            }
     }
 
     private func analyticsScreen(for tab: Int) -> AnalyticsScreen {
