@@ -24,8 +24,9 @@ private struct SetupDialogActionsHeightPreferenceKey: PreferenceKey {
     }
 }
 
-/// 始终占满 Setup Dialog 分配的内容高度；内容较多时保持滚动。
-/// 这样未完成比赛栏增减安全区时，卡片高度会随当前可用空间同步变化。
+/// 高度贴内容，不超过 maxHeight；内容较多时封顶并保持滚动。
+/// 宿主（CenteredSetupDialogContainer/Presenter）用 fixedSize(vertical: true) 提出空提案，
+/// ScrollView 才会收缩到内容高度；若宿主给出具体高度提案，这里仍会占满提案。
 struct AdaptiveSetupDialogScrollView<Content: View>: View {
     let maxHeight: CGFloat
     private let content: Content
@@ -58,7 +59,7 @@ struct AdaptiveSetupDialogScrollView<Content: View>: View {
                     }
                 }
         }
-        .frame(height: maxHeight)
+        .frame(maxHeight: maxHeight)
         .onPreferenceChange(SetupDialogContentHeightPreferenceKey.self) { height in
             let roundedHeight = ceil(height)
             guard abs(measuredContentHeight - roundedHeight) > 0.5 else { return }

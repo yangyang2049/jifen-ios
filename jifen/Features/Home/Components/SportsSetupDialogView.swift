@@ -30,6 +30,7 @@ struct SportsSetupDialogView: View {
                 Text(getProjectTitle())
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
+                    .accessibilityIdentifier("sports_setup_title")
             }
             .frame(maxWidth: .infinity)
             .frame(height: 56)
