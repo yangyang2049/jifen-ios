@@ -26,14 +26,15 @@ struct StopwatchView: View {
                 let elapsed = state.elapsedMilliseconds(at: context.date)
 
                 VStack(spacing: 0) {
-                    Spacer(minLength: 24)
-
+                    // 上方内容钉顶，只留一个弹性 Spacer 在控件上方：
+                    // push 时 tab bar 隐藏动画改变底部安全区，不会带动时间与标题重排。
                     Text(formatStopwatch(elapsed))
                         .font(.system(size: 64, weight: .bold, design: .monospaced))
                         .foregroundStyle(Theme.textPrimary)
                         .minimumScaleFactor(0.45)
                         .lineLimit(1)
                         .padding(.horizontal, 20)
+                        .padding(.top, 40)
 
                     if state.phase == .running, let lastLap = state.lapCumulativeMilliseconds.last {
                         Text(formatStopwatch(max(0, elapsed - lastLap)))
@@ -42,11 +43,10 @@ struct StopwatchView: View {
                             .padding(.top, 8)
                     }
 
-                    Spacer(minLength: 28)
-
                     if !state.lapCumulativeMilliseconds.isEmpty {
                         lapList
                             .frame(maxHeight: 310)
+                            .padding(.top, 28)
                     }
 
                     Spacer(minLength: 24)
