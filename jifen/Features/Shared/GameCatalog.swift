@@ -104,8 +104,8 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .football, emoji: "⚽", section: .sports),
         ScoreboardCatalogItem(gameType: .football5v5, emoji: "⚽", section: .sports),
         ScoreboardCatalogItem(gameType: .basketball, emoji: "🏀", section: .sports),
-        ScoreboardCatalogItem(gameType: .basketballTraining, emoji: "🏀", section: .sports),
         ScoreboardCatalogItem(gameType: .threeBasketball, emoji: "🏀", section: .sports),
+        ScoreboardCatalogItem(gameType: .basketballTraining, emoji: "🏀", section: .sports),
         ScoreboardCatalogItem(gameType: .volleyball, emoji: "🏐", section: .sports),
         ScoreboardCatalogItem(gameType: .beachVolleyball, emoji: "🏐", section: .sports),
         ScoreboardCatalogItem(gameType: .airVolleyball, emoji: "🏐", section: .sports),
@@ -129,6 +129,11 @@ enum GameCatalog {
 
     static func scoreboardItems(in section: ScoreboardCatalogSection) -> [ScoreboardCatalogItem] {
         scoreboardItems.filter { $0.section == section }
+    }
+
+    /// 项目所属的计分板分区；目录只收计分板项目，其余（计时类棋类等）返回 nil。
+    static func section(for gameType: GameType) -> ScoreboardCatalogSection? {
+        scoreboardItems.first { $0.gameType == gameType }?.section
     }
 
     static let timerBoardGameItems: [TimerDestination] = [.go, .xiangqi, .chess, .checkers]

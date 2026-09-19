@@ -242,6 +242,12 @@ actor APIClient {
         request.setValue(info?["CFBundleVersion"] as? String ?? "0", forHTTPHeaderField: "X-App-Version-Code")
         request.setValue("1", forHTTPHeaderField: "X-Api-Level")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(Self.acceptLanguageHeader, forHTTPHeaderField: "Accept-Language")
+    }
+
+    nonisolated private static var acceptLanguageHeader: String {
+        guard Locale.current.language.languageCode?.identifier == "zh" else { return "en" }
+        return ChineseScript.isTraditional() ? "zh-Hant-TW" : "zh-Hans-CN"
     }
 
     private func jwtExpiration(_ token: String) -> Date? {

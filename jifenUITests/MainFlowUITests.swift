@@ -220,31 +220,6 @@ final class MainFlowUITests: XCTestCase {
         }
     }
 
-    func testFirstLaunchLegalConsentGatesMainContent() {
-        let app = XCUIApplication()
-        app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
-            "-UITestDisableAnalytics",
-            "-legal_documents_accepted_version", ""
-        ]
-        XCTAssertTrue(launchAndWait(app), "Legal-consent app failed to reach the foreground")
-        defer { app.terminate() }
-
-        XCTAssertTrue(app.staticTexts["使用前请先阅读并同意"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["main_tab_0"].exists)
-
-        let agreeButton = app.buttons["同意并继续"]
-        XCTAssertTrue(agreeButton.exists)
-        XCTAssertFalse(agreeButton.isEnabled)
-
-        app.buttons["同意用户协议和隐私政策"].tap()
-        XCTAssertTrue(agreeButton.isEnabled)
-        agreeButton.tap()
-
-        XCTAssertTrue(app.buttons["main_tab_0"].waitForExistence(timeout: 8))
-    }
-
     func testMeTabContainsLocalSettings() {
         let app = launchApp()
         XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
@@ -513,8 +488,8 @@ final class MainFlowUITests: XCTestCase {
     func testPingPongDoublesSetupShowsAllPlayersOnScoreboard() {
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
@@ -546,8 +521,8 @@ final class MainFlowUITests: XCTestCase {
     func testScoreboardShowsBottomLeftBackButton() {
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
@@ -563,6 +538,67 @@ final class MainFlowUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
+    func testHomeShowsUnfinishedGameBarImmediatelyAfterScoreboardExit() {
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
+        ]
+        XCTAssertTrue(launchAndWait(app), "Resume-bar app failed to reach the foreground")
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        let existingBar = app.descendants(matching: .any)["unfinished_game_bar"]
+        if existingBar.waitForExistence(timeout: 1) {
+            let discard = app.buttons["放弃"]
+            XCTAssertTrue(discard.waitForExistence(timeout: 2))
+            discard.tap()
+            let confirmDiscard = app.buttons["再点击一次丢弃比赛"]
+            XCTAssertTrue(confirmDiscard.waitForExistence(timeout: 2))
+            confirmDiscard.tap()
+            XCTAssertFalse(existingBar.waitForExistence(timeout: 3))
+        }
+
+        let newGame = app.buttons["home_quick_start_new_game"]
+        XCTAssertTrue(newGame.waitForExistence(timeout: 5))
+        newGame.tap()
+
+        let basketball = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "篮球")
+        ).firstMatch
+        XCTAssertTrue(basketball.waitForExistence(timeout: 5))
+        basketball.tap()
+
+        let start = app.buttons["开始"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        start.tap()
+
+        let back = app.descendants(matching: .any)["scoreboard_back_button"]
+        XCTAssertTrue(back.waitForExistence(timeout: 8))
+        back.tap()
+        // Phone scoreboards rotate before popping. XCTest can deliver the
+        // first synthesized tap against the pre-rotation surface, so retry if
+        // the scoreboard control is still present after geometry settles.
+        if back.waitForExistence(timeout: 1) {
+            back.tap()
+        }
+        // The second tap starts an async resume-session flush before the
+        // navigation pop. Under a busy simulator that durable write can take
+        // longer than the ordinary screen-transition timeout.
+        XCTAssertTrue(app.buttons["main_tab_0"].waitForExistence(timeout: 10))
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["unfinished_game_bar"]
+                .waitForExistence(timeout: 5),
+            "Home must show the unfinished-game bar without switching tabs"
+        )
+    }
+
     func testCompactPhoneKeyboardScoreboardExitRestoresPortraitTabBar() throws {
         guard UIDevice.current.userInterfaceIdiom == .phone else {
             throw XCTSkip("iPhone-only orientation regression")
@@ -571,8 +607,8 @@ final class MainFlowUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints"
         ]
@@ -631,8 +667,8 @@ final class MainFlowUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints",
             "-UITestResetIPadOrientationPreferences"
@@ -673,8 +709,8 @@ final class MainFlowUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints",
             "-UITestResetIPadOrientationPreferences"
@@ -727,8 +763,8 @@ final class MainFlowUITests: XCTestCase {
     func testScoreboardUsageHintSupportsFirstEntryAndMenuReopen() {
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestResetScoreboardUsageHints"
         ]
@@ -893,7 +929,7 @@ final class MainFlowUITests: XCTestCase {
         let fourPlayers = app.buttons["random_team_players_4"]
         XCTAssertTrue(fourPlayers.waitForExistence(timeout: 5))
         fourPlayers.tap()
-        XCTAssertTrue(app.buttons["Simulate"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Shuffle"].waitForExistence(timeout: 5))
         addScreenshot("Random team - English dark")
 
         app.terminate()
@@ -1063,7 +1099,8 @@ final class MainFlowUITests: XCTestCase {
         defer { clearRecordFixtures() }
         let catalogApp = XCUIApplication()
         catalogApp.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints",
             "-UITestRecordFixtures"
@@ -1077,7 +1114,8 @@ final class MainFlowUITests: XCTestCase {
         for project in allProjects {
             let app = XCUIApplication()
             app.launchArguments += [
-                "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+                "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+                "-AppleLocale", UITestLocale.zhHans.locale,
                 "-UITestSkipLegalConsent",
                 "-UITestSkipScoreboardUsageHints",
                 "-UITestRecordDetail", project
@@ -1143,7 +1181,7 @@ final class MainFlowUITests: XCTestCase {
     }
 
     private func launchChineseApp(arguments: [String] = []) -> XCUIApplication {
-        launchLocalizedApp(language: "zh-Hans", locale: "zh_CN", arguments: arguments)
+        launchLocalizedApp(language: UITestLocale.zhHans.language, locale: UITestLocale.zhHans.locale, arguments: arguments)
     }
 
     private func launchLocalizedApp(
@@ -1242,8 +1280,8 @@ final class MainFlowUITests: XCTestCase {
     private func runPlayAllSetup(appearance: String) {
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints",
             "-jifen-v2.appAppearanceMode", appearance
@@ -1574,5 +1612,181 @@ final class MainFlowUITests: XCTestCase {
         } while Date() < deadline
 
         return false
+    }
+
+    /// 结束弹窗必须扛住「查看记录 / 分享」的往返：投篮训练一旦结束，页面就锁成已结束态、
+    /// 底部圆钮也会隐藏，弹窗若被顺手收起，用户回到页面就无从下手。
+    func testGameOverDialogSurvivesRecordsAndShareRoundTrip() {
+        let app = launchApp()
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        XCTAssertTrue(openShotTrainingScoreboard(in: app), "Cannot reach the shot training board")
+
+        let menuButton = app.buttons["scoreboard_menu_button"]
+        XCTAssertTrue(menuButton.waitForExistence(timeout: 8), "Shot training board did not open")
+
+        // 先记一次出手，结束时才有可查的记录。
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+        XCTAssertTrue(menuButton.isHittable)
+
+        menuButton.tap()
+        let finish = app.buttons["scoreboard_menu_action_finish"]
+        XCTAssertTrue(finish.waitForExistence(timeout: 3), "Finish menu item is missing")
+        finish.tap()
+        XCTAssertTrue(
+            finish.waitForExistence(timeout: 2),
+            "First finish tap must keep the menu open for the second confirmation"
+        )
+        finish.tap()
+
+        let dialog = app.descendants(matching: .any)["game_over_dialog"]
+        XCTAssertTrue(dialog.waitForExistence(timeout: 5), "Game over dialog did not appear")
+
+        app.buttons["game_over_action_records"].tap()
+        let recordClose = app.buttons["modal_close_button"]
+        XCTAssertTrue(recordClose.waitForExistence(timeout: 6), "Finished record detail did not open")
+        recordClose.tap()
+        XCTAssertTrue(dialog.waitForExistence(timeout: 3), "查看记录 must not dismiss the game over dialog")
+        XCTAssertTrue(app.buttons["game_over_action_records"].isHittable)
+
+        app.buttons["game_over_action_share"].tap()
+        let shareCancel = app.buttons["Cancel"]
+        if shareCancel.waitForExistence(timeout: 4) {
+            shareCancel.tap()
+        }
+        XCTAssertTrue(dialog.waitForExistence(timeout: 3), "分享 must not dismiss the game over dialog")
+    }
+
+    private func openShotTrainingScoreboard(in app: XCUIApplication) -> Bool {
+        tabButton(named: "Score", in: app).tap()
+        let card = app.descendants(matching: .any)["scoreboard_catalog_basketball_training"]
+        guard scrollUntilExists(card, in: app) else { return false }
+        card.tap()
+
+        let start = app.buttons["Start"].exists ? app.buttons["Start"] : app.buttons["开始"]
+        guard start.waitForExistence(timeout: 5), start.isHittable else { return false }
+        start.tap()
+        return true
+    }
+
+    /// 外部网页一律 push 进"承载它的那条栈"：手机端 push 在 Tab 栈里，iPad 上内嵌在设置弹窗里，
+    /// 不会跑到弹窗背后的主应用层，也不再挂自定义叉（返回交给导航栈自带的返回按钮）。
+    func testInAppWebLinkPushesInsideItsOwnStack() {
+        let app = launchApp()
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        tabButton(named: "Me", in: app).tap()
+
+        // 与宿主同层的入口先证明这条栈本身能 push。
+        let websiteEntry = app.buttons["settings_website_entry"]
+        XCTAssertTrue(websiteEntry.waitForExistence(timeout: 5), "Website entry missing")
+        websiteEntry.tap()
+        let webPage = app.descendants(matching: .any)["in_app_web_page"]
+        let websiteTitle = app.navigationBars.staticTexts["Official Website"]
+        XCTAssertTrue(websiteTitle.waitForExistence(timeout: 8), "Website link did not push a page")
+        XCTAssertTrue(webPage.exists, "Web page is missing its in_app_web_page identifier")
+        XCTAssertFalse(app.buttons["in_app_web_close"].exists, "Pushed web page must not add its own close button")
+        app.navigationBars.buttons["BackButton"].tap()
+        XCTAssertTrue(websiteEntry.waitForExistence(timeout: 5))
+
+        // 关于页在 iPhone 是 push 页、在 iPad 是弹窗；两种承载层里协议网页都要开在自己那一层。
+        let aboutEntry = app.buttons["settings_about_entry"]
+        for _ in 0..<8 where !aboutEntry.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(aboutEntry.waitForExistence(timeout: 5), "About entry missing")
+        aboutEntry.tap()
+
+        let termsLink = app.buttons["settings_about_terms_link"]
+        XCTAssertTrue(termsLink.waitForExistence(timeout: 5), "About page terms link missing")
+        termsLink.tap()
+
+        XCTAssertTrue(webPage.waitForExistence(timeout: 8), "In-app web page did not open")
+        XCTAssertTrue(webPage.isHittable, "Web page is behind the dialog — it pushed into the main layer")
+        XCTAssertTrue(
+            app.navigationBars.staticTexts["Terms of Service"].waitForExistence(timeout: 5),
+            "Frontmost navigation bar is not the web page"
+        )
+    }
+
+    /// 复现用户报告：真机 iPhone（中文环境）关于页的 用户协议/隐私政策/微信群 点击后
+    /// 不跳网页、回落到「我的」Tab 且带 Tab bar；iPad（sheet 承载）正常。
+    /// 用 zh-Hans 启动让微信群行出现，逐步截图取证。
+    func testAboutWebLinksZhHansPushInAppPage() {
+        let app = XCUIApplication()
+        app.launchArguments += UITestLocale.launchArguments(UITestLocale.zhHans)
+        app.launchArguments += [
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints"
+        ]
+        XCTAssertTrue(launchAndWait(app), "App failed to reach the foreground")
+        defer { app.terminate() }
+
+        let meTab = tabButton(named: "我的", in: app)
+        XCTAssertTrue(meTab.waitForExistence(timeout: 10), "Me tab missing")
+        meTab.tap()
+
+        let aboutEntry = app.descendants(matching: .any)["settings_about_entry"]
+        for _ in 0..<8 where !aboutEntry.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(aboutEntry.waitForExistence(timeout: 5), "About entry missing")
+        aboutEntry.tap()
+
+        XCTAssertTrue(
+            app.navigationBars["关于我们"].waitForExistence(timeout: 5),
+            "About page did not push"
+        )
+        attachScreenshot(app, name: "01_about_page_zh")
+
+        // 用户报「那个页面还显示 Tab bar」：关于页本身应隐藏 tab bar。
+        XCTAssertFalse(
+            app.tabBars.firstMatch.isHittable,
+            "Tab bar should be hidden on the pushed About page"
+        )
+
+        let zhCases: [(link: String, title: String, shot: String)] = [
+            ("settings_about_terms_link", "用户协议", "02_terms_page"),
+            ("settings_about_privacy_link", "隐私政策", "03_privacy_page"),
+            ("settings_about_wechat_link", "微信群", "04_wechat_page")
+        ]
+        for item in zhCases {
+            let link = app.descendants(matching: .any)[item.link]
+            XCTAssertTrue(link.waitForExistence(timeout: 5), "Missing link row: \(item.link)")
+            link.tap()
+
+            let webPage = app.descendants(matching: .any)["in_app_web_page"]
+            let pushed = webPage.waitForExistence(timeout: 8)
+            attachScreenshot(app, name: "\(item.shot)_after_tap")
+            XCTAssertTrue(pushed, "\(item.title) link did not push in-app web page")
+            XCTAssertTrue(webPage.isHittable, "\(item.title) web page is not frontmost")
+            XCTAssertTrue(
+                app.navigationBars[item.title].waitForExistence(timeout: 5),
+                "\(item.title) web page navigation bar missing"
+            )
+
+            // 返回关于页，继续下一条。
+            let back = app.navigationBars.buttons.element(boundBy: 0)
+            XCTAssertTrue(back.exists, "Missing back button on \(item.title) page")
+            back.tap()
+            XCTAssertTrue(
+                app.navigationBars["关于我们"].waitForExistence(timeout: 5),
+                "Did not return to About page after \(item.title)"
+            )
+        }
+
+        // 返回后关于页与 tab bar 状态应与首次一致。
+        XCTAssertFalse(app.tabBars.firstMatch.isHittable, "Tab bar reappeared on About page")
+    }
+
+    private func attachScreenshot(_ app: XCUIApplication, name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
     }
 }

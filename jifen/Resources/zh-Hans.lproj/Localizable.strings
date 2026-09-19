@@ -78,7 +78,6 @@
 "singles_doubles" = "单双打";
 
 /* Timer Settings */
-"timer_settings_for" = "计时器设置";
 "unknown" = "未知";
 
 /* Timer Tab */
@@ -153,21 +152,16 @@
 "game_tennis" = "网球";
 "game_basketball" = "篮球";
 "game_basketball_training" = "投篮训练";
-"shot_training_setup_title" = "投篮训练设置";
-"shot_training_scoring_mode" = "计分模式";
-"shot_training_mode_1" = "1 分球";
-"shot_training_mode_2" = "2 分球";
-"shot_training_mode_3" = "3 分球";
-"shot_training_mode_free" = "自由模式";
+"shot_training_setup_title" = "投篮训练";
+"shot_training_1pt" = "1 分";
+"shot_training_2pt" = "2 分";
+"shot_training_3pt" = "3 分";
+"shot_training_free" = "自由";
 "shot_training_mode_help" = "固定模式每次记录同一分值；自由模式可在每次出手时选择 1、2 或 3 分。";
 "shot_training_miss" = "未中";
 "shot_training_made" = "命中";
-"shot_training_attempts" = "出手";
-"shot_training_rate" = "命中率";
-"shot_training_points" = "得分";
-"shot_training_tap_to_record" = "点击记录 %d 分球";
-"shot_training_summary" = "训练总结";
-"shot_training_summary_points" = "累计得分 %d";
+"shot_training_finish" = "结束训练";
+"shot_training_undo_done" = "已撤销上一次记录";
 "shot_training_share" = "投篮训练：命中 %d / %d，命中率 %d%%，得分 %d";
 "game_football" = "足球";
 "game_volleyball" = "排球";
@@ -179,6 +173,9 @@
 "game_guandan" = "掼蛋";
 "display_guandan_pass_a" = "过A %d";
 "display_guandan_triple_a" = "三A";
+"display_training_point_counts" = "1分 %d · 2分 %d · 3分 %d";
+"display_training_fixed_points" = "%d 分球";
+"display_training_finished" = "训练结束";
 "guandan_pass_a_condition_section" = "过 A 条件";
 "guandan_pass_a_not_last" = "不能末游（+2/3）";
 "guandan_pass_a_double_up" = "双上（+3）";
@@ -454,6 +451,7 @@
 "menu_swap_sides" = "换边";
 "menu_reset" = "重置";
 "menu_undo" = "撤销";
+"scoreboard_rotate_orientation" = "旋转方向";
 
 /* Font Selection */
 "font_default" = "默认";
@@ -636,6 +634,8 @@
 
 /* Record Detail Page */
 "match_detail" = "比赛详情";
+"training_detail" = "训练详情";
+"card_round_detail" = "牌局详情";
 "confirm_delete" = "确认删除";
 "confirm_delete_record_message" = "确定要删除这条比赛记录吗？此操作无法撤销。";
 "delete_record" = "删除记录";
@@ -1010,7 +1010,7 @@
 "scoreboard_usage_hint_got_it" = "知道了";
 "scoreboard_usage_hint_football" = "👆 点击左/右比分区为对应一方加 1 球\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n⏱️ 从右下角菜单进入“补时”，选择时长后可撤销或确认\n🏁 下半场及补时结束后，平局可进入上下半场各 15 分钟的加时赛";
 "scoreboard_usage_hint_basketball" = "👆 点击对应球队的 +1、+2、+3 按钮加分\n↩️ 左滑撤销上一步\n🚩 点击犯规区域增加犯规，长按减少犯规\n⏱️ 在篮球面板中操作计时、节次和暂停";
-"scoreboard_usage_hint_basketball_training" = "🏀 选择固定 1/2/3 分或自由模式\n✅ 点击命中或未中区域记录一次出手\n↩️ 点击撤销可取消最近一次出手\n⏹️ 结束后查看命中率和训练总结";
+"scoreboard_usage_hint_basketball_training" = "🏀 点击未中或命中区域记录一次投篮\n↩️ 左滑可撤销上一次记录\n⏹️ 重置和结束训练从右下角菜单操作";
 "scoreboard_usage_hint_three_basketball" = "👆 点击对应球队的分值按钮加分\n↩️ 左滑撤销上一步\n🚩 点击犯规区域增加犯规，长按减少犯规\n⏱️ 在篮球面板中操作计时、节次和暂停";
 "scoreboard_usage_hint_volleyball" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 系统会按排球规则判断局分、赛点和比赛结束";
 "scoreboard_usage_hint_beach_volleyball" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 系统会按沙滩排球规则判断局分、赛点和比赛结束";
@@ -1352,6 +1352,7 @@
 // MARK: 反馈社区（对齐安卓 FeedbackListScreen / FeedbackUi.kt）
 "feedback_new" = "新建反馈";
 "feedback_create" = "发布反馈";
+"toast_login_required_feedback_publish" = "发布反馈需要登录";
 "feedback_detail" = "反馈详情";
 "feedback_load_failed" = "加载失败";
 "feedback_reload" = "重新加载";
@@ -1422,7 +1423,7 @@
 "membership_lifetime_plan_title" = "终身会员";
 "vip_one_time_purchase" = "一次性购买，永久有效";
 "membership_lifetime_badge" = "终身";
-"vip_login_hint" = "购买前请先登录账号";
+"vip_optional_sign_in_hint" = "登录后可在你的其他设备上同步会员权益";
 "membership_restore" = "恢复购买";
 "vip_purchasing" = "购买中...";
 "vip_buy_now" = "立即开通";
@@ -1498,7 +1499,7 @@
 "me_profile_nickname_cooldown" = "昵称修改后需要稍等一会儿，请在 %@ 后再试";
 "me_profile_nickname_cooldown_generic" = "昵称修改后需要稍等一会儿，请稍后再试";
 "me_profile_nickname_review_submitted" = "昵称已提交审核，审核期间仅自己可见";
-"membership_login_required" = "请先登录后购买";
+"membership_purchase_success_signed_out" = "购买成功，会员已在本机生效；登录后可同步到你的其他设备";
 "membership_purchase_success" = "购买成功，会员状态已更新";
 "membership_purchase_pending" = "购买正在等待确认，确认后会自动更新";
 "membership_restore_done" = "恢复购买完成";

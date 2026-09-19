@@ -62,7 +62,7 @@ struct ScoreboardRecordDetailPage: View {
                     .overlay { ProgressView(NSLocalizedString("share_preparing", value: "正在生成分享图片…", comment: "")).tint(.white).foregroundStyle(.white) }
             }
         }
-        .navigationTitle(NSLocalizedString("match_detail", comment: ""))
+        .navigationTitle(record?.gameType.recordDetailTitle ?? GameType.defaultRecordDetailTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .onAppear(perform: loadRecord)
@@ -1116,15 +1116,10 @@ private struct ScoreTrendChart: View {
     let leftName: String
     let rightName: String
 
-    @Environment(\.colorScheme) private var colorScheme
-
     // Mirrors Android RecordTrendChart colors: home=red, away=blue.
+    // 蓝色直接取 systemBlue（浅 #007AFF / 深 #0A84FF），与安卓双值一致，无需手写分支。
     private var trendRed: Color { Color(red: 1, green: 0x3B / 255, blue: 0x30 / 255) }
-    private var trendBlue: Color {
-        colorScheme == .dark
-            ? Color(red: 0x0A / 255, green: 0x84 / 255, blue: 0xFF / 255)
-            : Color(red: 0x00 / 255, green: 0x7A / 255, blue: 0xFF / 255)
-    }
+    private var trendBlue: Color { Color(uiColor: .systemBlue) }
 
     var body: some View {
         VStack(spacing: 8) {

@@ -83,15 +83,18 @@ struct SchedulePage: View {
                 Group {
                     if isEditMode {
                         HStack(spacing: 12) {
-                            Button(allVisibleSelected
-                                ? NSLocalizedString("deselect_all", value: "取消全选", comment: "")
-                                : NSLocalizedString("select_all", value: "全选", comment: "")) {
+                            Button {
                                 toggleSelectAll()
+                            } label: {
+                                Text(allVisibleSelected
+                                    ? NSLocalizedString("deselect_all", value: "取消全选", comment: "")
+                                    : NSLocalizedString("select_all", value: "全选", comment: ""))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 46)
+                                    .background(Theme.controlBackground)
+                                    .clipShape(Capsule())
+                                    .contentShape(Capsule())
                             }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 46)
-                            .background(Theme.controlBackground)
-                            .clipShape(Capsule())
 
                             Button(role: .destructive) {
                                 showBatchDeleteConfirm = true

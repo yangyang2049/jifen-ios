@@ -53,6 +53,61 @@ struct Theme {
     static let scoreboardDialogScrim = Color.black.opacity(0.45)
     /// 普通页面控件仍保留 secondary gray；Dialog / Sheet 请使用 dialogControlBackground。
     static let controlBackground = Color(uiColor: .secondarySystemFill)
+    /// 页面级文本输入框统一底色：不透明动态色。深色用 #2C2C2E 从近黑页面底色中明确抬升，
+    /// 避免 secondarySystemFill 半透明叠色导致"输入框融进背景 + 描边显脏"的问题。
+    static let inputFieldBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 44 / 255, green: 44 / 255, blue: 46 / 255, alpha: 1)
+            : UIColor(red: 229 / 255, green: 229 / 255, blue: 234 / 255, alpha: 1)
+    })
+    /// 同一 tint 底色、深浅双 alpha 的着色背景。收口视图里
+    /// `colorScheme == .dark ? tint.opacity(a) : tint.opacity(b)` 的一次性写法。
+    static func tintedFill(_ tint: Color, lightAlpha: Double, darkAlpha: Double) -> Color {
+        Color(uiColor: UIColor { traits in
+            UIColor(tint).resolvedColor(with: traits).withAlphaComponent(
+                traits.userInterfaceStyle == .dark ? darkAlpha : lightAlpha
+            )
+        })
+    }
+    /// 一个角色深浅各指一个值（等价于颜色 json 里的 light/dark 双值）；
+    /// 视图侧永远只引用这一个 token，不再出现 colorScheme 分支。
+    static func adaptive(_ light: Color, _ dark: Color) -> Color {
+        Color(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(dark).resolvedColor(with: traits)
+                : UIColor(light).resolvedColor(with: traits)
+        })
+    }
+    /// 仅浅色模式生效的环境阴影；深色近黑背景上黑阴影不可见，直接返回 clear。
+    static func lightModeShadow(_ opacity: Double) -> Color {
+        Color(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark ? .clear : UIColor.black.withAlphaComponent(opacity)
+        })
+    }
+    /// 悬浮在内容之上的浮层通用阴影；深色改用白色微光保持可感知。
+    static let overlayShadow = Color(uiColor: UIColor { traits in
+        (traits.userInterfaceStyle == .dark ? UIColor.white : UIColor.black).withAlphaComponent(0.1)
+    })
+    /// 悬浮按钮等浮层控件的默认图标色。
+    static let floatingIconColor = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.85)
+            : UIColor.black.withAlphaComponent(0.7)
+    })
+    /// 卡片内轻量控件（关闭/取消小圆钮）的安静底色。
+    static let quietChipFill = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.12)
+            : .tertiarySystemFill
+    })
+    /// 首页快速开始编辑槽位卡底色（未选中）：直接用系统表面色。
+    static let editSlotFill = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark ? .secondarySystemFill : .systemBackground
+    })
+    /// 编辑槽位卡选中态：主色浅着色，深浅都可见，替代原先深色下与未选中无差别的中性灰。
+    static var editSlotSelectedFill: Color {
+        tintedFill(accentColor, lightAlpha: 0.12, darkAlpha: 0.12)
+    }
     static let textPrimary = Color(uiColor: .label)
     static let textSecondary = Color(uiColor: .secondaryLabel)
     static let divider = Color(uiColor: .separator)
@@ -123,6 +178,9 @@ struct Theme {
     static var secondaryPageContentMaxWidth: CGFloat { usesPadLayout ? 760 : .infinity }
     /// 表单、记录详情、积分表等需要保持阅读聚焦的内容宽度。
     static let focusedContentMaxWidth: CGFloat = 600
+    /// 登录类页面的正文宽度：ASAuthorizationAppleIDButton 内部自带 width <= 375（Apple 规范），
+    /// 整栏收到 375 后，同级的账号密码登录/输入框/协议条与它等宽，也不会再和 UIKit 约束打架。
+    static let authContentMaxWidth: CGFloat = 375
     /// “我的”Tab 及其下级页面共用的正文宽度，避免 iPad 导航时内容宽度跳变。
     static var meTabContentMaxWidth: CGFloat { secondaryPageContentMaxWidth }
 
@@ -197,6 +255,13 @@ struct Theme {
     static let fontH5: CGFloat = 18
     static let fontH4: CGFloat = 20
     static let fontH3: CGFloat = 24
+
+    /// Menu 里 role=.destructive 只会染文字，图标仍跟 tint；预着色保证垃圾桶为红。
+    static let redTrashIcon: UIImage = {
+        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+        let base = UIImage(systemName: "trash", withConfiguration: config) ?? UIImage()
+        return base.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+    }()
 
 }
 

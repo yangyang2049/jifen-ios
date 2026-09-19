@@ -1400,7 +1400,7 @@ nonisolated struct ScoreboardStyleID: RawRepresentable, Hashable, Codable, Senda
     /// Launchable scoreboard entries. Timer tools intentionally do not
     /// participate in scoreboard typography storage.
     static let registeredEntryGameTypes: [GameType] = [
-        .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .basketball, .basketballTraining, .threeBasketball,
+        .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .basketball, .threeBasketball, .basketballTraining,
         .football, .football5v5, .volleyball, .beachVolleyball, .airVolleyball,
         .archery, .boxing, .billiards, .eightBall, .nineBall, .snooker,
         .pickleball, .guandan, .doudizhu, .shengji, .uno, .foosball,
@@ -1993,30 +1993,36 @@ struct OfficialBreakOverlay: View {
                 .foregroundColor(Color(red: 0x31 / 255, green: 0xD1 / 255, blue: 0x58 / 255))
             HStack(spacing: 8) {
                 if OfficialBreakOverlayPresentation.showsUndo(for: state) {
-                    Button(NSLocalizedString("undo", value: "撤销", comment: "")) {
+                    Button {
                         if session.undo(), session.state == nil {
                             onCancel()
                         }
+                    } label: {
+                        Text(NSLocalizedString("undo", value: "撤销", comment: ""))
+                            .font(.system(size: 14))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 6)
+                            .frame(minHeight: 36)
+                            .background(Color.white.opacity(0.14), in: Capsule())
+                            .contentShape(Capsule())
                     }
-                    .font(.system(size: 14))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 6)
-                    .frame(minHeight: 36)
-                    .background(Color.white.opacity(0.14), in: Capsule())
                 }
-                Button(NSLocalizedString("official_break_continue", value: "继续", comment: "")) {
+                Button {
                     let action = state.afterAction
                     deliverVoiceCue(.earlyResume)
                     session.skip()
                     completeOnce(action)
+                } label: {
+                    Text(NSLocalizedString("official_break_continue", value: "继续", comment: ""))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color(red: 0x0B / 255, green: 0x0B / 255, blue: 0x0C / 255))
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 6)
+                        .frame(minHeight: 36)
+                        .background(Color.white.opacity(0.92), in: Capsule())
+                        .contentShape(Capsule())
                 }
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color(red: 0x0B / 255, green: 0x0B / 255, blue: 0x0C / 255))
-                .padding(.horizontal, 18)
-                .padding(.vertical, 6)
-                .frame(minHeight: 36)
-                .background(Color.white.opacity(0.92), in: Capsule())
             }
         }
         .padding(.horizontal, 24)

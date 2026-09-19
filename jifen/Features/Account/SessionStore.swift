@@ -67,6 +67,10 @@ final class SessionStore {
 
     var isAuthenticated: Bool { state == .authenticated && user != nil }
 
+    /// 生效中的会员状态：服务端账号会员，或未登录时本机 Apple ID 的 StoreKit 权益
+    /// （Guideline 5.1.1(v)：购买与权益不强制要求登录账号）。
+    var isVIP: Bool { user?.isVIP == true || StoreKitPurchaseManager.shared.hasLocalEntitlement }
+
     func restore() async {
         guard !didRestore else { return }
         didRestore = true
@@ -255,6 +259,7 @@ final class SessionStore {
             let response: AccountDeletionResponse = try await client.request(
                 "/api/account-deletion/request",
                 method: .post,
+                // Server contract: exact simplified literal, matched verbatim by the backend. Do not localize.
                 body: AccountDeletionRequestBody(confirmText: "注销账号"),
                 requiresAuth: true,
                 headers: ["Idempotency-Key": UUID().uuidString]

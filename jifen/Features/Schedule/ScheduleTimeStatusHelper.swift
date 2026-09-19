@@ -154,28 +154,26 @@ extension ScheduleTimeStatus {
         switch self {
         case .scheduled:
             return ScheduleTimeStatusStyle(
-                textColor: Theme.textSecondary,
-                backgroundColor: Theme.controlBackground,
+                textColor: Theme.adaptive(Theme.textSecondary, Theme.homeCardTextPrimary),
+                backgroundColor: Theme.adaptive(Theme.controlBackground, Theme.quietChipFill),
                 borderColor: Theme.divider
             )
         case .startingSoon:
-            return ScheduleTimeStatusStyle(
-                textColor: Color(uiColor: .systemOrange),
-                backgroundColor: Color(uiColor: .systemOrange).opacity(0.14),
-                borderColor: Color(uiColor: .systemOrange).opacity(0.4)
-            )
+            return tintedChip(Color(uiColor: .systemOrange))
         case .ready:
-            return ScheduleTimeStatusStyle(
-                textColor: Color(uiColor: .systemGreen),
-                backgroundColor: Color(uiColor: .systemGreen).opacity(0.14),
-                borderColor: Color(uiColor: .systemGreen).opacity(0.4)
-            )
+            return tintedChip(Color(uiColor: .systemGreen))
         case .overdue:
-            return ScheduleTimeStatusStyle(
-                textColor: Color(uiColor: .systemRed),
-                backgroundColor: Color(uiColor: .systemRed).opacity(0.14),
-                borderColor: Color(uiColor: .systemRed).opacity(0.4)
-            )
+            return tintedChip(Color(uiColor: .systemRed))
         }
+    }
+
+    /// 中性卡上的状态胶囊：浅色=彩字+14% 淡底，深色=白字+42%×40%≈16.8% 着色底。
+    /// 深浅两值烘进角色，调用方不再分模式取色。
+    private func tintedChip(_ tint: Color) -> ScheduleTimeStatusStyle {
+        ScheduleTimeStatusStyle(
+            textColor: Theme.adaptive(tint, Theme.homeCardTextPrimary),
+            backgroundColor: Theme.tintedFill(tint, lightAlpha: 0.14, darkAlpha: 0.168),
+            borderColor: tint.opacity(0.4)
+        )
     }
 }

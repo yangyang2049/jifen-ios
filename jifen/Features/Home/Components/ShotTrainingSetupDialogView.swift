@@ -17,12 +17,13 @@ nonisolated enum ShotTrainingMode: String, Codable, CaseIterable, Identifiable {
         }
     }
 
+    /// 与鸿蒙端 ShotTrainingLaunchDialog 同一批文案：分区徽标和这里共用 1/2/3 分 + 自由。
     var title: String {
         switch self {
-        case .fixed1: return NSLocalizedString("shot_training_mode_1", value: "1 分球", comment: "")
-        case .fixed2: return NSLocalizedString("shot_training_mode_2", value: "2 分球", comment: "")
-        case .fixed3: return NSLocalizedString("shot_training_mode_3", value: "3 分球", comment: "")
-        case .free: return NSLocalizedString("shot_training_mode_free", value: "自由模式", comment: "")
+        case .fixed1: return NSLocalizedString("shot_training_1pt", value: "1 分", comment: "")
+        case .fixed2: return NSLocalizedString("shot_training_2pt", value: "2 分", comment: "")
+        case .fixed3: return NSLocalizedString("shot_training_3pt", value: "3 分", comment: "")
+        case .free: return NSLocalizedString("shot_training_free", value: "自由", comment: "")
         }
     }
 }
@@ -52,7 +53,7 @@ struct ShotTrainingSetupDialogView: View {
         AdaptiveSetupDialogLayout(maxHeight: maxDialogHeight) {
             HStack(spacing: 8) {
                 Text("🏀")
-                Text(NSLocalizedString("shot_training_setup_title", value: "投篮训练设置", comment: ""))
+                Text(NSLocalizedString("shot_training_setup_title", value: "投篮训练", comment: ""))
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(Theme.textPrimary)
             }
@@ -60,20 +61,19 @@ struct ShotTrainingSetupDialogView: View {
             .frame(height: 56)
         } content: { _ in
             VStack(alignment: .leading, spacing: Theme.md) {
-                Text(NSLocalizedString("shot_training_scoring_mode", value: "计分模式", comment: ""))
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Theme.textSecondary)
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                // 鸿蒙端 ShotTrainingLaunchDialog：四个模式一行等宽胶囊。
+                HStack(spacing: 6) {
                     ForEach(ShotTrainingMode.allCases) { option in
                         Button {
                             mode = option
                         } label: {
                             Text(option.title)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.system(size: 13, weight: .medium))
                                 .foregroundStyle(mode == option ? .white : Theme.textPrimary)
-                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 40)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 14)
+                                    RoundedRectangle(cornerRadius: 10)
                                         .fill(mode == option ? Theme.primary : Theme.dialogControlBackground)
                                 )
                         }
@@ -92,23 +92,31 @@ struct ShotTrainingSetupDialogView: View {
             .padding(.vertical, Theme.md)
         } actions: {
             HStack(spacing: Theme.md) {
-                Button(NSLocalizedString("cancel", value: "取消", comment: "")) { onCancel?() }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Theme.textSecondary)
-                    .frame(width: 100, height: 44)
-                    .background(Theme.dialogControlBackground, in: Capsule())
-                Button(NSLocalizedString("start_game", value: "开始", comment: "")) {
+                Button(action: { onCancel?() }) {
+                    Text(NSLocalizedString("cancel", value: "取消", comment: ""))
+                        .foregroundStyle(Theme.textSecondary)
+                        .frame(width: 100, height: 44)
+                        .background(Theme.dialogControlBackground, in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+
+                Button {
                     onConfirm?(SportsSetupResult(
                         team1Name: NSLocalizedString("shot_training_miss", value: "未中", comment: ""),
                         team2Name: NSLocalizedString("shot_training_made", value: "命中", comment: ""),
                         basketballTrainingScoringMode: mode.rawValue
                     ))
+                } label: {
+                    Text(NSLocalizedString("start_game", value: "开始", comment: ""))
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Theme.primary, in: Capsule())
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(Theme.primary, in: Capsule())
             }
             .padding(.horizontal, Theme.lg)
             .padding(.top, Theme.sm)

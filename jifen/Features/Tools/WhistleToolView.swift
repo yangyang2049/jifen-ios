@@ -61,10 +61,14 @@ struct WhistleToolView: View {
                 }
             }
         }
-        .navigationTitle(NSLocalizedString("whistle_title", comment: "Whistle title"))
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .topLeading) {
+            FloatingBackButton { dismiss() }
+                .padding(.leading, 16)
+                .padding(.top, 4)
+        }
     }
-    
+
     @ViewBuilder
     private func buildShortWhistleCard(
         cardSize: CGFloat = WhistleLayoutPolicy.compactCardSize

@@ -415,6 +415,10 @@
         /** 供原生调用：选择颗数后立即刷新布局，无需等点击 */
         function setDiceCount(n) {
             const count = Math.min(3, Math.max(1, Number(n) || 1));
+            if (count !== activeDiceCount) {
+                activeDiceCount = count;
+                resetDiceState();
+            }
             const wrapper = document.getElementById('wrapper');
             if (wrapper) {
                 wrapper.className = 'count-' + count;
@@ -431,6 +435,57 @@
         window.setDiceCount = setDiceCount;
 
         let isRolling = false;
+        let activeDiceCount = getDiceCount();
+        let rollGeneration = 0;
+        const pendingRollTimers = new Set();
+
+        function cancelPendingRollTimers() {
+            rollGeneration += 1;
+            pendingRollTimers.forEach(function (timerID) {
+                clearTimeout(timerID);
+            });
+            pendingRollTimers.clear();
+        }
+
+        function scheduleRollTask(callback, delay, generation) {
+            const timerID = setTimeout(function () {
+                pendingRollTimers.delete(timerID);
+                if (generation !== rollGeneration) return;
+                callback();
+            }, delay);
+            pendingRollTimers.add(timerID);
+        }
+
+        /** 供原生调用：取消旧动画和回调，并恢复为当前颗数的初始点数。 */
+        function resetDiceState() {
+            cancelPendingRollTimers();
+            isRolling = false;
+
+            const wrapper = document.getElementById('wrapper');
+            const resultEl = document.getElementById('result');
+            if (resultEl) resultEl.textContent = '';
+            if (!wrapper) return;
+
+            wrapper.className = 'count-' + activeDiceCount;
+            const half = getHalf(activeDiceCount);
+            const initialRotation = faceRotations[1];
+            const units = wrapper.querySelectorAll('.dice-unit');
+            units.forEach(function (unit) {
+                const platform = unit.querySelector('.platform');
+                const dice = unit.querySelector('.dice');
+                if (platform) {
+                    platform.classList.remove('rolling');
+                    platform.classList.remove('settling');
+                    platform.style.transform = '';
+                }
+                if (dice) {
+                    dice.classList.remove('rolling');
+                    dice.classList.remove('settling');
+                    dice.style.transform = 'translateZ(-' + half + 'px) rotateX(' + initialRotation.x + 'deg) rotateY(' + initialRotation.y + 'deg) rotateZ(' + initialRotation.z + 'deg)';
+                }
+            });
+        }
+        window.resetDiceState = resetDiceState;
 
         function rollDice() {
             if (isRolling) return;
@@ -442,6 +497,8 @@
             resultEl.textContent = '';
 
             isRolling = true;
+            cancelPendingRollTimers();
+            const generation = rollGeneration;
 
             try {
                 if (window.nativeInterface && window.nativeInterface.playSound) {
@@ -462,23 +519,23 @@
                 dice.classList.add('rolling');
             }
 
-            setTimeout(function () {
+            scheduleRollTask(function () {
                 for (let i = 0; i < count; i++) {
                     const platform = units[i].querySelector('.platform');
                     const dice = units[i].querySelector('.dice');
                     platform.classList.remove('rolling');
                     dice.classList.remove('rolling');
-                    setTimeout(function () {
+                    scheduleRollTask(function () {
                         platform.classList.add('settling');
                         dice.classList.add('settling');
                         const r = faceRotations[values[i]];
                         const half = getHalf(count);
                         dice.style.transform = 'translateZ(-' + half + 'px) rotateX(' + r.x + 'deg) rotateY(' + r.y + 'deg) rotateZ(' + r.z + 'deg)';
                         platform.style.transform = 'translate3d(0, 0, 0)';
-                    }, 0);
+                    }, 0, generation);
                 }
 
-                setTimeout(function () {
+                scheduleRollTask(function () {
                     for (let i = 0; i < count; i++) {
                         const platform = units[i].querySelector('.platform');
                         const dice = units[i].querySelector('.dice');
@@ -493,8 +550,8 @@
                     } else {
                         resultEl.textContent = values.join(' + ') + ' = ' + sum;
                     }
-                }, 600);
-            }, 1400);
+                }, 600, generation);
+            }, 1400, generation);
         }
 
         document.body.addEventListener('click', rollDice);

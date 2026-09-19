@@ -382,6 +382,7 @@ private extension UIView {
 @main
 struct jifenApp: App {
     @UIApplicationDelegateAdaptor(ScoreboardAppDelegate.self) var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
     @State private var appearance = AppAppearanceStore()
     @State private var sessionStore = SessionStore.shared
     @State private var hasAcceptedLegal: Bool
@@ -406,7 +407,6 @@ struct jifenApp: App {
             LegalConsent.acceptCurrentDocuments()
         }
         _hasAcceptedLegal = State(initialValue: true)
-        UmengAnalytics.initializeIfConsented()
     }
     
     var body: some Scene {
@@ -426,6 +426,12 @@ struct jifenApp: App {
             }
             .onReceive(NotificationCenter.default.publisher(for: .scoreboardPersistenceFailed)) { _ in
                 showPersistenceFailure = true
+            }
+            .onChange(of: scenePhase) { _, phase in
+                guard phase == .active else { return }
+                Task {
+                    await StoreKitPurchaseManager.shared.refreshLocalEntitlement()
+                }
             }
             .alert(
                 NSLocalizedString("save_failed", value: "保存失败", comment: ""),

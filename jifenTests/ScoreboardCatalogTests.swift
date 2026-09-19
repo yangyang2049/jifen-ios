@@ -6,6 +6,8 @@ import SessionCore
 import UIKit
 @testable import jifen
 
+// Expected values here compare against runtime NSLocalizedString output, so
+// they stay locale-agnostic by design. Do not "fix" them for zh-Hant.
 @MainActor
 final class ScoreboardCatalogTests: XCTestCase {
     func testCommonNamePolicyUsesPlayerNamesForSinglesAndDoublesMembers() {
@@ -558,8 +560,8 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testVisibleCatalogMatchesReferenceOrder() {
         XCTAssertEqual(GameCatalog.scoreboardItems.map(\.gameType), [
             .badminton, .tennis, .pingpong, .pickleball, .shuttlecock, .squash, .softTennis, .padel,
-            .football, .football5v5, .basketball, .basketballTraining,
-            .threeBasketball, .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
+            .football, .football5v5, .basketball, .threeBasketball, .basketballTraining,
+            .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .guandan, .shengji, .uno,
             .foosball, .simpleScore, .multiScoreboard
@@ -2035,6 +2037,31 @@ final class ScoreboardCatalogTests: XCTestCase {
         }
 
         XCTAssertEqual(manager.getNames(type: .player), [])
+    }
+
+    func testRecordDetailTitlesFollowGameCategory() {
+        let matchTitle = jifen.GameType.defaultRecordDetailTitle
+        XCTAssertEqual(matchTitle, NSLocalizedString("match_detail", value: "比赛详情", comment: ""))
+
+        let cardTitle = NSLocalizedString("card_round_detail", value: "牌局详情", comment: "")
+        for gameType in [jifen.GameType.doudizhu, .guandan, .shengji, .uno] {
+            XCTAssertEqual(gameType.recordDetailTitle, cardTitle, "\(gameType) belongs to the card section")
+            XCTAssertNotEqual(gameType.recordDetailTitle, matchTitle)
+        }
+
+        XCTAssertEqual(
+            jifen.GameType.basketballTraining.recordDetailTitle,
+            NSLocalizedString("training_detail", value: "训练详情", comment: "")
+        )
+
+        // 台球与棋类按产品口径保持「比赛详情」。
+        for gameType in [
+            jifen.GameType.billiards, .eightBall, .nineBall, .snooker,
+            .go, .xiangqi, .chess, .checkers,
+            .basketball, .tennis, .boxing, .multiScoreboard, .simpleScore
+        ] {
+            XCTAssertEqual(gameType.recordDetailTitle, matchTitle, "\(gameType) keeps the match wording")
+        }
     }
 
     private func assertDefaultParticipantPair(

@@ -257,10 +257,10 @@ protocol AnalyticsSink: AnyObject {
     func track(event: String, attributes: [String: Any])
 }
 
-private final class UmengAnalyticsSink: AnalyticsSink {
-    func track(event: String, attributes: [String: Any]) {
-        UmengAnalytics.track(event: event, attributes: attributes)
-    }
+/// Placeholder production sink: events are normalized and then dropped.
+/// Install a real vendor sink here when analytics transport is reintroduced.
+private final class NoOpAnalyticsSink: AnalyticsSink {
+    func track(event: String, attributes: [String: Any]) { }
 }
 
 enum AnalyticsNormalizer {
@@ -334,8 +334,8 @@ enum AnalyticsNormalizer {
 }
 
 enum AppAnalytics {
-    private nonisolated(unsafe) static var sink: AnalyticsSink = UmengAnalyticsSink()
-    private nonisolated(unsafe) static var collectionAllowed: () -> Bool = { UmengAnalytics.isInitialized }
+    private nonisolated(unsafe) static var sink: AnalyticsSink = NoOpAnalyticsSink()
+    private nonisolated(unsafe) static var collectionAllowed: () -> Bool = { true }
     private nonisolated(unsafe) static var pendingEndReasons: [String: AnalyticsEndReason] = [:]
     private static let lock = NSLock()
 
@@ -448,8 +448,8 @@ enum AppAnalytics {
 
     static func restoreProductionSink() {
         lock.lock()
-        sink = UmengAnalyticsSink()
-        collectionAllowed = { UmengAnalytics.isInitialized }
+        sink = NoOpAnalyticsSink()
+        collectionAllowed = { true }
         pendingEndReasons.removeAll()
         lock.unlock()
     }

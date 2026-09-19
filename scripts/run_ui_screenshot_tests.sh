@@ -24,7 +24,7 @@ run_device() {
 
   echo "Running screenshot UI tests for $label"
   if ! xcodebuild "$test_action" \
-    -workspace "$repo_dir/jifen.xcworkspace" \
+    -project "$repo_dir/jifen.xcodeproj" \
     -scheme jifen \
     -destination "$destination" \
     -only-testing:jifenUITests/FullAppScreenshotUITests/testCaptureFullAppScreenshots \

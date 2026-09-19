@@ -3,7 +3,6 @@ DerivedData/
 *.xcuserstate
 .DS_Store
 xcuserdata/
-Pods/
 UITestScreenshots/
 UITestScreenshots-iPad/
 UITestScreenshots-All/

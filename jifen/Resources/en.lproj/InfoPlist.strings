@@ -7,3 +7,5 @@
 
 "NSPhotoLibraryAddUsageDescription" = "We need access to your photo library to save scoreboard screenshots.";
 "CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "The camera is used to scan trusted login QR codes.";
+"NSMicrophoneUsageDescription" = "The microphone is used to record voice notes.";

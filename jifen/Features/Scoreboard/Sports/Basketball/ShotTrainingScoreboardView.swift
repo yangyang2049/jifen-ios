@@ -30,6 +30,16 @@ nonisolated struct ShotTrainingCounts: Codable, Equatable {
     var points: Int { oneMade + twoMade * 2 + threeMade * 3 }
     var rate: Int { attempts == 0 ? 0 : Int((Double(made) * 100 / Double(attempts)).rounded()) }
 
+    func count(points: Int, made: Bool) -> Int {
+        switch (points, made) {
+        case (1, true): return oneMade
+        case (1, false): return oneMiss
+        case (2, true): return twoMade
+        case (2, false): return twoMiss
+        default: return made ? threeMade : threeMiss
+        }
+    }
+
     static func build(from shots: [ShotTrainingShot]) -> Self {
         shots.reduce(into: Self()) { result, shot in
             switch (shot.points, shot.made) {
@@ -51,6 +61,30 @@ nonisolated struct ShotTrainingResumeState: Codable, Equatable {
     var finished: Bool
 }
 
+/// 投篮训练配色唯一口径（对齐鸿蒙端 ShotTrainingScoreboard 常量）：页面底色 + 未中红、命中绿。
+/// 手机端与投屏/跨设备显示端共用，只暴露十六进制，避免调用方受主线程隔离的 Color 初始化影响。
+nonisolated enum ShotTrainingZonePalette {
+    static let pageHex = "#0B0B0D"
+    static let missHex = "#B93B3B"
+    static let madeHex = "#2F9E4F"
+    /// 自由模式入场提示层用半透明叠在分区上，色值与分区实色区分开。
+    static let entryPromptMissHex = "#7E1818"
+    static let entryPromptMadeHex = "#18712B"
+
+    static func hex(made: Bool) -> String {
+        made ? madeHex : missHex
+    }
+
+    static func entryPromptHex(made: Bool) -> String {
+        made ? entryPromptMadeHex : entryPromptMissHex
+    }
+}
+
+/// 手机端投篮训练记分页，1:1 对齐鸿蒙端 `ShotTrainingScoreboard.ets`。
+/// 分区满屏铺满，没有标题栏和统计条：固定分值横屏「未中在左 / 命中在右」、竖屏上下；
+/// 自由模式正好镜像（横屏上下、竖屏左右），每侧再切成 1/2/3 三格，分值徽标骑在红绿分区中心线上。
+/// 页面操作集中在底部两颗浮动圆钮（左返回 / 右菜单）与左滑撤销手势；重置、结束训练在菜单里二次确认。
+/// iOS 无法像鸿蒙那样直接转动窗口，「旋转方向」切换的是方向锁偏好，布局仍跟随实际窗口尺寸。
 struct ShotTrainingScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
@@ -60,14 +94,27 @@ struct ShotTrainingScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
+    private static let landscapeLayoutKey = "basketball_training_use_landscape_layout"
+    /// 鸿蒙端 FREE_ENTRY_SIDE_PROMPT_DURATION_MS
+    private static let entrySidePromptDuration: TimeInterval = 2
+
     @State private var mode: ShotTrainingMode
     @State private var shots: [ShotTrainingShot]
     @State private var gameStartTime: Date
     @State private var recordID: String
     @State private var gameFinished: Bool
-    @State private var showSummary: Bool
+    @State private var showGameOver: Bool
     @State private var finalizedRecordID: String?
     @State private var previousIdleTimerDisabled: Bool?
+    @State private var preferLandscape: Bool
+    @State private var showMenu = false
+    @State private var showEntrySidePrompt = false
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @State private var exitConfirmDeadline: Date?
+    @State private var showFinishedRecordDetail = false
+    @State private var menuConfirm = ScoreboardMenuConfirmState()
+    @State private var entrySidePromptWork: DispatchWorkItem?
 
     init(
         initialSetup: SportsSetupResult? = nil,
@@ -105,248 +152,641 @@ struct ShotTrainingScoreboardView: View {
         _gameStartTime = State(initialValue: restoredStart)
         _recordID = State(initialValue: restoredID)
         _gameFinished = State(initialValue: restoredFinished)
-        _showSummary = State(initialValue: restoredFinished)
+        _showGameOver = State(initialValue: restoredFinished)
         _finalizedRecordID = State(initialValue: restoredFinished ? restoredID : nil)
+        let prefersLandscape = UserDefaults.standard.object(forKey: Self.landscapeLayoutKey) as? Bool ?? true
+        _preferLandscape = State(initialValue: prefersLandscape)
     }
 
     private var counts: ShotTrainingCounts { .build(from: shots) }
 
     var body: some View {
         GeometryReader { proxy in
+            let isLandscape = proxy.size.width > proxy.size.height
             ZStack {
-                Color(red: 0.04, green: 0.04, blue: 0.05).ignoresSafeArea()
-                VStack(spacing: 10) {
-                    topBar
-                    modeBar
-                    statBar
-                    if proxy.size.width > proxy.size.height {
-                        HStack(spacing: 1) {
-                            shotZone(made: false)
-                            shotZone(made: true)
-                        }
-                    } else {
-                        VStack(spacing: 1) {
-                            shotZone(made: false)
-                            shotZone(made: true)
-                        }
-                    }
-                }
-                .padding(.horizontal, 10)
-                .padding(.bottom, 10)
+                Color(hex: ShotTrainingZonePalette.pageHex)
 
-                if showSummary { summaryOverlay }
+                scoringArea(isLandscape: isLandscape)
+
+                if mode == .free {
+                    freeCenterLabelsOverlay(isLandscape: isLandscape)
+                        .allowsHitTesting(false)
+                }
+
+                if mode == .free, showEntrySidePrompt, !gameFinished, !showMenu {
+                    entrySidePromptOverlay(isLandscape: isLandscape)
+                        .allowsHitTesting(false)
+                }
+
+                if !gameFinished {
+                    floatingChrome
+                }
+
+                if showGameOver {
+                    gameOverDialog
+                }
+
+                if showToast {
+                    ToastView(message: toastMessage)
+                        .transition(.opacity.combined(with: .scale))
+                        .allowsHitTesting(false)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .simultaneousGesture(undoSwipeGesture)
         }
+        .ignoresSafeArea()
         .toolbar(.hidden, for: .navigationBar)
-        .lockOrientation(.landscape)
+        .navigationBarBackButtonHidden(true)
+        .lockOrientation(preferLandscape ? .landscape : .portrait)
+        .overlay {
+            MenuDialog(
+                isVisible: showMenu,
+                onClose: {
+                    menuConfirm.clear()
+                    showMenu = false
+                },
+                onMenuItemClick: handleMenuAction,
+                showEndGame: false,
+                items: menuItems,
+                analyticsGameType: .basketballTraining
+            )
+        }
+        .animation(.easeInOut(duration: 0.2), value: showGameOver)
+        .animation(.easeInOut(duration: 0.2), value: showToast)
         .onAppear {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = PreferencesManager.shared.keepScoreboardScreenOn
             onSetupConsumed?()
+            registerScoreboardSync()
+            openEntrySidePrompt()
+            saveRecord(finished: false)
+        }
+        .onChange(of: shots.count) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        }
+        .onChange(of: gameFinished) { _, _ in
+            LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active { saveRecord(finished: gameFinished) }
         }
         .onDisappear {
+            clearEntrySidePromptTimer()
             saveRecord(finished: gameFinished)
+            LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled {
                 UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
             }
         }
-    }
-
-    private var topBar: some View {
-        HStack(spacing: 16) {
-            Button(action: exitTraining) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 20, weight: .bold))
-            }
-            Text(NSLocalizedString("game_basketball_training", value: "投篮训练", comment: ""))
-                .font(.system(size: 18, weight: .bold))
-            Spacer()
-            Button {
-                guard !gameFinished, !shots.isEmpty else { return }
-                shots.removeLast()
-                saveRecord(finished: false)
-                VibrationManager.shared.vibrateLight()
-            } label: {
-                Label(NSLocalizedString("undo", value: "撤销", comment: ""), systemImage: "arrow.uturn.backward")
-            }
-            .disabled(shots.isEmpty || gameFinished)
-            Button {
-                finishTraining()
-            } label: {
-                Text(NSLocalizedString("finish", value: "结束", comment: ""))
-                    .fontWeight(.bold)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.12), in: Capsule())
-            }
-            .disabled(shots.isEmpty || gameFinished)
-        }
-        .foregroundStyle(.white)
-        .frame(minHeight: 44)
-    }
-
-    private var modeBar: some View {
-        HStack(spacing: 8) {
-            ForEach(ShotTrainingMode.allCases) { option in
-                Button {
-                    guard !gameFinished else { return }
-                    mode = option
-                    if !shots.isEmpty { saveRecord(finished: false) }
-                } label: {
-                    Text(option.title)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(mode == option ? Color.black : Color.white.opacity(0.75))
-                        .padding(.horizontal, 14)
-                        .frame(height: 34)
-                        .background(mode == option ? Color(red: 0.47, green: 0.84, blue: 0.56) : Color.white.opacity(0.08), in: Capsule())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private var statBar: some View {
-        HStack(spacing: 22) {
-            stat(NSLocalizedString("shot_training_attempts", value: "出手", comment: ""), "\(counts.attempts)")
-            stat(NSLocalizedString("shot_training_made", value: "命中", comment: ""), "\(counts.made)")
-            stat(NSLocalizedString("shot_training_rate", value: "命中率", comment: ""), "\(counts.rate)%")
-            stat(NSLocalizedString("shot_training_points", value: "得分", comment: ""), "\(counts.points)")
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
-    }
-
-    private func stat(_ title: String, _ value: String) -> some View {
-        VStack(spacing: 2) {
-            Text(value).font(.system(size: 20, weight: .bold, design: .rounded)).monospacedDigit()
-            Text(title).font(.system(size: 11)).foregroundStyle(.white.opacity(0.6))
-        }
-        .foregroundStyle(.white)
-    }
-
-    private func shotZone(made: Bool) -> some View {
-        let color = made ? Color(red: 0.18, green: 0.62, blue: 0.31) : Color(red: 0.73, green: 0.23, blue: 0.23)
-        return ZStack {
-            RoundedRectangle(cornerRadius: 18).fill(color)
-            VStack(spacing: 14) {
-                Text(made
-                    ? NSLocalizedString("shot_training_made", value: "命中", comment: "")
-                    : NSLocalizedString("shot_training_miss", value: "未中", comment: ""))
-                    .font(.system(size: 28, weight: .bold))
-                Text("\(made ? counts.made : counts.missed)")
-                    .font(.system(size: 58, weight: .black, design: .rounded))
-                    .monospacedDigit()
-                if mode == .free {
-                    HStack(spacing: 12) {
-                        ForEach(1...3, id: \.self) { points in
-                            Button("\(points)") { record(points: points, made: made) }
-                                .buttonStyle(.plain)
-                                .font(.system(size: 22, weight: .bold))
-                                .frame(width: 58, height: 46)
-                                .background(Color.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 13))
+        .fullScreenCover(isPresented: $showFinishedRecordDetail) {
+            NavigationStack {
+                ScoreboardRecordDetailPage(recordId: finalizedRecordID ?? recordID)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ModalCloseButton { showFinishedRecordDetail = false }
                         }
                     }
-                } else {
-                    Text(String(
-                        format: NSLocalizedString("shot_training_tap_to_record", value: "点击记录 %d 分球", comment: ""),
-                        mode.fixedPoints ?? 1
-                    ))
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.75))
-                }
             }
-            .foregroundStyle(.white)
         }
+    }
+
+    // MARK: - Scoring zones
+
+    /// 鸿蒙端 build()：固定模式横屏左右、竖屏上下；自由模式镜像。未中永远在前（左 / 上）。
+    @ViewBuilder
+    private func scoringArea(isLandscape: Bool) -> some View {
+        let madeOnRightHandSide = (mode == .free && !isLandscape) || (mode != .free && isLandscape)
+        if madeOnRightHandSide {
+            HStack(spacing: 0) {
+                half(made: false, isLandscape: isLandscape)
+                half(made: true, isLandscape: isLandscape)
+            }
+        } else {
+            VStack(spacing: 0) {
+                half(made: false, isLandscape: isLandscape)
+                half(made: true, isLandscape: isLandscape)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func half(made: Bool, isLandscape: Bool) -> some View {
+        if mode == .free {
+            freeZone(made: made, isLandscape: isLandscape)
+        } else {
+            fixedZone(made: made, isLandscape: isLandscape)
+        }
+    }
+
+    /// 固定模式：数字与命中状态整体居中，不叠加分值徽标或说明。
+    /// 大分数走普通记分板同一套 `ScoreboardTypographyResolver`（羽毛球等两端面板的 .twoSide 曲线），
+    /// 随分区实测高度放大、按宽度收口；「未中/命中」小标签维持固定字号。
+    private func fixedZone(made: Bool, isLandscape: Bool) -> some View {
+        GeometryReader { proxy in
+            let count = counts.count(points: mode.fixedPoints ?? 1, made: made)
+            let labelHeight = (isLandscape ? 20 : 24) * 1.3 + 10
+            let scoreSize = ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: .twoSide,
+                    containerSize: proxy.size,
+                    nameText: "",
+                    scoreText: "\(count)",
+                    preference: .default(font: .default),
+                    horizontalPadding: 20,
+                    reservedHeight: labelHeight,
+                    isLargeScreen: Theme.usesPadLayout
+                )
+            ).scoreFontSize
+            VStack(spacing: 10) {
+                Text("\(count)")
+                    .font(.system(size: scoreSize, weight: .heavy))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .foregroundStyle(.white)
+                Text(zoneLabel(made: made))
+                    .font(.system(size: isLandscape ? 20 : 24, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.68))
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .background(Color(hex: ShotTrainingZonePalette.hex(made: made)))
         .contentShape(Rectangle())
         .onTapGesture {
-            guard mode != .free else { return }
             record(points: mode.fixedPoints ?? 1, made: made)
         }
     }
 
-    private var summaryOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.72).ignoresSafeArea()
-            VStack(spacing: 18) {
-                Text(NSLocalizedString("shot_training_summary", value: "训练总结", comment: ""))
-                    .font(.system(size: 26, weight: .bold))
-                Text("\(counts.made) / \(counts.attempts)  ·  \(counts.rate)%")
-                    .font(.system(size: 38, weight: .black, design: .rounded))
-                    .monospacedDigit()
-                Text(String(format: NSLocalizedString("shot_training_summary_points", value: "累计得分 %d", comment: ""), counts.points))
-                    .foregroundStyle(.white.opacity(0.7))
-                HStack(spacing: 12) {
-                    summaryButton(NSLocalizedString("records", value: "记录", comment: ""), action: exitTraining)
-                    summaryButton(NSLocalizedString("restart", value: "重新开始", comment: ""), action: restart)
-                    summaryButton(NSLocalizedString("share", value: "分享", comment: "")) {
-                        ScoreboardShareSupport.present(text: shareText)
-                    }
+    /// 自由模式一侧：横屏 1/2/3 三列、竖屏 1/2/3 三行，整侧共用红/绿底色，格间 1vp 分隔线。
+    private func freeZone(made: Bool, isLandscape: Bool) -> some View {
+        Group {
+            if isLandscape {
+                HStack(spacing: 0) {
+                    freeCell(points: 1, made: made)
+                    freeDivider(vertical: true)
+                    freeCell(points: 2, made: made)
+                    freeDivider(vertical: true)
+                    freeCell(points: 3, made: made)
+                }
+            } else {
+                VStack(spacing: 0) {
+                    freeCell(points: 1, made: made)
+                    freeDivider(vertical: false)
+                    freeCell(points: 2, made: made)
+                    freeDivider(vertical: false)
+                    freeCell(points: 3, made: made)
                 }
             }
-            .foregroundStyle(.white)
-            .padding(30)
-            .background(Color(red: 0.12, green: 0.12, blue: 0.14), in: RoundedRectangle(cornerRadius: 24))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(hex: ShotTrainingZonePalette.hex(made: made)))
+    }
+
+    private func freeDivider(vertical: Bool) -> some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.18))
+            .frame(width: vertical ? 1 : nil, height: vertical ? nil : 1)
+    }
+
+    /// 自由模式单格：与斗地主格子同一条 `playerGrid` 曲线，随格子实测尺寸放大，
+    /// 并对齐普通记分板的「大分数不超过半屏主分」收口。
+    private func freeCell(points: Int, made: Bool) -> some View {
+        GeometryReader { proxy in
+            let count = counts.count(points: points, made: made)
+            let scoreSize = ScoreboardTypographyResolver.resolve(
+                ScoreboardTypographyLayoutContext(
+                    profile: .doudizhu,
+                    containerSize: proxy.size,
+                    nameText: "",
+                    scoreText: "\(count)",
+                    preference: .default(font: .default),
+                    horizontalPadding: 16,
+                    scoreBaseScale: 0.85,
+                    isLargeScreen: Theme.usesPadLayout
+                )
+            ).scoreFontSize
+            Text("\(count)")
+                .font(.system(size: scoreSize, weight: .bold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .foregroundStyle(.white)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            record(points: points, made: made)
         }
     }
 
-    private func summaryButton(_ title: String, action: @escaping () -> Void) -> some View {
-        Button(title, action: action)
-            .buttonStyle(.plain)
-            .font(.system(size: 15, weight: .semibold))
-            .padding(.horizontal, 18)
-            .frame(height: 44)
-            .background(Color.white.opacity(0.12), in: Capsule())
+    /// 分值徽标压在红/绿分区中心线上：横屏是一条 38vp 高的横带，竖屏是一条 72vp 宽的竖带。
+    @ViewBuilder
+    private func freeCenterLabelsOverlay(isLandscape: Bool) -> some View {
+        if isLandscape {
+            HStack(spacing: 0) {
+                ForEach(1...3, id: \.self) { points in
+                    freePointBadge(points, isLandscape: true)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(height: 38)
+        } else {
+            VStack(spacing: 0) {
+                ForEach(1...3, id: \.self) { points in
+                    freePointBadge(points, isLandscape: false)
+                        .frame(maxHeight: .infinity)
+                }
+            }
+            .frame(width: 72)
+        }
     }
 
-    private var shareText: String {
-        String(
-            format: NSLocalizedString("shot_training_share", value: "投篮训练：命中 %d / %d，命中率 %d%%，得分 %d", comment: ""),
-            counts.made,
-            counts.attempts,
-            counts.rate,
-            counts.points
+    private func freePointBadge(_ points: Int, isLandscape: Bool) -> some View {
+        Text(Self.pointLabel(points))
+            .font(.system(size: isLandscape ? 15 : 17, weight: .bold))
+            .foregroundStyle(Color(hex: "#242428"))
+            .lineLimit(1)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.92))
+            )
+    }
+
+    /// 与鸿蒙/手表端一致：自由模式入场 2 秒内半透明覆盖两侧分区含义，提示层不拦截整格点击。
+    @ViewBuilder
+    private func entrySidePromptOverlay(isLandscape: Bool) -> some View {
+        if isLandscape {
+            VStack(spacing: 0) {
+                entrySidePromptPanel(made: false, isLandscape: true)
+                entrySidePromptPanel(made: true, isLandscape: true)
+            }
+        } else {
+            HStack(spacing: 0) {
+                entrySidePromptPanel(made: false, isLandscape: false)
+                entrySidePromptPanel(made: true, isLandscape: false)
+            }
+        }
+    }
+
+    private func entrySidePromptPanel(made: Bool, isLandscape: Bool) -> some View {
+        Text(zoneLabel(made: made))
+            .font(.system(size: isLandscape ? 26 : 30, weight: .bold))
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(hex: ShotTrainingZonePalette.entryPromptHex(made: made)).opacity(0.70))
+    }
+
+    private static func pointLabel(_ points: Int) -> String {
+        switch points {
+        case 1: return NSLocalizedString("shot_training_1pt", value: "1 分", comment: "")
+        case 2: return NSLocalizedString("shot_training_2pt", value: "2 分", comment: "")
+        default: return NSLocalizedString("shot_training_3pt", value: "3 分", comment: "")
+        }
+    }
+
+    private func zoneLabel(made: Bool) -> String {
+        made
+            ? NSLocalizedString("shot_training_made", value: "命中", comment: "")
+            : NSLocalizedString("shot_training_miss", value: "未中", comment: "")
+    }
+
+    // MARK: - Floating chrome + operation menu
+
+    /// 页面上只有底部两颗浮动圆钮：左返回、右打开操作菜单。
+    private var floatingChrome: some View {
+        VStack {
+            Spacer()
+            HStack {
+                chromeButton(systemName: "chevron.left", action: requestBack)
+                    .modifier(ScoreboardBackButtonAccessibility(isBack: true))
+                Spacer()
+                chromeButton(systemName: "line.3.horizontal") {
+                    showMenu = true
+                }
+                .accessibilityIdentifier("scoreboard_menu_button")
+            }
+        }
+        .padding(ScoreboardConstants.buttonPadding)
+    }
+
+    private func chromeButton(systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: ScoreboardConstants.buttonIconSize))
+                .foregroundStyle(.white)
+                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                .background(Circle().fill(Color.black.opacity(0.25)))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 鸿蒙端 getMenuItems：菜单只有这六项，不走 iOS 默认菜单（没有换边 / 样式 / 哨子）。
+    private var menuItems: [ScoreboardMenuItem] {
+        [
+            ScoreboardMenuItem(
+                title: NSLocalizedString("menu_undo", comment: "Undo"),
+                action: "undo",
+                group: .match,
+                icon: "arrow.uturn.backward"
+            ),
+            ScoreboardMenuItem(
+                title: NSLocalizedString("scoreboard_rotate_orientation", value: "旋转方向", comment: ""),
+                action: "layout",
+                group: .match,
+                icon: "rotate.left"
+            ),
+            ScoreboardMenuItem(
+                title: NSLocalizedString("menu_reset", comment: "Reset"),
+                action: "reset",
+                group: .match,
+                icon: "arrow.counterclockwise",
+                keepDialogOpen: true,
+                confirming: menuConfirm.resetConfirming
+            ),
+            ScoreboardMenuItem(
+                title: NSLocalizedString("shot_training_finish", value: "结束训练", comment: ""),
+                action: "finish",
+                group: .match,
+                icon: "flag.checkered",
+                keepDialogOpen: true,
+                confirming: menuConfirm.finishConfirming
+            ),
+            ScoreboardMenuItem(
+                title: NSLocalizedString("menu_screenshot", comment: "Screenshot"),
+                action: "screenshot",
+                group: .tools,
+                icon: "camera.fill"
+            ),
+            ScoreboardMenuItem(
+                title: NSLocalizedString("scoreboard_usage_hint_menu", value: "使用说明", comment: ""),
+                action: "usageHint",
+                group: .tools,
+                customText: "?",
+                keepDialogOpen: true
+            )
+        ]
+    }
+
+    private func handleMenuAction(_ action: String) {
+        menuConfirm.prepare(forMenuAction: action)
+        switch action {
+        case "undo":
+            undoLastShot()
+        case "layout":
+            togglePreferredOrientation()
+        case "reset":
+            if menuConfirm.armOrConfirm(.reset) {
+                showMenu = false
+                restartSession()
+            } else {
+                showToastMessage(ScoreboardMenuConfirmAction.reset.localizedToast)
+            }
+        case "finish":
+            if menuConfirm.armOrConfirm(.finish) {
+                showMenu = false
+                finishTraining()
+            } else {
+                showToastMessage(ScoreboardMenuConfirmAction.finish.localizedToast)
+            }
+        default:
+            // 截图与使用说明由 MenuDialog 自身消费。
+            break
+        }
+    }
+
+    /// 鸿蒙端 PanGesture(direction: Left, distance: 50) → 撤销上一次记录。
+    private var undoSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onEnded { value in
+                guard !showMenu, !gameFinished,
+                      value.translation.width < -50,
+                      abs(value.translation.width) > abs(value.translation.height) else { return }
+                undoLastShot()
+            }
+    }
+
+    // MARK: - Training summary
+
+    private var gameOverDialog: some View {
+        GameOverDialog(
+            winnerName: zoneLabel(made: true),
+            gameType: .basketballTraining,
+            leftName: zoneLabel(made: false),
+            rightName: zoneLabel(made: true),
+            leftScore: counts.missed,
+            rightScore: counts.made,
+            winnerIndices: [1],
+            newGameLabel: NSLocalizedString("restart", value: "重新开始", comment: ""),
+            onNewGame: { restartSession() },
+            onRecords: {
+                saveRecord(finished: true)
+                // 不收起结束弹窗：查看记录是 fullScreenCover 盖在上面，关闭后仍停在弹窗上，
+                // 否则页面已锁定为已结束态、底部圆钮也隐藏，用户回来就无从下手。
+                showFinishedRecordDetail = true
+            },
+            onShare: { ScoreboardShareSupport.present(text: shareText) },
+            onExit: {
+                saveRecord(finished: true)
+                performScoreboardExit(onNavigationBack: onNavigationBack, dismiss: dismiss)
+            }
         )
     }
 
+    private var shareText: String {
+        let currentCounts = counts
+        return String(
+            format: NSLocalizedString("shot_training_share", value: "投篮训练：命中 %d / %d，命中率 %d%%，得分 %d", comment: ""),
+            currentCounts.made,
+            currentCounts.attempts,
+            currentCounts.rate,
+            currentCounts.points
+        )
+    }
+
+    // MARK: - Scoring actions
+
     private func record(points: Int, made: Bool) {
         guard !gameFinished else { return }
+        hideEntrySidePrompt()
         shots.append(.init(points: points, made: made))
         saveRecord(finished: false)
-        made ? VibrationManager.shared.vibrateMedium() : VibrationManager.shared.vibrateLight()
+        // 鸿蒙端 vibrate(made)：命中 40ms、未中 90ms，未中比命中更重。
+        made ? VibrationManager.shared.vibrateLight() : VibrationManager.shared.vibrateMedium()
+    }
+
+    /// - Parameter made: 显示端只撤销指定一侧的最近一次出手；页面自身（菜单 / 左滑）撤销全局最后一次。
+    private func undoLastShot(made: Bool? = nil) {
+        guard !gameFinished else { return }
+        let index: Int?
+        if let made {
+            index = shots.lastIndex { $0.made == made }
+        } else {
+            index = shots.isEmpty ? nil : shots.count - 1
+        }
+        guard let index else { return }
+        shots.remove(at: index)
+        saveRecord(finished: false)
+        VibrationManager.shared.vibrateLight()
+        if made == nil {
+            showToastMessage(NSLocalizedString(
+                "shot_training_undo_done",
+                value: "已撤销上一次记录",
+                comment: "Shot training undo done"
+            ))
+        }
+    }
+
+    private func openEntrySidePrompt() {
+        guard mode == .free, shots.isEmpty, !gameFinished else { return }
+        clearEntrySidePromptTimer()
+        showEntrySidePrompt = true
+        let work = DispatchWorkItem {
+            entrySidePromptWork = nil
+            showEntrySidePrompt = false
+        }
+        entrySidePromptWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.entrySidePromptDuration, execute: work)
+    }
+
+    private func clearEntrySidePromptTimer() {
+        entrySidePromptWork?.cancel()
+        entrySidePromptWork = nil
+    }
+
+    private func hideEntrySidePrompt() {
+        clearEntrySidePromptTimer()
+        showEntrySidePrompt = false
+    }
+
+    private func togglePreferredOrientation() {
+        preferLandscape.toggle()
+        UserDefaults.standard.set(preferLandscape, forKey: Self.landscapeLayoutKey)
     }
 
     private func finishTraining() {
         guard !gameFinished, !shots.isEmpty else { return }
         gameFinished = true
-        showSummary = true
+        showGameOver = true
         saveRecord(finished: true)
         VibrationManager.shared.vibrateMedium()
     }
 
-    private func restart() {
+    /// 重新开始：先把上一段落库为已结束，再清零。
+    private func restartSession() {
         saveRecord(finished: true)
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.basketballTraining.canonicalScoreboardIdentifier)
         gameStartTime = Date()
         shots.removeAll()
         gameFinished = false
-        showSummary = false
+        showGameOver = false
         finalizedRecordID = nil
+        menuConfirm.clear()
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        openEntrySidePrompt()
     }
 
-    private func exitTraining() {
+    private func requestBack() {
+        let now = Date()
+        if exitConfirmDeadline.map({ now <= $0 }) != true {
+            exitConfirmDeadline = now.addingTimeInterval(2)
+            showToastMessage(NSLocalizedString(
+                "press_again_to_exit",
+                value: "再按一次退出",
+                comment: ""
+            ))
+            return
+        }
+
+        exitConfirmDeadline = nil
         saveRecord(finished: gameFinished)
         performScoreboardExit(onNavigationBack: onNavigationBack, dismiss: dismiss)
     }
 
+    private func showToastMessage(_ message: String) {
+        toastMessage = message
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showToast = false
+        }
+    }
+
+    // MARK: - Projection / cross-device display
+
+    private func registerScoreboardSync() {
+        LocalScoreboardSyncCoordinator.shared.registerHost(
+            snapshot: { displaySnapshot() },
+            handleIntent: { intent in
+                guard LocalScoreboardMutationPolicy.allowsMutation(
+                    isEditing: false,
+                    finished: gameFinished,
+                    scoringLocked: false
+                ) else { return }
+                // 自由模式的分值只能由场上记录者决定，显示端只提供固定模式的加减。
+                guard mode != .free else { return }
+                let points = mode.fixedPoints ?? 1
+                switch intent {
+                case .addLeft: record(points: points, made: false)
+                case .addRight: record(points: points, made: true)
+                case .subtractLeft: undoLastShot(made: false)
+                case .subtractRight: undoLastShot(made: true)
+                case .undo: undoLastShot()
+                case .exchangeSides, .requestSnapshot: break
+                }
+            }
+        )
+    }
+
+    /// 显示端只有一个版式：横屏复刻记分分区（`shotTrainingGrid`）。固定模式左右两块为未中/命中总数，
+    /// 自由模式上下分区、每侧 1/2/3 列，分项计数走 sportState。
+    private func displaySnapshot() -> LocalScoreboardDisplayState {
+        let currentCounts = counts
+        let appearance = ScoreboardAppearanceSnapshot.current(
+            styleID: ScoreboardStyleID(gameType: .basketballTraining)
+        )
+        var compact = LocalScoreboardDisplayState(
+            gameID: GameType.basketballTraining.canonicalScoreboardIdentifier,
+            title: "",
+            leftName: zoneLabel(made: false),
+            rightName: zoneLabel(made: true),
+            leftScore: "\(currentCounts.missed)",
+            rightScore: "\(currentCounts.made)",
+            themeID: appearance.theme.rawValue,
+            fontID: appearance.font.rawValue,
+            finished: gameFinished,
+            revision: 0
+        )
+        var external = ScoreboardDisplayState.enriched(
+            compact: compact,
+            layoutKind: .shotTrainingGrid,
+            sportState: [
+                "trainingMode": .string(mode.rawValue),
+                "trainingPoints": .integer(mode.fixedPoints ?? 0),
+                "trainingOneMade": .integer(currentCounts.oneMade),
+                "trainingOneMiss": .integer(currentCounts.oneMiss),
+                "trainingTwoMade": .integer(currentCounts.twoMade),
+                "trainingTwoMiss": .integer(currentCounts.twoMiss),
+                "trainingThreeMade": .integer(currentCounts.threeMade),
+                "trainingThreeMiss": .integer(currentCounts.threeMiss)
+            ]
+        )
+        external.appearance = .init(snapshot: appearance)
+        compact.externalState = external
+        return compact
+    }
+
     private func saveRecord(finished: Bool) {
-        guard !shots.isEmpty else { return }
         let end = Date()
         let currentCounts = counts
         let isFinished = finished || gameFinished
+        // 和羽毛球等计分页保持一致：刚进入后即使还是 0:0，也要留下 live
+        // resume，用户退出后可以从首页的未完成比赛继续。空训练若被放弃，
+        // ResumeSessionLifecycle 会直接清理，不会生成一条 0 次出手的历史记录。
+        guard !shots.isEmpty || !isFinished else { return }
         if isFinished, finalizedRecordID == recordID { return }
         let snapshot = ShotTrainingResumeState(mode: mode, shots: shots, finished: isFinished)
         guard let snapshotData = try? JSONEncoder().encode(snapshot) else { return }

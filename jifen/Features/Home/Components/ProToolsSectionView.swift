@@ -41,7 +41,6 @@ struct ToolItemView: View {
     let tool: ToolItem
     let iconColor: Color
     let isWide: Bool
-    var isDarkTheme: Bool
     var onClickCallback: (() -> Void)? = nil
 
     var body: some View {
@@ -58,7 +57,7 @@ struct ToolItemView: View {
                 .frame(width: 64, height: 64)
                 .background(Theme.appCardBackground)
                 .cornerRadius(Theme.cornerRadius)
-                .shadow(color: isDarkTheme ? .clear : Color.black.opacity(0.05), radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1)
+                .shadow(color: Theme.lightModeShadow(0.05), radius: 2, x: 0, y: 1)
 
                 // Label（对齐 Score/Timer 卡片：regular 字重 + 主文字色）
                 Text(tool.title)
@@ -74,6 +73,14 @@ struct ToolItemView: View {
         .buttonStyle(CardButtonStyle()) // Using the custom button style for animations
         .accessibilityIdentifier("home_tool_\(tool.id)")
         .accessibilityLabel(tool.title)
+        .onAppear {
+            // Preload the dice webview while the tile is on screen so pushing
+            // the dice page doesn't stall the transition. The delay keeps the
+            // webview creation out of the grid's own push animation.
+            if tool.id == "dice" {
+                DiceWebEngine.shared.warmUp(after: 0.5)
+            }
+        }
     }
 }
 
@@ -81,7 +88,6 @@ struct ToolItemView: View {
 struct ProToolsSectionView: View {
     var isPad: Bool = false
     var isWide: Bool = false
-    var isDarkTheme: Bool = true
     var availableWidth: CGFloat = 0
     var onToolClick: ((ToolItem) -> Void)? = nil
     var onEnterToolsPage: (() -> Void)? = nil
@@ -91,14 +97,12 @@ struct ProToolsSectionView: View {
     init(
         isPad: Bool = false,
         isWide: Bool = false,
-        isDarkTheme: Bool = true,
         availableWidth: CGFloat = 0,
         onToolClick: ((ToolItem) -> Void)? = nil,
         onEnterToolsPage: (() -> Void)? = nil
     ) {
         self.isPad = isPad
         self.isWide = isWide
-        self.isDarkTheme = isDarkTheme
         self.availableWidth = availableWidth
         self.onToolClick = onToolClick
         self.onEnterToolsPage = onEnterToolsPage
@@ -148,7 +152,6 @@ struct ProToolsSectionView: View {
                             tool: tool,
                             iconColor: iconColor(for: tool),
                             isWide: true,
-                            isDarkTheme: isDarkTheme,
                             onClickCallback: {
                                 onToolClick?(tool)
                             }
@@ -164,7 +167,6 @@ struct ProToolsSectionView: View {
                                 tool: tool,
                                 iconColor: iconColor(for: tool),
                                 isWide: false,
-                                isDarkTheme: isDarkTheme,
                                 onClickCallback: {
                                     onToolClick?(tool)
                                 }

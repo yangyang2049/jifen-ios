@@ -114,6 +114,23 @@ enum GameType: String, Codable, CaseIterable, Sendable {
         }
     }
 
+    /// 记录详情页标题。牌类（按 GameCatalog 的棋牌分区收口）叫「牌局详情」，
+    /// 投篮训练叫「训练详情」；台球、棋类等其余项目保持「比赛详情」。
+    var recordDetailTitle: String {
+        if self == .basketballTraining {
+            return NSLocalizedString("training_detail", value: "训练详情", comment: "Record detail title for shot training")
+        }
+        if GameCatalog.section(for: self) == .cardGames {
+            return NSLocalizedString("card_round_detail", value: "牌局详情", comment: "Record detail title for card games")
+        }
+        return Self.defaultRecordDetailTitle
+    }
+
+    /// 记录尚未加载出来时的占位标题。
+    static var defaultRecordDetailTitle: String {
+        NSLocalizedString("match_detail", value: "比赛详情", comment: "Record detail title for matches")
+    }
+
     var icon: String {
         switch self {
         case .pingpong: return "🏓"
@@ -154,7 +171,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
     /// Counter and stopwatch are tools and do not belong in this list.
     static var scoreboardFilterTypes: [GameType] {
         [
-            .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .football, .football5v5, .basketball, .basketballTraining, .threeBasketball,
+            .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .football, .football5v5, .basketball, .threeBasketball, .basketballTraining,
             .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .guandan, .shengji, .uno, .foosball, .simpleScore, .multiScoreboard,
@@ -337,8 +354,8 @@ extension ScoreViewModelProtocol {
     /// Replaces only missing or old generic labels; restored/custom names remain untouched.
     func applyDefaultParticipantNamesIfNeeded(for gameType: GameType) {
         let defaults = DefaultParticipantNames.resolve(for: gameType)
-        let genericLeft: Set<String> = ["Red Team", "红队"]
-        let genericRight: Set<String> = ["Blue Team", "蓝队"]
+        let genericLeft: Set<String> = ["Red Team", "红队", "紅隊"]
+        let genericRight: Set<String> = ["Blue Team", "蓝队", "藍隊"]
 
         if leftTeam.name.isEmpty || genericLeft.contains(leftTeam.name) {
             leftTeam.name = defaults.left

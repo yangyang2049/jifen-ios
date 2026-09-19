@@ -11,6 +11,7 @@ struct ModalCloseButton: View {
                 .foregroundColor(Theme.textPrimary)
         }
         .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
+        .accessibilityIdentifier("modal_close_button")
     }
 }
 

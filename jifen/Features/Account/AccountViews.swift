@@ -1,5 +1,4 @@
 import SwiftUI
-import WebKit
 
 struct AccountCenterView: View {
     @Environment(SessionStore.self) private var session
@@ -149,8 +148,10 @@ private struct AccountLoginView: View {
                     Text(error).font(.footnote).foregroundStyle(.red).multilineTextAlignment(.center)
                 }
             }
-            .frame(maxWidth: 480)
             .padding(24)
+            // 整栏宽度按 Apple 登录按钮的内部上限收口，同级按钮与输入框一起等宽
+            // （和账号密码登录页同一顺序：先内边距再限宽，两页正文宽度才一致）。
+            .frame(maxWidth: Theme.authContentMaxWidth)
             .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
@@ -246,13 +247,7 @@ private struct PasswordLoginView: View {
                 .onSubmit { focusedField = .password }
                 .padding(.horizontal, 12)
                 .frame(height: 48)
-                .background(
-                    RoundedRectangle(cornerRadius: 12).fill(Theme.controlBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(Theme.divider, lineWidth: 1)
-                        )
-                )
+                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.inputFieldBackground))
 
                 SecureField(
                     NSLocalizedString("me_login_password_placeholder", value: "请输入密码", comment: ""),
@@ -266,13 +261,7 @@ private struct PasswordLoginView: View {
                 .onSubmit { Task { await submit() } }
                 .padding(.horizontal, 12)
                 .frame(height: 48)
-                .background(
-                    RoundedRectangle(cornerRadius: 12).fill(Theme.controlBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(Theme.divider, lineWidth: 1)
-                        )
-                )
+                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.inputFieldBackground))
 
                 Button {
                     Task { await submit() }
@@ -306,7 +295,8 @@ private struct PasswordLoginView: View {
                 }
             }
             .padding(24)
-            .frame(maxWidth: 480)
+            // 整栏宽度按 Apple 登录按钮的内部上限收口，同级按钮与输入框一起等宽。
+            .frame(maxWidth: Theme.authContentMaxWidth)
             .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
@@ -422,32 +412,11 @@ private struct LoginLegalWebPage: View {
     let document: LoginLegalDocument
 
     var body: some View {
-        LoginLegalWebView(url: document.url)
+        AppWebView(url: document.url)
             .background(Theme.backgroundColor)
             .navigationTitle(document.title)
             .navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("account_login_\(document.rawValue)_webview")
-    }
-}
-
-struct LoginLegalWebView: UIViewRepresentable {
-    let url: URL
-
-    func makeUIView(context: Context) -> WKWebView {
-        let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = .default()
-        let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.allowsBackForwardNavigationGestures = true
-        webView.isOpaque = false
-        webView.backgroundColor = .clear
-        webView.scrollView.backgroundColor = .clear
-        webView.load(URLRequest(url: url))
-        return webView
-    }
-
-    func updateUIView(_ webView: WKWebView, context: Context) {
-        guard webView.url == nil else { return }
-        webView.load(URLRequest(url: url))
     }
 }
 
@@ -466,7 +435,8 @@ private struct AccountProfileView: View {
             VStack(spacing: 14) {
                 ProfileHeaderCard(
                     user: session.user,
-                    loggedIn: session.isAuthenticated
+                    loggedIn: session.isAuthenticated,
+                    isVIP: session.isVIP
                 )
 
                 if let moderationLabel = profileModerationLabel {
@@ -494,17 +464,17 @@ private struct AccountProfileView: View {
                         showRenameDialog = true
                     }
                     ProfileThinDivider()
-                    if session.user?.isVIP == true {
+                    if session.isVIP {
                         ProfileInfoRow(
                             label: NSLocalizedString("me_profile_vip_status_label", value: "会员状态", comment: ""),
-                            value: profileMembershipLabel(session.user),
+                            value: profileMembershipLabel(session.user, isVIP: true),
                             valueColor: Theme.accentColor,
                             showChevron: true
                         ) { showMembership = true }
                     } else {
                         ProfileInfoRow(
                             label: NSLocalizedString("me_profile_vip_status_label", value: "会员状态", comment: ""),
-                            value: profileMembershipLabel(session.user),
+                            value: profileMembershipLabel(session.user, isVIP: false),
                             valueColor: Theme.textPrimary,
                             showChevron: false
                         ) {}
@@ -531,7 +501,7 @@ private struct AccountProfileView: View {
                         showChevron: false
                     ) {}
                 }
-                .background(RoundedRectangle(cornerRadius: 16).fill(Theme.appCardBackground))
+                .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
             }
             .padding(16)
             .frame(maxWidth: Theme.meTabContentMaxWidth)
@@ -556,11 +526,11 @@ private struct AccountProfileView: View {
                     Button(role: .destructive) {
                         showAccountDeletion = true
                     } label: {
-                        Label(
-                            NSLocalizedString("account_delete", value: "注销账号", comment: ""),
-                            systemImage: "trash"
-                        )
-                        .foregroundStyle(.red)
+                        Label {
+                            Text(NSLocalizedString("account_delete", value: "注销账号", comment: ""))
+                        } icon: {
+                            Image(uiImage: Theme.redTrashIcon)
+                        }
                     }
                 } label: {
                     Image(systemName: "ellipsis")
@@ -836,7 +806,7 @@ struct AccountDeletionView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.appCardBackground))
+        .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
     }
 
     private func impactRow(_ text: String) -> some View {
@@ -956,15 +926,23 @@ struct AccountDeletionView: View {
 }
 
 /// 会员状态文案（对齐安卓 profileMembershipLabel）。
-private func profileMembershipLabel(_ user: AppUser?) -> String {
+private func profileMembershipLabel(_ user: AppUser?, isVIP: Bool) -> String {
     guard let user else {
+        return isVIP
+            ? NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
+            : NSLocalizedString("me_profile_basic_badge", value: "普通用户", comment: "")
+    }
+    guard isVIP else {
         return NSLocalizedString("me_profile_basic_badge", value: "普通用户", comment: "")
+    }
+    // Only use server membership details when the server itself reports an
+    // active membership. A local Apple entitlement otherwise uses a generic
+    // VIP label instead of stale/inactive account metadata.
+    guard user.isVIP else {
+        return NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
     }
     if let summary = user.membership?.identitySummary.nilIfBlank {
         return summary
-    }
-    if !user.isVIP {
-        return NSLocalizedString("me_profile_basic_badge", value: "普通用户", comment: "")
     }
     let cycle = [user.membership?.billingCycle, user.plan]
         .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfBlank }
@@ -986,7 +964,7 @@ private func profileMembershipLabel(_ user: AppUser?) -> String {
 private struct ProfileHeaderCard: View {
     let user: AppUser?
     let loggedIn: Bool
-    @Environment(\.colorScheme) private var colorScheme
+    let isVIP: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1012,10 +990,8 @@ private struct ProfileHeaderCard: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 20)
         .padding(.bottom, 22)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Theme.appCardBackground))
+        .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
     }
-
-    private var isVIP: Bool { user?.isVIP == true }
 
     private var displayName: String {
         let name = [user?.nickname, user?.name, user?.email]
@@ -1034,12 +1010,6 @@ private struct ProfileHeaderCard: View {
         return user == nil
             ? NSLocalizedString("me_account_logged_out", value: "未登录", comment: "")
             : NSLocalizedString("me_profile_basic_badge", value: "普通用户", comment: "")
-    }
-
-    private var avatarBorderColor: Color {
-        colorScheme == .dark
-            ? Color.white.opacity(0.24)
-            : Color(hex: "CBD5E1")
     }
 
     @ViewBuilder
@@ -1061,7 +1031,6 @@ private struct ProfileHeaderCard: View {
             }
         }
         .frame(width: 72, height: 72)
-        .overlay(Circle().strokeBorder(avatarBorderColor, lineWidth: 1.5))
         .clipShape(Circle())
     }
 
@@ -1171,7 +1140,7 @@ private struct ProfileThinDivider: View {
     }
 }
 
-/// 修改昵称表单使用系统 Sheet；字段与业务校验保持不变。
+/// 修改昵称表单使用系统 Sheet：导航栏左上取消、右上保存，标题用系统默认字号字重。
 private struct NicknameEditDialog: View {
     let initialName: String
     let onDismiss: () -> Void
@@ -1184,54 +1153,55 @@ private struct NicknameEditDialog: View {
     @FocusState private var focused: Bool
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text(NSLocalizedString("me_profile_nickname_edit_title", value: "修改昵称", comment: ""))
-                .font(.system(size: 20, weight: .bold))
+        NavigationStack {
+            VStack(spacing: 0) {
+                TextField(
+                    NSLocalizedString("me_profile_nickname_edit_placeholder", value: "请输入昵称", comment: ""),
+                    text: $name
+                )
+                .font(.system(size: 16))
                 .foregroundColor(Theme.textPrimary)
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 16)
+                .focused($focused)
+                .padding(.horizontal, 12)
+                .frame(height: 44)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Theme.inputFieldBackground))
+                .submitLabel(.done)
+                .onSubmit { Task { await submit() } }
 
-            TextField(
-                NSLocalizedString("me_profile_nickname_edit_placeholder", value: "请输入昵称", comment: ""),
-                text: $name
-            )
-            .font(.system(size: 16))
-            .foregroundColor(Theme.textPrimary)
-            .focused($focused)
-            .padding(.horizontal, 12)
-            .frame(height: 44)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.controlBackground))
-            .submitLabel(.done)
-            .onSubmit { Task { await submit() } }
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 13))
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 8)
+                }
 
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.system(size: 13))
-                    .foregroundColor(.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 8)
+                Spacer()
             }
-
-            HStack(spacing: 16) {
-                dialogButton(
-                    title: NSLocalizedString("cancel", value: "取消", comment: ""),
-                    background: Theme.controlBackground,
-                    foreground: Theme.textPrimary
-                ) { onDismiss() }
-                dialogButton(
-                    title: saving
-                        ? NSLocalizedString("me_profile_nickname_saving", value: "保存中…", comment: "")
-                        : NSLocalizedString("save", value: "保存", comment: ""),
-                    background: Theme.accentColor,
-                    foreground: .white
-                ) { Task { await submit() } }
-                .disabled(saving || failedSubmittedName == trimmedName)
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
+            .frame(maxWidth: 400)
+            .navigationTitle(NSLocalizedString("me_profile_nickname_edit_title", value: "修改昵称", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                        onDismiss()
+                    }
+                    .disabled(saving)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(
+                        saving
+                            ? NSLocalizedString("me_profile_nickname_saving", value: "保存中…", comment: "")
+                            : NSLocalizedString("save", value: "保存", comment: "")
+                    ) {
+                        Task { await submit() }
+                    }
+                    .disabled(saving || failedSubmittedName == trimmedName)
+                }
             }
-            .padding(.top, 24)
         }
-        .padding(24)
-        .frame(maxWidth: 400)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
         .interactiveDismissDisabled(saving)
@@ -1247,18 +1217,6 @@ private struct NicknameEditDialog: View {
             failedSubmittedName = nil
             errorMessage = nil
         }
-    }
-
-    private func dialogButton(title: String, background: Color, foreground: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(foreground)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(Capsule().fill(background))
-        }
-        .buttonStyle(.plain)
     }
 
     private func submit() async {

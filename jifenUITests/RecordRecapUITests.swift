@@ -11,8 +11,9 @@ final class RecordRecapUITests: XCTestCase {
     /// one behavioral contract.
     func testFullMatchAndGroupedRecapSwitchInChineseAndEnglish() {
         for configuration in [
-            (language: "en", locale: "en_US", fullMatch: "Full Match", details: "Details", secondTrend: "Game 2"),
-            (language: "zh-Hans", locale: "zh_CN", fullMatch: "全场", details: "明细", secondTrend: "第 2 局")
+            (language: UITestLocale.en.language, locale: UITestLocale.en.locale, fullMatch: "Full Match", details: "Details", secondTrend: "Game 2"),
+            (language: UITestLocale.zhHans.language, locale: UITestLocale.zhHans.locale, fullMatch: "全场", details: "明细", secondTrend: "第 2 局"),
+            (language: UITestLocale.zhHant.language, locale: UITestLocale.zhHant.locale, fullMatch: "全場", details: "明細", secondTrend: "第 2 局")
         ] {
             let app = XCUIApplication()
             app.launchArguments += [
@@ -68,8 +69,9 @@ final class RecordRecapUITests: XCTestCase {
 
     func testMultiScoreUsesRankingAndScoreChangesWithoutRecapSwitch() {
         for configuration in [
-            (language: "en", locale: "en_US", ranking: "Final Ranking", recap: "Recap", details: "Details", trend: "Score Trend"),
-            (language: "zh-Hans", locale: "zh_CN", ranking: "最终排名", recap: "复盘", details: "明细", trend: "比分趋势")
+            (language: UITestLocale.en.language, locale: UITestLocale.en.locale, ranking: "Final Ranking", recap: "Recap", details: "Details", trend: "Score Trend"),
+            (language: UITestLocale.zhHans.language, locale: UITestLocale.zhHans.locale, ranking: "最终排名", recap: "复盘", details: "明细", trend: "比分趋势"),
+            (language: UITestLocale.zhHant.language, locale: UITestLocale.zhHant.locale, ranking: "最終排名", recap: "覆盤", details: "明細", trend: "比分趨勢")
         ] {
             let app = XCUIApplication()
             app.launchArguments += [

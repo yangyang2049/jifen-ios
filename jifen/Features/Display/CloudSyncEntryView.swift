@@ -171,7 +171,7 @@ struct CloudSyncEntryPanel: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                 }
-                .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .strokeBorder(Theme.primary, lineWidth: 1)
@@ -337,7 +337,7 @@ struct CloudSyncEntryPanel: View {
         .frame(maxWidth: .infinity)
         .frame(height: 56)
         .padding(.horizontal, 16)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .strokeBorder(
@@ -401,7 +401,7 @@ struct CloudSyncEntryPanel: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
         }
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .strokeBorder(color, lineWidth: 1)
@@ -550,7 +550,7 @@ struct CloudSyncIntroCard: View {
             }
         }
         .padding(16)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
@@ -640,7 +640,7 @@ struct CloudSyncRoleCard<Content: View>: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .animation(.easeInOut(duration: 0.2), value: expanded)
     }
 }
@@ -838,7 +838,7 @@ struct RemoteSyncSharingDialog: View {
                 }
             }
             .padding(20)
-            .background(Color(hex: "2C2C2E"), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(Theme.scoreboardDialogSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.horizontal, 24)
             .frame(maxWidth: 360)
             .transition(.opacity.combined(with: .scale(0.96)))

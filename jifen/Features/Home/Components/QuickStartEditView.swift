@@ -4,7 +4,6 @@ import SwiftUI
 /// 紧凑宽度显示两个槽位，常规宽度显示三个槽位。
 struct QuickStartEditView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
 
     /// 自定义主卡片可选项目（不含秒表，与「新比赛」弹窗一致）
     private static let editDialogSports = QuickStartConfig.selectableGameTypes
@@ -212,7 +211,7 @@ struct QuickStartEditView: View {
                     .stroke(isSelected ? Theme.homeEditButtonGreen : .clear, lineWidth: 2)
             )
             .shadow(
-                color: colorScheme == .light && !isSelected ? Color.black.opacity(0.08) : .clear,
+                color: isSelected ? .clear : Theme.lightModeShadow(0.08),
                 radius: 8,
                 y: 2
             )
@@ -222,12 +221,7 @@ struct QuickStartEditView: View {
     }
 
     private func slotCardBackground(isSelected: Bool) -> Color {
-        if colorScheme == .dark {
-            return Theme.dialogControlBackground
-        }
-        return isSelected
-            ? Color(hex: "4CAF50").opacity(0.12)
-            : Color.white
+        isSelected ? Theme.editSlotSelectedFill : Theme.editSlotFill
     }
 
     private var footerButtons: some View {

@@ -30,12 +30,24 @@ public enum VoiceBreakCue: String, Sendable {
 
 public enum VoiceAnnouncementLanguage: String, Sendable {
     case zhCN = "zh-CN"
+    case zhTW = "zh-TW"
     case enUS = "en-US"
 
     public static func resolve(locale: Locale = .current) -> Self {
         let languageCode = locale.language.languageCode?.identifier.lowercased()
             ?? locale.identifier.lowercased()
-        return languageCode.hasPrefix("zh") ? .zhCN : .enUS
+        guard languageCode.hasPrefix("zh") else { return .enUS }
+        // Foundation normalizes scripts (zh-HK → Hant, bare zh → Hans);
+        // the region fallback only applies when no script is present.
+        switch locale.language.script?.identifier {
+        case "Hant": return .zhTW
+        case "Hans": return .zhCN
+        default:
+            switch locale.region?.identifier {
+            case "TW", "HK", "MO": return .zhTW
+            default: return .zhCN
+            }
+        }
     }
 }
 
@@ -301,7 +313,11 @@ public enum VoiceAnnouncementMessageBuilder {
         _ payload: VoiceAnnouncementPayload,
         language: VoiceAnnouncementLanguage = .zhCN
     ) -> String {
-        language == .enUS ? buildEnglish(payload) : buildChinese(payload)
+        switch language {
+        case .enUS: return buildEnglish(payload)
+        case .zhCN: return buildChinese(payload)
+        case .zhTW: return VoiceChinesePhrases.toTraditional(buildChinese(payload))
+        }
     }
 
     // —— Chinese ——

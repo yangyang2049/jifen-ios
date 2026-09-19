@@ -9,9 +9,8 @@
 /* Begin PBXBuildFile section */
 		2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
 		614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C476D58990954AF104F51A /* Foundation.framework */; };
-		965C159E985F20631D21A33B /* libPods-jifen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92BA32E923C2E9F7C8F57C31 /* libPods-jifen.a */; };
-		A677233A94ECB03AD7AF0BE4 /* libPods-jifenUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E8AB24DA4FF2490079C73D1 /* libPods-jifenUITests.a */; };
 		A9C0600ED82342CDBF1AAF6E /* MainFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */; };
+		AA1000000000000000000002 /* Support/LocalizationTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000001 /* Support/LocalizationTestSupport.swift */; };
 		AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1000000000000000000001 /* AccountPasswordLoginTests.swift */; };
 		B27931C15EF1056A3BF7C5E2 /* ScheduleModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D82E75ABD730744578E876 /* ScheduleModelTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
@@ -20,7 +19,6 @@
 		C10000000000000000000004 /* PersistenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000004 /* PersistenceCore */; };
 		C10000000000000000000005 /* LinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000005 /* LinkCore */; };
 		C10000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000006 /* TimerCore */; };
-		D102041395929F3FBC936DAA /* libPods-jifenTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D3AE5812EB33C2C449E1CE7 /* libPods-jifenTests.a */; };
 		D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */; };
 		D43000000000000000000002 /* OfflineReleaseBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */; };
 		D44000000000000000000002 /* TimerAndToolOfflineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44000000000000000000001 /* TimerAndToolOfflineTests.swift */; };
@@ -44,6 +42,8 @@
 		FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000000000000000000001 /* RemodelFocusUITests.swift */; };
 		FA2000000000000000000002 /* ScoreboardStyleEditorControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */; };
 		FB1000000000000000000002 /* BookingStartPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1000000000000000000001 /* BookingStartPersistenceTests.swift */; };
+		FB2000000000000000000002 /* Support/UITestLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2000000000000000000001 /* Support/UITestLocale.swift */; };
+		FB3000000000000000000002 /* ZhHantSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3000000000000000000001 /* ZhHantSmokeUITests.swift */; };
 		FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */; };
 		FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */; };
 		FC8000000000000000000002 /* ShotTrainingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8000000000000000000001 /* ShotTrainingTests.swift */; };
@@ -70,26 +70,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		02CC5F5C2DA8DFA643CF9FB2 /* Pods-jifenUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifenUITests.release.xcconfig"; path = "Target Support Files/Pods-jifenUITests/Pods-jifenUITests.release.xcconfig"; sourceTree = "<group>"; };
 		07D82E75ABD730744578E876 /* ScheduleModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleModelTests.swift; sourceTree = "<group>"; };
-		0D3AE5812EB33C2C449E1CE7 /* libPods-jifenTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-jifenTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FA5BAD12F18F3EB00182375 /* jifen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jifen.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FA5BAF02F18F50000182375 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		10EF5A950B6BBEB843ED7551 /* Pods-jifenUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifenUITests.debug.xcconfig"; path = "Target Support Files/Pods-jifenUITests/Pods-jifenUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		1671D9F8075EBC003AB373DA /* Pods-jifen.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifen.debug.xcconfig"; path = "Target Support Files/Pods-jifen/Pods-jifen.debug.xcconfig"; sourceTree = "<group>"; };
-		5E8AB24DA4FF2490079C73D1 /* libPods-jifenUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-jifenUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6698F86CD13F72512D8A63C9 /* jifenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		92BA32E923C2E9F7C8F57C31 /* libPods-jifen.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-jifen.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6C476D58990954AF104F51A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		AA1000000000000000000001 /* Support/LocalizationTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Support/LocalizationTestSupport.swift; sourceTree = "<group>"; };
 		AAF62EF83E413A0609FABE6B /* MainFlowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainFlowUITests.swift; sourceTree = "<group>"; };
 		AB1000000000000000000001 /* AccountPasswordLoginTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountPasswordLoginTests.swift; sourceTree = "<group>"; };
-		ADF591EA95BEE5FD53840744 /* Pods-jifenTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifenTests.debug.xcconfig"; path = "Target Support Files/Pods-jifenTests/Pods-jifenTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
-		BE051DBBE1A0AEA1D03E08C3 /* Pods-jifenTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifenTests.release.xcconfig"; path = "Target Support Files/Pods-jifenTests/Pods-jifenTests.release.xcconfig"; sourceTree = "<group>"; };
 		D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalDataResetCoordinatorTests.swift; sourceTree = "<group>"; };
 		D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OfflineReleaseBoundaryTests.swift; sourceTree = "<group>"; };
 		D44000000000000000000001 /* TimerAndToolOfflineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimerAndToolOfflineTests.swift; sourceTree = "<group>"; };
-		D5A333A9E1A5211BBD79197C /* Pods-jifen.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-jifen.release.xcconfig"; path = "Target Support Files/Pods-jifen/Pods-jifen.release.xcconfig"; sourceTree = "<group>"; };
 		D8B51BCB1FC8EEE1F9DFA4A8 /* jifenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jifenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E10000000000000000000001 /* RallySessionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RallySessionStoreTests.swift; sourceTree = "<group>"; };
 		E10000000000000000000003 /* BoardTimerConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardTimerConfigTests.swift; sourceTree = "<group>"; };
@@ -110,6 +102,8 @@
 		FA1000000000000000000001 /* RemodelFocusUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemodelFocusUITests.swift; sourceTree = "<group>"; };
 		FA2000000000000000000001 /* ScoreboardStyleEditorControllerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardStyleEditorControllerTests.swift; sourceTree = "<group>"; };
 		FB1000000000000000000001 /* BookingStartPersistenceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BookingStartPersistenceTests.swift; sourceTree = "<group>"; };
+		FB2000000000000000000001 /* Support/UITestLocale.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Support/UITestLocale.swift; sourceTree = "<group>"; };
+		FB3000000000000000000001 /* ZhHantSmokeUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ZhHantSmokeUITests.swift; sourceTree = "<group>"; };
 		FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardUsageHintTests.swift; sourceTree = "<group>"; };
 		FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardResumeAndWinnerIdentityTests.swift; sourceTree = "<group>"; };
 		FC8000000000000000000001 /* ShotTrainingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShotTrainingTests.swift; sourceTree = "<group>"; };
@@ -137,7 +131,6 @@
 				C10000000000000000000004 /* PersistenceCore in Frameworks */,
 				C10000000000000000000005 /* LinkCore in Frameworks */,
 				C10000000000000000000006 /* TimerCore in Frameworks */,
-				965C159E985F20631D21A33B /* libPods-jifen.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,7 +139,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				614D317A62708BF7CFA926F2 /* Foundation.framework in Frameworks */,
-				A677233A94ECB03AD7AF0BE4 /* libPods-jifenUITests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,7 +147,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DB38D61DF48EE1A17B38843 /* Foundation.framework in Frameworks */,
-				D102041395929F3FBC936DAA /* libPods-jifenTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,7 +162,6 @@
 				8C76EE3CB0FD1BF87723242C /* Frameworks */,
 				4BEAA1146F45CAF74810C41D /* jifenTests */,
 				CB5A5C00CFDC9B30D0B4EDFC /* jifenUITests */,
-				D10DF7B2CF54D75DE275F70A /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -207,6 +197,7 @@
 				F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */,
 				F80000000000000000000001 /* AppAnalyticsTests.swift */,
 				F90000000000000000000001 /* LocalizationIntegrityTests.swift */,
+				AA1000000000000000000001 /* Support/LocalizationTestSupport.swift */,
 				FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */,
 				FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */,
 				FC8000000000000000000001 /* ShotTrainingTests.swift */,
@@ -221,9 +212,6 @@
 			isa = PBXGroup;
 			children = (
 				D6B4E5DF943069BCF2718471 /* iOS */,
-				92BA32E923C2E9F7C8F57C31 /* libPods-jifen.a */,
-				0D3AE5812EB33C2C449E1CE7 /* libPods-jifenTests.a */,
-				5E8AB24DA4FF2490079C73D1 /* libPods-jifenUITests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -237,22 +225,11 @@
 				FA1000000000000000000001 /* RemodelFocusUITests.swift */,
 				F10000000000000000000001 /* FullAppScreenshotUITests.swift */,
 				F10000000000000000000003 /* UITestScreenshotStore.swift */,
+				FB2000000000000000000001 /* Support/UITestLocale.swift */,
+				FB3000000000000000000001 /* ZhHantSmokeUITests.swift */,
 				F10000000000000000000005 /* SupplementalScreenshotUITests.swift */,
 			);
 			path = jifenUITests;
-			sourceTree = "<group>";
-		};
-		D10DF7B2CF54D75DE275F70A /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				1671D9F8075EBC003AB373DA /* Pods-jifen.debug.xcconfig */,
-				D5A333A9E1A5211BBD79197C /* Pods-jifen.release.xcconfig */,
-				BE051DBBE1A0AEA1D03E08C3 /* Pods-jifenTests.release.xcconfig */,
-				ADF591EA95BEE5FD53840744 /* Pods-jifenTests.debug.xcconfig */,
-				02CC5F5C2DA8DFA643CF9FB2 /* Pods-jifenUITests.release.xcconfig */,
-				10EF5A950B6BBEB843ED7551 /* Pods-jifenUITests.debug.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		D6B4E5DF943069BCF2718471 /* iOS */ = {
@@ -270,7 +247,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0FA5BADC2F18F3EC00182375 /* Build configuration list for PBXNativeTarget "jifen" */;
 			buildPhases = (
-				8FD03F04D4732138B22CA236 /* [CP] Check Pods Manifest.lock */,
 				0FA5BACD2F18F3EB00182375 /* Sources */,
 				0FA5BACE2F18F3EB00182375 /* Frameworks */,
 				0FA5BACF2F18F3EB00182375 /* Resources */,
@@ -299,7 +275,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4BF094371EAAEB82F3DED2C8 /* Build configuration list for PBXNativeTarget "jifenUITests" */;
 			buildPhases = (
-				88CF913FBB5D98B59618CF62 /* [CP] Check Pods Manifest.lock */,
 				0D6BA37162DD8C618F99613C /* Sources */,
 				3F21E360EFF91A6D01ECFB3F /* Frameworks */,
 				3FDDF3624AD11899A2A47413 /* Resources */,
@@ -318,7 +293,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F739E0571A4E22205415C37B /* Build configuration list for PBXNativeTarget "jifenTests" */;
 			buildPhases = (
-				1BCF935B280330170FC3BBB6 /* [CP] Check Pods Manifest.lock */,
 				BEB3E77A0BD305D2C5C1DF02 /* Sources */,
 				F4B8F725AF338AEB477A3C5F /* Frameworks */,
 				D081E4FFA434AD3CBEFBDE4B /* Resources */,
@@ -341,7 +315,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2700;
 				TargetAttributes = {
 					0FA5BAD02F18F3EB00182375 = {
 						CreatedOnToolsVersion = 26.2;
@@ -363,6 +337,7 @@
 				en,
 				"zh-Hans",
 				Base,
+				"zh-Hant",
 			);
 			mainGroup = 0FA5BAC82F18F3EB00182375;
 			minimizedProjectReferenceProxies = 1;
@@ -405,75 +380,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		1BCF935B280330170FC3BBB6 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-jifenTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		88CF913FBB5D98B59618CF62 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-jifenUITests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8FD03F04D4732138B22CA236 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-jifen-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		0D6BA37162DD8C618F99613C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -485,6 +391,8 @@
 				FA1000000000000000000002 /* RemodelFocusUITests.swift in Sources */,
 				F10000000000000000000002 /* FullAppScreenshotUITests.swift in Sources */,
 				F10000000000000000000004 /* UITestScreenshotStore.swift in Sources */,
+				FB2000000000000000000002 /* Support/UITestLocale.swift in Sources */,
+				FB3000000000000000000002 /* ZhHantSmokeUITests.swift in Sources */,
 				F10000000000000000000006 /* SupplementalScreenshotUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -519,6 +427,7 @@
 				F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */,
 				F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */,
 				F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */,
+				AA1000000000000000000002 /* Support/LocalizationTestSupport.swift in Sources */,
 				FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */,
 				FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */,
 				FC8000000000000000000002 /* ShotTrainingTests.swift in Sources */,
@@ -548,7 +457,6 @@
 /* Begin XCBuildConfiguration section */
 		060D44424D5D2C882224703D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 02CC5F5C2DA8DFA643CF9FB2 /* Pods-jifenUITests.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGNING_ALLOWED = NO;
@@ -576,6 +484,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -605,6 +514,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -628,6 +538,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -639,6 +550,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -668,6 +580,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -684,6 +597,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -691,13 +605,13 @@
 		};
 		0FA5BADD2F18F3EC00182375 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1671D9F8075EBC003AB373DA /* Pods-jifen.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 40;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -706,8 +620,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = iScoreboard;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "我们需要访问您的相册以保存计分板截图。";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan trusted sign-in QR codes.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Used to record voice notes.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Used to save scoreboard screenshots to your photo library.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = NO;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = NO;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -735,20 +652,19 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				UMENG_APP_KEY = 6a62d743e88ae439bf38ccee;
 				XROS_DEPLOYMENT_TARGET = 26.2;
 			};
 			name = Debug;
 		};
 		0FA5BADE2F18F3EC00182375 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D5A333A9E1A5211BBD79197C /* Pods-jifen.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 40;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -757,8 +673,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = iScoreboard;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "我们需要访问您的相册以保存计分板截图。";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan trusted sign-in QR codes.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Used to record voice notes.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Used to save scoreboard screenshots to your photo library.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = NO;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = NO;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -786,14 +705,12 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				UMENG_APP_KEY = 6a62d743e88ae439bf38ccee;
 				XROS_DEPLOYMENT_TARGET = 26.2;
 			};
 			name = Release;
 		};
 		19B86E314B47EBE50892C377 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ADF591EA95BEE5FD53840744 /* Pods-jifenTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
@@ -818,7 +735,6 @@
 		};
 		AA7343AB94A683BC48372064 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 10EF5A950B6BBEB843ED7551 /* Pods-jifenUITests.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGNING_ALLOWED = NO;
@@ -842,7 +758,6 @@
 		};
 		BDFE4BFF544E6A8EE00D05B2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BE051DBBE1A0AEA1D03E08C3 /* Pods-jifenTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;

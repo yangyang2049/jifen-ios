@@ -26,10 +26,15 @@ enum LegalDocuments {
         components.host = "jifenqi.com"
         components.path = "/\(path)"
         components.queryItems = [
-            URLQueryItem(name: "lang", value: Locale.current.language.languageCode?.identifier == "zh" ? "zh" : "en"),
+            URLQueryItem(name: "lang", value: Self.documentLanguageCode),
             URLQueryItem(name: "source", value: "mobile_app")
         ]
         return components.url!
+    }
+
+    private static var documentLanguageCode: String {
+        guard Locale.current.language.languageCode?.identifier == "zh" else { return "en" }
+        return ChineseScript.isTraditional() ? "zh-tw" : "zh"
     }
 }
 

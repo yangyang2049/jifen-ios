@@ -16,7 +16,7 @@ final class AppAnalyticsTests: XCTestCase {
         super.tearDown()
     }
 
-    func testRegisteredEventAndParameterNamesRespectUmengLimits() {
+    func testRegisteredEventAndParameterNamesRespectAnalyticsLimits() {
         for event in AnalyticsEvent.allCases {
             XCTAssertLessThanOrEqual(event.rawValue.count, AnalyticsNormalizer.maxEventIDLength, event.rawValue)
             XCTAssertEqual(AnalyticsNormalizer.eventID(event.rawValue), event.rawValue)

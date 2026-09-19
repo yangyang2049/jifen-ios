@@ -29,26 +29,35 @@ struct TimerTab: View {
         NavigationStack {
             let usesPadLayout = Theme.usesPadLayout
 
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
-                    timerSectionGroup(
-                        title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
-                        items: GameCatalog.timerBoardGameItems,
-                        usesPadLayout: usesPadLayout
-                    )
-                    timerSectionGroup(
-                        title: NSLocalizedString("timer_section_other", value: "其他", comment: ""),
-                        items: GameCatalog.timerOtherItems,
-                        usesPadLayout: usesPadLayout
-                    )
+            GeometryReader { proxy in
+                let availableWidth = max(
+                    0,
+                    min(proxy.size.width, usesPadLayout ? 1080 : .infinity) - Theme.pageHorizontalInset * 2
+                )
+
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
+                        timerSectionGroup(
+                            title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
+                            items: GameCatalog.timerBoardGameItems,
+                            availableWidth: availableWidth,
+                            usesPadLayout: usesPadLayout
+                        )
+                        timerSectionGroup(
+                            title: NSLocalizedString("timer_section_other", value: "其他", comment: ""),
+                            items: GameCatalog.timerOtherItems,
+                            availableWidth: availableWidth,
+                            usesPadLayout: usesPadLayout
+                        )
+                    }
+                    .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, Theme.pageHorizontalInset)
+                    .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
+                    .padding(.bottom, Theme.tabContentBottomPadding)
                 }
-                .frame(maxWidth: usesPadLayout ? 1080 : .infinity)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, Theme.pageHorizontalInset)
-                .padding(.top, usesPadLayout ? Theme.lg : Theme.md)
-                .padding(.bottom, Theme.tabContentBottomPadding)
+                .background(Theme.backgroundColor)
             }
-            .background(Theme.backgroundColor)
             .navigationTitle(NSLocalizedString("tab_timer", value: "计时", comment: "Timer tab"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $selectedDestination) { dest in
@@ -120,9 +129,11 @@ struct TimerTab: View {
     private func timerSectionGroup(
         title: String,
         items: [TimerDestination],
+        availableWidth: CGFloat,
         usesPadLayout: Bool
     ) -> some View {
-        let columnCount = usesPadLayout ? 4 : 3
+        // 对齐计分/工具 Tab：iPad 固定一行 4 个，窄屏（<360pt）2 列，其余 3 列。
+        let columnCount = usesPadLayout ? 4 : (availableWidth + Theme.padding * 2 < 360 ? 2 : 3)
         let columns = Array(
             repeating: GridItem(.flexible(), spacing: Theme.gridSpacing),
             count: columnCount
@@ -147,11 +158,11 @@ struct TimerTab: View {
                             selectedDestination = dest
                         }
                     } label: {
-                        VStack(spacing: 8) {
+                        VStack(spacing: 10) {
                             Text(dest.emoji)
-                                .font(.system(size: usesPadLayout ? 48 : 40))
+                                .font(.system(size: 40))
                             Text(dest.title)
-                                .font(.system(size: usesPadLayout ? Theme.fontBody1 : Theme.fontBody2))
+                                .font(.system(size: Theme.fontBody2))
                                 .foregroundColor(Theme.textPrimary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
@@ -161,7 +172,7 @@ struct TimerTab: View {
                         }
                         .padding(.vertical, Theme.cardPadding)
                         .frame(maxWidth: .infinity)
-                        .frame(minHeight: usesPadLayout ? 124 : 92)
+                        .frame(minHeight: 92)
                         .background(Theme.appCardBackground)
                         .cornerRadius(Theme.cornerRadius)
                     }

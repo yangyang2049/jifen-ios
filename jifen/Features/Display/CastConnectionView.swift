@@ -17,7 +17,6 @@ struct CastConnectionView: View {
     }
 
     @ObservedObject private var externalDisplay = ExternalDisplayCoordinator.shared
-    @Environment(\.colorScheme) private var colorScheme
     @State private var usageExpanded = false
     @State private var tab: ConnectionTab = .cast
     @State private var initialTabResolved = false
@@ -151,7 +150,7 @@ struct CastConnectionView: View {
             }
         }
         .padding(20)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func usageStep(_ text: String) -> some View {
@@ -220,7 +219,7 @@ struct CastConnectionView: View {
                 HStack(spacing: 10) {
                     ZStack {
                         Circle()
-                            .fill(Theme.primary.opacity(colorScheme == .dark ? 0.16 : 0.10))
+                            .fill(Theme.tintedFill(Theme.primary, lightAlpha: 0.10, darkAlpha: 0.16))
                             .frame(width: 34, height: 34)
                         Image(systemName: "wifi")
                             .font(.system(size: 16))
@@ -255,7 +254,7 @@ struct CastConnectionView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .accessibilityIdentifier("cast_status_\(externalDisplay.status.rawValue)")
     }
 
@@ -266,7 +265,7 @@ struct CastConnectionView: View {
         if connected {
             ZStack {
                 RoundedRectangle(cornerRadius: 17, style: .continuous)
-                    .fill(Theme.primary.opacity(colorScheme == .dark ? 0.16 : 0.10))
+                    .fill(Theme.tintedFill(Theme.primary, lightAlpha: 0.10, darkAlpha: 0.16))
                     .frame(width: 56, height: 56)
                 Image(systemName: "airplayvideo")
                     .font(.system(size: 26))

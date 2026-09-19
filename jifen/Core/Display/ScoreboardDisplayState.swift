@@ -12,6 +12,8 @@ enum ScoreboardDisplayLayoutKind: String, Codable, Sendable {
     case multiGrid = "multi_grid"
     case boardCard = "board_card"
     case trainingCounter = "training_counter"
+    /// 投篮训练：复刻手机端未中/命中分区（自由模式 3×2 六格 + 中心线分值）。
+    case shotTrainingGrid = "shot_training_grid"
 }
 
 enum ScoreboardDisplayValue: Codable, Equatable, Sendable {
@@ -228,6 +230,8 @@ extension ScoreboardDisplayLayoutKind {
             return .boardCard
         case "counter":
             return .trainingCounter
+        case "basketball_training":
+            return .shotTrainingGrid
         case "nine_ball" where playerCount > 2:
             return .multiGrid
         default:

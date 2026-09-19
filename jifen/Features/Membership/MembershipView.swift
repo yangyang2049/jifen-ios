@@ -80,7 +80,7 @@ struct MembershipView: View {
         }
     }
 
-    private var isVIP: Bool { session.user?.isVIP == true }
+    private var isVIP: Bool { session.isVIP }
 
     /// 商品按 月 → 年 → 终身 排序。
     private var orderedProducts: [Product] {
@@ -158,34 +158,68 @@ struct MembershipView: View {
     }
 
     private var identityPanel: some View {
-        let membership = session.user?.membership
-        return VStack(spacing: 10) {
-            identityRow(
-                label: NSLocalizedString("membership_current_identity", value: "当前身份", comment: ""),
-                value: membership?.identitySummary.nilIfBlank
-                    ?? NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: ""),
-                valueColor: Theme.textPrimary,
-                valueSize: 13
-            )
-            if let code = membership?.displayCode.nilIfBlank {
-                identityRow(
-                    label: membership?.numberLabel.nilIfBlank
-                        ?? NSLocalizedString("me_profile_membership_number_label", value: "会员编号", comment: ""),
-                    value: code,
-                    valueColor: Theme.accentColor,
-                    valueSize: 14
-                )
+        // 服务端已有有效会员时优先展示账号资料；否则即使已登录，当前 VIP 也来自
+        // Apple ID 本地权益，不能显示成“VIP / 未开通”的矛盾状态。
+        VStack(spacing: 10) {
+            if session.user?.isVIP == true {
+                authenticatedIdentityRows
+            } else {
+                localEntitlementIdentityRows
             }
-            identityRow(
-                label: NSLocalizedString("membership_valid_until", value: "有效期至", comment: ""),
-                value: validUntilText,
-                valueColor: Theme.textPrimary,
-                valueSize: 13
-            )
         }
         .padding(12)
         .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.appCardBackground))
+        .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
+    }
+
+    @ViewBuilder
+    private var authenticatedIdentityRows: some View {
+        let membership = session.user?.membership
+        identityRow(
+            label: NSLocalizedString("membership_current_identity", value: "当前身份", comment: ""),
+            value: membership?.identitySummary.nilIfBlank
+                ?? NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: ""),
+            valueColor: Theme.textPrimary,
+            valueSize: 13
+        )
+        if let code = membership?.displayCode.nilIfBlank {
+            identityRow(
+                label: membership?.numberLabel.nilIfBlank
+                    ?? NSLocalizedString("me_profile_membership_number_label", value: "会员编号", comment: ""),
+                value: code,
+                valueColor: Theme.accentColor,
+                valueSize: 14
+            )
+        }
+        identityRow(
+            label: NSLocalizedString("membership_valid_until", value: "有效期至", comment: ""),
+            value: validUntilText,
+            valueColor: Theme.textPrimary,
+            valueSize: 13
+        )
+    }
+
+    @ViewBuilder
+    private var localEntitlementIdentityRows: some View {
+        identityRow(
+            label: NSLocalizedString("membership_current_identity", value: "当前身份", comment: ""),
+            value: NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: ""),
+            valueColor: Theme.textPrimary,
+            valueSize: 13
+        )
+        identityRow(
+            label: NSLocalizedString("membership_valid_until", value: "有效期至", comment: ""),
+            value: localValidUntilText,
+            valueColor: Theme.textPrimary,
+            valueSize: 13
+        )
+    }
+
+    private var localValidUntilText: String {
+        guard let expiration = manager.localEntitlementExpirationDate else {
+            return NSLocalizedString("membership_expires_forever", value: "永久有效", comment: "")
+        }
+        return DateFormatter.localizedString(from: expiration, dateStyle: .medium, timeStyle: .none)
     }
 
     private func identityRow(label: String, value: String, valueColor: Color, valueSize: CGFloat) -> some View {
@@ -348,12 +382,12 @@ struct MembershipView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 16).fill(isSelected ? Theme.accentColor.opacity(0.12) : Theme.appCardBackground))
+            .background(RoundedRectangle(cornerRadius: 20).fill(isSelected ? Theme.accentColor.opacity(0.12) : Theme.appCardBackground))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 20)
                     .strokeBorder(isSelected ? Theme.accentColor : Theme.divider, lineWidth: isSelected ? 2 : 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -395,7 +429,7 @@ struct MembershipView: View {
                                 topLeadingRadius: 0,
                                 bottomLeadingRadius: 14,
                                 bottomTrailingRadius: 0,
-                                topTrailingRadius: 18
+                                topTrailingRadius: 20
                             )
                             .fill(Theme.accentColor)
                         )
@@ -403,12 +437,12 @@ struct MembershipView: View {
             }
             .frame(height: 128)
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 18).fill(isSelected ? Theme.accentColor.opacity(0.12) : Theme.appCardBackground))
+            .background(RoundedRectangle(cornerRadius: 20).fill(isSelected ? Theme.accentColor.opacity(0.12) : Theme.appCardBackground))
             .overlay(
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 20)
                     .strokeBorder(isSelected ? Theme.accentColor : Theme.divider, lineWidth: isSelected ? 2 : 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -454,12 +488,24 @@ struct MembershipView: View {
             agreementRow
                 .padding(.top, 10)
 
+            // 登录完全可选（Guideline 5.1.1(v)）：只说明登录带来的跨设备同步能力，不阻断购买。
             if !session.isAuthenticated {
-                Text(NSLocalizedString("vip_login_hint", value: "购买前请先登录账号", comment: ""))
+                HStack(spacing: 6) {
+                    Text(NSLocalizedString(
+                        "vip_optional_sign_in_hint",
+                        value: "登录后可在你的其他设备上同步会员权益",
+                        comment: ""
+                    ))
                     .font(.system(size: 12))
                     .foregroundColor(Theme.textSecondary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 8)
+                    Button(NSLocalizedString("account_login_title", value: "登录", comment: "")) {
+                        showLoginSheet = true
+                    }
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Theme.accentColor)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 8)
             }
 
             Button {
@@ -597,10 +643,7 @@ struct MembershipView: View {
 
     private func startPurchase() async {
         guard let product = selectedProduct else { return }
-        if !session.isAuthenticated {
-            showLoginSheet = true
-            return
-        }
+        // Guideline 5.1.1(v)：登录不作为购买前提，未登录时由 StoreKit 直接授予权益。
         guard acceptedTerms else {
             agreementHint = true
             return
@@ -653,7 +696,7 @@ private struct MembershipAgreementWebPage: View {
     let page: MembershipAgreementPage
 
     var body: some View {
-        LoginLegalWebView(url: page.url)
+        AppWebView(url: page.url)
             .background(Theme.backgroundColor)
             .navigationTitle(page.title)
             .navigationBarTitleDisplayMode(.inline)

@@ -67,22 +67,21 @@ struct CommonDataFloatingAddButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: CommonDataManagementChrome.floatingButtonHeight)
-                .background(Theme.accentColor)
-                .clipShape(Capsule())
+            HStack(spacing: 6) {
+                Image(systemName: "plus")
+                    .font(.system(size: 17, weight: .semibold))
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: CommonDataManagementChrome.floatingButtonHeight)
+            .background(Theme.accentColor)
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
         }
         .buttonStyle(.plain)
         .padding(.horizontal, Theme.md)
-        .padding(.top, Theme.md)
-        .padding(.bottom, Theme.md)
-        .background(
-            Theme.backgroundColor
-                .ignoresSafeArea(edges: .bottom)
-        )
     }
 }
 

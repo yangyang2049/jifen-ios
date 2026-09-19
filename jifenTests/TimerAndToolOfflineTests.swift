@@ -1,4 +1,5 @@
 import XCTest
+import WebKit
 @testable import jifen
 
 final class TimerAndToolOfflineTests: XCTestCase {
@@ -95,5 +96,82 @@ final class TimerAndToolOfflineTests: XCTestCase {
     func testCubeRequiresHalfSecondHoldAndDoesNotCreateHistory() {
         XCTAssertEqual(CubeTimerPolicy.readinessHoldDuration, 0.5)
         XCTAssertFalse(CubeTimerPolicy.createsHistoryRecord)
+    }
+
+    @MainActor
+    func testDiceResetCancelsStaleRollCallbacksBeforeWebViewReuse() async throws {
+        let repositoryRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let htmlURL = repositoryRoot.appendingPathComponent("jifen/Resources/dice.html")
+        let html = try String(contentsOf: htmlURL, encoding: .utf8)
+
+        let configuration = WKWebViewConfiguration()
+        configuration.userContentController.addUserScript(
+            WKUserScript(
+                source: """
+                window.__diceTestTimers = [];
+                window.setTimeout = function(callback, delay) {
+                    var timer = { callback: callback, delay: delay, cancelled: false };
+                    window.__diceTestTimers.push(timer);
+                    return timer;
+                };
+                window.clearTimeout = function(timer) {
+                    timer.cancelled = true;
+                };
+                """,
+                injectionTime: .atDocumentStart,
+                forMainFrameOnly: true
+            )
+        )
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.loadHTMLString(html, baseURL: htmlURL.deletingLastPathComponent())
+
+        var didLoadDice = false
+        for _ in 0..<100 {
+            if let count = try? await webView.evaluateJavaScript(
+                "document.querySelectorAll('.dice-unit .dice').length"
+            ) as? NSNumber, count.intValue == 3 {
+                didLoadDice = true
+                break
+            }
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertTrue(didLoadDice, "dice.html did not finish initializing")
+
+        let snapshotJSON = try await webView.evaluateJavaScript(
+            """
+            rollDice();
+            var staleTimer = window.__diceTestTimers[0];
+            window.resetDiceState();
+            staleTimer.callback();
+            JSON.stringify({
+                timerWasCancelled: staleTimer.cancelled,
+                result: document.getElementById('result').textContent,
+                rollingDice: document.querySelectorAll('.dice.rolling').length,
+                settlingDice: document.querySelectorAll('.dice.settling').length,
+                rollingPlatforms: document.querySelectorAll('.platform.rolling').length,
+                settlingPlatforms: document.querySelectorAll('.platform.settling').length,
+                transform: document.querySelector('.dice').style.transform
+            });
+            """
+        ) as? String
+        let snapshotData = try XCTUnwrap(snapshotJSON?.data(using: .utf8))
+        let snapshot = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: snapshotData) as? [String: Any]
+        )
+
+        XCTAssertEqual(snapshot["timerWasCancelled"] as? Bool, true)
+        XCTAssertEqual(snapshot["result"] as? String, "")
+        XCTAssertEqual(snapshot["rollingDice"] as? Int, 0)
+        XCTAssertEqual(snapshot["settlingDice"] as? Int, 0)
+        XCTAssertEqual(snapshot["rollingPlatforms"] as? Int, 0)
+        XCTAssertEqual(snapshot["settlingPlatforms"] as? Int, 0)
+        XCTAssertTrue((snapshot["transform"] as? String)?.contains("rotateX(0deg)") == true)
+
+        let rollingDice = try await webView.evaluateJavaScript(
+            "rollDice(); document.querySelectorAll('.dice.rolling').length"
+        ) as? NSNumber
+        XCTAssertEqual(rollingDice?.intValue, 1, "reset must permit a fresh roll immediately")
     }
 }

@@ -393,7 +393,7 @@ struct PointsTableDetailView: View {
         .multilineTextAlignment(.center)
         .frame(width: PointsTableColumns.stat)
         .padding(.vertical, 6)
-        .background(Theme.controlBackground.opacity(0.55))
+        .background(Theme.inputFieldBackground)
         .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 

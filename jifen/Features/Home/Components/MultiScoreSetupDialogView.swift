@@ -193,7 +193,11 @@ struct MultiScoreSetupDialogView: View {
                             matchTimeToggle
                         }
                     case .multiScore, .uno, .doudizhu:
-                        playerCountChips
+                        if layoutMode == .doudizhu {
+                            doudizhuPlayerCountSegment
+                        } else {
+                            playerCountChips
+                        }
                         playerNameFields
                         if layoutMode == .multiScore {
                             customAdjustToggle
@@ -273,6 +277,20 @@ struct MultiScoreSetupDialogView: View {
                 }
             }
         }
+    }
+
+    /// 斗地主只有 3/4 人两档：用分段选择器，对齐安卓 SingleChoiceSegmentedButtonRow
+    /// 与鸿蒙 CasualGameSetupDialog 的 SinglesDoublesCapsule（同单双打形态）。
+    private var doudizhuPlayerCountSegment: some View {
+        Picker("", selection: $selectedPlayerCount) {
+            ForEach(Array(playerCountRange), id: \.self) { count in
+                Text(playerCountText(count))
+                    .tag(count)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .accessibilityIdentifier("doudizhu_player_count_picker")
     }
 
     private var playerNameFields: some View {

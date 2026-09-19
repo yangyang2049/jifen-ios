@@ -1,0 +1,398 @@
+{
+  "app_name": {
+    "value": "全能計分器",
+    "note": "品牌名，与安卓 zh-rTW 一致",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_subtitle": {
+    "value": "登入後同步常用資料、回饋和即時比分",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_agreement_hint": {
+    "value": "請先閱讀並同意使用者協議和隱私政策",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_agreement_toggle": {
+    "value": "同意使用者協議和隱私政策",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_logout_confirm_syncing": {
+    "value": "正在進行跨裝置同步，退出登入會斷開同步，觀看端將無法繼續接收比分更新。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_active": {
+    "value": "投影中",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_mirroring": {
+    "value": "已連線 · 鏡像模式",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_title": {
+    "value": "投影怎麼用",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_overview": {
+    "value": "建議優先使用系統「螢幕鏡像」（AirPlay）。連線成功並被檢測到後，計分板會自動顯示到大屏。",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_heading": {
+    "value": "AirPlay 無線投影步驟",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_step_1": {
+    "value": "從控制中心開啟「螢幕鏡像」（AirPlay）",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_note": {
+    "value": "請先在系統裡完成 AirPlay 連線；App 一次只能使用一塊已連線的螢幕，不能直接搜索電視或投影機。斷開 AirPlay 後，本次投影也會結束。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_display_waiting_title": {
+    "value": "尚未檢測到投影裝置",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_display_waiting_hint": {
+    "value": "請從控制中心開啟「螢幕鏡像」（AirPlay）",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_display_stop_hint": {
+    "value": "如需結束投影，請在系統控制中心斷開連線。",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_ready_title": {
+    "value": "投影已就緒",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_default_name": {
+    "value": "計分使用者",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_confirm_message": {
+    "value": "註銷後，你的帳號和帳號相關資料將被刪除或匿名化處理，此操作無法恢復。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_impact_feedback": {
+    "value": "你發佈的回饋等帳號相關內容可能被刪除或匿名化處理。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_staging_apple_note": {
+    "value": "Staging 連線隔離測試服務器，登入使用真實 Apple 帳號。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_title": {
+    "value": "帳戶",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_title": {
+    "value": "登入",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_agreement_prefix": {
+    "value": "已閱讀並同意",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_agreement_and": {
+    "value": " 和 ",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_agreement_terms": {
+    "value": "《服務條款》",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_login_agreement_privacy": {
+    "value": "《隱私政策》",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_logout": {
+    "value": "退出登入",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_logout_confirm_title": {
+    "value": "退出登入",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_logout_confirm_message": {
+    "value": "確定要退出目前帳號嗎？",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "share_preparing": {
+    "value": "準備分享...",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_step_2": {
+    "value": "檢測到大屏後，計分板會自動顯示",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_step_3": {
+    "value": "手機繼續計分，大屏即時顯示比分",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_expand": {
+    "value": "展開說明",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_intro_collapse": {
+    "value": "收起",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_display_phone_control_hint": {
+    "value": "手機負責操作，大屏專注顯示。",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_ready_message": {
+    "value": "請在控制端開啟一個計分板",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_controller_away": {
+    "value": "控制端暫離",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_active_player": {
+    "value": "計時中",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_match_finished": {
+    "value": "比賽結束",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_winner_format": {
+    "value": "%@ 獲勝",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "cast_result_draw": {
+    "value": "比賽結果已確認",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_delete": {
+    "value": "註銷帳號",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_avatar_invalid": {
+    "value": "無法讀取這張圖片",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_title": {
+    "value": "註銷帳號",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_confirm_title": {
+    "value": "確認註銷帳號？",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_confirm_action": {
+    "value": "確認註銷",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_confirm_cancel": {
+    "value": "再想想",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_membership_warning_title": {
+    "value": "會員權益提醒",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_membership_warning": {
+    "value": "目前帳號存在有效會員權益（包括月卡、年卡或永久會員）。註銷帳號將一併刪除該會員權益，且不可人工恢復。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_impact_title": {
+    "value": "註銷前請確認",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_impact_account": {
+    "value": "你的帳號資料和登入身分將被刪除或匿名化處理。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_impact_local_data": {
+    "value": "本機計分記錄、預約、常用名稱和設置不會被刪除。",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_impact_irreversible": {
+    "value": "註銷完成後，該帳號無法恢復。",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_submitting": {
+    "value": "提交中...",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_apply": {
+    "value": "註銷帳號",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_success": {
+    "value": "帳號已註銷",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_submitted": {
+    "value": "註銷申請已提交",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "account_deletion_failed": {
+    "value": "帳號註銷失敗，請稍後重試",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "apple_login_invalid": {
+    "value": "Apple 登入憑證無效",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "apple_login_nonce_failed": {
+    "value": "無法安全生成 Apple 登入請求，請重試",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "login_cancelled": {
+    "value": "已取消登入",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "login_expired": {
+    "value": "登入已失效，請重新登入",
+    "note": "reviewed: TW 口径批量修正",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "me_login_email_placeholder": {
+    "value": "請輸入電子郵件或手機號碼",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "me_login_enter_email": {
+    "value": "請輸入電子郵件或手機號碼",
+    "note": "reviewed: accept generated",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "faq_answer_5": {
+    "value": "要把比分顯示在另一台手機或平板上：在顯示端進入「同步比分 → 加入比賽」，按頁面提示產生短碼/QR Code；主控端進入比賽後連線，比分會同步到顯示端。兩端需保持網路穩定，盡量不要鎖屏或切到背景；若同步卡住，請雙方退出後重新連線。\n\n要把計分板投影到電視或大螢幕：請使用手機系統的無線投影（Miracast）。從系統控制中心開啟無線投影並連線電視，應用偵測到已連線的螢幕後，計分板會自動顯示到大螢幕。應用依賴系統投影能力，不會自己搜尋電視；在系統中斷開投影，本次投影也會結束。不同品牌可能將無線投影稱為「無線顯示」或「多螢互動」，請先在系統中完成連線。",
+    "note": "reviewed: 保留 Miracast/一臺 原文（Miracast 为三语共同遗留文案，另开修复项）",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  },
+  "sync_intro_overview": {
+    "value": "兩台裝置配合使用：分享端負責計分，顯示端全螢幕展示比分。",
+    "note": "reviewed: 保留 Miracast/一臺 原文（Miracast 为三语共同遗留文案，另开修复项）",
+    "reviewer": "yy",
+    "date": "2026-09-19"
+  }
+}

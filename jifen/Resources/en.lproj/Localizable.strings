@@ -16,7 +16,7 @@
 "timer" = "Timer";
 "scoreboard_sports" = "Sports";
 "scoreboard_board_games" = "Board Games";
-"scoreboard_cards" = "Scoring";
+"scoreboard_cards" = "Score";
 "search_team_or_game" = "Search team or game";
 "match_count" = "%d matches";
 
@@ -78,7 +78,6 @@
 "singles_doubles" = "Singles / Doubles";
 
 /* Timer Settings */
-"timer_settings_for" = "Timer settings for";
 "unknown" = "Unknown";
 
 /* Timer Tab */
@@ -127,8 +126,8 @@
 "timer_black_player" = "Black";
 "timer_white_player" = "White";
 "timer_red_player" = "Red";
-"timer_role_red" = "Red";
-"timer_role_black" = "Black";
+"timer_role_red" = "Marshal";
+"timer_role_black" = "General";
 "timer_action_start" = "Timer started";
 "timer_action_pause" = "Timer paused";
 "timer_action_resume" = "Timer resumed";
@@ -140,37 +139,32 @@
 "cube_timer_release_to_start" = "Release hands to start timing";
 "cube_timer_place_hands" = "Place both hands on screen to prepare";
 "cube_timer_no_touchscreen_hint" = "💡 No touchscreen available, works on phones and tablets";
-"click_again_to_exit" = "Click again to exit";
+"click_again_to_exit" = "Tap again to exit";
 "tap_again_to_exit" = "Tap again to exit";
 "seconds_short" = "s";
 "minute" = "min";
 "minutes" = "min";
 
 /* Game Types */
-"game_pingpong" = "Ping Pong";
+"game_pingpong" = "Table Tennis";
 "game_badminton" = "Badminton";
 "game_tennis" = "Tennis";
 "game_basketball" = "Basketball";
 "game_basketball_training" = "Shot Training";
-"shot_training_setup_title" = "Shot Training Setup";
-"shot_training_scoring_mode" = "Scoring Mode";
-"shot_training_mode_1" = "1-point";
-"shot_training_mode_2" = "2-point";
-"shot_training_mode_3" = "3-point";
-"shot_training_mode_free" = "Free Mode";
+"shot_training_setup_title" = "Shot Training";
+"shot_training_1pt" = "1 pt";
+"shot_training_2pt" = "2 pts";
+"shot_training_3pt" = "3 pts";
+"shot_training_free" = "Free";
 "shot_training_mode_help" = "Fixed modes record the same value each time. Free mode lets you choose 1, 2, or 3 points for each attempt.";
 "shot_training_miss" = "Miss";
 "shot_training_made" = "Made";
-"shot_training_attempts" = "Attempts";
-"shot_training_rate" = "Accuracy";
-"shot_training_points" = "Points";
-"shot_training_tap_to_record" = "Tap to record a %d-point shot";
-"shot_training_summary" = "Training Summary";
-"shot_training_summary_points" = "%d total points";
+"shot_training_finish" = "Finish Training";
+"shot_training_undo_done" = "Last shot undone";
 "shot_training_share" = "Shot training: %d made of %d, %d%% accuracy, %d points";
 "game_football" = "Football";
 "game_volleyball" = "Volleyball";
-"game_checkers" = "Checkers";
+"game_checkers" = "Chinese Checkers";
 "timer_checkers" = "Checkers";
 "game_boxing" = "Boxing";
 "game_billiards" = "Billiards";
@@ -178,15 +172,18 @@
 "game_guandan" = "Guandan";
 "display_guandan_pass_a" = "Pass A %d";
 "display_guandan_triple_a" = "Triple A";
+"display_training_point_counts" = "1pt %d · 2pt %d · 3pt %d";
+"display_training_fixed_points" = "%d-point shots";
+"display_training_finished" = "Training finished";
 "guandan_pass_a_condition_section" = "Pass-A Condition";
 "guandan_pass_a_not_last" = "Not Last (+2/3)";
 "guandan_pass_a_double_up" = "Double Up (+3)";
 "guandan_triple_a_toggle_label" = "Triple A";
-"guandan_triple_a_fallback_section" = "Triple-A Fallback Rank";
-"doudizhu_player_adam" = "Adam";
-"doudizhu_player_bob" = "Bob";
-"doudizhu_player_chris" = "Chris";
-"shengji_claim_dealer" = "Claim";
+"guandan_triple_a_fallback_section" = "If Triple A Fails, Fall Back To";
+"doudizhu_player_adam" = "Liu Bei";
+"doudizhu_player_bob" = "Guan Yu";
+"doudizhu_player_chris" = "Zhang Fei";
+"shengji_claim_dealer" = "Bid Dealer";
 "guandan_edit_level_wrap_confirm_title" = "Return rank to 2?";
 "guandan_edit_level_wrap_confirm_message" = "Increasing again will reset this team's rank to 2.";
 "shengji_take_dealer" = "Take Dealer";
@@ -212,7 +209,7 @@
 /* Setup Titles */
 "football_setup_title" = "Football Setup";
 "volleyball_setup_title" = "Volleyball Setup";
-"pingpong_setup_title" = "Ping Pong Setup";
+"pingpong_setup_title" = "Table Tennis Setup";
 "setup" = "Setup";
 "setup_suffix" = " Setup";
 
@@ -221,7 +218,7 @@
 "auto_change_sides" = "Auto change sides";
 "start_game" = "Start";
 
-/* Ping Pong Settings */
+/* Table Tennis Settings */
 "pingpong_set_count_label" = "Set Count";
 "pingpong_auto_change_sides" = "Auto change sides";
 "pingpong_set_option_best_of_3" = "Best of 3";
@@ -283,26 +280,26 @@
 "items" = "items";
 
 /* Messages */
-"duplicate_names_warning" = "Duplicate names warning";
+"duplicate_names_warning" = "Duplicate Names";
 "undone" = "Undone";
 "change_sides" = "Change Sides";
 "please_change_sides_manually" = "Please change sides manually";
-"press_again_to_exit" = "Press again to exit";
-"press_again_to_reset" = "Press again to reset";
-"click_again_to_reset" = "Click again to reset";
+"press_again_to_exit" = "Tap again to exit";
+"press_again_to_reset" = "Tap again to reset";
+"click_again_to_reset" = "Tap again to reset";
 "click_again_to_finish" = "Tap again to finish the game";
 "click_again_to_exchange_sides" = "Tap again to confirm swap";
 "match_completion_sets" = "Sets";
 "match_completion_sets_tennis" = "Sets";
 "match_completion_classic" = "Classic";
 "match_completion_play_all" = "Play all";
-"match_completion_classic_description" = "Best of five; finish when a winner is decided";
-"match_completion_play_all_description" = "Play all five sets; the match may end in a draw";
-"match_completion_classic_tennis_description" = "Best of five sets; finish when a winner is decided";
-"match_completion_play_all_tennis_description" = "Play all five sets; the match may end in a draw";
+"match_completion_classic_description" = "e.g. best of five; finish when a winner is decided";
+"match_completion_play_all_description" = "e.g. play all five sets; the match may end in a draw";
+"match_completion_classic_tennis_description" = "e.g. best of five sets; finish when a winner is decided";
+"match_completion_play_all_tennis_description" = "e.g. play all five sets; the match may end in a draw";
 "match_completion_custom_placeholder" = "Enter 1-99";
 "match_completion_invalid_sets" = "Classic requires an odd number from 1-99; Play all accepts 1-99.";
-"has_been_reset" = "Has been reset";
+"has_been_reset" = "Reset complete";
 "no_undo_available" = "No undo available";
 "screenshot_failed" = "Screenshot failed";
 "screenshot_saved" = "Screenshot saved";
@@ -317,7 +314,7 @@
 "winner" = "Winner";
 
 /* Rest Countdown */
-"set_break" = "Set Break";
+"set_break" = "Interval";
 
 /* Scoreboard Tab */
 "scoreboard_title" = "Score";
@@ -335,7 +332,7 @@
 "tool_random_team" = "Random Team";
 "tool_red_yellow_card" = "Red/Yellow Card";
 "tool_time" = "Flip Clock";
-"tool_aa_calculator" = "AA Calculator";
+"tool_aa_calculator" = "Bill Splitter";
 "tool_ten_second" = "10s Challenge";
 
 /* Whistle Tool */
@@ -349,7 +346,7 @@
 "players_6" = "6 Players";
 "players_8" = "8 Players";
 "players_count_format" = "%d Players";
-"simulate" = "Simulate";
+"simulate" = "Shuffle";
 "try_again" = "Try Again";
 "place_fingers_on_blocks" = "Place fingers on blocks (%d/%d)";
 "grouping_in_progress" = "Grouping...";
@@ -364,7 +361,7 @@
 "heads" = "Heads";
 "tails" = "Tails";
 "total" = "Total";
-"coin_heads_text" = "8";
+"coin_heads_text" = "GG";
 
 /* Dice Tool */
 "dice_title" = "Dice";
@@ -422,18 +419,18 @@
 /* Time Tool */
 "rotate_display" = "Rotate display";
 
-/* AA Calculator Tool */
-"aa_calculator_title" = "AA Calculator";
+/* Bill Splitter Tool */
+"aa_calculator_title" = "Bill Splitter";
 "total_amount" = "Total Amount";
 "enter_amount" = "Enter amount";
 "participants" = "Participants";
 "person" = "person";
 "each_pays" = "Each Pays";
 "calculate" = "Calculate";
-"enter_valid_amount" = "Please enter valid amount";
+"enter_valid_amount" = "Please enter a valid amount";
 
-/* Fullscreen Barrage */
-"fullscreen_barrage" = "Barrage";
+/* Fullscreen Marquee */
+"fullscreen_barrage" = "Marquee";
 "show" = "Show";
 "barrage_text_label" = "Message";
 "barrage_input_placeholder" = "Enter text to display";
@@ -447,13 +444,14 @@
 "barrage_static_mode" = "Static";
 
 /* Menu Dialog */
-"operations" = "Operations";
+"operations" = "Actions";
 "menu_whistle" = "Whistle";
 "menu_font" = "Font";
 "menu_screenshot" = "Screenshot";
 "menu_swap_sides" = "Swap Sides";
 "menu_reset" = "Reset";
 "menu_undo" = "Undo";
+"scoreboard_rotate_orientation" = "Rotate orientation";
 
 /* Font Selection */
 "font_default" = "Default";
@@ -503,8 +501,8 @@
 "account_login_title" = "Sign In";
 "account_login_subtitle" = "Sign in to sync common data, feedback, and live scores";
 "account_login_agreement_hint" = "Please read and agree to the Terms of Service and Privacy Policy first";
-"me_login_password_title" = "Email/Password Sign-in";
-"me_password_login_entry" = "Email/Password Sign-in";
+"me_login_password_title" = "Account & Password Sign-in";
+"me_password_login_entry" = "Account & Password Sign-in";
 "me_login_email_placeholder" = "Enter email or phone number";
 "me_login_password_placeholder" = "Enter password";
 "me_login_enter_email" = "Please enter email or phone number";
@@ -521,11 +519,11 @@
 "account_logout_confirm_message" = "Are you sure you want to sign out of the current account?";
 "account_logout_confirm_syncing" = "Cross-device score sync is in progress. Signing out will disconnect the sync, and viewer devices will stop receiving score updates.";
 "me_profile_vip_badge" = "VIP";
-"membership_basic_member_title" = "Member";
+"membership_basic_member_title" = "Basic";
 "membership_title" = "Membership";
 "membership_entry_title_active" = "VIP Membership";
 "membership_entry_summary" = "Monthly, yearly, or lifetime VIP";
-"settings_share_app_message" = "All-in-One Scorekeeper makes scoring sports and games easy";
+"settings_share_app_message" = "iScoreboard makes scoring sports and games easy";
 "feedback_external_link_title" = "Open External Link?";
 "feedback_external_link_open" = "Continue";
 "clear_data_category_active_sync" = "Active sync session";
@@ -636,6 +634,8 @@
 
 /* Record Detail Page */
 "match_detail" = "Match Details";
+"training_detail" = "Training Details";
+"card_round_detail" = "Card Game Details";
 "confirm_delete" = "Confirm Delete";
 "confirm_delete_record_message" = "Are you sure you want to delete this match record? This action cannot be undone.";
 "delete_record" = "Delete Record";
@@ -672,7 +672,7 @@
 "schedule_reminders" = "Reminders";
 "schedule_reminder_hours_before" = "%d hours before";
 "schedule_reminder_minutes_before" = "%d minutes before";
-"schedule_reminder_help_title" = "Reminder Notes";
+"schedule_reminder_help_title" = "About Reminders";
 "schedule_reminder_help_message" = "These reminders are local notifications scheduled on your device.\n- Notification permission must be enabled\n- Reminders may not arrive if the app is uninstalled, notifications are disabled, or background execution is restricted\n- Related reminders are updated or removed when you edit or cancel a booking";
 "schedule_notes" = "Notes";
 "schedule_start_game" = "Start Game";
@@ -710,7 +710,7 @@
 "schedule_points_per_set" = "Points per Set";
 "schedule_tiebreak_points" = "Tiebreak Points";
 "schedule_deuce_mode" = "Deuce Rule";
-"schedule_use_project_default" = "Project Default";
+"schedule_use_project_default" = "Sport Default";
 "schedule_save_failed" = "Could Not Save Booking";
 "schedule_save_failed_message" = "The local data could not be saved. Please try again.";
 "schedule_future_time_required" = "Choose a future booking time.";
@@ -771,7 +771,7 @@
 "pickleball_score_cap" = "Score cap";
 "pickleball_no_cap" = "None";
 "pickleball_rally_scoring" = "Rally scoring";
-"pickleball_auto_change_sides" = "Auto switch sides";
+"pickleball_auto_change_sides" = "Auto change sides";
 "scoreboard_settings_appearance" = "Appearance";
 "scoreboard_settings_experience" = "Scoring Experience";
 "scoreboard_theme" = "Scoreboard Theme";
@@ -868,10 +868,10 @@
 "scoreboard_double_tap_help_message" = "When enabled, quickly double-tap a side to subtract one point. Only applies to some scoreboards.";
 "scoreboard_double_tap_subtract_help_message" = "When on, double-tap the same score area or player tile to subtract 1. When off, swipe down to subtract or swipe left to undo. Button scoreboards like basketball and snooker are unchanged.";
 "scoreboard_official_break_help_title" = "Game break information";
-"scoreboard_official_break_help_message" = "When enabled, official break countdowns are shown for:\n\nTable tennis: game break (60 seconds)\nBadminton: mid-game break (60 seconds) and game break (120 seconds)\nSquash: game break (90 seconds)\nShuttlecock: game break (60 seconds)\nTennis: changeover (90 seconds) and set break (120 seconds)\nSoft tennis: changeover (60 seconds)\nPadel: changeover (90 seconds) and set break (120 seconds)\nPickleball: deciding-game mid-game break (60 seconds) and game break (120 seconds)";
+"scoreboard_official_break_help_message" = "When enabled, official break countdowns are shown for:\n\nTable tennis: game break (60 seconds)\nBadminton: mid-game break (60 seconds) and game break (120 seconds)\nSquash: game break (90 seconds)\nJianzi: game break (60 seconds)\nTennis: changeover (90 seconds) and set break (120 seconds)\nSoft tennis: changeover (60 seconds)\nPadel: changeover (90 seconds) and set break (120 seconds)\nPickleball: deciding-game mid-game break (60 seconds) and game break (120 seconds)";
 "show_match_time" = "Show time";
 "hide_match_time" = "Hide time";
-"scoreboard_match_time_this_game_only" = "This match only; the next match uses its saved project setting.";
+"scoreboard_match_time_this_game_only" = "This match only; the next match reverts to the sport's default setting.";
 "scoreboard_font_size" = "Font Size";
 "scoreboard_font_size_reset" = "Reset to default";
 "scoreboard_font_metric_score" = "Main Score";
@@ -936,7 +936,7 @@
 "uno_confirm_round" = "Confirm score";
 "uno_select_winner_toast" = "Select the round winner";
 "uno_zero_score_toast" = "Round score cannot be 0. Enter the value of remaining cards.";
-"press_again_to_end" = "Press again to end the match";
+"press_again_to_end" = "Tap again to end the match";
 "doudizhu_settle_preview_one" = "Settle: winner +%d, others −%d each";
 "doudizhu_settle_preview_two" = "Settle: winners +%d each, loser −%d";
 "doudizhu_select_one_or_two_winners" = "Select 1 or 2 winners";
@@ -1010,7 +1010,7 @@
 "scoreboard_usage_hint_got_it" = "Got it";
 "scoreboard_usage_hint_football" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n⏱️ Open Injury time from the bottom-right menu, choose a duration, then undo or confirm\n🏁 After the second half and injury time, a tied match can continue to two 15-minute periods of extra time";
 "scoreboard_usage_hint_basketball" = "👆 Tap +1, +2, or +3 for the team\n↩️ Swipe left to undo\n🚩 Tap the foul area to add a foul; long-press to remove one\n⏱️ Use the basketball panel for the clock, period, and timeouts";
-"scoreboard_usage_hint_basketball_training" = "🏀 Choose fixed 1/2/3-point or free mode\n✅ Tap Made or Missed to record an attempt\n↩️ Tap Undo to remove the latest attempt\n⏹️ Finish to view shooting rate and the training summary";
+"scoreboard_usage_hint_basketball_training" = "🏀 Tap the Miss or Made zone to record a shot\n↩️ Swipe left to undo the last record\n⏹️ Reset and Finish Training are in the bottom-right menu";
 "scoreboard_usage_hint_three_basketball" = "👆 Tap a score button for the team\n↩️ Swipe left to undo\n🚩 Tap the foul area to add a foul; long-press to remove one\n⏱️ Use the basketball panel for the clock, period, and timeouts";
 "scoreboard_usage_hint_volleyball" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Sets and game point follow volleyball rules";
 "scoreboard_usage_hint_beach_volleyball" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Sets and game point follow beach volleyball rules";
@@ -1030,7 +1030,7 @@
 "scoreboard_usage_hint_nine_ball" = "👆 Tap a player, ball, or event button to record chase points\n🎱 This is chase-points practice; use the balls and events shown on screen\n↩️ Swipe left or use Undo first when a mistake is made\n✏️ Use edit when detailed correction is needed";
 "scoreboard_usage_hint_snooker" = "🔴 Tap red, color, or score buttons to score\n⚠️ Use Foul to record penalty points\n🔁 Tap Switch turn to change the striker\n↩️ Undo mistakes first, or use edit\n☑️ Open Settle from the bottom-right menu when needed";
 "scoreboard_usage_hint_guandan" = "👆 Use the left and right controls to record each result and level progress\n↕️ In edit mode, swipe vertically on either side to change its level quickly\n🅰️ Passing A, reset, undo, and manual finish are available on the board or menu\n↩️ Undo a mistake before continuing from the current level";
-"scoreboard_usage_hint_shengji" = "👆 Start by tapping Claim Dealer for either team\n🏆 Record each round with Take Over or the +1, +2, and +3 buttons\n↩️ Undo the previous round from the menu\n✏️ Tap the pencil at the top right to edit team names and levels\n🔄 Reset or finish the match manually";
+"scoreboard_usage_hint_shengji" = "👆 Start by tapping Bid Dealer for either team\n🏆 Record each round with Take Dealer or the +1, +2, and +3 buttons\n↩️ Undo the previous round from the menu\n✏️ Tap the pencil at the top right to edit team names and levels\n🔄 Reset or finish the match manually";
 "scoreboard_usage_hint_uno" = "👆 Tap a player to open the round-scoring panel\n✏️ Long-press a player to edit the name and score\n↩️ Undo the previous round\n☑️ Settle or finish the match manually\n🖼️ Display settings and screenshots are in the menu";
 "scoreboard_usage_hint_doudizhu" = "➕ Tap the plus button at the bottom center to open round settlement\n🧮 Choose the base score, multiplier, and either one winner or everyone except one loser\n↩️ Swipe left or use the menu to undo the previous round\n✏️ Tap the pencil at the top right to edit players and scores\n🔄 Reset or finish the match manually";
 "scoreboard_usage_hint_foosball" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n☑️ Use Settle or Finish when the match ends";
@@ -1162,7 +1162,7 @@
 "resume_load_failed_title" = "Unable to Resume Match";
 "resume_load_failed_format" = "Could not load the saved match: %@";
 "resume_load_invalid" = "The saved match is damaged and cannot be resumed.";
-"game_shuttlecock" = "Shuttlecock";
+"game_shuttlecock" = "Jianzi";
 "game_squash" = "Squash";
 "game_soft_tennis" = "Soft Tennis";
 "game_padel" = "Padel";
@@ -1188,7 +1188,7 @@
 "key_point_game" = "Game point";
 "key_point_set" = "Set point";
 "key_point_match" = "Match point";
-"football_post_regulation_action" = "Match decision";
+"football_post_regulation_action" = "After Regulation";
 "football_second_half" = "Second half";
 "football_switch_extra_time_half" = "Start second half of extra time";
 "football_switch_half" = "Second half";
@@ -1218,14 +1218,14 @@
 "record_tt_medical" = "%@ Medical Timeout";
 "record_tt_forfeit" = "%@ Forfeit";
 "player" = "Player";
-"scoreboard_usage_hint_shuttlecock" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Team shuttlecock scoring follows the selected target and set rules";
+"scoreboard_usage_hint_shuttlecock" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Team Jianzi scoring follows the selected target and set rules";
 "scoreboard_usage_hint_squash" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Squash uses best-of-five games with two-point advantage";
 "scoreboard_usage_hint_soft_tennis" = "👆 Tap the left/right score area to record a point\n↩️ Swipe left to undo the previous action\n🎾 Uses the selected 7- or 9-game match; the final game is decided by a 7-point, win-by-two tiebreak\n🔄 End changes and rest prompts follow the current match rule";
 "scoreboard_usage_hint_padel" = "👆 Tap the left/right score area to record a point\n↩️ Swipe left to undo the previous action\n🎾 Points, games, sets, and the selected advantage, golden-point, or Star Point deuce mode are automatic\n🔄 End changes and rest prompts follow the current match rule";
 "scoreboard_usage_hint_football_5v5" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n⏯️ Tap the clock to pause or resume timing";
 /* Dedicated AirPlay display */
 "cast_active" = "Casting";
-"home_sync_entry" = "Sync score";
+"home_sync_entry" = "Cast & Sync";
 "home_sync_sharing" = "Syncing score";
 "home_sync_connected_device" = "%@ connected";
 "home_sync_connected_devices" = "%d devices connected";
@@ -1352,6 +1352,7 @@
 // MARK: Feedback (mirrors Android FeedbackListScreen / FeedbackUi.kt)
 "feedback_new" = "New feedback";
 "feedback_create" = "Post Feedback";
+"toast_login_required_feedback_publish" = "Sign in to post feedback";
 "feedback_detail" = "Feedback Detail";
 "feedback_load_failed" = "Failed to load";
 "feedback_reload" = "Reload";
@@ -1402,7 +1403,7 @@
 "feedback_image_prepare_failed" = "%d image(s) couldn't be processed. Please try a different one.";
 
 // MARK: Membership (mirrors HarmonyOS VipPage / Android AccountMembershipScreens)
-"vip_title" = "All-in-One Scoreboard VIP";
+"vip_title" = "iScoreboard VIP";
 "vip_subtitle" = "Become a member to unlock the full scoring experience";
 "vip_subtitle_active" = "All member benefits unlocked";
 "vip_already_member" = "You are already a VIP member";
@@ -1422,7 +1423,7 @@
 "membership_lifetime_plan_title" = "Lifetime Membership";
 "vip_one_time_purchase" = "One-time purchase, lifetime access";
 "membership_lifetime_badge" = "Lifetime";
-"vip_login_hint" = "Please sign in before purchasing";
+"vip_optional_sign_in_hint" = "Sign in to sync your membership across your devices";
 "membership_restore" = "Restore Purchases";
 "vip_purchasing" = "Purchasing...";
 "vip_buy_now" = "Get VIP Now";
@@ -1450,7 +1451,7 @@
 
 // MARK: Account / Profile / Deletion / QR Sign-In / Network & purchase errors (legacy backfill)
 "account_avatar_invalid" = "Couldn't read this image";
-"account_default_name" = "Scoreboard User";
+"account_default_name" = "iScoreboard User";
 "account_deletion_title" = "Delete Account";
 "account_deletion_confirm_title" = "Delete your account?";
 "account_deletion_confirm_action" = "Confirm Deletion";
@@ -1498,7 +1499,7 @@
 "me_profile_nickname_cooldown" = "You recently changed your nickname. You can change it again after %@.";
 "me_profile_nickname_cooldown_generic" = "You recently changed your nickname. Please try again in a moment.";
 "me_profile_nickname_review_submitted" = "Nickname submitted for review and is visible only to you for now.";
-"membership_login_required" = "Sign in before purchasing";
+"membership_purchase_success_signed_out" = "Purchase successful. Your membership is active on this device; sign in to sync it to your other devices";
 "membership_purchase_success" = "Purchase successful. Membership updated.";
 "membership_purchase_pending" = "Purchase pending confirmation. Membership updates automatically once confirmed.";
 "membership_restore_done" = "Purchases restored";
@@ -1509,7 +1510,7 @@
 "network_request_failed" = "Request failed. Please try again later.";
 "qr_login_confirm_title" = "Confirm Web Sign-In";
 "qr_login_expired" = "QR code expired";
-"qr_login_invalid" = "Not a valid Scoreboard sign-in QR code";
+"qr_login_invalid" = "Not a valid iScoreboard sign-in QR code";
 "qr_login_unknown_device" = "Web device";
 "qr_login_untrusted" = "The QR code comes from an untrusted server";
 "record_score_correction" = "Correct Score";

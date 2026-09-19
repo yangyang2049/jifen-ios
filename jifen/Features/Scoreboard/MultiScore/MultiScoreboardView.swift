@@ -813,25 +813,31 @@ struct MultiScoreboardView: View {
                     }
 
                     HStack(spacing: 16) {
-                        Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                        Button {
                             cancelPlayerEdit()
+                        } label: {
+                            Text(NSLocalizedString("cancel", value: "取消", comment: ""))
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.6))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
+                                .contentShape(RoundedRectangle(cornerRadius: 12))
                         }
-                        .font(.system(size: 16, weight: .medium))
                         .buttonStyle(.plain)
-                        .foregroundStyle(.white.opacity(0.6))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
 
-                        Button(NSLocalizedString("confirm", value: "确定", comment: "")) {
+                        Button {
                             confirmPlayerEdit(index: index)
+                        } label: {
+                            Text(NSLocalizedString("confirm", value: "确定", comment: ""))
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.primary))
+                                .contentShape(RoundedRectangle(cornerRadius: 12))
                         }
-                        .font(.system(size: 16, weight: .semibold))
                         .buttonStyle(.plain)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.primary))
                     }
                 }
                 .padding(24)

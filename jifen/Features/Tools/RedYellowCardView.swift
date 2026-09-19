@@ -36,8 +36,19 @@ struct RedYellowCardView: View {
                         .padding(.bottom, 40)
                 }
         }
-        .navigationTitle(NSLocalizedString("red_yellow_card_title", comment: "Red Yellow Card title"))
-        .navigationBarTitleDisplayMode(.inline)
+        // Full-screen card color with a floating back button instead of a
+        // navigation bar.
+        .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .topLeading) {
+            FloatingBackButton(
+                iconColor: currentIndex == 0 ? .black.opacity(0.75) : .white,
+                circleColor: currentIndex == 0 ? Color.black.opacity(0.08) : Color.white.opacity(0.18)
+            ) {
+                dismiss()
+            }
+            .padding(.leading, 16)
+            .padding(.top, 4)
+        }
         .onChange(of: currentIndex) { _, value in
             AppAnalytics.track(.toolAction, parameters: [
                 .toolID: .string("red_yellow_card"),

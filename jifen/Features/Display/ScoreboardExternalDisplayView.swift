@@ -9,6 +9,7 @@ enum ScoreboardExternalTemplate: String, Equatable {
     case cardThreePlayer
     case cardTwoSeat
     case trainingCounter
+    case shotTrainingGrid
 
     static func resolve(state: ScoreboardDisplayState) -> Self {
         switch state.layoutKind {
@@ -17,6 +18,7 @@ enum ScoreboardExternalTemplate: String, Equatable {
         case .teamCourt: return .teamCourt
         case .multiGrid: return .multiGrid
         case .trainingCounter: return .trainingCounter
+        case .shotTrainingGrid: return .shotTrainingGrid
         case .boardCard:
             switch state.gameType {
             case "guandan", "shengji": return .cardTwoTeam
@@ -564,7 +566,7 @@ struct ScoreboardExternalLiveView: View {
                 if let rest = state.rest {
                     ScoreboardExternalRestOverlay(rest: rest, viewport: proxy.size, projection: projection)
                 }
-                if state.result?.ended == true {
+                if state.result?.ended == true, template != .shotTrainingGrid {
                     resultOverlay(viewport: proxy.size)
                 }
             }
@@ -650,6 +652,8 @@ struct ScoreboardExternalLiveView: View {
             DisplayMultiGridSurface(state: state, viewport: viewport, cardStyle: false, projection: projection)
         case .cardThreePlayer:
             DisplayMultiGridSurface(state: state, viewport: viewport, cardStyle: true, projection: projection)
+        case .shotTrainingGrid:
+            DisplayShotTrainingSurface(state: state, viewport: viewport)
         }
     }
 
@@ -658,6 +662,8 @@ struct ScoreboardExternalLiveView: View {
         case .twoSide, .cardTwoTeam, .cardTwoSeat, .trainingCounter:
             buildTwoSideModel(viewport: viewport)
         default:
+            // 投篮训练自带分区版式；旧接收端把未知 layoutKind 降级成 two_side，
+            // 那时才会走 buildTwoSideModel 里的分项文案。
             nil
         }
     }
@@ -1100,6 +1106,26 @@ struct ScoreboardExternalLiveView: View {
                 )
             } else if sportBool("guandanTripleAEnabled") {
                 secondaryText = NSLocalizedString("display_guandan_triple_a", value: "三A", comment: "")
+            }
+        case "basketball_training":
+            // 与手机端六格同口径：team_0=未中、team_1=命中。固定模式标出记录分值，
+            // 自由模式在总数下方给出该侧 1/2/3 分的分项计数。
+            if state.sportString("trainingMode") == "free" {
+                let suffix = isLogicalTeam0 ? "Miss" : "Made"
+                secondaryText = String(
+                    format: NSLocalizedString("display_training_point_counts", value: "1分 %d · 2分 %d · 3分 %d", comment: ""),
+                    sportNumber("trainingOne\(suffix)"),
+                    sportNumber("trainingTwo\(suffix)"),
+                    sportNumber("trainingThree\(suffix)")
+                )
+            } else {
+                let points = sportNumber("trainingPoints")
+                if points > 0 {
+                    secondaryText = String(
+                        format: NSLocalizedString("display_training_fixed_points", value: "%d 分球", comment: ""),
+                        points
+                    )
+                }
             }
         case "eight_ball":
             let handicap = sportNumber("eightBallHandicapRacks")
@@ -2799,6 +2825,156 @@ private struct DisplayMultiGridSurface: View {
             }
             return font.swiftUIFont(size: size, weight: weight)
         }
+    }
+}
+
+/// 投篮训练显示端版式：复刻手机端分区，且显示端只有横屏一套版式。
+/// 固定分值 = 未中在左 / 命中在右；自由模式 = 未中在上 / 命中在下，每侧从左到右 1/2/3 列，
+/// 分值徽标骑在中心线上只显示数字。team_0 恒为未中、team_1 恒为命中（发布端不做屏幕侧翻转）。
+private struct DisplayShotTrainingSurface: View {
+    let state: ScoreboardDisplayState
+    let viewport: CGSize
+
+    private var isFreeMode: Bool {
+        state.sportString("trainingMode") == ShotTrainingMode.free.rawValue
+    }
+
+    /// 展示窗口可能是扩展屏（1080p）或手机横屏，统一按短边缩放浮层尺寸。
+    private var chrome: CGFloat {
+        DisplayTypographyResolver.chromeScale(for: viewport)
+    }
+
+    private var labelFontSize: CGFloat { (viewport.height * 0.05).clamped(16, 46) }
+    private var badgeFontSize: CGFloat { (viewport.height * 0.045).clamped(16, 44) }
+    private var cellFontSize: CGFloat {
+        min(viewport.height * 0.24, viewport.width * 0.11).clamped(40, 220)
+    }
+
+    var body: some View {
+        ZStack {
+            if isFreeMode {
+                VStack(spacing: 1) {
+                    freeZone(made: false)
+                    freeZone(made: true)
+                }
+                HStack(spacing: 0) {
+                    ForEach(1...3, id: \.self) { points in
+                        pointBadge(points)
+                    }
+                }
+                .allowsHitTesting(false)
+            } else {
+                HStack(spacing: 1) {
+                    fixedPanel(made: false)
+                    fixedPanel(made: true)
+                }
+            }
+
+            topBadge
+        }
+    }
+
+    private func fixedPanel(made: Bool) -> some View {
+        ZStack {
+            Color(hex: ShotTrainingZonePalette.hex(made: made))
+            VStack(spacing: 8 * chrome) {
+                Text(state.displayScore(forVisualIndex: made ? 1 : 0))
+                    .font(.system(size: scoreFontSize, weight: .black, design: .rounded))
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.3)
+                    .lineLimit(1)
+                    .padding(.horizontal, 12 * chrome)
+                Text(zoneName(made: made))
+                    .font(.system(size: labelFontSize, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.85))
+            }
+            .foregroundStyle(.white)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func freeZone(made: Bool) -> some View {
+        ZStack {
+            Color(hex: ShotTrainingZonePalette.hex(made: made))
+            HStack(spacing: 1) {
+                ForEach(1...3, id: \.self) { points in
+                    Text("\(cellCount(points: points, made: made))")
+                        .font(.system(size: cellFontSize, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            Text(zoneName(made: made))
+                .font(.system(size: labelFontSize, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.7))
+                .padding(10 * chrome)
+                // 顶部居中留给模式徽章，分区标签贴各自的左上/左下角，避免叠字。
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: made ? .bottomLeading : .topLeading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func pointBadge(_ points: Int) -> some View {
+        Text("\(points)")
+            .font(.system(size: badgeFontSize, weight: .bold))
+            .monospacedDigit()
+            .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.12))
+            .padding(.horizontal, badgeFontSize * 0.7)
+            .padding(.vertical, badgeFontSize * 0.3)
+            .background(Color.white.opacity(0.88), in: Capsule())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// 顶部标注当前模式（分值口径），结束后追加结束标记；投篮训练没有对手方，不套胜负卡。
+    @ViewBuilder
+    private var topBadge: some View {
+        let text: String = {
+            var segments: [String] = []
+            if let mode = ShotTrainingMode(rawValue: state.sportString("trainingMode") ?? "") {
+                segments.append(mode.title)
+            }
+            if state.result?.ended == true {
+                segments.append(NSLocalizedString("display_training_finished", value: "训练结束", comment: ""))
+            }
+            return segments.joined(separator: " · ")
+        }()
+        if !text.isEmpty {
+            Text(text)
+                .font(.system(size: labelFontSize * 0.9, weight: .semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14 * chrome)
+                .padding(.vertical, 7 * chrome)
+                .background(.black.opacity(0.32), in: RoundedRectangle(cornerRadius: 14 * chrome))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.top, 14 * chrome)
+                .allowsHitTesting(false)
+        }
+    }
+
+    /// 固定模式总数复用双边版主分档位（半屏宽 × 整屏高），与其它版式字号一致。
+    private var scoreFontSize: CGFloat {
+        DisplayTypographyResolver.twoSideTokens(
+            width: viewport.width,
+            height: viewport.height,
+            isPhone: min(viewport.width, viewport.height) < 600
+        ).score
+    }
+
+    private func zoneName(made: Bool) -> String {
+        let teamID = made ? "team_1" : "team_0"
+        return state.teams.first(where: { $0.id == teamID })?.name ?? ""
+    }
+
+    private func cellCount(points: Int, made: Bool) -> Int {
+        let suffix = made ? "Made" : "Miss"
+        let key: String
+        switch points {
+        case 1: key = "trainingOne\(suffix)"
+        case 2: key = "trainingTwo\(suffix)"
+        default: key = "trainingThree\(suffix)"
+        }
+        return state.sportInt(key) ?? 0
     }
 }
 

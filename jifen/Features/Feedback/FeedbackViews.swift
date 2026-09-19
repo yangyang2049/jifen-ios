@@ -324,6 +324,8 @@ struct FeedbackListView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showCreate = false
+    @State private var showLoginSheet = false
+    @State private var toastMessage: String?
     @State private var filterType: FeedbackType?
     @State private var hasAppearedOnce = false
 
@@ -372,16 +374,38 @@ struct FeedbackListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    showCreate = true
+                    // 对齐安卓：未登录不置灰拦截，点击 Toast 提示 + 拉起登录，登录成功后自动进入发布页。
+                    if session.isAuthenticated {
+                        showCreate = true
+                    } else {
+                        showToast(NSLocalizedString(
+                            "toast_login_required_feedback_publish",
+                            value: "发布反馈需要登录",
+                            comment: ""
+                        ))
+                        showLoginSheet = true
+                    }
                 } label: {
                     Image(systemName: "plus")
                 }
-                .disabled(!session.isAuthenticated)
+                .opacity(session.isAuthenticated ? 1 : 0.4)
                 .accessibilityLabel(NSLocalizedString("feedback_new", value: "新建反馈", comment: ""))
             }
         }
         .sheet(isPresented: $showCreate) {
             NavigationStack { CreateFeedbackView { Task { await load(reset: true) } } }
+        }
+        .sheet(isPresented: $showLoginSheet, onDismiss: {
+            if session.isAuthenticated { showCreate = true }
+        }) {
+            AccountLoginSheet()
+        }
+        .overlay {
+            if let toastMessage {
+                ToastView(message: toastMessage)
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+            }
         }
         .task { if items.isEmpty { await load(reset: true) } }
         .onAppear {
@@ -468,6 +492,14 @@ struct FeedbackListView: View {
             if items.isEmpty { errorMessage = error.localizedDescription }
         }
     }
+
+    private func showToast(_ message: String) {
+        toastMessage = message
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_800_000_000)
+            toastMessage = nil
+        }
+    }
 }
 
 /// 列表卡片（对齐安卓 FeedbackListCard）：标题 2 行 → 正文 3 行 → 头像/昵称 + 点赞，右上角状态印章。
@@ -513,7 +545,7 @@ private struct FeedbackListCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.appCardBackground))
+        .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
         .overlay(alignment: .topTrailing) {
             if showsFeedbackStamp(item.statusValue) {
                 FeedbackStatusStampView(status: item.statusValue)
@@ -530,7 +562,7 @@ private struct FeedbackListCard: View {
 struct FeedbackDetailView: View {
     @Environment(SessionStore.self) private var session
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.openURL) private var openURL
+    @Environment(\.openInAppWebLink) private var openInAppWebLink
     let feedbackId: String
     var onDeleted: () -> Void = {}
 
@@ -609,7 +641,7 @@ struct FeedbackDetailView: View {
             )
         ) {
             Button(NSLocalizedString("feedback_external_link_open", value: "继续打开", comment: "")) {
-                if let url = pendingExternalURL { openURL(url) }
+                if let url = pendingExternalURL { openInAppWebLink(InAppWebLink(url: url)) }
                 pendingExternalURL = nil
             }
             Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) {
@@ -859,7 +891,7 @@ struct FeedbackDetailView: View {
             .font(.system(size: 15))
             .padding(.horizontal, 14)
             .frame(height: 44)
-            .background(Capsule().fill(Theme.controlBackground))
+            .background(Capsule().fill(Theme.inputFieldBackground))
             .onChange(of: commentText) { _, value in
                 if value.count > 2_000 { commentText = String(value.prefix(2_000)) }
             }
@@ -933,7 +965,7 @@ struct FeedbackDetailView: View {
     private func openFeedbackURL(_ url: URL, authoredByCurrentUser: Bool) {
         guard url.scheme?.lowercased() == "https" else { return }
         if authoredByCurrentUser {
-            openURL(url)
+            openInAppWebLink(InAppWebLink(url: url))
         } else {
             pendingExternalURL = url
         }
@@ -1080,7 +1112,7 @@ private struct FeedbackReportDialog: View {
                 .font(.system(size: 15))
                 .lineLimit(4...6)
                 .padding(12)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Theme.controlBackground))
+                .background(RoundedRectangle(cornerRadius: 8).fill(Theme.inputFieldBackground))
                 .padding(.top, 16)
                 .onChange(of: detail) { _, value in
                     if value.count > 500 { detail = String(value.prefix(500)) }
@@ -1289,7 +1321,7 @@ private struct CreateFeedbackView: View {
             .font(.system(size: 15))
             .padding(.horizontal, 12)
             .frame(height: 44)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.controlBackground))
+            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.inputFieldBackground))
             .onChange(of: title) { _, value in
                 if value.count > 200 { title = String(value.prefix(200)) }
             }
@@ -1303,7 +1335,7 @@ private struct CreateFeedbackView: View {
             .lineSpacing(6)
             .lineLimit(8...14)
             .padding(12)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.controlBackground))
+            .background(RoundedRectangle(cornerRadius: 8).fill(Theme.inputFieldBackground))
             .onChange(of: content) { _, value in
                 if value.count > 10_000 { content = String(value.prefix(10_000)) }
             }

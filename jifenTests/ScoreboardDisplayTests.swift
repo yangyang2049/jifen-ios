@@ -96,7 +96,7 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertEqual(outputs.presentationMode, .waiting)
     }
 
-    func testRendererDispatchesAllSevenTemplates() {
+    func testRendererDispatchesAllEightTemplates() {
         XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: fixture(gameID: "football", score: 1)), .twoSide)
 
         var doubles = fixture(gameID: "tennis_doubles", score: 1)
@@ -122,6 +122,12 @@ final class ScoreboardDisplayTests: XCTestCase {
         var training = fixture(gameID: "counter", score: 1)
         training.layoutKind = .trainingCounter
         XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: training), .trainingCounter)
+
+        // 投篮训练由 gameID 直接落到复刻分区版式，显示端不提供第二套 Layout。
+        let shotTraining = fixture(gameID: "basketball_training", score: 1)
+        XCTAssertEqual(shotTraining.layoutKind, .shotTrainingGrid)
+        XCTAssertEqual(shotTraining.orientation, .landscape)
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: shotTraining), .shotTrainingGrid)
     }
 
     func testClockAndOfficialBreakProjectLocally() {
@@ -558,6 +564,54 @@ final class ScoreboardDisplayTests: XCTestCase {
         try await first.value
         try await second.value
         XCTAssertEqual(counter.value, 1)
+    }
+
+    func testLocalStoreEntitlementPolicyRejectsExpiredCachedEntitlement() {
+        let now = Date(timeIntervalSince1970: 1_000)
+
+        XCTAssertFalse(LocalStoreEntitlementPolicy.isActive(
+            hasEntitlementSnapshot: false,
+            expirationDate: nil,
+            now: now
+        ))
+        XCTAssertFalse(LocalStoreEntitlementPolicy.isActive(
+            hasEntitlementSnapshot: true,
+            expirationDate: now,
+            now: now
+        ))
+        XCTAssertFalse(LocalStoreEntitlementPolicy.isActive(
+            hasEntitlementSnapshot: true,
+            expirationDate: now.addingTimeInterval(-1),
+            now: now
+        ))
+        XCTAssertTrue(LocalStoreEntitlementPolicy.isActive(
+            hasEntitlementSnapshot: true,
+            expirationDate: now.addingTimeInterval(1),
+            now: now
+        ))
+        XCTAssertTrue(LocalStoreEntitlementPolicy.isActive(
+            hasEntitlementSnapshot: true,
+            expirationDate: nil,
+            now: now
+        ))
+
+        let graceExpiration = now.addingTimeInterval(300)
+        XCTAssertEqual(
+            LocalStoreEntitlementPolicy.effectiveAccessExpiration(
+                transactionExpiration: now.addingTimeInterval(-1),
+                isInGracePeriod: true,
+                gracePeriodExpiration: graceExpiration
+            ),
+            graceExpiration
+        )
+        XCTAssertEqual(
+            LocalStoreEntitlementPolicy.effectiveAccessExpiration(
+                transactionExpiration: now.addingTimeInterval(-1),
+                isInGracePeriod: false,
+                gracePeriodExpiration: graceExpiration
+            ),
+            now.addingTimeInterval(-1)
+        )
     }
 
     func testFinishedSnapshotPublishesUrgentlyWithFinalScores() {
@@ -1007,6 +1061,78 @@ final class ScoreboardDisplayTests: XCTestCase {
         add(attachment)
     }
 
+    /// 投篮训练显示端：wire 保留模式与 1/2/3 分项计数，横屏单版式确实画出未中红/命中绿两块分区。
+    func testShotTrainingDisplayProjectsZonePaletteAndCounts() throws {
+        for (mode, isFree) in [("fixed_2", false), ("free", true)] {
+            var state = fixture(
+                gameID: "basketball_training",
+                leftName: "未中",
+                rightName: "命中",
+                leftScore: "3",
+                rightScore: "5",
+                revision: 2
+            )
+            state.sportState = [
+                "trainingMode": .string(mode),
+                "trainingPoints": .integer(isFree ? 0 : 2),
+                "trainingOneMade": .integer(isFree ? 4 : 0),
+                "trainingOneMiss": .integer(isFree ? 3 : 0),
+                "trainingTwoMade": .integer(isFree ? 2 : 0),
+                "trainingTwoMiss": .integer(isFree ? 1 : 0),
+                "trainingThreeMade": .integer(isFree ? 6 : 0),
+                "trainingThreeMiss": .integer(isFree ? 5 : 0)
+            ]
+
+            let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+            let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+            XCTAssertEqual(decoded.layoutKind, .shotTrainingGrid)
+            XCTAssertEqual(decoded.orientation, .landscape)
+            XCTAssertEqual(decoded.sportString("trainingMode"), mode)
+            XCTAssertEqual(decoded.sportInt("trainingThreeMade"), isFree ? 6 : 0)
+            XCTAssertEqual(decoded.sportInt("trainingTwoMiss"), isFree ? 1 : 0)
+
+            let renderer = ImageRenderer(content: ScoreboardExternalLiveView(state: decoded,
+                projection: .synchronizedDisplay).frame(width: 1194, height: 834))
+            renderer.scale = 1
+            let image = try XCTUnwrap(renderer.uiImage)
+            let zones = try shotTrainingZonePixelCounts(in: image)
+            XCTAssertGreaterThan(zones.miss, 20_000, "\(mode): 未中红色分区没有渲染")
+            XCTAssertGreaterThan(zones.made, 20_000, "\(mode): 命中绿色分区没有渲染")
+            let attachment = XCTAttachment(image: image)
+            attachment.name = "shot_training_display_\(mode)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+    }
+
+    /// 按手机端 `ShotTrainingZonePalette` 的十六进制取样，配色漂移直接判失败。
+    private func shotTrainingZonePixelCounts(in image: UIImage) throws -> (miss: Int, made: Int) {
+        let cgImage = try XCTUnwrap(image.cgImage)
+        let width = cgImage.width
+        let height = cgImage.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let context = try XCTUnwrap(CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+        func near(_ offset: Int, _ red: Int, _ green: Int, _ blue: Int) -> Bool {
+            abs(Int(pixels[offset]) - red) < 16 && abs(Int(pixels[offset + 1]) - green) < 16 && abs(Int(pixels[offset + 2]) - blue) < 16
+        }
+        var miss = 0
+        var made = 0
+        for offset in stride(from: 0, to: pixels.count, by: 4) {
+            if near(offset, 186, 59, 59) { miss += 1 }
+            else if near(offset, 46, 158, 79) { made += 1 }
+        }
+        return (miss, made)
+    }
+
     func testProjectionRegressionMatrixAt720p1080pAndPhoneLandscape() throws {
         var pingPong = fixture(gameID: "pingpong", score: 10)
         pingPong.keyPoint = .init(kind: "game", side: "left")
@@ -1254,6 +1380,8 @@ final class ScoreboardDisplayTests: XCTestCase {
             .multiGrid
         case .guandan, .shengji, .doudizhu:
             .boardCard
+        case .basketballTraining:
+            .shotTrainingGrid
         default:
             .twoSide
         }

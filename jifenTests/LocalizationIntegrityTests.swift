@@ -1,12 +1,10 @@
 import Foundation
 @testable import jifen
+import ScoreCore
 import XCTest
 
 final class LocalizationIntegrityTests: XCTestCase {
-    private struct Entry: Equatable {
-        let key: String
-        let value: String
-    }
+    private typealias Entry = LocalizationTestSupport.Entry
 
     private var repositoryRoot: URL {
         URL(fileURLWithPath: #filePath)
@@ -15,36 +13,46 @@ final class LocalizationIntegrityTests: XCTestCase {
     }
 
     func testLocalizedResourcePairsStayInSync() throws {
-        let pairs = [
-            ("phone", "jifen/Resources/en.lproj/Localizable.strings", "jifen/Resources/zh-Hans.lproj/Localizable.strings"),
-            ("phone Info.plist", "jifen/Resources/en.lproj/InfoPlist.strings", "jifen/Resources/zh-Hans.lproj/InfoPlist.strings")
+        let tables = [
+            ("phone", LocalizationTestSupport.localizablePaths),
+            ("phone Info.plist", LocalizationTestSupport.infoPlistPaths)
         ]
 
-        for (label, englishPath, chinesePath) in pairs {
-            let english = try entries(at: englishPath)
-            let chinese = try entries(at: chinesePath)
-
+        for (label, paths) in tables {
+            let english = try LocalizationTestSupport.entries(relativePath: paths["en"]!)
             XCTAssertEqual(duplicateKeys(in: english), [], "\(label) English contains duplicate keys")
-            XCTAssertEqual(duplicateKeys(in: chinese), [], "\(label) Chinese contains duplicate keys")
-            XCTAssertEqual(Set(english.map(\.key)), Set(chinese.map(\.key)), "\(label) key sets differ between locales")
 
-            let chineseByKey = Dictionary(uniqueKeysWithValues: chinese.map { ($0.key, $0.value) })
-            for entry in english {
-                let chineseValue = try XCTUnwrap(chineseByKey[entry.key], "\(label) is missing \(entry.key)")
+            for locale in ["zh-Hans", "zh-Hant"] {
+                let chinese = try LocalizationTestSupport.entries(relativePath: paths[locale]!)
+                XCTAssertEqual(duplicateKeys(in: chinese), [], "\(label) \(locale) contains duplicate keys")
                 XCTAssertEqual(
-                    formatTokens(in: entry.value),
-                    formatTokens(in: chineseValue),
-                    "\(label) format placeholders differ for \(entry.key)"
+                    Set(english.map(\.key)), Set(chinese.map(\.key)),
+                    "\(label) key sets differ between en and \(locale)"
                 )
+
+                let chineseByKey = Dictionary(uniqueKeysWithValues: chinese.map { ($0.key, $0.value) })
+                for entry in english {
+                    let chineseValue = try XCTUnwrap(
+                        chineseByKey[entry.key],
+                        "\(label) is missing \(entry.key) in \(locale)"
+                    )
+                    XCTAssertEqual(
+                        LocalizationTestSupport.formatTokens(in: entry.value),
+                        LocalizationTestSupport.formatTokens(in: chineseValue),
+                        "\(label) format placeholders differ for \(entry.key) in \(locale)"
+                    )
+                }
             }
         }
     }
 
     func testEveryStaticLocalizationKeyExistsInItsTarget() throws {
-        try assertStaticKeysExist(
-            sourceDirectory: "jifen",
-            stringsPath: "jifen/Resources/en.lproj/Localizable.strings"
-        )
+        for locale in ["en", "zh-Hans", "zh-Hant"] {
+            try assertStaticKeysExist(
+                sourceDirectory: "jifen",
+                stringsPath: LocalizationTestSupport.localizablePaths[locale]!
+            )
+        }
     }
 
     func testEnglishResourcesDoNotContainUnexpectedChineseOrBlankValues() throws {
@@ -71,7 +79,6 @@ final class LocalizationIntegrityTests: XCTestCase {
     }
 
     func testDynamicLocalizationKeyFamiliesAreComplete() throws {
-        let phoneKeys = Set(try entries(at: "jifen/Resources/en.lproj/Localizable.strings").map(\.key))
         let expected = [
             "appearance_system", "appearance_light", "appearance_dark",
             "faq_question_1", "faq_answer_1",
@@ -85,62 +92,147 @@ final class LocalizationIntegrityTests: XCTestCase {
             "faq_question_10", "faq_answer_10",
             "faq_question_11", "faq_answer_11"
         ]
-        XCTAssertEqual(expected.filter { !phoneKeys.contains($0) }, [])
+        for (locale, path) in LocalizationTestSupport.localizablePaths {
+            let keys = Set(try LocalizationTestSupport.entries(relativePath: path).map(\.key))
+            XCTAssertEqual(expected.filter { !keys.contains($0) }, [], "\(locale) is missing dynamic keys")
+        }
+    }
+
+    /// zh-Hant gate 1: no simplified-only glyph may survive in the table.
+    func testZhHantContainsNoSimplifiedOnlyCharacters() throws {
+        for path in [
+            LocalizationTestSupport.localizablePaths["zh-Hant"]!,
+            LocalizationTestSupport.infoPlistPaths["zh-Hant"]!
+        ] {
+            for entry in try LocalizationTestSupport.entries(relativePath: path) {
+                let hits = Set(entry.value).intersection(LocalizationTestSupport.simplifiedOnlyCharacters)
+                XCTAssertTrue(
+                    hits.isEmpty,
+                    "zh-Hant value for \(entry.key) contains simplified characters: \(hits.sorted()) — \(entry.value.prefix(40))"
+                )
+            }
+        }
+    }
+
+    /// zh-Hant gate 2: any key whose zh-Hans copy uses a simplified-only glyph
+    /// must have been converted (catches whole-table copies and half-done rows).
+    func testZhHantConvertsEveryKeyWithSimplifiedOnlySource() throws {
+        let hans = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hans"]!
+        )
+        let hant = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hant"]!
+        )
+        var failures: [String] = []
+        for (key, hansValue) in hans {
+            guard !Set(hansValue).isDisjoint(with: LocalizationTestSupport.simplifiedOnlyCharacters) else { continue }
+            if hant[key] == hansValue {
+                failures.append(key)
+            }
+        }
+        XCTAssertEqual(failures.sorted(), [], "zh-Hant values copied unchanged from zh-Hans where conversion is required")
     }
 
     func testScoreboardKeyPointLabelsKeepLocalizedFullChineseAndCompactEnglishCopy() throws {
         let english = Dictionary(uniqueKeysWithValues: try entries(
-            at: "jifen/Resources/en.lproj/Localizable.strings"
+            at: LocalizationTestSupport.localizablePaths["en"]!
         ).map { ($0.key, $0.value) })
-        let chinese = Dictionary(uniqueKeysWithValues: try entries(
-            at: "jifen/Resources/zh-Hans.lproj/Localizable.strings"
-        ).map { ($0.key, $0.value) })
+        let simplified = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hans"]!
+        )
+        let traditional = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hant"]!
+        )
 
         XCTAssertEqual(english["scoreboard_key_point_game"], "GP")
         XCTAssertEqual(english["scoreboard_key_point_match"], "MP")
         XCTAssertEqual(english["scoreboard_key_point_set"], "SP")
-        XCTAssertEqual(chinese["scoreboard_key_point_game"], "局点")
-        XCTAssertEqual(chinese["scoreboard_key_point_match"], "赛点")
-        XCTAssertEqual(chinese["scoreboard_key_point_set"], "盘点")
+        XCTAssertEqual(simplified["scoreboard_key_point_game"], "局点")
+        XCTAssertEqual(simplified["scoreboard_key_point_match"], "赛点")
+        XCTAssertEqual(simplified["scoreboard_key_point_set"], "盘点")
+        XCTAssertEqual(traditional["scoreboard_key_point_game"], "局點")
+        XCTAssertEqual(traditional["scoreboard_key_point_match"], "賽點")
+        XCTAssertEqual(traditional["scoreboard_key_point_set"], "盤點")
     }
 
     func testDefaultParticipantNamesUseCanonicalEnglishAndChineseCopy() throws {
-        let expected: [String: (english: String, chinese: String)] = [
-            "red_team": ("Red", "红方"),
-            "blue_team": ("Blue", "蓝方"),
-            "team_a": ("Team A", "A队"),
-            "team_b": ("Team B", "B队"),
-            "player_a": ("Player A", "选手A"),
-            "player_b": ("Player B", "选手B"),
-            "archer_a": ("Archer A", "射手A"),
-            "archer_b": ("Archer B", "射手B"),
-            "doubles_red_a": ("Red A", "红A"),
-            "doubles_red_b": ("Red B", "红B"),
-            "doubles_blue_a": ("Blue A", "蓝A"),
-            "doubles_blue_b": ("Blue B", "蓝B")
+        let expected: [String: (english: String, simplified: String, traditional: String)] = [
+            "red_team": ("Red", "红方", "紅方"),
+            "blue_team": ("Blue", "蓝方", "藍方"),
+            "team_a": ("Team A", "A队", "A隊"),
+            "team_b": ("Team B", "B队", "B隊"),
+            "player_a": ("Player A", "选手A", "選手A"),
+            "player_b": ("Player B", "选手B", "選手B"),
+            "archer_a": ("Archer A", "射手A", "射手A"),
+            "archer_b": ("Archer B", "射手B", "射手B"),
+            "doubles_red_a": ("Red A", "红A", "紅A"),
+            "doubles_red_b": ("Red B", "红B", "紅B"),
+            "doubles_blue_a": ("Blue A", "蓝A", "藍A"),
+            "doubles_blue_b": ("Blue B", "蓝B", "藍B")
         ]
-        try assertLocalizedValues(
-            expected,
-            englishPath: "jifen/Resources/en.lproj/Localizable.strings",
-            chinesePath: "jifen/Resources/zh-Hans.lproj/Localizable.strings"
+        let english = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["en"]!
         )
+        let simplified = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hans"]!
+        )
+        let traditional = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hant"]!
+        )
+        for (key, values) in expected {
+            XCTAssertEqual(english[key], values.english, "Unexpected English value for \(key)")
+            XCTAssertEqual(simplified[key], values.simplified, "Unexpected zh-Hans value for \(key)")
+            XCTAssertEqual(traditional[key], values.traditional, "Unexpected zh-Hant value for \(key)")
+        }
     }
 
     func testTennisSetupUsesNaturalMatchAndTiebreakTerminology() throws {
-        let english = Dictionary(uniqueKeysWithValues: try entries(
-            at: "jifen/Resources/en.lproj/Localizable.strings"
-        ).map { ($0.key, $0.value) })
-        let chinese = Dictionary(uniqueKeysWithValues: try entries(
-            at: "jifen/Resources/zh-Hans.lproj/Localizable.strings"
-        ).map { ($0.key, $0.value) })
+        let english = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["en"]!
+        )
+        let simplified = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hans"]!
+        )
+        let traditional = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hant"]!
+        )
 
-        XCTAssertEqual(chinese["tennis_scoring_mode_regular"], "标准赛制")
-        XCTAssertEqual(chinese["tennis_scoring_mode_tiebreak_7"], "抢七赛")
-        XCTAssertEqual(chinese["tennis_scoring_mode_tiebreak_10"], "抢十赛")
-        XCTAssertEqual(chinese["tennis_deuce_option_no_ad"], "无占先")
+        XCTAssertEqual(simplified["tennis_scoring_mode_regular"], "标准赛制")
+        XCTAssertEqual(simplified["tennis_scoring_mode_tiebreak_7"], "抢七赛")
+        XCTAssertEqual(simplified["tennis_scoring_mode_tiebreak_10"], "抢十赛")
+        XCTAssertEqual(simplified["tennis_deuce_option_no_ad"], "无占先")
+        XCTAssertEqual(traditional["tennis_scoring_mode_regular"], "標準賽制")
+        XCTAssertEqual(traditional["tennis_scoring_mode_tiebreak_7"], "搶七賽")
+        XCTAssertEqual(traditional["tennis_scoring_mode_tiebreak_10"], "搶十賽")
+        XCTAssertEqual(traditional["tennis_deuce_option_no_ad"], "無佔先")
         XCTAssertEqual(english["tennis_scoring_mode_regular"], "Standard")
         XCTAssertEqual(english["tennis_scoring_mode_tiebreak_7"], "7-Point Tiebreak")
         XCTAssertEqual(english["tennis_scoring_mode_tiebreak_10"], "10-Point Tiebreak")
+    }
+
+    /// Voice and UI must speak one vocabulary: the zh-TW announcer's
+    /// post-converted terms have to equal the zh-Hant table copy.
+    func testVoiceTraditionalTermsMatchZhHantUIVocabulary() throws {
+        let values = try LocalizationTestSupport.valuesByKey(
+            relativePath: LocalizationTestSupport.localizablePaths["zh-Hant"]!
+        )
+        let voiceCases: [(simplified: String, key: String)] = [
+            ("局点", "scoreboard_key_point_game"),
+            ("赛点", "scoreboard_key_point_match"),
+            ("盘点", "scoreboard_key_point_set"),
+            ("占先", "tennis_deuce_option_advantage"),
+            ("抢七赛", "tennis_scoring_mode_tiebreak_7"),
+            ("抢十赛", "tennis_scoring_mode_tiebreak_10")
+        ]
+        for item in voiceCases {
+            XCTAssertEqual(
+                VoiceChinesePhrases.toTraditional(item.simplified),
+                values[item.key],
+                "Voice term \(item.simplified) diverges from UI key \(item.key)"
+            )
+        }
+        // Interval wording: the announcer says 间歇, the UI vocabulary is 休息.
+        XCTAssertEqual(VoiceChinesePhrases.toTraditional("11比9，间歇"), "11比9，休息")
     }
 
     func testSwiftUIHasNoDirectChineseStringLiterals() throws {
@@ -247,19 +339,6 @@ final class LocalizationIntegrityTests: XCTestCase {
         )
     }
 
-    private func assertLocalizedValues(
-        _ expected: [String: (english: String, chinese: String)],
-        englishPath: String,
-        chinesePath: String
-    ) throws {
-        let english = Dictionary(uniqueKeysWithValues: try entries(at: englishPath).map { ($0.key, $0.value) })
-        let chinese = Dictionary(uniqueKeysWithValues: try entries(at: chinesePath).map { ($0.key, $0.value) })
-        for (key, values) in expected {
-            XCTAssertEqual(english[key], values.english, "Unexpected English value for \(key)")
-            XCTAssertEqual(chinese[key], values.chinese, "Unexpected Chinese value for \(key)")
-        }
-    }
-
     private func assertStaticKeysExist(sourceDirectory: String, stringsPath: String) throws {
         let available = Set(try entries(at: stringsPath).map(\.key))
         let patterns = [
@@ -285,33 +364,13 @@ final class LocalizationIntegrityTests: XCTestCase {
     }
 
     private func entries(at relativePath: String) throws -> [Entry] {
-        let content = try String(
-            contentsOf: repositoryRoot.appendingPathComponent(relativePath),
-            encoding: .utf8
-        )
-        let pattern = #"(?m)^\s*\"((?:\\.|[^\"])*)\"\s*=\s*\"((?:\\.|[^\"])*)\"\s*;"#
-        let regex = try NSRegularExpression(pattern: pattern)
-        let range = NSRange(content.startIndex..., in: content)
-        return regex.matches(in: content, range: range).compactMap { match in
-            guard
-                let keyRange = Range(match.range(at: 1), in: content),
-                let valueRange = Range(match.range(at: 2), in: content)
-            else { return nil }
-            return Entry(key: String(content[keyRange]), value: String(content[valueRange]))
-        }
+        try LocalizationTestSupport.entries(relativePath: relativePath)
     }
 
     private func duplicateKeys(in entries: [Entry]) -> [String] {
         Dictionary(grouping: entries, by: \.key)
             .filter { $0.value.count > 1 }
             .map(\.key)
-            .sorted()
-    }
-
-    private func formatTokens(in value: String) -> [String] {
-        let pattern = #"%(?:%|(?:\d+\$)?[-+0 #']*(?:\d+|\*)?(?:\.\d+)?(?:hh|h|ll|l|L|z|t|j)?[@dDuUxXoOfFeEgGcCsSpaAi])"#
-        return captures(pattern: pattern, in: value, captureGroup: 0)
-            .map { $0.value.replacingOccurrences(of: #"%\d+\$"#, with: "%", options: .regularExpression) }
             .sorted()
     }
 

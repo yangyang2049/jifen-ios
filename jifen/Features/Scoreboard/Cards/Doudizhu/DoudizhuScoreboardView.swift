@@ -709,9 +709,12 @@ struct DoudizhuScoreboardView: View {
         VibrationManager.shared.vibrateLight()
     }
 
-    /// HOS-style 320pt bottom settle overlay (not a system sheet).
+    /// HOS-style bottom settle overlay (not a system sheet).
     private func doudizhuBottomSettleOverlay(containerWidth: CGFloat) -> some View {
-        ZStack(alignment: .bottomLeading) {
+        let columnWidth = settleColumnWidth(containerWidth: containerWidth)
+        let chipWidth = settleChipWidth(columnWidth: columnWidth)
+
+        return ZStack(alignment: .bottomLeading) {
             Theme.scoreboardDialogScrim
                 .ignoresSafeArea()
                 .onTapGesture { showScorePanel = false }
@@ -721,7 +724,12 @@ struct DoudizhuScoreboardView: View {
                     settleColumn(title: NSLocalizedString("doudizhu_base_score", value: "底分", comment: "")) {
                         HStack(spacing: 8) {
                             ForEach(baseScoreOptions, id: \.self) { score in
-                                settleChip("\(score)", selected: selectedBaseScore == score) {
+                                settleChip(
+                                    "\(score)",
+                                    width: chipWidth,
+                                    height: settleBaseChipHeight,
+                                    selected: selectedBaseScore == score
+                                ) {
                                     selectedBaseScore = score
                                 }
                             }
@@ -730,25 +738,29 @@ struct DoudizhuScoreboardView: View {
                     .frame(maxWidth: .infinity)
 
                     settleColumn(title: NSLocalizedString("doudizhu_multiplier", value: "番数", comment: "")) {
-                        LazyVGrid(
-                            columns: Array(
-                                repeating: GridItem(.flexible(), spacing: 8),
-                                count: players.count == 4 ? 2 : 1
-                            ),
-                            spacing: 8
-                        ) {
-                            // 对齐安卓 doudizhu_fan_suffix：中文“番”，英文“x”。
-                            let fanSuffix = NSLocalizedString("doudizhu_fan_suffix", value: "番", comment: "")
+                        // 两行各 3 个（对齐鸿蒙的 0-2 / 3-5 分行）；四人时曾按 2 列栅格排布，
+                        // 6 枚按钮横排溢出列宽，压到相邻的底分/获胜者栏。
+                        VStack(spacing: 8) {
                             HStack(spacing: 8) {
                                 ForEach([0, 1, 2], id: \.self) { power in
-                                    settleChip("\(power)\(fanSuffix)", selected: selectedMultiplierPower == power) {
+                                    settleChip(
+                                        fanTitle(power),
+                                        width: chipWidth,
+                                        height: settleFanChipHeight,
+                                        selected: selectedMultiplierPower == power
+                                    ) {
                                         selectedMultiplierPower = power
                                     }
                                 }
                             }
                             HStack(spacing: 8) {
                                 ForEach([3, 4, 5], id: \.self) { power in
-                                    settleChip("\(power)\(fanSuffix)", selected: selectedMultiplierPower == power) {
+                                    settleChip(
+                                        fanTitle(power),
+                                        width: chipWidth,
+                                        height: settleFanChipHeight,
+                                        selected: selectedMultiplierPower == power
+                                    ) {
                                         selectedMultiplierPower = power
                                     }
                                 }
@@ -758,33 +770,42 @@ struct DoudizhuScoreboardView: View {
                     .frame(maxWidth: .infinity)
 
                     settleColumn(title: NSLocalizedString("doudizhu_winner", value: "获胜者", comment: "")) {
-                        VStack(spacing: 8) {
-                            ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
-                                Button {
-                                    selectedWinners[index].toggle()
-                                    if selectedWinners.filter(\.self).count > players.count - 1 {
-                                        selectedWinners[index] = false
+                        if usesCompactSettleLayout && players.count == 4 {
+                            // 小屏四人：2×2 网格，四枚纵向按钮会和预览文案、确认按钮抢高度
+                            let gridWidth = settleWinnerGridItemWidth(columnWidth: columnWidth)
+                            VStack(spacing: 8) {
+                                ForEach([[0, 1], [2, 3]], id: \.self) { rowIndexes in
+                                    HStack(spacing: 8) {
+                                        ForEach(rowIndexes, id: \.self) { index in
+                                            settleWinnerButton(
+                                                index: index,
+                                                width: gridWidth,
+                                                height: settleWinnerHeight(inGrid: true),
+                                                fontSize: 12
+                                            )
+                                        }
                                     }
-                                } label: {
-                                    Text(player.name)
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .foregroundStyle(.white)
-                                        .frame(maxWidth: .infinity, minHeight: players.count == 4 ? 38 : 46)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(selectedWinners[index] ? Theme.primary : Color.white.opacity(0.2))
-                                        )
                                 }
-                                .buttonStyle(.plain)
+                            }
+                        } else {
+                            VStack(spacing: 8) {
+                                ForEach(Array(players.enumerated()), id: \.element.id) { index, _ in
+                                    settleWinnerButton(
+                                        index: index,
+                                        width: nil,
+                                        height: settleWinnerHeight(inGrid: false),
+                                        fontSize: usesCompactSettleLayout ? 13 : 14
+                                    )
+                                }
                             }
                         }
                     }
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 20)
+                .padding(.top, usesCompactSettleLayout ? 12 : 20)
 
-                Spacer(minLength: 8)
+                Spacer(minLength: usesCompactSettleLayout ? 4 : 8)
 
                 Text(doudizhuSettlePreviewText)
                     .font(.system(size: 14))
@@ -798,16 +819,21 @@ struct DoudizhuScoreboardView: View {
                     Text(String(format: NSLocalizedString("doudizhu_confirm_with_score", value: "确认 (底分: %d)", comment: ""), selectedBaseScore * (1 << selectedMultiplierPower)))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
-                        .frame(width: containerWidth * 0.45, height: 50)
+                        .frame(width: containerWidth * 0.45, height: usesCompactSettleLayout ? 46 : 50)
                         .background(Capsule().fill(doudizhuWinnerSelectionValid ? Theme.primary : Color.white.opacity(0.2)))
                 }
                 .buttonStyle(.plain)
                 .disabled(!doudizhuWinnerSelectionValid)
-                .padding(.vertical, 16)
+                .padding(.top, usesCompactSettleLayout ? 10 : 16)
+                // 手机横屏底部还有一条 Home 指示条，留出可点区域
+                .padding(.bottom, usesCompactSettleLayout ? 20 : 16)
 
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 320)
+            // 设计高度只是下限：ZStack 会把整屏高度提议下来，固定 frame 会与确认按钮叠压，
+            // 所以让面板按内容取高（四人/长文案时向上生长），再夹到设计高度下限。
+            .frame(minHeight: settlePanelHeight)
+            .fixedSize(horizontal: false, vertical: true)
             .background(Theme.scoreboardDialogSurface)
 
             Button { showScorePanel = false } label: {
@@ -824,8 +850,99 @@ struct DoudizhuScoreboardView: View {
         .ignoresSafeArea()
     }
 
+    /// 斗地主在手机上是横屏锁定的，横屏可用高度仅 ~375pt，整块面板需要紧凑排布。
+    private var usesCompactSettleLayout: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
+
+    private var settlePanelHeight: CGFloat {
+        usesCompactSettleLayout ? 272 : 320
+    }
+
+    private var settleBaseChipHeight: CGFloat {
+        usesCompactSettleLayout ? 42 : 50
+    }
+
+    private var settleFanChipHeight: CGFloat {
+        usesCompactSettleLayout ? 36 : 45
+    }
+
+    /// 高度档位对齐鸿蒙 DoudizhuScore：2×2 网格 36、手机纵向 40、宽屏四人 36 / 三人 46。
+    private func settleWinnerHeight(inGrid: Bool) -> CGFloat {
+        if inGrid { return 36 }
+        if usesCompactSettleLayout { return 40 }
+        return players.count == 4 ? 36 : 46
+    }
+
+    private var settleColumnInnerSpacing: CGFloat {
+        usesCompactSettleLayout ? 6 : 10
+    }
+
+    /// 三栏等分后的单栏可用宽度（扣除面板左右 16 内边距与栏间距 10×2）。
+    private func settleColumnWidth(containerWidth: CGFloat) -> CGFloat {
+        max((containerWidth - 32 - 20) / 3, 0)
+    }
+
+    private func settleChipWidth(columnWidth: CGFloat) -> CGFloat {
+        ScoreboardLayoutMetrics.fittedGridItemSize(
+            containerWidth: columnWidth,
+            columns: 3,
+            spacing: 8,
+            horizontalPadding: 0,
+            preferredSize: 60,
+            minimumSize: 36
+        )
+    }
+
+    private func settleWinnerGridItemWidth(columnWidth: CGFloat) -> CGFloat {
+        ScoreboardLayoutMetrics.fittedGridItemSize(
+            containerWidth: columnWidth,
+            columns: 2,
+            spacing: 8,
+            horizontalPadding: 0,
+            preferredSize: 96,
+            minimumSize: 44
+        )
+    }
+
+    private func fanTitle(_ power: Int) -> String {
+        // 对齐安卓 doudizhu_fan_suffix：中文“番”，英文“x”。
+        let fanSuffix = NSLocalizedString("doudizhu_fan_suffix", value: "番", comment: "")
+        return "\(power)\(fanSuffix)"
+    }
+
+    private func settleWinnerButton(
+        index: Int,
+        width: CGFloat?,
+        height: CGFloat,
+        fontSize: CGFloat
+    ) -> some View {
+        Button {
+            toggleDoudizhuWinner(index)
+        } label: {
+            Text(players[index].name)
+                .font(.system(size: fontSize, weight: .semibold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .frame(maxWidth: width, minHeight: height)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(selectedWinners[index] ? Theme.primary : Color.white.opacity(0.2))
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 最多选中 N-1 人（一对多结算），超出的那次点选自愈回滚。
+    private func toggleDoudizhuWinner(_ index: Int) {
+        selectedWinners[index].toggle()
+        if selectedWinners.filter(\.self).count > players.count - 1 {
+            selectedWinners[index] = false
+        }
+    }
+
     private func settleColumn<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .center, spacing: 10) {
+        VStack(alignment: .center, spacing: settleColumnInnerSpacing) {
             Text(title)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
@@ -835,12 +952,18 @@ struct DoudizhuScoreboardView: View {
         .frame(maxWidth: .infinity, alignment: .center)
     }
 
-    private func settleChip(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+    private func settleChip(
+        _ title: String,
+        width: CGFloat,
+        height: CGFloat,
+        selected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(.white)
-                .frame(width: 60, height: 45)
+                .frame(width: width, height: height)
                 .background(RoundedRectangle(cornerRadius: 12).fill(selected ? Theme.primary : Color.white.opacity(0.2)))
         }
         .buttonStyle(.plain)

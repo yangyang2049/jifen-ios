@@ -238,18 +238,49 @@ struct RecordNoteSheet: View {
     @FocusState private var isTextEditorFocused: Bool
 
     var body: some View {
-        Group {
-            switch sheetMode {
-            case .menu:
-                menuSheet
-            case .editText:
-                textEditorSheet
-            case .viewText:
-                textViewerSheet
-            case .recordVoice:
-                recorderSheet
-            case .none:
-                EmptyView()
+        NavigationStack {
+            Group {
+                switch sheetMode {
+                case .menu:
+                    menuSheet
+                case .editText:
+                    textEditorSheet
+                case .viewText:
+                    textViewerSheet
+                case .recordVoice:
+                    recorderSheet
+                case .none:
+                    EmptyView()
+                }
+            }
+            .alert(deleteTitle, isPresented: Binding(
+                get: { confirmDelete != nil },
+                set: { if !$0 { confirmDelete = nil } }
+            )) {
+                Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { confirmDelete = nil }
+                Button(NSLocalizedString("delete", value: "删除", comment: ""), role: .destructive) {
+                    if confirmDelete == .voice { deleteVoice() } else { deleteText() }
+                    confirmDelete = nil
+                }
+            } message: {
+                Text(confirmDelete == .voice
+                     ? NSLocalizedString("record_note_delete_voice_confirm", value: "确定删除这条语音笔记吗？删除后不可恢复。", comment: "")
+                     : NSLocalizedString("record_note_delete_text_confirm", value: "确定删除这条文字笔记吗？删除后不可恢复。", comment: ""))
+            }
+            .onAppear {
+                // 从卡片"查看/编辑"进入时预填当前笔记；从菜单进入编辑则保留上次草稿（原行为）。
+                if sheetMode == .editText || sheetMode == .viewText {
+                    textDraft = note ?? ""
+                }
+                if sheetMode == .editText {
+                    scheduleTextEditorFocus()
+                }
+            }
+            .onChange(of: sheetMode) { _, newMode in
+                // 从菜单切到文字编辑时自动聚焦打开键盘
+                if newMode == .editText {
+                    scheduleTextEditorFocus()
+                }
             }
         }
         .presentationDetents(sheetDetents)
@@ -269,35 +300,6 @@ struct RecordNoteSheet: View {
                     }
             }
         }
-        .alert(deleteTitle, isPresented: Binding(
-            get: { confirmDelete != nil },
-            set: { if !$0 { confirmDelete = nil } }
-        )) {
-            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { confirmDelete = nil }
-            Button(NSLocalizedString("delete", value: "删除", comment: ""), role: .destructive) {
-                if confirmDelete == .voice { deleteVoice() } else { deleteText() }
-                confirmDelete = nil
-            }
-        } message: {
-            Text(confirmDelete == .voice
-                 ? NSLocalizedString("record_note_delete_voice_confirm", value: "确定删除这条语音笔记吗？删除后不可恢复。", comment: "")
-                 : NSLocalizedString("record_note_delete_text_confirm", value: "确定删除这条文字笔记吗？删除后不可恢复。", comment: ""))
-        }
-        .onAppear {
-            // 从卡片"查看/编辑"进入时预填当前笔记；从菜单进入编辑则保留上次草稿（原行为）。
-            if sheetMode == .editText || sheetMode == .viewText {
-                textDraft = note ?? ""
-            }
-            if sheetMode == .editText {
-                scheduleTextEditorFocus()
-            }
-        }
-        .onChange(of: sheetMode) { _, newMode in
-            // 从菜单切到文字编辑时自动聚焦打开键盘
-            if newMode == .editText {
-                scheduleTextEditorFocus()
-            }
-        }
     }
 
     /// 等 sheet 呈现/内容切换动画完成后再聚焦，过早赋值会被动画吞掉。
@@ -315,7 +317,8 @@ struct RecordNoteSheet: View {
 
     private var sheetDetents: Set<PresentationDetent> {
         switch sheetMode {
-        case .recordVoice: return [.height(430)]
+        // 录音模式内容较高，加上导航栏高度需要更大 detent。
+        case .recordVoice: return [.height(500)]
         case .editText: return [.medium, .large]
         case .menu: return [.height(480)]
         default: return [.medium]
@@ -324,16 +327,15 @@ struct RecordNoteSheet: View {
 
     private var menuSheet: some View {
         VStack(spacing: 16) {
-            Text(NSLocalizedString("record_note_title", value: "笔记", comment: ""))
-                .font(.title3.bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
             Button { sheetMode = .editText } label: { menuRow(icon: "square.and.pencil", title: textTitle, hint: textHint) }
             Button { requestVoiceRecording() } label: { menuRow(icon: "mic.fill", title: voiceTitle, hint: voiceHint) }
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 24)
+        .padding(.top, 8)
         .padding(.bottom, 28)
+        .navigationTitle(NSLocalizedString("record_note_title", value: "笔记", comment: ""))
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var textTitle: String { NSLocalizedString("record_note_text_title", value: "文字笔记", comment: "") }
@@ -360,9 +362,6 @@ struct RecordNoteSheet: View {
 
     private var textEditorSheet: some View {
         VStack(spacing: 16) {
-            Text(editTextTitle)
-                .font(.title3.bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
             TextEditor(text: Binding(
                 get: { textDraft },
                 set: { textDraft = String($0.prefix(maxTextNoteLength)) }
@@ -387,19 +386,26 @@ struct RecordNoteSheet: View {
                 .font(.caption)
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
-            Button(action: saveText) {
-                Text(NSLocalizedString("record_note_save", value: "保存", comment: ""))
-                    .font(.system(size: 16, weight: .medium))
-                    .frame(maxWidth: .infinity, minHeight: 48)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(canSaveText ? .white : Theme.textSecondary)
-            .background(canSaveText ? Theme.primary : Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .disabled(!canSaveText)
+            Spacer(minLength: 0)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 24)
+        .padding(.top, 8)
         .padding(.bottom, 28)
+        .navigationTitle(editTextTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                    sheetMode = .none
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button(NSLocalizedString("record_note_save", value: "保存", comment: "")) {
+                    saveText()
+                }
+                .disabled(!canSaveText)
+            }
+        }
     }
 
     private var editTextTitle: String {
@@ -414,31 +420,31 @@ struct RecordNoteSheet: View {
 
     private var textViewerSheet: some View {
         VStack(spacing: 16) {
-            Text(NSLocalizedString("record_note_text_title", value: "文字笔记", comment: ""))
-                .font(.title3.bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
             ScrollView {
                 Text(note ?? "")
                     .font(.system(size: 16))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(height: 250)
-            HStack(spacing: 12) {
-                Button(role: .destructive) { confirmDelete = .text } label: {
-                    Text(NSLocalizedString("delete", value: "删除", comment: ""))
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                }
-                .buttonStyle(.bordered)
-                Button { sheetMode = .editText } label: {
-                    Text(NSLocalizedString("record_note_edit_text", value: "编辑文字笔记", comment: ""))
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                }
-                .buttonStyle(.borderedProminent)
-            }
+            Spacer(minLength: 0)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 24)
+        .padding(.top, 8)
         .padding(.bottom, 28)
+        .navigationTitle(textTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(NSLocalizedString("delete", value: "删除", comment: ""), role: .destructive) {
+                    confirmDelete = .text
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button(NSLocalizedString("edit", comment: "")) {
+                    sheetMode = .editText
+                }
+            }
+        }
     }
 
     private var recorderSheet: some View {
@@ -481,8 +487,10 @@ struct RecordNoteSheet: View {
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 24)
+        .padding(.top, 8)
         .padding(.bottom, 28)
+        .navigationTitle(voiceTitle)
+        .navigationBarTitleDisplayMode(.inline)
         .interactiveDismissDisabled()
         .task(id: "clock") {
             while !Task.isCancelled {

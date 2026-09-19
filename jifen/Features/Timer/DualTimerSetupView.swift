@@ -43,9 +43,7 @@ struct DualTimerSetupView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-
+        NavigationStack {
             ScrollView(showsIndicators: true) {
                 VStack(spacing: 14) {
                     modeSegment
@@ -68,42 +66,23 @@ struct DualTimerSetupView: View {
                 .padding(.top, 14)
                 .padding(.bottom, 28)
             }
-            .frame(maxHeight: .infinity)
-
-            startButton
-        }
-        .background(Theme.homeDialogBackground)
-    }
-
-    private var header: some View {
-        ZStack {
-            HStack(spacing: 6) {
-                Text(emoji)
-                    .font(.system(size: 20))
-                Text(title)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(Theme.textPrimary)
-            }
-            HStack {
-                Spacer()
-                Button {
-                    onCancel?()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(Theme.textPrimary)
-                        .frame(width: 36, height: 36)
-                        .background(Theme.dialogControlBackground)
-                        .clipShape(Circle())
+            .background(Theme.homeDialogBackground)
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(NSLocalizedString("cancel", value: "取消", comment: "")) {
+                        onCancel?()
+                    }
                 }
-                .buttonStyle(.plain)
-                .frame(width: ScoreboardConstants.minimumTouchTarget, height: ScoreboardConstants.minimumTouchTarget)
-                .contentShape(Rectangle())
-                .accessibilityLabel(NSLocalizedString("close", value: "关闭", comment: ""))
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(NSLocalizedString("start_game", value: "开始", comment: "Start game")) {
+                        draftConfig.normalize()
+                        onConfirm(draftConfig)
+                    }
+                }
             }
         }
-        .padding(.horizontal, 16)
-        .frame(height: 60)
         .background(Theme.homeDialogBackground)
     }
 
@@ -265,25 +244,6 @@ struct DualTimerSetupView: View {
                 .padding(.bottom, 6)
         }
         .frame(maxWidth: .infinity)
-    }
-
-    private var startButton: some View {
-        Button {
-            draftConfig.normalize()
-            onConfirm(draftConfig)
-        } label: {
-            Text(NSLocalizedString("start_game", value: "开始", comment: "Start game"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(Theme.primary)
-                .clipShape(Capsule())
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
-        }
-        .buttonStyle(.plain)
-        .background(Theme.homeDialogBackground)
     }
 
     private func clampMainTime() {

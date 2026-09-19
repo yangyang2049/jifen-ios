@@ -285,18 +285,22 @@ struct GameOverDialog: View {
                         .background(newGameDisabled ? disabledBackground : Theme.primary)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .disabled(newGameDisabled)
+                        .accessibilityIdentifier("game_over_action_new_game")
 
                         HStack(spacing: usesTabletSpacing ? 12 : 8) {
                             secondaryButton(
                                 title: NSLocalizedString("game_over_records", value: "查看记录", comment: ""),
+                                identifier: "game_over_action_records",
                                 action: trackRecords
                             )
                             secondaryButton(
                                 title: NSLocalizedString("share", value: "分享", comment: ""),
+                                identifier: "game_over_action_share",
                                 action: trackShare
                             )
                             secondaryButton(
                                 title: NSLocalizedString("exit", value: "退出", comment: ""),
+                                identifier: "game_over_action_exit",
                                 action: trackExit
                             )
                         }
@@ -307,6 +311,7 @@ struct GameOverDialog: View {
                 .frame(maxWidth: Theme.dialogPreferredWidth(role: .gameOver))
                 .background(dialogBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("game_over_dialog")
             }
             .frame(maxWidth: .infinity)
@@ -507,7 +512,11 @@ struct GameOverDialog: View {
         .frame(maxWidth: .infinity)
     }
 
-    private func secondaryButton(title: String, action: @escaping () -> Void) -> some View {
+    private func secondaryButton(
+        title: String,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 16))
@@ -521,6 +530,7 @@ struct GameOverDialog: View {
         .frame(height: usesTabletSpacing ? 46 : ScoreboardConstants.minimumTouchTarget)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityIdentifier(identifier)
     }
 }
 

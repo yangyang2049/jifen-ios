@@ -206,7 +206,6 @@ struct ScoreboardStyleEditOverlayView: View {
     let uiState: ScoreboardStyleEditorUiState
     var onCancel: () -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
     private var isLargeLayout: Bool { Theme.usesPadLayout }
 
     @State private var paletteExpanded = false

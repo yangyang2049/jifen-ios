@@ -576,8 +576,8 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
         app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)",
-            "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints",
             "-UITestScreenshotMode", "1"

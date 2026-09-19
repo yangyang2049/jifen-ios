@@ -373,10 +373,83 @@ import ScoreCore
 
     @Test func languageResolutionUsesChineseOnlyForChineseLocales() {
         #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hans-CN")) == .zhCN)
-        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hant-TW")) == .zhCN)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-CN")) == .zhCN)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hant")) == .zhTW)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hant-TW")) == .zhTW)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hant-HK")) == .zhTW)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-HK")) == .zhTW)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-MO")) == .zhTW)
+        #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "zh-Hans-HK")) == .zhCN)
         #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "en-GB")) == .enUS)
         #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "ja-JP")) == .enUS)
         #expect(VoiceAnnouncementLanguage.resolve(locale: Locale(identifier: "fr-FR")) == .enUS)
+    }
+
+    // —— zh-TW traditional channel (post-conversion of the zh-CN builders) ——
+
+    @Test func traditionalSideChangeAndCriticalPoints() {
+        #expect(racket(.badminton, language: .zhTW) == "5比3")
+        var gamePoint = VoiceAnnouncementPayload(
+            gameType: .badminton,
+            phase: .scoreChange,
+            leftTeamName: "Alice",
+            rightTeamName: "Bob",
+            leftScore: 20,
+            rightScore: 18,
+            serverSide: .left,
+            winnerSide: .left,
+            winnerName: "Alice",
+            criticalPoint: .gamePoint
+        )
+        #expect(VoiceAnnouncementMessageBuilder.build(gamePoint, language: .zhTW).contains("局點"))
+        gamePoint.criticalPoint = .matchPoint
+        #expect(VoiceAnnouncementMessageBuilder.build(gamePoint, language: .zhTW).contains("賽點"))
+        gamePoint.criticalPoint = nil
+        #expect(VoiceAnnouncementMessageBuilder.build(gamePoint, language: .zhCN).contains("局点") == false)
+    }
+
+    @Test func traditionalBreakUsesRestTerm() {
+        var payload = VoiceAnnouncementPayload(
+            gameType: .badminton,
+            phase: .scoreChange,
+            leftTeamName: "Alice",
+            rightTeamName: "Bob",
+            leftScore: 11,
+            rightScore: 9,
+            serverSide: .left,
+            winnerSide: .left,
+            winnerName: "Alice",
+            isInterval: true
+        )
+        let simplified = VoiceAnnouncementMessageBuilder.build(payload, language: .zhCN)
+        let traditional = VoiceAnnouncementMessageBuilder.build(payload, language: .zhTW)
+        #expect(simplified.contains("间歇"))
+        #expect(traditional.contains("休息"))
+        #expect(traditional.contains("間歇") == false)
+        payload.phase = .sideChange
+        #expect(VoiceAnnouncementMessageBuilder.build(payload, language: .zhTW) == "交換場地")
+    }
+
+    @Test func traditionalKeepsTennisAdvantageTermAndUserNames() {
+        // 佔先 matches the UI term 無佔先; Traditional names pass through.
+        let advantage = tennis(language: .zhTW) { payload in
+            payload.leftScore = 4
+            payload.rightScore = 3
+        }
+        #expect(advantage == "Alice佔先")
+        let deuceNoAd = tennis(language: .zhTW) { payload in
+            payload.leftScore = 3
+            payload.rightScore = 3
+            payload.tennisDeuceMode = "no_ad"
+        }
+        #expect(deuceNoAd == "決勝分，接發方選擇")
+        let traditionalNames = tennis(language: .zhTW) { payload in
+            payload.leftTeamName = "陳小明"
+            payload.rightTeamName = "林大華"
+            payload.leftScore = 4
+            payload.rightScore = 3
+        }
+        #expect(traditionalNames == "陳小明佔先")
     }
 
     @Test func onlyOrdinarySingleScoresAreDebounced() {

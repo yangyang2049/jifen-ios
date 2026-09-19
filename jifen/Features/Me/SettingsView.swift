@@ -44,7 +44,7 @@ private enum SettingsSheetDestination: String, Identifiable {
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
-    @Environment(\.openURL) private var openURL
+    @Environment(\.openInAppWebLink) private var openInAppWebLink
     @Environment(AppAppearanceStore.self) private var appearance
     @Environment(SessionStore.self) private var session
     var isTabRoot: Bool = false
@@ -152,6 +152,10 @@ struct SettingsView: View {
             .task {
                 await session.reloadProfileIfNeeded()
             }
+            .navigationDestination(for: SettingsSheetDestination.self) {
+                settingsDestinationView($0)
+            }
+            .inAppWebLinkDestination()
         }
     }
 
@@ -164,10 +168,10 @@ struct SettingsView: View {
                 settingsRowDivider
                 NavigationLink { MembershipView() } label: {
                     SettingsNavigationRow(
-                        title: session.user?.isVIP == true
+                        title: session.isVIP
                             ? NSLocalizedString("membership_entry_title_active", value: "VIP 会员", comment: "")
                             : NSLocalizedString("membership_title", value: "会员", comment: ""),
-                        subtitle: session.user?.isVIP == true
+                        subtitle: session.isVIP
                             ? NSLocalizedString("membership_entry_summary_active", value: "您已是 VIP 会员，感谢您的支持", comment: "")
                             : NSLocalizedString("membership_entry_summary", value: "月卡、年卡或终身 VIP", comment: "")
                     )
@@ -210,7 +214,10 @@ struct SettingsView: View {
         SettingsSection {
             Button {
                 AppAnalytics.openPage(from: .meTab, to: .legalWebPage, entryPoint: .meTab)
-                openURL(AppSupportURLs.website)
+                openInAppWebLink(InAppWebLink(
+                    url: AppSupportURLs.website,
+                    title: NSLocalizedString("me_official_website", value: "官方网站", comment: "")
+                ))
             } label: {
                 SettingsNavigationRow(
                     title: NSLocalizedString("me_official_website", value: "官方网站", comment: ""),
@@ -237,7 +244,8 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings_feedback_entry")
             } else {
-                NavigationLink { FeedbackListView() } label: {
+                // 反馈页内含外链（会再 item-push 网页），同样走值驱动，理由同 settingsDestinationRow。
+                NavigationLink(value: SettingsSheetDestination.feedback) {
                     SettingsNavigationRow(
                         title: NSLocalizedString("me_feedback_entry", value: "反馈社区", comment: ""),
                         subtitle: NSLocalizedString("feedback_entry_subtitle", value: "功能建议与问题反馈", comment: "")
@@ -254,9 +262,7 @@ struct SettingsView: View {
                 settingsDestinationRow(
                     .scoreboardSettings,
                     title: NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: "")
-                ) {
-                    ScoreboardSettingsView()
-                }
+                )
                 settingsRowDivider
                 MeSoundToggleRow(
                     title: NSLocalizedString("sound_effects", value: "音效", comment: ""),
@@ -336,23 +342,25 @@ struct SettingsView: View {
                 settingsDestinationRow(
                     .faq,
                     title: NSLocalizedString("settings_faq", value: "常见问题", comment: "")
-                ) {
-                    FAQView()
-                }
+                )
                 settingsRowDivider
                 settingsDestinationRow(
                     .about,
                     title: NSLocalizedString("about_us_title", value: "关于我们", comment: "")
-                ) {
-                    AboutUsView()
-                }
+                )
             }
         }
     }
 
     private var accountSubtitle: String {
         if session.isAuthenticated, let user = session.user {
-            if user.isVIP {
+            if session.isVIP {
+                // Prefer richer server membership metadata only when that
+                // membership is active; local Apple entitlement uses the
+                // generic VIP label so every entry point stays consistent.
+                guard user.isVIP else {
+                    return NSLocalizedString("me_profile_vip_badge", value: "VIP", comment: "")
+                }
                 let summary = user.membership?.identitySummary.trimmingCharacters(in: .whitespacesAndNewlines)
                 if let summary, !summary.isEmpty { return summary }
                 return NSLocalizedString("me_profile_vip_badge", value: "VIP", comment: "")
@@ -417,10 +425,9 @@ struct SettingsView: View {
     }
 
     @ViewBuilder
-    private func settingsDestinationRow<Destination: View>(
+    private func settingsDestinationRow(
         _ destination: SettingsSheetDestination,
-        title: String,
-        @ViewBuilder content: () -> Destination
+        title: String
     ) -> some View {
         if Theme.usesPadLayout {
             Button {
@@ -432,15 +439,26 @@ struct SettingsView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier(destination.entryAccessibilityIdentifier)
         } else {
-            NavigationLink {
-                content()
-            } label: {
+            // iPhone 必须走值驱动 NavigationLink：闭包式 `NavigationLink { 页面 }` 与
+            // inAppWebLinkDestination 的 item push 混在一条栈上时，网页返回会把闭包
+            // push 的页面一并退掉（实测关于页 → 协议网页 → 返回直接退到「我的」根）。
+            NavigationLink(value: destination) {
                 SettingsNavigationRow(title: title)
             }
             .simultaneousGesture(TapGesture().onEnded {
                 AppAnalytics.openPage(from: .meTab, to: destination.analyticsScreen, entryPoint: .meTab)
             })
             .accessibilityIdentifier(destination.entryAccessibilityIdentifier)
+        }
+    }
+
+    @ViewBuilder
+    private func settingsDestinationView(_ destination: SettingsSheetDestination) -> some View {
+        switch destination {
+        case .scoreboardSettings: ScoreboardSettingsView()
+        case .faq: FAQView()
+        case .about: AboutUsView()
+        case .feedback: FeedbackListView()
         }
     }
 
@@ -462,7 +480,11 @@ private struct SettingsFormSheet: View {
                         .accessibilityIdentifier(destination.closeAccessibilityIdentifier)
                     }
                 }
+                .inAppWebLinkDestination()
         }
+        // 弹窗自己是独立的一条栈，网页要内嵌 push 在弹窗里，所以这里配一套自己的宿主；
+        // 不能让 AboutUsView 等页面自己身上挂（自己 inject 的 environment 对自己无效）。
+        .inAppWebLinks()
         .background(Theme.backgroundColor.ignoresSafeArea())
         .accessibilityIdentifier(destination.sheetAccessibilityIdentifier)
     }
@@ -496,6 +518,9 @@ private extension SettingsSheetDestination {
 struct MeTab: View {
     var body: some View {
         SettingsView(isTabRoot: true)
+            // 宿主必须挂在读 openInAppWebLink 的那个视图之上：挂在 SettingsView 自己
+            // body 的输出上等于自我注入，它本身读到的仍是默认空 action（点了没反应）。
+            .inAppWebLinks()
     }
 }
 
@@ -531,9 +556,9 @@ struct SettingsSection<Content: View>: View {
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Theme.appCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .overlay {
-                    RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .stroke(Theme.divider.opacity(0.7), lineWidth: 0.5)
                 }
         }
@@ -892,7 +917,8 @@ private struct FAQView: View {
 
     var body: some View {
         ScrollView {
-            // 对齐安卓：全部条目收在一张 12pt 圆角卡片内，条目间用分隔线。
+            // 全部条目收在一张 20pt 圆角大卡内，条目间用分隔线；
+            // 20 对齐首页区块卡与设置弹窗容器档（安卓端 FAQ 仍为 12，见圆角审计报告）。
             VStack(spacing: 0) {
                 ForEach(items) { item in
                     VStack(alignment: .leading, spacing: 0) {
@@ -935,7 +961,7 @@ private struct FAQView: View {
                 }
             }
             .background(Theme.appCardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .frame(maxWidth: Theme.meTabContentMaxWidth)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, Theme.pageHorizontalInset)
@@ -970,35 +996,35 @@ private struct AboutUsView: View {
                     .padding(.top, Theme.sm)
 
                     VStack(spacing: 0) {
-                        Link(destination: LegalDocuments.termsURL) {
-                            SettingsNavigationRow(title: NSLocalizedString("terms_of_service", value: "用户协议", comment: ""))
-                        }
-                        .simultaneousGesture(TapGesture().onEnded {
-                            AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
-                        })
-                        .accessibilityIdentifier("settings_about_terms_link")
+                        webLinkRow(
+                            title: NSLocalizedString("terms_of_service", value: "用户协议", comment: ""),
+                            url: LegalDocuments.termsURL,
+                            accessibilityIdentifier: "settings_about_terms_link",
+                            tracksLegalAnalytics: true
+                        )
                         SettingsRowDivider()
-                        Link(destination: LegalDocuments.privacyURL) {
-                            SettingsNavigationRow(title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: ""))
-                        }
-                        .simultaneousGesture(TapGesture().onEnded {
-                            AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
-                        })
-                        .accessibilityIdentifier("settings_about_privacy_link")
+                        webLinkRow(
+                            title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: ""),
+                            url: LegalDocuments.privacyURL,
+                            accessibilityIdentifier: "settings_about_privacy_link",
+                            tracksLegalAnalytics: true
+                        )
                         if isChineseLocale {
                             SettingsRowDivider()
-                            Link(destination: AppSupportURLs.wechatGroup) {
-                                SettingsNavigationRow(title: NSLocalizedString("about_wechat_group", value: "微信群", comment: ""))
-                            }
-                            .accessibilityIdentifier("settings_about_wechat_link")
+                            webLinkRow(
+                                title: NSLocalizedString("about_wechat_group", value: "微信群", comment: ""),
+                                url: AppSupportURLs.wechatGroup,
+                                accessibilityIdentifier: "settings_about_wechat_link",
+                                tracksLegalAnalytics: false
+                            )
                             SettingsRowDivider()
                             qqGroupRow
                         }
                     }
                     .background(Theme.appCardBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
                             .stroke(Theme.divider.opacity(0.7), lineWidth: 0.5)
                     }
 
@@ -1025,6 +1051,25 @@ private struct AboutUsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .analyticsScreen(.aboutUsPage, source: .meTab)
+    }
+
+    /// 关于页外链行：应用内网页打开（不再跳系统浏览器），标识符与原 Link 保持一致。
+    private func webLinkRow(
+        title: String,
+        url: URL,
+        accessibilityIdentifier: String,
+        tracksLegalAnalytics: Bool
+    ) -> some View {
+        NavigationLink(value: InAppWebLink(url: url, title: title)) {
+            SettingsNavigationRow(title: title)
+        }
+        .simultaneousGesture(TapGesture().onEnded {
+            if tracksLegalAnalytics {
+                AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
+            }
+        })
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityIdentifier)
     }
 
     private var qqGroupRow: some View {
@@ -1063,6 +1108,8 @@ private struct AboutUsView: View {
     }
 
     private var companyDisplayName: String {
+        // Registered company name is a legal entity string; zh-Hant deliberately
+        // reuses the simplified registration. Do not "fix" this as a localization miss.
         isChineseLocale
             ? NSLocalizedString("about_company_zh", value: "重庆豆花科技有限公司", comment: "")
             : NSLocalizedString("about_company_en", value: "Chongqing Douhua Technology Co., Ltd.", comment: "")
@@ -1124,34 +1171,6 @@ struct InfoRow: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-    }
-}
-
-struct LinkRow: View {
-    let title: String
-    let icon: String
-    let url: URL
-
-    var body: some View {
-        Link(destination: url) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(Theme.accentColor)
-                    .frame(width: 24, height: 24)
-
-                Text(title)
-                    .foregroundColor(Theme.textPrimary)
-
-                Spacer()
-
-                Image(systemName: "arrow.up.right")
-                    .font(.caption)
-                    .foregroundColor(Theme.textSecondary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-        }
-        .buttonStyle(.plain)
     }
 }
 

@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct CommonDataSectionView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     let onNamesTapped: () -> Void
     let onPlacesTapped: () -> Void
 
@@ -42,7 +40,7 @@ struct CommonDataSectionView: View {
                     .foregroundStyle(tint)
                     .frame(width: 36, height: 36)
                     .background(
-                        tint.opacity(colorScheme == .dark ? 0.30 : lightIconBackgroundOpacity)
+                        Theme.tintedFill(tint, lightAlpha: lightIconBackgroundOpacity, darkAlpha: 0.30)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 VStack(alignment: .leading, spacing: 3) {
@@ -61,7 +59,7 @@ struct CommonDataSectionView: View {
             .padding(.horizontal, Theme.compactCardPadding)
             .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
             .background(Theme.homeNeutralCardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)

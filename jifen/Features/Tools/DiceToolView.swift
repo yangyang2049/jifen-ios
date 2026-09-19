@@ -9,6 +9,7 @@ import SwiftUI
 import WebKit
 
 struct DiceToolView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var hasRolled = false
     @State private var webVisible = false
     @State private var showHint = false
@@ -56,8 +57,6 @@ struct DiceToolView: View {
                 }
             }
 
-            diceCountSelectView
-
             if showEnterToast {
                 ToastView(message: NSLocalizedString("tap_to_roll", value: "Tap to roll", comment: "Tap to roll dice"))
                     .transition(.opacity)
@@ -65,12 +64,24 @@ struct DiceToolView: View {
             }
         }
         .animation(.easeInOut(duration: 0.35), value: webVisible)
-        .navigationTitle(NSLocalizedString("dice_title", comment: "Dice title"))
-        .navigationBarTitleDisplayMode(.inline)
+        // 骰子页无导航栏：悬浮返回与颗数选择器同排放置在顶部一行。
+        .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .top) {
+            HStack {
+                // 纯黑页面必须用显式亮色配色：自适应配色在浅色主题下解析为黑色，会隐入背景。
+                FloatingBackButton(
+                    iconColor: .white.opacity(0.85),
+                    circleColor: Color.white.opacity(0.14)
+                ) {
+                    dismiss()
+                }
+                Spacer()
+                diceCountButton
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 4)
+        }
         .preferredColorScheme(.dark)
-        .toolbarBackground(Color.black, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear {
             checkAndShowHint()
         }
@@ -83,41 +94,36 @@ struct DiceToolView: View {
         }
     }
 
-    private var diceCountSelectView: some View {
-        VStack {
-            Button {
-                showDiceCountDialog = true
-            } label: {
-                HStack(spacing: 4) {
-                    Text(diceCountLabel(diceCount))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
+    private var diceCountButton: some View {
+        Button {
+            showDiceCountDialog = true
+        } label: {
+            HStack(spacing: 4) {
+                Text(diceCountLabel(diceCount))
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
 
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(Color.white.opacity(0.15))
-                .clipShape(Capsule())
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white)
             }
-            .buttonStyle(.plain)
-            .padding(.top, 16)
-            .confirmationDialog(
-                NSLocalizedString("dice_count_title", value: "骰子数量", comment: ""),
-                isPresented: $showDiceCountDialog,
-                titleVisibility: .visible
-            ) {
-                ForEach(1...3, id: \.self) { count in
-                    Button(diceCount == count ? "\(diceCountLabel(count)) ✓" : diceCountLabel(count)) {
-                        selectDiceCount(count)
-                    }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.white.opacity(0.15))
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .confirmationDialog(
+            NSLocalizedString("dice_count_title", value: "骰子数量", comment: ""),
+            isPresented: $showDiceCountDialog,
+            titleVisibility: .visible
+        ) {
+            ForEach(1...3, id: \.self) { count in
+                Button(diceCount == count ? "\(diceCountLabel(count)) ✓" : diceCountLabel(count)) {
+                    selectDiceCount(count)
                 }
-                Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
             }
-
-            Spacer()
+            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) { }
         }
     }
 
@@ -177,49 +183,20 @@ struct DiceWebView: UIViewRepresentable {
     let onSoundRequest: () -> Void
 
     func makeUIView(context: Context) -> WKWebView {
-        let config = WKWebViewConfiguration()
-        config.allowsInlineMediaPlayback = true
-        config.mediaTypesRequiringUserActionForPlayback = []
-
-        let userController = config.userContentController
-        let bridgeScript = """
-        window.__nativeDiceCount = window.__nativeDiceCount || 1;
-        window.nativeInterface = window.nativeInterface || {};
-        window.nativeInterface.playSound = function() {
-            window.webkit.messageHandlers.playSound.postMessage({});
-        };
-        window.nativeInterface.getDiceCount = function() {
-            return window.__nativeDiceCount || 1;
-        };
-        document.documentElement.style.background = '#000';
-        if (document.body) { document.body.style.background = '#000'; }
-        """
-        let userScript = WKUserScript(source: bridgeScript, injectionTime: .atDocumentStart, forMainFrameOnly: true)
-        userController.addUserScript(userScript)
-        userController.add(context.coordinator, name: "playSound")
-
-        let webView = WKWebView(frame: .zero, configuration: config)
-        webView.navigationDelegate = context.coordinator
-        webView.isOpaque = true
-        webView.backgroundColor = .black
-        webView.scrollView.backgroundColor = .black
-        webView.scrollView.isScrollEnabled = false
-        webView.scrollView.bounces = false
-        webView.isHidden = true
-        webView.underPageBackgroundColor = .black
-
-        if let htmlURL = Bundle.main.url(forResource: "dice", withExtension: "html") {
-            context.coordinator.load(htmlURL, in: webView)
-        } else {
-            context.coordinator.loadFallback(in: webView)
-        }
-
-        context.coordinator.syncDiceCount(on: webView, diceCount: diceCount)
+        let coordinator = context.coordinator
+        // Reuses the webview preloaded by DiceWebEngine so the push transition
+        // doesn't pay WKWebView cold-start.
+        let webView = DiceWebEngine.shared.acquire(
+            diceCount: diceCount,
+            onSound: onSoundRequest,
+            onReady: { coordinator.handleEngineReady() }
+        )
+        coordinator.attach(webView)
         return webView
     }
 
     func updateUIView(_ webView: WKWebView, context: Context) {
-        context.coordinator.syncDiceCount(on: webView, diceCount: diceCount)
+        DiceWebEngine.shared.syncDiceCount(diceCount)
         // Keep UIKit visibility in sync with SwiftUI fade state.
         if webVisible, webView.isHidden {
             webView.isHidden = false
@@ -229,112 +206,38 @@ struct DiceWebView: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(webVisible: $webVisible, onSoundRequest: onSoundRequest)
+        Coordinator(webVisible: $webVisible)
     }
 
     static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
-        webView.stopLoading()
-        webView.navigationDelegate = nil
-        webView.configuration.userContentController.removeScriptMessageHandler(forName: "playSound")
+        // Keep the webview warm for the next visit; only detach callbacks.
+        DiceWebEngine.shared.releaseForReuse()
     }
 
-    final class Coordinator: NSObject, WKScriptMessageHandler, WKNavigationDelegate {
+    final class Coordinator {
         private let webVisible: Binding<Bool>
-        private let onSoundRequest: () -> Void
-        private var pendingDiceCount = 1
-        private var didRetryWithFileURL = false
-        private var htmlURL: URL?
+        private weak var webView: WKWebView?
         private(set) var hasRevealed = false
 
-        init(webVisible: Binding<Bool>, onSoundRequest: @escaping () -> Void) {
+        init(webVisible: Binding<Bool>) {
             self.webVisible = webVisible
-            self.onSoundRequest = onSoundRequest
         }
 
-        func load(_ htmlURL: URL, in webView: WKWebView) {
-            self.htmlURL = htmlURL
-
-            do {
-                let html = try String(contentsOf: htmlURL, encoding: .utf8)
-                webView.loadHTMLString(html, baseURL: htmlURL.deletingLastPathComponent())
-            } catch {
-                retryWithFileURL(in: webView)
-            }
+        func attach(_ webView: WKWebView) {
+            self.webView = webView
         }
 
-        func loadFallback(in webView: WKWebView) {
-            webView.loadHTMLString(
-                """
-                <html><head><style>
-                html, body { margin: 0; background: #000000; }
-                </style></head><body></body></html>
-                """,
-                baseURL: nil
-            )
-        }
-
-        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            if message.name == "playSound" {
-                onSoundRequest()
-            }
-        }
-
-        func syncDiceCount(on webView: WKWebView, diceCount: Int) {
-            let safeCount = min(3, max(1, diceCount))
-            pendingDiceCount = safeCount
-            let js = "window.__nativeDiceCount = \(safeCount); if (window.setDiceCount) { window.setDiceCount(\(safeCount)); }"
-            webView.evaluateJavaScript(js, completionHandler: nil)
-        }
-
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            let validationScript = "document.querySelectorAll('.dice-unit .dice').length"
-            webView.evaluateJavaScript(validationScript) { [weak self, weak webView] value, error in
-                guard let self, let webView else { return }
-
-                if error == nil, (value as? NSNumber)?.intValue == 3 {
-                    self.syncDiceCount(on: webView, diceCount: self.pendingDiceCount)
-                    self.reveal(webView)
-                } else {
-                    self.retryWithFileURL(in: webView)
-                }
-            }
-        }
-
-        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            retryWithFileURL(in: webView)
-        }
-
-        func webView(
-            _ webView: WKWebView,
-            didFailProvisionalNavigation navigation: WKNavigation!,
-            withError error: Error
-        ) {
-            retryWithFileURL(in: webView)
-        }
-
-        private func reveal(_ webView: WKWebView) {
+        func handleEngineReady() {
             guard !hasRevealed else { return }
             hasRevealed = true
             // One short beat after paint so the first CSS layout isn't shown mid-flash.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                webView.isHidden = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                guard let self else { return }
+                self.webView?.isHidden = false
                 withAnimation(.easeInOut(duration: 0.35)) {
                     self.webVisible.wrappedValue = true
                 }
             }
-        }
-
-        private func retryWithFileURL(in webView: WKWebView) {
-            guard !didRetryWithFileURL, let htmlURL else {
-                reveal(webView)
-                return
-            }
-
-            didRetryWithFileURL = true
-            webView.loadFileURL(
-                htmlURL,
-                allowingReadAccessTo: htmlURL.deletingLastPathComponent()
-            )
         }
     }
 }

@@ -8,7 +8,6 @@ import SwiftUI
 struct RecentRowView: View {
     let activity: RecentActivity
     let isLast: Bool
-    var isDarkTheme: Bool
 
     var body: some View {
         VStack(spacing: 0) { // Column()
@@ -185,7 +184,6 @@ struct RecentRowView: View {
 // MARK: - RecentRecordsSectionView
 struct RecentRecordsSectionView: View {
     var records: [RecentActivity] = []
-    var isDarkTheme: Bool = false
     /// When set, "View all records" switches to Records tab instead of navigating to RecentActivityPage.
     var onViewAllTapped: (() -> Void)? = nil
 
@@ -212,8 +210,7 @@ struct RecentRecordsSectionView: View {
                         ForEach(records) { record in
                             RecentRowView(
                                 activity: record,
-                                isLast: false, // No longer the last since we have the view all records row
-                                isDarkTheme: isDarkTheme
+                                isLast: false // No longer the last since we have the view all records row
                             )
                         }
 
@@ -246,7 +243,7 @@ struct RecentRecordsSectionView: View {
             .padding(Theme.md) // padding(20)
             .background(Theme.homeNeutralCardBackground)
             .cornerRadius(Theme.lg) // borderRadius(24) // Theme.lg is 24
-            .shadow(color: isDarkTheme ? .clear : Theme.homeShadowLight, radius: isDarkTheme ? 0 : 2, x: 0, y: isDarkTheme ? 0 : 1) // shadow
+            .shadow(color: Theme.lightModeShadow(0.05), radius: 2, x: 0, y: 1) // shadow
         }
     }
 }

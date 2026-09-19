@@ -164,8 +164,6 @@ struct UnfinishedGameSummary: Sendable {
 }
 
 struct UnfinishedGameBarView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     let record: UnfinishedGameSummary
     var isClosePending = false
     var onContinue: () -> Void
@@ -246,12 +244,9 @@ struct UnfinishedGameBarView: View {
         .frame(height: barHeight)
         .background(Theme.homeNeutralCardBackground)
         .clipShape(Capsule())
-        .shadow(color: shadowColor, radius: 8, x: 0, y: 0)
+        .shadow(color: Theme.lightModeShadow(0.22), radius: 8, x: 0, y: 0)
         .animation(.easeInOut(duration: 0.44), value: isClosePending)
-    }
-
-    private var shadowColor: Color {
-        colorScheme == .dark ? .clear : Color.black.opacity(0.22)
+        .accessibilityIdentifier("unfinished_game_bar")
     }
 
     private var closeButtonBackgroundColor: Color {
@@ -259,12 +254,7 @@ struct UnfinishedGameBarView: View {
             // 对齐安卓 ToolWhistleRed。
             return Color(red: 1, green: 0x3B / 255, blue: 0x30 / 255)
         }
-        return Color(uiColor: UIColor { traits in
-            if traits.userInterfaceStyle == .dark {
-                return UIColor.white.withAlphaComponent(0.12)
-            }
-            return .tertiarySystemFill
-        })
+        return Theme.quietChipFill
     }
 
     private var displayScore: String {
@@ -273,8 +263,6 @@ struct UnfinishedGameBarView: View {
 }
 
 struct UnfinishedGameDiscardToast: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         Text(NSLocalizedString("unfinished_abandon_confirm", value: "再点击一次丢弃比赛", comment: ""))
             .font(.system(size: 13, weight: .medium))
@@ -284,10 +272,6 @@ struct UnfinishedGameDiscardToast: View {
             .padding(.vertical, 7)
             .background(Theme.homeNeutralCardBackground)
             .clipShape(Capsule())
-            .shadow(color: shadowColor, radius: 4, x: 0, y: -2)
-    }
-
-    private var shadowColor: Color {
-        (colorScheme == .dark ? Color.white : Color.black).opacity(0.1)
+            .shadow(color: Theme.overlayShadow, radius: 4, x: 0, y: -2)
     }
 }

@@ -53,7 +53,8 @@ final class RemodelFocusUITests: XCTestCase {
         for project in remodeledRecordProjects {
             let app = XCUIApplication()
             app.launchArguments += [
-                "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+                "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+                "-AppleLocale", UITestLocale.zhHans.locale,
                 "-UITestSkipLegalConsent",
                 "-UITestSkipScoreboardUsageHints",
                 "-UITestRecordFixtures", "-UITestRecordDetail", project
@@ -72,7 +73,8 @@ final class RemodelFocusUITests: XCTestCase {
     func testRecordDetailIsSecondaryPageAndHidesTabBar() {
         let app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
             "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures"
         ]
         app.launch()
@@ -189,7 +191,7 @@ final class RemodelFocusUITests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func launchChineseApp(language: String = "zh-Hans", locale: String = "zh_CN") -> XCUIApplication {
+    private func launchChineseApp(language: String = UITestLocale.zhHans.language, locale: String = UITestLocale.zhHans.locale) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += [
             "-AppleLanguages", "(\(language))",

@@ -28,6 +28,7 @@ IPAD_DESTINATION='platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=26.5' \
 脚本会从两份 `.xcresult` 中导出测试附件，结果统一写入
 `UITestScreenshots-All/`。文件使用 `iPhone_` 或 `iPad_` 前缀，横屏计分板
 与计时器会在附件生成时归一化为可直接审查的横向 PNG。
-脚本通过 `jifen.xcworkspace` 构建，以确保 CocoaPods 模块能被测试目标正确解析。
+脚本直接对 `jifen.xcodeproj` 构建（项目已移除 CocoaPods，依赖仅
+`Packages/JifenCore` 本地 Swift Package，无需 workspace）。
 运行结束后，同一目录会生成 `UI测试截图审查.html`，按重点项目与完整页面分组展示
 全部截图；点击缩略图可打开原始 PNG。

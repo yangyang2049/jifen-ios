@@ -2,7 +2,7 @@
 
 ## 范围与原则
 
-- iOS 使用友盟作为传输层，业务代码统一经过 `AppAnalytics`。
+- iOS 业务代码统一经过 `AppAnalytics`；友盟 SDK 已于 2026-09 移除，当前生产 sink 为 no-op 占位（事件被规范化后丢弃），接入新统计服务后所有调用点自动生效。
 - 事件名以 Android `AnalyticsTracking.kt` 为主规范，页面别名参考鸿蒙 `analyticsSchema.ts`。
 - Watch App 不接入埋点；手机发起联动及 Watch 回传结果均由 iPhone 上报。
 - 不上传姓名、队名、地点、备注、URL、设备名、记录/预约/会话 ID、分享目标或错误原文。
@@ -24,7 +24,7 @@ iOS 不发送 Android 的 `score_adjust`、`amount`、`score_delta`、`score_aft
 ## 参数约束
 
 - 事件名及参数名最多 40 字符，参数值最多 100 字符，单事件最多 25 个参数。
-- 参数只能来自 `AnalyticsParameter` 白名单；非法名称、空值及友盟保留字段会被丢弃。
+- 参数只能来自 `AnalyticsParameter` 白名单；非法名称、空值及保留字段（原友盟黑名单）会被丢弃。
 - `result`: `success`, `failed`, `cancelled`, `timeout`, `not_reachable`, `rejected`, `requested`。
 - `outcome`: 工具产生的业务结果；抛硬币仅使用 `heads`、`tails`。
 - `winner`: `side_a`, `side_b`, `draw`, `unknown`。
@@ -61,7 +61,7 @@ iOS 不发送 Android 的 `score_adjust`、`amount`、`score_delta`、`score_aft
 - 预约通知点击发送 `notification_open(entry_point=booking_notification)`；通知送达不发送事件。
 - 每次 iPhone 联动尝试发送一个 `watch_link_start`，最终只发送一个 `watch_link_result`。
 
-## 友盟报表建议
+## 报表口径建议（接入统计服务后启用）
 
 - 开局转化：`score_item_select` → `score_setup_confirm` → `start_game`
 - 有效开局率：`match_start / start_game`
@@ -70,4 +70,4 @@ iOS 不发送 Android 的 `score_adjust`、`amount`、`score_delta`、`score_aft
 - 分享成功率：`share_result[result=success] / share_start`
 - Watch 联动成功率：`watch_link_result[result=success] / watch_link_start`
 - 预约召回：`submit_form[content_type=booking_create]` → `notification_open` → `start_game[entry_point=booking_notification]`
-- D1/D3/D7 留存直接使用友盟内置留存能力。
+- D1/D3/D7 留存使用统计服务内置留存能力。

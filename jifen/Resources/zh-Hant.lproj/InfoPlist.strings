@@ -1,0 +1,11 @@
+/*
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions (Chinese Traditional)
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "用於將計分板截圖儲存到相簿。";
+"NSCameraUsageDescription" = "掃描受信任的計分器登入 QR Code 時需要使用相機。";
+"NSMicrophoneUsageDescription" = "錄製語音筆記需要使用麥克風。";
+"CFBundleDisplayName" = "全能計分器";

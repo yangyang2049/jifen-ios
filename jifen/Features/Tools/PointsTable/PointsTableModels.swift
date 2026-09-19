@@ -65,7 +65,7 @@ struct PointsTableRecord: Identifiable, Codable, Hashable {
     /// not produce mixed-language UI while user-entered names remain untouched.
     func localizingLegacyDefaults() -> PointsTableRecord {
         let legacyRecordNames: Set<String> = [
-            "New Table", "New Points Table", "New Standings", "新积分表", "新积分榜"
+            "New Table", "New Points Table", "New Standings", "新积分表", "新积分榜", "新積分表", "新積分榜"
         ]
         let legacyTeamNames = teams.map(\.name)
         guard legacyRecordNames.contains(name),

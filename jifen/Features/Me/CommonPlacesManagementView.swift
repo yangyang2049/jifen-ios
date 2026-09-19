@@ -57,19 +57,21 @@ struct CommonPlacesManagementView: View {
                     } else {
                         placesList
                     }
-
+                }
+                .frame(
+                    maxWidth: CommonDataManagementChrome.contentMaxWidth,
+                    maxHeight: .infinity
+                )
+                .overlay(alignment: .bottom) {
                     if showFloatingAdd {
                         CommonDataFloatingAddButton(
                             title: NSLocalizedString("common_places_add", value: "添加地点", comment: "")
                         ) {
                             openAddSheet()
                         }
+                        .padding(.bottom, 12)
                     }
                 }
-                .frame(
-                    maxWidth: CommonDataManagementChrome.contentMaxWidth,
-                    maxHeight: .infinity
-                )
 
                 if showsBatchEditBar {
                     CommonDataBatchEditBar(
@@ -223,7 +225,8 @@ struct CommonPlacesManagementView: View {
             }
             .padding(.horizontal, Theme.md)
             .padding(.top, Theme.sm)
-            .padding(.bottom, showFloatingAdd ? 8 : Theme.md)
+            // 悬浮按钮会盖住列表底部，留出可滚动穿透的余量
+            .padding(.bottom, showFloatingAdd ? 88 : Theme.md)
         }
     }
 
@@ -308,6 +311,18 @@ struct CommonPlacesManagementView: View {
                     Spacer()
                 }
                 .padding(16)
+
+                // 添加后 sheet 保持打开，Toast 需渲染在 sheet 内才可见
+                // （对齐安卓：系统 Toast 覆盖在弹窗之上）
+                if showToast {
+                    VStack {
+                        Spacer()
+                        ToastView(message: toastMessage)
+                            .transition(.opacity)
+                            .padding(.bottom, 16)
+                    }
+                    .allowsHitTesting(false)
+                }
             }
             .navigationTitle(NSLocalizedString("common_places_add", value: "添加地点", comment: ""))
             .navigationBarTitleDisplayMode(.inline)

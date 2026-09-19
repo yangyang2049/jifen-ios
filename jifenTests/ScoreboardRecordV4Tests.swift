@@ -1772,10 +1772,15 @@ final class ScoreboardRecordV4Tests: XCTestCase {
     }
 
     func testCompletedMatchChineseResourcesUsePlayAnotherMatchWording() throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-        let phone = try String(contentsOf: repositoryRoot.appendingPathComponent("jifen/Resources/zh-Hans.lproj/Localizable.strings"), encoding: .utf8)
-        XCTAssertTrue(phone.contains(#""play_again" = "再来一场";"#))
-        XCTAssertFalse(phone.contains(#""play_again" = "再来一局";"#))
+        let expected: [String: String] = [
+            "en": "Play Again",
+            "zh-Hans": "再来一场",
+            "zh-Hant": "再來一場"
+        ]
+        for (locale, path) in LocalizationTestSupport.localizablePaths {
+            let values = try LocalizationTestSupport.valuesByKey(relativePath: path)
+            XCTAssertEqual(values["play_again"], expected[locale], "\(locale) play_again wording")
+        }
     }
 
     func testAnyCodableEncodesNestedPlayerPayloadWithNegativeScores() throws {

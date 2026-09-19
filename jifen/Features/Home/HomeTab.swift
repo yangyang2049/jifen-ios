@@ -139,7 +139,6 @@ struct HomeResumeSessionScanner<Candidate> {
 struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
@@ -152,6 +151,11 @@ struct HomeTab: View {
     @State private var resumeLoadErrorMessage: String?
     @State private var resumeLoadTask: Task<Void, Never>?
     @State private var resumeLoadGeneration = UUID()
+    /// A scoreboard saves its final live snapshot from `onDisappear`, after the
+    /// navigation path has already returned to Home. Only that transition may
+    /// consume the next repository notification; ordinary background saves
+    /// must not start Home's mutating abandoned-session reconciliation.
+    @State private var awaitsPostNavigationResumeSave = false
     @AppStorage("home_discard_chip_shown_count") private var discardConfirmationToastShownCount = 0
     @State private var showCreateBookingSheet = false
     @State private var path = NavigationPath()
@@ -204,10 +208,6 @@ struct HomeTab: View {
         var id: String { rawValue }
     }
 
-    private var isDarkTheme: Bool {
-        colorScheme == .dark
-    }
-
     var body: some View {
         NavigationStack(path: $path) {
             GeometryReader { geo in
@@ -238,6 +238,8 @@ struct HomeTab: View {
                             .padding(.top, Theme.sectionSpacing)
                             .padding(.bottom, Theme.tabContentBottomPadding)
                     }
+
+                    unfinishedGameBar
                 }
             }
             .background(Theme.backgroundColor)
@@ -373,32 +375,6 @@ struct HomeTab: View {
         .sheet(item: $homeSheet) { destination in
             HomeFormSheet(destination: destination)
         }
-        .safeAreaInset(edge: .bottom) {
-            if let unfinishedRecord {
-                VStack(spacing: Theme.sm) {
-                    if showDiscardConfirmationToast {
-                        UnfinishedGameDiscardToast()
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
-
-                    HStack {
-                        Spacer(minLength: 0)
-                        UnfinishedGameBarView(
-                            record: unfinishedRecord,
-                            isClosePending: isDiscardConfirmationPending,
-                            onContinue: { continueUnfinishedGame() },
-                            onClose: { handleDiscardUnfinishedGameTap() }
-                        )
-                        .frame(maxWidth: 400)
-                        Spacer(minLength: 0)
-                    }
-                }
-                .padding(.horizontal, Theme.pageHorizontalInset)
-                .padding(.bottom, Theme.sm)
-                .background(Color.clear)
-                .animation(.easeInOut(duration: 0.2), value: showDiscardConfirmationToast)
-            }
-        }
         .onAppear {
             // Home is a normal page: iPad follows the physical device in all
             // directions, while iPhone returns to portrait.
@@ -416,13 +392,37 @@ struct HomeTab: View {
             }
             #endif
         }
-        .onChange(of: path.count) { _, count in
+        .onChange(of: path.count) { previousCount, count in
             if count == 0 {
                 OrientationLock.shared.unlock()
+                // Home itself stays mounted while a scoreboard destination is
+                // pushed, so returning here does not trigger HomeTab.onAppear.
+                awaitsPostNavigationResumeSave = previousCount > 0
+                loadUnfinishedRecord()
+            } else {
+                awaitsPostNavigationResumeSave = false
             }
         }
         .onChange(of: scoreboardVM.records) { _, _ in
             updateRecentActivities()
+            loadUnfinishedRecord()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: ResumeSessionRepository.didChangeNotification
+            )
+        ) { notification in
+            guard awaitsPostNavigationResumeSave,
+                  path.isEmpty,
+                  let changedRootURL = notification.object as? URL,
+                  changedRootURL.standardizedFileURL
+                    == ResumeSessionRepository.defaultRootURL().standardizedFileURL else {
+                return
+            }
+            awaitsPostNavigationResumeSave = false
+            // Scoreboards persist from onDisappear, after navigation has
+            // already revealed Home. Reload again when that async write is
+            // durable so the resume bar cannot miss the new session.
             loadUnfinishedRecord()
         }
 
@@ -436,6 +436,34 @@ struct HomeTab: View {
             Button(NSLocalizedString("got_it", comment: ""), role: .cancel) {}
         } message: {
             Text(resumeLoadErrorMessage ?? "")
+        }
+    }
+
+    @ViewBuilder
+    private var unfinishedGameBar: some View {
+        if let unfinishedRecord {
+            VStack(spacing: Theme.sm) {
+                if showDiscardConfirmationToast {
+                    UnfinishedGameDiscardToast()
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+
+                HStack {
+                    Spacer(minLength: 0)
+                    UnfinishedGameBarView(
+                        record: unfinishedRecord,
+                        isClosePending: isDiscardConfirmationPending,
+                        onContinue: { continueUnfinishedGame() },
+                        onClose: { handleDiscardUnfinishedGameTap() }
+                    )
+                    .frame(maxWidth: 400)
+                    Spacer(minLength: 0)
+                }
+            }
+            .padding(.horizontal, Theme.pageHorizontalInset)
+            .padding(.bottom, Theme.sm)
+            .background(Color.clear)
+            .animation(.easeInOut(duration: 0.2), value: showDiscardConfirmationToast)
         }
     }
 
@@ -884,7 +912,6 @@ struct HomeTab: View {
                     ProToolsSectionView(
                         isPad: Theme.usesPadLayout,
                         isWide: true,
-                        isDarkTheme: isDarkTheme,
                         availableWidth: columnWidth,
                         onToolClick: { tool in
                             trackHomeToolSelection(tool)
@@ -909,7 +936,6 @@ struct HomeTab: View {
                 ProToolsSectionView(
                     isPad: Theme.usesPadLayout,
                     isWide: false,
-                    isDarkTheme: isDarkTheme,
                     onToolClick: { tool in
                         trackHomeToolSelection(tool)
                         path.append(NavigationDestination.tool(tool))
@@ -1023,7 +1049,6 @@ struct HomeTab: View {
 
             RecentRecordsSectionView(
                 records: recentActivities,
-                isDarkTheme: isDarkTheme,
                 onViewAllTapped: { onNavigateToTab?(1, nil) }
             )
         }
@@ -1139,30 +1164,15 @@ struct HomeTab: View {
 
         Text(status.localizedLabel)
             .font(.system(size: 12, weight: .medium))
-            .foregroundColor(isDarkTheme ? Theme.homeCardTextPrimary : style.textColor)
+            .foregroundColor(style.textColor)
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
-            .background(scheduleStatusBackground(status, style: style))
+            .background(style.backgroundColor)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(style.borderColor, lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    private func scheduleStatusBackground(
-        _ status: ScheduleTimeStatus,
-        style: ScheduleTimeStatusStyle
-    ) -> Color {
-        if !isDarkTheme {
-            return style.backgroundColor
-        }
-        switch status {
-        case .scheduled:
-            return Color.white.opacity(0.12)
-        case .startingSoon, .ready, .overdue:
-            return style.borderColor.opacity(0.42)
-        }
     }
 }
 

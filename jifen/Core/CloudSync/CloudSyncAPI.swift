@@ -139,6 +139,8 @@ enum CloudSyncGameTypes {
     static let supported: Set<String> = [
         "football", "football_5v5",
         "basketball", "three_basketball",
+        // 投篮训练只在 iOS 先开（服务端 scoreboardCatalog 同样只给 ios 放行），安卓/鸿蒙下一版跟进。
+        "basketball_training",
         "volleyball", "beach_volleyball", "air_volleyball",
         "pingpong", "pingpong_doubles",
         "tennis", "tennis_doubles", "soft_tennis", "padel",

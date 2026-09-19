@@ -8,7 +8,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-WORKSPACE="jifen.xcworkspace"
+PROJECT="jifen.xcodeproj"
 SCHEME="jifen"
 CONFIGURATION="Debug"
 BUNDLE_ID="com.douhua.jifen.ios"
@@ -17,10 +17,10 @@ OUT_DIR="${OUT_DIR:-build/display_snapshots}"
 FIXTURES="${FIXTURES:-pingpong_live pingpong_game_point pingpong_match_point pingpong_deuce pingpong_timeout pingpong_game_break pingpong_finished pingpong_doubles_live pingpong_doubles_timeout pingpong_doubles_finished}"
 
 # 1) 构建（模拟器）
-echo "==> Building workspace..."
-xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration "$CONFIGURATION" \
+echo "==> Building project..."
+xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration "$CONFIGURATION" \
   -destination 'generic/platform=iOS Simulator' build -quiet
-APP_PATH=$(xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration "$CONFIGURATION" \
+APP_PATH=$(xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration "$CONFIGURATION" \
   -destination 'generic/platform=iOS Simulator' -showBuildSettings 2>/dev/null \
   | awk -F' = ' '/ BUILT_PRODUCTS_DIR = /{print $2}' | head -1)/jifen.app
 echo "==> App: $APP_PATH"

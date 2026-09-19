@@ -9,6 +9,10 @@ import Foundation
 /// the Android board timer has no color announcements, so both platforms play the
 /// neutral `ding` clip (Android `res/raw/ding.mp3`, byte-identical on iOS).
 ///
+/// zh-Hant deliberately keeps the Mandarin (zh-CN) recordings: the clips are
+/// audio, not text, and Traditional listeners understand identical pronunciations.
+/// Only `en` switches to `_en` assets — do not add a Traditional branch here.
+///
 /// Bundle also contains Harmony rawfile leftovers `one`…`ten` that are **not** in Harmony
 /// `SoundType` / board-timer playback — keep for asset parity, do not announce from DualPlayer.
 /// `timeout` is used by the standalone countdown tool (Harmony `CountdownPage`), not board timers.

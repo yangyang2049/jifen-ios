@@ -26,13 +26,6 @@ struct CommonNamesManagementView: View {
 
     private let manager = CommonNamesManager.shared
 
-    /// Menu 里 role=.destructive 只会染文字，图标仍跟 tint；预着色保证垃圾桶为红。
-    private static let redTrashIcon: UIImage = {
-        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
-        let base = UIImage(systemName: "trash", withConfiguration: config) ?? UIImage()
-        return base.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
-    }()
-
     private var currentNames: [String] {
         selectedType == .team ? teamNames : playerNames
     }
@@ -80,19 +73,21 @@ struct CommonNamesManagementView: View {
                     } else {
                         namesList
                     }
-
+                }
+                .frame(
+                    maxWidth: CommonDataManagementChrome.contentMaxWidth,
+                    maxHeight: .infinity
+                )
+                .overlay(alignment: .bottom) {
                     if showFloatingAdd {
                         CommonDataFloatingAddButton(
                             title: NSLocalizedString("common_names_add", value: "添加", comment: "")
                         ) {
                             openAddSheet()
                         }
+                        .padding(.bottom, 12)
                     }
                 }
-                .frame(
-                    maxWidth: CommonDataManagementChrome.contentMaxWidth,
-                    maxHeight: .infinity
-                )
 
                 if showsBatchEditBar {
                     CommonDataBatchEditBar(
@@ -197,7 +192,7 @@ struct CommonNamesManagementView: View {
                         Label {
                             Text(NSLocalizedString("common_names_clear_current", value: "清空当前分类", comment: ""))
                         } icon: {
-                            Image(uiImage: Self.redTrashIcon)
+                            Image(uiImage: Theme.redTrashIcon)
                         }
                     }
                 } label: {
@@ -260,7 +255,8 @@ struct CommonNamesManagementView: View {
             }
             .padding(.horizontal, Theme.md)
             .padding(.top, Theme.sm)
-            .padding(.bottom, showFloatingAdd ? 8 : Theme.md)
+            // 悬浮按钮会盖住列表底部，留出可滚动穿透的余量
+            .padding(.bottom, showFloatingAdd ? 88 : Theme.md)
         }
     }
 
@@ -360,6 +356,18 @@ struct CommonNamesManagementView: View {
                     Spacer()
                 }
                 .padding(16)
+
+                // 添加后 sheet 保持打开，Toast 需渲染在 sheet 内才可见
+                // （对齐安卓：系统 Toast 覆盖在弹窗之上）
+                if showToast {
+                    VStack {
+                        Spacer()
+                        ToastView(message: toastMessage)
+                            .transition(.opacity)
+                            .padding(.bottom, 16)
+                    }
+                    .allowsHitTesting(false)
+                }
             }
             .navigationTitle(NSLocalizedString("common_names_add", value: "添加", comment: ""))
             .navigationBarTitleDisplayMode(.inline)

@@ -229,6 +229,12 @@ private final class ResumeSessionIndexRegistry: @unchecked Sendable {
 /// The single store for every resumable match. Its schema starts at 1 because
 /// the previous archive and unfinished-record implementations were never released.
 public actor ResumeSessionRepository {
+    /// Posted on the main queue after the durable resume-session catalog changes.
+    /// The notification object is the repository root URL that changed.
+    public nonisolated static let didChangeNotification = Notification.Name(
+        "com.douhua.jifen.resumeSessionRepositoryDidChange"
+    )
+
     public nonisolated let rootURL: URL
     private let index: ResumeSessionIndex
     private var activeSnapshotWriteCounts: [UUID: Int] = [:]
@@ -323,6 +329,7 @@ public actor ResumeSessionRepository {
     /// an abandoned record before deleting any resume snapshot.
     public func saveManualSession(_ summary: ResumeSessionSummary) async throws {
         try await index.upsert(summary)
+        postDidChangeNotification()
     }
 
     public static func loadEnvelope(
@@ -412,6 +419,7 @@ public actor ResumeSessionRepository {
             status: session.status,
             updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
         ))
+        postDidChangeNotification()
     }
 
     /// Persists the complete resumable session, including reducer intent
@@ -460,6 +468,7 @@ public actor ResumeSessionRepository {
             status: session.status,
             updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
         ))
+        postDidChangeNotification()
     }
 
     public func load<State: Codable & Sendable, Event: Codable & Sendable>(
@@ -507,6 +516,7 @@ public actor ResumeSessionRepository {
             }
         }
         try await index.remove(sessionId: sessionId)
+        postDidChangeNotification()
     }
 
     /// Deletes only the exact snapshot observed by the finished-record commit.
@@ -537,6 +547,7 @@ public actor ResumeSessionRepository {
             return false
         }
         try await index.remove(sessionId: sessionId)
+        postDidChangeNotification()
         return true
     }
 
@@ -549,6 +560,17 @@ public actor ResumeSessionRepository {
             try FileManager.default.removeItem(at: rootURL)
         } catch let error as CocoaError where error.code == .fileNoSuchFile {
             // Another idempotent cleanup already removed the directory.
+        }
+        postDidChangeNotification()
+    }
+
+    private nonisolated func postDidChangeNotification() {
+        let changedRootURL = rootURL
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: Self.didChangeNotification,
+                object: changedRootURL
+            )
         }
     }
 

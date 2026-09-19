@@ -27,6 +27,13 @@ import TimerCore
         #expect(BoardTimerVoice.isEnglishLocale(Locale(identifier: "zh-Hans")) == false)
     }
 
+    /// Lock: zh-Hant keeps the Mandarin recordings (design decision, not a bug).
+    @Test func traditionalChineseKeepsMandarinClips() {
+        #expect(BoardTimerVoice.isEnglishLocale(Locale(identifier: "zh-Hant-TW")) == false)
+        #expect(BoardTimerVoice.resolvedSoundName("start", locale: Locale(identifier: "zh-Hant-TW")) == "start")
+        #expect(BoardTimerVoice.resolvedSoundName("last_seconds", locale: Locale(identifier: "zh-Hant-HK")) == "last_seconds")
+    }
+
     @Test func timeoutSoundResolvesLikeOtherControlClips() {
         #expect(BoardTimerVoice.resolvedSoundName(BoardTimerVoice.timeoutSoundBaseName, isEnglish: false) == "timeout")
         #expect(BoardTimerVoice.resolvedSoundName(BoardTimerVoice.timeoutSoundBaseName, isEnglish: true) == "timeout_en")

@@ -117,9 +117,45 @@ final class ScoreVoiceAnnouncer {
         }
         for text in texts {
             let utterance = AVSpeechUtterance(string: text)
-            utterance.voice = AVSpeechSynthesisVoice(language: language.rawValue)
+            utterance.voice = Self.resolveVoice(for: language)
+            if utterance.voice == nil {
+                utterance.voice = AVSpeechSynthesisVoice(language: language.rawValue)
+            }
             utterance.rate = AVSpeechUtteranceDefaultSpeechRate
             synthesizer.speak(utterance)
         }
+    }
+
+    /// Traditional Chinese falls back through zh-HK/zh-CN voices so playback
+    /// never goes silent when a device lacks a dedicated zh-TW voice.
+    private static func resolveVoice(for language: VoiceAnnouncementLanguage) -> AVSpeechSynthesisVoice? {
+        if language != .zhTW {
+            return AVSpeechSynthesisVoice(language: language.rawValue)
+        }
+        let voices = AVSpeechSynthesisVoice.speechVoices()
+        if let exact = voices.first(where: { $0.language == VoiceAnnouncementLanguage.zhTW.rawValue }) {
+            #if DEBUG
+            print("[Voice] zh-TW exact voice: \(exact.identifier)")
+            #endif
+            return exact
+        }
+        if let prefixed = voices.first(where: { $0.language.hasPrefix("zh-TW") }) {
+            #if DEBUG
+            print("[Voice] zh-TW prefixed voice: \(prefixed.language)")
+            #endif
+            return prefixed
+        }
+        for fallback in ["zh-HK", "zh-CN"] {
+            if let voice = voices.first(where: { $0.language.hasPrefix(fallback) }) {
+                #if DEBUG
+                print("[Voice] zh-TW degraded to \(voice.language) voice")
+                #endif
+                return voice
+            }
+        }
+        #if DEBUG
+        print("[Voice] zh-TW: no Chinese voice available, using utterance.language")
+        #endif
+        return nil
     }
 }

@@ -215,8 +215,12 @@ struct FlipCoinView: View {
                 .allowsHitTesting(false)
             }
         }
-        .navigationTitle(NSLocalizedString("flip_coin_title", comment: "Flip Coin title"))
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .topLeading) {
+            FloatingBackButton { dismiss() }
+                .padding(.leading, 16)
+                .padding(.top, 4)
+        }
         .onAppear {
             checkAndShowHint()
         }

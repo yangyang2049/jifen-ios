@@ -24,7 +24,6 @@ enum AACalculationPolicy {
 
 struct AACalculatorView: View {
     @Environment(\.dismiss) var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @State private var totalAmount: String = ""
     @State private var participants: Int = 2
     @State private var amountPerPerson: Double = 0
@@ -33,11 +32,9 @@ struct AACalculatorView: View {
     @State private var toastMessage = ""
     @FocusState private var isAmountFocused: Bool
 
-    /// Light: soft white so fields lift off the gray page; dark: keep system control fill.
+    /// 输入框底色统一走 Theme.inputFieldBackground（浅/深均已按抬升层级定义）。
     private var fieldBackground: Color {
-        colorScheme == .dark
-            ? Theme.controlBackground
-            : Color.white.opacity(0.92)
+        Theme.inputFieldBackground
     }
     
     var body: some View {
