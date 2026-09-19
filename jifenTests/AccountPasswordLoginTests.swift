@@ -25,4 +25,33 @@ final class AccountPasswordLoginTests: XCTestCase {
         XCTAssertFalse(PasswordLoginInputValidator.isEmailOrPhoneAccount("12345"))
         XCTAssertFalse(PasswordLoginInputValidator.isEmailOrPhoneAccount("13800138000x"))
     }
+
+    func testQRLoginPayloadAcceptsCanonicalJSONAndWebURL() throws {
+        let token = "qrl_scan_" + String(repeating: "a", count: 43)
+        let json = """
+        {"type":"AUTH_QR_LOGIN","version":1,"sessionId":"session-0001","scanToken":"\(token)"}
+        """
+        XCTAssertEqual(try QRLoginPayload.parse(json).sessionId, "session-0001")
+        XCTAssertEqual(
+            try QRLoginPayload.parse("https://jifenqi.com/auth/qr#sid=session-0002&st=\(token)").scanToken,
+            token
+        )
+    }
+
+    func testQRLoginPayloadRejectsLookalikeHostVersionExpiryAndMalformedCredentials() {
+        let token = "qrl_scan_" + String(repeating: "a", count: 43)
+        XCTAssertThrowsError(try QRLoginPayload.parse(
+            "https://jifenqi.com.attacker.example/auth/qr#sid=session-0003&st=\(token)"
+        ))
+        XCTAssertThrowsError(try QRLoginPayload.parse(
+            "{\"type\":\"AUTH_QR_LOGIN\",\"version\":2,\"sessionId\":\"session-0003\",\"scanToken\":\"\(token)\"}"
+        ))
+        XCTAssertThrowsError(try QRLoginPayload.parse(
+            "{\"type\":\"AUTH_QR_LOGIN\",\"version\":1,\"sessionId\":\"session-0003\",\"scanToken\":\"\(token)\",\"expiresAt\":1}"
+        ))
+        XCTAssertThrowsError(try QRLoginPayload.parse(
+            "https://jifenqi.com/auth/qr#sid=short&st=\(token)"
+        ))
+        XCTAssertThrowsError(try QRLoginPayload.parse(String(repeating: "x", count: 8_193)))
+    }
 }

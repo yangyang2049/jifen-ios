@@ -53,7 +53,7 @@ struct MultiScoreSetupDialogView: View {
         switch layoutMode {
         case .uno: return 2...10
         case .multiScore: return 3...9
-        case .doudizhu: return 3...3
+        case .doudizhu: return 3...4
         case .twoTeam: return 2...2
         }
     }
@@ -93,13 +93,14 @@ struct MultiScoreSetupDialogView: View {
             switch mode {
             case .uno: return 2...10
             case .multiScore: return 3...9
-            case .doudizhu: return 3...3
+            case .doudizhu: return 3...4
             case .twoTeam: return 2...2
             }
         }()
         let safeCount: Int = {
             switch mode {
-            case .doudizhu: return 3
+            case .doudizhu:
+                return range.contains(defaultPlayerCount) ? defaultPlayerCount : 3
             case .twoTeam: return 2
             case .uno:
                 return range.contains(defaultPlayerCount) ? defaultPlayerCount : 4
@@ -149,7 +150,8 @@ struct MultiScoreSetupDialogView: View {
         [
             NSLocalizedString("doudizhu_player_adam", value: "刘备", comment: ""),
             NSLocalizedString("doudizhu_player_bob", value: "关羽", comment: ""),
-            NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: "")
+            NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: ""),
+            "\(NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")) 4",
         ]
     }
 
@@ -191,9 +193,7 @@ struct MultiScoreSetupDialogView: View {
                             matchTimeToggle
                         }
                     case .multiScore, .uno, .doudizhu:
-                        if layoutMode != .doudizhu {
-                            playerCountChips
-                        }
+                        playerCountChips
                         playerNameFields
                         if layoutMode == .multiScore {
                             customAdjustToggle

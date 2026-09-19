@@ -780,7 +780,13 @@ struct HomeTab: View {
         onConfirm: @escaping (SportsSetupResult) -> Void,
         onCancel: @escaping () -> Void
     ) -> some View {
-        if gameType == .nineBall {
+        if gameType == .basketballTraining {
+            ShotTrainingSetupDialogView(
+                maxDialogHeight: maxDialogHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+        } else if gameType == .nineBall {
             NineBallSetupDialogView(
                 maxDialogHeight: maxDialogHeight,
                 onConfirm: onConfirm,

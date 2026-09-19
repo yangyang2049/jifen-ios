@@ -292,6 +292,8 @@ struct ScoreboardLaunchView: View {
                 )
             case .basketball:
                 BasketballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
+            case .basketballTraining:
+                ShotTrainingScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .threeBasketball:
                 BasketballScoreboardView(onNavigationBack: onBack, initialSetup: threeBasketballSetup, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
             case .football:

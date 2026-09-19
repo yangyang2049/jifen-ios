@@ -122,7 +122,6 @@ struct MainTabView: View {
                 return
             }
 
-            tabBarController.mode = .tabBar
             if #available(iOS 26.0, *) {
                 tabBarController.tabBarMinimizeBehavior = .never
             }

@@ -2,7 +2,7 @@
 //  DoudizhuScoreboardView.swift
 //  jifen
 //
-//  斗地主计分：3 人，3 列布局，点击加分、撤销、编辑名称、保存记录。
+//  斗地主计分：3/4 人自适应布局，点击加分、撤销、编辑名称、保存记录。
 //
 
 import RecordCore
@@ -13,7 +13,8 @@ import UIKit
 private let defaultDoudizhuNames = [
     NSLocalizedString("doudizhu_player_adam", value: "刘备", comment: ""),
     NSLocalizedString("doudizhu_player_bob", value: "关羽", comment: ""),
-    NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: "")
+    NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: ""),
+    "\(NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")) 4"
 ]
 private var doudizhuTitle: String {
     NSLocalizedString("game_doudizhu", value: "Doudizhu", comment: "")
@@ -57,7 +58,7 @@ struct DoudizhuScoreboardView: View {
     @State private var showScorePanel = false
     @State private var selectedBaseScore = 1
     @State private var selectedMultiplierPower = 0 // 0番=1倍 … 5番=32倍
-    @State private var selectedWinners = [false, false, false]
+    @State private var selectedWinners: [Bool]
     @State private var appearance = ScoreboardAppearanceSnapshot.current(
         styleID: ScoreboardStyleID(gameType: .doudizhu)
     )
@@ -99,7 +100,8 @@ struct DoudizhuScoreboardView: View {
 
         var start = Date()
         var id = ScoreboardRecordIdentity.next(prefix: GameType.doudizhu.canonicalScoreboardIdentifier)
-        var initialPlayers = defaultDoudizhuNames.enumerated().map {
+        let configuredPlayerCount = min(4, max(3, initialSetup?.playerCount ?? initialSetup?.playerNames?.count ?? 3))
+        var initialPlayers = defaultDoudizhuNames.prefix(configuredPlayerCount).enumerated().map {
             DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0)
         }
         var finished = false
@@ -118,16 +120,20 @@ struct DoudizhuScoreboardView: View {
             restoredActionCount = record.totalScoreChanges
             if let data = record.stateSnapshot,
                let resumeState = try? JSONDecoder().decode(DoudizhuResumeState.self, from: data) {
-                for (index, name) in resumeState.names.prefix(3).enumerated() where !name.isEmpty {
+                let restoredPlayerCount = min(4, max(3, resumeState.playerCount))
+                initialPlayers = defaultDoudizhuNames.prefix(restoredPlayerCount).enumerated().map {
+                    DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0)
+                }
+                for (index, name) in resumeState.names.prefix(restoredPlayerCount).enumerated() where !name.isEmpty {
                     initialPlayers[index].name = name
                 }
-                for (index, score) in resumeState.scores.prefix(3).enumerated() {
+                for (index, score) in resumeState.scores.prefix(restoredPlayerCount).enumerated() {
                     initialPlayers[index].score = score
                 }
                 finished = resumeState.finished
                 restoredHistory = Array(
                     resumeState.undoHistory
-                        .filter { $0.count == 3 }
+                        .filter { $0.count == restoredPlayerCount }
                         .suffix(50)
                 )
                 restoredHistoryTimeline = Array(resumeState.undoTimeline.suffix(50))
@@ -143,12 +149,20 @@ struct DoudizhuScoreboardView: View {
                 )
             } else if let restoredPlayers = decodedDoudizhuPlayers(from: record.extraData),
                       !restoredPlayers.isEmpty {
-                for (index, restored) in restoredPlayers.prefix(3).enumerated() {
+                let restoredPlayerCount = min(4, max(3, restoredPlayers.count))
+                initialPlayers = defaultDoudizhuNames.prefix(restoredPlayerCount).enumerated().map {
+                    DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0)
+                }
+                for (index, restored) in restoredPlayers.prefix(restoredPlayerCount).enumerated() {
                     if !restored.name.isEmpty { initialPlayers[index].name = restored.name }
                     initialPlayers[index].score = restored.score
                 }
             } else if let names = record.extraData?["playerNames"]?.value as? [String] {
-                for (index, name) in names.prefix(3).enumerated() where !name.isEmpty {
+                let restoredPlayerCount = min(4, max(3, names.count))
+                initialPlayers = defaultDoudizhuNames.prefix(restoredPlayerCount).enumerated().map {
+                    DoudizhuPlayerItem(id: $0.offset, name: $0.element, score: 0)
+                }
+                for (index, name) in names.prefix(restoredPlayerCount).enumerated() where !name.isEmpty {
                     initialPlayers[index].name = name
                 }
                 initialPlayers[0].score = record.team1FinalScore
@@ -181,24 +195,34 @@ struct DoudizhuScoreboardView: View {
         _actions = State(initialValue: restoredActions)
         _detailedActions = State(initialValue: restoredDetailedActions)
         _editNames = State(initialValue: initialPlayers.map(\.name))
+        _selectedWinners = State(initialValue: Array(repeating: false, count: initialPlayers.count))
     }
 
     /// HOS: left/right follow the scoreboard theme; the center stays success
     /// green except in retro, where all three panels are black.
     private var doudizhuSlotKeys: [ScoreboardStyleSlotKeyV2] { [.sideLeft, .sideCenter, .sideRight] }
 
+    /// 样式编辑锚点槽位：0/1/2 → 左/中/右；第 4 人编辑归中间槽（对齐鸿蒙 getPlayerStyleSide）。
     private func slotKey(for index: Int) -> ScoreboardStyleSlotKeyV2 {
-        doudizhuSlotKeys[index % 3]
+        index < 3 ? doudizhuSlotKeys[index] : .sideCenter
     }
 
-    private var panelColors: [Color] {
-        doudizhuSlotKeys.map { Color(hex: appearance.styleProfileV2.slotBackgroundHex($0)) }
+    /// 渲染槽位：第 4 人优先 player_3 槽位（安卓自定义面板可跨端同步），未配置时回落
+    /// 中间槽（对齐安卓 panelColorOr(player(3), centerTeamColor) 与鸿蒙 centerColor）。
+    private func renderSlotKey(for index: Int) -> ScoreboardStyleSlotKeyV2 {
+        guard index >= 3 else { return doudizhuSlotKeys[index] }
+        let profile = appearance.styleProfileV2
+        let hasPlayer3Config = profile.panels?.contains { $0.slotKey == .player3 } == true
+            || profile.elements?.contains { $0.textColors.contains { $0.slotKey == .player3 } } == true
+        return hasPlayer3Config ? .player3 : .sideCenter
     }
 
-    private var panelTextColors: [Color] {
-        doudizhuSlotKeys.map {
-            appearance.elementForeground(.teamName, slotKey: $0)
-        }
+    private func panelColor(for index: Int) -> Color {
+        Color(hex: appearance.styleProfileV2.slotBackgroundHex(renderSlotKey(for: index)))
+    }
+
+    private func panelTextColor(for index: Int) -> Color {
+        appearance.elementForeground(.teamName, slotKey: renderSlotKey(for: index))
     }
 
     var body: some View {
@@ -212,7 +236,7 @@ struct DoudizhuScoreboardView: View {
                         doudizhuPlayerPanel(
                             index: index,
                             player: p,
-                            panelSize: CGSize(width: w / 3, height: h)
+                            panelSize: CGSize(width: w / CGFloat(players.count), height: h)
                         )
                     }
                 }
@@ -322,7 +346,7 @@ struct DoudizhuScoreboardView: View {
             typographySession.reload()
             if let setup = initialSetup {
                 if let names = setup.playerNames, !names.isEmpty {
-                    for index in 0..<min(3, names.count, players.count) {
+                    for index in 0..<min(names.count, players.count) {
                         let trimmed = names[index].trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty {
                             players[index].name = trimmed
@@ -404,20 +428,20 @@ struct DoudizhuScoreboardView: View {
             revision: UInt64(actionCount)
         )
         let displayPlayers = players.enumerated().map { index, player in
-            ScoreboardDisplayPlayer(
+            let slot = renderSlotKey(for: index)
+            return ScoreboardDisplayPlayer(
                 id: "player_\(player.id)",
                 name: player.name,
                 score: player.score,
                 order: index,
-                color: index == 0 ? "#\(appearance.styleProfileV2.team0Hex)"
-                    : (index == 1 ? "#\(appearance.styleProfileV2.centerHex)" : "#\(appearance.styleProfileV2.team1Hex)")
+                color: "#\(appearance.styleProfileV2.slotBackgroundHex(slot))"
             )
         }
         var value = ScoreboardDisplayState.enriched(
             compact: compact,
             layoutKind: .boardCard,
             players: displayPlayers,
-            sportState: ["multiGridColumns": .integer(3)]
+            sportState: ["multiGridColumns": .integer(players.count)]
         )
         value.teams = displayPlayers.map {
             ScoreboardDisplayTeam(
@@ -500,7 +524,7 @@ struct DoudizhuScoreboardView: View {
                 Button {
                     selectedBaseScore = 1
                     selectedMultiplierPower = 0
-                    selectedWinners = [false, false, false]
+                    selectedWinners = Array(repeating: false, count: players.count)
                     showScorePanel = true
                 } label: {
                     Image(systemName: "plus")
@@ -537,7 +561,7 @@ struct DoudizhuScoreboardView: View {
         player: DoudizhuPlayerItem,
         panelSize: CGSize
     ) -> some View {
-        let textColor = panelTextColors[index % 3]
+        let textColor = panelTextColor(for: index)
         let typography = ScoreboardTypographyResolver.resolve(
             ScoreboardTypographyLayoutContext(
                 profile: .doudizhu,
@@ -554,7 +578,7 @@ struct DoudizhuScoreboardView: View {
         let scoreSize = typography.scoreFontSize
         let nameSize = typography.nameFontSize
         return ZStack {
-            panelColors[index % 3]
+            panelColor(for: index)
             if isEditMode {
                 let editOffset = ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: panelSize.height)
                 ZStack {
@@ -599,7 +623,7 @@ struct DoudizhuScoreboardView: View {
                     Text("\(player.score)")
                         .font(typographySession.effectivePreference.font.swiftUIFont(size: scoreSize))
                         .monospacedDigit()
-                        .foregroundColor(appearance.elementForeground(.mainScore, slotKey: slotKey(for: index)))
+                        .foregroundColor(appearance.elementForeground(.mainScore, slotKey: renderSlotKey(for: index)))
                         .styleElementSelectable(.mainScore, slotKey: slotKey(for: index))
                         .minimumScaleFactor(0.4)
                         .lineLimit(1)
@@ -706,7 +730,13 @@ struct DoudizhuScoreboardView: View {
                     .frame(maxWidth: .infinity)
 
                     settleColumn(title: NSLocalizedString("doudizhu_multiplier", value: "番数", comment: "")) {
-                        VStack(spacing: 8) {
+                        LazyVGrid(
+                            columns: Array(
+                                repeating: GridItem(.flexible(), spacing: 8),
+                                count: players.count == 4 ? 2 : 1
+                            ),
+                            spacing: 8
+                        ) {
                             // 对齐安卓 doudizhu_fan_suffix：中文“番”，英文“x”。
                             let fanSuffix = NSLocalizedString("doudizhu_fan_suffix", value: "番", comment: "")
                             HStack(spacing: 8) {
@@ -732,14 +762,14 @@ struct DoudizhuScoreboardView: View {
                             ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
                                 Button {
                                     selectedWinners[index].toggle()
-                                    if selectedWinners.filter(\.self).count > 2 {
+                                    if selectedWinners.filter(\.self).count > players.count - 1 {
                                         selectedWinners[index] = false
                                     }
                                 } label: {
                                     Text(player.name)
                                         .font(.system(size: 13, weight: .semibold))
                                         .foregroundStyle(.white)
-                                        .frame(maxWidth: .infinity, minHeight: 46)
+                                        .frame(maxWidth: .infinity, minHeight: players.count == 4 ? 38 : 46)
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
                                                 .fill(selectedWinners[index] ? Theme.primary : Color.white.opacity(0.2))
@@ -818,7 +848,7 @@ struct DoudizhuScoreboardView: View {
 
     private var doudizhuWinnerSelectionValid: Bool {
         let count = selectedWinners.filter(\.self).count
-        return count == 1 || count == 2
+        return count == 1 || count == players.count - 1
     }
 
     private var doudizhuSettlePreviewText: String {
@@ -827,22 +857,24 @@ struct DoudizhuScoreboardView: View {
         switch count {
         case 1:
             return String(
-                format: NSLocalizedString("doudizhu_settle_preview_one", value: "结算：赢家 +%d，另两人各 −%d", comment: ""),
-                unit * 2,
+                format: NSLocalizedString("doudizhu_settle_preview_one_n", value: "结算：赢家 +%d，其他 %d 人各 −%d", comment: ""),
+                unit * (players.count - 1),
+                players.count - 1,
                 unit
             )
-        case 2:
+        case let winnerCount where winnerCount == players.count - 1:
             return String(
-                format: NSLocalizedString("doudizhu_settle_preview_two", value: "结算：两赢家各 +%d，输家 −%d", comment: ""),
+                format: NSLocalizedString("doudizhu_settle_preview_many", value: "结算：%d 位赢家各 +%d，输家 −%d", comment: ""),
+                players.count - 1,
                 unit,
-                unit * 2
+                unit * (players.count - 1)
             )
         default:
-            return NSLocalizedString("doudizhu_select_one_or_two_winners", value: "请选择 1 或 2 位赢家", comment: "")
+            return NSLocalizedString("doudizhu_select_one_or_all_but_one", value: "请选择一位赢家，或除一人外的全部赢家", comment: "")
         }
     }
 
-    /// 1 winner → +2x/−x/−x; 2 winners → +x/+x/−2x (x = base × 2^multiplier).
+    /// One winner or one loser; settlement stays zero-sum for 3/4 players.
     private func applyDoudizhuRound() {
         guard !gameFinished else { return }
         let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
@@ -1011,7 +1043,7 @@ struct DoudizhuScoreboardView: View {
         for index in players.indices { players[index].score = 0 }
         selectedBaseScore = 1
         selectedMultiplierPower = 0
-        selectedWinners = [false, false, false]
+        selectedWinners = Array(repeating: false, count: players.count)
         gameFinished = false
         showGameOverDialog = false
         showScorePanel = false
@@ -1072,6 +1104,7 @@ struct DoudizhuScoreboardView: View {
             ["name": p.name, "finalScore": p.score]
         }
         let resumeState = DoudizhuResumeState(
+            playerCount: players.count,
             names: players.map(\.name),
             scores: players.map(\.score),
             finished: isFinished,
@@ -1119,10 +1152,10 @@ struct DoudizhuScoreboardView: View {
             extraData: [
                 "players": AnyCodable(playersEnc),
                 "playerNames": AnyCodable(players.map(\.name)),
-                "playerCount": AnyCodable(3)
+                "playerCount": AnyCodable(players.count)
             ],
             stateSnapshot: snapshotData,
-            status: .finished
+            status: isFinished ? .finished : .draft
         )
         do {
             try ScoreboardLifecyclePersistence.save(record, finished: isFinished)
@@ -1276,6 +1309,7 @@ struct DoudizhuScoreboardView: View {
 
 struct DoudizhuResumeState: Codable, Equatable {
     var schemaVersion: Int
+    var playerCount: Int
     var names: [String]
     var scores: [Int]
     var finished: Bool
@@ -1287,6 +1321,7 @@ struct DoudizhuResumeState: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
+        case playerCount
         case names
         case scores
         case finished
@@ -1298,7 +1333,8 @@ struct DoudizhuResumeState: Codable, Equatable {
     }
 
     init(
-        schemaVersion: Int = 2,
+        schemaVersion: Int = 3,
+        playerCount: Int? = nil,
         names: [String],
         scores: [Int],
         finished: Bool,
@@ -1309,6 +1345,7 @@ struct DoudizhuResumeState: Codable, Equatable {
         undoTimeline: [DoudizhuUndoTimelineCheckpoint] = []
     ) {
         self.schemaVersion = schemaVersion
+        self.playerCount = min(4, max(3, playerCount ?? max(names.count, scores.count)))
         self.names = names
         self.scores = scores
         self.finished = finished
@@ -1324,6 +1361,10 @@ struct DoudizhuResumeState: Codable, Equatable {
         schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
         names = try container.decode([String].self, forKey: .names)
         scores = try container.decode([Int].self, forKey: .scores)
+        playerCount = min(
+            4,
+            max(3, try container.decodeIfPresent(Int.self, forKey: .playerCount) ?? max(names.count, scores.count))
+        )
         finished = try container.decode(Bool.self, forKey: .finished)
         undoHistory = try container.decodeIfPresent([[Int]].self, forKey: .undoHistory) ?? []
         intentTimeline = try container.decodeIfPresent([String].self, forKey: .intentTimeline) ?? []

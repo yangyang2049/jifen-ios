@@ -851,6 +851,22 @@ import SessionCore
     #expect(DoudizhuSettlement.deltas(winners: [true, false, false], baseScore: 5, multiplierPower: 1) == [20, -10, -10])
     #expect(DoudizhuSettlement.deltas(winners: [false, true, true], baseScore: 5, multiplierPower: 0) == [-10, 5, 5])
     #expect(DoudizhuSettlement.deltas(winners: [true, true, true], baseScore: 1, multiplierPower: 0) == nil)
+    #expect(DoudizhuSettlement.deltas(winners: [true, false, false, false], baseScore: 5, multiplierPower: 0) == [15, -5, -5, -5])
+    #expect(DoudizhuSettlement.deltas(winners: [false, true, true, true], baseScore: 5, multiplierPower: 1) == [-30, 10, 10, 10])
+    #expect(DoudizhuSettlement.deltas(winners: [true, true, false, false], baseScore: 1, multiplierPower: 0) == nil)
+}
+
+@Test func doudizhuReducerRejectsWinnerCountThatDoesNotMatchState() {
+    let reducer = DoudizhuScoreReducer()
+    let fourPlayer = DoudizhuScoreState(scores: [0, 0, 0, 0])
+    let result = reducer.reduce(
+        state: fourPlayer,
+        intent: .confirmRound(winners: [true, false, false], baseScore: 1, multiplierPower: 0),
+        at: 0
+    )
+
+    #expect(result.accepted == false)
+    #expect(result.state == fourPlayer)
 }
 
 @Test func doudizhuReducerProjectsAndroidLandlordFarmerRoles() {

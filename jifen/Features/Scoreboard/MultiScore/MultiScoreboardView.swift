@@ -296,6 +296,7 @@ struct MultiScoreboardView: View {
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current(styleID: typographySession.styleID)
+            if !appearance.doubleTapSubtract { pendingTapIndex = nil }
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -303,7 +304,20 @@ struct MultiScoreboardView: View {
         .onChange(of: typographySession.effectivePreference) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
+        .onChange(of: styleEditorEntry.isEditing) { _, editing in
+            if editing { pendingTapIndex = nil }
+        }
+        .onChange(of: gameFinished) { _, finished in
+            if finished { pendingTapIndex = nil }
+        }
+        .onChange(of: showDisplaySettings) { _, presented in
+            if presented { pendingTapIndex = nil }
+        }
+        .onChange(of: showMenu) { _, presented in
+            if presented { pendingTapIndex = nil }
+        }
         .onDisappear {
+            pendingTapIndex = nil
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
             persistRecord(finished: gameFinished)
@@ -538,6 +552,10 @@ struct MultiScoreboardView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
             guard pendingTapIndex == capturedIndex else { return }
             pendingTapIndex = nil
+            guard !gameFinished,
+                  playerEditIndex == nil,
+                  !showDisplaySettings,
+                  !styleEditorEntry.isEditing else { return }
             adjustScore(index: capturedIndex, delta: 1)
         }
     }

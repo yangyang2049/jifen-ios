@@ -13,6 +13,9 @@ nonisolated struct QRLoginPayload: Decodable, Equatable, Sendable {
 
     static func parse(_ raw: String) throws -> QRLoginPayload {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed.utf8.count <= 8_192 else {
+            throw QRLoginError.invalidPayload
+        }
         if let data = trimmed.data(using: .utf8),
            let payload = try? JSONDecoder().decode(Self.self, from: data) {
             try payload.validate()
@@ -348,4 +351,3 @@ private struct QRDataScannerView: UIViewControllerRepresentable {
         }
     }
 }
-

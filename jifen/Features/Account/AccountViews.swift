@@ -469,6 +469,22 @@ private struct AccountProfileView: View {
                     loggedIn: session.isAuthenticated
                 )
 
+                if let moderationLabel = profileModerationLabel {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(moderationLabel)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color(hex: "B45309"))
+                        if let reason = profileModerationReason {
+                            Text(reason)
+                                .font(.system(size: 13))
+                                .foregroundColor(Theme.textSecondary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(14)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color(hex: "FEF3C7")))
+                }
+
                 VStack(spacing: 0) {
                     ProfileNicknameRow(
                         label: NSLocalizedString("me_profile_display_name_label", value: "昵称", comment: ""),
@@ -637,6 +653,29 @@ private struct AccountProfileView: View {
 
     private var displayUserId: String {
         (session.user?.uid?.nilIfBlank ?? session.user?.id.nilIfBlank) ?? "--"
+    }
+
+    /// 按昵称→头像的固定顺序展示，去重但不打乱顺序。
+    private func joinedUnique(_ values: [String], separator: String) -> String? {
+        var seen = Set<String>()
+        let unique = values.filter { seen.insert($0).inserted }
+        return unique.isEmpty ? nil : unique.joined(separator: separator)
+    }
+
+    private var profileModerationLabel: String? {
+        joinedUnique(
+            [session.user?.nameVisibilityLabel, session.user?.avatarVisibilityLabel]
+                .compactMap { $0?.nilIfBlank },
+            separator: " · "
+        )
+    }
+
+    private var profileModerationReason: String? {
+        joinedUnique(
+            [session.user?.nameModerationReviewReason, session.user?.avatarModerationReviewReason]
+                .compactMap { $0?.nilIfBlank },
+            separator: "\n"
+        )
     }
 
     private var profileRegisteredDate: String {
@@ -1027,8 +1066,7 @@ private struct ProfileHeaderCard: View {
     }
 
     private var avatarURL: URL? {
-        guard let value = (user?.avatarUrl ?? user?.avatar)?.nilIfBlank else { return nil }
-        return URL(string: value, relativeTo: APIEnvironment.current.restBaseURL)
+        APIAssetURLResolver.resolve(user?.avatarUrl ?? user?.avatar)
     }
 }
 

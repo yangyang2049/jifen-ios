@@ -92,6 +92,8 @@ struct TennisScoreboardView: View {
     private var onePointDoubleTapEnabled: Bool {
         appearance.doubleTapSubtract
             && !scoringLocked
+            && !showMenu
+            && !showDisplaySettings
             && ScoreboardUsageHintHelper.supportsDoubleTapSubtract(store.gameType)
     }
 
@@ -441,6 +443,7 @@ struct TennisScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: isEditMode) { _, _ in
+            cancelPendingTap()
             updateImmersiveForBlocking()
         }
         .onChange(of: showGameOverDialog) { _, _ in
@@ -475,6 +478,7 @@ struct TennisScoreboardView: View {
             )
         }
         .onDisappear {
+            cancelPendingTap()
             cancelPendingOpeningAnnouncement()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             flashTask?.cancel()
@@ -697,7 +701,7 @@ struct TennisScoreboardView: View {
             panelHeight: size.height,
             isEditMode: true
         )
-        let scoreboardScreenWidth = max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        let scoreboardScreenWidth = max(AppScreen.bounds.width, AppScreen.bounds.height)
         let namesHeight = ScoreboardLayoutMetrics.doublesEditNamesRegionHeight(
             isLargeScreen: Theme.usesPadLayout,
             screenWidth: scoreboardScreenWidth

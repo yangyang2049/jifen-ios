@@ -23,7 +23,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
     }
 
     func testCatalogAndDoublesCoverEveryExactScoreboardType() {
-        XCTAssertEqual(GameCatalog.scoreboardItems.count, 28)
+        XCTAssertEqual(GameCatalog.scoreboardItems.count, 29)
 
         let baseTypes = GameCatalog.scoreboardItems.compactMap {
             ScoreboardUsageHintDescriptor.resolve(gameType: $0.gameType, setup: nil)?.gameType
@@ -38,7 +38,7 @@ final class ScoreboardUsageHintTests: XCTestCase {
         }
         let covered = Set(baseTypes + doublesTypes)
 
-        XCTAssertEqual(covered.count, 33)
+        XCTAssertEqual(covered.count, 34)
         XCTAssertEqual(covered, Set(ScoreCore.GameType.allCases))
     }
 
@@ -198,10 +198,10 @@ final class ScoreboardUsageHintTests: XCTestCase {
         // 对齐安卓 supportsScoreboardDoubleTapSubtract：白名单逐项核对。
         let supported: Set<ScoreCore.GameType> = [
             .pingpong, .pingpongDoubles,
-            .badminton, .badmintonDoubles,
+            .badminton, .badmintonDoubles, .shuttlecock, .squash,
             .volleyball, .beachVolleyball, .airVolleyball,
             .pickleball, .pickleballDoubles,
-            .tennis, .tennisDoubles,
+            .tennis, .tennisDoubles, .softTennis, .padel,
             .football, .football5v5,
             .foosball, .foosballDoubles,
             .billiards, .eightBall,

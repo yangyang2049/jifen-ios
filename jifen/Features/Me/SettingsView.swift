@@ -3,10 +3,9 @@ import SwiftUI
 import UIKit
 
 private enum AppSupportURLs {
-    static let website = URL(string: "https://jifenqi.com")!
+    static let website = URL(string: "https://jifenqi.com?utm_source=ios_app&utm_medium=me_tab&utm_campaign=official_website&utm_content=website_entry")!
+    static let download = URL(string: "https://jifenqi.com/download?utm_source=ios_app&utm_medium=share&utm_campaign=share_app")!
     static let support = URL(string: "https://jifenqi.com/contact")!
-    static let terms = URL(string: "https://jifenqi.com/terms")!
-    static let privacy = URL(string: "https://jifenqi.com/privacy")!
     static let wechatGroup = URL(string: "https://jifenqi.com/contact?utm_source=jifenqi_app&utm_medium=app_link&utm_campaign=official_wechat_group&utm_content=about_page")!
     static let qqGroupNumber = "825096333"
 }
@@ -100,7 +99,13 @@ struct SettingsView: View {
                     .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $showAppShareSheet) {
-                AnalyticsActivityView(activityItems: [AppSupportURLs.website], contentType: "app_link")
+                AnalyticsActivityView(
+                    activityItems: [
+                        NSLocalizedString("settings_share_app_message", value: "全能计分器：多种运动和游戏都能轻松计分", comment: ""),
+                        AppSupportURLs.download
+                    ],
+                    contentType: "app_link"
+                )
             }
             .sheet(isPresented: $showAccountLoginSheet) {
                 AccountLoginSheet()
@@ -144,6 +149,9 @@ struct SettingsView: View {
                     .settingValue: .string(value ? "on" : "off")
                 ])
             }
+            .task {
+                await session.reloadProfileIfNeeded()
+            }
         }
     }
 
@@ -161,7 +169,7 @@ struct SettingsView: View {
                             : NSLocalizedString("membership_title", value: "会员", comment: ""),
                         subtitle: session.user?.isVIP == true
                             ? NSLocalizedString("membership_entry_summary_active", value: "您已是 VIP 会员，感谢您的支持", comment: "")
-                            : NSLocalizedString("membership_entry_summary", value: "终身 VIP，一次买断", comment: "")
+                            : NSLocalizedString("membership_entry_summary", value: "月卡、年卡或终身 VIP", comment: "")
                     )
                 }
                 .accessibilityIdentifier("settings_membership_entry")
@@ -355,10 +363,7 @@ struct SettingsView: View {
     }
 
     private var avatarURL: URL? {
-        let raw = session.user?.avatarUrl ?? session.user?.avatar
-        guard let raw, !raw.isEmpty else { return nil }
-        if raw.hasPrefix("http") { return URL(string: raw) }
-        return nil
+        APIAssetURLResolver.resolve(session.user?.avatarUrl ?? session.user?.avatar)
     }
 
     private var clearDataErrorPresented: Binding<Bool> {
@@ -731,32 +736,32 @@ private struct ScoreboardSettingsView: View {
         .analyticsScreen(.scoreboardSettingsPage, source: .meTab)
         .onChange(of: forceIPadLandscape) { _, value in
             PreferencesManager.shared.forceIPadLandscape = value
-            trackSetting("force_ipad_landscape", value)
+            trackSetting("tablet_scoreboard_force_landscape", value)
         }
         .onChange(of: keepScreenOn) { _, value in
             PreferencesManager.shared.keepScoreboardScreenOn = value
-            trackSetting("keep_screen_on", value)
+            trackSetting("scoreboard_keep_screen_on", value)
         }
         .onChange(of: officialBreaksEnabled) { _, value in
             PreferencesManager.shared.officialBreaksEnabled = value
-            trackSetting("official_breaks_enabled", value)
+            trackSetting("scoreboard_official_break", value)
         }
         .onChange(of: vibrationEnabled) { _, value in
             PreferencesManager.shared.vibrationEnabled = value
-            trackSetting("vibration_enabled", value)
+            trackSetting("vibration", value)
         }
         .onChange(of: touchGuard) { _, value in
             PreferencesManager.shared.scoreboardTouchGuardEnabled = value
-            trackSetting("touch_guard", value)
+            trackSetting("scoreboard_touch_guard", value)
         }
         .onChange(of: doubleTapSubtract) { _, value in
             PreferencesManager.shared.scoreboardDoubleTapSubtractEnabled = value
-            trackSetting("double_tap_subtract", value)
+            trackSetting("scoreboard_double_tap_subtract", value)
         }
     }
 
     private func trackSetting(_ name: String, _ value: Bool) {
-        trackSetting(name, value ? "enabled" : "disabled")
+        trackSetting(name, value ? "on" : "off")
     }
 
     private func trackSetting(_ name: String, _ value: String) {
@@ -965,7 +970,7 @@ private struct AboutUsView: View {
                     .padding(.top, Theme.sm)
 
                     VStack(spacing: 0) {
-                        Link(destination: AppSupportURLs.terms) {
+                        Link(destination: LegalDocuments.termsURL) {
                             SettingsNavigationRow(title: NSLocalizedString("terms_of_service", value: "用户协议", comment: ""))
                         }
                         .simultaneousGesture(TapGesture().onEnded {
@@ -973,7 +978,7 @@ private struct AboutUsView: View {
                         })
                         .accessibilityIdentifier("settings_about_terms_link")
                         SettingsRowDivider()
-                        Link(destination: AppSupportURLs.privacy) {
+                        Link(destination: LegalDocuments.privacyURL) {
                             SettingsNavigationRow(title: NSLocalizedString("privacy_policy", value: "隐私政策", comment: ""))
                         }
                         .simultaneousGesture(TapGesture().onEnded {

@@ -508,8 +508,8 @@ final class LocalScoreboardDisplayStateTests: XCTestCase {
         let entryStyles = Set(
             ScoreboardStyleID.registeredEntryGameTypes.map(ScoreboardStyleID.init(gameType:))
         )
-        XCTAssertEqual(ScoreboardStyleID.registeredEntryGameTypes.count, 28)
-        XCTAssertEqual(entryStyles.count, 28)
+        XCTAssertEqual(ScoreboardStyleID.registeredEntryGameTypes.count, 29)
+        XCTAssertEqual(entryStyles.count, 29)
         XCTAssertTrue(entryStyles.isSubset(of: ScoreboardStyleID.registeredScoreboardStyles))
         for gameType in ScoreCore.GameType.allCases {
             XCTAssertTrue(

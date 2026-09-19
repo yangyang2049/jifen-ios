@@ -60,7 +60,7 @@ enum DoudizhuRecordDetailPolicy {
 
     static func scoreLine(scores: [Int]) -> String? {
         guard scores.count >= 3 else { return nil }
-        return scores.prefix(3).map { score in
+        return scores.prefix(4).map { score in
             score > 0 ? "+\(score)" : "\(score)"
         }.joined(separator: " / ")
     }
@@ -94,7 +94,7 @@ enum DoudizhuRecordDetailPolicy {
             switch winners.count {
             case 1:
                 return -scoreChange / max(1, losers.count)
-            case 2:
+            case let count where count > 1:
                 return -scoreChange * winners.count
             default:
                 return 0
@@ -169,6 +169,8 @@ struct ScoreboardRecordProjectPolicy: Equatable {
             return .init(trendAllowed: true, trendExcludesMultiParticipant: true, trendRequiresNonNegativeScores: true, recapKind: .sets)
         case .basketball:
             return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .periods)
+        case .basketballTraining:
+            return .init(trendAllowed: true, trendExcludesMultiParticipant: true, trendRequiresNonNegativeScores: true, recapKind: .events)
         case .threeBasketball:
             return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .events)
         case .billiards, .nineBall, .simpleScore:

@@ -8,17 +8,19 @@ public enum UnoRoundScore {
     }
 }
 
-// MARK: - Doudizhu settle (1 winner → +2x/−x/−x; 2 winners → +x/+x/−2x)
+// MARK: - Doudizhu settle (one winner or one loser, zero-sum for 3/4 players)
 
 public enum DoudizhuSettlement {
-    /// Returns per-player deltas for 3 players, or nil if winner count is not 1 or 2.
+    /// Returns zero-sum deltas for 3/4 players. A valid round has either one
+    /// winner (landlord wins) or one loser (the farmers win).
     public static func deltas(winners: [Bool], baseScore: Int, multiplierPower: Int) -> [Int]? {
-        guard winners.count == 3 else { return nil }
+        guard (3 ... 4).contains(winners.count) else { return nil }
         let winnerCount = winners.filter(\.self).count
-        guard winnerCount == 1 || winnerCount == 2 else { return nil }
+        guard winnerCount == 1 || winnerCount == winners.count - 1 else { return nil }
         let unit = max(0, baseScore) * (1 << max(0, multiplierPower))
-        let winnerDelta = winnerCount == 1 ? unit * 2 : unit
-        let loserDelta = winnerCount == 1 ? -unit : -unit * 2
+        let opposingCount = winners.count - 1
+        let winnerDelta = winnerCount == 1 ? unit * opposingCount : unit
+        let loserDelta = winnerCount == 1 ? -unit : -unit * opposingCount
         return winners.map { $0 ? winnerDelta : loserDelta }
     }
 }

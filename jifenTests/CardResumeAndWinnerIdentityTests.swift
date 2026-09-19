@@ -146,6 +146,19 @@ final class CardResumeAndWinnerIdentityTests: XCTestCase {
         )
         XCTAssertEqual(decoded, current)
 
+        let fourPlayer = DoudizhuResumeState(
+            playerCount: 4,
+            names: ["甲", "乙", "丙", "丁"],
+            scores: [3, -1, -1, -1],
+            finished: false
+        )
+        let decodedFourPlayer = try JSONDecoder().decode(
+            DoudizhuResumeState.self,
+            from: JSONEncoder().encode(fourPlayer)
+        )
+        XCTAssertEqual(decodedFourPlayer.playerCount, 4)
+        XCTAssertEqual(decodedFourPlayer.scores, [3, -1, -1, -1])
+
         let legacyData = try JSONSerialization.data(withJSONObject: [
             "names": ["甲", "乙", "丙"],
             "scores": [3, -1, -2],
@@ -153,6 +166,7 @@ final class CardResumeAndWinnerIdentityTests: XCTestCase {
         ])
         let legacy = try JSONDecoder().decode(DoudizhuResumeState.self, from: legacyData)
         XCTAssertEqual(legacy.schemaVersion, 1)
+        XCTAssertEqual(legacy.playerCount, 3)
         XCTAssertEqual(legacy.undoHistory, [])
         XCTAssertEqual(legacy.intentTimeline, [])
         XCTAssertEqual(legacy.actionCount, 0)

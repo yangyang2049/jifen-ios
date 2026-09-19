@@ -34,6 +34,11 @@ nonisolated struct FeedbackItem: Codable, Identifiable, Equatable, Sendable {
     var isLiked: Bool
     var isReported: Bool
     var clientPlatform: String?
+    var moderationStatus: String? = nil
+    var visibility: String? = nil
+    var isVisibleToOthers: Bool? = nil
+    var visibilityLabel: String? = nil
+    var moderationReviewReason: String? = nil
 }
 
 nonisolated struct FeedbackComment: Codable, Identifiable, Equatable, Sendable {
@@ -45,6 +50,11 @@ nonisolated struct FeedbackComment: Codable, Identifiable, Equatable, Sendable {
     var authorAvatarUrl: String?
     var authorIsVip: Bool
     var createdAt: String
+    var moderationStatus: String? = nil
+    var visibility: String? = nil
+    var isVisibleToOthers: Bool? = nil
+    var visibilityLabel: String? = nil
+    var moderationReviewReason: String? = nil
 }
 
 nonisolated struct FeedbackPage: Codable, Sendable {
@@ -56,4 +66,3 @@ nonisolated struct FeedbackPage: Codable, Sendable {
 }
 
 nonisolated struct FeedbackImageUpload: Decodable, Sendable { var url: String }
-

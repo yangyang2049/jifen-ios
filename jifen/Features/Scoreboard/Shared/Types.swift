@@ -26,6 +26,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
     case softTennis = "soft_tennis"
     case padel = "padel"
     case basketball = "basketball"
+    case basketballTraining = "basketball_training"
     case threeBasketball = "three_basketball"
     case football = "football"
     case football5v5 = "football_5v5"
@@ -83,6 +84,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
         case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "Soft Tennis")
         case .padel: return NSLocalizedString("game_padel", value: "板网球", comment: "Padel")
         case .basketball: return NSLocalizedString("game_basketball", comment: "Basketball")
+        case .basketballTraining: return NSLocalizedString("game_basketball_training", value: "投篮训练", comment: "Basketball training")
         case .threeBasketball: return NSLocalizedString("game_three_basketball", value: "三人篮球", comment: "3x3 Basketball")
         case .football: return NSLocalizedString("game_football", comment: "Football")
         case .football5v5: return NSLocalizedString("game_football_5v5", value: "5×5 足球", comment: "5x5 Football")
@@ -121,6 +123,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
         case .tennis: return "🎾"
         case .softTennis, .padel: return "🎾"
         case .basketball: return "🏀"
+        case .basketballTraining: return "🏀"
         case .threeBasketball: return "🏀"
         case .football: return "⚽"
         case .football5v5: return "⚽"
@@ -151,7 +154,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
     /// Counter and stopwatch are tools and do not belong in this list.
     static var scoreboardFilterTypes: [GameType] {
         [
-            .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .football, .football5v5, .basketball, .threeBasketball,
+            .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .pickleball, .football, .football5v5, .basketball, .basketballTraining, .threeBasketball,
             .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .guandan, .shengji, .uno, .foosball, .simpleScore, .multiScoreboard,
@@ -178,6 +181,7 @@ enum GameType: String, Codable, CaseIterable, Sendable {
         case .softTennis: self = .softTennis
         case .padel: self = .padel
         case .basketball: self = .basketball
+        case .basketballTraining: self = .basketballTraining
         case .threeBasketball: self = .threeBasketball
         case .football: self = .football
         case .football5v5: self = .football5v5
@@ -453,7 +457,7 @@ enum ScoreboardCommonNamePolicy {
         switch gameType {
         case .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel,
              .checkers, .boxing, .billiards, .eightBall, .nineBall, .snooker,
-             .pickleball, .archery, .doudizhu, .uno, .foosball,
+             .pickleball, .archery, .basketballTraining, .doudizhu, .uno, .foosball,
              .multiScoreboard, .go, .xiangqi, .chess:
             .player
         case .basketball, .threeBasketball, .football, .football5v5,

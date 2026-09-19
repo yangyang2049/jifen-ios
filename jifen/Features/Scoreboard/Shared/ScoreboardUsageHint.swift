@@ -9,9 +9,10 @@ enum ScoreboardUsageHintHelper {
         switch gameType {
         case .pingpong, .pingpongDoubles,
              .badminton, .badmintonDoubles,
+             .shuttlecock, .squash,
              .volleyball, .beachVolleyball, .airVolleyball,
              .pickleball, .pickleballDoubles,
-             .tennis, .tennisDoubles,
+             .tennis, .tennisDoubles, .softTennis, .padel,
              .football, .football5v5,
              .foosball, .foosballDoubles,
              .billiards, .eightBall,
@@ -58,6 +59,7 @@ struct ScoreboardUsageHintDescriptor: Equatable, Hashable, Identifiable {
         case .football: "scoreboard_usage_hint_football"
         case .football5v5: "scoreboard_usage_hint_football_5v5"
         case .basketball: "scoreboard_usage_hint_basketball"
+        case .basketballTraining: "scoreboard_usage_hint_basketball_training"
         case .threeBasketball: "scoreboard_usage_hint_three_basketball"
         case .volleyball: "scoreboard_usage_hint_volleyball"
         case .airVolleyball: "scoreboard_usage_hint_air_volleyball"

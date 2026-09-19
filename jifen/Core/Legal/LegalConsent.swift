@@ -1,14 +1,15 @@
 import Foundation
 
 enum LegalDocuments {
-    static let currentVersion = "2026-08-05"
+    static let currentVersion = "2026-08-14"
 
     static var termsURL: URL {
         localizedURL(path: "terms")
     }
 
     static var privacyURL: URL {
-        localizedURL(path: "privacy")
+        // App stores compare this URL byte-for-byte with the submitted privacy URL.
+        URL(string: "https://jifenqi.com/privacy")!
     }
 
     static var membershipAgreementURL: URL {

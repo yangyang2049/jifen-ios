@@ -120,6 +120,7 @@ enum AnalyticsScreen: String, CaseIterable {
 
     case footballScoreboard = "football_scoreboard"
     case basketballScoreboard = "basketball_scoreboard"
+    case shotTrainingScoreboard = "shot_training_scoreboard"
     case threeBasketballScoreboard = "three_basketball_scoreboard"
     case badmintonScoreboard = "badminton_scoreboard"
     case badmintonDoublesScoreboard = "badminton_doubles_scoreboard"
@@ -605,6 +606,7 @@ extension AnalyticsScreen {
         switch gameType {
         case .football, .football5v5: return .footballScoreboard
         case .basketball: return setup?.basketballMode == "three_x_three" ? .threeBasketballScoreboard : .basketballScoreboard
+        case .basketballTraining: return .shotTrainingScoreboard
         case .threeBasketball: return .threeBasketballScoreboard
         case .badminton: return setup?.isSingles == false ? .badmintonDoublesScoreboard : .badmintonScoreboard
         case .shuttlecock, .squash: return .badmintonScoreboard

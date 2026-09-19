@@ -4,6 +4,9 @@ public enum GameType: String, Codable, CaseIterable, Sendable {
     case football
     case football5v5 = "football_5v5"
     case basketball
+    /// Manual shot-training scoreboard. It participates in persistence and
+    /// routing identity, but does not use the two-side basketball reducer.
+    case basketballTraining = "basketball_training"
     case threeBasketball = "three_basketball"
     case volleyball
     case airVolleyball = "air_volleyball"

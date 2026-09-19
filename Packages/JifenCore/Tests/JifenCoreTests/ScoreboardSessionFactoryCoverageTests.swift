@@ -2,7 +2,7 @@ import ScoreCore
 import SessionCore
 import Testing
 
-@Test func scoreboardSessionFactoryConstructsEveryGameType() async {
+@Test func scoreboardSessionFactoryConstructsEveryReducerBackedGameType() async {
     let rallyTypes: [GameType] = [
         .volleyball, .airVolleyball, .beachVolleyball,
         .pingpong, .pingpongDoubles,
@@ -112,7 +112,9 @@ import Testing
         constructedTypes.insert(gameType)
     }
 
-    #expect(constructedTypes == Set(GameType.allCases))
+    let reducerBackedTypes = Set(GameType.allCases.filter { $0 != .basketballTraining })
+    #expect(constructedTypes == reducerBackedTypes)
+    #expect(ScoreboardKernelRegistry.descriptor(for: .basketballTraining).kind == .shotTraining)
 }
 
 @Test func scoreboardSessionFactoryRejectsWrongKernelAndInvalidPlayerArity() {
@@ -126,7 +128,7 @@ import Testing
     #expect(ScoreboardSessionFactory.nineBall(playerNames: ["A"]) == nil)
     #expect(ScoreboardSessionFactory.nineBall(playerNames: ["A", "B", "C", "D", "E"]) == nil)
     #expect(ScoreboardSessionFactory.doudizhu(playerNames: ["A", "B"]) == nil)
-    #expect(ScoreboardSessionFactory.doudizhu(playerNames: ["A", "B", "C", "D"]) == nil)
+    #expect(ScoreboardSessionFactory.doudizhu(playerNames: ["A", "B", "C", "D"]) != nil)
 
     #expect(
         ScoreboardSessionFactory.multiParticipant(

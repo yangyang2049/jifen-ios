@@ -49,6 +49,7 @@ final class SessionStore {
     private let tokenStore: AuthTokenStore
     private let appleProvider: any AccountIdentityProviding
     private var didRestore = false
+    private var lastProfileReloadAt: Date?
     private var sessionExpiredObserver: NSObjectProtocol?
 
     init(client: APIClient = .shared, tokenStore: AuthTokenStore = .shared) {
@@ -120,6 +121,16 @@ final class SessionStore {
         } catch {
             await handle(error)
         }
+    }
+
+    func reloadProfileIfNeeded(minimumInterval: TimeInterval = 30) async {
+        guard isAuthenticated else { return }
+        if let lastProfileReloadAt,
+           Date().timeIntervalSince(lastProfileReloadAt) < minimumInterval {
+            return
+        }
+        lastProfileReloadAt = Date()
+        await reloadProfile()
     }
 
     func updateProfile(name: String) async -> ProfileUpdateOutcome {

@@ -4,7 +4,8 @@ public struct DoudizhuScoreState: Codable, Equatable, Sendable {
     public var scores: [Int]
 
     public init(scores: [Int] = [0, 0, 0]) {
-        self.scores = Array((scores + [0, 0, 0]).prefix(3))
+        let playerCount = scores.count == 4 ? 4 : 3
+        self.scores = Array((scores + Array(repeating: 0, count: playerCount)).prefix(playerCount))
     }
 }
 
@@ -58,7 +59,8 @@ public struct DoudizhuScoreReducer: DomainReducer {
             )
 
         case .confirmRound(let winners, let baseScore, let multiplierPower):
-            guard (1 ... 3).contains(baseScore), (0 ... 5).contains(multiplierPower),
+            guard winners.count == state.scores.count,
+                  (1 ... 3).contains(baseScore), (0 ... 5).contains(multiplierPower),
                   let deltas = DoudizhuSettlement.deltas(
                     winners: winners,
                     baseScore: baseScore,
@@ -94,7 +96,10 @@ public struct DoudizhuScoreReducer: DomainReducer {
             )
 
         case .resetScores:
-            return .init(state: .init(), events: [.scoresReset])
+            return .init(
+                state: .init(scores: Array(repeating: 0, count: state.scores.count)),
+                events: [.scoresReset]
+            )
         }
     }
 }

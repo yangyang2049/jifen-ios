@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TimerTab: View {
+    @Environment(\.scenePhase) private var scenePhase
     @Binding var pendingTimerGameType: GameType?
     @State private var selectedDestination: TimerDestination?
     @State private var pendingDualTimerDest: TimerDestination?
@@ -16,6 +17,7 @@ struct TimerTab: View {
     @State private var xiangqiTimerConfig = BoardTimerConfig.default(for: .xiangqi)
     @State private var chessTimerConfig = BoardTimerConfig.default(for: .chess)
     @State private var checkersTimerConfig = BoardTimerConfig.default(for: .checkers)
+    @State private var stopwatchState = TimerToolStateStore.loadStopwatch()
 
     init(pendingTimerGameType: Binding<GameType?> = .constant(nil)) {
         _pendingTimerGameType = pendingTimerGameType
@@ -69,6 +71,15 @@ struct TimerTab: View {
                     }
                     pendingTimerGameType = nil
                 }
+            }
+            .onAppear(perform: refreshStopwatchState)
+            .onChange(of: scenePhase) { _, newValue in
+                guard newValue == .active else { return }
+                refreshStopwatchState()
+            }
+            .onChange(of: selectedDestination) { oldValue, newValue in
+                guard oldValue == .stopwatch, newValue == nil else { return }
+                refreshStopwatchState()
             }
             .onChange(of: pendingDualTimerDest) { _, newValue in
                 guard newValue == nil, let queued = queuedDualTimerDest else { return }
@@ -136,7 +147,7 @@ struct TimerTab: View {
                             selectedDestination = dest
                         }
                     } label: {
-                        VStack(spacing: 10) {
+                        VStack(spacing: 8) {
                             Text(dest.emoji)
                                 .font(.system(size: usesPadLayout ? 48 : 40))
                             Text(dest.title)
@@ -144,6 +155,9 @@ struct TimerTab: View {
                                 .foregroundColor(Theme.textPrimary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
+                            if dest == .stopwatch, stopwatchState.phase != .idle {
+                                stopwatchSummary
+                            }
                         }
                         .padding(.vertical, Theme.cardPadding)
                         .frame(maxWidth: .infinity)
@@ -157,6 +171,29 @@ struct TimerTab: View {
                 }
             }
         }
+    }
+
+    private var stopwatchSummary: some View {
+        TimelineView(.animation(minimumInterval: 1.0, paused: stopwatchState.phase != .running)) { context in
+            HStack(spacing: 5) {
+                Circle()
+                    .fill(stopwatchState.phase == .running ? Theme.accentColor : Theme.textSecondary)
+                    .frame(width: 6, height: 6)
+                Text(StopwatchSummaryFormatter.elapsed(stopwatchState.elapsedMilliseconds(at: context.date)))
+                    .font(.system(size: Theme.fontCaption, weight: .medium, design: .monospaced))
+                Text(NSLocalizedString(
+                    stopwatchState.phase == .running ? "timer_status_running" : "timer_status_paused",
+                    value: stopwatchState.phase == .running ? "运行中" : "已暂停",
+                    comment: "Stopwatch status on timer tab"
+                ))
+                    .font(.system(size: Theme.fontCaption))
+            }
+            .foregroundStyle(Theme.textSecondary)
+        }
+    }
+
+    private func refreshStopwatchState() {
+        stopwatchState = TimerToolStateStore.loadStopwatch()
     }
 
     @ViewBuilder

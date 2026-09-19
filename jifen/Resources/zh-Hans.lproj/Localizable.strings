@@ -152,6 +152,23 @@
 "game_badminton" = "羽毛球";
 "game_tennis" = "网球";
 "game_basketball" = "篮球";
+"game_basketball_training" = "投篮训练";
+"shot_training_setup_title" = "投篮训练设置";
+"shot_training_scoring_mode" = "计分模式";
+"shot_training_mode_1" = "1 分球";
+"shot_training_mode_2" = "2 分球";
+"shot_training_mode_3" = "3 分球";
+"shot_training_mode_free" = "自由模式";
+"shot_training_mode_help" = "固定模式每次记录同一分值；自由模式可在每次出手时选择 1、2 或 3 分。";
+"shot_training_miss" = "未中";
+"shot_training_made" = "命中";
+"shot_training_attempts" = "出手";
+"shot_training_rate" = "命中率";
+"shot_training_points" = "得分";
+"shot_training_tap_to_record" = "点击记录 %d 分球";
+"shot_training_summary" = "训练总结";
+"shot_training_summary_points" = "累计得分 %d";
+"shot_training_share" = "投篮训练：命中 %d / %d，命中率 %d%%，得分 %d";
 "game_football" = "足球";
 "game_volleyball" = "排球";
 "game_checkers" = "跳棋";
@@ -473,7 +490,7 @@
 "appearance_light" = "浅色";
 "appearance_dark" = "深色";
 "clear_data_confirm_title" = "清除全部数据？";
-"clear_data_confirm_message" = "将删除所有本地记录、预约、提醒、常用名称和常用地点，且无法恢复。";
+"clear_data_confirm_message" = "将删除本机记录、预约、提醒、常用名称和常用地点，并结束当前同步；不会退出账号、清除会员权益或删除云端数据。此操作无法恢复。";
 "clear_data_confirm_action" = "清除";
 "clear_data_success" = "已清除全部数据";
 "me_official_website" = "官方网站";
@@ -507,7 +524,13 @@
 "membership_basic_member_title" = "普通用户";
 "membership_title" = "会员";
 "membership_entry_title_active" = "VIP 会员";
-"membership_entry_summary" = "终身 VIP，一次买断";
+"membership_entry_summary" = "月卡、年卡或终身 VIP";
+"settings_share_app_message" = "全能计分器：多种运动和游戏都能轻松计分";
+"feedback_external_link_title" = "打开外部链接？";
+"feedback_external_link_open" = "继续打开";
+"clear_data_category_active_sync" = "当前同步会话";
+"timer_status_running" = "运行中";
+"timer_status_paused" = "已暂停";
 "membership_entry_summary_active" = "您已是 VIP 会员，感谢您的支持";
 "sound_effects" = "音效";
 "vibration" = "振动";
@@ -616,6 +639,8 @@
 "confirm_delete" = "确认删除";
 "confirm_delete_record_message" = "确定要删除这条比赛记录吗？此操作无法撤销。";
 "delete_record" = "删除记录";
+"records" = "记录";
+"restart" = "重新开始";
 "share" = "分享";
 "share_preparing" = "准备分享...";
 "record_not_found" = "未找到记录";
@@ -915,6 +940,9 @@
 "doudizhu_settle_preview_one" = "结算：赢家 +%d，另两人各 −%d";
 "doudizhu_settle_preview_two" = "结算：两赢家各 +%d，输家 −%d";
 "doudizhu_select_one_or_two_winners" = "请选择 1 或 2 位赢家";
+"doudizhu_settle_preview_one_n" = "结算：赢家 +%d，其他 %d 人各 −%d";
+"doudizhu_settle_preview_many" = "结算：%d 位赢家各 +%d，输家 −%d";
+"doudizhu_select_one_or_all_but_one" = "请选择一位赢家，或除一人外的全部赢家";
 "archery_closest_title" = "一箭决胜 · 近心";
 "archery_closest_message" = "双方同环 %d，请选择更近心的一方";
 "nine_ball_chase_points" = "事件分值";
@@ -982,6 +1010,7 @@
 "scoreboard_usage_hint_got_it" = "知道了";
 "scoreboard_usage_hint_football" = "👆 点击左/右比分区为对应一方加 1 球\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n⏱️ 从右下角菜单进入“补时”，选择时长后可撤销或确认\n🏁 下半场及补时结束后，平局可进入上下半场各 15 分钟的加时赛";
 "scoreboard_usage_hint_basketball" = "👆 点击对应球队的 +1、+2、+3 按钮加分\n↩️ 左滑撤销上一步\n🚩 点击犯规区域增加犯规，长按减少犯规\n⏱️ 在篮球面板中操作计时、节次和暂停";
+"scoreboard_usage_hint_basketball_training" = "🏀 选择固定 1/2/3 分或自由模式\n✅ 点击命中或未中区域记录一次出手\n↩️ 点击撤销可取消最近一次出手\n⏹️ 结束后查看命中率和训练总结";
 "scoreboard_usage_hint_three_basketball" = "👆 点击对应球队的分值按钮加分\n↩️ 左滑撤销上一步\n🚩 点击犯规区域增加犯规，长按减少犯规\n⏱️ 在篮球面板中操作计时、节次和暂停";
 "scoreboard_usage_hint_volleyball" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 系统会按排球规则判断局分、赛点和比赛结束";
 "scoreboard_usage_hint_beach_volleyball" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 系统会按沙滩排球规则判断局分、赛点和比赛结束";
@@ -1003,7 +1032,7 @@
 "scoreboard_usage_hint_guandan" = "👆 使用左右两侧按钮记录本局结果和升级进度\n↕️ 编辑等级时可在对应一侧上下滑动快速升降级\n🅰️ 过 A、重置、撤销和手动结束在页面或菜单中完成\n↩️ 误操作先撤销，再按当前等级继续";
 "scoreboard_usage_hint_shengji" = "👆 开局先点击一方的“抢庄”确定庄家\n🏆 每局使用“上台”或 +1、+2、+3 按钮记录结果\n↩️ 可从菜单撤销上一局\n✏️ 点击右上角铅笔可修改队名和当前等级\n🔄 可重置或手动结束比赛";
 "scoreboard_usage_hint_uno" = "👆 点击玩家打开本轮计分面板\n✏️ 长按玩家可编辑名称和分数\n↩️ 可撤销上一轮\n☑️ 可结算或手动结束比赛\n🖼️ 菜单中可调整显示和保存截图";
-"scoreboard_usage_hint_doudizhu" = "➕ 点击底部中间的加号打开本局结算\n🧮 选择底分、番数和一至两位获胜者后确认计分\n↩️ 左滑或从菜单撤销上一局\n✏️ 点击右上角铅笔可修改玩家和分数\n🔄 可重置或手动结束比赛";
+"scoreboard_usage_hint_doudizhu" = "➕ 点击底部中间的加号打开本局结算\n🧮 选择底分、番数以及一位赢家或除一人外的全部赢家\n↩️ 左滑或从菜单撤销上一局\n✏️ 点击右上角铅笔可修改玩家和分数\n🔄 可重置或手动结束比赛";
 "scoreboard_usage_hint_foosball" = "👆 点击左/右比分区为对应一方加 1 球\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n☑️ 比赛结束时可用结算或结束比赛";
 "scoreboard_usage_hint_foosball_doubles" = "👆 点击左/右比分区为对应一方加 1 球\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n👥 2V2 队名在赛前设置\n☑️ 比赛结束时可用结算或结束比赛";
 "scoreboard_usage_hint_double_tap_point" = "👆 双击同一方可减 1 分";
@@ -1191,8 +1220,8 @@
 "player" = "选手";
 "scoreboard_usage_hint_shuttlecock" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 团队毽球按所选目标分和赛制计分";
 "scoreboard_usage_hint_squash" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 壁球默认五局三胜，领先两分获胜";
-"scoreboard_usage_hint_soft_tennis" = "👆 点击左右比分区为对应一方记分\n↩️ 左滑撤销上一步\n🎾 软式网球按设置的局数和抢七规则推进";
-"scoreboard_usage_hint_padel" = "👆 点击左右比分区为对应一方记分\n↩️ 左滑撤销上一步\n🎾 板网球支持占先、黄金分和星星分平分模式";
+"scoreboard_usage_hint_soft_tennis" = "👆 点击左/右比分区为对应一方记一分\n↩️ 左滑撤销上一步\n🎾 按设置进行 7 局赛或 9 局赛，决胜局采用 7 分且需领先 2 分\n🔄 换边和休息提示按当前赛制自动执行";
+"scoreboard_usage_hint_padel" = "👆 点击左/右比分区为对应一方记一分\n↩️ 左滑撤销上一步\n🎾 自动处理分、局、盘及所选的占先、黄金分或 Star Point 平分模式\n🔄 换边和休息提示按当前赛制自动执行";
 "scoreboard_usage_hint_football_5v5" = "👆 点击左/右比分区为对应一方加 1 球\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n⏯️ 点击计时区域可暂停或继续计时";
 /* AirPlay 专用扩展屏 */
 "cast_active" = "投屏中";

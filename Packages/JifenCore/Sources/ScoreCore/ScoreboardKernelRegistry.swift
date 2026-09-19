@@ -5,6 +5,7 @@ public enum ScoreboardKernelKind: String, Codable, Equatable, Sendable {
     case tennis
     case line
     case basketball
+    case shotTraining = "shot_training"
     case eightBall = "eight_ball"
     case nineBall = "nine_ball"
     case snooker
@@ -45,6 +46,8 @@ public enum ScoreboardKernelRegistry {
             family = .s1; kind = .line
         case .basketball, .threeBasketball:
             family = .s2; kind = .basketball
+        case .basketballTraining:
+            family = .s2; kind = .shotTraining
         case .eightBall:
             family = .s2; kind = .eightBall
         case .nineBall:

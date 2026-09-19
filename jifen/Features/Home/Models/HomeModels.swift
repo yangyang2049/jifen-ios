@@ -237,6 +237,7 @@ struct SportsSetupResult: Codable, Hashable {
     var team1Player3Name: String? = nil
     var team2Player3Name: String? = nil
     var basketballMode: String? = nil // "five_v_five" or "three_x_three"
+    var basketballTrainingScoringMode: String? = nil // "fixed_1/2/3" or "free"
     var basketballRuleSet: String? = nil // "fiba" or "nba"
     var tennisDeuceMode: String? = nil // "advantage" or "no_ad"
     var servingSide: String? = nil // "left" or "right"

@@ -294,13 +294,13 @@ public enum ScoreboardSessionFactory {
     public static func doudizhu(
         playerNames: [String]
     ) -> ScoreSessionCore<DoudizhuScoreReducer>? {
-        guard playerNames.count == 3 else { return nil }
+        guard (3 ... 4).contains(playerNames.count) else { return nil }
         let descriptor = ScoreboardKernelRegistry.descriptor(for: .doudizhu)
         let session = ScoreSession<DoudizhuScoreState, DoudizhuScoreEvent>(
             gameType: .doudizhu,
             ruleFamily: descriptor.ruleFamily,
             reducerType: descriptor.reducerType,
-            state: DoudizhuScoreState(),
+            state: DoudizhuScoreState(scores: Array(repeating: 0, count: playerNames.count)),
             participants: playerParticipants(playerNames)
         )
         return ScoreSessionCore(seedSession: session, reducer: DoudizhuScoreReducer())

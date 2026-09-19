@@ -151,6 +151,23 @@
 "game_badminton" = "Badminton";
 "game_tennis" = "Tennis";
 "game_basketball" = "Basketball";
+"game_basketball_training" = "Shot Training";
+"shot_training_setup_title" = "Shot Training Setup";
+"shot_training_scoring_mode" = "Scoring Mode";
+"shot_training_mode_1" = "1-point";
+"shot_training_mode_2" = "2-point";
+"shot_training_mode_3" = "3-point";
+"shot_training_mode_free" = "Free Mode";
+"shot_training_mode_help" = "Fixed modes record the same value each time. Free mode lets you choose 1, 2, or 3 points for each attempt.";
+"shot_training_miss" = "Miss";
+"shot_training_made" = "Made";
+"shot_training_attempts" = "Attempts";
+"shot_training_rate" = "Accuracy";
+"shot_training_points" = "Points";
+"shot_training_tap_to_record" = "Tap to record a %d-point shot";
+"shot_training_summary" = "Training Summary";
+"shot_training_summary_points" = "%d total points";
+"shot_training_share" = "Shot training: %d made of %d, %d%% accuracy, %d points";
 "game_football" = "Football";
 "game_volleyball" = "Volleyball";
 "game_checkers" = "Checkers";
@@ -473,7 +490,7 @@
 "appearance_light" = "Light";
 "appearance_dark" = "Dark";
 "clear_data_confirm_title" = "Clear all data?";
-"clear_data_confirm_message" = "This will delete all local records, bookings, reminders, common names, and common places. This cannot be undone.";
+"clear_data_confirm_message" = "This deletes records, bookings, reminders, saved names, and saved places from this device and ends active sync. It does not sign you out, clear membership access, or delete cloud data. This cannot be undone.";
 "clear_data_confirm_action" = "Clear";
 "clear_data_success" = "All data cleared";
 "me_official_website" = "Official Website";
@@ -507,7 +524,13 @@
 "membership_basic_member_title" = "Member";
 "membership_title" = "Membership";
 "membership_entry_title_active" = "VIP Membership";
-"membership_entry_summary" = "Lifetime VIP, one-time purchase";
+"membership_entry_summary" = "Monthly, yearly, or lifetime VIP";
+"settings_share_app_message" = "All-in-One Scorekeeper makes scoring sports and games easy";
+"feedback_external_link_title" = "Open External Link?";
+"feedback_external_link_open" = "Continue";
+"clear_data_category_active_sync" = "Active sync session";
+"timer_status_running" = "Running";
+"timer_status_paused" = "Paused";
 "membership_entry_summary_active" = "You are a VIP member. Thank you for your support";
 "sound_effects" = "Sound Effects";
 "vibration" = "Vibration";
@@ -616,6 +639,8 @@
 "confirm_delete" = "Confirm Delete";
 "confirm_delete_record_message" = "Are you sure you want to delete this match record? This action cannot be undone.";
 "delete_record" = "Delete Record";
+"records" = "Records";
+"restart" = "Restart";
 "share" = "Share";
 "share_preparing" = "Preparing sharing...";
 "record_not_found" = "Record not found";
@@ -915,6 +940,9 @@
 "doudizhu_settle_preview_one" = "Settle: winner +%d, others −%d each";
 "doudizhu_settle_preview_two" = "Settle: winners +%d each, loser −%d";
 "doudizhu_select_one_or_two_winners" = "Select 1 or 2 winners";
+"doudizhu_settle_preview_one_n" = "Settle: winner +%d, other %d players −%d each";
+"doudizhu_settle_preview_many" = "Settle: %d winners +%d each, loser −%d";
+"doudizhu_select_one_or_all_but_one" = "Select one winner, or everyone except one loser";
 "archery_closest_title" = "Shoot-off · Closest to Center";
 "archery_closest_message" = "Tied at %d — pick the closer arrow";
 "nine_ball_chase_points" = "Event Points";
@@ -982,6 +1010,7 @@
 "scoreboard_usage_hint_got_it" = "Got it";
 "scoreboard_usage_hint_football" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n⏱️ Open Injury time from the bottom-right menu, choose a duration, then undo or confirm\n🏁 After the second half and injury time, a tied match can continue to two 15-minute periods of extra time";
 "scoreboard_usage_hint_basketball" = "👆 Tap +1, +2, or +3 for the team\n↩️ Swipe left to undo\n🚩 Tap the foul area to add a foul; long-press to remove one\n⏱️ Use the basketball panel for the clock, period, and timeouts";
+"scoreboard_usage_hint_basketball_training" = "🏀 Choose fixed 1/2/3-point or free mode\n✅ Tap Made or Missed to record an attempt\n↩️ Tap Undo to remove the latest attempt\n⏹️ Finish to view shooting rate and the training summary";
 "scoreboard_usage_hint_three_basketball" = "👆 Tap a score button for the team\n↩️ Swipe left to undo\n🚩 Tap the foul area to add a foul; long-press to remove one\n⏱️ Use the basketball panel for the clock, period, and timeouts";
 "scoreboard_usage_hint_volleyball" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Sets and game point follow volleyball rules";
 "scoreboard_usage_hint_beach_volleyball" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Sets and game point follow beach volleyball rules";
@@ -1003,7 +1032,7 @@
 "scoreboard_usage_hint_guandan" = "👆 Use the left and right controls to record each result and level progress\n↕️ In edit mode, swipe vertically on either side to change its level quickly\n🅰️ Passing A, reset, undo, and manual finish are available on the board or menu\n↩️ Undo a mistake before continuing from the current level";
 "scoreboard_usage_hint_shengji" = "👆 Start by tapping Claim Dealer for either team\n🏆 Record each round with Take Over or the +1, +2, and +3 buttons\n↩️ Undo the previous round from the menu\n✏️ Tap the pencil at the top right to edit team names and levels\n🔄 Reset or finish the match manually";
 "scoreboard_usage_hint_uno" = "👆 Tap a player to open the round-scoring panel\n✏️ Long-press a player to edit the name and score\n↩️ Undo the previous round\n☑️ Settle or finish the match manually\n🖼️ Display settings and screenshots are in the menu";
-"scoreboard_usage_hint_doudizhu" = "➕ Tap the plus button at the bottom center to open round settlement\n🧮 Choose the base score, multiplier, and one or two winners, then confirm\n↩️ Swipe left or use the menu to undo the previous round\n✏️ Tap the pencil at the top right to edit players and scores\n🔄 Reset or finish the match manually";
+"scoreboard_usage_hint_doudizhu" = "➕ Tap the plus button at the bottom center to open round settlement\n🧮 Choose the base score, multiplier, and either one winner or everyone except one loser\n↩️ Swipe left or use the menu to undo the previous round\n✏️ Tap the pencil at the top right to edit players and scores\n🔄 Reset or finish the match manually";
 "scoreboard_usage_hint_foosball" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n☑️ Use Settle or Finish when the match ends";
 "scoreboard_usage_hint_foosball_doubles" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n👥 2V2 names are set before the match\n☑️ Use Settle or Finish when the match ends";
 "scoreboard_usage_hint_simple_score" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n✏️ Long-press or edit to change names and scores";
@@ -1191,8 +1220,8 @@
 "player" = "Player";
 "scoreboard_usage_hint_shuttlecock" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Team shuttlecock scoring follows the selected target and set rules";
 "scoreboard_usage_hint_squash" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Squash uses best-of-five games with two-point advantage";
-"scoreboard_usage_hint_soft_tennis" = "👆 Tap the left or right score area to record a point\n↩️ Swipe left to undo\n🎾 Soft tennis uses the configured game count and tie-break rules";
-"scoreboard_usage_hint_padel" = "👆 Tap the left or right score area to record a point\n↩️ Swipe left to undo\n🎾 Padel supports advantage, golden-point, and star-point deuce modes";
+"scoreboard_usage_hint_soft_tennis" = "👆 Tap the left/right score area to record a point\n↩️ Swipe left to undo the previous action\n🎾 Uses the selected 7- or 9-game match; the final game is decided by a 7-point, win-by-two tiebreak\n🔄 End changes and rest prompts follow the current match rule";
+"scoreboard_usage_hint_padel" = "👆 Tap the left/right score area to record a point\n↩️ Swipe left to undo the previous action\n🎾 Points, games, sets, and the selected advantage, golden-point, or Star Point deuce mode are automatic\n🔄 End changes and rest prompts follow the current match rule";
 "scoreboard_usage_hint_football_5v5" = "👆 Tap left/right score area to add 1 goal\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n⏯️ Tap the clock to pause or resume timing";
 /* Dedicated AirPlay display */
 "cast_active" = "Casting";

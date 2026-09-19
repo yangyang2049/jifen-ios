@@ -60,6 +60,29 @@ final class LocalDataResetCoordinatorTests: XCTestCase {
         XCTAssertEqual(result.failures.map(\.category), [.scoreboardRecords])
         XCTAssertFalse(result.succeeded)
     }
+
+    func testLiveResetScopeContainsOnlyUserGeneratedDataAndLocalPreferences() {
+        let appearance = AppAppearanceStore(defaults: defaults)
+        let coordinator = LocalDataResetCoordinator.live(
+            appearance: appearance,
+            defaults: defaults
+        )
+
+        XCTAssertEqual(
+            coordinator.steps.map(\.category),
+            [
+                .activeSyncSession,
+                .scoreboardRecords,
+                .timerRecords,
+                .bookingsAndNotifications,
+                .resumeSessions,
+                .legacySyncData,
+                .localPreferencesAndTools,
+            ]
+        )
+        // Account credentials and purchase recovery data live in AuthTokenStore's
+        // Keychain service and are intentionally outside this reset composition.
+    }
 }
 
 @MainActor

@@ -159,7 +159,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
     }
 
     private func commitPanelAction(_ isLeft: Bool) {
-        guard !isEditMode, !finished else { return }
+        guard !isStyleEditing, !isEditMode, !finished else { return }
         // 对齐安卓 ScoreboardTeamPanel：面板单击结算（加分/打开面板）统一轻震反馈。
         VibrationManager.shared.vibrateLight()
         if isLeft {
@@ -301,11 +301,22 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: doubleTapSubtractEnabled) { _, _ in cancelPendingTap() }
+        .onChange(of: isEditMode) { _, editing in
+            if editing { cancelPendingTap() }
+        }
+        .onChange(of: finished) { _, isFinished in
+            if isFinished { cancelPendingTap() }
+        }
+        .onChange(of: isStyleEditing) { _, editing in
+            if editing { cancelPendingTap() }
+        }
         .onChange(of: showMenu) { _, isOpen in
+            if isOpen { cancelPendingTap() }
             if !isOpen { menuConfirm.clear() }
             updateImmersiveForBlocking()
         }
         .onChange(of: showDisplaySettings) { _, presented in
+            if presented { cancelPendingTap() }
             updateImmersiveForBlocking()
             if !presented {
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -315,6 +326,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
             onTypographyChange?(preference)
         }
         .onDisappear {
+            cancelPendingTap()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
         }
         .overlay {

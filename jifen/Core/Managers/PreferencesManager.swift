@@ -51,7 +51,6 @@ class PreferencesManager {
         static let forceIPadLandscape = "scoreboard_force_ipad_landscape"
         static let iPadLandscapeHintShown = "scoreboard_ipad_landscape_hint_shown_v1"
         static let keepScreenOn = "scoreboard_keep_screen_on"
-        static let immersiveMode = "scoreboard_immersive_mode"
         static let touchGuard = "scoreboard_touch_guard"
         static let doubleTapSubtract = "scoreboard_double_tap_subtract"
         static let doubleTapSubtractInitialized = "scoreboard_double_tap_subtract_initialized_v1"
@@ -67,6 +66,9 @@ class PreferencesManager {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        // iOS never exposes immersive scoreboards. Remove the legacy hidden
+        // preference so an old `true` value cannot silently alter navigation.
+        defaults.removeObject(forKey: "scoreboard_immersive_mode")
     }
     private(set) var scoreboardRevision: UInt64 = 0
     
@@ -158,14 +160,6 @@ class PreferencesManager {
         }
     }
 
-    var scoreboardImmersiveModeEnabled: Bool {
-        get { defaults.bool(forKey: Key.immersiveMode, defaultValue: false) }
-        set {
-            defaults.set(newValue, forKey: Key.immersiveMode)
-            notifyScoreboardPreferencesChanged()
-        }
-    }
-
     var scoreboardTouchGuardEnabled: Bool {
         get { defaults.bool(forKey: Key.touchGuard, defaultValue: false) }
         set {
@@ -214,7 +208,7 @@ class PreferencesManager {
             Key.vibration, Key.sound, Key.officialBreaks, Key.language,
             Key.defaultFont, Key.theme, Key.forceIPadLandscape, Key.iPadLandscapeHintShown,
             Key.keepScreenOn,
-            Key.immersiveMode, Key.touchGuard, Key.doubleTapSubtract,
+            Key.touchGuard, Key.doubleTapSubtract,
             "linked_score_watch_start_guide_popup_shown_v1",
             "simpleScoreCustomAdjustEnabled", "multiScoreboardCustomAdjustEnabled",
             "multiScoreboardPlayerCount", "unoPlayerCount", "unoTargetScore",

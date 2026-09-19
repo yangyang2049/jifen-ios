@@ -64,9 +64,9 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "nine_ball", playerCount: 4), .multiGrid)
     }
 
-    func testAllThirtyThreeExactScoreboardTypesBuildRoundTripAndPublish() throws {
+    func testAllThirtyFourExactScoreboardTypesBuildRoundTripAndPublish() throws {
         let exactTypes = ScoreCore.GameType.allCases
-        XCTAssertEqual(exactTypes.count, 33)
+        XCTAssertEqual(exactTypes.count, 34)
         XCTAssertEqual(Set(exactTypes.map(\.rawValue)), expectedExactGameIDs)
 
         let outputs = ScoreboardDisplayOutputs.shared
@@ -1234,7 +1234,7 @@ final class ScoreboardDisplayTests: XCTestCase {
 
     private var expectedExactGameIDs: Set<String> {
         [
-            "football", "football_5v5", "basketball", "three_basketball",
+            "football", "football_5v5", "basketball", "basketball_training", "three_basketball",
             "volleyball", "air_volleyball", "beach_volleyball",
             "pingpong", "pingpong_doubles", "tennis", "tennis_doubles",
             "badminton", "badminton_doubles", "shuttlecock", "squash",

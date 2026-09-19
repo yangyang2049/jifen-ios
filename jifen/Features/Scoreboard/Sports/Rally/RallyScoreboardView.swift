@@ -317,6 +317,8 @@ struct RallyScoreboardView: View {
     private var onePointDoubleTapEnabled: Bool {
         appearance.doubleTapSubtract
             && !scoringLocked
+            && !showMenu
+            && !showDisplaySettings
             && ScoreboardUsageHintHelper.supportsDoubleTapSubtract(gameType)
     }
 
@@ -605,6 +607,7 @@ struct RallyScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: isEditMode) { _, editing in
+            if editing { cancelPendingTap() }
             if editing {
                 syncEditNamesFromState()
             } else if !isFoosballDoubles {
@@ -614,6 +617,7 @@ struct RallyScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onDisappear {
+            cancelPendingTap()
             cancelPendingOpeningAnnouncement()
             flashTask?.cancel()
             cancelTerminalSetPresentation()
@@ -1043,7 +1047,7 @@ struct RallyScoreboardView: View {
         let editTopInset = isEditMode
             ? ScoreboardLayoutMetrics.nameTopPadding(panelHeight: size.height, isEditMode: true)
             : 0
-        let scoreboardScreenWidth = max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        let scoreboardScreenWidth = max(AppScreen.bounds.width, AppScreen.bounds.height)
         let editNamesHeight = ScoreboardLayoutMetrics.doublesEditNamesRegionHeight(
             isLargeScreen: Theme.usesPadLayout,
             screenWidth: scoreboardScreenWidth

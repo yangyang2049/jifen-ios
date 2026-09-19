@@ -9,6 +9,10 @@ extension LocalDataResetCoordinator {
         fileManager: FileManager = .default
     ) -> Self {
         Self(steps: [
+            LocalDataResetStep(category: .activeSyncSession) {
+                // “清除本地数据”只结束当前投屏/同步连接，不退出账号，也不清会员权益缓存。
+                CloudSyncSession.shared.end(reason: "clear_data")
+            },
             LocalDataResetStep(category: .scoreboardRecords) {
                 guard ScoreboardRecordManager.shared.clearAllRecords(),
                       ScoreboardRecordManager.shared.getAllRecordSummaries().isEmpty else {

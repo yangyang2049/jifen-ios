@@ -46,6 +46,7 @@
 		FB1000000000000000000002 /* BookingStartPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1000000000000000000001 /* BookingStartPersistenceTests.swift */; };
 		FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */; };
 		FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */; };
+		FC8000000000000000000002 /* ShotTrainingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8000000000000000000001 /* ShotTrainingTests.swift */; };
 		FD2000000000000000000002 /* SportsSetupDraftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD2000000000000000000001 /* SportsSetupDraftTests.swift */; };
 		FE1000000000000000000002 /* ScoreboardDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1000000000000000000001 /* ScoreboardDisplayTests.swift */; };
 		FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */; };
@@ -111,6 +112,7 @@
 		FB1000000000000000000001 /* BookingStartPersistenceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BookingStartPersistenceTests.swift; sourceTree = "<group>"; };
 		FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardUsageHintTests.swift; sourceTree = "<group>"; };
 		FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardResumeAndWinnerIdentityTests.swift; sourceTree = "<group>"; };
+		FC8000000000000000000001 /* ShotTrainingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShotTrainingTests.swift; sourceTree = "<group>"; };
 		FD2000000000000000000001 /* SportsSetupDraftTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SportsSetupDraftTests.swift; sourceTree = "<group>"; };
 		FE1000000000000000000001 /* ScoreboardDisplayTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardDisplayTests.swift; sourceTree = "<group>"; };
 		FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ResumeSessionLifecycleTests.swift; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				F90000000000000000000001 /* LocalizationIntegrityTests.swift */,
 				FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */,
 				FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */,
+				FC8000000000000000000001 /* ShotTrainingTests.swift */,
 				FD2000000000000000000001 /* SportsSetupDraftTests.swift */,
 				FE1000000000000000000001 /* ScoreboardDisplayTests.swift */,
 				FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */,
@@ -518,6 +521,7 @@
 				F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */,
 				FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */,
 				FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */,
+				FC8000000000000000000002 /* ShotTrainingTests.swift in Sources */,
 				FD2000000000000000000002 /* SportsSetupDraftTests.swift in Sources */,
 				FE1000000000000000000002 /* ScoreboardDisplayTests.swift in Sources */,
 				FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */,

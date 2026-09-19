@@ -23,6 +23,21 @@ struct StopwatchPersistedState: Codable {
     }
 }
 
+enum StopwatchSummaryFormatter {
+    static func elapsed(_ milliseconds: Double) -> String {
+        let totalSeconds = max(0, Int(milliseconds) / 1_000)
+        if totalSeconds >= 3_600 {
+            return String(
+                format: "%02d:%02d:%02d",
+                totalSeconds / 3_600,
+                totalSeconds / 60 % 60,
+                totalSeconds % 60
+            )
+        }
+        return String(format: "%02d:%02d", totalSeconds / 60, totalSeconds % 60)
+    }
+}
+
 enum CountdownPhase: String, Codable {
     case idle
     case running

@@ -184,6 +184,63 @@ private struct FeedbackPlatformChipView: View {
     }
 }
 
+private struct FeedbackModerationNotice: View {
+    let label: String?
+    let reason: String?
+
+    var body: some View {
+        if let label = label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color(hex: "B45309"))
+                if let reason = reason?.trimmingCharacters(in: .whitespacesAndNewlines), !reason.isEmpty {
+                    Text(reason)
+                        .font(.system(size: 12))
+                        .foregroundColor(Theme.textSecondary)
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color(hex: "FEF3C7")))
+        }
+    }
+}
+
+/// Only HTTPS links are interactive. The detail page decides whether the link
+/// can open immediately (own content) or needs an external-link confirmation.
+private struct FeedbackLinkifiedText: View {
+    let content: String
+    let onOpenURL: (URL) -> Void
+
+    var body: some View {
+        Text(attributedContent)
+            .environment(\.openURL, OpenURLAction { url in
+                onOpenURL(url)
+                return .handled
+            })
+    }
+
+    private var attributedContent: AttributedString {
+        var attributed = AttributedString(content)
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
+            return attributed
+        }
+        let fullRange = NSRange(content.startIndex..<content.endIndex, in: content)
+        for match in detector.matches(in: content, options: [], range: fullRange) {
+            guard let url = match.url,
+                  url.scheme?.lowercased() == "https",
+                  let stringRange = Range(match.range, in: content),
+                  let lower = AttributedString.Index(stringRange.lowerBound, within: attributed),
+                  let upper = AttributedString.Index(stringRange.upperBound, within: attributed) else {
+                continue
+            }
+            attributed[lower..<upper].link = url
+        }
+        return attributed
+    }
+}
+
 /// 状态印章：整体旋转 12°、2pt 实线边框、圆角 2（对齐安卓 FeedbackStatusStamp）。
 private struct FeedbackStatusStampView: View {
     let status: FeedbackStatus
@@ -429,6 +486,11 @@ private struct FeedbackListCard: View {
                 .lineSpacing(6)
                 .lineLimit(3)
                 .padding(.top, 12)
+            FeedbackModerationNotice(
+                label: item.visibilityLabel,
+                reason: nil
+            )
+            .padding(.top, item.visibilityLabel?.isEmpty == false ? 10 : 0)
             HStack(spacing: 0) {
                 HStack(spacing: 6) {
                     FeedbackAuthorAvatarView(avatarPath: item.authorAvatarUrl, isVip: item.authorIsVip, size: 18)
@@ -468,6 +530,7 @@ private struct FeedbackListCard: View {
 struct FeedbackDetailView: View {
     @Environment(SessionStore.self) private var session
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     let feedbackId: String
     var onDeleted: () -> Void = {}
 
@@ -480,6 +543,7 @@ struct FeedbackDetailView: View {
     @State private var showReport = false
     @State private var previewImages: [String] = []
     @State private var previewStartPage = 0
+    @State private var pendingExternalURL: URL?
 
     private var isAuthor: Bool {
         guard let authorId = item?.authorId, !authorId.isEmpty else { return false }
@@ -536,6 +600,23 @@ struct FeedbackDetailView: View {
                 value: "确定要删除这条反馈吗？删除后不可恢复。",
                 comment: ""
             ))
+        }
+        .alert(
+            NSLocalizedString("feedback_external_link_title", value: "打开外部链接？", comment: ""),
+            isPresented: Binding(
+                get: { pendingExternalURL != nil },
+                set: { if !$0 { pendingExternalURL = nil } }
+            )
+        ) {
+            Button(NSLocalizedString("feedback_external_link_open", value: "继续打开", comment: "")) {
+                if let url = pendingExternalURL { openURL(url) }
+                pendingExternalURL = nil
+            }
+            Button(NSLocalizedString("cancel", value: "取消", comment: ""), role: .cancel) {
+                pendingExternalURL = nil
+            }
+        } message: {
+            Text(pendingExternalURL?.absoluteString ?? "")
         }
         .sheet(isPresented: $showReport) {
             NavigationStack {
@@ -636,12 +717,20 @@ struct FeedbackDetailView: View {
                     .foregroundColor(Theme.textPrimary)
                     .padding(.top, 16)
 
-                Text(item.content)
+                FeedbackLinkifiedText(content: item.content) { url in
+                    openFeedbackURL(url, authoredByCurrentUser: isAuthor)
+                }
                     .font(.system(size: 16))
                     .foregroundColor(Theme.textPrimary)
                     .lineSpacing(10)
                     .textSelection(.enabled)
                     .padding(.top, 12)
+
+                FeedbackModerationNotice(
+                    label: item.visibilityLabel,
+                    reason: item.moderationReviewReason
+                )
+                .padding(.top, item.visibilityLabel?.isEmpty == false ? 12 : 0)
 
                 feedbackImages(item.images)
 
@@ -744,7 +833,15 @@ struct FeedbackDetailView: View {
             .padding(.bottom, 12)
 
             ForEach(comments) { comment in
-                FeedbackCommentRow(comment: comment)
+                FeedbackCommentRow(
+                    comment: comment,
+                    onOpenURL: { url in
+                        openFeedbackURL(
+                            url,
+                            authoredByCurrentUser: comment.authorId == session.user?.id
+                        )
+                    }
+                )
             }
         }
         .padding(.horizontal, 16)
@@ -832,6 +929,15 @@ struct FeedbackDetailView: View {
             errorMessage = error.localizedDescription
         }
     }
+
+    private func openFeedbackURL(_ url: URL, authoredByCurrentUser: Bool) {
+        guard url.scheme?.lowercased() == "https" else { return }
+        if authoredByCurrentUser {
+            openURL(url)
+        } else {
+            pendingExternalURL = url
+        }
+    }
 }
 
 extension Optional where Wrapped == String {
@@ -847,6 +953,7 @@ extension Optional where Wrapped == String {
 /// 评论行（对齐安卓 CommentItem）：分隔线 + 头像 36 + 昵称/时间 + 正文。
 private struct FeedbackCommentRow: View {
     let comment: FeedbackComment
+    let onOpenURL: (URL) -> Void
 
     var body: some View {
         Rectangle()
@@ -864,12 +971,17 @@ private struct FeedbackCommentRow: View {
                         .font(.system(size: 12))
                         .foregroundColor(Theme.textSecondary)
                 }
-                Text(comment.content)
+                FeedbackLinkifiedText(content: comment.content, onOpenURL: onOpenURL)
                     .font(.system(size: 15))
                     .foregroundColor(Theme.textPrimary)
                     .lineSpacing(6)
                     .textSelection(.enabled)
                     .padding(.top, 4)
+                FeedbackModerationNotice(
+                    label: comment.visibilityLabel,
+                    reason: comment.moderationReviewReason
+                )
+                .padding(.top, comment.visibilityLabel?.isEmpty == false ? 8 : 0)
             }
             Spacer(minLength: 0)
         }

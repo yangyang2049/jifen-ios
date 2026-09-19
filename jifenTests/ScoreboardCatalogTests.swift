@@ -11,7 +11,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testCommonNamePolicyUsesPlayerNamesForSinglesAndDoublesMembers() {
         let playerGames: [jifen.GameType] = [
             .pingpong, .badminton, .tennis, .pickleball, .foosball,
-            .archery, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+            .archery, .basketballTraining, .boxing, .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .uno, .multiScoreboard
         ]
 
@@ -63,7 +63,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         let playerGames: Set<jifen.GameType> = [
             .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel,
             .checkers, .boxing, .billiards, .eightBall, .nineBall, .snooker,
-            .pickleball, .archery, .doudizhu, .uno, .foosball,
+            .pickleball, .archery, .basketballTraining, .doudizhu, .uno, .foosball,
             .multiScoreboard, .stopwatch, .go, .xiangqi, .chess
         ]
         let teamGames: Set<jifen.GameType> = [
@@ -558,18 +558,18 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testVisibleCatalogMatchesReferenceOrder() {
         XCTAssertEqual(GameCatalog.scoreboardItems.map(\.gameType), [
             .badminton, .tennis, .pingpong, .pickleball, .shuttlecock, .squash, .softTennis, .padel,
-            .football, .football5v5, .basketball,
+            .football, .football5v5, .basketball, .basketballTraining,
             .threeBasketball, .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .eightBall, .nineBall, .snooker,
             .doudizhu, .guandan, .shengji, .uno,
             .foosball, .simpleScore, .multiScoreboard
         ])
-        XCTAssertEqual(GameCatalog.scoreboardItems.count, 28)
+        XCTAssertEqual(GameCatalog.scoreboardItems.count, 29)
     }
 
     func testExactScoreboardIdentifiersMatchAndroid31Reference() {
         let expected: Set<String> = [
-            "football", "football_5v5", "basketball", "three_basketball",
+            "football", "football_5v5", "basketball", "basketball_training", "three_basketball",
             "volleyball", "air_volleyball", "beach_volleyball",
             "pingpong", "pingpong_doubles", "tennis", "tennis_doubles",
             "badminton", "badminton_doubles", "shuttlecock", "squash",
@@ -579,7 +579,7 @@ final class ScoreboardCatalogTests: XCTestCase {
             "foosball_doubles", "simple_score", "multi_scoreboard"
         ]
 
-        XCTAssertEqual(ScoreCore.GameType.allCases.count, 33)
+        XCTAssertEqual(ScoreCore.GameType.allCases.count, 34)
         XCTAssertEqual(Set(ScoreCore.GameType.allCases.map(\.rawValue)), expected)
     }
 
@@ -1501,7 +1501,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testScoreboardModeAuditMatrixCount() throws {
         let phoneModes = GameCatalog.scoreboardItems.count
             + GameCatalog.scoreboardItems.map(\.gameType).filter(\.supportsSinglesAndDoubles).count
-        XCTAssertEqual(phoneModes, 36)
+        XCTAssertEqual(phoneModes, 37)
     }
 
     func testPickleballUsesTableTennisIcon() throws {

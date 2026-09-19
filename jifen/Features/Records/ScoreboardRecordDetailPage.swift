@@ -233,7 +233,7 @@ struct ScoreboardRecordDetailPage: View {
                     .accessibilityIdentifier("record_match_title")
             }
             if record.gameType == .doudizhu, record.displayParticipants.count >= 3 {
-                let participants = Array(record.displayParticipants.prefix(3))
+                let participants = Array(record.displayParticipants.prefix(4))
                 HStack(alignment: .center, spacing: 8) {
                     ForEach(Array(participants.enumerated()), id: \.offset) { index, participant in
                         if index > 0 {
@@ -873,7 +873,14 @@ struct ScoreboardRecordDetailPage: View {
     ) -> some View {
         let setup = ScoreboardRecordConfiguration.setup(from: record)
         Group {
-            if record.gameType == .nineBall {
+            if record.gameType == .basketballTraining {
+                ShotTrainingSetupDialogView(
+                    maxDialogHeight: maxDialogHeight,
+                    initialMode: ShotTrainingMode(rawValue: setup.basketballTrainingScoringMode ?? "") ?? .fixed1,
+                    onConfirm: startReplay,
+                    onCancel: onCancel
+                )
+            } else if record.gameType == .nineBall {
                 NineBallSetupDialogView(
                     initialSetup: setup,
                     maxDialogHeight: maxDialogHeight,
@@ -1069,7 +1076,7 @@ struct ScoreboardRecordDetailPage: View {
                 .frame(width: 328)
                 .fixedSize(horizontal: false, vertical: true)
         )
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = AppScreen.scale
         guard let data = renderer.uiImage?.pngData() else { isPreparingShare = false; return }
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("share_record_\(record.id).png")
         do {

@@ -72,7 +72,7 @@ struct SystemHelpButton: View {
     private static func popoverFitsBelow(_ anchorFrame: CGRect) -> Bool {
         let windowHeight = UIApplication.shared.connectedScenes
             .compactMap { ($0 as? UIWindowScene)?.keyWindow?.bounds.height }
-            .first ?? UIScreen.main.bounds.height
+            .first ?? AppScreen.bounds.height
         let below = windowHeight - anchorFrame.maxY
         let above = anchorFrame.minY
         return below >= min(260, above)

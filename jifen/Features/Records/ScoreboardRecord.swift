@@ -994,6 +994,7 @@ enum ScoreboardRecordConfiguration {
         setup.team1Player3Name = scoreboardString(data["team1Player3Name"])
         setup.team2Player3Name = scoreboardString(data["team2Player3Name"])
         setup.basketballMode = scoreboardString(data["basketballMode"])
+        setup.basketballTrainingScoringMode = scoreboardString(data["basketballTrainingScoringMode"])
         setup.basketballRuleSet = scoreboardString(data["basketballRuleSet"])
         setup.tennisDeuceMode = scoreboardString(data["tennisDeuceMode"])
             ?? tennisState.map { $0.rules.usesNoAdScoring ? "no_ad" : "advantage" }
@@ -1085,6 +1086,7 @@ extension ScoreCore.GameType {
         case .squash: return NSLocalizedString("game_squash", value: "壁球", comment: "")
         case .softTennis: return NSLocalizedString("game_soft_tennis", value: "软式网球", comment: "")
         case .padel: return NSLocalizedString("game_padel", value: "板网球", comment: "")
+        case .basketballTraining: return NSLocalizedString("game_basketball_training", value: "投篮训练", comment: "")
         case .football5v5: return NSLocalizedString("game_football_5v5", value: "5×5 足球", comment: "")
         default: return scoreboardAppGameType(for: self)?.displayName ?? rawValue
         }

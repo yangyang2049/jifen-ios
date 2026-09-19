@@ -25,7 +25,7 @@ struct ScoreboardNameEditorField: View {
     @State private var showCommonNameSelector = false
 
     private var screenWidth: CGFloat {
-        max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        max(AppScreen.bounds.width, AppScreen.bounds.height)
     }
 
     private var preferredWidth: CGFloat {
@@ -148,6 +148,13 @@ struct ScoreboardTemplate: View {
     @State private var styleEditorController: ScoreboardStyleEditorController?
     private let doubleTapWindow: TimeInterval = 0.24
     private var scoringEnabled: Bool { config.scoringEnabledProvider?() ?? true }
+
+    private var doubleTapSubtractEnabled: Bool {
+        appearance.doubleTapSubtract
+            && scoringEnabled
+            && !config.viewModel.gameFinished
+            && (exactScoreCoreGameType.map(ScoreboardUsageHintHelper.supportsDoubleTapSubtract) ?? false)
+    }
 
     /// 双击减分 / 防误触清单按 ScoreCore 精确类型判定：`config.gameType` 是粗粒度
     /// 目录类型（不区分单双打），这里结合双打态解析出精确类型。
@@ -544,22 +551,31 @@ struct ScoreboardTemplate: View {
         // shifts the score group upward and exposes a strip along the bottom.
         .ignoresSafeArea()
         .onChange(of: isEditMode) { _, newValue in
+            if newValue { cancelPendingTap() }
             config.onEditModeChange?(newValue)
             updateImmersiveChromeForBlockingState()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
+        .onChange(of: config.viewModel.gameFinished) { _, finished in
+            if finished { cancelPendingTap() }
+        }
         .onChange(of: showMenu) { _, isOpen in
+            if isOpen { cancelPendingTap() }
             if !isOpen {
                 menuConfirm.clear()
             }
             updateImmersiveChromeForBlockingState()
         }
-        .onChange(of: showDisplaySettings) { _, _ in updateImmersiveChromeForBlockingState() }
+        .onChange(of: showDisplaySettings) { _, isOpen in
+            if isOpen { cancelPendingTap() }
+            updateImmersiveChromeForBlockingState()
+        }
         .onChange(of: typographySession.effectivePreference) { _, _ in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current(styleID: typographySession.styleID)
+            if !doubleTapSubtractEnabled { cancelPendingTap() }
             applyScreenAwakePreference()
             updateImmersiveChromeForBlockingState()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -574,6 +590,7 @@ struct ScoreboardTemplate: View {
             registerScoreboardSync()
         }
         .onDisappear {
+            cancelPendingTap()
             immersiveGeneration += 1
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled {
@@ -794,26 +811,25 @@ struct ScoreboardTemplate: View {
                       config.gameType != .boxing else { return }
                 guard isScoreTouchAllowed(location: value.location, panelSize: panelSize) else { return }
                 if let onScorePanelTap = config.onScorePanelTap {
-                    pendingTapSide = nil
-                    tapGeneration += 1
+                    cancelPendingTap()
                     VibrationManager.shared.vibrateLight()
                     onScorePanelTap(isLeft)
                     revealImmersiveChrome()
                     return
                 }
+                guard doubleTapSubtractEnabled else {
+                    cancelPendingTap()
+                    VibrationManager.shared.vibrateLight()
+                    config.viewModel.addScore(isLeft: isLeft, points: 1)
+                    LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+                    revealImmersiveChrome()
+                    return
+                }
                 let now = Date()
                 if pendingTapSide == isLeft, now.timeIntervalSince(pendingTapAt) <= doubleTapWindow {
-                    pendingTapSide = nil
-                    tapGeneration += 1
-                    // 对齐安卓：仅支持清单内的项目才双击减分，其余项目双击等价于两次加分。
-                    if appearance.doubleTapSubtract,
-                       exactScoreCoreGameType.map(ScoreboardUsageHintHelper.supportsDoubleTapSubtract) == true {
-                        VibrationManager.shared.vibrateLight()
-                        config.viewModel.subtractScore(isLeft: isLeft, points: 1)
-                    } else {
-                        VibrationManager.shared.vibrateLight()
-                        config.viewModel.addScore(isLeft: isLeft, points: 2)
-                    }
+                    cancelPendingTap()
+                    VibrationManager.shared.vibrateLight()
+                    config.viewModel.subtractScore(isLeft: isLeft, points: 1)
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                     revealImmersiveChrome()
                     return
@@ -833,11 +849,19 @@ struct ScoreboardTemplate: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapWindow) {
                     guard generation == tapGeneration, pendingTapSide == isLeft else { return }
                     pendingTapSide = nil
+                    guard !isStyleEditing, scoringEnabled, !isEditMode,
+                          !showMenu, !showDisplaySettings,
+                          !config.viewModel.gameFinished, doubleTapSubtractEnabled else { return }
                     VibrationManager.shared.vibrateLight()
                     config.viewModel.addScore(isLeft: isLeft, points: 1)
                     LocalScoreboardSyncCoordinator.shared.publishSnapshot()
                 }
             }
+    }
+
+    private func cancelPendingTap() {
+        tapGeneration += 1
+        pendingTapSide = nil
     }
 
     /// 对齐安卓 scoreboardPanelSwipeGestures：仅单次 1 分的面板类运动支持上滑加分/下滑减分。
@@ -1142,7 +1166,7 @@ struct TeamSection: View {
     }
 
     private var scoreboardScreenWidth: CGFloat {
-        max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        max(AppScreen.bounds.width, AppScreen.bounds.height)
     }
     private var nameEditMaxWidth: CGFloat {
         ScoreboardLayoutMetrics.scoreboardNameEditorWidth(screenWidth: scoreboardScreenWidth)

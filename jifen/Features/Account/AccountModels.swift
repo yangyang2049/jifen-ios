@@ -23,6 +23,11 @@ nonisolated struct AppUser: Codable, Equatable, Identifiable, Sendable {
     var nameSource: String?
     var nameUpdatedAt: Int64?
     var nameVisibility: String? = nil
+    var avatarVisibility: String? = nil
+    var nameVisibilityLabel: String? = nil
+    var avatarVisibilityLabel: String? = nil
+    var nameModerationReviewReason: String? = nil
+    var avatarModerationReviewReason: String? = nil
     var email: String?
     var avatarUrl: String?
     var avatar: String?
@@ -39,6 +44,14 @@ nonisolated struct AppUser: Codable, Equatable, Identifiable, Sendable {
     }
 
     var isVIP: Bool { role == "VIP" || plan == "VIP" || membership?.isActive == true }
+}
+
+nonisolated enum APIAssetURLResolver {
+    static func resolve(_ value: String?) -> URL? {
+        guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !value.isEmpty else { return nil }
+        return URL(string: value, relativeTo: APIEnvironment.current.restBaseURL)?.absoluteURL
+    }
 }
 
 nonisolated struct AuthResponse: Codable, Sendable {

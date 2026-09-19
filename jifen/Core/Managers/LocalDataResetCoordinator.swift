@@ -1,6 +1,7 @@
 import Foundation
 
 enum LocalDataResetCategory: String, CaseIterable, Sendable {
+    case activeSyncSession
     case scoreboardRecords
     case timerRecords
     case bookingsAndNotifications
@@ -10,6 +11,8 @@ enum LocalDataResetCategory: String, CaseIterable, Sendable {
 
     var localizedTitle: String {
         switch self {
+        case .activeSyncSession:
+            NSLocalizedString("clear_data_category_active_sync", value: "当前同步会话", comment: "")
         case .scoreboardRecords:
             NSLocalizedString("clear_data_category_scoreboard", value: "计分记录", comment: "")
         case .timerRecords:

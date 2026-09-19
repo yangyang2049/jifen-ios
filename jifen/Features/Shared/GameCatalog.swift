@@ -104,6 +104,7 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .football, emoji: "⚽", section: .sports),
         ScoreboardCatalogItem(gameType: .football5v5, emoji: "⚽", section: .sports),
         ScoreboardCatalogItem(gameType: .basketball, emoji: "🏀", section: .sports),
+        ScoreboardCatalogItem(gameType: .basketballTraining, emoji: "🏀", section: .sports),
         ScoreboardCatalogItem(gameType: .threeBasketball, emoji: "🏀", section: .sports),
         ScoreboardCatalogItem(gameType: .volleyball, emoji: "🏐", section: .sports),
         ScoreboardCatalogItem(gameType: .beachVolleyball, emoji: "🏐", section: .sports),

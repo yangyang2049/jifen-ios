@@ -30,6 +30,8 @@ enum DefaultParticipantNames {
              .volleyball, .beachVolleyball, .airVolleyball,
              .guandan, .shengji:
             return localizedPair("team_a", "Team A", "team_b", "Team B")
+        case .basketballTraining:
+            return localizedPair("shot_training_miss", "Miss", "shot_training_made", "Made")
         case .football, .football5v5:
             return localizedPair("team_home", "Home", "team_away", "Away")
         case .archery:

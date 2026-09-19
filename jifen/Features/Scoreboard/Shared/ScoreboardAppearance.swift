@@ -59,7 +59,8 @@ enum ScoreboardTheme: String, CaseIterable, Identifiable, Codable {
         [.ddzClassic, .ddzProDark, .ddzElectronic, .ddzRetro, .ddzBrb, .ddzWrb]
     }
 
-    var isDoudizhuTheme: Bool { rawValue.hasPrefix("ddz_") }
+    /// 纯 `rawValue` 前缀判断，供 nonisolated 的样式代码（如 genericDefault）调用。
+    nonisolated var isDoudizhuTheme: Bool { rawValue.hasPrefix("ddz_") }
 
     /// 斗地主主题码规范化：旧通用主题码迁移到 ddz_*，未知码回落经典斗地主（对齐安卓 doudizhuThemeOrDefault）。
     static func doudizhuNormalized(_ raw: String) -> ScoreboardTheme {
@@ -1399,7 +1400,7 @@ nonisolated struct ScoreboardStyleID: RawRepresentable, Hashable, Codable, Senda
     /// Launchable scoreboard entries. Timer tools intentionally do not
     /// participate in scoreboard typography storage.
     static let registeredEntryGameTypes: [GameType] = [
-        .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .basketball, .threeBasketball,
+        .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .basketball, .basketballTraining, .threeBasketball,
         .football, .football5v5, .volleyball, .beachVolleyball, .airVolleyball,
         .archery, .boxing, .billiards, .eightBall, .nineBall, .snooker,
         .pickleball, .guandan, .doudizhu, .shengji, .uno, .foosball,
@@ -1601,7 +1602,8 @@ struct ScoreboardAppearanceSnapshot: Equatable {
             styleProfileV2: profile,
             font: font,
             keepScreenOn: preferences.keepScoreboardScreenOn,
-            immersiveMode: preferences.scoreboardImmersiveModeEnabled,
+            // Immersive scoreboards remain a HarmonyOS-only capability.
+            immersiveMode: false,
             touchGuard: preferences.scoreboardTouchGuardEnabled,
             doubleTapSubtract: preferences.scoreboardDoubleTapSubtractEnabled
         )
