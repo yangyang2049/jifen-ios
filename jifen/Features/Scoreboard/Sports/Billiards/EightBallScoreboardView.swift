@@ -202,7 +202,6 @@ struct EightBallScoreboardView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
-        .animation(.easeInOut(duration: 0.2), value: overflowToastMessage)
     }
 
     private var finishedRecordDetailPage: some View {

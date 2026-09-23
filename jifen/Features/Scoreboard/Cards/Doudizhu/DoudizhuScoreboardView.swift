@@ -312,7 +312,6 @@ struct DoudizhuScoreboardView: View {
             .animation(.easeInOut(duration: 0.2), value: showMenu)
             .animation(.easeInOut(duration: 0.2), value: showScorePanel)
             .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
-            .animation(.easeInOut(duration: 0.2), value: toastMessage)
             .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         }
         .ignoresSafeArea(.all)

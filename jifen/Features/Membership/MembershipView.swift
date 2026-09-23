@@ -129,13 +129,6 @@ struct MembershipView: View {
                 .foregroundColor(Theme.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 8)
-            Text(isVIP
-                ? NSLocalizedString("vip_subtitle_active", value: "已解锁全部会员专属功能", comment: "")
-                : NSLocalizedString("vip_subtitle", value: "成为会员，解锁更完整的计分体验", comment: ""))
-                .font(.system(size: 14))
-                .foregroundColor(Theme.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 5)
         }
         .frame(maxWidth: .infinity)
     }
@@ -266,22 +259,23 @@ struct MembershipView: View {
     }
 
     private var featureList: some View {
-        let benefits: [(String, String)] = [
-            ("vip_feature_stats", "高级统计"),
-            ("vip_feature_themes", "专属主题"),
-            ("vip_feature_cloud", "云端同步"),
-            ("vip_feature_no_ads", "无广告体验"),
-            ("vip_feature_early_access", "优先体验")
+        let benefits: [(String, String, String)] = [
+            ("vip_feature_stats", "高级统计", "chart.bar.xaxis"),
+            ("vip_feature_themes", "专属主题", "paintpalette"),
+            ("vip_feature_cloud", "云端同步", "icloud.and.arrow.up"),
+            ("vip_feature_no_ads", "无广告体验", "rectangle.badge.xmark"),
+            ("vip_feature_early_access", "优先体验", "sparkles")
         ]
         let maxWidth: CGFloat = Locale.current.language.languageCode?.identifier == "zh" ? 170 : 250
         return HStack {
             VStack(spacing: 0) {
-                ForEach(benefits, id: \.0) { key, fallback in
+                ForEach(benefits, id: \.0) { key, fallback, symbol in
                     HStack(spacing: 10) {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 13, weight: .semibold))
+                        Image(systemName: symbol)
+                            .font(.system(size: 16, weight: .medium))
                             .foregroundColor(Theme.accentColor)
-                            .frame(width: 16, height: 16)
+                            .frame(width: 20, height: 20)
+                            .accessibilityHidden(true)
                         Text(NSLocalizedString(key, value: fallback, comment: ""))
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(Theme.textPrimary)
@@ -555,6 +549,8 @@ struct MembershipView: View {
 
     /// 协议行（对齐安卓/鸿蒙 VipPage）：
     /// 月卡/年卡 → 已阅读并同意《自动续费服务条款》《会员协议》；终身 → 已阅读并同意《会员协议》。
+    /// 安卓未登录购买会强制登录、并在登录页同意《用户协议》；iOS 未登录可直接购买（Guideline 5.1.1(v)），
+    /// 故未登录时在最前面补充《用户协议》勾选项。
     private var agreementRow: some View {
         let autoRenewURL = LegalDocuments.autoRenewalTermsURL
         let membershipURL = LegalDocuments.membershipAgreementURL
@@ -566,6 +562,18 @@ struct MembershipView: View {
         text.foregroundColor = Theme.textSecondary
         text.font = Font.system(size: 13)
 
+        var links: [AttributedString] = []
+
+        if requiresUserAgreement {
+            var userLink = AttributedString(
+                NSLocalizedString("vip_user_agreement_link", value: "《用户协议》", comment: "")
+            )
+            userLink.link = LegalDocuments.termsURL
+            userLink.foregroundColor = Theme.accentColor
+            userLink.font = linkFont
+            links.append(userLink)
+        }
+
         if isSubscriptionSelected {
             var renewLink = AttributedString(
                 NSLocalizedString("vip_auto_renew_terms_link", value: "《自动续费服务条款》", comment: "")
@@ -573,14 +581,7 @@ struct MembershipView: View {
             renewLink.link = autoRenewURL
             renewLink.foregroundColor = Theme.accentColor
             renewLink.font = linkFont
-            text += renewLink
-            // 中文靠《》书名号分隔；英文需要 " and " 连接两个链接。
-            var separator = AttributedString(
-                NSLocalizedString("vip_agreement_link_separator", value: "", comment: "")
-            )
-            separator.foregroundColor = Theme.textSecondary
-            separator.font = Font.system(size: 13)
-            text += separator
+            links.append(renewLink)
         }
 
         var membershipLink = AttributedString(
@@ -589,7 +590,25 @@ struct MembershipView: View {
         membershipLink.link = membershipURL
         membershipLink.foregroundColor = Theme.accentColor
         membershipLink.font = linkFont
-        text += membershipLink
+        links.append(membershipLink)
+
+        // 中文靠《》书名号分隔（空串）；英文多个链接用 ", " 连接、末尾用 " and "。
+        for (index, link) in links.enumerated() {
+            if index > 0 {
+                let isLast = index == links.count - 1
+                var separator = AttributedString(
+                    NSLocalizedString(
+                        isLast ? "vip_agreement_link_separator" : "vip_agreement_link_middle_separator",
+                        value: isLast ? " and " : ", ",
+                        comment: ""
+                    )
+                )
+                separator.foregroundColor = Theme.textSecondary
+                separator.font = Font.system(size: 13)
+                text += separator
+            }
+            text += link
+        }
 
         return HStack(alignment: .center, spacing: 2) {
             Button {
@@ -608,6 +627,10 @@ struct MembershipView: View {
             Text(text)
                 .lineSpacing(3)
                 .environment(\.openURL, OpenURLAction { url in
+                    if url == LegalDocuments.termsURL {
+                        agreementPage = MembershipAgreementPage(kind: .user)
+                        return .handled
+                    }
                     if url == autoRenewURL {
                         agreementPage = MembershipAgreementPage(kind: .autoRenewal)
                         return .handled
@@ -632,13 +655,30 @@ struct MembershipView: View {
     }
 
     private var agreementHintText: String {
-        isSubscriptionSelected
-            ? NSLocalizedString(
-                "vip_agreement_subscription_hint",
-                value: "请阅读并同意自动续费服务条款和会员协议",
+        switch (requiresUserAgreement, isSubscriptionSelected) {
+        case (true, true):
+            return NSLocalizedString(
+                "vip_agreement_subscription_hint_signed_out",
+                value: "请阅读并同意用户协议、自动续费服务条款和会员协议",
                 comment: ""
             )
-            : NSLocalizedString("vip_agreement_hint", value: "请阅读并同意会员协议", comment: "")
+        case (true, false):
+            return NSLocalizedString(
+                "vip_agreement_hint_signed_out",
+                value: "请阅读并同意用户协议和会员协议",
+                comment: ""
+            )
+        case (false, true):
+            return NSLocalizedString("vip_agreement_subscription_hint", value: "请阅读并同意自动续费服务条款和会员协议", comment: "")
+        case (false, false):
+            return NSLocalizedString("vip_agreement_hint", value: "请阅读并同意会员协议", comment: "")
+        }
+    }
+
+    /// 安卓未登录购买会强制登录、并在登录页同意《用户协议》；iOS 未登录可直接购买（Guideline 5.1.1(v)），
+    /// 因此未登录时协议行需一并勾选《用户协议》。
+    private var requiresUserAgreement: Bool {
+        !session.isAuthenticated
     }
 
     private func startPurchase() async {
@@ -665,8 +705,9 @@ struct MembershipView: View {
     }
 }
 
-/// 会员协议网页（对齐安卓 LegalConfig：会员协议 / 自动续费服务条款）。
+/// 会员协议网页（对齐安卓 LegalConfig：用户协议 / 会员协议 / 自动续费服务条款）。
 enum MembershipAgreementKind: Hashable {
+    case user
     case membership
     case autoRenewal
 }
@@ -677,6 +718,7 @@ struct MembershipAgreementPage: Identifiable, Hashable {
 
     var url: URL {
         switch kind {
+        case .user: return LegalDocuments.termsURL
         case .membership: return LegalDocuments.membershipAgreementURL
         case .autoRenewal: return LegalDocuments.autoRenewalTermsURL
         }
@@ -684,6 +726,8 @@ struct MembershipAgreementPage: Identifiable, Hashable {
 
     var title: String {
         switch kind {
+        case .user:
+            return NSLocalizedString("terms_of_service", value: "用户协议", comment: "")
         case .membership:
             return NSLocalizedString("vip_membership_agreement_title", value: "会员协议", comment: "")
         case .autoRenewal:

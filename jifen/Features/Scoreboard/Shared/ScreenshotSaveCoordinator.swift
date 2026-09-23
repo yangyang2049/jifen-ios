@@ -464,13 +464,15 @@ struct ScreenshotSaveOverlay: View {
             let buttonRow: CGFloat = 32
             let imageMaxHeight = max(120, proxy.size.height / 2 - margin - buttonRow - margin)
             let cardWidth = min(proxy.size.width - margin * 2, 420)
+            let imageWidth = max(1, cardWidth - 32)
+            let imageHeight = min(imageMaxHeight, imageWidth * image.size.height / max(1, image.size.width))
 
             VStack(spacing: 12) {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
-                    .frame(maxHeight: imageMaxHeight)
+                    .frame(height: imageHeight)
                 HStack {
                     Button(action: { coordinator.closePreviewAndContinue() }) {
                         Text(NSLocalizedString("close", value: "关闭", comment: ""))

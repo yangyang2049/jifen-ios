@@ -161,6 +161,7 @@
 "shot_training_miss" = "未中";
 "shot_training_made" = "命中";
 "shot_training_finish" = "结束训练";
+"shot_training_no_shots" = "请先记录一次出手再结束训练。";
 "shot_training_undo_done" = "已撤销上一次记录";
 "shot_training_share" = "投篮训练：命中 %d / %d，命中率 %d%%，得分 %d";
 "game_football" = "足球";
@@ -523,7 +524,7 @@
 "membership_title" = "会员";
 "membership_entry_title_active" = "VIP 会员";
 "membership_entry_summary" = "月卡、年卡或终身 VIP";
-"settings_share_app_message" = "全能计分器：多种运动和游戏都能轻松计分";
+"settings_share_app_message" = "打球、训练或朋友聚会，用全能计分器轻松记分。支持乒乓球、羽毛球、网球、篮球和多种游戏，比分清楚，还能回看记录。";
 "feedback_external_link_title" = "打开外部链接？";
 "feedback_external_link_open" = "继续打开";
 "clear_data_category_active_sync" = "当前同步会话";
@@ -1435,6 +1436,10 @@
 "vip_membership_agreement_title" = "会员协议";
 "vip_agreement_hint" = "请阅读并同意会员协议";
 "vip_agreement_subscription_hint" = "请阅读并同意自动续费服务条款和会员协议";
+"vip_user_agreement_link" = "《用户协议》";
+"vip_agreement_link_middle_separator" = "";
+"vip_agreement_hint_signed_out" = "请阅读并同意用户协议和会员协议";
+"vip_agreement_subscription_hint_signed_out" = "请阅读并同意用户协议、自动续费服务条款和会员协议";
 
 // MARK: 通用
 "more" = "更多";

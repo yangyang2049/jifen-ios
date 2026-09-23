@@ -160,6 +160,7 @@
 "shot_training_miss" = "Miss";
 "shot_training_made" = "Made";
 "shot_training_finish" = "Finish Training";
+"shot_training_no_shots" = "Record a shot before ending training.";
 "shot_training_undo_done" = "Last shot undone";
 "shot_training_share" = "Shot training: %d made of %d, %d%% accuracy, %d points";
 "game_football" = "Football";
@@ -523,7 +524,7 @@
 "membership_title" = "Membership";
 "membership_entry_title_active" = "VIP Membership";
 "membership_entry_summary" = "Monthly, yearly, or lifetime VIP";
-"settings_share_app_message" = "iScoreboard makes scoring sports and games easy";
+"settings_share_app_message" = "Keep score easily with iScoreboard, whether you’re playing sports, practicing, or getting together with friends. Track table tennis, badminton, tennis, basketball, and more, and revisit your records later.";
 "feedback_external_link_title" = "Open External Link?";
 "feedback_external_link_open" = "Continue";
 "clear_data_category_active_sync" = "Active sync session";
@@ -1435,6 +1436,10 @@
 "vip_membership_agreement_title" = "Membership Agreement";
 "vip_agreement_hint" = "Please read and agree to the Membership Agreement";
 "vip_agreement_subscription_hint" = "Please read and agree to the Auto-Renewal Terms and Membership Agreement";
+"vip_user_agreement_link" = "User Agreement";
+"vip_agreement_link_middle_separator" = ", ";
+"vip_agreement_hint_signed_out" = "Please read and agree to the User Agreement and Membership Agreement";
+"vip_agreement_subscription_hint_signed_out" = "Please read and agree to the User Agreement, Auto-Renewal Terms and Membership Agreement";
 
 // MARK: Common
 "more" = "More";

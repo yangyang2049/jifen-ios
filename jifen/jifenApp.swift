@@ -5,6 +5,7 @@
 //  Created by Yangyang Shi on 2025/12/15.
 //
 
+import FirebaseCore
 import SwiftUI
 import UserNotifications
 
@@ -486,6 +487,7 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        FirebaseApp.configure()
         UNUserNotificationCenter.current().delegate = self
         return true
     }
@@ -508,7 +510,12 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
             let permitsBackendAccess = LegalConsent.hasAcceptedCurrentDocuments()
                 || Self.shouldSkipLegalForUITests
             if permitsBackendAccess, AppFeatureFlags.accountFeaturesEnabled {
+                let wasAuthenticated = SessionStore.shared.isAuthenticated
                 await SessionStore.shared.restore()
+                // restore() runs the purchase sync during its own post-login warmup.
+                if wasAuthenticated && SessionStore.shared.isAuthenticated {
+                    await StoreKitPurchaseManager.shared.sessionDidAuthenticate()
+                }
                 if AppFeatureFlags.commonDataCloudSyncEnabled {
                     CommonDataCloudSyncManager.shared.appBecameActive()
                 }

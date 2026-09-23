@@ -155,6 +155,9 @@ enum DisplayStateWireCodec {
         if let injuryTarget = clock.footballInjuryTargetMs, injuryTarget >= 0 {
             map["footballInjuryTargetMs"] = injuryTarget
         }
+        if let injuryTimeText = clock.injuryTimeText, !injuryTimeText.isEmpty {
+            map["injuryTimeText"] = injuryTimeText
+        }
         if let label = clock.label, !label.isEmpty {
             map["halfLabel"] = label
         }
@@ -278,7 +281,8 @@ enum DisplayStateWireCodec {
             visible: visible,
             footballHalf: (map["footballHalf"] as? NSNumber).flatMap { (1...4).contains($0.intValue) ? $0.intValue : nil },
             footballHalfLengthMs: (map["footballHalfLengthMs"] as? NSNumber).flatMap { $0.int64Value >= 0 ? $0.int64Value : nil },
-            footballInjuryTargetMs: (map["footballInjuryTargetMs"] as? NSNumber).flatMap { $0.int64Value >= 0 ? $0.int64Value : nil }
+            footballInjuryTargetMs: (map["footballInjuryTargetMs"] as? NSNumber).flatMap { $0.int64Value >= 0 ? $0.int64Value : nil },
+            injuryTimeText: map["injuryTimeText"] as? String
         )
     }
 
@@ -497,6 +501,7 @@ enum DisplayStateWireCodec {
         case .strings(let value): return value
         case .integers(let value): return value
         case .integersArrays(let value): return value
+        case .integerMap(let value): return value
         }
     }
 
@@ -523,6 +528,9 @@ enum DisplayStateWireCodec {
             return .integersArrays(rows)
         case let integers as [NSNumber]:
             return .integers(integers.map(\.intValue))
+        case let object as [String: Any]:
+            guard !object.isEmpty, object.values.allSatisfy({ $0 is NSNumber }) else { return nil }
+            return .integerMap(object.compactMapValues { ($0 as? NSNumber)?.intValue })
         default:
             return nil
         }

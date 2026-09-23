@@ -645,25 +645,22 @@ struct SnookerScoreboardView: View {
                 foulSwitchTurn = true
                 showFoulPanel = true
             } label: {
-                // 对齐安卓 snooker_foul_short：短文案 F/犯（16/20 Bold），完整文案作无障碍标签。
-                Text(NSLocalizedString("snooker_foul_short", value: "犯", comment: ""))
-                    .font(.system(size: Theme.usesPadLayout ? 20 : 16, weight: .bold))
+                Text(NSLocalizedString("snooker_foul_button", value: "犯规", comment: ""))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(Color(hex: "FF453A"))
                     .frame(minWidth: controlSize, minHeight: controlSize)
                     .padding(.horizontal, actionHorizontalPadding)
                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.14)))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(NSLocalizedString("snooker_foul_button", value: "犯规", comment: ""))
             .accessibilityIdentifier("snooker_foul_button")
             .disabled(scoringLocked || displayedState.finished)
             Button {
                 guard !scoringLocked else { return }
                 send(.handover)
             } label: {
-                // 对齐安卓 ic_menu_swap：交杆按钮用换手图标，无文字。
-                Image(systemName: "arrow.left.arrow.right")
-                    .font(.system(size: 18, weight: .semibold))
+                Text(NSLocalizedString("snooker_handover", value: "交杆", comment: ""))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(minWidth: controlSize, minHeight: controlSize)
                     .padding(.horizontal, actionHorizontalPadding)

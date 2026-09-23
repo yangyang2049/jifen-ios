@@ -261,7 +261,6 @@ struct MultiScoreboardView: View {
             .animation(.easeInOut(duration: 0.2), value: customAdjustIndex)
             .animation(.easeInOut(duration: 0.2), value: playerEditIndex)
             .animation(.easeInOut(duration: 0.2), value: showUnoRoundPanel)
-            .animation(.easeInOut(duration: 0.2), value: toastMessage)
             .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
         }
         .ignoresSafeArea(.all)
@@ -1261,7 +1260,8 @@ struct MultiScoreboardView: View {
                     orientation: useLandscapeLayout ? .landscape : .portrait,
                     players: displayPlayers,
                     sportState: [
-                        "unoTargetScore": .integer(gameType == .uno ? effectiveTargetScore : 0)
+                        "unoTargetScore": .integer(gameType == .uno ? effectiveTargetScore : 0),
+                        "unoRoundCount": .integer(gameType == .uno ? unoRoundCount : 0)
                     ]
                 )
                 compact.externalState?.teams = displayPlayers.map {

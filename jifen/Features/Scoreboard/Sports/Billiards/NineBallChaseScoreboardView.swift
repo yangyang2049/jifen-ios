@@ -297,7 +297,6 @@ struct NineBallChaseScoreboardView: View {
 
             if showToast {
                 ToastView(message: toastMessage)
-                    .transition(.opacity.combined(with: .scale))
                     .allowsHitTesting(false)
             }
             if showGameOverDialog {
@@ -373,7 +372,6 @@ struct NineBallChaseScoreboardView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
-        .animation(.easeInOut(duration: 0.2), value: showToast)
         .animation(.easeInOut(duration: 0.2), value: activeChasePlayer)
         .ignoresSafeArea(.all)
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
@@ -1096,6 +1094,15 @@ struct NineBallChaseScoreboardView: View {
             players: state.playerCount > 2 ? displayPlayers : nil,
             sportState: [
                 "chasePlayerCount": .integer(state.playerCount),
+                "chasePlayerNames": .strings((0..<state.playerCount).map(playerName)),
+                "chasePoints": .integerMap([
+                    "big_gold": state.config.bigGold,
+                    "small_gold": state.config.smallGold,
+                    "golden_nine": state.config.goldenNine,
+                    "normal_win": state.config.normalWin,
+                    "ball_in_hand": state.config.ballInHand,
+                    "foul": state.config.foul
+                ]),
                 // 对齐安卓 NineBallScoreScreen：playerCounts 按逻辑玩家顺序，left/right 为 2 人局回退。
                 "chasePlayerCounts": .integersArrays(state.playerCounts),
                 "chaseLeftCounts": .integers(state.playerCounts.indices.contains(0) ? state.playerCounts[0] : []),

@@ -323,14 +323,14 @@ struct RallyScoreboardView: View {
     }
 
     private func commitPointWon(_ side: MatchSide) {
-        guard !isEditMode, !store.state.finished else { return }
+        guard !isStyleEditing, !isEditMode, !store.state.finished else { return }
         handlePointWon(side)
     }
 
     /// 对齐安卓 ScoreboardDoubleTapSubtractHandler：挂起窗口内同侧第二次点击 = 减 1 分，
     /// 异侧点击则先把挂起的这一次结算掉，再为新的半区重新挂起。
     private func handlePanelTap(_ side: MatchSide) {
-        guard !isEditMode, !store.state.finished else { return }
+        guard !isStyleEditing, !isEditMode, !store.state.finished else { return }
         guard onePointDoubleTapEnabled else {
             cancelPendingTap()
             handlePointWon(side)
@@ -520,12 +520,10 @@ struct RallyScoreboardView: View {
                         ToastView(message: toastMessage)
                             .padding(.bottom, 40)
                     }
-                    .transition(.opacity.combined(with: .scale))
                     .allowsHitTesting(false)
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
-            .animation(.easeInOut(duration: 0.2), value: toastMessage)
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
@@ -544,7 +542,7 @@ struct RallyScoreboardView: View {
         .simultaneousGesture(
             LongPressGesture(minimumDuration: 0.55)
                 .onEnded { _ in
-                    guard !isEditMode else { return }
+                    guard !isStyleEditing, !isEditMode else { return }
                     showMenu = true
                     revealImmersiveChrome()
                 }
@@ -717,6 +715,7 @@ struct RallyScoreboardView: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
+                    guard !isStyleEditing, !isEditMode else { return }
                     cancelPendingTap()
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
@@ -761,7 +760,7 @@ struct RallyScoreboardView: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
-                    guard !isEditMode else { return }
+                    guard !isStyleEditing, !isEditMode else { return }
                     cancelPendingTap()
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
@@ -798,9 +797,9 @@ struct RallyScoreboardView: View {
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
         // 元素级取色（V2 槽位配置优先；未配置时回落面板级解析色）。
         let slotKey: ScoreboardStyleSlotKeyV2 = side == .left ? .sideLeft : .sideRight
-
         let nameElement: ScoreboardStyleElementKeyV2 = isFoosballDoubles ? .playerName : .teamName
         let secondaryElement: ScoreboardStyleElementKeyV2 = isFoosballDoubles ? .setGameScore : .setScore
+
         return VStack(spacing: 0) {
             Text(name)
                 .font(typographyPreference.font.swiftUIFont(size: nameSize, weight: .bold))
@@ -927,7 +926,7 @@ struct RallyScoreboardView: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
-                    guard !isEditMode else { return }
+                    guard !isStyleEditing, !isEditMode else { return }
                     cancelPendingTap()
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
@@ -952,20 +951,19 @@ struct RallyScoreboardView: View {
         let score = isLeft ? store.state.leftPoints : store.state.rightPoints
         let sets = isLeft ? store.state.leftSets : store.state.rightSets
         let slots = isLeft ? (0, 2) : (1, 3)
-        let topInset = ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: size.height)
-        let fieldHeight = ScoreboardLayoutMetrics.scoreboardNameEditorHeight(screenWidth: max(size.width * 2, size.height))
-        let nameToMain: CGFloat = 16
+        let joinedName = [editDoublesNames[slots.0], editDoublesNames[slots.1]].max(by: { $0.count < $1.count }) ?? ""
         let typography = resolvedTypography(
-            name: "",
+            name: joinedName,
             score: "\(score)",
             secondary: "\(sets)",
-            size: CGSize(width: size.width, height: max(1, size.height - topInset - 16)),
-            reservedHeight: fieldHeight * 2 + 6 + nameToMain
+            size: size,
+            reservedHeight: 48
         )
         let mainSize = ScoreboardLayoutMetrics.editMainScoreFontSize(
             regularSize: typography.scoreFontSize
         )
         let setSize = typography.secondaryFontSize
+        let nameToMain = typography.nameToScoreSpacing
         let mainToSet = ScoreboardLayoutMetrics.mainToSetSpacing(halfViewportHeight: size.height)
 
         return VStack(spacing: 0) {
@@ -997,9 +995,8 @@ struct RallyScoreboardView: View {
                 onIncrement: { adjustSetsInEdit(side: side, delta: 1) }
             )
         }
-        .padding(.top, topInset)
-        .padding(.bottom, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .offset(y: ScoreboardLayoutMetrics.editContentVerticalOffset(panelHeight: size.height))
     }
 
     private func foosballDoublesEditNameField(slot: Int) -> some View {
@@ -1130,7 +1127,7 @@ struct RallyScoreboardView: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
-                    guard !isEditMode else { return }
+                    guard !isStyleEditing, !isEditMode else { return }
                     cancelPendingTap()
                     if value.translation.width < -50 && abs(value.translation.height) < 50 {
                         performUndo()
@@ -1180,7 +1177,7 @@ struct RallyScoreboardView: View {
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .foregroundStyle(scoreColor)
-                        .styleElementSelectable(.mainScore, slotKey: slotKey)
+                    .styleElementSelectable(.mainScore, slotKey: slotKey)
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -1189,7 +1186,7 @@ struct RallyScoreboardView: View {
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(setsColor)
-                        .styleElementSelectable(.setGameScore, slotKey: slotKey)
+                    .styleElementSelectable(.setGameScore, slotKey: slotKey)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(width: secondaryColumnWidth)
@@ -1198,14 +1195,14 @@ struct RallyScoreboardView: View {
                     .font(typographyPreference.font.swiftUIFont(size: setSize))
                     .monospacedDigit()
                     .foregroundStyle(setsColor)
-                        .styleElementSelectable(.setGameScore, slotKey: slotKey)
+                    .styleElementSelectable(.setGameScore, slotKey: slotKey)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .frame(width: secondaryColumnWidth)
                 Text("\(score)")
                     .font(typographyPreference.font.swiftUIFont(size: mainSize))
                     .foregroundStyle(scoreColor)
-                        .styleElementSelectable(.mainScore, slotKey: slotKey)
+                    .styleElementSelectable(.mainScore, slotKey: slotKey)
                     .monospacedDigit()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -2139,6 +2136,7 @@ struct RallyScoreboardView: View {
                 var sportState: [String: ScoreboardDisplayValue] = [
                     "team0ScreenSide": .string(store.state.sidesSwapped ? "right" : "left"),
                     "servingSide": .string(store.state.servingSide == leftSide ? "left" : "right"),
+                    "servingTeam": .string(store.state.servingSide == .left ? "team_0" : "team_1"),
                     "resultScoreLevel": .string(store.state.rules.maxSets == 1 ? "score" : "sets")
                 ]
                 if [.pingpong, .pingpongDoubles].contains(gameType) {
@@ -2578,7 +2576,7 @@ struct RallyScoreboardView: View {
     }
 
     private func performUndo() {
-        guard !isEditMode,
+        guard !isStyleEditing, !isEditMode,
               (!store.state.finished || terminalSetPresentation != nil) else { return }
         cancelTerminalSetPresentation()
         ScoreVoiceAnnouncer.shared.cancelPendingScore()

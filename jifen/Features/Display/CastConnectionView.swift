@@ -258,7 +258,7 @@ struct CastConnectionView: View {
         .accessibilityIdentifier("cast_status_\(externalDisplay.status.rawValue)")
     }
 
-    /// 安卓 CastStatusIllustration：未连接为三层同心圆环 + Cast 图标；
+    /// 安卓 CastStatusIllustration：未连接为向外渐隐的实心圆 + Cast 图标；
     /// 已连接为浅色圆角底 + 图标。
     @ViewBuilder
     private var illustration: some View {
@@ -274,21 +274,20 @@ struct CastConnectionView: View {
             .frame(width: 72, height: 72)
         } else {
             ZStack {
-                ring(radius: 112, opacity: 0.22)
-                ring(radius: 82, opacity: 0.32)
-                ring(radius: 54, opacity: 0.45)
+                Circle()
+                    .fill(RadialGradient(
+                        colors: [Theme.primary.opacity(0.32), Theme.primary.opacity(0)],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 56
+                    ))
+                    .frame(width: 112, height: 112)
                 Image(systemName: "airplayvideo")
                     .font(.system(size: 27))
                     .foregroundStyle(Theme.primary)
             }
             .frame(width: 112, height: 112)
         }
-    }
-
-    private func ring(radius: CGFloat, opacity: Double) -> some View {
-        Circle()
-            .strokeBorder(Theme.primary.opacity(opacity), lineWidth: 2)
-            .frame(width: radius, height: radius)
     }
 
     // MARK: - 状态映射

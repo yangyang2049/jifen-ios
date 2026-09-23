@@ -101,7 +101,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showAppShareSheet) {
                 AnalyticsActivityView(
                     activityItems: [
-                        NSLocalizedString("settings_share_app_message", value: "全能计分器：多种运动和游戏都能轻松计分", comment: ""),
+                        NSLocalizedString("settings_share_app_message", value: "打球、训练或朋友聚会，用全能计分器轻松记分。支持乒乓球、羽毛球、网球、篮球和多种游戏，比分清楚，还能回看记录。", comment: ""),
                         AppSupportURLs.download
                     ],
                     contentType: "app_link"
@@ -901,12 +901,10 @@ private struct FAQItem: Identifiable {
 }
 
 private struct FAQView: View {
-    /// 对齐安卓 FaqScreen：默认展开第一条，同一时间只展开一条。
-    @State private var expandedID: Int? = 1
+    @State private var expandedID: Int?
 
-    /// 对齐安卓 faq_q1-q8/q10/q11：跳过 9 号条目。
     private var items: [FAQItem] {
-        [1, 2, 3, 4, 5, 6, 7, 8, 10, 11].map { index in
+        [1, 2, 3, 5, 6, 7, 8].map { index in
             FAQItem(
                 id: index,
                 question: NSLocalizedString("faq_question_\(index)", value: "", comment: ""),
@@ -921,43 +919,32 @@ private struct FAQView: View {
             // 20 对齐首页区块卡与设置弹窗容器档（安卓端 FAQ 仍为 12，见圆角审计报告）。
             VStack(spacing: 0) {
                 ForEach(items) { item in
-                    VStack(alignment: .leading, spacing: 0) {
-                        Button {
-                            expandedID = expandedID == item.id ? nil : item.id
-                        } label: {
-                            HStack(spacing: 12) {
+                    Button { expandedID = expandedID == item.id ? nil : item.id } label: {
+                        VStack(alignment: .leading, spacing: Theme.sm) {
+                            HStack {
                                 Text(item.question)
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Theme.textPrimary)
                                     .multilineTextAlignment(.leading)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 12, weight: .semibold))
+                                Spacer()
+                                Image(systemName: expandedID == item.id ? "chevron.up" : "chevron.down")
                                     .foregroundColor(Theme.textSecondary)
-                                    .rotationEffect(.degrees(expandedID == item.id ? 90 : 0))
                             }
-                            .padding(Theme.compactCardPadding)
-                            .contentShape(Rectangle())
+                            if expandedID == item.id {
+                                Text(item.answer)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(Theme.textSecondary)
+                                    .multilineTextAlignment(.leading)
+                                    .accessibilityIdentifier("settings_faq_answer_\(item.id)")
+                            }
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("settings_faq_question_\(item.id)")
-                        if expandedID == item.id {
-                            Text(item.answer)
-                                .font(.system(size: 14))
-                                .foregroundColor(Theme.textSecondary)
-                                .multilineTextAlignment(.leading)
-                                // 对齐安卓：答案只有左右下 12 内边距，上间距由问题行提供。
-                                .padding(.leading, Theme.compactCardPadding)
-                                .padding(.trailing, Theme.compactCardPadding)
-                                .padding(.bottom, Theme.compactCardPadding)
-                                .accessibilityIdentifier("settings_faq_answer_\(item.id)")
-                        }
+                        .padding(Theme.md)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Theme.appCardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
-                    if item.id != items.last?.id {
-                        Divider()
-                            .overlay(Theme.divider)
-                            .opacity(0.45)
-                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("settings_faq_question_\(item.id)")
                 }
             }
             .background(Theme.appCardBackground)
@@ -984,7 +971,7 @@ private struct AboutUsView: View {
 
             ScrollView {
                 VStack(spacing: Theme.lg) {
-                    VStack(spacing: Theme.sm) {
+                    VStack(spacing: Theme.md) {
                         AppLogoImage(size: 72)
                         Text(NSLocalizedString("app_name", value: "全能计分器", comment: ""))
                             .font(.title2.weight(.semibold))

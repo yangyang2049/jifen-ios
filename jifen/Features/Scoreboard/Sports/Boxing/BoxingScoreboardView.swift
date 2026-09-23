@@ -26,6 +26,7 @@ struct BoxingScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var roundLeftPoints: Int = 10
     @State private var roundRightPoints: Int = 10
+    @State private var isEditing = false
     @State private var recordID: String
 
     init(
@@ -56,15 +57,7 @@ struct BoxingScoreboardView: View {
                     viewModel: viewModel,
                     nameType: ScoreboardCommonNamePolicy.nameType(for: .boxing),
                     scoreTextProvider: { _, team in "\(team.score)" },
-                    contentOverlayProvider: { _, _ in
-                        AnyView(VStack(spacing: 0) {
-                            roundTitle
-                                .padding(.top, ScoreboardConstants.buttonPadding + 4)
-                            Spacer()
-                            centerAddRoundButton
-                                .padding(.bottom, ScoreboardConstants.buttonPadding)
-                        })
-                    },
+                    onEditModeChange: { isEditing = $0 },
                     showEndGame: true,
                     syncSportStateProvider: {
                         [
@@ -123,6 +116,15 @@ struct BoxingScoreboardView: View {
                 )
             }
 
+            if !isEditing {
+                VStack(spacing: 0) {
+                    roundTitle
+                        .padding(.top, ScoreboardConstants.buttonPadding + 4)
+                    Spacer()
+                    centerAddRoundButton
+                        .padding(.bottom, ScoreboardConstants.buttonPadding)
+                }
+            }
 
             if showRoundDialog {
                 BoxingRoundDialog(
@@ -247,10 +249,10 @@ struct BoxingScoreboardView: View {
             showRoundDialog = true
             controller.performVibration(type: .light)
         } label: {
-            Image(systemName: "plus")
-                .font(.system(size: ScoreboardConstants.buttonIconSize, weight: .bold))
+            Text("+")
+                .font(.system(size: 32, weight: .bold))
                 .foregroundColor(.white)
-                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                .frame(width: 64, height: 64)
                 .background(Color.black.opacity(0.2))
                 .clipShape(Circle())
                 .contentShape(Circle())

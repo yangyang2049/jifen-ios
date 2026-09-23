@@ -185,7 +185,6 @@ struct ArcheryScoreboardView: View {
                     .allowsHitTesting(false)
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: toastMessage)
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
                 ScoreboardRecordDetailPage(recordId: recordID)

@@ -273,7 +273,16 @@ final class ScoreboardCatalogTests: XCTestCase {
 
         XCTAssertGreaterThan(compact375.mainFontSize, 34)
         XCTAssertGreaterThan(compact375.secondaryFontSize, 24)
-        XCTAssertGreaterThan(compact390.mainFontSize, compact375.mainFontSize)
+        // 局分/盘分标签现在与数值同行、跨中线显示；375pt 已能容纳完整目标字号，
+        // 因此 390pt 不应再人为放大，两个短屏档位都保持稳定字号。
+        XCTAssertEqual(
+            compact375.mainFontSize,
+            ScoreboardLayoutMetrics.tennisDoublesEditMainScoreFontSize(
+                regularSize: 148,
+                isLargeScreen: false
+            )
+        )
+        XCTAssertEqual(compact390.mainFontSize, compact375.mainFontSize)
         XCTAssertEqual(
             regular430.mainFontSize,
             ScoreboardLayoutMetrics.tennisDoublesEditMainScoreFontSize(

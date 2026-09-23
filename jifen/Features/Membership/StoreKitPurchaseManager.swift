@@ -144,8 +144,9 @@ final class StoreKitPurchaseManager: PurchaseProviding {
         }
     }
 
-    /// Replays unfinished StoreKit transactions as soon as an account becomes
-    /// available, even when the user never opens the membership screen.
+    /// Replays saved transactions and scans current Apple entitlements as soon
+    /// as an account becomes available, even if the purchase or offer-code
+    /// redemption happened outside this app before login.
     func sessionDidAuthenticate() async {
         #if STAGING
         await retryStagingCurrentEntitlements()
@@ -481,10 +482,14 @@ final class StoreKitPurchaseManager: PurchaseProviding {
         guard SessionStore.shared.isAuthenticated else { return }
         var remaining = Set(await tokenStore.pendingIapTransactions())
         var didVerify = false
+        var attempted = Set<String>()
         for await result in Transaction.unfinished {
-            guard case .verified(let transaction) = result else { continue }
+            guard case .verified(let transaction) = result,
+                  Self.productIDs.contains(transaction.productID)
+            else { continue }
             let value = result.jwsRepresentation
             guard remaining.contains(value) else { continue }
+            attempted.insert(value)
             do {
                 try await verifyWithServer(value)
                 await transaction.finish()
@@ -495,12 +500,32 @@ final class StoreKitPurchaseManager: PurchaseProviding {
             }
         }
         for value in Array(remaining) {
+            guard attempted.insert(value).inserted else { continue }
             do {
                 try await verifyWithServer(value)
                 remaining.remove(value)
                 didVerify = true
             } catch {
                 // Still not acknowledged by the business server.
+            }
+        }
+        // Finished purchases and App Store offer-code redemptions may never
+        // enter the local pending queue. currentEntitlements is the durable
+        // StoreKit source for those transactions, including lifetime access.
+        for await result in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = result,
+                  Self.productIDs.contains(transaction.productID)
+            else { continue }
+            let value = result.jwsRepresentation
+            guard attempted.insert(value).inserted else { continue }
+            do {
+                try await verifyWithServer(value)
+                await transaction.finish()
+                remaining.remove(value)
+                didVerify = true
+            } catch {
+                // StoreKit will expose the entitlement again on the next
+                // authenticated launch, so a transient failure is retried.
             }
         }
         try? await tokenStore.setPendingIapTransactions(Array(remaining))

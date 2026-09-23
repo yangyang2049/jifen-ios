@@ -538,6 +538,72 @@ final class ScoreboardDisplayTests: XCTestCase {
         )
     }
 
+    func testLegacyAndroidResultAndCardRanksUseMatchScore() throws {
+        var badminton = ScoreboardDisplayState(compactState: compactFixture(
+            gameID: "badminton", leftName: "A", rightName: "B",
+            leftScore: "0", rightScore: "0", revision: 1
+        ))
+        badminton.teams[0].sets = 2
+        badminton.teams[1].sets = 1
+        badminton.result = .init(ended: true, winnerID: "team_0", finalScores: [
+            "team_0": .init(score: 0, sets: 2), "team_1": .init(score: 0, sets: 1)
+        ])
+        badminton.sportState?["resultScoreLevel"] = nil
+        XCTAssertEqual(ScoreboardExternalResultScorePresentation.score(forTeamID: "team_0", visualIndex: 0, state: badminton), "2")
+
+        var softTennis = badminton
+        softTennis.gameType = "soft_tennis"
+        softTennis.teams[0].games = 4
+        softTennis.teams[1].games = 3
+        softTennis.result?.finalScores?["team_0"] = .init(score: 0, sets: 1, games: 4)
+        softTennis.result?.finalScores?["team_1"] = .init(score: 0, sets: 0, games: 3)
+        XCTAssertEqual(ScoreboardExternalResultScorePresentation.score(forTeamID: "team_0", visualIndex: 0, state: softTennis), "4")
+
+        var guandan = badminton
+        guandan.gameType = "guandan"
+        guandan.sportState = ["guandanRedRank": .string("A"), "guandanBlueRank": .string("K")]
+        XCTAssertEqual(ScoreboardExternalResultScorePresentation.score(forTeamID: "team_0", visualIndex: 0, state: guandan), "A")
+    }
+
+    func testFourPlayerDoudizhuWireKeepsEveryPlayerAndWinner() throws {
+        var state = fixture(gameID: "doudizhu", score: 0)
+        state.layoutKind = .boardCard
+        state.players = (0..<4).map { index in
+            ScoreboardDisplayPlayer(id: "player_\(index)", name: "玩家\(index)", score: index * 10, order: index)
+        }
+        state.teams = state.players!.map { player in
+            ScoreboardDisplayTeam(id: player.id, name: player.name, score: player.score ?? 0, order: player.order)
+        }
+        state.sportState = ["multiGridColumns": .integer(4)]
+        state.result = .init(ended: true, winnerID: "player_3", finalScores: [
+            "player_0": .init(score: 0), "player_1": .init(score: 10),
+            "player_2": .init(score: 20), "player_3": .init(score: 30)
+        ])
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
+        XCTAssertEqual(decoded.players?.count, 4)
+        XCTAssertEqual(decoded.result?.winnerID, "player_3")
+        XCTAssertEqual(decoded.sportInt("multiGridColumns"), 4)
+        XCTAssertEqual(ScoreboardExternalTemplate.resolve(state: decoded), .cardThreePlayer)
+        state.layoutKind = .multiGrid // Android/鸿蒙发起的四人局
+        let androidWire = try XCTUnwrap(DisplayStateWireCodec.encode(state))
+        XCTAssertEqual(DisplayStateWireCodec.decode(androidWire)?.players?.count, 4)
+    }
+
+    func testNineBallConfigurationAndFootballInjuryTextRoundTrip() throws {
+        var nineBall = fixture(gameID: "nine_ball", score: 2)
+        nineBall.sportState = ["chasePoints": .integerMap(["big_gold": 10, "foul": 1])]
+        let wire = try XCTUnwrap(DisplayStateWireCodec.encode(nineBall))
+        XCTAssertEqual(DisplayStateWireCodec.decode(wire)?.sportState?["chasePoints"],
+            .integerMap(["big_gold": 10, "foul": 1]))
+
+        var football = fixture(gameID: "football", score: 2)
+        football.clock = .init(elapsedMilliseconds: 47_000, isRunning: false,
+            anchorWallClockMilliseconds: 1_000, injuryTimeText: "+00:47")
+        let footballWire = try XCTUnwrap(DisplayStateWireCodec.encode(football))
+        XCTAssertEqual(DisplayStateWireCodec.decode(footballWire)?.clock?.injuryTimeText, "+00:47")
+    }
+
     func testTableTennisAdministrativeMarkerCountIsBoundedForRemotePayloads() {
         XCTAssertEqual(TableTennisAdministrativeMarkerPolicy.displayedRedCardCount(-1), 0)
         XCTAssertEqual(TableTennisAdministrativeMarkerPolicy.displayedRedCardCount(1), 1)

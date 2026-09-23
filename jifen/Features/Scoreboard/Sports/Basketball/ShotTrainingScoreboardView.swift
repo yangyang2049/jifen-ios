@@ -188,7 +188,6 @@ struct ShotTrainingScoreboardView: View {
 
                 if showToast {
                     ToastView(message: toastMessage)
-                        .transition(.opacity.combined(with: .scale))
                         .allowsHitTesting(false)
                 }
             }
@@ -214,7 +213,6 @@ struct ShotTrainingScoreboardView: View {
             )
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOver)
-        .animation(.easeInOut(duration: 0.2), value: showToast)
         .onAppear {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = PreferencesManager.shared.keepScoreboardScreenOn
@@ -405,14 +403,14 @@ struct ShotTrainingScoreboardView: View {
 
     private func freePointBadge(_ points: Int, isLandscape: Bool) -> some View {
         Text(Self.pointLabel(points))
-            .font(.system(size: isLandscape ? 15 : 17, weight: .bold))
-            .foregroundStyle(Color(hex: "#242428"))
+            .font(.system(size: isLandscape ? 15 : 17, weight: .semibold))
+            .foregroundStyle(Color(hex: "#242428").opacity(0.72))
             .lineLimit(1)
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.92))
+                    .fill(Color.white.opacity(0.76))
             )
     }
 
@@ -703,7 +701,7 @@ struct ShotTrainingScoreboardView: View {
         }
 
         exitConfirmDeadline = nil
-        saveRecord(finished: gameFinished)
+        if !saveRecord(finished: gameFinished) { return }
         performScoreboardExit(onNavigationBack: onNavigationBack, dismiss: dismiss)
     }
 
@@ -779,17 +777,24 @@ struct ShotTrainingScoreboardView: View {
         return compact
     }
 
-    private func saveRecord(finished: Bool) {
+    @discardableResult
+    private func saveRecord(finished: Bool) -> Bool {
         let end = Date()
         let currentCounts = counts
         let isFinished = finished || gameFinished
         // 和羽毛球等计分页保持一致：刚进入后即使还是 0:0，也要留下 live
         // resume，用户退出后可以从首页的未完成比赛继续。空训练若被放弃，
         // ResumeSessionLifecycle 会直接清理，不会生成一条 0 次出手的历史记录。
-        guard !shots.isEmpty || !isFinished else { return }
-        if isFinished, finalizedRecordID == recordID { return }
+        guard !shots.isEmpty || !isFinished else { return false }
+        if isFinished, finalizedRecordID == recordID { return true }
         let snapshot = ShotTrainingResumeState(mode: mode, shots: shots, finished: isFinished)
-        guard let snapshotData = try? JSONEncoder().encode(snapshot) else { return }
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(snapshot)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode shot training \(recordID)")
+            return false
+        }
 
         var runningMiss = 0
         var runningMade = 0
@@ -861,8 +866,10 @@ struct ShotTrainingScoreboardView: View {
                 finalizedRecordID = recordID
                 ScoreboardRecordsViewModel.shared.refreshRecords()
             }
+            return true
         } catch {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save shot training \(recordID)")
+            return false
         }
     }
 }

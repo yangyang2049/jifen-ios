@@ -19,6 +19,7 @@
 		C10000000000000000000004 /* PersistenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000004 /* PersistenceCore */; };
 		C10000000000000000000005 /* LinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000005 /* LinkCore */; };
 		C10000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000006 /* TimerCore */; };
+		C10000000000000000000007 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000007 /* FirebaseCore */; };
 		D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */; };
 		D43000000000000000000002 /* OfflineReleaseBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43000000000000000000001 /* OfflineReleaseBoundaryTests.swift */; };
 		D44000000000000000000002 /* TimerAndToolOfflineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44000000000000000000001 /* TimerAndToolOfflineTests.swift */; };
@@ -131,6 +132,7 @@
 				C10000000000000000000004 /* PersistenceCore in Frameworks */,
 				C10000000000000000000005 /* LinkCore in Frameworks */,
 				C10000000000000000000006 /* TimerCore in Frameworks */,
+				C10000000000000000000007 /* FirebaseCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,6 +268,7 @@
 				A10000000000000000000004 /* PersistenceCore */,
 				A10000000000000000000005 /* LinkCore */,
 				A10000000000000000000006 /* TimerCore */,
+				A10000000000000000000007 /* FirebaseCore */,
 			);
 			productName = jifen;
 			productReference = 0FA5BAD12F18F3EB00182375 /* jifen.app */;
@@ -343,6 +346,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */,
+				D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0FA5BAD22F18F3EB00182375 /* Products */;
@@ -610,7 +614,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 40;
+				CURRENT_PROJECT_VERSION = 46;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -637,7 +641,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.0;
+				MARKETING_VERSION = 3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -663,7 +667,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 40;
+				CURRENT_PROJECT_VERSION = 46;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -690,7 +694,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.0;
+				MARKETING_VERSION = 3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.douhua.jifen.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -829,6 +833,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.19.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		A10000000000000000000001 /* ScoreCore */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -859,6 +874,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = TimerCore;
+		};
+		A10000000000000000000007 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -2,8 +2,8 @@
 //  MenuDialog.swift
 //  jifen
 //
-//  Scoreboard operation menu — 1:1 with HarmonyOS MenuDialog
-//  (top sync strip / middle match large cards / bottom tools small cards).
+//  Scoreboard operation menu. Layout follows HarmonyOS MenuDialog
+//  (top sync area / middle match cards / bottom tools), with iOS-specific contrast.
 //
 
 import SwiftUI
@@ -248,10 +248,13 @@ struct MenuDialog: View {
     var analyticsGameType: GameType? = nil
     @State private var containerSize: CGSize = .zero
 
-    private let dialogBackground = Theme.scoreboardDialogSurface
+    // Keep the operation menu opaque over the saturated score panels. A single
+    // surface and subtle dividers read more clearly than three stacked grays.
+    private let dialogBackground = Color(hex: "202124")
     private let cardBackground = Theme.scoreboardDialogControl
-    private let sectionStrip = Color.white.opacity(0.10) // 安卓 sbTheme.menuCloseBg（深色主题 白 10%）
-    private let secondaryText = Theme.scoreboardDialogTextSecondary
+    private let secondaryText = Color(hex: "C7C7CC")
+    private let sectionDivider = Color.white.opacity(0.12)
+    private let menuScrim = Color.black.opacity(0.54)
     private let confirmBackground = Color(hex: "4CAF50").opacity(0.55)
 
     private var resolvedItems: [ScoreboardMenuItem] {
@@ -288,15 +291,23 @@ struct MenuDialog: View {
         )
     }
 
-    // 对齐安卓 ScoreboardOperationMenuDialog 的固定尺寸（无 compact 分支，Dialog 高度 wrap_content）。
-    private var syncCardHeight: CGFloat { 48 }
-    private var matchCardHeight: CGFloat { 72 }
-    private var toolsCardWidth: CGFloat { 48 }
-    private var toolsCardHeight: CGFloat { 44 }
-    private var topBarPadding: CGFloat { 8 }
-    private var gridVerticalPadding: CGFloat { 10 }
-    private var toolsRowGap: CGFloat { 12 }
-    private var closeHeaderHeight: CGFloat { 56 }
+    // Let wide iPad cards gain enough vertical breathing room without turning
+    // them into squares. Phones stay at the established 72pt height.
+    private var syncCardHeight: CGFloat { 56 }
+    private var matchCardHeight: CGFloat {
+        let cardWidth = (dialogWidth - 32 - 16) / 3
+        return min(108, max(72, cardWidth * 0.75))
+    }
+    private var toolsCardWidth: CGFloat {
+        let count = max(toolItems.count, 1)
+        let availableWidth = dialogWidth - 32 - CGFloat(count - 1) * toolsRowGap
+        return min(64, max(44, availableWidth / CGFloat(count)))
+    }
+    private var toolsCardHeight: CGFloat { 52 }
+    private var topBarPadding: CGFloat { 10 }
+    private var gridVerticalPadding: CGFloat { 14 }
+    private var toolsRowGap: CGFloat { 16 }
+    private var closeHeaderHeight: CGFloat { 60 }
     private var topBarHeight: CGFloat { syncCardHeight + topBarPadding * 2 }
     private var toolsBarHeight: CGFloat { toolsCardHeight + gridVerticalPadding * 2 }
 
@@ -306,12 +317,11 @@ struct MenuDialog: View {
         return max(matchCardHeight + 16, containerShortSide - headerHeight - toolsHeight - 32)
     }
 
-    /// Wrap height of the match grid: fixed 72pt rows, 6pt row gap and
-    /// vertical section padding — fully determined by the item count, so no
-    /// runtime measurement is needed (Android wrap_content behavior).
+    /// Wrap height of the match grid is determined by its fixed rows, row gap,
+    /// and vertical section padding, so runtime measurement is unnecessary.
     private var wrappedMatchSectionHeight: CGFloat {
         let rows = max(1, Int(ceil(Double(matchItems.count) / 3)))
-        return CGFloat(rows) * matchCardHeight + CGFloat(rows - 1) * 6 + gridVerticalPadding * 2
+        return CGFloat(rows) * matchCardHeight + CGFloat(rows - 1) * 8 + gridVerticalPadding * 2
     }
 
     private var resolvedMatchSectionHeight: CGFloat {
@@ -321,7 +331,7 @@ struct MenuDialog: View {
     var body: some View {
         if isVisible {
             ZStack {
-                Theme.scoreboardDialogScrim
+                menuScrim
                     .ignoresSafeArea()
                     .onTapGesture(perform: onClose)
                     .transition(.opacity)
@@ -400,7 +410,9 @@ struct MenuDialog: View {
 
     private func topStrip(items: [ScoreboardMenuItem]) -> some View {
         HStack(spacing: 4) {
-            Color.clear.frame(width: 36, height: 32)
+            Color.clear
+                .frame(width: 44, height: 44)
+                .accessibilityHidden(true)
 
             HStack(spacing: 4) {
                 ForEach(items) { item in
@@ -413,39 +425,30 @@ struct MenuDialog: View {
 
             closeButton
         }
-        // 对齐安卓 ScoreboardOperationTopBar：背景先于内边距，条带横向贴边无 margin。
         .padding(.horizontal, topBarPadding)
         .padding(.vertical, topBarPadding)
-        .background(sectionStrip)
+        .overlay(alignment: .bottom) {
+            sectionDivider.frame(height: 1).allowsHitTesting(false)
+        }
     }
 
     private func matchGrid(items: [ScoreboardMenuItem]) -> some View {
-        VStack(spacing: 6) {
-            if items.count <= 3 {
+        VStack(spacing: 8) {
+            let rows = stride(from: 0, to: items.count, by: 3).map { start in
+                Array(items[start..<min(start + 3, items.count)])
+            }
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
                 HStack(spacing: 8) {
-                    ForEach(items) { item in
+                    ForEach(row) { item in
                         menuCard(item: item, size: .large, stripItem: false)
                             .frame(maxWidth: .infinity)
                             .frame(height: matchCardHeight)
                     }
-                }
-            } else {
-                let rows = stride(from: 0, to: items.count, by: 3).map { start in
-                    Array(items[start..<min(start + 3, items.count)])
-                }
-                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                    HStack(spacing: 8) {
-                        ForEach(row) { item in
-                            menuCard(item: item, size: .large, stripItem: false)
+                    if row.count < 3 {
+                        ForEach(0..<(3 - row.count), id: \.self) { _ in
+                            Color.clear
                                 .frame(maxWidth: .infinity)
                                 .frame(height: matchCardHeight)
-                        }
-                        if row.count < 3 {
-                            ForEach(0..<(3 - row.count), id: \.self) { _ in
-                                Color.clear
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: matchCardHeight)
-                            }
                         }
                     }
                 }
@@ -463,9 +466,10 @@ struct MenuDialog: View {
             }
         }
         .frame(maxWidth: .infinity)
-        // 对齐安卓 ScoreboardOperationToolsBar：背景先于内边距，条带横向贴边无 margin。
         .padding(.vertical, gridVerticalPadding)
-        .background(sectionStrip)
+        .overlay(alignment: .top) {
+            sectionDivider.frame(height: 1).allowsHitTesting(false)
+        }
     }
 
     private var closeButton: some View {
@@ -482,14 +486,11 @@ struct MenuDialog: View {
             guard item.enabled else { return }
             trackMenuAction(item)
             if item.action == "usageHint" {
-                // 对齐安卓：关菜单与弹使用说明同帧完成，无中间帧闪烁。
-                // 必须同时禁用菜单退场动画：若退场与使用说明的插入在同一
-                // 事务内动画竞争，退场会被打断、半透明遮罩可能滞留屏幕
-                // 拦截后续点击（历史 landscape "unhittable" 问题的根因）。
-                var transaction = Transaction()
-                transaction.disablesAnimations = true
-                withTransaction(transaction) {
-                    onClose()
+                onClose()
+                // Let the menu leave the hierarchy before presenting the
+                // blocking usage overlay. Presenting both in one transaction
+                // can leave the second-open card unhittable in landscape.
+                DispatchQueue.main.async {
                     if let usageHintPresenter {
                         usageHintPresenter()
                     } else if let onUsageHint {
@@ -519,7 +520,7 @@ struct MenuDialog: View {
                 onClose()
             }
         } label: {
-            VStack(spacing: size == .large ? 4 : 3) {
+            VStack(spacing: size == .large ? 7 : 4) {
                 if let customText = item.customText {
                     Text(customText)
                         .font(.system(
@@ -535,7 +536,7 @@ struct MenuDialog: View {
 
                 Text(item.title)
                     .font(.system(size: labelSize(size), weight: size == .large ? .medium : .regular))
-                    .foregroundColor(size == .large ? .white.opacity(0.82) : secondaryText)
+                    .foregroundColor(size == .large ? .white : secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
@@ -604,7 +605,7 @@ struct MenuDialog: View {
 
     private func iconSize(_ size: ScoreboardMenuCardSize) -> CGFloat {
         switch size {
-        case .large: return 28
+        case .large: return min(34, max(28, matchCardHeight * 0.35))
         case .medium: return 20
         case .small: return 18
         }
@@ -612,15 +613,15 @@ struct MenuDialog: View {
 
     private func labelSize(_ size: ScoreboardMenuCardSize) -> CGFloat {
         switch size {
-        case .large: return 12
-        case .medium: return 10
-        case .small: return 9
+        case .large: return min(15, max(13, matchCardHeight * 0.15))
+        case .medium: return 12
+        case .small: return 11
         }
     }
 
     private func customTextSize(_ size: ScoreboardMenuCardSize) -> CGFloat {
         switch size {
-        case .large: return 28
+        case .large: return min(34, max(28, matchCardHeight * 0.35))
         case .medium: return 18
         case .small: return 14
         }

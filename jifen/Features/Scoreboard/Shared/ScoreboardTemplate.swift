@@ -519,13 +519,11 @@ struct ScoreboardTemplate: View {
                 // Toast message
                 if showToast {
                     ToastView(message: toastMessage)
-                        .transition(.opacity.combined(with: .scale))
                         .allowsHitTesting(false)
                 }
                 
             }
             .animation(.easeInOut(duration: 0.2), value: showMenu)
-            .animation(.easeInOut(duration: 0.2), value: showToast)
             .ignoresSafeArea(.all) // Ignore safe area for entire ZStack
             .background(
                 // Two-finger gesture detector
@@ -539,7 +537,7 @@ struct ScoreboardTemplate: View {
             .simultaneousGesture(
                 LongPressGesture(minimumDuration: 0.55)
                     .onEnded { _ in
-                        guard !isEditMode else { return }
+                        guard !isStyleEditing, !isEditMode else { return }
                         showMenu = true
                         config.controller.performVibration(type: .medium)
                     }
@@ -1330,13 +1328,13 @@ struct TeamSection: View {
                 Text(doublesNames.0)
                     .font(getFont(size: doublesNameSize, weight: .bold))
                     .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
-                .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
+                    .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text(doublesNames.1)
                     .font(getFont(size: doublesNameSize, weight: .bold))
                     .foregroundColor(elementColor(.playerName, fallback: foregroundColor))
-                .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
+                    .styleElementSelectable(.playerName, slotKey: isLeft ? .sideLeft : .sideRight)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
@@ -1581,5 +1579,7 @@ struct ToastView: View {
                 )
                 .padding(.bottom, Self.bottomPadding)
         }
+        .transition(.identity)
+        .transaction { $0.disablesAnimations = true }
     }
 }

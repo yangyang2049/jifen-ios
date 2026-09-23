@@ -162,7 +162,6 @@ struct BasketballScoreboardView: View {
 
             if showToast {
                 ToastView(message: toastMessage)
-                    .transition(.opacity.combined(with: .scale))
                     .allowsHitTesting(false)
             }
 
@@ -197,7 +196,6 @@ struct BasketballScoreboardView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showGameOverDialog)
-        .animation(.easeInOut(duration: 0.2), value: showToast)
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)

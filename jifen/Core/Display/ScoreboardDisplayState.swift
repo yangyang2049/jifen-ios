@@ -25,6 +25,8 @@ enum ScoreboardDisplayValue: Codable, Equatable, Sendable {
     case integers([Int])
     /// 嵌套整数数组（九球 chasePlayerCounts：每个逻辑玩家一行的计数表）。
     case integersArrays([[Int]])
+    /// 九球追分计分配置，固定键和值均为整数。
+    case integerMap([String: Int])
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -34,6 +36,7 @@ enum ScoreboardDisplayValue: Codable, Equatable, Sendable {
         if let value = try? container.decode(String.self) { self = .string(value); return }
         if let value = try? container.decode([Int].self) { self = .integers(value); return }
         if let value = try? container.decode([[Int]].self) { self = .integersArrays(value); return }
+        if let value = try? container.decode([String: Int].self) { self = .integerMap(value); return }
         self = .strings(try container.decode([String].self))
     }
 
@@ -47,6 +50,7 @@ enum ScoreboardDisplayValue: Codable, Equatable, Sendable {
         case .strings(let value): try container.encode(value)
         case .integers(let value): try container.encode(value)
         case .integersArrays(let value): try container.encode(value)
+        case .integerMap(let value): try container.encode(value)
         }
     }
 
@@ -155,6 +159,8 @@ struct ScoreboardDisplayClock: Codable, Equatable, Sendable {
     var footballHalfLengthMs: Int64? = nil
     /// 补时目标时长（毫秒），足球专用
     var footballInjuryTargetMs: Int64? = nil
+    /// 兼容安卓/鸿蒙的补时文案字段；计时 UI 仍优先由数值锚点计算。
+    var injuryTimeText: String? = nil
 
     func projectedMilliseconds(atWallClockMilliseconds now: Int64) -> Int64 {
         guard isRunning else { return elapsedMilliseconds }

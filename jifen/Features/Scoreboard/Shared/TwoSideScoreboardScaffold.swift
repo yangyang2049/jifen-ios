@@ -256,7 +256,6 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
 
                 if showToast {
                     ToastView(message: toastMessage)
-                        .transition(.opacity.combined(with: .scale))
                         .allowsHitTesting(false)
                 }
             }
@@ -629,7 +628,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                             weight: .bold
                         ))
                         .foregroundStyle(elementColor(.teamName, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
-                .styleElementSelectable(.teamName, slotKey: isLeft ? .sideLeft : .sideRight)
+                        .styleElementSelectable(.teamName, slotKey: isLeft ? .sideLeft : .sideRight)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                         .padding(.horizontal, 8)
@@ -639,7 +638,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                     if inlineSecondaryScore, !Theme.usesPadLayout, let detail {
                         // 同行布局：副分数与大分数底端基线对齐（lastTextBaseline 消除
                         // 行高差异造成的错位），置于屏幕外侧——左侧面板在左、右侧面板在右。
-                        HStack(alignment: .lastTextBaseline, spacing: ScoreboardLayoutMetrics.inlineMainToSecondarySpacing(halfViewportWidth: panelSize.width)) {
+                        HStack(alignment: .lastTextBaseline, spacing: 8) {
                             if isLeft {
                                 inlineDetailText(detail, fontSize: setSize, isLeftScreen: isLeft)
                                 inlineMainScoreText(score, fontSize: mainSize, isLeftScreen: isLeft)
@@ -652,7 +651,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                         Text(score)
                             .font(typographySession.effectivePreference.font.swiftUIFont(size: mainSize))
                             .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeft))
-                .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
+                            .styleElementSelectable(.mainScore, slotKey: isLeft ? .sideLeft : .sideRight)
                             .monospacedDigit()
                             .minimumScaleFactor(0.4)
                             .lineLimit(1)
@@ -662,7 +661,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
                             Text(detail)
                                 .font(typographySession.effectivePreference.font.swiftUIFont(size: setSize))
                                 .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeft))
-                .styleElementSelectable(.setScore, slotKey: isLeft ? .sideLeft : .sideRight)
+                                .styleElementSelectable(.setScore, slotKey: isLeft ? .sideLeft : .sideRight)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                         }
@@ -694,7 +693,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         Text(score)
             .font(typographySession.effectivePreference.font.swiftUIFont(size: fontSize))
             .foregroundStyle(elementColor(.mainScore, fallback: appearance.theme.palette.foreground, isLeftScreen: isLeftScreen))
-                .styleElementSelectable(.mainScore, slotKey: isLeftScreen ? .sideLeft : .sideRight)
+            .styleElementSelectable(.mainScore, slotKey: isLeftScreen ? .sideLeft : .sideRight)
             .monospacedDigit()
             .minimumScaleFactor(0.4)
             .lineLimit(1)
@@ -705,7 +704,7 @@ struct TwoSideScoreboardScaffold<Center: View>: View {
         Text(detail)
             .font(typographySession.effectivePreference.font.swiftUIFont(size: fontSize))
             .foregroundStyle(elementColor(.setScore, fallback: appearance.palette.secondary, isLeftScreen: isLeftScreen))
-                .styleElementSelectable(.setScore, slotKey: isLeftScreen ? .sideLeft : .sideRight)
+            .styleElementSelectable(.setScore, slotKey: isLeftScreen ? .sideLeft : .sideRight)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }

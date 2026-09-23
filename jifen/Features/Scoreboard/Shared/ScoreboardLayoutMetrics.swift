@@ -138,8 +138,8 @@ enum ScoreboardLayoutMetrics {
     }
 
     /// Keeps HarmonyOS edit sizes when they fit, then scales only score values
-    /// and visible control circles on short landscape phones. Labels, minimum
-    /// hit targets and inter-row spacing are included in the height budget.
+    /// and visible control circles on short landscape phones. Center labels
+    /// share the score rows; hit targets and inter-row spacing use the height budget.
     static func tennisDoublesEditLayout(
         regularMainSize: CGFloat,
         regularSecondarySize: CGFloat,
@@ -149,7 +149,6 @@ enum ScoreboardLayoutMetrics {
         isLargeScreen: Bool
     ) -> TennisDoublesEditLayoutMetrics {
         let safeSecondaryRows = Swift.max(0, secondaryRowCount)
-        let rowCount = 1 + safeSecondaryRows
         let desiredMain = tennisDoublesEditMainScoreFontSize(
             regularSize: regularMainSize,
             isLargeScreen: isLargeScreen
@@ -159,9 +158,8 @@ enum ScoreboardLayoutMetrics {
             isLargeScreen: isLargeScreen
         )
         let desiredControl = doublesEditControlSize(isLargeScreen: isLargeScreen)
-        let labelFontSize: CGFloat = isLargeScreen ? 18 : 12
+        let labelFontSize: CGFloat = isLargeScreen ? 20 : 12
         let contentSpacing: CGFloat = isLargeScreen ? 8 : 5
-        let labelToValueSpacing: CGFloat = 2
         let availableHeight = Swift.max(
             1,
             panelHeight
@@ -191,12 +189,9 @@ enum ScoreboardLayoutMetrics {
             let hitTarget = Swift.max(ScoreboardConstants.minimumTouchTarget, values.control)
             let mainRowHeight = Swift.max(hitTarget, values.main * 1.06)
             let secondaryRowHeight = Swift.max(hitTarget, values.secondary * 1.08)
-            let labelHeight = labelFontSize * 1.15
-            let labelsAndInnerSpacing = CGFloat(rowCount) * (labelHeight + labelToValueSpacing)
-            let betweenRows = CGFloat(Swift.max(0, rowCount - 1)) * contentSpacing
+            let betweenRows = CGFloat(safeSecondaryRows) * contentSpacing
             return mainRowHeight
                 + CGFloat(safeSecondaryRows) * secondaryRowHeight
-                + labelsAndInnerSpacing
                 + betweenRows
         }
 

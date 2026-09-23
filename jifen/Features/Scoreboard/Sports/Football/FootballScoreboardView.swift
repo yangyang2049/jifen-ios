@@ -82,7 +82,8 @@ struct FootballScoreboardView: View {
                         items.append(ScoreboardMenuItem(
                             title: NSLocalizedString("football_switch_half", value: "进入下半场", comment: ""),
                             action: "footballSwitchHalf",
-                            group: .tools
+                            group: .tools,
+                            icon: "forward.end"
                         ))
                     }
                     if regulationEndedTied {
@@ -124,7 +125,11 @@ struct FootballScoreboardView: View {
                             label: clockStageTitle,
                             footballHalf: viewModel.clockStage,
                             footballHalfLengthMs: Int64(viewModel.clockSession.currentPeriodLengthSeconds) * 1_000,
-                            footballInjuryTargetMs: Int64(viewModel.clockSession.currentStoppageSeconds) * 1_000
+                            footballInjuryTargetMs: Int64(viewModel.clockSession.currentStoppageSeconds) * 1_000,
+                            injuryTimeText: {
+                                let seconds = max(0, viewModel.clockElapsedSeconds - viewModel.clockSession.currentPeriodLengthSeconds)
+                                return seconds > 0 ? String(format: "+%02d:%02d", seconds / 60, seconds % 60) : ""
+                            }()
                         )
                     )
                     let multipliers = value.appearance.fontSizeMultipliers

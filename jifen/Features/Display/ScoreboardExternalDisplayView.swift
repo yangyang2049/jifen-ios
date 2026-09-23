@@ -83,7 +83,24 @@ enum ScoreboardExternalResultScorePresentation {
     ) -> String {
         let team = state.teams.first(where: { $0.id == teamID })
         let finalScore = state.result?.finalScores?[teamID]
-        switch state.sportString("resultScoreLevel") {
+        let rankKey: String? = switch state.gameType {
+        case "guandan": teamID == "team_0" ? "guandanRedRank" : "guandanBlueRank"
+        case "shengji": teamID == "team_0" ? "shengjiRedRank" : "shengjiBlueRank"
+        default: nil
+        }
+        if let rankKey, let rank = state.sportString(rankKey), !rank.isEmpty { return rank }
+        let setScoreGames: Set<String> = [
+            "pingpong", "pingpong_doubles", "badminton", "badminton_doubles",
+            "volleyball", "beach_volleyball", "air_volleyball", "tennis",
+            "tennis_doubles", "shuttlecock", "squash", "padel", "pickleball",
+            "pickleball_doubles", "foosball", "foosball_doubles", "archery_dual", "snooker"
+        ]
+        let level = state.sportString("resultScoreLevel") ?? {
+            if state.gameType == "soft_tennis" { return "games" }
+            if state.sportBoolValue("tennisTiebreakOnly") == true { return "score" }
+            return setScoreGames.contains(state.gameType) ? "sets" : "score"
+        }()
+        switch level {
         case "sets":
             return "\(finalScore?.sets ?? team?.sets ?? 0)"
         case "games":
@@ -612,8 +629,8 @@ struct ScoreboardExternalLiveView: View {
         GeometryReader { proxy in
             let chrome = DisplayTypographyResolver.chromeScale(for: proxy.size).clamped(1, 1.5)
             // 比赛时钟距顶（对齐安卓 matchClockTopInset = 12*scale + 12*(scale-1)）。
-            // 顶部不再渲染项目名标题带（对齐安卓 DisplaySurfaceHost 仅在真实 matchTitle 非空时渲染，
-            // iOS 各计分板同步快照统一使用 displayName 填充 title，故一律不展示）。
+            // 顶部不渲染项目名标题带：matchTitle 只承载用户设置的真实比赛抬头，
+            // 当前仅斯诺克渲染；其他项目未设置时 wire 会省略该字段。
             let clockTopInset = 12 * chrome + 12 * (chrome - 1)
             ZStack(alignment: .top) {
                 if let clock = state.clock, clock.visible {
