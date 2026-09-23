@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// 全应用外部网页链接的统一收口入口：一律应用内打开，不再跳系统浏览器。
+/// 应用内网页链接的统一收口入口；官网由设置页交给系统浏览器打开。
 ///
 /// 一条宿主 = 一条 NavigationStack，两段配套挂（每个位置都实测踩过坑）：
 ///
@@ -108,7 +108,7 @@ private struct WebLinkDestinationBinding: ViewModifier {
                 webPage(for: link)
             }
             // Keep the programmatic route for buttons that are not NavigationLinks
-            // (website, feedback attachments, and other shared entry points).
+            // (feedback attachments and other shared entry points).
             .navigationDestination(item: $router.activeLink) { link in
                 webPage(for: link)
             }
@@ -129,13 +129,17 @@ struct InAppWebLinkPage: View {
     var body: some View {
         AppWebView(url: link.url)
             .background(Theme.backgroundColor)
+            // Fill the home-indicator area with the webpage, while keeping the
+            // top safe area and the navigation bar unchanged.
+            .ignoresSafeArea(.container, edges: .bottom)
             .navigationTitle(link.title ?? "")
             .navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("in_app_web_page")
+            .appAnalyticsScreen(.legalWebPage)
     }
 }
 
-/// 应用内网页容器（原 LoginLegalWebView，登录协议/会员协议/关于页/官网/反馈外链共用）。
+/// 应用内网页容器（原 LoginLegalWebView，登录协议/会员协议/关于页/反馈外链共用）。
 struct AppWebView: UIViewRepresentable {
     let url: URL
 

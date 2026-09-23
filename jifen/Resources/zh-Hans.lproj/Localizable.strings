@@ -1409,6 +1409,15 @@
 "vip_subtitle_active" = "已解锁全部会员专属功能";
 "vip_already_member" = "您已是 VIP 会员";
 "vip_features_title" = "会员专属权益";
+"membership_status_active" = "已开通";
+"membership_all_unlocked" = "已全部解锁";
+"membership_feature_unlocked" = "已解锁";
+"membership_thanks" = "感谢支持全能计分器";
+"vip_feature_stats" = "高级统计";
+"vip_feature_themes" = "专属主题";
+"vip_feature_cloud" = "云端同步";
+"vip_feature_no_ads" = "无广告体验";
+"vip_feature_early_access" = "优先体验";
 "membership_staging_note" = "当前为 Staging：本地 StoreKit 交易通过隔离测试接口授予测试会员，不代表 App Store 正式链路成功。";
 "membership_current_identity" = "当前身份";
 "me_profile_membership_number_label" = "会员编号";
@@ -1426,6 +1435,9 @@
 "membership_lifetime_badge" = "终身";
 "vip_optional_sign_in_hint" = "登录后可在你的其他设备上同步会员权益";
 "membership_restore" = "恢复购买";
+"membership_redeem_offer_code" = "兑换";
+"membership_redeem_success" = "兑换成功，会员状态已更新";
+"membership_redeem_success_signed_out" = "兑换成功，会员已在本机生效；登录后可同步到你的其他设备";
 "vip_purchasing" = "购买中...";
 "vip_buy_now" = "立即开通";
 "vip_agreement_plain_prefix" = "已阅读并同意";

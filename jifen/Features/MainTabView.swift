@@ -6,7 +6,6 @@ struct MainTabView: View {
     @State private var selectedGame: GameType? = nil
     @State private var navigatingFromTab: Int? = nil
     @State private var pendingTimerGameType: GameType? = nil
-    @State private var didTrackAppShell = false
 
     var body: some View {
         ZStack {
@@ -21,18 +20,9 @@ struct MainTabView: View {
         .tint(Theme.accentColor)
         .onAppear {
             configureTabBarPresentation()
-            guard !didTrackAppShell else { return }
-            didTrackAppShell = true
-            AppAnalytics.screenView(.appShell, screenClass: "app_shell")
-            AppAnalytics.tabView(analyticsScreen(for: selectedTab))
         }
         .onChange(of: selectedTab) { oldValue, newValue in
             configureTabBarPresentation()
-            guard oldValue != newValue else { return }
-            AppAnalytics.tabView(
-                analyticsScreen(for: newValue),
-                source: analyticsScreen(for: oldValue)
-            )
         }
     }
 
@@ -72,7 +62,7 @@ struct MainTabView: View {
                 TimerTab(pendingTimerGameType: pendingTimerGameType)
             }
             MeTab()
-                .analyticsScreen(.meTab, screenClass: "me_tab")
+                .appAnalyticsScreen(.meTab)
                 .tag(4)
                 .tabItem {
                     Label(NSLocalizedString("tab_me", comment: ""), systemImage: "person.fill")
@@ -91,22 +81,12 @@ struct MainTabView: View {
         // 每个 Tab 内容自己持有 NavigationStack（RecordsTab.swift / TimerTab.swift / ScoreboardTab.swift / HomeTab.swift），
         // 这里不再包栈：双 NavigationStack 会让 toolbar 状态冒泡路径变长，且历史上出过导航异常。
         content()
-            .analyticsScreen(screen, screenClass: screen.rawValue)
+            .appAnalyticsScreen(screen)
             .tag(tag)
             .tabItem {
                 Label(NSLocalizedString(titleKey, comment: ""), systemImage: systemImage)
                     .accessibilityIdentifier("main_tab_\(tag)")
             }
-    }
-
-    private func analyticsScreen(for tab: Int) -> AnalyticsScreen {
-        switch tab {
-        case 1: return .recordsTab
-        case 2: return .scoreTab
-        case 3: return .timerTab
-        case 4: return .meTab
-        default: return .homeTab
-        }
     }
 
     private func configureTabBarPresentation() {

@@ -537,7 +537,7 @@ class ScoreboardAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         if response.notification.request.content.userInfo["bookingId"] != nil {
-            AppAnalytics.track(.notificationOpen, parameters: [
+            AppAnalytics.track(.bookingReminderOpen, parameters: [
                 .contentType: .string("booking_reminder"),
                 .entryPoint: .string(AnalyticsEntryPoint.bookingNotification.rawValue),
                 .actionName: .string("open")

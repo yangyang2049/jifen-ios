@@ -77,7 +77,6 @@ struct RecordsTab: View {
                 } else {
                     Menu {
                         Button {
-                            AppAnalytics.openDialog("record_filter", source: .recordsTab)
                             draftTimeFilter = selectedTimeFilter
                             draftProjectFilter = selectedProjectFilter
                             showFilterSheet = true
@@ -88,7 +87,8 @@ struct RecordsTab: View {
                             recordSelection.clear()
                             isEditMode = true
                             dismissSearch()
-                            AppAnalytics.track(.enterEditMode, parameters: [
+                            AppAnalytics.track(.recordAction, parameters: [
+                                .actionName: .string("enter_edit"),
                                 .contentType: .string("records")
                             ])
                         } label: {
@@ -241,7 +241,8 @@ struct RecordsTab: View {
                         selectedTimeFilter = draftTimeFilter
                         selectedProjectFilter = draftProjectFilter
                         if appliesReset {
-                            AppAnalytics.track(.resetFilter, parameters: [
+                            AppAnalytics.track(.recordAction, parameters: [
+                                .actionName: .string("reset_filter"),
                                 .contentType: .string("records")
                             ])
                         }
@@ -253,7 +254,8 @@ struct RecordsTab: View {
                         if let gameType = draftProjectFilter?.gameType {
                             parameters[.gameType] = .string(gameType.analyticsIdentifier)
                         }
-                        AppAnalytics.track(.applyFilter, parameters: parameters)
+                        parameters[.actionName] = .string("apply_filter")
+                        AppAnalytics.track(.recordAction, parameters: parameters)
                         showFilterSheet = false
                     }
                 }
@@ -468,12 +470,26 @@ struct RecordsTab: View {
                     scoreboardRowContent(record)
                 }
                 .buttonStyle(.plain)
+                .simultaneousGesture(TapGesture().onEnded {
+                    AppAnalytics.trackContentSelection(
+                        contentType: "scoreboard_record",
+                        itemID: record.gameType.analyticsIdentifier,
+                        entryPoint: .recordsTab
+                    )
+                })
                 .accessibilityIdentifier("record_row_\(record.gameType.canonicalScoreboardIdentifier)")
             case .timer(let record):
                 NavigationLink(destination: TimerRecordDetailPage(recordId: record.id)) {
                     timerRowContent(record)
                 }
                 .buttonStyle(.plain)
+                .simultaneousGesture(TapGesture().onEnded {
+                    AppAnalytics.trackContentSelection(
+                        contentType: "timer_record",
+                        itemID: record.gameType.analyticsIdentifier,
+                        entryPoint: .recordsTab
+                    )
+                })
             }
         }
     }
@@ -641,7 +657,8 @@ struct RecordsTab: View {
             reconcileSelectionWithVisibleRecords()
         }
 
-        AppAnalytics.track(.deleteRecords, parameters: [
+        AppAnalytics.track(.recordAction, parameters: [
+            .actionName: .string("delete_batch"),
             .contentType: .string("records_batch"),
             .result: .string(failedSelections.isEmpty ? AnalyticsResult.success.rawValue : AnalyticsResult.failed.rawValue),
             .settingValue: .int(scoreboardIDs.count + timerIDs.count)

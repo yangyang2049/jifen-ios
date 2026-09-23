@@ -51,7 +51,7 @@ struct RedYellowCardView: View {
         }
         .onChange(of: currentIndex) { _, value in
             AppAnalytics.track(.toolAction, parameters: [
-                .toolID: .string("red_yellow_card"),
+                .itemID: .string("red_yellow_card"),
                 .actionName: .string(value == 0 ? "show_yellow" : "show_red")
             ])
         }

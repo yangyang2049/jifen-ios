@@ -100,12 +100,11 @@ struct ScoreboardTab: View {
             LazyVGrid(columns: gridColumns(availableWidth: availableWidth), spacing: gridSpacing) {
                 ForEach(items) { sport in
                     SportCardView(sport: sport) {
-                        AppAnalytics.track(.scoreItemSelect, parameters: [
-                            .gameType: .string(sport.gameType.analyticsIdentifier),
-                            .sourcePage: .string(AnalyticsScreen.scoreTab.rawValue),
-                            .entryPoint: .string(AnalyticsEntryPoint.scoreTab.rawValue)
-                        ])
-                        AppAnalytics.openDialog("score_setup", source: .scoreTab)
+                        AppAnalytics.trackContentSelection(
+                            contentType: "scoreboard",
+                            itemID: sport.gameType.analyticsIdentifier,
+                            entryPoint: .scoreTab
+                        )
                         pendingSetupSport = sport
                     }
                 }

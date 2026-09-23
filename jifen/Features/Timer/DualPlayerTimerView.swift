@@ -639,9 +639,7 @@ struct DualPlayerTimerView: View {
         vibrateIfEnabled(heavy: false)
         speakPauseIfEnabled()
         if logAction {
-            AppAnalytics.track(.timerPause, parameters: [
-                .gameType: .string(gameType.analyticsIdentifier)
-            ])
+            AppAnalytics.trackTimerAction("pause", gameType: gameType.analyticsIdentifier)
         }
     }
 
@@ -656,9 +654,7 @@ struct DualPlayerTimerView: View {
         vibrateIfEnabled(heavy: false)
         speakResumeIfEnabled()
         if logAction {
-            AppAnalytics.track(.timerResume, parameters: [
-                .gameType: .string(gameType.analyticsIdentifier)
-            ])
+            AppAnalytics.trackTimerAction("resume", gameType: gameType.analyticsIdentifier)
         }
     }
 
@@ -690,7 +686,7 @@ struct DualPlayerTimerView: View {
         let elapsedMilliseconds = Int(max(0, gameStartAt.map { Date().timeIntervalSince($0) } ?? 0) * 1_000)
         AppAnalytics.track(.timerFinish, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
-            .elapsedMS: .int(elapsedMilliseconds),
+            .durationMS: .int(elapsedMilliseconds),
             .winner: .string(winner == 1 ? AnalyticsWinner.sideA.rawValue : (winner == 2 ? AnalyticsWinner.sideB.rawValue : AnalyticsWinner.unknown.rawValue)),
             .endReason: .string(reason.analyticsEndReason.rawValue)
         ])
@@ -918,8 +914,7 @@ struct DualPlayerTimerView: View {
         vibrateIfEnabled(heavy: false)
         speakPlayerSwitchCueIfEnabled()
         revealTapHintIfNeeded(for: nextPlayer)
-        AppAnalytics.track(.timerSwitchPlayer, parameters: [
-            .gameType: .string(gameType.analyticsIdentifier),
+        AppAnalytics.trackTimerAction("switch_player", gameType: gameType.analyticsIdentifier, parameters: [
             .fromPlayer: .string("player_\(playerID)"),
             .toPlayer: .string("player_\(nextPlayer)")
         ])
@@ -1134,8 +1129,7 @@ struct DualPlayerTimerView: View {
         saveRecordIfNeeded(winnerLabel: nil)
         if gameState != .finished, !didTrackExit {
             didTrackExit = true
-            AppAnalytics.track(.timerExit, parameters: [
-                .gameType: .string(gameType.analyticsIdentifier),
+            AppAnalytics.trackTimerAction("exit", gameType: gameType.analyticsIdentifier, parameters: [
                 .result: .string(AnalyticsResult.cancelled.rawValue)
             ])
         }
@@ -1182,7 +1176,7 @@ struct DualPlayerTimerView: View {
 
         TimerRecordsViewModel.shared.addRecord(record)
         recordSaved = true
-        AppAnalytics.track(.saveRecord, parameters: [
+        AppAnalytics.track(.recordSave, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
             .recordType: .string("timer"),
             .result: .string(AnalyticsResult.success.rawValue)

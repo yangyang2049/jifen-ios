@@ -680,6 +680,30 @@ final class ScoreboardDisplayTests: XCTestCase {
         )
     }
 
+    func testMembershipSummarySourcePrefersOnlyActiveServerMembership() {
+        XCTAssertEqual(
+            MembershipSummarySourcePolicy.resolve(
+                hasActiveServerMembership: true,
+                hasLocalEntitlement: true
+            ),
+            .server
+        )
+        XCTAssertEqual(
+            MembershipSummarySourcePolicy.resolve(
+                hasActiveServerMembership: false,
+                hasLocalEntitlement: true
+            ),
+            .localStore
+        )
+        XCTAssertEqual(
+            MembershipSummarySourcePolicy.resolve(
+                hasActiveServerMembership: false,
+                hasLocalEntitlement: false
+            ),
+            .legacyServer
+        )
+    }
+
     func testFinishedSnapshotPublishesUrgentlyWithFinalScores() {
         let outputs = ScoreboardDisplayOutputs.shared
         let live = fixture(gameID: ScoreCore.GameType.football.rawValue, score: 2)

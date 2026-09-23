@@ -164,6 +164,20 @@ struct ScoreboardTemplate: View {
 
     private var isStyleEditing: Bool { styleEditorController?.isEditing == true }
 
+    /// The scoreboard deliberately fills the whole display, so the geometry
+    /// safe-area inset may be zero after `ignoresSafeArea()`. On iPad the
+    /// status bar remains visible; keep a window fallback so the top edit/done
+    /// button sits below it without changing the compact phone layout.
+    private var activeWindowSafeAreaInsets: UIEdgeInsets {
+        let scenes = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first(where: { $0.activationState == .foregroundActive })
+            ?? scenes.first
+        return scene?.windows.first(where: \.isKeyWindow)?.safeAreaInsets
+            ?? scene?.windows.first?.safeAreaInsets
+            ?? .zero
+    }
+
     private func openStyleEditor() {
         let styleID = typographySession.styleID
         if styleEditorController?.styleID != styleID {
@@ -179,6 +193,9 @@ struct ScoreboardTemplate: View {
     var body: some View {
         GeometryReader { geometry in
             let isLandscape = geometry.size.width >= geometry.size.height
+            let topChromeInset = Theme.usesPadLayout
+                ? max(geometry.safeAreaInsets.top, activeWindowSafeAreaInsets.top)
+                : 0
             let panelSize = CGSize(
                 width: isLandscape ? geometry.size.width / 2 : geometry.size.width,
                 height: isLandscape ? geometry.size.height : geometry.size.height / 2
@@ -408,7 +425,7 @@ struct ScoreboardTemplate: View {
                             }
                             .accessibilityIdentifier("scoreboard_edit_button")
                             .padding(.trailing, ScoreboardConstants.buttonPadding)
-                            .padding(.top, ScoreboardConstants.buttonPadding)
+                            .padding(.top, ScoreboardConstants.buttonPadding + topChromeInset)
                         }
                         Spacer()
                     }

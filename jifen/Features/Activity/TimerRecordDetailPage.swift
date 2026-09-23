@@ -41,12 +41,13 @@ struct TimerRecordDetailPage: View {
         .navigationTitle(record?.title ?? NSLocalizedString("tab_timer_record", value: "计时记录", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .appAnalyticsScreen(.timerRecordDetail)
         .onAppear {
             timerVM.loadFromStorage()
             guard let record, !didTrackRecordView else { return }
             didTrackRecordView = true
-            AppAnalytics.screenView(.timerRecordDetail, source: .recordsTab)
-            AppAnalytics.track(.recordView, parameters: [
+            AppAnalytics.track(.recordAction, parameters: [
+                .actionName: .string("view"),
                 .recordType: .string("timer"),
                 .gameType: .string(record.gameType.analyticsIdentifier)
             ])

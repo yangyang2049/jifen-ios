@@ -44,7 +44,7 @@ private enum SettingsSheetDestination: String, Identifiable {
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
-    @Environment(\.openInAppWebLink) private var openInAppWebLink
+    @Environment(\.openURL) private var openURL
     @Environment(AppAppearanceStore.self) private var appearance
     @Environment(SessionStore.self) private var session
     var isTabRoot: Bool = false
@@ -143,8 +143,7 @@ struct SettingsView: View {
             }
             .onChange(of: soundEffectsEnabled) { _, value in
                 PreferencesManager.shared.soundEnabled = value
-                AppAnalytics.track(.toggleSetting, parameters: [
-                    .sourcePage: .string(AnalyticsScreen.meTab.rawValue),
+                AppAnalytics.track(.settingsChange, parameters: [
                     .settingName: .string("sound"),
                     .settingValue: .string(value ? "on" : "off")
                 ])
@@ -213,11 +212,7 @@ struct SettingsView: View {
     private var websiteCard: some View {
         SettingsSection {
             Button {
-                AppAnalytics.openPage(from: .meTab, to: .legalWebPage, entryPoint: .meTab)
-                openInAppWebLink(InAppWebLink(
-                    url: AppSupportURLs.website,
-                    title: NSLocalizedString("me_official_website", value: "官方网站", comment: "")
-                ))
+                openURL(AppSupportURLs.website)
             } label: {
                 SettingsNavigationRow(
                     title: NSLocalizedString("me_official_website", value: "官方网站", comment: ""),
@@ -280,7 +275,7 @@ struct SettingsView: View {
                     ForEach(AppAppearanceMode.allCases, id: \.self) { mode in
                         Button {
                             appearance.mode = mode
-                            AppAnalytics.track(.toggleSetting, parameters: [
+                            AppAnalytics.track(.settingsChange, parameters: [
                                 .settingName: .string("app_appearance"),
                                 .settingValue: .string(mode.rawValue)
                             ])
@@ -300,7 +295,6 @@ struct SettingsView: View {
                 }
                 settingsRowDivider
                 Button {
-                    AppAnalytics.openDialog("clear_data_confirm", source: .meTab)
                     showClearConfirm = true
                 } label: {
                     SettingsNavigationRow(title: NSLocalizedString("clear_data", comment: ""))
@@ -325,14 +319,6 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 settingsRowDivider
                 Button {
-                    AppAnalytics.track(.shareApp, parameters: [
-                        .entryPoint: .string(AnalyticsEntryPoint.meTab.rawValue),
-                        .contentType: .string("app_link")
-                    ])
-                    AppAnalytics.track(.shareStart, parameters: [
-                        .contentType: .string("app_link"),
-                        .sourcePage: .string(AnalyticsScreen.meTab.rawValue)
-                    ])
                     showAppShareSheet = true
                 } label: {
                     SettingsNavigationRow(title: NSLocalizedString("settings_share_app", value: "分享给朋友", comment: ""))
@@ -409,7 +395,7 @@ struct SettingsView: View {
     }
 
     private func trackClearDataResult(_ result: AnalyticsResult) {
-        AppAnalytics.track(.clearData, parameters: [
+        AppAnalytics.track(.dataClear, parameters: [
             .actionName: .string("clear_all"),
             .result: .string(result.rawValue)
         ])
@@ -431,7 +417,6 @@ struct SettingsView: View {
     ) -> some View {
         if Theme.usesPadLayout {
             Button {
-                AppAnalytics.openPage(from: .meTab, to: destination.analyticsScreen, entryPoint: .meTab)
                 activeSheet = destination
             } label: {
                 SettingsNavigationRow(title: title)
@@ -445,9 +430,6 @@ struct SettingsView: View {
             NavigationLink(value: destination) {
                 SettingsNavigationRow(title: title)
             }
-            .simultaneousGesture(TapGesture().onEnded {
-                AppAnalytics.openPage(from: .meTab, to: destination.analyticsScreen, entryPoint: .meTab)
-            })
             .accessibilityIdentifier(destination.entryAccessibilityIdentifier)
         }
     }
@@ -758,7 +740,7 @@ private struct ScoreboardSettingsView: View {
         .navigationTitle(NSLocalizedString("scoreboard_settings_title", value: "计分设置", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .analyticsScreen(.scoreboardSettingsPage, source: .meTab)
+        .appAnalyticsScreen(.scoreboardSettingsPage)
         .onChange(of: forceIPadLandscape) { _, value in
             PreferencesManager.shared.forceIPadLandscape = value
             trackSetting("tablet_scoreboard_force_landscape", value)
@@ -790,9 +772,7 @@ private struct ScoreboardSettingsView: View {
     }
 
     private func trackSetting(_ name: String, _ value: String) {
-        // 对齐安卓：toggle_setting 事件带 source_page=scoreboard_settings_page。
-        AppAnalytics.track(.toggleSetting, parameters: [
-            .sourcePage: .string(AnalyticsScreen.scoreboardSettingsPage.rawValue),
+        AppAnalytics.track(.settingsChange, parameters: [
             .settingName: .string(name),
             .settingValue: .string(value)
         ])
@@ -958,7 +938,7 @@ private struct FAQView: View {
         .navigationTitle(NSLocalizedString("settings_faq", value: "常见问题", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .analyticsScreen(.faqPage, source: .meTab)
+        .appAnalyticsScreen(.faqPage)
     }
 }
 
@@ -1037,7 +1017,7 @@ private struct AboutUsView: View {
         .navigationTitle(NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .analyticsScreen(.aboutUsPage, source: .meTab)
+        .appAnalyticsScreen(.aboutUsPage)
     }
 
     /// 关于页外链行：应用内网页打开（不再跳系统浏览器），标识符与原 Link 保持一致。
@@ -1050,11 +1030,6 @@ private struct AboutUsView: View {
         NavigationLink(value: InAppWebLink(url: url, title: title)) {
             SettingsNavigationRow(title: title)
         }
-        .simultaneousGesture(TapGesture().onEnded {
-            if tracksLegalAnalytics {
-                AppAnalytics.openPage(from: .aboutUsPage, to: .legalWebPage)
-            }
-        })
         .buttonStyle(.plain)
         .accessibilityIdentifier(accessibilityIdentifier)
     }

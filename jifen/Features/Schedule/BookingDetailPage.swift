@@ -39,7 +39,7 @@ struct BookingDetailPage: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .onAppear(perform: reload)
-        .analyticsScreen(.bookingDetailPage, source: .scheduleList)
+        .appAnalyticsScreen(.bookingDetailPage)
         .sheet(isPresented: $showEditPage) {
             if let booking {
                 CreateBookingPage(initialBooking: booking) {
@@ -154,8 +154,7 @@ struct BookingDetailPage: View {
                             title: NSLocalizedString("schedule_edit", value: "编辑", comment: ""),
                             tint: Theme.textPrimary
                         ) {
-                            AppAnalytics.track(.selectContent, parameters: [
-                                .contentType: .string("booking"),
+                            AppAnalytics.track(.bookingAction, parameters: [
                                 .actionName: .string("edit")
                             ])
                             showEditPage = true
@@ -216,12 +215,11 @@ struct BookingDetailPage: View {
 
     private func startBooking(_ booking: LocalBooking) {
         guard let request = booking.makeStartRequest() else { return }
-        AppAnalytics.track(.selectContent, parameters: [
-            .contentType: .string("booking"),
-            .actionName: .string("start_game"),
-            .gameType: .string(request.gameType.analyticsIdentifier),
-            .entryPoint: .string(AnalyticsEntryPoint.bookingDetail.rawValue)
-        ])
+        AppAnalytics.trackContentSelection(
+            contentType: "scoreboard",
+            itemID: request.gameType.analyticsIdentifier,
+            entryPoint: .bookingDetail
+        )
 
         if let onStartBooking {
             guard !isStartingBooking else { return }
@@ -249,8 +247,7 @@ struct BookingDetailPage: View {
 
     private func cancelBooking() {
         let cancelled = LocalBookingManager.shared.cancelBooking(bookingId)
-        AppAnalytics.track(.selectContent, parameters: [
-            .contentType: .string("booking"),
+        AppAnalytics.track(.bookingAction, parameters: [
             .actionName: .string("cancel"),
             .result: .string(cancelled ? AnalyticsResult.success.rawValue : AnalyticsResult.failed.rawValue)
         ])

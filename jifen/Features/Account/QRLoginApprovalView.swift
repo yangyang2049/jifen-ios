@@ -96,6 +96,7 @@ struct QRLoginApprovalView: View {
     @State private var errorMessage: String?
     @State private var isWorking = false
     @State private var scannerPaused = false
+    @State private var blockedScanValue: String?
 
     var body: some View {
         ZStack {
@@ -112,15 +113,36 @@ struct QRLoginApprovalView: View {
         .navigationTitle(NSLocalizedString("qr_login_title", value: "扫码登录", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .appAnalyticsScreen(.qrLoginPage)
         .overlay { if isWorking { ProgressView().controlSize(.large) } }
         .overlay(alignment: .top) {
             if let errorMessage {
-                Text(errorMessage)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 6)
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.red)
+                        .accessibilityHidden(true)
+                    Text(errorMessage)
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.textPrimary)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if parsed == nil {
+                        Button(NSLocalizedString("retry", value: "重试", comment: "")) {
+                            retryScanning()
+                        }
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.accentColor)
+                        .fixedSize()
+                    }
+                }
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Theme.appCardBackground)
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
             }
         }
     }
@@ -191,7 +213,6 @@ struct QRLoginApprovalView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity, minHeight: 54)
                         .background(Theme.accentColor, in: Capsule())
-                        .shadow(color: Theme.accentColor.opacity(0.35), radius: 12, y: 6)
                 }
                 .buttonStyle(.plain)
                 .disabled(isWorking)
@@ -244,11 +265,7 @@ struct QRLoginApprovalView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity)
-        .background(Theme.controlBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Theme.divider.opacity(0.6), lineWidth: 1)
-        )
+        .background(Theme.appCardBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     // 相机不可用（不支持/权限被拒）时的占位提示。
@@ -270,9 +287,10 @@ struct QRLoginApprovalView: View {
     }
 
     private func receive(_ raw: String) async {
-        guard !isWorking, parsed == nil else { return }
+        guard !isWorking, parsed == nil, raw != blockedScanValue else { return }
         isWorking = true
         scannerPaused = true
+        errorMessage = nil
         defer { isWorking = false }
         do {
             let payload = try QRLoginPayload.parse(raw)
@@ -285,16 +303,27 @@ struct QRLoginApprovalView: View {
             )
             parsed = payload
             scanResponse = response
+            blockedScanValue = nil
             errorMessage = nil
         } catch {
-            scannerPaused = false
+            // Keep scanning paused after a failed request. DataScanner reports the
+            // same visible QR code again as soon as it resumes, which previously
+            // caused a rapid 410 loop followed by server-side 429 throttling.
+            blockedScanValue = raw
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func retryScanning() {
+        blockedScanValue = nil
+        errorMessage = nil
+        scannerPaused = false
     }
 
     private func confirm(approve: Bool) async {
         guard let parsed else { return }
         isWorking = true
+        errorMessage = nil
         defer { isWorking = false }
         struct Body: Encodable, Sendable { var scanToken: String; var action: String }
         do {
@@ -304,8 +333,16 @@ struct QRLoginApprovalView: View {
                 body: Body(scanToken: parsed.scanToken, action: approve ? "approve" : "deny"),
                 requiresAuth: true
             )
+            if approve {
+                AppAnalytics.trackLoginSuccess(method: "qr")
+            } else {
+                AppAnalytics.trackAuthResult(method: "qr", result: .cancelled, errorCategory: "user_denied")
+            }
             dismiss()
-        } catch { errorMessage = error.localizedDescription }
+        } catch {
+            AppAnalytics.trackAuthResult(method: "qr", result: .failed, errorCategory: "request")
+            errorMessage = error.localizedDescription
+        }
     }
 
     private func readablePlatform(_ value: String?) -> String {

@@ -160,7 +160,7 @@ struct TenSecondChallengeView: View {
             let startTime = Date()
             startTimestamp = startTime
             AppAnalytics.track(.toolAction, parameters: [
-                .toolID: .string("ten_second"),
+                .itemID: .string("ten_second"),
                 .actionName: .string("start")
             ])
             
@@ -206,8 +206,9 @@ struct TenSecondChallengeView: View {
         }
 
         showResult = true
-        AppAnalytics.track(.toolResult, parameters: [
-            .toolID: .string("ten_second"),
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("ten_second"),
+            .actionName: .string("result"),
             .elapsedMS: .int(Int(finalTime)),
             .deltaMS: .int(Int(difference)),
             .result: .string(AnalyticsResult.success.rawValue)

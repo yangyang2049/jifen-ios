@@ -225,9 +225,11 @@ struct StopwatchView: View {
         state.phase = .running
         TimerToolStateStore.saveStopwatch(state)
         VibrationManager.shared.vibrateMedium()
-        AppAnalytics.track(wasPaused ? .timerResume : .timerStart, parameters: [
-            .gameType: .string("stopwatch")
-        ])
+        if wasPaused {
+            AppAnalytics.trackTimerAction("resume", gameType: "stopwatch")
+        } else {
+            AppAnalytics.track(.timerStart, parameters: [.gameType: .string("stopwatch")])
+        }
     }
 
     private func pause() {
@@ -236,8 +238,7 @@ struct StopwatchView: View {
         state.phase = .paused
         TimerToolStateStore.saveStopwatch(state)
         VibrationManager.shared.vibrateMedium()
-        AppAnalytics.track(.timerPause, parameters: [
-            .gameType: .string("stopwatch"),
+        AppAnalytics.trackTimerAction("pause", gameType: "stopwatch", parameters: [
             .elapsedMS: .int(Int(state.baseMilliseconds))
         ])
     }
@@ -249,8 +250,7 @@ struct StopwatchView: View {
         TimerToolStateStore.saveStopwatch(state)
         VibrationManager.shared.vibrateMedium()
         if elapsed > 0 {
-            AppAnalytics.track(.timerExit, parameters: [
-                .gameType: .string("stopwatch"),
+            AppAnalytics.trackTimerAction("exit", gameType: "stopwatch", parameters: [
                 .elapsedMS: .int(Int(elapsed)),
                 .lapCount: .int(lapCount),
                 .result: .string(AnalyticsResult.cancelled.rawValue)

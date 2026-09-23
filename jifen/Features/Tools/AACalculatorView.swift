@@ -316,8 +316,9 @@ struct AACalculatorView: View {
         amountPerPerson = calculatedAmount
         showResult = true
         VibrationManager.shared.vibrateLight()
-        AppAnalytics.track(.toolResult, parameters: [
-            .toolID: .string("aa_calculator"),
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("aa_calculator"),
+            .actionName: .string("result"),
             .participantCount: .int(participants),
             .result: .string(AnalyticsResult.success.rawValue)
         ])
@@ -346,8 +347,9 @@ struct AACalculatorView: View {
         amountPerPerson = 0
         showResult = false
         isAmountFocused = false
-        AppAnalytics.track(.toolReset, parameters: [
-            .toolID: .string("aa_calculator")
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("aa_calculator"),
+            .actionName: .string("reset")
         ])
     }
 }

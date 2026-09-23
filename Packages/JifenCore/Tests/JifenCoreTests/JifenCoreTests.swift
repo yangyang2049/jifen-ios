@@ -888,6 +888,52 @@ private struct CounterReducer: DomainReducer {
     #expect(!FileManager.default.fileExists(atPath: ResumeSessionRepository.snapshotURL(sessionId: session.sessionId, rootURL: root).path))
 }
 
+@Test func resumeSessionRepositoryPrunesLegacyIndexEntryWithoutSnapshot() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let sessionID = UUID()
+    let index = ResumeSessionIndex(fileURL: root.appendingPathComponent("resume-index.json"))
+    try await index.upsert(.init(
+        sessionId: sessionID,
+        gameType: .basketball,
+        source: .phoneLocal,
+        snapshotPath: "sessions/\(sessionID.uuidString).json",
+        participants: [],
+        status: .live,
+        updatedAtEpochMilliseconds: 100
+    ))
+
+    let repository = ResumeSessionRepository(rootURL: root)
+    #expect(try await repository.liveEntries().isEmpty)
+    #expect(try await repository.entries().isEmpty)
+}
+
+@Test func concurrentResumeSaveAndDiscardKeepIndexAndSnapshotConsistent() async throws {
+    let root = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let writer = ResumeSessionRepository(rootURL: root)
+    let remover = ResumeSessionRepository(rootURL: root)
+    let session = ScoreSession<LineScoreState, LineScoreEvent>(
+        gameType: .simpleScore,
+        ruleFamily: .s1,
+        reducerType: "line/v1",
+        state: LineScoreState(leftName: "A", rightName: "B")
+    )
+
+    for turn in 0..<30 {
+        async let save: Void = writer.save(session, updatedAtEpochMilliseconds: Int64(turn + 1))
+        async let remove: Void = remover.remove(sessionId: session.sessionId)
+        _ = try await (save, remove)
+        for entry in try await writer.entries() {
+            #expect(FileManager.default.fileExists(
+                atPath: root.appendingPathComponent(entry.snapshotPath).path
+            ))
+        }
+    }
+}
+
 @Test func resumeSessionRepositoryRetainsStackedLiveSessionsForRecordFirstCleanup() async throws {
     let root = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)

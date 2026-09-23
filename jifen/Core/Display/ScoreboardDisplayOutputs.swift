@@ -147,10 +147,12 @@ final class ExternalDisplayCoordinator: ObservableObject {
 
     private func updateStatus(_ next: ExternalDisplayStatus) {
         guard status != next else { return }
+        let previous = status
         status = next
-        AppAnalytics.track(.castStatusChange, parameters: [
-            .result: .string(next.rawValue)
-        ])
+        let action = next == .disconnected
+            ? "stop"
+            : (previous == .disconnected ? "connect" : "mode_change")
+        AppAnalytics.trackCastAction(action, result: .success, outcome: next.rawValue)
     }
 }
 

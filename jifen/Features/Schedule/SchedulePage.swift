@@ -34,11 +34,11 @@ struct SchedulePage: View {
                             toggleSelection(booking.id)
                             return
                         }
-                        AppAnalytics.track(.selectContent, parameters: [
-                            .contentType: .string("booking"),
-                            .actionName: .string("view"),
-                            .sourcePage: .string(AnalyticsScreen.scheduleList.rawValue)
-                        ])
+                        AppAnalytics.trackContentSelection(
+                            contentType: "booking",
+                            itemID: booking.resolvedGameType?.analyticsIdentifier ?? booking.sportType.rawValue,
+                            entryPoint: .scheduleList
+                        )
                         selectedBooking = booking
                     } label: {
                         HStack(spacing: 8) {
@@ -107,7 +107,6 @@ struct SchedulePage: View {
                         }
                     } else {
                         Button {
-                            AppAnalytics.openPage(from: .scheduleList, to: .createBookingPage, entryPoint: .scheduleList)
                             showCreatePage = true
                         } label: {
                             HStack(spacing: 6) {
@@ -140,10 +139,11 @@ struct SchedulePage: View {
             .background(Theme.backgroundColor)
         }
         .onAppear(perform: reload)
-        .analyticsScreen(.scheduleList, source: .homeTab)
+        .appAnalyticsScreen(.scheduleList)
         .onChange(of: selectedStatus) { _, value in
             selectedBookingIDs.removeAll()
-            AppAnalytics.track(.applyFilter, parameters: [
+            AppAnalytics.track(.bookingAction, parameters: [
+                .actionName: .string("filter"),
                 .contentType: .string("booking"),
                 .settingValue: .string(value.rawValue)
             ])

@@ -8,7 +8,7 @@ struct ToolsTab: View {
             ToolsListPageView(onToolTap: { path.append($0) })
             .navigationDestination(for: ToolItem.self) { tool in
                 tool.view
-                    .analyticsScreen(AnalyticsScreen.tool(id: tool.id) ?? .toolsPage, source: .toolsPage)
+                    .appAnalyticsScreen(AnalyticsScreen.tool(id: tool.id) ?? .toolsPage)
                     .navigationTitle(tool.title)
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar(.hidden, for: .tabBar)
@@ -59,7 +59,7 @@ struct ToolsListPageView: View {
         }
         .navigationTitle(NSLocalizedString("tools_title", comment: "Tools"))
         .navigationBarTitleDisplayMode(.inline)
-        .analyticsScreen(.toolsPage, source: .homeTab)
+        .appAnalyticsScreen(.toolsPage)
     }
 }
 
@@ -104,11 +104,11 @@ struct ToolCardView: View {
     var body: some View {
         Button(action: {
             VibrationManager.shared.vibrateLight()
-            AppAnalytics.track(.toolItemSelect, parameters: [
-                .toolID: .string(tool.id),
-                .sourcePage: .string(AnalyticsScreen.toolsPage.rawValue),
-                .entryPoint: .string(AnalyticsEntryPoint.toolsPage.rawValue)
-            ])
+            AppAnalytics.trackContentSelection(
+                contentType: "tool",
+                itemID: tool.id,
+                entryPoint: .toolsPage
+            )
             action()
         }) {
             VStack(spacing: 10) {

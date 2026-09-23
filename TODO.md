@@ -17,7 +17,7 @@
 
 ### P1
 
-- [ ] **会员兑换码与赠卡**〔主表 P1 · iOS 不做〕：✅ 2026-08-31 已按决策移除客户端兑换入口（MembershipView 三个 Section、StoreKitPurchaseManager 的 redeemCode/redeemGiftCard/loadGiftCards/giftCards 状态与 VipGiftCard 类型全删，源码 redeem/giftCard 零命中）。维持「iOS 不做」：3.1.1 合规；未来若必须做走 App Store 礼品码或仅服务端赠送路径。
+- [ ] **会员兑换码与赠卡**〔主表 P1〕：✅ 2026-09-23 已按新决策接入 Apple StoreKit 系统优惠码兑换页，会员页右上角提供“兑换”入口；不恢复自建兑换码/礼品卡输入框。兑换交易继续走 Apple JWS 验单，登录态直接上传服务端绑定账号，未登录时先保留本机权益并在登录后补验。剩余仅为 App Store Connect 配置优惠码及 Sandbox 真机端到端验收。
 - [ ] **比赛记录结果纠错（iOS 侧）**〔主表 P1〕：✅ 2026-08-31 已实现两队制纠错：`ScoreboardRecordCorrection.applied`（改最终比分/局分、按 局分>当局分 层级重算胜者、平局清空胜者、首次纠错留痕 `correction`、stateSnapshot/detailedActions 不动）；详情页比分卡「纠错」入口 + sheet（`ScoreboardRecordDetailPage.swift:264-276,345-430`）；测试 `testLegacyRecordDecodesWithoutCorrectionAndCorrectionRoundTrips`、`testScoreCorrectionRewritesWinnerPreservesOriginalValuesAndReplayFields` 通过。多人（participants）记录纠错与 revision 语义仍待记录云同步同批定。
 - [ ] **反馈与合规**：2026-08-31 差异核验完成：反馈闭环（API 全套+列表/创建视图）与账号删除（`/api/account-deletion/request` + 输入「注销账号」确认）两端已对齐；已知文案级差异：鸿蒙删除页含会员警告（`AccountDeletionPage.ets:94-124`）、iOS 为确认 sheet 无此文案。剩余：隐私与 Data Safety 文案覆盖相机权限（扫码登录）；上架材料须与 `DEPLOYMENT_PRE_CHECK` 级别的实机验证一致。
 - [ ] **补一轮 iOS 跨端一致性对照审计**：**当前最大的结构性缺口**。`jifen-android/docs/2026-08-28-cross-platform-diff/` 只覆盖安卓 vs 鸿蒙两端，iOS 未纳入任何一致性基线。建议按同一方法（计分板容器 / 规则与设置 / 记录列表 / 记录详情与分享四线）做一次 iOS 对照，产出同格式差异表并入主表。

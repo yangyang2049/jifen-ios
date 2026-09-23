@@ -50,6 +50,7 @@ struct ScoreboardRecordDetailPage: View {
             Theme.backgroundColor.ignoresSafeArea()
             if let record {
                 recordContent(record)
+                    .appAnalyticsScreen(record.gameType == .multiScoreboard ? .multiscoreRecordDetail : .sportsRecordDetail)
             } else {
                 ContentUnavailableView(
                     NSLocalizedString("record_not_found", value: "记录不存在", comment: ""),
@@ -921,7 +922,7 @@ struct ScoreboardRecordDetailPage: View {
     }
 
     private func handleReplay(_ record: ScoreboardRecord, presentation: ScoreboardRecordPresentation) {
-        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+        AppAnalytics.track(.scoreboardAction, parameters: [
             .gameType: .string(record.gameType.analyticsIdentifier),
             .actionName: .string("play_again"),
             .entryPoint: .string(AnalyticsEntryPoint.recordReplay.rawValue)
@@ -1051,9 +1052,8 @@ struct ScoreboardRecordDetailPage: View {
         record = ScoreboardRecordManager.shared.getRecordById(recordId)
         guard let record, !didTrackRecordView else { return }
         didTrackRecordView = true
-        let screen: AnalyticsScreen = record.gameType == .multiScoreboard ? .multiscoreRecordDetail : .sportsRecordDetail
-        AppAnalytics.screenView(screen, source: .recordsTab)
-        AppAnalytics.track(.recordView, parameters: [
+        AppAnalytics.track(.recordAction, parameters: [
+            .actionName: .string("view"),
             .recordType: .string(record.gameType == .multiScoreboard ? "multiscore" : "scoreboard"),
             .gameType: .string(record.gameType.analyticsIdentifier),
             .sourceSurface: .string(record.isSyncedFromWatch ? AnalyticsSourceSurface.watch.rawValue : AnalyticsSourceSurface.phone.rawValue)
@@ -1082,17 +1082,9 @@ struct ScoreboardRecordDetailPage: View {
         do {
             try data.write(to: url, options: .atomic)
             shareFileURL = url
-            AppAnalytics.track(.shareStart, parameters: [
-                .contentType: .string("score_record"),
-                .gameType: .string(record.gameType.analyticsIdentifier),
-                .sourcePage: .string(record.gameType == .multiScoreboard ? AnalyticsScreen.multiscoreRecordDetail.rawValue : AnalyticsScreen.sportsRecordDetail.rawValue)
-            ])
             showingShareSheet = true
         } catch {
-            AppAnalytics.track(.shareResult, parameters: [
-                .contentType: .string("score_record"),
-                .result: .string(AnalyticsResult.failed.rawValue)
-            ])
+            AppAnalytics.trackShareFailure(contentType: "score_record", errorCategory: "prepare")
             explanation = error.localizedDescription
         }
         isPreparingShare = false
@@ -1213,10 +1205,10 @@ private struct RecordDetailShareCardView<Content: View>: View {
                 Spacer(minLength: 0)
             }
             qrImage
+                .resizable()
+                .interpolation(.none)
                 .frame(width: 52, height: 52)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .background(Color.white)
-                .padding(4)
+                .accessibilityHidden(true)
         }
         .frame(height: 60)
     }
@@ -1242,13 +1234,62 @@ private struct RecordDetailShareCardView<Content: View>: View {
     }
 
     private var qrImage: Image {
-        let filter = CIFilter.qrCodeGenerator()
-        filter.message = Data("https://jifenqi.com/download".utf8)
-        filter.correctionLevel = "M"
-        if let output = filter.outputImage?.transformed(by: CGAffineTransform(scaleX: 8, y: 8)),
-           let cgImage = CIContext().createCGImage(output, from: output.extent) {
-            return Image(uiImage: UIImage(cgImage: cgImage))
+        if let image = ShareQRCodeRenderer.image(
+            message: "https://jifenqi.com/download",
+            pointSize: 52,
+            displayScale: AppScreen.scale
+        ) {
+            return Image(uiImage: image)
         }
         return Image(systemName: "qrcode")
+    }
+}
+
+/// Produces a scan-safe QR bitmap at the exact output scale used by the share card.
+/// Integer-sized modules and a four-module quiet zone avoid interpolation artifacts.
+private enum ShareQRCodeRenderer {
+    private static let context = CIContext()
+    private static let quietZoneModules = 4
+
+    @MainActor
+    static func image(message: String, pointSize: CGFloat, displayScale: CGFloat) -> UIImage? {
+        let filter = CIFilter.qrCodeGenerator()
+        filter.message = Data(message.utf8)
+        filter.correctionLevel = "M"
+        guard let output = filter.outputImage else { return nil }
+
+        let scale = max(1, displayScale)
+        let moduleCount = Int(output.extent.width.rounded())
+        let targetPixels = Int((pointSize * scale).rounded(.down))
+        let totalModules = moduleCount + quietZoneModules * 2
+        let pixelsPerModule = max(1, targetPixels / totalModules)
+        let transformed = output.transformed(
+            by: CGAffineTransform(scaleX: CGFloat(pixelsPerModule), y: CGFloat(pixelsPerModule))
+        )
+        guard let codeImage = context.createCGImage(transformed, from: transformed.extent) else {
+            return nil
+        }
+
+        let codePointSize = CGFloat(moduleCount * pixelsPerModule) / scale
+        let codeOrigin = (pointSize - codePointSize) / 2
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        format.opaque = true
+        return UIGraphicsImageRenderer(
+            size: CGSize(width: pointSize, height: pointSize),
+            format: format
+        ).image { rendererContext in
+            UIColor.white.setFill()
+            rendererContext.fill(CGRect(x: 0, y: 0, width: pointSize, height: pointSize))
+            rendererContext.cgContext.interpolationQuality = .none
+            UIImage(cgImage: codeImage, scale: scale, orientation: .up).draw(
+                in: CGRect(
+                    x: codeOrigin,
+                    y: codeOrigin,
+                    width: codePointSize,
+                    height: codePointSize
+                )
+            )
+        }
     }
 }

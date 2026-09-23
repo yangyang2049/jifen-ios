@@ -161,6 +161,7 @@ private struct AccountLoginView: View {
         .navigationDestination(isPresented: $showPasswordLogin) {
             PasswordLoginView(onOpenLegal: onOpenLegal)
         }
+        .appAnalyticsScreen(.loginPage)
         .onChange(of: agreementAccepted) { _, accepted in
             if accepted { agreementError = nil }
         }
@@ -310,6 +311,7 @@ private struct PasswordLoginView: View {
             // 登录成功后清掉历史错误，避免返回登录主页时残留。
             if authenticated { localError = nil }
         }
+        .appAnalyticsScreen(.passwordLoginPage)
     }
 
     private func submit() async {
@@ -417,6 +419,7 @@ private struct LoginLegalWebPage: View {
             .navigationTitle(document.title)
             .navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("account_login_\(document.rawValue)_webview")
+            .appAnalyticsScreen(.legalWebPage)
     }
 }
 
@@ -511,6 +514,7 @@ private struct AccountProfileView: View {
         .navigationTitle(NSLocalizedString("me_profile_title", value: "个人资料", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .appAnalyticsScreen(.profilePage)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -742,6 +746,7 @@ struct AccountDeletionView: View {
         .navigationTitle(NSLocalizedString("account_deletion_title", value: "注销账号", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .appAnalyticsScreen(.accountDeletionPage)
         .task {
             await session.reloadProfile()
             loading = false

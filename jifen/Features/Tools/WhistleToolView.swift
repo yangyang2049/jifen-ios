@@ -145,7 +145,7 @@ struct WhistleToolView: View {
     private func playShortWhistle() {
         guard !isPlayingShort && !isPlayingLong else { return }
         AppAnalytics.track(.toolAction, parameters: [
-            .toolID: .string("whistle"),
+            .itemID: .string("whistle"),
             .actionName: .string("short_whistle")
         ])
         
@@ -161,7 +161,7 @@ struct WhistleToolView: View {
     private func playLongWhistle() {
         guard !isPlayingShort && !isPlayingLong else { return }
         AppAnalytics.track(.toolAction, parameters: [
-            .toolID: .string("whistle"),
+            .itemID: .string("whistle"),
             .actionName: .string("long_whistle")
         ])
         

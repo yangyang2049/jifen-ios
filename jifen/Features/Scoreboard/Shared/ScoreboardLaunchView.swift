@@ -419,6 +419,7 @@ struct ScoreboardLaunchView: View {
         .modifier(IPadForcedLandscapeSurface(
             isEnabled: Theme.usesPadLayout && forceIPadLandscape
         ))
+        .appAnalyticsScreen(analyticsContext.screen)
     }
 
     private var usageHintIsPresented: Bool {

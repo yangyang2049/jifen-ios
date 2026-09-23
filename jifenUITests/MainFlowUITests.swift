@@ -590,12 +590,27 @@ final class MainFlowUITests: XCTestCase {
         // The second tap starts an async resume-session flush before the
         // navigation pop. Under a busy simulator that durable write can take
         // longer than the ordinary screen-transition timeout.
-        XCTAssertTrue(app.buttons["main_tab_0"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["home_quick_start_new_game"].waitForExistence(timeout: 10))
 
         XCTAssertTrue(
             app.descendants(matching: .any)["unfinished_game_bar"]
                 .waitForExistence(timeout: 5),
             "Home must show the unfinished-game bar without switching tabs"
+        )
+
+        let discard = app.buttons["放弃"]
+        XCTAssertTrue(discard.waitForExistence(timeout: 2))
+        discard.tap()
+        let confirmDiscard = app.buttons["再点击一次丢弃比赛"]
+        XCTAssertTrue(confirmDiscard.waitForExistence(timeout: 2))
+        confirmDiscard.tap()
+        XCTAssertFalse(
+            app.descendants(matching: .any)["unfinished_game_bar"]
+                .waitForExistence(timeout: 3)
+        )
+        XCTAssertFalse(
+            app.alerts["无法继续比赛"].waitForExistence(timeout: 2),
+            "Discard must not leave an unreadable resume entry behind"
         )
     }
 
@@ -1674,25 +1689,31 @@ final class MainFlowUITests: XCTestCase {
         return true
     }
 
-    /// 外部网页一律 push 进"承载它的那条栈"：手机端 push 在 Tab 栈里，iPad 上内嵌在设置弹窗里，
-    /// 不会跑到弹窗背后的主应用层，也不再挂自定义叉（返回交给导航栈自带的返回按钮）。
+    /// 官网交给系统默认浏览器打开，不在「我的」栈内 push 网页。
+    func testOfficialWebsiteOpensInSystemBrowser() {
+        let app = launchApp()
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        tabButton(named: "Me", in: app).tap()
+
+        let websiteEntry = app.buttons["settings_website_entry"]
+        XCTAssertTrue(websiteEntry.waitForExistence(timeout: 5), "Website entry missing")
+        websiteEntry.tap()
+
+        let browser = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        XCTAssertTrue(browser.wait(for: .runningForeground, timeout: 10), "Website did not open in the system browser")
+        app.activate()
+        XCTAssertTrue(websiteEntry.waitForExistence(timeout: 5), "Returning from the browser lost the Me page")
+        XCTAssertFalse(app.descendants(matching: .any)["in_app_web_page"].exists)
+    }
+
+    /// 关于页网页 push 进承载它的那条栈：手机端在 Tab 栈里，iPad 上内嵌在设置弹窗里，
+    /// 不会跑到弹窗背后的主应用层，返回交给导航栈自带的返回按钮。
     func testInAppWebLinkPushesInsideItsOwnStack() {
         let app = launchApp()
         XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
         tabButton(named: "Me", in: app).tap()
 
-        // 与宿主同层的入口先证明这条栈本身能 push。
-        let websiteEntry = app.buttons["settings_website_entry"]
-        XCTAssertTrue(websiteEntry.waitForExistence(timeout: 5), "Website entry missing")
-        websiteEntry.tap()
         let webPage = app.descendants(matching: .any)["in_app_web_page"]
-        let websiteTitle = app.navigationBars.staticTexts["Official Website"]
-        XCTAssertTrue(websiteTitle.waitForExistence(timeout: 8), "Website link did not push a page")
-        XCTAssertTrue(webPage.exists, "Web page is missing its in_app_web_page identifier")
-        XCTAssertFalse(app.buttons["in_app_web_close"].exists, "Pushed web page must not add its own close button")
-        app.navigationBars.buttons["BackButton"].tap()
-        XCTAssertTrue(websiteEntry.waitForExistence(timeout: 5))
-
         // 关于页在 iPhone 是 push 页、在 iPad 是弹窗；两种承载层里协议网页都要开在自己那一层。
         let aboutEntry = app.buttons["settings_about_entry"]
         for _ in 0..<8 where !aboutEntry.exists {
@@ -1764,6 +1785,11 @@ final class MainFlowUITests: XCTestCase {
             attachScreenshot(app, name: "\(item.shot)_after_tap")
             XCTAssertTrue(pushed, "\(item.title) link did not push in-app web page")
             XCTAssertTrue(webPage.isHittable, "\(item.title) web page is not frontmost")
+            XCTAssertGreaterThanOrEqual(
+                webPage.frame.maxY,
+                app.windows.firstMatch.frame.maxY - 1,
+                "\(item.title) must cover the bottom safe-area strip"
+            )
             XCTAssertTrue(
                 app.navigationBars[item.title].waitForExistence(timeout: 5),
                 "\(item.title) web page navigation bar missing"

@@ -28,7 +28,7 @@ struct RecentActivityPage: View {
             .navigationTitle(NSLocalizedString("recent_records", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
-            .analyticsScreen(.recentActivityPage, source: .homeTab)
+            .appAnalyticsScreen(.recentActivityPage)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { withAnimation { isEditMode.toggle() } }) {
@@ -135,6 +135,13 @@ struct RecentActivityPage: View {
                         .cornerRadius(12)
                 }
                 .buttonStyle(.plain)
+                .simultaneousGesture(TapGesture().onEnded {
+                    AppAnalytics.trackContentSelection(
+                        contentType: "scoreboard_record",
+                        itemID: record.gameType.analyticsIdentifier,
+                        entryPoint: .recentActivity
+                    )
+                })
 
             case .timer(let record):
                 NavigationLink(destination: TimerRecordDetailPage(recordId: record.id)) {
@@ -143,6 +150,13 @@ struct RecentActivityPage: View {
                         .cornerRadius(12)
                 }
                 .buttonStyle(.plain)
+                .simultaneousGesture(TapGesture().onEnded {
+                    AppAnalytics.trackContentSelection(
+                        contentType: "timer_record",
+                        itemID: record.gameType.analyticsIdentifier,
+                        entryPoint: .recentActivity
+                    )
+                })
             }
         }
     }

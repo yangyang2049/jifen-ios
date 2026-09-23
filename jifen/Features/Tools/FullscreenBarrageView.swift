@@ -240,7 +240,7 @@ struct FullscreenBarrageView: View {
             overlayButton(systemName: "chevron.left", label: NSLocalizedString("back", value: "返回", comment: "")) {
                 // Exit fullscreen display back to settings (replaces removed close button).
                 AppAnalytics.track(.toolAction, parameters: [
-                    .toolID: .string("fullscreen_barrage"),
+                    .itemID: .string("fullscreen_barrage"),
                     .actionName: .string("stop_display"),
                     .displayMode: .string(mode.rawValue)
                 ])
@@ -424,7 +424,7 @@ struct FullscreenBarrageView: View {
         showEditor = false
         isRunning = true
         AppAnalytics.track(.toolAction, parameters: [
-            .toolID: .string("fullscreen_barrage"),
+            .itemID: .string("fullscreen_barrage"),
             .actionName: .string("start_display"),
             .displayMode: .string(newMode.rawValue)
         ])

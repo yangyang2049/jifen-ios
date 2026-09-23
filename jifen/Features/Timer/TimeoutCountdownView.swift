@@ -574,11 +574,17 @@ struct TimeoutCountdownView: View {
         CountdownNotificationManager.shared.schedule(after: remaining / 1_000)
         startTicker()
         VibrationManager.shared.vibrateMedium()
-        AppAnalytics.track(wasPaused ? .timerResume : .timerStart, parameters: [
-            .gameType: .string("timeout"),
+        let parameters: AnalyticsParameters = [
             .durationMS: .int(state.lastDurationSeconds * 1_000),
             .elapsedMS: .int(elapsedMilliseconds(remainingMilliseconds: remaining))
-        ])
+        ]
+        if wasPaused {
+            AppAnalytics.trackTimerAction("resume", gameType: "timeout", parameters: parameters)
+        } else {
+            AppAnalytics.track(.timerStart, parameters: AnalyticsParameters([
+                .gameType: .string("timeout")
+            ]).merging(parameters))
+        }
     }
 
     private func pauseCountdown() {
@@ -590,8 +596,7 @@ struct TimeoutCountdownView: View {
         CountdownNotificationManager.shared.cancel()
         TimerToolStateStore.saveCountdown(state)
         VibrationManager.shared.vibrateMedium()
-        AppAnalytics.track(.timerPause, parameters: [
-            .gameType: .string("timeout"),
+        AppAnalytics.trackTimerAction("pause", gameType: "timeout", parameters: [
             .durationMS: .int(state.lastDurationSeconds * 1_000),
             .elapsedMS: .int(elapsedMilliseconds(remainingMilliseconds: state.remainingMilliseconds))
         ])
@@ -615,8 +620,7 @@ struct TimeoutCountdownView: View {
         TimerToolStateStore.saveCountdown(state)
         VibrationManager.shared.vibrateMedium()
         if previousPhase == .running || previousPhase == .paused {
-            AppAnalytics.track(.timerExit, parameters: [
-                .gameType: .string("timeout"),
+            AppAnalytics.trackTimerAction("exit", gameType: "timeout", parameters: [
                 .durationMS: .int(state.lastDurationSeconds * 1_000),
                 .elapsedMS: .int(Int(elapsedBeforeReset)),
                 .result: .string(AnalyticsResult.cancelled.rawValue)
@@ -672,7 +676,6 @@ struct TimeoutCountdownView: View {
         AppAnalytics.track(.timerFinish, parameters: [
             .gameType: .string("timeout"),
             .durationMS: .int(state.durationSeconds * 1_000),
-            .elapsedMS: .int(state.durationSeconds * 1_000),
             .endReason: .string(AnalyticsEndReason.ruleCompleted.rawValue)
         ])
     }

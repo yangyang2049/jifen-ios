@@ -311,8 +311,9 @@ struct RandomTeamView: View {
         assignments = Array(repeating: nil, count: players)
         flashColors = Array(repeating: 0, count: players)
         isAnimating = false
-        AppAnalytics.track(.toolSettingChange, parameters: [
-            .toolID: .string("random_team"),
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("random_team"),
+            .actionName: .string("setting_change"),
             .participantCount: .int(players),
             .teamCount: .int(teams)
         ])
@@ -355,8 +356,9 @@ struct RandomTeamView: View {
             touchedIndices = []
             isAnimating = false
             VibrationManager.shared.vibrateHeavy()
-            AppAnalytics.track(.toolResult, parameters: [
-                .toolID: .string("random_team"),
+            AppAnalytics.track(.toolAction, parameters: [
+                .itemID: .string("random_team"),
+                .actionName: .string("result"),
                 .participantCount: .int(playerCount),
                 .teamCount: .int(teamCount),
                 .result: .string(AnalyticsResult.success.rawValue)
@@ -373,8 +375,9 @@ struct RandomTeamView: View {
         touchedIndices = []
         flashColors = []
         isAnimating = false
-        AppAnalytics.track(.toolReset, parameters: [
-            .toolID: .string("random_team")
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("random_team"),
+            .actionName: .string("reset")
         ])
     }
 }

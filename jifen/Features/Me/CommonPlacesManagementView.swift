@@ -95,7 +95,7 @@ struct CommonPlacesManagementView: View {
         }
         .navigationTitle(NSLocalizedString("common_places_title", value: "常用地点", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
-        .analyticsScreen(.commonPlacesPage, source: .homeTab)
+        .appAnalyticsScreen(.commonPlacesPage)
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("common_places_search_placeholder", value: "搜索地点", comment: ""),
@@ -420,7 +420,7 @@ struct CommonPlacesManagementView: View {
             return
         }
         let result = manager.addPlacesBatch(values)
-        AppAnalytics.track(.submitForm, parameters: [
+        AppAnalytics.track(.commonDataAction, parameters: [
             .contentType: .string("common_place"),
             .actionName: .string("create"),
             .participantCount: .int(result.added),
@@ -496,7 +496,7 @@ struct CommonPlacesManagementView: View {
         for id in toDelete {
             manager.deletePlace(id: id)
         }
-        AppAnalytics.track(.submitForm, parameters: [
+        AppAnalytics.track(.commonDataAction, parameters: [
             .contentType: .string("common_place"),
             .actionName: .string("delete"),
             .participantCount: .int(toDelete.count),
@@ -511,7 +511,7 @@ struct CommonPlacesManagementView: View {
     }
 
     private func trackPlaceForm(action: String, result: AnalyticsResult) {
-        AppAnalytics.track(.submitForm, parameters: [
+        AppAnalytics.track(.commonDataAction, parameters: [
             .contentType: .string("common_place"),
             .actionName: .string(action),
             .result: .string(result.rawValue)

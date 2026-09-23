@@ -111,7 +111,7 @@ struct CommonNamesManagementView: View {
         }
         .navigationTitle(NSLocalizedString("common_names_title", value: "常用名称", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
-        .analyticsScreen(.commonNamesPage, source: .homeTab)
+        .appAnalyticsScreen(.commonNamesPage)
         .systemSearchable(
             text: $searchText,
             prompt: NSLocalizedString("common_names_search_placeholder", value: "搜索名称", comment: ""),
@@ -472,7 +472,7 @@ struct CommonNamesManagementView: View {
             return
         }
         let result = manager.addNamesBatch(names, type: addType)
-        AppAnalytics.track(.submitForm, parameters: [
+        AppAnalytics.track(.commonDataAction, parameters: [
             .contentType: .string("common_name"),
             .actionName: .string("create"),
             .settingValue: .string(addType == .team ? "team" : "player"),
@@ -542,7 +542,7 @@ struct CommonNamesManagementView: View {
         for name in toDelete {
             manager.removeName(name, type: selectedType)
         }
-        AppAnalytics.track(.submitForm, parameters: [
+        AppAnalytics.track(.commonDataAction, parameters: [
             .contentType: .string("common_name"),
             .actionName: .string("delete"),
             .settingValue: .string(selectedType == .team ? "team" : "player"),
@@ -558,7 +558,7 @@ struct CommonNamesManagementView: View {
     }
 
     private func trackNameForm(action: String, result: AnalyticsResult) {
-        AppAnalytics.track(.submitForm, parameters: [
+        AppAnalytics.track(.commonDataAction, parameters: [
             .contentType: .string("common_name"),
             .actionName: .string(action),
             .settingValue: .string(selectedType == .team ? "team" : "player"),

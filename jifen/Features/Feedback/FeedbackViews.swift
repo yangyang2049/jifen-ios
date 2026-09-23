@@ -413,7 +413,7 @@ struct FeedbackListView: View {
             if hasAppearedOnce { Task { await load(reset: true) } }
             hasAppearedOnce = true
         }
-        .analyticsScreen(.feedbackPage, source: .meTab)
+        .appAnalyticsScreen(.feedbackPage)
     }
 
     /// 筛选行：右侧下拉筛选（全部/一般反馈/功能建议/问题反馈），对齐安卓 FeedbackFilterRow。
@@ -449,6 +449,7 @@ struct FeedbackListView: View {
         .frame(height: 40)
         .padding(.top, 12)
         .onChange(of: filterType) { _, _ in
+            AppAnalytics.trackFeedbackAction("filter", contentType: filterType?.rawValue ?? "all")
             Task { await load(reset: true) }
         }
     }
@@ -931,8 +932,13 @@ struct FeedbackDetailView: View {
         guard let item, !isActing else { return }
         isActing = true
         defer { isActing = false }
-        do { self.item = try await FeedbackAPI.shared.setLiked(!item.isLiked, feedbackId: feedbackId) }
-        catch { errorMessage = error.localizedDescription }
+        do {
+            self.item = try await FeedbackAPI.shared.setLiked(!item.isLiked, feedbackId: feedbackId)
+            AppAnalytics.trackFeedbackAction(item.isLiked ? "unlike" : "like", result: .success)
+        } catch {
+            AppAnalytics.trackFeedbackAction(item.isLiked ? "unlike" : "like", result: .failed)
+            errorMessage = error.localizedDescription
+        }
     }
 
     private func sendComment() async {
@@ -944,7 +950,11 @@ struct FeedbackDetailView: View {
             let comment = try await FeedbackAPI.shared.comment(value, feedbackId: feedbackId)
             comments.insert(comment, at: 0)
             commentText = ""
-        } catch { errorMessage = error.localizedDescription }
+            AppAnalytics.trackFeedbackAction("comment", result: .success)
+        } catch {
+            AppAnalytics.trackFeedbackAction("comment", result: .failed)
+            errorMessage = error.localizedDescription
+        }
     }
 
     private func deleteItem() async {
@@ -953,10 +963,12 @@ struct FeedbackDetailView: View {
         defer { isActing = false }
         do {
             try await FeedbackAPI.shared.delete(feedbackId: feedbackId)
+            AppAnalytics.trackFeedbackAction("delete", result: .success)
             showDeleteConfirm = false
             onDeleted()
             dismiss()
         } catch {
+            AppAnalytics.trackFeedbackAction("delete", result: .failed)
             showDeleteConfirm = false
             errorMessage = error.localizedDescription
         }
@@ -1170,9 +1182,11 @@ private struct FeedbackReportDialog: View {
                 reason: reason.apiValue,
                 detail: trimmed.isEmpty ? nil : trimmed
             )
+            AppAnalytics.trackFeedbackAction("report", result: .success)
             onDismiss()
             onSubmitted()
         } catch {
+            AppAnalytics.trackFeedbackAction("report", result: .failed)
             errorText = error.localizedDescription
         }
     }
@@ -1458,9 +1472,11 @@ private struct CreateFeedbackView: View {
                 content: normalizedContent,
                 imageURLs: urls
             )
+            AppAnalytics.trackFeedbackAction("create", contentType: type.rawValue, result: .success)
             onCreated()
             dismiss()
         } catch {
+            AppAnalytics.trackFeedbackAction("create", contentType: type.rawValue, result: .failed)
             errorMessage = error.localizedDescription
         }
     }

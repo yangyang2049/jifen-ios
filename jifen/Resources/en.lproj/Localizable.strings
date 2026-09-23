@@ -1409,6 +1409,15 @@
 "vip_subtitle_active" = "All member benefits unlocked";
 "vip_already_member" = "You are already a VIP member";
 "vip_features_title" = "Member Benefits";
+"membership_status_active" = "Active";
+"membership_all_unlocked" = "All unlocked";
+"membership_feature_unlocked" = "Unlocked";
+"membership_thanks" = "Thanks for supporting iScoreboard";
+"vip_feature_stats" = "Advanced Statistics";
+"vip_feature_themes" = "Exclusive Themes";
+"vip_feature_cloud" = "Cloud Sync";
+"vip_feature_no_ads" = "Ad-Free Experience";
+"vip_feature_early_access" = "Early Access";
 "membership_staging_note" = "Staging only: local StoreKit transactions are granted via the isolated test endpoint and do not represent a real App Store purchase.";
 "membership_current_identity" = "Current plan";
 "me_profile_membership_number_label" = "Membership No.";
@@ -1426,6 +1435,9 @@
 "membership_lifetime_badge" = "Lifetime";
 "vip_optional_sign_in_hint" = "Sign in to sync your membership across your devices";
 "membership_restore" = "Restore Purchases";
+"membership_redeem_offer_code" = "Redeem";
+"membership_redeem_success" = "Code redeemed. Membership updated.";
+"membership_redeem_success_signed_out" = "Code redeemed. Membership is active on this device; sign in to sync it to your other devices.";
 "vip_purchasing" = "Purchasing...";
 "vip_buy_now" = "Get VIP Now";
 "vip_agreement_plain_prefix" = "I have read and agree to the ";

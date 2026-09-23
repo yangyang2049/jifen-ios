@@ -44,7 +44,7 @@ struct CastConnectionView: View {
         .navigationTitle(NSLocalizedString("display_connection_title", value: "投屏与同步", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
         // push 进入时系统自带返回按钮，避免重复。
-        .analyticsScreen(.castPage, screenClass: "cast")
+        .appAnalyticsScreen(.castPage)
         .onAppear {
             externalDisplay.refreshStatus()
             // 首次进入按连接状态选初始 Tab：投屏已连接 → 投屏；跨设备同步已连接 → 跨设备同步；都未连接 → 投屏。

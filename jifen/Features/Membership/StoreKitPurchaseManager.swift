@@ -156,6 +156,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
     }
 
     func purchase(_ product: Product) async {
+        AppAnalytics.trackPurchaseFlow(.started, flow: "purchase", itemID: product.id)
         // Guideline 5.1.1(v)：不允许把注册/登录作为购买前提。未登录时直接走 StoreKit，
         // 权益由 Apple ID 提供；交易 JWS 暂存本地，登录后补验并同步到账号。
         guard SessionStore.shared.isAuthenticated else {
@@ -176,6 +177,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
             switch result {
             case .success(let verification):
                 let transaction = try verified(verification)
+                AppAnalytics.trackVerifiedStoreKitPurchase(transaction)
                 try await acknowledgeAndFinish(
                     transaction,
                     signedTransactionInfo: verification.jwsRepresentation
@@ -185,13 +187,61 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                 message = NSLocalizedString("membership_purchase_success", value: "购买成功，会员状态已更新", comment: "")
             case .pending:
                 state = .pending
+                AppAnalytics.trackPurchaseFlow(.pending, flow: "purchase", itemID: product.id)
                 message = NSLocalizedString("membership_purchase_pending", value: "购买正在等待确认，确认后会自动更新", comment: "")
             case .userCancelled:
                 state = .cancelled
+                AppAnalytics.trackPurchaseFlow(.cancelled, flow: "purchase", itemID: product.id)
             @unknown default:
                 throw PurchaseError.unknownResult
             }
         } catch {
+            AppAnalytics.trackPurchaseFlow(.failed, flow: "purchase", itemID: product.id)
+            fail(error.localizedDescription)
+        }
+    }
+
+    func offerCodeRedemptionWillPresent() {
+        message = nil
+        AppAnalytics.trackPurchaseFlow(.started, flow: "offer_code_redeem")
+    }
+
+    /// iOS 26 and earlier report only whether the system redemption sheet was
+    /// presented successfully. The actual redemption arrives through
+    /// `Transaction.updates`; scan current entitlements as a durable fallback
+    /// in case the transaction completed while the app was transitioning.
+    func offerCodeRedemptionSheetDidClose(_ result: Result<Void, any Error>) async {
+        switch result {
+        case .success:
+            await reconcileCurrentEntitlementsAfterOfferCodeSheet()
+        case .failure(let error):
+            AppAnalytics.trackPurchaseFlow(.failed, flow: "offer_code_redeem")
+            fail(error.localizedDescription)
+        }
+    }
+
+    /// iOS 27 returns the redeemed transaction from the sheet directly. It is
+    /// still coalesced with `Transaction.updates` so the server sees one
+    /// authoritative acknowledgement even if both delivery paths fire.
+    @available(iOS 27.0, *)
+    func completeOfferCodeRedemption(
+        _ result: Result<VerificationResult<Transaction>, any Error>
+    ) async {
+        switch result {
+        case .success(let verification):
+            do {
+                let transaction = try verified(verification)
+                try await acknowledgeAndFinish(
+                    transaction,
+                    signedTransactionInfo: verification.jwsRepresentation
+                )
+                await finishSuccessfulTransaction(transaction)
+            } catch {
+                AppAnalytics.trackPurchaseFlow(.failed, flow: "offer_code_redeem")
+                fail(error.localizedDescription)
+            }
+        case .failure(let error):
+            AppAnalytics.trackPurchaseFlow(.failed, flow: "offer_code_redeem")
             fail(error.localizedDescription)
         }
     }
@@ -206,6 +256,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
             switch result {
             case .success(let verification):
                 let transaction = try verified(verification)
+                AppAnalytics.trackVerifiedStoreKitPurchase(transaction)
                 try await storePendingJWSAndFinish(
                     transaction,
                     signedTransactionInfo: verification.jwsRepresentation
@@ -219,13 +270,16 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                 )
             case .pending:
                 state = .pending
+                AppAnalytics.trackPurchaseFlow(.pending, flow: "purchase", itemID: product.id)
                 message = NSLocalizedString("membership_purchase_pending", value: "购买正在等待确认，确认后会自动更新", comment: "")
             case .userCancelled:
                 state = .cancelled
+                AppAnalytics.trackPurchaseFlow(.cancelled, flow: "purchase", itemID: product.id)
             @unknown default:
                 throw PurchaseError.unknownResult
             }
         } catch {
+            AppAnalytics.trackPurchaseFlow(.failed, flow: "purchase", itemID: product.id)
             fail(error.localizedDescription)
         }
     }
@@ -337,6 +391,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
     }
 
     func restorePurchases() async {
+        AppAnalytics.trackPurchaseFlow(.started, flow: "restore")
         state = .loading
         message = nil
         do {
@@ -366,8 +421,10 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                 await refreshLocalEntitlement()
             }
             state = .succeeded
+            AppAnalytics.trackPurchaseFlow(.success, flow: "restore")
             message = NSLocalizedString("membership_restore_done", value: "恢复购买完成", comment: "")
         } catch {
+            AppAnalytics.trackPurchaseFlow(.failed, flow: "restore")
             fail(error.localizedDescription)
         }
     }
@@ -380,12 +437,71 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                     transaction,
                     signedTransactionInfo: result.jwsRepresentation
                 )
-                await SessionStore.shared.reloadProfile()
-                state = .succeeded
-                message = NSLocalizedString("membership_purchase_success", value: "购买成功，会员状态已更新", comment: "")
+                await finishSuccessfulTransaction(transaction)
             } catch {
                 fail(error.localizedDescription)
             }
+        }
+    }
+
+    private func finishSuccessfulTransaction(_ transaction: Transaction) async {
+        await refreshLocalEntitlement()
+        if SessionStore.shared.isAuthenticated {
+            await SessionStore.shared.reloadProfile()
+        }
+        state = .succeeded
+        if transaction.offer?.type == .code {
+            AppAnalytics.trackPurchaseFlow(
+                .success,
+                flow: "offer_code_redeem",
+                itemID: transaction.productID
+            )
+            message = SessionStore.shared.isAuthenticated
+                ? NSLocalizedString(
+                    "membership_redeem_success",
+                    value: "兑换成功，会员状态已更新",
+                    comment: ""
+                )
+                : NSLocalizedString(
+                    "membership_redeem_success_signed_out",
+                    value: "兑换成功，会员已在本机生效；登录后可同步到你的其他设备",
+                    comment: ""
+                )
+        } else {
+            message = SessionStore.shared.isAuthenticated
+                ? NSLocalizedString(
+                    "membership_purchase_success",
+                    value: "购买成功，会员状态已更新",
+                    comment: ""
+                )
+                : NSLocalizedString(
+                    "membership_purchase_success_signed_out",
+                    value: "购买成功，会员已在本机生效；登录后可同步到你的其他设备",
+                    comment: ""
+                )
+        }
+    }
+
+    private func reconcileCurrentEntitlementsAfterOfferCodeSheet() async {
+        var didProcess = false
+        for await result in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = result,
+                  Self.productIDs.contains(transaction.productID)
+            else { continue }
+            do {
+                try await acknowledgeAndFinish(
+                    transaction,
+                    signedTransactionInfo: result.jwsRepresentation
+                )
+                didProcess = true
+            } catch {
+                // Keep the StoreKit transaction/current entitlement available
+                // for the launch, foreground, and sign-in retry paths.
+            }
+        }
+        await refreshLocalEntitlement()
+        if didProcess, SessionStore.shared.isAuthenticated {
+            await SessionStore.shared.reloadProfile()
         }
     }
 

@@ -1,13 +1,34 @@
 import StoreKit
 import SwiftUI
 
-// 对齐安卓 MembershipCenterScreen（AccountMembershipScreens.kt）：
-// Hero 头部 → VIP 时横幅 + 身份面板 → 权益标题 + 权益列表 → 方案卡 → 底部购买栏。
+// 未开通：Hero 头部 → 权益列表 → 方案卡 → 底部购买栏。
+// 已开通：会员摘要卡 → 已解锁权益列表。
 /// 方案类型（对齐鸿蒙 VipPage：月/年并排一行，终身独占一行）。
 enum MembershipPlanKind {
     case monthly
     case yearly
     case lifetime
+}
+
+nonisolated enum MembershipSummarySource: Equatable, Sendable {
+    case server
+    case localStore
+    case legacyServer
+}
+
+nonisolated enum MembershipSummarySourcePolicy {
+    static func resolve(
+        hasActiveServerMembership: Bool,
+        hasLocalEntitlement: Bool
+    ) -> MembershipSummarySource {
+        if hasActiveServerMembership {
+            return .server
+        }
+        if hasLocalEntitlement {
+            return .localStore
+        }
+        return .legacyServer
+    }
 }
 
 struct MembershipView: View {
@@ -17,30 +38,25 @@ struct MembershipView: View {
     @State private var agreementHint = false
     @State private var selectedProductID = StoreKitPurchaseManager.lifetimeProductID
     @State private var showLoginSheet = false
+    @State private var showOfferCodeRedemption = false
     @State private var agreementPage: MembershipAgreementPage?
 
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                heroHeader
-                    .padding(.bottom, 18)
-
                 if isVIP {
-                    activeBanner
-                    identityPanel
-                        .padding(.top, 12)
-                        .padding(.bottom, 12)
-                }
-
-                sectionTitle(
-                    NSLocalizedString("vip_features_title", value: "会员专属权益", comment: "")
-                )
-                .padding(.bottom, 8)
-
-                featureList
-                    .padding(.bottom, 10)
-
-                if !isVIP {
+                    activeMembershipCard
+                        .padding(.bottom, 24)
+                    activeBenefitsSection
+                } else {
+                    heroHeader
+                        .padding(.bottom, 18)
+                    sectionTitle(
+                        NSLocalizedString("vip_features_title", value: "会员专属权益", comment: "")
+                    )
+                    .padding(.bottom, 8)
+                    featureList
+                        .padding(.bottom, 10)
                     planCards
                 }
 
@@ -61,7 +77,26 @@ struct MembershipView: View {
         .background(Theme.backgroundColor.ignoresSafeArea())
         .navigationTitle(NSLocalizedString("membership_title", value: "会员", comment: ""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    manager.offerCodeRedemptionWillPresent()
+                    showOfferCodeRedemption = true
+                } label: {
+                    Text(NSLocalizedString("membership_redeem_offer_code", value: "兑换", comment: ""))
+                }
+                .disabled(isBusy)
+                .accessibilityIdentifier("membership_redeem_offer_code")
+            }
+        }
         .toolbar(.hidden, for: .tabBar)
+        .appAnalyticsScreen(.vipPage)
+        .modifier(
+            MembershipOfferCodeRedemptionPresenter(
+                isPresented: $showOfferCodeRedemption,
+                manager: manager
+            )
+        )
         .safeAreaInset(edge: .bottom) {
             // 商品读取完成后再显示开通栏，避免 Loading 期间出现不可用的购买按钮。
             if !isVIP && !manager.products.isEmpty {
@@ -133,79 +168,117 @@ struct MembershipView: View {
         .frame(maxWidth: .infinity)
     }
 
-    // MARK: - VIP 横幅 + 身份面板（对齐安卓 MembershipActiveBanner / MembershipIdentityPanel）
+    // MARK: - 已开通会员摘要
 
-    private var activeBanner: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "checkmark")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Theme.accentColor)
-                .frame(width: 16, height: 16)
-            Text(NSLocalizedString("vip_already_member", value: "您已是 VIP 会员", comment: ""))
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Theme.accentColor)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(10)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.accentColor.opacity(0.12)))
-    }
-
-    private var identityPanel: some View {
-        // 服务端已有有效会员时优先展示账号资料；否则即使已登录，当前 VIP 也来自
-        // Apple ID 本地权益，不能显示成“VIP / 未开通”的矛盾状态。
-        VStack(spacing: 10) {
-            if session.user?.isVIP == true {
-                authenticatedIdentityRows
-            } else {
-                localEntitlementIdentityRows
+    private var activeMembershipCard: some View {
+        let membership = activeServerMembership
+        let membershipCode = membership?.displayCode.nilIfBlank
+            ?? membership?.memberNo.nilIfBlank
+        return VStack(spacing: 0) {
+            HStack(spacing: 14) {
+                AppLogoImage(size: 48)
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 8) {
+                        Text(activeMembershipTitle)
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(Theme.textPrimary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.82)
+                        activeStatusBadge
+                    }
+                    Text(NSLocalizedString("vip_title", value: "全能计分器 VIP", comment: ""))
+                        .font(.system(size: 13))
+                        .foregroundColor(Theme.textSecondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            VStack(spacing: 10) {
+                identityRow(
+                    label: NSLocalizedString("membership_valid_until", value: "有效期至", comment: ""),
+                    value: activeValidUntilText,
+                    valueColor: Theme.textPrimary,
+                    valueSize: 13
+                )
+                if let code = membershipCode {
+                    identityRow(
+                        label: membership?.numberLabel.nilIfBlank
+                            ?? NSLocalizedString("me_profile_membership_number_label", value: "会员编号", comment: ""),
+                        value: code,
+                        valueColor: Theme.textPrimary,
+                        valueSize: 13
+                    )
+                }
+            }
+            .padding(.top, 13)
+            .overlay(alignment: .top) {
+                Theme.divider.frame(height: 1)
+            }
+            .padding(.top, 15)
         }
-        .padding(12)
+        .padding(18)
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
     }
 
-    @ViewBuilder
-    private var authenticatedIdentityRows: some View {
-        let membership = session.user?.membership
-        identityRow(
-            label: NSLocalizedString("membership_current_identity", value: "当前身份", comment: ""),
-            value: membership?.identitySummary.nilIfBlank
-                ?? NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: ""),
-            valueColor: Theme.textPrimary,
-            valueSize: 13
-        )
-        if let code = membership?.displayCode.nilIfBlank {
-            identityRow(
-                label: membership?.numberLabel.nilIfBlank
-                    ?? NSLocalizedString("me_profile_membership_number_label", value: "会员编号", comment: ""),
-                value: code,
-                valueColor: Theme.accentColor,
-                valueSize: 14
-            )
+    private var activeStatusBadge: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "checkmark")
+                .font(.system(size: 10, weight: .bold))
+            Text(NSLocalizedString("membership_status_active", value: "已开通", comment: ""))
+                .font(.system(size: 11, weight: .semibold))
         }
-        identityRow(
-            label: NSLocalizedString("membership_valid_until", value: "有效期至", comment: ""),
-            value: validUntilText,
-            valueColor: Theme.textPrimary,
-            valueSize: 13
+        .foregroundColor(Theme.accentColor)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(Theme.accentColor.opacity(0.12)))
+        .fixedSize()
+        .accessibilityElement(children: .combine)
+    }
+
+    private var activeMembershipSource: MembershipSummarySource {
+        MembershipSummarySourcePolicy.resolve(
+            hasActiveServerMembership: activeServerMembership != nil,
+            hasLocalEntitlement: manager.hasLocalEntitlement
         )
     }
 
-    @ViewBuilder
-    private var localEntitlementIdentityRows: some View {
-        identityRow(
-            label: NSLocalizedString("membership_current_identity", value: "当前身份", comment: ""),
-            value: NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: ""),
-            valueColor: Theme.textPrimary,
-            valueSize: 13
-        )
-        identityRow(
-            label: NSLocalizedString("membership_valid_until", value: "有效期至", comment: ""),
-            value: localValidUntilText,
-            valueColor: Theme.textPrimary,
-            valueSize: 13
-        )
+    private var activeServerMembership: AppMembership? {
+        guard let membership = session.user?.membership,
+              membership.isActive else {
+            return nil
+        }
+        return membership
+    }
+
+    private var activeMembershipTitle: String {
+        switch activeMembershipSource {
+        case .server:
+            return activeServerMembership?.identitySummary.nilIfBlank
+                ?? NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
+        case .localStore:
+            if manager.localEntitlementExpirationDate == nil {
+                return NSLocalizedString("membership_lifetime_plan_title", value: "终身会员", comment: "")
+            }
+            return NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
+        case .legacyServer:
+            return NSLocalizedString("me_profile_vip_badge", value: "VIP 会员", comment: "")
+        }
+    }
+
+    private var activeValidUntilText: String {
+        switch activeMembershipSource {
+        case .server:
+            guard let membership = activeServerMembership else {
+                return localValidUntilText
+            }
+            return validUntilText(for: membership)
+        case .localStore:
+            return localValidUntilText
+        case .legacyServer:
+            return NSLocalizedString("membership_expires_forever", value: "永久有效", comment: "")
+        }
     }
 
     private var localValidUntilText: String {
@@ -220,19 +293,18 @@ struct MembershipView: View {
             Text(label)
                 .font(.system(size: 13))
                 .foregroundColor(Theme.textSecondary)
+                .multilineTextAlignment(.leading)
             Spacer(minLength: 12)
             Text(value)
                 .font(.system(size: valueSize, weight: .medium))
                 .foregroundColor(valueColor)
+                .multilineTextAlignment(.trailing)
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
     }
 
-    private var validUntilText: String {
-        guard let membership = session.user?.membership else {
-            return NSLocalizedString("membership_status_not_open", value: "未开通", comment: "")
-        }
+    private func validUntilText(for membership: AppMembership) -> String {
         if let expiresAt = membership.expiresAt?.nilIfBlank {
             if let date = APIDateParser.date(from: expiresAt) {
                 return DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: .none)
@@ -258,18 +330,21 @@ struct MembershipView: View {
         }
     }
 
-    private var featureList: some View {
-        let benefits: [(String, String, String)] = [
+    private var membershipBenefits: [(String, String, String)] {
+        [
             ("vip_feature_stats", "高级统计", "chart.bar.xaxis"),
             ("vip_feature_themes", "专属主题", "paintpalette"),
             ("vip_feature_cloud", "云端同步", "icloud.and.arrow.up"),
             ("vip_feature_no_ads", "无广告体验", "rectangle.badge.xmark"),
             ("vip_feature_early_access", "优先体验", "sparkles")
         ]
+    }
+
+    private var featureList: some View {
         let maxWidth: CGFloat = Locale.current.language.languageCode?.identifier == "zh" ? 170 : 250
         return HStack {
             VStack(spacing: 0) {
-                ForEach(benefits, id: \.0) { key, fallback, symbol in
+                ForEach(membershipBenefits, id: \.0) { key, fallback, symbol in
                     HStack(spacing: 10) {
                         Image(systemName: symbol)
                             .font(.system(size: 16, weight: .medium))
@@ -287,6 +362,60 @@ struct MembershipView: View {
             .frame(maxWidth: maxWidth)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private var activeBenefitsSection: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Text(NSLocalizedString("vip_features_title", value: "会员专属权益", comment: ""))
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(Theme.textPrimary)
+                Spacer()
+                Text(NSLocalizedString("membership_all_unlocked", value: "已全部解锁", comment: ""))
+                    .font(.system(size: 12))
+                    .foregroundColor(Theme.textSecondary)
+            }
+            .padding(.horizontal, 2)
+
+            VStack(spacing: 0) {
+                ForEach(membershipBenefits.indices, id: \.self) { index in
+                    let benefit = membershipBenefits[index]
+                    HStack(spacing: 12) {
+                        Image(systemName: benefit.2)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Theme.accentColor)
+                            .frame(width: 28, height: 28)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Theme.accentColor.opacity(0.12))
+                            )
+                            .accessibilityHidden(true)
+                        Text(NSLocalizedString(benefit.0, value: benefit.1, comment: ""))
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Theme.textPrimary)
+                        Spacer(minLength: 12)
+                        Text(NSLocalizedString("membership_feature_unlocked", value: "已解锁", comment: ""))
+                            .font(.system(size: 12))
+                            .foregroundColor(Theme.textSecondary)
+                    }
+                    .frame(minHeight: 56)
+                    .padding(.horizontal, 16)
+
+                    if index < membershipBenefits.count - 1 {
+                        Theme.divider
+                            .frame(height: 1)
+                            .padding(.leading, 56)
+                    }
+                }
+            }
+            .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
+
+            Text(NSLocalizedString("membership_thanks", value: "感谢支持全能计分器", comment: ""))
+                .font(.system(size: 12))
+                .foregroundColor(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.top, 4)
+        }
     }
 
     // MARK: - 方案卡（对齐安卓 AccountMembershipScreens.kt）：
@@ -705,6 +834,31 @@ struct MembershipView: View {
     }
 }
 
+/// Uses Apple's system redemption sheet instead of accepting codes in app UI.
+/// StoreKit 2 returns the redeemed transaction directly on iOS 27; on iOS 26
+/// the transaction is delivered through `Transaction.updates`, with the sheet
+/// completion used as a fallback reconciliation trigger.
+private struct MembershipOfferCodeRedemptionPresenter: ViewModifier {
+    @Binding var isPresented: Bool
+    let manager: StoreKitPurchaseManager
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 27.0, *) {
+            content.offerCodeRedemption(
+                options: [],
+                isPresented: $isPresented
+            ) { result in
+                Task { await manager.completeOfferCodeRedemption(result) }
+            }
+        } else {
+            content.offerCodeRedemption(isPresented: $isPresented) { result in
+                Task { await manager.offerCodeRedemptionSheetDidClose(result) }
+            }
+        }
+    }
+}
+
 /// 会员协议网页（对齐安卓 LegalConfig：用户协议 / 会员协议 / 自动续费服务条款）。
 enum MembershipAgreementKind: Hashable {
     case user
@@ -744,6 +898,7 @@ private struct MembershipAgreementWebPage: View {
             .background(Theme.backgroundColor)
             .navigationTitle(page.title)
             .navigationBarTitleDisplayMode(.inline)
+            .appAnalyticsScreen(.legalWebPage)
     }
 }
 

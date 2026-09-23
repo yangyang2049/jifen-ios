@@ -62,17 +62,17 @@ struct TimerTab: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(item: $selectedDestination) { dest in
                 timerDestinationView(dest)
-                    .analyticsScreen(AnalyticsScreen.timer(for: dest), screenClass: "timerboard", source: .timerTab)
+                    .appAnalyticsScreen(AnalyticsScreen.timer(for: dest))
                     .toolbar(.hidden, for: .tabBar)
             }
             .onChange(of: pendingTimerGameType) { _, newValue in
                 guard let g = newValue else { return }
                 if let d = GameCatalog.timerDestination(for: g) {
-                    AppAnalytics.track(.timerItemSelect, parameters: [
-                        .gameType: .string(g.analyticsIdentifier),
-                        .sourcePage: .string(AnalyticsScreen.homeTab.rawValue),
-                        .entryPoint: .string(AnalyticsEntryPoint.homeNewGame.rawValue)
-                    ])
+                    AppAnalytics.trackContentSelection(
+                        contentType: "timer",
+                        itemID: g.analyticsIdentifier,
+                        entryPoint: .homeNewGame
+                    )
                     if Self.dualTimerDestinations.contains(d) {
                         pendingDualTimerDest = d
                     } else {
@@ -104,11 +104,9 @@ struct TimerTab: View {
                     emoji: dest.emoji,
                     initialConfig: config(for: dest),
                     onConfirm: { updatedConfig in
-                        AppAnalytics.track(.timerSetupOptionSelect, parameters: [
-                            .gameType: .string(updatedConfig.gameType.analyticsIdentifier),
+                        AppAnalytics.trackTimerAction("setup_confirm", gameType: updatedConfig.gameType.analyticsIdentifier, parameters: [
                             .presetType: .string(updatedConfig.timeMode.rawValue),
                             .durationMS: .int(Int(updatedConfig.totalMainSeconds * 1_000)),
-                            .actionName: .string("confirm")
                         ])
                         saveConfig(updatedConfig, for: dest)
                         queuedDualTimerDest = dest
@@ -146,13 +144,12 @@ struct TimerTab: View {
                 ForEach(items, id: \.self) { dest in
                     Button {
                         VibrationManager.shared.vibrateLight()
-                        AppAnalytics.track(.timerItemSelect, parameters: [
-                            .gameType: .string(dest.rawValue),
-                            .sourcePage: .string(AnalyticsScreen.timerTab.rawValue),
-                            .entryPoint: .string(AnalyticsEntryPoint.timerTab.rawValue)
-                        ])
+                        AppAnalytics.trackContentSelection(
+                            contentType: "timer",
+                            itemID: dest.rawValue,
+                            entryPoint: .timerTab
+                        )
                         if Self.dualTimerDestinations.contains(dest) {
-                            AppAnalytics.openDialog("timer_setup", source: .timerTab)
                             pendingDualTimerDest = dest
                         } else {
                             selectedDestination = dest

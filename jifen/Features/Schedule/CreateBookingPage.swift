@@ -141,7 +141,7 @@ struct CreateBookingPage: View {
                 }
                 normalizeReminderSelection()
             }
-            .analyticsScreen(.createBookingPage, source: isEditing ? .bookingDetailPage : .scheduleList)
+            .appAnalyticsScreen(.createBookingPage)
             .alert(
                 NSLocalizedString("schedule_save_failed", value: "无法保存预约", comment: ""),
                 isPresented: Binding(
@@ -539,7 +539,8 @@ struct CreateBookingPage: View {
         )
 
         let saved = LocalBookingManager.shared.upsertBooking(booking)
-        AppAnalytics.track(.submitForm, parameters: [
+        AppAnalytics.track(.bookingAction, parameters: [
+            .actionName: .string(isEditing ? "update" : "create"),
             .contentType: .string(isEditing ? "booking_update" : "booking_create"),
             .gameType: .string(booking.resolvedGameType?.analyticsIdentifier ?? sportType.rawValue),
             .result: .string(saved ? AnalyticsResult.success.rawValue : AnalyticsResult.failed.rawValue)

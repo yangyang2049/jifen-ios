@@ -98,12 +98,12 @@ final class SessionStore {
     }
 
     func signInWithApple() async {
-        await performAuth { try await appleProvider.signIn() }
+        await performAuth(method: "apple") { try await appleProvider.signIn() }
     }
 
     /// 账号密码登录（对齐安卓 AuthRepository.loginWithEmail：POST api/auth/login/email）。
     func signInWithEmail(account: String, password: String) async {
-        await performAuth {
+        await performAuth(method: "password") {
             try await self.client.request(
                 PasswordLoginEndpoint.path,
                 method: .post,
@@ -275,7 +275,7 @@ final class SessionStore {
         }
     }
 
-    private func performAuth(_ operation: () async throws -> AuthResponse) async {
+    private func performAuth(method: String, _ operation: () async throws -> AuthResponse) async {
         guard !isWorking else { return }
         isWorking = true
         lastError = nil
@@ -295,9 +295,36 @@ final class SessionStore {
             print("[AccountAuth] local session authenticated")
             #endif
             await runPostAuthenticationWarmup(userId: response.user.id)
+            AppAnalytics.trackLoginSuccess(method: method)
         } catch {
+            let outcome = Self.analyticsAuthOutcome(error)
+            AppAnalytics.trackAuthResult(
+                method: method,
+                result: outcome.result,
+                errorCategory: outcome.category
+            )
             await handle(error)
         }
+    }
+
+    private nonisolated static func analyticsAuthOutcome(_ error: Error) -> (result: AnalyticsResult, category: String) {
+        if let appleError = error as? AppleAuthError {
+            switch appleError {
+            case .cancelled: return (.cancelled, "user_cancelled")
+            case .stagingTokenRequired: return (.failed, "configuration")
+            case .invalidCredential: return (.failed, "invalid_credential")
+            case .nonceGenerationFailed: return (.failed, "nonce")
+            }
+        }
+        if let apiError = error as? APIClientError {
+            switch apiError {
+            case .invalidResponse: return (.failed, "invalid_response")
+            case .sessionExpired: return (.failed, "session_expired")
+            case .server: return (.failed, "server")
+            case .decoding: return (.failed, "decoding")
+            }
+        }
+        return (.failed, "unknown")
     }
 
     private func runPostAuthenticationWarmup(userId: String?) async {

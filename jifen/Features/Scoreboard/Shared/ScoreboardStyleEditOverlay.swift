@@ -1360,38 +1360,49 @@ struct ScoreboardStyleEditOverlayView: View {
     }
 
     private var styleEditUsageHint: some View {
-        ZStack {
-            Theme.scoreboardDialogScrim
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture { dismissUsageHint() }
+        GeometryReader { proxy in
+            let dialogWidth = Theme.dialogWidth(
+                availableWidth: proxy.size.width,
+                role: .informational
+            )
 
-            VStack(alignment: .leading, spacing: 12) {
-                Text(NSLocalizedString("scoreboard_style_usage_hint_title", value: "样式编辑使用说明", comment: ""))
-                    .font(.system(size: 19, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
+            ZStack {
+                Theme.scoreboardDialogScrim
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture { dismissUsageHint() }
 
-                usageHintLine("👆", NSLocalizedString("scoreboard_style_usage_hint_select_text", value: "点击任意带框文字，打开对应的编辑面板", comment: ""))
-                usageHintLine("🎨", NSLocalizedString("scoreboard_style_usage_hint_text_panel", value: "在面板中调整文字颜色和字号", comment: ""))
-                usageHintLine("⚙️", NSLocalizedString("scoreboard_style_usage_hint_more_styles", value: "点击右下角的样式按钮，编辑背景色、主题和字体等", comment: ""))
-
-                Button(action: { dismissUsageHint() }) {
-                    Text(NSLocalizedString("scoreboard_usage_hint_got_it", value: "知道了", comment: ""))
-                        .font(.system(size: 16, weight: .semibold))
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(NSLocalizedString("scoreboard_style_usage_hint_title", value: "样式编辑使用说明", comment: ""))
+                        .font(.system(size: 19, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(Theme.accentColor)
-                        .clipShape(Capsule())
+
+                    usageHintLine("👆", NSLocalizedString("scoreboard_style_usage_hint_select_text", value: "点击任意带框文字，打开对应的编辑面板", comment: ""))
+                    usageHintLine("🎨", NSLocalizedString("scoreboard_style_usage_hint_text_panel", value: "在面板中调整文字颜色和字号", comment: ""))
+                    usageHintLine("⚙️", NSLocalizedString("scoreboard_style_usage_hint_more_styles", value: "点击右下角的样式按钮，编辑背景色、主题和字体等", comment: ""))
+
+                    Button(action: { dismissUsageHint() }) {
+                        Text(NSLocalizedString("scoreboard_usage_hint_got_it", value: "知道了", comment: ""))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(Theme.accentColor)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .padding(22)
+                .frame(width: dialogWidth)
+                .background(Theme.scoreboardDialogSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("scoreboard_style_usage_hint_dialog")
             }
-            .padding(22)
-            .background(Theme.scoreboardDialogSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .padding(.horizontal, 36)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .ignoresSafeArea()
     }
 
     private func usageHintLine(_ icon: String, _ text: String) -> some View {

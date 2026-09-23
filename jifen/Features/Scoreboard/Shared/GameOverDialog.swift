@@ -61,10 +61,7 @@ enum ScoreboardShareSupport {
             if !text.isEmpty {
                 presentActivity([text])
             } else {
-                AppAnalytics.track(.shareResult, parameters: [
-                    .contentType: .string("score_record"),
-                    .result: .string(AnalyticsResult.failed.rawValue)
-                ])
+                AppAnalytics.trackShareFailure(contentType: "score_record", errorCategory: "capture")
             }
             return
         }
@@ -93,22 +90,18 @@ enum ScoreboardShareSupport {
         let activity = UIActivityViewController(activityItems: items, applicationActivities: nil)
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController else {
-            AppAnalytics.track(.shareResult, parameters: [
-                .contentType: .string("score_record"),
-                .result: .string(AnalyticsResult.failed.rawValue)
-            ])
+            AppAnalytics.trackShareFailure(contentType: "score_record", errorCategory: "presentation")
             return
         }
-        AppAnalytics.track(.shareStart, parameters: [.contentType: .string("score_record")])
         var didComplete = false
         activity.completionWithItemsHandler = { _, completed, _, error in
             guard !didComplete else { return }
             didComplete = true
-            let result: AnalyticsResult = error != nil ? .failed : (completed ? .success : .cancelled)
-            AppAnalytics.track(.shareResult, parameters: [
-                .contentType: .string("score_record"),
-                .result: .string(result.rawValue)
-            ])
+            if error != nil {
+                AppAnalytics.trackShareFailure(contentType: "score_record", errorCategory: "system_share")
+            } else if completed {
+                AppAnalytics.trackSuccessfulShare(contentType: "score_record", method: "system_share_sheet")
+            }
         }
         var presenter = root
         while let presented = presenter.presentedViewController {
@@ -319,16 +312,10 @@ struct GameOverDialog: View {
         }
         .environment(\.colorScheme, .dark)
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
-        .onAppear {
-            AppAnalytics.openDialog(
-                "game_over",
-                source: AnalyticsScreen.scoreboard(for: gameType, setup: nil)
-            )
-        }
     }
 
     private func trackNewGame() {
-        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+        AppAnalytics.track(.scoreboardAction, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
             .actionName: .string("play_again"),
             .result: .string(AnalyticsResult.requested.rawValue)
@@ -337,7 +324,7 @@ struct GameOverDialog: View {
     }
 
     private func trackRecords() {
-        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+        AppAnalytics.track(.scoreboardAction, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
             .actionName: .string("view_records"),
             .result: .string(AnalyticsResult.requested.rawValue)
@@ -346,7 +333,7 @@ struct GameOverDialog: View {
     }
 
     private func trackShare() {
-        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+        AppAnalytics.track(.scoreboardAction, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
             .actionName: .string("share"),
             .result: .string(AnalyticsResult.requested.rawValue)
@@ -355,7 +342,7 @@ struct GameOverDialog: View {
     }
 
     private func trackExit() {
-        AppAnalytics.track(.scoreboardMenuAction, parameters: [
+        AppAnalytics.track(.scoreboardAction, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
             .actionName: .string("exit"),
             .result: .string(AnalyticsResult.requested.rawValue)

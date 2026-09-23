@@ -269,7 +269,7 @@ struct FlipCoinView: View {
         guard !isFlipping else { return }
 
         AppAnalytics.track(.toolAction, parameters: [
-            .toolID: .string("flip_coin"),
+            .itemID: .string("flip_coin"),
             .actionName: .string("flip")
         ])
 
@@ -329,8 +329,9 @@ struct FlipCoinView: View {
                 if flipHistory.count > 20 {
                     flipHistory = Array(flipHistory.prefix(20))
                 }
-                AppAnalytics.track(.toolResult, parameters: [
-                    .toolID: .string("flip_coin"),
+                AppAnalytics.track(.toolAction, parameters: [
+                    .itemID: .string("flip_coin"),
+                    .actionName: .string("result"),
                     .result: .string(AnalyticsResult.success.rawValue),
                     .outcome: .string(isHeads ? "heads" : "tails")
                 ])
@@ -343,8 +344,9 @@ struct FlipCoinView: View {
         headsCount = 0
         tailsCount = 0
         VibrationManager.shared.vibrateLight()
-        AppAnalytics.track(.toolReset, parameters: [
-            .toolID: .string("flip_coin")
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("flip_coin"),
+            .actionName: .string("reset")
         ])
     }
 }

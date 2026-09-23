@@ -129,8 +129,9 @@ struct DiceToolView: View {
 
     private func selectDiceCount(_ count: Int) {
             diceCount = count
-            AppAnalytics.track(.toolSettingChange, parameters: [
-                .toolID: .string("dice"),
+            AppAnalytics.track(.toolAction, parameters: [
+                .itemID: .string("dice"),
+                .actionName: .string("setting_change"),
                 .settingName: .string("dice_count"),
                 .settingValue: .string(String(count))
             ])
@@ -165,12 +166,13 @@ struct DiceToolView: View {
             hasRolled = true
         }
         AppAnalytics.track(.toolAction, parameters: [
-            .toolID: .string("dice"),
+            .itemID: .string("dice"),
             .actionName: .string("roll"),
             .diceCount: .int(diceCount)
         ])
-        AppAnalytics.track(.toolResult, parameters: [
-            .toolID: .string("dice"),
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("dice"),
+            .actionName: .string("result"),
             .diceCount: .int(diceCount),
             .result: .string(AnalyticsResult.success.rawValue)
         ])

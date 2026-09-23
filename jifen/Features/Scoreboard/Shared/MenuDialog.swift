@@ -379,14 +379,11 @@ struct MenuDialog: View {
                 }
             }
             .onAppear {
-                var parameters: AnalyticsParameters = [:]
+                var parameters: AnalyticsParameters = [.actionName: .string("menu_open")]
                 if let analyticsGameType {
                     parameters[.gameType] = .string(analyticsGameType.analyticsIdentifier)
                 }
-                AppAnalytics.track(.scoreboardMenuOpen, parameters: parameters)
-                AppAnalytics.openDialog("scoreboard_menu", source: analyticsGameType.map {
-                    AnalyticsScreen.scoreboard(for: $0, setup: nil)
-                } ?? .scoreTab)
+                AppAnalytics.track(.scoreboardAction, parameters: parameters)
             }
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
@@ -570,16 +567,16 @@ struct MenuDialog: View {
 
         switch item.action {
         case "undo":
-            AppAnalytics.track(.scoreUndo, parameters: parameters)
+            AppAnalytics.track(.scoreboardAction, parameters: parameters)
         case "reset" where item.confirming:
             parameters[.result] = .string(AnalyticsResult.success.rawValue)
-            AppAnalytics.track(.scoreReset, parameters: parameters)
+            AppAnalytics.track(.scoreboardAction, parameters: parameters)
         case "reset":
             parameters[.result] = .string(AnalyticsResult.requested.rawValue)
-            AppAnalytics.track(.scoreboardMenuAction, parameters: parameters)
+            AppAnalytics.track(.scoreboardAction, parameters: parameters)
         default:
             parameters[.result] = .string(AnalyticsResult.requested.rawValue)
-            AppAnalytics.track(.scoreboardMenuAction, parameters: parameters)
+            AppAnalytics.track(.scoreboardAction, parameters: parameters)
         }
     }
 

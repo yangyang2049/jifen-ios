@@ -191,6 +191,84 @@ public actor ResumeSessionIndex {
         try save(allEntries)
     }
 
+    /// Snapshot and catalog mutations share this actor across repository
+    /// instances. A save can no longer reinsert an index entry after a
+    /// concurrent discard has already deleted its snapshot.
+    public func saveEnvelope(
+        _ envelope: ResumeSessionEnvelope,
+        summary: ResumeSessionSummary
+    ) throws {
+        let snapshotURL = snapshotURL(sessionId: envelope.sessionId)
+        try FileManager.default.createDirectory(
+            at: snapshotURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try encoder.encode(envelope).write(to: snapshotURL, options: .atomic)
+        var allEntries = try load()
+        allEntries.removeAll { $0.sessionId == summary.sessionId }
+        allEntries.append(summary)
+        try save(allEntries)
+    }
+
+    /// Remove the catalog entry first. If file cleanup fails, an unindexed
+    /// snapshot is recoverable storage residue rather than an unreadable Home
+    /// resume entry that repeatedly presents a corruption alert.
+    public func removeSnapshot(sessionId: UUID) throws {
+        var allEntries = try load()
+        if allEntries.contains(where: { $0.sessionId == sessionId }) {
+            allEntries.removeAll { $0.sessionId == sessionId }
+            try save(allEntries)
+        }
+        let url = snapshotURL(sessionId: sessionId)
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch let error as CocoaError where error.code == .fileNoSuchFile {
+            // A second idempotent cleanup won the race.
+        }
+    }
+
+    public func removeSnapshot(
+        sessionId: UUID,
+        ifUnchanged token: ResumeSessionCleanupToken
+    ) throws -> Bool {
+        guard token.envelope.sessionId == sessionId else { return false }
+        let url = snapshotURL(sessionId: sessionId)
+        guard FileManager.default.fileExists(atPath: url.path) else { return false }
+        let current = try decoder.decode(
+            ResumeSessionEnvelope.self,
+            from: Data(contentsOf: url)
+        )
+        guard current == token.envelope else { return false }
+        try removeSnapshot(sessionId: sessionId)
+        return true
+    }
+
+    /// Previous versions could leave a live index entry after its snapshot
+    /// disappeared. Prune only entries whose file is actually absent, while
+    /// serialized with every new snapshot write and removal.
+    public func liveEntriesWithExistingSnapshots() throws -> [ResumeSessionSummary] {
+        let allEntries = try load()
+        let retained = allEntries.filter { entry in
+            entry.status != .live
+                || FileManager.default.fileExists(
+                    atPath: fileURL.deletingLastPathComponent()
+                        .appendingPathComponent(entry.snapshotPath).path
+                )
+        }
+        if retained.count != allEntries.count {
+            try save(retained)
+        }
+        return retained.filter { $0.status == .live }
+            .sorted { $0.updatedAtEpochMilliseconds > $1.updatedAtEpochMilliseconds }
+    }
+
+    private func snapshotURL(sessionId: UUID) -> URL {
+        fileURL.deletingLastPathComponent()
+            .appendingPathComponent("sessions", isDirectory: true)
+            .appendingPathComponent("\(sessionId.uuidString).json")
+    }
+
     private func load() throws -> [ResumeSessionSummary] {
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return [] }
         return try decoder.decode([ResumeSessionSummary].self, from: Data(contentsOf: fileURL))
@@ -275,9 +353,6 @@ public actor ResumeSessionRepository {
         rootURL: URL = defaultRootURL(),
         updatedAtEpochMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1_000)
     ) throws {
-        let fileManager = FileManager.default
-        let sessionsURL = rootURL.appendingPathComponent("sessions", isDirectory: true)
-        try fileManager.createDirectory(at: sessionsURL, withIntermediateDirectories: true)
         let envelope = ResumeSessionEnvelope(
             sessionId: sessionId,
             gameType: gameType,
@@ -288,11 +363,6 @@ public actor ResumeSessionRepository {
             payloadKind: .manualState,
             payload: payload
         )
-        try JSONEncoder().encode(envelope).write(
-            to: snapshotURL(sessionId: sessionId, rootURL: rootURL),
-            options: .atomic
-        )
-
         let summary = ResumeSessionSummary(
             sessionId: sessionId,
             gameType: gameType,
@@ -303,17 +373,14 @@ public actor ResumeSessionRepository {
             updatedAtEpochMilliseconds: updatedAtEpochMilliseconds
         )
 
-        // Route index updates through the actor to avoid clobbering concurrent
-        // saves from `ResumeSessionRepository.save`. The semaphore bridges the
-        // sync call site (MainActor) to the async actor method without changing
-        // the public signature. This is safe because `saveManualPayload` is
-        // never called from the `ResumeSessionRepository` actor itself.
+        // Bridge the synchronous manual call site to the shared index actor.
+        // Both the snapshot and catalog update must run in one actor turn.
         let semaphore = DispatchSemaphore(value: 0)
         let errorBox = OSAllocatedUnfairLock(initialState: nil as NSError?)
         Task {
             do {
                 let repository = ResumeSessionRepository(rootURL: rootURL)
-                try await repository.saveManualSession(summary)
+                try await repository.saveManualEnvelope(envelope, summary: summary)
             } catch {
                 errorBox.withLock { $0 = error as NSError }
             }
@@ -323,12 +390,11 @@ public actor ResumeSessionRepository {
         if let error = errorBox.withLock({ $0 }) { throw error }
     }
 
-    /// Index-only update for manual (non-ScoreCore) sessions. Uses `index.upsert`
-    /// instead of replacing the entire index array. Stacked live sessions are
-    /// intentionally retained until the app lifecycle can archive progress as
-    /// an abandoned record before deleting any resume snapshot.
-    public func saveManualSession(_ summary: ResumeSessionSummary) async throws {
-        try await index.upsert(summary)
+    private func saveManualEnvelope(
+        _ envelope: ResumeSessionEnvelope,
+        summary: ResumeSessionSummary
+    ) async throws {
+        try await index.saveEnvelope(envelope, summary: summary)
         postDidChangeNotification()
     }
 
@@ -406,11 +472,7 @@ public actor ResumeSessionRepository {
             payloadKind: .scoreSession,
             payload: payload
         )
-        let store = AtomicJSONFileStore<ResumeSessionEnvelope>(
-            fileURL: rootURL.appendingPathComponent(snapshotPath)
-        )
-        try await store.save(envelope)
-        try await index.upsert(.init(
+        try await index.saveEnvelope(envelope, summary: .init(
             sessionId: session.sessionId,
             gameType: session.gameType,
             source: source,
@@ -455,11 +517,7 @@ public actor ResumeSessionRepository {
             payloadKind: .scoreSessionBundle,
             payload: payload
         )
-        let store = AtomicJSONFileStore<ResumeSessionEnvelope>(
-            fileURL: rootURL.appendingPathComponent(snapshotPath)
-        )
-        try await store.save(envelope)
-        try await index.upsert(.init(
+        try await index.saveEnvelope(envelope, summary: .init(
             sessionId: session.sessionId,
             gameType: session.gameType,
             source: source,
@@ -502,20 +560,11 @@ public actor ResumeSessionRepository {
     }
 
     public func liveEntries() async throws -> [ResumeSessionSummary] {
-        try await entries().filter { $0.status == .live }
+        try await index.liveEntriesWithExistingSnapshots()
     }
 
     public func remove(sessionId: UUID) async throws {
-        let url = Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
-        if FileManager.default.fileExists(atPath: url.path) {
-            do {
-                try FileManager.default.removeItem(at: url)
-            } catch let error as CocoaError where error.code == .fileNoSuchFile {
-                // Another finished-record cleanup won the race. Removal is
-                // intentionally idempotent, so there is nothing left to do.
-            }
-        }
-        try await index.remove(sessionId: sessionId)
+        try await index.removeSnapshot(sessionId: sessionId)
         postDidChangeNotification()
     }
 
@@ -531,22 +580,9 @@ public actor ResumeSessionRepository {
               activeSnapshotWriteCounts[sessionId, default: 0] == 0 else {
             return false
         }
-        let url = Self.snapshotURL(sessionId: sessionId, rootURL: rootURL)
-        guard FileManager.default.fileExists(atPath: url.path) else { return false }
-        let current = try JSONDecoder().decode(
-            ResumeSessionEnvelope.self,
-            from: Data(contentsOf: url)
-        )
-        guard current == token.envelope else { return false }
-        do {
-            // The compare and file deletion are deliberately synchronous while
-            // isolated to this repository actor. No save through this instance
-            // can start between the equality check and deletion.
-            try FileManager.default.removeItem(at: url)
-        } catch let error as CocoaError where error.code == .fileNoSuchFile {
+        guard try await index.removeSnapshot(sessionId: sessionId, ifUnchanged: token) else {
             return false
         }
-        try await index.remove(sessionId: sessionId)
         postDidChangeNotification()
         return true
     }

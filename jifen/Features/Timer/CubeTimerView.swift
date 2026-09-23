@@ -305,7 +305,7 @@ struct CubeTimerView: View {
                 VibrationManager.shared.vibrateHeavy()
                 AppAnalytics.track(.timerFinish, parameters: [
                     .gameType: .string("cube"),
-                    .elapsedMS: .int(Int(elapsedTime * 1_000)),
+                    .durationMS: .int(Int(elapsedTime * 1_000)),
                     .endReason: .string(AnalyticsEndReason.ruleCompleted.rawValue)
                 ])
             } else {
@@ -432,8 +432,7 @@ struct CubeTimerView: View {
         wasCompleted: Bool
     ) {
         guard wasRunning, !wasCompleted, elapsed > 0 else { return }
-        AppAnalytics.track(.timerExit, parameters: [
-            .gameType: .string("cube"),
+        AppAnalytics.trackTimerAction("exit", gameType: "cube", parameters: [
             .elapsedMS: .int(Int(elapsed * 1_000)),
             .result: .string(AnalyticsResult.cancelled.rawValue)
         ])

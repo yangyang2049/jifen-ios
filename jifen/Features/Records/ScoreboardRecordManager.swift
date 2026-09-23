@@ -782,7 +782,8 @@ final class ScoreboardRecordManager {
         defer { lock.unlock() }
         migrateIfNeeded()
         guard store.delete(id: id) else { return false }
-        AppAnalytics.track(.deleteRecords, parameters: [
+        AppAnalytics.track(.recordAction, parameters: [
+            .actionName: .string("delete"),
             .recordType: .string("scoreboard"),
             .result: .string(AnalyticsResult.success.rawValue)
         ])
@@ -804,7 +805,7 @@ final class ScoreboardRecordManager {
             return false
         }
         if !records.isEmpty {
-            AppAnalytics.track(.deleteRecords, parameters: [
+            AppAnalytics.track(.recordAction, parameters: [
                 .recordType: .string("scoreboard"),
                 .actionName: .string("clear_all"),
                 .result: .string(AnalyticsResult.success.rawValue)

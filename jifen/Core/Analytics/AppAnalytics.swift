@@ -1,68 +1,41 @@
+import FirebaseAnalytics
 import Foundation
 import ScoreCore
+import StoreKit
 import SwiftUI
 import UIKit
 
 enum AnalyticsEvent: String, CaseIterable {
-    case screenView = "screen_view"
-    case tabView = "tab_view"
     case selectContent = "select_content"
-    case openPage = "open_page"
-    case startGame = "start_game"
-    case resumeGame = "resume_game"
-    case openDialog = "open_dialog"
-    case saveQuickStart = "save_quick_start"
-    case submitForm = "submit_form"
-    case applyFilter = "apply_filter"
-    case resetFilter = "reset_filter"
-    case enterEditMode = "enter_edit_mode"
-    case deleteRecords = "delete_records"
-    case shareApp = "share_app"
-    case rateApp = "rate_app"
-    case toggleSetting = "toggle_setting"
-    case clearData = "clear_data"
-    case recordView = "record_view"
-    case matchStart = "match_start"
-    case timerFinish = "timer_finish"
-    case saveRecord = "save_record"
-    case shareStart = "share_start"
-    case shareJoin = "share_join"
-    case scoreItemSelect = "score_item_select"
-    case timerItemSelect = "timer_item_select"
-    case scoreSetupOptionSelect = "score_setup_option_select"
+    case share
+    case shareFailed = "share_failed"
+    case login
+    case authResult = "auth_result"
+    case scoreboardOpen = "scoreboard_open"
     case scoreSetupConfirm = "score_setup_confirm"
-    case scoreUndo = "score_undo"
-    case scoreReset = "score_reset"
+    case matchStart = "match_start"
     case matchFinish = "match_finish"
-    case scoreboardMenuOpen = "scoreboard_menu_open"
-    case scoreboardMenuAction = "scoreboard_menu_action"
-    case timerSetupOptionSelect = "timer_setup_option_select"
+    case recordSave = "record_save"
+    case scoreboardAction = "scoreboard_action"
     case timerStart = "timer_start"
-    case timerPause = "timer_pause"
-    case timerResume = "timer_resume"
-    case timerSwitchPlayer = "timer_switch_player"
-    case timerExit = "timer_exit"
-    case toolItemSelect = "tool_item_select"
+    case timerFinish = "timer_finish"
+    case timerAction = "timer_action"
     case toolAction = "tool_action"
-    case toolSettingChange = "tool_setting_change"
-    case toolResult = "tool_result"
-    case toolReset = "tool_reset"
-
-    // Cross-platform schema extensions introduced by the iOS engagement pass.
-    case shareResult = "share_result"
-    case notificationOpen = "notification_open"
-    case castStatusChange = "cast_status_change"
+    case recordAction = "record_action"
+    case bookingAction = "booking_action"
+    case commonDataAction = "common_data_action"
+    case feedbackAction = "feedback_action"
+    case settingsChange = "settings_change"
+    case dataClear = "data_clear"
+    case rateApp = "rate_app"
+    case castAction = "cast_action"
+    case purchaseFlow = "purchase_flow"
+    case bookingReminderOpen = "booking_reminder_open"
 }
 
 enum AnalyticsParameter: String, CaseIterable {
-    case screenName = "screen_name"
-    case screenClass = "screen_class"
-    case tabName = "tab_name"
-    case sourcePage = "source_page"
-    case targetPage = "target_page"
     case contentType = "content_type"
     case itemID = "item_id"
-    case toolID = "tool_id"
     case gameType = "game_type"
     case recordType = "record_type"
     case entryPoint = "entry_point"
@@ -91,10 +64,13 @@ enum AnalyticsParameter: String, CaseIterable {
     case lapCount = "lap_count"
     case displayMode = "display_mode"
     case sourceSurface = "source_surface"
+    case method
+    case sessionState = "session_state"
+    case errorCategory = "error_category"
+    case flow
 }
 
 enum AnalyticsScreen: String, CaseIterable {
-    case appShell = "app_shell"
     case homeTab = "home_tab"
     case recordsTab = "records_tab"
     case scoreTab = "score_tab"
@@ -113,21 +89,33 @@ enum AnalyticsScreen: String, CaseIterable {
     case feedbackPage = "feedback_page"
     case faqPage = "faq_page"
     case aboutUsPage = "about_us_page"
+    case loginPage = "login_page"
+    case passwordLoginPage = "password_login_page"
+    case qrLoginPage = "qr_login_page"
+    case profilePage = "profile_page"
+    case accountDeletionPage = "account_deletion_page"
+    case vipPage = "vip_page"
     case sportsRecordDetail = "sports_record_detail"
     case multiscoreRecordDetail = "multiscore_record_detail"
     case timerRecordDetail = "timer_record_detail"
     case toolsPage = "tools_page"
 
     case footballScoreboard = "football_scoreboard"
+    case football5v5Scoreboard = "football_5v5_scoreboard"
     case basketballScoreboard = "basketball_scoreboard"
     case shotTrainingScoreboard = "shot_training_scoreboard"
     case threeBasketballScoreboard = "three_basketball_scoreboard"
     case badmintonScoreboard = "badminton_scoreboard"
     case badmintonDoublesScoreboard = "badminton_doubles_scoreboard"
+    case shuttlecockScoreboard = "shuttlecock_scoreboard"
+    case squashScoreboard = "squash_scoreboard"
     case pingpongScoreboard = "pingpong_scoreboard"
     case pingpongDoublesScoreboard = "pingpong_doubles_scoreboard"
     case tennisScoreboard = "tennis_scoreboard"
     case tennisDoublesScoreboard = "tennis_doubles_scoreboard"
+    case softTennisScoreboard = "soft_tennis_scoreboard"
+    case softTennisDoublesScoreboard = "soft_tennis_doubles_scoreboard"
+    case padelScoreboard = "padel_scoreboard"
     case volleyballScoreboard = "volleyball_scoreboard"
     case beachVolleyballScoreboard = "beach_volleyball_scoreboard"
     case airVolleyballScoreboard = "air_volleyball_scoreboard"
@@ -141,6 +129,7 @@ enum AnalyticsScreen: String, CaseIterable {
     case snookerScoreboard = "snooker_scoreboard"
     case foosballScoreboard = "foosball_scoreboard"
     case simpleScorePage = "simple_score_page"
+    case counterScoreboard = "counter_scoreboard"
     case multiGroupScore = "multi_group_score"
     case doudizhuScore = "doudizhu_score"
     case shengjiScore = "shengji_score"
@@ -176,6 +165,8 @@ enum AnalyticsEntryPoint: String, Hashable {
     case timerTab = "timer_tab"
     case unfinishedBar = "unfinished_bar"
     case recordReplay = "record_replay"
+    case recordsTab = "records_tab"
+    case recentActivity = "recent_activity"
     case scheduleList = "schedule_list"
     case bookingDetail = "booking_detail"
     case bookingNotification = "booking_notification"
@@ -193,6 +184,13 @@ enum AnalyticsResult: String {
     case notReachable = "not_reachable"
     case rejected
     case requested
+    case pending
+    case started
+}
+
+enum AnalyticsSessionState: String {
+    case new
+    case resumed
 }
 
 enum AnalyticsWinner: String {
@@ -257,10 +255,10 @@ protocol AnalyticsSink: AnyObject {
     func track(event: String, attributes: [String: Any])
 }
 
-/// Placeholder production sink: events are normalized and then dropped.
-/// Install a real vendor sink here when analytics transport is reintroduced.
-private final class NoOpAnalyticsSink: AnalyticsSink {
-    func track(event: String, attributes: [String: Any]) { }
+private final class FirebaseAnalyticsSink: AnalyticsSink {
+    func track(event: String, attributes: [String: Any]) {
+        Analytics.logEvent(event, parameters: attributes)
+    }
 }
 
 enum AnalyticsNormalizer {
@@ -277,8 +275,27 @@ enum AnalyticsNormalizer {
         "first_pay_source", "first_pay_user_level", "first_pay_version", "type"
     ]
 
+    private static let reservedEventIDs: Set<String> = [
+        "ad_activeview", "ad_click", "ad_exposure", "ad_impression", "ad_query", "ad_reward",
+        "adunit_exposure", "app_clear_data", "app_exception", "app_install", "app_remove",
+        "app_store_refund", "app_store_subscription_cancel", "app_store_subscription_convert",
+        "app_store_subscription_renew", "app_update", "app_upgrade", "dynamic_link_app_open",
+        "dynamic_link_app_update", "dynamic_link_first_open", "error", "firebase_campaign",
+        "firebase_in_app_message_action", "firebase_in_app_message_dismiss",
+        "firebase_in_app_message_impression", "first_open", "first_visit", "in_app_purchase",
+        "notification_dismiss", "notification_foreground", "notification_open",
+        "notification_receive", "notification_send", "os_update", "screen_view", "session_start",
+        "session_start_with_rollout", "user_engagement"
+    ]
+
     static func eventID(_ raw: String) -> String? {
-        identifier(raw, maximumLength: maxEventIDLength, leadingFallback: "event")
+        guard let identifier = identifier(raw, maximumLength: maxEventIDLength, leadingFallback: "event"),
+              !reservedEventIDs.contains(identifier),
+              !identifier.hasPrefix("firebase_"),
+              !identifier.hasPrefix("google_"),
+              !identifier.hasPrefix("ga_")
+        else { return nil }
+        return identifier
     }
 
     static func attributes(_ parameters: AnalyticsParameters) -> [String: Any] {
@@ -334,7 +351,7 @@ enum AnalyticsNormalizer {
 }
 
 enum AppAnalytics {
-    private nonisolated(unsafe) static var sink: AnalyticsSink = NoOpAnalyticsSink()
+    private nonisolated(unsafe) static var sink: AnalyticsSink = FirebaseAnalyticsSink()
     private nonisolated(unsafe) static var collectionAllowed: () -> Bool = { true }
     private nonisolated(unsafe) static var pendingEndReasons: [String: AnalyticsEndReason] = [:]
     private static let lock = NSLock()
@@ -350,38 +367,119 @@ enum AppAnalytics {
         currentSink.track(event: eventID, attributes: attributes)
     }
 
-    static func screenView(
-        _ screen: AnalyticsScreen,
-        screenClass: String? = nil,
-        source: AnalyticsScreen? = nil,
-        additional: AnalyticsParameters = [:]
+    static func trackContentSelection(
+        contentType: String,
+        itemID: String,
+        entryPoint: AnalyticsEntryPoint? = nil
     ) {
-        var parameters: AnalyticsParameters = [.screenName: .string(screen.rawValue)]
-        if let screenClass { parameters[.screenClass] = .string(screenClass) }
-        if let source { parameters[.sourcePage] = .string(source.rawValue) }
-        track(.screenView, parameters: parameters.merging(additional))
-    }
-
-    static func tabView(_ screen: AnalyticsScreen, source: AnalyticsScreen? = nil) {
-        var parameters: AnalyticsParameters = [.tabName: .string(screen.rawValue)]
-        if let source { parameters[.sourcePage] = .string(source.rawValue) }
-        track(.tabView, parameters: parameters)
-    }
-
-    static func openPage(from source: AnalyticsScreen, to target: AnalyticsScreen, entryPoint: AnalyticsEntryPoint? = nil) {
         var parameters: AnalyticsParameters = [
-            .sourcePage: .string(source.rawValue),
-            .targetPage: .string(target.rawValue)
+            .contentType: .string(contentType),
+            .itemID: .string(itemID)
         ]
         if let entryPoint { parameters[.entryPoint] = .string(entryPoint.rawValue) }
-        track(.openPage, parameters: parameters)
+        track(.selectContent, parameters: parameters)
     }
 
-    static func openDialog(_ contentType: String, source: AnalyticsScreen) {
-        track(.openDialog, parameters: [
+    static func trackScoreboardAction(
+        _ action: String,
+        gameType: GameType? = nil,
+        parameters: AnalyticsParameters = [:]
+    ) {
+        var base: AnalyticsParameters = [.actionName: .string(action)]
+        if let gameType { base[.gameType] = .string(gameType.analyticsIdentifier) }
+        track(.scoreboardAction, parameters: base.merging(parameters))
+    }
+
+    static func trackTimerAction(
+        _ action: String,
+        gameType: String,
+        parameters: AnalyticsParameters = [:]
+    ) {
+        track(.timerAction, parameters: AnalyticsParameters([
+            .actionName: .string(action),
+            .gameType: .string(gameType)
+        ]).merging(parameters))
+    }
+
+    static func trackToolAction(
+        toolID: String,
+        action: String,
+        parameters: AnalyticsParameters = [:]
+    ) {
+        track(.toolAction, parameters: AnalyticsParameters([
+            .itemID: .string(toolID),
+            .actionName: .string(action)
+        ]).merging(parameters))
+    }
+
+    static func trackSuccessfulShare(contentType: String, method: String, itemID: String? = nil) {
+        var parameters: AnalyticsParameters = [
             .contentType: .string(contentType),
-            .sourcePage: .string(source.rawValue)
+            .method: .string(method)
+        ]
+        if let itemID { parameters[.itemID] = .string(itemID) }
+        track(.share, parameters: parameters)
+    }
+
+    static func trackShareFailure(
+        contentType: String,
+        method: String = "system_share_sheet",
+        errorCategory: String
+    ) {
+        track(.shareFailed, parameters: [
+            .contentType: .string(contentType),
+            .method: .string(method),
+            .errorCategory: .string(errorCategory)
         ])
+    }
+
+    static func trackLoginSuccess(method: String) {
+        track(.login, parameters: [.method: .string(method)])
+    }
+
+    static func trackAuthResult(method: String, result: AnalyticsResult, errorCategory: String? = nil) {
+        var parameters: AnalyticsParameters = [
+            .method: .string(method),
+            .result: .string(result.rawValue)
+        ]
+        if let errorCategory { parameters[.errorCategory] = .string(errorCategory) }
+        track(.authResult, parameters: parameters)
+    }
+
+    static func trackPurchaseFlow(_ result: AnalyticsResult, flow: String, itemID: String? = nil) {
+        var parameters: AnalyticsParameters = [
+            .flow: .string(flow),
+            .result: .string(result.rawValue)
+        ]
+        if let itemID { parameters[.itemID] = .string(itemID) }
+        track(.purchaseFlow, parameters: parameters)
+    }
+
+    static func trackVerifiedStoreKitPurchase(_ transaction: StoreKit.Transaction) {
+        // StoreKit 2 purchases are not observed through the legacy automatic
+        // StoreKit 1 path. This Firebase API emits the standard in_app_purchase
+        // event and includes its own transaction de-duplication identifier.
+        Analytics.logTransaction(transaction)
+    }
+
+    static func trackFeedbackAction(
+        _ action: String,
+        contentType: String? = nil,
+        result: AnalyticsResult? = nil
+    ) {
+        var parameters: AnalyticsParameters = [.actionName: .string(action)]
+        if let contentType { parameters[.contentType] = .string(contentType) }
+        if let result { parameters[.result] = .string(result.rawValue) }
+        track(.feedbackAction, parameters: parameters)
+    }
+
+    static func trackCastAction(_ action: String, result: AnalyticsResult, outcome: String? = nil) {
+        var parameters: AnalyticsParameters = [
+            .actionName: .string(action),
+            .result: .string(result.rawValue)
+        ]
+        if let outcome { parameters[.outcome] = .string(outcome) }
+        track(.castAction, parameters: parameters)
     }
 
     static func scoreSetupConfirmed(gameType: GameType, setup: SportsSetupResult, entryPoint: AnalyticsEntryPoint) {
@@ -420,12 +518,12 @@ enum AppAnalytics {
             .winner: .string(record.analyticsWinner.rawValue),
             .endReason: .string(endReason.rawValue)
         ]))
-        track(.saveRecord, parameters: base.merging([.result: .string(AnalyticsResult.success.rawValue)]))
+        track(.recordSave, parameters: base.merging([.result: .string(AnalyticsResult.success.rawValue)]))
     }
 
     static func scoreboardRecordSaveFailed(_ record: ScoreboardRecord) {
         guard record.status == .finished else { return }
-        track(.saveRecord, parameters: [
+        track(.recordSave, parameters: [
             .gameType: .string(record.gameType.analyticsIdentifier),
             .recordType: .string(record.gameType == .multiScoreboard ? "multiscore" : "scoreboard"),
             .sourceSurface: .string(record.isSyncedFromWatch ? AnalyticsSourceSurface.watch.rawValue : AnalyticsSourceSurface.phone.rawValue),
@@ -448,7 +546,7 @@ enum AppAnalytics {
 
     static func restoreProductionSink() {
         lock.lock()
-        sink = NoOpAnalyticsSink()
+        sink = FirebaseAnalyticsSink()
         collectionAllowed = { true }
         pendingEndReasons.removeAll()
         lock.unlock()
@@ -485,37 +583,24 @@ final class MatchAnalyticsContext {
         didTrackLaunch = true
         lock.unlock()
 
-        AppAnalytics.screenView(screen, screenClass: "scoreboard")
-        AppAnalytics.track(isResume ? .resumeGame : .startGame, parameters: [
+        AppAnalytics.track(.scoreboardOpen, parameters: [
             .gameType: .string(gameType.analyticsIdentifier),
             .entryPoint: .string(entryPoint.rawValue),
-            .sourceSurface: .string(sourceSurface.rawValue)
+            .sourceSurface: .string(sourceSurface.rawValue),
+            .sessionState: .string(isResume ? AnalyticsSessionState.resumed.rawValue : AnalyticsSessionState.new.rawValue)
         ])
     }
 }
 
-private struct AnalyticsScreenViewModifier: ViewModifier {
-    let screen: AnalyticsScreen
-    let screenClass: String?
-    let source: AnalyticsScreen?
-    @State private var didTrack = false
-
-    func body(content: Content) -> some View {
-        content.onAppear {
-            guard !didTrack else { return }
-            didTrack = true
-            AppAnalytics.screenView(screen, screenClass: screenClass, source: source)
-        }
-    }
-}
-
 extension View {
-    func analyticsScreen(
+    func appAnalyticsScreen(
         _ screen: AnalyticsScreen,
-        screenClass: String? = nil,
-        source: AnalyticsScreen? = nil
+        screenClass: String? = nil
     ) -> some View {
-        modifier(AnalyticsScreenViewModifier(screen: screen, screenClass: screenClass, source: source))
+        analyticsScreen(
+            name: screen.rawValue,
+            class: screenClass ?? screen.analyticsScreenClass
+        )
     }
 }
 
@@ -545,14 +630,19 @@ struct AnalyticsActivityView: UIViewControllerRepresentable {
             self.contentType = contentType
         }
 
-        func complete(completed: Bool, error: Error?) {
+        func complete(completed: Bool, error: Error?, method: String = "system_share_sheet") {
             guard !didComplete else { return }
             didComplete = true
-            let result: AnalyticsResult = error != nil ? .failed : (completed ? .success : .cancelled)
-            AppAnalytics.track(.shareResult, parameters: [
-                .contentType: .string(contentType),
-                .result: .string(result.rawValue)
-            ])
+            if error != nil {
+                AppAnalytics.trackShareFailure(
+                    contentType: contentType,
+                    method: method,
+                    errorCategory: "system_share"
+                )
+                return
+            }
+            guard completed else { return }
+            AppAnalytics.trackSuccessfulShare(contentType: contentType, method: method)
         }
     }
 }
@@ -602,17 +692,58 @@ extension SportsSetupResult {
 }
 
 extension AnalyticsScreen {
+    var analyticsScreenClass: String {
+        switch self {
+        case .homeTab, .recordsTab, .scoreTab, .timerTab, .meTab:
+            return "tab"
+        case .footballScoreboard, .football5v5Scoreboard, .basketballScoreboard, .shotTrainingScoreboard,
+             .threeBasketballScoreboard, .badmintonScoreboard, .badmintonDoublesScoreboard,
+             .shuttlecockScoreboard, .squashScoreboard, .pingpongScoreboard,
+             .pingpongDoublesScoreboard, .tennisScoreboard, .tennisDoublesScoreboard,
+             .softTennisScoreboard, .softTennisDoublesScoreboard, .padelScoreboard,
+             .volleyballScoreboard, .beachVolleyballScoreboard,
+             .airVolleyballScoreboard, .billiardsScoreboard, .eightBallScoreboard,
+             .nineBallScoreboard, .boxingScoreboard, .pickleballScoreboard,
+             .pickleballDoublesScoreboard, .archeryScoreboard, .snookerScoreboard,
+             .foosballScoreboard, .simpleScorePage, .counterScoreboard, .multiGroupScore, .doudizhuScore,
+             .shengjiScore, .guandanScore, .unoScore:
+            return "scoreboard"
+        case .goTimer, .xiangqiTimer, .chessTimer, .checkersTimer, .cubeTimer,
+             .stopwatchPage, .countdownPage:
+            return "timer"
+        case .toolsPage, .flipCoin, .diceTool, .whistleTool, .randomTeam,
+             .redYellowCard, .fullscreenBarrage, .pointsTable, .pointsTableDetail,
+             .dateTimeTool, .aaCalculator, .tenSecondChallenge:
+            return "tool"
+        case .sportsRecordDetail, .multiscoreRecordDetail, .timerRecordDetail,
+             .recentActivityPage:
+            return "record_detail"
+        case .scheduleList, .createBookingPage, .bookingDetailPage:
+            return "schedule"
+        case .loginPage, .passwordLoginPage, .qrLoginPage, .profilePage, .accountDeletionPage, .vipPage:
+            return "account"
+        case .commonNamesPage, .commonPlacesPage, .scoreboardSettingsPage,
+             .feedbackPage, .faqPage, .aboutUsPage, .legalConsentPage, .legalWebPage:
+            return "settings"
+        case .castPage:
+            return "display"
+        }
+    }
+
     static func scoreboard(for gameType: GameType, setup: SportsSetupResult?) -> AnalyticsScreen {
         switch gameType {
-        case .football, .football5v5: return .footballScoreboard
+        case .football: return .footballScoreboard
+        case .football5v5: return .football5v5Scoreboard
         case .basketball: return setup?.basketballMode == "three_x_three" ? .threeBasketballScoreboard : .basketballScoreboard
         case .basketballTraining: return .shotTrainingScoreboard
         case .threeBasketball: return .threeBasketballScoreboard
         case .badminton: return setup?.isSingles == false ? .badmintonDoublesScoreboard : .badmintonScoreboard
-        case .shuttlecock, .squash: return .badmintonScoreboard
+        case .shuttlecock: return .shuttlecockScoreboard
+        case .squash: return .squashScoreboard
         case .pingpong: return setup?.isSingles == false ? .pingpongDoublesScoreboard : .pingpongScoreboard
         case .tennis: return setup?.isSingles == false ? .tennisDoublesScoreboard : .tennisScoreboard
-        case .softTennis, .padel: return setup?.isSingles == false ? .tennisDoublesScoreboard : .tennisScoreboard
+        case .softTennis: return setup?.isSingles == false ? .softTennisDoublesScoreboard : .softTennisScoreboard
+        case .padel: return .padelScoreboard
         case .pickleball: return setup?.isSingles == false ? .pickleballDoublesScoreboard : .pickleballScoreboard
         case .volleyball: return .volleyballScoreboard
         case .beachVolleyball: return .beachVolleyballScoreboard
@@ -624,7 +755,8 @@ extension AnalyticsScreen {
         case .archery: return .archeryScoreboard
         case .snooker: return .snookerScoreboard
         case .foosball: return .foosballScoreboard
-        case .simpleScore, .counter: return .simpleScorePage
+        case .simpleScore: return .simpleScorePage
+        case .counter: return .counterScoreboard
         case .multiScoreboard: return .multiGroupScore
         case .doudizhu: return .doudizhuScore
         case .shengji: return .shengjiScore

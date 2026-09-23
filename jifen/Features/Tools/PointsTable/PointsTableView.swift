@@ -30,7 +30,7 @@ struct PointsTableView: View {
                     ForEach(records) { record in
                         Button {
                             AppAnalytics.track(.toolAction, parameters: [
-                                .toolID: .string("points_table"),
+                                .itemID: .string("points_table"),
                                 .actionName: .string("open")
                             ])
                             selectedRecord = record
@@ -75,7 +75,7 @@ struct PointsTableView: View {
                     records.append(newRecord)
                     save()
                     AppAnalytics.track(.toolAction, parameters: [
-                        .toolID: .string("points_table"),
+                        .itemID: .string("points_table"),
                         .actionName: .string("create"),
                         .teamCount: .int(newRecord.teams.count)
                     ])
@@ -92,7 +92,7 @@ struct PointsTableView: View {
                     records.removeAll { $0.id == record.id }
                     save()
                     AppAnalytics.track(.toolAction, parameters: [
-                        .toolID: .string("points_table"),
+                        .itemID: .string("points_table"),
                         .actionName: .string("delete"),
                         .result: .string(AnalyticsResult.success.rawValue)
                     ])
@@ -123,7 +123,7 @@ struct PointsTableView: View {
         save()
         if count > 0 {
             AppAnalytics.track(.toolAction, parameters: [
-                .toolID: .string("points_table"),
+                .itemID: .string("points_table"),
                 .actionName: .string("delete"),
                 .result: .string(AnalyticsResult.success.rawValue)
             ])
@@ -180,7 +180,7 @@ struct PointsTableDetailView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Theme.backgroundColor.ignoresSafeArea())
-        .analyticsScreen(.pointsTableDetail, source: .pointsTable)
+        .appAnalyticsScreen(.pointsTableDetail)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
@@ -490,8 +490,8 @@ struct PointsTableDetailView: View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         pendingDeleteTeamID = nil
         isEditMode = false
-        AppAnalytics.track(.toolResult, parameters: [
-            .toolID: .string("points_table"),
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("points_table"),
             .actionName: .string("save"),
             .teamCount: .int(record.teams.count),
             .result: .string(AnalyticsResult.success.rawValue)
@@ -513,7 +513,7 @@ struct PointsTableDetailView: View {
         }
         record.teams = record.teams + [PointsTableTeam(name: name)]
         AppAnalytics.track(.toolAction, parameters: [
-            .toolID: .string("points_table"),
+            .itemID: .string("points_table"),
             .actionName: .string("add_team"),
             .teamCount: .int(record.teams.count)
         ])
