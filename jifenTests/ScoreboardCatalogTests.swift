@@ -106,6 +106,10 @@ final class ScoreboardCatalogTests: XCTestCase {
             UnfinishedGameSummary.matchTitle(participants: legacy, gameType: .nineBall),
             "红A vs 蓝A"
         )
+        XCTAssertEqual(
+            UnfinishedGameSummary.matchTitle(participants: legacy, gameType: .doudizhu),
+            "红A vs 蓝A vs 红B vs 蓝B"
+        )
     }
 
     func testFamilyRecordFilterKeepsLegacyUnclassifiedRecordsVisible() {

@@ -359,7 +359,8 @@ struct CreateBookingPage: View {
                         comment: ""
                     ),
                     iconFontSize: 16,
-                    accessibilityIdentifier: "schedule_reminder_help"
+                    accessibilityIdentifier: "schedule_reminder_help",
+                    showsDetailSheet: true
                 )
                 Spacer()
             }

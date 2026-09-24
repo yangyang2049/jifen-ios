@@ -3277,17 +3277,22 @@ private struct ScoreboardExternalRestOverlay: View {
     }
 
     private var officialBreakTitle: String {
+        let localizedKind: String = switch rest.kind {
+        case "mid_game": NSLocalizedString("official_break_mid_game", value: "局中休息", comment: "")
+        case "set_break": NSLocalizedString("official_break_set", value: "盘间休息", comment: "")
+        case "changeover": NSLocalizedString("official_break_changeover", value: "换边休息", comment: "")
+        case "timeout": NSLocalizedString("timeout", value: "暂停", comment: "")
+        case "medical": NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
+        default: NSLocalizedString("official_break_game", value: "局间休息", comment: "")
+        }
+        if let subjectName = rest.subjectName?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !subjectName.isEmpty {
+            return "\(localizedKind) · \(subjectName)"
+        }
         if let title = rest.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
             return title
         }
-        switch rest.kind {
-        case "mid_game": return NSLocalizedString("official_break_mid_game", value: "局中休息", comment: "")
-        case "set_break": return NSLocalizedString("official_break_set", value: "盘间休息", comment: "")
-        case "changeover": return NSLocalizedString("official_break_changeover", value: "换边休息", comment: "")
-        case "timeout": return NSLocalizedString("timeout", value: "暂停", comment: "")
-        case "medical": return NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
-        default: return NSLocalizedString("official_break_game", value: "局间休息", comment: "")
-        }
+        return localizedKind
     }
 
     /// 对齐安卓 formatOfficialBreakClock：向上取整的 mm:ss。

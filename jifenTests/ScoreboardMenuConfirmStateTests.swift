@@ -210,6 +210,7 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
             sport: .pingpong,
             kind: .timeout,
             durationSeconds: 60,
+            subjectName: "张三",
             title: "暂停 · 张三"
         )
         let medical = OfficialBreakState(
@@ -218,7 +219,10 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
             durationSeconds: 600
         )
 
-        XCTAssertEqual(OfficialBreakOverlayPresentation.title(for: timeout), "暂停 · 张三")
+        XCTAssertEqual(
+            OfficialBreakOverlayPresentation.title(for: timeout),
+            "\(NSLocalizedString("timeout", value: "暂停", comment: "")) · 张三"
+        )
         XCTAssertEqual(
             OfficialBreakOverlayPresentation.title(for: medical),
             NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")

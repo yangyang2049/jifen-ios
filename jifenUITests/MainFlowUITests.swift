@@ -230,12 +230,57 @@ final class MainFlowUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Scoreboard Settings"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Appearance"].exists)
-        XCTAssertTrue(app.staticTexts["Clear data"].exists)
+        XCTAssertTrue(app.staticTexts["Clear Data"].exists)
         XCTAssertTrue(app.staticTexts["Rate App"].exists)
         XCTAssertTrue(app.staticTexts["Share with Friends"].exists)
         XCTAssertTrue(app.staticTexts["FAQ"].exists)
         XCTAssertTrue(app.staticTexts["About Us"].exists)
         XCTAssertFalse(app.staticTexts["Common Names"].exists)
+    }
+
+    func testEnglishOfficialBreakHelpOpensReadableSheet() {
+        let app = launchApp()
+        defer { app.terminate() }
+
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        tabButton(named: "Me", in: app).tap()
+        let settings = app.descendants(matching: .any)["settings_scoreboard_entry"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 5))
+        settings.tap()
+
+        let help = app.buttons["official_breaks_toggle_help"]
+        XCTAssertTrue(help.waitForExistence(timeout: 5))
+        help.tap()
+        XCTAssertTrue(app.navigationBars["Official Breaks"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "Pickleball")
+        ).firstMatch.exists)
+        app.buttons["Done"].tap()
+        XCTAssertFalse(app.navigationBars["Official Breaks"].exists)
+    }
+
+    func testEnglishBookingReminderHelpOpensReadableSheet() {
+        let app = launchApp()
+        defer { app.terminate() }
+
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        let schedule = app.descendants(matching: .any)["home_schedule_all_button"]
+        XCTAssertTrue(scrollUntilExists(schedule, in: app))
+        schedule.tap()
+        let book = app.buttons["Book New Match"]
+        XCTAssertTrue(book.waitForExistence(timeout: 5))
+        book.tap()
+
+        let help = app.buttons["schedule_reminder_help"]
+        for _ in 0..<6 where !help.isHittable { app.swipeUp() }
+        XCTAssertTrue(help.isHittable)
+        help.tap()
+        XCTAssertTrue(app.navigationBars["Reminders"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "local notifications")
+        ).firstMatch.exists)
+        app.buttons["Done"].tap()
+        XCTAssertFalse(app.navigationBars["Reminders"].exists)
     }
 
     func testMeSecondaryPagesUseExpectedPresentation() {
@@ -466,9 +511,24 @@ final class MainFlowUITests: XCTestCase {
         let names = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Common Names")).firstMatch
         let places = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Common Places")).firstMatch
         XCTAssertTrue(names.waitForExistence(timeout: 5))
-        XCTAssertTrue(names.label.contains("Teams and players"))
+        let screenWidth = app.windows.firstMatch.frame.width
         XCTAssertTrue(places.exists)
-        XCTAssertTrue(places.label.contains("Venues, courts, places"))
+        if UIDevice.current.userInterfaceIdiom == .phone && screenWidth <= 375 {
+            XCTAssertFalse(names.label.contains("Teams & players"))
+            XCTAssertFalse(places.label.contains("Courts & venues"))
+        } else if UIDevice.current.userInterfaceIdiom == .phone && screenWidth >= 440 {
+            XCTAssertTrue(names.label.contains("Teams & players"))
+            XCTAssertTrue(places.label.contains("Courts & venues"))
+        }
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.72))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.48))
+        for _ in 0..<2 {
+            start.press(forDuration: 0.4, thenDragTo: end)
+        }
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "common-cards-\(Int(screenWidth))pt"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
     }
 
     func testTapVisibleComponentsAcrossAllTabs() {
@@ -597,6 +657,10 @@ final class MainFlowUITests: XCTestCase {
                 .waitForExistence(timeout: 5),
             "Home must show the unfinished-game bar without switching tabs"
         )
+        let barScreenshot = XCTAttachment(screenshot: app.screenshot())
+        barScreenshot.name = "unfinished-game-bar"
+        barScreenshot.lifetime = .keepAlways
+        add(barScreenshot)
 
         let discard = app.buttons["放弃"]
         XCTAssertTrue(discard.waitForExistence(timeout: 2))

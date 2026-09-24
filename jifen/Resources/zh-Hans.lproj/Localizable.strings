@@ -16,7 +16,6 @@
 "timer" = "计时";
 "scoreboard_sports" = "运动";
 "scoreboard_board_games" = "棋牌";
-"scoreboard_cards" = "计分";
 "search_team_or_game" = "搜索队伍或比赛";
 "match_count" = "%d 场";
 
@@ -81,7 +80,6 @@
 "unknown" = "未知";
 
 /* Timer Tab */
-"timer_common" = "秒表";
 "timer_go" = "围棋";
 "timer_xiangqi" = "象棋";
 "timer_chess" = "国际象棋";
@@ -99,9 +97,6 @@
 "dual_timer_main_time" = "主时间";
 "timer_mode_countdown" = "包干";
 "timer_mode_delay" = "延迟";
-"timer_mode_slow" = "慢棋";
-"timer_mode_fast" = "快棋";
-"timer_mode_custom" = "自定义";
 "timer_increment" = "加秒";
 "timer_increment_per_move" = "秒/步";
 "timer_increment_format" = "+%d 秒/步";
@@ -161,7 +156,6 @@
 "shot_training_miss" = "未中";
 "shot_training_made" = "命中";
 "shot_training_finish" = "结束训练";
-"shot_training_no_shots" = "请先记录一次出手再结束训练。";
 "shot_training_undo_done" = "已撤销上一次记录";
 "shot_training_share" = "投篮训练：命中 %d / %d，命中率 %d%%，得分 %d";
 "game_football" = "足球";
@@ -185,6 +179,7 @@
 "doudizhu_player_adam" = "刘备";
 "doudizhu_player_bob" = "关羽";
 "doudizhu_player_chris" = "张飞";
+"doudizhu_player_david" = "诸葛亮";
 "shengji_claim_dealer" = "抢庄";
 "guandan_edit_level_wrap_confirm_title" = "级牌回到 2？";
 "guandan_edit_level_wrap_confirm_message" = "继续增加会将该队级牌重置为 2。";
@@ -208,20 +203,14 @@
 "game_counter" = "计数器";
 
 /* Setup Titles */
-"football_setup_title" = "足球设置";
-"volleyball_setup_title" = "排球设置";
-"pingpong_setup_title" = "乒乓球设置";
 "setup" = "设置";
 "setup_suffix" = "设置";
 
 /* Settings Labels */
-"points_per_set_label" = "每局分数";
 "auto_change_sides" = "自动换边";
 "start_game" = "开始";
 
 /* Ping Pong Settings */
-"pingpong_set_count_label" = "局数";
-"pingpong_auto_change_sides" = "自动换边";
 "pingpong_set_option_best_of_3" = "3局2胜";
 "pingpong_set_option_best_of_5" = "5局3胜";
 "pingpong_set_option_best_of_7" = "7局4胜";
@@ -243,15 +232,12 @@
 "record_format_sets_play_all_tennis" = "打满%d盘";
 "record_format_points_per_set" = "每局%d分";
 "record_format_pickleball_score" = "%d分制";
-"points_11" = "11分";
-"points_21" = "21分";
 
 /* Tennis Settings */
 
 /* Badminton Settings */
 
 /* Volleyball Settings */
-"volleyball_auto_change_sides" = "自动换边";
 
 /* Common */
 "cancel" = "取消";
@@ -286,7 +272,6 @@
 "change_sides" = "换边";
 "please_change_sides_manually" = "请手动换边";
 "press_again_to_exit" = "再按一次退出";
-"press_again_to_reset" = "再次点击重置";
 "click_again_to_reset" = "再次点击重置";
 "click_again_to_finish" = "再点一次结束比赛";
 "click_again_to_exchange_sides" = "再次点击确认换边";
@@ -304,7 +289,6 @@
 "no_undo_available" = "没有可撤销的操作";
 "screenshot_failed" = "截图失败";
 "screenshot_saved" = "截图已保存";
-"please_allow_photo_access" = "请在设置中允许访问相册";
 "open_settings" = "去设置";
 "retry" = "重试";
 "save_failed" = "保存失败: %@";
@@ -337,15 +321,12 @@
 "tool_ten_second" = "十秒挑战";
 
 /* Whistle Tool */
-"whistle_title" = "哨子";
 "short_whistle" = "哨声";
 "long_whistle" = "蜂鸣";
 
 /* Random Team Tool */
 "random_team_title" = "随机分组";
 "players_4" = "4人";
-"players_6" = "6人";
-"players_8" = "8人";
 "players_count_format" = "%d人";
 "simulate" = "一键分组";
 "try_again" = "再来一次";
@@ -357,7 +338,6 @@
 "random_team_reselect" = "重选人数";
 
 /* Flip Coin Tool */
-"flip_coin_title" = "抛硬币";
 "tap_to_flip" = "点击屏幕抛硬币";
 "heads" = "正面";
 "tails" = "反面";
@@ -365,7 +345,6 @@
 "coin_heads_text" = "666";
 
 /* Dice Tool */
-"dice_title" = "骰子";
 "tap_to_roll" = "点击屏幕摇骰子";
 "dice_count_1" = "1颗";
 "dice_count_2" = "2颗";
@@ -414,7 +393,6 @@
 "clear" = "清空";
 
 /* Red Yellow Card Tool */
-"red_yellow_card_title" = "红黄牌";
 "swipe_to_switch" = "左右滑动切换";
 
 /* Time Tool */
@@ -775,9 +753,6 @@
 "pickleball_score_cap" = "最高分上限";
 "pickleball_no_cap" = "无";
 "pickleball_rally_scoring" = "每球得分";
-"pickleball_auto_change_sides" = "自动换边";
-"scoreboard_settings_appearance" = "外观";
-"scoreboard_settings_experience" = "计分体验";
 "scoreboard_theme" = "计分板主题";
 "scoreboard_theme_default" = "默认";
 "scoreboard_theme_pro_dark" = "专业深色";
@@ -841,7 +816,6 @@
 "competition_format_mixed_doubles" = "混合双打";
 "football_half_length" = "半场时长";
 "football_setup_hint" = "默认每半场 20 分钟；进入比赛后，点击顶部计时器开始或暂停。";
-"football_setup_hint_accessibility" = "查看计时说明";
 "minutes_format" = "%d 分钟";
 "soft_tennis_match_games" = "全场局数";
 "shuttlecock_red_1" = "红A";
@@ -864,15 +838,12 @@
 "scoreboard_immersive_mode" = "沉浸模式";
 "scoreboard_touch_guard" = "触摸防误触";
 "scoreboard_double_tap_subtract" = "双击减分";
-"scoreboard_immersive_help_title" = "沉浸模式";
-"scoreboard_immersive_help_message" = "进入计分板后，角落操作按钮会自动隐藏。点击角落可再次显示。";
 "scoreboard_touch_guard_help_title" = "触摸防误触";
 "scoreboard_touch_guard_help_message" = "仅点击比分数字附近时才会计分，减少握持和擦拭屏幕时的误触。";
 "scoreboard_double_tap_help_title" = "双击减分";
 "scoreboard_double_tap_subtract_help_message" = "开启后，支持该手势的计分板可双击同一比分区或玩家格子减 1 分。关闭后，双击不再减分，仍可用下滑减分或左滑撤销。篮球、斯诺克等按钮型计分板不受影响。";
 "scoreboard_official_break_help_title" = "局间休息说明";
 "scoreboard_official_break_help_message" = "开启后，以下项目会按规则自动显示官方休息倒计时：\n\n乒乓球：局间60秒\n羽毛球：局中60秒、局间120秒\n壁球：局间90秒\n毽球：局间60秒\n网球：换边90秒、盘间120秒\n软式网球：换边60秒\n板网球：换边90秒、盘间120秒\n匹克球：决胜局局中60秒、局间120秒";
-"scoreboard_double_tap_help_message" = "开启后，快速双击某一方的比分区域会减 1 分。仅适用于部分计分板。";
 "show_match_time" = "显示时间";
 "hide_match_time" = "隐藏时间";
 "scoreboard_match_time_this_game_only" = "仅影响本局；下次开局仍使用项目设置。";
@@ -937,7 +908,6 @@
 "uno_confirm_round" = "确认记分";
 "uno_select_winner_toast" = "请选择本局赢家";
 "uno_zero_score_toast" = "本局分数不能为 0，请输入赢家手中剩余牌的分值";
-"press_again_to_end" = "再按一次结束比赛";
 "doudizhu_settle_preview_one" = "结算：赢家 +%d，另两人各 −%d";
 "doudizhu_settle_preview_two" = "结算：两赢家各 +%d，输家 −%d";
 "doudizhu_select_one_or_two_winners" = "请选择 1 或 2 位赢家";
@@ -970,7 +940,6 @@
 "snooker_frame_result_frames" = "局分 %d : %d";
 "snooker_settle_frame" = "结算本局";
 "snooker_settle_frame_title" = "选择本局胜方";
-"snooker_foul_format" = "罚%d";
 "shengji_dealer" = "庄家";
 "timer_countdown_mode_quick" = "快捷";
 "timer_countdown_mode_sports" = "比赛";
@@ -1132,7 +1101,6 @@
 "schedule_notification_title" = "约球提醒";
 "snooker_current_frame_short" = "第 %d/%d 局";
 "snooker_foul_button" = "犯规";
-"snooker_foul_short" = "犯";
 "snooker_record_pot" = "进球";
 "tab_timer_record" = "计时记录";
 "team_name" = "队名";
@@ -1252,7 +1220,6 @@
 "cast_ready_title" = "投屏已就绪";
 "cast_ready_message" = "请在控制端打开一个计分板";
 "cast_controller_away" = "控制端暂离";
-"cast_active_player" = "计时中";
 "cast_match_finished" = "比赛结束";
 "cast_winner_format" = "%@ 获胜";
 "cast_result_draw" = "比赛结果已确认";
@@ -1405,9 +1372,6 @@
 
 // MARK: 会员中心（对齐鸿蒙 VipPage / 安卓 AccountMembershipScreens）
 "vip_title" = "全能计分器 VIP";
-"vip_subtitle" = "成为会员，解锁更完整的计分体验";
-"vip_subtitle_active" = "已解锁全部会员专属功能";
-"vip_already_member" = "您已是 VIP 会员";
 "vip_features_title" = "会员专属权益";
 "membership_status_active" = "已开通";
 "membership_all_unlocked" = "已全部解锁";
@@ -1418,11 +1382,10 @@
 "vip_feature_cloud" = "云端同步";
 "vip_feature_no_ads" = "无广告体验";
 "vip_feature_early_access" = "优先体验";
+"vip_feature_cast" = "专业投屏体验";
 "membership_staging_note" = "当前为 Staging：本地 StoreKit 交易通过隔离测试接口授予测试会员，不代表 App Store 正式链路成功。";
-"membership_current_identity" = "当前身份";
 "me_profile_membership_number_label" = "会员编号";
 "membership_valid_until" = "有效期至";
-"membership_status_not_open" = "未开通";
 "membership_expires_forever" = "永久有效";
 "membership_store_unavailable" = "Apple 内购暂不可用";
 "membership_monthly_plan_title" = "月卡会员";

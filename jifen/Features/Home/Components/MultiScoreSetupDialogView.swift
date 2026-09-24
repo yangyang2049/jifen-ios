@@ -151,7 +151,7 @@ struct MultiScoreSetupDialogView: View {
             NSLocalizedString("doudizhu_player_adam", value: "刘备", comment: ""),
             NSLocalizedString("doudizhu_player_bob", value: "关羽", comment: ""),
             NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: ""),
-            "\(NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")) 4",
+            NSLocalizedString("doudizhu_player_david", value: "诸葛亮", comment: ""),
         ]
     }
 
@@ -340,7 +340,8 @@ struct MultiScoreSetupDialogView: View {
                     value: "自定义模式：点按格子打开加减分面板，可输入任意分值。\n\n传统模式：点按格子加 1 分；开启“双击减分”后，双击减 1 分。\n\n两种模式均支持负数，长按格子可编辑名称和分数。",
                     comment: ""
                 ),
-                iconFontSize: 14
+                iconFontSize: 14,
+                showsDetailSheet: true
             )
             Spacer()
             Toggle("", isOn: $customAdjustEnabled)

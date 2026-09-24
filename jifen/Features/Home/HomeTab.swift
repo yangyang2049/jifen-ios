@@ -216,6 +216,8 @@ struct HomeTab: View {
                     isPad: Theme.usesPadLayout
                 )
                 let contentWidth = geo.size.width - HomeLayoutPolicy.horizontalInset(size: geo.size) * 2
+                // 68pt bar and 8pt gap: the final card can scroll above the floating bar.
+                let unfinishedBarClearance: CGFloat = unfinishedRecord == nil ? 0 : 76
                 // 顶栏固定（对齐鸿蒙 HomeHeader），内容区独立滚动，便于后续接入同步计分 banner
                 VStack(spacing: 0) {
                     HomeHeaderView(
@@ -235,10 +237,11 @@ struct HomeTab: View {
                         buildContent(isWide: isWide, contentWidth: contentWidth)
                             .padding(.horizontal, HomeLayoutPolicy.horizontalInset(size: geo.size))
                             .padding(.top, Theme.sectionSpacing)
-                            .padding(.bottom, Theme.tabContentBottomPadding)
+                            .padding(.bottom, Theme.tabContentBottomPadding + unfinishedBarClearance)
                     }
-
-                    unfinishedGameBar
+                    .overlay(alignment: .bottom) {
+                        unfinishedGameBar
+                    }
                 }
             }
             .background(Theme.backgroundColor)
@@ -461,7 +464,6 @@ struct HomeTab: View {
             }
             .padding(.horizontal, Theme.pageHorizontalInset)
             .padding(.bottom, Theme.sm)
-            .background(Color.clear)
             .animation(.easeInOut(duration: 0.2), value: showDiscardConfirmationToast)
         }
     }

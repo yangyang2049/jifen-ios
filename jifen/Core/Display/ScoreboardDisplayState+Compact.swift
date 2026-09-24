@@ -78,6 +78,7 @@ extension ScoreboardDisplayRest {
             updatedWallClockMilliseconds: state.updatedWallClockMilliseconds,
             sport: state.sport.rawValue,
             afterAction: state.afterAction.rawValue,
+            subjectName: state.subjectName,
             title: state.title
         )
     }

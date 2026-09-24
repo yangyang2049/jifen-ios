@@ -91,7 +91,8 @@ struct SportsSetupSettingsSection: View {
         VStack(spacing: 8) {
             HStack(spacing: 6) {
                 Text(NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"))
-                    .settingsLabelStyle()
+                    .font(.system(size: 14))
+                    .foregroundStyle(Theme.textSecondary)
                 SystemHelpButton(
                     title: NSLocalizedString("football_half_length", value: "每半场时长", comment: "Football half length"),
                     message: NSLocalizedString(
@@ -103,6 +104,7 @@ struct SportsSetupSettingsSection: View {
                     accessibilityIdentifier: "football_half_length_help"
                 )
             }
+            .frame(maxWidth: .infinity)
 
             HStack(spacing: 12) {
                 footballHalfLengthStepButton(

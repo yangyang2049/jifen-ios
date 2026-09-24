@@ -476,7 +476,7 @@ struct CloudSyncIntroCard: View {
     @State private var expanded = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     expanded.toggle()
@@ -496,7 +496,7 @@ struct CloudSyncIntroCard: View {
                         .font(.system(size: 13))
                         .foregroundStyle(Theme.textSecondary)
                         Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(Theme.textSecondary)
                     }
                 }
@@ -510,7 +510,7 @@ struct CloudSyncIntroCard: View {
                 comment: ""
             ))
             .font(.system(size: 13))
-            .lineSpacing(5)
+            .lineSpacing(4)
             .foregroundStyle(Theme.textSecondary)
             .fixedSize(horizontal: false, vertical: true)
 
@@ -542,7 +542,7 @@ struct CloudSyncIntroCard: View {
                         comment: ""
                     ))
                     .font(.system(size: 12))
-                    .lineSpacing(4)
+                    .lineSpacing(3)
                     .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 }
@@ -563,19 +563,19 @@ private struct CloudSyncIntroSection: View {
             HStack(spacing: 8) {
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(Theme.primary)
-                    .frame(width: 3, height: 14)
+                    .frame(width: 3, height: 18)
                 Text(heading)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(Theme.textPrimary)
             }
             ForEach(steps, id: \.self) { step in
                 HStack(alignment: .top, spacing: 8) {
                     Text("•")
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(Theme.primary)
                     Text(step)
                         .font(.system(size: 13))
-                        .lineSpacing(5)
+                        .lineSpacing(4)
                         .foregroundStyle(Theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }

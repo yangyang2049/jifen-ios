@@ -46,6 +46,25 @@ final class LocalizationIntegrityTests: XCTestCase {
         }
     }
 
+    func testLegalLinksFollowTheAppLanguage() throws {
+        XCTAssertEqual(LegalDocuments.languageCode(for: "en"), "en")
+        XCTAssertEqual(LegalDocuments.languageCode(for: "zh-Hans"), "zh")
+        XCTAssertEqual(LegalDocuments.languageCode(for: "zh-Hant"), "zh-tw")
+
+        for url in [
+            LegalDocuments.termsURL,
+            LegalDocuments.privacyURL,
+            LegalDocuments.membershipAgreementURL,
+            LegalDocuments.autoRenewalTermsURL
+        ] {
+            let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+            XCTAssertEqual(components.host, "jifenqi.com")
+            XCTAssertEqual(components.queryItems?.first(where: { $0.name == "lang" })?.value,
+                           LegalDocuments.languageCode(for: Bundle.main.preferredLocalizations.first ?? Locale.current.identifier))
+            XCTAssertEqual(components.queryItems?.first(where: { $0.name == "source" })?.value, "mobile_app")
+        }
+    }
+
     func testEveryStaticLocalizationKeyExistsInItsTarget() throws {
         for locale in ["en", "zh-Hans", "zh-Hant"] {
             try assertStaticKeysExist(
@@ -60,7 +79,8 @@ final class LocalizationIntegrityTests: XCTestCase {
             "jifen/Resources/en.lproj/Localizable.strings",
             "jifen/Resources/en.lproj/InfoPlist.strings"
         ]
-        let allowedChineseKeys: Set<String> = ["about_company_zh"]
+        // Xiangqi piece faces are Chinese glyphs in every app language.
+        let allowedChineseKeys: Set<String> = ["about_company_zh", "timer_role_red", "timer_role_black"]
         let allowedBlankKeys: Set<String> = ["points_table_team_suffix"]
 
         for path in tables {
@@ -76,6 +96,13 @@ final class LocalizationIntegrityTests: XCTestCase {
                 }
             }
         }
+    }
+
+    func testXiangqiPieceFacesStayChineseInEnglish() throws {
+        let english = try entries(at: "jifen/Resources/en.lproj/Localizable.strings")
+        let values = Dictionary(uniqueKeysWithValues: english.map { ($0.key, $0.value) })
+        XCTAssertEqual(values["timer_role_red"], "帅")
+        XCTAssertEqual(values["timer_role_black"], "将")
     }
 
     func testDynamicLocalizationKeyFamiliesAreComplete() throws {

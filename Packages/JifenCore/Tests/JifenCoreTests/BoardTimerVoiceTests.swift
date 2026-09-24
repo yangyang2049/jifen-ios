@@ -34,11 +34,6 @@ import TimerCore
         #expect(BoardTimerVoice.resolvedSoundName("last_seconds", locale: Locale(identifier: "zh-Hant-HK")) == "last_seconds")
     }
 
-    @Test func timeoutSoundResolvesLikeOtherControlClips() {
-        #expect(BoardTimerVoice.resolvedSoundName(BoardTimerVoice.timeoutSoundBaseName, isEnglish: false) == "timeout")
-        #expect(BoardTimerVoice.resolvedSoundName(BoardTimerVoice.timeoutSoundBaseName, isEnglish: true) == "timeout_en")
-    }
-
     @Test func standaloneCountdownUsesNeutralDingClip() {
         #expect(BoardTimerVoice.countdownCompletionSoundBaseName == "ding")
     }

@@ -34,11 +34,6 @@ final class BoardTimerVoiceAnnouncer {
         playBaseName(phrase.rawValue)
     }
 
-    /// Legacy timeout voice retained for board-timer compatibility.
-    func playTimeout() {
-        playBaseName(BoardTimerVoice.timeoutSoundBaseName)
-    }
-
     /// Standalone countdown completion uses a short neutral ding on every locale.
     func playCountdownCompletion() {
         playBaseName(BoardTimerVoice.countdownCompletionSoundBaseName, localeAware: false)

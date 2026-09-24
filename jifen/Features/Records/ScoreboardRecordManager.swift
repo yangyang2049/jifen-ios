@@ -612,7 +612,11 @@ final class ScoreboardRecordManager {
         records.append(record)
         records.sort { $0.startTime > $1.startTime }
         if records.count > maxRecords {
-            store.removeRecords(Array(records.dropFirst(maxRecords)))
+            let dropped = Array(records.dropFirst(maxRecords))
+            store.removeRecords(dropped)
+            for droppedRecord in dropped {
+                Self.deleteVoiceNoteFile(droppedRecord.voiceNote?.relativePath)
+            }
         }
         AppAnalytics.scoreboardRecordSaved(record, previous: previousRecord)
         if cleanupResumeAfterWrite,
@@ -781,7 +785,9 @@ final class ScoreboardRecordManager {
         lock.lock()
         defer { lock.unlock() }
         migrateIfNeeded()
+        let previousPath = store.loadRecords().first(where: { $0.id == id })?.voiceNote?.relativePath
         guard store.delete(id: id) else { return false }
+        Self.deleteVoiceNoteFile(previousPath)
         AppAnalytics.track(.recordAction, parameters: [
             .actionName: .string("delete"),
             .recordType: .string("scoreboard"),
@@ -804,6 +810,8 @@ final class ScoreboardRecordManager {
         } catch {
             return false
         }
+        // 空引用集 = 全量移除音频，连带清掉从未被记录引用的 temp_ 残留。
+        Self.cleanupOrphanVoiceNoteFiles(referencedPaths: [])
         if !records.isEmpty {
             AppAnalytics.track(.recordAction, parameters: [
                 .recordType: .string("scoreboard"),

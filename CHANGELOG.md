@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- **全屏弹幕播放中编辑面板可滚动**：`FullscreenBarrageView` 运行态编辑面板（输入框 + 滚动/静态 + 字号/速度 + 两组颜色 + 收起按钮）改为复用 `AdaptiveSetupDialogScrollView`，高度上限取显示区高度的 60%，超出后面板内上下滚动，面板背景与圆角仍按内容收口。此前面板在 iPhone 小屏与 iPad 分屏 / Stage Manager 小窗键盘弹起时，底部控件会被裁掉——与鸿蒙 3.2 `FullscreenBarrage` 两处 Scroll 收口同一目的。
 - **iOS 本地化专项修复与校验升级**：以 Android、鸿蒙 2.9 术语为参考，补齐 iPhone/iPad 端 48 个、Apple Watch 端 36 个静态本地化键，清理篮球、斗地主、菜单、记录详情、通知与 Watch 记录动作中的用户可见硬编码；统一“选择比赛 / Select Game”“积分榜 / Standings”“确认 / Confirm”“搜索队伍或比赛 / Search team or game”、追分及“跳棋 / Checkers”术语，并兼容历史系统默认“新积分表”在英文环境下的显示。新增中英文资源键、重复键、占位符、静态/动态键族、英文中文泄漏和关键 UI 原始键名检查。
 - **iPad Setup 手表入口**：Apple Watch 仅与 iPhone 配对，iPad 上的运动与追分 Setup 对话框不再显示「在手表开始」按钮，只保留本机「开始游戏」；行为与鸿蒙端仅手机开放手表联动的设备判断一致。
 - **手表联动中断通知（P1-2）**：手表被系统中断（来电/通知/Siri）进入后台时，通过 `scenePhase` 监听自动向手机发送 `watchBackgrounded` 消息。手机端收到后在 follower 菜单中显示「⚠️ 手表已进入后台，建议接管计分」提示，用户可直接点击「接管计分」。手表恢复操作（发送新快照）或手机接管成功后自动清除提示。新增 LinkMessageKind.watchBackgrounded、WatchLinkService.notifyBackgrounded()、PhoneWatchLinkService.watchBackgrounded 属性、linked_watch_backgrounded 本地化。
@@ -25,6 +26,7 @@
 - **设置弹窗最近记录**：SportsSetupDialogView 中移除「最近记录」区块（横向滚动的最近对局卡片及「点击快速使用」提示）；移除相关状态、loadRecentRecords/loadFromRecord/formatTime/formatSetsInfo/buildRecentGameCard 及 ScoreboardRecordManager 依赖；HomeModels 中移除仅用于该功能的 RecentGameDisplay 结构体。
 
 ### Added
+- **会员页权益补第 6 项「专业投屏体验」**：`MembershipView.membershipBenefits` 由 5 项增至 6 项，沿用各项专属 SF Symbol（新增 `play.tv`，非统一对勾），三套语言包同步补 `vip_feature_cast`（en "Professional Casting" / zh-Hans「专业投屏体验」/ zh-Hant「專業投屏體驗」），键集合仍完全一致（各 1440 键）。与鸿蒙 `VipPage` 的六项 `FeatureItem(title, icon)` 及安卓 `ic_vip_cast` 同批对齐。
 - **所有计分项目均需先走 setup（至少输入名字）**：HomeTab 与 ScoreboardTab 的 sportsWithSetup 扩展为全部计分项目（乒/网/羽/足/篮/排 + 射箭/拳击/台球/匹克球/掼蛋/斗地主/简易计分/多人计分/计数器）。SportsSetupDialogView 的 getTitle 支持上述项目（无单独 key 时用 gameType.displayName +「设置」）。各计分板（Archery/Boxing/Billiards/Pickleball/Guandan/Doudizhu/SimpleScoreboard/MultiScoreboard）增加 initialSetup、onSetupConsumed，在 onAppear 中应用队名/选手名并调用 onSetupConsumed；HomeTab 与 ScoreboardTab 的 getScoreboardView 对上述项目统一传入 initialSetup 与 onSetupConsumed，从设置弹窗确认后进入计分板时名称生效。
 - **计分板常用名称与设置弹窗（对齐鸿蒙）**：SportsSetupDialogView 支持「常用名称」选择：队伍名称输入框右侧 Chevron 打开 CommonNameSelectorDialog，从 CommonNamesManager 的常用队名列表中选择并填入。从「新比赛」或首页快速开始主卡/副卡点击乒乓球/网球/羽毛球/足球/篮球/排球时，先弹出 SportsSetupDialogView 设置队名与选项，确认后再进入计分板；新比赛弹窗关闭后延迟 0.35s 再弹出设置弹窗以避免 sheet 冲突。计分板六项支持 initialSetup/onSetupConsumed，在 onAppear 中应用队名与局数/抢七/换边等配置。新增 common_names_title、common_names_empty 本地化。
 - **双人计时器设置弹窗**：围棋/象棋/国际象棋在计时 Tab（或从首页新比赛跳转）点击后先弹出 DualTimerSetupView 选择主时间（5/10/15/30/60 分钟），确认后进入 DualPlayerTimerView。新增 dual_timer_main_time 本地化。

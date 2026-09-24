@@ -124,6 +124,8 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
     public var startedWallClockMilliseconds: Int64
     public var updatedWallClockMilliseconds: Int64
     public var afterAction: OfficialBreakAfterAction
+    /// Raw team/person name. Receivers localize `kind` and compose the heading.
+    public var subjectName: String?
     /// Optional project-specific heading, for example “暂停 · 张三”.
     public var title: String?
 
@@ -133,6 +135,7 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
         durationSeconds: Int,
         source: OfficialBreakSource = .official,
         afterAction: OfficialBreakAfterAction = .none,
+        subjectName: String? = nil,
         title: String? = nil,
         nowMilliseconds: Int64 = 0
     ) {
@@ -146,6 +149,8 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
         self.startedWallClockMilliseconds = max(0, nowMilliseconds)
         self.updatedWallClockMilliseconds = max(0, nowMilliseconds)
         self.afterAction = afterAction
+        let normalizedSubjectName = subjectName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.subjectName = normalizedSubjectName?.isEmpty == false ? normalizedSubjectName : nil
         let normalizedTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines)
         self.title = normalizedTitle?.isEmpty == false ? normalizedTitle : nil
     }
@@ -153,7 +158,7 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case sport, kind, source, phase, durationSeconds, remainingSeconds
         case isRunning, startedWallClockMilliseconds, updatedWallClockMilliseconds
-        case afterAction, title
+        case afterAction, subjectName, title
     }
 
     public init(from decoder: Decoder) throws {
@@ -173,6 +178,7 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
         startedWallClockMilliseconds = try container.decode(Int64.self, forKey: .startedWallClockMilliseconds)
         updatedWallClockMilliseconds = try container.decode(Int64.self, forKey: .updatedWallClockMilliseconds)
         afterAction = try container.decode(OfficialBreakAfterAction.self, forKey: .afterAction)
+        subjectName = try container.decodeIfPresent(String.self, forKey: .subjectName)
         title = try container.decodeIfPresent(String.self, forKey: .title)
     }
 }
@@ -202,6 +208,7 @@ public struct OfficialBreakSession: Sendable {
         durationSeconds: Int,
         source: OfficialBreakSource = .official,
         afterAction: OfficialBreakAfterAction = .none,
+        subjectName: String? = nil,
         title: String? = nil,
         nowMilliseconds: Int64 = 0
     ) {
@@ -212,6 +219,7 @@ public struct OfficialBreakSession: Sendable {
             durationSeconds: durationSeconds,
             source: source,
             afterAction: afterAction,
+            subjectName: subjectName,
             title: title,
             nowMilliseconds: nowMilliseconds
         )

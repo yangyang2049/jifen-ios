@@ -302,6 +302,9 @@ enum DisplayStateWireCodec {
         if let title = rest.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
             encoded["title"] = title
         }
+        if let subjectName = rest.subjectName?.trimmingCharacters(in: .whitespacesAndNewlines), !subjectName.isEmpty {
+            encoded["subjectName"] = subjectName
+        }
         return encoded
     }
 
@@ -322,6 +325,7 @@ enum DisplayStateWireCodec {
             sport: map["sport"] as? String,
             afterAction: map["afterAction"] as? String,
             revision: revision,
+            subjectName: map["subjectName"] as? String,
             title: map["title"] as? String)
     }
 

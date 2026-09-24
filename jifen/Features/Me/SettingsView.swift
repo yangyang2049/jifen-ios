@@ -5,9 +5,25 @@ import UIKit
 private enum AppSupportURLs {
     static let website = URL(string: "https://jifenqi.com?utm_source=ios_app&utm_medium=me_tab&utm_campaign=official_website&utm_content=website_entry")!
     static let download = URL(string: "https://jifenqi.com/download?utm_source=ios_app&utm_medium=share&utm_campaign=share_app")!
+    static let appStore = URL(string: "https://apps.apple.com/us/app/%E5%85%A8%E8%83%BD%E8%AE%A1%E5%88%86%E5%99%A8/id6759768784")!
     static let support = URL(string: "https://jifenqi.com/contact")!
     static let wechatGroup = URL(string: "https://jifenqi.com/contact?utm_source=jifenqi_app&utm_medium=app_link&utm_campaign=official_wechat_group&utm_content=about_page")!
     static let qqGroupNumber = "825096333"
+
+    private static var usesEnglish: Bool {
+        Bundle.main.preferredLocalizations.first?.hasPrefix("en") == true
+    }
+
+    static var shareApp: URL {
+        usesEnglish ? appStore : download
+    }
+
+    static var localizedWebsite: URL {
+        guard usesEnglish else { return website }
+        var components = URLComponents(url: website, resolvingAgainstBaseURL: false)!
+        components.queryItems = [URLQueryItem(name: "lang", value: "en")] + (components.queryItems ?? [])
+        return components.url!
+    }
 }
 
 private enum SettingsSheetDestination: String, Identifiable {
@@ -102,7 +118,7 @@ struct SettingsView: View {
                 AnalyticsActivityView(
                     activityItems: [
                         NSLocalizedString("settings_share_app_message", value: "打球、训练或朋友聚会，用全能计分器轻松记分。支持乒乓球、羽毛球、网球、篮球和多种游戏，比分清楚，还能回看记录。", comment: ""),
-                        AppSupportURLs.download
+                        AppSupportURLs.shareApp
                     ],
                     contentType: "app_link"
                 )
@@ -212,7 +228,7 @@ struct SettingsView: View {
     private var websiteCard: some View {
         SettingsSection {
             Button {
-                openURL(AppSupportURLs.website)
+                openURL(AppSupportURLs.localizedWebsite)
             } label: {
                 SettingsNavigationRow(
                     title: NSLocalizedString("me_official_website", value: "官方网站", comment: ""),
@@ -803,10 +819,6 @@ private enum ScoreboardSettingHelp {
         }
     }
 
-    /// 该行位于页面底部，气泡固定向锚点上方展开，避免小屏（如 iPhone SE）下方空间不足被裁切。
-    var prefersAboveAnchor: Bool {
-        self == .officialBreak
-    }
 }
 
 private struct ScoreboardToggleSettingRow: View {
@@ -825,7 +837,7 @@ private struct ScoreboardToggleSettingRow: View {
                     title: help.title,
                     message: help.message,
                     accessibilityIdentifier: "\(toggleAccessibilityIdentifier)_help",
-                    preferredArrowEdge: help.prefersAboveAnchor ? .bottom : nil
+                    showsDetailSheet: help == .officialBreak || help == .doubleTapSubtract
                 )
             }
             Spacer()

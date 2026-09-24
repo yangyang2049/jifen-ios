@@ -1767,6 +1767,7 @@ struct RallyScoreboardView: View {
         durationSeconds: Int,
         afterAction: OfficialBreakAfterAction,
         source: OfficialBreakSource = .official,
+        subjectName: String? = nil,
         title: String? = nil,
         requiresPreference: Bool = true
     ) {
@@ -1778,6 +1779,7 @@ struct RallyScoreboardView: View {
             durationSeconds: durationSeconds,
             source: source,
             afterAction: afterAction,
+            subjectName: subjectName,
             title: title,
             nowMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
         )
@@ -2335,12 +2337,14 @@ struct RallyScoreboardView: View {
                 }
                 sideToast = label
                 if action.type == .timeout || action.type == .medicalTimeout {
+                    let subjectName = action.side == .left ? store.state.leftName : store.state.rightName
                     startOfficialBreak(
                         sport: .pingpong,
                         kind: action.type == .timeout ? .timeout : .medical,
                         durationSeconds: action.type == .timeout ? 60 : 600,
                         afterAction: .none,
                         source: .administrative,
+                        subjectName: subjectName,
                         title: pingPongAdministrativeChoiceTitle(action.type, side: action.side),
                         requiresPreference: false
                     )

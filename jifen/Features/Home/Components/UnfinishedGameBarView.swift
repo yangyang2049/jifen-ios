@@ -152,6 +152,13 @@ struct UnfinishedGameSummary: Sendable {
             }
         }
 
+        if gameType == .doudizhu {
+            let doudizhuNames = participants.compactMap(nonemptyName)
+            if doudizhuNames.count >= 3 {
+                return doudizhuNames.joined(separator: " vs ")
+            }
+        }
+
         let names = participants.compactMap(nonemptyName)
         return names.count >= 2 ? "\(names[0]) vs \(names[1])" : names.joined(separator: " vs ")
     }

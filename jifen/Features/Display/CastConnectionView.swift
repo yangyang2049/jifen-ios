@@ -258,7 +258,7 @@ struct CastConnectionView: View {
         .accessibilityIdentifier("cast_status_\(externalDisplay.status.rawValue)")
     }
 
-    /// 安卓 CastStatusIllustration：未连接为向外渐隐的实心圆 + Cast 图标；
+    /// 安卓 CastStatusIllustration：未连接为三层向外扩散的雷达波纹 + Cast 图标；
     /// 已连接为浅色圆角底 + 图标。
     @ViewBuilder
     private var illustration: some View {
@@ -274,14 +274,9 @@ struct CastConnectionView: View {
             .frame(width: 72, height: 72)
         } else {
             ZStack {
-                Circle()
-                    .fill(RadialGradient(
-                        colors: [Theme.primary.opacity(0.32), Theme.primary.opacity(0)],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: 56
-                    ))
-                    .frame(width: 112, height: 112)
+                ForEach(0..<3) { index in
+                    CastRippleRing(index: index)
+                }
                 Image(systemName: "airplayvideo")
                     .font(.system(size: 27))
                     .foregroundStyle(Theme.primary)
@@ -322,5 +317,40 @@ struct CastConnectionView: View {
             Int(screen.nativeBounds.width),
             Int(screen.nativeBounds.height)
         )
+    }
+}
+
+// MARK: - 等待态雷达波纹（鸿蒙 CastEntryPanel.buildRippleRing）
+
+private let castRippleBaseSize: CGFloat = 40
+private let castRippleStartScale: CGFloat = 0.75
+private let castRippleEndScale: CGFloat = 2.7
+private let castRippleDuration: Double = 2.4
+private let castRippleStagger: Double = 0.8
+private let castRippleBorderWidth: CGFloat = 1.5
+private let castRippleBaseAlpha: Double = 0.6
+private let castRippleAlphaStep: Double = 0.15
+
+/// 单层波纹：从图标外沿持续向外扩散并淡出，三层按 0.8s 依次错峰。
+/// 视图随等待态挂载，因此每次回到等待态都从第一帧重新开始。
+private struct CastRippleRing: View {
+    let index: Int
+    @State private var expanding = false
+
+    var body: some View {
+        Circle()
+            .strokeBorder(Theme.primary, lineWidth: castRippleBorderWidth)
+            .frame(width: castRippleBaseSize, height: castRippleBaseSize)
+            .scaleEffect(expanding ? castRippleEndScale : castRippleStartScale)
+            .opacity(expanding ? 0 : castRippleBaseAlpha - Double(index) * castRippleAlphaStep)
+            .onAppear {
+                withAnimation(
+                    .easeOut(duration: castRippleDuration)
+                        .delay(castRippleStagger * Double(index))
+                        .repeatForever(autoreverses: false)
+                ) {
+                    expanding = true
+                }
+            }
     }
 }

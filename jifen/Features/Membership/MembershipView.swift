@@ -336,7 +336,8 @@ struct MembershipView: View {
             ("vip_feature_themes", "专属主题", "paintpalette"),
             ("vip_feature_cloud", "云端同步", "icloud.and.arrow.up"),
             ("vip_feature_no_ads", "无广告体验", "rectangle.badge.xmark"),
-            ("vip_feature_early_access", "优先体验", "sparkles")
+            ("vip_feature_early_access", "优先体验", "sparkles"),
+            ("vip_feature_cast", "专业投屏体验", "play.tv")
         ]
     }
 

@@ -14,7 +14,7 @@ private let defaultDoudizhuNames = [
     NSLocalizedString("doudizhu_player_adam", value: "刘备", comment: ""),
     NSLocalizedString("doudizhu_player_bob", value: "关羽", comment: ""),
     NSLocalizedString("doudizhu_player_chris", value: "张飞", comment: ""),
-    "\(NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")) 4"
+    NSLocalizedString("doudizhu_player_david", value: "诸葛亮", comment: "")
 ]
 private var doudizhuTitle: String {
     NSLocalizedString("game_doudizhu", value: "Doudizhu", comment: "")

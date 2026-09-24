@@ -1903,23 +1903,28 @@ enum OfficialBreakOverlayPresentation {
         if state.phase == .preparation {
             return NSLocalizedString("official_break_prepare", value: "准备", comment: "")
         }
+        let localizedKind: String = switch state.kind {
+        case .midGame:
+            NSLocalizedString("official_break_mid_game", value: "局中休息", comment: "")
+        case .gameBreak:
+            NSLocalizedString("official_break_game", value: "局间休息", comment: "")
+        case .setBreak:
+            NSLocalizedString("official_break_set", value: "盘间休息", comment: "")
+        case .changeover:
+            NSLocalizedString("official_break_changeover", value: "换边休息", comment: "")
+        case .timeout:
+            NSLocalizedString("timeout", value: "暂停", comment: "")
+        case .medical:
+            NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
+        }
+        if let subjectName = state.subjectName?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !subjectName.isEmpty {
+            return "\(localizedKind) · \(subjectName)"
+        }
         if let title = state.title, !title.isEmpty {
             return title
         }
-        switch state.kind {
-        case .midGame:
-            return NSLocalizedString("official_break_mid_game", value: "局中休息", comment: "")
-        case .gameBreak:
-            return NSLocalizedString("official_break_game", value: "局间休息", comment: "")
-        case .setBreak:
-            return NSLocalizedString("official_break_set", value: "盘间休息", comment: "")
-        case .changeover:
-            return NSLocalizedString("official_break_changeover", value: "换边休息", comment: "")
-        case .timeout:
-            return NSLocalizedString("timeout", value: "暂停", comment: "")
-        case .medical:
-            return NSLocalizedString("medical_timeout", value: "医疗暂停", comment: "")
-        }
+        return localizedKind
     }
 
     static func showsUndo(for _: OfficialBreakState) -> Bool { true }

@@ -100,6 +100,30 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
+    /// Focused, repeatable source captures for the simplified-Chinese App Store art.
+    func testCaptureAppStoreSourceScreenshots() {
+        relaunch()
+        XCTAssertTrue(selectTab("计分"))
+        snap("marketing_sports")
+
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "badminton", label: "羽毛球"))
+        snap("marketing_badminton_setup")
+
+        XCTAssertTrue(openPriorityScoreboardSetup(id: "basketball", label: "篮球"))
+        XCTAssertTrue(tapStart())
+        XCUIDevice.shared.orientation = .landscapeRight
+        snap("marketing_basketball")
+
+        relaunch()
+        XCTAssertTrue(selectTab("计时"))
+        let go = app.descendants(matching: .any)["timer_dest_go"]
+        XCTAssertTrue(go.waitForExistence(timeout: 4))
+        go.tap()
+        XCTAssertTrue(tapStart())
+        XCUIDevice.shared.orientation = .landscapeLeft
+        snap("marketing_go_timer")
+    }
+
     /// 重点项目截图矩阵：四种球类分别覆盖单打/双打，并补齐掼蛋的真实操作状态。
     /// 每个场景都保留设置、初始计分板、操作后和菜单 Overlay 四张截图，方便人工复核。
     func testCapturePrioritySportsVariants() {

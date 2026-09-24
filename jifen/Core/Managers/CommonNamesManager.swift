@@ -37,7 +37,9 @@ class CommonNamesManager {
             "red team", "blue team", "red", "blue", "home", "away", "team a", "team b",
             "player a", "player b", "archer a", "archer b", "player 1", "player 2",
             "red a", "red b", "blue a", "blue b",
-            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b"
+            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b",
+            "刘备", "关羽", "张飞", "诸葛亮", "劉備", "關羽", "張飛", "諸葛亮",
+            "liu bei", "guan yu", "zhang fei", "zhuge liang", "adam", "bob", "chris", "david"
         ]
         return Set(list.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) })
     }()

@@ -15,7 +15,8 @@ import Foundation
 ///
 /// Bundle also contains Harmony rawfile leftovers `one`…`ten` that are **not** in Harmony
 /// `SoundType` / board-timer playback — keep for asset parity, do not announce from DualPlayer.
-/// `timeout` is used by the standalone countdown tool (Harmony `CountdownPage`), not board timers.
+/// The standalone countdown tool (Harmony `CountdownPage` equivalent) plays the neutral `ding`
+/// clip on completion; the Harmony `timeout` voice asset was removed as unused on iOS.
 public enum BoardTimerVoice {
     public enum ControlSound: String, Sendable {
         case start
@@ -30,8 +31,6 @@ public enum BoardTimerVoice {
         case lastSeconds = "last_seconds"
     }
 
-    /// Harmony countdown-end clip (`SoundType.TIMEOUT`).
-    public static let timeoutSoundBaseName = "timeout"
     /// Neutral standalone countdown completion clip shared by all locales.
     public static let countdownCompletionSoundBaseName = "ding"
 

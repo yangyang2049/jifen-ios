@@ -959,6 +959,7 @@ final class ScoreboardDisplayTests: XCTestCase {
         state.appearance.rightSecondaryHex = "#123456"
         state.rest = ScoreboardDisplayRest(kind: "game_break", phase: "countdown", remainingSeconds: 60,
             isRunning: true, updatedWallClockMilliseconds: 100_000, afterAction: "exchange_sides",
+            subjectName: "张三",
             title: "张三 · 暂停")
         let wire = try XCTUnwrap(DisplayStateWireCodec.encode(state, atWallClockMilliseconds: 102_000))
         let appearance = try XCTUnwrap(wire["appearance"] as? [String: Any])
@@ -973,12 +974,14 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertEqual(rest["sport"] as? String, "badminton")
         XCTAssertEqual(rest["remainingMs"] as? Int, 58_000)
         XCTAssertEqual(rest["afterAction"] as? String, "exchange_sides")
+        XCTAssertEqual(rest["subjectName"] as? String, "张三")
         XCTAssertEqual(rest["title"] as? String, "张三 · 暂停")
         let decoded = try XCTUnwrap(DisplayStateWireCodec.decode(wire))
         XCTAssertEqual(decoded.appearance.rightMainTextHex, "#00FF00")
         XCTAssertEqual(decoded.appearance.style?.color("setScore", slot: "side_right"), "#123456")
         XCTAssertEqual(decoded.appearance.fontSizeMultipliers?["mainScore"], 1.5)
         XCTAssertEqual(decoded.rest?.remainingSeconds, 58)
+        XCTAssertEqual(decoded.rest?.subjectName, "张三")
         XCTAssertEqual(decoded.rest?.title, "张三 · 暂停")
         state.rest?.phase = "preparation"
         state.rest?.remainingSeconds = 5

@@ -172,7 +172,7 @@ struct FullscreenBarrageView: View {
                 rotatesContentClockwise: usesContentRotationFallback
             )
 
-            runningDisplaySurface(width: displaySize.width, overlayPadding: overlayPadding)
+            runningDisplaySurface(width: displaySize.width, height: displaySize.height, overlayPadding: overlayPadding)
                 .frame(width: displaySize.width, height: displaySize.height)
                 .rotationEffect(.degrees(usesContentRotationFallback ? 90 : 0))
                 .position(x: container.size.width / 2, y: container.size.height / 2)
@@ -185,6 +185,7 @@ struct FullscreenBarrageView: View {
 
     private func runningDisplaySurface(
         width: CGFloat,
+        height: CGFloat,
         overlayPadding: FullscreenBarrageOverlayPadding
     ) -> some View {
         ZStack {
@@ -206,7 +207,7 @@ struct FullscreenBarrageView: View {
 
             VStack(spacing: 0) {
                 if showEditor {
-                    runningEditor
+                    runningEditor(maxHeight: height * 0.6)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 } else {
                     runningOverlayButtons(padding: overlayPadding)
@@ -264,53 +265,56 @@ struct FullscreenBarrageView: View {
         .padding(.top, padding.top)
     }
 
-    private var runningEditor: some View {
-        VStack(spacing: 12) {
-            TextField(NSLocalizedString("barrage_input_placeholder", value: "输入要展示的内容", comment: ""), text: $message)
-                .textFieldStyle(.plain)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 12)
-                .frame(height: 44)
-                .frame(maxWidth: .infinity)
-                .background(Color(hex: "374151").opacity(0.95))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    private func runningEditor(maxHeight: CGFloat) -> some View {
+        AdaptiveSetupDialogScrollView(maxHeight: maxHeight, bottomClearance: 0) {
+            VStack(spacing: 12) {
+                TextField(NSLocalizedString("barrage_input_placeholder", value: "输入要展示的内容", comment: ""), text: $message)
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .frame(height: 44)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(hex: "374151").opacity(0.95))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
-            HStack(spacing: 10) {
-                Button(NSLocalizedString("barrage_scroll_mode", value: "滚动", comment: "")) {
-                    mode = .scroll
-                    scrollStartedAt = Date()
+                HStack(spacing: 10) {
+                    Button(NSLocalizedString("barrage_scroll_mode", value: "滚动", comment: "")) {
+                        mode = .scroll
+                        scrollStartedAt = Date()
+                    }
+                    .buttonStyle(BarrageModeButtonStyle(color: Theme.primary))
+                    .frame(maxWidth: .infinity)
+
+                    Button(NSLocalizedString("barrage_static_mode", value: "静态", comment: "")) {
+                        mode = .static
+                    }
+                    .buttonStyle(BarrageModeButtonStyle(color: Color(hex: "16A34A")))
+                    .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(BarrageModeButtonStyle(color: Theme.primary))
-                .frame(maxWidth: .infinity)
 
-                Button(NSLocalizedString("barrage_static_mode", value: "静态", comment: "")) {
-                    mode = .static
+                compactSlider(title: NSLocalizedString("barrage_font_size", value: "字号", comment: ""), value: $fontSize, range: 20...200)
+                compactSlider(title: NSLocalizedString("barrage_scroll_speed", value: "速度", comment: ""), value: $speed, range: 5...50)
+
+                compactColors(colors: textColors, selection: $textColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                compactColors(colors: backgroundColors, selection: $backgroundColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { showEditor = false }
+                } label: {
+                    Image(systemName: "chevron.up")
+                        .foregroundStyle(.white.opacity(0.75))
+                        .frame(width: 44, height: 30)
                 }
-                .buttonStyle(BarrageModeButtonStyle(color: Color(hex: "16A34A")))
-                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
             }
-
-            compactSlider(title: NSLocalizedString("barrage_font_size", value: "字号", comment: ""), value: $fontSize, range: 20...200)
-            compactSlider(title: NSLocalizedString("barrage_scroll_speed", value: "速度", comment: ""), value: $speed, range: 5...50)
-
-            compactColors(colors: textColors, selection: $textColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            compactColors(colors: backgroundColors, selection: $backgroundColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) { showEditor = false }
-            } label: {
-                Image(systemName: "chevron.up")
-                    .foregroundStyle(.white.opacity(0.75))
-                    .frame(width: 44, height: 30)
-            }
-            .buttonStyle(.plain)
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 12)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 14)
-        .padding(.bottom, 12)
-        .frame(maxWidth: .infinity, alignment: .top)
+        .fixedSize(horizontal: false, vertical: true)
         .background(Color(hex: "1F2937").opacity(0.96))
         .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: 16, bottomTrailingRadius: 16))
     }

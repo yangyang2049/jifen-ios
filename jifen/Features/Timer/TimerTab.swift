@@ -25,6 +25,13 @@ struct TimerTab: View {
 
     private static let dualTimerDestinations: Set<TimerDestination> = Set(GameCatalog.timerAllItems.filter { $0.requiresDualSetup })
 
+    private var boardGameItems: [TimerDestination] {
+        if Bundle.main.preferredLocalizations.first?.hasPrefix("en") == true {
+            return [.chess, .checkers, .go, .xiangqi]
+        }
+        return GameCatalog.timerBoardGameItems
+    }
+
     var body: some View {
         NavigationStack {
             let usesPadLayout = Theme.usesPadLayout
@@ -39,7 +46,7 @@ struct TimerTab: View {
                     VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
                         timerSectionGroup(
                             title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
-                            items: GameCatalog.timerBoardGameItems,
+                            items: boardGameItems,
                             availableWidth: availableWidth,
                             usesPadLayout: usesPadLayout
                         )

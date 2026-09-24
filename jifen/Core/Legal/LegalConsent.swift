@@ -8,8 +8,7 @@ enum LegalDocuments {
     }
 
     static var privacyURL: URL {
-        // App stores compare this URL byte-for-byte with the submitted privacy URL.
-        URL(string: "https://jifenqi.com/privacy")!
+        localizedURL(path: "privacy")
     }
 
     static var membershipAgreementURL: URL {
@@ -33,8 +32,13 @@ enum LegalDocuments {
     }
 
     private static var documentLanguageCode: String {
-        guard Locale.current.language.languageCode?.identifier == "zh" else { return "en" }
-        return ChineseScript.isTraditional() ? "zh-tw" : "zh"
+        languageCode(for: Bundle.main.preferredLocalizations.first ?? Locale.current.identifier)
+    }
+
+    static func languageCode(for localization: String) -> String {
+        let locale = Locale(identifier: localization)
+        guard locale.language.languageCode?.identifier == "zh" else { return "en" }
+        return ChineseScript.isTraditional(locale: locale) ? "zh-tw" : "zh"
     }
 }
 

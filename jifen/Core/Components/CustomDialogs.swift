@@ -19,13 +19,20 @@ struct SystemHelpButton: View {
     var accessibilityIdentifier: String? = nil
     /// 手动指定箭头边（.top = 气泡在锚点下方展开、.bottom = 在上方展开）；nil 时自动判断。
     var preferredArrowEdge: Edge? = nil
+    /// 较长的说明使用可滚动页面，避免紧凑屏幕上的 popover 裁切正文。
+    var showsDetailSheet = false
 
-    @State private var isPresented = false
+    @State private var isPopoverPresented = false
+    @State private var isSheetPresented = false
     @State private var fitsBelowAnchor = true
 
     var body: some View {
         Button {
-            isPresented = true
+            if showsDetailSheet {
+                isSheetPresented = true
+            } else {
+                isPopoverPresented = true
+            }
         } label: {
             Image(systemName: "questionmark.circle")
                 .font(.system(size: iconFontSize, weight: .semibold))
@@ -40,14 +47,14 @@ struct SystemHelpButton: View {
             GeometryReader { geo in
                 Color.clear
                     .onAppear { fitsBelowAnchor = Self.popoverFitsBelow(geo.frame(in: .global)) }
-                    .onChange(of: isPresented) { _, presented in
+                    .onChange(of: isPopoverPresented) { _, presented in
                         guard presented else { return }
                         fitsBelowAnchor = Self.popoverFitsBelow(geo.frame(in: .global))
                     }
             }
         )
         .popover(
-            isPresented: $isPresented,
+            isPresented: $isPopoverPresented,
             attachmentAnchor: .rect(.bounds),
             arrowEdge: preferredArrowEdge ?? (fitsBelowAnchor ? .top : .bottom)
         ) {
@@ -64,6 +71,26 @@ struct SystemHelpButton: View {
             .padding(20)
             .frame(idealWidth: 280, maxWidth: 320, alignment: .leading)
             .presentationCompactAdaptation(.popover)
+        }
+        .sheet(isPresented: $isSheetPresented) {
+            NavigationStack {
+                ScrollView {
+                    Text(message)
+                        .font(.body)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(20)
+                }
+                .navigationTitle(title)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(NSLocalizedString("done", value: "完成", comment: "")) {
+                            isSheetPresented = false
+                        }
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
         }
     }
 
