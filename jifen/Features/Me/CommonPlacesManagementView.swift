@@ -134,7 +134,7 @@ struct CommonPlacesManagementView: View {
                 deleteSelected()
             }
         } message: {
-            Text(String(format: NSLocalizedString(
+            Text(String.localizedStringWithFormat(NSLocalizedString(
                 "common_places_batch_delete_confirm",
                 value: "确认删除选中的 %d 个地点？",
                 comment: ""

@@ -390,9 +390,10 @@ final class ScheduleModelTests: XCTestCase {
 
         let manager = CommonNamesManager(userDefaults: defaults)
         try manager.addName("Alice", type: .player)
-        await manager.saveNameIfNeeded("Bob", .player)
+        // Bob 是预制默认名（不自动保存），这里用非预制名验证自动保存与不重排。
+        await manager.saveNameIfNeeded("Benjamin", .player)
         await manager.saveNameIfNeeded("Alice", .player)
-        XCTAssertEqual(manager.getNames(type: .player), ["Bob", "Alice"])
+        XCTAssertEqual(manager.getNames(type: .player), ["Benjamin", "Alice"])
     }
 
     private func shanghaiCalendar() -> Calendar {

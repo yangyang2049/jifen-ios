@@ -30,6 +30,15 @@ struct HomeHeaderView: View {
         return state.controller.state
     }
 
+    private var castEntryTitle: String {
+        let localization = Bundle.main.preferredLocalizations.first ?? "en"
+        let language = Locale(identifier: localization).language.languageCode?.identifier
+        if language == "zh" || language == "ko" {
+            return NSLocalizedString("display_connection_title", value: "投屏与同步", comment: "")
+        }
+        return NSLocalizedString("display_connection_tab_cast", value: "投屏", comment: "")
+    }
+
     private var normalHeader: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -54,8 +63,10 @@ struct HomeHeaderView: View {
                         .font(.system(size: 13, weight: .semibold))
                     Text(externalDisplay.status == .dedicated
                          ? NSLocalizedString("cast_active", value: "投屏中", comment: "")
-                         : NSLocalizedString("home_sync_entry", value: "投屏与同步", comment: ""))
+                         : castEntryTitle)
                         .font(.system(size: 13, weight: .semibold))
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
                 .foregroundStyle(externalDisplay.status == .dedicated ? Color.white : Theme.primary)
                 .padding(.horizontal, 12)
@@ -170,8 +181,8 @@ struct HomeSharingActiveHeaderView: View {
                 displays[0].name
             )
         }
-        return String(
-            format: NSLocalizedString("home_sync_connected_devices", value: "%d 台设备已连接", comment: ""),
+        return String.localizedStringWithFormat(
+            NSLocalizedString("home_sync_connected_devices", value: "%d 台设备已连接", comment: ""),
             displays.count
         )
     }

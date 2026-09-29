@@ -49,6 +49,12 @@ final class SessionStore {
     private let tokenStore: AuthTokenStore
     private let appleProvider: any AccountIdentityProviding
     private var didRestore = false
+    /// 两步补偿：图片已传成功但 PATCH profile 失败时记住 URL，下次上传先补 PATCH，不重复传图。
+    private var pendingAvatarURL: String?
+    #if DEBUG
+    /// UI 测试假登录态：没有真实 token，抑制 401/无 token 引发的会话过期回退。
+    private var uiTestFakeSessionActive = false
+    #endif
     private var lastProfileReloadAt: Date?
     private var sessionExpiredObserver: NSObjectProtocol?
 
@@ -74,12 +80,32 @@ final class SessionStore {
     func restore() async {
         guard !didRestore else { return }
         didRestore = true
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-UITestFakeSession") {
+            var stub = AppUser(
+                uid: "ui-test-uid",
+                id: "ui-test-user",
+                name: "UITestUser",
+                role: "FREE",
+                plan: "FREE",
+                createdAt: Int64(Date().timeIntervalSince1970 * 1000)
+            )
+            if ProcessInfo.processInfo.arguments.contains("-UITestFakeSessionReview") {
+                stub.avatarVisibility = "OWNER_PREVIEW"
+            }
+            user = stub
+            state = .authenticated
+            uiTestFakeSessionActive = true
+            return
+        }
+        #endif
         guard await tokenStore.authToken() != nil else {
             state = .signedOut
             return
         }
         do {
-            user = try await client.request("/api/auth/me", requiresAuth: true)
+            // 启动恢复走短超时且不重试：离线时快速失败，不占满 45s 资源超时把首屏挂住。
+            user = try await client.request("/api/auth/me", requiresAuth: true, timeout: 8, retries: 0)
             state = .authenticated
             lastError = nil
             await runPostAuthenticationWarmup(userId: user?.id)
@@ -192,40 +218,87 @@ final class SessionStore {
         )
     }
 
-    func uploadAvatar(_ sourceData: Data) async -> Bool {
+    func uploadAvatar(_ sourceData: Data) async -> ProfileUpdateOutcome {
         nonisolated struct UploadResponse: Decodable, Sendable { let url: String }
         nonisolated struct Body: Encodable, Sendable { let avatarUrl: String }
+        guard !isWorking else {
+            return .failed(NSLocalizedString(
+                "me_profile_avatar_upload_failed",
+                value: "头像上传失败，请稍后重试",
+                comment: ""
+            ))
+        }
         guard let jpegData = Self.prepareAvatarJPEG(sourceData) else {
-            lastError = NSLocalizedString("account_avatar_invalid", value: "无法读取这张图片", comment: "")
-            return false
+            let message = NSLocalizedString("account_avatar_invalid", value: "无法读取这张图片", comment: "")
+            lastError = message
+            return .failed(message)
         }
         isWorking = true
         lastError = nil
         defer { isWorking = false }
         do {
-            let boundary = "JifenAvatar-\(UUID().uuidString)"
-            var multipart = Data()
-            multipart.appendUTF8("--\(boundary)\r\n")
-            multipart.appendUTF8("Content-Disposition: form-data; name=\"avatar\"; filename=\"avatar.jpg\"\r\n")
-            multipart.appendUTF8("Content-Type: image/jpeg\r\n\r\n")
-            multipart.append(jpegData)
-            multipart.appendUTF8("\r\n--\(boundary)--\r\n")
-            let upload: UploadResponse = try await client.upload(
-                "/api/auth/upload-avatar",
-                multipartBody: multipart,
-                boundary: boundary
-            )
-            let response: ProfileUpdateResponse = try await client.request(
-                "/api/auth/profile",
-                method: .patch,
-                body: Body(avatarUrl: upload.url),
-                requiresAuth: true
-            )
-            user = response.user
-            return true
+            let appliedURL: String
+            var uploadedJPEG: Data? = nil
+            if let pendingAvatarURL {
+                // 上一步已把图传上去了：只补 PATCH，不再重复上传图片
+                let response: ProfileUpdateResponse = try await client.request(
+                    "/api/auth/profile",
+                    method: .patch,
+                    body: Body(avatarUrl: pendingAvatarURL),
+                    requiresAuth: true
+                )
+                appliedURL = pendingAvatarURL
+                self.pendingAvatarURL = nil
+                user = response.user
+            } else {
+                let boundary = "JifenAvatar-\(UUID().uuidString)"
+                var multipart = Data()
+                multipart.appendUTF8("--\(boundary)\r\n")
+                multipart.appendUTF8("Content-Disposition: form-data; name=\"avatar\"; filename=\"avatar.jpg\"\r\n")
+                multipart.appendUTF8("Content-Type: image/jpeg\r\n\r\n")
+                multipart.append(jpegData)
+                multipart.appendUTF8("\r\n--\(boundary)--\r\n")
+                let upload: UploadResponse = try await client.upload(
+                    "/api/auth/upload-avatar",
+                    multipartBody: multipart,
+                    boundary: boundary
+                )
+                do {
+                    let response: ProfileUpdateResponse = try await client.request(
+                        "/api/auth/profile",
+                        method: .patch,
+                        body: Body(avatarUrl: upload.url),
+                        requiresAuth: true
+                    )
+                    appliedURL = upload.url
+                    user = response.user
+                    uploadedJPEG = jpegData
+                } catch let patchError as APIClientError {
+                    // 图已在服务端，记住 URL，下次点头像直接补 PATCH；仅会话失效不补偿。
+                    if case .sessionExpired = patchError { throw patchError }
+                    pendingAvatarURL = upload.url
+                    throw patchError
+                }
+            }
+            // 刚上传的图已在内存：种进缓存，头部同步出图，免一次网络回拉
+            if let avatarURL = APIAssetURLResolver.resolve(appliedURL),
+               let image = uploadedJPEG.flatMap(UIImage.init(data:)) {
+                RemoteImageCache.shared.insert(image, for: avatarURL)
+            }
+            lastError = nil
+            if user?.avatarVisibility?.uppercased() == "OWNER_PREVIEW" {
+                return .submittedForReview
+            }
+            return .updated
         } catch {
-            await handle(error)
-            return false
+            if error as? APIClientError == .sessionExpired {
+                pendingAvatarURL = nil
+                await expireSession()
+                return .failed(lastError ?? error.localizedDescription)
+            }
+            let message = Self.profileUpdateErrorMessage(error)
+            lastError = message
+            return .failed(message)
         }
     }
 
@@ -237,6 +310,7 @@ final class SessionStore {
             requiresAuth: isAuthenticated
         )
         await client.clearSession()
+        pendingAvatarURL = nil
         user = nil
         state = .signedOut
         // 登出即终止云端同步会话：发送 LEAVE、断开 WebSocket 并禁止自动重连（对齐安卓端会话随登出终止）。
@@ -245,7 +319,11 @@ final class SessionStore {
     }
 
     private func expireSession() async {
+        #if DEBUG
+        if uiTestFakeSessionActive { return }
+        #endif
         await client.clearSession()
+        pendingAvatarURL = nil
         user = nil
         state = .signedOut
         lastError = APIClientError.sessionExpired.localizedDescription
@@ -320,6 +398,7 @@ final class SessionStore {
             switch apiError {
             case .invalidResponse: return (.failed, "invalid_response")
             case .sessionExpired: return (.failed, "session_expired")
+            case .unauthorized: return (.failed, "session_expired")
             case .server: return (.failed, "server")
             case .decoding: return (.failed, "decoding")
             }
@@ -342,14 +421,16 @@ final class SessionStore {
         }
     }
 
-    nonisolated private static func prepareAvatarJPEG(_ data: Data) -> Data? {
+    nonisolated static func prepareAvatarJPEG(_ data: Data) -> Data? {
         guard var image = UIImage(data: data) else { return nil }
         let maxSide: CGFloat = 1024
         let longest = max(image.size.width, image.size.height)
         if longest > maxSide {
             let scale = maxSide / longest
             let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-            let renderer = UIGraphicsImageRenderer(size: size)
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 1
+            let renderer = UIGraphicsImageRenderer(size: size, format: format)
             image = renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }
         }
         for quality in stride(from: 0.86, through: 0.32, by: -0.09) {

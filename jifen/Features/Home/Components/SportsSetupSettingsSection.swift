@@ -566,8 +566,8 @@ struct SportsSetupSettingsSection: View {
             Button {
                 text.wrappedValue = selection.wrappedValue > 0 ? String(selection.wrappedValue) : "1"
             } label: {
-                Text(NSLocalizedString("custom", value: "自定义", comment: ""))
-                    .font(.system(size: 13))
+                Image(systemName: "pencil")
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Theme.textPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(minWidth: 58, minHeight: 36)
@@ -575,6 +575,7 @@ struct SportsSetupSettingsSection: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
         }
     }
 
@@ -632,8 +633,8 @@ struct SportsSetupSettingsSection: View {
                 text.wrappedValue = String(seed)
                 selection.wrappedValue = seed
             } label: {
-                Text(NSLocalizedString("custom", value: "自定义", comment: ""))
-                    .font(.system(size: 13))
+                Image(systemName: "pencil")
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Theme.textPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(minWidth: 58, minHeight: 36)
@@ -641,6 +642,7 @@ struct SportsSetupSettingsSection: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
         }
     }
 
@@ -743,8 +745,8 @@ struct SportsSetupSettingsSection: View {
                         draft.customMaxSetsText = ""
                     }
                 }) {
-                    Text(NSLocalizedString("custom", value: "自定义", comment: ""))
-                        .font(.system(size: 14))
+                    Image(systemName: "pencil")
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundColor(getChipTextColor(selected: !matchCompletionPresets.contains(draft.selectedMaxSets)))
                         .frame(maxWidth: .infinity)
                         .frame(minWidth: 58, minHeight: 36)
@@ -752,6 +754,7 @@ struct SportsSetupSettingsSection: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("custom", value: "自定义", comment: ""))
                 .accessibilityIdentifier("custom_match_sets_button")
             }
             .frame(maxWidth: .infinity, alignment: .center)

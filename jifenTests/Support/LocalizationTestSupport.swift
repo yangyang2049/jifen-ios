@@ -1,6 +1,6 @@
 import Foundation
 
-/// Shared plumbing for the three-language localization gates
+/// Shared plumbing for every localization that has been promoted into the app.
 /// (LocalizationIntegrityTests, ScoreboardRecordV4Tests, …).
 enum LocalizationTestSupport {
     struct Entry: Equatable {
@@ -8,23 +8,54 @@ enum LocalizationTestSupport {
         let value: String
     }
 
-    static let localizablePaths: [String: String] = [
-        "en": "jifen/Resources/en.lproj/Localizable.strings",
-        "zh-Hans": "jifen/Resources/zh-Hans.lproj/Localizable.strings",
-        "zh-Hant": "jifen/Resources/zh-Hant.lproj/Localizable.strings",
-    ]
-
-    static let infoPlistPaths: [String: String] = [
-        "en": "jifen/Resources/en.lproj/InfoPlist.strings",
-        "zh-Hans": "jifen/Resources/zh-Hans.lproj/InfoPlist.strings",
-        "zh-Hant": "jifen/Resources/zh-Hant.lproj/InfoPlist.strings",
-    ]
-
     static var repositoryRoot: URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()   // Support
             .deletingLastPathComponent()   // jifenTests
             .deletingLastPathComponent()   // repo root
+    }
+
+    static var promotedLocales: [String] {
+        let resources = repositoryRoot.appendingPathComponent("jifen/Resources")
+        let directories = (try? FileManager.default.contentsOfDirectory(
+            at: resources,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        )) ?? []
+        return directories.compactMap { directory in
+            guard directory.pathExtension == "lproj" else { return nil }
+            let localizable = directory.appendingPathComponent("Localizable.strings")
+            let infoPlist = directory.appendingPathComponent("InfoPlist.strings")
+            let stringsdict = directory.appendingPathComponent("Localizable.stringsdict")
+            guard FileManager.default.fileExists(atPath: localizable.path),
+                  FileManager.default.fileExists(atPath: infoPlist.path),
+                  FileManager.default.fileExists(atPath: stringsdict.path)
+            else { return nil }
+            return directory.deletingPathExtension().lastPathComponent
+        }.sorted()
+    }
+
+    static var localizablePaths: [String: String] {
+        Dictionary(uniqueKeysWithValues: promotedLocales.map {
+            ($0, "jifen/Resources/\($0).lproj/Localizable.strings")
+        })
+    }
+
+    static var infoPlistPaths: [String: String] {
+        Dictionary(uniqueKeysWithValues: promotedLocales.map {
+            ($0, "jifen/Resources/\($0).lproj/InfoPlist.strings")
+        })
+    }
+
+    static var stringsdictPaths: [String: String] {
+        Dictionary(uniqueKeysWithValues: promotedLocales.map {
+            ($0, "jifen/Resources/\($0).lproj/Localizable.stringsdict")
+        })
+    }
+
+    static func propertyList(relativePath: String) throws -> [String: Any] {
+        let data = try Data(contentsOf: repositoryRoot.appendingPathComponent(relativePath))
+        return try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] ?? [:]
     }
 
     /// Simplified-only glyphs observed in the zh-Hans table (opencc cn->tw changes them).

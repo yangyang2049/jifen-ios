@@ -768,6 +768,10 @@ func scoreboardCardActionButton(
         Text(title)
             .font(.system(size: Theme.usesPadLayout ? 20 : 16, weight: .bold))
             .foregroundStyle(ScoreboardAppearanceSnapshot.current().theme.palette.foreground)
+            .lineLimit(2)
+            .multilineTextAlignment(.center)
+            .minimumScaleFactor(0.85)
+            .padding(.horizontal, 6)
             .frame(width: width ?? size, height: size)
             .background(Capsule().fill(ScoreboardTheme.auxiliaryButtonBackgroundSubtle))
     }

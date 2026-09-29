@@ -25,8 +25,8 @@ struct NewGameDialogView: View {
 
     @State private var selectedTab: NewGameDialogTab = .score
 
-    /// 计分 Tab：全部计分项目
-    private static let scoreGameTypes: [GameType] = GameCatalog.scoreboardGameTypes
+    /// 计分 Tab：全部计分项目（英文界面隐藏毽球/气排球）
+    private static let scoreGameTypes: [GameType] = GameCatalog.scoreboardGameTypes.filter { GameCatalog.isSelectable($0) }
     /// 计时 Tab：可选计时项目（不含秒表）
     private static let timerGameTypes: [GameType] = GameCatalog.timerSelectableGameTypes.filter { $0 != .stopwatch }
 

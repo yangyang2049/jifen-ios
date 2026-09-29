@@ -1,0 +1,145 @@
+{
+  "value_type": "d",
+  "keys": [
+    {
+      "key": "match_count",
+      "one": "%d match",
+      "other": "%d matches"
+    },
+    {
+      "key": "timer_byoyomi_periods_format",
+      "one": "Byoyomi %d period",
+      "other": "Byoyomi %d periods"
+    },
+    {
+      "key": "display_training_fixed_points",
+      "one": "%d-point shot",
+      "other": "%d-point shots"
+    },
+    {
+      "key": "record_format_sets_play_all",
+      "one": "Play all %d set",
+      "other": "Play all %d sets"
+    },
+    {
+      "key": "record_format_sets_play_all_tennis",
+      "one": "Play all %d set",
+      "other": "Play all %d sets"
+    },
+    {
+      "key": "record_format_points_per_set",
+      "one": "%d point per set",
+      "other": "%d points per set"
+    },
+    {
+      "key": "record_format_pickleball_score",
+      "one": "Target %d point",
+      "other": "Target %d points"
+    },
+    {
+      "key": "players_count_format",
+      "one": "%d Player",
+      "other": "%d Players"
+    },
+    {
+      "key": "random_team_team_count_format",
+      "one": "%d Team",
+      "other": "%d Teams"
+    },
+    {
+      "key": "common_names_batch_delete_confirm",
+      "one": "Delete %d selected name?",
+      "other": "Delete %d selected names?"
+    },
+    {
+      "key": "records_batch_selected_n",
+      "one": "%d selected",
+      "other": "%d selected"
+    },
+    {
+      "key": "common_places_batch_delete_confirm",
+      "one": "Delete %d selected place?",
+      "other": "Delete %d selected places?"
+    },
+    {
+      "key": "schedule_reminder_hours_before",
+      "one": "%d hour before",
+      "other": "%d hours before"
+    },
+    {
+      "key": "schedule_reminder_minutes_before",
+      "one": "%d minute before",
+      "other": "%d minutes before"
+    },
+    {
+      "key": "schedule_participants_limit",
+      "one": "Up to %d person; duplicate names are merged",
+      "other": "Up to %d people; duplicate names are merged"
+    },
+    {
+      "key": "schedule_batch_delete_message",
+      "one": "Delete the selected %d booking?",
+      "other": "Delete the selected %d bookings?"
+    },
+    {
+      "key": "schedule_sets_summary",
+      "one": "%d set / frame",
+      "other": "%d sets / frames"
+    },
+    {
+      "key": "schedule_points_summary",
+      "one": "%d point per set",
+      "other": "%d points per set"
+    },
+    {
+      "key": "sync_sets_format",
+      "one": "%d set",
+      "other": "%d sets"
+    },
+    {
+      "key": "sync_games_format",
+      "one": "%d game",
+      "other": "%d games"
+    },
+    {
+      "key": "tennis_sync_sets_format",
+      "one": "%d set",
+      "other": "%d sets"
+    },
+    {
+      "key": "tennis_sync_games_format",
+      "one": "%d game",
+      "other": "%d games"
+    },
+    {
+      "key": "sync_players_format",
+      "one": "%d player",
+      "other": "%d players"
+    },
+    {
+      "key": "home_sync_connected_devices",
+      "one": "%d device connected",
+      "other": "%d devices connected"
+    },
+    {
+      "key": "feedback_time_days_ago",
+      "one": "%d day ago",
+      "other": "%d days ago"
+    },
+    {
+      "key": "feedback_comment_count_label",
+      "one": "Comment (%d)",
+      "other": "Comments (%d)"
+    },
+    {
+      "key": "feedback_image_prepare_failed",
+      "one": "%d image couldn't be processed. Please try a different one.",
+      "other": "%d images couldn't be processed. Please try different ones."
+    },
+    {
+      "key": "basketball_fouls_count",
+      "one": "Foul %d",
+      "other": "Fouls %d"
+    }
+  ]
+}

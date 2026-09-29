@@ -113,9 +113,9 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .boxing, emoji: "🥊", section: .sports),
 
         ScoreboardCatalogItem(gameType: .billiards, emoji: "🎱", section: .billiards),
+        ScoreboardCatalogItem(gameType: .snooker, emoji: "🎱", section: .billiards),
         ScoreboardCatalogItem(gameType: .eightBall, emoji: "🎱", section: .billiards),
         ScoreboardCatalogItem(gameType: .nineBall, emoji: "🎱", section: .billiards),
-        ScoreboardCatalogItem(gameType: .snooker, emoji: "🎱", section: .billiards),
 
         ScoreboardCatalogItem(gameType: .doudizhu, emoji: "🃏", section: .cardGames),
         ScoreboardCatalogItem(gameType: .guandan, emoji: "🃏", section: .cardGames),
@@ -127,8 +127,35 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .multiScoreboard, emoji: "👥", section: .other)
     ]
 
+    /// 英文界面 Score Tab 运动分区靠前的项目：网球、匹克球、羽毛球、乒乓球，
+    /// 其余运动保持目录默认顺序；中文界面不受影响。
+    private static let englishLeadingSports: [GameType] = [.tennis, .pickleball, .badminton, .pingpong]
+
     static func scoreboardItems(in section: ScoreboardCatalogSection) -> [ScoreboardCatalogItem] {
-        scoreboardItems.filter { $0.section == section }
+        let items = scoreboardItems.filter { $0.section == section && isSelectable($0.gameType) }
+        guard isEnglishUI, section == .sports else { return items }
+        let leading = englishLeadingSports.compactMap { type in items.first { $0.gameType == type } }
+        let rest = items.filter { !englishLeadingSports.contains($0.gameType) }
+        return leading + rest
+    }
+
+    /// 英文界面隐藏的项目：毽球/气排球只在中文等其余语言展示，英文版不再提供入口。
+    /// 记录目录不受影响（`scoreboardItems` 保持完整），已有对局与筛选不受影响。
+    private static let hiddenInEnglishGameTypes: Set<GameType> = [.shuttlecock, .airVolleyball]
+
+    /// 跟随 App 显示语言（与 timerBoardGameItems 同口径），英文界面为 true。
+    static let isEnglishUI: Bool = {
+        let localization = Bundle.main.preferredLocalizations.first ?? "en"
+        let language = Locale(identifier: localization).language.languageCode?.identifier
+        return language == "en"
+    }()
+
+    static func isSelectable(_ gameType: GameType) -> Bool {
+        isSelectable(gameType, isEnglish: isEnglishUI)
+    }
+
+    static func isSelectable(_ gameType: GameType, isEnglish: Bool) -> Bool {
+        !(isEnglish && hiddenInEnglishGameTypes.contains(gameType))
     }
 
     /// 项目所属的计分板分区；目录只收计分板项目，其余（计时类棋类等）返回 nil。
@@ -136,13 +163,21 @@ enum GameCatalog {
         scoreboardItems.first { $0.gameType == gameType }?.section
     }
 
-    static let timerBoardGameItems: [TimerDestination] = [.go, .xiangqi, .chess, .checkers]
+    /// Follow the app's displayed language, including regional Chinese variants.
+    static let timerBoardGameItems: [TimerDestination] = {
+        let localization = Bundle.main.preferredLocalizations.first ?? "en"
+        let language = Locale(identifier: localization).language.languageCode?.identifier
+        if language == "zh" || language == "ja" || language == "ko" {
+            return [.go, .xiangqi, .chess, .checkers]
+        }
+        return [.chess, .go, .checkers, .xiangqi]
+    }()
     static let timerOtherItems: [TimerDestination] = [.cube, .stopwatch, .timeout]
     static let timerAllItems: [TimerDestination] = timerBoardGameItems + timerOtherItems
 
     static let scoreboardGameTypes: [GameType] = scoreboardItems.map(\.gameType)
     static let timerSelectableGameTypes: [GameType] = timerAllItems.compactMap(\.mappedGameType)
-    static let quickStartSelectableGameTypes: [GameType] = unique(scoreboardGameTypes + timerSelectableGameTypes)
+    static let quickStartSelectableGameTypes: [GameType] = unique(scoreboardGameTypes + timerSelectableGameTypes).filter { isSelectable($0) }
     /// 新比赛弹窗展示的项目（不含秒表，秒表仅在计时 Tab 中使用）
     static let newGameDialogGameTypes: [GameType] = quickStartSelectableGameTypes.filter { $0 != .stopwatch }
 

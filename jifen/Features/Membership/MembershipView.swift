@@ -325,6 +325,9 @@ struct MembershipView: View {
             Text(title)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: true, vertical: true)
+                .layoutPriority(1)
                 .padding(.horizontal, 10)
             Rectangle().fill(Theme.divider).frame(height: 1)
         }
@@ -485,17 +488,18 @@ struct MembershipView: View {
                     Text(plan.title)
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Theme.textPrimary)
-                        .lineLimit(1)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(plan.subtitle)
                         .font(.system(size: 11))
                         .foregroundColor(isSelected ? Theme.accentColor : Theme.textSecondary)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 10)
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(product.displayPrice)
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(isSelected ? Theme.accentColor : Theme.textPrimary)
+                        .fixedSize()
                     if planKind(for: product.id) == .lifetime {
                         Text(plan.badge)
                             .font(.system(size: 10))
@@ -515,6 +519,7 @@ struct MembershipView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("membership_plan_\(product.id)")
     }
 
     private func planCard(_ product: Product) -> some View {
@@ -570,6 +575,7 @@ struct MembershipView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("membership_plan_\(product.id)")
     }
 
     private func planInfo(for id: String) -> (title: String, subtitle: String, badge: String) {
@@ -756,6 +762,7 @@ struct MembershipView: View {
             // 单行时纵向居中、与左侧勾选圈对齐（对齐安卓 AgreementRow CenterVertically）。
             Text(text)
                 .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
                 .environment(\.openURL, OpenURLAction { url in
                     if url == LegalDocuments.termsURL {
                         agreementPage = MembershipAgreementPage(kind: .user)

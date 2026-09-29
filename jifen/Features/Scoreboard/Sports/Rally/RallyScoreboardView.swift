@@ -128,6 +128,45 @@ struct TableTennisAdministrativeCards: View {
     }
 }
 
+/// 羽毛球判罚中央标记状态：黄牌累计张数 + 红牌张数 + 取消资格（黑卡）。
+struct BadmintonMisconductMarkerStatus: Equatable {
+    let yellowCount: Int
+    let redCount: Int
+    let disqualified: Bool
+}
+
+struct BadmintonMisconductCards: View {
+    let status: BadmintonMisconductMarkerStatus
+    var alignment: Alignment = .center
+    var scale: CGFloat = 1
+
+    var body: some View {
+        // 对齐安卓 resolveBadmintonMarkerStates：黄/红各最多展示 2 张，黑卡单张。
+        HStack(spacing: 3 * scale) {
+            ForEach(0..<min(2, max(0, status.yellowCount)), id: \.self) { _ in
+                card(color: .yellow)
+            }
+            ForEach(0..<min(2, max(0, status.redCount)), id: \.self) { _ in
+                card(color: .red)
+            }
+            if status.disqualified {
+                card(color: Color(red: 0x1C / 255, green: 0x1C / 255, blue: 0x1E / 255))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: alignment)
+    }
+
+    private func card(color: Color) -> some View {
+        RoundedRectangle(cornerRadius: 2 * scale)
+            .fill(color)
+            .overlay {
+                RoundedRectangle(cornerRadius: 2 * scale)
+                    .stroke(.black.opacity(0.22), lineWidth: max(0.75, scale * 0.75))
+            }
+            .frame(width: 14 * scale, height: 21 * scale)
+    }
+}
+
 enum RallyDisplayProjectionResolver {
     static func teamCourtRoster(gameType: ScoreCore.GameType, state: RallyMatchState) -> [String]? {
         guard gameType == .shuttlecock,
@@ -254,6 +293,10 @@ struct RallyScoreboardView: View {
     @State private var showPingPongCardsDialog = false
     @State private var pingPongPenaltySelectedSide: MatchSide?
     @State private var showPingPongPenaltyConfirmation = false
+    @State private var showBadmintonMisconductDialog = false
+    @State private var badmintonMisconductSide: MatchSide?
+    @State private var badmintonMisconductKind: BadmintonMisconductKind?
+    @State private var showBadmintonDisqualifyConfirmation = false
     @State private var pendingTapSide: MatchSide?
     @State private var pendingTapAt: Date = .distantPast
     @State private var tapGeneration = 0
@@ -447,6 +490,10 @@ struct RallyScoreboardView: View {
                     pingPongAdministrativeMarkerOverlay
                 }
 
+                if !isEditMode && !isStyleEditing && !showDisplaySettings && isBadmintonGame {
+                    badmintonMisconductMarkerOverlay
+                }
+
                 if shouldShowChrome {
                     chromeOverlay
                 }
@@ -476,6 +523,10 @@ struct RallyScoreboardView: View {
                         onVoiceCue: speakOfficialBreakCue
                     )
                     .zIndex(100)
+                }
+
+                if isBadmintonGame, showBadmintonMisconductDialog {
+                    badmintonMisconductDialogOverlay
                 }
 
                 if showGameOverDialog {
@@ -677,6 +728,19 @@ struct RallyScoreboardView: View {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {
                 pingPongPenaltySelectedSide = nil
             }
+        }
+        .confirmationDialog(
+            badmintonDisqualifyConfirmTitle,
+            isPresented: $showBadmintonDisqualifyConfirmation,
+            titleVisibility: .visible
+        ) {
+            // 取消资格二次确认（对齐安卓 tt_forfeit_confirm_*）。
+            Button(NSLocalizedString("tt_forfeit_confirm_button", value: "确认判负", comment: ""), role: .destructive) {
+                confirmBadmintonDisqualify()
+            }
+            Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
+        } message: {
+            Text(badmintonDisqualifyConfirmMessage)
         }
     }
 
@@ -1658,6 +1722,9 @@ struct RallyScoreboardView: View {
         if [.pingpong, .pingpongDoubles].contains(gameType) {
             extras.append(contentsOf: pingPongAdministrativeMenuItems)
         }
+        if isBadmintonGame {
+            extras.append(contentsOf: badmintonAdministrativeMenuItems)
+        }
         return ScoreboardMenuItemBuilder.defaultItems(
             showEndGame: true,
             showExchangeSide: true,
@@ -1740,6 +1807,24 @@ struct RallyScoreboardView: View {
             showPingPongMedicalDialog = true
         case "pingpongCards":
             showPingPongCardsDialog = true
+        case "bd_cards":
+            // 对齐安卓：休息/医疗中断期间不弹出判罚面板。
+            guard officialBreakSession.state == nil else { break }
+            badmintonMisconductSide = nil
+            badmintonMisconductKind = nil
+            showBadmintonMisconductDialog = true
+        case "bd_medical":
+            // 医疗中断 = 无时限正计时（从 00:00 起、不自动结束），只能手动「继续」恢复。
+            guard officialBreakSession.state == nil else { break }
+            startOfficialBreak(
+                sport: .badminton,
+                kind: .medical,
+                durationSeconds: 0,
+                afterAction: .none,
+                title: NSLocalizedString("medical_break", value: "医疗中断", comment: ""),
+                requiresPreference: false,
+                countUp: true
+            )
         case "toggleMatchTime":
             guard let session = matchClockSession else { break }
             session.isVisible.toggle()
@@ -1769,7 +1854,8 @@ struct RallyScoreboardView: View {
         source: OfficialBreakSource = .official,
         subjectName: String? = nil,
         title: String? = nil,
-        requiresPreference: Bool = true
+        requiresPreference: Bool = true,
+        countUp: Bool = false
     ) {
         guard (!requiresPreference || preferences.officialBreaksEnabled),
               officialBreakSession.state == nil else { return }
@@ -1781,7 +1867,8 @@ struct RallyScoreboardView: View {
             afterAction: afterAction,
             subjectName: subjectName,
             title: title,
-            nowMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+            nowMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000),
+            countUp: countUp
         )
         store.setScoreInputFrozen(true)
         store.send(.setOfficialBreakState(officialBreakSession.state))
@@ -1965,6 +2052,297 @@ struct RallyScoreboardView: View {
         }
     }
 
+    // MARK: - 羽毛球判罚（红黄牌/取消资格）+ 医疗中断
+
+    private var isBadmintonGame: Bool {
+        [.badminton, .badmintonDoubles].contains(gameType)
+    }
+
+    private var badmintonAdministrativeMenuItems: [ScoreboardMenuItem] {
+        [
+            ScoreboardMenuItem(
+                title: NSLocalizedString("medical_break", value: "医疗中断", comment: ""),
+                action: "bd_medical",
+                group: .match,
+                customText: "+",
+                sortOrder: 25
+            ),
+            ScoreboardMenuItem(
+                title: NSLocalizedString("tool_red_yellow_card", value: "红黄牌", comment: ""),
+                action: "bd_cards",
+                group: .match,
+                customText: "🟨🟥",
+                customTextScale: 0.72,
+                sortOrder: 30
+            )
+        ]
+    }
+
+    /// 中央小卡标记：黄牌累计张数 + 红牌 + 取消资格（黑卡），对齐安卓 resolveBadmintonMarkerStates。
+    private var badmintonMisconductMarkerOverlay: some View {
+        GeometryReader { proxy in
+            let keyPointVisible = KeyPointResolver.rally(state: store.state) != nil
+            HStack(spacing: 34) {
+                BadmintonMisconductCards(
+                    status: badmintonMarkerStatus(forScreen: .left),
+                    alignment: .trailing
+                )
+                BadmintonMisconductCards(
+                    status: badmintonMarkerStatus(forScreen: .right),
+                    alignment: .leading
+                )
+            }
+            .frame(width: proxy.size.width, height: 24)
+            .position(
+                x: proxy.size.width / 2,
+                y: ScoreboardServeGeometry.tableTennisCardsCenterY(
+                    height: proxy.size.height,
+                    keyPointVisible: keyPointVisible
+                )
+            )
+        }
+        .allowsHitTesting(false)
+    }
+
+    private func badmintonMarkerStatus(forScreen screenSide: MatchSide) -> BadmintonMisconductMarkerStatus {
+        let logicalSide = TeamScreenLayout(sidesSwapped: store.state.sidesSwapped).engineSide(onScreen: screenSide)
+        let status = store.state.badmintonMisconductStatus(for: logicalSide)
+        return .init(
+            yellowCount: status.yellowCount,
+            redCount: status.redCount,
+            disqualified: status.disqualified
+        )
+    }
+
+    private func badmintonMisconductToastLabel(for kind: BadmintonMisconductKind) -> String {
+        switch kind {
+        case .yellow: NSLocalizedString("badminton_card_yellow", value: "黄牌", comment: "")
+        case .red: NSLocalizedString("badminton_card_red", value: "红牌", comment: "")
+        case .disqualify: NSLocalizedString("badminton_card_disqualify", value: "取消资格", comment: "")
+        }
+    }
+
+    private func closeBadmintonMisconduct() {
+        showBadmintonMisconductDialog = false
+        badmintonMisconductSide = nil
+        badmintonMisconductKind = nil
+        showBadmintonDisqualifyConfirmation = false
+    }
+
+    /// 确认判罚：取消资格需二次确认，其余直接落牌。
+    private func confirmBadmintonMisconduct() {
+        guard let side = badmintonMisconductSide, let kind = badmintonMisconductKind else { return }
+        if kind == .disqualify {
+            showBadmintonDisqualifyConfirmation = true
+            return
+        }
+        dispatch(.badmintonMisconduct(side: side, kind: kind))
+        closeBadmintonMisconduct()
+    }
+
+    private func confirmBadmintonDisqualify() {
+        guard let side = badmintonMisconductSide else { return }
+        showBadmintonDisqualifyConfirmation = false
+        dispatch(.badmintonMisconduct(side: side, kind: .disqualify))
+        closeBadmintonMisconduct()
+    }
+
+    private var badmintonDisqualifyConfirmName: String? {
+        guard let side = badmintonMisconductSide else { return nil }
+        return side == .left ? store.state.leftName : store.state.rightName
+    }
+
+    private var badmintonDisqualifyConfirmTitle: String {
+        badmintonDisqualifyConfirmName ?? ""
+    }
+
+    private var badmintonDisqualifyConfirmMessage: String {
+        String(
+            format: NSLocalizedString(
+                "tt_forfeit_confirm_message",
+                value: "确认判 %@ 负？对方将直接赢得整场比赛。",
+                comment: ""
+            ),
+            badmintonDisqualifyConfirmName ?? ""
+        )
+    }
+
+    /// 羽毛球判罚弹窗：对齐安卓 BadmintonMisconductDialog 横屏三列布局
+    /// （选手列 → 判罚列 → 预览+确认列），先选选手再出牌。
+    private var badmintonMisconductDialogOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.55).ignoresSafeArea()
+                .onTapGesture { closeBadmintonMisconduct() }
+            VStack(spacing: 16) {
+                Text(NSLocalizedString("tool_red_yellow_card", value: "红黄牌", comment: ""))
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                HStack(alignment: .top, spacing: 24) {
+                    // 选手列：先选选手，再出牌。
+                    VStack(spacing: 10) {
+                        badmintonSideButton(.left)
+                        badmintonSideButton(.right)
+                    }
+                    // 判罚列：未选选手时只显示提示。
+                    VStack(spacing: 10) {
+                        if badmintonMisconductSide != nil {
+                            badmintonKindChip(.yellow)
+                            badmintonKindChip(.red)
+                            Button {
+                                badmintonMisconductKind = .disqualify
+                            } label: {
+                                Text(NSLocalizedString("badminton_action_disqualify", value: "取消比赛资格", comment: ""))
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.white.opacity(0.85))
+                                    .underline()
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            Text(NSLocalizedString("tt_select_side_hint", value: "请先选择选手", comment: ""))
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.7))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                        }
+                    }
+                    .frame(width: 152)
+                    // 预览 + 确认列。
+                    VStack(spacing: 10) {
+                        badmintonPreviewCard
+                        Text(badmintonActionTitle)
+                            .font(.system(size: 13))
+                            .foregroundColor(.white.opacity(0.85))
+                            .multilineTextAlignment(.center)
+                        Button {
+                            confirmBadmintonMisconduct()
+                        } label: {
+                            Text(badmintonConfirmButtonTitle)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.black)
+                                .frame(width: 148, height: 40)
+                                .background(Color.white, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .opacity(badmintonMisconductSide != nil && badmintonMisconductKind != nil ? 1 : 0.4)
+                        .disabled(badmintonMisconductSide == nil || badmintonMisconductKind == nil)
+                        Button {
+                            closeBadmintonMisconduct()
+                        } label: {
+                            Text(NSLocalizedString("cancel", comment: ""))
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .frame(width: 148, height: 36)
+                                .background(Color.white.opacity(0.14), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(.horizontal, 28)
+            .padding(.vertical, 22)
+            .background(
+                Color(red: 0x0C / 255, green: 0x0C / 255, blue: 0x0E / 255).opacity(0.92),
+                in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+            )
+            .padding(.horizontal, 40)
+        }
+        .zIndex(90)
+    }
+
+    private func badmintonSideButton(_ side: MatchSide) -> some View {
+        let name = side == .left ? store.state.leftName : store.state.rightName
+        let selected = badmintonMisconductSide == side
+        return Button {
+            badmintonMisconductSide = side
+            badmintonMisconductKind = nil
+        } label: {
+            Text(name)
+                .font(.system(size: 15, weight: selected ? .semibold : .regular))
+                .foregroundColor(selected ? .black : .white)
+                .lineLimit(1)
+                .frame(width: 132, height: 42)
+                .background(
+                    selected ? Color.white : Color.white.opacity(0.14),
+                    in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func badmintonKindChip(_ kind: BadmintonMisconductKind) -> some View {
+        let selected = badmintonMisconductKind == kind
+        return Button {
+            badmintonMisconductKind = kind
+        } label: {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(badmintonPenaltyColor(kind))
+                    .frame(width: 14, height: 14)
+                Text(kind == .yellow
+                     ? NSLocalizedString("badminton_card_yellow", value: "黄牌", comment: "")
+                     : NSLocalizedString("badminton_action_red", value: "出示红牌", comment: ""))
+                    .font(.system(size: 14, weight: selected ? .semibold : .regular))
+                    .foregroundColor(.white)
+            }
+            .frame(width: 132, height: 40)
+            .background(
+                Color.white.opacity(selected ? 0.28 : 0.14),
+                in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func badmintonPenaltyColor(_ kind: BadmintonMisconductKind) -> Color {
+        // 对齐安卓 badmintonPenaltyColor：黄 0xFFF3C94F / 红 0xFFEB575D / 取消资格 0xFF1C1C1E。
+        switch kind {
+        case .yellow: Color(red: 0xF3 / 255, green: 0xC9 / 255, blue: 0x4F / 255)
+        case .red: Color(red: 0xEB / 255, green: 0x57 / 255, blue: 0x5D / 255)
+        case .disqualify: Color(red: 0x1C / 255, green: 0x1C / 255, blue: 0x1E / 255)
+        }
+    }
+
+    private var badmintonPreviewCard: some View {
+        ZStack {
+            if let kind = badmintonMisconductKind {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(badmintonPenaltyColor(kind))
+            } else {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.white.opacity(0.08))
+            }
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(.black.opacity(0.22), lineWidth: 0.75)
+        }
+        .frame(width: 62, height: 94)
+    }
+
+    private var badmintonActionTitle: String {
+        switch badmintonMisconductKind {
+        case .yellow:
+            NSLocalizedString("tt_action_yellow", value: "出示黄牌", comment: "")
+        case .red:
+            NSLocalizedString("badminton_action_red", value: "出示红牌", comment: "")
+                + " · " + NSLocalizedString("tt_penalty_opponent_plus_one", value: "对手 +1 分", comment: "")
+        case .disqualify:
+            NSLocalizedString("badminton_action_disqualify", value: "取消比赛资格", comment: "")
+        case nil:
+            NSLocalizedString("bd_select_kind_hint", value: "请选择判罚", comment: "")
+        }
+    }
+
+    private var badmintonConfirmButtonTitle: String {
+        if badmintonMisconductSide == nil {
+            return NSLocalizedString("tt_select_side_hint", value: "请先选择选手", comment: "")
+        }
+        if badmintonMisconductKind == nil {
+            return NSLocalizedString("bd_select_kind_hint", value: "请选择判罚", comment: "")
+        }
+        return NSLocalizedString("confirm", value: "确认", comment: "")
+    }
+
     // MARK: - Multipliers / chrome state
 
     private var scoreMultiplier: CGFloat {
@@ -2095,8 +2473,8 @@ struct RallyScoreboardView: View {
                     rightName: rightSide == .left ? store.state.leftName : store.state.rightName,
                     leftScore: "\(leftSide == .left ? store.state.leftPoints : store.state.rightPoints)",
                     rightScore: "\(rightSide == .left ? store.state.leftPoints : store.state.rightPoints)",
-                    leftDetail: String(format: NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), leftSide == .left ? store.state.leftSets : store.state.rightSets),
-                    rightDetail: String(format: NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), rightSide == .left ? store.state.leftSets : store.state.rightSets),
+                    leftDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), leftSide == .left ? store.state.leftSets : store.state.rightSets),
+                    rightDetail: String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), rightSide == .left ? store.state.leftSets : store.state.rightSets),
                     themeID: appearance.theme.rawValue,
                     fontID: typographyPreference.font.rawValue,
                     scoreMultiplier: typographyPreference.scoreMultiplier,
@@ -2151,6 +2529,19 @@ struct RallyScoreboardView: View {
                         "tableTennisTeam1TimeoutUsed": .boolean(team1Status.timeoutUsed),
                         "tableTennisTeam1Yellow": .boolean(team1Status.hasYellowCard),
                         "tableTennisTeam1RedCount": .integer(team1Status.redCardCount)
+                    ]) { _, new in new }
+                }
+                if isBadmintonGame {
+                    // 对齐安卓 BadmintonDisplayKeys：逻辑队 0=红/1=蓝，键名逐字一致。
+                    let team0Misconduct = store.state.badmintonMisconductStatus(for: .left)
+                    let team1Misconduct = store.state.badmintonMisconductStatus(for: .right)
+                    sportState.merge([
+                        "badmintonTeam0YellowCount": .integer(team0Misconduct.yellowCount),
+                        "badmintonTeam0RedCount": .integer(team0Misconduct.redCount),
+                        "badmintonTeam0Disqualified": .boolean(team0Misconduct.disqualified),
+                        "badmintonTeam1YellowCount": .integer(team1Misconduct.yellowCount),
+                        "badmintonTeam1RedCount": .integer(team1Misconduct.redCount),
+                        "badmintonTeam1Disqualified": .boolean(team1Misconduct.disqualified)
                     ]) { _, new in new }
                 }
                 if let teamCourtNames {
@@ -2349,6 +2740,9 @@ struct RallyScoreboardView: View {
                         requiresPreference: false
                     )
                 }
+            case .badmintonMisconduct(let action):
+                // 对齐安卓：判罚出示后以卡种作即时提示（取消资格随后走判负完赛弹窗）。
+                sideToast = badmintonMisconductToastLabel(for: action.kind)
             case .officialBreakChanged:
                 break
             case .matchReset:
@@ -2581,6 +2975,7 @@ struct RallyScoreboardView: View {
 
     private func performUndo() {
         guard !isStyleEditing, !isEditMode,
+              officialBreakSession.state == nil,
               (!store.state.finished || terminalSetPresentation != nil) else { return }
         cancelTerminalSetPresentation()
         ScoreVoiceAnnouncer.shared.cancelPendingScore()

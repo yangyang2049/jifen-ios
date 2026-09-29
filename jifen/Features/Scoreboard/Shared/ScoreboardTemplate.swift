@@ -960,8 +960,8 @@ struct ScoreboardTemplate: View {
 
     private func syncDetail(for team: TeamData) -> String? {
         let pieces = [
-            team.sets.map { String(format: NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), $0) },
-            team.games.map { String(format: NSLocalizedString("sync_games_format", value: "%d 盘", comment: ""), $0) }
+            team.sets.map { String.localizedStringWithFormat(NSLocalizedString("sync_sets_format", value: "%d 局", comment: ""), $0) },
+            team.games.map { String.localizedStringWithFormat(NSLocalizedString("sync_games_format", value: "%d 盘", comment: ""), $0) }
         ].compactMap { $0 }
         return pieces.isEmpty ? nil : pieces.joined(separator: " · ")
     }

@@ -94,7 +94,7 @@ nonisolated enum FeedbackTimeFormatter {
             return String(format: NSLocalizedString("feedback_time_hours_ago", value: "%d小时前", comment: ""), hours)
         }
         if days < 30 {
-            return String(format: NSLocalizedString("feedback_time_days_ago", value: "%d天前", comment: ""), days)
+            return String.localizedStringWithFormat(NSLocalizedString("feedback_time_days_ago", value: "%d天前", comment: ""), days)
         }
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -115,7 +115,7 @@ private struct FeedbackAuthorAvatarView: View {
         ZStack(alignment: .bottomTrailing) {
             Group {
                 if let url = avatarPath.flatMap({ FeedbackAPI.shared.absoluteImageURL($0) }) {
-                    AsyncImage(url: url) { image in
+                    RemoteImage(url: url) { image in
                         image.resizable().scaledToFill()
                     } placeholder: {
                         placeholderGlyph
@@ -832,15 +832,13 @@ struct FeedbackDetailView: View {
                         previewStartPage = index
                         previewImages = images
                     } label: {
-                        AsyncImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { phase in
-                            if let image = phase.image {
-                                image.resizable().scaledToFill()
-                            } else {
-                                // 加载中/失败占位（对齐安卓 feedback_placeholder_sports）。
-                                Image("feedback_placeholder_sports")
-                                    .resizable()
-                                    .scaledToFill()
-                            }
+                        RemoteImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { image in
+                            image.resizable().scaledToFill()
+                        } placeholder: {
+                            // 加载中/失败占位（对齐安卓 feedback_placeholder_sports）。
+                            Image("feedback_placeholder_sports")
+                                .resizable()
+                                .scaledToFill()
                         }
                         .frame(width: 120, height: 120)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -857,8 +855,8 @@ struct FeedbackDetailView: View {
     @ViewBuilder
     private func commentsSection(_ comments: [FeedbackComment]) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(String(
-                format: NSLocalizedString("feedback_comment_count_label", value: "评论（%d）", comment: ""),
+            Text(String.localizedStringWithFormat(
+                NSLocalizedString("feedback_comment_count_label", value: "评论（%d）", comment: ""),
                 comments.count
             ))
             .font(.system(size: 15, weight: .medium))
@@ -1045,15 +1043,13 @@ private struct FeedbackImagePreviewPage: View {
             Color.black.ignoresSafeArea()
             TabView(selection: $page) {
                 ForEach(Array(images.enumerated()), id: \.offset) { index, path in
-                    AsyncImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFit()
-                        } else {
-                            // 加载中/失败占位（对齐安卓 feedback_placeholder_sports）。
-                            Image("feedback_placeholder_sports")
-                                .resizable()
-                                .scaledToFit()
-                        }
+                    RemoteImage(url: FeedbackAPI.shared.absoluteImageURL(path)) { image in
+                        image.resizable().scaledToFit()
+                    } placeholder: {
+                        // 加载中/失败占位（对齐安卓 feedback_placeholder_sports）。
+                        Image("feedback_placeholder_sports")
+                            .resizable()
+                            .scaledToFit()
                     }
                     .tag(index)
                 }
@@ -1437,8 +1433,8 @@ private struct CreateFeedbackView: View {
         }
         images.append(contentsOf: loaded)
         if failed > 0 {
-            errorMessage = String(
-                format: NSLocalizedString("feedback_image_prepare_failed", value: "%d 张图片无法处理，请换一张后重试", comment: ""),
+            errorMessage = String.localizedStringWithFormat(
+                NSLocalizedString("feedback_image_prepare_failed", value: "%d 张图片无法处理，请换一张后重试", comment: ""),
                 failed
             )
         }

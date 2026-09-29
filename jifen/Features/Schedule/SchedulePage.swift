@@ -176,7 +176,10 @@ struct SchedulePage: View {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) { }
             Button(NSLocalizedString("delete", comment: ""), role: .destructive) { deleteSelectedBookings() }
         } message: {
-            Text(String(format: NSLocalizedString("schedule_batch_delete_message", value: "确定删除选中的 %d 条预约吗？", comment: ""), selectedBookingIDs.count))
+            Text(String.localizedStringWithFormat(
+                NSLocalizedString("schedule_batch_delete_message", value: "确定删除选中的 %d 条预约吗？", comment: ""),
+                selectedBookingIDs.count
+            ))
         }
     }
 

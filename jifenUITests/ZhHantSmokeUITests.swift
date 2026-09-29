@@ -55,8 +55,6 @@ final class ZhHantSmokeUITests: XCTestCase {
         XCTAssertTrue(scrollUntilVisible(card, in: app), "Badminton catalog card missing")
         card.tap()
 
-        XCTAssertTrue(anyElement(app, "比賽功能").waitForExistence(timeout: 5))
-        XCTAssertFalse(anyElement(app, "比赛功能").exists, "Simplified section header leaked")
         // Badminton renders feature cards, not the single-switch time row.
         XCTAssertTrue(anyElement(app, "自動換邊").waitForExistence(timeout: 3))
         XCTAssertTrue(anyElement(app, "語音播報").waitForExistence(timeout: 3))

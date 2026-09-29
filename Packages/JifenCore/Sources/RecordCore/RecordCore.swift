@@ -107,6 +107,13 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
     /// the configured Guandan rank restored after a triple-A fallback.
     public let operationPayload: String?
     public let summary: String?
+    /// Cross-end match-clock position of a football goal: period 1/2 for the
+    /// regulation halves, 3/4 for extra time. Mirrors Android's
+    /// `ScoreAction.footballPeriod`, so imported records survive re-encoding.
+    public let footballPeriod: Int?
+    /// Seconds elapsed on the football match clock inside `footballPeriod`.
+    /// Mirrors Android's `ScoreAction.footballElapsedSeconds`.
+    public let footballElapsedSeconds: Int?
 
     public init(
         id: UUID = UUID(),
@@ -130,7 +137,9 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
         participants: [ParticipantScoreSnapshot] = [],
         operationCode: String? = nil,
         operationPayload: String? = nil,
-        summary: String? = nil
+        summary: String? = nil,
+        footballPeriod: Int? = nil,
+        footballElapsedSeconds: Int? = nil
     ) {
         self.id = id
         self.type = type
@@ -154,6 +163,8 @@ public struct DetailedScoreAction: Codable, Equatable, Identifiable, Sendable {
         self.operationCode = operationCode
         self.operationPayload = operationPayload
         self.summary = summary
+        self.footballPeriod = footballPeriod
+        self.footballElapsedSeconds = footballElapsedSeconds
     }
 }
 

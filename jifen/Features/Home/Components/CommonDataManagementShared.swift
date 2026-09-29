@@ -103,7 +103,7 @@ struct CommonDataBatchEditBar: View {
             .buttonStyle(.plain)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text(String(format: NSLocalizedString("records_batch_selected_n", value: "已选 %d 条", comment: ""), selectedCount))
+            Text(String.localizedStringWithFormat(NSLocalizedString("records_batch_selected_n", value: "已选 %d 条", comment: ""), selectedCount))
                 .font(.system(size: 14))
                 .foregroundColor(Theme.textSecondary)
                 .lineLimit(1)

@@ -224,6 +224,9 @@ final class RallySessionStore {
         case .pickleballDoubles:
             migrated.rules.sportProfile = .pickleball
             migrated.rules.nextSetServerModel = .alternateFromOpening
+        case .badminton, .badmintonDoubles:
+            // 旧快照没有 sportProfile 字段；判罚通道挂在 badminton profile 下，按项目归一。
+            migrated.rules.sportProfile = .badminton
         default:
             migrated.rules.sportProfile = .generic
         }
@@ -506,6 +509,17 @@ final class RallySessionStore {
                     scores: [state.leftPoints, state.rightPoints],
                     setScores: [state.leftSets, state.rightSets],
                     operationCode: action.type.rawValue
+                ))
+            case .badmintonMisconduct(let action):
+                // 羽毛球判罚记录：operationCode 逐字对齐安卓 bd_yellow/bd_red/bd_disqualify，
+                // 保证跨端记录文案与互通一致（取消资格随后追加 finish 记录）。
+                detailedActions.append(.init(
+                    type: .foul,
+                    epochMilliseconds: action.epochMilliseconds,
+                    team: action.side == .left ? .team1 : .team2,
+                    scores: [state.leftPoints, state.rightPoints],
+                    setScores: [state.leftSets, state.rightSets],
+                    operationCode: action.kind.rawValue
                 ))
             case .officialBreakChanged:
                 break

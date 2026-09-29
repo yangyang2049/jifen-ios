@@ -1,0 +1,97 @@
+<!doctype html><html lang="zh-CN" dir="ltr"><head><meta charset="utf-8"><style>
+    @font-face{font-family:'YouSheBiaoTiHei';src:url('../fonts/YouSheBiaoTiHei.ttf');}@font-face{font-family:'Poppins';src:url('../fonts/Poppins-ExtraBoldItalic.ttf');font-style:italic;font-weight:800;}@font-face{font-family:'Poppins';src:url('../fonts/Poppins-BoldItalic.ttf');font-style:italic;font-weight:700;}@font-face{font-family:'Poppins';src:url('../fonts/Poppins-ExtraBold.ttf');font-style:normal;font-weight:800;}@font-face{font-family:'Poppins';src:url('../fonts/Poppins-Bold.ttf');font-style:normal;font-weight:700;}@font-face{font-family:'Noto Sans SC';src:url('../fonts/NotoSansSC-VF.ttf');font-weight:100 900;}
+    :root{--stroke-width:16px;--stroke-color:rgba(255,255,255,0.75);--card-radius:72px;--panel-radius:56px;--hero-stroke-width:19px;--wide-stroke-width:14px;--wide-radius:46px;--pbtn-bg:rgba(0,0,0,.22);--panel-font:"YouSheBiaoTiHei","Noto Sans SC","PingFang SC",sans-serif;--score-weight:400}
+    
+    *{box-sizing:border-box}
+    .canvas{position:relative;width:1320px;height:2868px;overflow:hidden;color:#fff}
+    .headline .skew{display:inline-block;transform:skewX(0deg)}
+    .shot{position:absolute;border-radius:var(--card-radius);box-shadow:0 0 0 var(--stroke-width) var(--stroke-color);overflow:hidden;background:#111}
+    .shot.wide{border-radius:var(--wide-radius);box-shadow:0 0 0 var(--wide-stroke-width) var(--stroke-color)}
+    .shot.collage{box-shadow:0 0 0 var(--wide-stroke-width) var(--stroke-color), 0 34px 70px rgba(0,0,0,.38)}
+    .shot img{display:block;width:100%;height:100%;object-fit:cover}
+    .panel{position:absolute;border-radius:var(--panel-radius);box-shadow:0 0 0 var(--hero-stroke-width) var(--stroke-color);overflow:hidden}
+    .pname{position:absolute;right:auto;text-align:center;font-family:var(--panel-font);font-style:normal;font-weight:700;font-size:96px;color:#fff}
+    .pscore{position:absolute;right:auto;text-align:center;font-family:var(--panel-font);font-style:normal;font-weight:var(--score-weight,700);font-size:460px;line-height:1;color:#fff}
+    .psub{position:absolute;right:auto;text-align:center;font-family:var(--panel-font);font-style:normal;font-weight:600;font-size:150px;line-height:1;color:rgba(255,255,255,.45)}
+    .pbtn{position:absolute;width:128px;height:128px;border-radius:50%;background:var(--pbtn-bg);display:flex;align-items:center;justify-content:center}
+    .tv{position:absolute}
+    .tv-frame{background:#0B0D12;border-radius:22px;padding:14px;box-sizing:border-box;box-shadow:0 30px 70px rgba(0,0,0,.38)}
+    .tv-screen{position:relative;display:flex;width:100%;height:100%;border-radius:10px;overflow:hidden}
+    .tv-neck{width:96px;height:54px;background:#0B0D12;margin:0 auto}
+    .tv-foot{width:340px;height:16px;border-radius:8px;background:#0B0D12;margin:0 auto}
+    .phone-case{position:absolute;background:#1A1B20;box-shadow:0 34px 80px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,255,255,.10)}
+    .phone-screen{position:absolute;overflow:hidden;background:#000}
+    .phone-screen img{display:block;width:100%;height:100%;object-fit:cover}
+    .phone-island{position:absolute;width:16px;height:70px;border-radius:8px;background:#07070A}
+    .phone-key{position:absolute;border-radius:5px;background:#2A2B30}
+    .slogan-mark{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%) rotate(-6deg);font-style:italic;font-weight:800;font-size:1150px;line-height:1;color:#fff;opacity:.08;white-space:nowrap;pointer-events:none}
+    .slogan-text{position:absolute;left:80px;right:80px;top:250px;text-align:center;white-space:pre-line;color:#fff}
+    .slogan-text-mid{top:50%;transform:translateY(-54%)}
+    .slogan-photo{position:absolute;inset:0;overflow:hidden}
+    .slogan-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08) brightness(.95)}
+    .slogan-tint{position:absolute;inset:0;background:#0B61FB;mix-blend-mode:multiply}
+    .slogan-tint2{position:absolute;inset:0;background:#0A2F7A;mix-blend-mode:lighten}
+    .slogan-scrim{position:absolute;left:0;right:0;bottom:0;height:700px;background:linear-gradient(180deg,rgba(4,24,64,0),rgba(4,24,64,.6))}
+    .slogan-brand{position:absolute;left:0;right:0;bottom:280px;text-align:center;font-style:normal;font-weight:700;font-size:72px;letter-spacing:2px;color:#fff}
+  
+    html,body{width:1320px;height:2868px;margin:0;overflow:hidden;background:#0B61FB}
+    .canvas{background:#0B61FB}
+    .headline{position:absolute;left:80px;top:190px;width:1160px;height:330px;overflow:hidden;text-align:center;white-space:pre-line;font-family:"YouSheBiaoTiHei","Noto Sans SC","PingFang SC",sans-serif;font-style:normal;font-weight:normal;font-size:106px;line-height:1.16;letter-spacing:0px;color:#fff;}
+  </style></head><body><main class="canvas"><div class="headline" data-max="330"><span class="skew">投上电视
+全场都看得清</span></div>
+    <div class="tv" style="left:40px;top:700px;width:1240px">
+      <div class="tv-frame" style="height:710px">
+        <div class="tv-screen">
+    <div style="position:absolute;inset:0;display:flex">
+      
+    <div style="flex:1;background:#C62828;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px">
+      <div style="font-family:-apple-system,system-ui,'Helvetica Neue',sans-serif;font-weight:700;font-size:52px;line-height:1;color:#fff">主队</div>
+      <div style="font-family:-apple-system,system-ui,'Helvetica Neue',sans-serif;font-weight:700;font-size:184px;line-height:1;color:#fff">71</div>
+    </div>
+      
+    <div style="flex:1;background:#007AFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px">
+      <div style="font-family:-apple-system,system-ui,'Helvetica Neue',sans-serif;font-weight:700;font-size:52px;line-height:1;color:#fff">客队</div>
+      <div style="font-family:-apple-system,system-ui,'Helvetica Neue',sans-serif;font-weight:700;font-size:184px;line-height:1;color:#fff">68</div>
+    </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;top:5%;display:flex;flex-direction:column;align-items:center;gap:16px">
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;background:rgba(0,0,0,.32);border-radius:14px;padding:9px 24pxfont-family:-apple-system,system-ui,'Helvetica Neue',sans-serif"><span style="font-weight:600;font-size:29px;color:#fff">第 4 节</span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;background:rgba(0,0,0,.28);border-radius:14px;padding:9px 24pxfont-family:-apple-system,system-ui,'Helvetica Neue',sans-serif"><span style="font-weight:700;font-size:38px;color:#fff">0</span><span style="font-weight:400;font-size:26px;color:rgba(255,255,255,.72)">犯规</span><span style="font-weight:700;font-size:38px;color:#fff">0</span></div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:5%;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;background:rgba(218,45,32,.92);border-radius:22px;height:46px;padding:0 22pxfont-family:-apple-system,system-ui,'Helvetica Neue',sans-serif">
+      <span style="display:flex;gap:4px"><i style="width:5px;height:18px;border-radius:2px;background:rgba(255,255,255,.95)"></i><i style="width:5px;height:18px;border-radius:2px;background:rgba(255,255,255,.95)"></i></span>
+      <span style="font-weight:600;font-size:26px;color:#fff">暂停</span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;background:rgba(10,12,18,.82);border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:14px 30pxfont-family:-apple-system,system-ui,'Helvetica Neue',sans-serif">
+      <span style="font-weight:700;font-size:34px;color:rgba(255,255,255,.86)">4<span style="font-size:21px">节</span></span>
+      <span style="font-weight:400;font-size:26px;color:rgba(255,255,255,.32)">|</span>
+      <span style="font-weight:700;font-size:44px;color:#fff;font-variant-numeric:tabular-nums">09:40</span>
+      <span style="font-weight:400;font-size:26px;color:rgba(255,255,255,.32)">|</span>
+      <span style="font-weight:700;font-size:44px;color:#FDE047;font-variant-numeric:tabular-nums">24</span></div>
+    </div></div>
+      </div>
+      <div class="tv-neck"></div>
+      <div class="tv-foot"></div>
+    </div>
+    
+    <svg width="190" height="100" viewBox="0 0 190 100" style="position:absolute;left:565px;top:1528px">
+      <circle cx="95" cy="90" r="9" fill="#fff" opacity=".9"/>
+      <path d="M65 68 a42 42 0 0 1 60 0" stroke="#fff" stroke-opacity=".52" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M40 42 a78 78 0 0 1 110 0" stroke="#fff" stroke-opacity=".3" stroke-width="9" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="phone-case" style="left:40px;top:1720px;width:1240px;height:594px;border-radius:66px;transform:rotate(-5deg)">
+      <div class="phone-screen" style="left:22px;top:22px;width:1196px;height:550px;border-radius:36px"><img src="../sources-zh-Hans/basketball.png"></div>
+      <div class="phone-island" style="left:44px;top:262px"></div>
+      <div class="phone-key" style="left:372px;bottom:-5px;width:74px;height:10px"></div>
+      <div class="phone-key" style="left:496px;bottom:-5px;width:74px;height:10px"></div>
+      <div class="phone-key" style="left:818px;bottom:-5px;width:120px;height:10px"></div>
+    </div>
+    </main><script>
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.headline, .slogan-text').forEach(el => {
+        let size = parseFloat(getComputedStyle(el).fontSize);
+        const max = parseFloat(el.dataset.max);
+        while ((el.scrollHeight > max || el.scrollWidth > el.clientWidth) && size > 56) { size -= 4; el.style.fontSize = size + 'px'; }
+      });
+    });
+  </script></body></html>

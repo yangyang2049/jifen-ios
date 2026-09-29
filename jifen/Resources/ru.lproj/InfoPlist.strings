@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "Нам нужен доступ к вашей библиотеке фотографий, чтобы сохранять скриншоты табло.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "Камера используется для сканирования доверенных QR-кодов входа и съемки аватара.";
+"NSMicrophoneUsageDescription" = "Микрофон используется для записи голосовых заметок.";

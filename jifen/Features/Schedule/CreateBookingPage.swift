@@ -270,7 +270,10 @@ struct CreateBookingPage: View {
         } header: {
             Text(NSLocalizedString("schedule_participants", value: "参与者", comment: ""))
         } footer: {
-            Text(String(format: NSLocalizedString("schedule_participants_limit", value: "最多 %d 人，重复姓名会自动合并", comment: ""), LocalBooking.maximumParticipants))
+            Text(String.localizedStringWithFormat(
+                NSLocalizedString("schedule_participants_limit", value: "最多 %d 人，重复姓名会自动合并", comment: ""),
+                LocalBooking.maximumParticipants
+            ))
         }
     }
 
@@ -484,9 +487,9 @@ struct CreateBookingPage: View {
 
     private func reminderLabel(_ minute: Int) -> String {
         if minute >= 60 {
-            return String(format: NSLocalizedString("schedule_reminder_hours_before", value: "%d 小时前", comment: ""), minute / 60)
+            return String.localizedStringWithFormat(NSLocalizedString("schedule_reminder_hours_before", value: "%d 小时前", comment: ""), minute / 60)
         }
-        return String(format: NSLocalizedString("schedule_reminder_minutes_before", value: "%d 分钟前", comment: ""), minute)
+        return String.localizedStringWithFormat(NSLocalizedString("schedule_reminder_minutes_before", value: "%d 分钟前", comment: ""), minute)
     }
 
     private func normalizeReminderSelection(now: Date = Date()) {

@@ -289,6 +289,25 @@ enum DisplayStateWireCodec {
     private static func encodeRest(_ rest: ScoreboardDisplayRest, gameType: String, now: Int64) -> [String: Any]? {
         let sport = rest.sport ?? gameType.replacingOccurrences(of: "_doubles", with: "")
         guard ["badminton", "pingpong", "tennis", "pickleball", "squash", "shuttlecock", "soft_tennis", "padel"].contains(sport) else { return nil }
+        if rest.countUp == true {
+            // 对齐安卓 countUp（羽毛球医疗中断）wire 帧：endsAt=0 表示无界正计时，
+            // remainingMs 承载已用时长，显示端按 now - startedAt 继续推进、永不自动结束。
+            let elapsed = max(0, rest.projectedElapsedSeconds(atWallClockMilliseconds: now))
+            var encoded: [String: Any] = ["version": 1, "sport": sport, "kind": rest.kind,
+                                          "phase": "countdown",
+                                          "startedAt": now - Int64(elapsed) * 1_000, "endsAt": 0,
+                                          "remainingMs": Int64(elapsed) * 1_000,
+                                          "prepareRemaining": 0,
+                                          "revision": rest.revision ?? max(0, rest.updatedWallClockMilliseconds),
+                                          "afterAction": rest.afterAction ?? "none"]
+            if let title = rest.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
+                encoded["title"] = title
+            }
+            if let subjectName = rest.subjectName?.trimmingCharacters(in: .whitespacesAndNewlines), !subjectName.isEmpty {
+                encoded["subjectName"] = subjectName
+            }
+            return encoded
+        }
         let seconds = rest.projectedRemainingSeconds(atWallClockMilliseconds: now)
         guard seconds > 0 else { return nil }
         let preparing = rest.phase == "preparation" || rest.phase == "prepare"
@@ -313,10 +332,27 @@ enum DisplayStateWireCodec {
               let phase = map["phase"] as? String, ["countdown", "prepare"].contains(phase),
               let remainingMs = int64(map["remainingMs"]), remainingMs >= 0,
               let started = int64(map["startedAt"]), started >= 0,
-              let ends = int64(map["endsAt"]), ends >= started,
+              let ends = int64(map["endsAt"]), ends >= 0,
               let revision = int64(map["revision"]), revision >= 0,
               let kind = map["kind"] as? String,
               ["mid_game", "game_break", "set_break", "changeover", "timeout", "medical"].contains(kind) else { return nil }
+        if ends == 0 {
+            // 对齐安卓 OfficialBreakWireState.UNBOUNDED_ENDS_AT：无界正计时（羽毛球医疗中断），
+            // remainingMs 即已用毫秒，接收端继续正计时、不自动结束。
+            let prepare = int(map["prepareRemaining"]) ?? 0
+            guard phase == "countdown", prepare == 0 else { return nil }
+            return ScoreboardDisplayRest(kind: kind, phase: "countdown",
+                remainingSeconds: 0, isRunning: true,
+                updatedWallClockMilliseconds: currentWallClockMs(),
+                sport: map["sport"] as? String,
+                afterAction: map["afterAction"] as? String,
+                revision: revision,
+                subjectName: map["subjectName"] as? String,
+                title: map["title"] as? String,
+                countUp: true,
+                elapsedSeconds: Int(remainingMs / 1_000))
+        }
+        guard ends >= started else { return nil }
         let prepare = int(map["prepareRemaining"]) ?? 0
         guard phase == "prepare" ? (prepare > 0 && remainingMs == 0) : (prepare == 0 && remainingMs <= ends - started) else { return nil }
         return ScoreboardDisplayRest(kind: kind, phase: phase == "prepare" ? "preparation" : phase,
@@ -442,8 +478,12 @@ enum DisplayStateWireCodec {
     ]
 
     private static let sportKeysByGameType: [String: Set<String>] = [
-        "badminton": ["badmintonServerSide", "competitionFormat", "ruleProfileVersion", "layoutKind", "teamCourtPlayers"],
-        "badminton_doubles": ["badmintonServerSide", "competitionFormat", "ruleProfileVersion", "layoutKind", "teamCourtPlayers"],
+        "badminton": ["badmintonServerSide", "competitionFormat", "ruleProfileVersion", "layoutKind", "teamCourtPlayers",
+                      "badmintonTeam0YellowCount", "badmintonTeam0RedCount", "badmintonTeam0Disqualified",
+                      "badmintonTeam1YellowCount", "badmintonTeam1RedCount", "badmintonTeam1Disqualified"],
+        "badminton_doubles": ["badmintonServerSide", "competitionFormat", "ruleProfileVersion", "layoutKind", "teamCourtPlayers",
+                              "badmintonTeam0YellowCount", "badmintonTeam0RedCount", "badmintonTeam0Disqualified",
+                              "badmintonTeam1YellowCount", "badmintonTeam1RedCount", "badmintonTeam1Disqualified"],
         "shuttlecock": ["badmintonServerSide", "competitionFormat", "ruleProfileVersion", "layoutKind", "teamCourtPlayers"],
         "squash": ["competitionFormat", "ruleProfileVersion"],
         "pingpong": ["tableTennisTeam0TimeoutUsed", "tableTennisTeam0Yellow", "tableTennisTeam0RedCount",

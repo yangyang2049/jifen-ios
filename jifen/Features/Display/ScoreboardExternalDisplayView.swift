@@ -576,6 +576,14 @@ struct ScoreboardExternalLiveView: View {
                     )
                 }
 
+                if state.gameType == "badminton" || state.gameType == "badminton_doubles" {
+                    ScoreboardExternalBadmintonMarkerLayer(
+                        state: state,
+                        projection: projection,
+                        keyPointVisible: state.keyPoint != nil && state.result?.ended != true
+                    )
+                }
+
                 snookerMatchTitleOverlay(viewport: proxy.size)
 
                 topChrome
@@ -1138,8 +1146,8 @@ struct ScoreboardExternalLiveView: View {
             } else {
                 let points = sportNumber("trainingPoints")
                 if points > 0 {
-                    secondaryText = String(
-                        format: NSLocalizedString("display_training_fixed_points", value: "%d 分球", comment: ""),
+                    secondaryText = String.localizedStringWithFormat(
+                        NSLocalizedString("display_training_fixed_points", value: "%d 分球", comment: ""),
                         points
                     )
                 }
@@ -3222,6 +3230,48 @@ private struct ScoreboardExternalTableTennisMarkerLayer: View {
     }
 }
 
+/// 羽毛球判罚标记（对齐安卓显示端 resolveBadmintonMarkerStates）：
+/// 黄牌累计张数 + 红牌张数 + 取消资格（黑卡）。
+private struct ScoreboardExternalBadmintonMarkerLayer: View {
+    let state: ScoreboardDisplayState
+    let projection: ScoreboardExternalProjection
+    let keyPointVisible: Bool
+
+    var body: some View {
+        GeometryReader { proxy in
+            let scale = projection.isLocalProjection
+                ? ((min(proxy.size.width, proxy.size.height) / 360).clamped(1.5, 2) * 0.8)
+                : 1
+            HStack(spacing: 34 * scale) {
+                BadmintonMisconductCards(status: status(forScreenLeft: true), alignment: .trailing, scale: scale)
+                BadmintonMisconductCards(status: status(forScreenLeft: false), alignment: .leading, scale: scale)
+            }
+            .frame(width: proxy.size.width, height: 24 * scale)
+            .position(
+                x: proxy.size.width / 2,
+                y: ScoreboardServeGeometry.tableTennisCardsCenterY(
+                    height: proxy.size.height,
+                    keyPointVisible: keyPointVisible,
+                    scale: scale
+                )
+            )
+        }
+        .allowsHitTesting(false)
+        .accessibilityIdentifier("external_badminton_cards")
+    }
+
+    private func status(forScreenLeft screenLeft: Bool) -> BadmintonMisconductMarkerStatus {
+        let team0OnLeft = state.sportString("team0ScreenSide") != "right"
+        let logicalTeam0 = screenLeft == team0OnLeft
+        let prefix = logicalTeam0 ? "badmintonTeam0" : "badmintonTeam1"
+        return .init(
+            yellowCount: state.sportInt("\(prefix)YellowCount") ?? 0,
+            redCount: state.sportInt("\(prefix)RedCount") ?? 0,
+            disqualified: state.sportBoolValue("\(prefix)Disqualified") ?? false
+        )
+    }
+}
+
 private struct ScoreboardExternalRestOverlay: View {
     let rest: ScoreboardDisplayRest
     let viewport: CGSize
@@ -3231,9 +3281,8 @@ private struct ScoreboardExternalRestOverlay: View {
         // 1:1 对齐安卓显示端 OfficialBreakPill（showAction=false，scale=1f）：
         // 8% 黑遮罩保持比分可见，深色圆角卡 + 绿色 mm:ss 倒计时。
         TimelineView(.periodic(from: .now, by: 1)) { context in
-            let remaining = rest.projectedRemainingSeconds(
-                atWallClockMilliseconds: Int64(context.date.timeIntervalSince1970 * 1_000)
-            )
+            let now = Int64(context.date.timeIntervalSince1970 * 1_000)
+            let clockText = restClockText(now: now)
             let scale = projection.isLocalProjection
                 ? DisplayTypographyResolver.chromeScale(for: viewport).clamped(1, 1.5)
                 : 1
@@ -3255,7 +3304,7 @@ private struct ScoreboardExternalRestOverlay: View {
                                 .multilineTextAlignment(.center)
                         }
                     }
-                    Text(rest.phase == "preparation" ? "\(remaining)" : officialBreakClock(remaining))
+                    Text(clockText)
                         .font(.system(size: 44 * scale, weight: .bold, design: .monospaced))
                         .monospacedDigit()
                         .foregroundColor(Color(red: 0x31 / 255, green: 0xD1 / 255, blue: 0x58 / 255))
@@ -3298,6 +3347,15 @@ private struct ScoreboardExternalRestOverlay: View {
     /// 对齐安卓 formatOfficialBreakClock：向上取整的 mm:ss。
     private func officialBreakClock(_ totalSeconds: Int) -> String {
         String(format: "%02d:%02d", totalSeconds / 60, totalSeconds % 60)
+    }
+
+    /// 正计时（羽毛球医疗中断）显示已用时长；倒计时保持原 mm:ss / 准备秒数展示。
+    private func restClockText(now: Int64) -> String {
+        if rest.countUp == true {
+            return officialBreakClock(rest.projectedElapsedSeconds(atWallClockMilliseconds: now))
+        }
+        let remaining = rest.projectedRemainingSeconds(atWallClockMilliseconds: now)
+        return rest.phase == "preparation" ? "\(remaining)" : officialBreakClock(remaining)
     }
 }
 

@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import PersistenceCore
 import ScoreCore
+import StoreKit
 import UIKit
 
 enum HomeLayoutPolicy {
@@ -140,10 +141,12 @@ struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.scenePhase) private var scenePhase
     @State private var recentActivities: [RecentActivity] = []
     @State private var upcomingBookings: [LocalBooking] = []
     @State private var unfinishedRecord: UnfinishedGameSummary?
     @State private var showNewGameDialog = false
+    @State private var showNationalDayCampaign = false
     @State private var showQuickStartEditSheet = false
     @State private var isDiscardConfirmationPending = false
     @State private var showDiscardConfirmationToast = false
@@ -377,10 +380,30 @@ struct HomeTab: View {
         .sheet(item: $homeSheet) { destination in
             HomeFormSheet(destination: destination)
         }
+        .sheet(isPresented: $showNationalDayCampaign) {
+            NationalDayMembershipSheet(
+                onDismiss: { showNationalDayCampaign = false },
+                onOpenAccount: {
+                    showNationalDayCampaign = false
+                    onNavigateToTab?(4, nil)
+                }
+            )
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // 首页恢复前台时评估活动（对齐安卓：前台 → 方向/弹窗合适 → 先活动后评分）。
+            evaluateNationalDayCampaign()
+        }
+        .onChange(of: homeSheet) { _, destination in
+            if destination == nil { evaluateNationalDayCampaign() }
+        }
+        .onChange(of: showNewGameDialog) { _, shown in
+            if !shown { evaluateNationalDayCampaign() }
+        }
         .onAppear {
             // Home is a normal page: iPad follows the physical device in all
             // directions, while iPhone returns to portrait.
             OrientationLock.shared.unlock()
+            evaluateNationalDayCampaign()
             loadData()
             configureQuickStartDefaultsForCurrentDevice()
             scoreboardVM.ensureLoaded()
@@ -511,6 +534,40 @@ struct HomeTab: View {
     ]
 
     // MARK: - Private Methods
+
+    // MARK: - 国庆会员活动（对齐安卓 HomeTabScreen 触发链：先活动、后评分，互斥）
+
+    /// 展示前先经 `reserve()` 持久化时间戳，进程重启/视图重建都不会重复弹出；
+    /// 展示当天由 `NationalDayCampaignReviewGate` 抑制评分邀请。
+    private func evaluateNationalDayCampaign() {
+        guard scenePhase == .active else { return }
+        if !NationalDayCampaignPolicy.isActive() {
+            showNationalDayCampaign = false
+        }
+        guard !showNationalDayCampaign else { return }
+        // 有其他首页弹窗/表单时不叠加活动弹窗。
+        guard homeSheet == nil, !showNewGameDialog, !showQuickStartEditSheet,
+              !showCreateBookingSheet, pendingScoreboardSetupItem == nil,
+              !isDiscardConfirmationPending else { return }
+
+        Task { @MainActor in
+            guard NationalDayCampaignGate.deviceUsesSimplifiedChinese() else { return }
+            guard NationalDayCampaignPolicy.isActive() else { return }
+            let prompt = NationalDayCampaignPrompt.shared
+            guard !prompt.wasShownToday() else { return }
+            guard AppStore.canMakePayments else { return }
+            // 已有会员（账号会员或本机 StoreKit 权益）不再打扰。
+            guard !SessionStore.shared.isVIP else { return }
+
+            let manager = StoreKitPurchaseManager.shared
+            if !manager.didLoadProducts || manager.products.isEmpty {
+                await manager.loadProducts()
+            }
+            guard manager.products.contains(where: { $0.id == StoreKitPurchaseManager.lifetimeProductID }) else { return }
+            guard prompt.reserve() else { return }
+            showNationalDayCampaign = true
+        }
+    }
 
     private func loadData() {
         updateHeaderDate()

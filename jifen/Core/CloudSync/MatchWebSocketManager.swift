@@ -97,6 +97,31 @@ struct WsEnvelope: @unchecked Sendable {
     }
 }
 
+// MARK: - 离线重发队列策略（纯函数，便于单测）
+
+enum WsOfflineQueuePolicy {
+    static let capacity = 16
+
+    enum Action {
+        case drop
+        /// 全量快照，只保留最新一帧
+        case replaceSnapshot
+        /// 同类幂等意图（结束/离开），保留最后一条
+        case dedupeSameType
+        /// 状态机事件，必须按发生顺序补发
+        case appendOrdered
+    }
+
+    static func action(for type: WsMessageType) -> Action {
+        switch type {
+        case .participantUpdate: return .replaceSnapshot
+        case .gameOver, .leave: return .dedupeSameType
+        case .controllerAway, .controllerResume, .matchStarted: return .appendOrdered
+        default: return .drop
+        }
+    }
+}
+
 // MARK: - WebSocket 管理器（对齐安卓 MatchWebSocketManager）
 
 @MainActor
@@ -354,7 +379,8 @@ final class MatchWebSocketManager: NSObject, ObservableObject {
     }
 
     func sendLeave(reason: String = "user_exit") {
-        guard let matchId, isConnected else { return }
+        guard let matchId else { return }
+        // 离线时不直接丢弃：LEAVE 进队列，重连后补发（sendEnvelope 负责分流）。
         send(.leave, ["matchId": matchId, "reason": reason])
     }
 
@@ -401,12 +427,51 @@ final class MatchWebSocketManager: NSObject, ObservableObject {
         }
     }
 
-    /// PARTICIPANT_UPDATE 是全量快照，离线队列只保留最新一帧。
+    /// 离线队列：快照只留最新帧，结束/离开留最后一条，状态事件按序保留；JOIN/PING 不入队（连接建立时各自补发/无意义）。
     private func enqueuePending(_ envelope: WsEnvelope) {
-        guard WsMessageType(rawValue: envelope.type) == .participantUpdate else { return }
-        pendingQueue.removeAll { WsMessageType(rawValue: $0.type) == .participantUpdate }
-        pendingQueue.append(envelope)
+        guard let type = WsMessageType(rawValue: envelope.type) else { return }
+        switch WsOfflineQueuePolicy.action(for: type) {
+        case .drop:
+            return
+        case .replaceSnapshot:
+            pendingQueue.removeAll { WsMessageType(rawValue: $0.type) == .participantUpdate }
+            pendingQueue.append(envelope)
+        case .dedupeSameType:
+            let raw = envelope.type
+            pendingQueue.removeAll { $0.type == raw }
+            pendingQueue.append(envelope)
+        case .appendOrdered:
+            pendingQueue.append(envelope)
+        }
+        if pendingQueue.count > WsOfflineQueuePolicy.capacity {
+            // 优先丢弃最老的快照（可被后续帧覆盖），否则丢最老的一条。
+            if let oldest = pendingQueue.firstIndex(
+                where: { WsMessageType(rawValue: $0.type) == .participantUpdate }
+            ) {
+                pendingQueue.remove(at: oldest)
+            } else {
+                pendingQueue.removeFirst()
+            }
+        }
     }
+
+    #if DEBUG
+    func debugSeedOfflineQueue(_ envelopes: [WsEnvelope]) {
+        pendingQueue = envelopes
+    }
+
+    func debugEnqueueOffline(_ envelope: WsEnvelope) {
+        enqueuePending(envelope)
+    }
+
+    func debugPendingQueueSnapshot() -> [WsEnvelope] {
+        pendingQueue
+    }
+
+    func debugClearOfflineQueue() {
+        pendingQueue.removeAll()
+    }
+    #endif
 
     private func startHeartbeat() {
         stopHeartbeat()

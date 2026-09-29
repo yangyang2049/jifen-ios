@@ -482,6 +482,10 @@ struct MultiScoreSetupDialogView: View {
     private static func normalizePlayerNames(_ names: [String], capacity: Int) -> [String] {
         let base = NSLocalizedString("multi_score_player_default", value: "玩家", comment: "")
         var result = names
+        // 商店源图要真实玩家名：见 DefaultParticipantNames.uiTestParticipantNames
+        for (index, name) in DefaultParticipantNames.uiTestParticipantNames.enumerated() {
+            if index < result.count { result[index] = name } else { result.append(name) }
+        }
         if result.count < capacity {
             for i in result.count..<capacity {
                 result.append("\(base) \(i + 1)")

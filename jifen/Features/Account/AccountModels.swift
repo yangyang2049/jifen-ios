@@ -24,8 +24,6 @@ nonisolated struct AppUser: Codable, Equatable, Identifiable, Sendable {
     var nameUpdatedAt: Int64?
     var nameVisibility: String? = nil
     var avatarVisibility: String? = nil
-    var nameVisibilityLabel: String? = nil
-    var avatarVisibilityLabel: String? = nil
     var nameModerationReviewReason: String? = nil
     var avatarModerationReviewReason: String? = nil
     var email: String?
@@ -70,6 +68,29 @@ nonisolated enum ProfileUpdateOutcome: Equatable, Sendable {
     case updated
     case submittedForReview
     case failed(String)
+}
+
+/// 资料审核提示条文案：按服务端 visibility 状态码（OWNER_PREVIEW）由客户端生成，
+/// 不再显示服务端硬编码中文的 nameVisibilityLabel/avatarVisibilityLabel。
+nonisolated enum ProfileModerationBanner {
+    static func label(nameVisibility: String?, avatarVisibility: String?) -> String? {
+        var parts: [String] = []
+        if nameVisibility?.uppercased() == "OWNER_PREVIEW" {
+            parts.append(NSLocalizedString(
+                "me_profile_name_under_review",
+                value: "昵称审核中",
+                comment: ""
+            ))
+        }
+        if avatarVisibility?.uppercased() == "OWNER_PREVIEW" {
+            parts.append(NSLocalizedString(
+                "me_profile_avatar_under_review",
+                value: "头像审核中",
+                comment: ""
+            ))
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
 }
 
 nonisolated struct SuccessResponse: Decodable, Sendable {

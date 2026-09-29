@@ -2044,7 +2044,7 @@ func tennisLocalSyncDetail(state: TennisMatchState, side: MatchSide) -> String? 
     let sets = side == .left ? state.leftSets : state.rightSets
     let games = side == .left ? state.leftGames : state.rightGames
     return [
-        String(format: NSLocalizedString("tennis_sync_sets_format", value: "%d 盘", comment: ""), sets),
-        String(format: NSLocalizedString("tennis_sync_games_format", value: "%d 局", comment: ""), games)
+        String.localizedStringWithFormat(NSLocalizedString("tennis_sync_sets_format", value: "%d 盘", comment: ""), sets),
+        String.localizedStringWithFormat(NSLocalizedString("tennis_sync_games_format", value: "%d 局", comment: ""), games)
     ].joined(separator: " · ")
 }

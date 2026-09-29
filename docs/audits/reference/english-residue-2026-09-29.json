@@ -1,0 +1,44 @@
+{
+  "_note": "Rows where the machine draft was byte-identical to the English source on a long string (len >= 20), i.e. the provider never translated it. about_company_en (legal company name) and display_training_point_counts (numeric chip format) are deliberately excluded as legitimate source-equality. Values below are reviewer-authored, keyed locale -> key -> text.",
+  "hr": {
+    "set_ended_winner": "Set %d je završen, %@ je pobjednik, rezultat %d-%d",
+    "place_fingers_on_blocks": "Stavite prste na polja (%d/%d)",
+    "tap_to_start_stop": "Dodirnite za pokretanje, pokušajte stati na 10 sekundi",
+    "uno_wild_40_hint": "Miješanje / Prilagođeni džoker x40"
+  },
+  "nb": {
+    "uno_wild_40_hint": "Blanding / Egendefinert wild x40"
+  },
+  "sl": {
+    "uno_wild_40_hint": "Premešavanje / Prilagojena divja karta x40"
+  },
+  "hu": {
+    "sync_login_and_create_room": "Bejelentkezés & szinkronkód létrehozása",
+    "sync_end_confirm_message": "A szinkronizálás befejezése leválasztja az aktuális kijelzőeszközt.",
+    "sync_intro_share_3": "Kezdj el pontozni — az állás automatikusan szinkronizálódik",
+    "sync_intro_display_1": "Jelentkezz be, és írd be a megosztó eszköz 6 számjegyű kódját",
+    "sync_intro_display_2": "Nyisd meg a teljes képernyős nézetet az állás élő követéséhez",
+    "sync_intro_display_3": "A kijelző frissül, amikor a megosztó eszköz pontoz vagy sportágat vált",
+    "sync_join_display_slots_full": "A mérkőzés összes megjelenítő helye foglalt",
+    "sync_display_waiting_title": "Várakozás a megosztó eszközre",
+    "sync_display_disconnected_title": "Megszakadt a kapcsolat a megosztó eszközzel",
+    "toast_login_required_feedback_publish": "Jelentkezz be a visszajelzés elküldéséhez"
+  },
+  "ro": {
+    "timer_exit_confirm_message": "Ieșirea încheie cronometrul în curs.",
+    "timer_stop_confirm_message": "Oprirea încheie această partidă.",
+    "cube_timer_release_to_start": "Eliberează mâinile pentru a porni cronometrarea",
+    "common_names_batch_delete_confirm": "Ștergi cele %d nume selectate?",
+    "about_copy_qq_toast": "Numărul grupului QQ a fost copiat",
+    "common_places_empty_name": "Locul nu poate fi gol",
+    "common_places_already_exists": "Acest loc există deja",
+    "common_places_batch_empty": "Introdu cel puțin un loc valid",
+    "common_places_empty_hint": "Adaugă locuri din „Locuri frecvente” de pe ecranul principal",
+    "scoreboard_style_apply_color_same_side": "Aplică această culoare la tot textul din aceeași parte?",
+    "scoreboard_style_usage_hint_select_text": "👆 Atinge orice text conturat pentru a deschide panoul de editare",
+    "scoreboard_style_usage_hint_text_panel": "🎨 Ajustează culoarea și dimensiunea textului în panou",
+    "scoreboard_style_usage_hint_more_styles": "⚙️ Folosește butonul de stil din dreapta jos pentru fundaluri, teme, fonturi și altele",
+    "scoreboard_style_server_shared_hint": "Indicatoarele din stânga și din dreapta au aceeași culoare",
+    "scoreboard_style_contrast_warning": "Culoarea curentă a textului are contrast insuficient și poate fi greu de citit"
+  }
+}

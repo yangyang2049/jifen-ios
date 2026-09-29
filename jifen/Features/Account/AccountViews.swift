@@ -1,4 +1,6 @@
+import PhotosUI
 import SwiftUI
+import UIKit
 
 struct AccountCenterView: View {
     @Environment(SessionStore.self) private var session
@@ -382,7 +384,7 @@ private struct LoginAgreementBar: View {
                 .font(.footnote)
                 .foregroundStyle(Theme.textSecondary)
 
-                HStack(spacing: 0) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
                     legalButton(.terms)
                     Text(NSLocalizedString(
                         "account_login_agreement_and",
@@ -440,7 +442,24 @@ private struct AccountProfileView: View {
                     user: session.user,
                     loggedIn: session.isAuthenticated,
                     isVIP: session.isVIP
-                )
+                ) { outcome in
+                    switch outcome {
+                    case .updated:
+                        showToastMessage(NSLocalizedString(
+                            "me_profile_avatar_update_success",
+                            value: "头像已更新",
+                            comment: ""
+                        ))
+                    case .submittedForReview:
+                        showToastMessage(NSLocalizedString(
+                            "me_profile_avatar_review_submitted",
+                            value: "头像已提交审核，审核期间仅自己可见",
+                            comment: ""
+                        ))
+                    case .failed(let message):
+                        showToastMessage(message)
+                    }
+                }
 
                 if let moderationLabel = profileModerationLabel {
                     VStack(alignment: .leading, spacing: 6) {
@@ -456,6 +475,7 @@ private struct AccountProfileView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(14)
                     .background(RoundedRectangle(cornerRadius: 12).fill(Color(hex: "FEF3C7")))
+                    .accessibilityIdentifier("profile_moderation_banner")
                 }
 
                 VStack(spacing: 0) {
@@ -637,10 +657,10 @@ private struct AccountProfileView: View {
     }
 
     private var profileModerationLabel: String? {
-        joinedUnique(
-            [session.user?.nameVisibilityLabel, session.user?.avatarVisibilityLabel]
-                .compactMap { $0?.nilIfBlank },
-            separator: " · "
+        guard let user = session.user else { return nil }
+        return ProfileModerationBanner.label(
+            nameVisibility: user.nameVisibility,
+            avatarVisibility: user.avatarVisibility
         )
     }
 
@@ -965,11 +985,24 @@ private func profileMembershipLabel(_ user: AppUser?, isVIP: Bool) -> String {
     }
 }
 
-/// 头部卡（对齐安卓 ProfileHeaderCard）。
+/// 头部卡（对齐安卓 ProfileHeaderCard）。登录态整个头像即入口（角标仅视觉提示）：
+/// 下拉选拍照/相册 → 1:1 裁剪（完成转 loading）→ SessionStore.uploadAvatar（机审+人工审核链路）。
 private struct ProfileHeaderCard: View {
     let user: AppUser?
     let loggedIn: Bool
     let isVIP: Bool
+    var onAvatarOutcome: (ProfileUpdateOutcome) -> Void = { _ in }
+
+    @Environment(SessionStore.self) private var session
+    @State private var showLibraryPicker = false
+    @State private var showCameraPicker = false
+    @State private var pickedItems: [PhotosPickerItem] = []
+    @State private var cropItem: AvatarCropItem?
+    @State private var isUploading = false
+
+    private var cameraAvailable: Bool {
+        UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -996,6 +1029,65 @@ private struct ProfileHeaderCard: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 22)
         .background(RoundedRectangle(cornerRadius: 20).fill(Theme.appCardBackground))
+        .photosPicker(
+            isPresented: $showLibraryPicker,
+            selection: $pickedItems,
+            maxSelectionCount: 1,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        .onChange(of: pickedItems) { _, items in
+            defer { pickedItems = [] }
+            guard let item = items.last else { return }
+            Task {
+                guard let data = try? await item.loadTransferable(type: Data.self),
+                      let image = UIImage(data: data) else {
+                    onAvatarOutcome(.failed(NSLocalizedString(
+                        "account_avatar_invalid",
+                        value: "无法读取这张图片",
+                        comment: ""
+                    )))
+                    return
+                }
+                cropItem = AvatarCropItem(image: image)
+            }
+        }
+        .fullScreenCover(isPresented: $showCameraPicker) {
+            CameraImagePicker { image in
+                cropItem = AvatarCropItem(image: image)
+            }
+        }
+        .sheet(item: $cropItem) { item in
+            AvatarCropView(
+                source: item.image,
+                isBusy: isUploading,
+                onCancel: { cropItem = nil },
+                onConfirm: { cropped in
+                    Task { await uploadAvatar(cropped) }
+                }
+            )
+            .interactiveDismissDisabled(isUploading)
+            .presentationDetents([.large])
+            .presentationBackground(Color.black)
+            .presentationDragIndicator(.hidden)
+        }
+        #if DEBUG
+        .onAppear {
+            if ProcessInfo.processInfo.arguments.contains("-UITestAvatarCrop"), cropItem == nil {
+                cropItem = AvatarCropItem(image: Self.uiTestAvatarFixture())
+            }
+        }
+        #endif
+    }
+
+    private func uploadAvatar(_ image: UIImage) async {
+        guard !isUploading,
+              let data = image.jpegData(compressionQuality: 0.9) else { return }
+        isUploading = true
+        defer { isUploading = false }
+        let outcome = await session.uploadAvatar(data)
+        cropItem = nil
+        onAvatarOutcome(outcome)
     }
 
     private var displayName: String {
@@ -1019,16 +1111,81 @@ private struct ProfileHeaderCard: View {
 
     @ViewBuilder
     private var avatar: some View {
+        // 原生 Menu：系统锚定弹层挂在整颗头像上（热区即头像），样式由系统渲染。
+        if loggedIn {
+            Menu {
+                if cameraAvailable {
+                    Button(NSLocalizedString(
+                        "me_profile_avatar_source_camera",
+                        value: "拍照",
+                        comment: ""
+                    )) {
+                        showCameraPicker = true
+                    }
+                    .accessibilityIdentifier("profile_avatar_source_camera")
+                }
+                Button(NSLocalizedString(
+                    "me_profile_avatar_source_library",
+                    value: "从相册选择",
+                    comment: ""
+                )) {
+                    showLibraryPicker = true
+                }
+                .accessibilityIdentifier("profile_avatar_source_library")
+            } label: {
+                avatarStack
+            }
+            .menuIndicator(.hidden)
+            .disabled(isUploading || session.isWorking)
+            .accessibilityLabel(NSLocalizedString(
+                "me_profile_avatar_source_title",
+                value: "修改头像",
+                comment: ""
+            ))
+            .accessibilityIdentifier("profile_avatar_edit_button")
+        } else {
+            avatarStack
+        }
+    }
+
+    /// 头像本体 + 相机角标（纯视觉）+ 上传转圈。
+    private var avatarStack: some View {
+        ZStack(alignment: .bottomTrailing) {
+            avatarCircle
+            if loggedIn {
+                ZStack {
+                    Circle().fill(Color.white)
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Color(hex: "3A3A3C"))
+                }
+                .frame(width: 22, height: 22)
+                .overlay(Circle().stroke(Color.black.opacity(0.08), lineWidth: 0.5))
+                .shadow(color: Color.black.opacity(0.15), radius: 2, y: 1)
+            }
+        }
+        .overlay {
+            if isUploading {
+                ZStack {
+                    Circle().fill(Color.black.opacity(0.45)).frame(width: 72, height: 72)
+                    ProgressView()
+                        .tint(.white)
+                        .accessibilityIdentifier("profile_avatar_upload_progress")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var avatarCircle: some View {
         let url = avatarURL
         ZStack {
             Circle().fill(Theme.controlBackground)
             if loggedIn, let url {
-                AsyncImage(url: url) { phase in
-                    if let image = phase.image {
-                        image.resizable().scaledToFill()
-                    } else {
-                        ProfileAvatarFallback(displayName: displayName)
-                    }
+                RemoteImage(url: url) { image in
+                    image.resizable().scaledToFill()
+                } placeholder: {
+                    ProfileAvatarFallback(displayName: displayName)
                 }
                 .clipShape(Circle())
             } else {
@@ -1041,6 +1198,62 @@ private struct ProfileHeaderCard: View {
 
     private var avatarURL: URL? {
         APIAssetURLResolver.resolve(user?.avatarUrl ?? user?.avatar)
+    }
+
+    #if DEBUG
+    /// UI 测试用 900×600 假图片，验证裁剪页可达且可取消。
+    private static func uiTestAvatarFixture() -> UIImage {
+        let size = CGSize(width: 900, height: 600)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            UIColor.systemTeal.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            UIColor.white.setFill()
+            context.fill(CGRect(x: 80, y: 80, width: 300, height: 200))
+            UIColor.black.setFill()
+            context.fill(CGRect(x: 500, y: 320, width: 300, height: 200))
+        }
+    }
+    #endif
+}
+
+/// 系统相机拍照包装（UIImagePickerController.sourceType = .camera）。
+private struct CameraImagePicker: UIViewControllerRepresentable {
+    let onImage: (UIImage) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.allowsEditing = false
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ picker: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        private let parent: CameraImagePicker
+
+        init(_ parent: CameraImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        ) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.onImage(image)
+            }
+            parent.dismiss()
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
     }
 }
 

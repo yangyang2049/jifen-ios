@@ -158,6 +158,12 @@
 "shot_training_finish" = "結束訓練";
 "shot_training_undo_done" = "已撤銷上一次記錄";
 "shot_training_share" = "投籃訓練：命中 %d / %d，命中率 %d%%，得分 %d";
+"shot_training_free_made_format" = "%d 分命中";
+"shot_training_free_miss_format" = "%d 分未中";
+
+/* Shot training record action lines (cross-end machine token wording) */
+"record_training_shot" = "%1$d分%2$@";
+"record_training_end_rate" = "訓練結束 · 命中率 %1$d%%";
 "game_football" = "足球";
 "game_volleyball" = "排球";
 "game_checkers" = "跳棋";
@@ -249,9 +255,6 @@
 "game_ended" = "比賽結束";
 
 /* Time Formats */
-"minutes_ago" = "%d分鐘前";
-"hours_ago" = "%d小時前";
-"days_ago" = "%d天前";
 "today" = "今天";
 "yesterday" = "昨天";
 
@@ -291,6 +294,7 @@
 "screenshot_saved" = "截圖已保存";
 "open_settings" = "去設置";
 "retry" = "重試";
+"web_load_failed" = "網頁載入失敗，請檢查網路後重試";
 "save_failed" = "保存失敗: %@";
 
 /* Set/Game End Messages */
@@ -725,8 +729,8 @@
 "game_tennis_doubles" = "網球雙打";
 "game_pingpong_doubles" = "乒乓球雙打";
 "game_pickleball_doubles" = "匹克球雙打";
-"game_eight_ball" = "黑八";
-"game_nine_ball" = "追分";
+"game_eight_ball" = "黑八追分";
+"game_nine_ball" = "九球追分";
 "game_snooker" = "斯諾克";
 "setup_serving_side" = "發球方";
 "setup_serving_left" = "左側發球";
@@ -748,7 +752,6 @@
 "voice_announcement" = "語音播報";
 "sound_effects_help_title" = "音效";
 "sound_effects_help_message" = "控制擲骰子、擲硬幣、倒計時結束等工具音效，關閉後這些音效將靜音。";
-"sports_setup_match_features" = "比賽功能";
 "pickleball_target_score" = "目標分";
 "pickleball_score_cap" = "最高分上限";
 "pickleball_no_cap" = "無";
@@ -1009,6 +1012,18 @@
 "scoreboard_usage_hint_double_tap_rack" = "👆 雙擊同一方可減 1 局";
 "scoreboard_usage_hint_double_tap_player" = "👆 雙擊同一玩家可減 1 分";
 "scoreboard_usage_hint_touch_guard" = "🛡️ 防誤觸模式請點大分數區計分";
+"scoreboard_usage_hint_anim_tap_title" = "點擊比分區加分";
+"scoreboard_usage_hint_anim_tap_caption" = "點擊左/右比分區，為對應一方加 1 分；綠色三角標記發球方";
+"scoreboard_usage_hint_anim_swipe_title" = "滑動微調比分";
+"scoreboard_usage_hint_anim_swipe_caption" = "在比分區上滑加分、下滑減分、左滑撤銷上一步";
+"scoreboard_usage_hint_anim_double_tap_title" = "雙擊減分";
+"scoreboard_usage_hint_anim_touch_guard_title" = "防誤觸保護";
+"scoreboard_usage_hint_anim_auto_title" = "自動判定局分與賽點";
+"scoreboard_usage_hint_anim_auto_caption" = "按羽毛球規則自動處理局分、賽點與比賽結束，無需手動計局";
+"scoreboard_usage_hint_anim_match_point" = "賽點";
+"scoreboard_usage_hint_anim_guard_ignored" = "已忽略連續快速點擊";
+"common_previous" = "上一頁";
+"common_next" = "下一頁";
 "scoreboard_usage_hint_simple_score" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n✏️ 長按或編輯可改名稱和分數";
 "scoreboard_usage_hint_multi_scoreboard" = "👆 點擊玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑減 1 分\n↩️ 左滑撤銷上一步\n✏️ 長按玩家可編輯名稱和分數\n🎛️ 自定義調分模式下，點擊玩家會打開調分面板";
 "multi_score_portrait" = "豎屏";
@@ -1186,6 +1201,22 @@
 "record_tt_timeout" = "%@ 暫停";
 "record_tt_medical" = "%@ 醫療暫停";
 "record_tt_forfeit" = "%@ 判負";
+/* 羽毛球判罚（红黄牌/取消资格）+ 医疗中断 */
+"record_bd_yellow" = "%@ 黃牌";
+"record_bd_red" = "%@ 紅牌（對手+1）";
+"record_bd_disqualify" = "%@ 取消比賽資格";
+"badminton_card_yellow" = "黃牌";
+"badminton_card_red" = "紅牌";
+"badminton_card_disqualify" = "取消資格";
+"badminton_action_red" = "出示紅牌";
+"badminton_action_disqualify" = "取消比賽資格";
+"tt_action_yellow" = "出示黃牌";
+"bd_select_kind_hint" = "請選擇判罰";
+"tt_select_side_hint" = "請先選擇選手";
+"tt_penalty_opponent_plus_one" = "對手 +1 分";
+"tt_forfeit_confirm_message" = "確認判 %@ 負？對方將直接贏得整場比賽。";
+"tt_forfeit_confirm_button" = "確認判負";
+"medical_break" = "醫療中斷";
 "player" = "選手";
 "scoreboard_usage_hint_shuttlecock" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 團隊毽球按所選目標分和賽制計分";
 "scoreboard_usage_hint_squash" = "👆 點擊左/右比分區為該方加分\n⬆️ 上滑加分\n⬇️ 下滑減分\n↩️ 左滑撤銷上一步\n🏁 壁球預設五局三勝，領先兩分獲勝";
@@ -1382,7 +1413,7 @@
 "vip_feature_cloud" = "雲端同步";
 "vip_feature_no_ads" = "無廣告體驗";
 "vip_feature_early_access" = "優先體驗";
-"vip_feature_cast" = "專業投屏體驗";
+"vip_feature_cast" = "專業投影體驗";
 "membership_staging_note" = "當前為 Staging：本地 StoreKit 交易通過隔離測試接口授予測試會員，不代表 App Store 正式鏈路成功。";
 "me_profile_membership_number_label" = "會員編號";
 "membership_valid_until" = "有效期至";
@@ -1479,6 +1510,16 @@
 "me_profile_nickname_cooldown" = "暱稱修改後需要稍等一會兒，請在 %@ 後再試";
 "me_profile_nickname_cooldown_generic" = "暱稱修改後需要稍等一會兒，請稍後再試";
 "me_profile_nickname_review_submitted" = "暱稱已提交審核，審核期間僅自己可見";
+"me_profile_name_under_review" = "暱稱審核中";
+"me_profile_avatar_under_review" = "頭像審核中";
+"me_profile_avatar_source_title" = "修改頭像";
+"me_profile_avatar_source_camera" = "拍照";
+"me_profile_avatar_source_library" = "從相簿選擇";
+"me_profile_avatar_crop_title" = "調整頭像";
+"me_profile_avatar_crop_confirm" = "完成";
+"me_profile_avatar_update_success" = "頭像已更新";
+"me_profile_avatar_review_submitted" = "頭像已提交審核，審核期間僅自己可見";
+"me_profile_avatar_upload_failed" = "頭像上傳失敗，請稍後重試";
 "membership_purchase_success_signed_out" = "購買成功，會員已在本機生效；登錄後可同步到你的其他裝置";
 "membership_purchase_success" = "購買成功，會員狀態已更新";
 "membership_purchase_pending" = "購買正在等待確認，確認後會自動更新";

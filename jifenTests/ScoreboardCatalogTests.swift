@@ -13,7 +13,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testCommonNamePolicyUsesPlayerNamesForSinglesAndDoublesMembers() {
         let playerGames: [jifen.GameType] = [
             .pingpong, .badminton, .tennis, .pickleball, .foosball,
-            .archery, .basketballTraining, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+            .archery, .basketballTraining, .boxing, .billiards, .snooker, .eightBall, .nineBall,
             .doudizhu, .uno, .multiScoreboard
         ]
 
@@ -64,7 +64,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testCommonNamePolicyExplicitlyPartitionsEveryGameType() {
         let playerGames: Set<jifen.GameType> = [
             .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel,
-            .checkers, .boxing, .billiards, .eightBall, .nineBall, .snooker,
+            .checkers, .boxing, .billiards, .snooker, .eightBall, .nineBall,
             .pickleball, .archery, .basketballTraining, .doudizhu, .uno, .foosball,
             .multiScoreboard, .stopwatch, .go, .xiangqi, .chess
         ]
@@ -575,7 +575,7 @@ final class ScoreboardCatalogTests: XCTestCase {
             .badminton, .tennis, .pingpong, .pickleball, .shuttlecock, .squash, .softTennis, .padel,
             .football, .football5v5, .basketball, .threeBasketball, .basketballTraining,
             .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
-            .billiards, .eightBall, .nineBall, .snooker,
+            .billiards, .snooker, .eightBall, .nineBall,
             .doudizhu, .guandan, .shengji, .uno,
             .foosball, .simpleScore, .multiScoreboard
         ])
@@ -2069,7 +2069,7 @@ final class ScoreboardCatalogTests: XCTestCase {
 
         // 台球与棋类按产品口径保持「比赛详情」。
         for gameType in [
-            jifen.GameType.billiards, .eightBall, .nineBall, .snooker,
+            jifen.GameType.billiards, .snooker, .eightBall, .nineBall,
             .go, .xiangqi, .chess, .checkers,
             .basketball, .tennis, .boxing, .multiScoreboard, .simpleScore
         ] {

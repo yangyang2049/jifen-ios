@@ -200,10 +200,16 @@ final class ScoreboardUsageHintCoordinator {
     ) {
         self.descriptor = descriptor
         self.store = store ?? ScoreboardUsageHintStore()
+        Self.prepareUITestStateIfRequested(store: self.store)
+    }
+
+    /// 弹窗据此区分「首次打开」（须滑到末页才能关）与「菜单回看」（常驻知道了）。
+    /// 展示时现读，避免 init 到展示之间被 UI 测试复位等操作弄脏。
+    var alreadyShown: Bool {
+        store.hasShown(descriptor)
     }
 
     func presentAutomaticallyIfNeeded() {
-        Self.prepareUITestStateIfRequested(store: store)
         guard !Self.skipsAutomaticPresentationForUITests,
               !store.hasShown(descriptor) else { return }
         isPresented = true
@@ -303,11 +309,19 @@ private struct ScoreboardUsageHintBodyHeightKey: PreferenceKey {
 
 struct ScoreboardUsageHintDialog: View {
     let descriptor: ScoreboardUsageHintDescriptor
+    var alreadyShown = false
     let onDismiss: () -> Void
 
     @State private var bodyTextHeight: CGFloat = 0
 
     var body: some View {
+        if let pages = UsageHintAnimatedPages.pages(for: descriptor) {
+            ScoreboardUsageHintAnimatedDialog(
+                pages: pages,
+                alreadyShown: alreadyShown,
+                onDismiss: onDismiss
+            )
+        } else {
         GeometryReader { proxy in
             let compactHeight = proxy.size.height < 420
             let metrics = ScoreboardUsageHintDialogMetrics.resolve(
@@ -393,5 +407,6 @@ struct ScoreboardUsageHintDialog: View {
             }
         }
         .ignoresSafeArea()
+        }
     }
 }

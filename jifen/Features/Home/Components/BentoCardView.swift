@@ -25,8 +25,9 @@ struct BentoCardView: View {
                 Text(title)
                     .font(.system(size: Theme.fontH5, weight: .bold))
                     .foregroundColor(Theme.homeCardTextPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(Theme.cardPadding)

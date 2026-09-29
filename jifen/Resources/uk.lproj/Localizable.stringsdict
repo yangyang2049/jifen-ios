@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>match_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d матч</string>
+			<key>few</key>
+			<string>%d матчі</string>
+			<key>many</key>
+			<string>%d матчів</string>
+			<key>other</key>
+			<string>%d матчу</string>
+		</dict>
+	</dict>
+	<key>timer_byoyomi_periods_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Бйойомі: %d період</string>
+			<key>few</key>
+			<string>Бйойомі: %d періоди</string>
+			<key>many</key>
+			<string>Бйойомі: %d періодів</string>
+			<key>other</key>
+			<string>Бйойомі: %d періоду</string>
+		</dict>
+	</dict>
+	<key>display_training_fixed_points</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Кидок на %d очко</string>
+			<key>few</key>
+			<string>Кидки на %d очки</string>
+			<key>many</key>
+			<string>Кидки на %d очок</string>
+			<key>other</key>
+			<string>Кидки на %d очка</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Зіграти всю %d партію</string>
+			<key>few</key>
+			<string>Зіграти всі %d партії</string>
+			<key>many</key>
+			<string>Зіграти всі %d партій</string>
+			<key>other</key>
+			<string>Зіграти всі %d партії</string>
+		</dict>
+	</dict>
+	<key>record_format_sets_play_all_tennis</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Зіграти весь %d сет</string>
+			<key>few</key>
+			<string>Зіграти всі %d сети</string>
+			<key>many</key>
+			<string>Зіграти всі %d сетів</string>
+			<key>other</key>
+			<string>Зіграти всі %d сету</string>
+		</dict>
+	</dict>
+	<key>record_format_points_per_set</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d очко за партію</string>
+			<key>few</key>
+			<string>%d очки за партію</string>
+			<key>many</key>
+			<string>%d очок за партію</string>
+			<key>other</key>
+			<string>%d очка за партію</string>
+		</dict>
+	</dict>
+	<key>record_format_pickleball_score</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Ціль: %d очко</string>
+			<key>few</key>
+			<string>Ціль: %d очки</string>
+			<key>many</key>
+			<string>Ціль: %d очок</string>
+			<key>other</key>
+			<string>Ціль: %d очка</string>
+		</dict>
+	</dict>
+	<key>players_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d Гравець</string>
+			<key>few</key>
+			<string>%d гравці</string>
+			<key>many</key>
+			<string>%d гравців</string>
+			<key>other</key>
+			<string>%d гравця</string>
+		</dict>
+	</dict>
+	<key>random_team_team_count_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d команда</string>
+			<key>few</key>
+			<string>%d команди</string>
+			<key>many</key>
+			<string>%d команд</string>
+			<key>other</key>
+			<string>%d команди</string>
+		</dict>
+	</dict>
+	<key>common_names_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Видалити %d вибране ім'я?</string>
+			<key>few</key>
+			<string>Видалити %d вибрані імена?</string>
+			<key>many</key>
+			<string>Видалити %d вибраних імен?</string>
+			<key>other</key>
+			<string>Видалити %d вибраного імені?</string>
+		</dict>
+	</dict>
+	<key>records_batch_selected_n</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Вибрано: %d</string>
+			<key>few</key>
+			<string>Вибрано: %d</string>
+			<key>many</key>
+			<string>Вибрано: %d</string>
+			<key>other</key>
+			<string>Вибрано: %d</string>
+		</dict>
+	</dict>
+	<key>common_places_batch_delete_confirm</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Видалити %d вибране місце?</string>
+			<key>few</key>
+			<string>Видалити %d вибрані місця?</string>
+			<key>many</key>
+			<string>Видалити %d вибраних місць?</string>
+			<key>other</key>
+			<string>Видалити %d вибраного місця?</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_hours_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>За %d годину</string>
+			<key>few</key>
+			<string>За %d години</string>
+			<key>many</key>
+			<string>За %d годин</string>
+			<key>other</key>
+			<string>За %d години</string>
+		</dict>
+	</dict>
+	<key>schedule_reminder_minutes_before</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>За %d хвилину</string>
+			<key>few</key>
+			<string>За %d хвилини</string>
+			<key>many</key>
+			<string>За %d хвилин</string>
+			<key>other</key>
+			<string>За %d хвилини</string>
+		</dict>
+	</dict>
+	<key>schedule_participants_limit</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>До %d особи; однакові імена буде об’єднано</string>
+			<key>few</key>
+			<string>До %d осіб; однакові імена буде об’єднано</string>
+			<key>many</key>
+			<string>До %d осіб; однакові імена буде об’єднано</string>
+			<key>other</key>
+			<string>До %d осіб; однакові імена буде об’єднано</string>
+		</dict>
+	</dict>
+	<key>schedule_batch_delete_message</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Видалити вибране бронювання (%d)?</string>
+			<key>few</key>
+			<string>Видалити вибрані бронювання (%d)?</string>
+			<key>many</key>
+			<string>Видалити вибрані бронювання (%d)?</string>
+			<key>other</key>
+			<string>Видалити вибрані бронювання (%d)?</string>
+		</dict>
+	</dict>
+	<key>schedule_sets_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d сет / фрейм</string>
+			<key>few</key>
+			<string>%d сети / фрейми</string>
+			<key>many</key>
+			<string>%d сетів / фреймів</string>
+			<key>other</key>
+			<string>%d сету / фрейму</string>
+		</dict>
+	</dict>
+	<key>schedule_points_summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d очко за сет</string>
+			<key>few</key>
+			<string>%d очки за сет</string>
+			<key>many</key>
+			<string>%d очок за сет</string>
+			<key>other</key>
+			<string>%d очка за сет</string>
+		</dict>
+	</dict>
+	<key>sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d сет</string>
+			<key>few</key>
+			<string>%d сети</string>
+			<key>many</key>
+			<string>%d сетів</string>
+			<key>other</key>
+			<string>%d сету</string>
+		</dict>
+	</dict>
+	<key>sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d гейм</string>
+			<key>few</key>
+			<string>%d гейми</string>
+			<key>many</key>
+			<string>%d геймів</string>
+			<key>other</key>
+			<string>%d гейму</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_sets_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d сет</string>
+			<key>few</key>
+			<string>%d сети</string>
+			<key>many</key>
+			<string>%d сетів</string>
+			<key>other</key>
+			<string>%d сету</string>
+		</dict>
+	</dict>
+	<key>tennis_sync_games_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d гейм</string>
+			<key>few</key>
+			<string>%d гейми</string>
+			<key>many</key>
+			<string>%d геймів</string>
+			<key>other</key>
+			<string>%d гейму</string>
+		</dict>
+	</dict>
+	<key>sync_players_format</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d гравець</string>
+			<key>few</key>
+			<string>%d гравці</string>
+			<key>many</key>
+			<string>%d гравців</string>
+			<key>other</key>
+			<string>%d гравця</string>
+		</dict>
+	</dict>
+	<key>home_sync_connected_devices</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Підключено %d пристрій</string>
+			<key>few</key>
+			<string>Підключено %d пристрої</string>
+			<key>many</key>
+			<string>Підключено %d пристроїв</string>
+			<key>other</key>
+			<string>Підключено %d пристрою</string>
+		</dict>
+	</dict>
+	<key>feedback_time_days_ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d день тому</string>
+			<key>few</key>
+			<string>%d дні тому</string>
+			<key>many</key>
+			<string>%d днів тому</string>
+			<key>other</key>
+			<string>%d днів тому</string>
+		</dict>
+	</dict>
+	<key>feedback_comment_count_label</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Коментар (%d)</string>
+			<key>few</key>
+			<string>Коментарі (%d)</string>
+			<key>many</key>
+			<string>Коментарів (%d)</string>
+			<key>other</key>
+			<string>Коментаря (%d)</string>
+		</dict>
+	</dict>
+	<key>feedback_image_prepare_failed</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Не вдалося обробити %d зображення. Спробуйте інше.</string>
+			<key>few</key>
+			<string>Не вдалося обробити %d зображення. Спробуйте інші.</string>
+			<key>many</key>
+			<string>Не вдалося обробити %d зображень. Спробуйте інші.</string>
+			<key>other</key>
+			<string>Не вдалося обробити %d зображення. Спробуйте інші.</string>
+		</dict>
+	</dict>
+	<key>basketball_fouls_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>Фол %d</string>
+			<key>few</key>
+			<string>Фоли %d</string>
+			<key>many</key>
+			<string>Фолів %d</string>
+			<key>other</key>
+			<string>Фолу %d</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -7,6 +7,7 @@ UITestScreenshots/
 UITestScreenshots-iPad/
 UITestScreenshots-All/
 .workbuddy/
+.trae/
 
 # 业务/合同类文档不入库
 APP_*.docx

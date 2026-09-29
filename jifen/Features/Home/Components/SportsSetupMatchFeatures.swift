@@ -54,7 +54,7 @@ enum SportsSetupMatchFeature: Equatable, CaseIterable {
 }
 
 /// 「比赛功能」分组（对齐安卓 SportsSetupMatchFeaturesSection）：
-/// 标题 Secondary 居中；2/3 张卡片一行各占均分，单功能回退横条开关。
+/// 无分组抬头；2/3 张卡片一行各占均分，单功能回退横条开关。
 struct SportsSetupMatchFeaturesSection: View {
     @Environment(\.locale) private var locale
 
@@ -70,11 +70,6 @@ struct SportsSetupMatchFeaturesSection: View {
     var body: some View {
         if !features.isEmpty {
             VStack(spacing: 10) {
-                Text(NSLocalizedString("sports_setup_match_features", value: "比赛功能", comment: ""))
-                    .font(.system(size: 14))
-                    .foregroundStyle(Theme.textSecondary)
-                    .frame(maxWidth: .infinity)
-
                 if features.count == 1 {
                     singleSwitch(features[0])
                 } else {

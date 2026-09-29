@@ -157,7 +157,7 @@ struct CommonNamesManagementView: View {
                 deleteSelected()
             }
         } message: {
-            Text(String(format: NSLocalizedString(
+            Text(String.localizedStringWithFormat(NSLocalizedString(
                 "common_names_batch_delete_confirm",
                 value: "确认删除选中的 %d 个名称？",
                 comment: ""

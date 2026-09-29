@@ -714,6 +714,8 @@ struct SnookerScoreboardView: View {
                 phonePreferredWidth: 320,
                 padPreferredWidth: 420
             )
+            // 正方形口径：边长 = (面板宽 - 左右 padding 32 - 行内 gap 24) / 4，同 HarmonyOS 端
+            let foulCell = (panelWidth - 56) / 4
 
             ZStack {
                 Theme.scoreboardDialogScrim
@@ -752,12 +754,14 @@ struct SnookerScoreboardView: View {
                         ForEach([4, 5, 6, 7], id: \.self) { points in
                             snookerFoulPointButton(points)
                         }
+                        .frame(height: foulCell)
                     }
+                    .frame(height: foulCell)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 14)
                 .padding(.bottom, 18)
-                .frame(width: panelWidth, height: 248)
+                .frame(width: panelWidth, height: 182 + foulCell)
                 .background(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .fill(Theme.scoreboardDialogSurface)
@@ -813,22 +817,26 @@ struct SnookerScoreboardView: View {
             send(.foul(pointsToOpponent: points, switchTurn: foulSwitchTurn))
             dismissFoulPanel()
         } label: {
-            VStack(spacing: 2) {
-                Text("+\(points)")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(Color(hex: "FF453A"))
+            // F 方案名带卡：上名下分、无框，靠填充分层（同 HarmonyOS 端）
+            VStack(spacing: 0) {
                 Text(snookerFoulBallLabel(points))
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.78))
+                    .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 22)
+                    .background(Color(hex: "D64F4F").opacity(0.75))
+                Text("+\(points)")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color(hex: "D64F4F").opacity(0.24))
-            )
+            .frame(maxHeight: .infinity)
+            .background(Color(hex: "D64F4F").opacity(0.45))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("snooker_foul_\(points)")

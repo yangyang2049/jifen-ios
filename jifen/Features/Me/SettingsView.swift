@@ -582,7 +582,7 @@ private struct SettingsNavigationRow: View {
                     Text(subtitle)
                         .font(.system(size: 14))
                         .foregroundColor(Theme.textSecondary)
-                        .lineLimit(1)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             Spacer()
@@ -591,7 +591,7 @@ private struct SettingsNavigationRow: View {
                     .font(.system(size: 14))
                     .foregroundColor(Theme.textSecondary)
             }
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
                 .font(.caption.weight(.semibold))
                 .foregroundColor(Theme.textSecondary)
         }
@@ -618,17 +618,18 @@ private struct MeAccountEntryRow: View {
                     : NSLocalizedString("me_account_logged_out", value: "未登录", comment: ""))
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
+                    .lineLimit(loggedIn ? 1 : 2)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(subtitle)
                     .font(.system(size: 13))
                     .foregroundColor(Theme.textSecondary)
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
             if let onScanLogin {
                 scanLoginButton(action: onScanLogin)
             }
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
                 .font(.caption.weight(.semibold))
                 .foregroundColor(Theme.textSecondary)
         }
@@ -657,7 +658,7 @@ private struct MeAccountEntryRow: View {
             Circle()
                 .fill(Theme.controlBackground)
             if loggedIn, let avatarURL {
-                AsyncImage(url: avatarURL) { image in
+                RemoteImage(url: avatarURL) { image in
                     image
                         .resizable()
                         .scaledToFill()

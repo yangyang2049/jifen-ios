@@ -68,7 +68,7 @@ struct CommonNameSelectorDialog: View {
 }
 
 extension View {
-    /// Setup 对话框区块小标题：与「比赛功能」组标题统一（14pt 居中、次要色）。
+    /// Setup 对话框区块小标题：14pt 居中、次要色。
     func settingsLabelStyle() -> some View {
         font(.system(size: 14))
             .foregroundStyle(Theme.textSecondary)
@@ -95,7 +95,7 @@ struct InlineCommonNameTextField: View {
                 .foregroundColor(textColor)
 
             Button(action: onChevronTap) {
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(iconColor)
                     .frame(width: 24, height: 24)

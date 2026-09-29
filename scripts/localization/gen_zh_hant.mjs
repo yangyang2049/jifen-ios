@@ -117,13 +117,41 @@ const tokens = (s) => (s.match(TOKEN_RE) || []).map((t) => t.replace(/^\d+\$/, '
 const sameTokens = (a, b) => tokens(a).join(',') === tokens(b).join(',');
 
 const terms = JSON.parse(readFileSync(cfg.terms, 'utf8'));
-function applyTerms(value, hits) {
-  let out = value;
+/* protectedSpans: literal fragments whose whole purpose is to quote a proper noun or a
+   system-visible label, so the glossary must not rewrite them. */
+const PROTECTED_RES = (terms.protectedSpans || []).map((s) => new RegExp(s.pattern, 'g'));
+function unprotectedChunks(value) {
+  const spans = [];
+  for (const re of PROTECTED_RES) {
+    re.lastIndex = 0;
+    for (let m = re.exec(value); m; m = re.exec(value)) {
+      spans.push([m.index, m.index + m[0].length]);
+      if (m[0].length === 0) re.lastIndex += 1;
+    }
+  }
+  spans.sort((a, b) => a[0] - b[0]);
+  const chunks = [];
+  let prev = 0;
+  for (const [start, end] of spans) {
+    if (start < prev) { if (end > prev) chunks[chunks.length - 1][1] = end; continue; }
+    if (start > prev) chunks.push([prev, start, false]);
+    chunks.push([start, end, true]);
+    prev = end;
+  }
+  if (prev < value.length) chunks.push([prev, value.length, false]);
+  return chunks.length ? chunks : [[0, value.length, false]];
+}
+function applyTermsTo(text, hits) {
+  let out = text;
   for (const t of terms.replacements) {
     if (!out.includes(t.from)) continue;
     out = out.split(t.from).join(t.to);
     hits.push(t.from);
   }
+  return out;
+}
+function applyTerms(value, hits) {
+  let out = unprotectedChunks(value).map(([s, e, kept]) => (kept ? value.slice(s, e) : applyTermsTo(value.slice(s, e), hits))).join('');
   const openL = (out.match(/[\u201c\u300c]/g) || []).length;
   const closeR = (out.match(/[\u201d\u300d]/g) || []).length;
   if (openL === closeR && openL > 0) out = out.replace(/\u201c([^\u201d]*)\u201d/g, '\u300c$1\u300d');
@@ -193,7 +221,7 @@ const outLines = template.map((l) => {
   if (l.kind !== 'entry') return l.raw;
   return `"${escapeStrings(l.key)}" = "${escapeStrings(produced.get(l.key))}";`;
 });
-outLines[0] = '/* Localizable.strings\n   Chinese Traditional localization for jifen app\n*/';
+if (template[0]?.kind !== 'entry') outLines[0] = '/* Localizable.strings\n   Chinese Traditional localization for jifen app\n*/';
 if (template[1]?.kind === 'other' && template[2]?.raw === '*/') outLines.splice(1, 2);
 mkdirSync(path.dirname(cfg.out), { recursive: true });
 writeFileSync(cfg.out, outLines.join('\n'), 'utf8');

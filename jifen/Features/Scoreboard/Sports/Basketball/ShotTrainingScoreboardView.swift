@@ -82,7 +82,8 @@ nonisolated enum ShotTrainingZonePalette {
 
 /// 手机端投篮训练记分页，1:1 对齐鸿蒙端 `ShotTrainingScoreboard.ets`。
 /// 分区满屏铺满，没有标题栏和统计条：固定分值横屏「未中在左 / 命中在右」、竖屏上下；
-/// 自由模式正好镜像（横屏上下、竖屏左右），每侧再切成 1/2/3 三格，分值徽标骑在红绿分区中心线上。
+/// 自由模式正好镜像（横屏上下、竖屏左右），每侧再切成 1/2/3 三格，
+/// 每格数字下方带「N 分命中 / N 分未中」小标签，整格铺满、任意位置可点。
 /// 页面操作集中在底部两颗浮动圆钮（左返回 / 右菜单）与左滑撤销手势；重置、结束训练在菜单里二次确认。
 /// iOS 无法像鸿蒙那样直接转动窗口，「旋转方向」切换的是方向锁偏好，布局仍跟随实际窗口尺寸。
 struct ShotTrainingScoreboardView: View {
@@ -167,11 +168,6 @@ struct ShotTrainingScoreboardView: View {
                 Color(hex: ShotTrainingZonePalette.pageHex)
 
                 scoringArea(isLandscape: isLandscape)
-
-                if mode == .free {
-                    freeCenterLabelsOverlay(isLandscape: isLandscape)
-                        .allowsHitTesting(false)
-                }
 
                 if mode == .free, showEntrySidePrompt, !gameFinished, !showMenu {
                     entrySidePromptOverlay(isLandscape: isLandscape)
@@ -322,19 +318,19 @@ struct ShotTrainingScoreboardView: View {
         Group {
             if isLandscape {
                 HStack(spacing: 0) {
-                    freeCell(points: 1, made: made)
+                    freeCell(points: 1, made: made, isLandscape: true)
                     freeDivider(vertical: true)
-                    freeCell(points: 2, made: made)
+                    freeCell(points: 2, made: made, isLandscape: true)
                     freeDivider(vertical: true)
-                    freeCell(points: 3, made: made)
+                    freeCell(points: 3, made: made, isLandscape: true)
                 }
             } else {
                 VStack(spacing: 0) {
-                    freeCell(points: 1, made: made)
+                    freeCell(points: 1, made: made, isLandscape: false)
                     freeDivider(vertical: false)
-                    freeCell(points: 2, made: made)
+                    freeCell(points: 2, made: made, isLandscape: false)
                     freeDivider(vertical: false)
-                    freeCell(points: 3, made: made)
+                    freeCell(points: 3, made: made, isLandscape: false)
                 }
             }
         }
@@ -349,10 +345,14 @@ struct ShotTrainingScoreboardView: View {
     }
 
     /// 自由模式单格：与斗地主格子同一条 `playerGrid` 曲线，随格子实测尺寸放大，
-    /// 并对齐普通记分板的「大分数不超过半屏主分」收口。
-    private func freeCell(points: Int, made: Bool) -> some View {
+    /// 并对齐普通记分板的「大分数不超过半屏主分」收口。整格铺满（竖屏补宽、横屏补高），
+    /// 数字在整格正中、整格任意位置可点；数字下方带「N 分命中 / N 分未中」小标签，
+    /// 原压在红绿中线上的 1/2/3 分悬浮徽标已移除，分值信息并入该标签。
+    private func freeCell(points: Int, made: Bool, isLandscape: Bool) -> some View {
         GeometryReader { proxy in
             let count = counts.count(points: points, made: made)
+            let labelSize: CGFloat = isLandscape ? 11 : 12
+            let labelSpacing: CGFloat = isLandscape ? 2 : 6
             let scoreSize = ScoreboardTypographyResolver.resolve(
                 ScoreboardTypographyLayoutContext(
                     profile: .doudizhu,
@@ -361,57 +361,29 @@ struct ShotTrainingScoreboardView: View {
                     scoreText: "\(count)",
                     preference: .default(font: .default),
                     horizontalPadding: 16,
+                    reservedHeight: labelSize * 1.3 + labelSpacing,
                     scoreBaseScale: 0.85,
                     isLargeScreen: Theme.usesPadLayout
                 )
             ).scoreFontSize
-            Text("\(count)")
-                .font(.system(size: scoreSize, weight: .bold))
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .foregroundStyle(.white)
-                .frame(width: proxy.size.width, height: proxy.size.height)
+            VStack(spacing: labelSpacing) {
+                Text("\(count)")
+                    .font(.system(size: scoreSize, weight: .bold))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .foregroundStyle(.white)
+                Text(Self.freePointLabel(points: points, made: made))
+                    .font(.system(size: labelSize, weight: .semibold))
+                    .lineLimit(1)
+                    .foregroundStyle(.white)
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .contentShape(Rectangle())
         .onTapGesture {
             record(points: points, made: made)
         }
-    }
-
-    /// 分值徽标压在红/绿分区中心线上：横屏是一条 38vp 高的横带，竖屏是一条 72vp 宽的竖带。
-    @ViewBuilder
-    private func freeCenterLabelsOverlay(isLandscape: Bool) -> some View {
-        if isLandscape {
-            HStack(spacing: 0) {
-                ForEach(1...3, id: \.self) { points in
-                    freePointBadge(points, isLandscape: true)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .frame(height: 38)
-        } else {
-            VStack(spacing: 0) {
-                ForEach(1...3, id: \.self) { points in
-                    freePointBadge(points, isLandscape: false)
-                        .frame(maxHeight: .infinity)
-                }
-            }
-            .frame(width: 72)
-        }
-    }
-
-    private func freePointBadge(_ points: Int, isLandscape: Bool) -> some View {
-        Text(Self.pointLabel(points))
-            .font(.system(size: isLandscape ? 15 : 17, weight: .semibold))
-            .foregroundStyle(Color(hex: "#242428").opacity(0.72))
-            .lineLimit(1)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.76))
-            )
     }
 
     /// 与鸿蒙/手表端一致：自由模式入场 2 秒内半透明覆盖两侧分区含义，提示层不拦截整格点击。
@@ -439,12 +411,16 @@ struct ShotTrainingScoreboardView: View {
             .background(Color(hex: ShotTrainingZonePalette.entryPromptHex(made: made)).opacity(0.70))
     }
 
-    private static func pointLabel(_ points: Int) -> String {
-        switch points {
-        case 1: return NSLocalizedString("shot_training_1pt", value: "1 分", comment: "")
-        case 2: return NSLocalizedString("shot_training_2pt", value: "2 分", comment: "")
-        default: return NSLocalizedString("shot_training_3pt", value: "3 分", comment: "")
-        }
+    /// 自由模式格内小标签：对齐安卓 `shot_training_free_made_format` / `shot_training_free_miss_format`。
+    private static func freePointLabel(points: Int, made: Bool) -> String {
+        String(
+            format: NSLocalizedString(
+                made ? "shot_training_free_made_format" : "shot_training_free_miss_format",
+                value: made ? "%d 分命中" : "%d 分未中",
+                comment: ""
+            ),
+            points
+        )
     }
 
     private func zoneLabel(made: Bool) -> String {

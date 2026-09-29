@@ -683,19 +683,24 @@ struct NineBallChaseScoreboardView: View {
                                 send(.chaseEvent(player: player, kind: kind))
                                 activeChasePlayer = nil
                             } label: {
-                                VStack(spacing: 4) {
+                                VStack(spacing: 0) {
                                     Text(chaseTitle(kind))
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.system(size: 13, weight: .medium))
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.7)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 26)
+                                        .background(nineBallActionBandColor(kind))
                                     Text(chasePointDescription(kind, player: player))
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(.white.opacity(0.72))
+                                        .font(.system(size: 16, weight: .bold))
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.7)
+                                        .frame(maxWidth: .infinity, minHeight: 32)
                                 }
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity, minHeight: 58)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .fill(nineBallActionBackground(kind))
-                                )
+                                .background(nineBallActionBackground(kind))
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                 .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             }
                             .buttonStyle(.plain)
@@ -724,11 +729,22 @@ struct NineBallChaseScoreboardView: View {
     private func nineBallActionBackground(_ kind: NineBallChaseKind) -> Color {
         switch kind {
         case .normalWin:
-            Theme.primary
+            Color(hex: "30D158").opacity(0.45)
         case .foul:
-            Color(hex: "E5484D")
+            Color(hex: "D64F4F").opacity(0.45)
         default:
-            Theme.scoreboardDialogControl
+            Color.white.opacity(0.26)
+        }
+    }
+
+    private func nineBallActionBandColor(_ kind: NineBallChaseKind) -> Color {
+        switch kind {
+        case .normalWin:
+            Color(hex: "30D158").opacity(0.75)
+        case .foul:
+            Color(hex: "D64F4F").opacity(0.75)
+        default:
+            Color.white.opacity(0.42)
         }
     }
 

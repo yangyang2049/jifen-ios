@@ -18,6 +18,10 @@ enum ScoreboardRecordActionTitlePolicy {
         case "timeout", "tt_timeout": key = "record_tt_timeout"
         case "medical_timeout", "tt_medical": key = "record_tt_medical"
         case "forfeit", "tt_forfeit": key = "record_tt_forfeit"
+        // 羽毛球判罚：opCode 逐字对齐安卓 bd_*。
+        case "bd_yellow": key = "record_bd_yellow"
+        case "bd_red": key = "record_bd_red"
+        case "bd_disqualify": key = "record_bd_disqualify"
         default: return nil
         }
         let fallbackName = teamName?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -28,11 +32,56 @@ enum ScoreboardRecordActionTitlePolicy {
         case "record_tt_red": "%@ 红牌"
         case "record_tt_timeout": "%@ 暂停"
         case "record_tt_medical": "%@ 医疗暂停"
-        default: "%@ 判负"
+        case "record_bd_yellow": "%@ 黄牌"
+        case "record_bd_red": "%@ 红牌（对方+1）"
+        default: "%@ 取消比赛资格"
         }
         return String.localizedStringWithFormat(
             NSLocalizedString(key, value: fallbackFormat, comment: "Table tennis administrative record action"),
             resolvedName
+        )
+    }
+
+    /// 投篮训练动作用跨端机器 token（`training_start` / `training_<1|2|3>pt_<made|miss>` /
+    /// `training_rate_<n>`）表达，与安卓 `buildShotTrainingActions`、鸿蒙 `ShotTrainingScoreViewModel`
+    /// 同口径；这里负责把 token 解析成本地化文案。
+    static func shotTrainingTitle(operationCode: String?) -> String? {
+        guard let code = operationCode else { return nil }
+        if code == "training_start" {
+            return NSLocalizedString("game_started", comment: "")
+        }
+        let ratePrefix = "training_rate_"
+        if code.hasPrefix(ratePrefix), let rate = Int(code.dropFirst(ratePrefix.count)) {
+            return String.localizedStringWithFormat(
+                NSLocalizedString(
+                    "record_training_end_rate",
+                    value: "训练结束 · 命中率 %1$d%%",
+                    comment: "Shot training finished record action"
+                ),
+                rate
+            )
+        }
+        let isMade = code.hasSuffix("_made")
+        guard isMade || code.hasSuffix("_miss") else { return nil }
+        let suffix = isMade ? "_made" : "_miss"
+        guard code.hasPrefix("training_") else { return nil }
+        let pointsToken = code.dropFirst("training_".count).dropLast(suffix.count)
+        guard pointsToken.hasSuffix("pt"),
+              let points = Int(pointsToken.dropLast(2)),
+              (1...3).contains(points) else { return nil }
+        let outcome = NSLocalizedString(
+            isMade ? "shot_training_made" : "shot_training_miss",
+            value: isMade ? "命中" : "未中",
+            comment: "Shot training outcome label"
+        )
+        return String.localizedStringWithFormat(
+            NSLocalizedString(
+                "record_training_shot",
+                value: "%1$d分%2$@",
+                comment: "Shot training record action: points and outcome"
+            ),
+            points,
+            outcome
         )
     }
 }

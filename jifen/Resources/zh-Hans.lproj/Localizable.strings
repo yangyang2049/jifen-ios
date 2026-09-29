@@ -158,6 +158,12 @@
 "shot_training_finish" = "结束训练";
 "shot_training_undo_done" = "已撤销上一次记录";
 "shot_training_share" = "投篮训练：命中 %d / %d，命中率 %d%%，得分 %d";
+"shot_training_free_made_format" = "%d 分命中";
+"shot_training_free_miss_format" = "%d 分未中";
+
+/* Shot training record action lines (cross-end machine token wording) */
+"record_training_shot" = "%1$d分%2$@";
+"record_training_end_rate" = "训练结束 · 命中率 %1$d%%";
 "game_football" = "足球";
 "game_volleyball" = "排球";
 "game_checkers" = "跳棋";
@@ -249,9 +255,6 @@
 "game_ended" = "比赛结束";
 
 /* Time Formats */
-"minutes_ago" = "%d分钟前";
-"hours_ago" = "%d小时前";
-"days_ago" = "%d天前";
 "today" = "今天";
 "yesterday" = "昨天";
 
@@ -291,6 +294,7 @@
 "screenshot_saved" = "截图已保存";
 "open_settings" = "去设置";
 "retry" = "重试";
+"web_load_failed" = "网页加载失败，请检查网络后重试";
 "save_failed" = "保存失败: %@";
 
 /* Set/Game End Messages */
@@ -725,8 +729,8 @@
 "game_tennis_doubles" = "网球双打";
 "game_pingpong_doubles" = "乒乓球双打";
 "game_pickleball_doubles" = "匹克球双打";
-"game_eight_ball" = "黑八";
-"game_nine_ball" = "追分";
+"game_eight_ball" = "黑八追分";
+"game_nine_ball" = "九球追分";
 "game_snooker" = "斯诺克";
 "setup_serving_side" = "发球方";
 "setup_serving_left" = "左侧发球";
@@ -748,7 +752,6 @@
 "voice_announcement" = "语音播报";
 "sound_effects_help_title" = "音效";
 "sound_effects_help_message" = "控制掷骰子、抛硬币、倒计时结束等工具音效，关闭后这些音效将静音。";
-"sports_setup_match_features" = "比赛功能";
 "pickleball_target_score" = "目标分";
 "pickleball_score_cap" = "最高分上限";
 "pickleball_no_cap" = "无";
@@ -1009,6 +1012,18 @@
 "scoreboard_usage_hint_double_tap_rack" = "👆 双击同一方可减 1 局";
 "scoreboard_usage_hint_double_tap_player" = "👆 双击同一玩家可减 1 分";
 "scoreboard_usage_hint_touch_guard" = "🛡️ 防误触模式下请点击大分数区域计分";
+"scoreboard_usage_hint_anim_tap_title" = "点击比分区加分";
+"scoreboard_usage_hint_anim_tap_caption" = "点击左/右比分区，为对应一方加 1 分；绿色三角标记发球方";
+"scoreboard_usage_hint_anim_swipe_title" = "滑动微调比分";
+"scoreboard_usage_hint_anim_swipe_caption" = "在比分区上滑加分、下滑减分、左滑撤销上一步";
+"scoreboard_usage_hint_anim_double_tap_title" = "双击减分";
+"scoreboard_usage_hint_anim_touch_guard_title" = "防误触保护";
+"scoreboard_usage_hint_anim_auto_title" = "自动判定局分与赛点";
+"scoreboard_usage_hint_anim_auto_caption" = "按羽毛球规则自动处理局分、赛点与比赛结束，无需手动扳局";
+"scoreboard_usage_hint_anim_match_point" = "赛点";
+"scoreboard_usage_hint_anim_guard_ignored" = "已忽略连续快速点击";
+"common_previous" = "上一页";
+"common_next" = "下一页";
 "scoreboard_usage_hint_simple_score" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n✏️ 长按或编辑入口可修改名称和分数";
 "scoreboard_usage_hint_multi_scoreboard" = "👆 点击玩家格子加 1 分\n⬆️ 上滑加 1 分，⬇️ 下滑减 1 分\n↩️ 左滑撤销上一步\n✏️ 长按玩家可编辑名称和分数\n🎛️ 自定义调分模式下，点击玩家会打开调分面板";
 "multi_score_portrait" = "竖屏";
@@ -1186,6 +1201,22 @@
 "record_tt_timeout" = "%@ 暂停";
 "record_tt_medical" = "%@ 医疗暂停";
 "record_tt_forfeit" = "%@ 判负";
+/* 羽毛球判罚（红黄牌/取消资格）+ 医疗中断 */
+"record_bd_yellow" = "%@ 黄牌";
+"record_bd_red" = "%@ 红牌（对方+1）";
+"record_bd_disqualify" = "%@ 取消比赛资格";
+"badminton_card_yellow" = "黄牌";
+"badminton_card_red" = "红牌";
+"badminton_card_disqualify" = "取消资格";
+"badminton_action_red" = "出示红牌";
+"badminton_action_disqualify" = "取消比赛资格";
+"tt_action_yellow" = "出示黄牌";
+"bd_select_kind_hint" = "请选择判罚";
+"tt_select_side_hint" = "请先选择选手";
+"tt_penalty_opponent_plus_one" = "对手 +1 分";
+"tt_forfeit_confirm_message" = "确认判 %@ 负？对方将直接赢得整场比赛。";
+"tt_forfeit_confirm_button" = "确认判负";
+"medical_break" = "医疗中断";
 "player" = "选手";
 "scoreboard_usage_hint_shuttlecock" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 团队毽球按所选目标分和赛制计分";
 "scoreboard_usage_hint_squash" = "👆 点击左/右比分区为对应一方加分\n⬆️ 上滑加分\n⬇️ 下滑减分\n↩️ 左滑撤销上一步\n🏁 壁球默认五局三胜，领先两分获胜";
@@ -1479,6 +1510,16 @@
 "me_profile_nickname_cooldown" = "昵称修改后需要稍等一会儿，请在 %@ 后再试";
 "me_profile_nickname_cooldown_generic" = "昵称修改后需要稍等一会儿，请稍后再试";
 "me_profile_nickname_review_submitted" = "昵称已提交审核，审核期间仅自己可见";
+"me_profile_name_under_review" = "昵称审核中";
+"me_profile_avatar_under_review" = "头像审核中";
+"me_profile_avatar_source_title" = "修改头像";
+"me_profile_avatar_source_camera" = "拍照";
+"me_profile_avatar_source_library" = "从相册选择";
+"me_profile_avatar_crop_title" = "调整头像";
+"me_profile_avatar_crop_confirm" = "完成";
+"me_profile_avatar_update_success" = "头像已更新";
+"me_profile_avatar_review_submitted" = "头像已提交审核，审核期间仅自己可见";
+"me_profile_avatar_upload_failed" = "头像上传失败，请稍后重试";
 "membership_purchase_success_signed_out" = "购买成功，会员已在本机生效；登录后可同步到你的其他设备";
 "membership_purchase_success" = "购买成功，会员状态已更新";
 "membership_purchase_pending" = "购买正在等待确认，确认后会自动更新";

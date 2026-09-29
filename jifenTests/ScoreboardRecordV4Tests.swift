@@ -1601,6 +1601,40 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         )
     }
 
+    func testShotTrainingRecordTitlesUseCrossEndTokens() {
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "training_start"),
+            NSLocalizedString("game_started", comment: "")
+        )
+        for points in 1...3 {
+            XCTAssertEqual(
+                ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "training_\(points)pt_made"),
+                String.localizedStringWithFormat(
+                    NSLocalizedString("record_training_shot", comment: ""),
+                    points,
+                    NSLocalizedString("shot_training_made", comment: "")
+                )
+            )
+            XCTAssertEqual(
+                ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "training_\(points)pt_miss"),
+                String.localizedStringWithFormat(
+                    NSLocalizedString("record_training_shot", comment: ""),
+                    points,
+                    NSLocalizedString("shot_training_miss", comment: "")
+                )
+            )
+        }
+        XCTAssertEqual(
+            ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "training_rate_60"),
+            String.localizedStringWithFormat(NSLocalizedString("record_training_end_rate", comment: ""), 60)
+        )
+        XCTAssertNil(ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "point"))
+        XCTAssertNil(ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "training_start_x"))
+        XCTAssertNil(ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "training_4pt_made"))
+        XCTAssertNil(ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: "training_rate_high"))
+        XCTAssertNil(ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: nil))
+    }
+
     func testOldRecordModeInferenceSupportsRawSessionAndResumeBundleButLeavesUnknownUnclassified() throws {
         let state = RallyMatchEngine.initial(leftName: "A", rightName: "B", rules: .badminton())
         let session = ScoreSession<RallyMatchState, RallyMatchEvent>(
@@ -1777,9 +1811,10 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             "zh-Hans": "再来一场",
             "zh-Hant": "再來一場"
         ]
-        for (locale, path) in LocalizationTestSupport.localizablePaths {
+        for (locale, expectedValue) in expected {
+            let path = try XCTUnwrap(LocalizationTestSupport.localizablePaths[locale])
             let values = try LocalizationTestSupport.valuesByKey(relativePath: path)
-            XCTAssertEqual(values["play_again"], expected[locale], "\(locale) play_again wording")
+            XCTAssertEqual(values["play_again"], expectedValue, "\(locale) play_again wording")
         }
     }
 

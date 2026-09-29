@@ -183,11 +183,23 @@ struct ScoreboardDisplayRest: Codable, Equatable, Sendable {
     var revision: Int64? = nil
     var subjectName: String? = nil
     var title: String? = nil
+    /// 正计时（羽毛球医疗中断）：无固定时长、永不自动结束，仅能手动「继续」收尾。
+    var countUp: Bool? = nil
+    /// 正计时已用秒数；倒计时模式为 nil。
+    var elapsedSeconds: Int? = nil
 
     func projectedRemainingSeconds(atWallClockMilliseconds now: Int64) -> Int {
         guard isRunning else { return remainingSeconds }
         let elapsedSeconds = max(0, now - updatedWallClockMilliseconds) / 1_000
         return max(0, remainingSeconds - Int(elapsedSeconds))
+    }
+
+    /// 正计时模式的实时已用秒：锚点秒数 + 墙钟推进（对齐安卓 refreshRemote 只推进不结束）。
+    func projectedElapsedSeconds(atWallClockMilliseconds now: Int64) -> Int {
+        let base = elapsedSeconds ?? 0
+        guard isRunning, countUp == true else { return base }
+        let delta = max(0, now - updatedWallClockMilliseconds) / 1_000
+        return base + Int(delta)
     }
 }
 

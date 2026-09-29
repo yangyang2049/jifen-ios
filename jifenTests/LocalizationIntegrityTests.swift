@@ -22,23 +22,23 @@ final class LocalizationIntegrityTests: XCTestCase {
             let english = try LocalizationTestSupport.entries(relativePath: paths["en"]!)
             XCTAssertEqual(duplicateKeys(in: english), [], "\(label) English contains duplicate keys")
 
-            for locale in ["zh-Hans", "zh-Hant"] {
-                let chinese = try LocalizationTestSupport.entries(relativePath: paths[locale]!)
-                XCTAssertEqual(duplicateKeys(in: chinese), [], "\(label) \(locale) contains duplicate keys")
+            for locale in LocalizationTestSupport.promotedLocales where locale != "en" {
+                let localized = try LocalizationTestSupport.entries(relativePath: paths[locale]!)
+                XCTAssertEqual(duplicateKeys(in: localized), [], "\(label) \(locale) contains duplicate keys")
                 XCTAssertEqual(
-                    Set(english.map(\.key)), Set(chinese.map(\.key)),
+                    Set(english.map(\.key)), Set(localized.map(\.key)),
                     "\(label) key sets differ between en and \(locale)"
                 )
 
-                let chineseByKey = Dictionary(uniqueKeysWithValues: chinese.map { ($0.key, $0.value) })
+                let localizedByKey = Dictionary(uniqueKeysWithValues: localized.map { ($0.key, $0.value) })
                 for entry in english {
-                    let chineseValue = try XCTUnwrap(
-                        chineseByKey[entry.key],
+                    let localizedValue = try XCTUnwrap(
+                        localizedByKey[entry.key],
                         "\(label) is missing \(entry.key) in \(locale)"
                     )
                     XCTAssertEqual(
                         LocalizationTestSupport.formatTokens(in: entry.value),
-                        LocalizationTestSupport.formatTokens(in: chineseValue),
+                        LocalizationTestSupport.formatTokens(in: localizedValue),
                         "\(label) format placeholders differ for \(entry.key) in \(locale)"
                     )
                 }
@@ -66,11 +66,94 @@ final class LocalizationIntegrityTests: XCTestCase {
     }
 
     func testEveryStaticLocalizationKeyExistsInItsTarget() throws {
-        for locale in ["en", "zh-Hans", "zh-Hant"] {
+        for locale in LocalizationTestSupport.promotedLocales {
             try assertStaticKeysExist(
                 sourceDirectory: "jifen",
                 stringsPath: LocalizationTestSupport.localizablePaths[locale]!
             )
+        }
+    }
+
+    func testPromotedNonChineseLocalesKeepTheIScoreboardName() throws {
+        for locale in LocalizationTestSupport.promotedLocales where !locale.hasPrefix("zh") {
+            let localizable = try LocalizationTestSupport.valuesByKey(
+                relativePath: LocalizationTestSupport.localizablePaths[locale]!
+            )
+            let infoPlist = try LocalizationTestSupport.valuesByKey(
+                relativePath: LocalizationTestSupport.infoPlistPaths[locale]!
+            )
+            XCTAssertEqual(localizable["app_name"], "iScoreboard", "\(locale) app_name")
+            XCTAssertEqual(infoPlist["CFBundleDisplayName"], "iScoreboard", "\(locale) CFBundleDisplayName")
+        }
+    }
+
+    func testTimerGoKeepsTheBoardGameMeaningInEveryPromotedLanguage() throws {
+        let expected: [String: String] = [
+            "en": "Go", "zh-Hans": "围棋", "zh-Hant": "圍棋",
+            "ja": "囲碁", "ko": "바둑", "de": "Go",
+            "fr": "Go", "fr-CA": "Go", "es-MX": "Go", "es-ES": "Go",
+            "pt-BR": "Go", "pt-PT": "Go", "ar": "غو", "he": "גו",
+            "ur": "گو", "ru": "Го", "uk": "Ґо",
+            "it": "Go", "nl": "Go", "sv": "Go"
+        ]
+
+        XCTAssertEqual(Set(expected.keys), Set(LocalizationTestSupport.promotedLocales))
+        for (locale, value) in expected {
+            let strings = try LocalizationTestSupport.valuesByKey(
+                relativePath: LocalizationTestSupport.localizablePaths[locale]!
+            )
+            XCTAssertEqual(strings["timer_go"], value, "\(locale) must name the board game Go, not the start action")
+        }
+    }
+
+    func testLocalizationManifestDefinesTheFullAppMatrix() throws {
+        let url = repositoryRoot.appendingPathComponent("scripts/localization/locales.json")
+        let data = try Data(contentsOf: url)
+        let root = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let locales = try XCTUnwrap(root["locales"] as? [[String: Any]])
+        let identifiers = locales.compactMap { $0["ios"] as? String }
+        let newLocales = locales.filter { ($0["existing"] as? Bool) == false }
+        XCTAssertEqual(locales.count, 47)
+        XCTAssertEqual(Set(identifiers).count, 47)
+        XCTAssertEqual(newLocales.count, 44)
+        XCTAssertEqual(Set(identifiers).intersection(["en", "zh-Hans", "zh-Hant"]).count, 3)
+    }
+
+    func testPromotedLocalesHaveCompletePluralResources() throws {
+        let manifestURL = repositoryRoot.appendingPathComponent("scripts/localization/locales.json")
+        let manifestData = try Data(contentsOf: manifestURL)
+        let manifest = try XCTUnwrap(JSONSerialization.jsonObject(with: manifestData) as? [String: Any])
+        let locales = try XCTUnwrap(manifest["locales"] as? [[String: Any]])
+        let categoriesByLocale = Dictionary(uniqueKeysWithValues: locales.compactMap { locale -> (String, Set<String>)? in
+            guard let identifier = locale["ios"] as? String,
+                  let categories = locale["plural_categories"] as? [String]
+            else { return nil }
+            return (identifier, Set(categories))
+        })
+
+        let pluralURL = repositoryRoot.appendingPathComponent("scripts/localization/plural-keys.json")
+        let pluralData = try Data(contentsOf: pluralURL)
+        let pluralManifest = try XCTUnwrap(JSONSerialization.jsonObject(with: pluralData) as? [String: Any])
+        let pluralRows = try XCTUnwrap(pluralManifest["keys"] as? [[String: String]])
+        let expectedKeys = Set(pluralRows.compactMap { $0["key"] })
+
+        for locale in LocalizationTestSupport.promotedLocales {
+            let expectedCategories = try XCTUnwrap(categoriesByLocale[locale])
+            let path = try XCTUnwrap(LocalizationTestSupport.stringsdictPaths[locale])
+            let dictionary = try LocalizationTestSupport.propertyList(relativePath: path)
+            XCTAssertEqual(Set(dictionary.keys), expectedKeys, "Plural key set differs for \(locale)")
+
+            for key in expectedKeys {
+                let definition = try XCTUnwrap(dictionary[key] as? [String: Any])
+                XCTAssertEqual(definition["NSStringLocalizedFormatKey"] as? String, "%#@count@")
+                let count = try XCTUnwrap(definition["count"] as? [String: Any])
+                let metadata: Set<String> = ["NSStringFormatSpecTypeKey", "NSStringFormatValueTypeKey"]
+                XCTAssertEqual(Set(count.keys).subtracting(metadata), expectedCategories, "Plural categories differ for \(locale)/\(key)")
+                for category in expectedCategories {
+                    let value = try XCTUnwrap(count[category] as? String)
+                    XCTAssertEqual(LocalizationTestSupport.formatTokens(in: value), ["%d"], "Plural placeholder differs for \(locale)/\(key).\(category)")
+                }
+            }
         }
     }
 
@@ -233,8 +316,8 @@ final class LocalizationIntegrityTests: XCTestCase {
         XCTAssertEqual(traditional["tennis_scoring_mode_tiebreak_10"], "搶十賽")
         XCTAssertEqual(traditional["tennis_deuce_option_no_ad"], "無佔先")
         XCTAssertEqual(english["tennis_scoring_mode_regular"], "Standard")
-        XCTAssertEqual(english["tennis_scoring_mode_tiebreak_7"], "7-Point Tiebreak")
-        XCTAssertEqual(english["tennis_scoring_mode_tiebreak_10"], "10-Point Tiebreak")
+        XCTAssertEqual(english["tennis_scoring_mode_tiebreak_7"], "Tiebreak to 7")
+        XCTAssertEqual(english["tennis_scoring_mode_tiebreak_10"], "Tiebreak to 10")
     }
 
     /// Voice and UI must speak one vocabulary: the zh-TW announcer's
@@ -269,6 +352,8 @@ final class LocalizationIntegrityTests: XCTestCase {
         for directory in ["jifen"] {
             for file in try swiftFiles(in: directory) {
                 let source = try String(contentsOf: file, encoding: .utf8)
+                // 语言门控的纯中文活动页可用「i18n-exempt: <原因>」注记整文件豁免。
+                if source.contains("i18n-exempt:") { continue }
                 for match in captures(pattern: pattern, in: source) {
                     let line = source[..<match.range].reduce(into: 1) { count, character in
                         if character == "\n" { count += 1 }

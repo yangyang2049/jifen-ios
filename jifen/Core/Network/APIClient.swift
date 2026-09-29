@@ -30,13 +30,15 @@ nonisolated struct APIErrorPayload: Decodable, Sendable {
 nonisolated enum APIClientError: LocalizedError, Equatable {
     case invalidResponse
     case sessionExpired
+    /// 带 token 的请求收到 401：先不拆会话，交给刷新后重放，重放仍 401 才升级 sessionExpired（对齐安卓）
+    case unauthorized
     case server(status: Int, code: String?, message: String?, nextAvailableAt: String?)
     case decoding
 
     var errorDescription: String? {
         switch self {
         case .invalidResponse: NSLocalizedString("network_invalid_response", value: "服务器响应无效", comment: "")
-        case .sessionExpired: NSLocalizedString("login_expired", value: "登录已失效，请重新登录", comment: "")
+        case .sessionExpired, .unauthorized: NSLocalizedString("login_expired", value: "登录已失效，请重新登录", comment: "")
         case .server(_, let code, let message, _): message ?? code ?? NSLocalizedString("network_request_failed", value: "请求失败，请稍后重试", comment: "")
         case .decoding: NSLocalizedString("network_invalid_response", value: "服务器响应无效", comment: "")
         }
@@ -45,6 +47,58 @@ nonisolated enum APIClientError: LocalizedError, Equatable {
 
 nonisolated extension Notification.Name {
     static let apiSessionExpired = Notification.Name("jifen.api.sessionExpired")
+}
+
+/// 纯策略：哪些响应可以重试、退避多久。收敛在 API 漏斗一处，与安卓 OkHttp 拦截器口径一致。
+nonisolated enum APIRetryPolicy {
+    static let maxRetries = 2
+    static let baseBackoffSeconds = 0.4
+    static let maxRetryAfterSeconds = 10.0
+    static let retryableStatuses: Set<Int> = [429, 502, 503, 504]
+    private static let retryableURLCodes: Set<Int> = [
+        URLError.timedOut.rawValue,
+        URLError.networkConnectionLost.rawValue,
+        URLError.notConnectedToInternet.rawValue,
+        URLError.dataNotAllowed.rawValue,
+        URLError.secureConnectionFailed.rawValue,
+        URLError.cannotFindHost.rawValue,
+        URLError.cannotConnectToHost.rawValue,
+    ]
+
+    /// 只重试幂等的 GET；POST/PATCH 可能是计分/兑换等非幂等写操作。
+    static func maxRetries(method: HTTPMethod) -> Int { method == .get ? maxRetries : 0 }
+
+    static func retryDelay(attempt: Int, retryAfterSeconds: Double?) -> Double {
+        if let retryAfterSeconds { return min(max(retryAfterSeconds, 0), maxRetryAfterSeconds) }
+        return baseBackoffSeconds * pow(2.0, Double(max(attempt - 1, 0)))
+    }
+
+    static func isRetryableTransport(_ error: URLError) -> Bool {
+        retryableURLCodes.contains(error.code.rawValue)
+    }
+
+    static func retryAfterSeconds(from headerValue: String?) -> Double? {
+        guard let raw = headerValue?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else { return nil }
+        if let seconds = Double(raw) { return seconds }
+        let formatter = HTTPDateFormatter.shared
+        guard let date = formatter.date(from: raw) else { return nil }
+        return date.timeIntervalSinceNow
+    }
+}
+
+/// perform 在「尝试已耗尽或不幂等」时抛出的包装：携带原始错误供上层原样重抛，同时告知 execute 还可重试。
+nonisolated enum APIRetryTerminalError: Error {
+    indirect case retryable(underlying: Error, retryAfterSeconds: Double?)
+}
+
+private nonisolated final class HTTPDateFormatter: DateFormatter, @unchecked Sendable {
+    static let shared: HTTPDateFormatter = {
+        let formatter = HTTPDateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss zzz"
+        return formatter
+    }()
 }
 
 actor APIClient {
@@ -79,20 +133,20 @@ actor APIClient {
         query: [URLQueryItem] = [],
         body: (any Encodable & Sendable)? = nil,
         requiresAuth: Bool = false,
-        headers: [String: String] = [:]
+        headers: [String: String] = [:],
+        timeout: TimeInterval? = nil,
+        retries: Int? = nil
     ) async throws -> Response {
-        var token: String?
-        if requiresAuth {
-            token = try await validToken()
-        }
-        let data = try await perform(
+        let data = try await execute(
             path,
             method: method,
             query: query,
             bodyData: body.map { try encoder.encode(AnyEncodable($0)) },
             contentType: body == nil ? nil : "application/json",
-            token: token,
-            headers: headers
+            requiresAuth: requiresAuth,
+            headers: headers,
+            timeout: timeout,
+            retries: retries
         )
         if Response.self == EmptyResponse.self, data.isEmpty {
             return try decoder.decode(Response.self, from: Data("{}".utf8))
@@ -114,14 +168,16 @@ actor APIClient {
         requiresAuth: Bool = true,
         headers: [String: String] = [:]
     ) async throws -> Response {
-        let token = requiresAuth ? try await validToken() : nil
-        let data = try await perform(
+        let data = try await execute(
             path,
             method: .post,
+            query: [],
             bodyData: multipartBody,
             contentType: "multipart/form-data; boundary=\(boundary)",
-            token: token,
-            headers: headers
+            requiresAuth: requiresAuth,
+            headers: headers,
+            timeout: nil,
+            retries: nil
         )
         do {
             return try decoder.decode(Response.self, from: data)
@@ -134,6 +190,60 @@ actor APIClient {
         refreshTask?.cancel()
         refreshTask = nil
         await tokenStore.clearAuth()
+    }
+
+    /// 统一发送口：幂等 GET 退避重试 ≤2 次（retries 可覆盖）；401 先刷新 token 重放一次，重放仍 401 才判定会话失效。
+    private func execute(
+        _ path: String,
+        method: HTTPMethod,
+        query: [URLQueryItem],
+        bodyData: Data?,
+        contentType: String?,
+        requiresAuth: Bool,
+        headers: [String: String],
+        timeout: TimeInterval?,
+        retries: Int?
+    ) async throws -> Data {
+        var token: String?
+        if requiresAuth {
+            token = try await validToken()
+        }
+        let retryBudget = retries ?? APIRetryPolicy.maxRetries(method: method)
+        var attemptsMade = 0
+        var unauthorizedHandled = false
+        while true {
+            do {
+                return try await perform(
+                    path,
+                    method: method,
+                    query: query,
+                    bodyData: bodyData,
+                    contentType: contentType,
+                    token: token,
+                    headers: headers,
+                    timeout: timeout
+                )
+            } catch APIRetryTerminalError.retryable(let underlying, let retryAfterSeconds) {
+                guard attemptsMade < retryBudget else { throw underlying }
+                attemptsMade += 1
+                let delay = retryAfterSeconds
+                    ?? APIRetryPolicy.retryDelay(attempt: attemptsMade, retryAfterSeconds: nil)
+                if delay > 0 {
+                    try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                }
+            } catch let error as APIClientError {
+                guard case .unauthorized = error else { throw error }
+                guard requiresAuth, !unauthorizedHandled else {
+                    await clearSession()
+                    await MainActor.run {
+                        NotificationCenter.default.post(name: .apiSessionExpired, object: nil)
+                    }
+                    throw APIClientError.sessionExpired
+                }
+                unauthorizedHandled = true
+                token = try await refresh(existingToken: token ?? "")
+            }
+        }
     }
 
     private func validToken() async throws -> String {
@@ -196,7 +306,8 @@ actor APIClient {
         bodyData: Data?,
         contentType: String?,
         token: String?,
-        headers: [String: String]
+        headers: [String: String],
+        timeout: TimeInterval?
     ) async throws -> Data {
         var components = URLComponents(url: environment.restBaseURL.appending(path: path), resolvingAgainstBaseURL: false)!
         if !query.isEmpty { components.queryItems = query }
@@ -204,30 +315,49 @@ actor APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.httpBody = bodyData
+        if let timeout { request.timeoutInterval = timeout }
         if let contentType { request.setValue(contentType, forHTTPHeaderField: "Content-Type") }
         if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
         Self.applyDefaultHeaders(to: &request)
-        let (data, response) = try await session.data(for: request)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            // catch 子句里不能 await（默认 MainActor 隔离），先把判定算成普通值再抛。
+            let isRetryable = (error as? URLError).map(APIRetryPolicy.isRetryableTransport) ?? false
+            guard isRetryable else { throw error }
+            throw APIRetryTerminalError.retryable(underlying: error, retryAfterSeconds: nil)
+        }
         guard let http = response as? HTTPURLResponse else { throw APIClientError.invalidResponse }
         #if DEBUG
         print("[APIClient] \(method.rawValue) \(path) -> \(http.statusCode), bytes=\(data.count)")
         #endif
         guard (200..<300).contains(http.statusCode) else {
             let payload = try? decoder.decode(APIErrorPayload.self, from: data)
-            if http.statusCode == 401 && token != nil {
-                await tokenStore.clearAuth()
-                await MainActor.run {
-                    NotificationCenter.default.post(name: .apiSessionExpired, object: nil)
-                }
-                throw APIClientError.sessionExpired
+            if http.statusCode == 401, token != nil {
+                throw APIClientError.unauthorized
             }
-            throw APIClientError.server(
+            let error = APIClientError.server(
                 status: http.statusCode,
                 code: payload?.error,
                 message: payload?.message,
                 nextAvailableAt: payload?.nextAvailableAt
             )
+            if APIRetryPolicy.retryableStatuses.contains(http.statusCode) {
+                var retryAfter: Double?
+                if let nextAvailableAt = payload?.nextAvailableAt {
+                    retryAfter = APIDateParser.date(from: nextAvailableAt).map { max($0.timeIntervalSinceNow, 0) }
+                }
+                if retryAfter == nil {
+                    retryAfter = APIRetryPolicy.retryAfterSeconds(
+                        from: http.value(forHTTPHeaderField: "Retry-After")
+                    )
+                }
+                throw APIRetryTerminalError.retryable(underlying: error, retryAfterSeconds: retryAfter)
+            }
+            throw error
         }
         return data
     }

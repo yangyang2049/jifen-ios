@@ -19,9 +19,11 @@ struct SportOptionView: View {
                     Text(getGameName(type: sport))
                         .font(.system(size: fontSize, weight: .medium))
                         .foregroundColor(Theme.textPrimary)
-                        .lineLimit(1)
+                        .lineLimit(2, reservesSpace: true)
+                        .multilineTextAlignment(.center)
                         .minimumScaleFactor(0.7)
                 }
+                .padding(.horizontal, 4)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .aspectRatio(1, contentMode: .fit)

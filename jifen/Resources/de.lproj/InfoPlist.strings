@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "Der Zugriff auf Ihre Fotomediathek wird benötigt, um Screenshots des Punktestands zu speichern.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "Die Kamera wird zum Scannen vertrauenswürdiger Anmelde-QR-Codes und zum Aufnehmen eines Profilfotos verwendet.";
+"NSMicrophoneUsageDescription" = "Das Mikrofon dient zum Aufzeichnen von Sprachnotizen.";

@@ -105,7 +105,7 @@ struct RandomTeamView: View {
         Button {
             selectPlayerCount(count)
         } label: {
-            Text(String(format: NSLocalizedString("players_count_format", comment: ""), count))
+            Text(String.localizedStringWithFormat(NSLocalizedString("players_count_format", comment: ""), count))
                 .font(.system(size: isPad ? 21 : 18, weight: .medium))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -320,7 +320,7 @@ struct RandomTeamView: View {
     }
 
     private func teamOptionLabel(players: Int, teams: Int) -> String {
-        let teamLabel = String(format: NSLocalizedString("random_team_team_count_format", value: "%d队", comment: ""), teams)
+        let teamLabel = String.localizedStringWithFormat(NSLocalizedString("random_team_team_count_format", value: "%d队", comment: ""), teams)
         return "\(teamLabel) · \(RandomTeamAssignment.splitLabel(playerCount: players, teamCount: teams))"
     }
 

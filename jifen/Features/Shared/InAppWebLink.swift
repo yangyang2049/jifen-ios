@@ -140,8 +140,105 @@ struct InAppWebLinkPage: View {
 }
 
 /// 应用内网页容器（原 LoginLegalWebView，登录协议/会员协议/关于页/反馈外链共用）。
-struct AppWebView: UIViewRepresentable {
+/// 顶部细进度条 + 加载失败/无网覆盖层（系统图标 + 文案 + 重试）。
+struct AppWebView: View {
     let url: URL
+
+    @State private var progress: CGFloat = 0
+    @State private var isLoading = true
+    @State private var loadFailed = false
+    @State private var reloadToken = 0
+    #if DEBUG
+    /// UI 测试：`-UITestWebFailOnce` 模拟加载失败，验证覆盖层与重试入口（真实网络失败无法在模拟器里稳定复现）。
+    @State private var uiTestSimulateFailure = ProcessInfo.processInfo.arguments.contains("-UITestWebFailOnce")
+    #endif
+
+    var body: some View {
+        ZStack {
+            WebContainer(
+                url: url,
+                reloadToken: reloadToken,
+                onProgress: { value in
+                    progress = value
+                    isLoading = value < 1
+                },
+                onFailure: { _ in
+                    loadFailed = true
+                    isLoading = false
+                }
+            )
+            .ignoresSafeArea(edges: .bottom)
+
+            if isLoading && progress > 0.02 && progress < 1 {
+                VStack {
+                    ProgressView(value: progress)
+                        .progressViewStyle(.linear)
+                        .tint(Theme.accentColor)
+                    Spacer()
+                }
+                .padding(.horizontal, 2)
+            }
+
+            if loadFailed {
+                failureOverlay
+            }
+        }
+        .background(Theme.backgroundColor)
+        #if DEBUG
+        .onAppear {
+            if uiTestSimulateFailure {
+                loadFailed = true
+                isLoading = false
+            }
+        }
+        #endif
+        .onChange(of: url) { _, _ in
+            loadFailed = false
+            isLoading = true
+            progress = 0
+            reloadToken += 1
+        }
+    }
+
+    private var failureOverlay: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "wifi.exclamationmark")
+                .font(.system(size: 42, weight: .light))
+                .foregroundStyle(Color(uiColor: .tertiaryLabel))
+            Text(NSLocalizedString("web_load_failed", value: "网页加载失败，请检查网络后重试", comment: ""))
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+            Button {
+                #if DEBUG
+                guard !uiTestSimulateFailure else { return }
+                #endif
+                loadFailed = false
+                isLoading = true
+                progress = 0
+                reloadToken += 1
+            } label: {
+                Text(NSLocalizedString("retry", value: "重试", comment: ""))
+                    .font(.subheadline.weight(.medium))
+            }
+            .buttonStyle(.borderedProminent)
+            .accessibilityIdentifier("web_load_retry_button")
+        }
+        .padding(.horizontal, 32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.backgroundColor)
+    }
+}
+
+private struct WebContainer: UIViewRepresentable {
+    let url: URL
+    let reloadToken: Int
+    let onProgress: (CGFloat) -> Void
+    let onFailure: (Error) -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onProgress: onProgress, onFailure: onFailure)
+    }
 
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
@@ -151,12 +248,62 @@ struct AppWebView: UIViewRepresentable {
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
-        webView.load(URLRequest(url: url))
+        webView.navigationDelegate = context.coordinator
+        context.coordinator.observe(webView)
+        context.coordinator.beginLoad(url)
+        context.coordinator.reloadToken = reloadToken
+        // makeUIView 处于 View update 周期内，加载动作延后一拍再触发。
+        DispatchQueue.main.async { webView.load(URLRequest(url: url)) }
         return webView
     }
 
     func updateUIView(_ webView: WKWebView, context: Context) {
-        guard webView.url == nil else { return }
-        webView.load(URLRequest(url: url))
+        let coordinator = context.coordinator
+        coordinator.onProgress = onProgress
+        coordinator.onFailure = onFailure
+        if coordinator.lastURL != url {
+            coordinator.beginLoad(url)
+            webView.load(URLRequest(url: url))
+        } else if coordinator.reloadToken != reloadToken {
+            coordinator.reloadToken = reloadToken
+            coordinator.beginLoad(url)
+            webView.reloadFromOrigin()
+        }
+    }
+
+    final class Coordinator: NSObject, WKNavigationDelegate {
+        var onProgress: (CGFloat) -> Void
+        var onFailure: (Error) -> Void
+        var lastURL: URL?
+        var reloadToken = -1
+        private var progressObservation: NSKeyValueObservation?
+
+        init(onProgress: @escaping (CGFloat) -> Void, onFailure: @escaping (Error) -> Void) {
+            self.onProgress = onProgress
+            self.onFailure = onFailure
+        }
+
+        func observe(_ webView: WKWebView) {
+            progressObservation = webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
+                let value = CGFloat(webView.estimatedProgress)
+                Task { @MainActor [weak self] in self?.onProgress(value) }
+            }
+        }
+
+        func beginLoad(_ url: URL) {
+            lastURL = url
+        }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            Task { @MainActor [weak self] in self?.onFailure(error) }
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            Task { @MainActor [weak self] in self?.onFailure(error) }
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            Task { @MainActor [weak self] in self?.onProgress(1) }
+        }
     }
 }

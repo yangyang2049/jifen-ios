@@ -124,6 +124,525 @@ final class FullAppScreenshotUITests: XCTestCase {
         snap("marketing_go_timer")
     }
 
+    /// 商店拼贴素材:各运动界面带真实比赛数据(排球/斯诺克/象棋/围棋/UNO/篮球)。
+    /// 篮球放最后:它会留下进行中的比赛,干扰后续项目的页面查询。
+    func testCaptureMarketingDataScreenshots() {
+        captureVolleyballData()
+        captureSnookerData()
+        captureChessTimerData()
+        captureGoTimerData()
+        captureUnoRecordData()
+        captureBasketballData()
+    }
+
+    private func captureVolleyballData() {
+        relaunch()
+        guard openSportAndStart(id: "volleyball", label: "排球") else { return }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        // 竖屏下左右半场点按计分(布局对称无歧义),再转横屏截图
+        scoreRallySide(left: true, times: 25)
+        scoreRallySide(left: false, times: 23)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+        snap("marketing_volleyball_data", settle: 0.5)
+    }
+
+    private func captureSnookerData() {
+        relaunch()
+        guard openSportAndStart(id: "snooker", label: "斯诺克") else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+        // 用球值按钮组合真实比分:红球连击 + 彩球,换手后再打
+        scoreSnookerBall(1, times: 12)
+        scoreSnookerBall(5, times: 4)
+        scoreSnookerBall(3, times: 2)
+        tapSnookerHandover()
+        scoreSnookerBall(1, times: 9)
+        scoreSnookerBall(4, times: 3)
+        scoreSnookerBall(7, times: 1)
+        snap("marketing_snooker_data", settle: 0.5)
+    }
+
+    private func captureChessTimerData() {
+        relaunch()
+        guard selectTab("计时") else { return }
+        scrollUntilExists(identifier: "timer_dest_xiangqi")
+        app.descendants(matching: .any)["timer_dest_xiangqi"].firstMatch.tap()
+        guard tapStart() else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(1.2))
+        ensureBoardTimerStarted()
+        RunLoop.current.run(until: Date().addingTimeInterval(20))
+        tapBoardTimerPlayer("2")
+        RunLoop.current.run(until: Date().addingTimeInterval(9))
+        tapBoardTimerPlayer("1")
+        RunLoop.current.run(until: Date().addingTimeInterval(12))
+        snap("marketing_xiangqi_data", settle: 0.4)
+    }
+
+    private func captureGoTimerData() {
+        relaunch()
+        guard selectTab("计时") else { return }
+        scrollUntilExists(identifier: "timer_dest_go")
+        app.descendants(matching: .any)["timer_dest_go"].firstMatch.tap()
+        guard tapStart() else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(1.2))
+        ensureBoardTimerStarted()
+        RunLoop.current.run(until: Date().addingTimeInterval(30))
+        snap("marketing_go_data", settle: 0.4)
+    }
+
+    /// 棋类计时:横屏下若仍在设置页(开始按钮还在),再点一次开始
+    private func ensureBoardTimerStarted() {
+        let startButton = app.buttons["开始"]
+        if startButton.exists, startButton.isHittable {
+            startButton.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.8))
+        }
+    }
+
+    private func captureUnoRecordData() {
+        relaunch(extraArguments: ["-UITestRecordFixtures", "-UITestRecordDetail", "uno"])
+        RunLoop.current.run(until: Date().addingTimeInterval(1.0))
+        snap("marketing_uno_data", settle: 0.6)
+    }
+
+    private func captureBasketballData() {
+        relaunch()
+        guard openSportAndStart(id: "basketball", label: "篮球") else { return }
+        XCUIDevice.shared.orientation = .landscapeRight
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        revealScoreboardChrome(fromLeftCorner: true)
+        scoreBasketballPoints(left: true, points: 58)
+        scoreBasketballPoints(left: false, points: 49)
+        snap("marketing_basketball_data", settle: 0.5)
+    }
+
+    // MARK: - 商店源图（en / zh-Hans 两个包共用同一条链路）
+
+    /// 一个语言包的差异点只有：界面语言、Setup 用哪个项目、几组人名、快照名前缀。
+    /// 比分与时钟两端完全一致，两个包讲的是同一批对局。
+    private struct StorePack {
+        let locale: UITestLocale.Configuration
+        let prefix: String
+        let padPrefix: String
+        let setupSportID: String
+        let duel: [String]
+        let teams: [String]
+        let uno: [String]
+        let multi: [String]
+
+        /// 人名一律走启动参数注入：CJK 用 typeText 打不出来，
+        /// 而且折叠线以下的输入框 isHittable 是概率性的，注入没有这两个坑。
+        func names(_ values: [String]) -> [String] {
+            var arguments: [String] = []
+            for (index, value) in values.enumerated() {
+                arguments += ["-UITestSetupName\(index + 1)", value]
+            }
+            return arguments
+        }
+    }
+
+    private static let englishStorePack = StorePack(
+        locale: UITestLocale.en,
+        prefix: "marketing_en_",
+        padPrefix: "marketing_pad_en_",
+        setupSportID: "tennis",
+        duel: ["Sam", "Steven"],
+        teams: ["Home", "Away"],
+        uno: ["Emma", "Liam", "Mia", "Noah"],
+        multi: ["Alex", "Jordan", "Mia", "Sofia"]
+    )
+
+    private static let chineseStorePack = StorePack(
+        locale: UITestLocale.zhHans,
+        prefix: "marketing_zh_",
+        padPrefix: "marketing_pad_zh_",
+        setupSportID: "badminton",
+        duel: ["陈明", "李华"],
+        teams: ["主队", "客队"],
+        uno: ["陈明", "李华", "王芳", "张伟"],
+        multi: ["赵磊", "孙倩", "周涛", "吴敏"]
+    )
+
+    /// 篮球放最后：它会留下一场进行中的比赛，干扰后续项目的页面查询。
+    func testCaptureAppStoreSourceScreenshotsEnglish() {
+        captureStoreScreenshots(Self.englishStorePack)
+    }
+
+    func testCaptureAppStoreSourceScreenshotsChinese() {
+        captureStoreScreenshots(Self.chineseStorePack)
+    }
+
+    private func captureStoreScreenshots(_ pack: StorePack) {
+        captureStoreRecordDetail(pack)
+        captureStoreSetup(pack)
+        captureStoreVolleyball(pack)
+        captureStoreSnooker(pack)
+        captureStoreUnoLive(pack)
+        captureStoreMultiLive(pack)
+        captureStoreBoardTimer(pack, timerID: "chess", snapSuffix: "chess", firstWait: 19, secondWait: 41)
+        captureStoreBoardTimer(pack, timerID: "go", snapSuffix: "go", firstWait: 45, secondWait: 30)
+        captureStoreBasketball(pack)
+    }
+
+    private func captureStoreRecordDetail(_ pack: StorePack) {
+        relaunch(
+            extraArguments: [
+                "-UITestRecordFixtures", "-UITestRecordDetail", "pingpong",
+                "-UITestRecordTeamName1", pack.duel[0], "-UITestRecordTeamName2", pack.duel[1]
+            ],
+            locale: pack.locale,
+            waitForTabBar: false
+        )
+        RunLoop.current.run(until: Date().addingTimeInterval(1.2))
+        snap(pack.prefix + "record_detail", settle: 0.8)
+    }
+
+    private func captureStoreSetup(_ pack: StorePack) {
+        relaunch(extraArguments: pack.names(pack.duel), locale: pack.locale)
+        guard openCatalogEntry(pack.setupSportID) else { return }
+        snap(pack.prefix + "\(pack.setupSportID)_setup", settle: 0.6)
+    }
+
+    private func captureStoreVolleyball(_ pack: StorePack) {
+        relaunch(extraArguments: pack.names(pack.teams), locale: pack.locale)
+        guard openCatalogEntry("volleyball"), tapStart() else { return }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        // 24:23 局点，比分会随每一分变化，比整数局分更像在打
+        scoreRallySide(left: true, times: 24)
+        scoreRallySide(left: false, times: 23)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        snap(pack.prefix + "volleyball", settle: 0.6)
+    }
+
+    private func captureStoreSnooker(_ pack: StorePack) {
+        relaunch(extraArguments: pack.names(pack.duel), locale: pack.locale)
+        guard openCatalogEntry("snooker"), tapStart() else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+        scoreSnookerBall(1, times: 12)
+        scoreSnookerBall(5, times: 4)
+        scoreSnookerBall(3, times: 2)
+        tapSnookerHandover()
+        scoreSnookerBall(1, times: 9)
+        scoreSnookerBall(4, times: 3)
+        scoreSnookerBall(7, times: 1)
+        snap(pack.prefix + "snooker", settle: 0.5)
+    }
+
+    /// UNO 用实时计分板（横屏布局是默认），比记录页更像"正在打"，也不用改夹具数据
+    private func captureStoreUnoLive(_ pack: StorePack) {
+        relaunch(extraArguments: pack.names(pack.uno), locale: pack.locale)
+        guard openCatalogEntry("uno"), tapStart() else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(0.8))
+        scoreUnoRound(player: pack.uno[0], points: 236)
+        scoreUnoRound(player: pack.uno[1], points: 187)
+        scoreUnoRound(player: pack.uno[2], points: 312)
+        scoreUnoRound(player: pack.uno[3], points: 149)
+        snap(pack.prefix + "uno", settle: 0.6)
+    }
+
+    private func captureStoreMultiLive(_ pack: StorePack) {
+        relaunch(extraArguments: pack.names(pack.multi), locale: pack.locale)
+        guard openCatalogEntry("multiScoreboard"), tapStart() else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(0.8))
+        tapMultiScoreCell(player: pack.multi[0], times: 12)
+        tapMultiScoreCell(player: pack.multi[1], times: 8)
+        tapMultiScoreCell(player: pack.multi[2], times: 15)
+        tapMultiScoreCell(player: pack.multi[3], times: 3)
+        snap(pack.prefix + "multi", settle: 0.6)
+    }
+
+    private func captureStoreBoardTimer(_ pack: StorePack, timerID: String, snapSuffix: String, firstWait: TimeInterval, secondWait: TimeInterval) {
+        relaunch(locale: pack.locale)
+        guard selectTab("计时") else { return }
+        scrollUntilExists(identifier: "timer_dest_\(timerID)")
+        let entry = app.descendants(matching: .any)["timer_dest_\(timerID)"].firstMatch
+        guard entry.waitForExistence(timeout: 4), entry.isHittable else { return }
+        entry.tap()
+        guard tapStart() else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        RunLoop.current.run(until: Date().addingTimeInterval(1.2))
+        ensureStoreBoardTimerStarted()
+        // 两边都真实走过时间,读秒数才对得上;计时器只认"点自己这侧交权",
+        // 所以要按当前行棋方(第 1 手)那侧,钟才会换到对面走
+        RunLoop.current.run(until: Date().addingTimeInterval(firstWait))
+        tapBoardTimerPlayer("1")
+        RunLoop.current.run(until: Date().addingTimeInterval(secondWait))
+        snap(pack.prefix + snapSuffix, settle: 0.4)
+    }
+
+    private func captureStoreBasketball(_ pack: StorePack) {
+        relaunch(extraArguments: pack.names(pack.teams), locale: pack.locale)
+        guard openCatalogEntry("basketball"), tapStart() else { return }
+        XCUIDevice.shared.orientation = .landscapeRight
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        revealScoreboardChrome(fromLeftCorner: true)
+        scoreBasketballPoints(left: true, points: 71)
+        scoreBasketballPoints(left: false, points: 68)
+        // 71:68 只可能出现在末节:先把节次真切到 Q4,再让比赛时钟真实走一段
+        selectBasketballPeriod("Q4")
+        let clock = app.descendants(matching: .any)["basketball_clock_toggle"]
+        if clock.waitForExistence(timeout: 2), clock.isHittable {
+            clock.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(20))
+            clock.tap()
+        }
+        snap(pack.prefix + "basketball", settle: 0.5)
+    }
+
+    // MARK: - iPad 商店源图（横屏 2752×2064，en / zh-Hans 各一套）
+
+    /// iPad 的卖点全在宽度上：Home 双列、记分牌按视口自缩放、记录详情限宽 920 的图表。
+    /// 统一横屏还顺带避开了"开启横屏"一次性提示——那个弹窗只在竖屏进记分牌时弹。
+    /// 比分与人名沿用两个手机包同一批数据，三个包讲的是同一场球。
+    func testCaptureAppStoreSourceScreenshotsEnglishIPad() {
+        capturePadScreenshots(Self.englishStorePack)
+    }
+
+    func testCaptureAppStoreSourceScreenshotsChineseIPad() {
+        capturePadScreenshots(Self.chineseStorePack)
+    }
+
+    private func capturePadScreenshots(_ pack: StorePack) {
+        capturePadHome(pack)
+        capturePadRecordDetail(pack)
+        capturePadSetup(pack)
+        capturePadSnooker(pack)
+        capturePadBasketball(pack)
+    }
+
+    /// Home 在 iPad 是唯一有真结构差异的页（宽 ≥768 才双列），所以要带夹具让右列有内容
+    private func capturePadHome(_ pack: StorePack) {
+        relaunch(
+            extraArguments: [
+                "-UITestRecordFixtures",
+                "-UITestRecordTeamName1", pack.duel[0],
+                "-UITestRecordTeamName2", pack.duel[1]
+            ],
+            locale: pack.locale,
+            orientation: .landscapeLeft
+        )
+        guard selectTab("首页") else { return }
+        snap(pack.padPrefix + "home", settle: 1.0)
+    }
+
+    private func capturePadRecordDetail(_ pack: StorePack) {
+        relaunch(
+            extraArguments: [
+                "-UITestRecordFixtures", "-UITestRecordDetail", "pingpong",
+                "-UITestRecordTeamName1", pack.duel[0], "-UITestRecordTeamName2", pack.duel[1]
+            ],
+            locale: pack.locale,
+            waitForTabBar: false,
+            orientation: .landscapeLeft
+        )
+        RunLoop.current.run(until: Date().addingTimeInterval(1.2))
+        snap(pack.padPrefix + "record_detail", settle: 0.8)
+    }
+
+    private func capturePadSetup(_ pack: StorePack) {
+        relaunch(
+            extraArguments: pack.names(pack.duel),
+            locale: pack.locale,
+            orientation: .landscapeLeft
+        )
+        guard openCatalogEntry(pack.setupSportID) else { return }
+        snap(pack.padPrefix + "\(pack.setupSportID)_setup", settle: 0.6)
+    }
+
+    private func capturePadSnooker(_ pack: StorePack) {
+        relaunch(
+            extraArguments: pack.names(pack.duel),
+            locale: pack.locale,
+            orientation: .landscapeLeft
+        )
+        guard openCatalogEntry("snooker"), tapStart() else { return }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+        scoreSnookerBall(1, times: 12)
+        scoreSnookerBall(5, times: 4)
+        scoreSnookerBall(3, times: 2)
+        tapSnookerHandover()
+        scoreSnookerBall(1, times: 9)
+        scoreSnookerBall(4, times: 3)
+        scoreSnookerBall(7, times: 1)
+        snap(pack.padPrefix + "snooker", settle: 0.5)
+    }
+
+    private func capturePadBasketball(_ pack: StorePack) {
+        relaunch(
+            extraArguments: pack.names(pack.teams),
+            locale: pack.locale,
+            orientation: .landscapeLeft
+        )
+        guard openCatalogEntry("basketball"), tapStart() else { return }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        revealScoreboardChrome(fromLeftCorner: true)
+        scoreBasketballPoints(left: true, points: 71)
+        scoreBasketballPoints(left: false, points: 68)
+        selectBasketballPeriod("Q4")
+        let clock = app.descendants(matching: .any)["basketball_clock_toggle"]
+        if clock.waitForExistence(timeout: 2), clock.isHittable {
+            clock.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(20))
+            clock.tap()
+        }
+        revealScoreboardChrome(fromLeftCorner: true)
+        snap(pack.padPrefix + "basketball", settle: 0.5)
+    }
+
+    /// 篮球:点节次胶囊开选择器,选到指定节
+    private func selectBasketballPeriod(_ period: String) {
+        let chip = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Q")).firstMatch
+        guard chip.waitForExistence(timeout: 2), chip.isHittable else { return }
+        chip.tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        let option = app.buttons.matching(NSPredicate(format: "label == %@", period)).firstMatch
+        guard option.waitForExistence(timeout: 2), option.isHittable else { return }
+        option.tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+    }
+
+    /// 打开计分目录里某项目的赛前设置（只开弹窗，不点开始）
+    private func openCatalogEntry(_ id: String) -> Bool {
+        guard selectTab("计分") else { return false }
+        scrollUntilExists(identifier: "scoreboard_catalog_\(id)")
+        let card = app.descendants(matching: .any)["scoreboard_catalog_\(id)"]
+        guard card.waitForExistence(timeout: 3), card.isHittable else { return false }
+        card.tap()
+        return true
+    }
+
+    /// UNO：点玩家格开结算面板 → 数字牌合计 → 键盘"完成"收起 → 确认记分
+    private func scoreUnoRound(player: String, points: Int) {
+        let cell = participantCell(named: player)
+        guard cell.waitForExistence(timeout: 3), cell.isHittable else { return }
+        cell.tap()
+        let field = app.textFields.firstMatch
+        guard field.waitForExistence(timeout: 3), field.isHittable else { return }
+        field.tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        field.typeText(String(points))
+        RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        tapFirstExisting(["Done", "完成"])
+        RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+        _ = tapFirstExisting(["Confirm score", "确认记分"])
+    }
+
+    /// 同一个按钮在两种语言下有两个文案；先判存在再点，别用 tapContaining（它会为找不到的按钮反复滑动）
+    @discardableResult
+    private func tapFirstExisting(_ labels: [String]) -> Bool {
+        for label in labels {
+            let button = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
+            if button.waitForExistence(timeout: 1.2), button.isHittable {
+                button.tap()
+                return true
+            }
+        }
+        return false
+    }
+
+    /// 多人记分：单击玩家格 +1，间隔要大于 0.24s 的双击窗口，否则会走减分
+    private func tapMultiScoreCell(player: String, times: Int) {
+        let cell = participantCell(named: player)
+        guard cell.waitForExistence(timeout: 3), cell.isHittable else { return }
+        for _ in 0..<times {
+            cell.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+        }
+    }
+
+    /// 玩家格上的名字：SwiftUI 可能暴露成 staticText，也可能整格并成一个 button
+    private func participantCell(named name: String) -> XCUIElement {
+        let text = app.staticTexts.matching(NSPredicate(format: "label == %@", name)).firstMatch
+        if text.waitForExistence(timeout: 1.2) { return text }
+        return app.buttons.matching(NSPredicate(format: "label == %@", name)).firstMatch
+    }
+
+    /// 棋类计时：横屏后若仍停在设置页，再点一次开始
+    private func ensureStoreBoardTimerStarted() {
+        for label in ["开始", "Start"] {
+            let button = app.buttons[label]
+            if button.exists, button.isHittable {
+                button.tap()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.8))
+                return
+            }
+        }
+    }
+
+    /// 打开某运动的赛前设置并点开始;失败返回 false,由调用方跳过
+    private func openSportAndStart(id: String, label: String) -> Bool {
+        guard selectTab("计分") else { return false }
+        scrollUntilExists(identifier: "scoreboard_catalog_\(id)")
+        let card = app.descendants(matching: .any)["scoreboard_catalog_\(id)"]
+        if card.waitForExistence(timeout: 3), card.isHittable {
+            card.tap()
+        } else {
+            let byLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
+            guard byLabel.waitForExistence(timeout: 3), byLabel.isHittable else { return false }
+            byLabel.tap()
+        }
+        return tapStart()
+    }
+
+    /// 排球/斯诺克等点按计分板:点按对应半场 +1
+    private func scoreRallySide(left: Bool, times: Int) {
+        for _ in 0..<times {
+            app.coordinate(withNormalizedOffset: CGVector(dx: left ? 0.25 : 0.75, dy: 0.5)).tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+    }
+
+    /// 斯诺克:点按球值按钮计分(红1/黄2/绿3/棕4/蓝5/粉6/黑7)
+    private func scoreSnookerBall(_ points: Int, times: Int) {
+        let ball = app.descendants(matching: .any)["snooker_ball_\(points)"]
+        guard ball.waitForExistence(timeout: 3), ball.isHittable else { return }
+        for _ in 0..<times {
+            ball.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.12))
+        }
+    }
+
+    /// 斯诺克:换手(切换击球方)
+    private func tapSnookerHandover() {
+        let handover = app.descendants(matching: .any)["snooker_action_handover"]
+        if handover.waitForExistence(timeout: 2), handover.isHittable {
+            handover.tap()
+        }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+    }
+
+    /// 篮球:按半场缓存 +3/+2/+1 按钮引用后连点,组合出目标比分
+    private func scoreBasketballPoints(left: Bool, points: Int) {
+        var remaining = points
+        for value in [3, 2, 1] {
+            let matches = app.buttons.matching(NSPredicate(format: "label == %@", "+\(value)")).allElementsBoundByIndex
+            let target = matches.first { $0.isHittable && (left ? $0.frame.midX < app.frame.midX : $0.frame.midX > app.frame.midX) }
+            guard let target else { continue }
+            while remaining >= value {
+                target.tap()
+                remaining -= value
+                RunLoop.current.run(until: Date().addingTimeInterval(0.08))
+            }
+        }
+    }
+
+    /// 双人计时器:点按某侧切换计时权
+    private func tapBoardTimerPlayer(_ playerID: String) {
+        let player = app.descendants(matching: .any)["board_timer_player_\(playerID)"]
+        if player.waitForExistence(timeout: 2), player.isHittable {
+            player.tap()
+        } else {
+            app.coordinate(withNormalizedOffset: CGVector(dx: playerID == "1" ? 0.25 : 0.75, dy: 0.5)).tap()
+        }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+    }
+
     /// 重点项目截图矩阵：四种球类分别覆盖单打/双打，并补齐掼蛋的真实操作状态。
     /// 每个场景都保留设置、初始计分板、操作后和菜单 Overlay 四张截图，方便人工复核。
     func testCapturePrioritySportsVariants() {
@@ -594,22 +1113,25 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     // MARK: - Launch
 
-    private func relaunch() {
+    private func relaunch(extraArguments: [String] = [], locale: UITestLocale.Configuration = UITestLocale.zhHans, waitForTabBar: Bool = true, orientation: UIDeviceOrientation = .portrait) {
         if app != nil {
             terminateAndWait(app)
         }
         app = XCUIApplication()
         app.launchArguments += [
-            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
-            "-AppleLocale", UITestLocale.zhHans.locale,
+            "-AppleLanguages", UITestLocale.languageValue(locale),
+            "-AppleLocale", locale.locale,
             "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints",
             "-UITestScreenshotMode", "1"
-        ]
+        ] + extraArguments
         XCTAssertTrue(launchAndWait(app), "Screenshot app failed to reach the foreground")
-        XCTAssertTrue(waitForTabs(timeout: 12), "Tab bar not ready after launch")
+        // 夹具会把根视图换成详情页，此时没有 Tab Bar 可等
+        if waitForTabBar {
+            XCTAssertTrue(waitForTabs(timeout: 12), "Tab bar not ready after launch")
+        }
         // Ensure portrait for tab navigation
-        XCUIDevice.shared.orientation = .portrait
+        XCUIDevice.shared.orientation = orientation
         RunLoop.current.run(until: Date().addingTimeInterval(0.4))
     }
 

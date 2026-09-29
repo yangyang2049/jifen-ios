@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "점수판 스크린샷을 저장하려면 사진 라이브러리에 액세스해야 합니다.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "카메라는 신뢰할 수 있는 로그인 QR 코드 스캔 및 프로필 사진 촬영에 사용됩니다.";
+"NSMicrophoneUsageDescription" = "마이크는 음성 메모를 녹음하는 데 사용됩니다.";

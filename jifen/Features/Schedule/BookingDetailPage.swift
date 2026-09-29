@@ -290,10 +290,10 @@ struct BookingDetailPage: View {
             parts.append("\(left) vs \(right)")
         }
         if let maxSets = booking.maxSets {
-            parts.append(String(format: NSLocalizedString("schedule_sets_summary", value: "%d 局/盘", comment: ""), maxSets))
+            parts.append(String.localizedStringWithFormat(NSLocalizedString("schedule_sets_summary", value: "%d 局/盘", comment: ""), maxSets))
         }
         if let points = booking.pointsPerSet {
-            parts.append(String(format: NSLocalizedString("schedule_points_summary", value: "每局 %d 分", comment: ""), points))
+            parts.append(String.localizedStringWithFormat(NSLocalizedString("schedule_points_summary", value: "每局 %d 分", comment: ""), points))
         }
         if let tieBreak = booking.tieBreakPoints {
             parts.append(String(format: NSLocalizedString("schedule_tiebreak_summary", value: "抢七 %d 分", comment: ""), tieBreak))
@@ -312,9 +312,9 @@ struct BookingDetailPage: View {
     private func reminderText(_ reminders: [Int]) -> String {
         reminders.sorted(by: >).map { minute in
             if minute >= 60 {
-                return String(format: NSLocalizedString("schedule_reminder_hours_before", value: "%d 小时前", comment: ""), minute / 60)
+                return String.localizedStringWithFormat(NSLocalizedString("schedule_reminder_hours_before", value: "%d 小时前", comment: ""), minute / 60)
             }
-            return String(format: NSLocalizedString("schedule_reminder_minutes_before", value: "%d 分钟前", comment: ""), minute)
+            return String.localizedStringWithFormat(NSLocalizedString("schedule_reminder_minutes_before", value: "%d 分钟前", comment: ""), minute)
         }
         .joined(separator: " / ")
     }

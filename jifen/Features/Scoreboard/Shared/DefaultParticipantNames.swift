@@ -20,7 +20,18 @@ struct ParticipantMemberPair: Equatable {
 /// Canonical participant labels for new scoreboards and missing-name fallbacks.
 /// Stored/custom names are resolved before this policy is consulted.
 enum DefaultParticipantNames {
+    /// 商店源图要"像真人在打"：占位名（选手A/玩家 3）会被显式名字顶掉。
+    /// 只能由启动参数写入，生产环境读不到这些 key，所以缺省行为不变。
+    static var uiTestParticipantNames: [String] {
+        (1...4).compactMap { UserDefaults.standard.string(forKey: "UITestSetupName\($0)") }
+    }
+
     static func resolve(for gameType: GameType, isSingles: Bool = true) -> ParticipantNamePair {
+        let overrides = uiTestParticipantNames
+        if overrides.count >= 2 {
+            return ParticipantNamePair(left: overrides[0], right: overrides[1])
+        }
+
         if !isSingles, supportsDoublesMembers(gameType) {
             return doublesSideNames(for: gameType)
         }

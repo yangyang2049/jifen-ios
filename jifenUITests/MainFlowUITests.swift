@@ -935,6 +935,80 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(doublesLine.waitForExistence(timeout: 5), "Doubles must use its own help copy")
     }
 
+    /// 临时验证用：羽毛球单打动画弹窗逐页抽帧截图（中段 + 末帧）。
+    func testBadmintonAnimatedUsageHintPageScreenshots() throws {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", UITestLocale.languageValue(UITestLocale.zhHans),
+            "-AppleLocale", UITestLocale.zhHans.locale,
+            "-UITestSkipLegalConsent",
+            "-UITestResetScoreboardUsageHints",
+            // 双击减分/防误触默认关闭，页清单会动态去掉对应两页；
+            // 本测试要覆盖完整 5 页，显式打开两个偏好。
+            "-scoreboard_touch_guard", "YES",
+            "-scoreboard_double_tap_subtract", "YES"
+        ]
+        XCTAssertTrue(launchAndWait(app), "Animated-hint app failed to reach the foreground")
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(openCatalogCard("scoreboard_catalog_badminton", in: app))
+        app.buttons["开始"].tap()
+
+        let dialog = app.descendants(matching: .any)["scoreboard_usage_hint_dialog"]
+        XCTAssertTrue(dialog.waitForExistence(timeout: 8))
+
+        let confirm = app.buttons["scoreboard_usage_hint_confirm"]
+        for page in 1...5 {
+            // 播放带 1.1s 进场停顿且 0.8× 放慢：到动画时刻 T 的真实等待 = 1.1 + 1.25·T。
+            // 中段抓 T≈3.3（下滑减分/赢局横幅已出），末段越过 duration 停在末帧。
+            Thread.sleep(forTimeInterval: page == 5 ? 5.85 : 5.2)
+            let mid = XCUIScreen.main.screenshot()
+            attach(mid, name: "badminton-hint-p\(page)-mid")
+            let remaining: TimeInterval = page == 5 ? 3.0 : 3.4
+            Thread.sleep(forTimeInterval: remaining)
+            let end = XCUIScreen.main.screenshot()
+            attach(end, name: "badminton-hint-p\(page)-end")
+
+            if page < 5 {
+                XCTAssertFalse(confirm.exists, "第 \(page) 页首次打开不得出现知道了按钮")
+                let nextButton = app.buttons.matching(
+                    NSPredicate(format: "label == '下一页'")
+                ).firstMatch
+                XCTAssertTrue(nextButton.waitForExistence(timeout: 3), "第 \(page) 页缺右箭头")
+                nextButton.tap()
+            } else {
+                XCTAssertTrue(confirm.exists, "末页右箭头位必须是知道了")
+                XCTAssertTrue(confirm.isHittable)
+            }
+        }
+        confirm.tap()
+        XCTAssertFalse(dialog.waitForExistence(timeout: 1))
+    }
+
+    private func attach(_ screenshot: XCUIScreenshot, name: String) {
+        let attachment = XCTAttachment(screenshot: screenshot)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func openCatalogCard(_ identifier: String, in app: XCUIApplication) -> Bool {
+        let scoreTab = app.tabBars.buttons["计分"]
+        XCTAssertTrue(scoreTab.waitForExistence(timeout: 8))
+        scoreTab.tap()
+        let card = app.descendants(matching: .any)[identifier]
+        for _ in 0..<5 {
+            if card.exists && card.isHittable { break }
+            app.swipeDown()
+        }
+        guard card.waitForExistence(timeout: 5), card.isHittable else { return false }
+        card.tap()
+        return app.buttons["开始"].waitForExistence(timeout: 5)
+    }
+
     func testPlayAllSetupSupportsEvenAndCustomSetCounts() {
         runPlayAllSetup(appearance: "light")
     }
@@ -1245,6 +1319,121 @@ final class MainFlowUITests: XCTestCase {
             RunLoop.current.run(until: Date().addingTimeInterval(0.15))
         }
         return projects.sorted()
+    }
+
+    // MARK: - 英文界面隐藏毽球/气排球 + 羽毛球判罚弹窗内容自适应高度
+
+    func testEnglishCatalogHidesJianziAndAirVolleyball() {
+        let app = launchLocalizedApp(language: "en", locale: "en_US")
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+
+        // Score Tab 目录（LazyVGrid）：滚到羽毛球处断言毽球不存在，滚到排球处断言气排球不存在。
+        XCTAssertTrue(selectTab(named: "Score", in: app))
+        let badmintonCard = app.descendants(matching: .any)["scoreboard_catalog_badminton"]
+        XCTAssertTrue(scrollUntilExists(badmintonCard, in: app), "Badminton card must stay in the English catalog")
+        XCTAssertFalse(
+            app.descendants(matching: .any)["scoreboard_catalog_shuttlecock"].exists,
+            "Jianzi card must be hidden in the English catalog"
+        )
+        let volleyballCard = app.descendants(matching: .any)["scoreboard_catalog_volleyball"]
+        XCTAssertTrue(scrollUntilExists(volleyballCard, in: app))
+        XCTAssertFalse(
+            app.descendants(matching: .any)["scoreboard_catalog_air_volleyball"].exists,
+            "Air Volleyball card must be hidden in the English catalog"
+        )
+
+        // 新比赛弹窗同样隐藏；羽毛球仍可选。
+        XCTAssertTrue(selectTab(named: "Home", in: app))
+        let newGame = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "New Game")).firstMatch
+        XCTAssertTrue(newGame.waitForExistence(timeout: 5))
+        newGame.tap()
+        XCTAssertTrue(app.navigationBars["Select Game"].waitForExistence(timeout: 5))
+        XCTAssertFalse(
+            app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Jianzi")).firstMatch.exists,
+            "Jianzi must be hidden in the English New Game dialog"
+        )
+        XCTAssertTrue(
+            app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Badminton")).firstMatch.exists,
+            "Badminton must stay selectable in the English New Game dialog"
+        )
+        let volleyballCell = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Volleyball")).firstMatch
+        XCTAssertTrue(scrollUntilExists(volleyballCell, in: app), "Volleyball must stay selectable in the dialog")
+        XCTAssertFalse(
+            app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Air Volleyball")).firstMatch.exists,
+            "Air Volleyball must be hidden in the English New Game dialog"
+        )
+        app.terminate()
+    }
+
+    func testBadmintonCardsDialogFitsContentInEnglish() {
+        let app = launchLocalizedApp(language: "en", locale: "en_US")
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        XCTAssertTrue(selectTab(named: "Score", in: app))
+        let badmintonCard = app.descendants(matching: .any)["scoreboard_catalog_badminton"]
+        XCTAssertTrue(scrollUntilExists(badmintonCard, in: app))
+        badmintonCard.tap()
+
+        let start = app.buttons["Start"]
+        if start.waitForExistence(timeout: 3), start.isHittable {
+            start.tap()
+        }
+        XCUIDevice.shared.orientation = .landscapeRight
+        Thread.sleep(forTimeInterval: 1.0)
+        XCTAssertTrue(
+            app.buttons["scoreboard_back_button"].waitForExistence(timeout: 8),
+            "Badminton scoreboard must reach the foreground"
+        )
+
+        let menuButton = app.buttons["scoreboard_menu_button"]
+        XCTAssertTrue(menuButton.waitForExistence(timeout: 5))
+        if menuButton.isHittable {
+            menuButton.tap()
+        } else {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.94)).tap()
+        }
+        let cardsItem = app.buttons["scoreboard_menu_action_bd_cards"]
+        XCTAssertTrue(cardsItem.waitForExistence(timeout: 3), "Cards menu item is missing")
+        cardsItem.tap()
+
+        // 初始未选选手态：提示列不得把弹窗撑满全屏（回归护栏：maxHeight .infinity 已移除）。
+        let hints = app.staticTexts.matching(NSPredicate(format: "label == %@", "Select a player"))
+        XCTAssertTrue(hints.firstMatch.waitForExistence(timeout: 3), "Cards dialog hint is missing")
+        var maxHeight: CGFloat = 0
+        for index in 0..<hints.count {
+            maxHeight = max(maxHeight, hints.element(boundBy: index).frame.height)
+        }
+        XCTAssertLessThan(
+            maxHeight,
+            app.frame.height * 0.3,
+            "Cards dialog stretched toward full height; it should fit its content"
+        )
+
+        XCUIDevice.shared.orientation = .portrait
+        app.terminate()
+    }
+
+    func testEnglishScoreTabLeadsWithTennisPickleballBadmintonPingpong() {
+        let app = launchLocalizedApp(language: "en", locale: "en_US")
+        XCTAssertTrue(waitForTabNavigationReady(in: app, timeout: 8))
+        XCTAssertTrue(selectTab(named: "Score", in: app))
+
+        // 英文 Score Tab 运动分区顺序：网球 → 匹克球 → 羽毛球 → 乒乓球（其余保持默认）。
+        var previousY: CGFloat = -1
+        var previousX: CGFloat = -1
+        for orderID in ["scoreboard_catalog_tennis", "scoreboard_catalog_pickleball",
+                        "scoreboard_catalog_badminton", "scoreboard_catalog_pingpong"] {
+            let card = app.descendants(matching: .any)[orderID]
+            XCTAssertTrue(scrollUntilExists(card, in: app), "\(orderID) missing from the English catalog")
+            let y = card.frame.minY
+            let x = card.frame.minX
+            XCTAssertTrue(
+                y > previousY || (y == previousY && x > previousX),
+                "\(orderID) is out of the expected English order"
+            )
+            previousY = y
+            previousX = x
+        }
+        app.terminate()
     }
 
     private func clearRecordFixtures() {
@@ -1878,5 +2067,183 @@ final class MainFlowUITests: XCTestCase {
         shot.name = name
         shot.lifetime = .keepAlways
         add(shot)
+    }
+}
+
+/// 修改头像入口链路：假登录态 → 头像相机徽标 → 来源选择（模拟器无相机只显示相册项）
+/// → 裁剪页可达并可取消。上传成功路径依赖真服务端，由真机手测覆盖。
+final class AvatarEditorUITests: XCTestCase {
+    private func launchSignedIn(_ app: XCUIApplication, extraArgs: [String] = []) {
+        app.launchArguments += [
+            "-AppleLanguages", "(en)",
+            "-AppleLocale", "en_US",
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
+            "-UITestFakeSession"
+        ]
+        app.launchArguments += extraArgs
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+    }
+
+    private func openProfile(in app: XCUIApplication) {
+        let meTab = app.tabBars.buttons["Me"]
+        XCTAssertTrue(meTab.waitForExistence(timeout: 10), "Me tab missing")
+        meTab.tap()
+
+        let accountEntry = app.descendants(matching: .any)["settings_account_entry"]
+        for _ in 0..<8 where !accountEntry.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(accountEntry.waitForExistence(timeout: 5), "Account entry missing")
+        accountEntry.tap()
+    }
+
+    func testAvatarBadgeAndSourceDialog() {
+        let app = XCUIApplication()
+        launchSignedIn(app)
+        defer { app.terminate() }
+        openProfile(in: app)
+
+        // 无审核状态时不应出现提示条（文案由 visibility 码客户端生成后新增的回归点）。
+        XCTAssertFalse(
+            app.descendants(matching: .any)["profile_moderation_banner"].exists,
+            "Moderation banner should be absent for a clean profile"
+        )
+
+        // 整个头像就是入口（原生 Menu 锚定在头像上，热区不再只有 22pt 角标）
+        let badge = app.buttons["profile_avatar_edit_button"]
+        XCTAssertTrue(badge.waitForExistence(timeout: 5), "Avatar tap target missing")
+        badge.tap()
+
+        // 原生 Menu 的行由系统渲染，identifier 不保证透传，按 launch-arg 锁定的英文文案断
+        let library = app.buttons["Choose from Library"]
+        XCTAssertTrue(library.waitForExistence(timeout: 5), "Choose from Library missing")
+        XCTAssertFalse(
+            app.buttons["Take Photo"].exists,
+            "Camera entry should be hidden when the device has no camera"
+        )
+        // 点屏幕下方空白处收起系统菜单
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9)).tap()
+        let dismissDeadline = Date().addingTimeInterval(3)
+        while library.exists && Date() < dismissDeadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        XCTAssertFalse(library.exists, "Menu should dismiss after tapping outside")
+        XCTAssertTrue(
+            app.buttons["profile_avatar_edit_button"].exists,
+            "Profile page should remain after closing the menu"
+        )
+    }
+
+    func testModerationBannerShowsClientDerivedAvatarText() {
+        let app = XCUIApplication()
+        launchSignedIn(app, extraArgs: ["-UITestFakeSessionReview"])
+        defer { app.terminate() }
+        openProfile(in: app)
+
+        let banner = app.descendants(matching: .any)["profile_moderation_banner"]
+        XCTAssertTrue(banner.waitForExistence(timeout: 5), "Moderation banner missing in review state")
+        // 语言被 launchArguments 锁定为 en，可直接断英文案（服务端旧文案是"审核中"）。
+        // 容器 identifier 把文案合并到本元素（runtime 为 UILabel），无 staticText 子节点可查。
+        XCTAssertTrue(
+            banner.label.contains("Avatar under review"),
+            "Banner text should be the client-derived avatar label"
+        )
+    }
+
+    func testAvatarCropSheetOpensAndCancels() {
+        let app = XCUIApplication()
+        launchSignedIn(app, extraArgs: ["-UITestAvatarCrop"])
+        defer { app.terminate() }
+        openProfile(in: app)
+
+        let cropRoot = app.descendants(matching: .any)["profile_avatar_crop_root"]
+        XCTAssertTrue(cropRoot.waitForExistence(timeout: 5), "Crop sheet did not present")
+
+        let confirm = app.buttons["profile_avatar_crop_confirm"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 3), "Crop confirm button missing")
+
+        app.buttons["profile_avatar_crop_cancel"].tap()
+        let deadline = Date().addingTimeInterval(3)
+        while cropRoot.exists && Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        XCTAssertFalse(cropRoot.exists, "Crop sheet should dismiss after cancel")
+        XCTAssertTrue(
+            app.buttons["profile_avatar_edit_button"].waitForExistence(timeout: 5),
+            "Profile page should remain after cancelling crop"
+        )
+    }
+
+    func testAvatarCropConfirmTriggersUploadAndDismisses() {
+        let app = XCUIApplication()
+        launchSignedIn(app, extraArgs: ["-UITestAvatarCrop"])
+        defer { app.terminate() }
+        openProfile(in: app)
+
+        let cropRoot = app.descendants(matching: .any)["profile_avatar_crop_root"]
+        XCTAssertTrue(cropRoot.waitForExistence(timeout: 5), "Crop sheet did not present")
+
+        // 假登录态没有 token：完成按钮会走真实上传链路并快速失败，
+        // 断言裁剪层收口、资料页未被打崩（toast 文案不做跨语言断言）。
+        app.buttons["profile_avatar_crop_confirm"].tap()
+        let deadline = Date().addingTimeInterval(5)
+        while cropRoot.exists && Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        XCTAssertFalse(cropRoot.exists, "Crop sheet should dismiss after confirm")
+        XCTAssertTrue(
+            app.buttons["profile_avatar_edit_button"].waitForExistence(timeout: 5),
+            "Profile page should survive the failed upload path"
+        )
+    }
+}
+
+/// 应用内网页的失败/离线兜底 UI（系统 SF Symbol + 文案 + 重试）。
+/// 真实断网在模拟器里不可稳定复现，用 -UITestWebFailOnce 强制渲染失败态。
+final class WebViewResilienceUITests: XCTestCase {
+    func testWebLoadFailurePanelAndRetryButton() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-AppleLanguages", "(en)",
+            "-AppleLocale", "en_US",
+            "-UITestSkipLegalConsent",
+            "-UITestSkipScoreboardUsageHints",
+            "-UITestWebFailOnce"
+        ]
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        defer { app.terminate() }
+
+        app.tabBars.buttons["Me"].tap()
+        let aboutEntry = app.descendants(matching: .any)["settings_about_entry"]
+        for _ in 0..<8 where !aboutEntry.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(aboutEntry.waitForExistence(timeout: 5), "About entry missing")
+        aboutEntry.tap()
+
+        let termsLink = app.buttons["settings_about_terms_link"]
+        XCTAssertTrue(termsLink.waitForExistence(timeout: 5), "About page terms link missing")
+        termsLink.tap()
+
+        let webPage = app.descendants(matching: .any)["in_app_web_page"]
+        XCTAssertTrue(webPage.waitForExistence(timeout: 8), "In-app web page did not open")
+
+        // 覆盖层与 WKWebView 同层：SwiftUI 容器上的 identifier 不会被 XCUITest 透出，
+        // 故文案按可见文字断言、按钮按控件自身 identifier 断言。语言由 launchArguments 锁定为 en。
+        let message = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS 'Failed to load'")
+        ).firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 8), "Failure message missing in simulated offline load")
+        let retry = app.buttons["web_load_retry_button"]
+        XCTAssertTrue(retry.waitForExistence(timeout: 3), "Retry button missing")
+        XCTAssertTrue(retry.isHittable, "Retry button not hittable — panel is not frontmost")
+        retry.tap()
+        XCTAssertTrue(
+            message.waitForExistence(timeout: 3),
+            "Simulated failure should persist after tapping retry"
+        )
     }
 }

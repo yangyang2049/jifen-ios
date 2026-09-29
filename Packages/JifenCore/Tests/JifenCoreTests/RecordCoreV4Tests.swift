@@ -41,4 +41,30 @@ final class RecordCoreV4Tests: XCTestCase {
         let decoded = try JSONDecoder().decode(DetailedScoreAction.self, from: JSONEncoder().encode(action))
         XCTAssertNil(decoded.epochMilliseconds)
     }
+
+    /// Android/HarmonyOS name the football goal-clock fields verbatim, so a
+    /// foreign payload must decode into them and survive re-encoding.
+    func testFootballGoalClockFieldsSurviveForeignPayloadRoundTrip() throws {
+        let payload = """
+        [{"id":"3F16A4E4-8F3B-4C2A-9E6B-3B7C1D4E5F60","type":"scoreChanged","team":"team1",
+          "scores":[1,0],"setScores":[],"participants":[],
+          "scoreChange":1,"footballPeriod":2,"footballElapsedSeconds":480}]
+        """
+        let actions = try JSONDecoder().decode([DetailedScoreAction].self, from: Data(payload.utf8))
+        XCTAssertEqual(actions.first?.footballPeriod, 2)
+        XCTAssertEqual(actions.first?.footballElapsedSeconds, 480)
+
+        let reEncoded = try JSONDecoder().decode(
+            [DetailedScoreAction].self,
+            from: JSONEncoder().encode(actions)
+        )
+        XCTAssertEqual(reEncoded, actions)
+
+        let legacy = try JSONDecoder().decode(
+            [DetailedScoreAction].self,
+            from: Data(#"[{"id":"3F16A4E4-8F3B-4C2A-9E6B-3B7C1D4E5F60","type":"scoreChanged","scores":[1,0],"setScores":[],"participants":[]}]"#.utf8)
+        )
+        XCTAssertNil(legacy.first?.footballPeriod)
+        XCTAssertNil(legacy.first?.footballElapsedSeconds)
+    }
 }

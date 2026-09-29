@@ -118,8 +118,7 @@ struct ToolCardView: View {
                 Text(tool.title)
                     .font(.system(size: Theme.fontBody2))
                     .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .gridCardTitleStyle()
             }
             .padding(.vertical, Theme.cardPadding)
             .frame(maxWidth: .infinity)

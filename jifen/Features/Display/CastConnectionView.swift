@@ -323,7 +323,8 @@ struct CastConnectionView: View {
 // MARK: - 等待态雷达波纹（鸿蒙 CastEntryPanel.buildRippleRing）
 
 private let castRippleBaseSize: CGFloat = 40
-private let castRippleStartScale: CGFloat = 0.75
+// 起始 40×1.15=46，包住中间图标不压角（对齐安卓 RIPPLE_START_SCALE）；40×2.7=108，不超出 112 画布。
+private let castRippleStartScale: CGFloat = 1.15
 private let castRippleEndScale: CGFloat = 2.7
 private let castRippleDuration: Double = 2.4
 private let castRippleStagger: Double = 0.8

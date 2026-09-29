@@ -79,7 +79,9 @@ extension ScoreboardDisplayRest {
             sport: state.sport.rawValue,
             afterAction: state.afterAction.rawValue,
             subjectName: state.subjectName,
-            title: state.title
+            title: state.title,
+            countUp: state.countUp ? true : nil,
+            elapsedSeconds: state.countUp ? state.elapsedSeconds : nil
         )
     }
 }

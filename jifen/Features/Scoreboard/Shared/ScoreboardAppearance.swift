@@ -1927,7 +1927,10 @@ enum OfficialBreakOverlayPresentation {
         return localizedKind
     }
 
-    static func showsUndo(for _: OfficialBreakState) -> Bool { true }
+    static func showsUndo(for state: OfficialBreakState) -> Bool {
+        // 对齐安卓：医疗中断（正计时）期间工具栏撤销不可用，胶囊上也不提供撤销。
+        !state.countUp
+    }
 }
 
 struct OfficialBreakOverlay: View {
@@ -1993,7 +1996,11 @@ struct OfficialBreakOverlay: View {
                         .multilineTextAlignment(.center)
                 }
             }
-            Text(String(format: "%02d:%02d", state.remainingSeconds / 60, state.remainingSeconds % 60))
+            // 正计时（医疗中断）从 00:00 起显示已用时长；倒计时显示剩余时间。
+            let clockText = state.countUp
+                ? String(format: "%02d:%02d", state.elapsedSeconds / 60, state.elapsedSeconds % 60)
+                : String(format: "%02d:%02d", state.remainingSeconds / 60, state.remainingSeconds % 60)
+            Text(clockText)
                 .font(.system(size: 44, weight: .bold, design: .monospaced))
                 .foregroundColor(Color(red: 0x31 / 255, green: 0xD1 / 255, blue: 0x58 / 255))
             HStack(spacing: 8) {

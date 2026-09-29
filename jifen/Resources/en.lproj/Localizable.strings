@@ -133,7 +133,7 @@
 "timer_action_game_end_winner_format" = "Game ended, %@ wins";
 "cube_timer_release_to_start" = "Release hands to start timing";
 "cube_timer_place_hands" = "Place both hands on screen to prepare";
-"cube_timer_no_touchscreen_hint" = "💡 No touchscreen available, works on phones and tablets";
+"cube_timer_no_touchscreen_hint" = "💡 A touchscreen is required. Use a phone or tablet.";
 "click_again_to_exit" = "Tap again to exit";
 "tap_again_to_exit" = "Tap again to exit";
 "seconds_short" = "s";
@@ -157,6 +157,12 @@
 "shot_training_finish" = "Finish Training";
 "shot_training_undo_done" = "Last shot undone";
 "shot_training_share" = "Shot training: %d made of %d, %d%% accuracy, %d points";
+"shot_training_free_made_format" = "%d pt made";
+"shot_training_free_miss_format" = "%d pt miss";
+
+/* Shot training record action lines (cross-end machine token wording) */
+"record_training_shot" = "%1$d pt %2$@";
+"record_training_end_rate" = "Training finished · %1$d%% accuracy";
 "game_football" = "Football";
 "game_volleyball" = "Volleyball";
 "game_checkers" = "Chinese Checkers";
@@ -216,15 +222,15 @@
 "pingpong_set_option_best_of_7" = "Best of 7";
 "tennis_set_option_best_of_3" = "Best of 3";
 "tennis_set_option_best_of_5" = "Best of 5";
-"tennis_tiebreak_option_7" = "7-Point Tiebreak";
-"tennis_tiebreak_option_10" = "10-Point Tiebreak";
+"tennis_tiebreak_option_7" = "Tiebreak to 7";
+"tennis_tiebreak_option_10" = "Tiebreak to 10";
 "tennis_scoring_mode_regular" = "Standard";
-"tennis_scoring_mode_tiebreak_7" = "7-Point Tiebreak";
-"tennis_scoring_mode_tiebreak_10" = "10-Point Tiebreak";
+"tennis_scoring_mode_tiebreak_7" = "Tiebreak to 7";
+"tennis_scoring_mode_tiebreak_10" = "Tiebreak to 10";
 "tennis_games_per_set_4" = "4-game set";
 "tennis_games_per_set_6" = "6-game set";
-"tennis_format_tiebreak_7" = "7-Point Tiebreak";
-"tennis_format_tiebreak_10" = "10-Point Tiebreak";
+"tennis_format_tiebreak_7" = "Tiebreak to 7";
+"tennis_format_tiebreak_10" = "Tiebreak to 10";
 "tennis_short_set_help" = "First to 4 games by two; at 4-4, play a 7-point tiebreak";
 "pingpong_set_option_best_of_1" = "Best of 1";
 "tennis_set_option_best_of_1" = "Best of 1";
@@ -249,9 +255,6 @@
 "game_ended" = "Game Ended";
 
 /* Time Formats */
-"minutes_ago" = "%d minutes ago";
-"hours_ago" = "%d hours ago";
-"days_ago" = "%d days ago";
 "today" = "Today";
 "yesterday" = "Yesterday";
 
@@ -291,6 +294,7 @@
 "screenshot_saved" = "Screenshot saved";
 "open_settings" = "Settings";
 "retry" = "Retry";
+"web_load_failed" = "Failed to load the page. Check your network and try again.";
 "save_failed" = "Save failed: %@";
 
 /* Set/Game End Messages */
@@ -745,7 +749,6 @@
 "voice_announcement" = "Voice Announcement";
 "sound_effects_help_title" = "Sound Effects";
 "sound_effects_help_message" = "Controls tool sounds such as dice rolls, coin flips and countdown alerts. Turn off to mute them.";
-"sports_setup_match_features" = "Match Features";
 "pickleball_target_score" = "Target Score";
 "pickleball_score_cap" = "Score Cap";
 "pickleball_no_cap" = "None";
@@ -864,8 +867,8 @@
 "game_three_basketball" = "3x3 Basketball";
 "game_beach_volleyball" = "Beach Volleyball";
 "game_air_volleyball" = "Air Volleyball";
-"game_eight_ball" = "Eight Ball";
-"game_nine_ball" = "Chase Points";
+"game_eight_ball" = "8-Ball Chase";
+"game_nine_ball" = "9-Ball Chase";
 "game_snooker" = "Snooker";
 "game_shengji" = "Shengji";
 "game_uno" = "UNO";
@@ -921,9 +924,9 @@
 "nine_ball_small_gold" = "Small Gold";
 "nine_ball_golden_nine" = "Golden Nine";
 "nine_ball_normal_win" = "Normal Win";
-"nine_ball_decrease_points" = "Decrease %@ points";
+"nine_ball_decrease_points" = "Decrease the point value for %@";
 "nine_ball_current_points" = "%@ current points: %d";
-"nine_ball_increase_points" = "Increase %@ points";
+"nine_ball_increase_points" = "Increase the point value for %@";
 "nine_ball_ball_in_hand" = "Ball in Hand";
 "nine_ball_foul" = "Foul";
 "chase_chalk_big" = "B";
@@ -1011,6 +1014,18 @@
 "scoreboard_usage_hint_double_tap_rack" = "👆 Double-tap same side to subtract 1 rack";
 "scoreboard_usage_hint_double_tap_player" = "👆 Double-tap same player to subtract 1";
 "scoreboard_usage_hint_touch_guard" = "🛡️ Touch guard: tap the large score area";
+"scoreboard_usage_hint_anim_tap_title" = "Tap the score side to add a point";
+"scoreboard_usage_hint_anim_tap_caption" = "Tap the left or right score area to add 1 for that side; the green triangle marks the server";
+"scoreboard_usage_hint_anim_swipe_title" = "Swipe to fine-tune";
+"scoreboard_usage_hint_anim_swipe_caption" = "Swipe up to add, down to subtract, left to undo the last step";
+"scoreboard_usage_hint_anim_double_tap_title" = "Double-tap to subtract";
+"scoreboard_usage_hint_anim_touch_guard_title" = "Touch guard";
+"scoreboard_usage_hint_anim_auto_title" = "Automatic sets and game point";
+"scoreboard_usage_hint_anim_auto_caption" = "Badminton rules decide sets, game point and the match automatically — no manual bookkeeping";
+"scoreboard_usage_hint_anim_match_point" = "Game point";
+"scoreboard_usage_hint_anim_guard_ignored" = "Rapid taps ignored";
+"common_previous" = "Previous";
+"common_next" = "Next";
 "multi_score_portrait" = "Portrait";
 "multi_score_landscape" = "Landscape";
 "settle_match" = "Settle";
@@ -1091,7 +1106,7 @@
 "game_type_filter" = "Game Type";
 "menu" = "Menu";
 "menu_end_game" = "End Match";
-"nine_ball_foul_opponent_points" = "Opponent +%d";
+"nine_ball_foul_opponent_points" = "Opp +%d";
 "record" = "Record";
 "record_detail" = "Record Details";
 "record_empty" = "No Records";
@@ -1186,6 +1201,22 @@
 "record_tt_timeout" = "%@ Timeout";
 "record_tt_medical" = "%@ Medical Timeout";
 "record_tt_forfeit" = "%@ Forfeit";
+/* Badminton misconduct (yellow/red cards, disqualification) + medical break */
+"record_bd_yellow" = "%@ yellow card";
+"record_bd_red" = "%@ red card (opponent +1)";
+"record_bd_disqualify" = "%@ disqualified";
+"badminton_card_yellow" = "Yellow";
+"badminton_card_red" = "Red";
+"badminton_card_disqualify" = "Disqualify";
+"badminton_action_red" = "Show red card";
+"badminton_action_disqualify" = "Disqualify";
+"tt_action_yellow" = "Show yellow card";
+"bd_select_kind_hint" = "Select a penalty";
+"tt_select_side_hint" = "Select a player";
+"tt_penalty_opponent_plus_one" = "Opponent +1";
+"tt_forfeit_confirm_message" = "Award the match to the opponent? %@ will lose the entire match.";
+"tt_forfeit_confirm_button" = "Confirm forfeit";
+"medical_break" = "Medical break";
 "player" = "Player";
 "scoreboard_usage_hint_shuttlecock" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Team Jianzi scoring follows the selected target and set rules";
 "scoreboard_usage_hint_squash" = "👆 Tap left/right score area to add\n⬆️ Swipe up to add\n⬇️ Swipe down to subtract\n↩️ Swipe left to undo\n🏁 Squash uses best-of-five games with two-point advantage";
@@ -1479,6 +1510,16 @@
 "me_profile_nickname_cooldown" = "You recently changed your nickname. You can change it again after %@.";
 "me_profile_nickname_cooldown_generic" = "You recently changed your nickname. Please try again in a moment.";
 "me_profile_nickname_review_submitted" = "Nickname submitted for review and is visible only to you for now.";
+"me_profile_name_under_review" = "Nickname under review";
+"me_profile_avatar_under_review" = "Avatar under review";
+"me_profile_avatar_source_title" = "Change Avatar";
+"me_profile_avatar_source_camera" = "Take Photo";
+"me_profile_avatar_source_library" = "Choose from Library";
+"me_profile_avatar_crop_title" = "Adjust Avatar";
+"me_profile_avatar_crop_confirm" = "Done";
+"me_profile_avatar_update_success" = "Avatar updated";
+"me_profile_avatar_review_submitted" = "Avatar submitted for review and is visible only to you for now.";
+"me_profile_avatar_upload_failed" = "Couldn't upload the avatar. Please try again later.";
 "membership_purchase_success_signed_out" = "Purchase successful. Your membership is active on this device; sign in to sync it to your other devices";
 "membership_purchase_success" = "Purchase successful. Membership updated.";
 "membership_purchase_pending" = "Purchase pending confirmation. Membership updates automatically once confirmed.";

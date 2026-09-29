@@ -1,0 +1,102 @@
+{
+  "code": "zh-Hans",
+  "htmlLang": "zh-CN",
+  "dir": "ltr",
+  "eyebrow": "全能计分器",
+  "fonts": "\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif",
+  "headlineFont": "\"YouSheBiaoTiHei\",\"Noto Sans SC\",\"PingFang SC\",sans-serif",
+  "headlineStyle": "normal",
+  "headlineWeight": "normal",
+  "headlineSize": 106,
+  "headlineLineHeight": 1.16,
+  "headlineTracking": "0px",
+  "heroSkew": "0deg",
+  "subSize": 48,
+  "cards": [
+    {
+      "id": "score",
+      "layout": "hero",
+      "panel": "#C62828",
+      "circle": "#A81F1F",
+      "panelLeft": 216,
+      "panelTop": 980,
+      "panelWidth": 1300,
+      "panelHeight": 1150,
+      "name": "红方",
+      "score": "3",
+      "sub": "0",
+      "icons": "left",
+      "title": "比赛计分\n一屏看清"
+    },
+    {
+      "id": "catalog",
+      "layout": "hero",
+      "panel": "#007AFF",
+      "circle": "#0063CC",
+      "panelLeft": -196,
+      "panelTop": 980,
+      "panelWidth": 1300,
+      "panelHeight": 1150,
+      "name": "蓝方",
+      "score": "2",
+      "sub": "0",
+      "icons": "right",
+      "serve": true,
+      "title": "26+ 运动项目\n打开就能计"
+    },
+    {
+      "id": "recap",
+      "image": "record_detail.png",
+      "layout": "phone",
+      "title": "赛后复盘\n进步看得见",
+      "sub": "比分趋势、时间线、语音笔记都在"
+    },
+    {
+      "id": "setup",
+      "image": "badminton_setup.png",
+      "layout": "phone",
+      "title": "规则你说了算\n怎么打都能计",
+      "sub": "局数、分制、双打发球顺序，全都能自定义"
+    },
+    {
+      "id": "timer",
+      "layout": "collage",
+      "tiles": ["chess.png", "go_timer.png", "uno_live.png", "multi_live.png", "snooker.png", "volleyball.png"],
+      "title": "不只球类\n计时同样在行",
+      "sub": "围棋、象棋、魔方、秒表，各有顺手的工具"
+    },
+    {
+      "id": "cast",
+      "layout": "cast",
+      "title": "投上电视\n全场都看得清",
+      "sub": "生成口令码，亲友远程同步看比分",
+      "name": "主队",
+      "name2": "客队",
+      "score": "71",
+      "score2": "68",
+      "time": "09:40",
+      "image": "basketball.png",
+      "periodBadge": "第 4 节",
+      "foulLabel": "犯规",
+      "clockPauseLabel": "暂停",
+      "period": "4",
+      "periodSuffix": "节",
+      "shotClock": "24"
+    },
+    {
+      "id": "watch",
+      "image": "watch.png",
+      "layout": "phone",
+      "title": "抬腕就能计分",
+      "sub": "Apple Watch 上记分，数据自动回传 iPhone"
+    },
+    {
+      "id": "tools",
+      "image": "tools.png",
+      "layout": "phone",
+      "title": "裁判小工具\n一应俱全",
+      "sub": "抛硬币 · 随机分队 · 红黄牌 · AA 记账"
+    }
+  ],
+  "scoreWeight": 400
+}

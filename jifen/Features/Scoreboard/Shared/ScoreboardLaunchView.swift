@@ -382,6 +382,7 @@ struct ScoreboardLaunchView: View {
             } else if let usageHintCoordinator, usageHintIsPresented {
                 ScoreboardUsageHintDialog(
                     descriptor: usageHintCoordinator.descriptor,
+                    alreadyShown: usageHintCoordinator.alreadyShown,
                     onDismiss: dismissUsageHint
                 )
                 .zIndex(10_000)

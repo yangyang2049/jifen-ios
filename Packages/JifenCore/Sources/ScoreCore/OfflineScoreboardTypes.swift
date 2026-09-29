@@ -124,6 +124,11 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
     public var startedWallClockMilliseconds: Int64
     public var updatedWallClockMilliseconds: Int64
     public var afterAction: OfficialBreakAfterAction
+    /// 正计时模式（羽毛球医疗中断）：无固定时长，从 00:00 起正计时，
+    /// 永不自动结束，只能手动「继续」收尾。对齐安卓 OfficialBreakSpec(countUp=true)。
+    public var countUp: Bool
+    /// 正计时已用秒数；倒计时模式恒为 0。
+    public var elapsedSeconds: Int
     /// Raw team/person name. Receivers localize `kind` and compose the heading.
     public var subjectName: String?
     /// Optional project-specific heading, for example “暂停 · 张三”.
@@ -137,14 +142,18 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
         afterAction: OfficialBreakAfterAction = .none,
         subjectName: String? = nil,
         title: String? = nil,
-        nowMilliseconds: Int64 = 0
+        nowMilliseconds: Int64 = 0,
+        countUp: Bool = false
     ) {
         self.sport = sport
         self.kind = kind
         self.source = source
         self.phase = .countdown
-        self.durationSeconds = max(1, durationSeconds)
-        self.remainingSeconds = max(1, durationSeconds)
+        self.countUp = countUp
+        // 正计时不设时长上限，remaining 恒为 0（不做 max(1,) 钳制）。
+        self.durationSeconds = countUp ? 0 : max(1, durationSeconds)
+        self.remainingSeconds = countUp ? 0 : max(1, durationSeconds)
+        self.elapsedSeconds = 0
         self.isRunning = true
         self.startedWallClockMilliseconds = max(0, nowMilliseconds)
         self.updatedWallClockMilliseconds = max(0, nowMilliseconds)
@@ -158,6 +167,7 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case sport, kind, source, phase, durationSeconds, remainingSeconds
         case isRunning, startedWallClockMilliseconds, updatedWallClockMilliseconds
+        case countUp, elapsedSeconds
         case afterAction, subjectName, title
     }
 
@@ -177,6 +187,9 @@ public struct OfficialBreakState: Codable, Equatable, Sendable {
         isRunning = try container.decode(Bool.self, forKey: .isRunning)
         startedWallClockMilliseconds = try container.decode(Int64.self, forKey: .startedWallClockMilliseconds)
         updatedWallClockMilliseconds = try container.decode(Int64.self, forKey: .updatedWallClockMilliseconds)
+        // 正计时的两个键均为后加：旧快照缺省为倒计时。
+        countUp = try container.decodeIfPresent(Bool.self, forKey: .countUp) ?? false
+        elapsedSeconds = try container.decodeIfPresent(Int.self, forKey: .elapsedSeconds) ?? 0
         afterAction = try container.decode(OfficialBreakAfterAction.self, forKey: .afterAction)
         subjectName = try container.decodeIfPresent(String.self, forKey: .subjectName)
         title = try container.decodeIfPresent(String.self, forKey: .title)
@@ -210,7 +223,8 @@ public struct OfficialBreakSession: Sendable {
         afterAction: OfficialBreakAfterAction = .none,
         subjectName: String? = nil,
         title: String? = nil,
-        nowMilliseconds: Int64 = 0
+        nowMilliseconds: Int64 = 0,
+        countUp: Bool = false
     ) {
         history.append(state)
         state = OfficialBreakState(
@@ -221,7 +235,8 @@ public struct OfficialBreakSession: Sendable {
             afterAction: afterAction,
             subjectName: subjectName,
             title: title,
-            nowMilliseconds: nowMilliseconds
+            nowMilliseconds: nowMilliseconds,
+            countUp: countUp
         )
     }
 
@@ -231,6 +246,13 @@ public struct OfficialBreakSession: Sendable {
     public mutating func advance(seconds: Int) -> Bool {
         guard seconds > 0, var current = state, current.isRunning else {
             return state?.isRunning == false
+        }
+        // 正计时（医疗中断）：只累计已用时长，永不自动结束，仅能手动「继续」收尾。
+        if current.countUp {
+            current.elapsedSeconds += seconds
+            current.phase = .countdown
+            state = current
+            return false
         }
         // Android 3.1 includes the final three-second preparation phase in the
         // advertised break duration instead of appending another three seconds.

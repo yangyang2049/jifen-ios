@@ -430,7 +430,10 @@ struct RecordsTab: View {
                 .font(.system(size: Theme.fontBody1, weight: .medium))
                 .foregroundColor(Theme.textSecondary)
             Spacer()
-            Text(String(format: NSLocalizedString("match_count", value: "%d 场", comment: "Match count"), count))
+            Text(String.localizedStringWithFormat(
+                NSLocalizedString("match_count", value: "%d 场", comment: "Match count"),
+                count
+            ))
                 .font(.system(size: Theme.fontCaption))
                 .foregroundColor(Theme.textSecondary)
         }

@@ -262,19 +262,7 @@ struct ScoreboardRecordDetailPage: View {
                         isWinner: record.resolvedWinnerRecordTeam == .team2
                     )
                 }
-                if record.status == .finished && record.displayParticipants.isEmpty {
-                    HStack {
-                        Spacer()
-                        Button { openScoreCorrection(record) } label: {
-                            Label(
-                                NSLocalizedString("record_score_correction", value: "纠错", comment: ""),
-                                systemImage: "pencil.line"
-                            )
-                            .font(.footnote)
-                        }
-                        .buttonStyle(.borderless)
-                    }
-                }
+                // Hide score correction until validation and correction history are fully designed.
             }
             if let format = recordFormatDescription(record) {
                 Text(format)
@@ -823,6 +811,10 @@ struct ScoreboardRecordDetailPage: View {
         let sideName: String? = {
             switch action.team { case .team1: return record.team1Name; case .team2: return record.team2Name; default: return nil }
         }()
+        if record.gameType == .basketballTraining,
+           let trainingTitle = ScoreboardRecordActionTitlePolicy.shotTrainingTitle(operationCode: action.operationCode) {
+            return trainingTitle
+        }
         if let title = ScoreboardRecordActionTitlePolicy.tableTennisAdministrativeTitle(
             operationCode: action.operationCode,
             teamName: sideName
@@ -980,7 +972,7 @@ struct ScoreboardRecordDetailPage: View {
         let data = record.mergedProjectConfiguration
         let maxSets = intValue(data["maxSets"]) ?? 3
         if stringValue(data["matchCompletionMode"]) == "play_all" {
-            return String(format: NSLocalizedString("record_format_sets_play_all_tennis", comment: ""), maxSets)
+            return String.localizedStringWithFormat(NSLocalizedString("record_format_sets_play_all_tennis", comment: ""), maxSets)
         }
         switch maxSets {
         case 1: return NSLocalizedString("tennis_set_option_best_of_1", comment: "")
@@ -998,8 +990,8 @@ struct ScoreboardRecordDetailPage: View {
         let defaultPoints = record.gameType == .pingpong ? 11 : 21
         let points = intValue(data["pointsPerSet"]) ?? defaultPoints
         let sets = genericSetsLabel(maxSets: maxSets, completionMode: stringValue(data["matchCompletionMode"]))
-        let pointsLabel = String(
-            format: NSLocalizedString("record_format_points_per_set", comment: ""),
+        let pointsLabel = String.localizedStringWithFormat(
+            NSLocalizedString("record_format_points_per_set", comment: ""),
             points
         )
         return "\(sets) · \(pointsLabel)"
@@ -1011,8 +1003,8 @@ struct ScoreboardRecordDetailPage: View {
         let maxSets = intValue(data["maxSets"]) ?? 3
         let targetScore = intValue(data["targetScore"]) ?? 11
         let sets = genericSetsLabel(maxSets: maxSets, completionMode: stringValue(data["matchCompletionMode"]))
-        let scoreLabel = String(
-            format: NSLocalizedString("record_format_pickleball_score", comment: ""),
+        let scoreLabel = String.localizedStringWithFormat(
+            NSLocalizedString("record_format_pickleball_score", comment: ""),
             targetScore
         )
         return "\(sets) · \(scoreLabel)"
@@ -1020,7 +1012,7 @@ struct ScoreboardRecordDetailPage: View {
 
     private func genericSetsLabel(maxSets: Int, completionMode: String?) -> String {
         if completionMode == "play_all" {
-            return String(format: NSLocalizedString("record_format_sets_play_all", comment: ""), maxSets)
+            return String.localizedStringWithFormat(NSLocalizedString("record_format_sets_play_all", comment: ""), maxSets)
         }
         switch maxSets {
         case 1: return NSLocalizedString("pingpong_set_option_best_of_1", comment: "")

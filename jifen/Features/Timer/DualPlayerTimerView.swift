@@ -574,8 +574,8 @@ struct DualPlayerTimerView: View {
         switch config.timeMode {
         case .byoyomi:
             if clock.inByoyomi {
-                Text(String(
-                    format: NSLocalizedString("timer_byoyomi_periods_format", value: "读秒 %d 次", comment: ""),
+                Text(String.localizedStringWithFormat(
+                    NSLocalizedString("timer_byoyomi_periods_format", value: "读秒 %d 次", comment: ""),
                     max(0, clock.byoyomiPeriodsRemaining)
                 ))
                 .font(.system(size: 42, weight: .medium))

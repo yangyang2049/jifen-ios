@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "literal_terms": [
+    "iScoreboard",
+    "Apple",
+    "App Store",
+    "StoreKit",
+    "AirPlay",
+    "Miracast",
+    "QR",
+    "VIP"
+  ],
+  "fixed_localizable_values": {
+    "app_name": "iScoreboard",
+    "points_table_team_suffix": "",
+    "about_company_zh": "重庆豆花科技有限公司",
+    "timer_role_red": "帅",
+    "timer_role_black": "将"
+  },
+  "fixed_info_plist_values": {
+    "CFBundleDisplayName": "iScoreboard"
+  },
+  "critical_key_prefixes": [
+    "account_",
+    "apple_",
+    "login_",
+    "membership_",
+    "vip_",
+    "privacy_",
+    "terms_",
+    "network_",
+    "sync_",
+    "scoreboard_",
+    "timer_",
+    "game_",
+    "record_",
+    "feedback_",
+    "cast_",
+    "airplay_"
+  ]
+}

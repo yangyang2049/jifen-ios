@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  jifen
+
+  Localized privacy permission descriptions
+*/
+
+"NSPhotoLibraryAddUsageDescription" = "L’accès à votre photothèque est nécessaire pour enregistrer les captures d’écran du tableau de score.";
+"CFBundleDisplayName" = "iScoreboard";
+"NSCameraUsageDescription" = "La caméra sert à numériser les codes QR de connexion fiables et à prendre une photo de profil.";
+"NSMicrophoneUsageDescription" = "Le microphone est utilisé pour enregistrer des notes vocales.";

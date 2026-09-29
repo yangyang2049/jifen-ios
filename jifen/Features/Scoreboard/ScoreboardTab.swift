@@ -249,9 +249,9 @@ struct SportCardView: View {
                 Text(sport.title)
                     .font(.system(size: Theme.fontBody2))
                     .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .gridCardTitleStyle()
             }
+            .padding(.horizontal, 6)
             .padding(.vertical, Theme.cardPadding)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 92)

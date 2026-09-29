@@ -25,13 +25,6 @@ struct TimerTab: View {
 
     private static let dualTimerDestinations: Set<TimerDestination> = Set(GameCatalog.timerAllItems.filter { $0.requiresDualSetup })
 
-    private var boardGameItems: [TimerDestination] {
-        if Bundle.main.preferredLocalizations.first?.hasPrefix("en") == true {
-            return [.chess, .checkers, .go, .xiangqi]
-        }
-        return GameCatalog.timerBoardGameItems
-    }
-
     var body: some View {
         NavigationStack {
             let usesPadLayout = Theme.usesPadLayout
@@ -46,7 +39,7 @@ struct TimerTab: View {
                     VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
                         timerSectionGroup(
                             title: NSLocalizedString("timer_section_board_games", value: "棋类", comment: ""),
-                            items: boardGameItems,
+                            items: GameCatalog.timerBoardGameItems,
                             availableWidth: availableWidth,
                             usesPadLayout: usesPadLayout
                         )
@@ -168,12 +161,12 @@ struct TimerTab: View {
                             Text(dest.title)
                                 .font(.system(size: Theme.fontBody2))
                                 .foregroundColor(Theme.textPrimary)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
+                                .gridCardTitleStyle()
                             if dest == .stopwatch, stopwatchState.phase != .idle {
                                 stopwatchSummary
                             }
                         }
+                        .padding(.horizontal, 6)
                         .padding(.vertical, Theme.cardPadding)
                         .frame(maxWidth: .infinity)
                         .frame(minHeight: 92)

@@ -1,0 +1,3 @@
+# Optional provider used only by `localize.py sample-google`.
+# Azure uses Python's standard library and needs no SDK package.
+googletrans==4.0.2

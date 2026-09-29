@@ -57,6 +57,8 @@ public enum RallyNextSetServerModel: String, Codable, Sendable {
 public enum RallySportProfile: String, Codable, Sendable {
     case generic
     case pickleball
+    /// 羽毛球：判罚（红黄牌/取消资格）通道按安卓 bd_* 语义挂在 badminton profile 下。
+    case badminton
 }
 
 public struct RallyRuleSet: Codable, Equatable, Sendable {
@@ -248,7 +250,8 @@ public struct RallyRuleSet: Codable, Equatable, Sendable {
             pointsToWinSet: 21,
             pointCap: badmintonPointCap(for: 21),
             decidingSetSideSwitchPoint: decidingSetSideSwitchPoint(for: .badminton, pointsPerSet: 21),
-            matchCompletionMode: matchCompletionMode
+            matchCompletionMode: matchCompletionMode,
+            sportProfile: .badminton
         )
     }
 
@@ -327,7 +330,10 @@ public struct RallyMatchState: Codable, Equatable, Sendable {
     public var pingPongAdministrativeActions: [PingPongAdministrativeAction]?
     /// The penalized side when the referee confirms a loss after two red cards.
     /// Optional so snapshots written before this rule was introduced still decode.
+    /// 羽毛球取消资格复用同一字段（对齐安卓 TableTennisForfeit 共用 forfeit 记录）。
     public var pingPongForfeitSide: MatchSide?
+    /// 羽毛球判罚记录（红黄牌/取消资格）。可选让旧快照解码不变。
+    public var badmintonMisconductActions: [BadmintonMisconductAction]?
     /// New-sport setup metadata kept in the local snapshot so team formats
     /// and names survive draft recovery and record restart.
     public var competitionFormat: CompetitionFormat?
@@ -394,6 +400,42 @@ public enum PingPongPenaltyStage: String, Codable, Equatable, Sendable {
     }
 }
 
+/// 羽毛球判罚档位。rawValue 逐字对齐安卓 `S1DualSideSessionViewModel` 的
+/// bd_yellow / bd_red / bd_disqualify，保证跨端记录与投屏互通。
+public enum BadmintonMisconductKind: String, Codable, Equatable, Sendable {
+    /// 黄牌：仅记录，不加分。
+    case yellow = "bd_yellow"
+    /// 红牌：判给对方 1 分（罚分被引擎吞掉时不落牌）。
+    case red = "bd_red"
+    /// 取消资格：判负完赛，胜方由判负事件推导。
+    case disqualify = "bd_disqualify"
+}
+
+public struct BadmintonMisconductAction: Codable, Equatable, Sendable, Identifiable {
+    public let id: UUID
+    public let kind: BadmintonMisconductKind
+    public let side: MatchSide
+    public let epochMilliseconds: Int64
+
+    public init(
+        id: UUID = UUID(),
+        kind: BadmintonMisconductKind,
+        side: MatchSide,
+        epochMilliseconds: Int64
+    ) {
+        self.id = id
+        self.kind = kind
+        self.side = side
+        self.epochMilliseconds = epochMilliseconds
+    }
+}
+
+public struct BadmintonMisconductStatus: Equatable, Sendable {
+    public let yellowCount: Int
+    public let redCount: Int
+    public let disqualified: Bool
+}
+
 public extension RallyMatchState {
     func pingPongAdministrativeStatus(for side: MatchSide) -> PingPongAdministrativeStatus {
         let actions = (pingPongAdministrativeActions ?? []).filter { $0.side == side }
@@ -413,6 +455,17 @@ public extension RallyMatchState {
         if status.redCardCount == 1 { return .secondRed }
         if status.hasYellowCard { return .firstRed }
         return .yellow
+    }
+
+    /// 羽毛球判罚状态：黄牌累计张数、红牌张数、是否已被取消资格。
+    /// 对齐安卓 resolveBadmintonMarkerStates（黄/红不设上限钳制，由 UI 决定展示）。
+    func badmintonMisconductStatus(for side: MatchSide) -> BadmintonMisconductStatus {
+        let actions = (badmintonMisconductActions ?? []).filter { $0.side == side }
+        return BadmintonMisconductStatus(
+            yellowCount: actions.filter { $0.kind == .yellow }.count,
+            redCount: actions.filter { $0.kind == .red }.count,
+            disqualified: actions.contains { $0.kind == .disqualify }
+        )
     }
 }
 
@@ -462,6 +515,8 @@ public enum RallyMatchIntent: Codable, Sendable {
     case reset
     case pingPongAdministrativeAction(type: PingPongAdministrativeActionType, side: MatchSide)
     case pingPongForfeit(side: MatchSide)
+    /// 羽毛球判罚（红黄牌/取消资格）。取消资格即判负完赛。
+    case badmintonMisconduct(side: MatchSide, kind: BadmintonMisconductKind)
     case setOfficialBreakState(OfficialBreakState?)
 }
 
@@ -476,6 +531,7 @@ public enum RallyMatchEvent: Codable, Equatable, Sendable {
     case matchFinished(winner: MatchSide?)
     case matchReset
     case pingPongAdministrativeAction(PingPongAdministrativeAction)
+    case badmintonMisconduct(BadmintonMisconductAction)
     case officialBreakChanged(OfficialBreakState?)
 }
 
@@ -506,6 +562,7 @@ public enum RallyMatchEngine {
             currentSetReplay: nil,
             pingPongAdministrativeActions: nil,
             pingPongForfeitSide: nil,
+            badmintonMisconductActions: nil,
             competitionFormat: competitionFormat,
             competitionPlayerNames: competitionPlayerNames,
             officialBreakState: nil
@@ -633,6 +690,44 @@ public struct RallyMatchReducer: DomainReducer {
                 state: next,
                 events: [.pingPongAdministrativeAction(action), .matchFinished(winner: side.opposite)]
             )
+        case .badmintonMisconduct(let side, let kind):
+            // 对齐安卓羽毛球判罚：仅 badminton profile 可用；判负后不再受理。
+            guard state.rules.sportProfile == .badminton, !state.finished else {
+                return .rejected(state: state, reason: "Badminton misconduct is unavailable")
+            }
+            let action = BadmintonMisconductAction(
+                kind: kind,
+                side: side,
+                epochMilliseconds: epochMilliseconds
+            )
+            var next = state
+            next.badmintonMisconductActions = (next.badmintonMisconductActions ?? []) + [action]
+            switch kind {
+            case .yellow:
+                // 黄牌仅记录，不加分。
+                return .init(state: next, events: [.badmintonMisconduct(action)])
+            case .red:
+                // 红牌判给对方 1 分；罚分被引擎吞掉（无得分事件）时不落牌。
+                let pointResult = pointWon(side.opposite, state: next)
+                guard pointResult.accepted,
+                      pointResult.events.contains(where: { event in
+                          if case .pointScored = event { return true }
+                          return false
+                      }) else {
+                    return .rejected(state: state, reason: "Red-card penalty point was not awarded")
+                }
+                var events: [RallyMatchEvent] = [.badmintonMisconduct(action)]
+                events.append(contentsOf: pointResult.events)
+                return .init(state: pointResult.state, events: events)
+            case .disqualify:
+                // 取消资格：判负完赛，终局胜方由判负事件推导（复用 forfeit 字段）。
+                next.pingPongForfeitSide = side
+                next.finished = true
+                return .init(
+                    state: next,
+                    events: [.badmintonMisconduct(action), .matchFinished(winner: side.opposite)]
+                )
+            }
         case .setOfficialBreakState(let breakState):
             var next = state
             next.officialBreakState = breakState

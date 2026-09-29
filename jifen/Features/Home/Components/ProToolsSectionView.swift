@@ -59,13 +59,11 @@ struct ToolItemView: View {
                 .cornerRadius(Theme.cornerRadius)
                 .shadow(color: Theme.lightModeShadow(0.05), radius: 2, x: 0, y: 1)
 
-                // Label（对齐 Score/Timer 卡片：regular 字重 + 主文字色）
+                // Label（与 Score/Timer/工具列表共用中文一行、外文两行口径）
                 Text(tool.title)
                     .font(.system(size: Theme.fontBody2))
                     .foregroundColor(Theme.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .minimumScaleFactor(0.8)
+                    .gridCardTitleStyle()
             }
             .frame(maxWidth: isWide ? .infinity : nil)
             .frame(width: isWide ? nil : 84)
@@ -124,7 +122,7 @@ struct ProToolsSectionView: View {
                 Spacer()
                 if !isWide, let onEnterToolsPage = onEnterToolsPage {
                     Button(action: onEnterToolsPage) {
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(Theme.textSecondary)
                     }
@@ -175,7 +173,7 @@ struct ProToolsSectionView: View {
                     }
                     .padding(.leading, 0) // padding({ left: 0 })
                 }
-                .frame(height: 100)
+                .frame(height: 120)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading) // alignItems(HorizontalAlign.Start)

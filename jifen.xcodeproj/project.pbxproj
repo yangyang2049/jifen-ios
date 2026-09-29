@@ -31,12 +31,14 @@
 		F10000000000000000000002 /* FullAppScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* FullAppScreenshotUITests.swift */; };
 		F10000000000000000000004 /* UITestScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000003 /* UITestScreenshotStore.swift */; };
 		F10000000000000000000006 /* SupplementalScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000005 /* SupplementalScreenshotUITests.swift */; };
+		F11000000000000000000002 /* LocalizationVisualAuditUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11000000000000000000001 /* LocalizationVisualAuditUITests.swift */; };
 		F20000000000000000000002 /* ScoreboardCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* ScoreboardCatalogTests.swift */; };
 		F30000000000000000000002 /* RandomTeamAssignmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001 /* RandomTeamAssignmentTests.swift */; };
 		F30000000000000000000004 /* ScoreboardRecordV4Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */; };
 		F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */; };
 		F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */; };
 		F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F60000000000000000000001 /* AppReviewPromptTests.swift */; };
+		F6A000000000000000000002 /* NationalDayCampaignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A000000000000000000001 /* NationalDayCampaignTests.swift */; };
 		F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */; };
 		F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* AppAnalyticsTests.swift */; };
 		F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90000000000000000000001 /* LocalizationIntegrityTests.swift */; };
@@ -49,6 +51,7 @@
 		FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */; };
 		FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */; };
 		FC8000000000000000000002 /* ShotTrainingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8000000000000000000001 /* ShotTrainingTests.swift */; };
+		FC90000000000000000000002 /* NetworkResilienceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC90000000000000000000001 /* NetworkResilienceTests.swift */; };
 		FD2000000000000000000002 /* SportsSetupDraftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD2000000000000000000001 /* SportsSetupDraftTests.swift */; };
 		FE1000000000000000000002 /* ScoreboardDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1000000000000000000001 /* ScoreboardDisplayTests.swift */; };
 		FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */; };
@@ -91,12 +94,14 @@
 		F10000000000000000000001 /* FullAppScreenshotUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FullAppScreenshotUITests.swift; sourceTree = "<group>"; };
 		F10000000000000000000003 /* UITestScreenshotStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestScreenshotStore.swift; sourceTree = "<group>"; };
 		F10000000000000000000005 /* SupplementalScreenshotUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SupplementalScreenshotUITests.swift; sourceTree = "<group>"; };
+		F11000000000000000000001 /* LocalizationVisualAuditUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationVisualAuditUITests.swift; sourceTree = "<group>"; };
 		F20000000000000000000001 /* ScoreboardCatalogTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardCatalogTests.swift; sourceTree = "<group>"; };
 		F30000000000000000000001 /* RandomTeamAssignmentTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RandomTeamAssignmentTests.swift; sourceTree = "<group>"; };
 		F30000000000000000000003 /* ScoreboardRecordV4Tests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardRecordV4Tests.swift; sourceTree = "<group>"; };
 		F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalScoreboardDisplayStateTests.swift; sourceTree = "<group>"; };
 		F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardMenuConfirmStateTests.swift; sourceTree = "<group>"; };
 		F60000000000000000000001 /* AppReviewPromptTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppReviewPromptTests.swift; sourceTree = "<group>"; };
+		F6A000000000000000000001 /* NationalDayCampaignTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NationalDayCampaignTests.swift; sourceTree = "<group>"; };
 		F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScreenshotSaveCoordinatorTests.swift; sourceTree = "<group>"; };
 		F80000000000000000000001 /* AppAnalyticsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppAnalyticsTests.swift; sourceTree = "<group>"; };
 		F90000000000000000000001 /* LocalizationIntegrityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationIntegrityTests.swift; sourceTree = "<group>"; };
@@ -109,6 +114,7 @@
 		FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardUsageHintTests.swift; sourceTree = "<group>"; };
 		FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardResumeAndWinnerIdentityTests.swift; sourceTree = "<group>"; };
 		FC8000000000000000000001 /* ShotTrainingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShotTrainingTests.swift; sourceTree = "<group>"; };
+		FC90000000000000000000001 /* NetworkResilienceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkResilienceTests.swift; sourceTree = "<group>"; };
 		FD2000000000000000000001 /* SportsSetupDraftTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SportsSetupDraftTests.swift; sourceTree = "<group>"; };
 		FE1000000000000000000001 /* ScoreboardDisplayTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardDisplayTests.swift; sourceTree = "<group>"; };
 		FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ResumeSessionLifecycleTests.swift; sourceTree = "<group>"; };
@@ -198,6 +204,7 @@
 				F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */,
 				F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */,
 				F60000000000000000000001 /* AppReviewPromptTests.swift */,
+				FC90000000000000000000001 /* NetworkResilienceTests.swift */,
 				F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */,
 				F80000000000000000000001 /* AppAnalyticsTests.swift */,
 				F90000000000000000000001 /* LocalizationIntegrityTests.swift */,
@@ -207,6 +214,7 @@
 				FC8000000000000000000001 /* ShotTrainingTests.swift */,
 				FD2000000000000000000001 /* SportsSetupDraftTests.swift */,
 				FE1000000000000000000001 /* ScoreboardDisplayTests.swift */,
+				F6A000000000000000000001 /* NationalDayCampaignTests.swift */,
 				FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */,
 			);
 			path = jifenTests;
@@ -232,6 +240,7 @@
 				FB2000000000000000000001 /* Support/UITestLocale.swift */,
 				FB3000000000000000000001 /* ZhHantSmokeUITests.swift */,
 				F10000000000000000000005 /* SupplementalScreenshotUITests.swift */,
+				F11000000000000000000001 /* LocalizationVisualAuditUITests.swift */,
 			);
 			path = jifenUITests;
 			sourceTree = "<group>";
@@ -344,6 +353,23 @@
 				"zh-Hans",
 				Base,
 				"zh-Hant",
+				ja,
+				ko,
+				de,
+				"es-MX",
+				"es-ES",
+				"pt-BR",
+				"pt-PT",
+				ar,
+				he,
+				fr,
+				"fr-CA",
+				ur,
+				ru,
+				uk,
+				it,
+				nl,
+				sv,
 			);
 			mainGroup = 0FA5BAC82F18F3EB00182375;
 			minimizedProjectReferenceProxies = 1;
@@ -401,6 +427,7 @@
 				FB2000000000000000000002 /* Support/UITestLocale.swift in Sources */,
 				FB3000000000000000000002 /* ZhHantSmokeUITests.swift in Sources */,
 				F10000000000000000000006 /* SupplementalScreenshotUITests.swift in Sources */,
+				F11000000000000000000002 /* LocalizationVisualAuditUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,6 +458,8 @@
 				F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */,
 				F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */,
 				F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */,
+				F6A000000000000000000002 /* NationalDayCampaignTests.swift in Sources */,
+				FC90000000000000000000002 /* NetworkResilienceTests.swift in Sources */,
 				F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */,
 				F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */,
 				F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */,
@@ -617,7 +646,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 50;
+				CURRENT_PROJECT_VERSION = 52;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -629,7 +658,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = iScoreboard;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan trusted sign-in QR codes.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan trusted sign-in QR codes and take a photo for your avatar.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Used to record voice notes.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Used to save scoreboard screenshots to your photo library.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = NO;
@@ -644,7 +673,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.2.1;
+				MARKETING_VERSION = 3.2.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -674,7 +703,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = jifen/Config/JifenAppStore.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 50;
+				CURRENT_PROJECT_VERSION = 52;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = X9VDZZL3C3;
 				ENABLE_APP_SANDBOX = YES;
@@ -686,7 +715,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = iScoreboard;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan trusted sign-in QR codes.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used to scan trusted sign-in QR codes and take a photo for your avatar.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Used to record voice notes.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Used to save scoreboard screenshots to your photo library.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = NO;
@@ -701,7 +730,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
-				MARKETING_VERSION = 3.2.1;
+				MARKETING_VERSION = 3.2.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

@@ -1234,7 +1234,7 @@ struct MultiScoreboardView: View {
                     rightName: right.name,
                     leftScore: "\(left.score)",
                     rightScore: "\(right.score)",
-                    leftDetail: String(format: NSLocalizedString("sync_players_format", value: "共 %d 人", comment: ""), players.count),
+                    leftDetail: String.localizedStringWithFormat(NSLocalizedString("sync_players_format", value: "共 %d 人", comment: ""), players.count),
                     rightDetail: gameType == .uno
                         ? String(format: NSLocalizedString("uno_target_badge", value: "目标 %d", comment: ""), effectiveTargetScore)
                         : nil,

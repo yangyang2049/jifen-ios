@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>使用说明动画 Demo · 羽毛球单打</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --card: #1b2029;
+    --card-2: #232a36;
+    --text: #f2f5f8;
+    --dim: rgba(242, 245, 248, .62);
+    --accent: #2f7bff;
+    --serve: #ffd23e;
+    --good: #3ddc84;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif; }
+  body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 24px 8px; }
+
+  .phone { width: 390px; }
+  .demo-label { font-size: 12px; color: var(--dim); margin: 0 0 8px 4px; }
+
+  .dialog {
+    background: var(--card); border-radius: 22px; padding: 16px 16px 14px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    overflow: hidden; touch-action: pan-y;
+  }
+  .page-title { font-size: 17px; font-weight: 700; text-align: center; height: 22px; line-height: 22px; }
+
+  .stage-wrap { position: relative; margin-top: 10px; }
+  .stage {
+    position: relative; width: 100%; aspect-ratio: 5 / 3.4; border-radius: 14px;
+    background: linear-gradient(180deg, var(--card-2), #1d232e);
+    overflow: hidden;
+  }
+  .camera { position: absolute; inset: 0; will-change: transform; }
+  .board { position: absolute; inset: 0; }
+
+  .side { position: absolute; top: 0; bottom: 0; width: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4%; }
+  .side.left { left: 0; } .side.right { left: 50%; }
+  .side-name { width: 74%; text-align: center; font-size: 13px; font-weight: 600; color: var(--dim);
+    background: rgba(255,255,255,.06); border-radius: 999px; padding: 3px 0; position: relative; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .serve { position: absolute; top: 50%; transform: translateY(-50%); font-size: 11px; line-height: 1; color: var(--serve); opacity: 0; transition: opacity .25s; }
+  .side.left .serve { left: 6%; } .side.right .serve { right: 6%; }
+  .serve.on { opacity: 1; }
+  .score { font-size: 84px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .score.bump { animation: bump .32s ease-out; }
+  @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.22); } 100% { transform: scale(1); } }
+  .score.undone { animation: undone .45s ease-out; }
+  @keyframes undone { 0% { transform: scale(1); color: var(--serve); } 45% { transform: scale(.86); } 100% { transform: scale(1); } }
+  .sets { display: flex; gap: 5px; align-items: center; min-height: 14px; }
+  .dot-set { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.22); }
+  .dot-set.won { background: var(--good); }
+  .set-label { font-size: 10px; color: var(--dim); margin-left: 2px; }
+
+  .divider { position: absolute; left: 50%; top: 14%; bottom: 14%; width: 2px; transform: translateX(-50%); background: rgba(255,255,255,.10); border-radius: 1px; }
+
+  .mp-badge {
+    position: absolute; left: 50%; top: 8%; transform: translateX(-50%) scale(.6); opacity: 0;
+    background: rgba(255, 80, 80, .16); color: #ff9d9d; border: 1px solid rgba(255,80,80,.45);
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; transition: all .3s;
+  }
+  .mp-badge.on { opacity: 1; transform: translateX(-50%) scale(1); }
+  .set-flash {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%) scale(.7); opacity: 0;
+    font-size: 20px; font-weight: 800; color: var(--good); text-shadow: 0 2px 14px rgba(61,220,132,.5); transition: all .35s;
+    white-space: nowrap;
+  }
+  .set-flash.on { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  .final-flash { position: absolute; inset: 0; background: var(--accent); opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .final-flash.on { opacity: .14; }
+  .guard-badge {
+    position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%) scale(.6); opacity: 0;
+    background: rgba(255,210,62,.14); color: var(--serve); border: 1px solid rgba(255,210,62,.4);
+    font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; transition: all .3s; white-space: nowrap;
+  }
+  .guard-badge.on { opacity: 1; transform: translateX(-50%) scale(1); }
+
+  /* 触点层（视口坐标，与 camera 同步换算在 JS 里做） */
+  .cursor { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.9); background: rgba(255,255,255,.14); opacity: 0; pointer-events: none; }
+  .ripple { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.8); opacity: 0; pointer-events: none; }
+  .ripple.fire { animation: ripple .42s ease-out; }
+  @keyframes ripple { 0% { opacity: .9; transform: scale(.5);} 100% { opacity: 0; transform: scale(1.9);} }
+  .trail { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255,255,255,.5); opacity: 0; pointer-events: none; }
+
+  .caption { margin-top: 12px; min-height: 44px; font-size: 13px; line-height: 1.45; color: var(--dim); text-align: center; }
+  .nav { margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 40px; }
+  .dots { display: flex; gap: 7px; margin: 0 auto; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.22); transition: all .25s; }
+  .dots i.on { background: var(--accent); transform: scale(1.25); }
+  .nav-btn { font-size: 15px; font-weight: 700; color: var(--text); background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.16); border-radius: 999px; height: 40px; min-width: 44px; padding: 0 14px; cursor: pointer; }
+  .nav-btn:disabled { opacity: .25; cursor: default; }
+  .nav-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nav-spacer { min-width: 44px; }
+  .ok-btn { display: block; width: 100%; margin-top: 10px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 700; border: 0; border-radius: 999px; padding: 11px 0; cursor: pointer; }
+  .page-tag { font-size: 11px; color: rgba(255,255,255,.3); text-align: center; margin-top: 8px; }
+  .mode-row { display: flex; gap: 8px; margin: 0 0 8px 2px; }
+  .mode-chip { font-size: 11px; color: var(--dim); background: none; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+  .mode-chip.on { border-color: var(--accent); color: #cfe0ff; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 330px); gap: 18px; justify-content: center; }
+  .grid .dialog { padding: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* ============================================================
+ * 数据驱动播放器 —— 与规划中 iOS HintAnimationPlayer 同构：
+ *   beats: [{at, action}], 帧 = f(t) 纯函数（动作全部应用完即状态）
+ *   camera 关键帧: {at, x, y, s}  归一化视口坐标 + 缩放
+ *   播完停在末帧，翻页由用户手动完成
+ * ============================================================ */
+
+const easeOut = p => 1 - Math.pow(1 - p, 3);
+
+function makeStage(spec, mount, opts = {}) {
+  // ---------- 状态 ----------
+  const st = {
+    l: 0, r: 0, ls: 0, rs: 0, serve: "l", mp: false,
+    setFlash: null, finalFlash: false, guard: false,
+    bump: null, undone: null,
+    cursor: null, // {x,y,down}
+    ripples: [], trails: [],
+  };
+
+  // ---------- 动作表 ----------
+  const acts = {
+    tap: a => {
+      st.cursor = { x: a.x, y: a.y, down: true };
+      st.ripples.push({ x: a.x, y: a.y, t0: a._t });
+      acts.apply(a);
+    },
+    doubleTap: a => {
+      st.cursor = { x: a.x, y: a.y, down: true };
+      st.ripples.push({ x: a.x, y: a.y, t0: a._t });
+      setTimeout(() => st.ripples.push({ x: a.x, y: a.y, t0: a._t + 160 }), 0);
+      acts.apply(a);
+    },
+    swipeUp: a => {
+      st.cursor = { x: a.x, y: a.y0, down: true };
+      a._trail = [];
+      for (let i = 0; i <= 6; i++) a._trail.push({ x: a.x, y: a.y0 + (a.y - a.y0) * i / 6, frac: i / 6 });
+      st.trails = a._trail.map(p => ({ x: p.x, y: p.y, t0: a._t + p.frac * a.dur }));
+      a._done = false;
+      setTimeout(() => { acts.apply(a); }, 0);
+    },
+    swipeLeft: a => { st.cursor = { x: a.x1, y: a.y, down: true }; a._done = false; setTimeout(() => acts.apply(a), 0); },
+    cursorFade: () => { st.cursor = null; },
+    scoreL: a => { st.l = a.v; st.bump = { side: 'l', t: performance.now() }; },
+    setL: a => { st.l = a.v; },
+    scoreR: a => { st.r = a.v; st.bump = { side: 'r', t: performance.now() }; },
+    setR: a => { st.r = a.v; },
+    undoL: a => { st.l = a.v; st.undone = { side: 'l', t: performance.now() }; },
+    serve: a => { st.serve = a.side; },
+    mp: a => { st.mp = a.on; },
+    setWon: a => {
+      if (a.side === 'l') st.ls += 1; else st.rs += 1;
+      st.setFlash = { side: a.side, text: a.text, t: performance.now() };
+    },
+    guardOn: a => { st.guard = true; },
+    finalFlash: () => { st.finalFlash = true; },
+    apply: () => {},
+  };
+  // apply 钩子：复合动作在子层再调具体动作
+  function runAction(b) {
+    const a = acts[b.action];
+    if (a) {
+      a(b);
+      if (b.then) b.then.forEach(sub => runAction({ ...sub, at: b.at }));
+    }
+  }
+
+  // ---------- DOM ----------
+  mount.innerHTML = `
+    <div class="demo-label">羽毛球单打 · 使用说明动画（HTML 演示稿）</div>
+    <div class="mode-row">
+      <button class="mode-chip on" data-mode="first">首次打开（须滑到末页）</button>
+      <button class="mode-chip" data-mode="revisit">菜单回看（随时可关）</button>
+    </div>
+    <div class="dialog">
+      <div class="page-title"></div>
+      <div class="stage-wrap">
+        <div class="stage">
+          <div class="camera">
+            <div class="board">
+              <div class="divider"></div>
+              <div class="side left">
+                <div class="side-name"><span class="serve">▶</span>李明</div>
+                <div class="score l-score">0</div>
+                <div class="sets l-sets"></div>
+              </div>
+              <div class="side right">
+                <div class="side-name"><span class="serve">◀</span>张伟</div>
+                <div class="score r-score">0</div>
+                <div class="sets r-sets"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mp-badge">赛点</div>
+          <div class="set-flash"></div>
+          <div class="guard-badge">已忽略连续快速点击</div>
+          <div class="final-flash"></div>
+          <div class="cursor"></div>
+        </div>
+      </div>
+      <div class="caption"></div>
+      <div class="nav">
+        <button class="nav-btn prev" aria-label="上一页">‹</button>
+        <div class="dots"></div>
+        <button class="nav-btn next" aria-label="下一页">›</button>
+      </div>
+      <button class="ok-btn got-it" style="display:none">知道了</button>
+      <div class="page-tag"></div>
+    </div>`;
+
+  const $ = s => mount.querySelector(s);
+  const el = {
+    title: $('.page-title'), caption: $('.caption'), stage: $('.stage'), camera: $('.camera'),
+    lScore: $('.l-score'), rScore: $('.r-score'), lSets: $('.l-sets'), rSets: $('.r-sets'),
+    names: mount.querySelectorAll('.side-name'), serves: mount.querySelectorAll('.serve'),
+    mp: $('.mp-badge'), setFlash: $('.set-flash'), guard: $('.guard-badge'), final: $('.final-flash'),
+    cursor: $('.cursor'), dots: $('.dots'), tag: $('.page-tag'),
+    prev: $('.nav-btn.prev'), next: $('.nav-btn.next'), ok: $('.got-it'),
+  };
+
+  let pageIdx = 0, t0 = performance.now(), playing = true, applied = -1;
+  let mode = 'first'; // first: 必须滑到末页 | revisit: 底部常驻「知道了」
+  const pages = spec.pages;
+
+  function layoutPages() {
+    el.dots.innerHTML = pages.map((_, i) => `<i class="${i === pageIdx ? 'on' : ''}"></i>`).join('');
+    el.tag.textContent = opts.grid ? '' : `${pageIdx + 1} / ${pages.length}（左右滑动翻页 · 轻点画面重播）`;
+    syncNav();
+  }
+
+  function syncNav() {
+    const last = pageIdx === pages.length - 1;
+    el.prev.disabled = pageIdx === 0;
+    if (mode === 'first') {
+      // 末页：右箭头位直接换成「知道了」（必须滑到末页才能关闭）
+      el.next.style.display = '';
+      el.next.classList.toggle('primary', last);
+      el.next.textContent = last ? '知道了' : '›';
+      el.next.setAttribute('aria-label', last ? '知道了' : '下一页');
+    } else {
+      // 回看：右箭头只用于翻页，末页收起，关闭走底部常驻按钮
+      el.next.textContent = '›';
+      el.next.classList.remove('primary');
+      el.next.style.display = last ? 'none' : '';
+    }
+    el.ok.style.display = mode === 'revisit' ? 'block' : 'none';
+  }
+
+  function showPageStatic(p) {
+    el.title.textContent = p.title;
+    el.caption.textContent = p.caption || '';
+  }
+
+  function resetPageState() {
+    const p = pages[pageIdx];
+    Object.assign(st, {
+      l: p.init.l, r: p.init.r, ls: p.init.ls, rs: p.init.rs,
+      serve: p.init.serve, mp: p.init.mp || false,
+      setFlash: null, finalFlash: false, guard: false, bump: null, undone: null,
+      cursor: null, ripples: [], trails: [],
+    });
+    applied = -1; t0 = performance.now(); playing = true;
+    p.beats.forEach(b => { b._fired = false; });
+  }
+
+  function goto(i) {
+    pageIdx = Math.max(0, Math.min(pages.length - 1, i));
+    showPageStatic(pages[pageIdx]);
+    resetPageState();
+    layoutPages();
+  }
+
+  // ---------- 渲染 ----------
+  function renderCamera(p, t) {
+    const keys = p.camera || [{ at: 0, x: .5, y: .5, s: 1 }];
+    let k0 = keys[0], k1 = keys[keys.length - 1];
+    for (let i = 0; i < keys.length; i++) {
+      if (t >= keys[i].at) { k0 = keys[i]; k1 = keys[i + 1] || keys[i]; }
+    }
+    let f = k1.at === k0.at ? 1 : Math.min(1, (t - k0.at) / (k1.at - k0.at));
+    f = easeOut(f);
+    const s = k0.s + (k1.s - k0.s) * f, x = k0.x + (k1.x - k0.x) * f, y = k0.y + (k1.y - k0.y) * f;
+    el.camera.style.transform = `scale(${s.toFixed(3)}) translate(${((.5 - x) * 100).toFixed(2)}%, ${((.5 - y) * 100).toFixed(2)}%)`;
+    return { s, x, y };
+  }
+
+  function toViewport(nx, ny, cam) {
+    const W = el.stage.clientWidth, H = el.stage.clientHeight;
+    return { px: W / 2 + (nx - .5) * W * cam.s, py: H / 2 + (ny - .5) * H * cam.s };
+  }
+
+  function render() {
+    const p = pages[pageIdx];
+    const t = playing ? performance.now() - t0 : t0; // pause 固定
+    const now = performance.now();
+
+    if (playing) {
+      p.beats.forEach((b, i) => {
+        if (!b._fired && t >= b.at) { b._fired = true; runAction({ ...b, at: b.at }); }
+      });
+      if (t > p.duration) playing = false; // 停在末帧
+    }
+
+    // 相机 + 触点层
+    const cam = renderCamera(p, Math.min(t, p.duration));
+    if (st.cursor) {
+      const q = toViewport(st.cursor.x, st.cursor.y, cam);
+      el.cursor.style.opacity = 1;
+      el.cursor.style.left = q.px + 'px'; el.cursor.style.top = q.py + 'px';
+    } else el.cursor.style.opacity = 0;
+
+    st.ripples = st.ripples.filter(r => now - r.t0 < 450);
+    el.stage.querySelectorAll('.ripple').forEach(n => n.remove());
+    st.ripples.forEach(r => {
+      const q = toViewport(r.x, r.y, cam);
+      const n = document.createElement('div');
+      n.className = 'ripple fire'; n.style.left = q.px + 'px'; n.style.top = q.py + 'px';
+      el.stage.appendChild(n);
+    });
+    st.trails = st.trails.filter(r => now - r.t0 < 600);
+    el.stage.querySelectorAll('.trail').forEach(n => n.remove());
+    st.trails.forEach(r => {
+      const q = toViewport(r.x, r.y, cam);
+      const n = document.createElement('div');
+      n.className = 'trail'; n.style.left = q.px + 'px'; n.style.top = q.py + 'px';
+      n.style.opacity = Math.max(0, .6 - (now - r.t0) / 1000);
+      el.stage.appendChild(n);
+    });
+
+    // 记分板
+    el.lScore.textContent = st.l; el.rScore.textContent = st.r;
+    const mk = (won, label) => `<span class="dot-set ${won >= 1 ? 'won' : ''}"></span><span class="dot-set ${won >= 2 ? 'won' : ''}"></span>` +
+      (label ? `<span class="set-label">${label}局 ${won}</span>` : '');
+    el.lSets.innerHTML = mk(st.ls, p.showSetLabel); el.rSets.innerHTML = mk(st.rs, p.showSetLabel);
+    el.serves[0].classList.toggle('on', st.serve === 'l');
+    el.serves[1].classList.toggle('on', st.serve === 'r');
+    el.mp.classList.toggle('on', st.mp);
+    el.guard.classList.toggle('on', st.guard);
+    el.final.classList.toggle('on', st.finalFlash);
+    if (st.setFlash && now - st.setFlash.t < 1100) {
+      el.setFlash.textContent = st.setFlash.text; el.setFlash.classList.add('on');
+    } else if (st.setFlash && now - st.setFlash.t >= 1100) { el.setFlash.classList.remove('on'); st.setFlash = null; }
+    if (st.bump && now - st.bump.t > 350) st.bump = null;
+    if (st.undone && now - st.undone.t > 500) st.undone = null;
+    el.lScore.classList.toggle('bump', !!st.bump && st.bump.side === 'l');
+    el.rScore.classList.toggle('bump', !!st.bump && st.bump.side === 'r');
+    el.lScore.classList.toggle('undone', !!st.undone && st.undone.side === 'l');
+    el.rScore.classList.toggle('undone', !!st.undone && st.undone.side === 'r');
+
+    requestAnimationFrame(render);
+  }
+
+  // ---------- 手势翻页 ----------
+  let dragX = null;
+  mount.addEventListener('pointerdown', e => { dragX = e.clientX; });
+  mount.addEventListener('pointerup', e => {
+    if (dragX === null) return;
+    const dx = e.clientX - dragX; dragX = null;
+    if (Math.abs(dx) > 46) { if (!(pageIdx === pages.length - 1 && mode === 'first')) goto(pageIdx + (dx < 0 ? 1 : -1)); return; }
+    if (e.target.closest('.stage')) resetPageState(); // 轻点画面 = 重播本页
+  });
+  mount.querySelectorAll('.mode-chip').forEach(chip => chip.addEventListener('click', () => {
+    mode = chip.dataset.mode;
+    mount.querySelectorAll('.mode-chip').forEach(c => c.classList.toggle('on', c === chip));
+    syncNav();
+  }));
+  el.prev.addEventListener('click', () => goto(pageIdx - 1));
+  el.next.addEventListener('click', () => {
+    if (pageIdx === pages.length - 1) closeDialog();
+    else goto(pageIdx + 1);
+  });
+  el.ok.addEventListener('click', closeDialog);
+  function closeDialog() {
+    el.title.textContent = '已关闭（演示占位）';
+    el.caption.textContent = '实际 App 中此处调用 dismissAndMarkShown()';
+  }
+  el.dots.addEventListener('click', e => {
+    const idx = [...el.dots.children].indexOf(e.target);
+    if (idx >= 0) goto(idx);
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { if (pageIdx < pages.length - 1) goto(pageIdx + 1); else if (mode === 'first') closeDialog(); }
+    if (e.key === 'ArrowLeft') goto(pageIdx - 1);
+    if (e.key === 'r' || e.key === 'R') resetPageState();
+  });
+
+  goto(0);
+  requestAnimationFrame(render);
+  return { goto: i => goto(i), replay: resetPageState };
+}
+
+/* ============================================================
+ * 羽毛球单打页清单（对应 iOS UsageHintPages.swift 的手写配置）
+ * 坐标 = 舞台归一化坐标；camera {at,x,y,s}
+ * ============================================================ */
+const SERVE_L = { x: .12, y: .30 }, SERVE_R = { x: .88, y: .30 };
+const BADMINTON_PAGES = {
+  pages: [
+    {
+      title: '点击比分区加分', showSetLabel: '', duration: 4600,
+      caption: '点击左/右比分区，为对应一方加 1 分；发球方由姓名旁的 ▶ 标记',
+      init: { l: 0, r: 0, ls: 0, rs: 0, serve: 'r' },
+      camera: [
+        { at: 0, x: .5, y: .5, s: 1 },
+        { at: 700, x: .27, y: .56, s: 1.42 },
+        { at: 2000, x: .27, y: .56, s: 1.42 },
+        { at: 2500, x: .5, y: .5, s: 1 },
+      ],
+      beats: [
+        { at: 800, action: 'tap', x: .27, y: .52, then: [{ action: 'scoreL', v: 1 }, { action: 'serve', side: 'l' }] },
+        { at: 1700, action: 'cursorFade' },
+        { at: 2600, action: 'tap', x: .73, y: .52, then: [{ action: 'scoreR', v: 1 }] },
+        { at: 3400, action: 'cursorFade' },
+      ],
+    },
+    {
+      title: '滑动微调比分', showSetLabel: '', duration: 5200,
+      caption: '在比分区上滑加分、下滑减分、左滑撤销上一步',
+      init: { l: 5, r: 3, ls: 0, rs: 0, serve: 'l' },
+      camera: [
+        { at: 0, x: .5, y: .5, s: 1 },
+        { at: 600, x: .73, y: .56, s: 1.42 },
+        { at: 2100, x: .73, y: .56, s: 1.42 },
+        { at: 2600, x: .27, y: .56, s: 1.42 },
+        { at: 4000, x: .27, y: .56, s: 1.42 },
+        { at: 4500, x: .5, y: .5, s: 1 },
+      ],
+      beats: [
+        { at: 700, action: 'swipeUp', x: .73, y0: .68, y: .36, dur: 700, then: [{ action: 'scoreR', v: 4 }] },
+        { at: 1600, action: 'cursorFade' },
+        { at: 2700, action: 'swipeLeft', x1: .34, y: .5, then: [{ action: 'undoL', v: 4 }] },
+        { at: 3600, action: 'cursorFade' },
+      ],
+    },
+    {
+      title: '双击减分', showSetLabel: '1', duration: 4600,
+      caption: '开启「双击减分」后，双击比分区可撤销误加的分',
+      init: { l: 8, r: 6, ls: 1, rs: 0, serve: 'l' },
+      camera: [
+        { at: 0, x: .5, y: .5, s: 1 },
+        { at: 500, x: .27, y: .56, s: 1.42 },
+        { at: 3200, x: .27, y: .56, s: 1.42 },
+        { at: 3700, x: .5, y: .5, s: 1 },
+      ],
+      beats: [
+        { at: 600, action: 'doubleTap', x: .27, y: .52, then: [{ action: 'undoL', v: 7 }] },
+        { at: 1500, action: 'cursorFade' },
+      ],
+    },
+    {
+      title: '防误触保护', showSetLabel: '1', duration: 5000,
+      caption: '开启「防误触」后，250 毫秒内的连续快速点击会被自动忽略',
+      init: { l: 11, r: 9, ls: 1, rs: 0, serve: 'r' },
+      camera: [
+        { at: 0, x: .5, y: .5, s: 1 },
+        { at: 500, x: .73, y: .56, s: 1.42 },
+        { at: 3400, x: .73, y: .56, s: 1.42 },
+        { at: 3900, x: .5, y: .5, s: 1 },
+      ],
+      beats: [
+        { at: 600, action: 'tap', x: .73, y: .52, then: [{ action: 'scoreR', v: 10 }] },
+        { at: 950, action: 'doubleTap', x: .73, y: .52, then: [{ action: 'guardOn' }] },
+        { at: 2000, action: 'cursorFade' },
+      ],
+    },
+    {
+      title: '自动判定局分与赛点', showSetLabel: '1', duration: 5600,
+      caption: '按 21 分制自动处理局分、赛点与比赛结束，无需手动扳局',
+      init: { l: 20, r: 18, ls: 1, rs: 0, serve: 'l', mp: true },
+      camera: [
+        { at: 0, x: .5, y: .5, s: 1 },
+        { at: 500, x: .3, y: .52, s: 1.35 },
+        { at: 2100, x: .3, y: .52, s: 1.35 },
+        { at: 2700, x: .5, y: .4, s: 1.12 },
+        { at: 4200, x: .5, y: .4, s: 1.12 },
+        { at: 4700, x: .5, y: .5, s: 1 },
+      ],
+      beats: [
+        { at: 2800, action: 'tap', x: .27, y: .5, then: [{ action: 'setWon', side: 'l', text: '李明 2:0 胜第 2 局' }, { action: 'mp', on: false }] },
+        { at: 3300, action: 'scoreL', v: 0 },
+        { at: 3300, action: 'setR', v: 0 },
+        { at: 4000, action: 'cursorFade' },
+        { at: 4200, action: 'finalFlash' },
+      ],
+    },
+  ],
+};
+
+// ---------- 启动 ----------
+const params = new URLSearchParams(location.search);
+if (params.get('grid') === '1') {
+  const g = document.createElement('div');
+  g.className = 'grid';
+  document.getElementById('root').appendChild(g);
+  BADMINTON_PAGES.pages.forEach((p, i) => {
+    const cell = document.createElement('div');
+    g.appendChild(cell);
+    const stage = makeStage(BADMINTON_PAGES, cell, { grid: true });
+    stage.goto(i);
+    cell.querySelector('.demo-label').textContent = `第 ${i + 1} 页 · ${p.title}`;
+  });
+} else {
+  const wrap = document.createElement('div');
+  wrap.className = 'phone';
+  document.getElementById('root').appendChild(wrap);
+  makeStage(BADMINTON_PAGES, wrap);
+}
+</script>
+</body>
+</html>
