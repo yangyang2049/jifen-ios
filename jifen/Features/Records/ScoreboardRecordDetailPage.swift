@@ -880,6 +880,13 @@ struct ScoreboardRecordDetailPage: View {
                     onConfirm: startReplay,
                     onCancel: onCancel
                 )
+            } else if record.gameType == .mahjong {
+                MahjongSetupDialogView(
+                    maxDialogHeight: maxDialogHeight,
+                    initialSetup: setup,
+                    onConfirm: startReplay,
+                    onCancel: onCancel
+                )
             } else if [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(record.gameType) {
                 MultiScoreSetupDialogView(
                     gameType: record.gameType,
@@ -1033,6 +1040,7 @@ struct ScoreboardRecordDetailPage: View {
         case .uno: return "game_uno"
         case .guandan: return "game_guandan"
         case .shengji: return "game_shengji"
+        case .mahjong: return "game_mahjong"
         case .simpleScore: return "game_simple_score"
         default: return "game_multi_scoreboard"
         }

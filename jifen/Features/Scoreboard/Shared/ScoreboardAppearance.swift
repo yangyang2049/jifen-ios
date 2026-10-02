@@ -1403,7 +1403,7 @@ nonisolated struct ScoreboardStyleID: RawRepresentable, Hashable, Codable, Senda
         .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel, .basketball, .threeBasketball, .basketballTraining,
         .football, .football5v5, .volleyball, .beachVolleyball, .airVolleyball,
         .archery, .boxing, .billiards, .eightBall, .nineBall, .snooker,
-        .pickleball, .guandan, .doudizhu, .shengji, .uno, .foosball,
+        .pickleball, .guandan, .doudizhu, .shengji, .mahjong, .uno, .foosball,
         .simpleScore, .multiScoreboard
     ]
 

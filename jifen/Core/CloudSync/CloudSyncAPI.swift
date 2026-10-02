@@ -149,7 +149,7 @@ enum CloudSyncGameTypes {
         "billiards", "eight_ball", "nine_ball", "snooker",
         "pickleball", "pickleball_doubles",
         "foosball", "foosball_doubles",
-        "simple_score", "doudizhu", "guandan", "shengji", "uno", "multi_scoreboard"
+        "simple_score", "doudizhu", "guandan", "shengji", "mahjong", "uno", "multi_scoreboard"
     ]
 
     static func isSupported(_ gameType: String) -> Bool {

@@ -52,7 +52,7 @@ enum DefaultParticipantNames {
             return localizedPair("player_a", "Player A", "player_b", "Player B")
         case .boxing, .simpleScore, .counter:
             return localizedPair("scoreboard_team_red", "Red", "scoreboard_team_blue", "Blue")
-        case .nineBall, .doudizhu, .uno, .multiScoreboard:
+        case .nineBall, .doudizhu, .mahjong, .uno, .multiScoreboard:
             return localizedPair("player1_name", "Player 1", "player2_name", "Player 2")
         case .go:
             return localizedPair("timer_black_player", "Black", "timer_white_player", "White")

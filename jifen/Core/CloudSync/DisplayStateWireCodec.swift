@@ -517,7 +517,10 @@ enum DisplayStateWireCodec {
         "uno": ["unoRoundCount", "unoTargetScore"],
         "guandan": ["guandanRedRank", "guandanBlueRank", "guandanLeftAFailCount", "guandanRightAFailCount",
                     "guandanTripleAEnabled", "guandanBankerTeam"],
-        "shengji": ["shengjiRedRank", "shengjiBlueRank", "shengjiBankerTeam"]
+        "shengji": ["shengjiRedRank", "shengjiBlueRank", "shengjiBankerTeam"],
+        // 麻将：键集合由 core 的 `mahjongDisplaySportStateKeys` 决定，跨端逐键一致；
+        // 少任一个键都会在投屏/云同步里静默丢字段。multiGrid* 走 commonSportKeys。
+        "mahjong": Set(mahjongDisplaySportStateKeys)
     ]
 
     private static func projectSportState(_ state: ScoreboardDisplayState) -> [String: Any]? {

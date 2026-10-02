@@ -35,7 +35,7 @@ enum ScoreboardUsageHintHelper {
     /// 不启用防误触，使用说明中也不出现防误触行。
     nonisolated static func disablesTouchGuard(_ gameType: ScoreCore.GameType) -> Bool {
         switch gameType {
-        case .doudizhu, .guandan, .shengji, .uno, .multiScoreboard:
+        case .doudizhu, .guandan, .shengji, .mahjong, .uno, .multiScoreboard:
             return true
         default:
             return false
@@ -86,6 +86,7 @@ struct ScoreboardUsageHintDescriptor: Equatable, Hashable, Identifiable {
         case .shengji: "scoreboard_usage_hint_shengji"
         case .uno: "scoreboard_usage_hint_uno"
         case .doudizhu: "scoreboard_usage_hint_doudizhu"
+        case .mahjong: "scoreboard_usage_hint_mahjong"
         case .foosball: "scoreboard_usage_hint_foosball"
         case .foosballDoubles: "scoreboard_usage_hint_foosball_doubles"
         case .simpleScore: "scoreboard_usage_hint_simple_score"

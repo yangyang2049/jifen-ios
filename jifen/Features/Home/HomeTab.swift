@@ -878,6 +878,13 @@ struct HomeTab: View {
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )
+        } else if gameType == .mahjong {
+            // 麻将有独立的四家 + 规则集设置（通用/四川血战），不走多人计分通用弹窗。
+            MahjongSetupDialogView(
+                maxDialogHeight: maxDialogHeight,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
         } else if Self.isCasualSetupGame(gameType) {
             let defaults = DefaultParticipantNames.resolve(for: gameType)
             MultiScoreSetupDialogView(

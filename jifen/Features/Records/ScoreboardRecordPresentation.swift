@@ -234,7 +234,7 @@ struct ScoreboardRecordProjectPolicy: Equatable {
             return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .rounds)
         case .eightBall:
             return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .frames)
-        case .doudizhu, .guandan, .shengji, .uno:
+        case .doudizhu, .guandan, .shengji, .mahjong, .uno:
             return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .cardRounds)
         case .multiScoreboard:
             return .init(trendAllowed: false, trendExcludesMultiParticipant: false, trendRequiresNonNegativeScores: false, recapKind: .ranking)

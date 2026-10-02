@@ -152,7 +152,8 @@ struct UnfinishedGameSummary: Sendable {
             }
         }
 
-        if gameType == .doudizhu {
+        // 斗地主 3 家 / 麻将 4 家：恢复条上把每一家都列出来，而不是只显示前两名。
+        if gameType == .doudizhu || gameType == .mahjong {
             let doudizhuNames = participants.compactMap(nonemptyName)
             if doudizhuNames.count >= 3 {
                 return doudizhuNames.joined(separator: " vs ")

@@ -263,6 +263,16 @@ struct SportsSetupResult: Codable, Hashable {
     var guandanTripleA: Bool? = nil
     var guandanPassACondition: String? = nil // "not_last" | "double_up"
     var guandanTripleAFallbackRank: String? = nil
+    /// 麻将：开局设置（对齐安卓 MahjongSetupDialog → MahjongSetupResult）。
+    /// wire 值与 core/Android/HOS 的 `MahjongSetupResult` 字段名逐一对应；
+    /// 四家名字复用 `playerNames`，座位风不单独入参（由庄家推导）。
+    var mahjongRuleset: String? = nil // "generic" | "sichuan_blood_battle"
+    var mahjongStartScore: Int? = nil
+    var mahjongBaseScore: Int? = nil
+    var mahjongInitialDealerIndex: Int? = nil
+    var mahjongMatchLength: String? = nil // "free" | "east_only" | "hanchan"
+    var mahjongDealerRule: String? = nil // "rotate_each_hand" | "dealer_win_or_draw_stays"
+    var mahjongMaxFan: Int? = nil
     var competitionFormat: CompetitionFormat? = nil
     var softTennisMatchGames: Int? = nil
     var padelDeuceMode: PadelDeuceMode? = nil

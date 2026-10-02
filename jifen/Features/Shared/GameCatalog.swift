@@ -120,6 +120,7 @@ enum GameCatalog {
         ScoreboardCatalogItem(gameType: .doudizhu, emoji: "🃏", section: .cardGames),
         ScoreboardCatalogItem(gameType: .guandan, emoji: "🃏", section: .cardGames),
         ScoreboardCatalogItem(gameType: .shengji, emoji: "🃏", section: .cardGames),
+        ScoreboardCatalogItem(gameType: .mahjong, emoji: "🀄", section: .cardGames),
         ScoreboardCatalogItem(gameType: .uno, emoji: "🎴", section: .cardGames),
 
         ScoreboardCatalogItem(gameType: .foosball, emoji: "⚽", section: .other),

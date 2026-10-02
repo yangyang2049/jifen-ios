@@ -243,7 +243,7 @@ extension ScoreboardDisplayLayoutKind {
         switch gameID {
         case "pingpong_doubles", "badminton_doubles", "tennis_doubles", "pickleball_doubles", "foosball_doubles", "padel":
             return .doublesCourt
-        case "uno", "multi_scoreboard":
+        case "uno", "multi_scoreboard", "mahjong":
             return .multiGrid
         case "guandan", "shengji", "doudizhu", "xiangqi", "go", "chess", "checkers":
             return .boardCard

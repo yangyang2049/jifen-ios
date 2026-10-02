@@ -134,6 +134,7 @@ enum AnalyticsScreen: String, CaseIterable {
     case doudizhuScore = "doudizhu_score"
     case shengjiScore = "shengji_score"
     case guandanScore = "guandan_score"
+    case mahjongScore = "mahjong_score"
     case unoScore = "uno_score"
 
     case goTimer = "go_timer"
@@ -706,7 +707,7 @@ extension AnalyticsScreen {
              .nineBallScoreboard, .boxingScoreboard, .pickleballScoreboard,
              .pickleballDoublesScoreboard, .archeryScoreboard, .snookerScoreboard,
              .foosballScoreboard, .simpleScorePage, .counterScoreboard, .multiGroupScore, .doudizhuScore,
-             .shengjiScore, .guandanScore, .unoScore:
+             .shengjiScore, .guandanScore, .unoScore, .mahjongScore:
             return "scoreboard"
         case .goTimer, .xiangqiTimer, .chessTimer, .checkersTimer, .cubeTimer,
              .stopwatchPage, .countdownPage:
@@ -761,6 +762,7 @@ extension AnalyticsScreen {
         case .doudizhu: return .doudizhuScore
         case .shengji: return .shengjiScore
         case .guandan: return .guandanScore
+        case .mahjong: return .mahjongScore
         case .uno: return .unoScore
         case .go: return .goTimer
         case .xiangqi: return .xiangqiTimer

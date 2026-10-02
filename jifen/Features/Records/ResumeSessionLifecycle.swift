@@ -472,7 +472,7 @@ enum AbandonedResumeRecordBuilder {
                 ]
             )
 
-        case .multi, .uno, .doudizhu, .shotTraining:
+        case .multi, .uno, .doudizhu, .shotTraining, .mahjong:
             throw ResumeSessionLifecycleError.unsupportedPayload(
                 envelope.payloadKind,
                 envelope.gameType

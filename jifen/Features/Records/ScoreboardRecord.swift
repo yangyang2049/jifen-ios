@@ -1171,7 +1171,8 @@ private func scoreboardAppGameType(for type: ScoreCore.GameType) -> GameType? {
 }
 
 private func scoreboardRecordParticipants(gameType: GameType, from extraData: [String: AnyCodable]?) -> [ScoreboardRecordParticipant] {
-    guard gameType == .multiScoreboard || gameType == .uno || gameType == .doudizhu || gameType == .nineBall else {
+    guard gameType == .multiScoreboard || gameType == .uno || gameType == .doudizhu
+        || gameType == .mahjong || gameType == .nineBall else {
         return []
     }
     guard let rawPlayers = extraData?["players"]?.value else { return [] }
