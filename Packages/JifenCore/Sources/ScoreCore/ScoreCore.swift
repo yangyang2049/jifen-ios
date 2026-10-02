@@ -33,6 +33,8 @@ public enum GameType: String, Codable, CaseIterable, Sendable {
     case shengji
     case uno
     case doudizhu
+    /// 麻将记分（跨端契约 v2，与 HOS/Android 同名 wire value `mahjong`）。
+    case mahjong
     case foosball
     case foosballDoubles = "foosball_doubles"
     case simpleScore = "simple_score"

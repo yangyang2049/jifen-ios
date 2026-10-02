@@ -15,6 +15,7 @@ public enum ScoreboardKernelKind: String, Codable, Equatable, Sendable {
     case multi
     case uno
     case doudizhu
+    case mahjong
     case archery
 }
 
@@ -66,6 +67,8 @@ public enum ScoreboardKernelRegistry {
             family = .s4; kind = .shengji
         case .doudizhu:
             family = .s4; kind = .doudizhu
+        case .mahjong:
+            family = .s4; kind = .mahjong
         case .archeryDual:
             family = .s2; kind = .archery
         }

@@ -85,6 +85,7 @@ import Testing
 
     guard let nineBallCore = ScoreboardSessionFactory.nineBall(playerNames: ["A", "B"]),
           let doudizhuCore = ScoreboardSessionFactory.doudizhu(playerNames: ["A", "B", "C"]),
+          let mahjongCore = ScoreboardSessionFactory.mahjong(),
           let multiCore = ScoreboardSessionFactory.multiScoreboard(playerNames: ["A", "B", "C"]),
           let unoCore = ScoreboardSessionFactory.uno(playerNames: ["A", "B"]) else {
         Issue.record("Missing multi-player factory routes")
@@ -92,6 +93,7 @@ import Testing
     }
     let nineBall = await nineBallCore.snapshot()
     let doudizhu = await doudizhuCore.snapshot()
+    let mahjong = await mahjongCore.snapshot()
     let multi = await multiCore.snapshot()
     let uno = await unoCore.snapshot()
 
@@ -104,6 +106,7 @@ import Testing
         (guandan.gameType, guandan.reducerType),
         (shengji.gameType, shengji.reducerType),
         (doudizhu.gameType, doudizhu.reducerType),
+        (mahjong.gameType, mahjong.reducerType),
         (multi.gameType, multi.reducerType),
         (uno.gameType, uno.reducerType)
     ]

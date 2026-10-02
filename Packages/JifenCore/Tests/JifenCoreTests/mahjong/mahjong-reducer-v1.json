@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "setup": {
+    "ruleset": "sichuan_blood_battle",
+    "startScore": 0,
+    "baseScore": 2,
+    "initialDealerIndex": 0,
+    "matchLength": "free",
+    "dealerRule": "rotate_each_hand",
+    "maxFan": 4
+  },
+  "intents": [
+    {
+      "at": 1,
+      "actionType": "kong",
+      "winnerIndexes": [0],
+      "payerIndexes": [],
+      "factor": 1,
+      "kongKind": "concealed",
+      "paymentMode": "all_opponents",
+      "endHand": false
+    },
+    {
+      "at": 2,
+      "actionType": "discard_win",
+      "winnerIndexes": [1],
+      "payerIndexes": [3],
+      "factor": 2,
+      "endHand": false
+    },
+    {
+      "at": 3,
+      "actionType": "self_draw",
+      "winnerIndexes": [2],
+      "payerIndexes": [],
+      "factor": 4,
+      "endHand": true
+    }
+  ],
+  "expected": {
+    "scores": [-20, -28, 92, -44],
+    "handNumber": 2,
+    "roundOrdinal": 1,
+    "dealerIndex": 1,
+    "dealerStreak": 1,
+    "currentHandWinnerIndexes": [],
+    "ledgerSize": 3
+  }
+}

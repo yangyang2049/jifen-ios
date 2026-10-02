@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "gameType": "mahjong",
+  "orientation": "landscape",
+  "layoutKind": "multi_grid",
+  "teams": [],
+  "players": [
+    {"id":"player_0","name":"阿哲","score":26,"order":0,"color":"#EF4444"},
+    {"id":"player_1","name":"小雨","score":-6,"order":1,"color":"#3B82F6"},
+    {"id":"player_2","name":"老周","score":-8,"order":2,"color":"#22C55E"},
+    {"id":"player_3","name":"安安","score":-12,"order":3,"color":"#F59E0B"}
+  ],
+  "sportState": {
+    "multiGridTileGap": 2,
+    "multiGridOuterPadding": 0,
+    "multiGridLargeScore": true,
+    "mahjongProtocolVersion": 1,
+    "mahjongRuleset": "sichuan_blood_battle",
+    "mahjongHandNumber": 6,
+    "mahjongRoundLabel": "东4局",
+    "mahjongDealerIndex": 3,
+    "mahjongDealerStreak": 2,
+    "mahjongSeatWinds": ["east","south","west","north"],
+    "mahjongLastDeltas": [24,-8,-8,-8],
+    "mahjongHandWinnerIndexes": [0],
+    "mahjongBaseScore": 2,
+    "mahjongMaxFan": 4,
+    "mahjongCapScore": 32
+  },
+  "updatedAt": 1788508800000
+}

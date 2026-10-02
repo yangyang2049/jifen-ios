@@ -306,6 +306,25 @@ public enum ScoreboardSessionFactory {
         return ScoreSessionCore(seedSession: session, reducer: DoudizhuScoreReducer())
     }
 
+    /// 麻将：4 家台账会话。setup 为 nil 时使用通用记账模板。
+    public static func mahjong(setup: MahjongSetupResult? = nil) -> ScoreSessionCore<MahjongReducer>? {
+        let resolvedSetup = setup ?? MahjongSetupResult.generic()
+        guard resolvedSetup.playerNames.count == MAHJONG_PLAYER_COUNT else { return nil }
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: .mahjong)
+        let session = ScoreSession<MahjongSessionState, MahjongSessionEvent>(
+            gameType: .mahjong,
+            ruleFamily: descriptor.ruleFamily,
+            reducerType: descriptor.reducerType,
+            state: MahjongSessionState.initial(setup: resolvedSetup),
+            participants: playerParticipants(resolvedSetup.playerNames)
+        )
+        return ScoreSessionCore(
+            seedSession: session,
+            reducer: MahjongReducer(),
+            shouldFinish: { _, state in state.finished }
+        )
+    }
+
     public static func multiScoreboard(
         playerNames: [String],
         customAdjustEnabled: Bool = false,
