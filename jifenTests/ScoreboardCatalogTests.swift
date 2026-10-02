@@ -65,7 +65,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         let playerGames: Set<jifen.GameType> = [
             .pingpong, .badminton, .shuttlecock, .squash, .tennis, .softTennis, .padel,
             .checkers, .boxing, .billiards, .snooker, .eightBall, .nineBall,
-            .pickleball, .archery, .basketballTraining, .doudizhu, .uno, .foosball,
+            .pickleball, .archery, .basketballTraining, .doudizhu, .mahjong, .uno, .foosball,
             .multiScoreboard, .stopwatch, .go, .xiangqi, .chess
         ]
         let teamGames: Set<jifen.GameType> = [
@@ -576,10 +576,10 @@ final class ScoreboardCatalogTests: XCTestCase {
             .football, .football5v5, .basketball, .threeBasketball, .basketballTraining,
             .volleyball, .beachVolleyball, .airVolleyball, .archery, .boxing,
             .billiards, .snooker, .eightBall, .nineBall,
-            .doudizhu, .guandan, .shengji, .uno,
+            .doudizhu, .guandan, .shengji, .mahjong, .uno,
             .foosball, .simpleScore, .multiScoreboard
         ])
-        XCTAssertEqual(GameCatalog.scoreboardItems.count, 29)
+        XCTAssertEqual(GameCatalog.scoreboardItems.count, 30)
     }
 
     func testExactScoreboardIdentifiersMatchAndroid31Reference() {
@@ -591,10 +591,10 @@ final class ScoreboardCatalogTests: XCTestCase {
             "soft_tennis", "padel", "pickleball", "pickleball_doubles",
             "archery_dual", "boxing", "billiards", "eight_ball", "nine_ball",
             "snooker", "guandan", "shengji", "uno", "doudizhu", "foosball",
-            "foosball_doubles", "simple_score", "multi_scoreboard"
+            "foosball_doubles", "simple_score", "multi_scoreboard", "mahjong"
         ]
 
-        XCTAssertEqual(ScoreCore.GameType.allCases.count, 34)
+        XCTAssertEqual(ScoreCore.GameType.allCases.count, 35)
         XCTAssertEqual(Set(ScoreCore.GameType.allCases.map(\.rawValue)), expected)
     }
 
@@ -1516,7 +1516,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     func testScoreboardModeAuditMatrixCount() throws {
         let phoneModes = GameCatalog.scoreboardItems.count
             + GameCatalog.scoreboardItems.map(\.gameType).filter(\.supportsSinglesAndDoubles).count
-        XCTAssertEqual(phoneModes, 37)
+        XCTAssertEqual(phoneModes, 38)
     }
 
     func testPickleballUsesTableTennisIcon() throws {

@@ -758,12 +758,7 @@ struct MahjongScoreboardView: View {
                 color: "#\(mahjongPanelHex(index: index, appearance: appearance))"
             ))
         }
-        var sportState = mahjongSportState()
-        // 与 Android 投屏夹具 `mahjong-display-state-v1.json` 逐键一致：
-        // 只带 gap/padding/largeScore 三个通用键，列数由显示端按 4 人默认 2 列（2×2）。
-        sportState["multiGridTileGap"] = .integer(2)
-        sportState["multiGridOuterPadding"] = .integer(0)
-        sportState["multiGridLargeScore"] = .boolean(true)
+        let sportState = mahjongDisplaySportState(state: state)
 
         var compact = LocalScoreboardDisplayState(
             gameID: GameType.mahjong.canonicalScoreboardIdentifier,
@@ -813,22 +808,28 @@ struct MahjongScoreboardView: View {
         compact.externalState = value
         return compact
     }
+}
 
-    /// 键集合由 core 的 `mahjongDisplaySportStateKeys` 决定，与安卓逐键一致。
-    private func mahjongSportState() -> [String: ScoreboardDisplayValue] {
-        let projection = MahjongDisplayProjection(state: state)
-        var values: [String: ScoreboardDisplayValue] = [:]
-        for key in mahjongDisplaySportStateKeys {
-            guard let value = projection.value(for: key) else { continue }
-            switch value {
-            case .integer(let number): values[key] = .integer(number)
-            case .string(let text): values[key] = .string(text)
-            case .strings(let texts): values[key] = .strings(texts)
-            case .integers(let numbers): values[key] = .integers(numbers)
-            }
+/// 麻将投屏 sportState：12 个 `mahjong*` 键由 core 的 `MahjongDisplayProjection` 产出
+/// （键序即 `mahjongDisplaySportStateKeys`），再补 3 个 `multiGrid*` 通用布局键。
+/// 键集合与安卓黄金副本 `mahjong-display-state-v1.json` 逐键一致，列数不写：
+/// 显示端按 4 人默认 2 列（2×2）。`jifenTests/ScoreboardDisplayTests.swift` 守住这份契约。
+func mahjongDisplaySportState(state: MahjongSessionState) -> [String: ScoreboardDisplayValue] {
+    let projection = MahjongDisplayProjection(state: state)
+    var values: [String: ScoreboardDisplayValue] = [:]
+    for key in mahjongDisplaySportStateKeys {
+        guard let value = projection.value(for: key) else { continue }
+        switch value {
+        case .integer(let number): values[key] = .integer(number)
+        case .string(let text): values[key] = .string(text)
+        case .strings(let texts): values[key] = .strings(texts)
+        case .integers(let numbers): values[key] = .integers(numbers)
         }
-        return values
     }
+    values["multiGridTileGap"] = .integer(2)
+    values["multiGridOuterPadding"] = .integer(0)
+    values["multiGridLargeScore"] = .boolean(true)
+    return values
 }
 
 private func jsonObject<T: Encodable>(_ value: T) -> Any {

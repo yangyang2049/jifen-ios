@@ -64,9 +64,9 @@ final class ScoreboardDisplayTests: XCTestCase {
         XCTAssertEqual(ScoreboardDisplayLayoutKind.resolve(gameID: "nine_ball", playerCount: 4), .multiGrid)
     }
 
-    func testAllThirtyFourExactScoreboardTypesBuildRoundTripAndPublish() throws {
+    func testAllThirtyFiveExactScoreboardTypesBuildRoundTripAndPublish() throws {
         let exactTypes = ScoreCore.GameType.allCases
-        XCTAssertEqual(exactTypes.count, 34)
+        XCTAssertEqual(exactTypes.count, 35)
         XCTAssertEqual(Set(exactTypes.map(\.rawValue)), expectedExactGameIDs)
 
         let outputs = ScoreboardDisplayOutputs.shared
@@ -94,6 +94,46 @@ final class ScoreboardDisplayTests: XCTestCase {
         }
         XCTAssertNil(outputs.displayState)
         XCTAssertEqual(outputs.presentationMode, .waiting)
+    }
+
+    func testMahjongDisplaySportStateMatchesTheCrossEndGoldenFixture() throws {
+        // core 只守住 12 个 mahjong* 键本身；app 侧还要逐键搬运并补 3 个 multiGrid* 布局键，
+        // 所以这里用同一份种子会话直接对安卓黄金副本逐键比对。
+        var state = MahjongSessionState.initial(setup: MahjongSetupResult(
+            ruleset: .sichuanBloodBattle,
+            baseScore: 2,
+            initialDealerIndex: 3,
+            maxFan: 4
+        ))
+        state.handNumber = 6
+        state.roundOrdinal = 3
+        state.dealerIndex = 3
+        state.dealerStreak = 2
+        state.lastDeltas = [24, -8, -8, -8]
+        state.currentHandWinnerIndexes = [0]
+
+        let repositoryRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let fixtureURL = repositoryRoot.appendingPathComponent(
+            "Packages/JifenCore/Tests/JifenCoreTests/mahjong/mahjong-display-state-v1.json"
+        )
+        struct Fixture: Decodable {
+            let sportState: [String: ScoreboardDisplayValue]
+        }
+        let expected = try JSONDecoder().decode(Fixture.self, from: Data(contentsOf: fixtureURL)).sportState
+        let values = mahjongDisplaySportState(state: state)
+
+        XCTAssertEqual(Set(values.keys), Set(expected.keys), "投屏键集合与安卓夹具不一致")
+        for (key, value) in expected
+        where key != "mahjongSeatWinds" && key != "mahjongProtocolVersion" {
+            XCTAssertEqual(values[key], value, "\(key) 与夹具不一致")
+        }
+        // 夹具里的 mahjongSeatWinds 是静态样例，与同文件 dealerIndex 3 不成对；
+        // 端上必须按庄家轮转输出（与 core 侧测试同口径）。
+        XCTAssertEqual(values["mahjongSeatWinds"], .strings(mahjongSeatWindsForDealer(dealerIndex: 3)))
+        // v1 副本冻结的是协议 1；两份副本（v1/v2）都存在，端上始终写当前契约版本。
+        XCTAssertEqual(values["mahjongProtocolVersion"], .integer(MAHJONG_CONTRACT_VERSION))
     }
 
     func testRendererDispatchesAllEightTemplates() {
@@ -1460,7 +1500,7 @@ final class ScoreboardDisplayTests: XCTestCase {
             "soft_tennis", "padel", "pickleball", "pickleball_doubles",
             "archery_dual", "boxing", "billiards", "eight_ball", "nine_ball",
             "snooker", "guandan", "shengji", "uno", "doudizhu", "foosball",
-            "foosball_doubles", "simple_score", "multi_scoreboard"
+            "foosball_doubles", "simple_score", "multi_scoreboard", "mahjong"
         ]
     }
 
@@ -1469,7 +1509,7 @@ final class ScoreboardDisplayTests: XCTestCase {
         case .pingpongDoubles, .tennisDoubles, .badmintonDoubles,
              .pickleballDoubles, .foosballDoubles, .padel:
             .doublesCourt
-        case .uno, .multiScoreboard:
+        case .uno, .multiScoreboard, .mahjong:
             .multiGrid
         case .guandan, .shengji, .doudizhu:
             .boardCard
