@@ -137,7 +137,7 @@ final class ResumeSessionLifecycleTests: XCTestCase {
     }
 
     func testManualPayloadPreservesEveryExactCatalogGameType() throws {
-        XCTAssertEqual(ScoreCore.GameType.allCases.count, 34)
+        XCTAssertEqual(ScoreCore.GameType.allCases.count, 35)
         for exactType in ScoreCore.GameType.allCases {
             guard let appType = GameType(scoreCoreGameType: exactType) else {
                 return XCTFail("Missing app mapping for \(exactType.rawValue)")

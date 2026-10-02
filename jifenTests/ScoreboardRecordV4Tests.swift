@@ -583,13 +583,13 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         await fulfillment(of: [cleanup], timeout: 2)
     }
 
-    func testCatalogDrivenRecordPoliciesCover29PublicEntriesAnd34ExactGameTypes() throws {
+    func testCatalogDrivenRecordPoliciesCover30PublicEntriesAnd35ExactGameTypes() throws {
         let publicGameTypes = GameCatalog.scoreboardItems.map(\.gameType)
-        XCTAssertEqual(publicGameTypes.count, 29)
-        XCTAssertEqual(Set(publicGameTypes).count, 29)
+        XCTAssertEqual(publicGameTypes.count, 30)
+        XCTAssertEqual(Set(publicGameTypes).count, 30)
 
         let exactGameTypes = ScoreCore.GameType.allCases
-        XCTAssertEqual(exactGameTypes.count, 34)
+        XCTAssertEqual(exactGameTypes.count, 35)
         let mappedExactTypes = try exactGameTypes.map { exactType in
             try XCTUnwrap(jifen.GameType(scoreCoreGameType: exactType), "Missing public catalog mapping for \(exactType)")
         }
